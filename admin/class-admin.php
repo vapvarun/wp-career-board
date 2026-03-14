@@ -75,6 +75,15 @@ class Admin {
 
 		add_submenu_page(
 			'wp-career-board',
+			__( 'Companies', 'wp-career-board' ),
+			__( 'Companies', 'wp-career-board' ),
+			'wcb_manage_settings',
+			'wcb-companies',
+			array( new AdminCompanies(), 'render' )
+		);
+
+		add_submenu_page(
+			'wp-career-board',
 			__( 'Employers', 'wp-career-board' ),
 			__( 'Employers', 'wp-career-board' ),
 			'wcb_manage_settings',

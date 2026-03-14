@@ -3720,4 +3720,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T21a | Admin dashboard overhaul | ✅ 2026-03-15 · `2c57139` |
 | T21b | Jobs admin WP_List_Table (search, tabs, pagination, bulk) | ✅ 2026-03-15 · `5ee4885` |
 | T21c | Applications admin WP_List_Table (search, status tabs, bulk trash) | ✅ 2026-03-15 · `120da99` |
+| T21d | Employers admin WP_List_Table (WP_User_Query, search, pagination) | 🔄 In progress |
+| T21e | Candidates admin WP_List_Table (WP_User_Query, search, pagination) | 🔄 In progress |
+| T21f | Companies admin WP_List_Table (wcb_company CPT, search, tabs) + menu entry | 🔄 In progress |
 | T21  | Pre-release QA | ⬜ Not started |
