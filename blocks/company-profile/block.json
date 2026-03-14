@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wp-career-board/company-profile",
+  "version": "0.1.0",
+  "title": "Company Profile",
+  "category": "widgets",
+  "description": "Public company profile with owner inline-edit and active job listings.",
+  "textdomain": "wp-career-board",
+  "attributes": {
+    "employerId": { "type": "integer", "default": 0 }
+  },
+  "viewScriptModule": "file:./view.js",
+  "style": "file:./style.css",
+  "render": "file:./render.php",
+  "supports": { "interactivity": true }
+}
