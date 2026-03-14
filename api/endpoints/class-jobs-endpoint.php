@@ -115,12 +115,13 @@ final class JobsEndpoint extends RestController {
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 
-		$search = $request->get_param( 'search' );
+		// Support wcb_* prefixed aliases so URL filter params forward transparently to the REST API.
+		$search = $request->get_param( 'search' ) ?? $request->get_param( 'wcb_search' );
 		if ( $search ) {
 			$args['s'] = sanitize_text_field( $search );
 		}
 
-		$category = $request->get_param( 'category' );
+		$category = $request->get_param( 'category' ) ?? $request->get_param( 'wcb_category' );
 		if ( $category ) {
 			$args['tax_query'][] = array(
 				'taxonomy' => 'wcb_category',
@@ -129,7 +130,7 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$type = $request->get_param( 'type' );
+		$type = $request->get_param( 'type' ) ?? $request->get_param( 'wcb_job_type' );
 		if ( $type ) {
 			$args['tax_query'][] = array(
 				'taxonomy' => 'wcb_job_type',
@@ -138,7 +139,7 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$location = $request->get_param( 'location' );
+		$location = $request->get_param( 'location' ) ?? $request->get_param( 'wcb_location' );
 		if ( $location ) {
 			$args['tax_query'][] = array(
 				'taxonomy' => 'wcb_location',
@@ -147,7 +148,7 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$experience = $request->get_param( 'experience' );
+		$experience = $request->get_param( 'experience' ) ?? $request->get_param( 'wcb_experience' );
 		if ( $experience ) {
 			$args['tax_query'][] = array(
 				'taxonomy' => 'wcb_experience',
@@ -565,23 +566,32 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function get_collection_params(): array {
 		return array(
-			'search'     => array(
+			'search'         => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
-			'category'   => array( 'type' => 'string' ),
-			'type'       => array( 'type' => 'string' ),
-			'location'   => array( 'type' => 'string' ),
-			'experience' => array( 'type' => 'string' ),
-			'remote'     => array( 'type' => 'boolean' ),
-			'salary_min' => array( 'type' => 'integer' ),
-			'salary_max' => array( 'type' => 'integer' ),
-			'page'       => array(
+			// wcb_* aliases: accepted when URL filter params are forwarded directly to the API.
+			'wcb_search'     => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'category'       => array( 'type' => 'string' ),
+			'wcb_category'   => array( 'type' => 'string' ),
+			'type'           => array( 'type' => 'string' ),
+			'wcb_job_type'   => array( 'type' => 'string' ),
+			'location'       => array( 'type' => 'string' ),
+			'wcb_location'   => array( 'type' => 'string' ),
+			'experience'     => array( 'type' => 'string' ),
+			'wcb_experience' => array( 'type' => 'string' ),
+			'remote'         => array( 'type' => 'boolean' ),
+			'salary_min'     => array( 'type' => 'integer' ),
+			'salary_max'     => array( 'type' => 'integer' ),
+			'page'           => array(
 				'type'    => 'integer',
 				'default' => 1,
 				'minimum' => 1,
 			),
-			'per_page'   => array(
+			'per_page'       => array(
 				'type'    => 'integer',
 				'default' => 20,
 				'minimum' => 1,

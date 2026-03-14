@@ -105,7 +105,7 @@ document.addEventListener( 'wcb:search', function( event ) {
 	const filters = detail.filters;
 
 	if ( query ) {
-		url.searchParams.set( 'wcb_search', query );
+		url.searchParams.set( 'search', query );
 	}
 
 	if ( filters ) {
