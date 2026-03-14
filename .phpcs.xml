@@ -19,6 +19,8 @@
                 <element value="WCB"/>
             </property>
         </properties>
+        <!-- WCB is 3 chars — WPCS flags it as "too short" but it is our chosen namespace -->
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
     </rule>
 
     <!-- Minimum WP version for deprecated checks -->
