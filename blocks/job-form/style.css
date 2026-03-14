@@ -1,0 +1,104 @@
+.wcb-steps {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.wcb-step {
+	padding: 0.375rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.875rem;
+	background: #f1f5f9;
+	color: #64748b;
+}
+
+.wcb-form-step {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.wcb-field {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.wcb-field:focus {
+	outline: 2px solid #2563eb;
+	outline-offset: 1px;
+}
+
+.wcb-salary-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+.wcb-checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.wcb-form-nav {
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.wcb-btn {
+	padding: 0.625rem 1.25rem;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.wcb-btn-next,
+.wcb-btn-submit {
+	background: #2563eb;
+	color: #fff;
+}
+
+.wcb-btn-next:hover,
+.wcb-btn-submit:hover {
+	background: #1d4ed8;
+}
+
+.wcb-btn-back {
+	background: #f1f5f9;
+	color: #1e293b;
+}
+
+.wcb-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.wcb-preview-card {
+	padding: 1rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.wcb-form-error {
+	color: #b91c1c;
+}
+
+.wcb-form-success {
+	padding: 1.5rem;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 8px;
+}
+
+@media ( max-width: 600px ) {
+	.wcb-salary-row {
+		grid-template-columns: 1fr;
+	}
+}

@@ -1,0 +1,100 @@
+.wcb-company-logo {
+	max-width: 180px;
+	height: auto;
+	margin-bottom: 1.5rem;
+	border-radius: 8px;
+}
+
+.wcb-company-name {
+	font-size: 1.75rem;
+	margin-bottom: 0.25rem;
+}
+
+.wcb-company-site {
+	color: #2563eb;
+	font-size: 0.9rem;
+	display: block;
+	margin-bottom: 1rem;
+}
+
+.wcb-company-desc {
+	line-height: 1.7;
+	color: #334155;
+	margin-bottom: 1.5rem;
+}
+
+.wcb-company-read .wcb-btn {
+	margin-top: 1rem;
+}
+
+.wcb-company-edit {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.wcb-field {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.wcb-company-jobs {
+	margin-top: 2.5rem;
+	border-top: 1px solid #e2e8f0;
+	padding-top: 1.5rem;
+}
+
+.wcb-company-jobs h2 {
+	font-size: 1.25rem;
+	margin-bottom: 1rem;
+}
+
+.wcb-job-card {
+	padding: 1rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #fff;
+	margin-bottom: 0.75rem;
+}
+
+.wcb-form-nav {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.wcb-btn {
+	padding: 0.625rem 1.25rem;
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.wcb-btn:hover {
+	background: #1d4ed8;
+}
+
+.wcb-btn-back {
+	background: #f1f5f9;
+	color: #1e293b;
+}
+
+.wcb-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.wcb-save-success {
+	color: #166534;
+	font-weight: 600;
+}
+
+.wcb-loading {
+	color: #64748b;
+}

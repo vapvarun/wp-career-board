@@ -1,0 +1,117 @@
+.wcb-job-header {
+	margin-bottom: 2rem;
+}
+
+.wcb-job-title {
+	font-size: 1.75rem;
+	margin-bottom: 0.5rem;
+}
+
+.wcb-job-company {
+	font-weight: 600;
+	color: #475569;
+	margin-bottom: 0.5rem;
+}
+
+.wcb-job-meta-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	list-style: none;
+	margin: 0.75rem 0;
+	padding: 0;
+}
+
+.wcb-job-meta-item {
+	font-size: 0.875rem;
+	color: #64748b;
+}
+
+.wcb-remote-badge {
+	background: #dcfce7;
+	color: #166534;
+	padding: 0.125rem 0.5rem;
+	border-radius: 9999px;
+}
+
+.wcb-apply-btn,
+.wcb-submit-btn {
+	padding: 0.75rem 1.5rem;
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.wcb-apply-btn:hover,
+.wcb-submit-btn:hover {
+	background: #1d4ed8;
+}
+
+.wcb-apply-btn:disabled,
+.wcb-submit-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.wcb-apply-success {
+	color: #166534;
+	font-weight: 600;
+}
+
+.wcb-apply-error {
+	color: #b91c1c;
+	margin-bottom: 0.75rem;
+}
+
+.wcb-login-prompt {
+	color: #64748b;
+}
+
+/* Slide-in panel */
+.wcb-apply-panel-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba( 0, 0, 0, 0.4 );
+	z-index: 999;
+}
+
+.wcb-apply-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: min( 480px, 100% );
+	background: #fff;
+	padding: 2rem;
+	overflow-y: auto;
+	z-index: 1000;
+	box-shadow: -4px 0 24px rgba( 0, 0, 0, 0.15 );
+}
+
+.wcb-panel-close {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #64748b;
+}
+
+.wcb-cover-letter {
+	width: 100%;
+	margin: 0.5rem 0 1rem;
+	padding: 0.75rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 1rem;
+	resize: vertical;
+}
+
+.wcb-job-description {
+	line-height: 1.7;
+}

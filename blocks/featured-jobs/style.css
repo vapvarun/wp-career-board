@@ -1,0 +1,70 @@
+.wcb-featured-jobs {
+	padding: 2rem 0;
+}
+
+.wcb-featured-title {
+	font-size: 1.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.wcb-featured-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 260px, 1fr ) );
+	gap: 1.25rem;
+}
+
+.wcb-featured-card {
+	padding: 1.25rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.wcb-featured-card-title {
+	font-size: 1rem;
+	margin: 0;
+}
+
+.wcb-featured-card-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-featured-card-title a:hover {
+	color: #2563eb;
+}
+
+.wcb-featured-company {
+	font-weight: 600;
+	color: #475569;
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+.wcb-featured-location {
+	color: #94a3b8;
+	font-size: 0.85rem;
+	margin: 0;
+}
+
+.wcb-featured-link {
+	margin-top: auto;
+	display: inline-block;
+	font-size: 0.875rem;
+	color: #2563eb;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.wcb-featured-link:hover {
+	text-decoration: underline;
+}
+
+@media ( max-width: 600px ) {
+	.wcb-featured-grid {
+		grid-template-columns: 1fr;
+	}
+}
