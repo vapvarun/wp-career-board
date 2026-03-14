@@ -25,12 +25,15 @@
 
     <!-- Custom autoloader uses PascalCase-to-hyphenated filenames (e.g. JobsModule → class-jobs-module.php).
          WPCS cannot derive hyphens from compound PascalCase names (JobsEndpoint → class-jobsendpoint.php vs
-         class-jobs-endpoint.php), so we disable the strict class-file-name check entirely. -->
+         class-jobs-endpoint.php), so we disable the strict class-file-name check entirely.
+         WordPress theme-template files must follow the template hierarchy slug (e.g. single-wcb_job.php),
+         so NotHyphenatedLowercase is also excluded. -->
     <rule ref="WordPress.Files.FileName">
         <properties>
             <property name="strict_class_file_names" value="false"/>
         </properties>
         <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
     </rule>
 
     <!-- Minimum WP version for deprecated checks -->
