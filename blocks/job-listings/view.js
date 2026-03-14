@@ -6,6 +6,10 @@
  *   loadMore           — fetch the next page of jobs from /wcb/v1/jobs.
  *   toggleBookmark     — POST to /wcb/v1/jobs/{id}/bookmark and flip context.job.bookmarked.
  *
+ * Event listener:
+ *   wcb:search  — fired by job-search / job-filters blocks; resets the list
+ *                 and re-fetches page 1 with updated search/filter params.
+ *
  * @package WP_Career_Board
  */
 import { store, getContext } from '@wordpress/interactivity';
@@ -88,4 +92,48 @@ const { state } = store( 'wcb-job-listings', {
 			job.bookmarked = data.bookmarked;
 		},
 	},
+} );
+
+// Respond to search / filter changes dispatched by sibling blocks.
+document.addEventListener( 'wcb:search', function( event ) {
+	const url = new URL( state.apiBase );
+	url.searchParams.set( 'page', '1' );
+	url.searchParams.set( 'per_page', String( state.perPage ) );
+
+	const detail  = ( event.detail !== null && event.detail !== undefined ) ? event.detail : {};
+	const query   = detail.query;
+	const filters = detail.filters;
+
+	if ( query ) {
+		url.searchParams.set( 'wcb_search', query );
+	}
+
+	if ( filters ) {
+		Object.keys( filters ).forEach( function( key ) {
+			url.searchParams.set( key, filters[ key ] );
+		} );
+	}
+
+	state.loading = true;
+	state.page    = 1;
+
+	fetch( url.toString() )
+		.then( function( response ) {
+			if ( ! response.ok ) {
+				state.loading = false;
+				return undefined;
+			}
+			return response.json();
+		} )
+		.then( function( jobs ) {
+			if ( ! jobs ) {
+				return;
+			}
+			state.jobs    = jobs;
+			state.hasMore = jobs.length === state.perPage;
+			state.loading = false;
+		} )
+		.catch( function() {
+			state.loading = false;
+		} );
 } );
