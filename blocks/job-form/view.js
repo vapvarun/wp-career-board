@@ -81,16 +81,16 @@ store( 'wcb-job-form', {
 			state.error      = '';
 
 			const body = {
-				title:        state.title,
-				description:  state.description,
-				salary_min:   state.salaryMin,
-				salary_max:   state.salaryMax,
-				remote:       state.remote,
-				deadline:     state.deadline,
-				wcb_category: state.categorySlug ? [ state.categorySlug ] : [],
-				wcb_job_type: state.typeSlug     ? [ state.typeSlug ]     : [],
-				wcb_location: state.locationSlug ? [ state.locationSlug ] : [],
-				wcb_experience: state.expSlug    ? [ state.expSlug ]      : [],
+				title:       state.title,
+				description: state.description,
+				salary_min:  state.salaryMin,
+				salary_max:  state.salaryMax,
+				remote:      state.remote,
+				deadline:    state.deadline,
+				categories:  state.categorySlug ? [ state.categorySlug ] : [],
+				job_types:   state.typeSlug     ? [ state.typeSlug ]     : [],
+				locations:   state.locationSlug ? [ state.locationSlug ] : [],
+				experience:  state.expSlug      ? [ state.expSlug ]      : [],
 			};
 
 			const response = yield fetch(

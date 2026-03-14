@@ -17,7 +17,7 @@ store( 'wcb-company-profile', {
 			const { state } = store( 'wcb-company-profile' );
 			state.loading = true;
 
-			const url = new URL( state.apiBase + '/employers/' + String( state.employerId ) + '/jobs' );
+			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
 			url.searchParams.set( 'per_page', '20' );
 
 			const response = yield fetch(
@@ -60,7 +60,7 @@ store( 'wcb-company-profile', {
 			state.saved  = false;
 
 			const response = yield fetch(
-				state.apiBase + '/employers/' + String( state.employerId ),
+				state.apiBase + '/employers/' + String( state.companyId ),
 				{
 					method: 'PATCH',
 					headers: {
@@ -68,9 +68,9 @@ store( 'wcb-company-profile', {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify( {
-						company_name:        state.companyName,
-						company_description: state.companyDesc,
-						company_website:     state.companySite,
+						name:        state.companyName,
+						description: state.companyDesc,
+						website:     state.companySite,
 					} ),
 				}
 			);

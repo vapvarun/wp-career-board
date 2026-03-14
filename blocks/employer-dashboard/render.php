@@ -24,10 +24,13 @@ if ( ! is_user_logged_in() || ! $wcb_can_manage ) {
 	return;
 }
 
-$wcb_employer_id  = get_current_user_id();
-$wcb_company_name = (string) get_user_meta( $wcb_employer_id, '_wcb_company_name', true );
-$wcb_company_desc = (string) get_user_meta( $wcb_employer_id, '_wcb_company_description', true );
-$wcb_company_site = (string) get_user_meta( $wcb_employer_id, '_wcb_company_website', true );
+$wcb_employer_id = get_current_user_id();
+$wcb_company_id  = (int) get_user_meta( $wcb_employer_id, '_wcb_company_id', true );
+$wcb_company     = $wcb_company_id ? get_post( $wcb_company_id ) : null;
+
+$wcb_company_name = $wcb_company instanceof \WP_Post ? $wcb_company->post_title : '';
+$wcb_company_desc = $wcb_company instanceof \WP_Post ? $wcb_company->post_content : '';
+$wcb_company_site = $wcb_company instanceof \WP_Post ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
 
 wp_interactivity_state(
 	'wcb-employer-dashboard',
@@ -38,7 +41,7 @@ wp_interactivity_state(
 		'error'       => '',
 		'apiBase'     => rest_url( 'wcb/v1' ),
 		'nonce'       => wp_create_nonce( 'wp_rest' ),
-		'employerId'  => $wcb_employer_id,
+		'companyId'   => $wcb_company_id,
 		'companyName' => $wcb_company_name,
 		'companyDesc' => $wcb_company_desc,
 		'companySite' => $wcb_company_site,

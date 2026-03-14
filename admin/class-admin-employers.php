@@ -56,9 +56,12 @@ class AdminEmployers {
 					<tbody>
 						<?php foreach ( $wcb_employers as $wcb_emp ) : ?>
 							<?php
-							$wcb_company = (string) get_user_meta( $wcb_emp->ID, '_wcb_company_name', true );
-							$wcb_site    = (string) get_user_meta( $wcb_emp->ID, '_wcb_company_website', true );
-							$wcb_jobs    = count(
+							// Company data lives in the wcb_company CPT, linked via user meta.
+							$wcb_company_id  = (int) get_user_meta( $wcb_emp->ID, '_wcb_company_id', true );
+							$wcb_company_obj = $wcb_company_id ? get_post( $wcb_company_id ) : null;
+							$wcb_company     = $wcb_company_obj instanceof \WP_Post ? $wcb_company_obj->post_title : '';
+							$wcb_site        = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
+							$wcb_jobs        = count(
 								get_posts(
 									array(
 										'post_type'   => 'wcb_job',
@@ -77,7 +80,15 @@ class AdminEmployers {
 									</a>
 									<br><small><?php echo esc_html( $wcb_emp->user_email ); ?></small>
 								</td>
-								<td><?php echo esc_html( $wcb_company ? $wcb_company : '—' ); ?></td>
+								<td>
+									<?php if ( $wcb_company && $wcb_company_id ) : ?>
+										<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_company_id ) ); ?>">
+											<?php echo esc_html( $wcb_company ); ?>
+										</a>
+									<?php else : ?>
+										<?php echo esc_html( $wcb_company ? $wcb_company : '—' ); ?>
+									<?php endif; ?>
+								</td>
 								<td>
 									<?php if ( $wcb_site ) : ?>
 										<a href="<?php echo esc_url( $wcb_site ); ?>" target="_blank" rel="noopener noreferrer">

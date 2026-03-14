@@ -88,9 +88,9 @@ final class NotificationsEmail {
 		$job       = get_post( $job_id );
 		$employer  = $job instanceof \WP_Post ? get_user_by( 'ID', (int) $job->post_author ) : false;
 		$candidate = get_user_by( 'ID', $candidate_id );
+		$wcb_s     = (array) get_option( 'wcb_settings', array() );
 
 		if ( $job instanceof \WP_Post && $employer instanceof \WP_User ) {
-			$wcb_s              = (array) get_option( 'wcb_settings', array() );
 			$dashboard_employer = get_permalink( isset( $wcb_s['employer_dashboard_page'] ) ? (int) $wcb_s['employer_dashboard_page'] : 0 );
 			$this->send(
 				$employer->user_email,

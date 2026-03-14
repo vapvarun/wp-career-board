@@ -15,27 +15,30 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_employer_id = (int) ( $attributes['employerId'] ?? 0 );
-if ( ! $wcb_employer_id ) {
-	$wcb_employer_id = (int) get_queried_object_id();
+// Resolve the company post. Block attribute takes precedence; fall back to queried object.
+$wcb_company_id = (int) ( $attributes['companyId'] ?? 0 );
+if ( ! $wcb_company_id ) {
+	$queried = get_queried_object();
+	if ( $queried instanceof \WP_Post && 'wcb_company' === $queried->post_type ) {
+		$wcb_company_id = $queried->ID;
+	}
 }
 
-$wcb_employer = $wcb_employer_id ? get_userdata( $wcb_employer_id ) : false;
-
-if ( ! $wcb_employer ) {
+$wcb_company = $wcb_company_id ? get_post( $wcb_company_id ) : null;
+if ( ! $wcb_company instanceof \WP_Post ) {
 	return;
 }
 
-$wcb_company_name = (string) get_user_meta( $wcb_employer_id, '_wcb_company_name', true );
-$wcb_company_desc = (string) get_user_meta( $wcb_employer_id, '_wcb_company_description', true );
-$wcb_company_site = (string) get_user_meta( $wcb_employer_id, '_wcb_company_website', true );
-$wcb_company_logo = (string) get_user_meta( $wcb_employer_id, '_wcb_company_logo', true );
-$wcb_is_owner     = get_current_user_id() === $wcb_employer_id;
+$wcb_company_name = $wcb_company->post_title;
+$wcb_company_desc = $wcb_company->post_content;
+$wcb_company_site = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
+$wcb_company_logo = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
+$wcb_is_owner     = get_current_user_id() === (int) $wcb_company->post_author;
 
 wp_interactivity_state(
 	'wcb-company-profile',
 	array(
-		'employerId'  => $wcb_employer_id,
+		'companyId'   => $wcb_company_id,
 		'isOwner'     => $wcb_is_owner,
 		'editing'     => false,
 		'saving'      => false,

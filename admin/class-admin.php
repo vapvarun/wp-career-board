@@ -33,6 +33,9 @@ class Admin {
 
 		// Boot settings so its admin_init hook fires.
 		( new AdminSettings() )->boot();
+
+		// Boot meta boxes for the wcb_job CPT.
+		( new AdminMetaBoxes() )->boot();
 	}
 
 	/**
@@ -77,6 +80,15 @@ class Admin {
 			'wcb_manage_settings',
 			'wcb-employers',
 			array( new AdminEmployers(), 'render' )
+		);
+
+		add_submenu_page(
+			'wp-career-board',
+			__( 'Candidates', 'wp-career-board' ),
+			__( 'Candidates', 'wp-career-board' ),
+			'wcb_manage_settings',
+			'wcb-candidates',
+			array( new AdminCandidates(), 'render' )
 		);
 
 		add_submenu_page(
@@ -131,7 +143,9 @@ class Admin {
 	 * @return void
 	 */
 	public function enqueue_assets( string $hook ): void {
-		if ( false === strpos( $hook, 'wcb' ) && false === strpos( $hook, 'wp-career-board' ) ) {
+		global $post_type;
+		$wcb_is_job_edit = ( 'post.php' === $hook || 'post-new.php' === $hook ) && 'wcb_job' === $post_type;
+		if ( ! $wcb_is_job_edit && false === strpos( $hook, 'wcb' ) && false === strpos( $hook, 'wp-career-board' ) ) {
 			return;
 		}
 

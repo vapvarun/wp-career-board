@@ -230,12 +230,33 @@ final class EmployersEndpoint extends RestController {
 			)
 		);
 
+		// Fetch application counts for all retrieved jobs in one query.
+		$job_ids    = wp_list_pluck( $query->posts, 'ID' );
+		$app_counts = array();
+		if ( ! empty( $job_ids ) ) {
+			global $wpdb;
+			$placeholders = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$sql  = $wpdb->prepare( "SELECT meta_value AS job_id, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_job_id' AND meta_value IN ({$placeholders}) GROUP BY meta_value", ...$job_ids );
+			$rows = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			foreach ( $rows as $row ) {
+				$app_counts[ (int) $row->job_id ] = (int) $row->cnt;
+			}
+		}
+
 		$items = array_map(
-			static function ( \WP_Post $p ): array {
+			static function ( \WP_Post $p ) use ( $app_counts ): array {
+				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
+				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				return array(
-					'id'     => $p->ID,
-					'title'  => $p->post_title,
-					'status' => $p->post_status,
+					'id'        => $p->ID,
+					'title'     => $p->post_title,
+					'status'    => $p->post_status,
+					'permalink' => get_permalink( $p->ID ),
+					'appCount'  => $app_counts[ $p->ID ] ?? 0,
+					'location'  => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'      => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
 				);
 			},
 			$query->posts
