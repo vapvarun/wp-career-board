@@ -3665,7 +3665,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T10 | SEO module | ✅ 2026-03-14 · `f61eeb5` + fixes `e043bc7` |
 | T11 | GDPR module | ✅ 2026-03-14 · `471a4b0` |
 | T12 | Admin menu + settings | ✅ 2026-03-14 · `c9f65d5` |
-| T13 | Setup wizard + sample data | ⬜ Not started |
+| T13 | Setup wizard + sample data | ✅ 2026-03-14 · `43e8564` |
 | T14 | Build configuration (@wordpress/scripts) | ⬜ Not started |
 | T15 | wcb/job-listings block | ⬜ Not started |
 | T16 | wcb/job-search + wcb/job-filters blocks | ⬜ Not started |
