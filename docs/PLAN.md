@@ -3658,7 +3658,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T3 | CPTs + taxonomies (incl. wcb_board) | ✅ 2026-03-14 · `b5feb51` |
 | T4 | REST base controller | ✅ 2026-03-14 · `884468c` |
 | T5 | Jobs REST endpoint | ✅ 2026-03-14 · `82afd2f` + fixes `12a0616` |
-| T6 | Applications REST endpoint | ⬜ Not started |
+| T6 | Applications REST endpoint | ✅ 2026-03-14 · `487541c` + fixes `d4a9dba` |
 | T7 | Employers + candidates + search endpoints | ⬜ Not started |
 | T8 | Email notifications (wp_mail) | ⬜ Not started |
 | T9 | Moderation queue | ⬜ Not started |

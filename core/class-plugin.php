@@ -96,6 +96,7 @@ final class Plugin {
 			\WCB\Modules\Employers\EmployersModule::class,
 			\WCB\Modules\Candidates\CandidatesModule::class,
 			\WCB\Modules\Applications\ApplicationsModule::class,
+			\WCB\Modules\Applications\ApplicationsMeta::class,
 			\WCB\Modules\Search\SearchModule::class,
 			\WCB\Modules\Notifications\NotificationsEmail::class,
 			\WCB\Modules\Moderation\ModerationModule::class,
