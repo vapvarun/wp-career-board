@@ -24,17 +24,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers REST-based approve / reject endpoints for admin moderation.
  *
+ * Extends RestController to inherit shared helpers: check_ability(),
+ * permission_error(), and the wcb/v1 REST namespace.
+ *
  * @since 1.0.0
  */
-class ModerationModule {
-
-	/**
-	 * REST namespace.
-	 *
-	 * @since 1.0.0
-	 * @var string
-	 */
-	private string $rest_namespace = 'wcb/v1';
+class ModerationModule extends \WCB\Api\RestController {
 
 	/**
 	 * Boot the module.
@@ -63,7 +58,7 @@ class ModerationModule {
 		);
 
 		register_rest_route(
-			$this->rest_namespace,
+			$this->namespace,
 			'/jobs/(?P<id>\d+)/approve',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -76,7 +71,7 @@ class ModerationModule {
 		);
 
 		register_rest_route(
-			$this->rest_namespace,
+			$this->namespace,
 			'/jobs/(?P<id>\d+)/reject',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -89,6 +84,7 @@ class ModerationModule {
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_textarea_field',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)
@@ -102,15 +98,11 @@ class ModerationModule {
 	 * @return bool|\WP_Error
 	 */
 	public function moderate_permissions_check(): bool|\WP_Error {
-		if ( $this->check_moderate_ability() ) {
+		if ( $this->check_ability( 'wcb_moderate_jobs' ) ) {
 			return true;
 		}
 
-		return new \WP_Error(
-			'wcb_forbidden',
-			__( 'You do not have permission to moderate jobs.', 'wp-career-board' ),
-			array( 'status' => 403 )
-		);
+		return $this->permission_error();
 	}
 
 	/**
@@ -135,12 +127,17 @@ class ModerationModule {
 			);
 		}
 
-		wp_update_post(
+		$result = wp_update_post(
 			array(
 				'ID'          => $job_id,
 				'post_status' => 'publish',
-			)
+			),
+			true
 		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		/**
 		 * Fires after a job listing is approved by a moderator.
@@ -182,12 +179,17 @@ class ModerationModule {
 			);
 		}
 
-		wp_update_post(
+		$result = wp_update_post(
 			array(
 				'ID'          => $job_id,
 				'post_status' => 'draft',
-			)
+			),
+			true
 		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		update_post_meta( $job_id, '_wcb_rejection_reason', $reason );
 
@@ -208,22 +210,5 @@ class ModerationModule {
 				'reason' => $reason,
 			)
 		);
-	}
-
-	/**
-	 * Check if the current user can moderate jobs via the Abilities API.
-	 *
-	 * Falls back to the raw capability name if the Abilities API is absent (WP < 6.9).
-	 *
-	 * @since 1.0.0
-	 * @return bool
-	 */
-	private function check_moderate_ability(): bool {
-		if ( function_exists( 'wp_is_ability_granted' ) ) {
-			return wp_is_ability_granted( 'wcb_moderate_jobs', wp_get_current_user() );
-		}
-
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-		return current_user_can( 'wcb_moderate_jobs' );
 	}
 }
