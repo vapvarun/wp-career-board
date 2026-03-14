@@ -189,7 +189,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_item( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+	public function get_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_application' !== $post->post_type ) {
 			return new \WP_Error(
@@ -316,7 +316,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return bool|\WP_Error
 	 */
-	public function get_item_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+	public function get_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post ) {
 			return $this->permission_error();
