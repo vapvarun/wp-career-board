@@ -1,0 +1,13 @@
+parameters:
+    level: 6
+    paths:
+        - .
+    excludePaths:
+        - vendor
+        - node_modules
+        - build
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    scanDirectories:
+        - .
+    reportUnmatchedIgnoredErrors: false
