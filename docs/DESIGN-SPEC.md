@@ -19,6 +19,14 @@
 
 **Requirements:** WP 6.9+, PHP 8.1+
 
+### Technical Conventions
+- **Prefix:** `wcb_` — all CPT slugs, DB tables, hooks, filters, options, transients
+- **Admin menu:** Top-level "WP Career Board" menu in wp-admin (WooCommerce-style)
+- **Pro dependency:** Pro plugin requires Free to be active. Dependency check on Pro activation. Pro adds modules on top of Free core.
+- **Distribution:** Both Free and Pro hosted exclusively on wbcomdesigns.com via EDD. No WordPress.org submission.
+- **Team:** Varun Dubey + Claude Code
+- **Alpha target:** 1 month from project start (Phase 1 core working)
+
 **Distribution:** Freemium
 - **Free (Core):** WordPress.org — `wp-career-board`
 - **Pro:** wbcomdesigns.com — `wp-career-board-pro`
