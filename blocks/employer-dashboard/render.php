@@ -120,6 +120,7 @@ wp_interactivity_state(
 		/>
 
 		<p class="wcb-save-success" data-wp-show="state.saved"><?php esc_html_e( 'Profile saved.', 'wp-career-board' ); ?></p>
+		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
 
 		<button
 			type="button"

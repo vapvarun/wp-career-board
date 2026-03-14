@@ -40,6 +40,7 @@ wp_interactivity_state(
 		'editing'     => false,
 		'saving'      => false,
 		'saved'       => false,
+		'error'       => '',
 		'companyName' => $wcb_company_name,
 		'companyDesc' => $wcb_company_desc,
 		'companySite' => $wcb_company_site,
@@ -68,16 +69,15 @@ wp_interactivity_state(
 	<div class="wcb-company-read" data-wp-show="!state.editing">
 		<h1 class="wcb-company-name" data-wp-text="state.companyName"></h1>
 
-		<?php if ( $wcb_company_site ) : ?>
-			<a
-				class="wcb-company-site"
-				href="<?php echo esc_url( $wcb_company_site ); ?>"
-				rel="noopener noreferrer"
-				target="_blank"
-				data-wp-bind--href="state.companySite"
-				data-wp-text="state.companySite"
-			></a>
-		<?php endif; ?>
+		<a
+			class="wcb-company-site"
+			href="<?php echo esc_url( $wcb_company_site ); ?>"
+			rel="noopener noreferrer"
+			target="_blank"
+			data-wp-show="state.companySite"
+			data-wp-bind--href="state.companySite"
+			data-wp-text="state.companySite"
+		></a>
 
 		<div class="wcb-company-desc" data-wp-text="state.companyDesc"></div>
 
@@ -123,6 +123,7 @@ wp_interactivity_state(
 			/>
 
 			<p class="wcb-save-success" data-wp-show="state.saved"><?php esc_html_e( 'Profile saved.', 'wp-career-board' ); ?></p>
+			<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
 
 			<div class="wcb-form-nav">
 				<button type="button" class="wcb-btn wcb-btn-back" data-wp-on--click="actions.toggleEdit" data-wp-bind--disabled="state.saving">

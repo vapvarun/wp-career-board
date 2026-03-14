@@ -77,12 +77,13 @@ store( 'wcb-company-profile', {
 
 			if ( ! response.ok ) {
 				state.saving = false;
-				// Saving failed — keep edit panel open for retry.
+				state.error  = 'Could not save profile. Please try again.';
 				return;
 			}
 
 			state.saving  = false;
 			state.saved   = true;
+			state.error   = '';
 			state.editing = false;
 		},
 	},
