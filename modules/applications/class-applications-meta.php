@@ -55,6 +55,9 @@ final class ApplicationsMeta {
 					'single'        => true,
 					'type'          => $schema['type'],
 					'auth_callback' => static function (): bool {
+						if ( function_exists( 'wp_is_ability_granted' ) ) {
+							return wp_is_ability_granted( 'wcb_view_applications' );
+						}
 						// phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_view_applications is a custom WCB ability/cap.
 						return current_user_can( 'wcb_view_applications' );
 					},

@@ -153,7 +153,21 @@ final class ApplicationsEndpoint extends RestController {
 			'_wcb_cover_letter',
 			sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
 		);
-		update_post_meta( $app_id, '_wcb_resume_id', (int) $request->get_param( 'resume_id' ) );
+
+		// Validate resume belongs to the current candidate before storing.
+		$resume_id = (int) $request->get_param( 'resume_id' );
+		if ( $resume_id > 0 ) {
+			$resume = get_post( $resume_id );
+			if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+				wp_delete_post( $app_id, true );
+				return new \WP_Error(
+					'wcb_invalid_resume',
+					__( 'Invalid resume.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+		update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
 		update_post_meta( $app_id, '_wcb_status', 'submitted' );
 
 		do_action( 'wcb_application_submitted', $app_id, $job_id, $candidate_id );
@@ -238,11 +252,15 @@ final class ApplicationsEndpoint extends RestController {
 	 */
 	public function get_candidate_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		$candidate_id = (int) $request['id'];
-		$posts        = get_posts(
+		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
+		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
+
+		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_application',
 				'post_status'    => 'any',
-				'posts_per_page' => -1,
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_candidate_id',
@@ -251,7 +269,11 @@ final class ApplicationsEndpoint extends RestController {
 				),
 			)
 		);
-		return rest_ensure_response( array_map( array( $this, 'prepare_application' ), $posts ) );
+
+		$response = rest_ensure_response( array_map( array( $this, 'prepare_application' ), $query->posts ) );
+		$response->header( 'X-WCB-Total', (string) $query->found_posts );
+		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $response;
 	}
 
 	// --- Permission callbacks ---------------------------------------------------
@@ -294,7 +316,8 @@ final class ApplicationsEndpoint extends RestController {
 	/**
 	 * Check if the current user can update an application status.
 	 *
-	 * Only users with the wcb_view_applications ability (employers, admins) may change status.
+	 * Requires wcb_view_applications ability AND that the current user authored
+	 * the job the application belongs to (prevents IDOR), or is an admin.
 	 *
 	 * @since 1.0.0
 	 *
@@ -302,7 +325,22 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function update_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_view_applications' ) ? true : $this->permission_error();
+		if ( ! $this->check_ability( 'wcb_view_applications' ) ) {
+			return $this->permission_error();
+		}
+		// Admins may update any application.
+		if ( $this->check_ability( 'wcb_manage_settings' ) ) {
+			return true;
+		}
+		// Employers may only update applications belonging to their own jobs.
+		$app = get_post( (int) $request['id'] );
+		if ( ! $app ) {
+			return $this->permission_error();
+		}
+		$job_id   = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
+		$job      = get_post( $job_id );
+		$is_owner = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		return $is_owner ? true : $this->permission_error();
 	}
 
 	/**
