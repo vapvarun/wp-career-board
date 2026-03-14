@@ -21,11 +21,11 @@ $wcb_search_query = isset( $_GET['wcb_search'] )
 	: '';
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+// Search block owns 'query' only; job-filters block owns 'filters'.
 wp_interactivity_state(
 	'wcb-search',
 	array(
-		'query'   => $wcb_search_query,
-		'filters' => array(),
+		'query' => $wcb_search_query,
 	)
 );
 ?>
@@ -48,6 +48,7 @@ wp_interactivity_state(
 			name="wcb_search"
 			placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 			value="<?php echo esc_attr( $wcb_search_query ); ?>"
+			data-wp-bind--value="state.query"
 			data-wp-on--input="actions.updateQuery"
 		/>
 		<button type="submit" class="wcb-search-button">

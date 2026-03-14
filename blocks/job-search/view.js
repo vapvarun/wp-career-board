@@ -26,7 +26,8 @@ const { state } = store( 'wcb-search', {
 				params.delete( 'wcb_search' );
 			}
 
-			window.history.pushState( {}, '', '?' + params.toString() );
+			const wcbSearchQs = params.toString();
+			window.history.pushState( {}, '', wcbSearchQs ? '?' + wcbSearchQs : window.location.pathname );
 
 			document.dispatchEvent(
 				new CustomEvent( 'wcb:search', {

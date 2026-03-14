@@ -60,12 +60,21 @@ $wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_
 $wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_raw;
 $wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
 
-// Seed the shared wcb-search state so job-filters works standalone.
+// Filters block owns 'filters' in the shared wcb-search namespace.
+// Cast to object so JSON-encodes as {} even when no filters are active.
+$wcb_active_filters = (object) array_filter(
+	array(
+		'wcb_category'   => $wcb_filter_category,
+		'wcb_job_type'   => $wcb_filter_type,
+		'wcb_location'   => $wcb_filter_location,
+		'wcb_experience' => $wcb_filter_exp,
+	)
+);
+
 wp_interactivity_state(
 	'wcb-search',
 	array(
-		'query'   => '',
-		'filters' => array(),
+		'filters' => $wcb_active_filters,
 	)
 );
 ?>

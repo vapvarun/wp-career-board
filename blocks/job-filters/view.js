@@ -37,7 +37,8 @@ const { state } = store( 'wcb-search', {
 				params.delete( key );
 			}
 
-			window.history.pushState( {}, '', '?' + params.toString() );
+			const wcbFilterQs = params.toString();
+			window.history.pushState( {}, '', wcbFilterQs ? '?' + wcbFilterQs : window.location.pathname );
 
 			// Notify the job-listings block.
 			document.dispatchEvent(

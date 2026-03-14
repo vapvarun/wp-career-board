@@ -116,6 +116,7 @@ document.addEventListener( 'wcb:search', function( event ) {
 
 	state.loading = true;
 	state.page    = 1;
+	state.jobs    = [];
 
 	fetch( url.toString() )
 		.then( function( response ) {
