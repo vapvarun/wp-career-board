@@ -1,0 +1,30 @@
+/**
+ * WP Career Board — BuddyX Pro theme compatibility styles.
+ *
+ * Applied only on wcb_job single and archive pages when the active theme
+ * is BuddyX Pro.
+ *
+ * @package WP_Career_Board
+ * @since   1.0.0
+ */
+
+/* Ensure WCB blocks respect BuddyX Pro's content width variable */
+.wcb-job-single,
+.wcb-job-listings {
+	max-width: var( --buddyx-content-width, 100% );
+	margin-inline: auto;
+}
+
+/* #OpenToWork badge shown on BuddyX Pro member profiles */
+.wcb-open-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.2em 0.6em;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #fff;
+	background-color: #0a66c2;
+	border-radius: 9999px;
+	vertical-align: middle;
+}
