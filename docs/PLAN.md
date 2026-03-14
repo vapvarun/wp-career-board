@@ -3719,5 +3719,5 @@ Use this table to track task completion. Update the Status column as you go.
 | T20  | BuddyPress integration | ✅ 2026-03-15 · `b358a29` |
 | T21a | Admin dashboard overhaul | ✅ 2026-03-15 · `2c57139` |
 | T21b | Jobs admin WP_List_Table (search, tabs, pagination, bulk) | ✅ 2026-03-15 · `5ee4885` |
-| T21c | Applications admin WP_List_Table (search, status tabs, bulk trash) | 🔄 In progress |
+| T21c | Applications admin WP_List_Table (search, status tabs, bulk trash) | ✅ 2026-03-15 · `120da99` |
 | T21  | Pre-release QA | ⬜ Not started |
