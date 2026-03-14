@@ -90,7 +90,8 @@ final class NotificationsEmail {
 		$candidate = get_user_by( 'ID', $candidate_id );
 
 		if ( $job instanceof \WP_Post && $employer instanceof \WP_User ) {
-			$dashboard_employer = get_permalink( (int) get_option( 'wcb_employer_dashboard_page' ) );
+			$wcb_s              = (array) get_option( 'wcb_settings', array() );
+			$dashboard_employer = get_permalink( isset( $wcb_s['employer_dashboard_page'] ) ? (int) $wcb_s['employer_dashboard_page'] : 0 );
 			$this->send(
 				$employer->user_email,
 				/* translators: %s: job title */
@@ -108,7 +109,7 @@ final class NotificationsEmail {
 		}
 
 		if ( $job instanceof \WP_Post && $candidate instanceof \WP_User ) {
-			$dashboard_candidate = get_permalink( (int) get_option( 'wcb_candidate_dashboard_page' ) );
+			$dashboard_candidate = get_permalink( isset( $wcb_s['candidate_dashboard_page'] ) ? (int) $wcb_s['candidate_dashboard_page'] : 0 );
 			$this->send(
 				$candidate->user_email,
 				/* translators: %s: job title */
@@ -145,7 +146,8 @@ final class NotificationsEmail {
 			return;
 		}
 
-		$dashboard_url = get_permalink( (int) get_option( 'wcb_candidate_dashboard_page' ) );
+		$wcb_s         = (array) get_option( 'wcb_settings', array() );
+		$dashboard_url = get_permalink( isset( $wcb_s['candidate_dashboard_page'] ) ? (int) $wcb_s['candidate_dashboard_page'] : 0 );
 		$this->send(
 			$candidate->user_email,
 			/* translators: %s: job title */
@@ -241,7 +243,8 @@ final class NotificationsEmail {
 			return;
 		}
 
-		$repost_url = get_permalink( (int) get_option( 'wcb_employer_dashboard_page' ) );
+		$wcb_s      = (array) get_option( 'wcb_settings', array() );
+		$repost_url = get_permalink( isset( $wcb_s['employer_dashboard_page'] ) ? (int) $wcb_s['employer_dashboard_page'] : 0 );
 		$this->send(
 			$employer->user_email,
 			/* translators: %s: job title */

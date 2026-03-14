@@ -1,0 +1,107 @@
+/* WP Career Board — Admin Styles */
+
+/* Dashboard stat grid */
+.wcb-stats-grid {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: 20px;
+}
+
+.wcb-stat-box {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px 24px;
+	min-width: 140px;
+	text-align: center;
+}
+
+.wcb-stat-box.wcb-stat-alert {
+	border-color: #d63638;
+}
+
+.wcb-stat-number {
+	display: block;
+	font-size: 2.5em;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #1d2327;
+}
+
+.wcb-stat-alert .wcb-stat-number {
+	color: #d63638;
+}
+
+.wcb-stat-label {
+	display: block;
+	font-size: 0.85em;
+	color: #646970;
+	margin-top: 4px;
+}
+
+/* Admin list tables */
+.wcb-admin-table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 16px;
+}
+
+.wcb-admin-table th,
+.wcb-admin-table td {
+	padding: 8px 12px;
+	text-align: left;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wcb-admin-table th {
+	background: #f6f7f7;
+	font-weight: 600;
+	font-size: 0.85em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #646970;
+}
+
+.wcb-admin-table tr:hover td {
+	background: #f6f7f7;
+}
+
+/* Status badges */
+.wcb-status-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 0.8em;
+	font-weight: 500;
+	text-transform: capitalize;
+}
+
+.wcb-status-submitted  { background: #dff0fa; color: #007cba; }
+.wcb-status-reviewing  { background: #fff3cd; color: #996800; }
+.wcb-status-shortlisted { background: #d7f7c2; color: #1a7a0a; }
+.wcb-status-rejected   { background: #f8d7da; color: #8a1c1c; }
+.wcb-status-hired      { background: #c3e6cb; color: #155724; }
+
+/* Status selector */
+.wcb-status-select {
+	font-size: 0.85em;
+}
+
+/* Settings page improvements */
+.form-table th {
+	font-weight: 600;
+}
+
+.form-table .description {
+	color: #646970;
+	font-size: 0.85em;
+	margin-top: 4px;
+}
+
+/* No items message */
+.wcb-no-items {
+	color: #646970;
+	font-style: italic;
+	padding: 20px 0;
+}
