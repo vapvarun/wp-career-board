@@ -50,13 +50,15 @@ store( 'wcb-employer-dashboard', {
 
 		switchToJobs() {
 			const { state } = store( 'wcb-employer-dashboard' );
-			state.tab = 'jobs';
+			state.tab   = 'jobs';
+			state.error = '';
 		},
 
 		switchToProfile() {
 			const { state } = store( 'wcb-employer-dashboard' );
-			state.tab  = 'profile';
-			state.saved = false;
+			state.tab   = 'profile';
+			state.saved  = false;
+			state.error  = '';
 		},
 
 		updateField( event ) {

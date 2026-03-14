@@ -80,7 +80,8 @@ wp_interactivity_state(
 					} elseif ( $wcb_salary_min ) {
 						echo esc_html( $wcb_salary_min . '+' );
 					} else {
-						echo esc_html( 'Up to ' . $wcb_salary_max );
+						/* translators: %s: maximum salary */
+						printf( esc_html__( 'Up to %s', 'wp-career-board' ), esc_html( $wcb_salary_max ) );
 					}
 					?>
 				</li>

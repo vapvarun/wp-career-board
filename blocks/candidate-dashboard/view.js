@@ -46,12 +46,14 @@ store( 'wcb-candidate-dashboard', {
 
 		switchToApplications() {
 			const { state } = store( 'wcb-candidate-dashboard' );
-			state.tab = 'applications';
+			state.tab   = 'applications';
+			state.error = '';
 		},
 
 		*switchToBookmarks() {
 			const { state } = store( 'wcb-candidate-dashboard' );
-			state.tab = 'bookmarks';
+			state.tab   = 'bookmarks';
+			state.error = '';
 
 			// Load bookmarks on first switch.
 			if ( state.bookmarks.length ) {
@@ -93,6 +95,7 @@ store( 'wcb-candidate-dashboard', {
 			);
 
 			if ( ! response.ok ) {
+				state.error = 'Could not remove saved job. Please try again.';
 				return;
 			}
 
