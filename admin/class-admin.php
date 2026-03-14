@@ -45,7 +45,7 @@ class Admin {
 		add_menu_page(
 			__( 'WP Career Board', 'wp-career-board' ),
 			__( 'Career Board', 'wp-career-board' ),
-			'manage_options',
+			'wcb_manage_settings',
 			'wp-career-board',
 			array( $this, 'render_dashboard' ),
 			'dashicons-portfolio',
@@ -56,7 +56,7 @@ class Admin {
 			'wp-career-board',
 			__( 'Jobs', 'wp-career-board' ),
 			__( 'Jobs', 'wp-career-board' ),
-			'manage_options',
+			'wcb_manage_settings',
 			'wcb-jobs',
 			array( new AdminJobs(), 'render' )
 		);
@@ -65,7 +65,7 @@ class Admin {
 			'wp-career-board',
 			__( 'Applications', 'wp-career-board' ),
 			__( 'Applications', 'wp-career-board' ),
-			'manage_options',
+			'wcb_manage_settings',
 			'wcb-applications',
 			array( new AdminApplications(), 'render' )
 		);
@@ -74,7 +74,7 @@ class Admin {
 			'wp-career-board',
 			__( 'Employers', 'wp-career-board' ),
 			__( 'Employers', 'wp-career-board' ),
-			'manage_options',
+			'wcb_manage_settings',
 			'wcb-employers',
 			array( new AdminEmployers(), 'render' )
 		);
@@ -83,7 +83,7 @@ class Admin {
 			'wp-career-board',
 			__( 'Settings', 'wp-career-board' ),
 			__( 'Settings', 'wp-career-board' ),
-			'manage_options',
+			'wcb_manage_settings',
 			'wcb-settings',
 			array( new AdminSettings(), 'render' )
 		);

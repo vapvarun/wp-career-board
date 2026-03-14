@@ -143,6 +143,20 @@ class AdminSettings {
 							?>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Jobs Archive Page', 'wp-career-board' ); ?></th>
+						<td>
+							<?php
+							wp_dropdown_pages(
+								array(
+									'name'             => 'wcb_settings[jobs_archive_page]',
+									'selected'         => isset( $settings['jobs_archive_page'] ) ? (int) $settings['jobs_archive_page'] : 0,
+									'show_option_none' => esc_html__( '— Select —', 'wp-career-board' ),
+								)
+							);
+							?>
+						</td>
+					</tr>
 				</table>
 				<?php submit_button(); ?>
 			</form>

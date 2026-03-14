@@ -39,6 +39,24 @@
     <!-- PHP version -->
     <config name="testVersion" value="8.1-"/>
 
+    <!-- Declare WCB custom capabilities so WordPress.WP.Capabilities.Unknown does not fire -->
+    <rule ref="WordPress.WP.Capabilities">
+        <properties>
+            <property name="custom_capabilities" type="array">
+                <element value="wcb_post_jobs"/>
+                <element value="wcb_manage_company"/>
+                <element value="wcb_view_applications"/>
+                <element value="wcb_apply_jobs"/>
+                <element value="wcb_manage_resume"/>
+                <element value="wcb_bookmark_jobs"/>
+                <element value="wcb_moderate_jobs"/>
+                <element value="wcb_manage_settings"/>
+                <element value="wcb_view_analytics"/>
+                <element value="wcb_access_employer_dashboard"/>
+            </property>
+        </properties>
+    </rule>
+
     <!-- Exclude generated/vendor directories -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
