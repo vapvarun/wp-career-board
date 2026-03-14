@@ -85,7 +85,7 @@ class SeoModule {
 			'validThrough'       => $valid_through,
 			'employmentType'     => $this->get_employment_types( $job->ID ),
 			'jobLocationType'    => $remote ? 'TELECOMMUTE' : null,
-			'hiringOrganization' => $this->get_hiring_org( $job->ID ),
+			'hiringOrganization' => $this->get_hiring_org( $job ),
 		);
 
 		if ( $salary_min || $salary_max ) {
@@ -104,7 +104,7 @@ class SeoModule {
 		$schema = array_filter(
 			$schema,
 			static function ( $value ): bool {
-				return null !== $value;
+				return null !== $value && array() !== $value;
 			}
 		);
 
@@ -131,7 +131,7 @@ class SeoModule {
 			return;
 		}
 
-		echo '<meta property="og:type" content="website" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<meta property="og:type" content="article" />' . "\n";
 		echo '<meta property="og:title" content="' . esc_attr( get_the_title( $job ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<meta property="og:description" content="' . esc_attr( wp_trim_words( wp_strip_all_tags( $job->post_content ), 30 ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<meta property="og:url" content="' . esc_url( get_permalink( $job ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -175,12 +175,11 @@ class SeoModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $job_id Post ID of the wcb_job.
+	 * @param \WP_Post $job The wcb_job post object.
 	 * @return array<string, string>
 	 */
-	private function get_hiring_org( int $job_id ): array {
-		$job     = get_post( $job_id );
-		$author  = $job instanceof \WP_Post ? (int) $job->post_author : 0;
+	private function get_hiring_org( \WP_Post $job ): array {
+		$author  = (int) $job->post_author;
 		$comp_id = $author ? (int) get_user_meta( $author, '_wcb_company_id', true ) : 0;
 		$name    = $comp_id ? (string) get_the_title( $comp_id ) : (string) get_bloginfo( 'name' );
 
