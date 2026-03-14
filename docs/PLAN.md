@@ -3654,7 +3654,7 @@ Use this table to track task completion. Update the Status column as you go.
 | Task | Description | Status |
 |------|-------------|--------|
 | T1 | Plugin main file + autoloader | ✅ 2026-03-14 · `8bde815` |
-| T2 | DB install + user roles + Abilities API | ⬜ Not started |
+| T2 | DB install + user roles + Abilities API | ✅ 2026-03-14 · `a6eff85` |
 | T3 | CPTs + taxonomies (incl. wcb_board) | ⬜ Not started |
 | T4 | REST base controller | ⬜ Not started |
 | T5 | Jobs REST endpoint | ⬜ Not started |
