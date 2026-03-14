@@ -266,6 +266,15 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Denormalize company name from the employer's linked wcb_company CPT.
+		$wcb_company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
+		if ( $wcb_company_id ) {
+			$wcb_company = get_post( $wcb_company_id );
+			if ( $wcb_company instanceof \WP_Post ) {
+				update_post_meta( $job_id, '_wcb_company_name', $wcb_company->post_title );
+			}
+		}
+
 		// Taxonomies.
 		$categories = $request->get_param( 'categories' );
 		if ( $categories ) {
@@ -542,6 +551,7 @@ final class JobsEndpoint extends RestController {
 			'author'          => (int) $post->post_author,
 			'date'            => $post->post_date,
 			'permalink'       => get_permalink( $post->ID ),
+			'company'         => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
 			'deadline'        => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'      => get_post_meta( $post->ID, '_wcb_salary_min', true ),
 			'salary_max'      => get_post_meta( $post->ID, '_wcb_salary_max', true ),
