@@ -30,6 +30,13 @@ final class Plugin {
 	private static ?self $instance = null;
 
 	/**
+	 * Private constructor — use instance() instead.
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
+
+	/**
 	 * Get or create the singleton instance.
 	 *
 	 * @since 1.0.0
@@ -50,7 +57,7 @@ final class Plugin {
 	 * @return void
 	 */
 	private function init(): void {
-		load_plugin_textdomain( 'wp-career-board', false, WCB_BASENAME . '/languages' );
+		load_plugin_textdomain( 'wp-career-board', false, dirname( WCB_BASENAME ) . '/languages' );
 
 		if ( class_exists( Roles::class ) ) {
 			add_action( 'init', array( new Roles(), 'register' ), 5 );

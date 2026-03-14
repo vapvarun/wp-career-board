@@ -16,6 +16,8 @@
  * @since   1.0.0
  */
 
+declare( strict_types=1 );
+
 defined( 'ABSPATH' ) || exit;
 
 define( 'WCB_VERSION', '0.1.0' );
