@@ -89,6 +89,7 @@ final class Plugin {
 	 */
 	private function boot_modules(): void {
 		$module_classes = array(
+			\WCB\Modules\Boards\BoardsModule::class,
 			\WCB\Modules\Jobs\JobsModule::class,
 			\WCB\Modules\Employers\EmployersModule::class,
 			\WCB\Modules\Candidates\CandidatesModule::class,

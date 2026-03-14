@@ -23,6 +23,13 @@
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
     </rule>
 
+    <!-- Custom autoloader uses PascalCase-to-hyphenated filenames (e.g. JobsModule → class-jobs-module.php) -->
+    <rule ref="WordPress.Files.FileName">
+        <properties>
+            <property name="strict_class_file_names" value="false"/>
+        </properties>
+    </rule>
+
     <!-- Minimum WP version for deprecated checks -->
     <config name="minimum_supported_wp_version" value="6.9"/>
 
