@@ -200,7 +200,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_item( $request ) {
+	public function get_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_job' !== $post->post_type ) {
 			return new \WP_Error(
@@ -221,7 +221,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function create_item( $request ) {
+	public function create_item( $request ): \WP_REST_Response|\WP_Error {
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -300,7 +300,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function update_item( $request ) {
+	public function update_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_job' !== $post->post_type ) {
 			return new \WP_Error(
@@ -312,16 +312,50 @@ final class JobsEndpoint extends RestController {
 
 		$data  = array();
 		$title = $request->get_param( 'title' );
-		if ( $title ) {
+		if ( null !== $title ) {
 			$data['post_title'] = sanitize_text_field( $title );
 		}
 		$desc = $request->get_param( 'description' );
-		if ( $desc ) {
+		if ( null !== $desc ) {
 			$data['post_content'] = wp_kses_post( $desc );
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
 			wp_update_post( $data );
+		}
+
+		// Postmeta — only update keys present in the request.
+		$meta_map = array(
+			'deadline'        => '_wcb_deadline',
+			'salary_min'      => '_wcb_salary_min',
+			'salary_max'      => '_wcb_salary_max',
+			'salary_currency' => '_wcb_salary_currency',
+			'board_id'        => '_wcb_board_id',
+		);
+		foreach ( $meta_map as $param => $meta_key ) {
+			$value = $request->get_param( $param );
+			if ( null !== $value ) {
+				update_post_meta( $post->ID, $meta_key, $value );
+			}
+		}
+		$remote = $request->get_param( 'remote' );
+		if ( null !== $remote ) {
+			update_post_meta( $post->ID, '_wcb_remote', $remote ? '1' : '0' );
+		}
+
+		// Taxonomies — only update when parameter is present.
+		$taxonomy_map = array(
+			'categories' => 'wcb_category',
+			'job_types'  => 'wcb_job_type',
+			'locations'  => 'wcb_location',
+			'experience' => 'wcb_experience',
+			'tags'       => 'wcb_tag',
+		);
+		foreach ( $taxonomy_map as $param => $taxonomy ) {
+			$terms = $request->get_param( $param );
+			if ( null !== $terms ) {
+				wp_set_object_terms( $post->ID, (array) $terms, $taxonomy );
+			}
 		}
 
 		do_action( 'wcb_job_updated', $post->ID, $request );
@@ -336,7 +370,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function delete_item( $request ) {
+	public function delete_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_job' !== $post->post_type ) {
 			return new \WP_Error(
@@ -396,7 +430,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_applications( \WP_REST_Request $request ) {
+	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$job_id = (int) $request['id'];
 		$posts  = get_posts(
 			array(
@@ -437,7 +471,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return bool|\WP_Error
 	 */
-	public function create_item_permissions_check( $request ) {
+	public function create_item_permissions_check( $request ): bool|\WP_Error {
 		return $this->check_ability( 'wcb_post_jobs' ) ? true : $this->permission_error();
 	}
 
@@ -452,12 +486,13 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return bool|\WP_Error
 	 */
-	public function update_item_permissions_check( $request ) {
+	public function update_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = (int) $post->post_author === $this->current_user_id();
+		$is_owner = (int) $post->post_author === $this->current_user_id()
+			&& $this->check_ability( 'wcb_post_jobs' );
 		$is_admin = $this->check_ability( 'wcb_manage_settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
@@ -470,7 +505,7 @@ final class JobsEndpoint extends RestController {
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return bool|\WP_Error
 	 */
-	public function delete_item_permissions_check( $request ) {
+	public function delete_item_permissions_check( $request ): bool|\WP_Error {
 		return $this->update_item_permissions_check( $request );
 	}
 
@@ -497,6 +532,7 @@ final class JobsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item_for_response_array( \WP_Post $post ): array {
+		$currency = get_post_meta( $post->ID, '_wcb_salary_currency', true );
 		return array(
 			'id'              => $post->ID,
 			'title'           => $post->post_title,
@@ -508,7 +544,7 @@ final class JobsEndpoint extends RestController {
 			'deadline'        => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'      => get_post_meta( $post->ID, '_wcb_salary_min', true ),
 			'salary_max'      => get_post_meta( $post->ID, '_wcb_salary_max', true ),
-			'salary_currency' => get_post_meta( $post->ID, '_wcb_salary_currency', true ) ? get_post_meta( $post->ID, '_wcb_salary_currency', true ) : 'USD',
+			'salary_currency' => $currency ? $currency : 'USD',
 			'remote'          => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'board_id'        => (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
 			'categories'      => wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'slugs' ) ),
