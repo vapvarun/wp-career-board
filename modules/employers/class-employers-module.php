@@ -53,7 +53,7 @@ final class EmployersModule {
 				'public'          => true,
 				'show_in_rest'    => true,
 				'show_in_menu'    => false,
-				'supports'        => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
+				'supports'        => array( 'title', 'editor', 'thumbnail' ),
 				'rewrite'         => array(
 					'slug'       => 'companies',
 					'with_front' => false,

@@ -197,3 +197,93 @@
 	font-style: italic;
 	padding: 20px 0;
 }
+
+/* ── Company meta boxes ── */
+
+.wcb-company-meta-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 24px;
+	padding: 4px 0 8px;
+}
+
+.wcb-meta-row {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-meta-row.wcb-meta-full {
+	grid-column: 1 / -1;
+}
+
+.wcb-meta-row label {
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: #1d2327;
+}
+
+.wcb-meta-row input[type="text"],
+.wcb-meta-row input[type="url"],
+.wcb-meta-row input[type="number"],
+.wcb-meta-row select {
+	width: 100%;
+	padding: 6px 10px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	background: #fff;
+	color: #1d2327;
+}
+
+.wcb-meta-row input:focus,
+.wcb-meta-row select:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.wcb-meta-row .description {
+	font-size: 0.8rem;
+	color: #646970;
+	margin: 0;
+}
+
+/* Social Links sidebar box */
+.wcb-social-links {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 4px 0;
+}
+
+.wcb-social-row label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+	font-size: 0.85rem;
+	color: #1d2327;
+	margin-bottom: 4px;
+}
+
+.wcb-social-row input[type="url"] {
+	width: 100%;
+	padding: 6px 10px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 0.85rem;
+}
+
+.wcb-social-row input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Trust sidebar box */
+.wcb-trust-box label {
+	font-weight: 600;
+	font-size: 0.85rem;
+	color: #1d2327;
+}
