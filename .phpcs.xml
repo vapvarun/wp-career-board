@@ -14,7 +14,10 @@
     <!-- Enforce wcb_ prefix on all globals -->
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
-            <property name="prefixes" type="array" value="wcb_,WCB"/>
+            <property name="prefixes" type="array">
+                <element value="wcb_"/>
+                <element value="WCB"/>
+            </property>
         </properties>
     </rule>
 
