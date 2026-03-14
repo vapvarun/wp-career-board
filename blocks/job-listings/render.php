@@ -11,6 +11,8 @@
  * @since   1.0.0
  */
 
+declare( strict_types=1 );
+
 defined( 'ABSPATH' ) || exit;
 
 $wcb_per_page   = (int) ( $attributes['perPage'] ?? 20 );
@@ -53,6 +55,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 $wcb_state = array(
 	'jobs'    => $wcb_jobs_state,
 	'page'    => 1,
+	'perPage' => $wcb_per_page,
 	'layout'  => $wcb_layout,
 	'loading' => false,
 	'hasMore' => count( $wcb_jobs_raw ) >= $wcb_per_page,
@@ -96,19 +99,20 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					data-wp-on--click="actions.toggleBookmark"
 					data-wp-class--bookmarked="context.job.bookmarked"
 					aria-label="<?php esc_attr_e( 'Bookmark job', 'wp-career-board' ); ?>"
-				>☆</button>
+					data-wp-bind--aria-label="state.bookmarkLabel"
+				>&#9733;</button>
 			</article>
 		</template>
 	</div>
 
-	<div data-wp-bind--hidden="!state.hasMore">
+	<div data-wp-show="state.hasMore">
 		<button
 			type="button"
 			data-wp-on--click="actions.loadMore"
 			data-wp-bind--disabled="state.loading"
 		>
-			<span data-wp-bind--hidden="state.loading"><?php esc_html_e( 'Load more', 'wp-career-board' ); ?></span>
-			<span data-wp-bind--hidden="!state.loading"><?php esc_html_e( 'Loading\u2026', 'wp-career-board' ); ?></span>
+			<span data-wp-show="!state.loading"><?php esc_html_e( 'Load more', 'wp-career-board' ); ?></span>
+			<span data-wp-show="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
 		</button>
 	</div>
 </div>

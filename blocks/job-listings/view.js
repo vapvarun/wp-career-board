@@ -18,6 +18,10 @@ const { state } = store( 'wcb-job-listings', {
 		get isList() {
 			return state.layout === 'list';
 		},
+		get bookmarkLabel() {
+			const ctx = getContext();
+			return ctx.job && ctx.job.bookmarked ? 'Remove bookmark' : 'Bookmark job';
+		},
 	},
 
 	actions: {
@@ -38,7 +42,7 @@ const { state } = store( 'wcb-job-listings', {
 
 			const url = new URL( state.apiBase );
 			url.searchParams.set( 'page', String( state.page ) );
-			url.searchParams.set( 'per_page', '20' );
+			url.searchParams.set( 'per_page', String( state.perPage ) );
 
 			// Forward any active search/filter params from the page URL.
 			const searchParams = new URLSearchParams( window.location.search );
@@ -47,10 +51,17 @@ const { state } = store( 'wcb-job-listings', {
 			}
 
 			const response = yield fetch( url.toString() );
-			const jobs     = yield response.json();
+
+			if ( ! response.ok ) {
+				state.page--;
+				state.loading = false;
+				return;
+			}
+
+			const jobs = yield response.json();
 
 			state.jobs.push( ...jobs );
-			state.hasMore = jobs.length === 20;
+			state.hasMore = jobs.length === state.perPage;
 			state.loading = false;
 		},
 
@@ -68,7 +79,12 @@ const { state } = store( 'wcb-job-listings', {
 					},
 				}
 			);
-			const data     = yield response.json();
+
+			if ( ! response.ok ) {
+				return;
+			}
+
+			const data  = yield response.json();
 			job.bookmarked = data.bookmarked;
 		},
 	},
