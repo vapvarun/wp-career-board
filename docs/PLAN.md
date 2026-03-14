@@ -3723,4 +3723,11 @@ Use this table to track task completion. Update the Status column as you go.
 | T21d | Employers admin WP_List_Table (WP_User_Query, search, pagination) | ✅ 2026-03-15 · `be6f5c0` |
 | T21e | Candidates admin WP_List_Table (WP_User_Query, search, pagination) | ✅ 2026-03-15 · `be6f5c0` |
 | T21f | Companies admin WP_List_Table (wcb_company CPT, search, tabs) + menu entry | ✅ 2026-03-15 · `be6f5c0` |
+| T22a | JS: Replace window.confirm/prompt with styled modal; pass reason to reject endpoint; show reason on job edit | 🔄 In progress |
+| T22b | Applications: bulk status change (Reviewing/Shortlisted/Rejected/Hired) | 🔄 In progress |
+| T22c | Companies: trust_level column + inline change action | 🔄 In progress |
+| T22d | JS: Loading states on status select (disable + spinner during REST call) | 🔄 In progress |
+| T22e | Dashboard + Settings: Re-run Setup Wizard link | 🔄 In progress |
+| T22f | Audit log: append _wcb_status_log on status change; meta box on wcb_application edit screen | 🔄 In progress |
+| T22g | Applications: mailto candidate link in row actions | 🔄 In progress |
 | T21  | Pre-release QA | ⬜ Not started |
