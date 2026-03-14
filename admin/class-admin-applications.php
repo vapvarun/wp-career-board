@@ -1,6 +1,7 @@
 <?php
 /**
- * Admin Applications list page — sortable table of all job applications.
+ * Admin Applications list — full WP_List_Table with search, status tabs,
+ * pagination, sortable columns, row actions, and bulk trash.
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -14,12 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! class_exists( 'WP_List_Table' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
 /**
- * Renders the admin applications list page.
+ * WP_List_Table subclass for wcb_application posts.
+ *
+ * Registered as the `wcb-applications` submenu callback via render().
  *
  * @since 1.0.0
  */
-class AdminApplications {
+class AdminApplications extends \WP_List_Table {
 
 	/**
 	 * Valid application status values.
@@ -29,96 +36,435 @@ class AdminApplications {
 	private const STATUSES = array( 'submitted', 'reviewing', 'shortlisted', 'rejected', 'hired' );
 
 	/**
-	 * Render the applications list page.
+	 * Constructor — configure singular/plural labels.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct() {
+		parent::__construct(
+			array(
+				'singular' => __( 'application', 'wp-career-board' ),
+				'plural'   => __( 'applications', 'wp-career-board' ),
+				'ajax'     => false,
+			)
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// Page entrypoint
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Called by the admin menu callback — processes bulk actions, prepares
+	 * items, then renders the full page.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function render(): void {
-		$applications = get_posts(
-			array(
-				'post_type'   => 'wcb_application',
-				'post_status' => 'publish',
-				'numberposts' => 100,
-				'orderby'     => 'date',
-				'order'       => 'DESC',
-			)
-		);
+		$this->process_bulk_action();
+		$this->prepare_items();
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
+		<div class="wrap wcb-applications-list">
+			<h1 class="wp-heading-inline"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
+			<hr class="wp-header-end">
 
-			<?php if ( empty( $applications ) ) : ?>
-				<p class="wcb-no-items"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
-			<?php else : ?>
-				<table class="widefat striped wcb-admin-table">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Job', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Candidate', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Change Status', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Date', 'wp-career-board' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ( $applications as $wcb_app ) : ?>
-							<?php
-							$wcb_job_id       = (int) get_post_meta( $wcb_app->ID, '_wcb_job_id', true );
-							$wcb_candidate_id = (int) get_post_meta( $wcb_app->ID, '_wcb_candidate_id', true );
-							$wcb_status       = (string) get_post_meta( $wcb_app->ID, '_wcb_status', true );
-							$wcb_job          = $wcb_job_id ? get_post( $wcb_job_id ) : null;
-							$wcb_candidate    = $wcb_candidate_id ? get_userdata( $wcb_candidate_id ) : false;
-							$wcb_job_title    = $wcb_job instanceof \WP_Post ? $wcb_job->post_title : __( '(deleted)', 'wp-career-board' );
-							$wcb_cand_name    = $wcb_candidate instanceof \WP_User ? $wcb_candidate->display_name : __( '(deleted)', 'wp-career-board' );
-							$wcb_status_safe  = in_array( $wcb_status, self::STATUSES, true ) ? $wcb_status : 'submitted';
-							?>
-							<tr>
-								<td>
-									<?php if ( $wcb_job instanceof \WP_Post ) : ?>
-										<a href="<?php echo esc_url( get_edit_post_link( $wcb_job->ID ) ); ?>">
-											<?php echo esc_html( $wcb_job_title ); ?>
-										</a>
-									<?php else : ?>
-										<?php echo esc_html( $wcb_job_title ); ?>
-									<?php endif; ?>
-								</td>
-								<td>
-									<?php if ( $wcb_candidate instanceof \WP_User ) : ?>
-										<a href="<?php echo esc_url( get_edit_user_link( $wcb_candidate->ID ) ); ?>">
-											<?php echo esc_html( $wcb_cand_name ); ?>
-										</a>
-									<?php else : ?>
-										<?php echo esc_html( $wcb_cand_name ); ?>
-									<?php endif; ?>
-								</td>
-								<td>
-									<span class="wcb-status-badge wcb-status-<?php echo esc_attr( $wcb_status_safe ); ?>">
-										<?php echo esc_html( ucfirst( $wcb_status_safe ) ); ?>
-									</span>
-								</td>
-								<td>
-									<select
-										class="wcb-status-select"
-										data-app-id="<?php echo (int) $wcb_app->ID; ?>"
-									>
-										<?php foreach ( self::STATUSES as $wcb_opt ) : ?>
-											<option
-												value="<?php echo esc_attr( $wcb_opt ); ?>"
-												<?php selected( $wcb_status_safe, $wcb_opt ); ?>
-											>
-												<?php echo esc_html( ucfirst( $wcb_opt ) ); ?>
-											</option>
-										<?php endforeach; ?>
-									</select>
-								</td>
-								<td><?php echo esc_html( $wcb_app->post_date ); ?></td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			<?php endif; ?>
+			<?php $this->views(); ?>
+
+			<form method="get">
+				<input type="hidden" name="page" value="wcb-applications">
+				<?php $this->search_box( __( 'Search Applications', 'wp-career-board' ), 'wcb-application' ); ?>
+				<?php $this->display(); ?>
+			</form>
 		</div>
 		<?php
+	}
+
+	// -------------------------------------------------------------------------
+	// Column definitions
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Define all visible columns.
+	 *
+	 * @since 1.0.0
+	 * @return array<string,string>
+	 */
+	public function get_columns(): array {
+		return array(
+			'cb'        => '<input type="checkbox">',
+			'candidate' => __( 'Candidate', 'wp-career-board' ),
+			'job'       => __( 'Job', 'wp-career-board' ),
+			'status'    => __( 'Status', 'wp-career-board' ),
+			'change'    => __( 'Change Status', 'wp-career-board' ),
+			'date'      => __( 'Date', 'wp-career-board' ),
+		);
+	}
+
+	/**
+	 * Define sortable columns.
+	 *
+	 * @since 1.0.0
+	 * @return array<string,array<int,mixed>>
+	 */
+	protected function get_sortable_columns(): array {
+		return array(
+			'date' => array( 'date', true ),
+		);
+	}
+
+	/**
+	 * Return available bulk actions.
+	 *
+	 * @since 1.0.0
+	 * @return array<string,string>
+	 */
+	protected function get_bulk_actions(): array {
+		return array(
+			'trash' => __( 'Move to Trash', 'wp-career-board' ),
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// Data preparation
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Query applications and configure pagination.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function prepare_items(): void {
+		$per_page     = 20;
+		$current_page = $this->get_pagenum();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$status_filter = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order = isset( $_GET['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) : 'DESC';
+		$order = in_array( $order, array( 'ASC', 'DESC' ), true ) ? $order : 'DESC';
+
+		$query_args = array(
+			'post_type'      => 'wcb_application',
+			'post_status'    => 'publish',
+			'posts_per_page' => $per_page,
+			'paged'          => $current_page,
+			'orderby'        => 'date',
+			'order'          => $order,
+		);
+
+		// Filter by application status meta.
+		if ( $status_filter && in_array( $status_filter, self::STATUSES, true ) ) {
+			$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'   => '_wcb_status',
+					'value' => $status_filter,
+				),
+			);
+		}
+
+		if ( $search ) {
+			$query_args['s'] = $search;
+		}
+
+		$query       = new \WP_Query( $query_args );
+		$this->items = $query->posts;
+
+		$this->set_pagination_args(
+			array(
+				'total_items' => $query->found_posts,
+				'per_page'    => $per_page,
+				'total_pages' => ceil( $query->found_posts / $per_page ),
+			)
+		);
+
+		$this->_column_headers = array(
+			$this->get_columns(),
+			array(), // Hidden columns.
+			$this->get_sortable_columns(),
+			'candidate', // Primary column.
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// Status tabs
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build the status-filter view links shown above the table.
+	 *
+	 * @since 1.0.0
+	 * @return array<string,string>
+	 */
+	protected function get_views(): array {
+		global $wpdb;
+
+		$base_url = admin_url( 'admin.php?page=wcb-applications' );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
+
+		// Count total applications (all publish).
+		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'",
+				'wcb_application'
+			)
+		);
+
+		$views = array();
+
+		$views['all'] = sprintf(
+			'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+			esc_url( $base_url ),
+			'' === $current ? ' class="current"' : '',
+			esc_html__( 'All', 'wp-career-board' ),
+			$total
+		);
+
+		foreach ( self::STATUSES as $slug ) {
+			$label = ucfirst( $slug );
+			$count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT COUNT(DISTINCT p.ID)
+					FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+					WHERE p.post_type = %s
+					  AND p.post_status = 'publish'
+					  AND pm.meta_key = '_wcb_status'
+					  AND pm.meta_value = %s",
+					'wcb_application',
+					$slug
+				)
+			);
+
+			if ( 0 === $count && $current !== $slug ) {
+				continue;
+			}
+
+			$views[ $slug ] = sprintf(
+				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+				esc_url( add_query_arg( 'app_status', $slug, $base_url ) ),
+				$current === $slug ? ' class="current"' : '',
+				esc_html( $label ),
+				$count
+			);
+		}
+
+		return $views;
+	}
+
+	// -------------------------------------------------------------------------
+	// Column renderers
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Checkbox column.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_cb( $item ): string {
+		return sprintf(
+			'<input type="checkbox" name="application[]" value="%d">',
+			(int) $item->ID
+		);
+	}
+
+	/**
+	 * Candidate column — name linked to user profile, with row actions.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_candidate( $item ): string {
+		$candidate_id = (int) get_post_meta( $item->ID, '_wcb_candidate_id', true );
+		$candidate    = $candidate_id ? get_userdata( $candidate_id ) : false;
+		$name         = $candidate instanceof \WP_User ? $candidate->display_name : __( '(deleted)', 'wp-career-board' );
+
+		if ( $candidate instanceof \WP_User ) {
+			$out = sprintf(
+				'<strong><a class="row-title" href="%s">%s</a></strong>',
+				esc_url( (string) get_edit_user_link( $candidate->ID ) ),
+				esc_html( $name )
+			);
+		} else {
+			$out = '<strong>' . esc_html( $name ) . '</strong>';
+		}
+
+		$edit_link   = (string) get_edit_post_link( $item->ID );
+		$row_actions = array(
+			'view' => sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $edit_link ),
+				esc_html__( 'View', 'wp-career-board' )
+			),
+		);
+
+		if ( 'trash' !== $item->post_status ) {
+			$trash_link = get_delete_post_link( $item->ID );
+			if ( $trash_link ) {
+				$row_actions['trash'] = sprintf(
+					'<a href="%s" class="submitdelete">%s</a>',
+					esc_url( $trash_link ),
+					esc_html__( 'Trash', 'wp-career-board' )
+				);
+			}
+		} else {
+			$restore_link           = wp_nonce_url(
+				admin_url( 'post.php?action=untrash&post=' . $item->ID ),
+				'untrash-post_' . $item->ID
+			);
+			$row_actions['restore'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $restore_link ),
+				esc_html__( 'Restore', 'wp-career-board' )
+			);
+		}
+
+		$out .= $this->row_actions( $row_actions );
+		return $out;
+	}
+
+	/**
+	 * Job column — title linked to job edit page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_job( $item ): string {
+		$job_id = (int) get_post_meta( $item->ID, '_wcb_job_id', true );
+		$job    = $job_id ? get_post( $job_id ) : null;
+
+		if ( $job instanceof \WP_Post ) {
+			return sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( (string) get_edit_post_link( $job->ID ) ),
+				esc_html( $job->post_title )
+			);
+		}
+
+		return esc_html__( '(deleted)', 'wp-career-board' );
+	}
+
+	/**
+	 * Status column — coloured badge.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_status( $item ): string {
+		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
+		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
+
+		return sprintf(
+			'<span class="wcb-status-badge wcb-status-%s">%s</span>',
+			esc_attr( $status ),
+			esc_html( ucfirst( $status ) )
+		);
+	}
+
+	/**
+	 * Change-status column — inline select, updated via JS/REST.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_change( $item ): string {
+		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
+		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
+
+		$select = sprintf(
+			'<select class="wcb-status-select" data-app-id="%d">',
+			(int) $item->ID
+		);
+		foreach ( self::STATUSES as $opt ) {
+			$select .= sprintf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr( $opt ),
+				selected( $status, $opt, false ),
+				esc_html( ucfirst( $opt ) )
+			);
+		}
+		$select .= '</select>';
+		return $select;
+	}
+
+	/**
+	 * Date column.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_date( $item ): string {
+		return esc_html( get_the_date( 'Y-m-d', $item ) );
+	}
+
+	/**
+	 * Default column fallback.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item        Current row post object.
+	 * @param string   $column_name Column slug.
+	 * @return string
+	 */
+	public function column_default( $item, $column_name ): string {
+		return '';
+	}
+
+	// -------------------------------------------------------------------------
+	// Bulk action handler
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Handle bulk trash action.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	protected function process_bulk_action(): void {
+		$action = $this->current_action();
+		if ( ! $action ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'bulk-applications' ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$app_ids = isset( $_GET['application'] ) ? array_map( 'intval', (array) $_GET['application'] ) : array();
+		if ( empty( $app_ids ) ) {
+			return;
+		}
+
+		foreach ( $app_ids as $app_id ) {
+			if ( ! current_user_can( 'edit_post', $app_id ) ) {
+				continue;
+			}
+			if ( 'trash' === $action ) {
+				wp_trash_post( $app_id );
+			}
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-applications' ) );
+		exit;
 	}
 }
