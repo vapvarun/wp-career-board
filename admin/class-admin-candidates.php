@@ -38,10 +38,15 @@ class AdminCandidates {
 		);
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></h1>
+			<h1 class="wp-heading-inline"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></h1>
+			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'wp-career-board' ); ?></a>
+			<hr class="wp-header-end">
 
 			<?php if ( empty( $wcb_candidates ) ) : ?>
-				<p class="wcb-no-items"><?php esc_html_e( 'No candidate accounts yet.', 'wp-career-board' ); ?></p>
+				<p class="wcb-no-items">
+					<?php esc_html_e( 'No candidate accounts yet.', 'wp-career-board' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( 'Add your first candidate.', 'wp-career-board' ); ?></a>
+				</p>
 			<?php else : ?>
 				<table class="widefat striped wcb-admin-table">
 					<thead>

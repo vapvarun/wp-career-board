@@ -49,6 +49,7 @@ class AdminSettings {
 	 */
 	public function boot(): void {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_post_wcb_create_pages', array( $this, 'handle_create_pages' ) );
 	}
 
 	/**
@@ -95,6 +96,74 @@ class AdminSettings {
 	}
 
 	/**
+	 * Handle the "Create Missing Pages" form POST.
+	 *
+	 * Creates any WCB page that has not yet been assigned in settings,
+	 * then redirects back to the settings screen.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function handle_create_pages(): void {
+		check_admin_referer( 'wcb_create_pages' );
+
+		if ( ! current_user_can( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
+		}
+
+		$settings = (array) get_option( self::OPTION_KEY, array() );
+
+		$pages = array(
+			'jobs_archive_page'        => array(
+				'title'   => __( 'Find Jobs', 'wp-career-board' ),
+				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+			),
+			'employer_dashboard_page'  => array(
+				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
+				'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
+			),
+			'candidate_dashboard_page' => array(
+				'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
+				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
+			),
+			'post_job_page'            => array(
+				'title'   => __( 'Post a Job', 'wp-career-board' ),
+				'content' => '<!-- wp:wp-career-board/job-form /-->',
+			),
+		);
+
+		foreach ( $pages as $key => $page ) {
+			if ( ! empty( $settings[ $key ] ) && get_post( (int) $settings[ $key ] ) ) {
+				continue;
+			}
+			$page_id = wp_insert_post(
+				array(
+					'post_title'   => $page['title'],
+					'post_content' => $page['content'],
+					'post_status'  => 'publish',
+					'post_type'    => 'page',
+				)
+			);
+			if ( $page_id && ! is_wp_error( $page_id ) ) {
+				$settings[ $key ] = $page_id;
+			}
+		}
+
+		update_option( self::OPTION_KEY, $settings );
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'    => 'wcb-settings',
+					'created' => '1',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
 	 * Render the settings page.
 	 *
 	 * @since 1.0.0
@@ -104,9 +173,42 @@ class AdminSettings {
 		$settings           = (array) get_option( self::OPTION_KEY, array() );
 		$notification_email = ! empty( $settings['notification_email'] ) ? $settings['notification_email'] : get_option( 'admin_email' );
 		$salary_currency    = isset( $settings['salary_currency'] ) ? $settings['salary_currency'] : '$';
+
+		$wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page' );
+		$wcb_missing   = array();
+		foreach ( $wcb_page_keys as $wcb_k ) {
+			if ( empty( $settings[ $wcb_k ] ) || ! get_post( (int) $settings[ $wcb_k ] ) ) {
+				$wcb_missing[] = $wcb_k;
+			}
+		}
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'WP Career Board — Settings', 'wp-career-board' ); ?></h1>
+
+			<?php if ( isset( $_GET['created'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php esc_html_e( 'Missing pages created and assigned successfully.', 'wp-career-board' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $wcb_missing ) ) : ?>
+				<div class="notice notice-warning">
+					<p>
+						<strong><?php esc_html_e( 'Page Setup Required', 'wp-career-board' ); ?></strong> —
+						<?php esc_html_e( 'Some required WP Career Board pages have not been created yet.', 'wp-career-board' ); ?>
+					</p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="wcb_create_pages">
+						<?php wp_nonce_field( 'wcb_create_pages' ); ?>
+						<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary', 'submit', false ); ?>
+					</form>
+				</div>
+			<?php else : ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php esc_html_e( 'All required WP Career Board pages are set up.', 'wp-career-board' ); ?></p>
+				</div>
+			<?php endif; ?>
+
 			<form method="post" action="options.php">
 				<?php settings_fields( 'wcb_settings_group' ); ?>
 
