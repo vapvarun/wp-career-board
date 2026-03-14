@@ -76,6 +76,10 @@ final class Plugin {
 			if ( class_exists( \WCB\Admin\Admin::class ) ) {
 				( new \WCB\Admin\Admin() )->boot();
 			}
+
+			if ( class_exists( \WCB\Admin\SetupWizard::class ) ) {
+				( new \WCB\Admin\SetupWizard() )->boot();
+			}
 		}
 
 		$this->load_integrations();

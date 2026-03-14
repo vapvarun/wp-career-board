@@ -52,6 +52,7 @@ final class Install {
 		flush_rewrite_rules();
 		update_option( 'wcb_db_version', self::DB_VERSION, false );
 		update_option( 'wcb_version', WCB_VERSION, false );
+		set_transient( 'wcb_activation_redirect', true, 30 );
 	}
 
 	/**
