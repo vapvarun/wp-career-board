@@ -59,12 +59,12 @@ final class Plugin {
 	private function init(): void {
 		load_plugin_textdomain( 'wp-career-board', false, dirname( WCB_BASENAME ) . '/languages' );
 
-		if ( class_exists( Roles::class ) ) {
-			add_action( 'init', array( new Roles(), 'register' ), 5 );
+		if ( class_exists( \WCB\Core\Roles::class ) ) {
+			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
 		}
 
-		if ( class_exists( Abilities::class ) ) {
-			add_action( 'init', array( new Abilities(), 'register' ), 5 );
+		if ( class_exists( \WCB\Core\Abilities::class ) ) {
+			add_action( 'init', array( new \WCB\Core\Abilities(), 'register' ), 5 );
 		}
 
 		$this->boot_modules();
@@ -151,7 +151,7 @@ final class Plugin {
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
 			if ( is_dir( $block_dir ) ) {
-				register_block_type( $block_dir );
+				register_block_type_from_metadata( $block_dir );
 			}
 		}
 	}

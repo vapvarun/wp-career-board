@@ -27,6 +27,9 @@ define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
 define( 'WCB_BASENAME', plugin_basename( __FILE__ ) );
 
 // Autoloader: maps WCB\ namespace to /core, /modules, /api, /integrations, /admin.
+// NAMING CONSTRAINT: Class names must use PascalCase for acronyms.
+// e.g. RestController, CptLoader — NOT RESTController, CPTLoader.
+// ALL-CAPS prefixes produce broken filenames: RESTController → class-r-e-s-t-controller.php.
 spl_autoload_register(
 	function ( string $fqcn ): void {
 		if ( 0 !== strpos( $fqcn, 'WCB\\' ) ) {

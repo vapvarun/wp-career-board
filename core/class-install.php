@@ -26,6 +26,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Install {
 
 	/**
+	 * Prevent instantiation — all methods are static.
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
+
+	/**
 	 * Run on plugin activation.
 	 *
 	 * Stores the plugin version so upgrade routines can detect schema changes.
