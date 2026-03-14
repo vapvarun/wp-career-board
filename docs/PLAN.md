@@ -10,6 +10,34 @@
 
 ---
 
+## Task Close Checklist (run after EVERY task)
+
+> Subagents: do not mark a task ✅ until all five steps below are done.
+
+- [ ] **WPCS fix** — `mcp__wpcs__wpcs_fix_file` on every changed file
+- [ ] **WPCS gate** — `mcp__wpcs__wpcs_check_staged` returns 0 errors
+- [ ] **PHPStan** — `mcp__wpcs__wpcs_phpstan_check` returns 0 errors
+- [ ] **Update progress tracker** — change row in table below from ⬜/🔄 to ✅, add date + commit hash
+- [ ] **Store in automem** — call `mcp__automem__store_memory` with:
+  ```
+  title:   "WCB Free — T{N} {Task Name} DONE"
+  content: task ID, completion date, commit hash, files created/modified,
+           WPCS result, PHPStan result, deviations (if any), next task
+  tags:    ["wp-career-board", "task-progress", "T{N}", "completed"]
+  ```
+
+## Session Start Checklist
+
+> Always run this before picking up any task.
+
+```js
+mcp__automem__recall_memory({ query: "wp-career-board task progress", tags: ["wp-career-board", "task-progress"] })
+```
+
+Cross-check recalled tasks against the progress tracker table below. First ⬜ row = next task to start. Mark it 🔄 before beginning.
+
+---
+
 ## File Structure
 
 ```
