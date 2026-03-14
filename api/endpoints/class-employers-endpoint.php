@@ -210,12 +210,23 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		$posts = get_posts(
+		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
+		$is_owner    = get_current_user_id() === (int) $company->post_author;
+		$is_admin    = $this->check_ability( 'wcb_manage_settings' );
+		$post_status = ( $is_owner || $is_admin )
+			? array( 'publish', 'pending', 'draft' )
+			: array( 'publish' );
+
+		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
+		$paged    = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
+
+		$query = new \WP_Query(
 			array(
-				'post_type'   => 'wcb_job',
-				'post_author' => (int) $company->post_author,
-				'post_status' => array( 'publish', 'pending', 'draft' ),
-				'numberposts' => 100,
+				'post_type'      => 'wcb_job',
+				'post_author'    => (int) $company->post_author,
+				'post_status'    => $post_status,
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
 			)
 		);
 
@@ -227,10 +238,13 @@ final class EmployersEndpoint extends RestController {
 					'status' => $p->post_status,
 				);
 			},
-			$posts
+			$query->posts
 		);
 
-		return rest_ensure_response( $items );
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WCB-Total', (string) $query->found_posts );
+		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $response;
 	}
 
 	// --- Permission callbacks ---------------------------------------------------
@@ -262,7 +276,8 @@ final class EmployersEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = get_current_user_id() === (int) $post->post_author;
+		$is_owner = get_current_user_id() === (int) $post->post_author
+			&& $this->check_ability( 'wcb_manage_company' );
 		$is_admin = $this->check_ability( 'wcb_manage_settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}

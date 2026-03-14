@@ -140,8 +140,14 @@ final class CandidatesEndpoint extends RestController {
 
 		$resume_data = $request->get_param( 'resume' );
 		if ( null !== $resume_data ) {
-			// Store as serialized array; sanitize at field level if structure is known.
-			update_user_meta( $user_id, '_wcb_resume_data', $resume_data );
+			// Accept only an array; sanitize each string value.
+			$safe_resume = array();
+			if ( is_array( $resume_data ) ) {
+				foreach ( $resume_data as $key => $value ) {
+					$safe_resume[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+				}
+			}
+			update_user_meta( $user_id, '_wcb_resume_data', $safe_resume );
 		}
 
 		return rest_ensure_response( $this->prepare_candidate( get_user_by( 'ID', $user_id ) ) );
