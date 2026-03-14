@@ -3589,6 +3589,27 @@ git -C "/Users/varundubey/Local Sites/job-portal/app/public/wp-content/plugins/w
 
 ---
 
+### Task 21a: Admin Dashboard Overhaul
+
+Identified during QA review: the main Career Board dashboard (`?page=wp-career-board`) displayed only three unlinkable stat boxes — no navigation, no actions, no recent content. Replaced with a real control-center dashboard.
+
+**Files:**
+- Modify: `admin/class-admin.php` — `render_dashboard()`
+- Modify: `assets/css/admin.css` — dashboard layout styles
+
+**What changes:**
+- Stats row: 5 linked stat boxes (Active Jobs, Applications, Employers, Candidates, Pending Review) — each navigates to the relevant sub-page; Pending Review turns red when > 0
+- Two-column panel row:
+  - Left: **Pending Review** queue with inline Approve/Reject buttons (same JS as Jobs page)
+  - Right: **Recent Applications** (last 5) with candidate name, linked job title, status badge, date
+- Quick action bar: `+ Add Job`, `+ Add User`, `Settings` buttons
+
+- [x] **Modify `render_dashboard()` in `admin/class-admin.php`**
+- [x] **Add dashboard layout CSS in `assets/css/admin.css`**
+- [x] **WPCS fix + commit**
+
+---
+
 ### Task 21: Pre-Release QA Checklist
 
 - [ ] **Functional QA**
@@ -3670,7 +3691,8 @@ Use this table to track task completion. Update the Status column as you go.
 | T15 | wcb/job-listings block | ✅ 2026-03-14 · `e4b70ae` |
 | T16 | wcb/job-search + wcb/job-filters blocks | ✅ 2026-03-14 · `28d22ac` |
 | T17 | wcb/job-single + wcb/job-form + dashboards + company | ✅ 2026-03-14 · `f6b64c5` |
-| T18 | Reign integration | ⬜ Not started |
-| T19 | BuddyX Pro integration | ⬜ Not started |
-| T20 | BuddyPress integration | ⬜ Not started |
-| T21 | Pre-release QA | ⬜ Not started |
+| T18 | Reign integration | ✅ 2026-03-15 · `1243390` |
+| T19  | BuddyX Pro integration | ✅ 2026-03-15 · `b358a29` |
+| T20  | BuddyPress integration | ✅ 2026-03-15 · `b358a29` |
+| T21a | Admin dashboard overhaul | 🔄 In progress |
+| T21  | Pre-release QA | ⬜ Not started |
