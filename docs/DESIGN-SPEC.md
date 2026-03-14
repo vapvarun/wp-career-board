@@ -1,7 +1,7 @@
 # WP Career Board — Complete Design Specification
 
 **Date:** 2026-03-14
-**Status:** Approved
+**Status:** Updated after market gap audit — 2026-03-14
 **Author:** Varun Dubey, Wbcom Designs
 
 ---
@@ -50,10 +50,27 @@
 | Map view + radius search | ✗ | ✓ |
 | PWA + offline browsing | ✗ | ✓ |
 | Per-board i18n + currency | ✗ | ✓ |
-| Advanced notifications (push/SMS) | ✗ | ✓ |
+| Advanced notifications (push/SMS/WhatsApp) | ✗ | ✓ |
 | Migration tools | ✗ | ✓ |
 | Analytics dashboard | ✗ | ✓ |
 | Dynamic OG image generation | ✗ | ✓ |
+| Google Indexing API (instant indexing) | ✗ | ✓ |
+| Knockout/scored screening questions | ✗ | ✓ |
+| Candidate subscription tier (priority apply) | ✗ | ✓ |
+| Calendly/Cal.com interview scheduling | ✗ | ✓ |
+| Ghost job enforcement + Verified Active badge | ✗ | ✓ |
+| Niche board presets (Trades, Creator, Climate…) | ✗ | ✓ |
+| LinkedIn cross-posting API | ✗ | ✓ |
+| Async video application field | ✗ | ✓ |
+| TestGorilla skills assessment integration | ✗ | ✓ |
+| Employer branding package | ✗ | ✓ |
+| Zapier/Make outbound webhooks | ✗ | ✓ |
+| Salary transparency compliance toggle | ✗ | ✓ |
+| Checkr background check API | ✗ | ✓ |
+| Merge.dev HRIS sync (BambooHR, Workday…) | ✗ | ✓ |
+| Levels.fyi salary data widget | ✗ | ✓ |
+| DocuSign offer letter + e-signature | ✗ | ✓ |
+| Employer hiring intelligence dashboard | ✗ | ✓ |
 
 **Theme support:**
 - Reign — full template layer + Customizer + panels + design system
@@ -672,3 +689,109 @@ WP Job Manager, WPJobBoard, Simple Job Board, Job Board Manager, BuddyPress Job 
 | Niche job board founder | WP Job Manager extensions cost $500+/year for less |
 | Developer building for client | Modern PHP 8.1+, REST API, clean hooks — not legacy code |
 | Multi-community operator | No single WP plugin runs multiple boards from one install |
+
+---
+
+## 11. Market Gap Audit (2026-03-14)
+
+Full research report covering 5 areas: feature gaps, underserved niches, monetisation gaps, technical gaps, and competitive intelligence.
+
+### 11.1 Feature Gaps No WP Plugin Currently Solves
+
+| Gap | User Pain | Our Solution |
+|-----|-----------|-------------|
+| Ghost job listings | Candidates apply to roles not actively hiring — <2% interview rate | Listing freshness enforcement: auto-flag after X days of no employer activity, "Verified Active" badge, auto-expiry with employer re-confirmation prompt |
+| No application status transparency | Candidates ghosted for months — universal complaint on r/jobsearch | Candidate dashboard shows live status per application: Applied → Reviewed → Interview Scheduled → Offer/No |
+| Non-conditional application forms | Generic forms cause high abandonment | Conditional application fields per job type — show portfolio for design roles, GitHub for engineering, quota fields for sales |
+| Knockout screening questions | Employers drowning in unqualified applications | Scored screening questions with configurable knockout logic — failing a threshold auto-declines with email |
+| No interview scheduling | Scheduling an interview requires leaving the plugin | Cal.com (open-source) or Calendly API embedded in employer application view — candidate picks a slot, confirmation fires automatically |
+| No async video applications | Modern hiring expects video screening | Video introduction field on application forms — self-hosted MediaRecorder API or Loom/Vimeo URL submission |
+| No skills assessment | Pre-hire technical screening disconnected from job board | TestGorilla API integration — employer attaches assessment to listing, candidate auto-receives link on apply, results appear in application record |
+| No salary transparency | 50%+ of US listings legally require pay range by 2025 | Per-board "salary transparency required" toggle — mandatory pay range field when enabled |
+
+### 11.2 Underserved Niches — Niche Board Presets
+
+Each preset is a one-click board configuration: pre-built field schema, category taxonomy, default filters, and tailored application form for that niche. No existing WordPress plugin has any preset system.
+
+| Niche | Market Signal | Key Custom Fields |
+|-------|--------------|------------------|
+| **Skilled Trades** | 40% vacancy rate; electricians at $40/hr driven by AI data centers; retiring workforce | Trade licence upload, union status, shift type (day/night/rotating), journeyman vs apprentice, physical requirements, per-diem/travel pay, SMS notification default |
+| **Creator Economy** | 36.8% YoY growth Q1 2025; 1,941 open positions Q3 2024 | YouTube/TikTok/Substack channel size, content niche, platform expertise, portfolio embed (YouTube, Spotify, Substack links) |
+| **Climate / Green Jobs** | $1.3T projected investment; boards exist (Climatebase) but none self-hostable | Climate impact category, remote/hybrid/on-site, certifications (LEED, BREEAM), grant-funded flag |
+| **Web3 / Crypto** | 300% surge 2023-2025; ~10,000 active global positions | Wallet address for on-chain compensation, token/equity split, DAO participation, protocol expertise, blockchain/chain expertise |
+| **Neurodiversity-Friendly** | SAP, Goldman, Microsoft all running active programs | Accommodations available, interview format options (no panel, written preference), quiet workspace flag, WCAG 2.2 AA default |
+| **Returnship Programs** | Amazon, Goldman, IBM programs with no WP infrastructure | Cohort-based mode with start date + program duration, re-entry reason field, application deadline per cohort |
+| **Non-Profit** | Already heavy WordPress users; can't afford $129-$223/month SaaS | 501(c)(3) status, mission area, volunteer vs paid, grant-funded position flag |
+
+### 11.3 Monetisation Gaps — New Revenue Streams
+
+| Revenue Model | Market Evidence | WP Career Board Implementation |
+|--------------|----------------|-------------------------------|
+| **Candidate subscription tier** | Naukri built a B2C business on priority placement. No WP plugin has this. | `wcb_candidate_pro` subscription ($9-19/month): priority application placement, profile boost (surfaced in employer search), application open-tracking, extended history |
+| **Employer branding package** | Wellfound charges $149/month; We Work Remotely $299-$408/listing. No WP plugin has structured branding. | Employer branding module: company video embed, culture photo gallery, team profile section, "Featured Employer" homepage placement, sponsored job slots in search |
+| **Candidate database access** | LinkedIn Recruiter starts ~$8,000/yr. SMB boards charge $99-$299/month. | Recruiter subscription tier: searchable candidate pool (opt-in candidates only), saved searches, contact request system |
+| **Agency / white-label license** | Niceboard $129-$223/month, SmartJobBoard $99-$149/month — WordPress undercuts all | Agency license tier: multi-client board management, client billing, branded board per client domain |
+| **Hiring intelligence data product** | Ashby's analytics built into every screen is their core differentiator | Employer-facing dashboard: time-to-fill by role, salary benchmarks from board data, skills demand trends, application volume analytics — sold as employer Pro add-on |
+| **Bootcamp partner program** | GA, Flatiron, Multiverse all have partner divisions. No WP job board has infrastructure for this. | Training provider partner pages, graduate candidate badges, cohort job-ready notifications to employers, revenue share on employer hires from bootcamp cohorts |
+| **Sponsored employer content** | Built In and The Muse generate significant revenue from employer culture content | Employer content hub: employers pay to publish culture/hiring articles that live as SEO editorial, separate from job listings |
+
+### 11.4 Technical Gaps — New Integrations
+
+| Integration | Gap | Priority |
+|-------------|-----|----------|
+| **Google Indexing API** | WP plugins add JobPosting schema but don't call the Indexing API. Jobs wait days/weeks to be indexed vs minutes. | Tier 1 — direct SEO moat |
+| **LinkedIn Jobs API** | No WP plugin posts directly to LinkedIn via API — only share buttons. LinkedIn partnership approval required. | Tier 1 — major differentiator |
+| **Cal.com / Calendly API** | No WP job board integrates interview scheduling. Cal.com is open-source and free. | Tier 1 — closes biggest workflow gap |
+| **Async video applications** | No WP plugin has any video application feature. MediaRecorder API is browser-native. | Tier 2 |
+| **TestGorilla API** | SMB-friendly skills assessment. 0 WP job board integrations exist. | Tier 2 |
+| **WhatsApp Business API** | Dominant outside North America; critical for trades boards (workers not at desks). Already in our notification driver model. | Tier 2 |
+| **Zapier / Make webhooks** | First-class documented outbound webhook system with a webhook management UI — events: job posted, applied, status changed, hired | Tier 2 |
+| **Checkr background check API** | Mandatory for trades, healthcare, childcare boards. 100+ existing ATS integrations. | Tier 3 |
+| **Merge.dev HRIS sync** | One API integration covers BambooHR, Workday, SAP, ADP, 200+ HR systems. "Mark as Hired → sync to onboarding" closes the full hiring lifecycle. | Tier 3 |
+| **Levels.fyi salary data API** | Market salary range widget on tech listings. No WP job board uses any salary data API. | Tier 3 |
+| **DocuSign / HelloSign offer letter** | E-signature for offer letters closes full recruitment lifecycle inside WordPress. | Tier 3 |
+
+### 11.5 Competitive Intelligence
+
+**Market size:** Global Job Board Software Market $567M (2024) → $1.1B by 2033 (7.78% CAGR). Growing faster than WordPress plugins overall.
+
+**Fastest-growing ATS (2024-2025):**
+- **Ashby** — raised $50M Series D (July 2025). 4,000+ customers. Key features: AI Candidate Assistant, AI Notetaker (auto-transcribes interviews), AI-assisted application review, fraudulent candidate detection. Core moat: analytics built into every screen + all-in-one, no add-ons. WP Career Board should mirror this — no fragmentation.
+- **Rippling** — NPS ~90. Auto-scheduling, interview recording/transcription, direct HR system sync on hire.
+
+**No new modern-stack WP job board plugins launched in 2024-2025** that use the Interactivity API, Abilities API, or native Gutenberg blocks. UseVerb (AI-powered) is the closest, but it is a simple career page plugin, not a full job board platform. **The gap is real and unoccupied.**
+
+**Developer complaints about existing WP plugins (primary research):**
+- Add-on fragmentation: 4-6 paid add-ons ($49-99 each) to get full functionality
+- No built-in ATS — forces external tool usage
+- Poor documentation, confusing admin UI
+- No niche-specific features — no custom fields, no custom filters
+- Unstable performance, plugin conflicts (Jobify cited)
+
+### 11.6 Updated Competitive Comparison
+
+| Feature | WP Job Manager | WPJobBoard | Ashby (SaaS) | **WP Career Board** |
+|---------|---------------|-----------|-------------|-------------------|
+| Interactivity API | ✗ | ✗ | N/A | ✓ |
+| AI matching + ranking | ✗ | ✗ | ✓ | ✓ |
+| AI interview notes | ✗ | ✗ | ✓ | Roadmap |
+| Knockout screening questions | ✗ | ✗ | ✓ | ✓ |
+| Interview scheduling | ✗ | ✗ | ✓ | ✓ Cal.com/Calendly |
+| Video applications | ✗ | ✗ | ✓ | ✓ |
+| Skills assessment | ✗ | ✗ | ✓ | ✓ TestGorilla |
+| Multi-board (single site) | ✗ | ✗ | N/A | ✓ |
+| Niche board presets | ✗ | ✗ | N/A | ✓ 7 presets |
+| Candidate subscription tier | ✗ | ✗ | ✗ | ✓ |
+| Employer branding package | ✗ | ✗ | ✗ | ✓ |
+| Ghost job enforcement | ✗ | ✗ | ✗ | ✓ |
+| Google Indexing API | ✗ | ✗ | N/A | ✓ |
+| LinkedIn API cross-posting | ✗ | ✗ | ✓ | ✓ |
+| WhatsApp notifications | ✗ | ✗ | ✗ | ✓ |
+| HRIS sync on hire | ✗ | ✗ | ✓ | ✓ Merge.dev |
+| Offer letter + e-signature | ✗ | ✗ | ✓ | ✓ DocuSign |
+| BuddyPress/community native | Via add-on | ✗ | N/A | ✓ |
+| WordPress-native | ✓ | ✓ | N/A | ✓ |
+| Self-hosted | ✓ | ✓ | ✗ | ✓ |
+| Pricing | Free+add-ons | $97+/yr | ~$10k/yr | Free + Pro |
+
+**WP Career Board sits between WordPress plugins and enterprise SaaS — feature parity with Ashby, self-hosted, WordPress-native pricing.**
