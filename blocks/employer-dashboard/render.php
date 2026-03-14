@@ -15,7 +15,11 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! is_user_logged_in() || ! wp_is_ability_granted( 'wcb_manage_company' ) ) {
+$wcb_can_manage = function_exists( 'wp_is_ability_granted' )
+	? wp_is_ability_granted( 'wcb_manage_company' )
+	: current_user_can( 'wcb_manage_company' );
+
+if ( ! is_user_logged_in() || ! $wcb_can_manage ) {
 	echo '<p>' . esc_html__( 'You must be logged in as an employer to view this dashboard.', 'wp-career-board' ) . '</p>';
 	return;
 }

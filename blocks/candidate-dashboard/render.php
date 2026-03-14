@@ -78,6 +78,7 @@ wp_interactivity_state(
 	<!-- Tab: Saved Jobs -->
 	<div class="wcb-tab-panel" data-wp-show="state.isTabBookmarks">
 		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
 
 		<div data-wp-show="!state.loading">
 			<template data-wp-each--bookmark="state.bookmarks" data-wp-each-key="context.bookmark.id">

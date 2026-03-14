@@ -32,7 +32,10 @@ $wcb_remote     = '1' === get_post_meta( $wcb_job_id, '_wcb_remote', true );
 $wcb_salary_min = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
 $wcb_salary_max = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
 $wcb_deadline   = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
-$wcb_can_apply  = is_user_logged_in() && wp_is_ability_granted( 'wcb_apply_jobs' );
+$wcb_has_apply  = function_exists( 'wp_is_ability_granted' )
+	? wp_is_ability_granted( 'wcb_apply_jobs' )
+	: current_user_can( 'wcb_apply_jobs' );
+$wcb_can_apply  = is_user_logged_in() && $wcb_has_apply;
 
 wp_interactivity_state(
 	'wcb-job-single',

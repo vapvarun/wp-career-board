@@ -69,9 +69,14 @@ wp_interactivity_state(
 		<h1 class="wcb-company-name" data-wp-text="state.companyName"></h1>
 
 		<?php if ( $wcb_company_site ) : ?>
-			<a class="wcb-company-site" href="<?php echo esc_url( $wcb_company_site ); ?>" rel="noopener noreferrer" target="_blank">
-				<?php echo esc_html( $wcb_company_site ); ?>
-			</a>
+			<a
+				class="wcb-company-site"
+				href="<?php echo esc_url( $wcb_company_site ); ?>"
+				rel="noopener noreferrer"
+				target="_blank"
+				data-wp-bind--href="state.companySite"
+				data-wp-text="state.companySite"
+			></a>
 		<?php endif; ?>
 
 		<div class="wcb-company-desc" data-wp-text="state.companyDesc"></div>

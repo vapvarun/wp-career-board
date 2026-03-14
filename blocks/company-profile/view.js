@@ -20,7 +20,10 @@ store( 'wcb-company-profile', {
 			const url = new URL( state.apiBase + '/employers/' + String( state.employerId ) + '/jobs' );
 			url.searchParams.set( 'per_page', '20' );
 
-			const response = yield fetch( url.toString() );
+			const response = yield fetch(
+				url.toString(),
+				{ headers: { 'X-WP-Nonce': state.nonce } }
+			);
 
 			if ( ! response.ok ) {
 				state.loading = false;
@@ -74,6 +77,7 @@ store( 'wcb-company-profile', {
 
 			if ( ! response.ok ) {
 				state.saving = false;
+				// Saving failed — keep edit panel open for retry.
 				return;
 			}
 

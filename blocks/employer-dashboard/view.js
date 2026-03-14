@@ -10,7 +10,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store } from '@wordpress/interactivity';
 
 store( 'wcb-employer-dashboard', {
 	state: {
@@ -95,11 +95,13 @@ store( 'wcb-employer-dashboard', {
 
 			if ( ! response.ok ) {
 				state.saving = false;
+				state.error  = 'Could not save profile. Please try again.';
 				return;
 			}
 
 			state.saving = false;
 			state.saved  = true;
+			state.error  = '';
 		},
 	},
 } );

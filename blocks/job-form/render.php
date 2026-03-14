@@ -15,7 +15,11 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! is_user_logged_in() || ! wp_is_ability_granted( 'wcb_post_jobs' ) ) {
+$wcb_can_post_job = function_exists( 'wp_is_ability_granted' )
+	? wp_is_ability_granted( 'wcb_post_jobs' )
+	: current_user_can( 'wcb_post_jobs' );
+
+if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	echo '<p>' . esc_html__( 'You must be logged in as an employer to post a job.', 'wp-career-board' ) . '</p>';
 	return;
 }

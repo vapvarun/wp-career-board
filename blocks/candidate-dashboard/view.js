@@ -67,6 +67,7 @@ store( 'wcb-candidate-dashboard', {
 
 			if ( ! response.ok ) {
 				state.loading = false;
+				state.error   = 'Could not load saved jobs.';
 				return;
 			}
 
