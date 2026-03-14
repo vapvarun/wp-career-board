@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wp-career-board/job-listings",
+  "version": "0.1.0",
+  "title": "Job Listings",
+  "category": "widgets",
+  "description": "Reactive job listings grid with infinite scroll and bookmark toggle.",
+  "textdomain": "wp-career-board",
+  "attributes": {
+    "perPage": { "type": "integer", "default": 20 },
+    "layout": { "type": "string", "default": "grid", "enum": ["grid", "list"] }
+  },
+  "viewScriptModule": "file:./view.js",
+  "style": "file:./style.css",
+  "render": "file:./render.php",
+  "supports": { "interactivity": true }
+}

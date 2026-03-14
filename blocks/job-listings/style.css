@@ -1,0 +1,40 @@
+.wcb-jobs-container.wcb-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 280px, 1fr ) );
+	gap: 1.5rem;
+}
+
+.wcb-jobs-container.wcb-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.wcb-job-card {
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 1.25rem;
+	background: #fff;
+	position: relative;
+}
+
+.wcb-bookmark {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: none;
+	border: none;
+	font-size: 1.25rem;
+	cursor: pointer;
+	color: #94a3b8;
+}
+
+.wcb-bookmark.bookmarked {
+	color: #f59e0b;
+}
+
+@media ( max-width: 600px ) {
+	.wcb-jobs-container.wcb-grid {
+		grid-template-columns: 1fr;
+	}
+}
