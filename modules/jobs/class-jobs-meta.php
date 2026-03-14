@@ -44,6 +44,7 @@ final class JobsMeta {
 			'_wcb_salary_max'      => array( 'type' => 'number' ),
 			'_wcb_salary_currency' => array( 'type' => 'string' ),
 			'_wcb_remote'          => array( 'type' => 'string' ),
+			'_wcb_featured'        => array( 'type' => 'string' ),
 			'_wcb_board_id'        => array( 'type' => 'integer' ),
 		);
 

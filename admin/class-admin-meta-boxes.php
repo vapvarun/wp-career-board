@@ -85,6 +85,7 @@ class AdminMetaBoxes {
 		$wcb_salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$wcb_salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
 		$wcb_remote       = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
+		$wcb_featured     = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
 		$wcb_deadline     = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
 		$wcb_company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 
@@ -170,6 +171,17 @@ class AdminMetaBoxes {
 					<?php esc_html_e( 'Remote-friendly position', 'wp-career-board' ); ?>
 				</label>
 			</div>
+			<div class="wcb-meta-full">
+				<label>
+					<input
+						type="checkbox"
+						name="wcb_featured"
+						value="1"
+						<?php checked( $wcb_featured ); ?>
+					/>
+					<?php esc_html_e( 'Featured listing', 'wp-career-board' ); ?>
+				</label>
+			</div>
 		</div>
 		<?php
 	}
@@ -222,5 +234,9 @@ class AdminMetaBoxes {
 		// Remote flag.
 		$remote = isset( $_POST['wcb_remote'] ) && '1' === $_POST['wcb_remote'] ? '1' : '0';
 		update_post_meta( $post_id, '_wcb_remote', $remote );
+
+		// Featured flag.
+		$featured = isset( $_POST['wcb_featured'] ) && '1' === $_POST['wcb_featured'] ? '1' : '0';
+		update_post_meta( $post_id, '_wcb_featured', $featured );
 	}
 }
