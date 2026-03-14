@@ -314,6 +314,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			return;
 		}
 
+		update_post_meta( $job_id, '_wcb_company_name', 'Acme Corp' );
 		update_post_meta( $job_id, '_wcb_salary_min', 80000 );
 		update_post_meta( $job_id, '_wcb_salary_max', 120000 );
 		update_post_meta( $job_id, '_wcb_salary_currency', 'USD' );
