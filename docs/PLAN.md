@@ -3669,7 +3669,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T14 | Build configuration (@wordpress/scripts) | ✅ 2026-03-14 · `e26589c` |
 | T15 | wcb/job-listings block | ✅ 2026-03-14 · `e4b70ae` |
 | T16 | wcb/job-search + wcb/job-filters blocks | ✅ 2026-03-14 · `28d22ac` |
-| T17 | wcb/job-single + wcb/job-form + dashboards + company | ⬜ Not started |
+| T17 | wcb/job-single + wcb/job-form + dashboards + company | ✅ 2026-03-14 · `f6b64c5` |
 | T18 | Reign integration | ⬜ Not started |
 | T19 | BuddyX Pro integration | ⬜ Not started |
 | T20 | BuddyPress integration | ⬜ Not started |
