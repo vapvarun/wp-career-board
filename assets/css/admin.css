@@ -169,6 +169,12 @@
 .wcb-status-rejected   { background: #f8d7da; color: #8a1c1c; }
 .wcb-status-hired      { background: #c3e6cb; color: #155724; }
 
+/* Job status badges */
+.wcb-job-status-publish  { background: #d7f7c2; color: #1a7a0a; }
+.wcb-job-status-pending  { background: #fff3cd; color: #996800; }
+.wcb-job-status-draft    { background: #f0f0f1; color: #50575e; }
+.wcb-job-status-trash    { background: #f8d7da; color: #8a1c1c; }
+
 /* Status selector */
 .wcb-status-select {
 	font-size: 0.85em;

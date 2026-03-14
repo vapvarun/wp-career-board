@@ -3610,6 +3610,29 @@ Identified during QA review: the main Career Board dashboard (`?page=wp-career-b
 
 ---
 
+### Task 21b: Jobs Admin — WP_List_Table
+
+The original plan used a bare `get_posts()` dump with no search, no status tabs, no pagination, no bulk actions — not production-ready. Replace with a proper `WP_List_Table` subclass.
+
+**Files:**
+- Modify: `admin/class-admin-jobs.php` — extend `WP_List_Table`; keep public `render()` entrypoint
+- Modify: `admin/views/jobs-list.php` — no longer needed; `render()` outputs inline
+
+**What this delivers:**
+- **Status tabs** — All | Published | Pending | Draft | Trash (with live counts)
+- **Search box** — searches job title via `WP_Query 's'`
+- **Columns** — Checkbox, Title (with row actions), Status badge, Company, Author, Date
+- **Sortable** — Title, Date
+- **Pagination** — 20 per page, WordPress-native prev/next
+- **Row actions** — Edit, View (for published), Approve (for pending), Trash
+- **Bulk actions** — Approve (pending→publish), Move to Trash
+- Approve/Reject AJAX from existing `admin.js` still wires up via `wcb-approve-job` / `wcb-reject-job` classes on inline row action buttons
+
+- [x] **Rewrite `admin/class-admin-jobs.php`** — `AdminJobs extends WP_List_Table`
+- [x] **WPCS fix + commit**
+
+---
+
 ### Task 21: Pre-Release QA Checklist
 
 - [ ] **Functional QA**
@@ -3694,5 +3717,6 @@ Use this table to track task completion. Update the Status column as you go.
 | T18 | Reign integration | ✅ 2026-03-15 · `1243390` |
 | T19  | BuddyX Pro integration | ✅ 2026-03-15 · `b358a29` |
 | T20  | BuddyPress integration | ✅ 2026-03-15 · `b358a29` |
-| T21a | Admin dashboard overhaul | 🔄 In progress |
+| T21a | Admin dashboard overhaul | ✅ 2026-03-15 · `2c57139` |
+| T21b | Jobs admin WP_List_Table (search, tabs, pagination, bulk) | 🔄 In progress |
 | T21  | Pre-release QA | ⬜ Not started |
