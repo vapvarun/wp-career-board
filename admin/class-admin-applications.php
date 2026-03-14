@@ -73,7 +73,17 @@ class AdminApplications extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-applications">
-				<?php $this->search_box( __( 'Search Applications', 'wp-career-board' ), 'wcb-application' ); ?>
+				<?php
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$wcb_search_val = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+				?>
+				<p class="search-box">
+					<label class="screen-reader-text" for="wcb-application-search-input">
+						<?php esc_html_e( 'Search Applications', 'wp-career-board' ); ?>
+					</label>
+					<input type="search" id="wcb-application-search-input" name="s" value="<?php echo esc_attr( $wcb_search_val ); ?>" placeholder="<?php esc_attr_e( 'Job title or candidate name…', 'wp-career-board' ); ?>">
+					<?php submit_button( __( 'Search Applications', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
+				</p>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -166,8 +176,61 @@ class AdminApplications extends \WP_List_Table {
 			);
 		}
 
+		// Custom search: match by job title or candidate name/email (not post title).
 		if ( $search ) {
-			$query_args['s'] = $search;
+			global $wpdb;
+			$like = '%' . $wpdb->esc_like( $search ) . '%';
+
+			// Find wcb_job IDs whose title matches.
+			$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'wcb_job' AND post_title LIKE %s",
+					$like
+				)
+			);
+
+			// Find user IDs whose display_name, login, or email matches.
+			$user_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->users} WHERE display_name LIKE %s OR user_login LIKE %s OR user_email LIKE %s",
+					$like,
+					$like,
+					$like
+				)
+			);
+
+			// Build an OR meta_query over job_id and candidate_id.
+			$search_clauses = array( 'relation' => 'OR' );
+			if ( ! empty( $job_ids ) ) {
+				$search_clauses[] = array(
+					'key'     => '_wcb_job_id',
+					'value'   => array_map( 'intval', $job_ids ),
+					'compare' => 'IN',
+				);
+			}
+			if ( ! empty( $user_ids ) ) {
+				$search_clauses[] = array(
+					'key'     => '_wcb_candidate_id',
+					'value'   => array_map( 'intval', $user_ids ),
+					'compare' => 'IN',
+				);
+			}
+
+			if ( count( $search_clauses ) > 1 ) {
+				// Combine with any existing status meta_query using AND.
+				if ( isset( $query_args['meta_query'] ) ) { // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						$query_args['meta_query'],
+						$search_clauses,
+					);
+				} else {
+					$query_args['meta_query'] = $search_clauses; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				}
+			} else {
+				// No jobs or candidates matched — force zero results.
+				$query_args['post__in'] = array( 0 );
+			}
 		}
 
 		$query       = new \WP_Query( $query_args );
