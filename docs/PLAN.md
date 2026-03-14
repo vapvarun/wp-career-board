@@ -3660,7 +3660,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T5 | Jobs REST endpoint | ✅ 2026-03-14 · `82afd2f` + fixes `12a0616` |
 | T6 | Applications REST endpoint | ✅ 2026-03-14 · `487541c` + fixes `d4a9dba` |
 | T7 | Employers + candidates + search endpoints | ✅ 2026-03-14 · `f1e8bbd` + fixes `c5c9d69` |
-| T8 | Email notifications (wp_mail) | ⬜ Not started |
+| T8 | Email notifications (wp_mail) | ✅ 2026-03-14 · `94c3dec` |
 | T9 | Moderation queue | ⬜ Not started |
 | T10 | SEO module | ⬜ Not started |
 | T11 | GDPR module | ⬜ Not started |
