@@ -3662,7 +3662,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T7 | Employers + candidates + search endpoints | ✅ 2026-03-14 · `f1e8bbd` + fixes `c5c9d69` |
 | T8 | Email notifications (wp_mail) | ✅ 2026-03-14 · `94c3dec` |
 | T9 | Moderation queue | ✅ 2026-03-14 · `e723f2f` + fixes `7d794ba` |
-| T10 | SEO module | ⬜ Not started |
+| T10 | SEO module | ✅ 2026-03-14 · `f61eeb5` + fixes `e043bc7` |
 | T11 | GDPR module | ⬜ Not started |
 | T12 | Admin menu + settings | ⬜ Not started |
 | T13 | Setup wizard + sample data | ⬜ Not started |
