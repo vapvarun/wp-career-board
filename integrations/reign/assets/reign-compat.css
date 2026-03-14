@@ -1,0 +1,42 @@
+/* WP Career Board — Reign Theme Compatibility
+ *
+ * Adjustments so WCB blocks sit correctly inside Reign's content canvas.
+ * Primary colour is driven by the Customizer setting (wcb_reign_primary_color).
+ * These rules only load on singular wcb_job and wcb_job archive pages.
+ */
+
+/* Honour the Customizer primary colour on WCB interactive elements */
+.wcb-btn-primary,
+.wcb-apply-btn,
+.wcb-save-btn {
+	background-color: var( --wcb-reign-primary, #4f46e5 );
+	border-color: var( --wcb-reign-primary, #4f46e5 );
+}
+
+.wcb-btn-primary:hover,
+.wcb-apply-btn:hover,
+.wcb-save-btn:hover {
+	filter: brightness( 1.1 );
+}
+
+/* Strip double padding that Reign adds to .entry-content inside its content canvas */
+.reign-content-area .wcb-job-single,
+.reign-content-area .wcb-job-listings {
+	padding: 0;
+}
+
+/* Align WCB search bar with Reign's content width */
+.wcb-search-bar {
+	max-width: 100%;
+}
+
+/* Reign uses box-shadows for card depth — match WCB job cards */
+.wcb-job-card {
+	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.08 );
+	border-radius: 6px;
+}
+
+/* Status badges inside Reign tables */
+.wcb-status-badge {
+	font-size: 0.78em;
+}
