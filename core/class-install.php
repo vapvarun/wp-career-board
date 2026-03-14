@@ -47,7 +47,6 @@ final class Install {
 	 */
 	public static function activate(): void {
 		self::check_requirements();
-		self::create_tables();
 		self::maybe_upgrade();
 		( new Roles() )->register();
 		flush_rewrite_rules();
@@ -110,7 +109,7 @@ final class Install {
 				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id),
-				KEY event_type (event_type)
+				KEY event_type  (event_type)
 			) {$charset};"
 		);
 
@@ -120,7 +119,7 @@ final class Install {
 				job_id     BIGINT UNSIGNED NOT NULL,
 				viewed_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				ip_hash    VARCHAR(64),
-				PRIMARY KEY (id),
+				PRIMARY KEY  (id),
 				KEY job_id  (job_id)
 			) {$charset};"
 		);
@@ -133,8 +132,8 @@ final class Install {
 				metadata   LONGTEXT,
 				ip_hash    VARCHAR(64),
 				created_at DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id),
-				KEY user_id (user_id)
+				PRIMARY KEY  (id),
+				KEY user_id  (user_id)
 			) {$charset};"
 		);
 	}

@@ -30,7 +30,7 @@ final class Abilities {
 	 * @return void
 	 */
 	public function register(): void {
-		if ( ! function_exists( 'wp_register_ability' ) ) {
+		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_register_ability_category' ) ) {
 			return;
 		}
 
@@ -152,7 +152,7 @@ final class Abilities {
 			array(
 				'category' => 'wcb',
 				'label'    => __( 'Moderate Jobs', 'wp-career-board' ),
-				'callback' => static function ( $user, array $args = array() ): bool {
+				'callback' => static function ( $user, $args = array() ): bool {
 					if ( ! $user ) {
 						return false;
 					}
@@ -165,9 +165,12 @@ final class Abilities {
 						return false;
 					}
 
+					$args = is_array( $args ) ? $args : array();
+
 					if ( ! empty( $args['board_id'] ) ) {
 						$assigned = (array) get_user_meta( $user->ID, '_wcb_assigned_boards', true );
-						return in_array( (int) $args['board_id'], array_map( 'intval', $assigned ), true );
+						$assigned = array_filter( array_map( 'intval', $assigned ) );
+						return in_array( (int) $args['board_id'], $assigned, true );
 					}
 
 					return true;

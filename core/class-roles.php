@@ -129,7 +129,9 @@ final class Roles {
 		);
 
 		foreach ( $caps as $cap ) {
-			$admin->add_cap( $cap );
+			if ( ! $admin->has_cap( $cap ) ) {
+				$admin->add_cap( $cap );
+			}
 		}
 	}
 }
