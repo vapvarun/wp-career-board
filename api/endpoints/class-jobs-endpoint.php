@@ -95,6 +95,26 @@ final class JobsEndpoint extends RestController {
 				'permission_callback' => array( $this, 'view_applications_permissions_check' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/approve',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'approve_job' ),
+				'permission_callback' => array( $this, 'moderate_job_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/reject',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'reject_job' ),
+				'permission_callback' => array( $this, 'moderate_job_permissions_check' ),
+			)
+		);
 	}
 
 	/**
@@ -461,6 +481,78 @@ final class JobsEndpoint extends RestController {
 		return rest_ensure_response( $items );
 	}
 
+	/**
+	 * Approve a pending job — publish it immediately.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function approve_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_job' !== $post->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wp_update_post(
+			array(
+				'ID'          => $post->ID,
+				'post_status' => 'publish',
+			)
+		);
+
+		do_action( 'wcb_job_approved', $post->ID );
+
+		return rest_ensure_response(
+			array(
+				'approved' => true,
+				'id'       => $post->ID,
+			)
+		);
+	}
+
+	/**
+	 * Reject a pending job — move to draft and mark as rejected.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function reject_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_job' !== $post->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wp_update_post(
+			array(
+				'ID'          => $post->ID,
+				'post_status' => 'draft',
+			)
+		);
+
+		update_post_meta( $post->ID, '_wcb_rejected', '1' );
+
+		do_action( 'wcb_job_rejected', $post->ID );
+
+		return rest_ensure_response(
+			array(
+				'rejected' => true,
+				'id'       => $post->ID,
+			)
+		);
+	}
+
 	// --- Permission callbacks ---------------------------------------------------
 
 	/**
@@ -507,6 +599,18 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function delete_item_permissions_check( $request ): bool|\WP_Error {
 		return $this->update_item_permissions_check( $request );
+	}
+
+	/**
+	 * Check if the current user can moderate (approve/reject) jobs.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function moderate_job_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		return $this->check_ability( 'wcb_moderate_jobs' ) ? true : $this->permission_error();
 	}
 
 	/**

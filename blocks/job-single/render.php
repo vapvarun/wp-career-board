@@ -25,6 +25,8 @@ if ( ! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
 $wcb_location_terms = wp_get_object_terms( $wcb_job_id, 'wcb_location', array( 'fields' => 'names' ) );
 $wcb_type_terms     = wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'names' ) );
 
+$wcb_settings   = (array) get_option( 'wcb_settings', array() );
+$wcb_currency   = isset( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : '$';
 $wcb_company    = (string) get_post_meta( $wcb_job_id, '_wcb_company_name', true );
 $wcb_location   = is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms );
 $wcb_type       = is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms );
@@ -76,12 +78,12 @@ wp_interactivity_state(
 				<li class="wcb-job-meta-item">
 					<?php
 					if ( $wcb_salary_min && $wcb_salary_max ) {
-						echo esc_html( $wcb_salary_min . ' – ' . $wcb_salary_max );
+						echo esc_html( $wcb_currency . $wcb_salary_min . ' – ' . $wcb_currency . $wcb_salary_max );
 					} elseif ( $wcb_salary_min ) {
-						echo esc_html( $wcb_salary_min . '+' );
+						echo esc_html( $wcb_currency . $wcb_salary_min . '+' );
 					} else {
-						/* translators: %s: maximum salary */
-						printf( esc_html__( 'Up to %s', 'wp-career-board' ), esc_html( $wcb_salary_max ) );
+						/* translators: %s: maximum salary with currency prefix */
+						printf( esc_html__( 'Up to %s', 'wp-career-board' ), esc_html( $wcb_currency . $wcb_salary_max ) );
 					}
 					?>
 				</li>

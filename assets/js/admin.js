@@ -36,5 +36,50 @@
 		} );
 	}
 
-	document.addEventListener( 'DOMContentLoaded', initStatusSelects );
+	/**
+	 * Handle job approve/reject buttons.
+	 * Sends POST to /wcb/v1/jobs/{id}/approve or /reject.
+	 */
+	function initJobModeration() {
+		document.addEventListener( 'click', function ( e ) {
+			var btn = e.target.closest( '.wcb-approve-job, .wcb-reject-job' );
+			if ( ! btn ) {
+				return;
+			}
+
+			var jobId    = btn.dataset.jobId;
+			var isApprove = btn.classList.contains( 'wcb-approve-job' );
+			var action   = isApprove ? 'approve' : 'reject';
+			var confirm  = isApprove
+				? ( wcbAdmin.i18n.confirmApprove || 'Approve this job?' )
+				: ( wcbAdmin.i18n.confirmReject  || 'Reject this job?' );
+
+			if ( ! window.confirm( confirm ) ) {
+				return;
+			}
+
+			btn.disabled = true;
+
+			wp.apiFetch( {
+				path:   '/wcb/v1/jobs/' + jobId + '/' + action,
+				method: 'POST',
+			} ).then( function () {
+				var row = btn.closest( 'tr' );
+				if ( row ) {
+					row.style.opacity = '0.4';
+					setTimeout( function () {
+						row.remove();
+					}, 600 );
+				}
+			} ).catch( function () {
+				alert( 'Could not ' + action + ' job. Please try again.' );
+				btn.disabled = false;
+			} );
+		} );
+	}
+
+	document.addEventListener( 'DOMContentLoaded', function () {
+		initStatusSelects();
+		initJobModeration();
+	} );
 }() );

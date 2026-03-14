@@ -219,7 +219,7 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$allowed    = array( 'submitted', 'reviewed', 'closed' );
+		$allowed    = array( 'submitted', 'reviewing', 'shortlisted', 'rejected', 'hired' );
 		$new_status = sanitize_text_field( (string) $request->get_param( 'status' ) );
 		if ( ! in_array( $new_status, $allowed, true ) ) {
 			return new \WP_Error(
