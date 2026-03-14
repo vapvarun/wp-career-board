@@ -91,6 +91,8 @@ final class Plugin {
 		$module_classes = array(
 			\WCB\Modules\Boards\BoardsModule::class,
 			\WCB\Modules\Jobs\JobsModule::class,
+			\WCB\Modules\Jobs\JobsMeta::class,
+			\WCB\Modules\Jobs\JobsExpiry::class,
 			\WCB\Modules\Employers\EmployersModule::class,
 			\WCB\Modules\Candidates\CandidatesModule::class,
 			\WCB\Modules\Applications\ApplicationsModule::class,
