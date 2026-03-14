@@ -1,0 +1,28 @@
+# Worktrees
+.worktrees/
+
+# Dependencies
+vendor/
+node_modules/
+
+# Build output
+build/
+assets/js/build/
+assets/css/build/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
