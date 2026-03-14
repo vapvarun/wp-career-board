@@ -245,6 +245,8 @@ final class ApplicationsEndpoint extends RestController {
 	/**
 	 * List all applications for a specific candidate.
 	 *
+	 * Returns a frontend-friendly shape: id, jobTitle, jobPermalink, status, date.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
@@ -270,7 +272,21 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
-		$response = rest_ensure_response( array_map( array( $this, 'prepare_application' ), $query->posts ) );
+		$items = array();
+		foreach ( $query->posts as $app ) {
+			$job_id  = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
+			$job     = $job_id ? get_post( $job_id ) : null;
+			$status  = (string) get_post_meta( $app->ID, '_wcb_status', true );
+			$items[] = array(
+				'id'           => $app->ID,
+				'jobTitle'     => $job instanceof \WP_Post ? $job->post_title : '',
+				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
+				'status'       => $status ? $status : 'submitted',
+				'date'         => get_the_date( 'Y-m-d', $app ),
+			);
+		}
+
+		$response = rest_ensure_response( $items );
 		$response->header( 'X-WCB-Total', (string) $query->found_posts );
 		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
 		return $response;

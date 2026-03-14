@@ -161,6 +161,7 @@ class Admin {
 				'i18n'      => array(
 					'confirmApprove' => __( 'Approve this job?', 'wp-career-board' ),
 					'confirmReject'  => __( 'Reject this job? Enter reason:', 'wp-career-board' ),
+					'saveFailed'     => __( 'Could not update status. Please try again.', 'wp-career-board' ),
 				),
 			)
 		);

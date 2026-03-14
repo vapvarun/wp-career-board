@@ -53,16 +53,6 @@ final class CandidatesEndpoint extends RestController {
 
 		register_rest_route(
 			$this->namespace,
-			'/candidates/(?P<id>\d+)/applications',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_applications' ),
-				'permission_callback' => array( $this, 'self_permissions_check' ),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
 			'/candidates/(?P<id>\d+)/bookmarks',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -161,53 +151,6 @@ final class CandidatesEndpoint extends RestController {
 		}
 
 		return rest_ensure_response( $this->prepare_candidate( get_user_by( 'ID', $user_id ) ) );
-	}
-
-	/**
-	 * List applications submitted by the given candidate.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
-	 */
-	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response {
-		$candidate_id = (int) $request['id'];
-		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
-		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
-
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'wcb_application',
-				'post_status'    => 'any',
-				'posts_per_page' => $per_page,
-				'paged'          => $paged,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					array(
-						'key'   => '_wcb_candidate_id',
-						'value' => $candidate_id,
-						'type'  => 'NUMERIC',
-					),
-				),
-			)
-		);
-
-		$items = array();
-		foreach ( $query->posts as $app ) {
-			$job_id  = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
-			$job     = $job_id ? get_post( $job_id ) : null;
-			$items[] = array(
-				'id'           => $app->ID,
-				'jobTitle'     => $job instanceof \WP_Post ? $job->post_title : '',
-				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
-				'status'       => $app->post_status,
-				'date'         => get_the_date( 'Y-m-d', $app ),
-			);
-		}
-
-		$response = rest_ensure_response( $items );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		return $response;
 	}
 
 	/**
