@@ -62,6 +62,24 @@ $wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_
 $wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_raw;
 $wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
 
+// ── Slug → display-name maps (used by preview card getters in view.js) ─────
+$wcb_type_names     = array();
+foreach ( $wcb_job_types as $wcb_term ) {
+	$wcb_type_names[ $wcb_term->slug ] = $wcb_term->name;
+}
+$wcb_exp_names      = array();
+foreach ( $wcb_experiences as $wcb_term ) {
+	$wcb_exp_names[ $wcb_term->slug ] = $wcb_term->name;
+}
+$wcb_location_names = array();
+foreach ( $wcb_locations as $wcb_term ) {
+	$wcb_location_names[ $wcb_term->slug ] = $wcb_term->name;
+}
+$wcb_category_names = array();
+foreach ( $wcb_categories as $wcb_term ) {
+	$wcb_category_names[ $wcb_term->slug ] = $wcb_term->name;
+}
+
 // ── Employer company name (for preview) ────────────────────────────────────
 $wcb_user_id      = get_current_user_id();
 $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true );
@@ -116,6 +134,10 @@ $wcb_initial_state = apply_filters(
 		'apiBase'         => rest_url( 'wcb/v1' ),
 		'nonce'           => wp_create_nonce( 'wp_rest' ),
 		'customFields'    => (object) array(),
+		'typeNames'       => (object) $wcb_type_names,
+		'expNames'        => (object) $wcb_exp_names,
+		'locationNames'   => (object) $wcb_location_names,
+		'categoryNames'   => (object) $wcb_category_names,
 	),
 	$attributes
 );
@@ -212,6 +234,7 @@ $wcb_step_labels = array(
 					rows="12"
 					placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>"
 					data-wcb-field="description"
+					data-wp-bind--value="state.description"
 					data-wp-on--input="actions.updateField"
 				></textarea>
 				<span class="wcb-form-hint">
@@ -257,6 +280,7 @@ $wcb_step_labels = array(
 							id="wcb-currency"
 							class="wcb-field"
 							data-wcb-field="currencyCode"
+							data-wp-bind--value="state.currencyCode"
 							data-wp-on--change="actions.updateField"
 						>
 							<?php foreach ( $wcb_currencies as $wcb_code => $wcb_label ) : ?>
@@ -403,6 +427,7 @@ $wcb_step_labels = array(
 						id="wcb-category"
 						class="wcb-field"
 						data-wcb-field="categorySlug"
+						data-wp-bind--value="state.categorySlug"
 						data-wp-on--change="actions.updateField"
 					>
 						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
@@ -422,6 +447,7 @@ $wcb_step_labels = array(
 						id="wcb-job-type"
 						class="wcb-field"
 						data-wcb-field="typeSlug"
+						data-wp-bind--value="state.typeSlug"
 						data-wp-on--change="actions.updateField"
 					>
 						<option value=""><?php esc_html_e( 'Select a job type', 'wp-career-board' ); ?></option>
@@ -441,6 +467,7 @@ $wcb_step_labels = array(
 						id="wcb-location"
 						class="wcb-field"
 						data-wcb-field="locationSlug"
+						data-wp-bind--value="state.locationSlug"
 						data-wp-on--change="actions.updateField"
 					>
 						<option value=""><?php esc_html_e( 'Select a location', 'wp-career-board' ); ?></option>
@@ -460,6 +487,7 @@ $wcb_step_labels = array(
 						id="wcb-experience"
 						class="wcb-field"
 						data-wcb-field="expSlug"
+						data-wp-bind--value="state.expSlug"
 						data-wp-on--change="actions.updateField"
 					>
 						<option value=""><?php esc_html_e( 'Select experience level', 'wp-career-board' ); ?></option>
@@ -533,10 +561,10 @@ $wcb_step_labels = array(
 
 				<!-- Badges row -->
 				<div class="wcb-preview-card__badges">
-					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-cbadge--show="state.hasType" data-wp-text="state.typeSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categorySlug"></span>
+					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-cbadge--show="state.hasType" data-wp-text="state.typeDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
 				</div>
 
 				<!-- Meta row -->

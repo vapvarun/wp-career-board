@@ -351,14 +351,22 @@ final class JobsEndpoint extends RestController {
 			'salary_max'      => '_wcb_salary_max',
 			'salary_currency' => '_wcb_salary_currency',
 			'board_id'        => '_wcb_board_id',
-			'apply_url'       => '_wcb_apply_url',
-			'apply_email'     => '_wcb_apply_email',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, $value );
 			}
+		}
+
+		// Apply destination — sanitize identically to create_item().
+		$apply_url = $request->get_param( 'apply_url' );
+		if ( null !== $apply_url ) {
+			update_post_meta( $post->ID, '_wcb_apply_url', esc_url_raw( (string) $apply_url ) );
+		}
+		$apply_email = $request->get_param( 'apply_email' );
+		if ( null !== $apply_email ) {
+			update_post_meta( $post->ID, '_wcb_apply_email', sanitize_email( (string) $apply_email ) );
 		}
 		$remote = $request->get_param( 'remote' );
 		if ( null !== $remote ) {

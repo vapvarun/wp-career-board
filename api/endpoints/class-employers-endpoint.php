@@ -69,6 +69,16 @@ final class EmployersEndpoint extends RestController {
 				'permission_callback' => '__return_true',
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/me/jobs',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_my_jobs' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
@@ -195,6 +205,30 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
+	 * List jobs for the currently authenticated employer's company.
+	 *
+	 * Convenience alias for /employers/{id}/jobs that resolves the company ID
+	 * from the current user's linked _wcb_company_id usermeta.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
+		if ( ! $company_id ) {
+			return new \WP_Error(
+				'wcb_no_company',
+				__( 'No company profile found for the current user.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+		$request->set_param( 'id', $company_id );
+		return $this->get_jobs( $request );
+	}
+
+	/**
 	 * List published jobs belonging to a company.
 	 *
 	 * @since 1.0.0
@@ -247,8 +281,10 @@ final class EmployersEndpoint extends RestController {
 			}
 		}
 
+		$wcb_job_form_url = $this->get_job_form_page_url();
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $app_counts ): array {
+			static function ( \WP_Post $p ) use ( $app_counts, $wcb_job_form_url ): array {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
@@ -266,7 +302,7 @@ final class EmployersEndpoint extends RestController {
 					'status'      => $p->post_status,
 					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
 					'permalink'   => get_permalink( $p->ID ),
-					'editUrl'     => admin_url( 'post.php?post=' . $p->ID . '&action=edit' ),
+					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
 					'appCount'    => $app_count,
 					'appLabel'    => $app_count > 0
 						? sprintf( '%d %s', $app_count, _n( 'applicant', 'applicants', $app_count, 'wp-career-board' ) )
@@ -320,6 +356,27 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	// --- Helpers ----------------------------------------------------------------
+
+	/**
+	 * Resolve the permalink of the page containing the wcb/job-form block.
+	 *
+	 * Searches published pages for the block comment. Falls back to home_url()
+	 * when no matching page is found. Called once per get_jobs() invocation.
+	 *
+	 * @since 1.0.0
+	 * @return string Absolute URL.
+	 */
+	private function get_job_form_page_url(): string {
+		$pages = get_posts(
+			array(
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				's'              => '<!-- wp:wcb/job-form',
+			)
+		);
+		return ! empty( $pages ) ? (string) get_permalink( $pages[0]->ID ) : home_url( '/' );
+	}
 
 	/**
 	 * Shape a WP_Post (wcb_company) into the REST response array.

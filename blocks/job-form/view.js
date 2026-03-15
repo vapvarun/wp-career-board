@@ -82,7 +82,7 @@ store( 'wcb-job-form', {
 				return '';
 			}
 			const cur = state.currencyCode || 'USD';
-			const fmt = ( v ) => v.toLocaleString();
+			const fmt = ( v ) => new Intl.NumberFormat( 'en-US' ).format( v );
 			if ( min && max ) {
 				return `${ cur } ${ fmt( min ) } – ${ fmt( max ) }`;
 			}
@@ -140,6 +140,24 @@ store( 'wcb-job-form', {
 			const { state } = store( 'wcb-job-form' );
 			return !! state.validationError;
 		},
+
+		// ── Preview badge display names (slug → term name via PHP-injected map) ──
+		get typeDisplay() {
+			const { state } = store( 'wcb-job-form' );
+			return state.typeSlug ? ( state.typeNames[ state.typeSlug ] || state.typeSlug ) : '';
+		},
+		get expDisplay() {
+			const { state } = store( 'wcb-job-form' );
+			return state.expSlug ? ( state.expNames[ state.expSlug ] || state.expSlug ) : '';
+		},
+		get locationDisplay() {
+			const { state } = store( 'wcb-job-form' );
+			return state.locationSlug ? ( state.locationNames[ state.locationSlug ] || state.locationSlug ) : '';
+		},
+		get categoryDisplay() {
+			const { state } = store( 'wcb-job-form' );
+			return state.categorySlug ? ( state.categoryNames[ state.categorySlug ] || state.categorySlug ) : '';
+		},
 	},
 
 	actions: {
@@ -148,6 +166,9 @@ store( 'wcb-job-form', {
 			const field     = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
+				if ( field === 'title' && state.validationError ) {
+					state.validationError = '';
+				}
 			}
 		},
 
@@ -223,8 +244,12 @@ store( 'wcb-job-form', {
 			);
 
 			if ( ! response.ok ) {
-				const err        = yield response.json().catch( () => null );
-				state.error      = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
+				const err = yield response.json().catch( () => null );
+				if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
+					state.error = 'Your session has expired. Please refresh the page and try again.';
+				} else {
+					state.error = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
+				}
 				state.submitting = false;
 				return;
 			}
