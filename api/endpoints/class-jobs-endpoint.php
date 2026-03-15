@@ -266,6 +266,16 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Apply destination.
+		$wcb_apply_url = esc_url_raw( (string) ( $request->get_param( 'apply_url' ) ?? '' ) );
+		if ( $wcb_apply_url ) {
+			update_post_meta( $job_id, '_wcb_apply_url', $wcb_apply_url );
+		}
+		$wcb_apply_email = sanitize_email( (string) ( $request->get_param( 'apply_email' ) ?? '' ) );
+		if ( $wcb_apply_email ) {
+			update_post_meta( $job_id, '_wcb_apply_email', $wcb_apply_email );
+		}
+
 		// Denormalize company name from the employer's linked wcb_company CPT.
 		$wcb_company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
 		if ( $wcb_company_id ) {
@@ -341,6 +351,8 @@ final class JobsEndpoint extends RestController {
 			'salary_max'      => '_wcb_salary_max',
 			'salary_currency' => '_wcb_salary_currency',
 			'board_id'        => '_wcb_board_id',
+			'apply_url'       => '_wcb_apply_url',
+			'apply_email'     => '_wcb_apply_email',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -598,6 +610,8 @@ final class JobsEndpoint extends RestController {
 			'experience_slugs' => wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'slugs' ) ),
 			'tags'             => wp_get_object_terms( $post->ID, 'wcb_tag', array( 'fields' => 'slugs' ) ),
 			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
+			'apply_url'        => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
+			'apply_email'      => (string) get_post_meta( $post->ID, '_wcb_apply_email', true ),
 		);
 	}
 
