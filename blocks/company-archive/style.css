@@ -71,6 +71,7 @@
 	justify-content: center;
 	width: 32px;
 	height: 30px;
+	padding: 0;
 	border: none;
 	background: transparent;
 	border-radius: 4px;
@@ -80,7 +81,11 @@
 }
 
 .wcb-layout-btn svg {
-	display: block;
+	display: block !important;
+	visibility: visible !important;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
 }
 
 .wcb-layout-btn:hover {
