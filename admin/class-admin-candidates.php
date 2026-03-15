@@ -127,6 +127,20 @@ class AdminCandidates extends \WP_List_Table {
 	}
 
 	// -------------------------------------------------------------------------
+	// Empty state
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Message shown when the candidates list is empty.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function no_items(): void {
+		esc_html_e( 'No candidates found.', 'wp-career-board' );
+	}
+
+	// -------------------------------------------------------------------------
 	// Data preparation
 	// -------------------------------------------------------------------------
 
@@ -194,8 +208,9 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	protected function column_cb( $item ): string {
 		return sprintf(
-			'<input type="checkbox" name="user[]" value="%d">',
-			(int) $item->ID
+			'<label class="screen-reader-text" for="cb-select-%1$d">%2$s</label><input type="checkbox" id="cb-select-%1$d" name="user[]" value="%1$d">',
+			(int) $item->ID,
+			esc_html__( 'Select candidate', 'wp-career-board' )
 		);
 	}
 

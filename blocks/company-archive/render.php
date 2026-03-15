@@ -228,6 +228,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						<div class="wcb-ca-avatar-wrap">
 							<img
 								class="wcb-ca-logo"
+								alt=""
 								data-wp-class--wcb-shown="context.company.has_logo"
 								data-wp-bind--src="context.company.logo"
 								data-wp-bind--alt="context.company.name"
@@ -272,6 +273,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				</a>
 			</article>
 		</template>
+		<p class="wcb-no-results" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
 	</div>
 
 	<?php /* ── Load more ── */ ?>

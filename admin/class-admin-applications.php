@@ -321,6 +321,20 @@ class AdminApplications extends \WP_List_Table {
 	}
 
 	// -------------------------------------------------------------------------
+	// Empty state
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Message shown when the applications list is empty.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function no_items(): void {
+		esc_html_e( 'No applications found.', 'wp-career-board' );
+	}
+
+	// -------------------------------------------------------------------------
 	// Column renderers
 	// -------------------------------------------------------------------------
 
@@ -334,8 +348,9 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	protected function column_cb( $item ): string {
 		return sprintf(
-			'<input type="checkbox" name="application[]" value="%d">',
-			(int) $item->ID
+			'<label class="screen-reader-text" for="cb-select-%1$d">%2$s</label><input type="checkbox" id="cb-select-%1$d" name="application[]" value="%1$d">',
+			(int) $item->ID,
+			esc_html__( 'Select application', 'wp-career-board' )
 		);
 	}
 
@@ -451,8 +466,9 @@ class AdminApplications extends \WP_List_Table {
 		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
 
 		$select = sprintf(
-			'<select class="wcb-status-select" data-app-id="%d">',
-			(int) $item->ID
+			'<select class="wcb-status-select" data-app-id="%1$d" aria-label="%2$s">',
+			(int) $item->ID,
+			esc_attr__( 'Change application status', 'wp-career-board' )
 		);
 		foreach ( self::STATUSES as $opt ) {
 			$select .= sprintf(

@@ -212,6 +212,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</div>
 			</article>
 		</template>
+		<p class="wcb-no-results" data-wp-bind--hidden="!state.hasNoJobs"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
 	</div>
 
 	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">

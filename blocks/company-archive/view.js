@@ -23,6 +23,9 @@ const { state } = store( 'wcb-company-archive', {
 			const count = state.companies.length;
 			return count === 1 ? '1 company found' : count + ' companies found';
 		},
+		get hasNoCompanies() {
+			return ! state.loading && state.companies.length === 0;
+		},
 	},
 
 	actions: {
@@ -51,18 +54,22 @@ const { state } = store( 'wcb-company-archive', {
 			state.loading = true;
 			state.page++;
 
-			const response = yield fetch( wcbBuildUrl( state.page ) );
+			try {
+				const response = yield fetch( wcbBuildUrl( state.page ) );
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					state.page--;
+					return;
+				}
+
+				const companies = yield response.json();
+				state.companies.push( ...companies );
+				state.hasMore = companies.length === state.perPage;
+			} catch {
 				state.page--;
+			} finally {
 				state.loading = false;
-				return;
 			}
-
-			const companies    = yield response.json();
-			state.companies.push( ...companies );
-			state.hasMore  = companies.length === state.perPage;
-			state.loading  = false;
 		},
 	},
 } );

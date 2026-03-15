@@ -30,6 +30,9 @@ const { state } = store( 'wcb-job-listings', {
 			const count = state.jobs.length;
 			return count === 1 ? '1 job found' : count + ' jobs found';
 		},
+		get hasNoJobs() {
+			return ! state.loading && state.jobs.length === 0;
+		},
 	},
 
 	actions: {
@@ -48,52 +51,59 @@ const { state } = store( 'wcb-job-listings', {
 			state.loading = true;
 			state.page++;
 
-			const url = new URL( state.apiBase );
-			url.searchParams.set( 'page', String( state.page ) );
-			url.searchParams.set( 'per_page', String( state.perPage ) );
+			try {
+				const url = new URL( state.apiBase );
+				url.searchParams.set( 'page', String( state.page ) );
+				url.searchParams.set( 'per_page', String( state.perPage ) );
 
-			// Forward any active search/filter params from the page URL.
-			const searchParams = new URLSearchParams( window.location.search );
-			for ( const [ key, val ] of searchParams ) {
-				url.searchParams.set( key, val );
-			}
+				// Forward any active search/filter params from the page URL.
+				const searchParams = new URLSearchParams( window.location.search );
+				for ( const [ key, val ] of searchParams ) {
+					url.searchParams.set( key, val );
+				}
 
-			const response = yield fetch( url.toString() );
+				const response = yield fetch( url.toString() );
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					state.page--;
+					return;
+				}
+
+				const jobs = yield response.json();
+				state.jobs.push( ...jobs );
+				state.hasMore = jobs.length === state.perPage;
+			} catch {
 				state.page--;
+			} finally {
 				state.loading = false;
-				return;
 			}
-
-			const jobs = yield response.json();
-
-			state.jobs.push( ...jobs );
-			state.hasMore = jobs.length === state.perPage;
-			state.loading = false;
 		},
 
 		*toggleBookmark() {
 			const ctx = getContext();
 			const job = ctx.job;
 
-			const response = yield fetch(
-				state.apiBase + '/' + String( job.id ) + '/bookmark',
-				{
-					method: 'POST',
-					headers: {
-						'X-WP-Nonce': state.nonce,
-						'Content-Type': 'application/json',
-					},
+			try {
+				const response = yield fetch(
+					state.apiBase + '/' + String( job.id ) + '/bookmark',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce': state.nonce,
+							'Content-Type': 'application/json',
+						},
+					}
+				);
+
+				if ( ! response.ok ) {
+					return;
 				}
-			);
 
-			if ( ! response.ok ) {
-				return;
+				const data     = yield response.json();
+				job.bookmarked = data.bookmarked;
+			} catch {
+				// Bookmark toggle failed silently — no UI disruption needed.
 			}
-
-			const data  = yield response.json();
-			job.bookmarked = data.bookmarked;
 		},
 	},
 } );
