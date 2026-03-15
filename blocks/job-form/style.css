@@ -87,9 +87,17 @@
 
 /* ── Form step panel ──────────────────────────────────────────────────────── */
 .wcb-form-step {
-	display: flex;
+	display: none;
 	flex-direction: column;
 	gap: 1.25rem;
+}
+
+.wcb-form-step--show {
+	display: flex;
+}
+
+.wcb-form-steps--hidden {
+	display: none !important;
 }
 
 .wcb-form-step__title {
@@ -263,6 +271,21 @@ textarea.wcb-field {
 	to   { transform: rotate( 360deg ); }
 }
 
+/* ── Submit button loading state ──────────────────────────────────────────── */
+.wcb-btn__spinner {
+	display: none;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.wcb-is-submitting .wcb-btn__label {
+	display: none;
+}
+
+.wcb-is-submitting .wcb-btn__spinner {
+	display: inline-flex;
+}
+
 /* ── Preview card ─────────────────────────────────────────────────────────── */
 .wcb-preview-card {
 	display: flex;
@@ -293,13 +316,6 @@ textarea.wcb-field {
 	margin: 0 0 0.2rem;
 }
 
-.wcb-preview-card__company {
-	font-size: 0.875rem;
-	color: #475569;
-	font-weight: 500;
-	margin: 0;
-}
-
 .wcb-preview-card__badges {
 	display: flex;
 	flex-wrap: wrap;
@@ -314,19 +330,40 @@ textarea.wcb-field {
 	border-top: 1px solid #e2e8f0;
 }
 
-/* ── Preview badge — re-use plugin's .wcb-cbadge but keep shown by default ── */
+/* ── Preview badge — hidden until JS adds --show class ───────────────────── */
 .wcb-preview-card .wcb-cbadge {
-	display: inline-flex;
+	display: none;
 	text-transform: capitalize;
+}
+
+.wcb-preview-card .wcb-cbadge--show {
+	display: inline-flex;
+}
+
+/* ── Preview company name ─────────────────────────────────────────────────── */
+.wcb-preview-card__company {
+	display: none;
+	font-size: 0.875rem;
+	color: #475569;
+	font-weight: 500;
+	margin: 0;
+}
+
+.wcb-preview-card__company--show {
+	display: block;
 }
 
 /* ── Preview meta items ───────────────────────────────────────────────────── */
 .wcb-preview-meta-item {
-	display: inline-flex;
+	display: none;
 	align-items: center;
 	gap: 0.375rem;
 	font-size: 0.875rem;
 	color: #475569;
+}
+
+.wcb-preview-meta-item--show {
+	display: inline-flex;
 }
 
 .wcb-preview-meta-item__url {
@@ -346,6 +383,7 @@ textarea.wcb-field {
 }
 
 .wcb-form-error {
+	display: none;
 	color: #b91c1c;
 	background: #fef2f2;
 	border: 1px solid #fecaca;
@@ -355,9 +393,13 @@ textarea.wcb-field {
 	margin: 0;
 }
 
+.wcb-form-error--show {
+	display: block;
+}
+
 /* ── Success ──────────────────────────────────────────────────────────────── */
 .wcb-form-success {
-	display: flex;
+	display: none;
 	align-items: flex-start;
 	gap: 1rem;
 	padding: 1.5rem;
@@ -365,6 +407,10 @@ textarea.wcb-field {
 	border: 1.5px solid #bbf7d0;
 	border-radius: 12px;
 	margin-bottom: 1.5rem;
+}
+
+.wcb-form-success--show {
+	display: flex;
 }
 
 .wcb-form-success__icon {

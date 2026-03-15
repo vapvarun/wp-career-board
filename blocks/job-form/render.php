@@ -157,13 +157,12 @@ $wcb_step_labels = array(
 	<!-- ── Validation error banner ───────────────────────────────────────── -->
 	<p
 		class="wcb-form-error"
-		data-wp-show="state.validationError"
+		data-wp-class--wcb-form-error--show="state.hasValidation"
 		data-wp-text="state.validationError"
-		hidden
 	></p>
 
 	<!-- ── Submission success ────────────────────────────────────────────── -->
-	<div class="wcb-form-success" data-wp-show="state.submitted" hidden>
+	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
 		<span class="wcb-form-success__icon" aria-hidden="true">✓</span>
 		<div>
 			<p class="wcb-form-success__title">
@@ -176,10 +175,10 @@ $wcb_step_labels = array(
 	</div>
 
 	<!-- ── Form steps ────────────────────────────────────────────────────── -->
-	<div data-wp-show="!state.submitted">
+	<div class="wcb-form-steps" data-wp-class--wcb-form-steps--hidden="state.submitted">
 
 		<!-- ── Step 1: Basics ──────────────────────────────────────────── -->
-		<div class="wcb-form-step" data-wp-show="state.isStep1">
+		<div class="wcb-form-step wcb-form-step--show" data-wp-class--wcb-form-step--show="state.isStep1">
 			<h2 class="wcb-form-step__title">
 				<?php esc_html_e( 'Job Basics', 'wp-career-board' ); ?>
 			</h2>
@@ -239,7 +238,7 @@ $wcb_step_labels = array(
 		</div>
 
 		<!-- ── Step 2: Details ─────────────────────────────────────────── -->
-		<div class="wcb-form-step" data-wp-show="state.isStep2" hidden>
+		<div class="wcb-form-step" data-wp-class--wcb-form-step--show="state.isStep2">
 			<h2 class="wcb-form-step__title">
 				<?php esc_html_e( 'Job Details', 'wp-career-board' ); ?>
 			</h2>
@@ -390,7 +389,7 @@ $wcb_step_labels = array(
 		</div>
 
 		<!-- ── Step 3: Categories ──────────────────────────────────────── -->
-		<div class="wcb-form-step" data-wp-show="state.isStep3" hidden>
+		<div class="wcb-form-step" data-wp-class--wcb-form-step--show="state.isStep3">
 			<h2 class="wcb-form-step__title">
 				<?php esc_html_e( 'Classify Your Job', 'wp-career-board' ); ?>
 			</h2>
@@ -514,7 +513,7 @@ $wcb_step_labels = array(
 		</div>
 
 		<!-- ── Step 4: Preview & Submit ────────────────────────────────── -->
-		<div class="wcb-form-step" data-wp-show="state.isStep4" hidden>
+		<div class="wcb-form-step" data-wp-class--wcb-form-step--show="state.isStep4">
 			<h2 class="wcb-form-step__title">
 				<?php esc_html_e( 'Preview & Submit', 'wp-career-board' ); ?>
 			</h2>
@@ -524,39 +523,38 @@ $wcb_step_labels = array(
 				<div class="wcb-preview-card__header">
 					<div class="wcb-preview-card__title-wrap">
 						<h3 class="wcb-preview-card__title" data-wp-text="state.title"></h3>
-						<p class="wcb-preview-card__company" data-wp-show="state.companyName" data-wp-text="state.companyName"></p>
+						<p class="wcb-preview-card__company" data-wp-class--wcb-preview-card__company--show="state.hasCompany" data-wp-text="state.companyName"></p>
 					</div>
 					<span
 						class="wcb-cbadge wcb-cbadge--remote"
-						data-wp-show="state.remote"
-						hidden
+						data-wp-class--wcb-cbadge--show="state.isRemote"
 					><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 				</div>
 
 				<!-- Badges row -->
 				<div class="wcb-preview-card__badges">
-					<span class="wcb-cbadge wcb-cbadge--type"  data-wp-show="state.typeSlug"     hidden data-wp-text="state.typeSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--exp"   data-wp-show="state.expSlug"      hidden data-wp-text="state.expSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--location" data-wp-show="state.locationSlug" hidden data-wp-text="state.locationSlug"></span>
-					<span class="wcb-cbadge wcb-cbadge--location" data-wp-show="state.categorySlug" hidden data-wp-text="state.categorySlug"></span>
+					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-cbadge--show="state.hasType" data-wp-text="state.typeSlug"></span>
+					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expSlug"></span>
+					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationSlug"></span>
+					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categorySlug"></span>
 				</div>
 
 				<!-- Meta row -->
 				<div class="wcb-preview-card__meta">
-					<span class="wcb-preview-meta-item" data-wp-show="state.salaryDisplay" hidden>
+					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasSalary">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
 						<span data-wp-text="state.salaryDisplay"></span>
 					</span>
-					<span class="wcb-preview-meta-item" data-wp-show="state.deadline" hidden>
+					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasDeadline">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
 						<?php esc_html_e( 'Apply by', 'wp-career-board' ); ?>
 						<span data-wp-text="state.deadline"></span>
 					</span>
-					<span class="wcb-preview-meta-item" data-wp-show="state.applyUrl" hidden>
+					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasApplyUrl">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
 						<span class="wcb-preview-meta-item__url" data-wp-text="state.applyUrl"></span>
 					</span>
-					<span class="wcb-preview-meta-item" data-wp-show="state.applyEmail" hidden>
+					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasApplyEmail">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
 						<span data-wp-text="state.applyEmail"></span>
 					</span>
@@ -577,7 +575,7 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
-			<p class="wcb-form-error" data-wp-show="state.error" data-wp-text="state.error" hidden></p>
+			<p class="wcb-form-error" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
 
 			<div class="wcb-form-nav">
 				<button
@@ -593,9 +591,10 @@ $wcb_step_labels = array(
 					class="wcb-btn wcb-btn--primary"
 					data-wp-on--click="actions.submitJob"
 					data-wp-bind--disabled="state.submitting"
+					data-wp-class--wcb-is-submitting="state.submitting"
 				>
-					<span data-wp-show="!state.submitting"><?php esc_html_e( 'Post Job', 'wp-career-board' ); ?></span>
-					<span data-wp-show="state.submitting" hidden>
+					<span class="wcb-btn__label"><?php esc_html_e( 'Post Job', 'wp-career-board' ); ?></span>
+					<span class="wcb-btn__spinner">
 						<svg class="wcb-spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
 						<?php esc_html_e( 'Posting…', 'wp-career-board' ); ?>
 					</span>
@@ -603,5 +602,5 @@ $wcb_step_labels = array(
 			</div>
 		</div>
 
-	</div><!-- /!submitted -->
+	</div><!-- /.wcb-form-steps -->
 </div>

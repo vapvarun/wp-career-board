@@ -9,10 +9,13 @@
  *   submitJob    — POST job data to /wcb/v1/jobs.
  *
  * State getters:
- *   isStep1 … isStep4        — drive data-wp-show on each step panel.
- *   step1Active … step4Active — drive wcb-step--active CSS class.
- *   step1Done   … step3Done   — drive wcb-step--done CSS class.
- *   salaryDisplay             — formatted salary string for preview.
+ *   isStep1 … isStep4          — drive wcb-form-step--show CSS class on each step panel.
+ *   step1Active … step4Active  — drive wcb-step--active CSS class on the step indicator.
+ *   step1Done   … step3Done    — drive wcb-step--done CSS class on the step indicator.
+ *   salaryDisplay              — formatted salary string for preview.
+ *   hasCompany, isRemote, hasType, hasExp, hasLocation, hasCategory — preview card conditionals.
+ *   hasSalary, hasDeadline, hasApplyUrl, hasApplyEmail              — preview meta conditionals.
+ *   hasError, hasValidation                                          — error banner conditionals.
  *
  * @package WP_Career_Board
  */
@@ -84,6 +87,58 @@ store( 'wcb-job-form', {
 				return `${ cur } ${ fmt( min ) } – ${ fmt( max ) }`;
 			}
 			return `${ cur } ${ fmt( min || max ) }`;
+		},
+
+		// ── Preview card conditionals (all use data-wp-class) ─────────────
+		get hasCompany() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.companyName;
+		},
+		get isRemote() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.remote;
+		},
+		get hasType() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.typeSlug;
+		},
+		get hasExp() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.expSlug;
+		},
+		get hasLocation() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.locationSlug;
+		},
+		get hasCategory() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.categorySlug;
+		},
+		get hasSalary() {
+			const { state } = store( 'wcb-job-form' );
+			const min = state.salaryMin ? Number( state.salaryMin ) : 0;
+			const max = state.salaryMax ? Number( state.salaryMax ) : 0;
+			return !! ( min || max );
+		},
+		get hasDeadline() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.deadline;
+		},
+		get hasApplyUrl() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.applyUrl;
+		},
+		get hasApplyEmail() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.applyEmail;
+		},
+		get hasError() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.error;
+		},
+		get hasValidation() {
+			const { state } = store( 'wcb-job-form' );
+			return !! state.validationError;
 		},
 	},
 
