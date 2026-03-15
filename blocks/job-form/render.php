@@ -63,11 +63,11 @@ $wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_
 $wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
 
 // ── Slug → display-name maps (used by preview card getters in view.js) ─────
-$wcb_type_names     = array();
+$wcb_type_names = array();
 foreach ( $wcb_job_types as $wcb_term ) {
 	$wcb_type_names[ $wcb_term->slug ] = $wcb_term->name;
 }
-$wcb_exp_names      = array();
+$wcb_exp_names = array();
 foreach ( $wcb_experiences as $wcb_term ) {
 	$wcb_exp_names[ $wcb_term->slug ] = $wcb_term->name;
 }
@@ -236,6 +236,7 @@ $wcb_step_labels = array(
 					data-wcb-field="description"
 					data-wp-bind--value="state.description"
 					data-wp-on--input="actions.updateField"
+					required
 				></textarea>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Plain text or basic Markdown supported.', 'wp-career-board' ); ?>

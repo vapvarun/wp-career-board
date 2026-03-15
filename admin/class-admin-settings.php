@@ -316,6 +316,7 @@ class AdminSettings {
 						name="wcb_settings[notification_email]"
 								value="<?php echo esc_attr( $notification_email ); ?>"
 								class="regular-text"
+								required
 							>
 							<p class="description"><?php esc_html_e( 'Admin notification emails (new jobs, flagged content) are sent here. Defaults to the site admin email.', 'wp-career-board' ); ?></p>
 						</td>

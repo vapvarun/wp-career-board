@@ -180,9 +180,15 @@ store( 'wcb-job-form', {
 		nextStep() {
 			const { state } = store( 'wcb-job-form' );
 
-			if ( state.step === 1 && ! state.title.trim() ) {
-				state.validationError = 'Job title is required before you can continue.';
-				return;
+			if ( state.step === 1 ) {
+				if ( ! state.title.trim() ) {
+					state.validationError = 'Job title is required before you can continue.';
+					return;
+				}
+				if ( ! state.description.trim() ) {
+					state.validationError = 'Job description is required before you can continue.';
+					return;
+				}
 			}
 
 			state.validationError = '';
@@ -209,55 +215,59 @@ store( 'wcb-job-form', {
 			state.submitting = true;
 			state.error      = '';
 
-			// Parse comma-separated tags into a slug array.
-			const tagSlugs = state.tags
-				? state.tags.split( ',' ).map( ( t ) => t.trim() ).filter( Boolean )
-				: [];
+			try {
+				// Parse comma-separated tags into a slug array.
+				const tagSlugs = state.tags
+					? state.tags.split( ',' ).map( ( t ) => t.trim() ).filter( Boolean )
+					: [];
 
-			const body = {
-				title:           state.title,
-				description:     state.description,
-				salary_min:      state.salaryMin,
-				salary_max:      state.salaryMax,
-				salary_currency: state.currencyCode || 'USD',
-				remote:          state.remote,
-				deadline:        state.deadline,
-				apply_url:       state.applyUrl,
-				apply_email:     state.applyEmail,
-				categories:      state.categorySlug   ? [ state.categorySlug ]   : [],
-				job_types:       state.typeSlug        ? [ state.typeSlug ]        : [],
-				locations:       state.locationSlug    ? [ state.locationSlug ]    : [],
-				experience:      state.expSlug         ? [ state.expSlug ]         : [],
-				tags:            tagSlugs,
-			};
+				const body = {
+					title:           state.title,
+					description:     state.description,
+					salary_min:      state.salaryMin,
+					salary_max:      state.salaryMax,
+					salary_currency: state.currencyCode || 'USD',
+					remote:          state.remote,
+					deadline:        state.deadline,
+					apply_url:       state.applyUrl,
+					apply_email:     state.applyEmail,
+					categories:      state.categorySlug   ? [ state.categorySlug ]   : [],
+					job_types:       state.typeSlug        ? [ state.typeSlug ]        : [],
+					locations:       state.locationSlug    ? [ state.locationSlug ]    : [],
+					experience:      state.expSlug         ? [ state.expSlug ]         : [],
+					tags:            tagSlugs,
+				};
 
-			const response = yield fetch(
-				state.apiBase + '/jobs',
-				{
-					method:  'POST',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( body ),
+				const response = yield fetch(
+					state.apiBase + '/jobs',
+					{
+						method:  'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( body ),
+					}
+				);
+
+				if ( ! response.ok ) {
+					const err = yield response.json().catch( () => null );
+					if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
+						state.error = 'Your session has expired. Please refresh the page and try again.';
+					} else {
+						state.error = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
+					}
+					return;
 				}
-			);
 
-			if ( ! response.ok ) {
-				const err = yield response.json().catch( () => null );
-				if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
-					state.error = 'Your session has expired. Please refresh the page and try again.';
-				} else {
-					state.error = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
-				}
+				const data      = yield response.json();
+				state.jobUrl    = data.permalink || '';
+				state.submitted = true;
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.submitting = false;
-				return;
 			}
-
-			const data       = yield response.json();
-			state.jobUrl     = data.permalink || '';
-			state.submitted  = true;
-			state.submitting = false;
 		},
 	},
 } );
