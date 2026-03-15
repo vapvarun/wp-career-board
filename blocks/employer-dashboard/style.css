@@ -6,8 +6,6 @@
 
 /* ── Outer wrapper ────────────────────────────────────────────────────────── */
 .wcb-dashboard {
-	max-width: 900px;
-	margin: 0 auto;
 	font-family: inherit;
 	color: #1e293b;
 }

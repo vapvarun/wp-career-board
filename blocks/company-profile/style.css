@@ -1,7 +1,5 @@
 /* ── Outer wrapper ──────────────────────────────────────────────────────────── */
 .wcb-cp-wrap {
-	max-width: 860px;
-	margin: 0 auto;
 	font-family: inherit;
 }
 
