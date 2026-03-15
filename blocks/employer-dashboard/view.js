@@ -1,32 +1,42 @@
 /**
  * WP Career Board — employer-dashboard block Interactivity API store.
  *
- * Actions:
- *   init           — fetch employer's jobs on mount (via data-wp-init).
- *   switchToJobs   — activate My Jobs tab.
- *   switchToProfile— activate Company Profile tab.
- *   updateField    — generic field updater via data-wcb-field attribute.
- *   saveProfile    — PATCH employer profile via /wcb/v1/employers/{id}.
- *
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
 
-store( 'wcb-employer-dashboard', {
+const { state } = store( 'wcb-employer-dashboard', {
 	state: {
 		get isTabJobs() {
-			const { state } = store( 'wcb-employer-dashboard' );
 			return state.tab === 'jobs';
 		},
 		get isTabProfile() {
-			const { state } = store( 'wcb-employer-dashboard' );
 			return state.tab === 'profile';
+		},
+		get hasJobs() {
+			return ! state.loading && ! state.noCompany && state.jobs.length > 0;
+		},
+		get noJobs() {
+			return ! state.loading && ! state.noCompany && ! state.error && state.jobs.length === 0;
+		},
+		get totalJobs() {
+			return state.jobs.length;
+		},
+		get publishedJobs() {
+			return state.jobs.filter( ( j ) => j.status === 'publish' ).length;
+		},
+		get totalApps() {
+			return state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
 		},
 	},
 
 	actions: {
 		*init() {
-			const { state } = store( 'wcb-employer-dashboard' );
+			if ( ! state.companyId ) {
+				state.noCompany = true;
+				return;
+			}
+
 			state.loading = true;
 
 			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
@@ -43,41 +53,36 @@ store( 'wcb-employer-dashboard', {
 				return;
 			}
 
-			const jobs    = yield response.json();
-			state.jobs    = jobs;
+			state.jobs    = yield response.json();
 			state.loading = false;
 		},
 
 		switchToJobs() {
-			const { state } = store( 'wcb-employer-dashboard' );
 			state.tab   = 'jobs';
 			state.error = '';
 		},
 
 		switchToProfile() {
-			const { state } = store( 'wcb-employer-dashboard' );
 			state.tab   = 'profile';
 			state.saved  = false;
 			state.error  = '';
 		},
 
 		updateField( event ) {
-			const { state } = store( 'wcb-employer-dashboard' );
-			const field     = event.target.dataset.wcbField;
+			const field = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
 			}
 		},
 
 		*saveProfile() {
-			const { state } = store( 'wcb-employer-dashboard' );
-
 			if ( state.saving ) {
 				return;
 			}
 
 			state.saving = true;
 			state.saved  = false;
+			state.error  = '';
 
 			const response = yield fetch(
 				state.apiBase + '/employers/' + String( state.companyId ),
@@ -90,7 +95,11 @@ store( 'wcb-employer-dashboard', {
 					body: JSON.stringify( {
 						name:        state.companyName,
 						description: state.companyDesc,
+						tagline:     state.companyTagline,
 						website:     state.companySite,
+						industry:    state.companyIndustry,
+						size:        state.companySize,
+						hq:          state.companyHq,
 					} ),
 				}
 			);
@@ -103,7 +112,6 @@ store( 'wcb-employer-dashboard', {
 
 			state.saving = false;
 			state.saved  = true;
-			state.error  = '';
 		},
 	},
 } );

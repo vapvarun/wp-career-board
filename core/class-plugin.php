@@ -128,6 +128,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\CandidatesEndpoint::class,
 			\WCB\Api\Endpoints\EmployersEndpoint::class,
 			\WCB\Api\Endpoints\SearchEndpoint::class,
+			\WCB\Api\Endpoints\CompaniesEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -153,6 +154,7 @@ final class Plugin {
 			'employer-dashboard',
 			'candidate-dashboard',
 			'company-profile',
+			'company-archive',
 			'featured-jobs',
 		);
 

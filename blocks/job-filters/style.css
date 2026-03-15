@@ -1,23 +1,52 @@
+/*
+ * Theme-compatible color tokens — override in your theme's style.css.
+ * Example: :root { --wcb-primary: #6d28d9; }
+ */
+:root {
+	--wcb-primary: #0f172a;
+}
+
+/* ── Filters row ─────────────────────────────────────────────────────────── */
 .wcb-filters-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.75rem;
 }
 
+/* ── Filter select ───────────────────────────────────────────────────────── */
 .wcb-filter-select {
 	flex: 1;
 	min-width: 160px;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	font-size: 0.9rem;
+	padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+	border: 1.5px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-family: inherit;
+	color: #334155;
 	background: #fff;
 	cursor: pointer;
+	appearance: none;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	transition: border-color 0.15s;
 }
 
+.wcb-filter-select:focus {
+	outline: none;
+	border-color: var( --wcb-primary, #0f172a );
+	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 @media ( max-width: 600px ) {
+	.wcb-filters-row {
+		flex-direction: column;
+	}
+
 	.wcb-filter-select {
 		width: 100%;
 		flex: none;
+		min-width: 0;
 	}
 }

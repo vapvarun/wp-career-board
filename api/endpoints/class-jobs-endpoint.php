@@ -536,35 +536,111 @@ final class JobsEndpoint extends RestController {
 	/**
 	 * Shape a WP_Post into the REST response array.
 	 *
+	 * Returns both slug-indexed taxonomy arrays (for filtering) and
+	 * display-name strings (for card rendering) so the frontend never needs
+	 * secondary lookups.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post $post Job post object.
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item_for_response_array( \WP_Post $post ): array {
-		$currency = get_post_meta( $post->ID, '_wcb_salary_currency', true );
+		$currency     = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
+		$currency     = '' !== $currency ? $currency : 'USD';
+		$salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
+		$salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
+		$company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
+		$author_id    = (int) $post->post_author;
+		$company_id   = (int) get_user_meta( $author_id, '_wcb_company_id', true );
+		$trust        = $company_id ? (string) get_post_meta( $company_id, '_wcb_trust_level', true ) : '';
+
+		// Human-readable taxonomy labels for card display.
+		$loc_terms  = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
+		$type_terms = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+		$exp_terms  = wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'names' ) );
+		$cat_terms  = wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'names' ) );
+
+		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
+
 		return array(
-			'id'              => $post->ID,
-			'title'           => $post->post_title,
-			'description'     => $post->post_content,
-			'status'          => $post->post_status,
-			'author'          => (int) $post->post_author,
-			'date'            => $post->post_date,
-			'permalink'       => get_permalink( $post->ID ),
-			'company'         => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
-			'deadline'        => get_post_meta( $post->ID, '_wcb_deadline', true ),
-			'salary_min'      => get_post_meta( $post->ID, '_wcb_salary_min', true ),
-			'salary_max'      => get_post_meta( $post->ID, '_wcb_salary_max', true ),
-			'salary_currency' => $currency ? $currency : 'USD',
-			'remote'          => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
-			'board_id'        => (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
-			'categories'      => wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'slugs' ) ),
-			'job_types'       => wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
-			'locations'       => wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'slugs' ) ),
-			'experience'      => wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'slugs' ) ),
-			'tags'            => wp_get_object_terms( $post->ID, 'wcb_tag', array( 'fields' => 'slugs' ) ),
-			'thumbnail'       => get_the_post_thumbnail_url( $post->ID, 'medium' ) ? get_the_post_thumbnail_url( $post->ID, 'medium' ) : '',
+			'id'               => $post->ID,
+			'title'            => $post->post_title,
+			'description'      => $post->post_content,
+			'status'           => $post->post_status,
+			'author'           => $author_id,
+			'date'             => $post->post_date,
+			'permalink'        => get_permalink( $post->ID ),
+			// Company fields.
+			'company'          => $company_name,
+			'initials'         => $this->company_initials( $company_name ),
+			'verified'         => in_array( $trust, array( 'verified', 'trusted', 'premium' ), true ),
+			// Job meta.
+			'deadline'         => get_post_meta( $post->ID, '_wcb_deadline', true ),
+			'salary_min'       => $salary_min,
+			'salary_max'       => $salary_max,
+			'salary_currency'  => $currency,
+			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency ),
+			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
+			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
+			'board_id'         => (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
+			// Display-name strings for cards.
+			'location'         => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
+			'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+			'experience'       => is_wp_error( $exp_terms ) ? '' : implode( ', ', $exp_terms ),
+			'category'         => is_wp_error( $cat_terms ) ? '' : implode( ', ', $cat_terms ),
+			// Relative time.
+			'days_ago'         => human_time_diff( (int) strtotime( $post->post_date ), time() ) . ' ago',
+			// Slug arrays for filter/API consumers.
+			'categories'       => wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'slugs' ) ),
+			'job_types'        => wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
+			'locations'        => wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'slugs' ) ),
+			'experience_slugs' => wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'slugs' ) ),
+			'tags'             => wp_get_object_terms( $post->ID, 'wcb_tag', array( 'fields' => 'slugs' ) ),
+			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
 		);
+	}
+
+	/**
+	 * Get company initials (up to 2 chars) from a company name.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name Company name.
+	 * @return string
+	 */
+	private function company_initials( string $name ): string {
+		$words = array_filter( explode( ' ', trim( $name ) ) );
+		$init  = '';
+		foreach ( array_slice( $words, 0, 2 ) as $word ) {
+			$init .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
+		}
+		return '' !== $init ? $init : '?';
+	}
+
+	/**
+	 * Format a salary range as a human-readable label.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $min      Minimum salary.
+	 * @param string $max      Maximum salary.
+	 * @param string $currency Currency code.
+	 * @return string
+	 */
+	private function format_salary( string $min, string $max, string $currency ): string {
+		if ( ! $min && ! $max ) {
+			return '';
+		}
+		$symbol = 'USD' === $currency ? '$' : $currency . ' ';
+		$fmt    = static function ( string $n ) use ( $symbol ): string {
+			$val = (int) $n;
+			return $val >= 1000 ? $symbol . round( $val / 1000 ) . 'k' : $symbol . $val;
+		};
+		if ( $min && $max ) {
+			return $fmt( $min ) . '–' . $fmt( $max ) . '/yr';
+		}
+		return $min ? $fmt( $min ) . '+/yr' : 'Up to ' . $fmt( $max ) . '/yr';
 	}
 
 	/**

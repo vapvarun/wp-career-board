@@ -30,6 +30,23 @@ final class JobsModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
+	}
+
+	/**
+	 * Serve the job-listings block for all WCB taxonomy archive pages.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $template Current template path.
+	 * @return string
+	 */
+	public function taxonomy_archive_template( string $template ): string {
+		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) ) {
+			return $template;
+		}
+		$override = plugin_dir_path( __FILE__ ) . 'templates/archive-tax.php';
+		return file_exists( $override ) ? $override : $template;
 	}
 
 	/**

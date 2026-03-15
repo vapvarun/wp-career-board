@@ -1,38 +1,86 @@
+/*
+ * Theme-compatible color tokens — override in your theme's style.css.
+ * Example: :root { --wcb-primary: #6d28d9; }
+ */
+:root {
+	--wcb-primary:      #0f172a;
+	--wcb-primary-dark: #020617;
+}
+
+/* ── Block wrapper reset — prevent theme double-border ───────────────────── */
+.wp-block-wp-career-board-job-search {
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	background: none !important;
+}
+
+/* ── Search form ─────────────────────────────────────────────────────────── */
 .wcb-search-form {
 	display: flex;
-	gap: 0.5rem;
-	align-items: center;
+	gap: 0;
+	border-radius: 10px;
+	border: 1.5px solid #e2e8f0;
+	overflow: hidden;
+	background: #fff;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wcb-search-form:focus-within {
+	border-color: var( --wcb-primary, #0f172a );
+	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
 }
 
 .wcb-search-input {
 	flex: 1;
-	padding: 0.625rem 1rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	font-size: 1rem;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	-webkit-appearance: none;
+	appearance: none;
+	padding: 0.75rem 1rem;
+	font-size: 0.9375rem;
+	font-family: inherit;
+	color: #1e293b;
+	background: transparent;
+	min-width: 0;
+}
+
+.wcb-search-input::placeholder {
+	color: #94a3b8;
 }
 
 .wcb-search-button {
-	padding: 0.625rem 1.25rem;
-	background: #2563eb;
+	padding: 0.75rem 1.25rem;
+	background: var( --wcb-primary, #0f172a );
 	color: #fff;
 	border: none;
-	border-radius: 6px;
-	font-size: 1rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	font-family: inherit;
 	cursor: pointer;
+	white-space: nowrap;
+	transition: background 0.15s;
 }
 
 .wcb-search-button:hover {
-	background: #1d4ed8;
+	background: var( --wcb-primary-dark, #020617 );
 }
 
-@media ( max-width: 600px ) {
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media ( max-width: 480px ) {
 	.wcb-search-form {
 		flex-direction: column;
+		border-radius: 8px;
 	}
 
-	.wcb-search-input,
+	.wcb-search-input {
+		border-bottom: 1px solid #e2e8f0;
+	}
+
 	.wcb-search-button {
-		width: 100%;
+		border-radius: 0 0 8px 8px;
+		text-align: center;
 	}
 }

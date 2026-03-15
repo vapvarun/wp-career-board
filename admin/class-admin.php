@@ -299,8 +299,9 @@ class Admin {
 	 */
 	public function enqueue_assets( string $hook ): void {
 		global $post_type;
-		$wcb_is_job_edit = ( 'post.php' === $hook || 'post-new.php' === $hook ) && 'wcb_job' === $post_type;
-		if ( ! $wcb_is_job_edit && false === strpos( $hook, 'wcb' ) && false === strpos( $hook, 'wp-career-board' ) ) {
+		$wcb_cpt_edit = ( 'post.php' === $hook || 'post-new.php' === $hook )
+			&& in_array( $post_type, array( 'wcb_job', 'wcb_company' ), true );
+		if ( ! $wcb_cpt_edit && false === strpos( $hook, 'wcb' ) && false === strpos( $hook, 'wp-career-board' ) ) {
 			return;
 		}
 

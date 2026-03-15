@@ -159,7 +159,8 @@ class ReignIntegration {
 	 * Enqueue Reign-compatible stylesheet on WCB job pages.
 	 */
 	public function enqueue_styles(): void {
-		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) ) {
+		$wcb_is_tax = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
+		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) && ! $wcb_is_tax ) {
 			return;
 		}
 		wp_enqueue_style(

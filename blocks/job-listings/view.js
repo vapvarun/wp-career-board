@@ -26,6 +26,10 @@ const { state } = store( 'wcb-job-listings', {
 			const ctx = getContext();
 			return ctx.job && ctx.job.bookmarked ? 'Remove bookmark' : 'Bookmark job';
 		},
+		get resultsLabel() {
+			const count = state.jobs.length;
+			return count === 1 ? '1 job found' : count + ' jobs found';
+		},
 	},
 
 	actions: {

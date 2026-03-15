@@ -6,32 +6,34 @@
  *   closePanel         — dismiss the apply panel.
  *   updateCoverLetter  — sync textarea value to state.
  *   submitApplication  — POST cover letter to /wcb/v1/jobs/{id}/apply.
+ *   toggleBookmark     — POST to /wcb/v1/jobs/{id}/bookmark and flip state.bookmarked.
  *
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
 
-store( 'wcb-job-single', {
+const { state } = store( 'wcb-job-single', {
+	state: {
+		get bookmarkLabel() {
+			return state.bookmarked ? 'Saved' : 'Save Job';
+		},
+	},
+
 	actions: {
 		openPanel() {
-			const { state } = store( 'wcb-job-single' );
 			state.panelOpen = true;
 		},
 
 		closePanel() {
-			const { state } = store( 'wcb-job-single' );
 			state.panelOpen = false;
 			state.error     = '';
 		},
 
 		updateCoverLetter( event ) {
-			const { state } = store( 'wcb-job-single' );
 			state.coverLetter = event.target.value;
 		},
 
 		*submitApplication() {
-			const { state } = store( 'wcb-job-single' );
-
 			if ( state.submitting ) {
 				return;
 			}
@@ -60,6 +62,34 @@ store( 'wcb-job-single', {
 			state.submitted  = true;
 			state.submitting = false;
 			state.panelOpen  = false;
+		},
+
+		*toggleBookmark() {
+			if ( state.bookmarking ) {
+				return;
+			}
+
+			state.bookmarking = true;
+
+			const response = yield fetch(
+				state.apiBase + '/jobs/' + String( state.jobId ) + '/bookmark',
+				{
+					method: 'POST',
+					headers: {
+						'X-WP-Nonce':   state.nonce,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			state.bookmarking = false;
+
+			if ( ! response.ok ) {
+				return;
+			}
+
+			const data        = yield response.json();
+			state.bookmarked  = data.bookmarked;
 		},
 	},
 } );

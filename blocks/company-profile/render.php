@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/company-profile — public company page with owner inline-edit.
+ * Block render: wcb/company-profile — LinkedIn-style public company profile page.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.
@@ -15,12 +15,12 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// Resolve the company post. Block attribute takes precedence; fall back to queried object.
+// ── Resolve company post ──────────────────────────────────────────────────────
 $wcb_company_id = (int) ( $attributes['companyId'] ?? 0 );
 if ( ! $wcb_company_id ) {
-	$queried = get_queried_object();
-	if ( $queried instanceof \WP_Post && 'wcb_company' === $queried->post_type ) {
-		$wcb_company_id = $queried->ID;
+	$wcb_queried = get_queried_object();
+	if ( $wcb_queried instanceof \WP_Post && 'wcb_company' === $wcb_queried->post_type ) {
+		$wcb_company_id = $wcb_queried->ID;
 	}
 }
 
@@ -29,135 +29,270 @@ if ( ! $wcb_company instanceof \WP_Post ) {
 	return;
 }
 
-$wcb_company_name = $wcb_company->post_title;
-$wcb_company_desc = $wcb_company->post_content;
-$wcb_company_site = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
-$wcb_company_logo = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
-$wcb_is_owner     = get_current_user_id() === (int) $wcb_company->post_author;
+// ── Meta fields ───────────────────────────────────────────────────────────────
+$wcb_name     = $wcb_company->post_title;
+$wcb_desc     = $wcb_company->post_content;
+$wcb_tagline  = (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true );
+$wcb_website  = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
+$wcb_linkedin = (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true );
+$wcb_twitter  = (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true );
+$wcb_industry = (string) get_post_meta( $wcb_company_id, '_wcb_industry', true );
+$wcb_size     = (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true );
+$wcb_type     = (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true );
+$wcb_founded  = (string) get_post_meta( $wcb_company_id, '_wcb_founded', true );
+$wcb_hq       = (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true );
+$wcb_trust    = (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true );
+$wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
+$wcb_is_owner = get_current_user_id() === (int) $wcb_company->post_author;
 
-wp_interactivity_state(
-	'wcb-company-profile',
-	array(
-		'companyId'   => $wcb_company_id,
-		'isOwner'     => $wcb_is_owner,
-		'editing'     => false,
-		'saving'      => false,
-		'saved'       => false,
-		'error'       => '',
-		'companyName' => $wcb_company_name,
-		'companyDesc' => $wcb_company_desc,
-		'companySite' => $wcb_company_site,
-		'jobs'        => array(),
-		'loading'     => false,
-		'apiBase'     => rest_url( 'wcb/v1' ),
-		'nonce'       => wp_create_nonce( 'wp_rest' ),
-	)
+// ── Initials avatar ───────────────────────────────────────────────────────────
+$wcb_words    = array_filter( explode( ' ', trim( $wcb_name ) ) );
+$wcb_initials = '';
+foreach ( array_slice( $wcb_words, 0, 2 ) as $wcb_word ) {
+	$wcb_initials .= mb_strtoupper( mb_substr( $wcb_word, 0, 1 ) );
+}
+$wcb_initials = $wcb_initials ? $wcb_initials : '?';
+
+// ── Trust badge ───────────────────────────────────────────────────────────────
+$wcb_trust_map  = array(
+	'verified' => array(
+		'label' => __( 'Verified', 'wp-career-board' ),
+		'class' => 'wcb-trust--verified',
+	),
+	'trusted'  => array(
+		'label' => __( 'Trusted', 'wp-career-board' ),
+		'class' => 'wcb-trust--trusted',
+	),
+	'premium'  => array(
+		'label' => __( 'Premium', 'wp-career-board' ),
+		'class' => 'wcb-trust--premium',
+	),
 );
+$wcb_trust_info = $wcb_trust_map[ $wcb_trust ] ?? null;
+
+// ── Size labels ───────────────────────────────────────────────────────────────
+$wcb_size_labels = array(
+	'1-10'      => __( '1–10 employees', 'wp-career-board' ),
+	'11-50'     => __( '11–50 employees', 'wp-career-board' ),
+	'51-200'    => __( '51–200 employees', 'wp-career-board' ),
+	'201-500'   => __( '201–500 employees', 'wp-career-board' ),
+	'501-1000'  => __( '501–1,000 employees', 'wp-career-board' ),
+	'1001-5000' => __( '1,001–5,000 employees', 'wp-career-board' ),
+	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+);
+$wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
+
 ?>
-<div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-	data-wp-interactive="wcb-company-profile"
-	data-wp-init="actions.init"
->
-	<!-- Logo -->
-	<?php if ( $wcb_company_logo ) : ?>
-		<img
-			class="wcb-company-logo"
-			src="<?php echo esc_url( $wcb_company_logo ); ?>"
-			alt="<?php echo esc_attr( $wcb_company_name ); ?>"
-		/>
-	<?php endif; ?>
+<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
-	<!-- Read view -->
-	<div class="wcb-company-read" data-wp-show="!state.editing">
-		<h1 class="wcb-company-name" data-wp-text="state.companyName"></h1>
+	<?php /* ── Hero ── */ ?>
+	<div class="wcb-cp-hero">
+		<div class="wcb-cp-cover" aria-hidden="true"></div>
 
-		<a
-			class="wcb-company-site"
-			href="<?php echo esc_url( $wcb_company_site ); ?>"
-			rel="noopener noreferrer"
-			target="_blank"
-			data-wp-show="state.companySite"
-			data-wp-bind--href="state.companySite"
-			data-wp-text="state.companySite"
-		></a>
+		<div class="wcb-cp-hero-body">
+			<?php /* Avatar / Logo */ ?>
+			<div class="wcb-cp-avatar-wrap">
+				<?php if ( $wcb_logo_url ) : ?>
+					<img
+						class="wcb-cp-logo"
+						src="<?php echo esc_url( $wcb_logo_url ); ?>"
+						alt="<?php echo esc_attr( $wcb_name ); ?>"
+					/>
+				<?php else : ?>
+					<div class="wcb-cp-avatar" aria-hidden="true">
+						<?php echo esc_html( $wcb_initials ); ?>
+					</div>
+				<?php endif; ?>
+			</div>
 
-		<div class="wcb-company-desc" data-wp-text="state.companyDesc"></div>
+			<div class="wcb-cp-hero-info">
+				<div class="wcb-cp-name-row">
+					<h1 class="wcb-cp-name"><?php echo esc_html( $wcb_name ); ?></h1>
+					<?php if ( $wcb_trust_info ) : ?>
+						<span class="wcb-cp-trust-badge <?php echo esc_attr( $wcb_trust_info['class'] ); ?>">
+							<?php if ( 'premium' === $wcb_trust ) : ?>
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+							<?php else : ?>
+								<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+							<?php endif; ?>
+							<?php echo esc_html( $wcb_trust_info['label'] ); ?>
+						</span>
+					<?php endif; ?>
+				</div>
 
-		<?php if ( $wcb_is_owner ) : ?>
-			<button type="button" class="wcb-btn" data-wp-on--click="actions.toggleEdit">
-				<?php esc_html_e( 'Edit Profile', 'wp-career-board' ); ?>
-			</button>
-		<?php endif; ?>
-	</div>
+				<?php if ( $wcb_tagline ) : ?>
+					<p class="wcb-cp-tagline"><?php echo esc_html( $wcb_tagline ); ?></p>
+				<?php endif; ?>
 
-	<!-- Edit view — owner only -->
-	<?php if ( $wcb_is_owner ) : ?>
-		<div class="wcb-company-edit" data-wp-show="state.editing">
-			<h2><?php esc_html_e( 'Edit Company Profile', 'wp-career-board' ); ?></h2>
+				<?php /* Quick meta chips */ ?>
+				<div class="wcb-cp-meta-chips">
+					<?php if ( $wcb_industry ) : ?>
+						<span class="wcb-cp-chip">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-2.18c.07-.44.18-.86.18-1.3C18 2.12 15.88 0 13.3 0c-1.48 0-2.67.73-3.58 1.68L12 4l2.28-2.28C14.8 1.28 15.5 1 16.3 1c2.21 0 4 1.79 4 4 0 .44-.1.86-.18 1.3H20v14H4V6h4V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+							<?php echo esc_html( $wcb_industry ); ?>
+						</span>
+					<?php endif; ?>
+					<?php if ( $wcb_size_label ) : ?>
+						<span class="wcb-cp-chip">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+							<?php echo esc_html( $wcb_size_label ); ?>
+						</span>
+					<?php endif; ?>
+					<?php if ( $wcb_hq ) : ?>
+						<span class="wcb-cp-chip">
+							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+							<?php echo esc_html( $wcb_hq ); ?>
+						</span>
+					<?php endif; ?>
+				</div>
 
-			<label for="wcb-cp-name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
-			<input
-				id="wcb-cp-name"
-				type="text"
-				class="wcb-field"
-				data-wcb-field="companyName"
-				data-wp-bind--value="state.companyName"
-				data-wp-on--input="actions.updateField"
-			/>
-
-			<label for="wcb-cp-desc"><?php esc_html_e( 'Description', 'wp-career-board' ); ?></label>
-			<textarea
-				id="wcb-cp-desc"
-				class="wcb-field"
-				rows="6"
-				data-wcb-field="companyDesc"
-				data-wp-on--input="actions.updateField"
-			></textarea>
-
-			<label for="wcb-cp-site"><?php esc_html_e( 'Website', 'wp-career-board' ); ?></label>
-			<input
-				id="wcb-cp-site"
-				type="url"
-				class="wcb-field"
-				data-wcb-field="companySite"
-				data-wp-bind--value="state.companySite"
-				data-wp-on--input="actions.updateField"
-			/>
-
-			<p class="wcb-save-success" data-wp-show="state.saved"><?php esc_html_e( 'Profile saved.', 'wp-career-board' ); ?></p>
-			<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
-
-			<div class="wcb-form-nav">
-				<button type="button" class="wcb-btn wcb-btn-back" data-wp-on--click="actions.toggleEdit" data-wp-bind--disabled="state.saving">
-					<?php esc_html_e( 'Cancel', 'wp-career-board' ); ?>
-				</button>
-				<button
-					type="button"
-					class="wcb-btn"
-					data-wp-on--click="actions.saveProfile"
-					data-wp-bind--disabled="state.saving"
-				>
-					<span data-wp-show="!state.saving"><?php esc_html_e( 'Save', 'wp-career-board' ); ?></span>
-					<span data-wp-show="state.saving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>
-				</button>
+				<?php /* External links */ ?>
+				<div class="wcb-cp-links">
+					<?php if ( $wcb_website ) : ?>
+						<a class="wcb-cp-link wcb-cp-link--web" href="<?php echo esc_url( $wcb_website ); ?>" target="_blank" rel="noopener noreferrer">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>
+							<?php esc_html_e( 'Website', 'wp-career-board' ); ?>
+						</a>
+					<?php endif; ?>
+					<?php if ( $wcb_linkedin ) : ?>
+						<a class="wcb-cp-link wcb-cp-link--linkedin" href="<?php echo esc_url( $wcb_linkedin ); ?>" target="_blank" rel="noopener noreferrer">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+							<?php esc_html_e( 'LinkedIn', 'wp-career-board' ); ?>
+						</a>
+					<?php endif; ?>
+					<?php if ( $wcb_twitter ) : ?>
+						<a class="wcb-cp-link wcb-cp-link--twitter" href="<?php echo esc_url( $wcb_twitter ); ?>" target="_blank" rel="noopener noreferrer">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.737-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+							<?php esc_html_e( 'X / Twitter', 'wp-career-board' ); ?>
+						</a>
+					<?php endif; ?>
+				</div>
 			</div>
 		</div>
-	<?php endif; ?>
+	</div>
 
-	<!-- Active job listings -->
-	<section class="wcb-company-jobs">
-		<h2><?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?></h2>
-		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+	<?php /* ── Body ── */ ?>
+	<div class="wcb-cp-body">
 
-		<div data-wp-show="!state.loading">
-			<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
-				<div class="wcb-job-card">
-					<h3><a data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title"></a></h3>
-					<span data-wp-text="context.job.location"></span>
-					<span data-wp-text="context.job.type"></span>
+		<?php /* About */ ?>
+		<?php if ( $wcb_desc ) : ?>
+			<section class="wcb-cp-section">
+				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'About', 'wp-career-board' ); ?></h2>
+				<div class="wcb-cp-desc">
+					<?php echo wp_kses_post( wpautop( $wcb_desc ) ); ?>
 				</div>
-			</template>
-		</div>
-	</section>
+			</section>
+		<?php endif; ?>
+
+		<?php /* Company Details */ ?>
+		<?php if ( $wcb_industry || $wcb_size || $wcb_type || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
+			<section class="wcb-cp-section">
+				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Company Details', 'wp-career-board' ); ?></h2>
+				<dl class="wcb-cp-details-grid">
+					<?php if ( $wcb_industry ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
+							<dd><?php echo esc_html( $wcb_industry ); ?></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( $wcb_size_label ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
+							<dd><?php echo esc_html( $wcb_size_label ); ?></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( $wcb_type ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Type', 'wp-career-board' ); ?></dt>
+							<dd><?php echo esc_html( $wcb_type ); ?></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( $wcb_founded ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Founded', 'wp-career-board' ); ?></dt>
+							<dd><?php echo esc_html( $wcb_founded ); ?></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( $wcb_hq ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
+							<dd><?php echo esc_html( $wcb_hq ); ?></dd>
+						</div>
+					<?php endif; ?>
+					<?php if ( $wcb_website ) : ?>
+						<div class="wcb-cp-detail-item">
+							<dt><?php esc_html_e( 'Website', 'wp-career-board' ); ?></dt>
+							<dd>
+								<a href="<?php echo esc_url( $wcb_website ); ?>" target="_blank" rel="noopener noreferrer">
+									<?php echo esc_html( preg_replace( '#^https?://#', '', rtrim( $wcb_website, '/' ) ) ); ?>
+								</a>
+							</dd>
+						</div>
+					<?php endif; ?>
+				</dl>
+			</section>
+		<?php endif; ?>
+
+		<?php
+		/* ── Open Positions — server-side rendered ── */
+		$wcb_open_jobs = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_author'    => (int) $wcb_company->post_author,
+				'post_status'    => 'publish',
+				'posts_per_page' => 20,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
+		?>
+		<section class="wcb-cp-section">
+			<h2 class="wcb-cp-section-title">
+				<?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?>
+				<?php if ( ! empty( $wcb_open_jobs ) ) : ?>
+					<span class="wcb-cp-jobs-count"><?php echo count( $wcb_open_jobs ); ?></span>
+				<?php endif; ?>
+			</h2>
+
+			<?php if ( empty( $wcb_open_jobs ) ) : ?>
+				<p class="wcb-cp-no-jobs"><?php esc_html_e( 'No open positions at the moment. Check back soon.', 'wp-career-board' ); ?></p>
+			<?php else : ?>
+				<div class="wcb-cp-jobs-list">
+					<?php foreach ( $wcb_open_jobs as $wcb_open_job ) : ?>
+						<?php
+						$wcb_jloc      = wp_get_object_terms( $wcb_open_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
+						$wcb_jtype     = wp_get_object_terms( $wcb_open_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+						$wcb_jloc_str  = is_wp_error( $wcb_jloc ) ? '' : implode( ', ', $wcb_jloc );
+						$wcb_jtype_str = is_wp_error( $wcb_jtype ) ? '' : implode( ', ', $wcb_jtype );
+						?>
+						<article class="wcb-cp-job-card">
+							<div class="wcb-cp-job-main">
+								<h3 class="wcb-cp-job-title">
+									<a href="<?php echo esc_url( (string) get_permalink( $wcb_open_job->ID ) ); ?>">
+										<?php echo esc_html( $wcb_open_job->post_title ); ?>
+									</a>
+								</h3>
+								<div class="wcb-cp-job-badges">
+									<?php if ( $wcb_jtype_str ) : ?>
+										<span class="wcb-cjbadge wcb-cjbadge--type"><?php echo esc_html( $wcb_jtype_str ); ?></span>
+									<?php endif; ?>
+									<?php if ( $wcb_jloc_str ) : ?>
+										<span class="wcb-cjbadge wcb-cjbadge--location">
+											<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+											<?php echo esc_html( $wcb_jloc_str ); ?>
+										</span>
+									<?php endif; ?>
+								</div>
+							</div>
+							<a class="wcb-cp-job-apply" href="<?php echo esc_url( (string) get_permalink( $wcb_open_job->ID ) ); ?>">
+								<?php esc_html_e( 'View Job', 'wp-career-board' ); ?>
+							</a>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</section>
+
+	</div>
+
 </div>

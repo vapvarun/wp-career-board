@@ -180,7 +180,9 @@ final class EmployersEndpoint extends RestController {
 		$meta_map = array(
 			'website'  => '_wcb_website',
 			'industry' => '_wcb_industry',
-			'size'     => '_wcb_size',
+			'size'     => '_wcb_company_size',
+			'tagline'  => '_wcb_tagline',
+			'hq'       => '_wcb_hq_location',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -249,14 +251,28 @@ final class EmployersEndpoint extends RestController {
 			static function ( \WP_Post $p ) use ( $app_counts ): array {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+				$app_count      = $app_counts[ $p->ID ] ?? 0;
+
+				$status_labels = array(
+					'publish' => 'Published',
+					'draft'   => 'Draft',
+					'pending' => 'Pending',
+					'private' => 'Private',
+				);
+
 				return array(
-					'id'        => $p->ID,
-					'title'     => $p->post_title,
-					'status'    => $p->post_status,
-					'permalink' => get_permalink( $p->ID ),
-					'appCount'  => $app_counts[ $p->ID ] ?? 0,
-					'location'  => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'      => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'id'          => $p->ID,
+					'title'       => $p->post_title,
+					'status'      => $p->post_status,
+					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'permalink'   => get_permalink( $p->ID ),
+					'editUrl'     => admin_url( 'post.php?post=' . $p->ID . '&action=edit' ),
+					'appCount'    => $app_count,
+					'appLabel'    => $app_count > 0
+						? sprintf( '%d %s', $app_count, _n( 'applicant', 'applicants', $app_count, 'wp-career-board' ) )
+						: __( 'No applicants', 'wp-career-board' ),
+					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
 				);
 			},
 			$query->posts
@@ -324,9 +340,11 @@ final class EmployersEndpoint extends RestController {
 			'name'        => $post->post_title,
 			'description' => $post->post_content,
 			'logo'        => $logo ? $logo : '',
+			'tagline'     => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
 			'website'     => (string) get_post_meta( $post->ID, '_wcb_website', true ),
 			'industry'    => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'        => (string) get_post_meta( $post->ID, '_wcb_size', true ),
+			'size'        => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
+			'hq'          => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
 			'trust_level' => $trust_level ? $trust_level : 'new',
 			'permalink'   => get_permalink( $post->ID ),
 		);
