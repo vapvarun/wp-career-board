@@ -15,7 +15,9 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_per_page   = (int) ( $attributes['perPage'] ?? 20 );
+$wcb_site_settings    = (array) get_option( 'wcb_settings', array() );
+$wcb_setting_per_page = ! empty( $wcb_site_settings['jobs_per_page'] ) ? (int) $wcb_site_settings['jobs_per_page'] : 10;
+$wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['perPage'] : $wcb_setting_per_page;
 $wcb_raw_layout = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout     = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
 

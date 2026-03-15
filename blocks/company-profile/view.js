@@ -20,22 +20,25 @@ const { state } = store( 'wcb-company-profile', {
 
 	actions: {
 		*init() {
-			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
-			url.searchParams.set( 'per_page', '20' );
+			try {
+				const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
+				url.searchParams.set( 'per_page', '20' );
 
-			const response = yield fetch(
-				url.toString(),
-				{ headers: { 'X-WP-Nonce': state.nonce } }
-			);
+				const response = yield fetch(
+					url.toString(),
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					return;
+				}
+
+				state.jobs = yield response.json();
+			} catch {
+				// Loading failed silently — empty jobs list is shown.
+			} finally {
 				state.loading = false;
-				return;
 			}
-
-			const jobs    = yield response.json();
-			state.jobs    = jobs;
-			state.loading = false;
 		},
 	},
 } );

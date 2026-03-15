@@ -41,27 +41,31 @@ const { state } = store( 'wcb-job-single', {
 			state.submitting = true;
 			state.error      = '';
 
-			const response = yield fetch(
-				state.apiBase + '/jobs/' + String( state.jobId ) + '/apply',
-				{
-					method: 'POST',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( { cover_letter: state.coverLetter } ),
+			try {
+				const response = yield fetch(
+					state.apiBase + '/jobs/' + String( state.jobId ) + '/apply',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( { cover_letter: state.coverLetter } ),
+					}
+				);
+
+				if ( ! response.ok ) {
+					state.error = 'Application could not be submitted. Please try again.';
+					return;
 				}
-			);
 
-			if ( ! response.ok ) {
-				state.error      = 'Application could not be submitted. Please try again.';
+				state.submitted = true;
+				state.panelOpen = false;
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.submitting = false;
-				return;
 			}
-
-			state.submitted  = true;
-			state.submitting = false;
-			state.panelOpen  = false;
 		},
 
 		*toggleBookmark() {
@@ -71,25 +75,29 @@ const { state } = store( 'wcb-job-single', {
 
 			state.bookmarking = true;
 
-			const response = yield fetch(
-				state.apiBase + '/jobs/' + String( state.jobId ) + '/bookmark',
-				{
-					method: 'POST',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
+			try {
+				const response = yield fetch(
+					state.apiBase + '/jobs/' + String( state.jobId ) + '/bookmark',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+					}
+				);
+
+				if ( ! response.ok ) {
+					return;
 				}
-			);
 
-			state.bookmarking = false;
-
-			if ( ! response.ok ) {
-				return;
+				const data       = yield response.json();
+				state.bookmarked = data.bookmarked;
+			} catch {
+				// Bookmark toggle failed silently — no UI disruption needed.
+			} finally {
+				state.bookmarking = false;
 			}
-
-			const data        = yield response.json();
-			state.bookmarked  = data.bookmarked;
 		},
 	},
 } );

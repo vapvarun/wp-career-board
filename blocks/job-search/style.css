@@ -33,10 +33,10 @@
 
 .wcb-search-input {
 	flex: 1;
-	border: none !important;
-	outline: none !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
+	border: none;
+	outline: none;
+	box-shadow: none;
+	border-radius: 0;
 	-webkit-appearance: none;
 	appearance: none;
 	padding: 0.75rem 1rem;
@@ -45,6 +45,12 @@
 	color: #1e293b;
 	background: transparent;
 	min-width: 0;
+}
+
+/* Focus-within on the parent handles the visible focus ring.
+   This ensures keyboard users see the composite form highlight. */
+.wcb-search-input:focus {
+	outline: none;
 }
 
 .wcb-search-input::placeholder {
@@ -66,6 +72,11 @@
 
 .wcb-search-button:hover {
 	background: var( --wcb-primary-dark, #020617 );
+}
+
+.wcb-search-button:focus-visible {
+	outline: 2px solid var( --wcb-primary, #0f172a );
+	outline-offset: 2px;
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

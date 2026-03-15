@@ -460,3 +460,13 @@ textarea.wcb-field {
 		margin-left: 0;
 	}
 }
+
+/* ── Honeypot (anti-spam) ──────────────────────────────────────────────── */
+.wcb-hp-wrap {
+	position: absolute;
+	left: -9999px;
+	top: auto;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}

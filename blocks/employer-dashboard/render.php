@@ -44,9 +44,12 @@ $wcb_company_size    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
 
 // "Post a Job" page URL from settings, fallback to #.
-$wcb_settings     = (array) get_option( 'wcb_settings', array() );
-$wcb_post_job_url = ! empty( $wcb_settings['post_job_page'] )
+$wcb_settings        = (array) get_option( 'wcb_settings', array() );
+$wcb_post_job_url    = ! empty( $wcb_settings['post_job_page'] )
 	? (string) get_permalink( (int) $wcb_settings['post_job_page'] )
+	: '#';
+$wcb_company_dir_url = ! empty( $wcb_settings['company_archive_page'] )
+	? (string) get_permalink( (int) $wcb_settings['company_archive_page'] )
 	: '#';
 
 wp_interactivity_state(
@@ -69,6 +72,7 @@ wp_interactivity_state(
 		'companyHq'       => $wcb_company_hq,
 		'saving'          => false,
 		'saved'           => false,
+		'companyDirUrl'   => $wcb_company_dir_url,
 	)
 );
 ?>

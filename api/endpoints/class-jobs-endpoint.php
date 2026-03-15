@@ -223,6 +223,11 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_item( $request ): \WP_REST_Response|\WP_Error {
+		// Honeypot check — bots that fill all form fields will include this; real browsers leave it empty.
+		if ( ! empty( $request->get_param( 'hp' ) ) ) {
+			return new \WP_Error( 'wcb_spam', __( 'Spam detected.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -252,9 +257,14 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// Postmeta.
-		$salary_type_raw = $request->get_param( 'salary_type' );
-		$meta            = array(
-			'_wcb_deadline'        => $request->get_param( 'deadline' ),
+		$salary_type_raw  = $request->get_param( 'salary_type' );
+		$wcb_deadline_raw = $request->get_param( 'deadline' );
+		if ( empty( $wcb_deadline_raw ) ) {
+			$expire_days      = ! empty( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30;
+			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
+		}
+		$meta = array(
+			'_wcb_deadline'        => $wcb_deadline_raw,
 			'_wcb_salary_min'      => $request->get_param( 'salary_min' ),
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
 			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? 'USD',

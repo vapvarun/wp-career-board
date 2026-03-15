@@ -59,8 +59,10 @@ final class NotificationsEmail {
 			return;
 		}
 
+		$wcb_s    = (array) get_option( 'wcb_settings', array() );
+		$wcb_to   = ! empty( $wcb_s['notification_email'] ) ? $wcb_s['notification_email'] : (string) get_option( 'admin_email', '' );
 		$this->send(
-			(string) get_option( 'admin_email', '' ),
+			$wcb_to,
 			/* translators: %s: job title */
 			sprintf( __( '[Action Required] New job pending approval: %s', 'wp-career-board' ), $job->post_title ),
 			$this->render(

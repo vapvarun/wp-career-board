@@ -38,23 +38,28 @@ const { state } = store( 'wcb-employer-dashboard', {
 			}
 
 			state.loading = true;
+			state.error   = '';
 
-			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
-			url.searchParams.set( 'per_page', '50' );
+			try {
+				const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
+				url.searchParams.set( 'per_page', '50' );
 
-			const response = yield fetch(
-				url.toString(),
-				{ headers: { 'X-WP-Nonce': state.nonce } }
-			);
+				const response = yield fetch(
+					url.toString(),
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					state.error = 'Could not load your jobs.';
+					return;
+				}
+
+				state.jobs = yield response.json();
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.loading = false;
-				state.error   = 'Could not load your jobs.';
-				return;
 			}
-
-			state.jobs    = yield response.json();
-			state.loading = false;
 		},
 
 		switchToJobs() {
@@ -84,34 +89,38 @@ const { state } = store( 'wcb-employer-dashboard', {
 			state.saved  = false;
 			state.error  = '';
 
-			const response = yield fetch(
-				state.apiBase + '/employers/' + String( state.companyId ),
-				{
-					method: 'PATCH',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( {
-						name:        state.companyName,
-						description: state.companyDesc,
-						tagline:     state.companyTagline,
-						website:     state.companySite,
-						industry:    state.companyIndustry,
-						size:        state.companySize,
-						hq:          state.companyHq,
-					} ),
+			try {
+				const response = yield fetch(
+					state.apiBase + '/employers/' + String( state.companyId ),
+					{
+						method: 'PATCH',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							name:        state.companyName,
+							description: state.companyDesc,
+							tagline:     state.companyTagline,
+							website:     state.companySite,
+							industry:    state.companyIndustry,
+							size:        state.companySize,
+							hq:          state.companyHq,
+						} ),
+					}
+				);
+
+				if ( ! response.ok ) {
+					state.error = 'Could not save profile. Please try again.';
+					return;
 				}
-			);
 
-			if ( ! response.ok ) {
+				state.saved = true;
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.saving = false;
-				state.error  = 'Could not save profile. Please try again.';
-				return;
 			}
-
-			state.saving = false;
-			state.saved  = true;
 		},
 	},
 } );

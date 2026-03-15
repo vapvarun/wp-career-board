@@ -27,21 +27,25 @@ store( 'wcb-candidate-dashboard', {
 		*init() {
 			const { state } = store( 'wcb-candidate-dashboard' );
 			state.loading = true;
+			state.error   = '';
 
-			const response = yield fetch(
-				state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications',
-				{ headers: { 'X-WP-Nonce': state.nonce } }
-			);
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					state.error = 'Could not load your applications.';
+					return;
+				}
+
+				state.applications = yield response.json();
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.loading = false;
-				state.error   = 'Could not load your applications.';
-				return;
 			}
-
-			const applications   = yield response.json();
-			state.applications   = applications;
-			state.loading        = false;
 		},
 
 		switchToApplications() {
@@ -62,47 +66,54 @@ store( 'wcb-candidate-dashboard', {
 
 			state.loading = true;
 
-			const response = yield fetch(
-				state.apiBase + '/candidates/' + String( state.candidateId ) + '/bookmarks',
-				{ headers: { 'X-WP-Nonce': state.nonce } }
-			);
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/bookmarks',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
 
-			if ( ! response.ok ) {
+				if ( ! response.ok ) {
+					state.error = 'Could not load saved jobs.';
+					return;
+				}
+
+				state.bookmarks = yield response.json();
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
+			} finally {
 				state.loading = false;
-				state.error   = 'Could not load saved jobs.';
-				return;
 			}
-
-			const bookmarks  = yield response.json();
-			state.bookmarks  = bookmarks;
-			state.loading    = false;
 		},
 
 		*unbookmark() {
-			const { state }   = store( 'wcb-candidate-dashboard' );
-			const ctx         = getContext();
-			const bookmark    = ctx.bookmark;
+			const { state } = store( 'wcb-candidate-dashboard' );
+			const ctx        = getContext();
+			const bookmark   = ctx.bookmark;
 
-			const response = yield fetch(
-				state.apiBase + '/jobs/' + String( bookmark.id ) + '/bookmark',
-				{
-					method: 'POST',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
+			try {
+				const response = yield fetch(
+					state.apiBase + '/jobs/' + String( bookmark.id ) + '/bookmark',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+					}
+				);
+
+				if ( ! response.ok ) {
+					state.error = 'Could not remove saved job. Please try again.';
+					return;
 				}
-			);
 
-			if ( ! response.ok ) {
-				state.error = 'Could not remove saved job. Please try again.';
-				return;
+				// Remove bookmark from list.
+				state.bookmarks = state.bookmarks.filter( function( b ) {
+					return b.id !== bookmark.id;
+				} );
+			} catch {
+				state.error = 'Connection error. Please check your network and try again.';
 			}
-
-			// Remove bookmark from list.
-			state.bookmarks = state.bookmarks.filter( function( b ) {
-				return b.id !== bookmark.id;
-			} );
 		},
 	},
 } );

@@ -50,9 +50,16 @@ final class ApplicationsEndpoint extends RestController {
 			$this->namespace,
 			'/applications/(?P<id>\d+)',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_item' ),
-				'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'withdraw_application' ),
+					'permission_callback' => array( $this, 'withdraw_permissions_check' ),
+				),
 			)
 		);
 
@@ -292,6 +299,43 @@ final class ApplicationsEndpoint extends RestController {
 		return $response;
 	}
 
+	/**
+	 * Withdraw (delete) an application — candidate owner only.
+	 *
+	 * Respects the allow_withdraw site setting. Fires wcb_application_withdrawn
+	 * so other modules (e.g. notifications) can react.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function withdraw_application( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_application' !== $post->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Application not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$app_id       = $post->ID;
+		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
+		$job_id       = (int) get_post_meta( $app_id, '_wcb_job_id', true );
+
+		wp_delete_post( $app_id, true );
+
+		do_action( 'wcb_application_withdrawn', $app_id, $job_id, $candidate_id );
+
+		return rest_ensure_response(
+			array(
+				'deleted' => true,
+				'id'      => $app_id,
+			)
+		);
+	}
+
 	// --- Permission callbacks ---------------------------------------------------
 
 	/**
@@ -357,6 +401,37 @@ final class ApplicationsEndpoint extends RestController {
 		$job      = get_post( $job_id );
 		$is_owner = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
 		return $is_owner ? true : $this->permission_error();
+	}
+
+	/**
+	 * Check if the current user can withdraw the given application.
+	 *
+	 * Requires the allow_withdraw setting to be enabled and the current user
+	 * to be the candidate who submitted the application.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function withdraw_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		if ( empty( $settings['allow_withdraw'] ) ) {
+			return new \WP_Error(
+				'wcb_withdraw_disabled',
+				__( 'Application withdrawal is not enabled on this site.', 'wp-career-board' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post ) {
+			return $this->permission_error();
+		}
+
+		$is_owner = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
+		$is_admin = $this->check_ability( 'wcb_manage_settings' );
+		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
 	/**

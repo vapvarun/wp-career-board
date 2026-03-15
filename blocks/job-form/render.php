@@ -656,5 +656,18 @@ $wcb_step_labels = array(
 			</div>
 		</div>
 
+	<!-- ── Honeypot anti-spam ────────────────────────────────────────────── -->
+	<div class="wcb-hp-wrap" aria-hidden="true">
+		<label for="wcb-hp"><?php esc_html_e( 'Leave this field blank', 'wp-career-board' ); ?></label>
+		<input
+			type="text"
+			id="wcb-hp"
+			name="wcb_hp"
+			class="wcb-hp"
+			tabindex="-1"
+			autocomplete="off"
+		/>
+	</div>
+
 	</div><!-- /.wcb-form-steps -->
 </div>

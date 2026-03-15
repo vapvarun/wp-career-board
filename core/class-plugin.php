@@ -71,6 +71,7 @@ final class Plugin {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
+		add_action( 'init', array( $this, 'register_patterns' ) );
 
 		if ( is_admin() ) {
 			if ( class_exists( \WCB\Admin\Admin::class ) ) {
@@ -163,6 +164,61 @@ final class Plugin {
 			if ( is_dir( $block_dir ) ) {
 				register_block_type_from_metadata( $block_dir );
 			}
+		}
+	}
+
+	/**
+	 * Register Gutenberg block patterns for the inserter.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_patterns(): void {
+		register_block_pattern_category(
+			'wp-career-board',
+			array( 'label' => __( 'WP Career Board', 'wp-career-board' ) )
+		);
+
+		$patterns = array(
+			array(
+				'name'        => 'wp-career-board/job-board',
+				'title'       => __( 'Full Job Board', 'wp-career-board' ),
+				'description' => __( 'Search bar, filters, and job listings grid — the complete job board page.', 'wp-career-board' ),
+				'categories'  => array( 'wp-career-board' ),
+				'content'     => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+			),
+			array(
+				'name'        => 'wp-career-board/post-a-job',
+				'title'       => __( 'Post a Job Form', 'wp-career-board' ),
+				'description' => __( 'Multi-step job posting form for employers.', 'wp-career-board' ),
+				'categories'  => array( 'wp-career-board' ),
+				'content'     => '<!-- wp:wp-career-board/job-form /-->',
+			),
+			array(
+				'name'        => 'wp-career-board/employer-dashboard',
+				'title'       => __( 'Employer Dashboard', 'wp-career-board' ),
+				'description' => __( 'Tabbed dashboard for employers to manage jobs and applications.', 'wp-career-board' ),
+				'categories'  => array( 'wp-career-board' ),
+				'content'     => '<!-- wp:wp-career-board/employer-dashboard /-->',
+			),
+			array(
+				'name'        => 'wp-career-board/candidate-dashboard',
+				'title'       => __( 'Candidate Dashboard', 'wp-career-board' ),
+				'description' => __( 'Tabbed dashboard for candidates to track applications and saved jobs.', 'wp-career-board' ),
+				'categories'  => array( 'wp-career-board' ),
+				'content'     => '<!-- wp:wp-career-board/candidate-dashboard /-->',
+			),
+			array(
+				'name'        => 'wp-career-board/company-directory',
+				'title'       => __( 'Company Directory', 'wp-career-board' ),
+				'description' => __( 'Interactive grid of employer company profiles with industry and size filters.', 'wp-career-board' ),
+				'categories'  => array( 'wp-career-board' ),
+				'content'     => '<!-- wp:wp-career-board/company-archive /-->',
+			),
+		);
+
+		foreach ( $patterns as $pattern ) {
+			register_block_pattern( $pattern['name'], $pattern );
 		}
 	}
 

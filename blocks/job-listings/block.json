@@ -8,7 +8,7 @@
   "description": "Reactive job listings grid with infinite scroll and bookmark toggle.",
   "textdomain": "wp-career-board",
   "attributes": {
-    "perPage": { "type": "integer", "default": 20 },
+    "perPage": { "type": "integer", "default": 0 },
     "layout": { "type": "string", "default": "grid", "enum": ["grid", "list"] }
   },
   "viewScriptModule": "file:./view.js",
