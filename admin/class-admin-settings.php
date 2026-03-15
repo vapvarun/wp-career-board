@@ -90,7 +90,7 @@ class AdminSettings {
 			'employer_dashboard_page'  => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
 			'candidate_dashboard_page' => isset( $input['candidate_dashboard_page'] ) ? (int) $input['candidate_dashboard_page'] : 0,
 			'post_job_page'            => isset( $input['post_job_page'] ) ? (int) $input['post_job_page'] : 0,
-			'salary_currency'          => isset( $input['salary_currency'] ) ? sanitize_text_field( $input['salary_currency'] ) : '$',
+			'salary_currency'          => isset( $input['salary_currency'] ) && in_array( $input['salary_currency'], array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $input['salary_currency'] : 'USD',
 			'notification_email'       => $notification_email ? $notification_email : '',
 		);
 	}
@@ -245,17 +245,27 @@ class AdminSettings {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="wcb-salary-currency"><?php esc_html_e( 'Salary Currency Symbol', 'wp-career-board' ); ?></label></th>
+						<th scope="row"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></th>
 						<td>
-							<input
-								type="text"
-								id="wcb-salary-currency"
-						name="wcb_settings[salary_currency]"
-								value="<?php echo esc_attr( $salary_currency ); ?>"
-								maxlength="5"
-								style="width:60px"
-							>
-							<p class="description"><?php esc_html_e( 'Displayed before salary values on job detail pages (e.g. $, £, €, ₹).', 'wp-career-board' ); ?></p>
+							<?php
+							$wcb_currencies_list = array(
+								'USD' => 'USD — US Dollar ($)',
+								'EUR' => 'EUR — Euro (€)',
+								'GBP' => 'GBP — British Pound (£)',
+								'CAD' => 'CAD — Canadian Dollar (CA$)',
+								'AUD' => 'AUD — Australian Dollar (A$)',
+								'INR' => 'INR — Indian Rupee (₹)',
+								'SGD' => 'SGD — Singapore Dollar (S$)',
+							);
+							?>
+							<select id="wcb-salary-currency" name="wcb_settings[salary_currency]">
+								<?php foreach ( $wcb_currencies_list as $wcb_code => $wcb_label ) : ?>
+									<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>>
+										<?php echo esc_html( $wcb_label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Site-wide default currency for new job postings. Employers can override it per job.', 'wp-career-board' ); ?></p>
 						</td>
 					</tr>
 				</table>

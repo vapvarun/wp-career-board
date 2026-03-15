@@ -81,12 +81,13 @@ store( 'wcb-job-form', {
 			if ( ! min && ! max ) {
 				return '';
 			}
-			const cur = state.currencyCode || 'USD';
-			const fmt = ( v ) => new Intl.NumberFormat( 'en-US' ).format( v );
+			const cur    = state.currencyCode || 'USD';
+			const suffix = state.salaryType === 'monthly' ? '/mo' : state.salaryType === 'hourly' ? '/hr' : '/yr';
+			const fmt    = ( v ) => new Intl.NumberFormat( 'en-US' ).format( v );
 			if ( min && max ) {
-				return `${ cur } ${ fmt( min ) } – ${ fmt( max ) }`;
+				return `${ cur } ${ fmt( min ) } – ${ fmt( max ) }${ suffix }`;
 			}
-			return `${ cur } ${ fmt( min || max ) }`;
+			return `${ cur } ${ fmt( min || max ) }${ suffix }`;
 		},
 
 		// ── Preview card conditionals (all use data-wp-class) ─────────────
@@ -227,6 +228,7 @@ store( 'wcb-job-form', {
 					salary_min:      state.salaryMin,
 					salary_max:      state.salaryMax,
 					salary_currency: state.currencyCode || 'USD',
+					salary_type:     state.salaryType || 'yearly',
 					remote:          state.remote,
 					deadline:        state.deadline,
 					apply_url:       state.applyUrl,

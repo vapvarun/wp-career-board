@@ -45,12 +45,26 @@ $wcb_bookmarks       = $wcb_current_user_id
  * @param string $wcb_currency Currency code (default USD).
  * @return string
  */
-$wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string $wcb_currency = 'USD' ): string {
+$wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string $wcb_currency = 'USD', string $wcb_type = 'yearly' ): string {
 	if ( ! $wcb_min && ! $wcb_max ) {
 		return '';
 	}
-	$wcb_symbol = 'USD' === $wcb_currency ? '$' : $wcb_currency . ' ';
-	$wcb_fmt    = static function ( string $n ) use ( $wcb_symbol ): string {
+	$wcb_symbols = array(
+		'USD' => '$',
+		'EUR' => '€',
+		'GBP' => '£',
+		'CAD' => 'CA$',
+		'AUD' => 'A$',
+		'INR' => '₹',
+		'SGD' => 'S$',
+	);
+	$wcb_symbol  = isset( $wcb_symbols[ $wcb_currency ] ) ? $wcb_symbols[ $wcb_currency ] : $wcb_currency . ' ';
+	$wcb_suffix  = match ( $wcb_type ) {
+		'monthly' => '/mo',
+		'hourly'  => '/hr',
+		default   => '/yr',
+	};
+	$wcb_fmt = static function ( string $n ) use ( $wcb_symbol ): string {
 		$wcb_n = (int) $n;
 		if ( $wcb_n >= 1000 ) {
 			return $wcb_symbol . round( $wcb_n / 1000 ) . 'k';
@@ -58,12 +72,12 @@ $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string 
 		return $wcb_symbol . $wcb_n;
 	};
 	if ( $wcb_min && $wcb_max ) {
-		return $wcb_fmt( $wcb_min ) . '–' . $wcb_fmt( $wcb_max ) . '/yr';
+		return $wcb_fmt( $wcb_min ) . '–' . $wcb_fmt( $wcb_max ) . $wcb_suffix;
 	}
 	if ( $wcb_min ) {
-		return $wcb_fmt( $wcb_min ) . '+/yr';
+		return $wcb_fmt( $wcb_min ) . '+' . $wcb_suffix;
 	}
-	return 'Up to ' . $wcb_fmt( $wcb_max ) . '/yr';
+	return 'Up to ' . $wcb_fmt( $wcb_max ) . $wcb_suffix;
 };
 
 /**
@@ -91,6 +105,9 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_salary_min       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_min', true );
 	$wcb_salary_max       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_max', true );
 	$wcb_salary_currency  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_currency', true );
+	$wcb_salary_type_raw  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_type', true );
+	$wcb_salary_type      = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
+	$wcb_deadline_val     = (string) get_post_meta( $wcb_job_post->ID, '_wcb_deadline', true );
 	$wcb_company_name_val = (string) get_post_meta( $wcb_job_post->ID, '_wcb_company_name', true );
 	$wcb_author_id        = (int) $wcb_job_post->post_author;
 	$wcb_company_post_id  = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
@@ -111,7 +128,8 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'featured'     => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
 		'salary_min'   => $wcb_salary_min,
 		'salary_max'   => $wcb_salary_max,
-		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD' ),
+		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
+		'deadline'     => $wcb_deadline_val,
 		'days_ago'     => human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() ) . ' ago',
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 	);
@@ -205,6 +223,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 
 					<div class="wcb-card-footer">
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
+						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-cbtn wcb-cbtn--apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					</div>

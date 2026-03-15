@@ -3304,6 +3304,10 @@ git -C "/Users/varundubey/Local Sites/job-portal/app/public/wp-content/plugins/w
 
 ## Chunk 6: Integrations + Release
 
+> ⚠️ **DEFERRED** — WCB blocks render correctly in any theme without template overrides.
+> The `reign_nav_items` filter and Customizer section need real-world testing before
+> this is considered complete. Revisit when Reign-specific integration requirements are defined.
+
 ### Task 18: Reign Theme Integration
 
 **Files:**
@@ -3424,6 +3428,10 @@ git -C "/Users/varundubey/Local Sites/job-portal/app/public/wp-content/plugins/w
 ```
 
 ---
+
+> ⚠️ **DEFERRED** — BuddyX Pro template overrides are redundant since blocks work theme-agnostically.
+> The `buddyx_pro_after_member_name` hook and `#OpenToWork` badge integration need
+> real-world testing. Revisit when BuddyX Pro-specific integration requirements are defined.
 
 ### Task 19: BuddyX Pro Integration
 
@@ -3655,8 +3663,8 @@ The original plan used a bare `get_posts()` dump with no search, no status tabs,
 | Admin exports candidate data | GDPR export includes applications | |
 | Admin erases candidate data | Applications deleted, resume wiped | |
 | `JobPosting` schema on job page | Valid LD+JSON in page source | |
-| Reign theme activated | Job pages use Reign layout | |
-| BuddyX Pro activated | Job pages use BuddyX Pro layout | |
+| Reign theme activated | Job pages use Reign layout | ⚠️ Deferred |
+| BuddyX Pro activated | Job pages use BuddyX Pro layout | ⚠️ Deferred |
 | BuddyPress activated | Member types set, activity streams populated | |
 
 - [ ] **Accessibility QA**
@@ -3714,8 +3722,8 @@ Use this table to track task completion. Update the Status column as you go.
 | T15 | wcb/job-listings block | ✅ 2026-03-14 · `e4b70ae` |
 | T16 | wcb/job-search + wcb/job-filters blocks | ✅ 2026-03-14 · `28d22ac` |
 | T17 | wcb/job-single + wcb/job-form + dashboards + company | ✅ 2026-03-14 · `f6b64c5` |
-| T18 | Reign integration | ✅ 2026-03-15 · `1243390` |
-| T19  | BuddyX Pro integration | ✅ 2026-03-15 · `b358a29` |
+| T18 | Reign integration | ⚠️ Deferred — blocks are theme-agnostic; revisit when Reign-specific hooks are confirmed |
+| T19 | BuddyX Pro integration | ⚠️ Deferred — blocks are theme-agnostic; revisit when BuddyX Pro-specific hooks are confirmed |
 | T20  | BuddyPress integration | ✅ 2026-03-15 · `b358a29` |
 | T21a | Admin dashboard overhaul | ✅ 2026-03-15 · `2c57139` |
 | T21b | Jobs admin WP_List_Table (search, tabs, pagination, bulk) | ✅ 2026-03-15 · `5ee4885` |

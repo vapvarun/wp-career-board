@@ -252,11 +252,13 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// Postmeta.
-		$meta = array(
+		$salary_type_raw = $request->get_param( 'salary_type' );
+		$meta            = array(
 			'_wcb_deadline'        => $request->get_param( 'deadline' ),
 			'_wcb_salary_min'      => $request->get_param( 'salary_min' ),
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
 			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? 'USD',
+			'_wcb_salary_type'     => in_array( $salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type_raw : 'yearly',
 			'_wcb_remote'          => $request->get_param( 'remote' ) ? '1' : '0',
 			'_wcb_board_id'        => $request->get_param( 'board_id' ) ?? BoardsModule::get_default_board_id(),
 		);
@@ -307,6 +309,9 @@ final class JobsEndpoint extends RestController {
 			wp_set_object_terms( $job_id, (array) $tags, 'wcb_tag' );
 		}
 
+		// Remember the employer's preferred currency for future job posts.
+		update_user_meta( get_current_user_id(), '_wcb_preferred_currency', $meta['_wcb_salary_currency'] );
+
 		do_action( 'wcb_job_created', $job_id, $request );
 
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
@@ -350,6 +355,7 @@ final class JobsEndpoint extends RestController {
 			'salary_min'      => '_wcb_salary_min',
 			'salary_max'      => '_wcb_salary_max',
 			'salary_currency' => '_wcb_salary_currency',
+			'salary_type'     => '_wcb_salary_type',
 			'board_id'        => '_wcb_board_id',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
@@ -386,6 +392,12 @@ final class JobsEndpoint extends RestController {
 			if ( null !== $terms ) {
 				wp_set_object_terms( $post->ID, (array) $terms, $taxonomy );
 			}
+		}
+
+		// Update employer's preferred currency if they changed it.
+		$updated_currency = $request->get_param( 'salary_currency' );
+		if ( $updated_currency ) {
+			update_user_meta( (int) $post->post_author, '_wcb_preferred_currency', sanitize_text_field( $updated_currency ) );
 		}
 
 		do_action( 'wcb_job_updated', $post->ID, $request );
@@ -570,6 +582,8 @@ final class JobsEndpoint extends RestController {
 		$currency     = '' !== $currency ? $currency : 'USD';
 		$salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
+		$salary_type  = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
+		$salary_type  = in_array( $salary_type, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type : 'yearly';
 		$company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 		$author_id    = (int) $post->post_author;
 		$company_id   = (int) get_user_meta( $author_id, '_wcb_company_id', true );
@@ -600,7 +614,8 @@ final class JobsEndpoint extends RestController {
 			'salary_min'       => $salary_min,
 			'salary_max'       => $salary_max,
 			'salary_currency'  => $currency,
-			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency ),
+			'salary_type'      => $salary_type,
+			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
 			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
 			'board_id'         => (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
@@ -648,21 +663,36 @@ final class JobsEndpoint extends RestController {
 	 * @param string $min      Minimum salary.
 	 * @param string $max      Maximum salary.
 	 * @param string $currency Currency code.
+	 * @param string $type     Salary type: yearly, monthly, or hourly.
 	 * @return string
 	 */
-	private function format_salary( string $min, string $max, string $currency ): string {
+	private function format_salary( string $min, string $max, string $currency, string $type = 'yearly' ): string {
 		if ( ! $min && ! $max ) {
 			return '';
 		}
-		$symbol = 'USD' === $currency ? '$' : $currency . ' ';
-		$fmt    = static function ( string $n ) use ( $symbol ): string {
+		$symbols = array(
+			'USD' => '$',
+			'EUR' => '€',
+			'GBP' => '£',
+			'CAD' => 'CA$',
+			'AUD' => 'A$',
+			'INR' => '₹',
+			'SGD' => 'S$',
+		);
+		$symbol  = isset( $symbols[ $currency ] ) ? $symbols[ $currency ] : $currency . ' ';
+		$suffix  = match ( $type ) {
+			'monthly' => '/mo',
+			'hourly'  => '/hr',
+			default   => '/yr',
+		};
+		$fmt = static function ( string $n ) use ( $symbol ): string {
 			$val = (int) $n;
 			return $val >= 1000 ? $symbol . round( $val / 1000 ) . 'k' : $symbol . $val;
 		};
 		if ( $min && $max ) {
-			return $fmt( $min ) . '–' . $fmt( $max ) . '/yr';
+			return $fmt( $min ) . '–' . $fmt( $max ) . $suffix;
 		}
-		return $min ? $fmt( $min ) . '+/yr' : 'Up to ' . $fmt( $max ) . '/yr';
+		return $min ? $fmt( $min ) . '+' . $suffix : 'Up to ' . $fmt( $max ) . $suffix;
 	}
 
 	/**

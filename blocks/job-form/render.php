@@ -86,6 +86,14 @@ $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true )
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
+// ── Default currency: employer preference → site admin setting → USD ──────────
+$wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
+if ( ! $wcb_preferred ) {
+	$wcb_site_settings = (array) get_option( 'wcb_settings', array() );
+	$wcb_preferred     = ! empty( $wcb_site_settings['salary_currency'] ) ? $wcb_site_settings['salary_currency'] : 'USD';
+}
+$wcb_default_currency = in_array( $wcb_preferred, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $wcb_preferred : 'USD';
+
 // ── Currency options ───────────────────────────────────────────────────────
 $wcb_currencies = array(
 	'USD' => 'USD — US Dollar',
@@ -115,7 +123,8 @@ $wcb_initial_state = apply_filters(
 		'description'     => '',
 		'salaryMin'       => '',
 		'salaryMax'       => '',
-		'currencyCode'    => 'USD',
+		'currencyCode'    => $wcb_default_currency,
+		'salaryType'      => 'yearly',
 		'remote'          => false,
 		'deadline'        => '',
 		'applyUrl'        => '',
@@ -320,6 +329,22 @@ $wcb_step_labels = array(
 							data-wp-bind--value="state.salaryMax"
 							data-wp-on--input="actions.updateField"
 						/>
+					</div>
+					<div class="wcb-field-group">
+						<label class="wcb-field-group__label" for="wcb-salary-type">
+							<?php esc_html_e( 'Per', 'wp-career-board' ); ?>
+						</label>
+						<select
+							id="wcb-salary-type"
+							class="wcb-field"
+							data-wcb-field="salaryType"
+							data-wp-bind--value="state.salaryType"
+							data-wp-on--change="actions.updateField"
+						>
+							<option value="yearly"><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
+							<option value="monthly"><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>
+							<option value="hourly"><?php esc_html_e( 'Hour', 'wp-career-board' ); ?></option>
+						</select>
 					</div>
 				</div>
 				<span class="wcb-form-hint">

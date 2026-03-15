@@ -35,23 +35,40 @@ $wcb_type_terms       = is_wp_error( $wcb_type_terms ) ? array() : $wcb_type_ter
 $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_experience_terms;
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
-$wcb_settings   = (array) get_option( 'wcb_settings', array() );
-$wcb_currency   = isset( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : '$';
-$wcb_remote     = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
-$wcb_salary_min = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
-$wcb_salary_max = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
-$wcb_deadline   = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
-$wcb_featured   = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
+$wcb_currency_code_raw = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
+$wcb_currency_code     = '' !== $wcb_currency_code_raw ? $wcb_currency_code_raw : 'USD';
+$wcb_symbol_map        = array(
+	'USD' => '$',
+	'EUR' => '€',
+	'GBP' => '£',
+	'CAD' => 'CA$',
+	'AUD' => 'A$',
+	'INR' => '₹',
+	'SGD' => 'S$',
+);
+$wcb_currency          = isset( $wcb_symbol_map[ $wcb_currency_code ] ) ? $wcb_symbol_map[ $wcb_currency_code ] : $wcb_currency_code . ' ';
+$wcb_remote            = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
+$wcb_salary_min        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
+$wcb_salary_max        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
+$wcb_salary_type_raw   = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
+$wcb_salary_type       = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
+$wcb_salary_suffix     = match ( $wcb_salary_type ) {
+	'monthly' => '/' . esc_html__( 'mo', 'wp-career-board' ),
+	'hourly'  => '/' . esc_html__( 'hr', 'wp-career-board' ),
+	default   => '/' . esc_html__( 'yr', 'wp-career-board' ),
+};
+$wcb_deadline = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
+$wcb_featured = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // ── Salary display ────────────────────────────────────────────────────────────
 $wcb_salary_str = '';
 if ( $wcb_salary_min && $wcb_salary_max ) {
-	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . ' – ' . $wcb_currency . number_format( (int) $wcb_salary_max );
+	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . ' – ' . $wcb_currency . number_format( (int) $wcb_salary_max ) . $wcb_salary_suffix;
 } elseif ( $wcb_salary_min ) {
-	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . '+';
+	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . '+' . $wcb_salary_suffix;
 } elseif ( $wcb_salary_max ) {
-	/* translators: %s: maximum salary */
-	$wcb_salary_str = sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_currency . number_format( (int) $wcb_salary_max ) );
+	/* translators: %s: maximum salary with period suffix */
+	$wcb_salary_str = sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_currency . number_format( (int) $wcb_salary_max ) . $wcb_salary_suffix );
 }
 
 // ── Company ───────────────────────────────────────────────────────────────────

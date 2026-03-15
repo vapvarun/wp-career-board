@@ -124,14 +124,25 @@ class AdminMetaBoxes {
 	public function render_job_details_box( \WP_Post $post ): void {
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
 
-		$wcb_settings     = (array) get_option( 'wcb_settings', array() );
-		$wcb_currency     = isset( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : '$';
-		$wcb_salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
-		$wcb_salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
-		$wcb_remote       = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
-		$wcb_featured     = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
-		$wcb_deadline     = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
-		$wcb_company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
+		$wcb_salary_min          = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
+		$wcb_salary_max          = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
+		$wcb_salary_currency_raw = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
+		$wcb_salary_currency     = in_array( $wcb_salary_currency_raw, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $wcb_salary_currency_raw : 'USD';
+		$wcb_salary_type_raw     = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
+		$wcb_salary_type         = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
+		$wcb_meta_currencies     = array(
+			'USD' => 'USD ($)',
+			'EUR' => 'EUR (€)',
+			'GBP' => 'GBP (£)',
+			'CAD' => 'CAD (CA$)',
+			'AUD' => 'AUD (A$)',
+			'INR' => 'INR (₹)',
+			'SGD' => 'SGD (S$)',
+		);
+		$wcb_remote              = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
+		$wcb_featured            = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
+		$wcb_deadline            = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
+		$wcb_company_name        = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 
 		// Employer's linked company (auto-fill suggestion).
 		$wcb_employer_company_id = (int) get_user_meta( (int) $post->post_author, '_wcb_company_id', true );
@@ -152,12 +163,23 @@ class AdminMetaBoxes {
 		</style>
 		<div class="wcb-meta-grid">
 			<div>
-				<label for="wcb_salary_min">
-					<?php
-					/* translators: %s: currency symbol */
-					printf( esc_html__( 'Salary Min (%s)', 'wp-career-board' ), esc_html( $wcb_currency ) );
-					?>
-				</label>
+				<label for="wcb_salary_currency"><?php esc_html_e( 'Currency', 'wp-career-board' ); ?></label>
+				<select id="wcb_salary_currency" name="wcb_salary_currency">
+					<?php foreach ( $wcb_meta_currencies as $wcb_code => $wcb_label ) : ?>
+						<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $wcb_salary_currency, $wcb_code ); ?>><?php echo esc_html( $wcb_label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<div>
+				<label for="wcb_salary_type"><?php esc_html_e( 'Per', 'wp-career-board' ); ?></label>
+				<select id="wcb_salary_type" name="wcb_salary_type">
+					<option value="yearly" <?php selected( $wcb_salary_type, 'yearly' ); ?>><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
+					<option value="monthly" <?php selected( $wcb_salary_type, 'monthly' ); ?>><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>
+					<option value="hourly" <?php selected( $wcb_salary_type, 'hourly' ); ?>><?php esc_html_e( 'Hour', 'wp-career-board' ); ?></option>
+				</select>
+			</div>
+			<div>
+				<label for="wcb_salary_min"><?php esc_html_e( 'Salary Min', 'wp-career-board' ); ?></label>
 				<input
 					type="number"
 					id="wcb_salary_min"
@@ -169,12 +191,7 @@ class AdminMetaBoxes {
 				/>
 			</div>
 			<div>
-				<label for="wcb_salary_max">
-					<?php
-					/* translators: %s: currency symbol */
-					printf( esc_html__( 'Salary Max (%s)', 'wp-career-board' ), esc_html( $wcb_currency ) );
-					?>
-				</label>
+				<label for="wcb_salary_max"><?php esc_html_e( 'Salary Max', 'wp-career-board' ); ?></label>
 				<input
 					type="number"
 					id="wcb_salary_max"
@@ -465,6 +482,16 @@ class AdminMetaBoxes {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
+
+		// Salary currency.
+		$salary_currency_raw = isset( $_POST['wcb_salary_currency'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_currency'] ) ) : 'USD'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$salary_currency     = in_array( $salary_currency_raw, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $salary_currency_raw : 'USD';
+		update_post_meta( $post_id, '_wcb_salary_currency', $salary_currency );
+
+		// Salary type.
+		$salary_type_raw = isset( $_POST['wcb_salary_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_type'] ) ) : 'yearly'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$salary_type     = in_array( $salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type_raw : 'yearly';
+		update_post_meta( $post_id, '_wcb_salary_type', $salary_type );
 
 		// Salary min.
 		$salary_min = isset( $_POST['wcb_salary_min'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_min'] ) ) : '';
