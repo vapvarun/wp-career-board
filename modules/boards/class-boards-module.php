@@ -67,7 +67,7 @@ final class BoardsModule {
 	 * @return void
 	 */
 	public function ensure_default_board(): void {
-		if ( get_option( 'wcb_default_board_id' ) ) {
+		if ( get_option( 'wcb_default_board_id', false ) ) {
 			return;
 		}
 

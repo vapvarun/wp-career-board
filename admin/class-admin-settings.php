@@ -171,7 +171,7 @@ class AdminSettings {
 	 */
 	public function render(): void {
 		$settings           = (array) get_option( self::OPTION_KEY, array() );
-		$notification_email = ! empty( $settings['notification_email'] ) ? $settings['notification_email'] : get_option( 'admin_email' );
+		$notification_email = ! empty( $settings['notification_email'] ) ? $settings['notification_email'] : (string) get_option( 'admin_email', '' );
 		$salary_currency    = isset( $settings['salary_currency'] ) ? $settings['salary_currency'] : '$';
 
 		$wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page' );
@@ -230,11 +230,12 @@ class AdminSettings {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></th>
+						<th scope="row"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></label></th>
 						<td>
 							<input
 								type="number"
-								name="wcb_settings[jobs_expire_days]"
+								id="wcb-jobs-expire-days"
+						name="wcb_settings[jobs_expire_days]"
 								value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>"
 								min="1"
 								max="365"
@@ -244,11 +245,12 @@ class AdminSettings {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Salary Currency Symbol', 'wp-career-board' ); ?></th>
+						<th scope="row"><label for="wcb-salary-currency"><?php esc_html_e( 'Salary Currency Symbol', 'wp-career-board' ); ?></label></th>
 						<td>
 							<input
 								type="text"
-								name="wcb_settings[salary_currency]"
+								id="wcb-salary-currency"
+						name="wcb_settings[salary_currency]"
 								value="<?php echo esc_attr( $salary_currency ); ?>"
 								maxlength="5"
 								style="width:60px"
@@ -285,11 +287,12 @@ class AdminSettings {
 					foreach ( $wcb_page_settings as $wcb_key => $wcb_info ) :
 						?>
 						<tr>
-							<th scope="row"><?php echo esc_html( $wcb_info['label'] ); ?></th>
+							<th scope="row"><label for="wcb-page-<?php echo esc_attr( sanitize_key( $wcb_key ) ); ?>"><?php echo esc_html( $wcb_info['label'] ); ?></label></th>
 							<td>
 								<?php
 								wp_dropdown_pages(
 									array(
+										'id'               => 'wcb-page-' . sanitize_key( $wcb_key ),
 										'name'             => 'wcb_settings[' . sanitize_key( $wcb_key ) . ']',
 										'selected'         => isset( $settings[ $wcb_key ] ) ? (int) $settings[ $wcb_key ] : 0,
 										'show_option_none' => esc_html__( '— Select a page —', 'wp-career-board' ),
@@ -305,11 +308,12 @@ class AdminSettings {
 				<h2><?php esc_html_e( 'Notifications', 'wp-career-board' ); ?></h2>
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Notification Email', 'wp-career-board' ); ?></th>
+						<th scope="row"><label for="wcb-notification-email"><?php esc_html_e( 'Notification Email', 'wp-career-board' ); ?></label></th>
 						<td>
 							<input
 								type="email"
-								name="wcb_settings[notification_email]"
+								id="wcb-notification-email"
+						name="wcb_settings[notification_email]"
 								value="<?php echo esc_attr( $notification_email ); ?>"
 								class="regular-text"
 							>

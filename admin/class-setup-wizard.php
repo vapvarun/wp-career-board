@@ -47,7 +47,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			return;
 		}
 
-		if ( get_option( 'wcb_setup_complete' ) ) {
+		if ( get_option( 'wcb_setup_complete', false ) ) {
 			return;
 		}
 

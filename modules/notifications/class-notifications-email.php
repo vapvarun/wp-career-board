@@ -60,7 +60,7 @@ final class NotificationsEmail {
 		}
 
 		$this->send(
-			get_option( 'admin_email' ),
+			(string) get_option( 'admin_email', '' ),
 			/* translators: %s: job title */
 			sprintf( __( '[Action Required] New job pending approval: %s', 'wp-career-board' ), $job->post_title ),
 			$this->render(
