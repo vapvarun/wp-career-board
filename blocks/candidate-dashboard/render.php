@@ -145,10 +145,11 @@ wp_interactivity_state(
 							target="_blank"
 							rel="noopener"
 						><?php esc_html_e( 'View', 'wp-career-board' ); ?></a>
-						<a
+						<button
+							type="button"
 							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
-							data-wp-bind--href="actions.resumeEditUrl"
-						><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
+							data-wp-on--click="actions.openResumeEditor"
+						><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></button>
 						<button
 							type="button"
 							class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm"

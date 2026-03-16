@@ -8,7 +8,7 @@
  *   switchToResumes       — activate My Resumes tab (loads resumes if empty).
  *   unbookmark            — POST to /jobs/{id}/bookmark to toggle off.
  *   createResume          — POST to /candidates/{id}/resumes to create a new resume.
- *   resumeEditUrl         — computed href for Edit button (resumeBuilderUrl + ?resume_id=N).
+ *   openResumeEditor      — navigate to resume builder for the current resume.
  *   deleteResume          — DELETE /resumes/{id}.
  *
  * @package WP_Career_Board
@@ -28,14 +28,6 @@ store( 'wcb-candidate-dashboard', {
 		get isTabResumes() {
 			const { state } = store( 'wcb-candidate-dashboard' );
 			return state.tab === 'resumes';
-		},
-		get resumeEditUrl() {
-			const { state } = store( 'wcb-candidate-dashboard' );
-			const ctx        = getContext();
-			if ( ! ctx.resume || ! state.resumeBuilderUrl ) {
-				return '#';
-			}
-			return state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
 		},
 	},
 
@@ -161,6 +153,15 @@ store( 'wcb-candidate-dashboard', {
 			} catch {
 				state.error = 'Connection error. Please check your network and try again.';
 			}
+		},
+
+		openResumeEditor() {
+			const { state } = store( 'wcb-candidate-dashboard' );
+			const ctx        = getContext();
+			if ( ! ctx.resume || ! state.resumeBuilderUrl ) {
+				return;
+			}
+			window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
 		},
 
 		*createResume() {
