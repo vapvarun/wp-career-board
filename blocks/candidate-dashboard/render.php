@@ -25,14 +25,15 @@ $wcb_candidate_id = get_current_user_id();
 wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array(
-		'tab'          => 'applications',
-		'applications' => array(),
-		'bookmarks'    => array(),
-		'loading'      => false,
-		'error'        => '',
-		'apiBase'      => rest_url( 'wcb/v1' ),
-		'nonce'        => wp_create_nonce( 'wp_rest' ),
-		'candidateId'  => $wcb_candidate_id,
+		'tab'               => 'applications',
+		'applications'      => array(),
+		'bookmarks'         => array(),
+		'loading'           => false,
+		'error'             => '',
+		'apiBase'           => rest_url( 'wcb/v1' ),
+		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		'candidateId'       => $wcb_candidate_id,
+		'customFieldGroups' => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
 	)
 );
 ?>

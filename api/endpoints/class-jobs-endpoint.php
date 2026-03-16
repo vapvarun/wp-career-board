@@ -628,7 +628,7 @@ final class JobsEndpoint extends RestController {
 			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
 			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
-			'board_id'         => (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
+			'board_id'         => (int) apply_filters( 'wcb_job_board_id', get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID ),
 			// Display-name strings for cards.
 			'location'         => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
 			'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
