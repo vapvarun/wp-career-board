@@ -641,6 +641,17 @@ class AdminSettings {
 								'desc'  => __( 'Contains the wcb/company-archive block. Lists all employer company profiles.', 'wp-career-board' ),
 							),
 						);
+
+						/**
+						 * Filter the page settings rows displayed on the Pages tab.
+						 *
+						 * Pro uses this to inject the Resume Builder page setting.
+						 *
+						 * @since 1.0.0
+						 * @param array<string, array{label:string, desc:string}> $wcb_page_settings
+						 */
+						$wcb_page_settings = (array) apply_filters( 'wcb_page_settings', $wcb_page_settings );
+
 						foreach ( $wcb_page_settings as $wcb_key => $wcb_info ) :
 							?>
 							<tr>
