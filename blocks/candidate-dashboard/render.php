@@ -22,17 +22,30 @@ if ( ! is_user_logged_in() ) {
 
 $wcb_candidate_id = get_current_user_id();
 
+/**
+ * Pro populates this with the URL of the resume-builder page (?resume_id=N appended per resume).
+ * Free passes an empty string — the My Resumes tab is hidden when empty.
+ *
+ * @since 1.0.0
+ * @param string $url         Resume builder page URL (empty in Free).
+ * @param int    $candidate_id Current user ID.
+ */
+$wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
+
 wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array(
 		'tab'               => 'applications',
 		'applications'      => array(),
 		'bookmarks'         => array(),
+		'resumes'           => array(),
 		'loading'           => false,
 		'error'             => '',
 		'apiBase'           => rest_url( 'wcb/v1' ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
 		'candidateId'       => $wcb_candidate_id,
+		'resumeBuilderUrl'  => $wcb_resume_builder_url,
+		'resumesEnabled'    => '' !== $wcb_resume_builder_url,
 		'customFieldGroups' => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
 	)
 );
@@ -56,6 +69,13 @@ wp_interactivity_state(
 			data-wp-class--active="state.isTabBookmarks"
 			data-wp-on--click="actions.switchToBookmarks"
 		><?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?></button>
+		<button
+			type="button"
+			class="wcb-tab-btn"
+			data-wp-show="state.resumesEnabled"
+			data-wp-class--active="state.isTabResumes"
+			data-wp-on--click="actions.switchToResumes"
+		><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
 	</nav>
 
 	<!-- Tab: My Applications -->
@@ -93,6 +113,48 @@ wp_interactivity_state(
 						class="wcb-unbookmark-btn"
 						data-wp-on--click="actions.unbookmark"
 					><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+				</div>
+			</template>
+		</div>
+	</div>
+
+	<!-- Tab: My Resumes (Pro) -->
+	<div class="wcb-tab-panel" data-wp-show="state.isTabResumes">
+		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
+
+		<div data-wp-show="!state.loading">
+			<div class="wcb-resumes-header">
+				<button
+					type="button"
+					class="wcb-cbtn wcb-cbtn--primary wcb-new-resume-btn"
+					data-wp-on--click="actions.createResume"
+				><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
+			</div>
+
+			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">
+				<div class="wcb-resume-card">
+					<div class="wcb-resume-card-info">
+						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
+						<span class="wcb-resume-card-date" data-wp-text="context.resume.date"></span>
+					</div>
+					<div class="wcb-resume-card-actions">
+						<a
+							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+							data-wp-bind--href="context.resume.permalink"
+							target="_blank"
+							rel="noopener"
+						><?php esc_html_e( 'View', 'wp-career-board' ); ?></a>
+						<a
+							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+							data-wp-bind--href="actions.resumeEditUrl"
+						><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
+						<button
+							type="button"
+							class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm"
+							data-wp-on--click="actions.deleteResume"
+						><?php esc_html_e( 'Delete', 'wp-career-board' ); ?></button>
+					</div>
 				</div>
 			</template>
 		</div>
