@@ -67,6 +67,7 @@ class AdminMetaBoxes {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ) );
 		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
 		add_action( 'save_post_wcb_company', array( $this, 'save_company_meta' ), 10, 2 );
+		// wcb_application is managed via REST; no save_post hook needed.
 	}
 
 	/**
@@ -111,6 +112,77 @@ class AdminMetaBoxes {
 			'side',
 			'high'
 		);
+
+		add_meta_box(
+			'wcb-job-rejection',
+			__( 'Rejection Reason', 'wp-career-board' ),
+			array( $this, 'render_job_rejection_box' ),
+			'wcb_job',
+			'side',
+			'default'
+		);
+
+		add_meta_box(
+			'wcb-application-audit-log',
+			__( 'Status History', 'wp-career-board' ),
+			array( $this, 'render_application_audit_log_box' ),
+			'wcb_application',
+			'normal',
+			'default'
+		);
+	}
+
+	/**
+	 * Render the Rejection Reason meta box on the job edit screen (read-only).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $post The current post object.
+	 * @return void
+	 */
+	public function render_job_rejection_box( \WP_Post $post ): void {
+		$reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+		if ( '' === $reason ) {
+			echo '<p class="wcb-audit-log-empty">' . esc_html__( 'No rejection reason recorded.', 'wp-career-board' ) . '</p>';
+			return;
+		}
+		echo '<p style="margin:0;">' . esc_html( $reason ) . '</p>';
+	}
+
+	/**
+	 * Render the Status History (audit log) meta box on the application edit screen.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $post The current post object.
+	 * @return void
+	 */
+	public function render_application_audit_log_box( \WP_Post $post ): void {
+		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		if ( empty( $log ) ) {
+			echo '<p class="wcb-audit-log-empty">' . esc_html__( 'No status changes recorded yet.', 'wp-career-board' ) . '</p>';
+			return;
+		}
+
+		echo '<ul class="wcb-audit-log">';
+		foreach ( array_reverse( $log ) as $entry ) {
+			if ( ! is_array( $entry ) ) {
+				continue;
+			}
+			$user      = isset( $entry['by'] ) ? get_userdata( (int) $entry['by'] ) : false;
+			$user_name = $user instanceof \WP_User ? $user->display_name : __( 'System', 'wp-career-board' );
+			$from      = isset( $entry['from'] ) ? (string) $entry['from'] : '';
+			$to        = isset( $entry['to'] ) ? (string) $entry['to'] : '';
+			$at        = isset( $entry['at'] ) ? (string) $entry['at'] : '';
+			printf(
+				'<li><span class="wcb-audit-log-date">%s</span><span>%s &rarr; %s &mdash; %s</span></li>',
+				esc_html( $at ),
+				esc_html( '' !== $from ? $from : __( '(none)', 'wp-career-board' ) ),
+				esc_html( $to ),
+				esc_html( $user_name )
+			);
+		}
+		echo '</ul>';
 	}
 
 	/**

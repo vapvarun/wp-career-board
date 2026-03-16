@@ -95,13 +95,14 @@ class AdminCompanies extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'       => '<input type="checkbox">',
-			'title'    => __( 'Company Name', 'wp-career-board' ),
-			'employer' => __( 'Employer', 'wp-career-board' ),
-			'website'  => __( 'Website', 'wp-career-board' ),
-			'jobs'     => __( 'Active Jobs', 'wp-career-board' ),
-			'status'   => __( 'Status', 'wp-career-board' ),
-			'date'     => __( 'Date', 'wp-career-board' ),
+			'cb'          => '<input type="checkbox">',
+			'title'       => __( 'Company Name', 'wp-career-board' ),
+			'employer'    => __( 'Employer', 'wp-career-board' ),
+			'website'     => __( 'Website', 'wp-career-board' ),
+			'jobs'        => __( 'Active Jobs', 'wp-career-board' ),
+			'trust_level' => __( 'Trust Level', 'wp-career-board' ),
+			'status'      => __( 'Status', 'wp-career-board' ),
+			'date'        => __( 'Date', 'wp-career-board' ),
 		);
 	}
 
@@ -443,6 +444,40 @@ class AdminCompanies extends \WP_List_Table {
 			esc_attr( $status ),
 			esc_html( $label )
 		);
+	}
+
+	/**
+	 * Trust level column — inline select updated via JS/REST.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_trust_level( $item ): string {
+		$current = (string) get_post_meta( $item->ID, '_wcb_trust_level', true );
+		$options = array(
+			''         => __( '— None —', 'wp-career-board' ),
+			'verified' => __( 'Verified', 'wp-career-board' ),
+			'trusted'  => __( 'Trusted', 'wp-career-board' ),
+			'premium'  => __( 'Premium', 'wp-career-board' ),
+		);
+
+		$select = sprintf(
+			'<select class="wcb-trust-select" data-company-id="%1$d" aria-label="%2$s">',
+			(int) $item->ID,
+			esc_attr__( 'Change trust level', 'wp-career-board' )
+		);
+		foreach ( $options as $value => $label ) {
+			$select .= sprintf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr( $value ),
+				selected( $current, $value, false ),
+				esc_html( $label )
+			);
+		}
+		$select .= '</select>';
+		return $select;
 	}
 
 	/**

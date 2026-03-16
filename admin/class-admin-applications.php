@@ -131,7 +131,11 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	protected function get_bulk_actions(): array {
 		return array(
-			'trash' => __( 'Move to Trash', 'wp-career-board' ),
+			'bulk_status_reviewing'   => __( 'Mark as Reviewing', 'wp-career-board' ),
+			'bulk_status_shortlisted' => __( 'Mark as Shortlisted', 'wp-career-board' ),
+			'bulk_status_rejected'    => __( 'Mark as Rejected', 'wp-career-board' ),
+			'bulk_status_hired'       => __( 'Mark as Hired', 'wp-career-board' ),
+			'trash'                   => __( 'Move to Trash', 'wp-career-board' ),
 		);
 	}
 
@@ -386,6 +390,14 @@ class AdminApplications extends \WP_List_Table {
 			),
 		);
 
+		if ( $candidate instanceof \WP_User && $candidate->user_email ) {
+			$row_actions['email'] = sprintf(
+				'<a href="mailto:%s">%s</a>',
+				esc_attr( $candidate->user_email ),
+				esc_html__( 'Email Candidate', 'wp-career-board' )
+			);
+		}
+
 		if ( 'trash' !== $item->post_status ) {
 			$trash_link = get_delete_post_link( $item->ID );
 			if ( $trash_link ) {
@@ -534,12 +546,24 @@ class AdminApplications extends \WP_List_Table {
 			return;
 		}
 
+		$bulk_status_map = array(
+			'bulk_status_reviewing'   => 'reviewing',
+			'bulk_status_shortlisted' => 'shortlisted',
+			'bulk_status_rejected'    => 'rejected',
+			'bulk_status_hired'       => 'hired',
+		);
+
 		foreach ( $app_ids as $app_id ) {
 			if ( ! current_user_can( 'edit_post', $app_id ) ) {
 				continue;
 			}
 			if ( 'trash' === $action ) {
 				wp_trash_post( $app_id );
+			} elseif ( isset( $bulk_status_map[ $action ] ) ) {
+				$new_status = $bulk_status_map[ $action ];
+				$old_status = (string) get_post_meta( $app_id, '_wcb_status', true );
+				update_post_meta( $app_id, '_wcb_status', $new_status );
+				do_action( 'wcb_application_status_changed', $app_id, $old_status, $new_status );
 			}
 		}
 

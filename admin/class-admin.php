@@ -283,6 +283,7 @@ class Admin {
 				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="button button-primary"><?php esc_html_e( '+ Add Job', 'wp-career-board' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="button"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings' ) ); ?>" class="button"><?php esc_html_e( 'Settings', 'wp-career-board' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="button"><?php esc_html_e( 'Run Setup Wizard', 'wp-career-board' ); ?></a>
 			</div>
 
 		</div>
@@ -315,9 +316,16 @@ class Admin {
 				'restUrl'   => esc_url_raw( rest_url( 'wcb/v1/' ) ),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
-					'confirmApprove' => __( 'Approve this job?', 'wp-career-board' ),
-					'confirmReject'  => __( 'Reject this job? Enter reason:', 'wp-career-board' ),
-					'saveFailed'     => __( 'Could not update status. Please try again.', 'wp-career-board' ),
+					'approveTitle' => __( 'Approve Job', 'wp-career-board' ),
+					'approveMsg'   => __( 'This job will be published and the employer will be notified.', 'wp-career-board' ),
+					'approveBtn'   => __( 'Approve', 'wp-career-board' ),
+					'rejectTitle'  => __( 'Reject Job', 'wp-career-board' ),
+					'rejectMsg'    => __( 'This job will be moved to Draft and the employer will be notified.', 'wp-career-board' ),
+					'rejectBtn'    => __( 'Reject', 'wp-career-board' ),
+					'reasonLabel'  => __( 'Reason (optional):', 'wp-career-board' ),
+					'confirm'      => __( 'Confirm', 'wp-career-board' ),
+					'cancel'       => __( 'Cancel', 'wp-career-board' ),
+					'saveFailed'   => __( 'Could not update. Please try again.', 'wp-career-board' ),
 				),
 			)
 		);

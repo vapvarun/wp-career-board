@@ -442,7 +442,10 @@ class AdminSettings {
 		$wcb_is_form_tab   = in_array( $wcb_active_tab, $wcb_settings_tabs, true );
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'WP Career Board — Settings', 'wp-career-board' ); ?></h1>
+			<h1>
+				<?php esc_html_e( 'WP Career Board — Settings', 'wp-career-board' ); ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Run Setup Wizard', 'wp-career-board' ); ?></a>
+			</h1>
 
 			<?php if ( isset( $_GET['settings-updated'] ) && $wcb_is_form_tab ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 				<div class="notice notice-success is-dismissible">

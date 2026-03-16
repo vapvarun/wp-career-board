@@ -43,6 +43,79 @@ final class CompaniesEndpoint extends RestController {
 				'args'                => $this->get_collection_params(),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/companies/(?P<id>\d+)/trust',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_trust' ),
+				'permission_callback' => array( $this, 'manage_permissions_check' ),
+				'args'                => array(
+					'id'          => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
+						'minimum'           => 1,
+					),
+					'trust_level' => array(
+						'type'              => 'string',
+						'enum'              => array( '', 'verified', 'trusted', 'premium' ),
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Permission check: user must hold the wcb_manage_settings ability.
+	 *
+	 * @since 1.0.0
+	 * @return bool|\WP_Error
+	 */
+	public function manage_permissions_check(): bool|\WP_Error {
+		if ( $this->check_ability( 'wcb_manage_settings' ) ) {
+			return true;
+		}
+
+		return $this->permission_error();
+	}
+
+	/**
+	 * Update the trust level for a company.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request data.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_trust( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company_id  = (int) $request['id'];
+		$trust_level = (string) $request->get_param( 'trust_level' );
+		$company     = get_post( $company_id );
+
+		if ( ! $company instanceof \WP_Post || 'wcb_company' !== $company->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Company not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( '' === $trust_level ) {
+			delete_post_meta( $company_id, '_wcb_trust_level' );
+		} else {
+			update_post_meta( $company_id, '_wcb_trust_level', $trust_level );
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'          => $company_id,
+				'trust_level' => $trust_level,
+			)
+		);
 	}
 
 	/**

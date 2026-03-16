@@ -239,6 +239,15 @@ final class ApplicationsEndpoint extends RestController {
 		$old_status = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		update_post_meta( $post->ID, '_wcb_status', $new_status );
 
+		$log   = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log[] = array(
+			'from' => $old_status,
+			'to'   => $new_status,
+			'by'   => get_current_user_id(),
+			'at'   => gmdate( 'Y-m-d H:i:s' ),
+		);
+		update_post_meta( $post->ID, '_wcb_status_log', $log );
+
 		do_action( 'wcb_application_status_changed', $post->ID, $old_status, $new_status );
 
 		return rest_ensure_response(

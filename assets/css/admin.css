@@ -287,3 +287,106 @@
 	font-size: 0.85rem;
 	color: #1d2327;
 }
+
+/* ── Styled confirm modal — T22a ── */
+.wcb-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba( 0, 0, 0, 0.55 );
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wcb-modal {
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 4px 24px rgba( 0, 0, 0, 0.2 );
+	padding: 24px 28px;
+	min-width: 360px;
+	max-width: 480px;
+	width: 100%;
+}
+
+.wcb-modal-title {
+	font-size: 1.1em;
+	font-weight: 700;
+	color: #1d2327;
+	margin: 0 0 8px;
+}
+
+.wcb-modal-msg {
+	color: #50575e;
+	font-size: 0.9em;
+	margin: 0 0 16px;
+}
+
+.wcb-modal-label {
+	display: block;
+	font-size: 0.875em;
+	font-weight: 600;
+	color: #1d2327;
+	margin-bottom: 6px;
+}
+
+.wcb-modal-textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 8px 10px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 0.875em;
+	font-family: inherit;
+	resize: vertical;
+	margin-bottom: 16px;
+}
+
+.wcb-modal-textarea:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.wcb-modal-actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+/* ── Trust level inline select — T22c ── */
+.wcb-trust-select {
+	font-size: 0.85em;
+}
+
+/* ── Audit log meta box — T22f ── */
+.wcb-audit-log {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-audit-log li {
+	display: flex;
+	gap: 8px;
+	padding: 6px 0;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 0.85em;
+	color: #1d2327;
+}
+
+.wcb-audit-log li:last-child {
+	border-bottom: none;
+}
+
+.wcb-audit-log-date {
+	color: #646970;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.wcb-audit-log-empty {
+	color: #646970;
+	font-style: italic;
+	font-size: 0.875em;
+}
