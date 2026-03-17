@@ -155,6 +155,9 @@ wp_interactivity_state(
 		'selectedResumeId' => 0,
 		'resumePageUrl'    => $wcb_resume_page_url,
 		'proActive'        => post_type_exists( 'wcb_resume' ),
+		'jobPermalink'     => (string) get_permalink( $wcb_job_id ),
+		'jobTitle'         => $wcb_job->post_title,
+		'linkCopied'       => false,
 	)
 );
 ?>
@@ -376,6 +379,48 @@ wp_interactivity_state(
 						<?php esc_html_e( 'Sign In to Apply', 'wp-career-board' ); ?>
 					</a>
 				<?php endif; ?>
+			</div>
+
+			<?php /* Share bar */ ?>
+			<?php
+			$wcb_share_url    = rawurlencode( (string) get_permalink( $wcb_job_id ) );
+			$wcb_share_title  = rawurlencode( $wcb_job->post_title );
+			$wcb_twitter_url  = 'https://x.com/intent/tweet?text=' . $wcb_share_title . '&url=' . $wcb_share_url;
+			$wcb_linkedin_url = 'https://www.linkedin.com/sharing/share-offsite/?url=' . $wcb_share_url;
+			?>
+			<div class="wcb-share-bar">
+				<span class="wcb-share-label"><?php esc_html_e( 'Share:', 'wp-career-board' ); ?></span>
+				<a
+					href="<?php echo esc_url( $wcb_twitter_url ); ?>"
+					class="wcb-share-btn"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="<?php esc_attr_e( 'Share on X', 'wp-career-board' ); ?>"
+				>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.739l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+				</a>
+				<a
+					href="<?php echo esc_url( $wcb_linkedin_url ); ?>"
+					class="wcb-share-btn"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="<?php esc_attr_e( 'Share on LinkedIn', 'wp-career-board' ); ?>"
+				>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+				</a>
+				<button
+					type="button"
+					class="wcb-share-btn"
+					data-wp-on--click="actions.copyLink"
+					aria-label="<?php esc_attr_e( 'Copy link', 'wp-career-board' ); ?>"
+				>
+					<span data-wp-bind--hidden="state.linkCopied">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					</span>
+					<span data-wp-bind--hidden="!state.linkCopied" hidden>
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					</span>
+				</button>
 			</div>
 
 			<?php /* Company card */ ?>

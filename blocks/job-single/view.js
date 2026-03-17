@@ -7,6 +7,7 @@
  *   updateCoverLetter  — sync textarea value to state.
  *   submitApplication  — POST cover letter to /wcb/v1/jobs/{id}/apply.
  *   toggleBookmark     — POST to /wcb/v1/jobs/{id}/bookmark and flip state.bookmarked.
+ *   copyLink           — copy job permalink to clipboard, show checkmark for 2s.
  *
  * @package WP_Career_Board
  */
@@ -113,6 +114,16 @@ const { state } = store( 'wcb-job-single', {
 				state.error = 'Connection error. Please check your network and try again.';
 			} finally {
 				state.submitting = false;
+			}
+		},
+
+		async copyLink() {
+			try {
+				await navigator.clipboard.writeText( state.jobPermalink );
+				state.linkCopied = true;
+				setTimeout( () => { state.linkCopied = false; }, 2000 );
+			} catch {
+				// Clipboard API unavailable (non-HTTPS or denied) — fail silently.
 			}
 		},
 

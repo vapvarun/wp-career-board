@@ -629,6 +629,46 @@ a.wcb-company-card-name:hover {
 	}
 }
 
+/* ── Share bar ──────────────────────────────────────────────────────────────── */
+.wcb-share-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #f1f5f9;
+}
+
+.wcb-share-label {
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: #94a3b8;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-right: 0.15rem;
+}
+
+.wcb-share-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	border: 1.5px solid #e2e8f0;
+	background: #fff;
+	color: #64748b;
+	text-decoration: none;
+	cursor: pointer;
+	transition: border-color 0.12s, color 0.12s;
+	padding: 0;
+}
+
+.wcb-share-btn:hover {
+	border-color: #94a3b8;
+	color: #0f172a;
+}
+
 /* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
 .wcb-job-page #secondary,
 .wcb-job-page .widget-area,
