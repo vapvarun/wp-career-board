@@ -216,21 +216,24 @@ const { state, actions } = store( 'wcb-job-listings', {
 				}
 			}
 
-			const response = yield fetch( url.toString(), {
-				headers: { 'X-WP-Nonce': state.nonce },
-			} );
+			try {
+				const response = yield fetch( url.toString(), {
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
 
-			const total = parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 );
-			const data = yield response.json();
+				const total = parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 );
+				const data = yield response.json();
 
-			state.totalCount = total;
-			if ( state.page === 1 ) {
-				state.jobs = data;
-			} else {
-				state.jobs = [ ...state.jobs, ...data ];
+				state.totalCount = total;
+				if ( state.page === 1 ) {
+					state.jobs = data;
+				} else {
+					state.jobs = [ ...state.jobs, ...data ];
+				}
+				state.hasMore = state.jobs.length < total;
+			} finally {
+				state.loading = false;
 			}
-			state.hasMore = state.jobs.length < total;
-			state.loading = false;
 		},
 
 		// ── Bookmark ──────────────────────────────────────────────────
@@ -242,44 +245,25 @@ const { state, actions } = store( 'wcb-job-listings', {
 			ctx.job.bookmarked = ! wasBookmarked;
 
 			const method = wasBookmarked ? 'DELETE' : 'POST';
-			yield fetch( state.apiBase + '/bookmarks/' + jobId, {
+			const response = yield fetch( state.apiBase + '/bookmarks/' + jobId, {
 				method,
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
+
+			if ( ! response.ok ) {
+				ctx.job.bookmarked = wasBookmarked;
+			}
 		},
 	},
 
 	callbacks: {
 		init() {
-			// Legacy wcb:search event — sent by wcb/job-search and wcb/job-filters blocks.
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
 				if ( params.search !== undefined ) {
 					state.searchQuery = params.search;
 				}
-				// Re-fetch and update totalCount from header.
-				const url = new URL( state.apiBase + '/jobs' );
-				url.searchParams.set( 'per_page', state.perPage );
-				url.searchParams.set( 'page', 1 );
-				if ( state.searchQuery ) {
-					url.searchParams.set( 'search', state.searchQuery );
-				}
-				fetch( url.toString(), {
-					headers: { 'X-WP-Nonce': state.nonce },
-				} )
-					.then( ( res ) => {
-						state.totalCount = parseInt(
-							res.headers.get( 'X-WCB-Total' ) ?? '0',
-							10
-						);
-						return res.json();
-					} )
-					.then( ( data ) => {
-						state.page = 1;
-						state.jobs = data;
-						state.hasMore = state.jobs.length < state.totalCount;
-						state.loading = false;
-					} );
+				store( 'wcb-job-listings' ).actions.applyFilters();
 			} );
 		},
 	},
