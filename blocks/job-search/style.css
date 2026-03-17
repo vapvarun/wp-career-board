@@ -34,7 +34,8 @@
 .wcb-search-input {
 	flex: 1;
 	border: none !important;
-	outline: none !important;
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
 	box-shadow: none !important;
 	border-radius: 0 !important;
 	-webkit-appearance: none;
@@ -50,7 +51,8 @@
 /* Focus-within on the parent handles the visible focus ring.
    This ensures keyboard users see the composite form highlight. */
 .wcb-search-input:focus {
-	outline: none !important;
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
 	border: none !important;
 	box-shadow: none !important;
 }

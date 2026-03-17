@@ -105,19 +105,56 @@ $wcb_bookmarks       = $wcb_current_user_id
 	: array();
 $wcb_is_bookmarked   = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
+// ── Resume data for apply panel ───────────────────────────────────────────────
+$wcb_user_resumes    = array();
+$wcb_resume_page_url = '';
+if ( post_type_exists( 'wcb_resume' ) ) {
+	$wcb_resume_posts = get_posts(
+		array(
+			'post_type'      => 'wcb_resume',
+			'post_status'    => 'publish',
+			'author'         => $wcb_current_user_id,
+			'posts_per_page' => 20,
+			'no_found_rows'  => true,
+		)
+	);
+	foreach ( $wcb_resume_posts as $wcb_r ) {
+		$wcb_user_resumes[] = array(
+			'id'    => $wcb_r->ID,
+			'title' => $wcb_r->post_title,
+		);
+	}
+	$wcb_rb_pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'posts_per_page' => 1,
+			'no_found_rows'  => true,
+			's'              => 'wcb/resume-builder',
+			'post_status'    => 'publish',
+		)
+	);
+	if ( $wcb_rb_pages ) {
+		$wcb_resume_page_url = get_permalink( $wcb_rb_pages[0]->ID );
+	}
+}
+
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
-		'jobId'       => $wcb_job_id,
-		'apiBase'     => rest_url( 'wcb/v1' ),
-		'nonce'       => wp_create_nonce( 'wp_rest' ),
-		'panelOpen'   => false,
-		'submitting'  => false,
-		'submitted'   => false,
-		'bookmarked'  => $wcb_is_bookmarked,
-		'bookmarking' => false,
-		'coverLetter' => '',
-		'error'       => '',
+		'jobId'            => $wcb_job_id,
+		'apiBase'          => rest_url( 'wcb/v1' ),
+		'nonce'            => wp_create_nonce( 'wp_rest' ),
+		'panelOpen'        => false,
+		'submitting'       => false,
+		'submitted'        => false,
+		'bookmarked'       => $wcb_is_bookmarked,
+		'bookmarking'      => false,
+		'coverLetter'      => '',
+		'error'            => '',
+		'userResumes'      => $wcb_user_resumes,
+		'selectedResumeId' => 0,
+		'resumePageUrl'    => $wcb_resume_page_url,
+		'proActive'        => post_type_exists( 'wcb_resume' ),
 	)
 );
 ?>
@@ -420,6 +457,51 @@ wp_interactivity_state(
 				<?php endif; ?>
 
 				<p class="wcb-apply-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+
+				<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+					<div class="wcb-apply-resume-section">
+						<label class="wcb-field-label" for="wcb-resume-select">
+							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
+						</label>
+						<?php if ( ! empty( $wcb_user_resumes ) ) : ?>
+							<select
+								id="wcb-resume-select"
+								class="wcb-apply-resume-select"
+								data-wp-on--change="actions.selectResume"
+							>
+								<option value="0"><?php esc_html_e( '— Select a resume —', 'wp-career-board' ); ?></option>
+								<?php foreach ( $wcb_user_resumes as $wcb_r ) : ?>
+									<option value="<?php echo (int) $wcb_r['id']; ?>">
+										<?php echo esc_html( $wcb_r['title'] ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						<?php else : ?>
+							<p class="wcb-apply-no-resume">
+								<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
+								<?php if ( $wcb_resume_page_url ) : ?>
+									<a href="<?php echo esc_url( $wcb_resume_page_url ); ?>">
+										<?php esc_html_e( 'Create your resume →', 'wp-career-board' ); ?>
+									</a>
+								<?php endif; ?>
+							</p>
+						<?php endif; ?>
+					</div>
+				<?php else : ?>
+					<div class="wcb-apply-resume-section">
+						<label class="wcb-field-label" for="wcb-resume-file">
+							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
+							<span class="wcb-field-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+						</label>
+						<input
+							type="file"
+							id="wcb-resume-file"
+							class="wcb-apply-resume-file"
+							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+							data-wp-on--change="actions.selectResumeFile"
+						/>
+					</div>
+				<?php endif; ?>
 
 				<label class="wcb-field-label" for="wcb-cover-letter">
 					<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>

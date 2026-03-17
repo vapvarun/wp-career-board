@@ -84,6 +84,17 @@ final class ApplicationsEndpoint extends RestController {
 				'permission_callback' => array( $this, 'candidate_permissions_check' ),
 			)
 		);
+
+		// Upload a resume file (Free mode — no wcb_resume post).
+		register_rest_route(
+			$this->namespace,
+			'/candidates/resume-upload',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'upload_resume_file' ),
+				'permission_callback' => array( $this, 'submit_permissions_check' ),
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
@@ -175,6 +186,13 @@ final class ApplicationsEndpoint extends RestController {
 			}
 		}
 		update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
+
+		// Store uploaded resume file attachment (Free mode — no wcb_resume post).
+		$attachment_id = (int) $request->get_param( 'resume_attachment_id' );
+		if ( $attachment_id > 0 ) {
+			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+		}
+
 		update_post_meta( $app_id, '_wcb_status', 'submitted' );
 
 		do_action( 'wcb_application_submitted', $app_id, $job_id, $candidate_id );
@@ -343,6 +361,54 @@ final class ApplicationsEndpoint extends RestController {
 				'id'      => $app_id,
 			)
 		);
+	}
+
+	/**
+	 * Upload a resume file (PDF/DOC/DOCX) and return the attachment ID.
+	 *
+	 * @since 1.0.0
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function upload_resume_file(): \WP_REST_Response|\WP_Error {
+		if ( empty( $_FILES['resume_file'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WP REST infrastructure via X-WP-Nonce header.
+			return new \WP_Error(
+				'wcb_no_file',
+				__( 'No file provided.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$file     = $_FILES['resume_file']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- media_handle_upload() sanitizes internally.
+		$allowed  = array( 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' );
+		$max_size = 5 * MB_IN_BYTES;
+
+		if ( ! in_array( $file['type'], $allowed, true ) ) {
+			return new \WP_Error(
+				'wcb_invalid_file_type',
+				__( 'Only PDF, DOC, and DOCX files are allowed.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( $file['size'] > $max_size ) {
+			return new \WP_Error(
+				'wcb_file_too_large',
+				__( 'File must be under 5 MB.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$attachment_id = media_handle_upload( 'resume_file', 0 );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			return $attachment_id;
+		}
+
+		return rest_ensure_response( array( 'attachment_id' => $attachment_id ) );
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

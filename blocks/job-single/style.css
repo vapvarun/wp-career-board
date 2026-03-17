@@ -563,6 +563,42 @@ a.wcb-company-card-name:hover {
 	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
+/* ── Apply panel — resume section ────────────────────────────────────────── */
+.wcb-apply-resume-section {
+	margin-block-end: 1.25rem;
+}
+
+.wcb-apply-resume-select {
+	display: block;
+	width: 100%;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 0.9375rem;
+	background: #fff;
+}
+
+.wcb-apply-resume-select:focus {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+}
+
+.wcb-apply-resume-file {
+	display: block;
+	width: 100%;
+	font-size: 0.875rem;
+}
+
+.wcb-apply-no-resume {
+	font-size: 0.875rem;
+	color: #6b7280;
+	margin: 0;
+}
+
+.wcb-apply-no-resume a {
+	color: var( --wcb-primary, #2563eb );
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
 	.wcb-job-hero {

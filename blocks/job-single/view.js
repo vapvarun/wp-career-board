@@ -17,6 +17,9 @@ const { state } = store( 'wcb-job-single', {
 		get bookmarkLabel() {
 			return state.bookmarked ? 'Saved' : 'Save Job';
 		},
+		get hasResumes() {
+			return state.userResumes && state.userResumes.length > 0;
+		},
 	},
 
 	actions: {
@@ -25,12 +28,21 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		closePanel() {
-			state.panelOpen = false;
-			state.error     = '';
+			state.panelOpen  = false;
+			state.error      = '';
+			state.resumeFile = null;
 		},
 
 		updateCoverLetter( event ) {
 			state.coverLetter = event.target.value;
+		},
+
+		selectResume( event ) {
+			state.selectedResumeId = Number( event.target.value );
+		},
+
+		selectResumeFile( event ) {
+			state.resumeFile = event.target.files[ 0 ] || null;
 		},
 
 		*submitApplication() {
@@ -42,20 +54,56 @@ const { state } = store( 'wcb-job-single', {
 			state.error      = '';
 
 			try {
+				let resumeAttachmentId = 0;
+
+				// Free mode: upload the file first, then get attachment ID.
+				if ( ! state.proActive && state.resumeFile ) {
+					const formData = new FormData();
+					formData.append( 'resume_file', state.resumeFile );
+
+					const uploadRes = yield fetch(
+						state.apiBase + '/candidates/resume-upload',
+						{
+							method:  'POST',
+							headers: { 'X-WP-Nonce': state.nonce },
+							body:    formData,
+						}
+					);
+
+					if ( ! uploadRes.ok ) {
+						state.error = 'Resume upload failed. Please try again.';
+						return;
+					}
+
+					const uploadData   = yield uploadRes.json();
+					resumeAttachmentId = uploadData.attachment_id || 0;
+				}
+
+				const body = { cover_letter: state.coverLetter };
+
+				if ( state.proActive && state.selectedResumeId > 0 ) {
+					body.resume_id = state.selectedResumeId;
+				}
+
+				if ( resumeAttachmentId > 0 ) {
+					body.resume_attachment_id = resumeAttachmentId;
+				}
+
 				const response = yield fetch(
 					state.apiBase + '/jobs/' + String( state.jobId ) + '/apply',
 					{
-						method: 'POST',
+						method:  'POST',
 						headers: {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify( { cover_letter: state.coverLetter } ),
+						body: JSON.stringify( body ),
 					}
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Application could not be submitted. Please try again.';
+					const err   = yield response.json().catch( () => null );
+					state.error = ( err && err.message ) ? err.message : 'Application could not be submitted. Please try again.';
 					return;
 				}
 
