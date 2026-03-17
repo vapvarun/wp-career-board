@@ -19,8 +19,8 @@
 }
 
 .wcb-results-count {
-	font-size: 0.875rem;
-	color: #64748b;
+	font-size: 0.8125rem;
+	color: #6b7280;
 	margin: 0;
 }
 
@@ -441,6 +441,12 @@
 	cursor: pointer;
 }
 
+.wcb-sort-select:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+	border-color: transparent;
+}
+
 /* Chip bar */
 .wcb-chip-bar {
 	display: flex;
@@ -474,6 +480,11 @@
 	border-color: var( --wcb-primary, #2563eb );
 	background: var( --wcb-primary, #2563eb );
 	color: #fff;
+}
+
+.wcb-chip:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
 }
 
 .wcb-chip-divider {
@@ -529,6 +540,12 @@
 	background: #bfdbfe;
 }
 
+.wcb-active-chip-remove:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+	background: #bfdbfe;
+}
+
 .wcb-clear-all {
 	font-size: 0.75rem;
 	color: #6b7280;
@@ -543,11 +560,9 @@
 	color: #374151;
 }
 
-/* Results count */
-.wcb-results-count {
-	font-size: 0.8125rem;
-	color: #6b7280;
-	margin: 0;
+.wcb-clear-all:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
 }
 
 /* ── Job card excerpt ─────────────────────────────────────────────────── */
