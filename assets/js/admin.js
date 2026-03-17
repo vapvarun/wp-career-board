@@ -26,8 +26,10 @@
 			box.className = 'wcb-modal';
 			box.setAttribute( 'role', 'dialog' );
 			box.setAttribute( 'aria-modal', 'true' );
+			box.setAttribute( 'aria-labelledby', 'wcb-modal-title' );
 
 			var title = document.createElement( 'h2' );
+			title.id = 'wcb-modal-title';
 			title.className = 'wcb-modal-title';
 			title.textContent = opts.title || '';
 
@@ -75,19 +77,31 @@
 				document.body.removeChild( overlay );
 			}
 
+			function handleKey( e ) {
+				if ( e.key === 'Escape' ) {
+					document.removeEventListener( 'keydown', handleKey );
+					close();
+					reject();
+				}
+			}
+			document.addEventListener( 'keydown', handleKey );
+
 			cancelBtn.addEventListener( 'click', function () {
+				document.removeEventListener( 'keydown', handleKey );
 				close();
 				reject();
 			} );
 
 			overlay.addEventListener( 'click', function ( e ) {
 				if ( e.target === overlay ) {
+					document.removeEventListener( 'keydown', handleKey );
 					close();
 					reject();
 				}
 			} );
 
 			confirmBtn.addEventListener( 'click', function () {
+				document.removeEventListener( 'keydown', handleKey );
 				close();
 				resolve( opts.withReason ? ( textarea ? textarea.value.trim() : '' ) : true );
 			} );
