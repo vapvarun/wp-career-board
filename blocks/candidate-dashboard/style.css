@@ -102,3 +102,114 @@
 	font-size: 0.8rem;
 	color: #94a3b8;
 }
+
+.wcb-resume-card {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.875rem 1rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #fff;
+	transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.wcb-resume-card:hover {
+	border-color: #cbd5e1;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.wcb-resume-card-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.wcb-resume-card-title {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: #0f172a;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wcb-resume-card-date {
+	font-size: 0.8rem;
+	color: #94a3b8;
+}
+
+.wcb-resume-card-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-shrink: 0;
+}
+
+/* Button system for candidate dashboard */
+.wcb-cbtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.375rem 0.875rem;
+	border-radius: 6px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: background 0.12s, color 0.12s, border-color 0.12s;
+	white-space: nowrap;
+	line-height: 1.4;
+}
+
+.wcb-cbtn--sm {
+	padding: 0.25rem 0.625rem;
+	font-size: 0.8rem;
+}
+
+.wcb-cbtn--primary {
+	background: #2563eb;
+	color: #fff !important;
+	border-color: #2563eb;
+}
+
+.wcb-cbtn--primary:hover {
+	background: #1d4ed8;
+	border-color: #1d4ed8;
+	color: #fff !important;
+	text-decoration: none;
+}
+
+.wcb-cbtn--primary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.wcb-cbtn--ghost {
+	background: transparent;
+	color: #2563eb !important;
+	border-color: #2563eb;
+}
+
+.wcb-cbtn--ghost:hover {
+	background: #eff6ff;
+	color: #1d4ed8 !important;
+	border-color: #1d4ed8;
+	text-decoration: none;
+}
+
+.wcb-cbtn--danger {
+	background: transparent;
+	color: #dc2626 !important;
+	border-color: #fca5a5;
+}
+
+.wcb-cbtn--danger:hover {
+	background: #fef2f2;
+	color: #b91c1c !important;
+	border-color: #f87171;
+	text-decoration: none;
+}
