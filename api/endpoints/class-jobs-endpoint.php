@@ -197,6 +197,12 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
+		$orderby_raw     = (string) ( $request->get_param( 'orderby' ) ?? 'date' );
+		$order_raw       = (string) ( $request->get_param( 'order' ) ?? 'DESC' );
+		$args['orderby'] = in_array( $orderby_raw, array( 'date' ), true ) ? $orderby_raw : 'date';
+		$args['order']   = in_array( strtoupper( $order_raw ), array( 'ASC', 'DESC' ), true )
+			? strtoupper( $order_raw ) : 'DESC';
+
 		$cache_key    = $this->get_items_cache_key( $args );
 		$cached_value = get_transient( $cache_key );
 
@@ -452,6 +458,10 @@ final class JobsEndpoint extends RestController {
 		if ( null !== $desc ) {
 			$data['post_content'] = wp_kses_post( $desc );
 		}
+		$status = $request->get_param( 'status' );
+		if ( null !== $status && in_array( $status, array( 'publish', 'draft' ), true ) ) {
+			$data['post_status'] = $status;
+		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
 			wp_update_post( $data );
@@ -598,11 +608,21 @@ final class JobsEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ): array {
+				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
+				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
+
 				return array(
-					'id'           => $p->ID,
-					'candidate_id' => (int) get_post_meta( $p->ID, '_wcb_candidate_id', true ),
-					'status'       => get_post_meta( $p->ID, '_wcb_status', true ),
-					'submitted_at' => $p->post_date,
+					'id'              => $p->ID,
+					'candidate_id'    => $candidate_id,
+					'applicant_name'  => $candidate_user
+						? $candidate_user->display_name
+						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
+					'applicant_email' => $candidate_user
+						? $candidate_user->user_email
+						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
+					'cover_letter'    => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					'status'          => get_post_meta( $p->ID, '_wcb_status', true ) ? get_post_meta( $p->ID, '_wcb_status', true ) : 'submitted',
+					'submitted_at'    => get_the_date( 'M j, Y', $p ),
 				);
 			},
 			$posts
@@ -709,6 +729,7 @@ final class JobsEndpoint extends RestController {
 			'id'               => $post->ID,
 			'title'            => $post->post_title,
 			'description'      => $post->post_content,
+			'excerpt'          => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
 			'status'           => $post->post_status,
 			'author'           => $author_id,
 			'date'             => $post->post_date,
@@ -806,6 +827,45 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
+	 * Describe the shape of a single job item.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_item_schema(): array {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'wcb_job',
+			'type'       => 'object',
+			'properties' => array(
+				'id'          => array(
+					'description' => __( 'Unique identifier for the job.', 'wp-career-board' ),
+					'type'        => 'integer',
+					'readonly'    => true,
+					'context'     => array( 'view', 'embed' ),
+				),
+				'title'       => array(
+					'description' => __( 'Job title.', 'wp-career-board' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'embed' ),
+				),
+				'description' => array(
+					'description' => __( 'Full job description.', 'wp-career-board' ),
+					'type'        => 'string',
+					'context'     => array( 'view' ),
+				),
+				'excerpt'     => array(
+					'description' => __( 'Short excerpt of the job description.', 'wp-career-board' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => array( 'view', 'embed' ),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Define query parameters for the collection endpoint.
 	 *
 	 * @since 1.0.0
@@ -837,6 +897,22 @@ final class JobsEndpoint extends RestController {
 				'salary_min'     => array( 'type' => 'integer' ),
 				'salary_max'     => array( 'type' => 'integer' ),
 				'author'         => array( 'type' => 'integer' ),
+				'orderby'        => array(
+					'description'       => __( 'Sort jobs by attribute.', 'wp-career-board' ),
+					'type'              => 'string',
+					'default'           => 'date',
+					'enum'              => array( 'date' ),
+					'sanitize_callback' => 'sanitize_key',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
+				'order'          => array(
+					'description'       => __( 'Order jobs ascending or descending.', 'wp-career-board' ),
+					'type'              => 'string',
+					'default'           => 'DESC',
+					'enum'              => array( 'ASC', 'DESC' ),
+					'sanitize_callback' => 'sanitize_key',
+					'validate_callback' => 'rest_validate_request_arg',
+				),
 				'page'           => array(
 					'type'    => 'integer',
 					'default' => 1,
