@@ -102,7 +102,7 @@ wp_interactivity_state(
 
 	<!-- SIDEBAR -->
 	<aside class="wcb-sidebar">
-		<div class="wcb-sidebar-logo">WP Career Board</div>
+		<div class="wcb-sidebar-logo"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></div>
 
 		<nav class="wcb-sidebar-nav" aria-label="<?php esc_attr_e( 'Dashboard navigation', 'wp-career-board' ); ?>">
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'JOBS', 'wp-career-board' ); ?></span>
