@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
 $wcb_site_settings    = (array) get_option( 'wcb_settings', array() );
 $wcb_setting_per_page = ! empty( $wcb_site_settings['jobs_per_page'] ) ? (int) $wcb_site_settings['jobs_per_page'] : 10;
 $wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['perPage'] : $wcb_setting_per_page;
-$wcb_raw_layout = (string) ( $attributes['layout'] ?? 'grid' );
-$wcb_layout     = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
+$wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
+$wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
 
 $wcb_jobs_raw = get_posts(
 	apply_filters(
@@ -134,18 +134,70 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'deadline'     => $wcb_deadline_val,
 		'days_ago'     => human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() ) . ' ago',
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
+		'excerpt'      => wp_trim_words( wp_strip_all_tags( $wcb_job_post->post_content ), 25, '…' ),
 	);
 }
 
+$wcb_type_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_job_type',
+		'hide_empty' => false,
+	)
+);
+$wcb_type_opts      = array_map(
+	static function ( \WP_Term $t ): array {
+		return array(
+			'slug' => $t->slug,
+			'name' => $t->name,
+		);
+	},
+	is_array( $wcb_type_terms_raw ) ? $wcb_type_terms_raw : array()
+);
+
+$wcb_exp_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_job_experience',
+		'hide_empty' => false,
+	)
+);
+$wcb_exp_opts      = array_map(
+	static function ( \WP_Term $t ): array {
+		return array(
+			'slug' => $t->slug,
+			'name' => $t->name,
+		);
+	},
+	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
+);
+
+$wcb_count_query = new \WP_Query(
+	array(
+		'post_type'      => 'wcb_job',
+		'post_status'    => 'publish',
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+		'no_found_rows'  => false,
+	)
+);
+$wcb_total_count = $wcb_count_query->found_posts;
+
 $wcb_state = array(
-	'jobs'    => $wcb_jobs_state,
-	'page'    => 1,
-	'perPage' => $wcb_per_page,
-	'layout'  => $wcb_layout,
-	'loading' => false,
-	'hasMore' => count( $wcb_jobs_raw ) >= $wcb_per_page,
-	'apiBase' => (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ),
-	'nonce'   => wp_create_nonce( 'wp_rest' ),
+	'jobs'          => $wcb_jobs_state,
+	'page'          => 1,
+	'perPage'       => $wcb_per_page,
+	'layout'        => $wcb_layout,
+	'loading'       => false,
+	'hasMore'       => count( $wcb_jobs_raw ) >= $wcb_per_page,
+	'apiBase'       => (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ),
+	'nonce'         => wp_create_nonce( 'wp_rest' ),
+	'totalCount'    => $wcb_total_count,
+	'searchQuery'   => '',
+	'activeFilters' => (object) array(),
+	'sortBy'        => 'date_desc',
+	'filterOptions' => array(
+		'types'       => $wcb_type_opts,
+		'experiences' => $wcb_exp_opts,
+	),
 );
 
 wp_interactivity_state( 'wcb-job-listings', $wcb_state );
@@ -154,28 +206,69 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-listings"
 >
-	<div class="wcb-listings-toolbar">
-		<p class="wcb-results-count" data-wp-text="state.resultsLabel" aria-live="polite"></p>
-		<div class="wcb-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setList"
-				data-wp-class--wcb-active="state.isList"
-			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2V7.25zm0 3.25h12v1.5H2v-1.5z"/></svg>
-			</button>
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setGrid"
-				data-wp-class--wcb-active="state.isGrid"
-			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zm-7 7h5v5H2V9zm7 0h5v5H9V9z"/></svg>
-			</button>
+	<div class="wcb-listings-header">
+		<div class="wcb-search-sort-row">
+			<div class="wcb-search-wrap">
+				<span class="wcb-search-icon" aria-hidden="true">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+				</span>
+				<input
+					type="search"
+					class="wcb-listings-search"
+					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
+					data-wp-bind--value="state.searchQuery"
+					data-wp-on--input="actions.updateSearch"
+				/>
+			</div>
+			<select class="wcb-sort-select" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
+				<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
+				<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
+			</select>
 		</div>
+
+		<div class="wcb-chip-bar" role="group" aria-label="<?php esc_attr_e( 'Filter by job type', 'wp-career-board' ); ?>">
+			<?php foreach ( $wcb_type_opts as $wcb_opt ) : ?>
+			<button type="button" class="wcb-chip"
+				data-type-slug="<?php echo esc_attr( $wcb_opt['slug'] ); ?>"
+				data-wp-class--wcb-chip-active="state.isTypeActive"
+				data-wp-on--click="actions.toggleTypeChip"
+				data-wp-context='{"typeSlug": "<?php echo esc_js( $wcb_opt['slug'] ); ?>"}'
+			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+			<?php endforeach; ?>
+
+			<span class="wcb-chip-divider" aria-hidden="true"></span>
+
+			<button type="button" class="wcb-chip"
+				data-wp-class--wcb-chip-active="state.isRemoteActive"
+				data-wp-on--click="actions.toggleRemote"
+			><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></button>
+
+			<span class="wcb-chip-divider" aria-hidden="true"></span>
+
+			<?php foreach ( $wcb_exp_opts as $wcb_opt ) : ?>
+			<button type="button" class="wcb-chip"
+				data-exp-slug="<?php echo esc_attr( $wcb_opt['slug'] ); ?>"
+				data-wp-class--wcb-chip-active="state.isExpActive"
+				data-wp-on--click="actions.toggleExpChip"
+				data-wp-context='{"expSlug": "<?php echo esc_js( $wcb_opt['slug'] ); ?>"}'
+			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+			<?php endforeach; ?>
+		</div>
+
+		<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">
+			<template data-wp-each--chip="state.activeFilterChips" data-wp-each-key="context.chip.key">
+				<span class="wcb-active-chip">
+					<span data-wp-text="context.chip.label"></span>
+					<button type="button" class="wcb-active-chip-remove"
+						aria-label="<?php esc_attr_e( 'Remove filter', 'wp-career-board' ); ?>"
+						data-wp-on--click="actions.removeFilter"
+					>&times;</button>
+				</span>
+			</template>
+			<button type="button" class="wcb-clear-all" data-wp-on--click="actions.clearFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
+		</div>
+
+		<p class="wcb-results-count" data-wp-text="state.resultsLabel"></p>
 	</div>
 
 	<div
@@ -223,7 +316,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						</span>
 					</div>
 
-					<div class="wcb-card-footer">
+				<p class="wcb-card-excerpt"
+					data-wp-class--wcb-shown="context.job.excerpt"
+					data-wp-text="context.job.excerpt"
+				></p>
+
+				<div class="wcb-card-footer">
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
