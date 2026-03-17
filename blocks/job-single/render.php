@@ -101,6 +101,23 @@ $wcb_can_apply = is_user_logged_in() && (
 // Guests may always apply — the endpoint accepts unauthenticated submissions.
 $wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
 
+// ── Job owner check — employers see "View Applications" instead of "Apply Now" ─
+$wcb_is_job_owner = is_user_logged_in()
+	&& ( get_current_user_id() === (int) $wcb_job->post_author
+		|| ( function_exists( 'wp_is_ability_granted' ) && wp_is_ability_granted( 'wcb_manage_settings' ) ) );
+
+if ( $wcb_is_job_owner ) {
+	$wcb_show_apply = false;
+}
+
+$wcb_dashboard_url = '';
+if ( $wcb_is_job_owner ) {
+	$wcb_js_settings = (array) get_option( 'wcb_settings', array() );
+	if ( ! empty( $wcb_js_settings['employer_dashboard_page'] ) ) {
+		$wcb_dashboard_url = (string) get_permalink( (int) $wcb_js_settings['employer_dashboard_page'] );
+	}
+}
+
 // ── Bookmark state ────────────────────────────────────────────────────────────
 $wcb_current_user_id = get_current_user_id();
 $wcb_bookmarks       = $wcb_current_user_id
@@ -244,7 +261,14 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-hero-cta">
-			<?php if ( $wcb_show_apply ) : ?>
+			<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
+				<a
+					href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
+					class="wcb-btn wcb-btn--primary"
+				>
+					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
+				</a>
+			<?php elseif ( $wcb_show_apply ) : ?>
 				<button
 					type="button"
 					class="wcb-btn wcb-btn--primary wcb-apply-trigger"
@@ -364,7 +388,14 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
-				<?php if ( $wcb_show_apply ) : ?>
+				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
+					<a
+						href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
+						class="wcb-btn wcb-btn--primary wcb-btn--full"
+					>
+						<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
+					</a>
+				<?php elseif ( $wcb_show_apply ) : ?>
 					<button
 						type="button"
 						class="wcb-btn wcb-btn--primary wcb-btn--full"

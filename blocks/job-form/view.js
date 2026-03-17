@@ -144,6 +144,16 @@ store(
 				return ! ! state.validationError;
 			},
 
+			// ── Edit mode ─────────────────────────────────────────────────────────
+			get isEditing() {
+				const { state } = store( 'wcb-job-form' );
+				return state.editJobId > 0;
+			},
+			get submitLabel() {
+				const { state } = store( 'wcb-job-form' );
+				return state.editJobId > 0 ? 'Update Job' : 'Post Job';
+			},
+
 			// ── Preview badge display names (slug → term name via PHP-injected map) ──
 			get typeDisplay() {
 				const { state } = store( 'wcb-job-form' );
@@ -256,10 +266,13 @@ store(
 						wcb_captcha_token: captchaToken,
 					};
 
-					const response = yield fetch(
-						state.apiBase + '/jobs',
+					const isEdit   = state.editJobId > 0;
+				const response = yield fetch(
+						isEdit
+							? state.apiBase + '/jobs/' + String( state.editJobId )
+							: state.apiBase + '/jobs',
 						{
-							method:  'POST',
+							method:  isEdit ? 'PATCH' : 'POST',
 							headers: {
 								'X-WP-Nonce':   state.nonce,
 								'Content-Type': 'application/json',

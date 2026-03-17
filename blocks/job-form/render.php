@@ -87,6 +87,35 @@ $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true )
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
+// ── Edit mode — pre-populate from existing job ──────────────────────────────
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
+$wcb_edit_id  = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
+$wcb_edit_job = null;
+$wcb_e_cats   = array();
+$wcb_e_types  = array();
+$wcb_e_locs   = array();
+$wcb_e_exps   = array();
+$wcb_e_tags   = array();
+
+if ( $wcb_edit_id > 0 ) {
+	$wcb_edit_job = get_post( $wcb_edit_id );
+	$wcb_can_edit = $wcb_edit_job instanceof \WP_Post
+		&& 'wcb_job' === $wcb_edit_job->post_type
+		&& ( (int) $wcb_edit_job->post_author === $wcb_user_id
+			|| ( function_exists( 'wp_is_ability_granted' ) && wp_is_ability_granted( 'wcb_manage_settings' ) ) );
+
+	if ( ! $wcb_can_edit ) {
+		echo '<p>' . esc_html__( 'You are not authorized to edit this job.', 'wp-career-board' ) . '</p>';
+		return;
+	}
+
+	$wcb_e_cats  = wp_get_object_terms( $wcb_edit_id, 'wcb_category', array( 'fields' => 'slugs' ) );
+	$wcb_e_types = wp_get_object_terms( $wcb_edit_id, 'wcb_job_type', array( 'fields' => 'slugs' ) );
+	$wcb_e_locs  = wp_get_object_terms( $wcb_edit_id, 'wcb_location', array( 'fields' => 'slugs' ) );
+	$wcb_e_exps  = wp_get_object_terms( $wcb_edit_id, 'wcb_experience', array( 'fields' => 'slugs' ) );
+	$wcb_e_tags  = wp_get_object_terms( $wcb_edit_id, 'wcb_tag', array( 'fields' => 'slugs' ) );
+}
+
 // ── Default currency: employer preference → site admin setting → USD ──────────
 $wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
 if ( ! $wcb_preferred ) {
@@ -119,22 +148,23 @@ $wcb_currencies = array(
 $wcb_initial_state = apply_filters(
 	'wcb_job_form_initial_state',
 	array(
+		'editJobId'         => $wcb_edit_id,
 		'step'              => 1,
-		'title'             => '',
-		'description'       => '',
-		'salaryMin'         => '',
-		'salaryMax'         => '',
-		'currencyCode'      => $wcb_default_currency,
-		'salaryType'        => 'yearly',
-		'remote'            => false,
-		'deadline'          => '',
-		'applyUrl'          => '',
-		'applyEmail'        => '',
-		'locationSlug'      => '',
-		'typeSlug'          => '',
-		'categorySlug'      => '',
-		'expSlug'           => '',
-		'tags'              => '',
+		'title'             => $wcb_edit_job ? $wcb_edit_job->post_title : '',
+		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
+		'salaryMin'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
+		'salaryMax'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
+		'currencyCode'      => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency ) : $wcb_default_currency,
+		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
+		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '',
+		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
+		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
+		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
+		'typeSlug'          => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
+		'categorySlug'      => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
+		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
+		'tags'              => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
 		'companyName'       => $wcb_company_name,
 		'submitting'        => false,
 		'submitted'         => false,
@@ -649,7 +679,7 @@ $wcb_step_labels = array(
 					data-wp-bind--disabled="state.submitting"
 					data-wp-class--wcb-is-submitting="state.submitting"
 				>
-					<span class="wcb-btn__label"><?php esc_html_e( 'Post Job', 'wp-career-board' ); ?></span>
+					<span class="wcb-btn__label" data-wp-text="state.submitLabel"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Update Job', 'wp-career-board' ) : __( 'Post Job', 'wp-career-board' ) ); ?></span>
 					<span class="wcb-btn__spinner">
 						<svg class="wcb-spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
 						<?php esc_html_e( 'Posting…', 'wp-career-board' ); ?>
