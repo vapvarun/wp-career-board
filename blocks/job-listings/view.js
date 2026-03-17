@@ -244,9 +244,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 			ctx.job.bookmarked = ! wasBookmarked;
 
-			const method = wasBookmarked ? 'DELETE' : 'POST';
-			const response = yield fetch( state.apiBase + '/bookmarks/' + jobId, {
-				method,
+			const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {
+				method: 'POST',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
 

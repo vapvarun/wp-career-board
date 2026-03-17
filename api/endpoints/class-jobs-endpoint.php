@@ -197,8 +197,11 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
-		$args['orderby'] = (string) $request->get_param( 'orderby' );
-		$args['order']   = (string) $request->get_param( 'order' );
+		$orderby = $request->get_param( 'orderby' );
+		if ( $orderby ) {
+			$args['orderby'] = (string) $orderby;
+			$args['order']   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
+		}
 
 		$cache_key    = $this->get_items_cache_key( $args );
 		$cached_value = get_transient( $cache_key );

@@ -196,6 +196,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 <div
 	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-listings"
+	data-wp-init="callbacks.init"
 >
 	<div class="wcb-listings-header">
 		<div class="wcb-search-sort-row">
