@@ -153,12 +153,22 @@ $wcb_state = array(
 	'size'      => '',
 );
 
+$wcb_ca_settings     = (array) get_option( 'wcb_settings', array() );
+$wcb_ca_archive_id   = (int) ( $wcb_ca_settings['company_archive_page'] ?? 0 );
+$wcb_ca_page_heading = ( $wcb_ca_archive_id && (int) get_queried_object_id() === $wcb_ca_archive_id )
+	? (string) get_the_title( $wcb_ca_archive_id )
+	: '';
+
 wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 ?>
 <div
 	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-company-archive"
 >
+
+	<?php if ( $wcb_ca_page_heading ) : ?>
+	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
+	<?php endif; ?>
 
 	<?php /* ── Toolbar: results count + filters + layout toggle ── */ ?>
 	<div class="wcb-ca-toolbar">

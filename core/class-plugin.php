@@ -72,6 +72,8 @@ final class Plugin {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_patterns' ) );
+		add_filter( 'body_class', array( $this, 'add_page_class' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 
 		if ( is_admin() ) {
 			if ( class_exists( \WCB\Admin\Admin::class ) ) {
@@ -221,6 +223,55 @@ final class Plugin {
 		foreach ( $patterns as $pattern ) {
 			register_block_pattern( $pattern['name'], $pattern );
 		}
+	}
+
+	/**
+	 * Add `wcb-page` body class on any page configured as a WCB app page.
+	 *
+	 * @since 1.0.0
+	 * @param string[] $classes Existing body classes.
+	 * @return string[]
+	 */
+	public function add_page_class( array $classes ): array {
+		$page_id = (int) get_queried_object_id();
+		if ( ! $page_id ) {
+			return $classes;
+		}
+
+		$settings  = (array) get_option( 'wcb_settings', array() );
+		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page', 'company_archive_page' );
+		$page_ids  = array_values( array_filter( array_map( static fn( string $key ): int => (int) ( $settings[ $key ] ?? 0 ), $page_keys ) ) );
+
+		/**
+		 * Filter the page IDs that receive the `wcb-page` body class.
+		 *
+		 * Pro and other add-ons append their own mapped page IDs here.
+		 *
+		 * @since 1.0.0
+		 * @param int[] $page_ids Array of WordPress page IDs.
+		 */
+		$page_ids = (array) apply_filters( 'wcb_app_page_ids', $page_ids );
+
+		if ( in_array( $page_id, $page_ids, true ) ) {
+			$classes[] = 'wcb-page';
+		}
+
+		return $classes;
+	}
+
+	/**
+	 * Enqueue global frontend stylesheet.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function enqueue_frontend_styles(): void {
+		wp_enqueue_style(
+			'wcb-frontend',
+			WCB_URL . 'assets/css/frontend.css',
+			array(),
+			WCB_VERSION
+		);
 	}
 
 	/**

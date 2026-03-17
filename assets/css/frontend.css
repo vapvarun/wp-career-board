@@ -1,0 +1,28 @@
+/* ── WP Career Board — global frontend styles ────────────────────────────── */
+
+/* Suppress the theme's page title on WCB app / archive pages. */
+.wcb-page .entry-title,
+.wcb-page .page-title,
+.wcb-page h1.post-title,
+.wcb-page .wp-block-post-title {
+	display: none !important;
+}
+
+/* Suppress the theme sidebar on WCB app / archive pages. */
+.wcb-page #secondary,
+.wcb-page .widget-area,
+.wcb-page aside.sidebar,
+.wcb-page .sidebar-area,
+.wcb-page .site-sidebar,
+.wcb-page #sidebar {
+	display: none !important;
+}
+
+/* ── Page heading — rendered inside listing blocks ───────────────────────── */
+.wcb-page-heading {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #0f172a;
+	margin: 0 0 1.5rem;
+	line-height: 1.2;
+}

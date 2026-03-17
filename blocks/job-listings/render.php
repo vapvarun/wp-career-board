@@ -191,6 +191,11 @@ $wcb_state = array(
 	),
 );
 
+$wcb_archive_page_id = (int) ( $wcb_site_settings['jobs_archive_page'] ?? 0 );
+$wcb_page_heading    = ( $wcb_archive_page_id && (int) get_queried_object_id() === $wcb_archive_page_id )
+	? (string) get_the_title( $wcb_archive_page_id )
+	: '';
+
 wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 ?>
 <div
@@ -198,6 +203,9 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	data-wp-interactive="wcb-job-listings"
 	data-wp-init="callbacks.init"
 >
+	<?php if ( $wcb_page_heading ) : ?>
+	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
+	<?php endif; ?>
 	<div class="wcb-listings-header">
 		<div class="wcb-search-sort-row">
 			<div class="wcb-search-wrap">
