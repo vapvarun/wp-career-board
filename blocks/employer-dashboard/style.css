@@ -1037,6 +1037,63 @@
 	outline-offset: 1px;
 }
 
+/* ── Logo upload field ────────────────────────────────────────────────────── */
+.wcb-logo-field {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.wcb-logo-current {
+	display: none;
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 1px solid var( --wcb-border );
+}
+
+.wcb-logo-current.wcb-shown {
+	display: block;
+}
+
+.wcb-logo-input {
+	display: none;
+}
+
+.wcb-logo-upload-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 14px;
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var( --wcb-text );
+	background: var( --wcb-bg );
+	cursor: pointer;
+	transition: border-color 0.15s;
+}
+
+.wcb-logo-upload-label:hover {
+	border-color: var( --wcb-primary );
+	color: var( --wcb-primary );
+}
+
+.wcb-preview-logo-img {
+	display: none;
+	width: 48px;
+	height: 48px;
+	object-fit: cover;
+	border-radius: 6px;
+	margin-bottom: 12px;
+}
+
+.wcb-preview-logo-img.wcb-shown {
+	display: block;
+}
+
 /* ── Company profile form ─────────────────────────────────────────────────── */
 .wcb-profile-form {
 	background: #fff;

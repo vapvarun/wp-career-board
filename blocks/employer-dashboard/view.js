@@ -202,6 +202,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return d.length > 120 ? d.slice( 0, 120 ) + '\u2026' : d;
 		},
 
+		get logoUploadLabel() {
+			if ( state.logoUploading ) return 'Uploading\u2026';
+			return state.companyLogoUrl ? 'Change Logo' : 'Upload Logo';
+		},
+
 		// Legacy heading used by some templates.
 		get appsHeading() {
 			return state.appsJobTitle
@@ -436,6 +441,34 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const field = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
+			}
+		},
+
+		*uploadLogo( event ) {
+			const file = event.target.files[ 0 ];
+			if ( ! file ) {
+				return;
+			}
+			state.logoUploading = true;
+			try {
+				const fd = new FormData();
+				fd.append( 'logo', file );
+				const response = yield fetch(
+					state.apiBase + '/employers/' + String( state.companyId ) + '/logo',
+					{
+						method:  'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+						body:    fd,
+					}
+				);
+				if ( response.ok ) {
+					const data          = yield response.json();
+					state.companyLogoUrl = data.logo_url;
+				}
+			} catch {
+				// Upload failed — user can retry.
+			} finally {
+				state.logoUploading = false;
 			}
 		},
 

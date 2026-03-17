@@ -42,6 +42,7 @@ $wcb_company_site    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_ind     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
 $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
+$wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
 $wcb_settings        = (array) get_option( 'wcb_settings', array() );
 $wcb_post_job_url    = ! empty( $wcb_settings['post_job_page'] )
@@ -79,6 +80,8 @@ wp_interactivity_state(
 		'companyIndustry'   => $wcb_company_ind,
 		'companySize'       => $wcb_company_size,
 		'companyHq'         => $wcb_company_hq,
+		'companyLogoUrl'    => $wcb_company_logo,
+		'logoUploading'     => false,
 		'saving'            => false,
 		'saved'             => false,
 		'companyDirUrl'     => $wcb_company_dir_url,
@@ -354,6 +357,16 @@ wp_interactivity_state(
 			<div class="wcb-profile-grid">
 				<div class="wcb-profile-form">
 					<div class="wcb-field-group">
+						<label class="wcb-field-label"><?php esc_html_e( 'Company Logo', 'wp-career-board' ); ?></label>
+						<div class="wcb-logo-field">
+							<img class="wcb-logo-current" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" width="64" height="64" />
+							<label class="wcb-logo-upload-label" for="wcb-company-logo">
+								<span data-wp-text="state.logoUploadLabel"></span>
+							</label>
+							<input id="wcb-company-logo" type="file" class="wcb-logo-input" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
+						</div>
+					</div>
+					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
 						<input id="wcb-company-name" type="text" class="wcb-field-input" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />
 					</div>
@@ -423,6 +436,7 @@ wp_interactivity_state(
 				<div class="wcb-preview-card">
 					<h3 class="wcb-preview-title"><?php esc_html_e( 'Live Preview', 'wp-career-board' ); ?></h3>
 					<div class="wcb-preview-body">
+						<img class="wcb-preview-logo-img" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" />
 						<p class="wcb-preview-name" data-wp-text="state.companyName"></p>
 						<p class="wcb-preview-tagline" data-wp-text="state.companyTagline"></p>
 						<p class="wcb-preview-desc" data-wp-text="state.companyDescExcerpt"></p>

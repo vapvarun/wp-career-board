@@ -82,6 +82,16 @@ final class EmployersEndpoint extends RestController {
 
 		register_rest_route(
 			$this->namespace,
+			'/employers/(?P<id>\d+)/logo',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'upload_logo' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/employers/me/jobs',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -419,7 +429,50 @@ final class EmployersEndpoint extends RestController {
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
-		// --- Permission callbacks ---------------------------------------------------
+		/**
+		 * Upload a logo image and set it as the company post thumbnail.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param \WP_REST_Request $request Full request object.
+		 * @return \WP_REST_Response|\WP_Error
+		 */
+	public function upload_logo( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Company not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- REST API verifies nonce via X-WP-Nonce header in permission_callback.
+		if ( empty( $_FILES['logo'] ) ) {
+			return new \WP_Error(
+				'wcb_no_file',
+				__( 'No file uploaded.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+
+		$attachment_id = media_handle_upload( 'logo', $post->ID );
+		if ( is_wp_error( $attachment_id ) ) {
+			return $attachment_id;
+		}
+
+		set_post_thumbnail( $post->ID, $attachment_id );
+
+		return rest_ensure_response(
+			array( 'logo_url' => (string) get_the_post_thumbnail_url( $post->ID, 'medium' ) )
+		);
+	}
+
+	// --- Permission callbacks ---------------------------------------------------
 
 	/**
 	 * Check if the current user can create a company.
