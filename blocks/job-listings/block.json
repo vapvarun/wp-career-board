@@ -6,13 +6,26 @@
   "title": "Job Listings",
   "category": "widgets",
   "description": "Reactive job listings grid with infinite scroll and bookmark toggle.",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {
-    "perPage": { "type": "integer", "default": 0 },
-    "layout": { "type": "string", "default": "grid", "enum": ["grid", "list"] }
+    "perPage": {
+      "type": "integer",
+      "default": 0
+    },
+    "layout": {
+      "type": "string",
+      "default": "grid",
+      "enum": [
+        "grid",
+        "list"
+      ]
+    }
   },
   "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
-  "supports": { "interactivity": true }
+  "supports": {
+    "interactivity": true
+  }
 }

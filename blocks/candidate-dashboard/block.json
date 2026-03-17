@@ -6,9 +6,12 @@
   "title": "Candidate Dashboard",
   "category": "widgets",
   "description": "Tabbed candidate dashboard: My Applications and Saved Jobs.",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
-  "supports": { "interactivity": true }
+  "supports": {
+    "interactivity": true
+  }
 }

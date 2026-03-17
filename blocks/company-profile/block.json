@@ -6,12 +6,18 @@
   "title": "Company Profile",
   "category": "widgets",
   "description": "Public company profile with owner inline-edit and active job listings.",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {
-    "companyId": { "type": "integer", "default": 0 }
+    "companyId": {
+      "type": "integer",
+      "default": 0
+    }
   },
   "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
-  "supports": { "interactivity": true }
+  "supports": {
+    "interactivity": true
+  }
 }

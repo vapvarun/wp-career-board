@@ -6,9 +6,12 @@
   "title": "Job Filters",
   "category": "widgets",
   "description": "Taxonomy filter dropdowns for the job listings grid.",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
-  "supports": { "interactivity": true }
+  "supports": {
+    "interactivity": true
+  }
 }

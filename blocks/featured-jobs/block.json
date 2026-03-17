@@ -6,9 +6,13 @@
   "title": "Featured Jobs",
   "category": "widgets",
   "description": "Static server-rendered grid of featured jobs (no Interactivity API).",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {
-    "perPage": { "type": "integer", "default": 3 }
+    "perPage": {
+      "type": "integer",
+      "default": 3
+    }
   },
   "style": "file:./style.css",
   "render": "file:./render.php"

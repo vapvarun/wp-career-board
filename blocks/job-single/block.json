@@ -6,9 +6,12 @@
   "title": "Job Single",
   "category": "widgets",
   "description": "Full job detail view with a slide-in application panel.",
+  "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
-  "supports": { "interactivity": true }
+  "supports": {
+    "interactivity": true
+  }
 }
