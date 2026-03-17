@@ -624,6 +624,14 @@ final class JobsEndpoint extends RestController {
 					'cover_letter'    => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
 					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
 					'submitted_at'    => get_the_date( 'M j, Y', $p ),
+					'resume_url'      => ( static function () use ( $p ): ?string {
+						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
+						if ( $att_id <= 0 ) {
+							return null;
+						}
+						$url = wp_get_attachment_url( $att_id );
+						return false !== $url ? $url : null;
+					} )(),
 				);
 			},
 			$posts

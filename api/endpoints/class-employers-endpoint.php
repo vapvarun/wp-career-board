@@ -72,6 +72,16 @@ final class EmployersEndpoint extends RestController {
 
 		register_rest_route(
 			$this->namespace,
+			'/employers/(?P<id>\d+)/applications',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_applications' ),
+				'permission_callback' => array( $this, 'get_applications_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/employers/me/jobs',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -288,6 +298,7 @@ final class EmployersEndpoint extends RestController {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
+				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 
 				$status_labels = array(
 					'publish' => 'Published',
@@ -309,6 +320,7 @@ final class EmployersEndpoint extends RestController {
 						: __( 'No applicants', 'wp-career-board' ),
 					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
 					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
 			$query->posts
@@ -320,7 +332,94 @@ final class EmployersEndpoint extends RestController {
 		return $response;
 	}
 
-	// --- Permission callbacks ---------------------------------------------------
+	/**
+	 * Return all applications across all jobs owned by the given company.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company = get_post( (int) $request['id'] );
+		if ( ! $company || 'wcb_company' !== $company->post_type ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Company not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Fetch all jobs for this employer (any status).
+		$job_ids = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_author'    => (int) $company->post_author,
+				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( empty( $job_ids ) ) {
+			return rest_ensure_response( array() );
+		}
+
+		global $wpdb;
+		$placeholders = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$sql  = $wpdb->prepare(
+			"SELECT p.ID, p.post_date FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_wcb_job_id' WHERE p.post_type = 'wcb_application' AND p.post_status = 'publish' AND pm.meta_value IN ({$placeholders}) ORDER BY p.post_date DESC LIMIT 20",
+			...$job_ids
+		);
+		$rows = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		$items = array_map(
+			static function ( object $row ): array {
+				$app_id         = (int) $row->ID;
+				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
+				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
+				$status_raw     = (string) get_post_meta( $app_id, '_wcb_status', true );
+				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
+
+				return array(
+					'id'              => $app_id,
+					'job_id'          => $job_id,
+					'job_title'       => $job_id > 0 ? get_the_title( $job_id ) : '',
+					'applicant_name'  => $candidate_user
+						? $candidate_user->display_name
+						: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
+					'applicant_email' => $candidate_user
+						? $candidate_user->user_email
+						: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
+					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
+					'submitted_at'    => get_the_date( 'M j, Y', $app_id ),
+				);
+			},
+			$rows
+		);
+
+		return rest_ensure_response( $items );
+	}
+
+	/**
+	 * Check if the current user can view applications for the given company.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function get_applications_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		$post     = get_post( (int) $request['id'] );
+		$is_owner = $post && get_current_user_id() === (int) $post->post_author
+			&& $this->check_ability( 'wcb_view_applications' );
+		$is_admin = $this->check_ability( 'wcb_manage_settings' );
+		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+	}
+
+		// --- Permission callbacks ---------------------------------------------------
 
 	/**
 	 * Check if the current user can create a company.
@@ -367,6 +466,11 @@ final class EmployersEndpoint extends RestController {
 	 * @return string Absolute URL.
 	 */
 	private function get_job_form_page_url(): string {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		if ( ! empty( $settings['post_job_page'] ) ) {
+			return (string) get_permalink( (int) $settings['post_job_page'] );
+		}
+
 		$pages = get_posts(
 			array(
 				'post_type'      => 'page',
