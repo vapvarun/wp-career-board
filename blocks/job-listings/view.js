@@ -188,7 +188,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 		* fetchJobs() {
 			state.loading = true;
 
-			const url = new URL( state.apiBase + '/jobs' );
+			const url = new URL( state.apiBase );
 			url.searchParams.set( 'per_page', state.perPage );
 			url.searchParams.set( 'page', state.page );
 
