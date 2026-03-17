@@ -110,7 +110,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'logo'       => $wcb_logo_url,
 		'tagline'    => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
 		'industry'   => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
-		'size_label' => ( $wcb_size_labels[ $wcb_size ] ? $wcb_size_labels[ $wcb_size ] : $wcb_size ),
+		'size_label' => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
 		'hq'         => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
 		'verified'   => in_array( $wcb_trust, array( 'verified', 'trusted', 'premium' ), true ),
 		'permalink'  => get_permalink( $wcb_co_id ),
