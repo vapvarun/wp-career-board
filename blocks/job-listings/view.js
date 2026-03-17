@@ -1,154 +1,286 @@
 /**
- * WP Career Board — job-listings block Interactivity API store.
- *
- * Actions:
- *   setGrid / setList  — toggle layout without a page reload.
- *   loadMore           — fetch the next page of jobs from /wcb/v1/jobs.
- *   toggleBookmark     — POST to /wcb/v1/jobs/{id}/bookmark and flip context.job.bookmarked.
- *
- * Event listener:
- *   wcb:search  — fired by job-search / job-filters blocks; resets the list
- *                 and re-fetches page 1 with updated search/filter params.
+ * Job Listings block — Interactivity API store.
  *
  * @package WP_Career_Board
+ * @since   1.0.0
  */
+
 import { store, getContext } from '@wordpress/interactivity';
 
-const { state } = store( 'wcb-job-listings', {
+let searchDebounceTimer = null;
+
+const { state, actions } = store( 'wcb-job-listings', {
 	state: {
+		// ── Derived: layout ──────────────────────────────────────────
 		get isGrid() {
 			return state.layout === 'grid';
 		},
 		get isList() {
 			return state.layout === 'list';
 		},
-		get bookmarkLabel() {
+
+		// ── Derived: filter state ─────────────────────────────────────
+		get noActiveFilters() {
+			return Object.keys( state.activeFilters ).length === 0;
+		},
+		get hasActiveFilters() {
+			return Object.keys( state.activeFilters ).length > 0;
+		},
+
+		/**
+		 * Loop-context getter — ONLY valid inside data-wp-each--chip on
+		 * filterOptions.types. Returns true when this chip's typeSlug is active.
+		 */
+		get isTypeActive() {
 			const ctx = getContext();
-			return ctx.job && ctx.job.bookmarked ? 'Remove bookmark' : 'Bookmark job';
+			return !! state.activeFilters[ 'type_' + ctx.typeSlug ];
 		},
+
+		/**
+		 * Loop-context getter — ONLY valid inside data-wp-each--chip on
+		 * filterOptions.experiences. Returns true when this chip's expSlug is active.
+		 */
+		get isExpActive() {
+			const ctx = getContext();
+			return !! state.activeFilters[ 'exp_' + ctx.expSlug ];
+		},
+
+		get isRemoteActive() {
+			return !! state.activeFilters.remote;
+		},
+
+		/** Array of { key, label } for active filter pills. */
+		get activeFilterChips() {
+			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
+				let label = value;
+				if ( key.startsWith( 'type_' ) ) {
+					const slug = key.slice( 5 );
+					const match = state.filterOptions.types.find( ( t ) => t.slug === slug );
+					label = match ? match.name : slug;
+				} else if ( key.startsWith( 'exp_' ) ) {
+					const slug = key.slice( 4 );
+					const match = state.filterOptions.experiences.find( ( e ) => e.slug === slug );
+					label = match ? match.name : slug;
+				}
+				return { key, label };
+			} );
+		},
+
 		get resultsLabel() {
-			const count = state.jobs.length;
-			return count === 1 ? '1 job found' : count + ' jobs found';
+			const shown = state.jobs.length;
+			const total = state.totalCount;
+			if ( shown >= total ) {
+				return total === 1
+					? '1 job'
+					: `${ total } jobs`;
+			}
+			return `${ shown } of ${ total } jobs`;
 		},
+
+		// ── Derived: job list ─────────────────────────────────────────
 		get hasNoJobs() {
 			return ! state.loading && state.jobs.length === 0;
+		},
+
+		// ── Derived: bookmark ─────────────────────────────────────────
+		get bookmarkLabel() {
+			const ctx = getContext();
+			return ctx.job?.bookmarked
+				? 'Remove bookmark'
+				: 'Bookmark job';
 		},
 	},
 
 	actions: {
-		setGrid() {
-			state.layout = 'grid';
+		// ── Search ────────────────────────────────────────────────────
+		updateSearch( event ) {
+			state.searchQuery = event.target.value;
+			clearTimeout( searchDebounceTimer );
+			searchDebounceTimer = setTimeout( () => {
+				store( 'wcb-job-listings' ).actions.applyFilters();
+			}, 400 );
 		},
 
-		setList() {
-			state.layout = 'list';
+		// ── Sort ──────────────────────────────────────────────────────
+		* changeSort( event ) {
+			state.sortBy = event.target.value;
+			yield actions.applyFilters();
 		},
 
-		*loadMore() {
-			if ( state.loading ) {
-				return;
-			}
-			state.loading = true;
-			state.page++;
-
-			try {
-				const url = new URL( state.apiBase );
-				url.searchParams.set( 'page', String( state.page ) );
-				url.searchParams.set( 'per_page', String( state.perPage ) );
-
-				// Forward any active search/filter params from the page URL.
-				const searchParams = new URLSearchParams( window.location.search );
-				for ( const [ key, val ] of searchParams ) {
-					url.searchParams.set( key, val );
-				}
-
-				const response = yield fetch( url.toString() );
-
-				if ( ! response.ok ) {
-					state.page--;
-					return;
-				}
-
-				const jobs = yield response.json();
-				state.jobs.push( ...jobs );
-				state.hasMore = jobs.length === state.perPage;
-			} catch {
-				state.page--;
-			} finally {
-				state.loading = false;
-			}
-		},
-
-		*toggleBookmark() {
+		// ── Type chip ─────────────────────────────────────────────────
+		* toggleTypeChip() {
 			const ctx = getContext();
-			const job = ctx.job;
-
-			try {
-				const response = yield fetch(
-					state.apiBase + '/' + String( job.id ) + '/bookmark',
-					{
-						method: 'POST',
-						headers: {
-							'X-WP-Nonce': state.nonce,
-							'Content-Type': 'application/json',
-						},
-					}
-				);
-
-				if ( ! response.ok ) {
-					return;
-				}
-
-				const data     = yield response.json();
-				job.bookmarked = data.bookmarked;
-			} catch {
-				// Bookmark toggle failed silently — no UI disruption needed.
+			const key = 'type_' + ctx.typeSlug;
+			if ( state.activeFilters[ key ] ) {
+				const next = { ...state.activeFilters };
+				delete next[ key ];
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ key ]: ctx.typeSlug,
+				};
 			}
+			yield actions.applyFilters();
+		},
+
+		// ── Experience chip ───────────────────────────────────────────
+		* toggleExpChip() {
+			const ctx = getContext();
+			const key = 'exp_' + ctx.expSlug;
+			if ( state.activeFilters[ key ] ) {
+				const next = { ...state.activeFilters };
+				delete next[ key ];
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ key ]: ctx.expSlug,
+				};
+			}
+			yield actions.applyFilters();
+		},
+
+		// ── Remote toggle ─────────────────────────────────────────────
+		* toggleRemote() {
+			if ( state.activeFilters.remote ) {
+				const next = { ...state.activeFilters };
+				delete next.remote;
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = { ...state.activeFilters, remote: '1' };
+			}
+			yield actions.applyFilters();
+		},
+
+		// ── Remove single filter pill ─────────────────────────────────
+		* removeFilter() {
+			const ctx = getContext();
+			const key = ctx.chip?.key;
+			if ( ! key ) return;
+			const next = { ...state.activeFilters };
+			delete next[ key ];
+			state.activeFilters = next;
+			yield actions.applyFilters();
+		},
+
+		// ── Clear all filters ─────────────────────────────────────────
+		* clearFilters() {
+			state.activeFilters = {};
+			state.searchQuery = '';
+			yield actions.applyFilters();
+		},
+
+		// ── Apply filters (reset to page 1) ───────────────────────────
+		* applyFilters() {
+			state.page = 1;
+			yield actions.fetchJobs();
+		},
+
+		// ── Load more (append next page) ──────────────────────────────
+		* loadMore() {
+			if ( ! state.hasMore || state.loading ) return;
+			state.page += 1;
+			yield actions.fetchJobs();
+		},
+
+		// ── Core fetch ────────────────────────────────────────────────
+		* fetchJobs() {
+			state.loading = true;
+
+			const url = new URL( state.apiBase + '/jobs' );
+			url.searchParams.set( 'per_page', state.perPage );
+			url.searchParams.set( 'page', state.page );
+
+			if ( state.searchQuery ) {
+				url.searchParams.set( 'search', state.searchQuery );
+			}
+
+			// Sort
+			if ( state.sortBy === 'date_asc' ) {
+				url.searchParams.set( 'orderby', 'date' );
+				url.searchParams.set( 'order', 'ASC' );
+			} else {
+				url.searchParams.set( 'orderby', 'date' );
+				url.searchParams.set( 'order', 'DESC' );
+			}
+
+			// Active filters
+			for ( const [ key, value ] of Object.entries( state.activeFilters ) ) {
+				if ( key.startsWith( 'type_' ) ) {
+					url.searchParams.append( 'type', value );
+				} else if ( key.startsWith( 'exp_' ) ) {
+					url.searchParams.append( 'experience', value );
+				} else if ( key === 'remote' ) {
+					url.searchParams.set( 'remote', '1' );
+				}
+			}
+
+			const response = yield fetch( url.toString(), {
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+
+			const total = parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 );
+			const data = yield response.json();
+
+			state.totalCount = total;
+			if ( state.page === 1 ) {
+				state.jobs = data;
+			} else {
+				state.jobs = [ ...state.jobs, ...data ];
+			}
+			state.hasMore = state.jobs.length < total;
+			state.loading = false;
+		},
+
+		// ── Bookmark ──────────────────────────────────────────────────
+		* toggleBookmark() {
+			const ctx = getContext();
+			const jobId = ctx.job.id;
+			const wasBookmarked = ctx.job.bookmarked;
+
+			ctx.job.bookmarked = ! wasBookmarked;
+
+			const method = wasBookmarked ? 'DELETE' : 'POST';
+			yield fetch( state.apiBase + '/bookmarks/' + jobId, {
+				method,
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
 		},
 	},
-} );
 
-// Respond to search / filter changes dispatched by sibling blocks.
-document.addEventListener( 'wcb:search', function( event ) {
-	const url = new URL( state.apiBase );
-	url.searchParams.set( 'page', '1' );
-	url.searchParams.set( 'per_page', String( state.perPage ) );
-
-	const detail  = ( event.detail !== null && event.detail !== undefined ) ? event.detail : {};
-	const query   = detail.query;
-	const filters = detail.filters;
-
-	if ( query ) {
-		url.searchParams.set( 'search', query );
-	}
-
-	if ( filters ) {
-		Object.keys( filters ).forEach( function( key ) {
-			url.searchParams.set( key, filters[ key ] );
-		} );
-	}
-
-	state.loading = true;
-	state.page    = 1;
-	state.jobs    = [];
-
-	fetch( url.toString() )
-		.then( function( response ) {
-			if ( ! response.ok ) {
-				state.loading = false;
-				return undefined;
-			}
-			return response.json();
-		} )
-		.then( function( jobs ) {
-			if ( ! jobs ) {
-				return;
-			}
-			state.jobs    = jobs;
-			state.hasMore = jobs.length === state.perPage;
-			state.loading = false;
-		} )
-		.catch( function() {
-			state.loading = false;
-		} );
+	callbacks: {
+		init() {
+			// Legacy wcb:search event — sent by wcb/job-search and wcb/job-filters blocks.
+			document.addEventListener( 'wcb:search', ( event ) => {
+				const params = event.detail ?? {};
+				if ( params.search !== undefined ) {
+					state.searchQuery = params.search;
+				}
+				// Re-fetch and update totalCount from header.
+				const url = new URL( state.apiBase + '/jobs' );
+				url.searchParams.set( 'per_page', state.perPage );
+				url.searchParams.set( 'page', 1 );
+				if ( state.searchQuery ) {
+					url.searchParams.set( 'search', state.searchQuery );
+				}
+				fetch( url.toString(), {
+					headers: { 'X-WP-Nonce': state.nonce },
+				} )
+					.then( ( res ) => {
+						state.totalCount = parseInt(
+							res.headers.get( 'X-WCB-Total' ) ?? '0',
+							10
+						);
+						return res.json();
+					} )
+					.then( ( data ) => {
+						state.page = 1;
+						state.jobs = data;
+						state.hasMore = state.jobs.length < state.totalCount;
+						state.loading = false;
+					} );
+			} );
+		},
+	},
 } );
