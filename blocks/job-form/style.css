@@ -3,8 +3,8 @@
  * Example: :root { --wcb-primary: #6d28d9; }
  */
 :root {
-	--wcb-primary:      #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:      #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 }
 
 /* ── Form wrapper ─────────────────────────────────────────────────────────── */
@@ -53,12 +53,12 @@
 
 .wcb-step--active {
 	background: #f8fafc;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	font-weight: 600;
 }
 
 .wcb-step--active .wcb-step__num {
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 }
 
@@ -103,7 +103,7 @@
 .wcb-form-step__title {
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	margin: 0;
 	padding-bottom: 1rem;
 	border-bottom: 1px solid #f1f5f9;
@@ -149,8 +149,8 @@
 
 .wcb-field:focus {
 	outline: none;
-	border-color: var( --wcb-primary, #0f172a );
-	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
 .wcb-field::placeholder {
@@ -205,7 +205,7 @@ textarea.wcb-field {
 	height: 18px;
 	cursor: pointer;
 	flex-shrink: 0;
-	accent-color: var( --wcb-primary, #0f172a );
+	accent-color: var( --wcb-primary, #2563eb );
 }
 
 /* ── Nav row ──────────────────────────────────────────────────────────────── */
@@ -238,13 +238,13 @@ textarea.wcb-field {
 }
 
 .wcb-btn--primary {
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 	margin-left: auto;
 }
 
 .wcb-btn--primary:hover:not( :disabled ) {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 }
 
 .wcb-btn--ghost {
@@ -312,7 +312,7 @@ textarea.wcb-field {
 .wcb-preview-card__title {
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	margin: 0 0 0.2rem;
 }
 

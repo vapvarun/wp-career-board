@@ -201,7 +201,7 @@
 	min-width: 22px;
 	height: 22px;
 	padding: 0 0.4rem;
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 	border-radius: 9999px;
 	font-size: 0.75rem;
@@ -253,7 +253,7 @@
 }
 
 .wcb-cp-detail-item dd a {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: none;
 }
 
@@ -276,7 +276,7 @@
 	width: 16px;
 	height: 16px;
 	border: 2px solid #e2e8f0;
-	border-top-color: var( --wcb-primary, #0f172a );
+	border-top-color: var( --wcb-primary, #2563eb );
 	border-radius: 50%;
 	animation: wcb-spin 0.7s linear infinite;
 }
@@ -322,7 +322,7 @@
 }
 
 .wcb-cp-job-title a:hover {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: underline;
 }
 
@@ -351,7 +351,7 @@
 	display: inline-flex;
 	align-items: center;
 	padding: 0.4rem 1.1rem;
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 	border-radius: 6px;
 	font-size: 0.8125rem;
@@ -362,7 +362,7 @@
 }
 
 .wcb-cp-job-apply:hover {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 	color: #fff;
 	text-decoration: none;
 }

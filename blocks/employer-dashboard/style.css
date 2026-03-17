@@ -1,7 +1,7 @@
 /* ── CSS custom properties ───────────────────────────────────────────────── */
 :root {
-	--wcb-primary:      #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:      #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 }
 
 /* ── Outer wrapper ────────────────────────────────────────────────────────── */
@@ -55,12 +55,12 @@
 }
 
 .wcb-db-btn--primary {
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 }
 
 .wcb-db-btn--primary:hover {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 	color: #fff;
 	text-decoration: none;
 }
@@ -136,8 +136,8 @@
 }
 
 .wcb-tab-btn.wcb-tab-active {
-	color: var( --wcb-primary, #0f172a );
-	border-bottom-color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
+	border-bottom-color: var( --wcb-primary, #2563eb );
 	font-weight: 600;
 }
 
@@ -263,7 +263,7 @@
 }
 
 .wcb-emp-job-title:hover {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: underline;
 }
 
@@ -338,12 +338,12 @@
 }
 
 .wcb-db-link-btn--edit {
-	color: var( --wcb-primary, #0f172a );
-	border-color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
+	border-color: var( --wcb-primary, #2563eb );
 }
 
 .wcb-db-link-btn--edit:hover {
-	background: #0f172a;
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 }
 
@@ -405,8 +405,8 @@
 
 .wcb-field-input:focus {
 	outline: none;
-	border-color: var( --wcb-primary, #0f172a );
-	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
 .wcb-field-textarea {

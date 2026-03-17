@@ -3,8 +3,8 @@
  * Example: :root { --wcb-primary: #6d28d9; }
  */
 :root {
-	--wcb-primary:      #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:      #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 }
 
 /* ── Block wrapper reset — prevent theme double-border ───────────────────── */
@@ -27,8 +27,8 @@
 }
 
 .wcb-search-form:focus-within {
-	border-color: var( --wcb-primary, #0f172a );
-	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
 .wcb-search-input {
@@ -61,7 +61,7 @@
 
 .wcb-search-button {
 	padding: 0.75rem 1.25rem;
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 	border: none;
 	font-size: 0.9375rem;
@@ -73,11 +73,11 @@
 }
 
 .wcb-search-button:hover {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 }
 
 .wcb-search-button:focus-visible {
-	outline: 2px solid var( --wcb-primary, #0f172a );
+	outline: 2px solid var( --wcb-primary, #2563eb );
 	outline-offset: 2px;
 }
 

@@ -1,7 +1,7 @@
 /* ── CSS custom properties (theme-overridable) ───────────────────────────── */
 :root {
-	--wcb-primary:    #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:    #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 	--wcb-avatar-bg:  #1e293b;
 }
 
@@ -31,11 +31,11 @@
 	white-space: nowrap;
 }
 .wcb-btn--primary {
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 }
 .wcb-btn--primary:hover {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 	color: #fff;
 	text-decoration: none;
 }
@@ -150,7 +150,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-hero-company-link:hover {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: underline;
 }
 
@@ -208,8 +208,8 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-bookmark-hero-btn.wcb-bookmarked {
-	border-color: var( --wcb-primary, #0f172a );
-	color: var( --wcb-primary, #0f172a );
+	border-color: var( --wcb-primary, #2563eb );
+	color: var( --wcb-primary, #2563eb );
 	background: #f8fafc;
 }
 
@@ -372,7 +372,7 @@ a.wcb-tag:hover {
 }
 
 .wcb-salary-highlight {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	font-weight: 700 !important;
 }
 
@@ -394,7 +394,7 @@ a.wcb-tag:hover {
 }
 
 a.wcb-company-card-name:hover {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: underline;
 }
 
@@ -410,7 +410,7 @@ a.wcb-company-card-name:hover {
 	align-items: center;
 	gap: 0.25rem;
 	font-size: 0.875rem;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: none;
 	font-weight: 500;
 }
@@ -559,8 +559,8 @@ a.wcb-company-card-name:hover {
 
 .wcb-cover-letter:focus {
 	outline: none;
-	border-color: var( --wcb-primary, #0f172a );
-	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

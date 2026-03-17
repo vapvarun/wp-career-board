@@ -3,8 +3,8 @@
  * Example: :root { --wcb-primary: #6d28d9; }
  */
 :root {
-	--wcb-primary:      #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:      #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 	--wcb-avatar-bg:    #1e293b;
 }
 
@@ -63,7 +63,7 @@
 
 .wcb-layout-btn.wcb-active {
 	background: #fff;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.1 );
 }
 
@@ -159,7 +159,7 @@
 }
 
 .wcb-card-title a:hover {
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: underline;
 }
 
@@ -261,7 +261,7 @@
 	display: none;
 	font-size: 0.875rem;
 	font-weight: 700;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 }
 
 .wcb-card-salary.wcb-shown {
@@ -288,12 +288,12 @@
 }
 
 .wcb-cbtn--apply {
-	background: var( --wcb-primary, #0f172a );
+	background: var( --wcb-primary, #2563eb );
 	color: #fff;
 }
 
 .wcb-cbtn--apply:hover {
-	background: var( --wcb-primary-dark, #020617 );
+	background: var( --wcb-primary-dark, #1d4ed8 );
 	color: #fff;
 	text-decoration: none;
 }
@@ -335,8 +335,8 @@
 }
 
 .wcb-load-more-btn:hover:not( :disabled ) {
-	border-color: var( --wcb-primary, #0f172a );
-	color: var( --wcb-primary, #0f172a );
+	border-color: var( --wcb-primary, #2563eb );
+	color: var( --wcb-primary, #2563eb );
 }
 
 .wcb-load-more-btn:disabled {

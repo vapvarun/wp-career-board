@@ -3,8 +3,8 @@
  * Example: :root { --wcb-primary: #0f172a; }
  */
 :root {
-	--wcb-primary:      #0f172a;
-	--wcb-primary-dark: #020617;
+	--wcb-primary:      #2563eb;
+	--wcb-primary-dark: #1d4ed8;
 	--wcb-avatar-bg:    #1e293b;
 }
 
@@ -51,8 +51,8 @@
 
 .wcb-ca-filter-select:focus {
 	outline: none;
-	border-color: var( --wcb-primary, #0f172a );
-	box-shadow: 0 0 0 3px rgba( 15, 23, 42, 0.08 );
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
 /* ── Layout toggle ───────────────────────────────────────────────────────────── */
@@ -95,7 +95,7 @@
 
 .wcb-layout-btn.wcb-active {
 	background: #fff;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.1 );
 }
 
@@ -309,7 +309,7 @@
 .wcb-ca-cta {
 	font-size: 0.8125rem;
 	font-weight: 600;
-	color: var( --wcb-primary, #0f172a );
+	color: var( --wcb-primary, #2563eb );
 	white-space: nowrap;
 	flex-shrink: 0;
 }
@@ -346,8 +346,8 @@
 }
 
 .wcb-load-more-btn:hover:not( :disabled ) {
-	border-color: var( --wcb-primary, #0f172a );
-	color: var( --wcb-primary, #0f172a );
+	border-color: var( --wcb-primary, #2563eb );
+	color: var( --wcb-primary, #2563eb );
 }
 
 .wcb-load-more-btn:disabled {
