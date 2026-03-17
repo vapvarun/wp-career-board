@@ -234,63 +234,91 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 		<?php endif; ?>
 
 		<?php
-		/* ── Open Positions — server-side rendered ── */
+		/* ── Open Positions — Interactivity API (paginated) ── */
+		$wcb_cp_per_page  = 10;
+		$wcb_cp_author_id = (int) $wcb_company->post_author;
+
 		$wcb_open_jobs = get_posts(
 			array(
 				'post_type'      => 'wcb_job',
-				'post_author'    => (int) $wcb_company->post_author,
+				'post_author'    => $wcb_cp_author_id,
 				'post_status'    => 'publish',
-				'posts_per_page' => 20,
+				'posts_per_page' => $wcb_cp_per_page,
 				'orderby'        => 'date',
 				'order'          => 'DESC',
+				'no_found_rows'  => true,
+			)
+		);
+
+		$wcb_cp_jobs_state = array();
+		foreach ( $wcb_open_jobs as $wcb_jpost ) {
+			$wcb_jloc            = wp_get_object_terms( $wcb_jpost->ID, 'wcb_location', array( 'fields' => 'names' ) );
+			$wcb_jtype           = wp_get_object_terms( $wcb_jpost->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+			$wcb_cp_jobs_state[] = array(
+				'id'        => $wcb_jpost->ID,
+				'title'     => $wcb_jpost->post_title,
+				'permalink' => (string) get_permalink( $wcb_jpost->ID ),
+				'type'      => is_wp_error( $wcb_jtype ) ? '' : implode( ', ', $wcb_jtype ),
+				'location'  => is_wp_error( $wcb_jloc ) ? '' : implode( ', ', $wcb_jloc ),
+			);
+		}
+
+		wp_interactivity_state(
+			'wcb-company-profile',
+			array(
+				'jobs'      => $wcb_cp_jobs_state,
+				'page'      => 1,
+				'perPage'   => $wcb_cp_per_page,
+				'author'    => $wcb_cp_author_id,
+				'loading'   => false,
+				'hasMore'   => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
+				'hasNoJobs' => empty( $wcb_cp_jobs_state ),
+				'apiBase'   => rest_url( 'wcb/v1/jobs' ),
 			)
 		);
 		?>
-		<section class="wcb-cp-section">
-			<h2 class="wcb-cp-section-title">
-				<?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?>
-				<?php if ( ! empty( $wcb_open_jobs ) ) : ?>
-					<span class="wcb-cp-jobs-count"><?php echo count( $wcb_open_jobs ); ?></span>
-				<?php endif; ?>
-			</h2>
+		<section
+			class="wcb-cp-section"
+			data-wp-interactive="wcb-company-profile"
+		>
+			<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?></h2>
 
-			<?php if ( empty( $wcb_open_jobs ) ) : ?>
-				<p class="wcb-cp-no-jobs"><?php esc_html_e( 'No open positions at the moment. Check back soon.', 'wp-career-board' ); ?></p>
-			<?php else : ?>
-				<div class="wcb-cp-jobs-list">
-					<?php foreach ( $wcb_open_jobs as $wcb_open_job ) : ?>
-						<?php
-						$wcb_jloc      = wp_get_object_terms( $wcb_open_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
-						$wcb_jtype     = wp_get_object_terms( $wcb_open_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
-						$wcb_jloc_str  = is_wp_error( $wcb_jloc ) ? '' : implode( ', ', $wcb_jloc );
-						$wcb_jtype_str = is_wp_error( $wcb_jtype ) ? '' : implode( ', ', $wcb_jtype );
-						?>
-						<article class="wcb-cp-job-card">
-							<div class="wcb-cp-job-main">
-								<h3 class="wcb-cp-job-title">
-									<a href="<?php echo esc_url( (string) get_permalink( $wcb_open_job->ID ) ); ?>">
-										<?php echo esc_html( $wcb_open_job->post_title ); ?>
-									</a>
-								</h3>
-								<div class="wcb-cp-job-badges">
-									<?php if ( $wcb_jtype_str ) : ?>
-										<span class="wcb-cjbadge wcb-cjbadge--type"><?php echo esc_html( $wcb_jtype_str ); ?></span>
-									<?php endif; ?>
-									<?php if ( $wcb_jloc_str ) : ?>
-										<span class="wcb-cjbadge wcb-cjbadge--location">
-											<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-											<?php echo esc_html( $wcb_jloc_str ); ?>
-										</span>
-									<?php endif; ?>
-								</div>
+			<p class="wcb-cp-no-jobs" data-wp-bind--hidden="!state.hasNoJobs">
+				<?php esc_html_e( 'No open positions at the moment. Check back soon.', 'wp-career-board' ); ?>
+			</p>
+
+			<div class="wcb-cp-jobs-list">
+				<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
+					<article class="wcb-cp-job-card">
+						<div class="wcb-cp-job-main">
+							<h3 class="wcb-cp-job-title">
+								<a data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title"></a>
+							</h3>
+							<div class="wcb-cp-job-badges">
+								<span class="wcb-cjbadge wcb-cjbadge--type" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
+								<span class="wcb-cjbadge wcb-cjbadge--location" data-wp-class--wcb-shown="context.job.location">
+									<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+									<span data-wp-text="context.job.location"></span>
+								</span>
 							</div>
-							<a class="wcb-cp-job-apply" href="<?php echo esc_url( (string) get_permalink( $wcb_open_job->ID ) ); ?>">
-								<?php esc_html_e( 'View Job', 'wp-career-board' ); ?>
-							</a>
-						</article>
-					<?php endforeach; ?>
-				</div>
-			<?php endif; ?>
+						</div>
+						<a class="wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+					</article>
+				</template>
+			</div>
+
+			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
+				<button
+					type="button"
+					class="wcb-load-more-btn"
+					data-wp-on--click="actions.loadMore"
+					data-wp-bind--disabled="state.loading"
+				>
+					<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more jobs', 'wp-career-board' ); ?></span>
+					<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+				</button>
+			</div>
+
 		</section>
 
 	</div>

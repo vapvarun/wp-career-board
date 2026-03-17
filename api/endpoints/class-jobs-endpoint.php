@@ -184,6 +184,11 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		$author = $request->get_param( 'author' );
+		if ( $author ) {
+			$args['author'] = (int) $author;
+		}
+
 		$query = new \WP_Query( $args );
 		$jobs  = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
 
@@ -734,6 +739,7 @@ final class JobsEndpoint extends RestController {
 			'remote'         => array( 'type' => 'boolean' ),
 			'salary_min'     => array( 'type' => 'integer' ),
 			'salary_max'     => array( 'type' => 'integer' ),
+			'author'         => array( 'type' => 'integer' ),
 			'page'           => array(
 				'type'    => 'integer',
 				'default' => 1,

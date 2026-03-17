@@ -2,40 +2,39 @@
  * WP Career Board — company-profile block Interactivity API store.
  *
  * Actions:
- *   init  — fetch active job listings on mount (via data-wp-init).
+ *   loadMore — fetch the next page of jobs for this company from /wcb/v1/jobs.
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store } from '@wordpress/interactivity';
 
 const { state } = store( 'wcb-company-profile', {
-	state: {
-		get isLoaded() {
-			return ! state.loading;
-		},
-		get hasNoJobs() {
-			return state.isLoaded && state.jobs.length === 0;
-		},
-	},
-
 	actions: {
-		*init() {
-			try {
-				const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
-				url.searchParams.set( 'per_page', '20' );
+		*loadMore() {
+			if ( state.loading ) {
+				return;
+			}
+			state.loading = true;
+			state.page++;
 
-				const response = yield fetch(
-					url.toString(),
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
+			try {
+				const url = new URL( state.apiBase );
+				url.searchParams.set( 'author', String( state.author ) );
+				url.searchParams.set( 'page', String( state.page ) );
+				url.searchParams.set( 'per_page', String( state.perPage ) );
+
+				const response = yield fetch( url.toString() );
 
 				if ( ! response.ok ) {
+					state.page--;
 					return;
 				}
 
-				state.jobs = yield response.json();
+				const jobs = yield response.json();
+				state.jobs.push( ...jobs );
+				state.hasMore = jobs.length === state.perPage;
 			} catch {
-				// Loading failed silently — empty jobs list is shown.
+				state.page--;
 			} finally {
 				state.loading = false;
 			}
