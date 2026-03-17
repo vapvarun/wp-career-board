@@ -20,9 +20,9 @@ if ( ! is_user_logged_in() ) {
 	return;
 }
 
-$wcb_candidate_id   = get_current_user_id();
-$wcb_current_user   = wp_get_current_user();
-$wcb_display_name   = $wcb_current_user->display_name;
+$wcb_candidate_id = get_current_user_id();
+$wcb_current_user = wp_get_current_user();
+$wcb_display_name = $wcb_current_user->display_name;
 
 $wcb_settings = (array) get_option( 'wcb_settings', array() );
 $wcb_jobs_url = ! empty( $wcb_settings['jobs_archive_page'] )
@@ -107,6 +107,10 @@ wp_interactivity_state(
 				data-wp-class--wcb-nav-active="state.isTabResumes"
 				data-wp-on--click="actions.switchToResumes"
 				data-wp-bind--hidden="!state.resumesEnabled"
+				<?php
+				if ( ! $wcb_resume_builder_url ) :
+					?>
+					hidden<?php endif; ?>
 			><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
 		</nav>
 
