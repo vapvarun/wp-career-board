@@ -1,3 +1,8 @@
+/* Ensure data-wp-bind--hidden works even when elements have display:flex set below. */
+.wp-block-wp-career-board-candidate-dashboard [hidden] {
+	display: none !important;
+}
+
 .wcb-dashboard-tabs {
 	display: flex;
 	gap: 0.25rem;
@@ -84,4 +89,16 @@
 
 .wcb-error {
 	color: #b91c1c;
+}
+
+.wcb-resumes-header {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.wcb-resume-cap-info {
+	font-size: 0.8rem;
+	color: #94a3b8;
 }

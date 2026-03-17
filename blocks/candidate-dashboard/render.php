@@ -32,21 +32,45 @@ $wcb_candidate_id = get_current_user_id();
  */
 $wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
 
+/**
+ * Filter extra state keys for the candidate dashboard resumes tab.
+ *
+ * Pro uses this to inject maxResumes and resumeCount for cap enforcement.
+ *
+ * @since 1.0.0
+ * @param array<string,mixed> $state   Default state with maxResumes=0, resumeCount=0.
+ * @param int                 $user_id Current candidate user ID.
+ */
+$wcb_resumes_state = (array) apply_filters(
+	'wcb_candidate_resumes_state',
+	array(
+		'maxResumes'  => 0,
+		'resumeCount' => 0,
+	),
+	$wcb_candidate_id
+);
+
 wp_interactivity_state(
 	'wcb-candidate-dashboard',
-	array(
-		'tab'               => 'applications',
-		'applications'      => array(),
-		'bookmarks'         => array(),
-		'resumes'           => array(),
-		'loading'           => false,
-		'error'             => '',
-		'apiBase'           => rest_url( 'wcb/v1' ),
-		'nonce'             => wp_create_nonce( 'wp_rest' ),
-		'candidateId'       => $wcb_candidate_id,
-		'resumeBuilderUrl'  => $wcb_resume_builder_url,
-		'resumesEnabled'    => '' !== $wcb_resume_builder_url,
-		'customFieldGroups' => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+	array_merge(
+		array(
+			'tab'               => 'applications',
+			'isTabApplications' => true,
+			'isTabBookmarks'    => false,
+			'isTabResumes'      => false,
+			'applications'      => array(),
+			'bookmarks'         => array(),
+			'resumes'           => array(),
+			'loading'           => false,
+			'error'             => '',
+			'apiBase'           => rest_url( 'wcb/v1' ),
+			'nonce'             => wp_create_nonce( 'wp_rest' ),
+			'candidateId'       => $wcb_candidate_id,
+			'resumeBuilderUrl'  => $wcb_resume_builder_url,
+			'resumesEnabled'    => '' !== $wcb_resume_builder_url,
+			'customFieldGroups' => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+		),
+		$wcb_resumes_state
 	)
 );
 ?>
@@ -72,18 +96,18 @@ wp_interactivity_state(
 		<button
 			type="button"
 			class="wcb-tab-btn"
-			data-wp-show="state.resumesEnabled"
+			data-wp-bind--hidden="!state.resumesEnabled"
 			data-wp-class--active="state.isTabResumes"
 			data-wp-on--click="actions.switchToResumes"
 		><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
 	</nav>
 
 	<!-- Tab: My Applications -->
-	<div class="wcb-tab-panel" data-wp-show="state.isTabApplications">
-		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
-		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
+	<div class="wcb-tab-panel" data-wp-bind--hidden="!state.isTabApplications">
+		<div class="wcb-loading" data-wp-bind--hidden="!state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+		<p class="wcb-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-		<div data-wp-show="!state.loading">
+		<div data-wp-bind--hidden="state.loading">
 			<template data-wp-each--application="state.applications" data-wp-each-key="context.application.id">
 				<div class="wcb-application-card">
 					<h3>
@@ -97,11 +121,11 @@ wp_interactivity_state(
 	</div>
 
 	<!-- Tab: Saved Jobs -->
-	<div class="wcb-tab-panel" data-wp-show="state.isTabBookmarks">
-		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
-		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
+	<div class="wcb-tab-panel" data-wp-bind--hidden="!state.isTabBookmarks">
+		<div class="wcb-loading" data-wp-bind--hidden="!state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+		<p class="wcb-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-		<div data-wp-show="!state.loading">
+		<div data-wp-bind--hidden="state.loading">
 			<template data-wp-each--bookmark="state.bookmarks" data-wp-each-key="context.bookmark.id">
 				<div class="wcb-bookmark-card">
 					<h3>
@@ -119,17 +143,19 @@ wp_interactivity_state(
 	</div>
 
 	<!-- Tab: My Resumes (Pro) -->
-	<div class="wcb-tab-panel" data-wp-show="state.isTabResumes">
-		<div class="wcb-loading" data-wp-show="state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
-		<p class="wcb-error" data-wp-show="state.error" data-wp-text="state.error"></p>
+	<div class="wcb-tab-panel" data-wp-bind--hidden="!state.isTabResumes">
+		<div class="wcb-loading" data-wp-bind--hidden="!state.loading"><?php esc_html_e( 'Loading…', 'wp-career-board' ); ?></div>
+		<p class="wcb-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-		<div data-wp-show="!state.loading">
+		<div data-wp-bind--hidden="state.loading">
 			<div class="wcb-resumes-header">
 				<button
 					type="button"
 					class="wcb-cbtn wcb-cbtn--primary wcb-new-resume-btn"
 					data-wp-on--click="actions.createResume"
+					data-wp-bind--disabled="state.isAtResumesCap"
 				><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
+				<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
 			</div>
 
 			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">

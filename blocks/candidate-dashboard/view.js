@@ -15,25 +15,27 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 
-store( 'wcb-candidate-dashboard', {
+const { state } = store( 'wcb-candidate-dashboard', {
 	state: {
 		get isTabApplications() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			return state.tab === 'applications';
 		},
 		get isTabBookmarks() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			return state.tab === 'bookmarks';
 		},
 		get isTabResumes() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			return state.tab === 'resumes';
+		},
+		get isAtResumesCap() {
+			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
+		},
+		get resumeCapLabel() {
+			return state.maxResumes > 0 ? state.resumeCount + '/' + state.maxResumes + ' resumes' : '';
 		},
 	},
 
 	actions: {
 		*init() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			state.loading = true;
 			state.error   = '';
 
@@ -57,17 +59,14 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		switchToApplications() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			state.tab   = 'applications';
 			state.error = '';
 		},
 
 		*switchToBookmarks() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			state.tab   = 'bookmarks';
 			state.error = '';
 
-			// Load bookmarks on first switch.
 			if ( state.bookmarks.length ) {
 				return;
 			}
@@ -94,11 +93,9 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		*switchToResumes() {
-			const { state } = store( 'wcb-candidate-dashboard' );
 			state.tab   = 'resumes';
 			state.error = '';
 
-			// Load resumes on first switch.
 			if ( state.resumes.length ) {
 				return;
 			}
@@ -125,9 +122,8 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		*unbookmark() {
-			const { state } = store( 'wcb-candidate-dashboard' );
-			const ctx        = getContext();
-			const bookmark   = ctx.bookmark;
+			const ctx      = getContext();
+			const bookmark = ctx.bookmark;
 
 			try {
 				const response = yield fetch(
@@ -146,7 +142,6 @@ store( 'wcb-candidate-dashboard', {
 					return;
 				}
 
-				// Remove bookmark from list.
 				state.bookmarks = state.bookmarks.filter( function( b ) {
 					return b.id !== bookmark.id;
 				} );
@@ -156,8 +151,7 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		openResumeEditor() {
-			const { state } = store( 'wcb-candidate-dashboard' );
-			const ctx        = getContext();
+			const ctx = getContext();
 			if ( ! ctx.resume || ! state.resumeBuilderUrl ) {
 				return;
 			}
@@ -165,8 +159,6 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		*createResume() {
-			const { state } = store( 'wcb-candidate-dashboard' );
-
 			// eslint-disable-next-line no-alert
 			const title = window.prompt( 'Resume title (e.g. "Software Developer")' );
 			if ( ! title ) {
@@ -196,8 +188,8 @@ store( 'wcb-candidate-dashboard', {
 
 				const resume = yield response.json();
 				state.resumes = [ resume, ...state.resumes ];
+				state.resumeCount = state.resumeCount + 1;
 
-				// Navigate to the resume builder for the new resume.
 				if ( state.resumeBuilderUrl ) {
 					window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( resume.id );
 				}
@@ -209,9 +201,8 @@ store( 'wcb-candidate-dashboard', {
 		},
 
 		*deleteResume() {
-			const { state } = store( 'wcb-candidate-dashboard' );
-			const ctx        = getContext();
-			const resume     = ctx.resume;
+			const ctx    = getContext();
+			const resume = ctx.resume;
 
 			// eslint-disable-next-line no-alert
 			if ( ! window.confirm( 'Delete "' + resume.title + '"? This cannot be undone.' ) ) {
@@ -235,6 +226,7 @@ store( 'wcb-candidate-dashboard', {
 				state.resumes = state.resumes.filter( function( r ) {
 					return r.id !== resume.id;
 				} );
+				state.resumeCount = Math.max( 0, state.resumeCount - 1 );
 			} catch {
 				state.error = 'Connection error. Please check your network and try again.';
 			}
