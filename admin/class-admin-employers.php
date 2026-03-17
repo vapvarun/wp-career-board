@@ -61,6 +61,8 @@ class AdminEmployers extends \WP_List_Table {
 			</a>
 			<hr class="wp-header-end">
 
+			<?php $this->views(); ?>
+
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-employers">
 				<?php
@@ -147,6 +149,35 @@ class AdminEmployers extends \WP_List_Table {
 			</a>
 		</div>
 		<?php
+	}
+
+	// -------------------------------------------------------------------------
+	// Count view
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build the view links shown above the table.
+	 *
+	 * @since 1.0.0
+	 * @return array<string,string>
+	 */
+	protected function get_views(): array {
+		$count    = ( new \WP_User_Query(
+			array(
+				'role__in' => array( 'wcb_employer' ),
+				'number'   => 0,
+			)
+		) )->get_total();
+		$base_url = admin_url( 'admin.php?page=wcb-employers' );
+
+		return array(
+			'all' => sprintf(
+				'<a href="%s" class="current">%s <span class="count">(%d)</span></a>',
+				esc_url( $base_url ),
+				esc_html__( 'All', 'wp-career-board' ),
+				$count
+			),
+		);
 	}
 
 	// -------------------------------------------------------------------------

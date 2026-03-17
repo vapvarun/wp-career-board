@@ -165,7 +165,7 @@
 
 .wcb-stat-label {
 	display: block;
-	font-size: 0.82em;
+	font-size: 12px;
 	color: #646970;
 	margin-top: 6px;
 	white-space: nowrap;
@@ -198,7 +198,7 @@
 	justify-content: space-between;
 	margin: 0;
 	padding: 12px 16px;
-	font-size: 0.9em;
+	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -207,7 +207,7 @@
 }
 
 .wcb-panel-link {
-	font-size: 0.85em;
+	font-size: 12px;
 	font-weight: 400;
 	text-transform: none;
 	letter-spacing: 0;
@@ -254,7 +254,7 @@
 .wcb-admin-table th {
 	background: #f6f7f7;
 	font-weight: 600;
-	font-size: 0.85em;
+	font-size: 11px;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	color: #646970;
@@ -269,7 +269,7 @@
 	display: inline-block;
 	padding: 2px 8px;
 	border-radius: 3px;
-	font-size: 0.8em;
+	font-size: 11px;
 	font-weight: 500;
 	text-transform: capitalize;
 }
@@ -286,10 +286,7 @@
 .wcb-job-status-draft    { background: #f0f0f1; color: #50575e; }
 .wcb-job-status-trash    { background: #f8d7da; color: #8a1c1c; }
 
-/* Status selector */
-.wcb-status-select {
-	font-size: 0.85em;
-}
+/* Status selector — inherits 13px from WP admin */
 
 /* Settings page improvements */
 .form-table th {
@@ -298,7 +295,7 @@
 
 .form-table .description {
 	color: #646970;
-	font-size: 0.85em;
+	font-size: 12px;
 	margin-top: 4px;
 }
 
@@ -363,7 +360,7 @@
 
 .wcb-meta-row label {
 	font-weight: 600;
-	font-size: 0.875rem;
+	font-size: 13px;
 	color: #1d2327;
 }
 
@@ -375,7 +372,7 @@
 	padding: 6px 10px;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
-	font-size: 0.9rem;
+	font-size: 13px;
 	background: #fff;
 	color: #1d2327;
 }
@@ -388,7 +385,7 @@
 }
 
 .wcb-meta-row .description {
-	font-size: 0.8rem;
+	font-size: 12px;
 	color: #646970;
 	margin: 0;
 }
@@ -406,7 +403,7 @@
 	align-items: center;
 	gap: 6px;
 	font-weight: 600;
-	font-size: 0.85rem;
+	font-size: 13px;
 	color: #1d2327;
 	margin-bottom: 4px;
 }
@@ -416,7 +413,7 @@
 	padding: 6px 10px;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
-	font-size: 0.85rem;
+	font-size: 13px;
 }
 
 .wcb-social-row input:focus {
@@ -428,7 +425,7 @@
 /* Trust sidebar box */
 .wcb-trust-box label {
 	font-weight: 600;
-	font-size: 0.85rem;
+	font-size: 13px;
 	color: #1d2327;
 }
 
@@ -462,13 +459,13 @@
 
 .wcb-modal-msg {
 	color: #50575e;
-	font-size: 0.9em;
+	font-size: 13px;
 	margin: 0 0 16px;
 }
 
 .wcb-modal-label {
 	display: block;
-	font-size: 0.875em;
+	font-size: 13px;
 	font-weight: 600;
 	color: #1d2327;
 	margin-bottom: 6px;
@@ -480,7 +477,7 @@
 	padding: 8px 10px;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
-	font-size: 0.875em;
+	font-size: 13px;
 	font-family: inherit;
 	resize: vertical;
 	margin-bottom: 16px;
@@ -498,10 +495,7 @@
 	justify-content: flex-end;
 }
 
-/* ── Trust level inline select — T22c ── */
-.wcb-trust-select {
-	font-size: 0.85em;
-}
+/* ── Trust level inline select — T22c — inherits 13px from WP admin ── */
 
 /* ── Audit log meta box — T22f ── */
 .wcb-audit-log {
@@ -515,7 +509,7 @@
 	gap: 8px;
 	padding: 6px 0;
 	border-bottom: 1px solid #f0f0f1;
-	font-size: 0.85em;
+	font-size: 13px;
 	color: #1d2327;
 }
 
@@ -532,5 +526,5 @@
 .wcb-audit-log-empty {
 	color: #646970;
 	font-style: italic;
-	font-size: 0.875em;
+	font-size: 13px;
 }
