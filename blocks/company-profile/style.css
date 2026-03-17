@@ -334,13 +334,17 @@
 }
 
 .wcb-cjbadge {
-	display: inline-flex;
+	display: none;
 	align-items: center;
 	gap: 0.2rem;
 	padding: 0.1rem 0.5rem;
 	border-radius: 9999px;
 	font-size: 0.75rem;
 	font-weight: 500;
+}
+
+.wcb-cjbadge.wcb-shown {
+	display: inline-flex;
 }
 
 .wcb-cjbadge--type     { background: #f1f5f9; color: #475569; }
@@ -438,3 +442,50 @@
 .wcb-company-page h1.post-title,
 .wcb-company-page .post-title,
 .wcb-company-page .wp-block-post-title { display: none !important; }
+
+/* ── Load more / loading state ───────────────────────────────────────────── */
+.wcb-load-more-wrap {
+	display: none;
+	justify-content: center;
+	margin-top: 1.5rem;
+}
+
+.wcb-load-more-wrap.wcb-shown {
+	display: flex;
+}
+
+.wcb-load-more-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.65rem 2rem;
+	border: 1.5px solid #e2e8f0;
+	border-radius: 8px;
+	background: #fff;
+	font-size: 0.9rem;
+	font-weight: 600;
+	font-family: inherit;
+	color: #475569;
+	cursor: pointer;
+	transition: border-color 0.12s, color 0.12s;
+}
+
+.wcb-load-more-btn:hover:not( :disabled ) {
+	border-color: var( --wcb-primary, #2563eb );
+	color: var( --wcb-primary, #2563eb );
+}
+
+.wcb-load-more-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.wcb-loading-label {
+	display: none;
+}
+
+.wcb-loading-label.wcb-shown {
+	display: inline;
+}
+
+.wcb-hidden { display: none !important; }
