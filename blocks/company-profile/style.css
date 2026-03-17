@@ -39,6 +39,7 @@
 	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.12 );
 	display: block;
 	object-fit: cover;
+	background: #fff;
 }
 
 .wcb-cp-avatar {
@@ -442,6 +443,12 @@
 .wcb-company-page h1.post-title,
 .wcb-company-page .post-title,
 .wcb-company-page .wp-block-post-title { display: none !important; }
+
+.wcb-company-page .post-thumbnail,
+.wcb-company-page .entry-thumbnail,
+.wcb-company-page .featured-image,
+.wcb-company-page .wp-block-post-featured-image,
+.wcb-company-page .wp-post-image:not( .wcb-cp-logo ) { display: none !important; }
 
 /* ── Load more / loading state ───────────────────────────────────────────── */
 .wcb-load-more-wrap {

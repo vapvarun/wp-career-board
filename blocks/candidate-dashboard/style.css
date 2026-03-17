@@ -1,125 +1,446 @@
+/* ── Suppress theme page title when candidate dashboard is on the page ───── */
+article:has( .wp-block-wp-career-board-candidate-dashboard ) .entry-title,
+article:has( .wp-block-wp-career-board-candidate-dashboard ) .page-title,
+article:has( .wp-block-wp-career-board-candidate-dashboard ) h1.post-title,
+article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-title {
+	display: none !important;
+}
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+.wcb-dashboard {
+	--wcb-text-primary:   #0f172a;
+	--wcb-text-secondary: #64748b;
+	--wcb-text-muted:     #94a3b8;
+	--wcb-border:         #e2e8f0;
+	--wcb-bg-subtle:      #f8fafc;
+	--wcb-bg-hover:       #f1f5f9;
+	--wcb-blue:           #2563eb;
+	--wcb-green:          #059669;
+	--wcb-radius:         8px;
+	font-family: inherit;
+	color: var( --wcb-text-primary );
+}
+
 /* Ensure data-wp-bind--hidden works even when elements have display:flex set below. */
 .wp-block-wp-career-board-candidate-dashboard [hidden] {
 	display: none !important;
 }
 
-.wcb-dashboard-tabs {
+/* ── Shell — sidebar + main ──────────────────────────────────────────────── */
+.wcb-dashboard-shell {
 	display: flex;
-	gap: 0.25rem;
-	border-bottom: 2px solid #e2e8f0;
-	margin-bottom: 1.5rem;
+	min-height: 600px;
+	align-items: stretch;
 }
 
-.wcb-tab-btn {
-	padding: 0.625rem 1.25rem;
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.wcb-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	border-right: 1px solid var( --wcb-border );
+	padding: 20px 0;
+}
+
+.wcb-sidebar-logo {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 16px 16px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+}
+
+.wcb-nav-section-label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var( --wcb-text-muted );
+	padding: 12px 16px 4px;
+}
+
+.wcb-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 8px 16px;
+	font-size: 14px;
+	font-weight: 400;
+	color: var( --wcb-text-secondary );
 	background: none;
 	border: none;
-	border-bottom: 2px solid transparent;
-	margin-bottom: -2px;
-	font-size: 1rem;
+	border-radius: 6px;
 	cursor: pointer;
-	color: #64748b;
+	text-align: left;
+	text-decoration: none;
+	transition: background 0.12s, color 0.12s;
+	box-sizing: border-box;
 }
 
-.wcb-tab-btn.active,
-.wp-block-wp-career-board-candidate-dashboard .wcb-tab-btn.active {
-	background: none;
-	border-radius: 0;
-	color: #2563eb;
-	border-bottom-color: #2563eb;
+.wcb-nav-item:hover {
+	background: var( --wcb-bg-subtle );
+	color: var( --wcb-text-primary );
+	text-decoration: none;
+}
+
+.wcb-nav-item.wcb-nav-active {
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-primary );
 	font-weight: 600;
 }
 
-.wcb-tab-panel {
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	outline: 2px solid var( --wcb-blue );
+	outline-offset: -2px;
+}
+
+.wcb-nav-badge {
+	display: inline-block;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-secondary );
+	font-size: 11px;
+	font-weight: 600;
+	border-radius: 9999px;
+	padding: 1px 6px;
+	line-height: 1.4;
+}
+
+.wcb-nav-badge--blue {
+	background: #dbeafe;
+	color: #1d4ed8;
+}
+
+.wcb-sidebar-cta {
+	display: block;
+	margin: 16px;
+	padding: 10px 16px;
+	background: var( --wcb-text-primary );
+	color: #fff;
+	font-size: 14px;
+	font-weight: 700;
+	text-align: center;
+	text-decoration: none;
+	border-radius: var( --wcb-radius );
+	transition: background 0.12s;
+}
+
+.wcb-sidebar-cta:hover {
+	background: #1e293b;
+	color: #fff;
+	text-decoration: none;
+}
+
+.wcb-sidebar-user {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var( --wcb-border );
+	margin-top: auto;
+}
+
+.wcb-sidebar-avatar {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var( --wcb-border );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-sidebar-company {
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ── Main content area ────────────────────────────────────────────────────── */
+.wcb-main {
+	flex: 1;
+	background: var( --wcb-bg-subtle );
+	padding: 32px;
+	overflow-y: auto;
+	min-width: 0;
+}
+
+/* ── View panels ──────────────────────────────────────────────────────────── */
+.wcb-view-panel {
+	display: none;
+}
+
+.wcb-view-panel.wcb-view-active {
+	display: block;
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.wcb-page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+}
+
+.wcb-page-title {
+	font-size: 20px;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	margin: 0;
+}
+
+/* ── Shared loading / error ───────────────────────────────────────────────── */
+.wcb-cd-loading {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	color: var( --wcb-text-secondary );
+	font-size: 14px;
+	padding: 12px 0;
+}
+
+.wcb-cd-loading.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid var( --wcb-border );
+	border-top-color: var( --wcb-blue );
+	border-radius: 50%;
+	animation: wcb-cd-spin 0.7s linear infinite;
+}
+
+@keyframes wcb-cd-spin {
+	to { transform: rotate( 360deg ); }
+}
+
+.wcb-cd-error {
+	color: #b91c1c;
+	font-size: 14px;
+	margin: 0 0 16px;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.wcb-cd-empty {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 48px 24px;
+	text-align: center;
+}
+
+.wcb-cd-empty.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-empty-msg {
+	font-size: 15px;
+	color: var( --wcb-text-secondary );
+	margin: 0;
+}
+
+/* ── Panel wrapper (matches employer dashboard .wcb-panel) ────────────────── */
+.wcb-panel {
+	display: none;
+	background: #fff;
+	border: 1px solid var( --wcb-border );
+	border-radius: var( --wcb-radius );
+	overflow: hidden;
+	margin-bottom: 20px;
+}
+
+.wcb-panel.wcb-shown {
+	display: block;
+}
+
+/* ── Application rows ─────────────────────────────────────────────────────── */
+.wcb-cd-app-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 20px;
+	border-bottom: 1px solid #f1f5f9;
+	transition: background 0.12s;
+}
+
+.wcb-cd-app-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-cd-app-row:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-cd-app-main {
+	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 3px;
 }
 
-.wcb-application-card,
-.wcb-bookmark-card {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 1rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	background: #fff;
-}
-
-.wcb-application-card h3,
-.wcb-bookmark-card h3 {
-	flex: 1;
+.wcb-cd-app-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: var( --wcb-text-primary );
 	margin: 0;
-	font-size: 1rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.wcb-app-status {
-	font-size: 0.8rem;
-	padding: 0.2rem 0.5rem;
+.wcb-cd-app-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-cd-app-title a:hover {
+	color: var( --wcb-blue );
+	text-decoration: underline;
+}
+
+.wcb-cd-app-date {
+	font-size: 12px;
+	color: var( --wcb-text-muted );
+}
+
+/* ── Status badge ─────────────────────────────────────────────────────────── */
+.wcb-cd-status-badge {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 10px;
 	border-radius: 9999px;
-	background: #f1f5f9;
-	color: #475569;
+	font-size: 12px;
+	font-weight: 600;
 	text-transform: capitalize;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-secondary );
 }
 
-.wcb-app-date {
-	font-size: 0.8rem;
-	color: #94a3b8;
+.wcb-cd-status-badge[data-status="submitted"] {
+	background: #dbeafe;
+	color: #1e40af;
 }
 
-.wcb-unbookmark-btn {
-	padding: 0.25rem 0.75rem;
-	background: none;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	font-size: 0.875rem;
-	cursor: pointer;
-	color: #64748b;
+.wcb-cd-status-badge[data-status="shortlisted"] {
+	background: #dcfce7;
+	color: #166534;
 }
 
-.wcb-unbookmark-btn:hover {
-	background: #fef2f2;
-	border-color: #fca5a5;
-	color: #b91c1c;
+.wcb-cd-status-badge[data-status="hired"] {
+	background: #d1fae5;
+	color: #065f46;
 }
 
-.wcb-loading {
-	color: #64748b;
-	padding: 1rem 0;
+.wcb-cd-status-badge[data-status="rejected"] {
+	background: #fee2e2;
+	color: #991b1b;
 }
 
-.wcb-error {
-	color: #b91c1c;
+/* ── Bookmark rows ────────────────────────────────────────────────────────── */
+.wcb-cd-bookmark-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 20px;
+	border-bottom: 1px solid #f1f5f9;
+	transition: background 0.12s;
 }
 
+.wcb-cd-bookmark-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-cd-bookmark-row:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-cd-bookmark-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.wcb-cd-bookmark-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: var( --wcb-text-primary );
+	margin: 0;
+}
+
+.wcb-cd-bookmark-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-cd-bookmark-title a:hover {
+	color: var( --wcb-blue );
+	text-decoration: underline;
+}
+
+.wcb-cd-bookmark-company {
+	font-size: 13px;
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-cd-bookmark-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+/* ── Resume cards (kept from original) ───────────────────────────────────── */
 .wcb-resumes-header {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	margin-bottom: 1rem;
+	gap: 12px;
 }
 
 .wcb-resume-cap-info {
-	font-size: 0.8rem;
-	color: #94a3b8;
+	font-size: 13px;
+	color: var( --wcb-text-muted );
 }
 
 .wcb-resume-card {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	padding: 0.875rem 1rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
+	gap: 12px;
+	padding: 14px 20px;
 	background: #fff;
-	transition: border-color 0.12s, box-shadow 0.12s;
+	border-bottom: 1px solid #f1f5f9;
+	transition: background 0.12s;
+}
+
+.wcb-resume-card:last-child {
+	border-bottom: none;
 }
 
 .wcb-resume-card:hover {
-	border-color: #cbd5e1;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+	background: var( --wcb-bg-subtle );
 }
 
 .wcb-resume-card-info {
@@ -127,31 +448,31 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.2rem;
+	gap: 3px;
 }
 
 .wcb-resume-card-title {
+	font-size: 15px;
 	font-weight: 600;
-	font-size: 0.9375rem;
-	color: #0f172a;
+	color: var( --wcb-text-primary );
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
 .wcb-resume-card-date {
-	font-size: 0.8rem;
-	color: #94a3b8;
+	font-size: 12px;
+	color: var( --wcb-text-muted );
 }
 
 .wcb-resume-card-actions {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 8px;
 	flex-shrink: 0;
 }
 
-/* Button system for candidate dashboard */
+/* ── Button system ────────────────────────────────────────────────────────── */
 .wcb-cbtn {
 	display: inline-flex;
 	align-items: center;
@@ -215,4 +536,74 @@
 	color: #b91c1c !important;
 	border-color: #f87171;
 	text-decoration: none;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media ( max-width: 1024px ) {
+	.wcb-dashboard-shell {
+		flex-direction: column;
+	}
+
+	.wcb-sidebar {
+		width: 100%;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		padding: 8px 0;
+		overflow-x: auto;
+		border-right: none;
+		border-bottom: 1px solid var( --wcb-border );
+	}
+
+	.wcb-sidebar-logo {
+		padding: 8px 12px;
+		flex-shrink: 0;
+		border-bottom: none;
+	}
+
+	.wcb-nav-section-label {
+		display: none;
+	}
+
+	.wcb-nav-item {
+		width: auto;
+		padding: 8px 14px;
+		flex-shrink: 0;
+		border-radius: 0;
+		border-bottom: 2px solid transparent;
+	}
+
+	.wcb-nav-item.wcb-nav-active {
+		background: none;
+		border-bottom-color: var( --wcb-blue );
+		color: var( --wcb-blue );
+	}
+
+	.wcb-sidebar-cta {
+		margin: 6px 8px;
+		padding: 7px 14px;
+		flex-shrink: 0;
+	}
+
+	.wcb-sidebar-user {
+		margin-top: 0;
+		margin-left: auto;
+		border-top: none;
+		padding: 8px 12px;
+	}
+}
+
+@media ( max-width: 640px ) {
+	.wcb-main {
+		padding: 20px 16px;
+	}
+
+	.wcb-cd-app-card,
+	.wcb-cd-bookmark-card {
+		flex-wrap: wrap;
+	}
+
+	.wcb-cd-bookmark-actions {
+		width: 100%;
+	}
 }

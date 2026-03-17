@@ -195,7 +195,9 @@
 .wcb-ca-logo.wcb-shown {
 	display: block;
 	object-fit: cover;
-	border: 1px solid #e2e8f0;
+	background: #fff;
+	border: 2px solid #fff;
+	box-shadow: 0 1px 4px rgba( 0, 0, 0, 0.12 );
 }
 
 .wcb-ca-avatar {
@@ -206,6 +208,8 @@
 	font-size: 1.1rem;
 	font-weight: 700;
 	letter-spacing: 0.02em;
+	border: 2px solid transparent;
+	box-shadow: 0 1px 4px rgba( 0, 0, 0, 0.12 );
 }
 
 .wcb-ca-avatar.wcb-shown {

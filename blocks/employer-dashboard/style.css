@@ -602,7 +602,9 @@
 }
 
 .wcb-apps-job-pill:hover:not( .wcb-active ) {
-	background: var( --wcb-bg-hover );
+	background: #eff6ff;
+	color: var( --wcb-primary, #2563eb );
+	border-color: #bfdbfe;
 }
 
 .wcb-apps-job-pill.wcb-active {

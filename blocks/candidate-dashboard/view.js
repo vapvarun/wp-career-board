@@ -32,6 +32,36 @@ const { state } = store( 'wcb-candidate-dashboard', {
 		get resumeCapLabel() {
 			return state.maxResumes > 0 ? state.resumeCount + '/' + state.maxResumes + ' resumes' : '';
 		},
+
+		// Sidebar display.
+		get candidateInitials() {
+			const n = state.candidateName;
+			return n
+				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
+				: '?';
+		},
+
+		// Nav badges.
+		get appsCount() {
+			return state.applications.length;
+		},
+		get bookmarksCount() {
+			return state.bookmarks.length;
+		},
+
+		// Empty / populated state per panel.
+		get hasApplications() {
+			return ! state.loading && state.applications.length > 0;
+		},
+		get noApplications() {
+			return ! state.loading && ! state.error && state.applications.length === 0;
+		},
+		get hasBookmarks() {
+			return ! state.loading && state.bookmarks.length > 0;
+		},
+		get noBookmarks() {
+			return ! state.loading && ! state.error && state.bookmarks.length === 0;
+		},
 	},
 
 	actions: {
