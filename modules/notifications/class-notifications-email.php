@@ -59,8 +59,8 @@ final class NotificationsEmail {
 			return;
 		}
 
-		$wcb_s    = (array) get_option( 'wcb_settings', array() );
-		$wcb_to   = ! empty( $wcb_s['notification_email'] ) ? $wcb_s['notification_email'] : (string) get_option( 'admin_email', '' );
+		$wcb_s  = (array) get_option( 'wcb_settings', array() );
+		$wcb_to = ! empty( $wcb_s['notification_email'] ) ? $wcb_s['notification_email'] : (string) get_option( 'admin_email', '' );
 		$this->send(
 			$wcb_to,
 			/* translators: %s: job title */
@@ -87,12 +87,17 @@ final class NotificationsEmail {
 	 * @return void
 	 */
 	public function on_application_submitted( int $app_id, int $job_id, int $candidate_id ): void {
-		$job       = get_post( $job_id );
-		$employer  = $job instanceof \WP_Post ? get_user_by( 'ID', (int) $job->post_author ) : false;
-		$candidate = get_user_by( 'ID', $candidate_id );
-		$wcb_s     = (array) get_option( 'wcb_settings', array() );
+		$job      = get_post( $job_id );
+		$employer = $job instanceof \WP_Post ? get_user_by( 'ID', (int) $job->post_author ) : false;
+		$wcb_s    = (array) get_option( 'wcb_settings', array() );
 
+		// Notify employer regardless of whether the applicant is a guest or member.
 		if ( $job instanceof \WP_Post && $employer instanceof \WP_User ) {
+			$candidate      = 0 !== $candidate_id ? get_user_by( 'ID', $candidate_id ) : false;
+			$candidate_name = $candidate instanceof \WP_User
+				? $candidate->display_name
+				: (string) get_post_meta( $app_id, '_wcb_guest_name', true );
+
 			$dashboard_employer = get_permalink( isset( $wcb_s['employer_dashboard_page'] ) ? (int) $wcb_s['employer_dashboard_page'] : 0 );
 			$this->send(
 				$employer->user_email,
@@ -102,7 +107,7 @@ final class NotificationsEmail {
 					'application-received',
 					array(
 						'job_title'      => $job->post_title,
-						'candidate_name' => $candidate instanceof \WP_User ? $candidate->display_name : '',
+						'candidate_name' => $candidate_name,
 						'dashboard_url'  => $dashboard_employer ? $dashboard_employer : admin_url(),
 					)
 				),
@@ -110,6 +115,32 @@ final class NotificationsEmail {
 			);
 		}
 
+		// Guest confirmation — send to the guest email address.
+		if ( 0 === $candidate_id && $job instanceof \WP_Post ) {
+			$guest_email = (string) get_post_meta( $app_id, '_wcb_guest_email', true );
+			$guest_name  = (string) get_post_meta( $app_id, '_wcb_guest_name', true );
+			if ( $guest_email ) {
+				$this->send(
+					$guest_email,
+					/* translators: %s: job title */
+					sprintf( __( 'Application submitted: %s', 'wp-career-board' ), $job->post_title ),
+					$this->render(
+						'application-guest-confirmation',
+						array(
+							'guest_name' => $guest_name,
+							'job_title'  => $job->post_title,
+							'app_id'     => $app_id,
+							'job_url'    => (string) get_permalink( $job_id ),
+						)
+					),
+					0
+				);
+			}
+			return;
+		}
+
+		// Registered candidate confirmation.
+		$candidate = get_user_by( 'ID', $candidate_id );
 		if ( $job instanceof \WP_Post && $candidate instanceof \WP_User ) {
 			$dashboard_candidate = get_permalink( isset( $wcb_s['candidate_dashboard_page'] ) ? (int) $wcb_s['candidate_dashboard_page'] : 0 );
 			$this->send(

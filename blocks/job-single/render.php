@@ -98,6 +98,9 @@ $wcb_can_apply = is_user_logged_in() && (
 );
 // phpcs:enable WordPress.WP.Capabilities.Unknown
 
+// Guests may always apply — the endpoint accepts unauthenticated submissions.
+$wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
+
 // ── Bookmark state ────────────────────────────────────────────────────────────
 $wcb_current_user_id = get_current_user_id();
 $wcb_bookmarks       = $wcb_current_user_id
@@ -158,6 +161,9 @@ wp_interactivity_state(
 		'jobPermalink'     => (string) get_permalink( $wcb_job_id ),
 		'jobTitle'         => $wcb_job->post_title,
 		'linkCopied'       => false,
+		'isLoggedIn'       => is_user_logged_in(),
+		'guestName'        => '',
+		'guestEmail'       => '',
 	)
 );
 ?>
@@ -238,7 +244,7 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-hero-cta">
-			<?php if ( $wcb_can_apply ) : ?>
+			<?php if ( $wcb_show_apply ) : ?>
 				<button
 					type="button"
 					class="wcb-btn wcb-btn--primary wcb-apply-trigger"
@@ -258,10 +264,6 @@ wp_interactivity_state(
 						?>
 					</p>
 				<?php endif; ?>
-			<?php elseif ( ! is_user_logged_in() ) : ?>
-				<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
-					<?php esc_html_e( 'Sign In to Apply', 'wp-career-board' ); ?>
-				</a>
 			<?php endif; ?>
 
 			<?php if ( is_user_logged_in() ) : ?>
@@ -362,7 +364,7 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
-				<?php if ( $wcb_can_apply ) : ?>
+				<?php if ( $wcb_show_apply ) : ?>
 					<button
 						type="button"
 						class="wcb-btn wcb-btn--primary wcb-btn--full"
@@ -374,10 +376,6 @@ wp_interactivity_state(
 					<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
 						<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
 					</p>
-				<?php elseif ( ! is_user_logged_in() ) : ?>
-					<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary wcb-btn--full">
-						<?php esc_html_e( 'Sign In to Apply', 'wp-career-board' ); ?>
-					</a>
 				<?php endif; ?>
 			</div>
 
@@ -473,7 +471,7 @@ wp_interactivity_state(
 	</div>
 
 	<?php /* ── Slide-in apply panel ───────────────────────────────────── */ ?>
-	<?php if ( $wcb_can_apply ) : ?>
+	<?php if ( $wcb_show_apply ) : ?>
 		<div
 			class="wcb-panel-overlay"
 			data-wp-class--wcb-open="state.panelOpen"
@@ -503,7 +501,36 @@ wp_interactivity_state(
 
 				<p class="wcb-apply-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
-				<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+				<?php if ( ! is_user_logged_in() ) : ?>
+					<div class="wcb-apply-guest-fields">
+						<label class="wcb-field-label" for="wcb-guest-name">
+							<?php esc_html_e( 'Your Name', 'wp-career-board' ); ?>
+							<span class="wcb-field-required" aria-hidden="true">*</span>
+						</label>
+						<input
+							type="text"
+							id="wcb-guest-name"
+							class="wcb-guest-field"
+							autocomplete="name"
+							required
+							data-wp-on--input="actions.updateGuestName"
+						/>
+						<label class="wcb-field-label" for="wcb-guest-email">
+							<?php esc_html_e( 'Your Email', 'wp-career-board' ); ?>
+							<span class="wcb-field-required" aria-hidden="true">*</span>
+						</label>
+						<input
+							type="email"
+							id="wcb-guest-email"
+							class="wcb-guest-field"
+							autocomplete="email"
+							required
+							data-wp-on--input="actions.updateGuestEmail"
+						/>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( is_user_logged_in() && post_type_exists( 'wcb_resume' ) ) : ?>
 					<div class="wcb-apply-resume-section">
 						<label class="wcb-field-label" for="wcb-resume-select">
 							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
@@ -532,7 +559,7 @@ wp_interactivity_state(
 							</p>
 						<?php endif; ?>
 					</div>
-				<?php else : ?>
+				<?php elseif ( is_user_logged_in() ) : ?>
 					<div class="wcb-apply-resume-section">
 						<label class="wcb-field-label" for="wcb-resume-file">
 							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>

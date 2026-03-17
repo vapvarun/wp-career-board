@@ -92,7 +92,7 @@ final class ApplicationsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'upload_resume_file' ),
-				'permission_callback' => array( $this, 'submit_permissions_check' ),
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -102,7 +102,9 @@ final class ApplicationsEndpoint extends RestController {
 	/**
 	 * Submit a new application to a job.
 	 *
-	 * Prevents duplicate applications (one per candidate per job).
+	 * Supports both authenticated candidates and unauthenticated guests.
+	 * Guests must supply guest_name + guest_email; a 24-hour duplicate guard
+	 * prevents the same email address from applying twice per job.
 	 *
 	 * @since 1.0.0
 	 *
@@ -115,8 +117,8 @@ final class ApplicationsEndpoint extends RestController {
 			return $wcb_spam;
 		}
 
-		$job_id       = (int) $request['id'];
-		$candidate_id = get_current_user_id();
+		$job_id   = (int) $request['id'];
+		$is_guest = ! is_user_logged_in();
 
 		$job = get_post( $job_id );
 		if ( ! $job || 'wcb_job' !== $job->post_type || 'publish' !== $job->post_status ) {
@@ -127,40 +129,91 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		// Prevent duplicate applications.
-		$existing = get_posts(
-			array(
-				'post_type'      => 'wcb_application',
-				'post_status'    => 'any',
-				'posts_per_page' => 1,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'AND',
-					array(
-						'key'   => '_wcb_job_id',
-						'value' => $job_id,
+		if ( $is_guest ) {
+			// Guest submission: require name + valid email.
+			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
+			$guest_email = sanitize_email( (string) ( $request->get_param( 'guest_email' ) ?? '' ) );
+
+			if ( ! $guest_name ) {
+				return new \WP_Error( 'wcb_guest_name_required', __( 'Name is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
+			if ( ! is_email( $guest_email ) ) {
+				return new \WP_Error( 'wcb_guest_email_invalid', __( 'A valid email address is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
+
+			// Duplicate guard: one pending application per guest email + job within 24 h.
+			$cutoff   = gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
+			$existing = get_posts(
+				array(
+					'post_type'      => 'wcb_application',
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'date_query'     => array( array( 'after' => $cutoff ) ),
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						array(
+							'key'   => '_wcb_job_id',
+							'value' => $job_id,
+						),
+						array(
+							'key'   => '_wcb_guest_email',
+							'value' => $guest_email,
+						),
 					),
-					array(
-						'key'   => '_wcb_candidate_id',
-						'value' => $candidate_id,
-					),
-				),
-			)
-		);
-		if ( $existing ) {
-			return new \WP_Error(
-				'wcb_already_applied',
-				__( 'You have already applied to this job.', 'wp-career-board' ),
-				array( 'status' => 409 )
+				)
 			);
+
+			if ( $existing ) {
+				return new \WP_Error(
+					'wcb_already_applied',
+					__( 'You have already applied to this job recently.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+
+			/* translators: 1: guest name, 2: job post ID */
+			$post_title = sprintf( __( 'Application: %1$s → Job %2$d', 'wp-career-board' ), $guest_name, $job_id );
+		} else {
+			$candidate_id = get_current_user_id();
+
+			// Prevent duplicate applications for logged-in candidates.
+			$existing = get_posts(
+				array(
+					'post_type'      => 'wcb_application',
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						array(
+							'key'   => '_wcb_job_id',
+							'value' => $job_id,
+						),
+						array(
+							'key'   => '_wcb_candidate_id',
+							'value' => $candidate_id,
+						),
+					),
+				)
+			);
+
+			if ( $existing ) {
+				return new \WP_Error(
+					'wcb_already_applied',
+					__( 'You have already applied to this job.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+
+			/* translators: 1: candidate user ID, 2: job post ID */
+			$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
 		}
 
 		$app_id = wp_insert_post(
 			array(
 				'post_type'   => 'wcb_application',
-				/* translators: 1: candidate user ID, 2: job post ID */
-				'post_title'  => sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id ),
+				'post_title'  => $post_title,
 				'post_status' => 'publish',
-				'post_author' => $candidate_id,
+				'post_author' => $is_guest ? 0 : $candidate_id,
 			),
 			true
 		);
@@ -170,37 +223,42 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		update_post_meta( $app_id, '_wcb_job_id', $job_id );
-		update_post_meta( $app_id, '_wcb_candidate_id', $candidate_id );
+		update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
 		update_post_meta(
 			$app_id,
 			'_wcb_cover_letter',
 			sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
 		);
 
-		// Validate resume belongs to the current candidate before storing.
-		$resume_id = (int) $request->get_param( 'resume_id' );
-		if ( $resume_id > 0 ) {
-			$resume = get_post( $resume_id );
-			if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
-				wp_delete_post( $app_id, true );
-				return new \WP_Error(
-					'wcb_invalid_resume',
-					__( 'Invalid resume.', 'wp-career-board' ),
-					array( 'status' => 400 )
-				);
+		if ( $is_guest ) {
+			update_post_meta( $app_id, '_wcb_guest_name', $guest_name );
+			update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+		} else {
+			// Validate resume belongs to the current candidate before storing.
+			$resume_id = (int) $request->get_param( 'resume_id' );
+			if ( $resume_id > 0 ) {
+				$resume = get_post( $resume_id );
+				if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+					wp_delete_post( $app_id, true );
+					return new \WP_Error(
+						'wcb_invalid_resume',
+						__( 'Invalid resume.', 'wp-career-board' ),
+						array( 'status' => 400 )
+					);
+				}
 			}
-		}
-		update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
+			update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
 
-		// Store uploaded resume file attachment (Free mode — no wcb_resume post).
-		$attachment_id = (int) $request->get_param( 'resume_attachment_id' );
-		if ( $attachment_id > 0 ) {
-			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+			// Store uploaded resume file attachment (Free mode — no wcb_resume post).
+			$attachment_id = (int) $request->get_param( 'resume_attachment_id' );
+			if ( $attachment_id > 0 ) {
+				update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+			}
 		}
 
 		update_post_meta( $app_id, '_wcb_status', 'submitted' );
 
-		do_action( 'wcb_application_submitted', $app_id, $job_id, $candidate_id );
+		do_action( 'wcb_application_submitted', $app_id, $job_id, $is_guest ? 0 : $candidate_id );
 
 		return rest_ensure_response(
 			array(
@@ -421,13 +479,16 @@ final class ApplicationsEndpoint extends RestController {
 	/**
 	 * Check if the current user can submit an application.
 	 *
+	 * Guests (unauthenticated) are permitted — guest field validation happens
+	 * in submit_application() after the auth check passes.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return bool|\WP_Error
+	 * @return bool
 	 */
-	public function submit_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_apply_jobs' ) ? true : $this->permission_error();
+	public function submit_permissions_check( \WP_REST_Request $request ): bool {
+		return true;
 	}
 
 	/**

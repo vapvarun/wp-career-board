@@ -369,7 +369,35 @@ class AdminApplications extends \WP_List_Table {
 	protected function column_candidate( $item ): string {
 		$candidate_id = (int) get_post_meta( $item->ID, '_wcb_candidate_id', true );
 		$candidate    = $candidate_id ? get_userdata( $candidate_id ) : false;
-		$name         = $candidate instanceof \WP_User ? $candidate->display_name : __( '(deleted)', 'wp-career-board' );
+		$edit_link    = (string) get_edit_post_link( $item->ID );
+		$row_actions  = array(
+			'view' => sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $edit_link ),
+				esc_html__( 'View', 'wp-career-board' )
+			),
+		);
+
+		// Guest application — candidate_id is 0, use stored guest meta.
+		if ( 0 === $candidate_id && ! $candidate instanceof \WP_User ) {
+			$guest_name  = (string) get_post_meta( $item->ID, '_wcb_guest_name', true );
+			$guest_email = (string) get_post_meta( $item->ID, '_wcb_guest_email', true );
+			$display     = $guest_name ? $guest_name : __( '(unknown)', 'wp-career-board' );
+			$out         = '<span class="wcb-guest-badge">' . esc_html__( 'Guest', 'wp-career-board' ) . '</span> ';
+			$out        .= '<strong>' . esc_html( $display ) . '</strong>';
+			if ( $guest_email ) {
+				$out                 .= '<br><small>' . esc_html( $guest_email ) . '</small>';
+				$row_actions['email'] = sprintf(
+					'<a href="mailto:%s">%s</a>',
+					esc_attr( $guest_email ),
+					esc_html__( 'Email Guest', 'wp-career-board' )
+				);
+			}
+			$out .= $this->row_actions( $row_actions );
+			return $out;
+		}
+
+		$name = $candidate instanceof \WP_User ? $candidate->display_name : __( '(deleted)', 'wp-career-board' );
 
 		if ( $candidate instanceof \WP_User ) {
 			$out = sprintf(
@@ -380,15 +408,6 @@ class AdminApplications extends \WP_List_Table {
 		} else {
 			$out = '<strong>' . esc_html( $name ) . '</strong>';
 		}
-
-		$edit_link   = (string) get_edit_post_link( $item->ID );
-		$row_actions = array(
-			'view' => sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( $edit_link ),
-				esc_html__( 'View', 'wp-career-board' )
-			),
-		);
 
 		if ( $candidate instanceof \WP_User && $candidate->user_email ) {
 			$row_actions['email'] = sprintf(

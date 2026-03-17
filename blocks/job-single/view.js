@@ -38,6 +38,14 @@ const { state } = store( 'wcb-job-single', {
 			state.coverLetter = event.target.value;
 		},
 
+		updateGuestName( event ) {
+			state.guestName = event.target.value;
+		},
+
+		updateGuestEmail( event ) {
+			state.guestEmail = event.target.value;
+		},
+
 		selectResume( event ) {
 			state.selectedResumeId = Number( event.target.value );
 		},
@@ -62,6 +70,14 @@ const { state } = store( 'wcb-job-single', {
 			const captchaToken = window.wcbCaptchaGetToken
 				? yield window.wcbCaptchaGetToken()
 				: '';
+
+			// Guest validation — require name + email before submitting.
+			if ( ! state.isLoggedIn ) {
+				if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
+					state.error = 'Please enter your name and email to apply.';
+					return;
+				}
+			}
 
 			state.submitting = true;
 			state.error      = '';
@@ -97,6 +113,11 @@ const { state } = store( 'wcb-job-single', {
 					hp:                hpEl ? hpEl.value : '',
 					wcb_captcha_token: captchaToken,
 				};
+
+				if ( ! state.isLoggedIn ) {
+					body.guest_name  = state.guestName;
+					body.guest_email = state.guestEmail;
+				}
 
 				if ( state.proActive && state.selectedResumeId > 0 ) {
 					body.resume_id = state.selectedResumeId;

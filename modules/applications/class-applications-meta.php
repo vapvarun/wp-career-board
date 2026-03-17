@@ -44,6 +44,8 @@ final class ApplicationsMeta {
 			'_wcb_cover_letter' => array( 'type' => 'string' ),
 			'_wcb_resume_id'    => array( 'type' => 'integer' ),
 			'_wcb_status'       => array( 'type' => 'string' ),
+			'_wcb_guest_name'   => array( 'type' => 'string' ),
+			'_wcb_guest_email'  => array( 'type' => 'string' ),
 		);
 
 		foreach ( $meta_fields as $key => $schema ) {
