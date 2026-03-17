@@ -29,6 +29,7 @@ class Admin {
 	 */
 	public function boot(): void {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
+		add_action( 'admin_menu', array( $this, 'register_settings_submenu' ), 25 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Boot settings so its admin_init hook fires.
@@ -75,6 +76,15 @@ class Admin {
 
 		add_submenu_page(
 			'wp-career-board',
+			__( 'Candidates', 'wp-career-board' ),
+			__( 'Candidates', 'wp-career-board' ),
+			'wcb_manage_settings',
+			'wcb-candidates',
+			array( new AdminCandidates(), 'render' )
+		);
+
+		add_submenu_page(
+			'wp-career-board',
 			__( 'Companies', 'wp-career-board' ),
 			__( 'Companies', 'wp-career-board' ),
 			'wcb_manage_settings',
@@ -90,16 +100,15 @@ class Admin {
 			'wcb-employers',
 			array( new AdminEmployers(), 'render' )
 		);
+	}
 
-		add_submenu_page(
-			'wp-career-board',
-			__( 'Candidates', 'wp-career-board' ),
-			__( 'Candidates', 'wp-career-board' ),
-			'wcb_manage_settings',
-			'wcb-candidates',
-			array( new AdminCandidates(), 'render' )
-		);
-
+	/**
+	 * Register the Settings submenu at priority 25 so it appears after all Pro items.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_settings_submenu(): void {
 		add_submenu_page(
 			'wp-career-board',
 			__( 'Settings', 'wp-career-board' ),
