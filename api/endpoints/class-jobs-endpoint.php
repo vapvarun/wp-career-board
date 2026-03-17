@@ -743,6 +743,8 @@ final class JobsEndpoint extends RestController {
 			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
 			'apply_url'        => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
 			'apply_email'      => (string) get_post_meta( $post->ID, '_wcb_apply_email', true ),
+			'lat'              => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
+			'lng'              => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);
 	}
 
