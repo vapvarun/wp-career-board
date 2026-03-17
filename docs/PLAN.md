@@ -3746,7 +3746,9 @@ Use this table to track task completion. Update the Status column as you go.
 | T23 | reCAPTCHA v3 / anti-spam on job-form + application form | ✅ 2026-03-17 · `4885428` |
 | T24 | Guest applications — apply without registration (email only) | ✅ 2026-03-17 · `e4c8f64` |
 | T25 | Frontend company profile editor in employer-dashboard | ✅ 2026-03-17 · already implemented |
-| T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | 🔲 Not started |
+| T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | ✅ 2026-03-17 · `7025f26` |
+| T27a | Salary range + remote filter UI in job-filters block | ✅ 2026-03-17 · `5378fe1` |
+| T27b | Company name search + REST caching (T28) + extension hooks (T29) | ✅ 2026-03-17 · `27162d8` |
 
 ---
 
