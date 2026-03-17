@@ -50,6 +50,7 @@ $wcb_post_job_url    = ! empty( $wcb_settings['post_job_page'] )
 $wcb_company_dir_url = ! empty( $wcb_settings['company_archive_page'] )
 	? (string) get_permalink( (int) $wcb_settings['company_archive_page'] )
 	: '#';
+$wcb_company_url     = $wcb_company_id ? (string) get_permalink( $wcb_company_id ) : $wcb_company_dir_url;
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_apps_job_id   = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
@@ -121,7 +122,7 @@ wp_interactivity_state(
 			<button type="button" class="wcb-nav-item" data-wp-class--wcb-nav-active="state.isViewCompany" data-wp-on--click="actions.switchToCompany">
 				<?php esc_html_e( 'Profile', 'wp-career-board' ); ?>
 			</button>
-			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_company_dir_url ); ?>" target="_blank" rel="noopener noreferrer">
+			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_company_url ); ?>" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'Public Page', 'wp-career-board' ); ?> &#8599;
 			</a>
 		</nav>
@@ -269,18 +270,18 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobSelected">
-				<p class="wcb-db-empty-msg"><?php esc_html_e( 'Select a job above to view its applications.', 'wp-career-board' ); ?></p>
-				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
-			</div>
-
 			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">
 				<template data-wp-each--job="state.jobsWithApps" data-wp-each-key="context.job.id">
 					<button type="button" class="wcb-apps-job-pill" data-wp-class--wcb-active="state.isSelectedAppsJob" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob" data-wp-text="context.job.title"></button>
 				</template>
 			</div>
 
-			<div class="wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobSelected">
+				<p class="wcb-db-empty-msg"><?php esc_html_e( 'Select a job above to view its applications.', 'wp-career-board' ); ?></p>
+				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
+			</div>
+
+			<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'New', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="shortlisted" data-wp-class--wcb-filter-active="state.isAppsFilterShortlisted" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?></button>
@@ -352,11 +353,6 @@ wp_interactivity_state(
 
 			<div class="wcb-profile-grid">
 				<div class="wcb-profile-form">
-					<div class="wcb-logo-placeholder">
-						<span><?php esc_html_e( 'Upload Logo', 'wp-career-board' ); ?></span>
-					</div>
-					<p class="wcb-logo-caption"><?php esc_html_e( 'Logo upload coming soon.', 'wp-career-board' ); ?></p>
-
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
 						<input id="wcb-company-name" type="text" class="wcb-field-input" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />

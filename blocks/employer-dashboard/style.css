@@ -454,8 +454,8 @@
 	display: flex;
 }
 
-/* Always-visible filter bar (Jobs view — not conditional) */
-.wcb-view-panel.wcb-view-active > .wcb-filter-bar {
+/* Always-visible filter bar (Jobs view only — not the apps filter bar) */
+.wcb-view-panel.wcb-view-active > .wcb-filter-bar:not( .wcb-apps-filter-bar ) {
 	display: flex;
 }
 
