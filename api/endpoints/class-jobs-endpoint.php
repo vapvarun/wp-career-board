@@ -233,6 +233,11 @@ final class JobsEndpoint extends RestController {
 			return new \WP_Error( 'wcb_spam', __( 'Spam detected.', 'wp-career-board' ), array( 'status' => 400 ) );
 		}
 
+		$wcb_spam = apply_filters( 'wcb_pre_job_submit', null, $request );
+		if ( is_wp_error( $wcb_spam ) ) {
+			return $wcb_spam;
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(

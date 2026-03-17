@@ -573,4 +573,17 @@ wp_interactivity_state(
 			</div>
 		</div>
 	<?php endif; ?>
+
+	<!-- ── Honeypot anti-spam (apply form) ──────────────────────────────── -->
+	<div class="wcb-hp-wrap" aria-hidden="true">
+		<label for="wcb-hp-apply"><?php esc_html_e( 'Leave this field blank', 'wp-career-board' ); ?></label>
+		<input
+			type="text"
+			id="wcb-hp-apply"
+			name="wcb_hp_apply"
+			class="wcb-hp"
+			tabindex="-1"
+			autocomplete="off"
+		/>
+	</div>
 </div>

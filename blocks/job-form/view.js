@@ -222,6 +222,11 @@ store(
 					return;
 				}
 
+				// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
+				const captchaToken = window.wcbCaptchaGetToken
+					? yield window.wcbCaptchaGetToken()
+					: '';
+
 				state.submitting = true;
 				state.error      = '';
 
@@ -246,7 +251,9 @@ store(
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
 						locations:       state.locationSlug ? [ state.locationSlug ] : [],
 						experience:      state.expSlug ? [ state.expSlug ] : [],
-						tags:            tagSlugs,
+						tags:              tagSlugs,
+						hp:                hpEl ? hpEl.value : '',
+						wcb_captcha_token: captchaToken,
 					};
 
 					const response = yield fetch(

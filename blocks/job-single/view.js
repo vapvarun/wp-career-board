@@ -51,6 +51,18 @@ const { state } = store( 'wcb-job-single', {
 				return;
 			}
 
+			// Honeypot — bots that autofill all fields trigger a fake success.
+			const hpEl = document.getElementById( 'wcb-hp-apply' );
+			if ( hpEl && hpEl.value ) {
+				state.submitted = true;
+				return;
+			}
+
+			// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
+			const captchaToken = window.wcbCaptchaGetToken
+				? yield window.wcbCaptchaGetToken()
+				: '';
+
 			state.submitting = true;
 			state.error      = '';
 
@@ -80,7 +92,11 @@ const { state } = store( 'wcb-job-single', {
 					resumeAttachmentId = uploadData.attachment_id || 0;
 				}
 
-				const body = { cover_letter: state.coverLetter };
+				const body = {
+					cover_letter:      state.coverLetter,
+					hp:                hpEl ? hpEl.value : '',
+					wcb_captcha_token: captchaToken,
+				};
 
 				if ( state.proActive && state.selectedResumeId > 0 ) {
 					body.resume_id = state.selectedResumeId;
@@ -110,6 +126,9 @@ const { state } = store( 'wcb-job-single', {
 
 				state.submitted = true;
 				state.panelOpen = false;
+				if ( window.wcbCaptchaReset ) {
+					window.wcbCaptchaReset();
+				}
 			} catch {
 				state.error = 'Connection error. Please check your network and try again.';
 			} finally {

@@ -110,6 +110,11 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function submit_application( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$wcb_spam = apply_filters( 'wcb_pre_application_submit', null, $request );
+		if ( is_wp_error( $wcb_spam ) ) {
+			return $wcb_spam;
+		}
+
 		$job_id       = (int) $request['id'];
 		$candidate_id = get_current_user_id();
 
