@@ -3743,7 +3743,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T22f | Audit log: append _wcb_status_log on status change; meta box on wcb_application edit screen | ✅ 2026-03-16 · `467b218` |
 | T22g | Applications: mailto candidate link in row actions | ✅ 2026-03-16 · `467b218` |
 | T21  | Pre-release QA | ✅ 2026-03-17 (functional + a11y + perf; security spot-check pending manual auth test) |
-| T23 | reCAPTCHA v3 / anti-spam on job-form + application form | 🔲 Not started |
+| T23 | reCAPTCHA v3 / anti-spam on job-form + application form | ✅ 2026-03-17 · `4885428` |
 | T24 | Guest applications — apply without registration (email only) | 🔲 Not started |
 | T25 | Frontend company profile editor in employer-dashboard | 🔲 Not started |
 | T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | 🔲 Not started |
