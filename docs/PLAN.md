@@ -3743,3 +3743,141 @@ Use this table to track task completion. Update the Status column as you go.
 | T22f | Audit log: append _wcb_status_log on status change; meta box on wcb_application edit screen | ✅ 2026-03-16 · `467b218` |
 | T22g | Applications: mailto candidate link in row actions | ✅ 2026-03-16 · `467b218` |
 | T21  | Pre-release QA | ✅ 2026-03-17 (functional + a11y + perf; security spot-check pending manual auth test) |
+| T23 | reCAPTCHA v3 / anti-spam on job-form + application form | 🔲 Not started |
+| T24 | Guest applications — apply without registration (email only) | 🔲 Not started |
+| T25 | Frontend company profile editor in employer-dashboard | 🔲 Not started |
+| T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | 🔲 Not started |
+
+---
+
+## Phase 3: Client Workflow Completeness
+
+### Task T23: reCAPTCHA v3 / Anti-spam
+
+**Goal:** Protect `wcb/job-form` (job submission) and the apply action in `wcb/job-single` from bot submissions without adding visible CAPTCHAs.
+
+**Files:**
+- Create: `modules/antispam/class-antispam-module.php`
+- Modify: `modules/jobs/class-jobs-module.php` — boot antispam module
+- Modify: `api/endpoints/class-jobs-endpoint.php` — verify token before create_item()
+- Modify: `api/endpoints/class-applications-endpoint.php` — verify token before create_item()
+- Modify: `admin/class-admin-settings.php` — add reCAPTCHA site key + secret key fields
+- Modify: `blocks/job-form/view.js` — load grecaptcha, attach token to REST request
+- Modify: `blocks/job-single/view.js` — same for the apply action
+
+**Architecture:**
+- Settings: `wcb_settings['recaptcha_site_key']` and `wcb_settings['recaptcha_secret_key']`
+- `AntiSpamModule::verify( string $token ): bool` — calls `https://www.google.com/recaptcha/api/siteverify` via `wp_remote_post()`
+- Score threshold configurable (default 0.5); below threshold returns `WP_Error`
+- If keys not configured the check is skipped silently (backwards compatible)
+- Frontend: `grecaptcha.execute( siteKey, { action: 'wcb_submit' } )` → token sent as `recaptcha_token` param in REST body
+
+**Steps:**
+
+- [ ] Add reCAPTCHA site key + secret key inputs to Settings → General tab
+- [ ] Create `AntiSpamModule` with `verify()` method using `wp_remote_post()` + `wp_remote_retrieve_body()`
+- [ ] Register module in `class-jobs-module.php` boot
+- [ ] Add `recaptcha_token` param to `class-jobs-endpoint.php` `get_collection_params()` and call `verify()` at top of `create_item()`
+- [ ] Add same to `class-applications-endpoint.php` `create_item()`
+- [ ] Enqueue `https://www.google.com/recaptcha/api.js?render={siteKey}` conditionally when keys are set
+- [ ] Attach token generation to job-form `view.js` submit action before `fetch()`
+- [ ] Attach token generation to job-single `view.js` apply action before `fetch()`
+- [ ] Test: submit job without token → 400 error. Submit with valid token → 201.
+- [ ] Commit: `feat(wcb): T23 — reCAPTCHA v3 anti-spam on job-form and application`
+
+---
+
+### Task T24: Guest Applications
+
+**Goal:** Allow a visitor to apply for a job with just their name, email, and optional cover letter — no account required. A `wcb_application` post is created with `post_author = 0` and guest meta stored separately.
+
+**Files:**
+- Modify: `api/endpoints/class-applications-endpoint.php` — allow unauthenticated POST with guest fields
+- Modify: `modules/applications/class-applications-meta.php` — register `_wcb_guest_name`, `_wcb_guest_email`
+- Modify: `modules/notifications/class-notifications-module.php` — send confirmation email to guest
+- Modify: `blocks/job-single/render.php` — show guest form fields (name, email) when not logged in
+- Modify: `blocks/job-single/view.js` — include guest fields in REST payload
+- Modify: `admin/class-admin-applications.php` — show guest name/email in list table column
+
+**Architecture:**
+- `permission_callback` on POST `/wcb/v1/applications` changed from `is_user_logged_in` check to `__return_true`
+- When `author = 0`: require `guest_name` (string) and `guest_email` (valid email) params
+- When logged in: existing flow unchanged
+- Duplicate guard: one pending application per `_wcb_guest_email` + job ID within 24 hours
+- Guest gets a confirmation email with job title and application reference (post ID)
+- Admin list table: "Guest" badge in applicant column with name and email shown
+
+**Steps:**
+
+- [ ] Register `_wcb_guest_name` and `_wcb_guest_email` postmeta in `class-applications-meta.php`
+- [ ] Update `permission_callback` on applications POST to `__return_true`
+- [ ] Add `guest_name` + `guest_email` params to `get_collection_params()` with `validate_callback` checking `is_email()`
+- [ ] In `create_item()`: branch on `is_user_logged_in()` — if guest, set `post_author = 0`, save guest meta, skip resume attachment
+- [ ] Add duplicate-guard query before `wp_insert_post()` for guest submissions
+- [ ] Add guest confirmation email in `NotificationsModule` triggered on `wcb_application_created` with `post_author = 0`
+- [ ] Update `blocks/job-single/render.php`: when not logged in show Name + Email inputs above cover letter; seed `isLoggedIn` into Interactivity API state
+- [ ] Update `blocks/job-single/view.js`: include `guest_name` + `guest_email` in payload when `!state.isLoggedIn`
+- [ ] Update `class-admin-applications.php` applicant column: if `post_author = 0`, show guest name + email from meta
+- [ ] Test: apply as guest → application created, confirmation email sent, visible in admin with Guest badge
+- [ ] Commit: `feat(wcb): T24 — guest applications with email confirmation`
+
+---
+
+### Task T25: Frontend Company Profile Editor
+
+**Goal:** Employers can edit their company's name, tagline, logo, cover image, location, website, industry, size, and social links from the employer dashboard without touching wp-admin.
+
+**Files:**
+- Modify: `blocks/employer-dashboard/render.php` — add "Company" tab seeded with current company data
+- Modify: `blocks/employer-dashboard/view.js` — `saveCompany` action: PATCH `/wcb/v1/companies/{id}`
+- Modify: `blocks/employer-dashboard/style.css` — form styles reusing existing `.wcb-ed-*` patterns
+- Modify: `api/endpoints/class-companies-endpoint.php` — add/verify PATCH route for updating company
+- Modify: `blocks/employer-dashboard/render.php` — logo + cover image upload via Media Library (wp.media)
+
+**Architecture:**
+- New "Company" tab alongside "Jobs" and "Applications" in the employer dashboard
+- Seeded state: `companyId`, `companyName`, `companyTagline`, `companyLocation`, `companyWebsite`, `companyIndustry`, `companySize`, `companyLogoId`, `companyCoverId`, `companySocial`
+- `PATCH /wcb/v1/companies/{id}` already exists (verify) or add if missing — permission: post_author === current user
+- Logo / cover: uses `wp.media` frame opened from a button; returns attachment ID → REST payload
+- Save shows inline success/error notice via `data-wp-class--wcb-shown`
+
+**Steps:**
+
+- [ ] Confirm `PATCH /wcb/v1/companies/{id}` exists and accepts all required fields; add missing fields if needed
+- [ ] Add `companyId` + all company fields to `wp_interactivity_state()` seed in `employer-dashboard/render.php`
+- [ ] Add "Company" tab button and panel markup to `render.php` following existing tab pattern
+- [ ] Add logo and cover image upload buttons with `wp.media` integration (enqueue `wp-media-utils` dependency)
+- [ ] Add `saveCompany` action to `view.js`: collects fields, `fetch( PATCH /wcb/v1/companies/{id} )`, updates state on success
+- [ ] Add inline success/error notice bound to `state.companySaveStatus`
+- [ ] Style form fields in `style.css` consistent with existing dashboard form patterns
+- [ ] Test: edit name → save → reload page → name persisted. Upload logo → save → company profile shows new logo.
+- [ ] Commit: `feat(wcb): T25 — frontend company profile editor in employer dashboard`
+
+---
+
+### Task T26: Social Sharing Buttons on Job Single
+
+**Goal:** Add X (Twitter), LinkedIn, and copy-link sharing buttons to `wcb/job-single` so candidates can share jobs from the listing page.
+
+**Files:**
+- Modify: `blocks/job-single/render.php` — add sharing button markup seeded with job URL + title
+- Modify: `blocks/job-single/view.js` — `copyLink` action using `navigator.clipboard.writeText()`
+- Modify: `blocks/job-single/style.css` — sharing bar styles
+
+**Architecture:**
+- Sharing bar rendered server-side (no JS needed for X and LinkedIn — they are plain `<a>` tags with share URLs)
+- X share URL: `https://x.com/intent/tweet?text={title}&url={permalink}`
+- LinkedIn share URL: `https://www.linkedin.com/sharing/share-offsite/?url={permalink}`
+- Copy link: Interactivity API `copyLink` action → `navigator.clipboard.writeText()` → toggles "Copied!" label for 2s via `state.linkCopied`
+- Both URLs built server-side and output as `data-*` attributes or direct `href` (X and LinkedIn need no JS)
+
+**Steps:**
+
+- [ ] Add sharing bar `<div class="wcb-js-share">` to `job-single/render.php` below the apply button, with `data-wp-interactive` context
+- [ ] Build X and LinkedIn `<a>` share URLs in PHP using `rawurlencode( get_the_title() )` and `rawurlencode( get_permalink() )`
+- [ ] Add copy-link `<button>` with `data-wp-on--click="actions.copyLink"` and two `<span>` labels (default / copied) toggled via `data-wp-bind--hidden`
+- [ ] Add `copyLink` action to `view.js`: reads `state.jobPermalink`, calls `navigator.clipboard.writeText()`, sets `state.linkCopied = true`, resets after 2000ms
+- [ ] Add `state.jobPermalink` and `state.linkCopied` to the `wcb-job-single` store seed in `render.php`
+- [ ] Style in `style.css`: flex row, icon buttons with hover states, consistent with existing `.wcb-js-*` patterns
+- [ ] Test: X link opens correct tweet URL. LinkedIn link opens share dialog. Copy link copies URL and shows "Copied!" for 2s.
+- [ ] Commit: `feat(wcb): T26 — social sharing bar on job single (X, LinkedIn, copy link)`
