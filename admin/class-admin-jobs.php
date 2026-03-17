@@ -247,7 +247,16 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No jobs found.', 'wp-career-board' );
+		?>
+		<div class="wcb-no-items-state">
+			<span class="dashicons dashicons-portfolio"></span>
+			<span class="wcb-no-items-title"><?php esc_html_e( 'No jobs found', 'wp-career-board' ); ?></span>
+			<p><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="button button-primary">
+				<?php esc_html_e( 'Add New Job', 'wp-career-board' ); ?>
+			</a>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------

@@ -335,7 +335,13 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No applications found.', 'wp-career-board' );
+		?>
+		<div class="wcb-no-items-state">
+			<span class="dashicons dashicons-email-alt"></span>
+			<span class="wcb-no-items-title"><?php esc_html_e( 'No applications found', 'wp-career-board' ); ?></span>
+			<p><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------

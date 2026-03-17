@@ -198,6 +198,39 @@
 	padding: 20px 0;
 }
 
+/* Styled empty state inside WP_List_Table */
+.wcb-no-items-state {
+	text-align: center;
+	padding: 40px 24px;
+	color: #646970;
+}
+
+.wcb-no-items-state .dashicons {
+	font-size: 40px;
+	width: 40px;
+	height: 40px;
+	color: #c3c4c7;
+	display: block;
+	margin: 0 auto 12px;
+}
+
+.wcb-no-items-state p {
+	margin: 0 0 8px;
+	font-size: 14px;
+}
+
+.wcb-no-items-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: #1d2327;
+	display: block;
+	margin-bottom: 6px;
+}
+
+.wcb-no-items-state .button {
+	margin-top: 12px;
+}
+
 /* ── Company meta boxes ── */
 
 .wcb-company-meta-grid {

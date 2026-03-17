@@ -253,7 +253,16 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No companies found.', 'wp-career-board' );
+		?>
+		<div class="wcb-no-items-state">
+			<span class="dashicons dashicons-building"></span>
+			<span class="wcb-no-items-title"><?php esc_html_e( 'No companies yet', 'wp-career-board' ); ?></span>
+			<p><?php esc_html_e( 'Company profiles are created when employers complete their profile on the employer dashboard.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="button button-primary">
+				<?php esc_html_e( 'Add Company', 'wp-career-board' ); ?>
+			</a>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------

@@ -137,7 +137,16 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No employers found.', 'wp-career-board' );
+		?>
+		<div class="wcb-no-items-state">
+			<span class="dashicons dashicons-businessman"></span>
+			<span class="wcb-no-items-title"><?php esc_html_e( 'No employers yet', 'wp-career-board' ); ?></span>
+			<p><?php esc_html_e( 'Employers are users with the Employer role. Invite them via the Add New button above or let them self-register from the frontend.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="button button-primary">
+				<?php esc_html_e( 'Add Employer', 'wp-career-board' ); ?>
+			</a>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------

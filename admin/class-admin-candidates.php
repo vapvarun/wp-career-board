@@ -137,7 +137,13 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No candidates found.', 'wp-career-board' );
+		?>
+		<div class="wcb-no-items-state">
+			<span class="dashicons dashicons-groups"></span>
+			<span class="wcb-no-items-title"><?php esc_html_e( 'No candidates yet', 'wp-career-board' ); ?></span>
+			<p><?php esc_html_e( 'Candidates register on the frontend and appear here once they create an account.', 'wp-career-board' ); ?></p>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------
