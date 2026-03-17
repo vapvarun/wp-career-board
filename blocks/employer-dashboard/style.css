@@ -835,13 +835,6 @@
 	margin: 0 0 16px;
 }
 
-.wcb-preview-logo-slot {
-	width: 48px;
-	height: 48px;
-	border-radius: 6px;
-	background: var( --wcb-bg-hover );
-	margin-bottom: 12px;
-}
 
 .wcb-preview-name {
 	font-size: 16px;
@@ -1154,7 +1147,7 @@
 
 /* ── Interactivity API show/hide utilities ────────────────────────────────── */
 .wcb-hidden { display: none !important; }
-.wcb-shown  { display: block !important; }
+.wcb-shown  { display: block; }
 
 /* ── Loading skeleton ─────────────────────────────────────────────────────── */
 .wcb-db-loading {

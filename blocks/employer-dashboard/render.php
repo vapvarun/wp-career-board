@@ -423,7 +423,6 @@ wp_interactivity_state(
 				<div class="wcb-preview-card">
 					<h3 class="wcb-preview-title"><?php esc_html_e( 'Live Preview', 'wp-career-board' ); ?></h3>
 					<div class="wcb-preview-body">
-						<div class="wcb-preview-logo-slot"></div>
 						<p class="wcb-preview-name" data-wp-text="state.companyName"></p>
 						<p class="wcb-preview-tagline" data-wp-text="state.companyTagline"></p>
 						<p class="wcb-preview-desc" data-wp-text="state.companyDescExcerpt"></p>

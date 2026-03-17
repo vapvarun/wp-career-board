@@ -325,7 +325,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					return;
 				}
 
-				state.applications = yield response.json();
+				const apps         = yield response.json();
+				state.applications = apps.map( ( a ) => ( {
+					...a,
+					initials: a.applicant_name
+						? a.applicant_name.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
+						: '?',
+				} ) );
 				const match = state.jobs.find( ( j ) => j.id === state.appsJobId );
 				if ( match ) {
 					state.appsJobTitle = match.title;
