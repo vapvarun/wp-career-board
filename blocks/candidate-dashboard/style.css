@@ -21,7 +21,10 @@
 	color: #64748b;
 }
 
-.wcb-tab-btn.active {
+.wcb-tab-btn.active,
+.wp-block-wp-career-board-candidate-dashboard .wcb-tab-btn.active {
+	background: none;
+	border-radius: 0;
 	color: #2563eb;
 	border-bottom-color: #2563eb;
 	font-weight: 600;
