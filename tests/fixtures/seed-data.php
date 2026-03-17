@@ -1053,6 +1053,17 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 					update_post_meta( $id, '_wcb_resume_' . $key, $resume[ $key ] );
 				}
 			}
+
+			// Sync skill names into the wcb_resume_skill taxonomy (Pro feature).
+			if ( taxonomy_exists( 'wcb_resume_skill' ) && ! empty( $resume['skills'] ) ) {
+				$skill_terms = array_filter(
+					array_map(
+						static fn( array $s ): string => (string) ( $s['skill_name'] ?? '' ),
+						$resume['skills']
+					)
+				);
+				wp_set_object_terms( $id, array_values( $skill_terms ), 'wcb_resume_skill' );
+			}
 		}
 	}
 } else {
