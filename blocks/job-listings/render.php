@@ -156,7 +156,7 @@ $wcb_type_opts      = array_map(
 
 $wcb_exp_terms_raw = get_terms(
 	array(
-		'taxonomy'   => 'wcb_job_experience',
+		'taxonomy'   => 'wcb_experience',
 		'hide_empty' => false,
 	)
 );
