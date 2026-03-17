@@ -95,6 +95,14 @@ final class JobsEndpoint extends RestController {
 				'permission_callback' => array( $this, 'view_applications_permissions_check' ),
 			)
 		);
+
+		add_action(
+			'save_post_wcb_job',
+			static function (): void {
+				$v = (int) get_option( 'wcb_jobs_cache_v', 0 );
+				update_option( 'wcb_jobs_cache_v', $v + 1, false );
+			}
+		);
 	}
 
 	/**
@@ -189,13 +197,91 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
+		$cache_key    = $this->get_items_cache_key( $args );
+		$cached_value = get_transient( $cache_key );
+
+		if ( false !== $cached_value && is_array( $cached_value ) ) {
+			$response = rest_ensure_response( $cached_value['jobs'] );
+			$response->header( 'X-WCB-Total', $cached_value['total'] );
+			$response->header( 'X-WCB-TotalPages', $cached_value['pages'] );
+			$response->header( 'Cache-Control', 'public, max-age=300' );
+			return $response;
+		}
+
+		if ( ! empty( $args['s'] ) ) {
+			add_filter( 'posts_search', array( $this, 'extend_search_to_company' ), 10, 2 );
+		}
+
 		$query = new \WP_Query( $args );
-		$jobs  = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
+
+		remove_filter( 'posts_search', array( $this, 'extend_search_to_company' ), 10 );
+
+		$jobs = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
+		$jobs = (array) apply_filters( 'wcb_jobs_post_filter', $jobs, $query, $request );
+
+		set_transient(
+			$cache_key,
+			array(
+				'jobs'  => $jobs,
+				'total' => (string) $query->found_posts,
+				'pages' => (string) $query->max_num_pages,
+			),
+			5 * MINUTE_IN_SECONDS
+		);
 
 		$response = rest_ensure_response( $jobs );
 		$response->header( 'X-WCB-Total', (string) $query->found_posts );
 		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		$response->header( 'Cache-Control', 'public, max-age=300' );
 		return $response;
+	}
+
+	/**
+	 * Extend keyword search to include the denormalized company name meta.
+	 *
+	 * Appended as a temporary posts_search filter in get_items() so the
+	 * subquery only fires on wcb_job searches that have an 's' param.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string    $search Existing SQL search clause.
+	 * @param \WP_Query $query  Current WP_Query instance.
+	 * @return string
+	 */
+	public function extend_search_to_company( string $search, \WP_Query $query ): string {
+		global $wpdb;
+
+		if ( ! $search || 'wcb_job' !== $query->get( 'post_type' ) ) {
+			return $search;
+		}
+
+		$term = (string) $query->get( 's' );
+		$like = '%' . $wpdb->esc_like( $term ) . '%';
+
+		$search .= $wpdb->prepare(
+			" OR EXISTS (
+				SELECT 1 FROM {$wpdb->postmeta} pm
+				WHERE pm.post_id = {$wpdb->posts}.ID
+				  AND pm.meta_key = '_wcb_company_name'
+				  AND pm.meta_value LIKE %s
+			)",
+			$like
+		);
+
+		return $search;
+	}
+
+	/**
+	 * Build a version-namespaced transient key for a job listing query.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<string, mixed> $args WP_Query args array.
+	 * @return string
+	 */
+	private function get_items_cache_key( array $args ): string {
+		$version = (int) get_option( 'wcb_jobs_cache_v', 0 );
+		return 'wcb_jobs_' . $version . '_' . md5( (string) wp_json_encode( $args ) );
 	}
 
 	/**
@@ -216,7 +302,9 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 		$this->record_job_view( $post->ID );
-		return rest_ensure_response( $this->prepare_item_for_response_array( $post ) );
+		$single_response = rest_ensure_response( $this->prepare_item_for_response_array( $post ) );
+		$single_response->header( 'Cache-Control', 'public, max-age=3600' );
+		return $single_response;
 	}
 
 	/**
@@ -723,39 +811,42 @@ final class JobsEndpoint extends RestController {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function get_collection_params(): array {
-		return array(
-			'search'         => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
-			),
-			// wcb_* aliases: accepted when URL filter params are forwarded directly to the API.
-			'wcb_search'     => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'category'       => array( 'type' => 'string' ),
-			'wcb_category'   => array( 'type' => 'string' ),
-			'type'           => array( 'type' => 'string' ),
-			'wcb_job_type'   => array( 'type' => 'string' ),
-			'location'       => array( 'type' => 'string' ),
-			'wcb_location'   => array( 'type' => 'string' ),
-			'experience'     => array( 'type' => 'string' ),
-			'wcb_experience' => array( 'type' => 'string' ),
-			'remote'         => array( 'type' => 'boolean' ),
-			'salary_min'     => array( 'type' => 'integer' ),
-			'salary_max'     => array( 'type' => 'integer' ),
-			'author'         => array( 'type' => 'integer' ),
-			'page'           => array(
-				'type'    => 'integer',
-				'default' => 1,
-				'minimum' => 1,
-			),
-			'per_page'       => array(
-				'type'    => 'integer',
-				'default' => 20,
-				'minimum' => 1,
-				'maximum' => 100,
-			),
+		return (array) apply_filters(
+			'wcb_jobs_collection_params',
+			array(
+				'search'         => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				// wcb_* aliases: accepted when URL filter params are forwarded directly to the API.
+				'wcb_search'     => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'category'       => array( 'type' => 'string' ),
+				'wcb_category'   => array( 'type' => 'string' ),
+				'type'           => array( 'type' => 'string' ),
+				'wcb_job_type'   => array( 'type' => 'string' ),
+				'location'       => array( 'type' => 'string' ),
+				'wcb_location'   => array( 'type' => 'string' ),
+				'experience'     => array( 'type' => 'string' ),
+				'wcb_experience' => array( 'type' => 'string' ),
+				'remote'         => array( 'type' => 'boolean' ),
+				'salary_min'     => array( 'type' => 'integer' ),
+				'salary_max'     => array( 'type' => 'integer' ),
+				'author'         => array( 'type' => 'integer' ),
+				'page'           => array(
+					'type'    => 'integer',
+					'default' => 1,
+					'minimum' => 1,
+				),
+				'per_page'       => array(
+					'type'    => 'integer',
+					'default' => 20,
+					'minimum' => 1,
+					'maximum' => 100,
+				),
+			)
 		);
 	}
 }
