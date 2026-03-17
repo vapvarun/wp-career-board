@@ -236,9 +236,49 @@
 		} );
 	}
 
+	// -------------------------------------------------------------------------
+	// Dashboard panel toggles — persist collapsed state to localStorage
+	// -------------------------------------------------------------------------
+
+	function initPanelToggles() {
+		var STORAGE_KEY = 'wcb_panel_state';
+
+		function getState() {
+			try { return JSON.parse( localStorage.getItem( STORAGE_KEY ) || '{}' ); } catch ( e ) { return {}; }
+		}
+
+		function saveState( state ) {
+			localStorage.setItem( STORAGE_KEY, JSON.stringify( state ) );
+		}
+
+		document.querySelectorAll( '.wcb-panel-header[data-panel]' ).forEach( function ( header ) {
+			var panelId = header.dataset.panel;
+			var panel   = header.closest( '.wcb-dashboard-panel' );
+			var toggle  = header.querySelector( '.wcb-panel-toggle' );
+
+			if ( getState()[ panelId ] === 'collapsed' ) {
+				panel.classList.add( 'is-collapsed' );
+				if ( toggle ) { toggle.setAttribute( 'aria-expanded', 'false' ); }
+			} else if ( toggle ) {
+				toggle.setAttribute( 'aria-expanded', 'true' );
+			}
+
+			header.addEventListener( 'click', function ( e ) {
+				if ( e.target.closest( 'a' ) ) { return; }
+				panel.classList.toggle( 'is-collapsed' );
+				var collapsed = panel.classList.contains( 'is-collapsed' );
+				if ( toggle ) { toggle.setAttribute( 'aria-expanded', collapsed ? 'false' : 'true' ); }
+				var s = getState();
+				s[ panelId ] = collapsed ? 'collapsed' : 'open';
+				saveState( s );
+			} );
+		} );
+	}
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initStatusSelects();
 		initJobModeration();
 		initTrustSelects();
+		initPanelToggles();
 	} );
 }() );

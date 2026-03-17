@@ -173,7 +173,26 @@ class Admin {
 		);
 		?>
 		<div class="wrap wcb-admin-dashboard">
-			<h1><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></h1>
+			<h1 class="wp-heading-inline"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></h1>
+			<hr class="wp-header-end">
+			<div class="wcb-dashboard-topbar">
+				<p class="wcb-dashboard-tagline">
+					<?php esc_html_e( 'Manage your job board, applications, and hiring pipeline.', 'wp-career-board' ); ?>
+					<span class="wcb-version-badge">v<?php echo esc_html( WCB_VERSION ); ?></span>
+					<?php if ( function_exists( 'wcbp_init' ) ) : ?>
+						<span class="wcb-pro-badge"><?php esc_html_e( 'Pro', 'wp-career-board' ); ?></span>
+					<?php endif; ?>
+				</p>
+				<div class="wcb-topbar-links">
+					<a href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener noreferrer" class="wcb-topbar-link">
+						<?php esc_html_e( 'Visit Site', 'wp-career-board' ); ?>
+						<span class="dashicons dashicons-external"></span>
+					</a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings' ) ); ?>" class="wcb-topbar-link">
+						<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
+					</a>
+				</div>
+			</div>
 
 			<?php /* ── Stats row ── */ ?>
 			<div class="wcb-stats-grid">
@@ -204,46 +223,59 @@ class Admin {
 				<?php /* ── Pending moderation queue ── */ ?>
 				<div class="wcb-dashboard-col">
 					<div class="wcb-dashboard-panel">
-						<h2>
+						<h2 class="wcb-panel-header" data-panel="pending_review">
 							<?php esc_html_e( 'Pending Review', 'wp-career-board' ); ?>
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-panel-link">
-								<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
-							</a>
+							<span class="wcb-panel-header-right">
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-panel-link">
+									<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
+								</a>
+								<button type="button" class="wcb-panel-toggle" aria-label="<?php esc_attr_e( 'Toggle panel', 'wp-career-board' ); ?>">
+									<span class="dashicons dashicons-arrow-up-alt2"></span>
+								</button>
+							</span>
 						</h2>
-						<?php if ( empty( $pending_posts ) ) : ?>
-							<p class="wcb-empty"><?php esc_html_e( 'No jobs pending review.', 'wp-career-board' ); ?></p>
-						<?php else : ?>
-							<table class="widefat striped">
-								<tbody>
-									<?php foreach ( $pending_posts as $wcb_job ) : ?>
-										<tr>
-											<td>
-												<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_job->ID ) ); ?>" style="font-weight:600">
-													<?php echo esc_html( get_the_title( $wcb_job ) ); ?>
-												</a>
-												<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( get_the_date( 'M j', $wcb_job ) ); ?></small>
-											</td>
-											<td style="white-space:nowrap">
-												<button type="button" class="button button-primary button-small wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
-												<button type="button" class="button button-small wcb-reject-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Reject', 'wp-career-board' ); ?></button>
-											</td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
-						<?php endif; ?>
+						<div class="wcb-panel-body">
+							<?php if ( empty( $pending_posts ) ) : ?>
+								<p class="wcb-empty"><?php esc_html_e( 'No jobs pending review.', 'wp-career-board' ); ?></p>
+							<?php else : ?>
+								<table class="widefat striped">
+									<tbody>
+										<?php foreach ( $pending_posts as $wcb_job ) : ?>
+											<tr>
+												<td>
+													<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_job->ID ) ); ?>" style="font-weight:600">
+														<?php echo esc_html( get_the_title( $wcb_job ) ); ?>
+													</a>
+													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( get_the_date( 'M j', $wcb_job ) ); ?></small>
+												</td>
+												<td style="white-space:nowrap">
+													<button type="button" class="button button-primary button-small wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
+													<button type="button" class="button button-small wcb-reject-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Reject', 'wp-career-board' ); ?></button>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							<?php endif; ?>
+						</div>
 					</div>
 				</div>
 
 				<?php /* ── Recent applications ── */ ?>
 				<div class="wcb-dashboard-col">
 					<div class="wcb-dashboard-panel">
-						<h2>
+						<h2 class="wcb-panel-header" data-panel="recent_apps">
 							<?php esc_html_e( 'Recent Applications', 'wp-career-board' ); ?>
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-applications' ) ); ?>" class="wcb-panel-link">
-								<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
-							</a>
+							<span class="wcb-panel-header-right">
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-applications' ) ); ?>" class="wcb-panel-link">
+									<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
+								</a>
+								<button type="button" class="wcb-panel-toggle" aria-label="<?php esc_attr_e( 'Toggle panel', 'wp-career-board' ); ?>">
+									<span class="dashicons dashicons-arrow-up-alt2"></span>
+								</button>
+							</span>
 						</h2>
+						<div class="wcb-panel-body">
 						<?php if ( empty( $recent_apps ) ) : ?>
 							<p class="wcb-empty"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
 						<?php else : ?>
@@ -282,6 +314,7 @@ class Admin {
 								</tbody>
 							</table>
 						<?php endif; ?>
+						</div>
 					</div>
 				</div>
 
