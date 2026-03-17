@@ -197,11 +197,8 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
-		$orderby_raw     = (string) ( $request->get_param( 'orderby' ) ?? 'date' );
-		$order_raw       = (string) ( $request->get_param( 'order' ) ?? 'DESC' );
-		$args['orderby'] = in_array( $orderby_raw, array( 'date' ), true ) ? $orderby_raw : 'date';
-		$args['order']   = in_array( strtoupper( $order_raw ), array( 'ASC', 'DESC' ), true )
-			? strtoupper( $order_raw ) : 'DESC';
+		$args['orderby'] = (string) $request->get_param( 'orderby' );
+		$args['order']   = (string) $request->get_param( 'order' );
 
 		$cache_key    = $this->get_items_cache_key( $args );
 		$cached_value = get_transient( $cache_key );
@@ -610,6 +607,7 @@ final class JobsEndpoint extends RestController {
 			static function ( \WP_Post $p ): array {
 				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
+				$status_raw     = (string) get_post_meta( $p->ID, '_wcb_status', true );
 
 				return array(
 					'id'              => $p->ID,
@@ -621,7 +619,7 @@ final class JobsEndpoint extends RestController {
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
 					'cover_letter'    => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					'status'          => get_post_meta( $p->ID, '_wcb_status', true ) ? get_post_meta( $p->ID, '_wcb_status', true ) : 'submitted',
+					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
 					'submitted_at'    => get_the_date( 'M j, Y', $p ),
 				);
 			},
@@ -910,7 +908,7 @@ final class JobsEndpoint extends RestController {
 					'type'              => 'string',
 					'default'           => 'DESC',
 					'enum'              => array( 'ASC', 'DESC' ),
-					'sanitize_callback' => 'sanitize_key',
+					'sanitize_callback' => 'sanitize_text_field',
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'page'           => array(
