@@ -32,6 +32,25 @@ final class JobsModule {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
+		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+	}
+
+	/**
+	 * Add wcb-job-page body class on wcb_job single pages.
+	 *
+	 * Enables the block stylesheet to suppress any active theme's sidebar and
+	 * duplicate post title so the layout works consistently across all themes.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string[] $classes Existing body classes.
+	 * @return string[]
+	 */
+	public function add_job_body_class( array $classes ): array {
+		if ( is_singular( 'wcb_job' ) ) {
+			$classes[] = 'wcb-job-page';
+		}
+		return $classes;
 	}
 
 	/**

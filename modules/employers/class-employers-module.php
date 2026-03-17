@@ -30,7 +30,26 @@ final class EmployersModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'the_content', array( $this, 'inject_company_profile' ) );
+		add_filter( 'body_class', array( $this, 'add_company_body_class' ) );
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
+	}
+
+	/**
+	 * Add wcb-company-page body class on wcb_company single pages.
+	 *
+	 * Enables the block stylesheet to suppress any active theme's sidebar and
+	 * duplicate post title so the layout works consistently across all themes.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string[] $classes Existing body classes.
+	 * @return string[]
+	 */
+	public function add_company_body_class( array $classes ): array {
+		if ( is_singular( 'wcb_company' ) ) {
+			$classes[] = 'wcb-company-page';
+		}
+		return $classes;
 	}
 
 	/**

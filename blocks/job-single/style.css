@@ -628,3 +628,17 @@ a.wcb-company-card-name:hover {
 		order: -1;
 	}
 }
+
+/* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
+.wcb-job-page #secondary,
+.wcb-job-page .widget-area,
+.wcb-job-page aside.sidebar,
+.wcb-job-page .sidebar-area,
+.wcb-job-page .site-sidebar,
+.wcb-job-page #sidebar { display: none !important; }
+
+.wcb-job-page .entry-title,
+.wcb-job-page .page-title,
+.wcb-job-page h1.post-title,
+.wcb-job-page .post-title,
+.wcb-job-page .wp-block-post-title { display: none !important; }

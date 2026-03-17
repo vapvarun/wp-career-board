@@ -421,3 +421,20 @@
 		justify-content: center;
 	}
 }
+
+/* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
+/* These selectors cover Twenty-*, Astra, GeneratePress, OceanWP, Kadence,      */
+/* Reign, BuddyX and any other theme that renders a sidebar or post title        */
+/* alongside single CPT posts.                                                    */
+.wcb-company-page #secondary,
+.wcb-company-page .widget-area,
+.wcb-company-page aside.sidebar,
+.wcb-company-page .sidebar-area,
+.wcb-company-page .site-sidebar,
+.wcb-company-page #sidebar { display: none !important; }
+
+.wcb-company-page .entry-title,
+.wcb-company-page .page-title,
+.wcb-company-page h1.post-title,
+.wcb-company-page .post-title,
+.wcb-company-page .wp-block-post-title { display: none !important; }
