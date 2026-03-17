@@ -212,7 +212,7 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isViewJobs">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Jobs', 'wp-career-board' ); ?></h1>
-				<input type="search" class="wcb-job-search" placeholder="<?php esc_attr_e( 'Search jobs\u2026', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
+				<input type="search" class="wcb-job-search" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
 			</div>
 
 			<div class="wcb-filter-bar">
