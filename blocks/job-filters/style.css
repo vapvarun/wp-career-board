@@ -50,3 +50,56 @@
 		min-width: 0;
 	}
 }
+
+/* ── Salary range inputs ─────────────────────────────────────────────────── */
+.wcb-filter-salary {
+	display: flex;
+	gap: 0.375rem;
+}
+
+.wcb-filter-input {
+	width: 110px;
+	padding: 0.625rem 0.75rem;
+	border: 1.5px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-family: inherit;
+	color: #334155;
+	background: #fff;
+	transition: border-color 0.15s;
+}
+
+.wcb-filter-input:focus {
+	outline: none;
+	border-color: var( --wcb-primary, #2563eb );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
+}
+
+/* ── Remote checkbox ─────────────────────────────────────────────────────── */
+.wcb-filter-remote {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.875rem;
+	color: #334155;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.wcb-filter-remote input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	accent-color: var( --wcb-primary, #2563eb );
+}
+
+@media ( max-width: 600px ) {
+	.wcb-filter-salary {
+		width: 100%;
+	}
+
+	.wcb-filter-input {
+		flex: 1;
+		width: auto;
+	}
+}

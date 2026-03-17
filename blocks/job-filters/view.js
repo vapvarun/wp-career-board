@@ -15,7 +15,9 @@ const { state } = store( 'wcb-search', {
 	actions: {
 		updateFilter( event ) {
 			const key   = event.target.dataset.wcbFilter;
-			const value = event.target.value;
+			const value = event.target.type === 'checkbox'
+				? ( event.target.checked ? '1' : '' )
+				: event.target.value;
 
 			// Clone filters to avoid mutating state directly.
 			const filters = Object.assign( {}, state.filters );

@@ -25,9 +25,16 @@ $wcb_filter_type     = isset( $_GET['wcb_job_type'] )
 $wcb_filter_location = isset( $_GET['wcb_location'] )
 	? sanitize_text_field( wp_unslash( $_GET['wcb_location'] ) )
 	: '';
-$wcb_filter_exp      = isset( $_GET['wcb_experience'] )
+$wcb_filter_exp        = isset( $_GET['wcb_experience'] )
 	? sanitize_text_field( wp_unslash( $_GET['wcb_experience'] ) )
 	: '';
+$wcb_filter_salary_min = isset( $_GET['salary_min'] )
+	? (int) $_GET['salary_min']
+	: 0;
+$wcb_filter_salary_max = isset( $_GET['salary_max'] )
+	? (int) $_GET['salary_max']
+	: 0;
+$wcb_filter_remote     = ! empty( $_GET['remote'] );
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 $wcb_categories_raw  = get_terms(
@@ -68,6 +75,9 @@ $wcb_active_filters = (object) array_filter(
 		'wcb_job_type'   => $wcb_filter_type,
 		'wcb_location'   => $wcb_filter_location,
 		'wcb_experience' => $wcb_filter_exp,
+		'salary_min'     => $wcb_filter_salary_min ?: '',
+		'salary_max'     => $wcb_filter_salary_max ?: '',
+		'remote'         => $wcb_filter_remote ? '1' : '',
 	)
 );
 
@@ -143,6 +153,45 @@ wp_interactivity_state(
 				</option>
 			<?php endforeach; ?>
 		</select>
+
+		<div class="wcb-filter-salary">
+			<input
+				type="number"
+				class="wcb-filter-input"
+				name="salary_min"
+				min="0"
+				step="1000"
+				placeholder="<?php esc_attr_e( 'Min salary', 'wp-career-board' ); ?>"
+				value="<?php echo esc_attr( $wcb_filter_salary_min ? (string) $wcb_filter_salary_min : '' ); ?>"
+				aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>"
+				data-wp-on--change="actions.updateFilter"
+				data-wcb-filter="salary_min"
+			/>
+			<input
+				type="number"
+				class="wcb-filter-input"
+				name="salary_max"
+				min="0"
+				step="1000"
+				placeholder="<?php esc_attr_e( 'Max salary', 'wp-career-board' ); ?>"
+				value="<?php echo esc_attr( $wcb_filter_salary_max ? (string) $wcb_filter_salary_max : '' ); ?>"
+				aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>"
+				data-wp-on--change="actions.updateFilter"
+				data-wcb-filter="salary_max"
+			/>
+		</div>
+
+		<label class="wcb-filter-remote">
+			<input
+				type="checkbox"
+				name="remote"
+				value="1"
+				<?php checked( $wcb_filter_remote ); ?>
+				data-wp-on--change="actions.updateFilter"
+				data-wcb-filter="remote"
+			/>
+			<?php esc_html_e( 'Remote only', 'wp-career-board' ); ?>
+		</label>
 
 	</div>
 </div>
