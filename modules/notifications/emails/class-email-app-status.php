@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class EmailAppStatus extends AbstractEmail {
 
 	/**
-	 * Returns the unique email ID.
+	 * Unique email ID used as settings key and template slug.
 	 *
 	 * @return string
 	 */
@@ -33,7 +33,7 @@ class EmailAppStatus extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the human-readable email title.
+	 * Human-readable title shown in the Emails settings page.
 	 *
 	 * @return string
 	 */
@@ -42,7 +42,7 @@ class EmailAppStatus extends AbstractEmail {
 	}
 
 	/**
-	 * Returns a description of who receives this email.
+	 * Recipient type: 'employer', 'candidate', 'admin', or 'guest'.
 	 *
 	 * @return string
 	 */
@@ -51,7 +51,7 @@ class EmailAppStatus extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the default subject line.
+	 * Default subject line used when no admin override is saved.
 	 *
 	 * @return string
 	 */
@@ -87,18 +87,20 @@ class EmailAppStatus extends AbstractEmail {
 			return;
 		}
 
-		$job_id    = (int) get_post_meta( $app_id, '_wcb_job_id', true );
-		$job       = $job_id > 0 ? get_post( $job_id ) : false;
-		$job_title = $job instanceof \WP_Post ? $job->post_title : '';
+		$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
+		$job    = $job_id > 0 ? get_post( $job_id ) : null;
+		if ( ! $job instanceof \WP_Post ) {
+			return;
+		}
 
 		$wcb_s         = (array) get_option( 'wcb_settings', array() );
 		$dashboard     = ! empty( $wcb_s['candidate_dashboard_page'] ) ? (int) $wcb_s['candidate_dashboard_page'] : 0;
-		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : '#';
+		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
 		$this->send(
 			$candidate->user_email,
 			array(
-				'job_title'     => $job_title,
+				'job_title'     => $job->post_title,
 				'new_status'    => $new_status,
 				'dashboard_url' => $dashboard_url,
 			),

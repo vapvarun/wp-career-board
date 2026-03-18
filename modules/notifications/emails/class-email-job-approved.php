@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class EmailJobApproved extends AbstractEmail {
 
 	/**
-	 * Returns the unique email ID.
+	 * Unique email ID used as settings key and template slug.
 	 *
 	 * @return string
 	 */
@@ -33,7 +33,7 @@ class EmailJobApproved extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the human-readable email title.
+	 * Human-readable title shown in the Emails settings page.
 	 *
 	 * @return string
 	 */
@@ -42,7 +42,7 @@ class EmailJobApproved extends AbstractEmail {
 	}
 
 	/**
-	 * Returns a description of who receives this email.
+	 * Recipient type: 'employer', 'candidate', 'admin', or 'guest'.
 	 *
 	 * @return string
 	 */
@@ -51,7 +51,7 @@ class EmailJobApproved extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the default subject line.
+	 * Default subject line used when no admin override is saved.
 	 *
 	 * @return string
 	 */

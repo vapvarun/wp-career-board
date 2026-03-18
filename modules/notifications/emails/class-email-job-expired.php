@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class EmailJobExpired extends AbstractEmail {
 
 	/**
-	 * Returns the unique email ID.
+	 * Unique email ID used as settings key and template slug.
 	 *
 	 * @return string
 	 */
@@ -33,7 +33,7 @@ class EmailJobExpired extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the human-readable email title.
+	 * Human-readable title shown in the Emails settings page.
 	 *
 	 * @return string
 	 */
@@ -42,7 +42,7 @@ class EmailJobExpired extends AbstractEmail {
 	}
 
 	/**
-	 * Returns a description of who receives this email.
+	 * Recipient type: 'employer', 'candidate', 'admin', or 'guest'.
 	 *
 	 * @return string
 	 */
@@ -51,7 +51,7 @@ class EmailJobExpired extends AbstractEmail {
 	}
 
 	/**
-	 * Returns the default subject line.
+	 * Default subject line used when no admin override is saved.
 	 *
 	 * @return string
 	 */
@@ -83,7 +83,7 @@ class EmailJobExpired extends AbstractEmail {
 
 		$wcb_s      = (array) get_option( 'wcb_settings', array() );
 		$dashboard  = ! empty( $wcb_s['employer_dashboard_page'] ) ? (int) $wcb_s['employer_dashboard_page'] : 0;
-		$repost_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : '#';
+		$repost_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
 		$this->send(
 			$employer->user_email,
