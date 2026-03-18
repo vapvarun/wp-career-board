@@ -733,6 +733,7 @@ final class JobsEndpoint extends RestController {
 		$cat_terms  = wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'names' ) );
 
 		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
+		$board_id      = (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID );
 
 		return array(
 			'id'               => $post->ID,
@@ -756,7 +757,8 @@ final class JobsEndpoint extends RestController {
 			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
 			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
-			'board_id'         => (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID ),
+			'board_id'         => $board_id,
+			'board_currency'   => function_exists( 'wcbp_get_board_currency' ) ? wcbp_get_board_currency( $board_id ) : 'USD',
 			// Display-name strings for cards.
 			'location'         => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
 			'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
