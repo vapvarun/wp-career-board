@@ -136,6 +136,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab = 'resume-builder';
 		},
 
+		toggleNewResumeForm() {
+			state.showNewResumeForm = ! state.showNewResumeForm;
+			state.newResumeTitle   = '';
+		},
+
+		setNewResumeTitle( event ) {
+			state.newResumeTitle = event.target.value;
+		},
+
 		*switchToResumes() {
 			state.tab   = 'resumes';
 			state.error = '';
@@ -210,11 +219,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 
 		*createResume() {
-			// eslint-disable-next-line no-alert
-			const title = window.prompt( 'Resume title (e.g. "Software Developer")' );
+			const title = state.newResumeTitle.trim();
 			if ( ! title ) {
 				return;
 			}
+			state.showNewResumeForm = false;
+			state.newResumeTitle    = '';
 
 			state.loading = true;
 			state.error   = '';

@@ -496,7 +496,7 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isViewPostJob">
 			<?php
 			if ( is_user_logged_in() ) {
-				echo do_blocks( '<!-- wp:wcb/job-form /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo do_blocks( '<!-- wp:wp-career-board/job-form /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			?>
 		</div>

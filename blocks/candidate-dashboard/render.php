@@ -40,7 +40,7 @@ $wcb_jobs_url = ! empty( $wcb_settings['jobs_archive_page'] )
 $wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
-$wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcbp/resume-builder' );
+$wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
 $wcb_dashboard_url           = (string) get_permalink();
 
 /**
@@ -79,6 +79,8 @@ wp_interactivity_state(
 			'resumesEnabled'        => '' !== $wcb_resume_builder_url,
 			'dashboardUrl'          => $wcb_dashboard_url,
 			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
+			'showNewResumeForm'     => false,
+			'newResumeTitle'        => '',
 			'customFieldGroups'     => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
 			'bellNotifications'     => array(),
 			'bellUnreadCount'       => 0,
@@ -279,13 +281,26 @@ wp_interactivity_state(
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></h1>
 				<div class="wcb-resumes-header">
-					<button
-						type="button"
-						class="wcb-cbtn wcb-cbtn--primary"
-						data-wp-on--click="actions.createResume"
-						data-wp-bind--disabled="state.isAtResumesCap"
-					><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
-					<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
+					<div data-wp-class--wcb-hidden="state.showNewResumeForm">
+						<button
+							type="button"
+							class="wcb-cbtn wcb-cbtn--primary"
+							data-wp-on--click="actions.toggleNewResumeForm"
+							data-wp-bind--disabled="state.isAtResumesCap"
+						><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
+						<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
+					</div>
+					<div class="wcb-new-resume-form" data-wp-class--wcb-hidden="!state.showNewResumeForm">
+						<input
+							type="text"
+							class="wcb-input"
+							placeholder="<?php esc_attr_e( 'e.g. Software Developer', 'wp-career-board' ); ?>"
+							data-wp-bind--value="state.newResumeTitle"
+							data-wp-on--input="actions.setNewResumeTitle"
+						>
+						<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.createResume"><?php esc_html_e( 'Create', 'wp-career-board' ); ?></button>
+						<button type="button" class="wcb-cbtn wcb-cbtn--ghost" data-wp-on--click="actions.toggleNewResumeForm"><?php esc_html_e( 'Cancel', 'wp-career-board' ); ?></button>
+					</div>
 				</div>
 			</div>
 
@@ -330,7 +345,7 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabResumeBuilder">
 			<?php
 			if ( $wcb_resume_embed_id > 0 ) {
-				echo do_blocks( '<!-- wp:wcbp/resume-builder /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo do_blocks( '<!-- wp:wcb/resume-builder /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			?>
 		</div>
