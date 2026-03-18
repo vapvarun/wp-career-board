@@ -2,8 +2,12 @@
 /**
  * WP Career Board — seed data fixture.
  *
- * Creates realistic test data: 5 companies, 15 jobs, 5 candidate users,
- * 5 wcb_resume (Pro CPT) posts, and candidate user-meta profiles.
+ * Creates realistic test data:
+ *   Free:  3 employer users, 5 companies, 17 jobs (15 published + 2 pending),
+ *          5 candidate users (wcb_candidate role), bookmarks, 13 applications
+ *          (11 user + 2 guest) with varied statuses.
+ *   Pro:   5 wcb_resume CPT posts with full section data + wcb_resume_skill
+ *          taxonomy terms.
  *
  * Usage:
  *   wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/seed-data.php
@@ -38,7 +42,7 @@ function wcb_seed_term( string $name, string $taxonomy ): int {
 }
 
 /**
- * Create a post if no published post with the same slug exists.
+ * Create a post if no post with the same slug + type exists.
  *
  * @param array<string,mixed> $args wp_insert_post args.
  * @return int Post ID (0 on skip).
@@ -81,6 +85,18 @@ function wcb_seed_user( array $args ): int {
 	return $id;
 }
 
+/**
+ * Look up a post ID by slug and post type.
+ *
+ * @param string $slug      Post slug.
+ * @param string $post_type Post type.
+ * @return int Post ID (0 if not found).
+ */
+function wcb_seed_get_post_id( string $slug, string $post_type ): int {
+	$post = get_page_by_path( $slug, OBJECT, $post_type );
+	return $post ? (int) $post->ID : 0;
+}
+
 $admin_id = (int) ( get_users( array( 'role' => 'administrator', 'number' => 1 ) )[0]->ID ?? 1 );
 
 // ---------------------------------------------------------------------------
@@ -95,6 +111,7 @@ $terms = array(
 	'wcb_job_type' => array( 'Full-time', 'Part-time', 'Contract', 'Internship' ),
 	'wcb_location' => array( 'Remote', 'San Francisco, CA', 'Ottawa, ON', 'New York, NY', 'Austin, TX' ),
 	'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Principal' ),
+	'wcb_tag'      => array( 'Remote-first', 'Series C+', 'Open Source', 'Scale-up', 'Startup', 'SaaS', 'Fintech', 'E-commerce', 'Design Tools', 'DevTools' ),
 );
 
 $term_ids = array();
@@ -108,7 +125,60 @@ foreach ( $terms as $taxonomy => $names ) {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Companies
+// 2. Employer users
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '' );
+WP_CLI::log( '=== Creating employer users ===' );
+
+$employers_data = array(
+	array(
+		'login'        => 'employer.stripe',
+		'email'        => 'hr@example-stripe.com',
+		'display_name' => 'Stripe Recruiting',
+		'first_name'   => 'Stripe',
+		'last_name'    => 'HR',
+		'companies'    => array( 'stripe', 'linear' ),
+	),
+	array(
+		'login'        => 'employer.vercel',
+		'email'        => 'talent@example-vercel.com',
+		'display_name' => 'Vercel Talent',
+		'first_name'   => 'Vercel',
+		'last_name'    => 'Talent',
+		'companies'    => array( 'vercel', 'shopify' ),
+	),
+	array(
+		'login'        => 'employer.figma',
+		'email'        => 'jobs@example-figma.com',
+		'display_name' => 'Figma Recruiting',
+		'first_name'   => 'Figma',
+		'last_name'    => 'Recruiting',
+		'companies'    => array( 'figma' ),
+	),
+);
+
+$employer_ids = array();
+foreach ( $employers_data as $emp ) {
+	$uid = wcb_seed_user( array(
+		'user_login'   => $emp['login'],
+		'user_email'   => $emp['email'],
+		'user_pass'    => 'password',
+		'display_name' => $emp['display_name'],
+		'first_name'   => $emp['first_name'],
+		'last_name'    => $emp['last_name'],
+		'role'         => 'wcb_employer',
+	) );
+
+	if ( $uid ) {
+		foreach ( $emp['companies'] as $co_slug ) {
+			$employer_ids[ $co_slug ] = $uid;
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// 3. Companies
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '' );
@@ -116,10 +186,10 @@ WP_CLI::log( '=== Creating companies ===' );
 
 $companies_data = array(
 	array(
-		'slug'        => 'stripe',
-		'title'       => 'Stripe',
-		'content'     => 'Stripe is a technology company that builds economic infrastructure for the internet. Businesses of every size—from new startups to public companies—use our software to accept payments and manage their businesses online.',
-		'meta'        => array(
+		'slug'    => 'stripe',
+		'title'   => 'Stripe',
+		'content' => 'Stripe is a technology company that builds economic infrastructure for the internet. Businesses of every size—from new startups to public companies—use our software to accept payments and manage their businesses online.',
+		'meta'    => array(
 			'_wcb_tagline'      => 'Financial infrastructure for the internet',
 			'_wcb_website'      => 'https://stripe.com',
 			'_wcb_industry'     => 'Fintech',
@@ -132,10 +202,10 @@ $companies_data = array(
 		),
 	),
 	array(
-		'slug'        => 'linear',
-		'title'       => 'Linear',
-		'content'     => 'Linear is a purpose-built tool for planning and building products. Thousands of high-performance teams use Linear to streamline software projects, sprints, tasks, and bug tracking.',
-		'meta'        => array(
+		'slug'    => 'linear',
+		'title'   => 'Linear',
+		'content' => 'Linear is a purpose-built tool for planning and building products. Thousands of high-performance teams use Linear to streamline software projects, sprints, tasks, and bug tracking.',
+		'meta'    => array(
 			'_wcb_tagline'      => 'The issue tracker built for high-performance teams',
 			'_wcb_website'      => 'https://linear.app',
 			'_wcb_industry'     => 'SaaS / Productivity',
@@ -148,10 +218,10 @@ $companies_data = array(
 		),
 	),
 	array(
-		'slug'        => 'vercel',
-		'title'       => 'Vercel',
-		'content'     => 'Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web. Vercel is the platform for frontend developers, providing the speed and reliability innovators need to create at the moment of inspiration.',
-		'meta'        => array(
+		'slug'    => 'vercel',
+		'title'   => 'Vercel',
+		'content' => 'Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.',
+		'meta'    => array(
 			'_wcb_tagline'      => 'Develop. Preview. Ship.',
 			'_wcb_website'      => 'https://vercel.com',
 			'_wcb_industry'     => 'Developer Tools / Cloud',
@@ -164,10 +234,10 @@ $companies_data = array(
 		),
 	),
 	array(
-		'slug'        => 'shopify',
-		'title'       => 'Shopify',
-		'content'     => 'Shopify is a leading global commerce company, providing trusted tools to start, grow, market, and manage a retail business of any size. Shopify makes commerce better for everyone with a platform and services that are engineered for reliability.',
-		'meta'        => array(
+		'slug'    => 'shopify',
+		'title'   => 'Shopify',
+		'content' => 'Shopify is a leading global commerce company, providing trusted tools to start, grow, market, and manage a retail business of any size.',
+		'meta'    => array(
 			'_wcb_tagline'      => 'Making commerce better for everyone',
 			'_wcb_website'      => 'https://shopify.com',
 			'_wcb_industry'     => 'E-commerce',
@@ -180,10 +250,10 @@ $companies_data = array(
 		),
 	),
 	array(
-		'slug'        => 'figma',
-		'title'       => 'Figma',
-		'content'     => 'Figma is a collaborative web application for interface design. Figma helps teams create, test, and ship better designs from start to finish—all in one platform.',
-		'meta'        => array(
+		'slug'    => 'figma',
+		'title'   => 'Figma',
+		'content' => 'Figma is a collaborative web application for interface design. Figma helps teams create, test, and ship better designs from start to finish—all in one platform.',
+		'meta'    => array(
 			'_wcb_tagline'      => 'Design together, build together',
 			'_wcb_website'      => 'https://figma.com',
 			'_wcb_industry'     => 'Design Tools / SaaS',
@@ -199,25 +269,29 @@ $companies_data = array(
 
 $company_ids = array();
 foreach ( $companies_data as $co ) {
+	$employer_uid = $employer_ids[ $co['slug'] ] ?? $admin_id;
+
 	$id = wcb_seed_post( array(
 		'post_type'    => 'wcb_company',
 		'post_title'   => $co['title'],
 		'post_name'    => $co['slug'],
 		'post_content' => $co['content'],
 		'post_status'  => 'publish',
-		'post_author'  => $admin_id,
+		'post_author'  => $employer_uid,
 	) );
 
 	if ( $id ) {
 		foreach ( $co['meta'] as $key => $value ) {
 			update_post_meta( $id, $key, $value );
 		}
+		// Link company to its employer user.
+		update_post_meta( $id, '_wcb_user_id', $employer_uid );
 		$company_ids[ $co['slug'] ] = $id;
 	}
 }
 
 // ---------------------------------------------------------------------------
-// 3. Jobs
+// 4. Jobs
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '' );
@@ -231,11 +305,12 @@ $jobs_data = array(
 
 	// ---- Stripe --------------------------------------------------------
 	array(
-		'slug'        => 'senior-frontend-engineer-stripe',
-		'title'       => 'Senior Frontend Engineer',
-		'company'     => 'stripe',
-		'content'     => "We are looking for a Senior Frontend Engineer to join our Payments UI team.\n\n**What you'll do:**\n- Build and maintain high-performance, accessible React components used by millions of merchants worldwide\n- Partner with designers and product managers to translate specs into pixel-perfect implementations\n- Own end-to-end features from design review through production release\n- Champion frontend quality by writing thorough unit and integration tests\n\n**You'll love this role if:**\n- You care deeply about web performance and Core Web Vitals\n- You think in design systems and component APIs\n- You enjoy debugging gnarly browser compatibility issues",
-		'meta'        => array(
+		'slug'    => 'senior-frontend-engineer-stripe',
+		'title'   => 'Senior Frontend Engineer',
+		'company' => 'stripe',
+		'status'  => 'publish',
+		'content' => "We are looking for a Senior Frontend Engineer to join our Payments UI team.\n\n**What you'll do:**\n- Build and maintain high-performance, accessible React components used by millions of merchants worldwide\n- Partner with designers and product managers to translate specs into pixel-perfect implementations\n- Own end-to-end features from design review through production release\n- Champion frontend quality by writing thorough unit and integration tests\n\n**You'll love this role if:**\n- You care deeply about web performance and Core Web Vitals\n- You think in design systems and component APIs\n- You enjoy debugging gnarly browser compatibility issues",
+		'meta'    => array(
 			'_wcb_salary_min'      => '170000',
 			'_wcb_salary_max'      => '220000',
 			'_wcb_salary_currency' => 'USD',
@@ -245,19 +320,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'jobs@stripe.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote', 'San Francisco, CA' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'Fintech', 'Series C+' ),
 		),
 	),
 	array(
-		'slug'        => 'backend-engineer-golang-stripe',
-		'title'       => 'Backend Engineer — Golang',
-		'company'     => 'stripe',
-		'content'     => "Join our Payouts infrastructure team and help process billions of dollars for merchants globally.\n\n**What you'll do:**\n- Design and build distributed systems that process financial transactions at massive scale\n- Work with Go, Ruby, and Scala in a services-oriented architecture\n- Drive reliability improvements — we care deeply about 99.999% uptime\n- Collaborate with oncall rotations and improve observability\n\n**Requirements:**\n- 4+ years of backend engineering experience\n- Strong understanding of distributed systems, CAP theorem, and consistency guarantees\n- Experience with high-throughput, low-latency services",
-		'meta'        => array(
+		'slug'    => 'backend-engineer-golang-stripe',
+		'title'   => 'Backend Engineer — Golang',
+		'company' => 'stripe',
+		'status'  => 'publish',
+		'content' => "Join our Payouts infrastructure team and help process billions of dollars for merchants globally.\n\n**What you'll do:**\n- Design and build distributed systems that process financial transactions at massive scale\n- Work with Go, Ruby, and Scala in a services-oriented architecture\n- Drive reliability improvements — we care deeply about 99.999% uptime\n\n**Requirements:**\n- 4+ years of backend engineering experience\n- Strong understanding of distributed systems, CAP theorem, and consistency guarantees",
+		'meta'    => array(
 			'_wcb_salary_min'      => '180000',
 			'_wcb_salary_max'      => '240000',
 			'_wcb_salary_currency' => 'USD',
@@ -267,19 +344,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'jobs@stripe.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'San Francisco, CA' ),
 			'wcb_experience' => array( 'Mid Level', 'Senior' ),
+			'wcb_tag'        => array( 'Fintech' ),
 		),
 	),
 	array(
-		'slug'        => 'data-analyst-stripe',
-		'title'       => 'Data Analyst — Revenue Insights',
-		'company'     => 'stripe',
-		'content'     => "Help Stripe understand its business by building the dashboards and analyses leadership uses every week.\n\n**Responsibilities:**\n- Own recurring business reports for executive leadership\n- Explore large datasets using SQL and Python to surface actionable insights\n- Partner with Finance and GTM teams to answer complex revenue questions\n- Build and maintain self-serve analytics dashboards in Looker\n\n**What we're looking for:**\n- 2–4 years of data analysis or business intelligence experience\n- Expert-level SQL; Python (pandas, numpy) is a strong plus\n- Experience with BI tools (Looker, Tableau, Metabase)",
-		'meta'        => array(
+		'slug'    => 'data-analyst-stripe',
+		'title'   => 'Data Analyst — Revenue Insights',
+		'company' => 'stripe',
+		'status'  => 'publish',
+		'content' => "Help Stripe understand its business by building the dashboards and analyses leadership uses every week.\n\n**Responsibilities:**\n- Own recurring business reports for executive leadership\n- Explore large datasets using SQL and Python to surface actionable insights\n- Partner with Finance and GTM teams to answer complex revenue questions\n- Build and maintain self-serve analytics dashboards in Looker",
+		'meta'    => array(
 			'_wcb_salary_min'      => '120000',
 			'_wcb_salary_max'      => '155000',
 			'_wcb_salary_currency' => 'USD',
@@ -289,21 +368,48 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'jobs@stripe.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Data' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Mid Level' ),
+			'wcb_tag'        => array( 'Remote-first', 'Fintech' ),
+		),
+	),
+	// Pending — tests moderation queue.
+	array(
+		'slug'    => 'staff-security-engineer-stripe',
+		'title'   => 'Staff Security Engineer',
+		'company' => 'stripe',
+		'status'  => 'pending',
+		'content' => "Lead Stripe's product security programme and protect financial infrastructure at scale.\n\n**Responsibilities:**\n- Define security architecture for new payment products\n- Drive threat modelling across engineering teams\n- Lead incident response for critical security events\n- Build internal security tools and detection infrastructure",
+		'meta'    => array(
+			'_wcb_salary_min'      => '210000',
+			'_wcb_salary_max'      => '275000',
+			'_wcb_salary_currency' => 'USD',
+			'_wcb_salary_type'     => 'annual',
+			'_wcb_remote'          => '1',
+			'_wcb_deadline'        => $deadline_3m,
+			'_wcb_featured'        => '0',
+			'_wcb_apply_email'     => 'jobs@stripe.com',
+		),
+		'taxonomies' => array(
+			'wcb_category'   => array( 'Engineering' ),
+			'wcb_job_type'   => array( 'Full-time' ),
+			'wcb_location'   => array( 'Remote' ),
+			'wcb_experience' => array( 'Lead', 'Principal' ),
+			'wcb_tag'        => array( 'Fintech', 'Series C+' ),
 		),
 	),
 
 	// ---- Linear --------------------------------------------------------
 	array(
-		'slug'        => 'product-designer-linear',
-		'title'       => 'Product Designer',
-		'company'     => 'linear',
-		'content'     => "Linear is hiring a Product Designer who is obsessed with craft and deeply technical.\n\n**What you'll work on:**\n- Own end-to-end design for core product areas — from discovery through polish\n- Shape the visual language of Linear's desktop and web apps\n- Work closely with engineers who care as much about design quality as you do\n- Run user research, usability sessions, and beta testing with power users\n\n**You:**\n- Have 4+ years of product design experience at a B2B SaaS company\n- Are proficient in Figma with experience building and maintaining design systems\n- Ship fast and iterate — you ship weekly, not quarterly",
-		'meta'        => array(
+		'slug'    => 'product-designer-linear',
+		'title'   => 'Product Designer',
+		'company' => 'linear',
+		'status'  => 'publish',
+		'content' => "Linear is hiring a Product Designer who is obsessed with craft and deeply technical.\n\n**What you'll work on:**\n- Own end-to-end design for core product areas — from discovery through polish\n- Shape the visual language of Linear's desktop and web apps\n- Work closely with engineers who care as much about design quality as you do",
+		'meta'    => array(
 			'_wcb_salary_min'      => '150000',
 			'_wcb_salary_max'      => '190000',
 			'_wcb_salary_currency' => 'USD',
@@ -313,19 +419,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'careers@linear.app',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Design' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'SaaS', 'Startup' ),
 		),
 	),
 	array(
-		'slug'        => 'senior-ios-engineer-linear',
-		'title'       => 'Senior iOS Engineer',
-		'company'     => 'linear',
-		'content'     => "Build Linear's iOS app used by thousands of engineering teams daily.\n\n**What you'll do:**\n- Own and evolve the Linear iOS app — currently best-in-class on the App Store\n- Implement new features with a relentless focus on performance and reliability\n- Collaborate directly with design to push the boundaries of what native apps can be\n- Write Swift that other engineers enjoy reading\n\n**Requirements:**\n- 5+ years of iOS development with Swift\n- Deep knowledge of UIKit, SwiftUI, and Combine\n- Experience shipping and maintaining apps with 100k+ users",
-		'meta'        => array(
+		'slug'    => 'senior-ios-engineer-linear',
+		'title'   => 'Senior iOS Engineer',
+		'company' => 'linear',
+		'status'  => 'publish',
+		'content' => "Build Linear's iOS app used by thousands of engineering teams daily.\n\n**Requirements:**\n- 5+ years of iOS development with Swift\n- Deep knowledge of UIKit, SwiftUI, and Combine\n- Experience shipping and maintaining apps with 100k+ users",
+		'meta'    => array(
 			'_wcb_salary_min'      => '160000',
 			'_wcb_salary_max'      => '210000',
 			'_wcb_salary_currency' => 'USD',
@@ -335,19 +443,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'careers@linear.app',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'SaaS' ),
 		),
 	),
 	array(
-		'slug'        => 'developer-advocate-linear',
-		'title'       => 'Developer Advocate',
-		'company'     => 'linear',
-		'content'     => "Be the bridge between Linear's engineering team and the developer community.\n\n**Responsibilities:**\n- Create technical content (blog posts, tutorials, videos) showing how engineering teams use Linear\n- Speak at conferences and developer meetups\n- Build integrations and demo projects that showcase Linear's API and webhooks\n- Collect developer feedback and route it to the product team\n\n**You have:**\n- 3+ years of software engineering experience\n- Strong technical writing and communication skills\n- Experience with developer-facing communities or open source",
-		'meta'        => array(
+		'slug'    => 'developer-advocate-linear',
+		'title'   => 'Developer Advocate',
+		'company' => 'linear',
+		'status'  => 'publish',
+		'content' => "Be the bridge between Linear's engineering team and the developer community.\n\n**Responsibilities:**\n- Create technical content (blog posts, tutorials, videos) showing how engineering teams use Linear\n- Speak at conferences and developer meetups\n- Build integrations and demo projects that showcase Linear's API",
+		'meta'    => array(
 			'_wcb_salary_min'      => '130000',
 			'_wcb_salary_max'      => '165000',
 			'_wcb_salary_currency' => 'USD',
@@ -357,21 +467,48 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'careers@linear.app',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Marketing' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Mid Level' ),
+			'wcb_tag'        => array( 'Remote-first', 'DevTools' ),
+		),
+	),
+	// Pending — tests moderation queue.
+	array(
+		'slug'    => 'founding-engineer-linear',
+		'title'   => 'Founding Engineer — Infrastructure',
+		'company' => 'linear',
+		'status'  => 'pending',
+		'content' => "Help Linear scale its backend infrastructure to support the next 10x of users.\n\n**What you'll do:**\n- Own database performance, replication, and sharding strategy\n- Build observability tooling used by all engineers\n- Drive incident response culture and SLO definitions",
+		'meta'    => array(
+			'_wcb_salary_min'      => '180000',
+			'_wcb_salary_max'      => '240000',
+			'_wcb_salary_currency' => 'USD',
+			'_wcb_salary_type'     => 'annual',
+			'_wcb_remote'          => '1',
+			'_wcb_deadline'        => $deadline_3m,
+			'_wcb_featured'        => '0',
+			'_wcb_apply_email'     => 'careers@linear.app',
+		),
+		'taxonomies' => array(
+			'wcb_category'   => array( 'Engineering', 'DevOps' ),
+			'wcb_job_type'   => array( 'Full-time' ),
+			'wcb_location'   => array( 'Remote' ),
+			'wcb_experience' => array( 'Senior', 'Lead' ),
+			'wcb_tag'        => array( 'Remote-first', 'Startup' ),
 		),
 	),
 
 	// ---- Vercel --------------------------------------------------------
 	array(
-		'slug'        => 'staff-platform-engineer-vercel',
-		'title'       => 'Staff Platform Engineer',
-		'company'     => 'vercel',
-		'content'     => "Help build the infrastructure that powers millions of deploys per day at Vercel.\n\n**What you'll do:**\n- Lead cross-functional initiatives improving build pipeline reliability and performance\n- Design systems that handle unpredictable traffic spikes across global edge nodes\n- Mentor engineers and drive architectural decision-making\n- Own complex production incidents end-to-end\n\n**You are:**\n- A technical leader with 8+ years of engineering experience\n- Expert in Kubernetes, distributed systems, and cloud infrastructure (AWS/GCP)\n- Comfortable with Go, Rust, or TypeScript at the systems level",
-		'meta'        => array(
+		'slug'    => 'staff-platform-engineer-vercel',
+		'title'   => 'Staff Platform Engineer',
+		'company' => 'vercel',
+		'status'  => 'publish',
+		'content' => "Help build the infrastructure that powers millions of deploys per day at Vercel.\n\n**You are:**\n- A technical leader with 8+ years of engineering experience\n- Expert in Kubernetes, distributed systems, and cloud infrastructure (AWS/GCP)\n- Comfortable with Go, Rust, or TypeScript at the systems level",
+		'meta'    => array(
 			'_wcb_salary_min'      => '220000',
 			'_wcb_salary_max'      => '300000',
 			'_wcb_salary_currency' => 'USD',
@@ -381,19 +518,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'careers@vercel.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering', 'DevOps' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Lead', 'Principal' ),
+			'wcb_tag'        => array( 'Remote-first', 'DevTools', 'Series C+' ),
 		),
 	),
 	array(
-		'slug'        => 'head-of-marketing-vercel',
-		'title'       => 'Head of Marketing',
-		'company'     => 'vercel',
-		'content'     => "Own and evolve Vercel's marketing strategy as we scale to the next phase of growth.\n\n**What you'll do:**\n- Define and execute Vercel's brand, demand generation, and developer marketing strategy\n- Lead a team of marketers across growth, content, and events\n- Partner with Sales and Product to launch new features and enterprise offerings\n- Drive pipeline growth through product-led and community-led channels\n\n**You bring:**\n- 8+ years in B2B/developer marketing, 3+ years in a leadership role\n- Deep experience with developer-first brands\n- Data-driven decision making backed by attribution and funnel analytics",
-		'meta'        => array(
+		'slug'    => 'head-of-marketing-vercel',
+		'title'   => 'Head of Marketing',
+		'company' => 'vercel',
+		'status'  => 'publish',
+		'content' => "Own and evolve Vercel's marketing strategy as we scale to the next phase of growth.\n\n**You bring:**\n- 8+ years in B2B/developer marketing, 3+ years in a leadership role\n- Deep experience with developer-first brands\n- Data-driven decision making backed by attribution and funnel analytics",
+		'meta'    => array(
 			'_wcb_salary_min'      => '190000',
 			'_wcb_salary_max'      => '250000',
 			'_wcb_salary_currency' => 'USD',
@@ -403,19 +542,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'careers@vercel.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Marketing' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote', 'New York, NY' ),
 			'wcb_experience' => array( 'Lead' ),
+			'wcb_tag'        => array( 'Remote-first', 'DevTools' ),
 		),
 	),
 	array(
-		'slug'        => 'enterprise-customer-success-vercel',
-		'title'       => 'Enterprise Customer Success Manager',
-		'company'     => 'vercel',
-		'content'     => "Work with Vercel's largest enterprise customers to drive adoption, renewals, and expansion.\n\n**Responsibilities:**\n- Own a portfolio of strategic enterprise accounts (Fortune 500, scale-ups)\n- Conduct executive business reviews and quarterly check-ins\n- Partner with Solutions Engineering to solve customer technical challenges\n- Identify expansion opportunities and work with Account Executives\n\n**Requirements:**\n- 4+ years in enterprise customer success at a SaaS company\n- Technical fluency — comfortable discussing CDN, DNS, CI/CD pipelines\n- Experience managing $500K+ ARR accounts",
-		'meta'        => array(
+		'slug'    => 'enterprise-customer-success-vercel',
+		'title'   => 'Enterprise Customer Success Manager',
+		'company' => 'vercel',
+		'status'  => 'publish',
+		'content' => "Work with Vercel's largest enterprise customers to drive adoption, renewals, and expansion.\n\n**Requirements:**\n- 4+ years in enterprise customer success at a SaaS company\n- Technical fluency — comfortable discussing CDN, DNS, CI/CD pipelines\n- Experience managing \$500K+ ARR accounts",
+		'meta'    => array(
 			'_wcb_salary_min'      => '120000',
 			'_wcb_salary_max'      => '160000',
 			'_wcb_salary_currency' => 'USD',
@@ -425,21 +566,23 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'careers@vercel.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Customer Success' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'SaaS' ),
 		),
 	),
 
 	// ---- Shopify -------------------------------------------------------
 	array(
-		'slug'        => 'senior-product-manager-shopify',
-		'title'       => 'Senior Product Manager — Checkout',
-		'company'     => 'shopify',
-		'content'     => "Own the checkout experience for one of the highest-volume e-commerce platforms in the world.\n\n**What you'll do:**\n- Define the product vision and roadmap for Shopify Checkout across web and mobile\n- Run continuous customer discovery with merchants and shoppers\n- Work with engineering, design, and data to ship improvements that move the revenue needle\n- Navigate complex merchant requirements against a simple, cohesive UX\n\n**You have:**\n- 6+ years of product management experience, ideally in payments or e-commerce\n- Strong quantitative skills — comfortable with A/B tests, conversion analysis\n- Experience shipping products used by millions of consumers",
-		'meta'        => array(
+		'slug'    => 'senior-product-manager-shopify',
+		'title'   => 'Senior Product Manager — Checkout',
+		'company' => 'shopify',
+		'status'  => 'publish',
+		'content' => "Own the checkout experience for one of the highest-volume e-commerce platforms in the world.\n\n**You have:**\n- 6+ years of product management experience, ideally in payments or e-commerce\n- Strong quantitative skills — comfortable with A/B tests, conversion analysis\n- Experience shipping products used by millions of consumers",
+		'meta'    => array(
 			'_wcb_salary_min'      => '160000',
 			'_wcb_salary_max'      => '200000',
 			'_wcb_salary_currency' => 'CAD',
@@ -449,19 +592,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'jobs@shopify.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Product' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote', 'Ottawa, ON' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'E-commerce', 'Scale-up' ),
 		),
 	),
 	array(
-		'slug'        => 'react-native-engineer-shopify',
-		'title'       => 'React Native Engineer — Shop App',
-		'company'     => 'shopify',
-		'content'     => "Build the Shop app, used by 100M+ shoppers to track orders and discover products.\n\n**What you'll do:**\n- Develop high-quality React Native features for iOS and Android\n- Collaborate with product and design to craft exceptional shopping experiences\n- Optimize performance for devices across the entire Android fragmentation spectrum\n- Write thorough unit and snapshot tests\n\n**Requirements:**\n- 3+ years building production React Native applications\n- Strong JavaScript/TypeScript skills\n- Comfortable with native modules (Objective-C/Swift or Kotlin)",
-		'meta'        => array(
+		'slug'    => 'react-native-engineer-shopify',
+		'title'   => 'React Native Engineer — Shop App',
+		'company' => 'shopify',
+		'status'  => 'publish',
+		'content' => "Build the Shop app, used by 100M+ shoppers to track orders and discover products.\n\n**Requirements:**\n- 3+ years building production React Native applications\n- Strong JavaScript/TypeScript skills\n- Comfortable with native modules (Objective-C/Swift or Kotlin)",
+		'meta'    => array(
 			'_wcb_salary_min'      => '140000',
 			'_wcb_salary_max'      => '185000',
 			'_wcb_salary_currency' => 'CAD',
@@ -471,19 +616,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'jobs@shopify.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote' ),
 			'wcb_experience' => array( 'Mid Level' ),
+			'wcb_tag'        => array( 'Remote-first', 'E-commerce' ),
 		),
 	),
 	array(
-		'slug'        => 'site-reliability-engineer-shopify',
-		'title'       => 'Site Reliability Engineer',
-		'company'     => 'shopify',
-		'content'     => "Keep Shopify reliable during Black Friday and every day in between.\n\n**Responsibilities:**\n- Maintain and improve the reliability of Shopify's platform across hundreds of services\n- Build runbooks, SLOs, and error-budget policies with product engineering teams\n- Drive capacity planning and infrastructure cost optimisation\n- Participate in an on-call rotation for critical services\n\n**You have:**\n- 4+ years of SRE or DevOps experience at scale\n- Deep experience with Kubernetes, Terraform, and GCP or AWS\n- Strong observability background (Prometheus, Grafana, OpenTelemetry)",
-		'meta'        => array(
+		'slug'    => 'site-reliability-engineer-shopify',
+		'title'   => 'Site Reliability Engineer',
+		'company' => 'shopify',
+		'status'  => 'publish',
+		'content' => "Keep Shopify reliable during Black Friday and every day in between.\n\n**You have:**\n- 4+ years of SRE or DevOps experience at scale\n- Deep experience with Kubernetes, Terraform, and GCP or AWS\n- Strong observability background (Prometheus, Grafana, OpenTelemetry)",
+		'meta'    => array(
 			'_wcb_salary_min'      => '150000',
 			'_wcb_salary_max'      => '195000',
 			'_wcb_salary_currency' => 'CAD',
@@ -493,21 +640,23 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'jobs@shopify.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'DevOps', 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'Remote', 'Ottawa, ON' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Remote-first', 'E-commerce', 'Scale-up' ),
 		),
 	),
 
 	// ---- Figma ---------------------------------------------------------
 	array(
-		'slug'        => 'principal-ux-researcher-figma',
-		'title'       => 'Principal UX Researcher',
-		'company'     => 'figma',
-		'content'     => "Lead research that shapes Figma's product direction for millions of designers worldwide.\n\n**What you'll do:**\n- Drive mixed-methods research (interviews, surveys, usability tests, diary studies) across core product areas\n- Synthesise findings into clear, actionable insights for product and design leadership\n- Build Figma's research practice — tooling, methodology, and researcher mentorship\n- Influence the long-term product roadmap through strategic research programmes\n\n**You have:**\n- 8+ years of UX research experience, 3+ at a Principal or equivalent level\n- Deep expertise in both qualitative and quantitative methods\n- Experience working with design-tools or creative products is a strong plus",
-		'meta'        => array(
+		'slug'    => 'principal-ux-researcher-figma',
+		'title'   => 'Principal UX Researcher',
+		'company' => 'figma',
+		'status'  => 'publish',
+		'content' => "Lead research that shapes Figma's product direction for millions of designers worldwide.\n\n**You have:**\n- 8+ years of UX research experience, 3+ at a Principal or equivalent level\n- Deep expertise in both qualitative and quantitative methods\n- Experience working with design-tools or creative products is a strong plus",
+		'meta'    => array(
 			'_wcb_salary_min'      => '195000',
 			'_wcb_salary_max'      => '260000',
 			'_wcb_salary_currency' => 'USD',
@@ -517,19 +666,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'careers@figma.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Design', 'Product' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'San Francisco, CA' ),
 			'wcb_experience' => array( 'Principal' ),
+			'wcb_tag'        => array( 'Design Tools', 'SaaS' ),
 		),
 	),
 	array(
-		'slug'        => 'growth-marketing-manager-figma',
-		'title'       => 'Growth Marketing Manager',
-		'company'     => 'figma',
-		'content'     => "Drive Figma's product-led growth across activation, retention, and expansion motions.\n\n**What you'll do:**\n- Own growth experiments across onboarding, referral, and in-product upgrade flows\n- Partner with Product and Engineering to run A/B tests and analyse results\n- Build automated lifecycle campaigns with email and in-app messaging\n- Report weekly on growth metrics and experiment pipeline to leadership\n\n**Requirements:**\n- 4+ years in growth marketing or product-led growth roles\n- Strong data skills — SQL, Amplitude/Mixpanel, and cohort analysis\n- Experience with PLG SaaS products is strongly preferred",
-		'meta'        => array(
+		'slug'    => 'growth-marketing-manager-figma',
+		'title'   => 'Growth Marketing Manager',
+		'company' => 'figma',
+		'status'  => 'publish',
+		'content' => "Drive Figma's product-led growth across activation, retention, and expansion motions.\n\n**Requirements:**\n- 4+ years in growth marketing or product-led growth roles\n- Strong data skills — SQL, Amplitude/Mixpanel, and cohort analysis\n- Experience with PLG SaaS products is strongly preferred",
+		'meta'    => array(
 			'_wcb_salary_min'      => '140000',
 			'_wcb_salary_max'      => '175000',
 			'_wcb_salary_currency' => 'USD',
@@ -539,19 +690,21 @@ $jobs_data = array(
 			'_wcb_featured'        => '0',
 			'_wcb_apply_email'     => 'careers@figma.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Marketing' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'San Francisco, CA' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Design Tools', 'SaaS' ),
 		),
 	),
 	array(
-		'slug'        => 'software-engineer-editor-figma',
-		'title'       => 'Software Engineer — Editor',
-		'company'     => 'figma',
-		'content'     => "Work on Figma's canvas editor — one of the most technically ambitious web applications ever built.\n\n**What you'll do:**\n- Build features in Figma's collaborative, WebAssembly-powered editor\n- Optimise rendering performance and memory usage for complex design files\n- Contribute to the real-time collaboration engine (CRDTs, operational transforms)\n- Collaborate with design and product to ship features that delight designers\n\n**Requirements:**\n- 4+ years of software engineering experience\n- Strong C++ or Rust skills; TypeScript experience strongly preferred\n- Deep interest in graphics, rendering, or collaborative systems",
-		'meta'        => array(
+		'slug'    => 'software-engineer-editor-figma',
+		'title'   => 'Software Engineer — Editor',
+		'company' => 'figma',
+		'status'  => 'publish',
+		'content' => "Work on Figma's canvas editor — one of the most technically ambitious web applications ever built.\n\n**Requirements:**\n- 4+ years of software engineering experience\n- Strong C++ or Rust skills; TypeScript experience strongly preferred\n- Deep interest in graphics, rendering, or collaborative systems",
+		'meta'    => array(
 			'_wcb_salary_min'      => '185000',
 			'_wcb_salary_max'      => '245000',
 			'_wcb_salary_currency' => 'USD',
@@ -561,26 +714,32 @@ $jobs_data = array(
 			'_wcb_featured'        => '1',
 			'_wcb_apply_email'     => 'careers@figma.com',
 		),
-		'taxonomies'  => array(
+		'taxonomies' => array(
 			'wcb_category'   => array( 'Engineering' ),
 			'wcb_job_type'   => array( 'Full-time' ),
 			'wcb_location'   => array( 'San Francisco, CA' ),
 			'wcb_experience' => array( 'Senior' ),
+			'wcb_tag'        => array( 'Design Tools', 'Open Source' ),
 		),
 	),
 );
 
+$job_ids_by_slug = array();
+$published_count = 0;
+$pending_count   = 0;
+
 foreach ( $jobs_data as $job ) {
 	$company_id   = $company_ids[ $job['company'] ] ?? 0;
 	$company_post = $company_id ? get_post( $company_id ) : null;
+	$employer_uid = $employer_ids[ $job['company'] ] ?? $admin_id;
 
 	$id = wcb_seed_post( array(
 		'post_type'    => 'wcb_job',
 		'post_title'   => $job['title'],
 		'post_name'    => $job['slug'],
 		'post_content' => $job['content'],
-		'post_status'  => 'publish',
-		'post_author'  => $admin_id,
+		'post_status'  => $job['status'],
+		'post_author'  => $employer_uid,
 	) );
 
 	if ( $id ) {
@@ -602,11 +761,13 @@ foreach ( $jobs_data as $job ) {
 				wp_set_post_terms( $id, $ids, $taxonomy );
 			}
 		}
+		$job_ids_by_slug[ $job['slug'] ] = $id;
+		'publish' === $job['status'] ? $published_count++ : $pending_count++;
 	}
 }
 
 // ---------------------------------------------------------------------------
-// 4. Candidate users
+// 5. Candidate users
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '' );
@@ -620,8 +781,9 @@ $candidates_data = array(
 		'first_name'   => 'Sarah',
 		'last_name'    => 'Chen',
 		'description'  => 'Senior frontend engineer with 7 years of experience building design-system–driven React applications. Passionate about accessibility, web performance, and developer experience.',
+		'bookmarks'    => array( 'backend-engineer-golang-stripe', 'staff-platform-engineer-vercel' ),
 		'user_meta'    => array(
-			'_wcb_open_to_work'      => '1',
+			'_wcb_open_to_work'       => '1',
 			'_wcb_profile_visibility' => 'public',
 			'_wcb_resume_data'        => array(
 				'headline' => 'Senior Frontend Engineer · React · TypeScript · a11y',
@@ -673,7 +835,7 @@ $candidates_data = array(
 					'start_date'     => '2013-08',
 					'end_date'       => '2017-05',
 					'gpa'            => '3.8',
-					'description'    => 'Dean\'s List. Teaching assistant for CS61B Data Structures.',
+					'description'    => "Dean's List. Teaching assistant for CS61B Data Structures.",
 					'achievements'   => 'HackMIT winner 2016. Women in Tech Leadership Award.',
 				),
 			),
@@ -690,6 +852,7 @@ $candidates_data = array(
 		'first_name'   => 'Marcus',
 		'last_name'    => 'Williams',
 		'description'  => 'Product designer with a background in visual design and user research. I care about design systems, motion, and the tiny details that make products feel alive.',
+		'bookmarks'    => array( 'senior-frontend-engineer-stripe', 'software-engineer-editor-figma' ),
 		'user_meta'    => array(
 			'_wcb_open_to_work'       => '1',
 			'_wcb_profile_visibility' => 'public',
@@ -712,7 +875,7 @@ $candidates_data = array(
 					'start_date'      => '2022-01',
 					'end_date'        => '',
 					'current_role'    => 'true',
-					'description'     => 'Own design for Framer\'s component and animation editor. Shipped the Framer Motion plugin integration and redesigned the layer panel. Part of the design system working group.',
+					'description'     => "Own design for Framer's component and animation editor. Shipped the Framer Motion plugin integration and redesigned the layer panel.",
 					'skills_used'     => 'Figma, Framer, user research, prototyping',
 				),
 				array(
@@ -758,6 +921,7 @@ $candidates_data = array(
 		'first_name'   => 'Priya',
 		'last_name'    => 'Patel',
 		'description'  => 'Product manager with 8 years of experience scaling B2B SaaS products from 0-to-1 and through Series C. Background in computer science gives me the technical depth to partner closely with engineering.',
+		'bookmarks'    => array( 'head-of-marketing-vercel', 'enterprise-customer-success-vercel' ),
 		'user_meta'    => array(
 			'_wcb_open_to_work'       => '0',
 			'_wcb_profile_visibility' => 'public',
@@ -779,7 +943,7 @@ $candidates_data = array(
 					'start_date'      => '2020-09',
 					'end_date'        => '',
 					'current_role'    => 'true',
-					'description'     => 'PM for Rippling\'s Benefits product area. Launched ACA compliance automation and open enrollment — grew from 0 to $12M ARR in 18 months.',
+					'description'     => "PM for Rippling's Benefits product area. Launched ACA compliance automation and open enrollment — grew from 0 to \$12M ARR in 18 months.",
 					'skills_used'     => 'Roadmapping, stakeholder management, SQL, Amplitude, user research',
 				),
 				array(
@@ -836,6 +1000,7 @@ $candidates_data = array(
 		'first_name'   => 'Jordan',
 		'last_name'    => 'Lee',
 		'description'  => 'Marketing leader with a track record growing developer-first brands through content, community, and PLG. I write, I code a little, and I speak at conferences.',
+		'bookmarks'    => array( 'developer-advocate-linear', 'growth-marketing-manager-figma' ),
 		'user_meta'    => array(
 			'_wcb_open_to_work'       => '1',
 			'_wcb_profile_visibility' => 'public',
@@ -875,11 +1040,11 @@ $candidates_data = array(
 				),
 			),
 			'skills' => array(
-				array( 'skill_name' => 'Content Strategy',     'proficiency' => 'Expert' ),
-				array( 'skill_name' => 'SEO',                  'proficiency' => 'Expert' ),
-				array( 'skill_name' => 'Developer Marketing',  'proficiency' => 'Advanced' ),
-				array( 'skill_name' => 'Community Building',   'proficiency' => 'Advanced' ),
-				array( 'skill_name' => 'Demand Generation',    'proficiency' => 'Intermediate' ),
+				array( 'skill_name' => 'Content Strategy',    'proficiency' => 'Expert' ),
+				array( 'skill_name' => 'SEO',                 'proficiency' => 'Expert' ),
+				array( 'skill_name' => 'Developer Marketing', 'proficiency' => 'Advanced' ),
+				array( 'skill_name' => 'Community Building',  'proficiency' => 'Advanced' ),
+				array( 'skill_name' => 'Demand Generation',   'proficiency' => 'Intermediate' ),
 			),
 			'education_college' => array(
 				array(
@@ -910,6 +1075,7 @@ $candidates_data = array(
 		'first_name'   => 'Alex',
 		'last_name'    => 'Kumar',
 		'description'  => 'DevOps and platform engineer focused on Kubernetes, observability, and building developer-friendly internal platforms. Open to SRE and Platform Engineering roles.',
+		'bookmarks'    => array( 'site-reliability-engineer-shopify', 'senior-frontend-engineer-stripe' ),
 		'user_meta'    => array(
 			'_wcb_open_to_work'       => '1',
 			'_wcb_profile_visibility' => 'public',
@@ -932,7 +1098,7 @@ $candidates_data = array(
 					'start_date'      => '2021-02',
 					'end_date'        => '',
 					'current_role'    => 'true',
-					'description'     => 'Built and maintain Datadog\'s internal developer platform serving 3000+ engineers. Migrated 200+ services to a GitOps model with ArgoCD. Reduced average deploy time from 45 minutes to 4 minutes.',
+					'description'     => "Built and maintain Datadog's internal developer platform serving 3000+ engineers. Migrated 200+ services to a GitOps model with ArgoCD. Reduced average deploy time from 45 minutes to 4 minutes.",
 					'skills_used'     => 'Kubernetes, Terraform, Go, ArgoCD, Prometheus, Grafana',
 				),
 				array(
@@ -943,17 +1109,17 @@ $candidates_data = array(
 					'start_date'      => '2018-08',
 					'end_date'        => '2021-01',
 					'current_role'    => 'false',
-					'description'     => 'Operated Cloudflare\'s Kubernetes fleet across 200+ data centres. Owned the internal DNS infrastructure and certificate management automation.',
+					'description'     => "Operated Cloudflare's Kubernetes fleet across 200+ data centres. Owned the internal DNS infrastructure and certificate management automation.",
 					'skills_used'     => 'Kubernetes, Ansible, Python, Salt, Nginx',
 				),
 			),
 			'skills' => array(
-				array( 'skill_name' => 'Kubernetes',       'proficiency' => 'Expert' ),
-				array( 'skill_name' => 'Terraform',        'proficiency' => 'Expert' ),
-				array( 'skill_name' => 'Go',               'proficiency' => 'Advanced' ),
-				array( 'skill_name' => 'AWS / GCP',        'proficiency' => 'Advanced' ),
-				array( 'skill_name' => 'Observability',    'proficiency' => 'Advanced' ),
-				array( 'skill_name' => 'Python',           'proficiency' => 'Intermediate' ),
+				array( 'skill_name' => 'Kubernetes',    'proficiency' => 'Expert' ),
+				array( 'skill_name' => 'Terraform',     'proficiency' => 'Expert' ),
+				array( 'skill_name' => 'Go',            'proficiency' => 'Advanced' ),
+				array( 'skill_name' => 'AWS / GCP',     'proficiency' => 'Advanced' ),
+				array( 'skill_name' => 'Observability', 'proficiency' => 'Advanced' ),
+				array( 'skill_name' => 'Python',        'proficiency' => 'Intermediate' ),
 			),
 			'education_college' => array(
 				array(
@@ -998,27 +1164,33 @@ foreach ( $candidates_data as $candidate ) {
 	$uid = wcb_seed_user( array(
 		'user_login'   => $candidate['login'],
 		'user_email'   => $candidate['email'],
-		'user_pass'    => wp_generate_password( 16 ),
+		'user_pass'    => 'password',
 		'display_name' => $candidate['display_name'],
 		'first_name'   => $candidate['first_name'],
 		'last_name'    => $candidate['last_name'],
 		'description'  => $candidate['description'],
-		'role'         => 'subscriber',
+		'role'         => 'wcb_candidate',
 	) );
 
 	if ( $uid ) {
 		foreach ( $candidate['user_meta'] as $key => $value ) {
 			update_user_meta( $uid, $key, $value );
 		}
-		$user_ids[ $candidate['login'] ] = array(
-			'id'     => $uid,
-			'resume' => $candidate['resume'],
-		);
+
+		// Add bookmarks (non-unique usermeta — one row per bookmarked job).
+		foreach ( $candidate['bookmarks'] as $job_slug ) {
+			$job_id = $job_ids_by_slug[ $job_slug ] ?? wcb_seed_get_post_id( $job_slug, 'wcb_job' );
+			if ( $job_id && ! in_array( $job_id, array_map( 'intval', (array) get_user_meta( $uid, '_wcb_bookmark', false ) ), true ) ) {
+				add_user_meta( $uid, '_wcb_bookmark', $job_id, false );
+			}
+		}
+
+		$user_ids[ $candidate['login'] ] = $uid;
 	}
 }
 
 // ---------------------------------------------------------------------------
-// 5. wcb_resume CPT posts (Pro) — one per candidate
+// 6. wcb_resume CPT posts (Pro) — one per candidate
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '' );
@@ -1031,16 +1203,15 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 		if ( ! $user ) {
 			continue;
 		}
-		$uid     = $user->ID;
-		$resume  = $candidate['resume'];
+		$uid    = $user->ID;
+		$resume = $candidate['resume'];
 
-		$resume_title = $candidate['display_name'] . ' — Resume';
 		$id = wcb_seed_post( array(
-			'post_type'    => 'wcb_resume',
-			'post_title'   => $resume_title,
-			'post_name'    => sanitize_title( $candidate['login'] . '-resume' ),
-			'post_status'  => 'publish',
-			'post_author'  => $uid,
+			'post_type'   => 'wcb_resume',
+			'post_title'  => $candidate['display_name'] . ' — Resume',
+			'post_name'   => sanitize_title( $candidate['login'] . '-resume' ),
+			'post_status' => 'publish',
+			'post_author' => $uid,
 		) );
 
 		if ( $id ) {
@@ -1054,15 +1225,15 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 				}
 			}
 
-			// Sync skill names into the wcb_resume_skill taxonomy (Pro feature).
+			// Sync skill names into wcb_resume_skill taxonomy (queried by resume archive filter).
 			if ( taxonomy_exists( 'wcb_resume_skill' ) && ! empty( $resume['skills'] ) ) {
-				$skill_terms = array_filter(
+				$skill_terms = array_values( array_filter(
 					array_map(
 						static fn( array $s ): string => (string) ( $s['skill_name'] ?? '' ),
 						$resume['skills']
 					)
-				);
-				wp_set_object_terms( $id, array_values( $skill_terms ), 'wcb_resume_skill' );
+				) );
+				wp_set_object_terms( $id, $skill_terms, 'wcb_resume_skill' );
 			}
 		}
 	}
@@ -1071,17 +1242,224 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 }
 
 // ---------------------------------------------------------------------------
+// 7. Applications
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '' );
+WP_CLI::log( '=== Creating applications ===' );
+
+/**
+ * Resolve a user ID from a login handle, falling back to the $user_ids map.
+ *
+ * @param string       $login    User login.
+ * @param array<string,int> $user_ids Seed user map.
+ * @return int User ID or 0.
+ */
+function wcb_seed_uid( string $login, array $user_ids ): int {
+	if ( isset( $user_ids[ $login ] ) ) {
+		return $user_ids[ $login ];
+	}
+	$u = get_user_by( 'login', $login );
+	return $u ? (int) $u->ID : 0;
+}
+
+$applications_data = array(
+	// sarah.chen applied to Senior Frontend Engineer @ Stripe — now being reviewed.
+	array(
+		'candidate' => 'sarah.chen',
+		'job_slug'  => 'senior-frontend-engineer-stripe',
+		'status'    => 'reviewing',
+		'cover'     => 'I have been following Stripe for years and deeply admire your engineering culture. My seven years building React applications, including a complete design-system migration at Notion, maps directly to what you need. I would love to bring that experience to the Payments UI team.',
+	),
+	// sarah.chen applied to Product Designer @ Linear — just submitted.
+	array(
+		'candidate' => 'sarah.chen',
+		'job_slug'  => 'product-designer-linear',
+		'status'    => 'submitted',
+		'cover'     => 'My work sits at the intersection of engineering and design — I collaborate daily with designers and have contributed to design system tokens and component APIs. Linear feels like the natural next step.',
+	),
+	// sarah.chen applied to Software Engineer @ Figma — rejected.
+	array(
+		'candidate' => 'sarah.chen',
+		'job_slug'  => 'software-engineer-editor-figma',
+		'status'    => 'rejected',
+		'cover'     => 'I am deeply interested in graphics rendering challenges. While my background is primarily React/TypeScript rather than C++/Rust, I believe my performance optimisation experience transfers well.',
+	),
+	// marcus.williams applied to Product Designer @ Linear — shortlisted.
+	array(
+		'candidate' => 'marcus.williams',
+		'job_slug'  => 'product-designer-linear',
+		'status'    => 'shortlisted',
+		'cover'     => "Linear's commitment to craft matches my own. I have shipped design systems and motion work at Framer and InVision and would bring the same obsessive attention to detail to Linear's product.",
+	),
+	// marcus.williams applied to Principal UX Researcher @ Figma — hired!
+	array(
+		'candidate' => 'marcus.williams',
+		'job_slug'  => 'principal-ux-researcher-figma',
+		'status'    => 'hired',
+		'cover'     => 'Eight years of mixed-methods research, two of which leading a research practice at a 2M-user SaaS. I have worked closely with design-tool teams and understand the unique challenges of researching creative workflows.',
+	),
+	// priya.patel applied to Senior PM @ Shopify — submitted.
+	array(
+		'candidate' => 'priya.patel',
+		'job_slug'  => 'senior-product-manager-shopify',
+		'status'    => 'submitted',
+		'cover'     => 'I have spent the last 4 years working on payments and benefits products where conversion and compliance are the two competing forces — exactly the tension you face at Shopify Checkout. I would love to bring that perspective.',
+	),
+	// priya.patel applied to Head of Marketing @ Vercel — reviewing.
+	array(
+		'candidate' => 'priya.patel',
+		'job_slug'  => 'head-of-marketing-vercel',
+		'status'    => 'reviewing',
+		'cover'     => 'My CS background means I can go deep with developer audiences while still thinking in funnels and pipeline. I grew a B2B product to $40M ARR and would bring the same rigour to Vercel.',
+	),
+	// jordan.lee applied to Head of Marketing @ Vercel — submitted.
+	array(
+		'candidate' => 'jordan.lee',
+		'job_slug'  => 'head-of-marketing-vercel',
+		'status'    => 'submitted',
+		'cover'     => 'Developer-first marketing is where I have spent my entire career. At Planetscale I grew organic traffic 8x in 18 months. Vercel has the brand recognition to do even more with the right content and community strategy.',
+	),
+	// jordan.lee applied to Developer Advocate @ Linear — reviewing.
+	array(
+		'candidate' => 'jordan.lee',
+		'job_slug'  => 'developer-advocate-linear',
+		'status'    => 'reviewing',
+		'cover'     => 'I write code, I write about code, and I speak at conferences. Linear is the tool I recommend to every engineering team I work with. Becoming its advocate feels like a natural fit.',
+	),
+	// alex.kumar applied to Staff Platform Engineer @ Vercel — submitted.
+	array(
+		'candidate' => 'alex.kumar',
+		'job_slug'  => 'staff-platform-engineer-vercel',
+		'status'    => 'submitted',
+		'cover'     => "I currently operate a Kubernetes developer platform for 3,000 engineers at Datadog. Vercel's edge infrastructure challenges are exactly the kind of problem I want to work on at the next level.",
+	),
+	// alex.kumar applied to SRE @ Shopify — shortlisted.
+	array(
+		'candidate' => 'alex.kumar',
+		'job_slug'  => 'site-reliability-engineer-shopify',
+		'status'    => 'shortlisted',
+		'cover'     => 'High-volume, latency-sensitive systems under unpredictable load — that is my day job. I have built SLO frameworks and error-budget policies from scratch and would bring the same rigour to Shopify.',
+	),
+	// Guest application — Software Engineer @ Figma.
+	array(
+		'candidate'    => null,
+		'job_slug'     => 'software-engineer-editor-figma',
+		'status'       => 'submitted',
+		'guest_name'   => 'Lena Müller',
+		'guest_email'  => 'lena.muller@example-guest.com',
+		'cover'        => 'I am a systems engineer with 5 years of C++ and WebAssembly experience in real-time graphics applications. Figma is the product I use every day and I would love to work on its rendering engine.',
+	),
+	// Guest application — Backend Engineer @ Stripe.
+	array(
+		'candidate'    => null,
+		'job_slug'     => 'backend-engineer-golang-stripe',
+		'status'       => 'submitted',
+		'guest_name'   => 'Tobias Hartmann',
+		'guest_email'  => 'tobias@example-guest.com',
+		'cover'        => 'I have 6 years of high-throughput Go microservices experience at a European fintech. Processing financial transactions at Stripe scale is exactly the challenge I am looking for.',
+	),
+);
+
+$application_count = 0;
+foreach ( $applications_data as $app ) {
+	$job_id = $job_ids_by_slug[ $app['job_slug'] ] ?? wcb_seed_get_post_id( $app['job_slug'], 'wcb_job' );
+	if ( ! $job_id ) {
+		WP_CLI::warning( '  → skip application: job not found (' . $app['job_slug'] . ')' );
+		continue;
+	}
+
+	$job_post = get_post( $job_id );
+
+	if ( null === $app['candidate'] ) {
+		// Guest application.
+		$post_author = 0;
+	} else {
+		$post_author = wcb_seed_uid( $app['candidate'], $user_ids );
+		if ( ! $post_author ) {
+			WP_CLI::warning( '  → skip application: candidate not found (' . $app['candidate'] . ')' );
+			continue;
+		}
+	}
+
+	// Avoid duplicate applications for the same candidate + job.
+	$existing_args = array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'any',
+		'author'      => $post_author > 0 ? $post_author : -1,
+		'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			array(
+				'key'   => '_wcb_job_id',
+				'value' => $job_id,
+			),
+		),
+		'numberposts' => 1,
+		'fields'      => 'ids',
+	);
+
+	// For guest applications, check by guest email instead of author.
+	if ( 0 === $post_author ) {
+		unset( $existing_args['author'] );
+		$existing_args['meta_query'][] = array(
+			'key'   => '_wcb_guest_email',
+			'value' => $app['guest_email'],
+		);
+		$existing_args['meta_query']['relation'] = 'AND';
+	}
+
+	$existing = get_posts( $existing_args );
+	if ( $existing ) {
+		WP_CLI::log( '  → skip application (exists): ' . $app['job_slug'] . ' / ' . ( $app['candidate'] ?? $app['guest_email'] ) );
+		continue;
+	}
+
+	$title   = 'Application for ' . ( $job_post ? $job_post->post_title : $app['job_slug'] );
+	$app_id  = wp_insert_post( array(
+		'post_type'   => 'wcb_application',
+		'post_title'  => $title,
+		'post_status' => 'publish',
+		'post_author' => $post_author,
+	), true );
+
+	if ( is_wp_error( $app_id ) ) {
+		WP_CLI::warning( '  → could not create application: ' . $app_id->get_error_message() );
+		continue;
+	}
+
+	update_post_meta( $app_id, '_wcb_job_id', $job_id );
+	update_post_meta( $app_id, '_wcb_cover_letter', $app['cover'] );
+	update_post_meta( $app_id, '_wcb_status', $app['status'] );
+
+	if ( $post_author > 0 ) {
+		update_post_meta( $app_id, '_wcb_candidate_id', $post_author );
+	} else {
+		update_post_meta( $app_id, '_wcb_guest_name', $app['guest_name'] );
+		update_post_meta( $app_id, '_wcb_guest_email', $app['guest_email'] );
+	}
+
+	WP_CLI::log( '  → created application: ' . $title . ' — ' . $app['status'] . ' (ID ' . $app_id . ')' );
+	$application_count++;
+}
+
+// ---------------------------------------------------------------------------
 // Done
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '' );
 WP_CLI::success( 'Seed data imported:' );
+WP_CLI::log( '  • ' . count( $employers_data ) . ' employer users (wcb_employer)' );
 WP_CLI::log( '  • ' . count( $companies_data ) . ' companies (wcb_company)' );
-WP_CLI::log( '  • ' . count( $jobs_data ) . ' jobs (wcb_job)' );
-WP_CLI::log( '  • ' . count( $candidates_data ) . ' candidate users' );
+WP_CLI::log( '  • ' . $published_count . ' published jobs + ' . $pending_count . ' pending jobs (wcb_job)' );
+WP_CLI::log( '  • ' . count( $candidates_data ) . ' candidate users (wcb_candidate)' );
 WP_CLI::log( '  • ' . count( $candidates_data ) . ' resumes (wcb_resume, if Pro active)' );
+WP_CLI::log( '  • ' . $application_count . ' applications (wcb_application, ' . ( count( $applications_data ) - 2 ) . ' user + 2 guest)' );
 WP_CLI::log( '' );
-WP_CLI::log( 'Login with any test candidate:' );
+WP_CLI::log( 'Login credentials (password: password):' );
+WP_CLI::log( '  Employers:' );
+foreach ( $employers_data as $emp ) {
+	WP_CLI::log( '    http://job-portal.local/?autologin=' . $emp['login'] );
+}
+WP_CLI::log( '  Candidates:' );
 foreach ( $candidates_data as $c ) {
-	WP_CLI::log( '  http://job-portal.local/?autologin=' . $c['login'] );
+	WP_CLI::log( '    http://job-portal.local/?autologin=' . $c['login'] );
 }
