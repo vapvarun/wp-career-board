@@ -164,7 +164,9 @@ class Cli extends AbstractCliCommand {
 
 		$rows = array();
 
-		foreach ( self::ABILITIES as $slug => $label ) {
+		$abilities = (array) apply_filters( 'wcb_cli_abilities', self::ABILITIES );
+
+		foreach ( $abilities as $slug => $label ) {
 			$granted = function_exists( 'wp_is_ability_granted' )
 				? wp_is_ability_granted( $slug, $user )
 				// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
