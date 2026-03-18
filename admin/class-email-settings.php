@@ -69,7 +69,7 @@ class EmailSettings {
 					<tr>
 						<th><?php esc_html_e( 'Footer Text', 'wp-career-board' ); ?></th>
 						<td>
-							<textarea name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( \$brand['footer_text'] ) ? \$brand['footer_text'] : '' ); ?></textarea>
+							<textarea name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
 						</td>
 					</tr>
 				</table>
