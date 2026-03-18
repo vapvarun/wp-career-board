@@ -100,10 +100,33 @@
 	font-weight: 600;
 }
 
-/* Prevent theme button overrides */
+/* Prevent theme button overrides — scoped under .wcb-dashboard for specificity */
+.wcb-dashboard .wcb-nav-item {
+	background: none;
+	box-shadow: none;
+}
+.wcb-dashboard .wcb-nav-item:hover {
+	background: var( --wcb-bg-subtle );
+}
+.wcb-dashboard .wcb-nav-item.wcb-nav-active,
+.wcb-dashboard .wcb-nav-item.wcb-view-active {
+	background: var( --wcb-bg-hover );
+}
 .wcb-sidebar .wcb-nav-item:focus-visible {
 	outline: 2px solid var( --wcb-blue );
 	outline-offset: -2px;
+}
+.wcb-dashboard .wcb-filter-pill {
+	background: #fff;
+	box-shadow: none;
+}
+.wcb-dashboard .wcb-filter-pill:hover:not( .wcb-filter-active ):not( .wcb-active ) {
+	background: var( --wcb-bg-hover );
+}
+.wcb-dashboard .wcb-filter-pill.wcb-filter-active,
+.wcb-dashboard .wcb-filter-pill.wcb-active {
+	background: var( --wcb-text-primary );
+	color: #fff;
 }
 
 /* Nav badge */
