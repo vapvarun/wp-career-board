@@ -317,7 +317,38 @@ wp_interactivity_state(
 			<div class="wcb-section">
 				<h2 class="wcb-section-heading"><?php esc_html_e( 'About This Role', 'wp-career-board' ); ?></h2>
 				<div class="wcb-job-description">
-					<?php echo wp_kses_post( apply_filters( 'the_content', $wcb_job->post_content ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound ?>
+					<?php
+					// Convert common markdown patterns (bold, italic, headings, lists) that users
+					// naturally type in the frontend textarea to HTML before rendering.
+					$wcb_job_desc     = (string) $wcb_job->post_content;
+					$wcb_job_desc     = (string) preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $wcb_job_desc );
+					$wcb_job_desc     = (string) preg_replace( '/(?<!\*)\*(?![\*\s])(.+?)(?<!\s)\*(?!\*)/m', '<em>$1</em>', $wcb_job_desc );
+					$wcb_job_desc     = (string) preg_replace( '/^## (.+)$/m', '<h4>$1</h4>', $wcb_job_desc );
+					$wcb_job_desc     = (string) preg_replace( '/^# (.+)$/m', '<h3>$1</h3>', $wcb_job_desc );
+					$wcb_desc_lines   = explode( "\n", $wcb_job_desc );
+					$wcb_desc_out     = array();
+					$wcb_desc_in_list = false;
+					foreach ( $wcb_desc_lines as $wcb_desc_line ) {
+						if ( preg_match( '/^[*-] (.+)$/', $wcb_desc_line, $wcb_desc_m ) ) {
+							if ( ! $wcb_desc_in_list ) {
+								$wcb_desc_out[]   = '<ul>';
+								$wcb_desc_in_list = true;
+							}
+							$wcb_desc_out[] = '<li>' . $wcb_desc_m[1] . '</li>';
+						} else {
+							if ( $wcb_desc_in_list ) {
+								$wcb_desc_out[]   = '</ul>';
+								$wcb_desc_in_list = false;
+							}
+							$wcb_desc_out[] = $wcb_desc_line;
+						}
+					}
+					if ( $wcb_desc_in_list ) {
+						$wcb_desc_out[] = '</ul>';
+					}
+					$wcb_job_desc = implode( "\n", $wcb_desc_out );
+					echo wp_kses_post( apply_filters( 'the_content', $wcb_job_desc ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					?>
 				</div>
 			</div>
 
