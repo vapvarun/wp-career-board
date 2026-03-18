@@ -83,9 +83,9 @@ abstract class AbstractEmail {
 	/**
 	 * Sends the email and writes a row to wcb_notifications_log.
 	 *
-	 * @param string $to      Recipient email address.
-	 * @param array  $vars    Template variables passed to render_template().
-	 * @param int    $user_id Optional WP user ID for the log row.
+	 * @param string               $to      Recipient email address.
+	 * @param array<string, mixed> $vars    Template variables passed to render_template().
+	 * @param int                  $user_id Optional WP user ID for the log row.
 	 * @return void
 	 */
 	protected function send( string $to, array $vars, int $user_id = 0 ): void {
@@ -93,8 +93,9 @@ abstract class AbstractEmail {
 			return;
 		}
 
-		$body = self::render_template( $this->get_id(), $vars );
-		$sent = wp_mail( $to, $this->get_subject(), $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		$subject = $this->get_subject();
+		$body    = self::render_template( $this->get_id(), $vars );
+		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
 
 		global $wpdb;
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -106,7 +107,7 @@ abstract class AbstractEmail {
 				'payload'    => (string) wp_json_encode(
 					array(
 						'to'      => $to,
-						'subject' => $this->get_subject(),
+						'subject' => $subject,
 					)
 				),
 				'status'     => $sent ? 'sent' : 'failed',
@@ -122,8 +123,8 @@ abstract class AbstractEmail {
 	 * Theme overrides are loaded from {theme}/wp-career-board/emails/{slug}.php.
 	 * Additional plugin directories can be registered via the wcb_email_template_dirs filter.
 	 *
-	 * @param string $slug Template slug (filename without .php extension).
-	 * @param array  $vars Variables extracted into template scope.
+	 * @param string               $slug Template slug (filename without .php extension).
+	 * @param array<string, mixed> $vars Variables extracted into template scope.
 	 * @return string Rendered HTML.
 	 */
 	public static function render_template( string $slug, array $vars ): string {
@@ -135,8 +136,11 @@ abstract class AbstractEmail {
 			)
 		);
 
-		$template_file = $theme_override;
-		if ( ! file_exists( $template_file ) ) {
+		// Resolve template file: theme override first, then plugin dirs in order.
+		$template_file = '';
+		if ( file_exists( $theme_override ) ) {
+			$template_file = $theme_override;
+		} else {
 			foreach ( $plugin_dirs as $dir ) {
 				$candidate = trailingslashit( $dir ) . $slug . '.php';
 				if ( file_exists( $candidate ) ) {
@@ -153,7 +157,7 @@ abstract class AbstractEmail {
 		if ( file_exists( $header ) ) {
 			include $header;
 		}
-		if ( file_exists( $template_file ) ) {
+		if ( $template_file ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- intentional template pattern.
 			extract( $vars, EXTR_SKIP );
 			include $template_file;
