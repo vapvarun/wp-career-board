@@ -30,7 +30,9 @@ class Admin {
 	public function boot(): void {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_menu', array( $this, 'register_settings_submenu' ), 25 );
+		add_action( 'admin_menu', array( $this, 'register_emails_submenu' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
 		( new AdminSettings() )->boot();
@@ -330,6 +332,22 @@ class Admin {
 
 		</div>
 		<?php
+	}
+
+	/**
+	 * Register the Emails submenu page.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register_emails_submenu(): void {
+		add_submenu_page(
+			'wp-career-board',
+			__( 'Emails', 'wp-career-board' ),
+			__( 'Emails', 'wp-career-board' ),
+			'wcb_manage_settings',
+			'wcb-emails',
+			array( new EmailSettings(), 'render' )
+		);
 	}
 
 	/**
