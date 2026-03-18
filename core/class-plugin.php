@@ -86,6 +86,7 @@ final class Plugin {
 		}
 
 		$this->load_integrations();
+		$this->register_cli_commands();
 	}
 
 	/**
@@ -272,6 +273,22 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
+	}
+
+	/**
+	 * Register WP-CLI command groups when running under WP-CLI.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function register_cli_commands(): void {
+		if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+			return;
+		}
+
+		\WP_CLI::add_command( 'wcb', \WCB\Cli\Cli::class );
+		\WP_CLI::add_command( 'wcb job', \WCB\Cli\JobCommands::class );
+		\WP_CLI::add_command( 'wcb application', \WCB\Cli\ApplicationCommands::class );
 	}
 
 	/**
