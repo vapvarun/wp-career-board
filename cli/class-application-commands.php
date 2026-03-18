@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class ApplicationCommands extends \WP_CLI_Command {
+class ApplicationCommands extends AbstractCliCommand {
 
 	/**
 	 * Valid application status values.
@@ -187,6 +187,8 @@ class ApplicationCommands extends \WP_CLI_Command {
 	 * @return void
 	 */
 	public function update( array $args, array $assoc_args ): void {
+		$this->require_ability( 'wcb_view_applications' );
+
 		$app_id = (int) ( $args[0] ?? 0 );
 		if ( ! $app_id ) {
 			\WP_CLI::error( 'Usage: wp wcb application update <id> --status=<status>' );
