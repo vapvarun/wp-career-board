@@ -263,14 +263,17 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
+		requestDeleteConfirm() {
+			getContext().confirmingDelete = true;
+		},
+
+		cancelDelete() {
+			getContext().confirmingDelete = false;
+		},
+
 		*deleteResume() {
 			const ctx    = getContext();
 			const resume = ctx.resume;
-
-			// eslint-disable-next-line no-alert
-			if ( ! window.confirm( 'Delete "' + resume.title + '"? This cannot be undone.' ) ) {
-				return;
-			}
 
 			try {
 				const response = yield fetch(
@@ -282,6 +285,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
+					ctx.confirmingDelete = false;
 					state.error = 'Could not delete resume. Please try again.';
 					return;
 				}
@@ -291,6 +295,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				} );
 				state.resumeCount = Math.max( 0, state.resumeCount - 1 );
 			} catch {
+				ctx.confirmingDelete = false;
 				state.error = 'Connection error. Please check your network and try again.';
 			}
 		},

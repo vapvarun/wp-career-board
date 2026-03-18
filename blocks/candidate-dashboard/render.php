@@ -313,12 +313,12 @@ wp_interactivity_state(
 
 			<div class="wcb-panel wcb-shown">
 			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">
-				<div class="wcb-resume-card">
+				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>
 					<div class="wcb-resume-card-info">
 						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
 						<span class="wcb-resume-card-date" data-wp-text="context.resume.date"></span>
 					</div>
-					<div class="wcb-resume-card-actions">
+					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">
 						<a
 							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
 							data-wp-bind--href="context.resume.permalink"
@@ -333,8 +333,21 @@ wp_interactivity_state(
 						<button
 							type="button"
 							class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm"
-							data-wp-on--click="actions.deleteResume"
+							data-wp-on--click="actions.requestDeleteConfirm"
 						><?php esc_html_e( 'Delete', 'wp-career-board' ); ?></button>
+					</div>
+					<div class="wcb-resume-card-confirm" data-wp-class--wcb-hidden="!context.confirmingDelete">
+						<span class="wcb-resume-confirm-msg"><?php esc_html_e( 'Delete this resume?', 'wp-career-board' ); ?></span>
+						<button
+							type="button"
+							class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm"
+							data-wp-on--click="actions.deleteResume"
+						><?php esc_html_e( 'Confirm', 'wp-career-board' ); ?></button>
+						<button
+							type="button"
+							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+							data-wp-on--click="actions.cancelDelete"
+						><?php esc_html_e( 'Cancel', 'wp-career-board' ); ?></button>
 					</div>
 				</div>
 			</template>

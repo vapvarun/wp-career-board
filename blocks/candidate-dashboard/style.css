@@ -474,6 +474,19 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	flex-shrink: 0;
 }
 
+.wcb-resume-card-confirm {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.wcb-resume-confirm-msg {
+	font-size: 13px;
+	color: var( --wcb-text-secondary );
+	white-space: nowrap;
+}
+
 /* ── Button system ────────────────────────────────────────────────────────── */
 .wcb-cbtn {
 	display: inline-flex;
