@@ -36,8 +36,8 @@ class NotificationsModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<int, AbstractEmail> $emails Existing registered email objects.
-	 * @return array<int, AbstractEmail>
+	 * @param AbstractEmail[] $emails Existing registered email objects.
+	 * @return AbstractEmail[]
 	 */
 	public function register_emails( array $emails ): array {
 		return array_merge(
