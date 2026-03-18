@@ -106,7 +106,7 @@ final class Plugin {
 			\WCB\Modules\Applications\ApplicationsModule::class,
 			\WCB\Modules\Applications\ApplicationsMeta::class,
 			\WCB\Modules\Search\SearchModule::class,
-			\WCB\Modules\Notifications\NotificationsEmail::class,
+			\WCB\Modules\Notifications\NotificationsModule::class,
 			\WCB\Modules\Moderation\ModerationModule::class,
 			\WCB\Modules\AntiSpam\AntiSpamModule::class,
 			\WCB\Modules\Seo\SeoModule::class,
