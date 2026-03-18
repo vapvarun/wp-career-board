@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Jobs module — registers wcb_job CPT and all job taxonomies.
  *
@@ -174,6 +174,7 @@ final class JobsModule {
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
 				'show_admin_column' => true,
+				'show_in_nav_menus' => true,
 			)
 		);
 
@@ -186,6 +187,7 @@ final class JobsModule {
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),
 				'show_admin_column' => true,
+				'show_in_nav_menus' => true,
 			)
 		);
 
@@ -209,6 +211,7 @@ final class JobsModule {
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-location' ),
 				'show_admin_column' => true,
+				'show_in_nav_menus' => true,
 			)
 		);
 

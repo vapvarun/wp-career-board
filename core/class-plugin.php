@@ -111,6 +111,7 @@ final class Plugin {
 			\WCB\Modules\AntiSpam\AntiSpamModule::class,
 			\WCB\Modules\Seo\SeoModule::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
+			\WCB\Modules\ThemeIntegration\ThemeIntegrationModule::class,
 		);
 
 		foreach ( $module_classes as $class ) {
