@@ -20,6 +20,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isViewCompany() {
 			return state.currentView === 'company';
 		},
+		get isViewPostJob() {
+			return state.currentView === 'post-job';
+		},
 
 		// Jobs list.
 		get hasJobs() {
@@ -282,6 +285,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'company';
 			state.saved       = false;
 			state.error       = '';
+		},
+
+		switchToPostJob() {
+			state.currentView = 'post-job';
 		},
 
 		setJobFilter( event ) {

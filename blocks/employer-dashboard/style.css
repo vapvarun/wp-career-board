@@ -1476,3 +1476,17 @@
 	color: #9ca3af;
 	margin-top: 2px;
 }
+
+/* Prevent theme button resets from applying solid backgrounds to nav items */
+.wcb-sidebar .wcb-nav-item,
+.wcb-sidebar .wcb-nav-item:hover,
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	box-shadow: none;
+	outline-offset: 2px;
+}
+.wcb-sidebar-cta {
+	cursor: pointer;
+	border: none;
+	width: 100%;
+	text-align: left;
+}

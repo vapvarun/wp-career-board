@@ -38,6 +38,10 @@ $wcb_jobs_url = ! empty( $wcb_settings['jobs_archive_page'] )
  * @param int    $candidate_id Current user ID.
  */
 $wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
+$wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
+$wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcbp/resume-builder' );
+$wcb_dashboard_url           = (string) get_permalink();
 
 /**
  * Filter extra state keys for the candidate dashboard resumes tab.
@@ -61,23 +65,25 @@ wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array_merge(
 		array(
-			'tab'               => 'applications',
-			'applications'      => array(),
-			'bookmarks'         => array(),
-			'resumes'           => array(),
-			'loading'           => false,
-			'error'             => '',
-			'apiBase'           => rest_url( 'wcb/v1' ),
-			'nonce'             => wp_create_nonce( 'wp_rest' ),
-			'candidateId'       => $wcb_candidate_id,
-			'candidateName'     => $wcb_display_name,
-			'resumeBuilderUrl'  => $wcb_resume_builder_url,
-			'resumesEnabled'    => '' !== $wcb_resume_builder_url,
-			'customFieldGroups' => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
-			'bellNotifications' => array(),
-			'bellUnreadCount'   => 0,
-			'bellOpen'          => false,
-			'bellLoading'       => false,
+			'tab'                   => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'applications',
+			'applications'          => array(),
+			'bookmarks'             => array(),
+			'resumes'               => array(),
+			'loading'               => false,
+			'error'                 => '',
+			'apiBase'               => rest_url( 'wcb/v1' ),
+			'nonce'                 => wp_create_nonce( 'wp_rest' ),
+			'candidateId'           => $wcb_candidate_id,
+			'candidateName'         => $wcb_display_name,
+			'resumeBuilderUrl'      => $wcb_resume_builder_url,
+			'resumesEnabled'        => '' !== $wcb_resume_builder_url,
+			'dashboardUrl'          => $wcb_dashboard_url,
+			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
+			'customFieldGroups'     => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+			'bellNotifications'     => array(),
+			'bellUnreadCount'       => 0,
+			'bellOpen'              => false,
+			'bellLoading'           => false,
 		),
 		$wcb_resumes_state
 	)
@@ -116,6 +122,16 @@ wp_interactivity_state(
 					?>
 					hidden<?php endif; ?>
 			><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
+			<?php if ( $wcb_resume_builder_embedded ) : ?>
+			<button
+				type="button"
+				class="wcb-nav-item"
+				data-wp-class--wcb-nav-active="state.isTabResumeBuilder"
+				data-wp-on--click="actions.switchToResumeBuilder"
+				<?php echo $wcb_resume_embed_id > 0 ? '' : 'hidden'; ?>
+				data-wp-bind--hidden="!state.isTabResumeBuilder"
+			><?php esc_html_e( 'Edit Resume', 'wp-career-board' ); ?></button>
+			<?php endif; ?>
 		</nav>
 
 		<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-sidebar-cta">
@@ -307,6 +323,18 @@ wp_interactivity_state(
 				</div>
 			</template>
 		</div><!-- .wcb-panel -->
+		</div><!-- .wcb-view-panel: My Resumes -->
+
+		<?php if ( $wcb_resume_builder_embedded ) : ?>
+		<!-- VIEW: Resume Builder (Pro embedded) -->
+		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabResumeBuilder">
+			<?php
+			if ( $wcb_resume_embed_id > 0 ) {
+				echo do_blocks( '<!-- wp:wcbp/resume-builder /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			?>
+		</div>
+		<?php endif; ?>
 
 	</main>
 

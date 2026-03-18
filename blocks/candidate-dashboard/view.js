@@ -26,6 +26,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get isTabResumes() {
 			return state.tab === 'resumes';
 		},
+		get isTabResumeBuilder() {
+			return state.tab === 'resume-builder';
+		},
 		get isAtResumesCap() {
 			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
 		},
@@ -129,6 +132,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
+		switchToResumeBuilder() {
+			state.tab = 'resume-builder';
+		},
+
 		*switchToResumes() {
 			state.tab   = 'resumes';
 			state.error = '';
@@ -189,10 +196,17 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		openResumeEditor() {
 			const ctx = getContext();
-			if ( ! ctx.resume || ! state.resumeBuilderUrl ) {
+			if ( ! ctx.resume ) {
 				return;
 			}
-			window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
+			// When embedded resume builder is active, reload current page with resume_id param.
+			if ( state.resumeBuilderEmbedded ) {
+				window.location.href = state.dashboardUrl + '?resume_id=' + String( ctx.resume.id );
+				return;
+			}
+			if ( state.resumeBuilderUrl ) {
+				window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
+			}
 		},
 
 		*createResume() {
@@ -227,7 +241,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumes = [ resume, ...state.resumes ];
 				state.resumeCount = state.resumeCount + 1;
 
-				if ( state.resumeBuilderUrl ) {
+				if ( state.resumeBuilderEmbedded ) {
+					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
+				} else if ( state.resumeBuilderUrl ) {
 					window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( resume.id );
 				}
 			} catch {

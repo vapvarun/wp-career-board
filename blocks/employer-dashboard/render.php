@@ -56,11 +56,13 @@ $wcb_company_url     = $wcb_company_id ? (string) get_permalink( $wcb_company_id
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_apps_job_id   = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
 $wcb_dashboard_url = (string) get_permalink();
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
+$wcb_edit_job_id = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
 
 wp_interactivity_state(
 	'wcb-employer-dashboard',
 	array(
-		'currentView'       => $wcb_apps_job_id > 0 ? 'applications' : 'overview',
+		'currentView'       => $wcb_apps_job_id > 0 ? 'applications' : ( $wcb_edit_job_id > 0 ? 'post-job' : 'overview' ),
 		'jobFilter'         => 'all',
 		'jobSearch'         => '',
 		'appsFilter'        => 'all',
@@ -118,6 +120,9 @@ wp_interactivity_state(
 				<?php esc_html_e( 'My Jobs', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.totalJobs">0</span>
 			</button>
+			<button type="button" class="wcb-nav-item" data-wp-class--wcb-nav-active="state.isViewPostJob" data-wp-on--click="actions.switchToPostJob">
+				<?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?>
+			</button>
 
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'HIRING', 'wp-career-board' ); ?></span>
 			<button type="button" class="wcb-nav-item" data-wp-class--wcb-nav-active="state.isViewApplications" data-wp-on--click="actions.switchToApplications">
@@ -134,9 +139,9 @@ wp_interactivity_state(
 			</a>
 		</nav>
 
-		<a href="<?php echo esc_url( $wcb_post_job_url ); ?>" class="wcb-sidebar-cta">
+		<button type="button" class="wcb-sidebar-cta" data-wp-on--click="actions.switchToPostJob">
 			+ <?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?>
-		</a>
+		</button>
 
 		<div class="wcb-sidebar-user">
 			<div class="wcb-sidebar-avatar" data-wp-text="state.companyInitials" aria-hidden="true"></div>
@@ -485,6 +490,15 @@ wp_interactivity_state(
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- VIEW: Post a Job -->
+		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isViewPostJob">
+			<?php
+			if ( is_user_logged_in() ) {
+				echo do_blocks( '<!-- wp:wcb/job-form /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			?>
 		</div>
 
 	</main>
