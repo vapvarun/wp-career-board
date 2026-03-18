@@ -1,0 +1,93 @@
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated email class name is intentional.
+/**
+ * Email: employer's job was rejected.
+ *
+ * @package WP_Career_Board
+ * @since   1.0.0
+ */
+
+declare( strict_types=1 );
+
+namespace WCB\Modules\Notifications\Emails;
+
+use WCB\Modules\Notifications\AbstractEmail;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Notifies employer when their job listing was not approved.
+ *
+ * @since 1.0.0
+ */
+class EmailJobRejected extends AbstractEmail {
+
+	/**
+	 * Returns the unique email ID.
+	 *
+	 * @return string
+	 */
+	public function get_id(): string {
+		return 'job-rejected';
+	}
+
+	/**
+	 * Returns the human-readable email title.
+	 *
+	 * @return string
+	 */
+	public function get_title(): string {
+		return __( 'Job Rejected', 'wp-career-board' );
+	}
+
+	/**
+	 * Returns a description of who receives this email.
+	 *
+	 * @return string
+	 */
+	public function get_recipient(): string {
+		return 'employer';
+	}
+
+	/**
+	 * Returns the default subject line.
+	 *
+	 * @return string
+	 */
+	public function get_default_subject(): string {
+		return __( 'Your job was not approved', 'wp-career-board' );
+	}
+
+	/**
+	 * Registers action hooks that trigger this email.
+	 *
+	 * @return void
+	 */
+	public function boot(): void {
+		add_action( 'wcb_job_rejected', array( $this, 'handle' ), 10, 2 );
+	}
+
+	/**
+	 * Sends the job-rejected notification to the employer.
+	 *
+	 * @param int    $job_id Job post ID.
+	 * @param string $reason Admin-supplied rejection reason.
+	 * @return void
+	 */
+	public function handle( int $job_id, string $reason ): void {
+		$job      = get_post( $job_id );
+		$employer = $job instanceof \WP_Post ? get_user_by( 'ID', (int) $job->post_author ) : false;
+		if ( ! $job instanceof \WP_Post || ! $employer instanceof \WP_User ) {
+			return;
+		}
+		$this->send(
+			$employer->user_email,
+			array(
+				'job_title' => $job->post_title,
+				'reason'    => $reason,
+			),
+			$employer->ID
+		);
+	}
+}
