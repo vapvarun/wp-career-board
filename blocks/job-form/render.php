@@ -135,6 +135,29 @@ $wcb_currencies = array(
 	'SGD' => 'SGD — Singapore Dollar',
 );
 
+// Extend currency list with Pro currencies when available.
+if ( function_exists( 'wcbp_get_board_currency' ) ) {
+	$wcb_currencies = array_merge(
+		$wcb_currencies,
+		array(
+			'JPY' => 'JPY — Japanese Yen',
+			'BRL' => 'BRL — Brazilian Real',
+			'MXN' => 'MXN — Mexican Peso',
+			'ZAR' => 'ZAR — South African Rand',
+			'AED' => 'AED — UAE Dirham',
+			'NGN' => 'NGN — Nigerian Naira',
+			'PKR' => 'PKR — Pakistani Rupee',
+			'BDT' => 'BDT — Bangladeshi Taka',
+		)
+	);
+}
+
+// ── Board currency (Pro) — overrides employer preference when board is set ──
+$wcb_board_id       = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+$wcb_board_currency = function_exists( 'wcbp_get_board_currency' ) && $wcb_board_id > 0
+	? wcbp_get_board_currency( $wcb_board_id )
+	: '';
+
 /**
  * Filter the initial Interactivity API state for the job form block.
  *
@@ -154,7 +177,9 @@ $wcb_initial_state = apply_filters(
 		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
 		'salaryMin'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
 		'salaryMax'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
-		'currencyCode'      => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency ) : $wcb_default_currency,
+		'currencyCode'      => $wcb_edit_job
+			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
+			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '',
