@@ -129,7 +129,7 @@ wp_interactivity_state(
 				data-wp-class--wcb-nav-active="state.isTabResumeBuilder"
 				data-wp-on--click="actions.switchToResumeBuilder"
 				<?php echo $wcb_resume_embed_id > 0 ? '' : 'hidden'; ?>
-				data-wp-bind--hidden="!state.isTabResumeBuilder"
+				data-wp-bind--hidden="!state.resumeBuilderEmbedded"
 			><?php esc_html_e( 'Edit Resume', 'wp-career-board' ); ?></button>
 			<?php endif; ?>
 		</nav>
