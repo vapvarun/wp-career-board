@@ -144,14 +144,21 @@ $wcb_type_terms_raw = get_terms(
 		'hide_empty' => false,
 	)
 );
-$wcb_type_opts      = array_map(
-	static function ( \WP_Term $t ): array {
-		return array(
-			'slug' => $t->slug,
-			'name' => $t->name,
-		);
-	},
-	is_array( $wcb_type_terms_raw ) ? $wcb_type_terms_raw : array()
+$wcb_type_opts      = array_values(
+	array_map(
+		static function ( \WP_Term $t ): array {
+			return array(
+				'slug' => $t->slug,
+				'name' => $t->name,
+			);
+		},
+		array_filter(
+			is_array( $wcb_type_terms_raw ) ? $wcb_type_terms_raw : array(),
+			static function ( \WP_Term $t ): bool {
+				return 'remote' !== $t->slug;
+			}
+		)
+	)
 );
 
 $wcb_exp_terms_raw = get_terms(

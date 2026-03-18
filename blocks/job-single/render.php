@@ -57,8 +57,9 @@ $wcb_salary_suffix     = match ( $wcb_salary_type ) {
 	'hourly'  => '/' . esc_html__( 'hr', 'wp-career-board' ),
 	default   => '/' . esc_html__( 'yr', 'wp-career-board' ),
 };
-$wcb_deadline = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
-$wcb_featured = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
+$wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
+$wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
+$wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // ── Salary display ────────────────────────────────────────────────────────────
 $wcb_salary_str = '';
@@ -280,11 +281,11 @@ wp_interactivity_state(
 				<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
 					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
 				</p>
-				<?php if ( $wcb_deadline ) : ?>
+				<?php if ( $wcb_deadline_formatted ) : ?>
 					<p class="wcb-deadline-note">
 						<?php
 						/* translators: %s: deadline date */
-						printf( esc_html__( 'Apply by %s', 'wp-career-board' ), esc_html( $wcb_deadline ) );
+						printf( esc_html__( 'Apply by %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
 						?>
 					</p>
 				<?php endif; ?>
@@ -380,10 +381,10 @@ wp_interactivity_state(
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $wcb_deadline ) : ?>
+					<?php if ( $wcb_deadline_formatted ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply By', 'wp-career-board' ); ?></dt>
-							<dd><?php echo esc_html( $wcb_deadline ); ?></dd>
+							<dd><?php echo esc_html( $wcb_deadline_formatted ); ?></dd>
 						</div>
 					<?php endif; ?>
 				</dl>

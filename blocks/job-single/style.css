@@ -682,3 +682,12 @@ a.wcb-company-card-name:hover {
 .wcb-job-page h1.post-title,
 .wcb-job-page .post-title,
 .wcb-job-page .wp-block-post-title { display: none !important; }
+
+/* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
+.wcb-hp-wrap {
+	position: absolute;
+	left: -9999px;
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+}
