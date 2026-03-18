@@ -131,10 +131,10 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'salary_min'   => $wcb_salary_min,
 		'salary_max'   => $wcb_salary_max,
 		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
-		'deadline'     => $wcb_deadline_val,
+		'deadline'     => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
 		'days_ago'     => human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() ) . ' ago',
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
-		'excerpt'      => wp_trim_words( wp_strip_all_tags( $wcb_job_post->post_content ), 25, '…' ),
+		'excerpt'      => wp_trim_words( (string) preg_replace( '/[*_#`]+/', '', wp_strip_all_tags( $wcb_job_post->post_content ) ), 25, '…' ),
 	);
 }
 
