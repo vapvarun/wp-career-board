@@ -85,14 +85,16 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
-		// Upload a resume file (Free mode — no wcb_resume post).
+		// Upload a resume file (Free mode — no wcb_resume post). Requires login.
 		register_rest_route(
 			$this->namespace,
 			'/candidates/resume-upload',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'upload_resume_file' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => static function (): bool {
+					return is_user_logged_in();
+				},
 			)
 		);
 	}
