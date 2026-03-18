@@ -79,6 +79,7 @@ wp_interactivity_state(
 			'resumesEnabled'        => '' !== $wcb_resume_builder_url,
 			'dashboardUrl'          => $wcb_dashboard_url,
 			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
+			'resumeEmbedId'         => $wcb_resume_embed_id,
 			'showNewResumeForm'     => false,
 			'newResumeTitle'        => '',
 			'customFieldGroups'     => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
@@ -131,7 +132,7 @@ wp_interactivity_state(
 				data-wp-class--wcb-nav-active="state.isTabResumeBuilder"
 				data-wp-on--click="actions.switchToResumeBuilder"
 				<?php echo $wcb_resume_embed_id > 0 ? '' : 'hidden'; ?>
-				data-wp-bind--hidden="!state.resumeBuilderEmbedded"
+				data-wp-bind--hidden="!state.resumeEmbedId"
 			><?php esc_html_e( 'Edit Resume', 'wp-career-board' ); ?></button>
 			<?php endif; ?>
 		</nav>
