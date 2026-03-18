@@ -213,6 +213,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				? 'Applications: ' + state.appsJobTitle
 				: 'Applications';
 		},
+
+		// Bell notification getters.
+		get hasBellNotifications() {
+			return state.bellNotifications.length > 0;
+		},
 	},
 
 	actions: {
@@ -260,6 +265,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( state.appsJobId > 0 ) {
 				yield actions.loadApplications();
 			}
+
+			yield actions.fetchBellNotifications();
 		},
 
 		switchToJobs() {
@@ -513,6 +520,57 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} finally {
 				state.saving = false;
 			}
+		},
+
+		*toggleBell() {
+			state.bellOpen = ! state.bellOpen;
+			if ( state.bellOpen && state.bellNotifications.length === 0 ) {
+				yield actions.fetchBellNotifications();
+			}
+		},
+
+		*fetchBellNotifications() {
+			state.bellLoading = true;
+			try {
+				const res = yield fetch( state.apiBase + '/notifications?per_page=20', {
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( res.ok ) {
+					const data              = yield res.json();
+					state.bellNotifications = data.notifications || [];
+					state.bellUnreadCount   = data.unread_count  || 0;
+				}
+			} finally {
+				state.bellLoading = false;
+			}
+		},
+
+		*markBellRead() {
+			const ctx = getContext();
+			const id  = ctx.notif?.id;
+			if ( ! id ) {
+				return;
+			}
+			yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {
+				method:  'PATCH',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			const notif = state.bellNotifications.find( ( n ) => n.id === id );
+			if ( notif && ! notif.is_read ) {
+				notif.is_read         = true;
+				state.bellUnreadCount = Math.max( 0, state.bellUnreadCount - 1 );
+			}
+		},
+
+		*markAllRead() {
+			yield fetch( state.apiBase + '/notifications/read-all', {
+				method:  'POST',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications.forEach( ( n ) => {
+				n.is_read = true;
+			} );
+			state.bellUnreadCount = 0;
 		},
 	},
 } );

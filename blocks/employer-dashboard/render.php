@@ -93,6 +93,10 @@ wp_interactivity_state(
 		'applications'      => array(),
 		'appsLoading'       => false,
 		'appsError'         => '',
+		'bellNotifications' => array(),
+		'bellUnreadCount'   => 0,
+		'bellOpen'          => false,
+		'bellLoading'       => false,
 	)
 );
 ?>
@@ -142,6 +146,39 @@ wp_interactivity_state(
 
 	<!-- MAIN CONTENT -->
 	<main class="wcb-main">
+
+		<?php if ( class_exists( 'WCB\Pro\Modules\NotificationsBell\NotificationsBellModule' ) ) : ?>
+		<div class="wcb-bell-wrapper" data-wp-class--wcb-bell-open="state.bellOpen">
+			<button type="button" class="wcb-bell-btn"
+				data-wp-on--click="actions.toggleBell"
+				aria-label="<?php esc_attr_e( 'Notifications', 'wp-career-board' ); ?>">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+					<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+					<path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+				</svg>
+				<span class="wcb-bell-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
+			</button>
+			<div class="wcb-bell-dropdown" data-wp-class--wcb-hidden="!state.bellOpen">
+				<div class="wcb-bell-header">
+					<span><?php esc_html_e( 'Notifications', 'wp-career-board' ); ?></span>
+					<button type="button" class="wcb-bell-read-all" data-wp-on--click="actions.markAllRead" data-wp-class--wcb-hidden="!state.bellUnreadCount">
+						<?php esc_html_e( 'Mark all read', 'wp-career-board' ); ?>
+					</button>
+				</div>
+				<div class="wcb-bell-list">
+					<template data-wp-each--notif="state.bellNotifications" data-wp-each-key="context.notif.id">
+						<a class="wcb-bell-item"
+							data-wp-bind--href="context.notif.link"
+							data-wp-class--wcb-bell-unread="!context.notif.is_read"
+							data-wp-on--click="actions.markBellRead">
+							<span class="wcb-bell-msg" data-wp-text="context.notif.message"></span>
+							<span class="wcb-bell-time" data-wp-text="context.notif.created_at"></span>
+						</a>
+					</template>
+				</div>
+			</div>
+		</div>
+		<?php endif; ?>
 
 		<!-- VIEW: Overview -->
 		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isViewOverview">
