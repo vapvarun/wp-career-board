@@ -11,8 +11,11 @@ defined( 'ABSPATH' ) || exit;
 $wcb_email_s     = (array) get_option( 'wcb_email_settings', array() );
 $wcb_footer_text = ! empty( $wcb_email_s['brand']['footer_text'] )
 	? $wcb_email_s['brand']['footer_text']
-	/* translators: %s: site name */
-	: sprintf( __( 'You are receiving this email because you have an account on %s.', 'wp-career-board' ), get_bloginfo( 'name' ) );
+	: sprintf(
+		/* translators: %s: site name */
+		__( 'You are receiving this email because you have an account on %s.', 'wp-career-board' ),
+		get_bloginfo( 'name' )
+	);
 ?>
 			</div>
 		</td>

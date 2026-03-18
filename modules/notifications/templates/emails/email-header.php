@@ -8,11 +8,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_email_s      = (array) get_option( 'wcb_email_settings', array() );
-$wcb_header_color = ! empty( $wcb_email_s['brand']['header_color'] ) ? $wcb_email_s['brand']['header_color'] : '#4f46e5';
-$wcb_logo_id      = ! empty( $wcb_email_s['brand']['logo_id'] ) ? (int) $wcb_email_s['brand']['logo_id'] : 0;
-$wcb_logo_url     = $wcb_logo_id ? (string) wp_get_attachment_image_url( $wcb_logo_id, 'medium' ) : '';
-$wcb_site_name    = (string) get_bloginfo( 'name' );
+$wcb_email_s          = (array) get_option( 'wcb_email_settings', array() );
+$wcb_header_color_raw = sanitize_hex_color( $wcb_email_s['brand']['header_color'] ?? '' );
+$wcb_header_color     = $wcb_header_color_raw ? $wcb_header_color_raw : '#4f46e5';
+$wcb_logo_id          = ! empty( $wcb_email_s['brand']['logo_id'] ) ? (int) $wcb_email_s['brand']['logo_id'] : 0;
+$wcb_logo_url         = $wcb_logo_id ? (string) wp_get_attachment_image_url( $wcb_logo_id, 'medium' ) : '';
+$wcb_site_name        = (string) get_bloginfo( 'name' );
 ?>
 <!DOCTYPE html>
 <html>
