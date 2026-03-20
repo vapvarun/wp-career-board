@@ -32,6 +32,33 @@ final class EmployersModule {
 		add_filter( 'the_content', array( $this, 'inject_company_profile' ) );
 		add_filter( 'body_class', array( $this, 'add_company_body_class' ) );
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
+		add_filter( 'login_redirect', array( $this, 'employer_login_redirect' ), 10, 3 );
+	}
+
+	/**
+	 * Redirect employers to the employer dashboard after login.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string             $redirect_to           The redirect destination URL.
+	 * @param string             $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param \WP_User|\WP_Error $user                 WP_User object if login was successful, WP_Error otherwise.
+	 * @return string
+	 */
+	public function employer_login_redirect( string $redirect_to, string $requested_redirect_to, \WP_User|\WP_Error $user ): string {
+		if ( ! ( $user instanceof \WP_User ) || ! in_array( 'wcb_employer', (array) $user->roles, true ) ) {
+			return $redirect_to;
+		}
+
+		$settings     = (array) get_option( 'wcb_settings', array() );
+		$dashboard_id = ! empty( $settings['employer_dashboard_page'] ) ? (int) $settings['employer_dashboard_page'] : 0;
+
+		if ( ! $dashboard_id ) {
+			return $redirect_to;
+		}
+
+		$dashboard_url = get_permalink( $dashboard_id );
+		return $dashboard_url ? (string) $dashboard_url : $redirect_to;
 	}
 
 	/**

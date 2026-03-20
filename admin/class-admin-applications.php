@@ -62,7 +62,6 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-applications-list">
@@ -554,7 +553,7 @@ class AdminApplications extends \WP_List_Table {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	protected function process_bulk_action(): void {
+	public function process_bulk_action(): void {
 		$action = $this->current_action();
 		if ( ! $action ) {
 			return;

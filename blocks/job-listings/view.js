@@ -92,6 +92,14 @@ const { state, actions } = store( 'wcb-job-listings', {
 	},
 
 	actions: {
+		// ── Layout toggle ─────────────────────────────────────────────
+		setGridLayout() {
+			state.layout = 'grid';
+		},
+		setListLayout() {
+			state.layout = 'list';
+		},
+
 		// ── Search ────────────────────────────────────────────────────
 		updateSearch( event ) {
 			state.searchQuery = event.target.value;

@@ -58,23 +58,27 @@ class Admin {
 			25
 		);
 
-		add_submenu_page(
+		$admin_jobs = new AdminJobs();
+		$jobs_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Jobs', 'wp-career-board' ),
 			__( 'Jobs', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-jobs',
-			array( new AdminJobs(), 'render' )
+			array( $admin_jobs, 'render' )
 		);
+		add_action( 'load-' . $jobs_hook, array( $admin_jobs, 'process_bulk_action' ) );
 
-		add_submenu_page(
+		$admin_apps = new AdminApplications();
+		$apps_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Applications', 'wp-career-board' ),
 			__( 'Applications', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-applications',
-			array( new AdminApplications(), 'render' )
+			array( $admin_apps, 'render' )
 		);
+		add_action( 'load-' . $apps_hook, array( $admin_apps, 'process_bulk_action' ) );
 
 		add_submenu_page(
 			'wp-career-board',
