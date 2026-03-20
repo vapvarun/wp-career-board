@@ -115,6 +115,17 @@ if ( $wcb_is_job_owner ) {
 	$wcb_show_apply = false;
 }
 
+// Suppress Apply Now for any employer — they post jobs, not apply to them.
+if ( $wcb_show_apply && is_user_logged_in() ) {
+	// phpcs:disable WordPress.WP.Capabilities.Unknown -- wcb_post_jobs is a registered custom capability.
+	$wcb_is_employer_user = ( function_exists( 'wp_is_ability_granted' ) && wp_is_ability_granted( 'wcb_post_jobs' ) )
+		|| current_user_can( 'wcb_post_jobs' );
+	// phpcs:enable WordPress.WP.Capabilities.Unknown
+	if ( $wcb_is_employer_user ) {
+		$wcb_show_apply = false;
+	}
+}
+
 $wcb_dashboard_url = '';
 if ( $wcb_is_job_owner ) {
 	$wcb_js_settings = (array) get_option( 'wcb_settings', array() );
