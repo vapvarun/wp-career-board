@@ -9,6 +9,7 @@
         "typography": {
             "fluid": true,
             "fontSizes": [
+                { "slug": "2xs",  "size": "0.6875rem", "name": "2XS" },
                 { "slug": "xs",   "size": "0.75rem",   "name": "XS" },
                 { "slug": "sm",   "size": "0.8125rem", "name": "SM" },
                 { "slug": "base", "size": "0.875rem",  "name": "Base" },
