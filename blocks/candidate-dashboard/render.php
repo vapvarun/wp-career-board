@@ -101,7 +101,13 @@ wp_interactivity_state(
 <div class="wcb-dashboard-shell">
 
 	<!-- SIDEBAR -->
-	<aside class="wcb-sidebar">
+	<aside class="wcb-sidebar" data-wp-class--wcb-nav-open="state.navOpen">
+		<button type="button" class="wcb-nav-toggle"
+			data-wp-on--click="actions.toggleNav"
+			data-wp-bind--aria-expanded="state.navOpen">
+			<span data-wp-text="state.activeTabLabel"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></span>
+			<span class="wcb-nav-toggle-icon" aria-hidden="true"></span>
+		</button>
 		<div class="wcb-sidebar-logo"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></div>
 
 		<nav class="wcb-sidebar-nav" aria-label="<?php esc_attr_e( 'Candidate dashboard navigation', 'wp-career-board' ); ?>">

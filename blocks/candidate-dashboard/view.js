@@ -17,6 +17,16 @@ import { store, getContext } from '@wordpress/interactivity';
 
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
+		navOpen: false,
+		get activeTabLabel() {
+			const map = {
+				applications:       'My Applications',
+				bookmarks:          'Saved Jobs',
+				resumes:            'My Resumes',
+				'resume-builder':   'Edit Resume',
+			};
+			return map[ state.tab ] || 'Dashboard';
+		},
 		get isTabApplications() {
 			return state.tab === 'applications';
 		},
@@ -98,14 +108,20 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			yield actions.fetchBellNotifications();
 		},
 
+		toggleNav() {
+			state.navOpen = ! state.navOpen;
+		},
+
 		switchToApplications() {
-			state.tab   = 'applications';
-			state.error = '';
+			state.tab     = 'applications';
+			state.error   = '';
+			state.navOpen = false;
 		},
 
 		*switchToBookmarks() {
-			state.tab   = 'bookmarks';
-			state.error = '';
+			state.tab     = 'bookmarks';
+			state.error   = '';
+			state.navOpen = false;
 
 			if ( state.bookmarks.length ) {
 				return;
@@ -133,7 +149,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 
 		switchToResumeBuilder() {
-			state.tab = 'resume-builder';
+			state.tab     = 'resume-builder';
+			state.navOpen = false;
 		},
 
 		toggleNewResumeForm() {
@@ -146,8 +163,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 
 		*switchToResumes() {
-			state.tab   = 'resumes';
-			state.error = '';
+			state.tab     = 'resumes';
+			state.error   = '';
+			state.navOpen = false;
 
 			if ( state.resumes.length ) {
 				return;

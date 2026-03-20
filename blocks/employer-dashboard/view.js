@@ -7,6 +7,18 @@ import { store, getContext } from '@wordpress/interactivity';
 
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
+		navOpen: false,
+		get activeTabLabel() {
+			const map = {
+				overview:     'Overview',
+				jobs:         'My Jobs',
+				applications: 'Applications',
+				company:      'Profile',
+				'post-job':   'Post a Job',
+			};
+			return map[ state.currentView ] || 'Dashboard';
+		},
+
 		// View getters.
 		get isViewOverview() {
 			return state.currentView === 'overview';
@@ -330,14 +342,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			yield actions.fetchBellNotifications();
 		},
 
+		toggleNav() {
+			state.navOpen = ! state.navOpen;
+		},
+
 		switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
+			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
+			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
 		},
 
@@ -345,11 +363,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'company';
 			state.saved       = false;
 			state.error       = '';
+			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'company' );
 		},
 
 		switchToPostJob() {
 			state.currentView = 'post-job';
+			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
 		},
 
