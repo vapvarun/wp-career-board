@@ -57,11 +57,23 @@ if ( ! class_exists( '\WCB\Pro\Modules\Resume\ResumeModule' ) ) {
 
 Use the specific class name, not a generic `'\WCB\Pro\...'` placeholder.
 
-### 2.4 Block registration
+### 2.4 BuddyPress is optional
+
+BuddyPress may or may not be active. No block may call any BP function directly. Always use WordPress core equivalents that BP hooks into automatically:
+
+| Do NOT use | Use instead | Why |
+|------------|-------------|-----|
+| `bp_core_fetch_avatar()` | `get_avatar_url()` | BP hooks `pre_get_avatar_data` — works with or without BP |
+| `bp_core_get_user_displayname()` | `get_the_author_meta( 'display_name', $uid )` | Standard WP, no BP dependency |
+| `bp_is_active()` / `function_exists( 'bp_*' )` | — | Avoid entirely — core WP functions work regardless |
+
+If a feature genuinely requires BP (e.g. member profile URLs), wrap the entire feature in `function_exists( 'bp_core_get_user_domain' )` and provide a sensible fallback (`get_author_posts_url()` or omit the link).
+
+### 2.5 Block registration
 
 Each plugin registers its own blocks via `register_block_type_from_metadata()` in its bootstrap, matching the existing pattern.
 
-### 2.5 Empty states
+### 2.6 Empty states
 
 All queried blocks (sidebar widgets) return silently (`return;`) when the query returns zero results — matching the pattern in `wp-career-board/featured-jobs/render.php`. No placeholder or error message is rendered to visitors. The Gutenberg editor should show a placeholder label via the editor script.
 
