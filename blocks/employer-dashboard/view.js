@@ -346,6 +346,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen = ! state.navOpen;
 		},
 
+		switchToOverview() {
+			state.currentView = 'overview';
+			state.navOpen     = false;
+			sessionStorage.removeItem( 'wcb_employer_view' );
+		},
+
 		switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';

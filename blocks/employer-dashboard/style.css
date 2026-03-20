@@ -44,7 +44,7 @@
 	padding: 20px 0;
 }
 
-/* Logo row */
+/* Logo row — also doubles as Overview link when rendered as <button> */
 .wcb-sidebar-logo {
 	display: flex;
 	align-items: center;
@@ -53,6 +53,15 @@
 	font-size: 0.9375rem;
 	font-weight: 700;
 	color: var( --wcb-text-primary );
+	width: 100%;
+	background: transparent;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+}
+
+.wcb-sidebar-logo.wcb-nav-active {
+	color: var( --wcb-primary, #2563eb );
 }
 
 /* Section labels — act as visual dividers between nav groups */

@@ -119,7 +119,11 @@ wp_interactivity_state(
 			<span data-wp-text="state.activeTabLabel"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></span>
 			<span class="wcb-nav-toggle-icon" aria-hidden="true"></span>
 		</button>
-		<div class="wcb-sidebar-logo"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></div>
+		<button type="button" class="wcb-sidebar-logo"
+			data-wp-on--click="actions.switchToOverview"
+			data-wp-class--wcb-nav-active="state.isViewOverview">
+			<?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?>
+		</button>
 
 		<nav class="wcb-sidebar-nav" aria-label="<?php esc_attr_e( 'Dashboard navigation', 'wp-career-board' ); ?>">
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'JOBS', 'wp-career-board' ); ?></span>
@@ -251,7 +255,7 @@ wp_interactivity_state(
 									<span class="wcb-job-title" data-wp-text="context.job.title"></span>
 									<span class="wcb-job-meta" data-wp-text="context.job.location"></span>
 								</div>
-								<span class="wcb-nav-badge wcb-nav-badge--blue" data-wp-text="context.job.appLabel"></span>
+								<span class="wcb-status-badge" data-wp-text="context.job.appLabel"></span>
 							</div>
 						</template>
 					</div>
