@@ -55,7 +55,7 @@
 	color: var( --wcb-text-primary );
 }
 
-/* Section labels */
+/* Section labels — act as visual dividers between nav groups */
 .wcb-nav-section-label {
 	display: block;
 	font-size: var( --wp--preset--font-size--2xs );
@@ -63,7 +63,9 @@
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
 	color: var( --wcb-text-muted );
-	padding: 12px 16px 4px;
+	padding: 12px 16px 6px;
+	border-top: 1px solid var( --wcb-border );
+	margin-top: 4px;
 }
 
 /* Nav items */
@@ -385,7 +387,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 4px;
 }
 
 .wcb-app-name {
@@ -455,7 +457,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 4px;
 }
 
 .wcb-job-title {
@@ -606,7 +608,7 @@
 
 .wcb-job-actions {
 	display: flex;
-	gap: 4px;
+	gap: 8px;
 	flex-shrink: 0;
 	flex-wrap: wrap;
 }
