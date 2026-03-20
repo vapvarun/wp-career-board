@@ -331,7 +331,7 @@ wp_interactivity_state(
 					<template data-wp-each--job="state.filteredJobsWithApps" data-wp-each-key="context.job.id">
 						<button type="button" class="wcb-apps-job-item" data-wp-class--wcb-active="state.isSelectedAppsJob" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob">
 							<span class="wcb-apps-job-item-title" data-wp-text="context.job.title"></span>
-							<span class="wcb-apps-job-item-count" data-wp-text="context.job.appLabel"></span>
+							<span class="wcb-apps-job-item-count" data-wp-text="context.job.appCount"></span>
 						</button>
 					</template>
 					<p class="wcb-apps-no-match" data-wp-class--wcb-shown="state.appsJobNoMatch"><?php esc_html_e( 'No jobs match your search.', 'wp-career-board' ); ?></p>

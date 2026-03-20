@@ -674,9 +674,10 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 		padding: 20px 16px;
 	}
 
-	.wcb-cd-app-card,
-	.wcb-cd-bookmark-card {
-		flex-wrap: wrap;
+	.wcb-cd-bookmark-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
 	}
 
 	.wcb-cd-bookmark-actions {
