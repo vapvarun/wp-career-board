@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Applications REST endpoint — submit, view, update status, candidate history.
  *
@@ -380,6 +380,7 @@ final class ApplicationsEndpoint extends RestController {
 				'id'           => $app->ID,
 				'jobTitle'     => $job instanceof \WP_Post ? $job->post_title : '',
 				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
+				'company'      => $job instanceof \WP_Post ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : '',
 				'status'       => $status ? $status : 'submitted',
 				'date'         => get_the_date( 'Y-m-d', $app ),
 			);

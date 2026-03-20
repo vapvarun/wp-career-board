@@ -320,6 +320,12 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	text-decoration: underline;
 }
 
+.wcb-cd-app-company {
+	font-size: 12px;
+	color: var( --wcb-text-secondary );
+	font-weight: 500;
+}
+
 .wcb-cd-app-date {
 	font-size: 12px;
 	color: var( --wcb-text-muted );

@@ -74,8 +74,12 @@ if ( $wcb_salary_min && $wcb_salary_max ) {
 
 // ── Company ───────────────────────────────────────────────────────────────────
 $wcb_company_name = (string) get_post_meta( $wcb_job_id, '_wcb_company_name', true );
-$wcb_author_id    = (int) $wcb_job->post_author;
-$wcb_company_id   = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
+// Prefer the company ID stored on the job post (set at submission time); fall back to the employer's user meta.
+$wcb_company_id = (int) get_post_meta( $wcb_job_id, '_wcb_company_id', true );
+if ( ! $wcb_company_id ) {
+	$wcb_author_id  = (int) $wcb_job->post_author;
+	$wcb_company_id = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
+}
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 
 if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {

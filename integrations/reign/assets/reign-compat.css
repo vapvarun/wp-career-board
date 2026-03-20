@@ -30,6 +30,59 @@
 	max-width: 100%;
 }
 
+/* Restore left padding for the search icon — Reign resets input padding */
+.wcb-listings-search {
+	padding-inline-start: 2.25rem !important;
+}
+
+/* Ensure filter chips and "Clear all" hover/active states survive Reign resets */
+.wcb-chip:hover {
+	border-color: var( --wcb-reign-primary, #4f46e5 );
+	color: var( --wcb-reign-primary, #4f46e5 );
+}
+
+.wcb-chip.wcb-chip-active {
+	border-color: var( --wcb-reign-primary, #4f46e5 );
+	background: var( --wcb-reign-primary, #4f46e5 );
+	color: #fff;
+}
+
+.wcb-clear-all:hover {
+	color: #0f172a;
+}
+
+/* Featured job card — prevent Reign's global :focus-within outline from bleeding in */
+.wcb-job-card.wcb-featured:focus-within {
+	outline: none;
+}
+
+/* Keep a clean focus ring on focusable elements inside featured cards */
+.wcb-job-card.wcb-featured *:focus-visible {
+	outline: 2px solid var( --wcb-reign-primary, #4f46e5 );
+	outline-offset: 2px;
+}
+
+/* Load more button — Reign may reset button styles to plain text */
+.wcb-load-more-btn {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.65rem 2rem;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 ) !important;
+	border-radius: 8px;
+	background: var( --wcb-base, #fff ) !important;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #475569 !important;
+	cursor: pointer;
+	text-decoration: none !important;
+}
+
+.wcb-load-more-btn:hover:not( :disabled ) {
+	border-color: var( --wcb-reign-primary, #4f46e5 ) !important;
+	color: var( --wcb-reign-primary, #4f46e5 ) !important;
+}
+
 /* Reign uses box-shadows for card depth — match WCB job cards */
 .wcb-job-card {
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.08 );

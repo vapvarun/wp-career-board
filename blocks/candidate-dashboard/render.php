@@ -207,6 +207,7 @@ wp_interactivity_state(
 									rel="noopener noreferrer"
 								></a>
 							</h3>
+							<span class="wcb-cd-app-company" data-wp-text="context.application.company"></span>
 							<span class="wcb-cd-app-date" data-wp-text="context.application.date"></span>
 						</div>
 						<span
