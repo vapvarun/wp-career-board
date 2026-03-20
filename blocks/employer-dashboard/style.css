@@ -662,7 +662,7 @@
 	border: 1px solid var( --wcb-border );
 	border-radius: var( --wcb-radius );
 	padding: 5px 10px;
-	font-size: 13px;
+	font-size: 14px;
 	font-family: inherit;
 	color: var( --wcb-text-primary );
 	background: var( --wcb-base, #fff );
@@ -696,7 +696,7 @@
 	align-items: center;
 	gap: 6px;
 	padding: 4px 12px;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 500;
 	color: var( --wcb-text-secondary );
 	background: var( --wcb-surface, #f8fafc );
@@ -740,7 +740,7 @@
 }
 
 .wcb-apps-no-match {
-	font-size: 13px;
+	font-size: 14px;
 	color: var( --wcb-text-secondary );
 	margin: 0;
 	display: none;
