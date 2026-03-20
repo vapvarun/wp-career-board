@@ -92,6 +92,7 @@ wp_interactivity_state(
 		'customFields'      => (object) array(),
 		'appsJobId'         => $wcb_apps_job_id,
 		'appsJobTitle'      => '',
+		'appsJobSearch'     => '',
 		'applications'      => array(),
 		'appsLoading'       => false,
 		'appsError'         => '',
@@ -316,9 +317,19 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">
-				<template data-wp-each--job="state.jobsWithApps" data-wp-each-key="context.job.id">
-					<button type="button" class="wcb-apps-job-pill" data-wp-class--wcb-active="state.isSelectedAppsJob" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob" data-wp-text="context.job.title"></button>
-				</template>
+				<div class="wcb-apps-selector-header">
+					<input type="search" class="wcb-apps-job-search" placeholder="<?php esc_attr_e( 'Search jobs\u2026', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
+					<span class="wcb-apps-selector-hint" data-wp-text="state.appsJobSelectorHint"></span>
+				</div>
+				<div class="wcb-apps-job-list">
+					<template data-wp-each--job="state.filteredJobsWithApps" data-wp-each-key="context.job.id">
+						<button type="button" class="wcb-apps-job-item" data-wp-class--wcb-active="state.isSelectedAppsJob" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob">
+							<span class="wcb-apps-job-item-title" data-wp-text="context.job.title"></span>
+							<span class="wcb-apps-job-item-count" data-wp-text="context.job.appLabel"></span>
+						</button>
+					</template>
+					<p class="wcb-apps-no-match" data-wp-class--wcb-shown="state.appsJobNoMatch"><?php esc_html_e( 'No jobs match your search.', 'wp-career-board' ); ?></p>
+				</div>
 			</div>
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobSelected">

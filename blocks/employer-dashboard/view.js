@@ -68,12 +68,29 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.jobFilter === 'closed';
 		},
 
-		// Jobs with applications (for selector pills).
+		// Jobs with applications (for selector list).
 		get jobsWithApps() {
 			return state.jobs.filter( ( j ) => j.appCount > 0 );
 		},
 		get hasJobsWithApps() {
 			return state.jobsWithApps.length > 0;
+		},
+		get filteredJobsWithApps() {
+			const q = ( state.appsJobSearch || '' ).toLowerCase().trim();
+			return q
+				? state.jobsWithApps.filter( ( j ) => j.title.toLowerCase().includes( q ) )
+				: state.jobsWithApps;
+		},
+		get appsJobNoMatch() {
+			return state.hasJobsWithApps && ( state.appsJobSearch || '' ).trim() !== '' && state.filteredJobsWithApps.length === 0;
+		},
+		get appsJobSelectorHint() {
+			const total    = state.jobsWithApps.length;
+			const filtered = state.filteredJobsWithApps.length;
+			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
+				return total + ' job' + ( total === 1 ? '' : 's' ) + ' with applications';
+			}
+			return filtered + ' of ' + total + ' jobs';
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -259,6 +276,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 
+			// Restore last active view from sessionStorage (skip if URL already dictates view).
+			if ( state.currentView === 'overview' ) {
+				const saved = sessionStorage.getItem( 'wcb_employer_view' );
+				if ( saved ) {
+					state.currentView = saved;
+				}
+				const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
+				if ( savedJob > 0 && state.currentView === 'applications' ) {
+					state.appsJobId = savedJob;
+				}
+			}
+
 			state.loading = true;
 			state.error   = '';
 
@@ -304,20 +333,24 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
+			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
+			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
 		},
 
 		switchToCompany() {
 			state.currentView = 'company';
 			state.saved       = false;
 			state.error       = '';
+			sessionStorage.setItem( 'wcb_employer_view', 'company' );
 		},
 
 		switchToPostJob() {
 			state.currentView = 'post-job';
+			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
 		},
 
 		setJobFilter( event ) {
@@ -344,14 +377,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		*switchAppsJob( event ) {
-			const id = parseInt( event.target.dataset.wcbJobId, 10 );
+			const id = parseInt( event.currentTarget.dataset.wcbJobId, 10 );
 			if ( Number.isNaN( id ) ) {
 				return;
 			}
 			state.appsJobId     = id;
 			state.selectedAppId = null;
 			state.currentView   = 'applications';
+			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
+			sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
 			yield actions.loadApplications();
+		},
+
+		setAppsJobSearch( event ) {
+			state.appsJobSearch = event.target.value;
 		},
 
 		*loadApplications() {
