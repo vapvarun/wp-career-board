@@ -171,14 +171,21 @@ final class CandidatesEndpoint extends RestController {
 		$items = array();
 		foreach ( $bookmark_ids as $job_id ) {
 			$post = get_post( $job_id );
-			if ( $post instanceof \WP_Post && 'wcb_job' === $post->post_type ) {
-				$items[] = array(
-					'id'        => $post->ID,
-					'title'     => $post->post_title,
-					'permalink' => get_permalink( $post->ID ),
-					'company'   => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
-				);
+			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
+				continue;
 			}
+
+			$loc_terms  = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
+			$type_terms = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+
+			$items[] = array(
+				'id'        => $post->ID,
+				'title'     => $post->post_title,
+				'permalink' => get_permalink( $post->ID ),
+				'company'   => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
+				'location'  => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
+				'type'      => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+			);
 		}
 
 		return rest_ensure_response( $items );

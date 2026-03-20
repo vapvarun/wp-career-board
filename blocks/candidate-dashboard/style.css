@@ -419,9 +419,17 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	text-decoration: underline;
 }
 
-.wcb-cd-bookmark-company {
+.wcb-cd-bookmark-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
 	font-size: var( --wp--preset--font-size--sm );
 	color: var( --wcb-text-secondary );
+}
+
+.wcb-cd-bookmark-meta-sep {
+	color: var( --wcb-text-muted );
 }
 
 .wcb-cd-bookmark-actions {

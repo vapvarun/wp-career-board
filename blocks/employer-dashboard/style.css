@@ -691,33 +691,37 @@
 
 .wcb-apps-job-list {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	padding: 10px 12px;
-	max-height: 160px;
+	flex-direction: column;
+	max-height: 280px;
 	overflow-y: auto;
 	scrollbar-width: thin;
 }
 
 .wcb-apps-job-item {
-	display: inline-flex;
+	display: flex;
 	align-items: center;
-	gap: 6px;
-	padding: 4px 12px;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 16px;
 	font-size: var( --wp--preset--font-size--base );
 	font-weight: 500;
-	color: var( --wcb-text-secondary );
-	background: var( --wcb-surface, #f8fafc );
-	border: 1px solid var( --wcb-border );
-	border-radius: 9999px;
+	color: var( --wcb-text-primary );
+	background: none;
+	border: none;
+	border-bottom: 1px solid var( --wcb-border );
 	cursor: pointer;
-	transition: background 0.12s, color 0.12s, border-color 0.12s;
+	text-align: left;
+	width: 100%;
+	transition: background 0.12s, color 0.12s;
+}
+
+.wcb-apps-job-item:last-child {
+	border-bottom: none;
 }
 
 .wcb-apps-job-item:hover:not( .wcb-active ) {
-	background: #eff6ff;
-	color: var( --wcb-primary, #2563eb );
-	border-color: #bfdbfe;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-blue );
 }
 
 .wcb-apps-job-item:focus {
@@ -726,13 +730,13 @@
 
 .wcb-apps-job-item:focus-visible {
 	outline: 2px solid var( --wcb-primary, #2563eb );
-	outline-offset: 2px;
+	outline-offset: -2px;
 }
 
 .wcb-apps-job-item.wcb-active {
-	background: #dbeafe;
-	color: #1d4ed8;
-	border-color: #bfdbfe;
+	background: #eff6ff;
+	color: var( --wcb-blue );
+	font-weight: 600;
 }
 
 .wcb-apps-job-item-count {
@@ -750,6 +754,7 @@
 .wcb-apps-no-match {
 	font-size: var( --wp--preset--font-size--base );
 	color: var( --wcb-text-secondary );
+	padding: 12px 16px;
 	margin: 0;
 	display: none;
 }

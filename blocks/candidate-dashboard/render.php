@@ -257,9 +257,15 @@ wp_interactivity_state(
 									rel="noopener noreferrer"
 								></a>
 							</h3>
-							<span class="wcb-cd-bookmark-company" data-wp-text="context.bookmark.company"></span>
+							<div class="wcb-cd-bookmark-meta">
+							<span data-wp-text="context.bookmark.company"></span>
+							<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.bookmark.location" aria-hidden="true">·</span>
+							<span data-wp-class--wcb-hidden="!context.bookmark.location" data-wp-text="context.bookmark.location"></span>
+							<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.bookmark.type" aria-hidden="true">·</span>
+							<span data-wp-class--wcb-hidden="!context.bookmark.type" data-wp-text="context.bookmark.type"></span>
 						</div>
-						<div class="wcb-cd-bookmark-actions">
+					</div>
+					<div class="wcb-cd-bookmark-actions">
 							<a
 								class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
 								data-wp-bind--href="context.bookmark.permalink"
