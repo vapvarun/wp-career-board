@@ -83,7 +83,8 @@ All queried blocks (sidebar widgets) return silently (`return;`) when the query 
 | `viewAllUrl` | string | `''` | URL for "View all →" (empty = jobs archive page from `wcb_settings`) |
 
 **Card anatomy:**
-- Company favicon/logo (16×16, fallback to site icon) + company name
+- Company logo — retrieved via `get_user_meta( $post->post_author, '_wcb_company_id', true )` → `get_the_post_thumbnail_url( $company_id, 'thumbnail' )`, 16×16, fallback to first letter initial. Pre-fetch all company IDs for the card set in one pass before the render loop to avoid N+1; for the default count of 5 items, a single `get_posts()` with `author__in` of the job authors is sufficient.
+- Company name from `_wcb_company_name` post meta
 - Job title linked to `get_permalink()`
 - Location badge (`wcb_location` term) + job type badge (`wcb_job_type` term)
 - "Posted X days ago" — uses `human_time_diff()`
@@ -154,6 +155,8 @@ Note: `wcb_resume` is registered by the free plugin (candidates module), but res
 
 **Behaviour:** Pure HTML `<form method="GET">` pointing to the jobs archive page (from `wcb_settings['jobs_archive_page']`). No JavaScript required.
 
+**Placement note:** This block is intended for pages that do NOT also contain `wp-career-board/job-search` or `wp-career-board/job-filters` (e.g. a homepage hero, a landing page). Placing it on the same page as those blocks is valid but the pre-populated GET values will be shared — the hero form should read and pre-populate from existing GET params so the two blocks remain in sync.
+
 **Layout — horizontal:** Single flex row. Search input grows (`flex: 1`). Filter dropdowns at fixed width (`160px`). Button at end. Stacks to vertical at ≤640px.
 
 **Layout — vertical:** Stacked form. Full-width input, full-width selects, full-width button.
@@ -174,7 +177,7 @@ Note: `wcb_resume` is registered by the free plugin (candidates module), but res
 **Attributes:** `count` (integer, default 5), `title` (string, default `''`), `showViewAll` (boolean, default true), `viewAllUrl` (string, default `''`).
 
 **Card anatomy:**
-- 40px avatar (`bp_core_fetch_avatar()` if BuddyPress active, else CSS initials fallback)
+- 40px avatar — `get_avatar_url( $user_id, [ 'size' => 40 ] )` (BuddyPress hooks into `pre_get_avatar_data` automatically when active; no explicit BP check needed), fallback: CSS initials
 - Display name linked to resume single permalink
 - Headline / current job title — first entry of `_wcb_resume_experience` serialised array (`[0]['job_title']`); empty string if not set
 - Top 3 skill pills (`wcb_resume_skill` terms via `wp_get_object_terms()`)
@@ -187,6 +190,8 @@ Note: `wcb_resume` is registered by the free plugin (candidates module), but res
 ### 4.2 `wcb/featured-companies`
 
 **Query:** `wcb_company`, `post_status = publish`, meta `_wcb_featured = 1`, `orderby = date`, `order = DESC`, up to `count` results.
+
+**Prerequisite — add Featured flag to company meta box:** `_wcb_featured` is not currently saved on `wcb_company` posts. As part of this task, add a "Featured company" checkbox to `class-admin-meta-boxes.php::save_company_meta()` (matching the existing `_wcb_featured` field on `wcb_job`). Without this write path, the query will always return empty.
 
 **Open roles count:** Pre-scope to the company post authors on the current page. Collect `post_author` IDs from the fetched company posts, then call `get_posts( [ 'post_type' => 'wcb_job', 'post_status' => 'publish', 'author__in' => $author_ids, 'numberposts' => -1, 'fields' => 'ids' ] )` and group results by `post_author` in PHP — matching `company-archive/render.php`. Do NOT query all jobs site-wide without `author__in` scope. Do NOT issue a separate query per company card (N+1).
 
@@ -204,10 +209,12 @@ Note: `wcb_resume` is registered by the free plugin (candidates module), but res
 
 **Query:** `wcb_resume`, `post_status = publish`, meta `_wcb_featured = 1` AND `_wcb_resume_public = 1`, `orderby = date`, `order = DESC`.
 
+**Prerequisite — add Featured flag to resume admin meta box (pro plugin):** `_wcb_featured` is not currently saved on `wcb_resume` posts. As part of this task, add a "Featured candidate" checkbox to the resume admin meta box in `wp-career-board-pro`. Without this write path, the query will always return empty.
+
 **Attributes:** `count` (integer, default 5), `title` (string, default `''`), `showViewAll` (boolean, default true), `viewAllUrl` (string, default `''`).
 
 **Card anatomy:**
-- 40px avatar (`bp_core_fetch_avatar()` if BuddyPress active, else CSS initials fallback)
+- 40px avatar — `get_avatar_url( $user_id, [ 'size' => 40 ] )`, fallback: CSS initials
 - Display name linked to resume single permalink
 - Headline / current job title — first entry of `_wcb_resume_experience` serialised array (`[0]['job_title']`); empty string if not set
 - Top 3 skill pills (`wcb_resume_skill` terms via `wp_get_object_terms()`)
@@ -292,7 +299,17 @@ wp post update 10 --post_title="Hiring"
 wp post update 11 --post_title="Career"
 ```
 
-Update Reign navigation menu labels to match. No PHP/JS hardcodes these page titles — blocks resolve them via `wcb_settings` page ID options — so no code changes are required beyond the page titles and menu labels.
+Update Reign navigation menu item labels separately — `wp post update` does NOT update menu items (they store their own label copy):
+
+```bash
+# Find menu item IDs first:
+wp menu item list <menu-name> --fields=db_id,title --format=table
+# Then update each:
+wp menu item update <db_id> --title="Hiring"
+wp menu item update <db_id> --title="Career"
+```
+
+No PHP/JS hardcodes these page titles — blocks resolve via `wcb_settings` page ID options — so no code changes are required beyond the page titles and menu labels.
 
 ---
 
@@ -320,6 +337,10 @@ Update Reign navigation menu labels to match. No PHP/JS hardcodes these page tit
 - `featured-candidates/block.json` + `render.php` + `index.js` + `style.css` — new
 - `resume-search-hero/block.json` + `render.php` + `index.js` + `style.css` — new
 
+**wp-career-board/admin/class-admin-meta-boxes.php** — add `_wcb_featured` checkbox + save to `save_company_meta()` (prerequisite for `wcb/featured-companies`)
+
+**wp-career-board-pro/** (resume admin meta box file) — add `_wcb_featured` checkbox + save on `wcb_resume` (prerequisite for `wcb/featured-candidates`)
+
 **i18n:** any PHP/JS files with findings from the audit
 
-**Page titles:** WP-CLI commands above
+**Page titles:** WP-CLI commands in Section 7
