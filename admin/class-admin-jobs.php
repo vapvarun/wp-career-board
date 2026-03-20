@@ -55,7 +55,6 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-jobs-list">
@@ -444,7 +443,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	protected function process_bulk_action(): void {
+	public function process_bulk_action(): void {
 		$action = $this->current_action();
 		if ( ! $action ) {
 			return;
@@ -466,12 +465,15 @@ class AdminJobs extends \WP_List_Table {
 				continue;
 			}
 			if ( 'approve' === $action ) {
-				wp_update_post(
+				$updated = wp_update_post(
 					array(
 						'ID'          => $job_id,
 						'post_status' => 'publish',
 					)
 				);
+				if ( $updated && ! is_wp_error( $updated ) ) {
+					do_action( 'wcb_job_approved', $job_id );
+				}
 			} elseif ( 'trash' === $action ) {
 				wp_trash_post( $job_id );
 			}

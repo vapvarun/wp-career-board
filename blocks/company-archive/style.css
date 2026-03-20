@@ -1,13 +1,3 @@
-/*
- * Theme-compatible color tokens — override in your theme's style.css.
- * Example: :root { --wcb-primary: #0f172a; }
- */
-:root {
-	--wcb-primary:      #2563eb;
-	--wcb-primary-dark: #1d4ed8;
-	--wcb-avatar-bg:    #1e293b;
-}
-
 /* ── Toolbar ─────────────────────────────────────────────────────────────────── */
 .wcb-ca-toolbar {
 	display: flex;
@@ -19,7 +9,7 @@
 
 .wcb-ca-results {
 	font-size: 0.875rem;
-	color: #64748b;
+	color: var( --wcb-muted, #64748b );
 	margin: 0;
 	flex: 1;
 	min-width: 100px;
@@ -35,12 +25,12 @@
 .wcb-ca-filter-select {
 	appearance: none;
 	-webkit-appearance: none;
-	background-color: #fff;
+	background-color: var( --wcb-base, #fff );
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 0.6rem center;
 	padding: 0.4rem 2rem 0.4rem 0.75rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
 	font-size: 0.8125rem;
 	color: #334155;
@@ -59,7 +49,7 @@
 .wcb-layout-toggle {
 	display: flex;
 	gap: 2px;
-	background: #f1f5f9;
+	background: var( --wcb-surface, #f1f5f9 );
 	border-radius: 6px;
 	padding: 2px;
 	flex-shrink: 0;
@@ -94,7 +84,7 @@
 }
 
 .wcb-layout-btn.wcb-active {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	color: var( --wcb-primary, #2563eb );
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.1 );
 }
@@ -114,8 +104,8 @@
 
 /* ── Company card ────────────────────────────────────────────────────────────── */
 .wcb-ca-card {
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 12px;
 	overflow: hidden;
 	transition: border-color 0.15s, box-shadow 0.15s;
@@ -159,7 +149,7 @@
 	align-items: flex-end;
 	padding-top: 0;
 	border-top: none;
-	border-left: 1px solid #f1f5f9;
+	border-left: 1px solid var( --wcb-surface, #f1f5f9 );
 	padding-left: 1.25rem;
 	margin-top: 0;
 	gap: 0.35rem;
@@ -247,7 +237,7 @@
 .wcb-ca-name {
 	font-size: 1rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0;
 	line-height: 1.3;
 }
@@ -281,7 +271,7 @@
 	display: none;
 	align-items: center;
 	padding: 0.15rem 0.5rem;
-	background: #f1f5f9;
+	background: var( --wcb-surface, #f1f5f9 );
 	border-radius: 9999px;
 	font-size: 0.75rem;
 	color: #475569;
@@ -300,7 +290,7 @@
 	justify-content: space-between;
 	gap: 0.5rem;
 	padding-top: 0.75rem;
-	border-top: 1px solid #f1f5f9;
+	border-top: 1px solid var( --wcb-surface, #f1f5f9 );
 	margin-top: auto;
 }
 
@@ -338,9 +328,9 @@
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.65rem 2rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	font-size: 0.9rem;
 	font-weight: 600;
 	font-family: inherit;
@@ -395,7 +385,7 @@
 		flex-direction: row;
 		align-items: center;
 		border-left: none;
-		border-top: 1px solid #f1f5f9;
+		border-top: 1px solid var( --wcb-surface, #f1f5f9 );
 		padding-left: 0;
 		padding-top: 0.75rem;
 		width: 100%;

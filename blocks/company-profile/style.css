@@ -5,8 +5,8 @@
 
 /* ── Hero ───────────────────────────────────────────────────────────────────── */
 .wcb-cp-hero {
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 16px;
 	overflow: hidden;
 	margin-bottom: 1.25rem;
@@ -70,7 +70,7 @@
 .wcb-cp-name {
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0;
 	line-height: 1.2;
 }
@@ -124,7 +124,7 @@
 	align-items: center;
 	gap: 0.3rem;
 	padding: 0.2rem 0.65rem;
-	background: #f1f5f9;
+	background: var( --wcb-surface, #f1f5f9 );
 	border-radius: 9999px;
 	font-size: 0.8125rem;
 	color: #475569;
@@ -143,7 +143,7 @@
 	align-items: center;
 	gap: 0.35rem;
 	padding: 0.35rem 0.875rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 6px;
 	font-size: 0.8125rem;
 	font-weight: 600;
@@ -177,8 +177,8 @@
 
 /* ── Sections ───────────────────────────────────────────────────────────────── */
 .wcb-cp-section {
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 16px;
 	padding: 1.5rem 1.75rem;
 }
@@ -189,7 +189,7 @@
 	gap: 0.5rem;
 	font-size: 1.0625rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 1rem;
 	padding-bottom: 0.75rem;
 	border-bottom: 1px solid #f1f5f9;
@@ -267,7 +267,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #64748b;
+	color: var( --wcb-muted, #64748b );
 	font-size: 0.875rem;
 	padding: 0.5rem 0;
 }
@@ -313,7 +313,7 @@
 .wcb-cp-job-title {
 	font-size: 0.9375rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 0.35rem;
 }
 
@@ -374,7 +374,7 @@
 
 /* ── No jobs message ────────────────────────────────────────────────────────── */
 .wcb-cp-no-jobs {
-	color: #64748b;
+	color: var( --wcb-muted, #64748b );
 	font-size: 0.9rem;
 	font-style: italic;
 	margin: 0;
@@ -466,9 +466,9 @@
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.65rem 2rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	font-size: 0.9rem;
 	font-weight: 600;
 	font-family: inherit;

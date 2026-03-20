@@ -74,6 +74,7 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_patterns' ) );
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
+		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
 
 		if ( is_admin() ) {
 			if ( class_exists( \WCB\Admin\Admin::class ) ) {
@@ -259,6 +260,26 @@ final class Plugin {
 		}
 
 		return $classes;
+	}
+
+	/**
+	 * Inject WCB color/typography/spacing tokens into the WordPress defaults layer.
+	 *
+	 * Block themes can override any wcb-* slug in their own theme.json; classic
+	 * themes can override --wcb-* custom properties in :root. The hardcoded
+	 * fallbacks in frontend.css bridge layer mean the plugin always renders
+	 * correctly even when theme.json merging hasn't run (e.g. classic themes).
+	 *
+	 * @since 1.0.0
+	 * @param \WP_Theme_JSON_Data $theme_json Defaults-layer JSON data object.
+	 * @return \WP_Theme_JSON_Data
+	 */
+	public function register_theme_json_defaults( \WP_Theme_JSON_Data $theme_json ): \WP_Theme_JSON_Data {
+		$data = wp_json_file_decode( WCB_DIR . 'theme.json', array( 'associative' => true ) );
+		if ( is_array( $data ) ) {
+			$theme_json->update_with( $data );
+		}
+		return $theme_json;
 	}
 
 	/**

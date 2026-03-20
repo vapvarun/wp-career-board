@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Reign theme integration for WP Career Board.
  *
@@ -122,7 +122,7 @@ class ReignIntegration {
 
 		$wcb_can_post = function_exists( 'wp_is_ability_granted' )
 			? wp_is_ability_granted( 'wcb_post_jobs' )
-			: current_user_can( 'wcb_post_jobs' );
+			: current_user_can( 'wcb_post_jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 
 		if ( $wcb_can_post ) {
 			$employer_url = ! empty( $settings['employer_dashboard_page'] )
@@ -138,7 +138,7 @@ class ReignIntegration {
 
 		$wcb_can_apply = function_exists( 'wp_is_ability_granted' )
 			? wp_is_ability_granted( 'wcb_apply_jobs' )
-			: current_user_can( 'wcb_apply_jobs' );
+			: current_user_can( 'wcb_apply_jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 
 		if ( $wcb_can_apply ) {
 			$candidate_url = ! empty( $settings['candidate_dashboard_page'] )
@@ -159,8 +159,23 @@ class ReignIntegration {
 	 * Enqueue Reign-compatible stylesheet on WCB job pages.
 	 */
 	public function enqueue_styles(): void {
-		$wcb_is_tax = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
-		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) && ! $wcb_is_tax ) {
+		$wcb_is_tax    = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
+		$wcb_blocks    = array(
+			'wp-career-board/job-listings',
+			'wp-career-board/job-single',
+			'wp-career-board/employer-dashboard',
+			'wp-career-board/candidate-dashboard',
+		);
+		$wcb_has_block = false;
+		if ( is_singular() ) {
+			foreach ( $wcb_blocks as $block_name ) {
+				if ( has_block( $block_name ) ) {
+					$wcb_has_block = true;
+					break;
+				}
+			}
+		}
+		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) && ! $wcb_is_tax && ! $wcb_has_block ) {
 			return;
 		}
 		wp_enqueue_style(

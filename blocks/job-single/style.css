@@ -1,17 +1,10 @@
-/* ── CSS custom properties (theme-overridable) ───────────────────────────── */
-:root {
-	--wcb-primary:    #2563eb;
-	--wcb-primary-dark: #1d4ed8;
-	--wcb-avatar-bg:  #1e293b;
-}
-
 /* ── Reset / shared ────────────────────────────────────────────────────────── */
 .wp-block-wp-career-board-job-single {
 	max-width: 1100px;
 	margin: 0 auto;
 	padding: 1.5rem 1rem 3rem;
 	font-family: inherit;
-	color: #1e293b;
+	color: var( --wcb-contrast, #1e293b );
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
@@ -88,8 +81,8 @@ a.wcb-badge:hover { opacity: 0.8; }
 	gap: 1rem 2rem;
 	align-items: start;
 	padding: 2rem;
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 12px;
 	margin-bottom: 1.75rem;
 }
@@ -133,7 +126,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	font-weight: 700;
 	line-height: 1.25;
 	margin: 0 0 0.3rem;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 }
 
 .wcb-hero-company {
@@ -190,9 +183,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.55rem 1rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	color: #475569;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -253,8 +246,8 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-section {
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 12px;
 	padding: 1.75rem;
 	margin-bottom: 1.25rem;
@@ -263,7 +256,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 .wcb-section-heading {
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 1.25rem;
 	padding-bottom: 0.75rem;
 	border-bottom: 1px solid #f1f5f9;
@@ -328,8 +321,8 @@ a.wcb-tag:hover {
 }
 
 .wcb-sidebar-card {
-	background: #fff;
-	border: 1px solid #e2e8f0;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 12px;
 	padding: 1.5rem;
 }
@@ -337,7 +330,7 @@ a.wcb-tag:hover {
 .wcb-card-title {
 	font-size: 0.9375rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 1rem;
 	padding-bottom: 0.6rem;
 	border-bottom: 1px solid #f1f5f9;
@@ -468,7 +461,7 @@ a.wcb-company-card-name:hover {
 	right: 0;
 	bottom: 0;
 	width: min(520px, 100%);
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	z-index: 9999;
 	overflow-y: auto;
 	box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
@@ -491,7 +484,7 @@ a.wcb-company-card-name:hover {
 	position: absolute;
 	top: 1.25rem;
 	right: 1.25rem;
-	background: #f1f5f9;
+	background: var( --wcb-surface, #f1f5f9 );
 	border: none;
 	width: 2rem;
 	height: 2rem;
@@ -506,13 +499,13 @@ a.wcb-company-card-name:hover {
 }
 
 .wcb-panel-close:hover {
-	background: #e2e8f0;
+	background: var( --wcb-border, #e2e8f0 );
 }
 
 .wcb-panel-title {
 	font-size: 1.375rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 0.25rem;
 }
 
@@ -545,13 +538,13 @@ a.wcb-company-card-name:hover {
 .wcb-cover-letter {
 	width: 100%;
 	padding: 0.75rem 1rem;
-	border: 1.5px solid #e2e8f0;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
 	font-size: 0.9375rem;
 	font-family: inherit;
 	line-height: 1.6;
 	resize: vertical;
-	color: #1e293b;
+	color: var( --wcb-contrast, #1e293b );
 	margin-bottom: 1rem;
 	transition: border-color 0.15s;
 	box-sizing: border-box;
@@ -575,7 +568,7 @@ a.wcb-company-card-name:hover {
 	border: 1px solid #d1d5db;
 	border-radius: 6px;
 	font-size: 0.9375rem;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 }
 
 .wcb-apply-resume-select:focus {
@@ -655,8 +648,8 @@ a.wcb-company-card-name:hover {
 	width: 30px;
 	height: 30px;
 	border-radius: 6px;
-	border: 1.5px solid #e2e8f0;
-	background: #fff;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
+	background: var( --wcb-base, #fff );
 	color: #64748b;
 	text-decoration: none;
 	cursor: pointer;

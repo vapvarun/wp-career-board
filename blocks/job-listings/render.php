@@ -275,7 +275,25 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			<button type="button" class="wcb-clear-all" data-wp-on--click="actions.clearFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 		</div>
 
-		<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+		<div class="wcb-listings-toolbar">
+			<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+			<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
+				<button type="button" class="wcb-view-btn"
+					data-wp-class--wcb-view-btn--active="state.isGrid"
+					data-wp-on--click="actions.setGridLayout"
+					aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
+				>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+				</button>
+				<button type="button" class="wcb-view-btn"
+					data-wp-class--wcb-view-btn--active="state.isList"
+					data-wp-on--click="actions.setListLayout"
+					aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
+				>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="2" rx="1"/><rect x="3" y="11" width="18" height="2" rx="1"/><rect x="3" y="18" width="18" height="2" rx="1"/></svg>
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<div
