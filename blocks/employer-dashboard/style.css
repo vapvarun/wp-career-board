@@ -508,6 +508,30 @@
 	border-color: var( --wcb-text-primary );
 }
 
+.wcb-pill-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	margin-left: 5px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1;
+	background: rgba( 0, 0, 0, 0.08 );
+	border-radius: 9999px;
+}
+
+.wcb-filter-pill.wcb-filter-active .wcb-pill-count,
+.wcb-filter-pill.wcb-active .wcb-pill-count {
+	background: rgba( 255, 255, 255, 0.25 );
+}
+
+.wcb-pill-count:empty {
+	display: none;
+}
+
 /* Job search input */
 .wcb-job-search {
 	border: 1px solid var( --wcb-border );

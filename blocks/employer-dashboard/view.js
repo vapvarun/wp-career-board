@@ -111,8 +111,37 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isAppsFilterSubmitted() {
 			return state.appsFilter === 'submitted';
 		},
+		get isAppsFilterReviewing() {
+			return state.appsFilter === 'reviewing';
+		},
 		get isAppsFilterShortlisted() {
 			return state.appsFilter === 'shortlisted';
+		},
+		get isAppsFilterRejected() {
+			return state.appsFilter === 'rejected';
+		},
+		get isAppsFilterHired() {
+			return state.appsFilter === 'hired';
+		},
+
+		// Per-status counts — computed from already-loaded applications, no extra REST calls.
+		get appsCountAll() {
+			return state.applications.length || '';
+		},
+		get appsCountSubmitted() {
+			return state.applications.filter( ( a ) => a.status === 'submitted' ).length || '';
+		},
+		get appsCountReviewing() {
+			return state.applications.filter( ( a ) => a.status === 'reviewing' ).length || '';
+		},
+		get appsCountShortlisted() {
+			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length || '';
+		},
+		get appsCountRejected() {
+			return state.applications.filter( ( a ) => a.status === 'rejected' ).length || '';
+		},
+		get appsCountHired() {
+			return state.applications.filter( ( a ) => a.status === 'hired' ).length || '';
 		},
 
 		// Selected applicant detail.

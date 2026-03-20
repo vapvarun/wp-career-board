@@ -327,9 +327,30 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'New', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="shortlisted" data-wp-class--wcb-filter-active="state.isAppsFilterShortlisted" data-wp-on--click="actions.setAppsFilter"><?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'All', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountAll"></span>
+				</button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'New', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountSubmitted"></span>
+				</button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="reviewing" data-wp-class--wcb-filter-active="state.isAppsFilterReviewing" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Reviewing', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountReviewing"></span>
+				</button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="shortlisted" data-wp-class--wcb-filter-active="state.isAppsFilterShortlisted" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountShortlisted"></span>
+				</button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isAppsFilterRejected" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Rejected', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountRejected"></span>
+				</button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="hired" data-wp-class--wcb-filter-active="state.isAppsFilterHired" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Hired', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountHired"></span>
+				</button>
 			</div>
 
 			<p class="wcb-db-error" data-wp-class--wcb-shown="state.appsError" data-wp-text="state.appsError"></p>
