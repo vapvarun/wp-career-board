@@ -140,6 +140,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.loading = false;
 			}
 
+			// Prefetch bookmarks so the Overview panel can display recent saved jobs.
+			try {
+				const bmResponse = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/bookmarks',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( bmResponse.ok ) {
+					state.bookmarks = yield bmResponse.json();
+				}
+			} catch {
+				// Non-critical — overview saved jobs panel will show empty state.
+			}
+
 			yield actions.fetchBellNotifications();
 		},
 
