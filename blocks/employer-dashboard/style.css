@@ -60,8 +60,27 @@
 	cursor: pointer;
 }
 
+.wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
 .wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
 	color: var( --wcb-primary, #2563eb );
+}
+
+/* Prevent theme button overrides on the logo */
+.wcb-dashboard .wcb-sidebar-logo {
+	background: transparent;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-dashboard .wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
 }
 
 /* Section labels — act as visual dividers between nav groups */
