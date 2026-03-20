@@ -3663,7 +3663,7 @@ The original plan used a bare `get_posts()` dump with no search, no status tabs,
 | Admin exports candidate data | GDPR export includes applications | ⬜ Manual test needed |
 | Admin erases candidate data | Applications deleted, resume wiped | ⬜ Manual test needed |
 | `JobPosting` schema on job page | Valid LD+JSON in page source | ✅ Valid schema.org/JobPosting with salary, dates |
-| Reign theme activated | Job pages use Reign layout | ⚠️ Deferred |
+| Reign theme activated | Job pages use Reign layout | ✅ Compat CSS enqueued via has_block() — `fa73d70` |
 | BuddyX Pro activated | Job pages use BuddyX Pro layout | ⚠️ Deferred |
 | BuddyPress activated | Member types set, activity streams populated | ⬜ Manual test needed |
 
@@ -3726,7 +3726,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T15 | wcb/job-listings block | ✅ 2026-03-14 · `e4b70ae` |
 | T16 | wcb/job-search + wcb/job-filters blocks | ✅ 2026-03-14 · `28d22ac` |
 | T17 | wcb/job-single + wcb/job-form + dashboards + company | ✅ 2026-03-14 · `f6b64c5` |
-| T18 | Reign integration | ⚠️ Deferred — blocks are theme-agnostic; revisit when Reign-specific hooks are confirmed |
+| T18 | Reign integration | ✅ 2026-03-20 · `fa73d70` — compat CSS + has_block() conditional enqueue |
 | T19 | BuddyX Pro integration | ⚠️ Deferred — blocks are theme-agnostic; revisit when BuddyX Pro-specific hooks are confirmed |
 | T20  | BuddyPress integration | ✅ 2026-03-15 · `b358a29` |
 | T21a | Admin dashboard overhaul | ✅ 2026-03-15 · `2c57139` |
