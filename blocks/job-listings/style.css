@@ -93,6 +93,14 @@
 	border-left: 3px solid var( --wcb-featured, #f59e0b );
 }
 
+/* Block link — covers the entire card so clicking anywhere navigates */
+.wcb-card-block-link {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: 12px;
+}
+
 /* Grid: stack vertically */
 .wcb-jobs-container.wcb-grid .wcb-job-card {
 	flex-direction: column;
@@ -146,6 +154,8 @@
 .wcb-card-title a {
 	color: inherit;
 	text-decoration: none;
+	position: relative;
+	z-index: 2;
 }
 
 .wcb-card-title a:hover {
@@ -195,6 +205,8 @@
 	border-radius: 6px;
 	transition: color 0.12s, background 0.12s;
 	padding: 0;
+	position: relative;
+	z-index: 2;
 }
 
 .wcb-bookmark-btn:hover {
@@ -280,6 +292,8 @@
 .wcb-cbtn--apply {
 	background: var( --wcb-primary, #2563eb );
 	color: #fff;
+	position: relative;
+	z-index: 2;
 }
 
 .wcb-cbtn--apply:hover {

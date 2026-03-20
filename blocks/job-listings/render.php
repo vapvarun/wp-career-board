@@ -304,6 +304,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
+				<a class="wcb-card-block-link" data-wp-bind--href="context.job.permalink" tabindex="-1" aria-hidden="true"></a>
+
 				<div class="wcb-card-avatar" aria-hidden="true" data-wp-text="context.job.initials"></div>
 
 				<div class="wcb-card-body">
