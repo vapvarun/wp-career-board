@@ -1545,6 +1545,26 @@
 	}
 }
 
+@media ( max-width: 640px ) {
+	/* My Jobs row — stack info above badge + chip + actions */
+	.wcb-job-row {
+		flex-wrap: wrap;
+		gap: 6px 8px;
+	}
+
+	.wcb-job-info {
+		flex: 0 0 calc( 100% - 28px );
+	}
+
+	.wcb-job-title {
+		white-space: normal;
+	}
+
+	.wcb-job-actions {
+		width: 100%;
+	}
+}
+
 @media ( max-width: 480px ) {
 	.wcb-stats-row {
 		grid-template-columns: 1fr 1fr;

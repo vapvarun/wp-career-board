@@ -674,6 +674,18 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 		padding: 20px 16px;
 	}
 
+	/* My Applications — stack info above status badge */
+	.wcb-cd-app-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+	}
+
+	.wcb-cd-status-badge {
+		align-self: flex-start;
+	}
+
+	/* Saved Jobs — stack info above actions */
 	.wcb-cd-bookmark-row {
 		flex-direction: column;
 		align-items: flex-start;
@@ -682,6 +694,18 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 
 	.wcb-cd-bookmark-actions {
 		width: 100%;
+	}
+
+	/* My Resumes — stack info above action buttons */
+	.wcb-resume-card {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.wcb-resume-card-actions,
+	.wcb-resume-card-confirm {
+		flex-shrink: 1;
 	}
 }
 
