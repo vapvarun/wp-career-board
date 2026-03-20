@@ -318,7 +318,7 @@ wp_interactivity_state(
 
 			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">
 				<div class="wcb-apps-selector-header">
-					<input type="search" class="wcb-apps-job-search" placeholder="<?php esc_attr_e( 'Search jobs\u2026', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
+					<input type="search" class="wcb-apps-job-search" placeholder="<?php esc_attr_e( 'Search jobs...', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
 					<span class="wcb-apps-selector-hint" data-wp-text="state.appsJobSelectorHint"></span>
 				</div>
 				<div class="wcb-apps-job-list">
