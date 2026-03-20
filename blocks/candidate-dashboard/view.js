@@ -20,6 +20,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		navOpen: false,
 		get activeTabLabel() {
 			const map = {
+				overview:           'Overview',
 				applications:       'My Applications',
 				bookmarks:          'Saved Jobs',
 				resumes:            'My Resumes',
@@ -38,6 +39,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get isTabResumeBuilder() {
 			return state.tab === 'resume-builder';
+		},
+		get isTabOverview() {
+			return state.tab === 'overview';
 		},
 		get isAtResumesCap() {
 			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
@@ -80,10 +84,41 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get hasBellNotifications() {
 			return state.bellNotifications.length > 0;
 		},
+
+		// Overview computed data.
+		get overviewRecentApps() {
+			return state.applications.slice( 0, 4 );
+		},
+		get hasRecentApps() {
+			return ! state.loading && state.overviewRecentApps.length > 0;
+		},
+		get noRecentApps() {
+			return ! state.loading && state.overviewRecentApps.length === 0;
+		},
+		get overviewShortlistedCount() {
+			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length;
+		},
+		get overviewRecentSavedJobs() {
+			return state.bookmarks.slice( 0, 3 );
+		},
+		get hasRecentSavedJobs() {
+			return state.overviewRecentSavedJobs.length > 0;
+		},
+		get noRecentSavedJobs() {
+			return state.overviewRecentSavedJobs.length === 0;
+		},
 	},
 
 	actions: {
 		*init() {
+			// Restore last active tab from sessionStorage (skip if URL forces resume-builder).
+			if ( state.tab === 'overview' ) {
+				const saved = sessionStorage.getItem( 'wcb_candidate_tab' );
+				if ( saved ) {
+					state.tab = saved;
+				}
+			}
+
 			state.loading = true;
 			state.error   = '';
 
@@ -112,16 +147,24 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.navOpen = ! state.navOpen;
 		},
 
+		switchToOverview() {
+			state.tab     = 'overview';
+			state.navOpen = false;
+			sessionStorage.removeItem( 'wcb_candidate_tab' );
+		},
+
 		switchToApplications() {
 			state.tab     = 'applications';
 			state.error   = '';
 			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'applications' );
 		},
 
 		*switchToBookmarks() {
 			state.tab     = 'bookmarks';
 			state.error   = '';
 			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'bookmarks' );
 
 			if ( state.bookmarks.length ) {
 				return;
@@ -151,6 +194,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		switchToResumeBuilder() {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
 		},
 
 		toggleNewResumeForm() {
@@ -166,6 +210,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resumes';
 			state.error   = '';
 			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'resumes' );
 
 			if ( state.resumes.length ) {
 				return;

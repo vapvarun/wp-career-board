@@ -46,6 +46,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	padding: 20px 0;
 }
 
+/* Logo row — also doubles as Overview link when rendered as <button> */
 .wcb-sidebar-logo {
 	display: flex;
 	align-items: center;
@@ -54,6 +55,34 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	font-size: 0.9375rem;
 	font-weight: 700;
 	color: var( --wcb-text-primary );
+	width: 100%;
+	background: transparent;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+}
+
+.wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-primary, #2563eb );
+}
+
+/* Prevent theme button overrides on the logo */
+.wcb-dashboard .wcb-sidebar-logo {
+	background: transparent;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-dashboard .wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
 }
 
 /* Section labels — act as visual dividers between nav groups */
@@ -786,4 +815,159 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	font-size: var( --wp--preset--font-size--2xs );
 	color: #9ca3af;
 	margin-top: 2px;
+}
+
+/* ── Overview: Stats row ──────────────────────────────────────────────────── */
+.wcb-stats-row {
+	display: grid;
+	grid-template-columns: repeat( 4, 1fr );
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.wcb-stat-card {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	padding: 20px 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	line-height: 1;
+}
+
+.wcb-stat-label {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	font-weight: 500;
+}
+
+.wcb-stat-card--green .wcb-stat-value { color: var( --wcb-green ); }
+.wcb-stat-card--blue  .wcb-stat-value { color: var( --wcb-blue ); }
+.wcb-stat-card--amber .wcb-stat-value { color: var( --wcb-amber ); }
+
+/* ── Overview: Two-column grid ────────────────────────────────────────────── */
+.wcb-two-col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+/* ── Overview: Panel header / title / link / empty ───────────────────────── */
+.wcb-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid var( --wcb-border );
+}
+
+.wcb-panel-title {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+}
+
+.wcb-panel-link {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 500;
+	color: var( --wcb-blue );
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.wcb-panel-link:hover {
+	text-decoration: underline;
+}
+
+.wcb-panel-empty {
+	display: none;
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	padding: 16px 20px;
+	margin: 0;
+}
+
+.wcb-panel-empty.wcb-shown {
+	display: block;
+}
+
+/* ── Overview: Application / saved-job rows ──────────────────────────────── */
+.wcb-overview-app-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 20px;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wcb-overview-app-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-app-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-app-name {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 600;
+	color: var( --wcb-text-primary );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.wcb-app-name:hover {
+	text-decoration: underline;
+}
+
+.wcb-app-job {
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-text-muted );
+}
+
+/* ── Status badge (overview panels) ─────────────────────────────────────── */
+.wcb-status-badge {
+	font-size: var( --wp--preset--font-size--xs );
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 9999px;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-secondary );
+	text-transform: capitalize;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.wcb-status-badge[data-status="submitted"]   { background: #dbeafe; color: #1e40af; }
+.wcb-status-badge[data-status="reviewing"]   { background: #fef9c3; color: #854d0e; }
+.wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-status-badge[data-status="hired"],
+.wcb-status-badge[data-status="accepted"]    { background: #dcfce7; color: #166534; }
+.wcb-status-badge[data-status="rejected"]    { background: #fee2e2; color: #991b1b; }
+
+/* ── Responsive: stack to single column on narrow screens ────────────────── */
+@media ( max-width: 640px ) {
+	.wcb-stats-row {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+
+	.wcb-two-col {
+		grid-template-columns: 1fr;
+	}
 }
