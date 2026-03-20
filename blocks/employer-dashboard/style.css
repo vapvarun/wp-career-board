@@ -3,15 +3,15 @@
 	--wcb-text-primary:   #0f172a;
 	--wcb-text-secondary: #64748b;
 	--wcb-text-muted:     #94a3b8;
-	--wcb-border:         #e2e8f0;
 	--wcb-bg-subtle:      #f8fafc;
-	--wcb-bg-hover:       #f1f5f9;
+	--wcb-bg-hover:       var( --wcb-surface, #f1f5f9 );
 	--wcb-green:          #059669;
-	--wcb-blue:           #2563eb;
+	--wcb-blue:           var( --wcb-primary, #2563eb );
 	--wcb-amber:          #d97706;
 	--wcb-radius:         8px;
 	--wcb-radius-sm:      5px;
 	font-family: inherit;
+	font-size: 1rem;
 	color: var( --wcb-text-primary );
 }
 
@@ -39,7 +39,7 @@
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border-right: 1px solid var( --wcb-border );
 	padding: 20px 0;
 }
@@ -50,7 +50,7 @@
 	align-items: center;
 	gap: 8px;
 	padding: 0 16px 16px;
-	font-size: 14px;
+	font-size: 0.9375rem;
 	font-weight: 700;
 	color: var( --wcb-text-primary );
 }
@@ -73,7 +73,7 @@
 	justify-content: space-between;
 	width: 100%;
 	padding: 8px 16px;
-	font-size: 14px;
+	font-size: 0.9375rem;
 	font-weight: 400;
 	color: var( --wcb-text-secondary );
 	background: none;
@@ -117,7 +117,7 @@
 	outline-offset: -2px;
 }
 .wcb-dashboard .wcb-filter-pill {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	box-shadow: none;
 }
 .wcb-dashboard .wcb-filter-pill:hover:not( .wcb-filter-active ):not( .wcb-active ) {
@@ -251,7 +251,7 @@
 }
 
 .wcb-stat-card {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 10px;
 	padding: 20px 24px;
@@ -292,7 +292,7 @@
 
 /* ── Panel (card container) ───────────────────────────────────────────────── */
 .wcb-panel {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 10px;
 	overflow: hidden;
@@ -489,7 +489,7 @@
 	font-size: 14px;
 	font-weight: 500;
 	color: var( --wcb-text-secondary );
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 9999px;
 	cursor: pointer;
@@ -516,7 +516,7 @@
 	font-size: 14px;
 	font-family: inherit;
 	color: var( --wcb-text-primary );
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	margin-left: auto;
 	transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -543,7 +543,7 @@
 	gap: 12px;
 	padding: 14px 20px;
 	border-bottom: 1px solid #f1f5f9;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: var( --wcb-radius );
 	margin-bottom: 8px;
@@ -616,7 +616,7 @@
 	font-size: 14px;
 	font-weight: 500;
 	color: var( --wcb-text-secondary );
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 9999px;
 	cursor: pointer;
@@ -645,7 +645,7 @@
 	border-radius: 10px;
 	overflow: hidden;
 	min-height: 420px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 }
 
 .wcb-split-panel.wcb-shown {
@@ -760,7 +760,7 @@
 	font-size: 14px;
 	font-family: inherit;
 	cursor: pointer;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	color: #374151;
 	margin-left: auto;
 }
@@ -844,7 +844,7 @@
 }
 
 .wcb-preview-card {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 10px;
 	padding: 20px;
@@ -929,7 +929,7 @@
 }
 
 .wcb-db-btn--primary:hover {
-	background: #1d4ed8;
+	background: var( --wcb-primary-dark, #1d4ed8 );
 	color: #fff;
 	text-decoration: none;
 }
@@ -957,7 +957,7 @@
 	padding: 0.25rem 0.625rem;
 	border: 1px solid var( --wcb-border );
 	border-radius: 6px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	white-space: nowrap;
 	transition: background 0.1s, border-color 0.1s;
 	cursor: pointer;
@@ -1051,7 +1051,7 @@
 	padding: 0.3rem 0.5rem;
 	border: 1px solid var( --wcb-border );
 	border-radius: 6px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	color: #374151;
 	cursor: pointer;
 	white-space: nowrap;
@@ -1121,7 +1121,7 @@
 
 /* ── Company profile form ─────────────────────────────────────────────────── */
 .wcb-profile-form {
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid var( --wcb-border );
 	border-radius: 12px;
 	padding: 2rem;
@@ -1170,7 +1170,7 @@
 	font-size: 0.9375rem;
 	font-family: inherit;
 	color: #1e293b;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	transition: border-color 0.15s;
 	box-sizing: border-box;
 }
@@ -1433,7 +1433,7 @@
 	top: calc( 100% + 8px );
 	right: 0;
 	width: 320px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	border: 1px solid #e5e7eb;
 	border-radius: 8px;
 	box-shadow: 0 4px 24px rgba( 0, 0, 0, .12 );

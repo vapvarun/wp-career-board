@@ -15,9 +15,9 @@
 
 .wcb-featured-card {
 	padding: 1.25rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
 	border-radius: 8px;
-	background: #fff;
+	background: var( --wcb-base, #fff );
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
@@ -34,12 +34,12 @@
 }
 
 .wcb-featured-card-title a:hover {
-	color: #2563eb;
+	color: var( --wcb-primary, #2563eb );
 }
 
 .wcb-featured-company {
 	font-weight: 600;
-	color: #475569;
+	color: var( --wcb-muted, #475569 );
 	font-size: 0.9rem;
 	margin: 0;
 }
@@ -54,7 +54,7 @@
 	margin-top: auto;
 	display: inline-block;
 	font-size: 0.875rem;
-	color: #2563eb;
+	color: var( --wcb-primary, #2563eb );
 	text-decoration: none;
 	font-weight: 500;
 }
