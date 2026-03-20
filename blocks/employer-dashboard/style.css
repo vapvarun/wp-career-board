@@ -1435,6 +1435,12 @@
 		flex-shrink: 0;
 	}
 
+	.wcb-sidebar-nav {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+	}
+
 	.wcb-nav-section-label {
 		display: none;
 	}

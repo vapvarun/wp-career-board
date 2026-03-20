@@ -571,18 +571,29 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	.wcb-sidebar {
 		width: 100%;
 		flex-direction: row;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		align-items: center;
 		padding: 8px 0;
 		overflow-x: auto;
 		border-right: none;
 		border-bottom: 1px solid var( --wcb-border );
+		scrollbar-width: none;
+	}
+
+	.wcb-sidebar::-webkit-scrollbar {
+		display: none;
 	}
 
 	.wcb-sidebar-logo {
 		padding: 8px 12px;
 		flex-shrink: 0;
 		border-bottom: none;
+	}
+
+	.wcb-sidebar-nav {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
 	}
 
 	.wcb-nav-section-label {
