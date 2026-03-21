@@ -1,0 +1,60 @@
+{
+  "product_name": "WP Career Board",
+  "product_slug": "wp-career-board",
+  "product_type": "plugin",
+  "version": "0.1.0",
+  "tagline": "The community-powered job board for WordPress",
+  "categories": [
+    {
+      "slug": "getting-started",
+      "label": "Getting Started",
+      "docs": [
+        "01-introduction.md",
+        "02-installation.md",
+        "03-setup-wizard.md",
+        "04-adding-blocks.md"
+      ]
+    },
+    {
+      "slug": "for-employers",
+      "label": "For Employers",
+      "docs": [
+        "01-overview.md",
+        "02-post-a-job.md",
+        "03-manage-jobs.md",
+        "04-review-applications.md",
+        "05-company-profile.md"
+      ]
+    },
+    {
+      "slug": "for-candidates",
+      "label": "For Candidates",
+      "docs": [
+        "01-overview.md",
+        "02-finding-jobs.md",
+        "03-applying-for-jobs.md",
+        "04-my-applications.md",
+        "05-saved-jobs.md"
+      ]
+    },
+    {
+      "slug": "admin-guide",
+      "label": "Admin Guide",
+      "docs": [
+        "01-settings.md",
+        "02-email-notifications.md",
+        "03-moderation.md",
+        "04-gdpr.md"
+      ]
+    },
+    {
+      "slug": "integrations",
+      "label": "Integrations",
+      "docs": [
+        "buddyx-pro.md",
+        "reign-theme.md",
+        "buddypress.md"
+      ]
+    }
+  ]
+}
