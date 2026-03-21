@@ -1,0 +1,41 @@
+.wcb-job-stats {
+	display: flex;
+	gap: 1rem;
+}
+
+.wcb-stat-item {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 1.25rem 0.75rem;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius, 8px );
+	background: var( --wcb-bg-subtle, #f8fafc );
+	text-align: center;
+}
+
+.wcb-stat-icon {
+	color: var( --wcb-primary, #2563eb );
+	display: flex;
+	align-items: center;
+}
+
+.wcb-stat-count {
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 1;
+	color: var( --wcb-text, #1e293b );
+}
+
+.wcb-stat-label {
+	font-size: 0.8125rem;
+	color: var( --wcb-text-muted, #64748b );
+}
+
+@media ( max-width: 640px ) {
+	.wcb-job-stats {
+		flex-direction: column;
+	}
+}
