@@ -20,7 +20,7 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 
 ## Managing Notifications
 
-Go to **WP Career Board → Settings → Notifications**.
+Go to **WP Career Board → Settings → Emails**.
 
 Each notification can be:
 - **Enabled or disabled** — toggle the switch to turn it on or off
@@ -44,7 +44,10 @@ Use these placeholders in email subjects and bodies — they are replaced with r
 
 ## Email From Name and Address
 
-WP Career Board uses the default WordPress mail settings for the sender name and email address. To change these, go to **Settings → General** in wp-admin, or use a WordPress SMTP plugin to configure a custom from address.
+Go to **WP Career Board → Settings → Notifications** to set:
+- **From Name** — the sender name shown in inboxes (e.g. "Career Board")
+- **From Email** — the reply-to address for all WCB emails
+- **Admin Notification Email** — where new job and registration alerts are sent
 
 ## SMTP / Deliverability
 

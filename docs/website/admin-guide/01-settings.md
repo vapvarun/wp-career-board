@@ -33,7 +33,22 @@ If a page assignment is blank, the related functionality (e.g., "View your dashb
 
 ## Notifications Tab
 
-Controls which email notifications are enabled and lets you customize each email's subject and body. See [Email Notifications](./02-email-notifications.md) for the full guide.
+Controls the sender name, from email, and admin notification email address used by all WCB emails. See [Email Notifications](./02-email-notifications.md) for the full guide.
+
+## Emails Tab
+
+Lets you enable or disable each individual email notification and customize its subject line and body. See [Email Notifications](./02-email-notifications.md) for placeholders and customization options.
+
+## Pro-Only Tabs
+
+When **WP Career Board Pro** is active, three additional tabs appear:
+
+| Tab | What It Controls |
+|---|---|
+| **Resumes** | Enables the resume builder, sets the Resume Builder page |
+| **AI Settings** | Configures the AI provider key for AI Chat Search |
+| **Job Feed** | RSS/JSON feed settings for job listings |
+| **Credits** | Stripe API keys, webhook secret, and credits-per-job-post value |
 
 ## System Status Tab
 

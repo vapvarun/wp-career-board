@@ -13,9 +13,11 @@ WP Career Board uses WordPress blocks to display everything on the frontend. Eac
 | **Job Form** | Multi-step form for employers to post jobs |
 | **Featured Jobs** | Static grid of featured jobs — good for homepage use |
 | **Employer Dashboard** | Tabbed dashboard: My Jobs, Applications, Company Profile |
-| **Candidate Dashboard** | Tabbed dashboard: My Applications, Saved Jobs |
+| **Candidate Dashboard** | Tabbed dashboard: My Applications, Saved Jobs, My Resumes (Pro) |
 | **Company Profile** | Public company profile with active job listings |
 | **Company Archive** | Searchable directory of all companies |
+
+> **WP Career Board Pro** adds 9 additional blocks: Resume Builder, Find Resumes, Resume Single, Job Map, Job Alerts, AI Chat Search, Application Kanban, Board Switcher, and Credit Balance. See the [Pro Blocks Reference](https://docs.wbcomdesigns.com/wp-career-board-pro/pro-blocks/blocks-reference/) for details.
 
 ## Adding a Block to a Page
 
