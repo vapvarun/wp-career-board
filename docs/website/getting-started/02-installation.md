@@ -35,7 +35,7 @@ When you activate the plugin for the first time, WP Career Board automatically:
 
 You will be redirected to the Setup Wizard. The wizard creates all required pages with the correct blocks in about 30 seconds. See [Setup Wizard](./03-setup-wizard.md) for the full walkthrough.
 
-If you dismiss the wizard, you can run it again any time from **WP Career Board → Dashboard → Run Setup Wizard**.
+If you dismiss the wizard, you can run it again any time from **WP Career Board → Settings → Run Setup Wizard** (the button in the page header).
 
 ## Updating the Plugin
 

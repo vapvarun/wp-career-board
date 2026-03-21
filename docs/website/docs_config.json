@@ -12,7 +12,8 @@
         "01-introduction.md",
         "02-installation.md",
         "03-setup-wizard.md",
-        "04-adding-blocks.md"
+        "04-adding-blocks.md",
+        "05-pro-license.md"
       ]
     },
     {
@@ -23,7 +24,9 @@
         "02-post-a-job.md",
         "03-manage-jobs.md",
         "04-review-applications.md",
-        "05-company-profile.md"
+        "05-company-profile.md",
+        "06-application-pipeline.md",
+        "07-find-resumes.md"
       ]
     },
     {
@@ -34,7 +37,9 @@
         "02-finding-jobs.md",
         "03-applying-for-jobs.md",
         "04-my-applications.md",
-        "05-saved-jobs.md"
+        "05-saved-jobs.md",
+        "06-resume-builder.md",
+        "07-job-alerts.md"
       ]
     },
     {
@@ -44,7 +49,17 @@
         "01-settings.md",
         "02-email-notifications.md",
         "03-moderation.md",
-        "04-gdpr.md"
+        "04-gdpr.md",
+        "05-field-builder.md",
+        "06-credit-system.md"
+      ]
+    },
+    {
+      "slug": "pro-features",
+      "label": "Pro Features",
+      "docs": [
+        "01-job-map.md",
+        "02-multi-board.md"
       ]
     },
     {

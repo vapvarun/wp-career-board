@@ -18,7 +18,7 @@ When BuddyPress is active on your site, WP Career Board automatically connects w
 
 No configuration required. Activate both plugins and the integration detects BuddyPress automatically.
 
-Check **WP Career Board → Settings → System Status** to confirm BuddyPress is detected and the integration is active.
+The integration activates automatically — no additional configuration is required.
 
 ## Activity Stream Integration
 

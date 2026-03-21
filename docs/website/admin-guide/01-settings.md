@@ -13,8 +13,9 @@ Controls how jobs behave on your board.
 | **Auto-Publish Jobs** | Off | When on, submitted jobs go live immediately without admin approval |
 | **Jobs Per Page** | 10 | Number of jobs shown per page in the listings grid |
 | **Job Expiry (days)** | 30 | Jobs close automatically after this many days; 0 = no expiry |
-| **Auto-Close on Expiry** | On | Automatically closes jobs when the expiry date passes |
-| **Allow Application Withdraw** | On | Lets candidates withdraw their own applications |
+| **Deadline Auto-Close** | Off | Automatically closes jobs when their application deadline passes |
+| **Allow Withdraw** | Off | Lets candidates withdraw their own applications |
+| **Default Salary Currency** | USD | Site-wide default currency for new job postings; employers can override per job |
 
 ## Pages Tab
 
@@ -49,18 +50,6 @@ When **WP Career Board Pro** is active, three additional tabs appear:
 | **AI Settings** | Configures the AI provider key for AI Chat Search |
 | **Job Feed** | RSS/JSON feed settings for job listings |
 | **Credits** | Stripe API keys, webhook secret, and credits-per-job-post value |
-
-## System Status Tab
-
-Shows a health check of your installation:
-
-- Plugin version
-- WordPress and PHP version compatibility
-- Database tables status (all tables created correctly)
-- Page assignments check (are all required pages set?)
-- Active integrations (BuddyPress, BuddyX Pro, Reign)
-
-Use this tab when troubleshooting. It gives a quick overview of any configuration issues.
 
 ## Saving Settings
 

@@ -19,7 +19,7 @@ WP Career Board includes first-class support for the **BuddyX Pro** theme. When 
 
 No configuration required. Activate both BuddyX Pro and WP Career Board, run the Setup Wizard, and the integration activates automatically.
 
-The System Status tab (**WP Career Board → Settings → System Status**) confirms whether the BuddyX Pro integration is active.
+The integration activates automatically — no additional confirmation step is required.
 
 ## BuddyPress + BuddyX Pro
 
