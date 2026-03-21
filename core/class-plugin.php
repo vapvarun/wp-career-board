@@ -163,6 +163,9 @@ final class Plugin {
 			'company-profile',
 			'company-archive',
 			'featured-jobs',
+			'recent-jobs',
+			'job-stats',
+			'job-search-hero',
 		);
 
 		foreach ( $blocks as $block ) {
