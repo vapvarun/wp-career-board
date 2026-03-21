@@ -15,16 +15,16 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-$wcb_layout          = in_array( (string) ( $attributes['layout'] ?? 'horizontal' ), array( 'horizontal', 'vertical' ), true )
+$wcb_layout        = in_array( (string) ( $attributes['layout'] ?? 'horizontal' ), array( 'horizontal', 'vertical' ), true )
 	? (string) $attributes['layout']
 	: 'horizontal';
-$wcb_placeholder_raw = trim( (string) ( $attributes['placeholder'] ?? '' ) );
-$wcb_placeholder     = '' !== $wcb_placeholder_raw ? $wcb_placeholder_raw : __( 'Search jobs…', 'wp-career-board' );
-$wcb_button_raw      = trim( (string) ( $attributes['buttonLabel'] ?? '' ) );
-$wcb_button_label    = '' !== $wcb_button_raw ? $wcb_button_raw : __( 'Search', 'wp-career-board' );
-$wcb_show_category   = (bool) ( $attributes['showCategoryFilter'] ?? true );
-$wcb_show_location   = (bool) ( $attributes['showLocationFilter'] ?? true );
-$wcb_show_type       = (bool) ( $attributes['showJobTypeFilter'] ?? true );
+$wcb_placeholder   = trim( (string) ( $attributes['placeholder'] ?? '' ) );
+$wcb_placeholder   = '' !== $wcb_placeholder ? $wcb_placeholder : __( 'Search jobs…', 'wp-career-board' );
+$wcb_button_label  = trim( (string) ( $attributes['buttonLabel'] ?? '' ) );
+$wcb_button_label  = '' !== $wcb_button_label ? $wcb_button_label : __( 'Search', 'wp-career-board' );
+$wcb_show_category = (bool) ( $attributes['showCategoryFilter'] ?? true );
+$wcb_show_location = (bool) ( $attributes['showLocationFilter'] ?? true );
+$wcb_show_type     = (bool) ( $attributes['showJobTypeFilter'] ?? true );
 
 $wcb_settings   = (array) get_option( 'wcb_settings', array() );
 $wcb_action_url = ! empty( $wcb_settings['jobs_archive_page'] )
@@ -64,7 +64,7 @@ $wcb_locations  = is_wp_error( $wcb_locations ) ? array() : $wcb_locations;
 $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-search-hero wcb-search-hero--' . esc_attr( $wcb_layout ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-	<form class="wcb-search-hero__form" method="GET" action="<?php echo esc_url( $wcb_action_url ); ?>" role="search">
+	<form class="wcb-search-hero__form" method="get" action="<?php echo esc_url( $wcb_action_url ); ?>" role="search">
 
 		<div class="wcb-search-hero__field wcb-search-hero__field--keyword">
 			<label class="screen-reader-text" for="wcb-hero-search">
