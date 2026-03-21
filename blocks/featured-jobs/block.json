@@ -12,6 +12,18 @@
     "perPage": {
       "type": "integer",
       "default": 3
+    },
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "showViewAll": {
+      "type": "boolean",
+      "default": true
+    },
+    "viewAllUrl": {
+      "type": "string",
+      "default": ""
     }
   },
   "style": "file:./style.css",

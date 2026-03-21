@@ -17,7 +17,17 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_per_page = (int) ( $attributes['perPage'] ?? 3 );
+$wcb_per_page     = (int) ( $attributes['perPage'] ?? 3 );
+$wcb_title        = trim( (string) ( $attributes['title'] ?? '' ) );
+$wcb_show_all     = (bool) ( $attributes['showViewAll'] ?? true );
+$wcb_view_all_url = trim( (string) ( $attributes['viewAllUrl'] ?? '' ) );
+
+if ( ! $wcb_view_all_url ) {
+	$wcb_settings     = (array) get_option( 'wcb_settings', array() );
+	$wcb_view_all_url = ! empty( $wcb_settings['jobs_archive_page'] )
+		? (string) get_permalink( (int) $wcb_settings['jobs_archive_page'] )
+		: '';
+}
 
 $wcb_featured_posts = get_posts(
 	array(
@@ -34,7 +44,9 @@ if ( empty( $wcb_featured_posts ) ) {
 }
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-featured-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-	<h2 class="wcb-featured-title"><?php esc_html_e( 'Featured Jobs', 'wp-career-board' ); ?></h2>
+	<h2 class="wcb-featured-title">
+		<?php echo esc_html( $wcb_title ? $wcb_title : __( 'Featured Jobs', 'wp-career-board' ) ); ?>
+	</h2>
 
 	<div class="wcb-featured-grid">
 		<?php foreach ( $wcb_featured_posts as $wcb_post ) : ?>
@@ -66,4 +78,10 @@ if ( empty( $wcb_featured_posts ) ) {
 			</article>
 		<?php endforeach; ?>
 	</div>
+
+	<?php if ( $wcb_show_all && $wcb_view_all_url ) : ?>
+		<a class="wcb-widget-view-all" href="<?php echo esc_url( $wcb_view_all_url ); ?>">
+			<?php esc_html_e( 'View all jobs →', 'wp-career-board' ); ?>
+		</a>
+	<?php endif; ?>
 </div>
