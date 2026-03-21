@@ -324,6 +324,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					...j,
 					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
 					isClosed: j.status !== 'publish',
+					isDraft:  j.status === 'draft',
 				} ) );
 
 				if ( allAppsResp.ok ) {

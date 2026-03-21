@@ -153,6 +153,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				// Non-critical — overview saved jobs panel will show empty state.
 			}
 
+			// If resumes tab was restored from sessionStorage, fetch resumes now.
+			if ( state.tab === 'resumes' ) {
+				yield actions.switchToResumes();
+			}
+
 			yield actions.fetchBellNotifications();
 		},
 
