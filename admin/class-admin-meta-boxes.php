@@ -330,13 +330,14 @@ class AdminMetaBoxes {
 	public function render_company_details_box( \WP_Post $post ): void {
 		wp_nonce_field( self::COMPANY_NONCE_ACTION, self::COMPANY_NONCE_NAME );
 
-		$wcb_website      = (string) get_post_meta( $post->ID, '_wcb_website', true );
-		$wcb_tagline      = (string) get_post_meta( $post->ID, '_wcb_tagline', true );
-		$wcb_industry     = (string) get_post_meta( $post->ID, '_wcb_industry', true );
-		$wcb_company_size = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
-		$wcb_company_type = (string) get_post_meta( $post->ID, '_wcb_company_type', true );
-		$wcb_founded      = (string) get_post_meta( $post->ID, '_wcb_founded', true );
-		$wcb_hq_location  = (string) get_post_meta( $post->ID, '_wcb_hq_location', true );
+		$wcb_company_featured = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
+		$wcb_website          = (string) get_post_meta( $post->ID, '_wcb_website', true );
+		$wcb_tagline          = (string) get_post_meta( $post->ID, '_wcb_tagline', true );
+		$wcb_industry         = (string) get_post_meta( $post->ID, '_wcb_industry', true );
+		$wcb_company_size     = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
+		$wcb_company_type     = (string) get_post_meta( $post->ID, '_wcb_company_type', true );
+		$wcb_founded          = (string) get_post_meta( $post->ID, '_wcb_founded', true );
+		$wcb_hq_location      = (string) get_post_meta( $post->ID, '_wcb_hq_location', true );
 
 		$wcb_industries = array(
 			''               => __( '— Select Industry —', 'wp-career-board' ),
@@ -381,6 +382,18 @@ class AdminMetaBoxes {
 		);
 		?>
 		<div class="wcb-company-meta-grid">
+			<div class="wcb-meta-full">
+				<label>
+					<input
+						type="checkbox"
+						name="wcb_company_featured"
+						value="1"
+						<?php checked( $wcb_company_featured ); ?>
+					/>
+					<?php esc_html_e( 'Featured company', 'wp-career-board' ); ?>
+				</label>
+			</div>
+
 			<div class="wcb-meta-row wcb-meta-full">
 				<label for="wcb_tagline"><?php esc_html_e( 'Tagline / Slogan', 'wp-career-board' ); ?></label>
 				<input
@@ -648,5 +661,8 @@ class AdminMetaBoxes {
 		if ( in_array( $wcb_trust, $allowed_trust, true ) ) {
 			update_post_meta( $post_id, '_wcb_trust_level', $wcb_trust );
 		}
+
+		$wcb_featured = isset( $_POST['wcb_company_featured'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['wcb_company_featured'] ) ) ? '1' : '0';
+		update_post_meta( $post_id, '_wcb_featured', $wcb_featured );
 	}
 }
