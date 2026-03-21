@@ -80,6 +80,7 @@ class AdminSettings {
 		add_action( 'admin_post_wcb_send_test_email', array( $this, 'handle_send_test_email' ) );
 		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
+		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
 	}
 
 	/**
@@ -284,7 +285,7 @@ class AdminSettings {
 			'listings'      => __( 'Job Listings', 'wp-career-board' ),
 			'pages'         => __( 'Pages', 'wp-career-board' ),
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
-			'status'        => __( 'System Status', 'wp-career-board' ),
+			'emails'        => __( 'Emails', 'wp-career-board' ),
 		);
 
 		/**
@@ -303,112 +304,13 @@ class AdminSettings {
 	}
 
 	/**
-	 * Render the System Status tab (read-only health check panel).
+	 * Render the Emails tab — delegates to EmailSettings::render_form().
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param array<string,mixed> $settings Current settings.
 	 * @return void
 	 */
-	private function render_status_tab( array $settings ): void {
-		$wcb_page_keys   = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page', 'company_archive_page' );
-		$wcb_total_pages = count( $wcb_page_keys );
-		$wcb_mapped      = 0;
-		foreach ( $wcb_page_keys as $wcb_k ) {
-			if ( ! empty( $settings[ $wcb_k ] ) && get_post( (int) $settings[ $wcb_k ] ) ) {
-				++$wcb_mapped;
-			}
-		}
-
-		$wcb_job_counts = wp_count_posts( 'wcb_job' );
-		$wcb_pending    = isset( $wcb_job_counts->pending ) ? (int) $wcb_job_counts->pending : 0;
-		$wcb_published  = isset( $wcb_job_counts->publish ) ? (int) $wcb_job_counts->publish : 0;
-		$wcb_pretty     = ! empty( get_option( 'permalink_structure' ) );
-
-		$wcb_checks = array(
-			array(
-				'label' => __( 'PHP Version', 'wp-career-board' ),
-				'value' => PHP_VERSION,
-				'ok'    => version_compare( PHP_VERSION, '8.1', '>=' ),
-				'note'  => __( 'Requires PHP 8.1+', 'wp-career-board' ),
-			),
-			array(
-				'label' => __( 'WordPress Version', 'wp-career-board' ),
-				'value' => get_bloginfo( 'version' ),
-				'ok'    => version_compare( (string) get_bloginfo( 'version' ), '6.5', '>=' ),
-				'note'  => __( 'Requires WordPress 6.5+', 'wp-career-board' ),
-			),
-			array(
-				'label' => __( 'Pretty Permalinks', 'wp-career-board' ),
-				'value' => $wcb_pretty ? __( 'Enabled', 'wp-career-board' ) : __( 'Disabled (plain)', 'wp-career-board' ),
-				'ok'    => $wcb_pretty,
-				'note'  => __( 'Required for REST API and block routing', 'wp-career-board' ),
-			),
-			array(
-				'label' => __( 'REST API', 'wp-career-board' ),
-				'value' => $wcb_pretty ? __( 'Available', 'wp-career-board' ) : __( 'Unavailable', 'wp-career-board' ),
-				'ok'    => $wcb_pretty,
-				'note'  => __( 'Required for all Interactivity API blocks', 'wp-career-board' ),
-			),
-			array(
-				'label' => __( 'Pages Mapped', 'wp-career-board' ),
-				'value' => $wcb_mapped . ' / ' . $wcb_total_pages,
-				'ok'    => $wcb_mapped === $wcb_total_pages,
-				'note'  => __( 'Go to the Pages tab to assign missing pages', 'wp-career-board' ),
-			),
-			array(
-				'label' => __( 'Published Jobs', 'wp-career-board' ),
-				'value' => (string) $wcb_published,
-				'ok'    => true,
-				'note'  => '',
-			),
-			array(
-				'label' => __( 'Pending Review', 'wp-career-board' ),
-				'value' => (string) $wcb_pending,
-				'ok'    => 0 === $wcb_pending,
-				'note'  => $wcb_pending > 0 ? __( 'Jobs awaiting approval under Career Board → Jobs', 'wp-career-board' ) : '',
-			),
-		);
-		?>
-		<h2><?php esc_html_e( 'System Status', 'wp-career-board' ); ?></h2>
-		<p class="description" style="margin-bottom:16px">
-			<?php esc_html_e( 'A snapshot of your WP Career Board setup. All checks should be green before going live.', 'wp-career-board' ); ?>
-		</p>
-		<table class="widefat striped" style="max-width:760px">
-			<thead>
-				<tr>
-					<th><?php esc_html_e( 'Check', 'wp-career-board' ); ?></th>
-					<th><?php esc_html_e( 'Value', 'wp-career-board' ); ?></th>
-					<th><?php esc_html_e( 'Status', 'wp-career-board' ); ?></th>
-					<th><?php esc_html_e( 'Note', 'wp-career-board' ); ?></th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php foreach ( $wcb_checks as $wcb_check ) : ?>
-					<tr>
-						<td><strong><?php echo esc_html( $wcb_check['label'] ); ?></strong></td>
-						<td><code><?php echo esc_html( $wcb_check['value'] ); ?></code></td>
-						<td>
-							<?php if ( $wcb_check['ok'] ) : ?>
-								<span style="color:#46b450;font-weight:600">&#10003; <?php esc_html_e( 'OK', 'wp-career-board' ); ?></span>
-							<?php else : ?>
-								<span style="color:#dc3232;font-weight:600">&#10007; <?php esc_html_e( 'Attention', 'wp-career-board' ); ?></span>
-							<?php endif; ?>
-						</td>
-						<td><small><?php echo esc_html( $wcb_check['note'] ); ?></small></td>
-					</tr>
-				<?php endforeach; ?>
-			</tbody>
-		</table>
-		<p style="margin-top:16px">
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings&tab=pages' ) ); ?>" class="button">
-				<?php esc_html_e( '→ Go to Pages tab', 'wp-career-board' ); ?>
-			</a>
-			<a href="<?php echo esc_url( admin_url( 'options-permalink.php' ) ); ?>" class="button" style="margin-left:8px">
-				<?php esc_html_e( '→ Permalink Settings', 'wp-career-board' ); ?>
-			</a>
-		</p>
-		<?php
+	public function render_emails_tab(): void {
+		( new EmailSettings() )->render_form();
 	}
 
 	/**
@@ -442,12 +344,16 @@ class AdminSettings {
 		$wcb_is_form_tab   = in_array( $wcb_active_tab, $wcb_settings_tabs, true );
 		?>
 		<div class="wrap">
-			<h1>
-				<?php esc_html_e( 'WP Career Board — Settings', 'wp-career-board' ); ?>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Run Setup Wizard', 'wp-career-board' ); ?></a>
-			</h1>
+
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Career Board Settings', 'wp-career-board' ); ?></h1>
 
 			<?php if ( isset( $_GET['settings-updated'] ) && $wcb_is_form_tab ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php esc_html_e( 'Settings saved.', 'wp-career-board' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( isset( $_GET['wcbp_saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 				<div class="notice notice-success is-dismissible">
 					<p><?php esc_html_e( 'Settings saved.', 'wp-career-board' ); ?></p>
 				</div>
@@ -489,8 +395,24 @@ class AdminSettings {
 				</div>
 			<?php endif; ?>
 
+			<div class="wcb-settings-header">
+				<div class="wcb-settings-header-identity">
+					<div class="wcb-settings-header-icon">
+						<span class="dashicons dashicons-portfolio"></span>
+					</div>
+					<div>
+						<div class="wcb-settings-header-title"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></div>
+						<p class="wcb-settings-header-desc">
+							<?php esc_html_e( 'Career Board settings and configuration', 'wp-career-board' ); ?>
+							<span class="wcb-version-badge">v<?php echo esc_html( WCB_VERSION ); ?></span>
+						</p>
+					</div>
+				</div>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="button"><?php esc_html_e( 'Run Setup Wizard', 'wp-career-board' ); ?></a>
+			</div>
+
 			<!-- ── Tab navigation ──────────────────────────────────────────── -->
-			<nav class="nav-tab-wrapper" style="margin-bottom:0">
+			<nav class="wcb-settings-tabs-nav">
 				<?php foreach ( $wcb_tabs as $wcb_slug => $wcb_label ) : ?>
 					<a
 						href="
@@ -506,161 +428,143 @@ class AdminSettings {
 						);
 						?>
 								"
-						class="nav-tab<?php echo $wcb_active_tab === $wcb_slug ? ' nav-tab-active' : ''; ?>"
+						class="<?php echo $wcb_active_tab === $wcb_slug ? 'wcb-tab-active' : ''; ?>"
 					><?php echo esc_html( $wcb_label ); ?></a>
 				<?php endforeach; ?>
 			</nav>
 
 			<!-- ── Settings form (listings / pages / notifications tabs only) ─ -->
 			<?php if ( $wcb_is_form_tab ) : ?>
-			<form method="post" action="options.php" style="margin-top:1rem">
+			<form method="post" action="options.php">
 				<?php settings_fields( 'wcb_settings_group' ); ?>
 
 				<?php if ( 'listings' === $wcb_active_tab ) : ?>
 
-					<h2><?php esc_html_e( 'Job Listings', 'wp-career-board' ); ?></h2>
-					<table class="form-table">
-						<tr>
-							<th scope="row"><?php esc_html_e( 'Auto-Publish Jobs', 'wp-career-board' ); ?></th>
-							<td>
-								<label>
-									<input
-										type="checkbox"
-										name="wcb_settings[auto_publish_jobs]"
-										value="1"
-										<?php checked( ! empty( $settings['auto_publish_jobs'] ) ); ?>
-									>
+					<div class="wcb-settings-card">
+						<div class="wcb-settings-card-header">
+							<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Job Listings', 'wp-career-board' ); ?></h2>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><?php esc_html_e( 'Auto-Publish Jobs', 'wp-career-board' ); ?></div>
+							<div class="wcb-settings-row-control">
+								<label class="wcb-toggle-label">
+									<span class="wcb-toggle">
+										<input type="checkbox" name="wcb_settings[auto_publish_jobs]" value="1" <?php checked( ! empty( $settings['auto_publish_jobs'] ) ); ?>>
+										<span class="wcb-toggle-slider"></span>
+									</span>
 									<?php esc_html_e( 'Publish jobs immediately without admin review', 'wp-career-board' ); ?>
 								</label>
-								<p class="description"><?php esc_html_e( 'When unchecked, new jobs are held as "Pending" until approved under Career Board → Jobs.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><label for="wcb-jobs-per-page"><?php esc_html_e( 'Jobs Per Page', 'wp-career-board' ); ?></label></th>
-							<td>
-								<input
-									type="number"
-									id="wcb-jobs-per-page"
-									name="wcb_settings[jobs_per_page]"
-									value="<?php echo isset( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 10; ?>"
-									min="1"
-									max="100"
-									style="width:80px"
-								>
-								<p class="description"><?php esc_html_e( 'Number of job listings shown per page in the job board block. Maximum 100.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></label></th>
-							<td>
-								<input
-									type="number"
-									id="wcb-jobs-expire-days"
-									name="wcb_settings[jobs_expire_days]"
-									value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>"
-									min="1"
-									max="365"
-									style="width:80px"
-								>
-								<p class="description"><?php esc_html_e( 'Jobs are automatically closed after this many days.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><?php esc_html_e( 'Deadline Auto-Close', 'wp-career-board' ); ?></th>
-							<td>
-								<label>
-									<input
-										type="checkbox"
-										name="wcb_settings[deadline_auto_close]"
-										value="1"
-										<?php checked( ! empty( $settings['deadline_auto_close'] ) ); ?>
-									>
+								<span class="description"><?php esc_html_e( 'When unchecked, new jobs are held as "Pending" until approved under Career Board → Jobs.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-jobs-per-page"><?php esc_html_e( 'Jobs Per Page', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
+								<input type="number" id="wcb-jobs-per-page" name="wcb_settings[jobs_per_page]" value="<?php echo isset( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 10; ?>" min="1" max="100" style="width:80px">
+								<span class="description"><?php esc_html_e( 'Number of job listings shown per page in the job board block. Maximum 100.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
+								<input type="number" id="wcb-jobs-expire-days" name="wcb_settings[jobs_expire_days]" value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>" min="1" max="365" style="width:80px">
+								<span class="description"><?php esc_html_e( 'Jobs are automatically closed after this many days.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><?php esc_html_e( 'Deadline Auto-Close', 'wp-career-board' ); ?></div>
+							<div class="wcb-settings-row-control">
+								<label class="wcb-toggle-label">
+									<span class="wcb-toggle">
+										<input type="checkbox" name="wcb_settings[deadline_auto_close]" value="1" <?php checked( ! empty( $settings['deadline_auto_close'] ) ); ?>>
+										<span class="wcb-toggle-slider"></span>
+									</span>
 									<?php esc_html_e( 'Automatically close jobs when their application deadline passes', 'wp-career-board' ); ?>
 								</label>
-								<p class="description"><?php esc_html_e( 'Runs via WP-Cron. Closed jobs remain visible but show "Applications Closed".', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><?php esc_html_e( 'Allow Withdraw', 'wp-career-board' ); ?></th>
-							<td>
-								<label>
-									<input
-										type="checkbox"
-										name="wcb_settings[allow_withdraw]"
-										value="1"
-										<?php checked( ! empty( $settings['allow_withdraw'] ) ); ?>
-									>
+								<span class="description"><?php esc_html_e( 'Runs via WP-Cron. Closed jobs remain visible but show "Applications Closed".', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><?php esc_html_e( 'Allow Withdraw', 'wp-career-board' ); ?></div>
+							<div class="wcb-settings-row-control">
+								<label class="wcb-toggle-label">
+									<span class="wcb-toggle">
+										<input type="checkbox" name="wcb_settings[allow_withdraw]" value="1" <?php checked( ! empty( $settings['allow_withdraw'] ) ); ?>>
+										<span class="wcb-toggle-slider"></span>
+									</span>
 									<?php esc_html_e( 'Let candidates withdraw their own applications', 'wp-career-board' ); ?>
 								</label>
-								<p class="description"><?php esc_html_e( 'Withdrawn applications are removed from the employer\'s applicant list.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></th>
-							<td>
+								<span class="description"><?php esc_html_e( 'Withdrawn applications are removed from the employer\'s applicant list.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
 								<select id="wcb-salary-currency" name="wcb_settings[salary_currency]">
 									<?php foreach ( self::CURRENCIES as $wcb_code => $wcb_label ) : ?>
-										<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>>
-											<?php echo esc_html( $wcb_label ); ?>
-										</option>
+										<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>><?php echo esc_html( $wcb_label ); ?></option>
 									<?php endforeach; ?>
 								</select>
-								<p class="description"><?php esc_html_e( 'Site-wide default for new job postings. Employers can override it per job.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-					</table>
-					<?php submit_button(); ?>
+								<span class="description"><?php esc_html_e( 'Site-wide default for new job postings. Employers can override it per job.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+					</div>
+					<div class="wcb-settings-footer"><?php submit_button(); ?></div>
 
 				<?php elseif ( 'pages' === $wcb_active_tab ) : ?>
 
-					<h2><?php esc_html_e( 'Pages', 'wp-career-board' ); ?></h2>
 					<p class="description" style="margin-bottom:12px">
 						<?php esc_html_e( 'Assign the WordPress pages that contain each WP Career Board block. Use the "Create Missing Pages" button above to auto-create unassigned pages.', 'wp-career-board' ); ?>
 					</p>
-					<table class="form-table">
-						<?php
-						$wcb_page_settings = array(
-							'jobs_archive_page'        => array(
-								'label' => __( 'Jobs Archive Page', 'wp-career-board' ),
-								'desc'  => __( 'Contains the wcb/job-listings block. Used as the main job board.', 'wp-career-board' ),
-							),
-							'employer_dashboard_page'  => array(
-								'label' => __( 'Employer Dashboard Page', 'wp-career-board' ),
-								'desc'  => __( 'Contains the wcb/employer-dashboard block. Employers manage jobs and profiles here.', 'wp-career-board' ),
-							),
-							'candidate_dashboard_page' => array(
-								'label' => __( 'Candidate Dashboard Page', 'wp-career-board' ),
-								'desc'  => __( 'Contains the wcb/candidate-dashboard block. Candidates track applications and saved jobs.', 'wp-career-board' ),
-							),
-							'post_job_page'            => array(
-								'label' => __( 'Post a Job Page', 'wp-career-board' ),
-								'desc'  => __( 'Contains the wcb/job-form block. Employers post new job listings here.', 'wp-career-board' ),
-							),
-							'company_archive_page'     => array(
-								'label' => __( 'Company Directory Page', 'wp-career-board' ),
-								'desc'  => __( 'Contains the wcb/company-archive block. Lists all employer company profiles.', 'wp-career-board' ),
-							),
-						);
 
-						/**
-						 * Filter the page settings rows displayed on the Pages tab.
-						 *
-						 * Pro uses this to inject the Resume Builder page setting.
-						 *
-						 * @since 1.0.0
-						 * @param array<string, array{label:string, desc:string}> $wcb_page_settings
-						 */
-						$wcb_page_settings = (array) apply_filters( 'wcb_page_settings', $wcb_page_settings );
+					<?php
+					$wcb_page_settings = array(
+						'jobs_archive_page'        => array(
+							'label' => __( 'Jobs Archive Page', 'wp-career-board' ),
+							'desc'  => __( 'Contains the wcb/job-listings block. Used as the main job board.', 'wp-career-board' ),
+						),
+						'employer_dashboard_page'  => array(
+							'label' => __( 'Employer Dashboard Page', 'wp-career-board' ),
+							'desc'  => __( 'Contains the wcb/employer-dashboard block. Employers manage jobs and profiles here.', 'wp-career-board' ),
+						),
+						'candidate_dashboard_page' => array(
+							'label' => __( 'Candidate Dashboard Page', 'wp-career-board' ),
+							'desc'  => __( 'Contains the wcb/candidate-dashboard block. Candidates track applications and saved jobs.', 'wp-career-board' ),
+						),
+						'company_archive_page'     => array(
+							'label' => __( 'Company Directory Page', 'wp-career-board' ),
+							'desc'  => __( 'Contains the wcb/company-archive block. Lists all employer company profiles.', 'wp-career-board' ),
+						),
+					);
 
-						foreach ( $wcb_page_settings as $wcb_key => $wcb_info ) :
-							?>
-							<tr>
-								<th scope="row">
-									<label for="wcb-page-<?php echo esc_attr( sanitize_key( $wcb_key ) ); ?>">
-										<?php echo esc_html( $wcb_info['label'] ); ?>
-									</label>
-								</th>
-								<td>
+					/**
+					 * Filter the page settings rows displayed on the Pages tab.
+					 *
+					 * Pro uses this to inject the Resume Builder page setting.
+					 *
+					 * @since 1.0.0
+					 * @param array<string, array{label:string, desc:string}> $wcb_page_settings
+					 */
+					$wcb_page_settings = (array) apply_filters( 'wcb_page_settings', $wcb_page_settings );
+					?>
+
+					<div class="wcb-settings-card">
+						<div class="wcb-settings-card-header">
+							<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Pages', 'wp-career-board' ); ?></h2>
+						</div>
+
+						<?php foreach ( $wcb_page_settings as $wcb_key => $wcb_info ) : ?>
+							<div class="wcb-settings-row">
+								<div class="wcb-settings-row-label">
+									<label for="wcb-page-<?php echo esc_attr( sanitize_key( $wcb_key ) ); ?>"><?php echo esc_html( $wcb_info['label'] ); ?></label>
+								</div>
+								<div class="wcb-settings-row-control">
 									<?php
 									wp_dropdown_pages(
 										array(
@@ -678,59 +582,45 @@ class AdminSettings {
 										}
 									}
 									?>
-									<p class="description"><?php echo esc_html( $wcb_info['desc'] ); ?></p>
-								</td>
-							</tr>
+									<span class="description"><?php echo esc_html( $wcb_info['desc'] ); ?></span>
+								</div>
+							</div>
 						<?php endforeach; ?>
-					</table>
-					<?php submit_button(); ?>
+					</div>
+					<div class="wcb-settings-footer"><?php submit_button(); ?></div>
 
 				<?php elseif ( 'notifications' === $wcb_active_tab ) : ?>
 
-					<h2><?php esc_html_e( 'Notifications', 'wp-career-board' ); ?></h2>
-					<table class="form-table">
-						<tr>
-							<th scope="row"><label for="wcb-from-name"><?php esc_html_e( 'From Name', 'wp-career-board' ); ?></label></th>
-							<td>
-								<input
-									type="text"
-									id="wcb-from-name"
-									name="wcb_settings[from_name]"
-									value="<?php echo esc_attr( $from_name ); ?>"
-									class="regular-text"
-								>
-								<p class="description"><?php esc_html_e( 'Sender name shown on all WCB notification emails. Defaults to your site name.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><label for="wcb-from-email"><?php esc_html_e( 'From Email', 'wp-career-board' ); ?></label></th>
-							<td>
-								<input
-									type="email"
-									id="wcb-from-email"
-									name="wcb_settings[from_email]"
-									value="<?php echo esc_attr( $from_email ); ?>"
-									class="regular-text"
-								>
-								<p class="description"><?php esc_html_e( 'Sender address for all WCB emails. Defaults to the site admin email.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row"><label for="wcb-notification-email"><?php esc_html_e( 'Admin Notification Email', 'wp-career-board' ); ?></label></th>
-							<td>
-								<input
-									type="email"
-									id="wcb-notification-email"
-									name="wcb_settings[notification_email]"
-									value="<?php echo esc_attr( $notification_email ); ?>"
-									class="regular-text"
-									required
-								>
-								<p class="description"><?php esc_html_e( 'Where admin alerts (new jobs, flagged content) are sent. Defaults to the site admin email.', 'wp-career-board' ); ?></p>
-							</td>
-						</tr>
-					</table>
-					<?php submit_button(); ?>
+					<div class="wcb-settings-card">
+						<div class="wcb-settings-card-header">
+							<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Configuration', 'wp-career-board' ); ?></h2>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-from-name"><?php esc_html_e( 'From Name', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
+								<input type="text" id="wcb-from-name" name="wcb_settings[from_name]" value="<?php echo esc_attr( $from_name ); ?>" class="regular-text">
+								<span class="description"><?php esc_html_e( 'Sender name shown on all WCB notification emails. Defaults to your site name.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-from-email"><?php esc_html_e( 'From Email', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
+								<input type="email" id="wcb-from-email" name="wcb_settings[from_email]" value="<?php echo esc_attr( $from_email ); ?>" class="regular-text">
+								<span class="description"><?php esc_html_e( 'Sender address for all WCB emails. Defaults to the site admin email.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+
+						<div class="wcb-settings-row">
+							<div class="wcb-settings-row-label"><label for="wcb-notification-email"><?php esc_html_e( 'Admin Notification Email', 'wp-career-board' ); ?></label></div>
+							<div class="wcb-settings-row-control">
+								<input type="email" id="wcb-notification-email" name="wcb_settings[notification_email]" value="<?php echo esc_attr( $notification_email ); ?>" class="regular-text" required>
+								<span class="description"><?php esc_html_e( 'Where admin alerts (new jobs, flagged content) are sent. Defaults to the site admin email.', 'wp-career-board' ); ?></span>
+							</div>
+						</div>
+					</div>
+					<div class="wcb-settings-footer"><?php submit_button(); ?></div>
 
 				<?php endif; ?>
 			</form>
@@ -738,41 +628,33 @@ class AdminSettings {
 
 			<!-- ── Send Test Email (Notifications tab, separate form) ───────── -->
 			<?php if ( 'notifications' === $wcb_active_tab ) : ?>
-				<hr style="margin:2rem 0 1.5rem">
-				<h3><?php esc_html_e( 'Send Test Email', 'wp-career-board' ); ?></h3>
-				<p><?php esc_html_e( 'Send a test email to the admin notification address to verify your mail configuration.', 'wp-career-board' ); ?></p>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-					<input type="hidden" name="action" value="wcb_send_test_email">
-					<?php wp_nonce_field( 'wcb_send_test_email' ); ?>
-					<?php submit_button( __( 'Send Test Email', 'wp-career-board' ), 'secondary', 'submit', false ); ?>
-				</form>
-			<?php endif; ?>
-
-			<!-- ── System Status tab (read-only, no form) ───────────────────── -->
-			<?php if ( 'status' === $wcb_active_tab ) : ?>
-				<div style="margin-top:1.5rem">
-					<?php $this->render_status_tab( $settings ); ?>
+				<div class="wcb-settings-test-email">
+					<h3><?php esc_html_e( 'Send Test Email', 'wp-career-board' ); ?></h3>
+					<p><?php esc_html_e( 'Send a test email to the admin notification address to verify your mail configuration.', 'wp-career-board' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="wcb_send_test_email">
+						<?php wp_nonce_field( 'wcb_send_test_email' ); ?>
+						<?php submit_button( __( 'Send Test Email', 'wp-career-board' ), 'secondary', 'submit', false ); ?>
+					</form>
 				</div>
 			<?php endif; ?>
 
 			<!-- ── Pro / custom tabs ────────────────────────────────────────── -->
-			<?php if ( ! $wcb_is_form_tab && 'status' !== $wcb_active_tab ) : ?>
-				<div style="margin-top:1.5rem">
-					<?php
-					/**
-					 * Action: render content for a Pro or custom settings tab.
-					 *
-					 * Hook example:
-					 *   add_action( 'wcb_settings_tab_credits', function( $settings ) {
-					 *       // render credits settings table + submit_button()
-					 *   } );
-					 *
-					 * @since 1.0.0
-					 * @param array<string,mixed> $settings Current WCB settings.
-					 */
-					do_action( 'wcb_settings_tab_' . $wcb_active_tab, $settings );
-					?>
-				</div>
+			<?php if ( ! $wcb_is_form_tab ) : ?>
+				<?php
+				/**
+				 * Action: render content for a Pro or custom settings tab.
+				 *
+				 * Hook example:
+				 *   add_action( 'wcb_settings_tab_credits', function( $settings ) {
+				 *       // render a wcb-settings-card with wcb-settings-row rows
+				 *   } );
+				 *
+				 * @since 1.0.0
+				 * @param array<string,mixed> $settings Current WCB settings.
+				 */
+				do_action( 'wcb_settings_tab_' . $wcb_active_tab, $settings );
+				?>
 			<?php endif; ?>
 
 		</div>

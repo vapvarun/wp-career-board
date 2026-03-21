@@ -225,6 +225,10 @@ class SetupWizard extends \WCB\Api\RestController {
 		$created  = array();
 
 		$pages = array(
+			'jobs_archive_page'        => array(
+				'title'   => __( 'Find Jobs', 'wp-career-board' ),
+				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+			),
 			'employer_dashboard_page'  => array(
 				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
 				'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
@@ -232,14 +236,6 @@ class SetupWizard extends \WCB\Api\RestController {
 			'candidate_dashboard_page' => array(
 				'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
 				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
-			),
-			'jobs_archive_page'        => array(
-				'title'   => __( 'Find Jobs', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
-			),
-			'post_job_page'            => array(
-				'title'   => __( 'Post a Job', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-form /-->',
 			),
 		);
 

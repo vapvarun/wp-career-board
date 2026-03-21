@@ -34,6 +34,105 @@ class EmailSettings {
 	}
 
 	/**
+	 * Render just the email settings form — used when embedded as a Settings tab.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render_form(): void {
+		$settings = (array) get_option( 'wcb_email_settings', array() );
+		$brand    = isset( $settings['brand'] ) ? (array) $settings['brand'] : array();
+		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
+		?>
+		<div class="wcb-settings-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Brand Settings', 'wp-career-board' ); ?></h2>
+			</div>
+			<form method="post">
+				<?php wp_nonce_field( 'wcb_email_settings_save', 'wcb_email_nonce' ); ?>
+				<div class="wcb-settings-row">
+					<div class="wcb-settings-row-label">
+						<label for="wcb-email-header-color"><?php esc_html_e( 'Header Color', 'wp-career-board' ); ?></label>
+					</div>
+					<div class="wcb-settings-row-control">
+						<input type="color" id="wcb-email-header-color" name="wcb_email[brand][header_color]"
+							value="<?php echo esc_attr( isset( $brand['header_color'] ) ? $brand['header_color'] : '#4f46e5' ); ?>">
+					</div>
+				</div>
+				<div class="wcb-settings-row">
+					<div class="wcb-settings-row-label">
+						<label for="wcb-email-logo-id"><?php esc_html_e( 'Logo', 'wp-career-board' ); ?></label>
+					</div>
+					<div class="wcb-settings-row-control">
+						<input type="number" id="wcb-email-logo-id" name="wcb_email[brand][logo_id]"
+							value="<?php echo (int) ( isset( $brand['logo_id'] ) ? $brand['logo_id'] : 0 ); ?>"
+							placeholder="<?php esc_attr_e( 'Attachment ID', 'wp-career-board' ); ?>">
+						<span class="description"><?php esc_html_e( 'Enter the attachment ID of your logo image.', 'wp-career-board' ); ?></span>
+					</div>
+				</div>
+				<div class="wcb-settings-row">
+					<div class="wcb-settings-row-label">
+						<label for="wcb-email-footer-text"><?php esc_html_e( 'Footer Text', 'wp-career-board' ); ?></label>
+					</div>
+					<div class="wcb-settings-row-control">
+						<textarea id="wcb-email-footer-text" name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
+					</div>
+				</div>
+		</div>
+
+		<div class="wcb-settings-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Templates', 'wp-career-board' ); ?></h2>
+			</div>
+			<div style="padding: 0 24px 16px;">
+				<table class="widefat striped" style="margin-top:12px">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Email', 'wp-career-board' ); ?></th>
+							<th><?php esc_html_e( 'Recipient', 'wp-career-board' ); ?></th>
+							<th><?php esc_html_e( 'Subject', 'wp-career-board' ); ?></th>
+							<th><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ( $emails as $email ) : ?>
+						<?php
+						if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
+							continue; }
+						?>
+						<?php
+						$id      = $email->get_id();
+						$saved   = isset( $settings[ $id ] ) ? (array) $settings[ $id ] : array();
+						$enabled = isset( $saved['enabled'] ) ? (bool) $saved['enabled'] : true;
+						$subject = isset( $saved['subject'] ) ? $saved['subject'] : '';
+						?>
+						<tr>
+							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
+							<td><?php echo esc_html( ucfirst( $email->get_recipient() ) ); ?></td>
+							<td>
+								<input type="text" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]"
+									value="<?php echo esc_attr( $subject ); ?>"
+									placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>"
+									style="width:100%;max-width:400px;">
+							</td>
+							<td>
+								<input type="checkbox" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]"
+									value="1" <?php checked( $enabled ); ?>>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="wcb-settings-footer">
+			<?php submit_button( __( 'Save Email Settings', 'wp-career-board' ) ); ?>
+		</div>
+		</form>
+		<?php
+	}
+
+	/**
 	 * Render the Emails settings page.
 	 *
 	 * @since 1.0.0

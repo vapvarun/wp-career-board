@@ -843,7 +843,7 @@ The block exists but has no title override, no "View all" toggle, and no custom 
   $wcb_job_types  = is_wp_error( $wcb_job_types )  ? array() : $wcb_job_types;
   ?>
   <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-search-hero wcb-search-hero--' . esc_attr( $wcb_layout ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-  	<form class="wcb-search-hero__form" method="GET" action="<?php echo esc_url( $wcb_action_url ); ?>" role="search">
+  	<form class="wcb-search-hero__form" method="get" action="<?php echo esc_url( $wcb_action_url ); ?>" role="search">
 
   		<div class="wcb-search-hero__field wcb-search-hero__field--keyword">
   			<label class="screen-reader-text" for="wcb-hero-search">
@@ -1735,7 +1735,7 @@ The `_wcb_featured` meta key does not exist on `wcb_resume` posts. Without this 
   $wcbp_skills = is_wp_error( $wcbp_skills ) ? array() : $wcbp_skills;
   ?>
   <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-resume-search-hero wcb-resume-search-hero--' . esc_attr( $wcbp_layout ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-  	<form class="wcb-search-hero__form" method="GET" action="<?php echo esc_url( $wcbp_action_url ); ?>" role="search">
+  	<form class="wcb-search-hero__form" method="get" action="<?php echo esc_url( $wcbp_action_url ); ?>" role="search">
 
   		<div class="wcb-search-hero__field wcb-search-hero__field--keyword">
   			<label class="screen-reader-text" for="wcb-resume-search">

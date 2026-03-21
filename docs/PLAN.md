@@ -3749,6 +3749,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | ✅ 2026-03-17 · `7025f26` |
 | T27a | Salary range + remote filter UI in job-filters block | ✅ 2026-03-17 · `5378fe1` |
 | T27b | Company name search + REST caching (T28) + extension hooks (T29) | ✅ 2026-03-17 · `27162d8` |
+| T28 | Admin dashboard redesign — branded header, getting-started card, stat icons, action grid | ⬜ |
 
 ---
 
@@ -3883,3 +3884,69 @@ Use this table to track task completion. Update the Status column as you go.
 - [ ] Style in `style.css`: flex row, icon buttons with hover states, consistent with existing `.wcb-js-*` patterns
 - [ ] Test: X link opens correct tweet URL. LinkedIn link opens share dialog. Copy link copies URL and shows "Copied!" for 2s.
 - [ ] Commit: `feat(wcb): T26 — social sharing bar on job single (X, LinkedIn, copy link)`
+
+---
+
+### Task T28: Admin Dashboard Redesign
+
+**Goal:** Elevate the Career Board admin dashboard (`admin.php?page=wp-career-board`) from a functional but bare layout to a premium, on-brand experience — consistent with the Settings page and Setup Wizard.
+
+**Files:**
+- Modify: `admin/class-admin.php` — `render_dashboard()` method (HTML restructure)
+- Modify: `assets/css/admin.css` — dashboard-specific classes
+
+**What Changes:**
+
+**1. Branded header card** — replaces the plain `<h1>` + subtitle bar
+```
+┌───────────────────────────────────────────────────────────────┐
+│  [💼 icon]  WP Career Board          v0.1.0    Visit Site ↗   │
+│             Manage your job board, applications, and pipeline  │
+└───────────────────────────────────────────────────────────────┘
+```
+Same `.wcb-settings-header` card already used on Settings + Wizard. Zero new CSS needed.
+
+**2. Getting Started checklist** — shown only when setup is incomplete
+```
+┌ Getting Started ─────────────────────────────────────────────┐
+│  ✓ Plugin activated                                           │
+│  ✓ Pages created (3/3)                                        │
+│  ○ Add your first job → [+ Add Job]                          │
+│  ○ Invite an employer → [+ Add User]                         │
+└──────────────────────────────────────────────────────────────┘
+```
+Hidden once `wcb_setup_complete` is true AND at least one published job exists.
+
+**3. Quick Actions grid** — replaces the bare button strip at bottom
+```
+[+ Post a Job]  [+ Add Employer]  [⚙ Settings]  [▶ Run Wizard]
+```
+Styled `.wcb-dashboard-actions` flex row with card-style buttons (icon + label), not plain `<button>` elements.
+
+**4. Activity panels** — refine existing two-column layout
+- "Pending Review" panel: add empty-state illustration (dashicon) and "Auto-publish is on — no review needed" note when `auto_publish_jobs` is enabled
+- "Recent Applications" panel: keep as-is; add "No applications yet" empty state with a link to the Jobs list
+
+**5. Stat cards** — add subtle icons to each card
+```
+📋 15 Active Jobs   📥 94 Applications   🏢 8 Employers   👤 26 Candidates
+```
+Icons via dashicons (no image assets). Currently plain numbers — add `.wcb-stat-icon` above each number.
+
+**Architecture:**
+- All changes in `render_dashboard()` — no new PHP classes, no new REST endpoints
+- CSS additions namespaced `.wcb-dashboard-*` appended to `assets/css/admin.css`
+- Getting Started card: check `get_option('wcb_setup_complete')` + `wp_count_posts('wcb_job')->publish > 0` server-side; render or skip the card in PHP
+
+**Steps:**
+
+- [ ] Add branded header card to `render_dashboard()` using `.wcb-settings-header` (reuse existing CSS)
+- [ ] Add Getting Started checklist card (conditioned on setup state)
+- [ ] Add dashicons to stat cards via `.wcb-stat-icon` span
+- [ ] Add empty-state copy to Pending Review panel (auto-publish note) and Recent Applications panel
+- [ ] Replace bare button strip with `.wcb-dashboard-actions` flex grid
+- [ ] Add `.wcb-dashboard-actions` and `.wcb-stat-icon` CSS to `admin.css`
+- [ ] Add `@media (max-width: 782px)` breakpoint: single-column stat cards + stacked actions
+- [ ] Verify at 390px viewport
+- [ ] WPCS fix + check + PHPStan
+- [ ] Commit: `feat(wcb): T28 — premium admin dashboard redesign`

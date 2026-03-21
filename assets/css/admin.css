@@ -288,15 +288,272 @@
 
 /* Status selector — inherits 13px from WP admin */
 
-/* Settings page improvements */
-.form-table th {
+/* ── Settings page premium wrapper ── */
+
+.wcb-settings-header {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin: 12px 0 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.wcb-settings-header-identity {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.wcb-settings-header-icon {
+	background: #f0f6fc;
+	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #2271b1;
+	flex-shrink: 0;
+}
+
+.wcb-settings-header-icon .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}
+
+.wcb-settings-header-title {
+	font-size: 16px;
+	font-weight: 700;
+	color: #1d2327;
+	margin: 0 0 4px;
+	line-height: 1.3;
+}
+
+.wcb-settings-header-desc {
+	font-size: 13px;
+	color: #646970;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+/* Settings tab navigation */
+.wcb-settings-tabs-nav {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	padding: 0 16px;
+	display: flex;
+	gap: 0;
+	margin: 0 0 24px;
+}
+
+.wcb-settings-tabs-nav a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 12px 14px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #50575e;
+	text-decoration: none;
+	border-bottom: 2px solid transparent;
+	transition: color 0.1s, border-color 0.1s;
+	white-space: nowrap;
+}
+
+.wcb-settings-tabs-nav a:hover {
+	color: #2271b1;
+	border-bottom-color: #c3c4c7;
+}
+
+.wcb-settings-tabs-nav a.wcb-tab-active {
+	color: #2271b1;
+	border-bottom-color: #2271b1;
 	font-weight: 600;
 }
 
-.form-table .description {
+/* Settings card */
+.wcb-settings-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	margin-bottom: 24px;
+}
+
+.wcb-settings-card-header {
+	padding: 14px 24px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wcb-settings-card-title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #646970;
+	margin: 0;
+}
+
+/* Settings row: 240px label + flex control */
+.wcb-settings-row {
+	display: grid;
+	grid-template-columns: 240px 1fr;
+	align-items: start;
+	padding: 18px 24px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wcb-settings-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-settings-row-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+	padding-right: 24px;
+	padding-top: 3px;
+}
+
+.wcb-settings-row-control .description {
 	color: #646970;
 	font-size: 12px;
-	margin-top: 4px;
+	margin-top: 6px;
+	display: block;
+}
+
+/* CSS-only toggle switch */
+.wcb-toggle-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.wcb-toggle {
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 24px;
+	flex-shrink: 0;
+}
+
+.wcb-toggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+	position: absolute;
+}
+
+.wcb-toggle-slider {
+	position: absolute;
+	cursor: pointer;
+	inset: 0;
+	background: #c3c4c7;
+	border-radius: 24px;
+	transition: background 0.2s;
+}
+
+.wcb-toggle-slider::before {
+	content: '';
+	position: absolute;
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.2s;
+	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.2 );
+}
+
+.wcb-toggle input:checked + .wcb-toggle-slider {
+	background: #2271b1;
+}
+
+.wcb-toggle input:checked + .wcb-toggle-slider::before {
+	transform: translateX( 20px );
+}
+
+.wcb-toggle input:focus-visible + .wcb-toggle-slider {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1;
+}
+
+/* Save button footer */
+.wcb-settings-footer {
+	padding-top: 8px;
+}
+
+/* Test email section */
+.wcb-settings-test-email {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin-top: 24px;
+}
+
+.wcb-settings-test-email h3 {
+	font-size: 13px;
+	font-weight: 600;
+	margin: 0 0 6px;
+	color: #1d2327;
+}
+
+.wcb-settings-test-email p {
+	font-size: 13px;
+	color: #646970;
+	margin: 0 0 14px;
+}
+
+/* Mobile */
+@media ( max-width: 782px ) {
+	.wcb-settings-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.wcb-settings-header-actions {
+		flex-wrap: wrap;
+	}
+
+	.wcb-settings-tabs-nav {
+		overflow-x: auto;
+	}
+
+	.wcb-settings-row {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	.wcb-settings-row-label {
+		padding-right: 0;
+		padding-top: 0;
+	}
+
+	.wcb-stats-grid {
+		gap: 8px;
+	}
+
+	.wcb-stat-box {
+		flex: 1 1 calc( 50% - 4px );
+		min-width: 0;
+	}
+
+	.wcb-dashboard-actions {
+		padding: 12px 16px;
+		gap: 8px;
+	}
 }
 
 /* No items message */
@@ -527,4 +784,97 @@
 	color: #646970;
 	font-style: italic;
 	font-size: 13px;
+}
+
+/* ── Dashboard — header action buttons ── */
+
+.wcb-settings-header-actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.wcb-settings-header-actions .button .dashicons {
+	font-size: 13px;
+	width: 13px;
+	height: 13px;
+	margin-left: 3px;
+	vertical-align: middle;
+}
+
+/* Stat box icon */
+.wcb-stat-icon {
+	display: block;
+	margin-bottom: 6px;
+	color: #2271b1;
+}
+
+.wcb-stat-icon .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+}
+
+.wcb-stat-alert .wcb-stat-icon {
+	color: #d63638;
+}
+
+/* Quick actions card */
+.wcb-dashboard-actions-card {
+	margin-top: 4px;
+}
+
+.wcb-dashboard-actions {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	padding: 16px 24px;
+}
+
+.wcb-action-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 9px 16px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	text-decoration: none;
+	color: #1d2327;
+	font-size: 13px;
+	font-weight: 500;
+	transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.wcb-action-item:hover {
+	background: #f0f6fc;
+	border-color: #2271b1;
+	color: #2271b1;
+}
+
+.wcb-action-item .dashicons {
+	color: #646970;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	transition: color 0.15s;
+}
+
+.wcb-action-item:hover .dashicons {
+	color: #2271b1;
+}
+
+/* ── Setup wizard ── */
+
+.wcb-wizard-wrap {
+	max-width: 760px;
+}
+
+.wcb-wizard-step {
+	display: none;
+}
+
+.wcb-wizard-step.active {
+	display: block;
 }
