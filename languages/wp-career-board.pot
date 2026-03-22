@@ -9,20 +9,20 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-22T12:42:31+00:00\n"
+"POT-Creation-Date: 2026-03-22T13:32:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
 
 #. Plugin Name of the plugin
 #: wp-career-board.php
-#: admin/class-admin-settings.php:404
+#: admin/class-admin-settings.php:405
 #: admin/class-admin.php:53
 #: admin/class-admin.php:200
 #: admin/class-admin.php:208
 #: admin/views/setup-wizard.php:26
 #: core/class-abilities.php:39
-#: core/class-plugin.php:186
+#: core/class-plugin.php:189
 #: integrations/reign/class-reign-integration.php:79
 #: modules/gdpr/class-gdpr-module.php:48
 #: modules/gdpr/class-gdpr-module.php:64
@@ -221,6 +221,7 @@ msgstr ""
 #: admin/class-admin.php:86
 #: admin/class-admin.php:87
 #: admin/class-admin.php:249
+#: blocks/job-stats/render.php:38
 #: integrations/buddypress/class-bp-integration.php:62
 msgid "Candidates"
 msgstr ""
@@ -298,9 +299,10 @@ msgid "companies"
 msgstr ""
 
 #: admin/class-admin-companies.php:59
-#: admin/class-admin-settings.php:205
+#: admin/class-admin-settings.php:206
 #: admin/class-admin.php:95
 #: admin/class-admin.php:96
+#: blocks/job-stats/render.php:30
 #: modules/employers/class-employers-module.php:138
 msgid "Companies"
 msgstr ""
@@ -342,7 +344,7 @@ msgid "Active Jobs"
 msgstr ""
 
 #: admin/class-admin-companies.php:103
-#: admin/class-admin-meta-boxes.php:516
+#: admin/class-admin-meta-boxes.php:529
 msgid "Trust Level"
 msgstr ""
 
@@ -389,7 +391,7 @@ msgstr ""
 #: admin/class-admin-companies.php:470
 #: blocks/company-archive/render.php:257
 #: blocks/company-profile/render.php:59
-#: blocks/job-listings/render.php:346
+#: blocks/job-listings/render.php:350
 msgid "Verified"
 msgstr ""
 
@@ -498,6 +500,7 @@ msgstr ""
 #: admin/class-admin-import.php:186
 #: blocks/job-filters/render.php:130
 #: blocks/job-form/render.php:547
+#: blocks/job-search-hero/render.php:102
 #: blocks/job-single/render.php:407
 #: modules/jobs/class-jobs-module.php:81
 msgid "Location"
@@ -642,6 +645,7 @@ msgstr ""
 #: admin/class-admin.php:65
 #: admin/class-admin.php:66
 #: admin/views/jobs-list.php:16
+#: blocks/job-stats/render.php:22
 #: modules/jobs/class-jobs-module.php:136
 msgid "Jobs"
 msgstr ""
@@ -801,79 +805,79 @@ msgstr ""
 msgid "Featured listing"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:342
+#: admin/class-admin-meta-boxes.php:343
 msgid "— Select Industry —"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:343
+#: admin/class-admin-meta-boxes.php:344
 msgid "Technology & Software"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:344
+#: admin/class-admin-meta-boxes.php:345
 msgid "Healthcare & Life Sciences"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:345
+#: admin/class-admin-meta-boxes.php:346
 msgid "Finance & Banking"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:346
+#: admin/class-admin-meta-boxes.php:347
 msgid "Education"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:347
+#: admin/class-admin-meta-boxes.php:348
 msgid "Retail & E-commerce"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:348
+#: admin/class-admin-meta-boxes.php:349
 msgid "Manufacturing"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:349
+#: admin/class-admin-meta-boxes.php:350
 msgid "Media & Entertainment"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:350
+#: admin/class-admin-meta-boxes.php:351
 msgid "Consulting & Professional Services"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:351
+#: admin/class-admin-meta-boxes.php:352
 msgid "Non-profit & NGO"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:352
+#: admin/class-admin-meta-boxes.php:353
 msgid "Government & Public Sector"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:353
+#: admin/class-admin-meta-boxes.php:354
 msgid "Real Estate & Construction"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:354
+#: admin/class-admin-meta-boxes.php:355
 msgid "Transportation & Logistics"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:355
+#: admin/class-admin-meta-boxes.php:356
 msgid "Energy & Utilities"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:356
+#: admin/class-admin-meta-boxes.php:357
 msgid "Hospitality & Tourism"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:357
+#: admin/class-admin-meta-boxes.php:358
 msgid "Design & Creative"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:358
+#: admin/class-admin-meta-boxes.php:359
 msgid "Other"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:362
+#: admin/class-admin-meta-boxes.php:363
 msgid "— Select Size —"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:363
+#: admin/class-admin-meta-boxes.php:364
 #: api/endpoints/class-companies-endpoint.php:281
 #: blocks/company-archive/render.php:25
 #: blocks/company-profile/render.php:75
@@ -881,7 +885,7 @@ msgstr ""
 msgid "1–10 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:364
+#: admin/class-admin-meta-boxes.php:365
 #: api/endpoints/class-companies-endpoint.php:282
 #: blocks/company-archive/render.php:26
 #: blocks/company-profile/render.php:76
@@ -889,7 +893,7 @@ msgstr ""
 msgid "11–50 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:365
+#: admin/class-admin-meta-boxes.php:366
 #: api/endpoints/class-companies-endpoint.php:283
 #: blocks/company-archive/render.php:27
 #: blocks/company-profile/render.php:77
@@ -897,7 +901,7 @@ msgstr ""
 msgid "51–200 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:366
+#: admin/class-admin-meta-boxes.php:367
 #: api/endpoints/class-companies-endpoint.php:284
 #: blocks/company-archive/render.php:28
 #: blocks/company-profile/render.php:78
@@ -905,7 +909,7 @@ msgstr ""
 msgid "201–500 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:367
+#: admin/class-admin-meta-boxes.php:368
 #: api/endpoints/class-companies-endpoint.php:285
 #: blocks/company-archive/render.php:29
 #: blocks/company-profile/render.php:79
@@ -913,7 +917,7 @@ msgstr ""
 msgid "501–1,000 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:368
+#: admin/class-admin-meta-boxes.php:369
 #: api/endpoints/class-companies-endpoint.php:286
 #: blocks/company-archive/render.php:30
 #: blocks/company-profile/render.php:80
@@ -921,162 +925,167 @@ msgstr ""
 msgid "1,001–5,000 employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:369
+#: admin/class-admin-meta-boxes.php:370
 msgid "5,001+ employees"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:373
+#: admin/class-admin-meta-boxes.php:374
 msgid "— Select Type —"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:374
+#: admin/class-admin-meta-boxes.php:375
 msgid "Public Company"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:375
+#: admin/class-admin-meta-boxes.php:376
 msgid "Privately Held"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:376
+#: admin/class-admin-meta-boxes.php:377
 msgid "Self-Employed / Freelance"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:377
+#: admin/class-admin-meta-boxes.php:378
 msgid "Non-profit"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:378
+#: admin/class-admin-meta-boxes.php:379
 msgid "Government Agency"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:379
+#: admin/class-admin-meta-boxes.php:380
 msgid "Educational Institution"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:380
+#: admin/class-admin-meta-boxes.php:381
 msgid "Partnership"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:385
+#: admin/class-admin-meta-boxes.php:393
+msgid "Featured company"
+msgstr ""
+
+#: admin/class-admin-meta-boxes.php:398
 msgid "Tagline / Slogan"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:391
+#: admin/class-admin-meta-boxes.php:404
 msgid "e.g. Building a better future, one product at a time"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:393
+#: admin/class-admin-meta-boxes.php:406
 msgid "Short company motto shown below the name."
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:397
+#: admin/class-admin-meta-boxes.php:410
 msgid "Website URL"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:408
+#: admin/class-admin-meta-boxes.php:421
 #: blocks/company-profile/render.php:194
 #: blocks/employer-dashboard/render.php:470
 msgid "Industry"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:419
+#: admin/class-admin-meta-boxes.php:432
 msgid "Company Type"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:430
+#: admin/class-admin-meta-boxes.php:443
 #: blocks/employer-dashboard/render.php:474
 msgid "Company Size"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:441
+#: admin/class-admin-meta-boxes.php:454
 msgid "Founded Year"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:454
+#: admin/class-admin-meta-boxes.php:467
 msgid "Headquarters Location"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:460
+#: admin/class-admin-meta-boxes.php:473
 msgid "e.g. San Francisco, CA, USA"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:483
+#: admin/class-admin-meta-boxes.php:496
 msgid "LinkedIn URL"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:490
+#: admin/class-admin-meta-boxes.php:503
 msgid "X (Twitter) URL"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:509
+#: admin/class-admin-meta-boxes.php:522
 msgid "None"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:510
+#: admin/class-admin-meta-boxes.php:523
 msgid "Verified ✓"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:511
+#: admin/class-admin-meta-boxes.php:524
 msgid "Trusted ★"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:512
+#: admin/class-admin-meta-boxes.php:525
 msgid "Premium ◆"
 msgstr ""
 
-#: admin/class-admin-meta-boxes.php:524
+#: admin/class-admin-meta-boxes.php:537
 msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr ""
 
-#: admin/class-admin-settings.php:182
-#: admin/class-admin-settings.php:252
+#: admin/class-admin-settings.php:183
+#: admin/class-admin-settings.php:253
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: admin/class-admin-settings.php:189
-#: admin/class-setup-wizard.php:229
+#: admin/class-admin-settings.php:190
+#: admin/class-setup-wizard.php:250
 msgid "Find Jobs"
 msgstr ""
 
-#: admin/class-admin-settings.php:193
-#: admin/class-setup-wizard.php:233
-#: core/class-plugin.php:206
+#: admin/class-admin-settings.php:194
+#: admin/class-setup-wizard.php:242
+#: core/class-plugin.php:209
 #: integrations/reign/class-reign-integration.php:133
 msgid "Employer Dashboard"
 msgstr ""
 
-#: admin/class-admin-settings.php:197
-#: admin/class-setup-wizard.php:237
-#: core/class-plugin.php:213
+#: admin/class-admin-settings.php:198
+#: admin/class-setup-wizard.php:246
+#: core/class-plugin.php:216
 msgid "Candidate Dashboard"
 msgstr ""
 
-#: admin/class-admin-settings.php:201
+#: admin/class-admin-settings.php:202
 #: admin/class-admin.php:368
+#: admin/class-setup-wizard.php:254
 #: blocks/employer-dashboard/render.php:135
 #: blocks/employer-dashboard/render.php:154
 msgid "Post a Job"
 msgstr ""
 
-#: admin/class-admin-settings.php:257
+#: admin/class-admin-settings.php:258
 msgid "WP Career Board — Test Email"
 msgstr ""
 
-#: admin/class-admin-settings.php:258
+#: admin/class-admin-settings.php:259
 msgid "This is a test email from WP Career Board. Your notification email is configured correctly."
 msgstr ""
 
-#: admin/class-admin-settings.php:285
-#: admin/class-admin-settings.php:445
+#: admin/class-admin-settings.php:286
+#: admin/class-admin-settings.php:446
 msgid "Job Listings"
 msgstr ""
 
-#: admin/class-admin-settings.php:286
-#: admin/class-admin-settings.php:559
+#: admin/class-admin-settings.php:287
+#: admin/class-admin-settings.php:560
 msgid "Pages"
 msgstr ""
 
-#: admin/class-admin-settings.php:287
+#: admin/class-admin-settings.php:288
 #: blocks/candidate-dashboard/render.php:170
 #: blocks/candidate-dashboard/render.php:179
 #: blocks/employer-dashboard/render.php:170
@@ -1084,194 +1093,194 @@ msgstr ""
 msgid "Notifications"
 msgstr ""
 
-#: admin/class-admin-settings.php:288
+#: admin/class-admin-settings.php:289
 #: admin/class-admin.php:399
 msgid "Emails"
 msgstr ""
 
-#: admin/class-admin-settings.php:348
+#: admin/class-admin-settings.php:349
 msgid "Career Board Settings"
 msgstr ""
 
-#: admin/class-admin-settings.php:352
-#: admin/class-admin-settings.php:358
+#: admin/class-admin-settings.php:353
+#: admin/class-admin-settings.php:359
 msgid "Settings saved."
 msgstr ""
 
-#: admin/class-admin-settings.php:364
+#: admin/class-admin-settings.php:365
 msgid "Missing pages created and assigned successfully."
 msgstr ""
 
-#: admin/class-admin-settings.php:371
+#: admin/class-admin-settings.php:372
 msgid "Test email sent. Please check your inbox."
 msgstr ""
 
-#: admin/class-admin-settings.php:375
+#: admin/class-admin-settings.php:376
 msgid "Test email failed. Check your server mail configuration."
 msgstr ""
 
-#: admin/class-admin-settings.php:383
+#: admin/class-admin-settings.php:384
 msgid "Page Setup Required"
 msgstr ""
 
-#: admin/class-admin-settings.php:384
+#: admin/class-admin-settings.php:385
 msgid "Some required WP Career Board pages have not been created yet."
 msgstr ""
 
-#: admin/class-admin-settings.php:389
+#: admin/class-admin-settings.php:390
 msgid "Create Missing Pages"
 msgstr ""
 
-#: admin/class-admin-settings.php:394
+#: admin/class-admin-settings.php:395
 msgid "All required WP Career Board pages are set up."
 msgstr ""
 
-#: admin/class-admin-settings.php:406
+#: admin/class-admin-settings.php:407
 msgid "Career Board settings and configuration"
 msgstr ""
 
-#: admin/class-admin-settings.php:411
+#: admin/class-admin-settings.php:412
 msgid "Run Setup Wizard"
 msgstr ""
 
-#: admin/class-admin-settings.php:449
+#: admin/class-admin-settings.php:450
 msgid "Auto-Publish Jobs"
 msgstr ""
 
-#: admin/class-admin-settings.php:456
+#: admin/class-admin-settings.php:457
 msgid "Publish jobs immediately without admin review"
 msgstr ""
 
-#: admin/class-admin-settings.php:458
+#: admin/class-admin-settings.php:459
 msgid "When unchecked, new jobs are held as \"Pending\" until approved under Career Board → Jobs."
 msgstr ""
 
-#: admin/class-admin-settings.php:463
+#: admin/class-admin-settings.php:464
 msgid "Jobs Per Page"
 msgstr ""
 
-#: admin/class-admin-settings.php:466
+#: admin/class-admin-settings.php:467
 msgid "Number of job listings shown per page in the job board block. Maximum 100."
 msgstr ""
 
-#: admin/class-admin-settings.php:471
+#: admin/class-admin-settings.php:472
 msgid "Job Expiry (days)"
 msgstr ""
 
-#: admin/class-admin-settings.php:474
+#: admin/class-admin-settings.php:475
 msgid "Jobs are automatically closed after this many days."
 msgstr ""
 
-#: admin/class-admin-settings.php:479
+#: admin/class-admin-settings.php:480
 msgid "Deadline Auto-Close"
 msgstr ""
 
-#: admin/class-admin-settings.php:486
+#: admin/class-admin-settings.php:487
 msgid "Automatically close jobs when their application deadline passes"
 msgstr ""
 
-#: admin/class-admin-settings.php:488
+#: admin/class-admin-settings.php:489
 msgid "Runs via WP-Cron. Closed jobs remain visible but show \"Applications Closed\"."
 msgstr ""
 
-#: admin/class-admin-settings.php:493
+#: admin/class-admin-settings.php:494
 msgid "Allow Withdraw"
 msgstr ""
 
-#: admin/class-admin-settings.php:500
+#: admin/class-admin-settings.php:501
 msgid "Let candidates withdraw their own applications"
 msgstr ""
 
-#: admin/class-admin-settings.php:502
+#: admin/class-admin-settings.php:503
 msgid "Withdrawn applications are removed from the employer's applicant list."
 msgstr ""
 
-#: admin/class-admin-settings.php:507
+#: admin/class-admin-settings.php:508
 msgid "Default Salary Currency"
 msgstr ""
 
-#: admin/class-admin-settings.php:514
+#: admin/class-admin-settings.php:515
 msgid "Site-wide default for new job postings. Employers can override it per job."
 msgstr ""
 
-#: admin/class-admin-settings.php:523
+#: admin/class-admin-settings.php:524
 msgid "Assign the WordPress pages that contain each WP Career Board block. Use the \"Create Missing Pages\" button above to auto-create unassigned pages."
 msgstr ""
 
-#: admin/class-admin-settings.php:529
+#: admin/class-admin-settings.php:530
 msgid "Jobs Archive Page"
 msgstr ""
 
-#: admin/class-admin-settings.php:530
+#: admin/class-admin-settings.php:531
 msgid "Contains the wcb/job-listings block. Used as the main job board."
 msgstr ""
 
-#: admin/class-admin-settings.php:533
+#: admin/class-admin-settings.php:534
 msgid "Employer Dashboard Page"
 msgstr ""
 
-#: admin/class-admin-settings.php:534
+#: admin/class-admin-settings.php:535
 msgid "Contains the wcb/employer-dashboard block. Employers manage jobs and profiles here."
 msgstr ""
 
-#: admin/class-admin-settings.php:537
+#: admin/class-admin-settings.php:538
 msgid "Candidate Dashboard Page"
 msgstr ""
 
-#: admin/class-admin-settings.php:538
+#: admin/class-admin-settings.php:539
 msgid "Contains the wcb/candidate-dashboard block. Candidates track applications and saved jobs."
 msgstr ""
 
-#: admin/class-admin-settings.php:541
+#: admin/class-admin-settings.php:542
 msgid "Company Directory Page"
 msgstr ""
 
-#: admin/class-admin-settings.php:542
+#: admin/class-admin-settings.php:543
 msgid "Contains the wcb/company-archive block. Lists all employer company profiles."
 msgstr ""
 
-#: admin/class-admin-settings.php:574
+#: admin/class-admin-settings.php:575
 msgid "— Select a page —"
 msgstr ""
 
-#: admin/class-admin-settings.php:581
+#: admin/class-admin-settings.php:582
 msgid "View Page →"
 msgstr ""
 
-#: admin/class-admin-settings.php:596
+#: admin/class-admin-settings.php:597
 msgid "Email Configuration"
 msgstr ""
 
-#: admin/class-admin-settings.php:600
+#: admin/class-admin-settings.php:601
 msgid "From Name"
 msgstr ""
 
-#: admin/class-admin-settings.php:603
+#: admin/class-admin-settings.php:604
 msgid "Sender name shown on all WCB notification emails. Defaults to your site name."
 msgstr ""
 
-#: admin/class-admin-settings.php:608
+#: admin/class-admin-settings.php:609
 msgid "From Email"
 msgstr ""
 
-#: admin/class-admin-settings.php:611
+#: admin/class-admin-settings.php:612
 msgid "Sender address for all WCB emails. Defaults to the site admin email."
 msgstr ""
 
-#: admin/class-admin-settings.php:616
+#: admin/class-admin-settings.php:617
 msgid "Admin Notification Email"
 msgstr ""
 
-#: admin/class-admin-settings.php:619
+#: admin/class-admin-settings.php:620
 msgid "Where admin alerts (new jobs, flagged content) are sent. Defaults to the site admin email."
 msgstr ""
 
-#: admin/class-admin-settings.php:632
-#: admin/class-admin-settings.php:637
+#: admin/class-admin-settings.php:633
+#: admin/class-admin-settings.php:638
 msgid "Send Test Email"
 msgstr ""
 
-#: admin/class-admin-settings.php:633
+#: admin/class-admin-settings.php:634
 msgid "Send a test email to the admin notification address to verify your mail configuration."
 msgstr ""
 
@@ -1283,6 +1292,8 @@ msgstr ""
 #: admin/class-admin.php:122
 #: admin/class-admin.php:224
 #: admin/class-admin.php:376
+#: blocks/featured-jobs/index.js:17
+#: blocks/recent-jobs/index.js:17
 msgid "Settings"
 msgstr ""
 
@@ -1308,6 +1319,7 @@ msgstr ""
 #: blocks/candidate-dashboard/render.php:228
 #: blocks/candidate-dashboard/render.php:247
 #: blocks/employer-dashboard/render.php:228
+#: blocks/recent-jobs/render.php:56
 msgid "View all →"
 msgstr ""
 
@@ -1597,11 +1609,11 @@ msgid "This profile is private."
 msgstr ""
 
 #: api/endpoints/class-companies-endpoint.php:102
-#: api/endpoints/class-employers-endpoint.php:172
-#: api/endpoints/class-employers-endpoint.php:192
-#: api/endpoints/class-employers-endpoint.php:264
-#: api/endpoints/class-employers-endpoint.php:358
-#: api/endpoints/class-employers-endpoint.php:445
+#: api/endpoints/class-employers-endpoint.php:174
+#: api/endpoints/class-employers-endpoint.php:194
+#: api/endpoints/class-employers-endpoint.php:266
+#: api/endpoints/class-employers-endpoint.php:360
+#: api/endpoints/class-employers-endpoint.php:447
 msgid "Company not found."
 msgstr ""
 
@@ -1626,25 +1638,25 @@ msgid_plural "%d open positions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: api/endpoints/class-employers-endpoint.php:119
+#: api/endpoints/class-employers-endpoint.php:121
 msgid "Company name is required."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:243
+#: api/endpoints/class-employers-endpoint.php:245
 msgid "No company profile found for the current user."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:329
+#: api/endpoints/class-employers-endpoint.php:331
 msgid "applicant"
 msgid_plural "applicants"
 msgstr[0] ""
 msgstr[1] ""
 
-#: api/endpoints/class-employers-endpoint.php:330
+#: api/endpoints/class-employers-endpoint.php:332
 msgid "No applicants"
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:454
+#: api/endpoints/class-employers-endpoint.php:456
 msgid "No file uploaded."
 msgstr ""
 
@@ -1779,8 +1791,8 @@ msgstr ""
 
 #: blocks/candidate-dashboard/render.php:347
 #: blocks/company-profile/render.php:305
-#: blocks/featured-jobs/render.php:64
-#: blocks/job-listings/render.php:381
+#: blocks/featured-jobs/render.php:76
+#: blocks/job-listings/render.php:385
 #: modules/jobs/class-jobs-module.php:140
 #: modules/notifications/templates/emails/application-guest-confirmation.php:23
 #: modules/notifications/templates/emails/job-approved.php:23
@@ -1828,17 +1840,17 @@ msgid "All Sizes"
 msgstr ""
 
 #: blocks/company-archive/render.php:204
-#: blocks/job-listings/render.php:305
+#: blocks/job-listings/render.php:311
 msgid "View layout"
 msgstr ""
 
 #: blocks/company-archive/render.php:208
-#: blocks/job-listings/render.php:316
+#: blocks/job-listings/render.php:322
 msgid "List view"
 msgstr ""
 
 #: blocks/company-archive/render.php:217
-#: blocks/job-listings/render.php:309
+#: blocks/job-listings/render.php:315
 msgid "Grid view"
 msgstr ""
 
@@ -1856,7 +1868,7 @@ msgstr ""
 
 #: blocks/company-archive/render.php:298
 #: blocks/company-profile/render.php:318
-#: blocks/job-listings/render.php:398
+#: blocks/job-listings/render.php:402
 msgid "Loading&hellip;"
 msgstr ""
 
@@ -1898,7 +1910,7 @@ msgid "No open positions at the moment. Check back soon."
 msgstr ""
 
 #: blocks/company-profile/render.php:317
-#: blocks/job-listings/render.php:397
+#: blocks/job-listings/render.php:401
 msgid "Load more jobs"
 msgstr ""
 
@@ -1969,7 +1981,8 @@ msgid "No active jobs."
 msgstr ""
 
 #: blocks/employer-dashboard/render.php:271
-#: blocks/job-listings/render.php:250
+#: blocks/job-listings/render.php:256
+#: blocks/job-search-hero/render.php:22
 #: blocks/job-search/render.php:49
 msgid "Search jobs…"
 msgstr ""
@@ -2059,13 +2072,13 @@ msgid "Submitted"
 msgstr ""
 
 #: blocks/employer-dashboard/render.php:423
-#: blocks/job-single/render.php:657
+#: blocks/job-single/render.php:658
 msgid "Cover Letter"
 msgstr ""
 
 #: blocks/employer-dashboard/render.php:427
-#: blocks/job-single/render.php:614
-#: blocks/job-single/render.php:643
+#: blocks/job-single/render.php:615
+#: blocks/job-single/render.php:644
 #: modules/candidates/class-candidates-module.php:46
 msgid "Resume"
 msgstr ""
@@ -2127,8 +2140,12 @@ msgstr ""
 msgid "Live Preview"
 msgstr ""
 
-#: blocks/featured-jobs/render.php:37
+#: blocks/featured-jobs/render.php:48
 msgid "Featured Jobs"
+msgstr ""
+
+#: blocks/featured-jobs/render.php:84
+msgid "View all jobs →"
 msgstr ""
 
 #: blocks/job-filters/render.php:100
@@ -2137,6 +2154,7 @@ msgid "Category"
 msgstr ""
 
 #: blocks/job-filters/render.php:104
+#: blocks/job-search-hero/render.php:89
 msgid "All Categories"
 msgstr ""
 
@@ -2147,10 +2165,12 @@ msgid "Job Type"
 msgstr ""
 
 #: blocks/job-filters/render.php:119
+#: blocks/job-search-hero/render.php:121
 msgid "All Types"
 msgstr ""
 
 #: blocks/job-filters/render.php:134
+#: blocks/job-search-hero/render.php:105
 msgid "All Locations"
 msgstr ""
 
@@ -2362,8 +2382,8 @@ msgid "Preview & Submit"
 msgstr ""
 
 #: blocks/job-form/render.php:642
-#: blocks/job-listings/render.php:276
-#: blocks/job-listings/render.php:363
+#: blocks/job-listings/render.php:282
+#: blocks/job-listings/render.php:367
 #: blocks/job-single/render.php:240
 #: blocks/job-single/render.php:416
 msgid "Remote"
@@ -2391,49 +2411,59 @@ msgid "Posting…"
 msgstr ""
 
 #: blocks/job-form/render.php:718
-#: blocks/job-single/render.php:684
+#: blocks/job-single/render.php:685
 msgid "Leave this field blank"
 msgstr ""
 
-#: blocks/job-listings/render.php:256
+#: blocks/job-listings/render.php:262
 msgid "Newest first"
 msgstr ""
 
-#: blocks/job-listings/render.php:257
+#: blocks/job-listings/render.php:263
 msgid "Oldest first"
 msgstr ""
 
-#: blocks/job-listings/render.php:261
+#: blocks/job-listings/render.php:267
 msgid "Filter by job type"
 msgstr ""
 
-#: blocks/job-listings/render.php:295
+#: blocks/job-listings/render.php:301
 msgid "Remove filter"
 msgstr ""
 
-#: blocks/job-listings/render.php:300
+#: blocks/job-listings/render.php:306
 msgid "Clear all"
 msgstr ""
 
-#: blocks/job-listings/render.php:355
+#: blocks/job-listings/render.php:359
 msgid "Bookmark job"
 msgstr ""
 
-#: blocks/job-listings/render.php:362
+#: blocks/job-listings/render.php:366
 #: blocks/job-single/render.php:236
 msgid "Featured"
 msgstr ""
 
-#: blocks/job-listings/render.php:387
+#: blocks/job-listings/render.php:391
 msgid "No jobs match your search. Try adjusting your filters."
 msgstr ""
 
+#: blocks/job-search-hero/render.php:24
+#: blocks/job-search/render.php:55
+msgid "Search"
+msgstr ""
+
+#: blocks/job-search-hero/render.php:71
 #: blocks/job-search/render.php:42
 msgid "Search jobs"
 msgstr ""
 
-#: blocks/job-search/render.php:55
-msgid "Search"
+#: blocks/job-search-hero/render.php:86
+msgid "Job category"
+msgstr ""
+
+#: blocks/job-search-hero/render.php:118
+msgid "Job type"
 msgstr ""
 
 #: blocks/job-single/render.php:56
@@ -2556,52 +2586,62 @@ msgid "View Company Profile"
 msgstr ""
 
 #: blocks/job-single/render.php:563
-#: blocks/job-single/render.php:574
+#: blocks/job-single/render.php:575
 msgid "Apply for this job"
 msgstr ""
 
-#: blocks/job-single/render.php:570
+#: blocks/job-single/render.php:571
 msgid "Close panel"
 msgstr ""
 
-#: blocks/job-single/render.php:585
+#: blocks/job-single/render.php:586
 msgid "Your Name"
 msgstr ""
 
-#: blocks/job-single/render.php:597
+#: blocks/job-single/render.php:598
 msgid "Your Email"
 msgstr ""
 
-#: blocks/job-single/render.php:622
+#: blocks/job-single/render.php:623
 msgid "— Select a resume —"
 msgstr ""
 
-#: blocks/job-single/render.php:631
+#: blocks/job-single/render.php:632
 msgid "No resume found."
 msgstr ""
 
-#: blocks/job-single/render.php:634
+#: blocks/job-single/render.php:635
 msgid "Create your resume →"
 msgstr ""
 
-#: blocks/job-single/render.php:644
+#: blocks/job-single/render.php:645
 msgid "PDF, DOC or DOCX — max 5 MB"
 msgstr ""
 
-#: blocks/job-single/render.php:658
+#: blocks/job-single/render.php:659
 msgid "(optional)"
 msgstr ""
 
-#: blocks/job-single/render.php:664
+#: blocks/job-single/render.php:665
 msgid "Tell the employer why you are a great fit for this role…"
 msgstr ""
 
-#: blocks/job-single/render.php:675
+#: blocks/job-single/render.php:676
 msgid "Submit Application"
 msgstr ""
 
-#: blocks/job-single/render.php:676
+#: blocks/job-single/render.php:677
 msgid "Submitting…"
+msgstr ""
+
+#: blocks/recent-jobs/render.php:52
+msgid "Recent Jobs"
+msgstr ""
+
+#. translators: %s: human-readable time difference e.g. "3 days"
+#: blocks/recent-jobs/render.php:98
+#, php-format
+msgid "%s ago"
 msgstr ""
 
 #: core/class-abilities.php:59
@@ -2648,35 +2688,35 @@ msgstr ""
 msgid "Plugin Activation Error"
 msgstr ""
 
-#: core/class-plugin.php:192
+#: core/class-plugin.php:195
 msgid "Full Job Board"
 msgstr ""
 
-#: core/class-plugin.php:193
+#: core/class-plugin.php:196
 msgid "Search bar, filters, and job listings grid — the complete job board page."
 msgstr ""
 
-#: core/class-plugin.php:199
+#: core/class-plugin.php:202
 msgid "Post a Job Form"
 msgstr ""
 
-#: core/class-plugin.php:200
+#: core/class-plugin.php:203
 msgid "Multi-step job posting form for employers."
 msgstr ""
 
-#: core/class-plugin.php:207
+#: core/class-plugin.php:210
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr ""
 
-#: core/class-plugin.php:214
+#: core/class-plugin.php:217
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr ""
 
-#: core/class-plugin.php:220
+#: core/class-plugin.php:223
 msgid "Company Directory"
 msgstr ""
 
-#: core/class-plugin.php:221
+#: core/class-plugin.php:224
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr ""
 
@@ -3182,6 +3222,83 @@ msgstr ""
 msgid "Please review our posting guidelines and resubmit."
 msgstr ""
 
+#: blocks/featured-jobs/index.js:19
+#: blocks/recent-jobs/index.js:19
+msgid "Number of jobs"
+msgstr ""
+
+#: blocks/featured-jobs/index.js:25
+#: blocks/recent-jobs/index.js:25
+msgid "Section title"
+msgstr ""
+
+#: blocks/featured-jobs/index.js:30
+#: blocks/recent-jobs/index.js:30
+msgid "Show \"View all\" link"
+msgstr ""
+
+#: blocks/featured-jobs/index.js:35
+#: blocks/recent-jobs/index.js:35
+msgid "\"View all\" URL (leave blank to auto-detect)"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:17
+#: blocks/job-search-hero/index.js:19
+msgid "Layout"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:21
+msgid "Horizontal"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:21
+msgid "Vertical"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:25
+msgid "Labels"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:26
+msgid "Search placeholder"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:27
+msgid "Button label"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:29
+msgid "Filters"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:30
+msgid "Show category filter"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:31
+msgid "Show location filter"
+msgstr ""
+
+#: blocks/job-search-hero/index.js:32
+msgid "Show job type filter"
+msgstr ""
+
+#: blocks/job-stats/index.js:15
+msgid "Visible stats"
+msgstr ""
+
+#: blocks/job-stats/index.js:16
+msgid "Show Jobs count"
+msgstr ""
+
+#: blocks/job-stats/index.js:17
+msgid "Show Companies count"
+msgstr ""
+
+#: blocks/job-stats/index.js:18
+msgid "Show Candidates count"
+msgstr ""
+
 #: blocks/candidate-dashboard/block.json
 msgctxt "block title"
 msgid "Candidate Dashboard"
@@ -3262,6 +3379,16 @@ msgctxt "block description"
 msgid "Reactive job listings grid with infinite scroll and bookmark toggle."
 msgstr ""
 
+#: blocks/job-search-hero/block.json
+msgctxt "block title"
+msgid "Job Search Hero"
+msgstr ""
+
+#: blocks/job-search-hero/block.json
+msgctxt "block description"
+msgid "Full-width job search form with optional filters. Horizontal or vertical layout."
+msgstr ""
+
 #: blocks/job-search/block.json
 msgctxt "block title"
 msgid "Job Search"
@@ -3280,6 +3407,26 @@ msgstr ""
 #: blocks/job-single/block.json
 msgctxt "block description"
 msgid "Full job detail view with a slide-in application panel."
+msgstr ""
+
+#: blocks/job-stats/block.json
+msgctxt "block title"
+msgid "Job Stats"
+msgstr ""
+
+#: blocks/job-stats/block.json
+msgctxt "block description"
+msgid "Horizontal stat strip showing total jobs, companies, and candidates."
+msgstr ""
+
+#: blocks/recent-jobs/block.json
+msgctxt "block title"
+msgid "Recent Jobs"
+msgstr ""
+
+#: blocks/recent-jobs/block.json
+msgctxt "block description"
+msgid "Static sidebar widget listing the most recently published jobs."
 msgstr ""
 
 #: theme.json
