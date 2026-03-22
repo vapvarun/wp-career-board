@@ -191,30 +191,38 @@
 }
 
 /* ── Bookmark button ─────────────────────────────────────────────────────── */
-.wcb-bookmark-btn {
+
+/*
+ * Scoped to block root + !important on reset properties: Reign's nested button
+ * rules (e.g. `.entry-content .wc-block-components-button`) have specificity
+ * higher than (0,2,0), so !important is required to win without coupling to
+ * theme internals.
+ */
+.wp-block-wp-career-board-job-listings .wcb-bookmark-btn {
 	flex-shrink: 0;
 	width: 32px;
 	height: 32px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: none;
-	border: none;
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
 	color: #cbd5e1;
 	cursor: pointer;
 	border-radius: 6px;
 	transition: color 0.12s, background 0.12s;
-	padding: 0;
+	padding: 0 !important;
 	position: relative;
 	z-index: 2;
 }
 
-.wcb-bookmark-btn:hover {
+.wp-block-wp-career-board-job-listings .wcb-bookmark-btn:hover {
 	color: #f59e0b;
-	background: #fef3c7;
+	background: #fef3c7 !important;
 }
 
-.wcb-bookmark-btn.wcb-bookmarked {
+.wp-block-wp-career-board-job-listings .wcb-bookmark-btn.wcb-bookmarked {
 	color: #f59e0b;
 }
 
