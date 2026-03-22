@@ -22,6 +22,7 @@ $wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
 
 $wcb_author_id_attr = (int) ( $attributes['authorId'] ?? 0 );
+$wcb_saved_by_attr  = (int) ( $attributes['savedBy'] ?? 0 );
 
 $wcb_query_args = array(
 	'post_type'   => 'wcb_job',
@@ -32,6 +33,11 @@ $wcb_query_args = array(
 );
 if ( $wcb_author_id_attr > 0 ) {
 	$wcb_query_args['author'] = $wcb_author_id_attr;
+} elseif ( $wcb_saved_by_attr > 0 ) {
+	$wcb_bookmark_ids = array_map( 'intval', (array) get_user_meta( $wcb_saved_by_attr, '_wcb_bookmark', false ) );
+	// Return no results when the user has no bookmarks.
+	$wcb_query_args['post__in']    = ! empty( $wcb_bookmark_ids ) ? $wcb_bookmark_ids : array( 0 );
+	$wcb_query_args['numberposts'] = -1;
 }
 $wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
 
@@ -189,6 +195,8 @@ if ( $wcb_author_id_attr > 0 ) {
 		)
 	);
 	$wcb_total_count = (int) $wcb_count_query->found_posts;
+} elseif ( $wcb_saved_by_attr > 0 ) {
+	$wcb_total_count = count( $wcb_jobs_raw );
 } else {
 	$wcb_total_count = (int) wp_count_posts( 'wcb_job' )->publish;
 }
@@ -199,7 +207,7 @@ $wcb_state = array(
 	'perPage'       => $wcb_per_page,
 	'layout'        => $wcb_layout,
 	'loading'       => false,
-	'hasMore'       => count( $wcb_jobs_raw ) >= $wcb_per_page,
+	'hasMore'       => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) >= $wcb_per_page,
 	'apiBase'       => (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ),
 	'nonce'         => wp_create_nonce( 'wp_rest' ),
 	'totalCount'    => $wcb_total_count,
@@ -207,6 +215,7 @@ $wcb_state = array(
 	'activeFilters' => (object) array(),
 	'sortBy'        => 'date_desc',
 	'authorId'      => $wcb_author_id_attr,
+	'savedBy'       => $wcb_saved_by_attr,
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,

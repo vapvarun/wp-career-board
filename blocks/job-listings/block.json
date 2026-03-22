@@ -24,6 +24,10 @@
     "authorId": {
       "type": "integer",
       "default": 0
+    },
+    "savedBy": {
+      "type": "integer",
+      "default": 0
     }
   },
   "viewScriptModule": "file:./view.js",
