@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated name matches WP convention for multi-word classes.
 /**
  * Companies REST endpoint — public directory listing with industry and size filters.
  *
@@ -286,7 +286,7 @@ final class CompaniesEndpoint extends RestController {
 			'1001-5000' => __( '1,001–5,000 employees', 'wp-career-board' ),
 			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
 		);
-		return $labels[ $size ] ? $labels[ $size ] : $size;
+		return $labels[ $size ] ?? $size;
 	}
 
 	/**

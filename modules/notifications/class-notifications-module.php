@@ -40,19 +40,24 @@ class NotificationsModule {
 	 * @return AbstractEmail[]
 	 */
 	public function register_emails( array $emails ): array {
-		return array_merge(
-			$emails,
-			array(
-				new Emails\EmailJobPending(),
-				new Emails\EmailJobApproved(),
-				new Emails\EmailJobRejected(),
-				new Emails\EmailJobExpired(),
-				new Emails\EmailAppReceived(),
-				new Emails\EmailAppConfirmation(),
-				new Emails\EmailAppGuest(),
-				new Emails\EmailAppStatus(),
-			)
+		$classes = array(
+			Emails\EmailJobPending::class,
+			Emails\EmailJobApproved::class,
+			Emails\EmailJobRejected::class,
+			Emails\EmailJobExpired::class,
+			Emails\EmailAppReceived::class,
+			Emails\EmailAppConfirmation::class,
+			Emails\EmailAppGuest::class,
+			Emails\EmailAppStatus::class,
 		);
+
+		foreach ( $classes as $class ) {
+			if ( class_exists( $class ) ) {
+				$emails[] = new $class();
+			}
+		}
+
+		return $emails;
 	}
 
 	/**
