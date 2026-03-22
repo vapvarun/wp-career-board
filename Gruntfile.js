@@ -9,7 +9,8 @@
  *   grunt textdomain   — verify every PHP string uses correct text domain
  *   grunt i18n         — pot + textdomain
  *   grunt dist         — clean, copy release files, create zip
- *   grunt release      — build + i18n + dist (full pipeline)
+ *   grunt rtl          — generate RTL variants of admin.css and frontend.css
+ *   grunt release      — build + i18n + rtl + dist (full pipeline)
  *   grunt version      — bump version: grunt version --ver=1.0.0
  */
 module.exports = function ( grunt ) {
@@ -97,6 +98,20 @@ module.exports = function ( grunt ) {
 			},
 		},
 
+		// ── RTL CSS ──────────────────────────────────────────────────────────
+		rtlcss: {
+			options: {
+				saveUnmodified: false,
+			},
+			dist: {
+				expand: true,
+				cwd:    'assets/css/',
+				src:    [ 'admin.css', 'frontend.css' ],
+				dest:   'assets/css/',
+				ext:    '-rtl.css',
+			},
+		},
+
 		// ── Shell commands ───────────────────────────────────────────────────
 		shell: {
 			build: {
@@ -128,6 +143,7 @@ module.exports = function ( grunt ) {
 	} );
 
 	// ── Load tasks ──────────────────────────────────────────────────────────
+	grunt.loadNpmTasks( 'grunt-rtlcss' );
 	grunt.loadNpmTasks( 'grunt-contrib-clean' );
 	grunt.loadNpmTasks( 'grunt-contrib-compress' );
 	grunt.loadNpmTasks( 'grunt-contrib-copy' );
@@ -140,7 +156,8 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'pot',        [ 'shell:pot' ] );
 	grunt.registerTask( 'textdomain', [ 'checktextdomain' ] );
 	grunt.registerTask( 'i18n',       [ 'pot', 'checktextdomain' ] );
+	grunt.registerTask( 'rtl',        [ 'rtlcss:dist' ] );
 	grunt.registerTask( 'dist',       [ 'clean:dist', 'copy:dist', 'compress:dist' ] );
 	grunt.registerTask( 'version',    [ 'shell:version' ] );
-	grunt.registerTask( 'release',    [ 'build', 'i18n', 'dist' ] );
+	grunt.registerTask( 'release',    [ 'build', 'i18n', 'rtl', 'dist' ] );
 };

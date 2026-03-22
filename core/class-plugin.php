@@ -296,6 +296,7 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
+		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
 	}
 
 	/**

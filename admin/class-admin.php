@@ -435,6 +435,7 @@ class Admin {
 		}
 
 		wp_enqueue_style( 'wcb-admin', WCB_URL . 'assets/css/admin.css', array(), WCB_VERSION );
+		wp_style_add_data( 'wcb-admin', 'rtl', 'replace' );
 		wp_enqueue_script( 'wcb-admin', WCB_URL . 'assets/js/admin.js', array( 'wp-api-fetch' ), WCB_VERSION, true );
 
 		wp_localize_script(

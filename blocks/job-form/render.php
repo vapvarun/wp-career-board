@@ -126,13 +126,13 @@ $wcb_default_currency = in_array( $wcb_preferred, array( 'USD', 'EUR', 'GBP', 'C
 
 // ── Currency options ───────────────────────────────────────────────────────
 $wcb_currencies = array(
-	'USD' => 'USD — US Dollar',
-	'EUR' => 'EUR — Euro',
-	'GBP' => 'GBP — British Pound',
-	'CAD' => 'CAD — Canadian Dollar',
-	'AUD' => 'AUD — Australian Dollar',
-	'INR' => 'INR — Indian Rupee',
-	'SGD' => 'SGD — Singapore Dollar',
+	'USD' => __( 'USD — US Dollar', 'wp-career-board' ),
+	'EUR' => __( 'EUR — Euro', 'wp-career-board' ),
+	'GBP' => __( 'GBP — British Pound', 'wp-career-board' ),
+	'CAD' => __( 'CAD — Canadian Dollar', 'wp-career-board' ),
+	'AUD' => __( 'AUD — Australian Dollar', 'wp-career-board' ),
+	'INR' => __( 'INR — Indian Rupee', 'wp-career-board' ),
+	'SGD' => __( 'SGD — Singapore Dollar', 'wp-career-board' ),
 );
 
 // Extend currency list with Pro currencies when available.
