@@ -43,8 +43,12 @@ $wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_qu
 
 if ( $wcb_jobs_raw ) {
 	$wcb_job_ids = wp_list_pluck( $wcb_jobs_raw, 'ID' );
-	update_post_meta_cache( $wcb_job_ids );
-	update_object_term_cache( $wcb_job_ids, array( 'wcb_location', 'wcb_job_type', 'wcb_experience', 'wcb_category' ) );
+	if ( function_exists( 'update_postmeta_cache' ) ) {
+		update_postmeta_cache( $wcb_job_ids );
+	}
+	if ( function_exists( 'update_object_term_cache' ) ) {
+		update_object_term_cache( $wcb_job_ids, 'wcb_job' );
+	}
 }
 
 $wcb_current_user_id = get_current_user_id();
