@@ -275,10 +275,115 @@
 		} );
 	}
 
+	// -------------------------------------------------------------------------
+	// Import page — batch migration with live progress bar
+	// -------------------------------------------------------------------------
+
+	function initImportPage() {
+		var page = document.querySelector( '.wcb-admin-import' );
+		if ( ! page ) {
+			return;
+		}
+
+		page.addEventListener( 'click', function ( e ) {
+			var btn = e.target.closest( '.wcb-import-start' );
+			if ( ! btn || btn.disabled ) {
+				return;
+			}
+
+			var type         = btn.dataset.type;
+			var card         = btn.closest( '.wcb-import-card' );
+			if ( ! card ) { return; }
+
+			var total        = parseInt( card.dataset.total, 10 ) || 0;
+			var progressWrap = card.querySelector( '.wcb-import-progress-wrap' );
+			var fill         = card.querySelector( '.wcb-import-progress-bar-fill' );
+			var label        = card.querySelector( '.wcb-import-progress-label' );
+			var log          = card.querySelector( '.wcb-import-log' );
+
+			btn.disabled    = true;
+			btn.textContent = 'Importing\u2026';
+
+			if ( progressWrap ) { progressWrap.style.display = 'block'; }
+			if ( log )          { log.style.display = 'block'; while ( log.firstChild ) { log.removeChild( log.firstChild ); } }
+
+			var imported = 0;
+			var skipped  = 0;
+			var errors   = 0;
+			var offset   = 0;
+			var limit    = 20;
+
+			function appendLog( text, extraClass ) {
+				if ( ! log ) { return; }
+				var line = document.createElement( 'p' );
+				line.className = 'wcb-import-log-line' + ( extraClass ? ' ' + extraClass : '' );
+				line.textContent = text;
+				log.appendChild( line );
+				log.scrollTop = log.scrollHeight;
+			}
+
+			function updateBar( pct ) {
+				if ( fill )  { fill.style.width = pct + '%'; }
+				if ( label ) { label.textContent = pct + '%'; }
+			}
+
+			function runBatch() {
+				wp.apiFetch( {
+					path:   '/wcb/v1/import/run',
+					method: 'POST',
+					data:   { type: type, offset: offset, limit: limit },
+				} ).then( function ( res ) {
+					imported += res.imported || 0;
+					skipped  += res.skipped  || 0;
+
+					if ( res.errors && res.errors.length ) {
+						errors += res.errors.length;
+						res.errors.forEach( function ( err ) {
+							appendLog( err, 'wcb-import-log-line--error' );
+						} );
+					}
+
+					offset = res.next || ( offset + limit );
+
+					var processed = imported + skipped + errors;
+					var pct = total > 0 ? Math.min( 100, Math.round( ( processed / total ) * 100 ) ) : 100;
+					updateBar( pct );
+					if ( label ) {
+						label.textContent = pct + '% \u2014 ' + imported + ' imported, ' + skipped + ' skipped';
+					}
+
+					if ( res.done ) {
+						appendLog(
+							'Done. Imported: ' + imported + '  Skipped: ' + skipped + '  Errors: ' + errors,
+							'wcb-import-log-done'
+						);
+						updateBar( 100 );
+						if ( label ) { label.textContent = '100% \u2014 complete'; }
+
+						var remaining = card.querySelector( '.wcb-import-stat-remaining' );
+						var migrated  = card.querySelector( '.wcb-import-stat-migrated' );
+						if ( remaining ) { remaining.textContent = String( Math.max( 0, parseInt( remaining.textContent, 10 ) - imported ) ); }
+						if ( migrated )  { migrated.textContent  = String( parseInt( migrated.textContent, 10 ) + imported ); }
+					} else {
+						runBatch();
+					}
+				} ).catch( function ( err ) {
+					var msg = ( err && err.message ) ? err.message : 'Request failed.';
+					appendLog( 'Error: ' + msg, 'wcb-import-log-line--error' );
+					btn.disabled    = false;
+					btn.textContent = 'Import';
+				} );
+			}
+
+			runBatch();
+		} );
+	}
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initStatusSelects();
 		initJobModeration();
 		initTrustSelects();
 		initPanelToggles();
+		initImportPage();
 	} );
 }() );

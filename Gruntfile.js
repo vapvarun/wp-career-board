@@ -60,13 +60,19 @@ module.exports = function ( grunt ) {
 			dist: {
 				expand: true,
 				src: [
+					'admin/**',
 					'api/**',
 					'assets/**',
 					'blocks/**',
 					'build/**',
+					'cli/**',
 					'core/**',
+					'integrations/**',
 					'languages/**',
 					'modules/**',
+					'vendor/edd-sl-sdk/**',
+					'readme.txt',
+					'theme.json',
 					'uninstall.php',
 					slug + '.php',
 				],
@@ -78,7 +84,7 @@ module.exports = function ( grunt ) {
 		compress: {
 			dist: {
 				options: {
-					archive: 'dist/' + slug + '.zip',
+					archive: 'dist/' + slug + '-' + ver + '.zip',
 					mode:    'zip',
 				},
 				files: [

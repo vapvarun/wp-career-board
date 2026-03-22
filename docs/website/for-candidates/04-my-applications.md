@@ -24,9 +24,10 @@ Each application card shows:
 | Status | What It Means |
 |---|---|
 | **Submitted** | Your application was received; the employer hasn't reviewed it yet |
-| **Reviewed** | The employer has looked at your application |
+| **Reviewing** | The employer is actively looking at your application |
 | **Shortlisted** | You're being considered — the employer is interested |
-| **Closed** | The employer is no longer considering your application |
+| **Rejected** | The employer is no longer considering your application |
+| **Hired** | Congratulations — you got the job |
 | **Withdrawn** | You withdrew your application |
 
 > **Status updates:** You will receive an email notification whenever your application status changes.

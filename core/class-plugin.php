@@ -136,6 +136,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\EmployersEndpoint::class,
 			\WCB\Api\Endpoints\SearchEndpoint::class,
 			\WCB\Api\Endpoints\CompaniesEndpoint::class,
+			\WCB\Api\Endpoints\ImportEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -311,6 +312,7 @@ final class Plugin {
 		\WP_CLI::add_command( 'wcb', \WCB\Cli\Cli::class );
 		\WP_CLI::add_command( 'wcb job', \WCB\Cli\JobCommands::class );
 		\WP_CLI::add_command( 'wcb application', \WCB\Cli\ApplicationCommands::class );
+		\WP_CLI::add_command( 'wcb migrate', \WCB\Cli\MigrateCommands::class );
 	}
 
 	/**

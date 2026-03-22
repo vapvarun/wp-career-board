@@ -878,3 +878,185 @@
 .wcb-wizard-step.active {
 	display: block;
 }
+
+/* ── Import page ─────────────────────────────────────────────────────────── */
+
+.wcb-admin-import {
+	max-width: 860px;
+}
+
+.wcb-import-intro {
+	color: #646970;
+	margin: 0 0 20px;
+}
+
+.wcb-import-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin-bottom: 20px;
+}
+
+.wcb-import-card-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 8px;
+}
+
+.wcb-import-card-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: #1d2327;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wcb-import-card-title .dashicons {
+	color: #2271b1;
+}
+
+.wcb-import-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.wcb-import-badge--active {
+	background: #d1e7dd;
+	color: #0a3622;
+}
+
+.wcb-import-badge--inactive {
+	background: #f8d7da;
+	color: #58151c;
+}
+
+.wcb-import-desc {
+	color: #50575e;
+	margin: 0 0 10px;
+	font-size: 13px;
+}
+
+.wcb-import-fields {
+	font-size: 12px;
+	color: #646970;
+	background: #f6f7f7;
+	border-radius: 3px;
+	padding: 8px 12px;
+	margin-bottom: 16px;
+	line-height: 1.6;
+}
+
+.wcb-import-stats {
+	display: flex;
+	gap: 24px;
+	margin-bottom: 16px;
+}
+
+.wcb-import-stat {
+	font-size: 13px;
+	color: #50575e;
+}
+
+.wcb-import-stat-num {
+	font-size: 20px;
+	font-weight: 700;
+	color: #1d2327;
+	display: block;
+}
+
+.wcb-import-stat-migrated {
+	color: #00a32a;
+}
+
+.wcb-import-stat-remaining {
+	color: #2271b1;
+}
+
+.wcb-import-actions {
+	margin-bottom: 12px;
+}
+
+.wcb-import-empty {
+	color: #646970;
+	font-style: italic;
+}
+
+.wcb-import-notice {
+	background: #fff3cd;
+	border-left: 4px solid #f0c33c;
+	padding: 8px 12px;
+	margin: 0;
+	font-size: 13px;
+}
+
+/* Progress bar */
+
+.wcb-import-progress-wrap {
+	margin: 12px 0 0;
+}
+
+.wcb-import-progress-bar-track {
+	height: 10px;
+	background: #dde0e4;
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+.wcb-import-progress-bar-fill {
+	height: 100%;
+	background: #2271b1;
+	border-radius: 5px;
+	transition: width 0.3s ease;
+}
+
+.wcb-import-progress-label {
+	font-size: 12px;
+	color: #646970;
+	margin: 6px 0 0;
+}
+
+/* Log */
+
+.wcb-import-log {
+	margin-top: 12px;
+	max-height: 160px;
+	overflow-y: auto;
+	background: #f6f7f7;
+	border: 1px solid #dde0e4;
+	border-radius: 3px;
+	padding: 8px 12px;
+	font-size: 12px;
+	font-family: monospace;
+}
+
+.wcb-import-log-line {
+	margin: 0 0 2px;
+	line-height: 1.4;
+}
+
+.wcb-import-log-line--error {
+	color: #b32d2e;
+}
+
+.wcb-import-log-done {
+	font-weight: 600;
+	color: #00a32a;
+}
+
+@media (max-width: 782px) {
+	.wcb-import-stats {
+		flex-direction: column;
+		gap: 8px;
+	}
+	.wcb-import-card-head {
+		flex-wrap: wrap;
+	}
+}

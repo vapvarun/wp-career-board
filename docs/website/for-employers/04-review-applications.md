@@ -19,23 +19,28 @@ Each application card shows:
 - **Email address**
 - **Which job they applied to**
 - **Application date**
-- **Current status** — Submitted, Reviewed, or Closed
+- **Current status** — see statuses below
 
 ## Filtering by Job
 
 If you have multiple jobs, use the **Filter by job** dropdown at the top to see only the applications for a specific listing.
 
+## Application Statuses
+
+| Status | When to use |
+|---|---|
+| **Submitted** | Application received — not yet reviewed |
+| **Reviewing** | You are actively reviewing this candidate |
+| **Shortlisted** | Candidate is worth moving forward |
+| **Rejected** | No longer considering this applicant |
+| **Hired** | Offer accepted — position filled |
+| **Withdrawn** | Candidate withdrew their own application |
+
 ## Updating Application Status
 
-Click the **status badge** on any application to change it:
+Click the **status dropdown** on any application card to change it. Status changes are saved immediately — no page reload required.
 
-- **Submitted** → application just came in, not yet reviewed
-- **Reviewed** → you have looked at this application
-- **Closed** → no longer considering this applicant
-
-Status changes are saved immediately. No page reload required.
-
-> **With WP Career Board Pro:** the simple three-state status is replaced by a full stage pipeline (Screening → Interview → Offer → Hired/Rejected) with a Kanban board view.
+> **With WP Career Board Pro:** the status system is replaced by a fully customizable stage pipeline (Screening → Interview → Offer → Hired/Rejected) with a Kanban board view. See [Application Pipeline](./06-application-pipeline.md).
 
 ## Contacting Applicants
 

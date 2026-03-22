@@ -2,7 +2,7 @@
 
 > **Pro feature** — Requires WP Career Board Pro.
 
-The Application Pipeline replaces the free version's three-status system (Submitted / Reviewed / Closed) with a fully customizable ATS-style stage workflow and a visual Kanban board.
+The Application Pipeline replaces the free version's status system (Submitted / Reviewing / Shortlisted / Rejected / Hired) with a fully customizable ATS-style stage workflow and a visual Kanban board.
 
 ![Application Pipeline — Kanban Board](../images/pipeline-kanban.png)
 
@@ -10,9 +10,9 @@ The Application Pipeline replaces the free version's three-status system (Submit
 
 | | Free | Pro |
 |---|---|---|
-| Application statuses | Submitted, Reviewed, Closed | Any custom stages you define |
+| Application statuses | Submitted, Reviewing, Shortlisted, Rejected, Hired | Any custom stages you define |
 | Pipeline view | List only | Kanban board + list |
-| Terminal outcomes | Closed | Hired / Rejected (configurable) |
+| Terminal outcomes | Rejected / Hired | Hired / Rejected (configurable, per-board) |
 | Stage history | No | Yes |
 
 ## Default Stages
