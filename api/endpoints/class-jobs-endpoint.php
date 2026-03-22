@@ -540,6 +540,8 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 		wp_trash_post( $post->ID );
+		// Allow add-ons to clean up when a job is trashed.
+		do_action( 'wcb_job_deleted', $post->ID );
 		return rest_ensure_response(
 			array(
 				'deleted' => true,

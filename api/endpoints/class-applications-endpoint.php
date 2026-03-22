@@ -418,6 +418,8 @@ final class ApplicationsEndpoint extends RestController {
 		$job_id       = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 		wp_delete_post( $app_id, true );
+		// Allow add-ons to clean up when an application is permanently deleted.
+		do_action( 'wcb_application_deleted', $app_id );
 
 		do_action( 'wcb_application_withdrawn', $app_id, $job_id, $candidate_id );
 
