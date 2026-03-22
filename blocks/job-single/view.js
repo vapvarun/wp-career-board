@@ -13,6 +13,9 @@
  */
 import { store } from '@wordpress/interactivity';
 
+// Holds the element that triggered the apply panel so focus can be restored on close.
+let panelTriggerEl = null;
+
 const { state } = store( 'wcb-job-single', {
 	state: {
 		get bookmarkLabel() {
@@ -24,14 +27,64 @@ const { state } = store( 'wcb-job-single', {
 	},
 
 	actions: {
-		openPanel() {
+		openPanel( event ) {
+			panelTriggerEl  = event?.currentTarget ?? null;
 			state.panelOpen = true;
+			// Move focus into the panel after the DOM updates.
+			queueMicrotask( () => {
+				const panel    = document.querySelector( '.wcb-apply-panel' );
+				const focusable = panel?.querySelector( 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])' );
+				if ( focusable ) {
+					focusable.focus();
+				}
+			} );
 		},
 
 		closePanel() {
 			state.panelOpen  = false;
 			state.error      = '';
 			state.resumeFile = null;
+			if ( panelTriggerEl ) {
+				panelTriggerEl.focus();
+				panelTriggerEl = null;
+			}
+		},
+
+		handlePanelKeydown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.panelOpen  = false;
+				state.error      = '';
+				state.resumeFile = null;
+				if ( panelTriggerEl ) {
+					panelTriggerEl.focus();
+					panelTriggerEl = null;
+				}
+				return;
+			}
+
+			if ( event.key !== 'Tab' ) {
+				return;
+			}
+
+			const panel      = event.currentTarget;
+			const focusables = Array.from(
+				panel.querySelectorAll( 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])' )
+			).filter( ( el ) => ! el.disabled );
+			const first = focusables[ 0 ];
+			const last  = focusables[ focusables.length - 1 ];
+
+			if ( ! first ) {
+				return;
+			}
+
+			if ( event.shiftKey && document.activeElement === first ) {
+				event.preventDefault();
+				last.focus();
+			} else if ( ! event.shiftKey && document.activeElement === last ) {
+				event.preventDefault();
+				first.focus();
+			}
 		},
 
 		updateCoverLetter( event ) {

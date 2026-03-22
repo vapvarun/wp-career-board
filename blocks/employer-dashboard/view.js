@@ -216,6 +216,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const ctx = getContext();
 			return ctx.app?.status === 'submitted';
 		},
+		get applicantRowLabel() {
+			const ctx = getContext();
+			const name = ctx.app?.applicant_name || '';
+			return 'View application from ' + name;
+		},
 
 		// Overview panel getters.
 		get overviewRecentApps() {
@@ -394,6 +399,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		selectApplicant( event ) {
 			const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
 			state.selectedAppId = Number.isNaN( id ) ? null : id;
+		},
+
+		handleRowKeydown( event ) {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
+				state.selectedAppId = Number.isNaN( id ) ? null : id;
+			}
 		},
 
 		setAppsFilter( event ) {

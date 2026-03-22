@@ -562,6 +562,7 @@ wp_interactivity_state(
 			aria-modal="true"
 			aria-label="<?php esc_attr_e( 'Apply for this job', 'wp-career-board' ); ?>"
 			data-wp-class--wcb-open="state.panelOpen"
+			data-wp-on--keydown="actions.handlePanelKeydown"
 		>
 			<button
 				type="button"

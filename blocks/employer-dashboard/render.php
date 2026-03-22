@@ -388,7 +388,7 @@ wp_interactivity_state(
 			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications">
 				<div class="wcb-applicant-list">
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
-						<div class="wcb-applicant-row" data-wp-class--wcb-selected="state.isSelectedApp" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--click="actions.selectApplicant">
+						<div class="wcb-applicant-row" role="button" tabindex="0" data-wp-class--wcb-selected="state.isSelectedApp" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-bind--aria-label="state.applicantRowLabel" data-wp-on--click="actions.selectApplicant" data-wp-on--keydown="actions.handleRowKeydown">
 							<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
 							<div class="wcb-app-info">
 								<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>

@@ -93,11 +93,11 @@
 	border-left: 3px solid var( --wcb-featured, #f59e0b );
 }
 
-/* Block link — covers the entire card so clicking anywhere navigates */
-.wcb-card-block-link {
+/* Full-card click target via pseudo-element — keeps the DOM link visible to AT */
+.wcb-card-title-link::after {
+	content: '';
 	position: absolute;
 	inset: 0;
-	z-index: 1;
 	border-radius: 12px;
 }
 
