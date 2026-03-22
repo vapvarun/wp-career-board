@@ -1,0 +1,76 @@
+.wcb-search-hero__form {
+	display: flex;
+	gap: 0.625rem;
+	align-items: stretch;
+}
+
+.wcb-search-hero--vertical .wcb-search-hero__form {
+	flex-direction: column;
+}
+
+.wcb-search-hero__field--keyword {
+	flex: 1;
+	min-width: 0;
+}
+
+.wcb-search-hero__field--select {
+	flex-shrink: 0;
+	width: 160px;
+}
+
+.wcb-search-hero--vertical .wcb-search-hero__field--keyword,
+.wcb-search-hero--vertical .wcb-search-hero__field--select,
+.wcb-search-hero--vertical .wcb-search-hero__field--submit {
+	width: 100%;
+}
+
+.wcb-search-hero__input,
+.wcb-search-hero__select {
+	width: 100%;
+	height: 48px;
+	padding: 0 1rem;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius, 8px );
+	font-size: 0.9375rem;
+	background: #fff;
+	color: var( --wcb-text, #1e293b );
+	appearance: auto;
+}
+
+.wcb-search-hero__input:focus,
+.wcb-search-hero__select:focus {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 1px;
+}
+
+.wcb-search-hero__button {
+	height: 48px;
+	padding: 0 1.5rem;
+	background: var( --wcb-primary, #2563eb );
+	color: #fff;
+	border: none;
+	border-radius: var( --wcb-radius, 8px );
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: opacity 0.15s ease;
+}
+
+.wcb-search-hero__button:hover {
+	opacity: 0.9;
+}
+
+.wcb-search-hero--vertical .wcb-search-hero__button {
+	width: 100%;
+}
+
+@media ( max-width: 640px ) {
+	.wcb-search-hero__form {
+		flex-direction: column;
+	}
+
+	.wcb-search-hero__field--select {
+		width: 100%;
+	}
+}

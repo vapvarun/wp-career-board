@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated file name is intentional.
 /**
  * Admin setup wizard — auto-creates required pages on first activation.
  *
@@ -224,19 +224,37 @@ class SetupWizard extends \WCB\Api\RestController {
 		$settings = (array) get_option( 'wcb_settings', array() );
 		$created  = array();
 
-		$pages = array(
-			'jobs_archive_page'        => array(
-				'title'   => __( 'Find Jobs', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
-			),
-			'employer_dashboard_page'  => array(
-				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
-			),
-			'candidate_dashboard_page' => array(
-				'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
-			),
+		/**
+		 * Filters the pages the setup wizard will create.
+		 *
+		 * Each entry is keyed by the wcb_settings option key and contains
+		 * 'title' and 'content' for the page to insert. Pro (and other add-ons)
+		 * use this filter to append their own required pages.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array<string, array{title: string, content: string}> $pages Pages to create.
+		 */
+		$pages = apply_filters(
+			'wcb_wizard_required_pages',
+			array(
+				'employer_dashboard_page'  => array(
+					'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
+				),
+				'candidate_dashboard_page' => array(
+					'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
+				),
+				'jobs_archive_page'        => array(
+					'title'   => __( 'Find Jobs', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				),
+				'post_job_page'            => array(
+					'title'   => __( 'Post a Job', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/job-form /-->',
+				),
+			)
 		);
 
 		foreach ( $pages as $setting_key => $page_data ) {
