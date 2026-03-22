@@ -228,6 +228,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php if ( $wcb_page_heading ) : ?>
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
 	<?php endif; ?>
+	<?php if ( 0 === $wcb_author_id_attr ) : ?>
 	<div class="wcb-listings-header">
 		<div class="wcb-search-sort-row">
 			<div class="wcb-search-wrap">
@@ -310,6 +311,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<div
 		class="wcb-jobs-container"
