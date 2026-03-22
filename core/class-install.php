@@ -122,7 +122,8 @@ final class Install {
 				viewed_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				ip_hash    VARCHAR(64),
 				PRIMARY KEY  (id),
-				KEY job_id  (job_id)
+				KEY job_id  (job_id),
+				KEY viewed_at  (viewed_at)
 			) {$charset};"
 		);
 

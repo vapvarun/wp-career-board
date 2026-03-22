@@ -96,7 +96,9 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+					return is_user_logged_in();
+				},
 			)
 		);
 	}

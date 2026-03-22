@@ -41,6 +41,12 @@ if ( $wcb_author_id_attr > 0 ) {
 }
 $wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
 
+if ( $wcb_jobs_raw ) {
+	$wcb_job_ids = wp_list_pluck( $wcb_jobs_raw, 'ID' );
+	update_post_meta_cache( $wcb_job_ids );
+	update_object_term_cache( $wcb_job_ids, array( 'wcb_location', 'wcb_job_type', 'wcb_experience', 'wcb_category' ) );
+}
+
 $wcb_current_user_id = get_current_user_id();
 $wcb_bookmarks       = $wcb_current_user_id
 	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_bookmark', false ) )
@@ -330,8 +336,6 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
-				<a class="wcb-card-block-link" data-wp-bind--href="context.job.permalink" tabindex="-1" aria-hidden="true"></a>
-
 				<div class="wcb-card-avatar" aria-hidden="true" data-wp-text="context.job.initials"></div>
 
 				<div class="wcb-card-body">
@@ -339,7 +343,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					<div class="wcb-card-header">
 						<div class="wcb-card-title-wrap">
 							<h3 class="wcb-card-title">
-								<a data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title"></a>
+								<a class="wcb-card-title-link" data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title"></a>
 							</h3>
 							<p class="wcb-card-company">
 								<span data-wp-text="context.job.company"></span>

@@ -95,6 +95,7 @@ class AdminSettings {
 			self::OPTION_KEY,
 			array(
 				'sanitize_callback' => array( $this, 'sanitize' ),
+				'autoload'          => false,
 			)
 		);
 	}
@@ -224,7 +225,7 @@ class AdminSettings {
 			}
 		}
 
-		update_option( self::OPTION_KEY, $settings );
+		update_option( self::OPTION_KEY, $settings, false );
 
 		wp_safe_redirect(
 			add_query_arg(

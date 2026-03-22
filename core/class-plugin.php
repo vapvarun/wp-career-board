@@ -287,12 +287,15 @@ final class Plugin {
 	}
 
 	/**
-	 * Enqueue global frontend stylesheet.
+	 * Enqueue global frontend stylesheet — only on pages that contain a WCB block.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_frontend_styles(): void {
+		if ( ! $this->current_page_has_wcb_block() ) {
+			return;
+		}
 		wp_enqueue_style(
 			'wcb-frontend',
 			WCB_URL . 'assets/css/frontend.css',
@@ -300,6 +303,21 @@ final class Plugin {
 			WCB_VERSION
 		);
 		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
+	}
+
+	/**
+	 * Return true when the current singular post contains at least one WCB block.
+	 *
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	private function current_page_has_wcb_block(): bool {
+		global $post;
+		if ( ! $post instanceof \WP_Post ) {
+			return false;
+		}
+		return has_block( 'wp-career-board/', $post )
+			|| str_contains( $post->post_content, '<!-- wp:wp-career-board/' );
 	}
 
 	/**
