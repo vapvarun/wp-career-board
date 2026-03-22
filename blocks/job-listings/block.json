@@ -20,6 +20,10 @@
         "grid",
         "list"
       ]
+    },
+    "authorId": {
+      "type": "integer",
+      "default": 0
     }
   },
   "viewScriptModule": "file:./view.js",

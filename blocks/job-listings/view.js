@@ -204,6 +204,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'search', state.searchQuery );
 			}
 
+			if ( state.authorId ) {
+				url.searchParams.set( 'author', state.authorId );
+			}
+
 			// Sort
 			if ( state.sortBy === 'date_asc' ) {
 				url.searchParams.set( 'orderby', 'date' );

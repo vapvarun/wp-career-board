@@ -21,18 +21,19 @@ $wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['p
 $wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
 
-$wcb_jobs_raw = get_posts(
-	apply_filters(
-		'wcb_job_listings_query_args',
-		array(
-			'post_type'   => 'wcb_job',
-			'post_status' => 'publish',
-			'numberposts' => $wcb_per_page,
-			'orderby'     => 'date',
-			'order'       => 'DESC',
-		)
-	)
+$wcb_author_id_attr = (int) ( $attributes['authorId'] ?? 0 );
+
+$wcb_query_args = array(
+	'post_type'   => 'wcb_job',
+	'post_status' => 'publish',
+	'numberposts' => $wcb_per_page,
+	'orderby'     => 'date',
+	'order'       => 'DESC',
 );
+if ( $wcb_author_id_attr > 0 ) {
+	$wcb_query_args['author'] = $wcb_author_id_attr;
+}
+$wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
 
 $wcb_current_user_id = get_current_user_id();
 $wcb_bookmarks       = $wcb_current_user_id
@@ -177,7 +178,20 @@ $wcb_exp_opts      = array_map(
 	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
 );
 
-$wcb_total_count = (int) wp_count_posts( 'wcb_job' )->publish;
+if ( $wcb_author_id_attr > 0 ) {
+	$wcb_count_query = new \WP_Query(
+		array(
+			'post_type'      => 'wcb_job',
+			'post_status'    => 'publish',
+			'author'         => $wcb_author_id_attr,
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	);
+	$wcb_total_count = (int) $wcb_count_query->found_posts;
+} else {
+	$wcb_total_count = (int) wp_count_posts( 'wcb_job' )->publish;
+}
 
 $wcb_state = array(
 	'jobs'          => $wcb_jobs_state,
@@ -192,6 +206,7 @@ $wcb_state = array(
 	'searchQuery'   => '',
 	'activeFilters' => (object) array(),
 	'sortBy'        => 'date_desc',
+	'authorId'      => $wcb_author_id_attr,
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
