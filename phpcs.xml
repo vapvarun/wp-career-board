@@ -33,6 +33,7 @@
                 <element value="wcb_manage_boards"/>
                 <element value="wcb_export_data"/>
                 <element value="wcb_delete_any_job"/>
+                <element value="wcb_manage_settings"/>
             </property>
         </properties>
     </rule>

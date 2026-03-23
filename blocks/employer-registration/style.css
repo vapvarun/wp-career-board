@@ -1,0 +1,74 @@
+/* Employer Registration block — wcb/employer-registration */
+
+.wcb-employer-reg {
+	max-width: 480px;
+	margin: 0 auto;
+}
+
+.wcb-reg-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 0.25rem;
+}
+
+.wcb-reg-subtitle {
+	color: var(--wcb-color-text-muted, #6b7280);
+	margin: 0 0 1.5rem;
+}
+
+.wcb-reg-link {
+	color: var(--wcb-color-primary, #2563eb);
+	text-decoration: underline;
+}
+
+.wcb-reg-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.wcb-reg-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+.wcb-reg-error {
+	color: var(--wcb-color-error, #dc2626);
+	font-size: 0.875rem;
+	margin: 0;
+}
+
+.wcb-reg-terms {
+	font-size: 0.75rem;
+	color: var(--wcb-color-text-muted, #6b7280);
+	margin: 0;
+}
+
+.wcb-reg-terms a {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.wcb-reg-notice {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.wcb-reg-success {
+	text-align: center;
+	padding: 2rem 0;
+}
+
+.wcb-reg-success-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+	.wcb-reg-row {
+		grid-template-columns: 1fr;
+	}
+}

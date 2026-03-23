@@ -67,7 +67,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			null,
 			__( 'Setup Wizard', 'wp-career-board' ),
 			'',
-			'wcb_manage_settings',
+			'wcb_manage_settings', // phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_manage_settings is a registered WCB custom capability.
 			'wcb-setup',
 			array( $this, 'render' )
 		);
@@ -238,23 +238,27 @@ class SetupWizard extends \WCB\Api\RestController {
 		$pages = apply_filters(
 			'wcb_wizard_required_pages',
 			array(
-				'employer_dashboard_page'  => array(
+				'employer_registration_page' => array(
+					'title'   => __( 'Employer Registration', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/employer-registration /-->',
+				),
+				'employer_dashboard_page'    => array(
 					'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
 				),
-				'candidate_dashboard_page' => array(
+				'candidate_dashboard_page'   => array(
 					'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
 				),
-				'jobs_archive_page'        => array(
+				'jobs_archive_page'          => array(
 					'title'   => __( 'Find Jobs', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
 				),
-				'post_job_page'            => array(
+				'post_job_page'              => array(
 					'title'   => __( 'Post a Job', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/job-form /-->',
 				),
-				'company_archive_page'     => array(
+				'company_archive_page'       => array(
 					'title'   => __( 'Companies', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/company-archive /-->',
 				),

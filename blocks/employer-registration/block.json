@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wp-career-board/employer-registration",
+  "version": "0.1.0",
+  "title": "Employer Registration",
+  "category": "widgets",
+  "description": "Registration form for new employers to sign up and create their company profile.",
+  "editorScript": "file:./index.js",
+  "textdomain": "wp-career-board",
+  "viewScriptModule": "file:./view.js",
+  "style": "file:./style.css",
+  "render": "file:./render.php",
+  "supports": {
+    "interactivity": true
+  }
+}

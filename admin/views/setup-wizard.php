@@ -41,6 +41,7 @@ defined( 'ABSPATH' ) || exit;
 					<p><?php esc_html_e( 'We\'ll create the following pages automatically:', 'wp-career-board' ); ?></p>
 					<ul style="margin: 8px 0 0 16px; list-style: disc;">
 						<li><?php esc_html_e( 'Find Jobs (with search, filters, and listings)', 'wp-career-board' ); ?></li>
+						<li><?php esc_html_e( 'Employer Registration (sign-up form for new employers)', 'wp-career-board' ); ?></li>
 						<li><?php esc_html_e( 'Employer Dashboard (includes job posting)', 'wp-career-board' ); ?></li>
 						<li><?php esc_html_e( 'Candidate Dashboard (includes resume builder)', 'wp-career-board' ); ?></li>
 					</ul>

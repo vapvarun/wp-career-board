@@ -162,6 +162,7 @@ final class Plugin {
 			'job-single',
 			'job-form',
 			'employer-dashboard',
+			'employer-registration',
 			'candidate-dashboard',
 			'company-profile',
 			'company-archive',
