@@ -223,6 +223,7 @@ class AdminCompanies extends \WP_List_Table {
 		$statuses = array(
 			'publish' => __( 'Published', 'wp-career-board' ),
 			'draft'   => __( 'Draft', 'wp-career-board' ),
+			'trash'   => __( 'Trash', 'wp-career-board' ),
 		);
 
 		foreach ( $statuses as $slug => $label ) {
