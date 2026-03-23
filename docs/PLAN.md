@@ -3749,7 +3749,7 @@ Use this table to track task completion. Update the Status column as you go.
 | T26 | Social sharing buttons on job-single (X, LinkedIn, copy link) | ✅ 2026-03-17 · `7025f26` |
 | T27a | Salary range + remote filter UI in job-filters block | ✅ 2026-03-17 · `5378fe1` |
 | T27b | Company name search + REST caching (T28) + extension hooks (T29) | ✅ 2026-03-17 · `27162d8` |
-| T28 | Admin dashboard redesign — branded header, getting-started card, stat icons, action grid | ⬜ |
+| T28 | Admin dashboard redesign — branded header, getting-started card, stat icons, action grid | ✅ 2026-03-24 — Getting Started checklist card added (conditioned on setup state + first job) |
 
 ---
 

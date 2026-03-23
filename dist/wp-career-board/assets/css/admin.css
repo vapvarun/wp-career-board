@@ -1051,6 +1051,63 @@
 	color: #00a32a;
 }
 
+/* Getting Started checklist card */
+.wcb-getting-started-card {
+	margin-bottom: 20px;
+}
+
+.wcb-getting-started-list {
+	list-style: none;
+	margin: 0;
+	padding: 12px 24px;
+}
+
+.wcb-gs-item {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	padding: 9px 0;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 13px;
+	color: #50575e;
+}
+
+.wcb-gs-item:last-child {
+	border-bottom: none;
+}
+
+.wcb-gs-item.wcb-gs-done {
+	color: #1d2327;
+}
+
+.wcb-gs-icon {
+	flex-shrink: 0;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: #c3c4c7;
+}
+
+.wcb-gs-done .wcb-gs-icon {
+	color: #00a32a;
+}
+
+.wcb-gs-label a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.wcb-gs-label a:hover {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+@media (max-width: 782px) {
+	.wcb-getting-started-list {
+		padding: 8px 16px;
+	}
+}
+
 @media (max-width: 782px) {
 	.wcb-import-stats {
 		flex-direction: column;

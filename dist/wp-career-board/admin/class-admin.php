@@ -155,7 +155,25 @@ class Admin {
 		$total_jobs   = isset( $jobs_count->publish ) ? (int) $jobs_count->publish : 0;
 		$total_apps   = isset( $apps_count->publish ) ? (int) $apps_count->publish : 0;
 		$pending_jobs = isset( $jobs_count->pending ) ? (int) $jobs_count->pending : 0;
-		$total_emp    = count(
+
+		// Getting Started card: hide once setup complete AND at least one job is published.
+		$wcb_setup_done = (bool) get_option( 'wcb_setup_complete', false );
+		$wcb_show_gs    = ! ( $wcb_setup_done && $total_jobs > 0 );
+
+		if ( $wcb_show_gs ) {
+			$wcb_settings      = (array) get_option( 'wcb_settings', array() );
+			$wcb_page_keys     = array(
+				'employer_registration_page',
+				'employer_dashboard_page',
+				'candidate_dashboard_page',
+				'jobs_archive_page',
+				'post_job_page',
+				'company_archive_page',
+			);
+			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => (int) ( $wcb_settings[ $k ] ?? 0 ), $wcb_page_keys ) ) );
+			$wcb_total_pages   = count( $wcb_page_keys );
+		}
+		$total_emp  = count(
 			get_users(
 				array(
 					'role'   => 'wcb_employer',
@@ -164,7 +182,7 @@ class Admin {
 				)
 			)
 		); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_number
-		$total_cand   = count(
+		$total_cand = count(
 			get_users(
 				array(
 					'role'   => 'wcb_candidate',
@@ -225,6 +243,55 @@ class Admin {
 					</a>
 				</div>
 			</div>
+
+			<?php /* ── Getting Started checklist — hidden once setup complete + 1+ job published ── */ ?>
+			<?php if ( $wcb_show_gs ) : ?>
+			<div class="wcb-settings-card wcb-getting-started-card">
+				<div class="wcb-settings-card-header">
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Getting Started', 'wp-career-board' ); ?></h2>
+				</div>
+				<ul class="wcb-getting-started-list">
+					<li class="wcb-gs-item wcb-gs-done">
+						<span class="wcb-gs-icon dashicons dashicons-yes-alt"></span>
+						<span class="wcb-gs-label"><?php esc_html_e( 'Plugin activated', 'wp-career-board' ); ?></span>
+					</li>
+					<li class="wcb-gs-item <?php echo $wcb_pages_created >= $wcb_total_pages ? 'wcb-gs-done' : ''; ?>">
+						<span class="wcb-gs-icon dashicons <?php echo $wcb_pages_created >= $wcb_total_pages ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>"></span>
+						<span class="wcb-gs-label">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: 1: pages created count, 2: total pages count */
+									__( 'Pages created (%1$d/%2$d)', 'wp-career-board' ),
+									$wcb_pages_created,
+									$wcb_total_pages
+								)
+							);
+							?>
+							<?php if ( $wcb_pages_created < $wcb_total_pages ) : ?>
+								&mdash; <a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>"><?php esc_html_e( 'Run Wizard', 'wp-career-board' ); ?></a>
+							<?php endif; ?>
+						</span>
+					</li>
+					<li class="wcb-gs-item <?php echo $total_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
+						<span class="wcb-gs-icon dashicons <?php echo $total_jobs > 0 ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>"></span>
+						<span class="wcb-gs-label">
+							<?php esc_html_e( 'Add your first job', 'wp-career-board' ); ?>
+							<?php if ( 0 === $total_jobs ) : ?>
+								&mdash; <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>"><?php esc_html_e( '+ Add Job', 'wp-career-board' ); ?></a>
+							<?php endif; ?>
+						</span>
+					</li>
+					<li class="wcb-gs-item">
+						<span class="wcb-gs-icon dashicons dashicons-marker"></span>
+						<span class="wcb-gs-label">
+							<?php esc_html_e( 'Invite an employer', 'wp-career-board' ); ?>
+							&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
+						</span>
+					</li>
+				</ul>
+			</div>
+			<?php endif; ?>
 
 			<?php /* ── Stats row ── */ ?>
 			<div class="wcb-stats-grid">
