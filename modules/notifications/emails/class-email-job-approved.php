@@ -66,6 +66,26 @@ class EmailJobApproved extends AbstractEmail {
 	 */
 	public function boot(): void {
 		add_action( 'wcb_job_approved', array( $this, 'handle' ), 10, 1 );
+		add_action( 'transition_post_status', array( $this, 'on_status_transition' ), 10, 3 );
+	}
+
+	/**
+	 * Fires wcb_job_approved when an admin manually publishes a pending job.
+	 *
+	 * Covers the case where the admin uses the standard WP edit screen
+	 * instead of the Approve button (which triggers the REST endpoint).
+	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Previous post status.
+	 * @param \WP_Post $post       Post object.
+	 * @return void
+	 */
+	public function on_status_transition( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'publish' !== $new_status || 'pending' !== $old_status || 'wcb_job' !== $post->post_type ) {
+			return;
+		}
+
+		do_action( 'wcb_job_approved', $post->ID );
 	}
 
 	/**
