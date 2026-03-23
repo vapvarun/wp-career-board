@@ -571,6 +571,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! file ) {
 				return;
 			}
+			if ( ! state.companyId ) {
+				state.error = 'Please save your company profile before uploading a logo.';
+				return;
+			}
 			state.logoUploading = true;
 			try {
 				const fd = new FormData();
@@ -603,11 +607,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.saved  = false;
 			state.error  = '';
 
+			const isNew = ! state.companyId;
+			const url   = isNew
+				? state.apiBase + '/employers'
+				: state.apiBase + '/employers/' + String( state.companyId );
+
 			try {
 				const response = yield fetch(
-					state.apiBase + '/employers/' + String( state.companyId ),
+					url,
 					{
-						method: 'PATCH',
+						method: isNew ? 'POST' : 'PATCH',
 						headers: {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
@@ -627,6 +636,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( ! response.ok ) {
 					state.error = 'Could not save profile. Please try again.';
 					return;
+				}
+
+				if ( isNew ) {
+					const data       = yield response.json();
+					state.companyId  = data.id ?? 0;
 				}
 
 				state.saved = true;
