@@ -64,7 +64,9 @@ final class Plugin {
 		}
 
 		if ( class_exists( \WCB\Core\Abilities::class ) ) {
-			add_action( 'init', array( new \WCB\Core\Abilities(), 'register' ), 5 );
+			$abilities = new \WCB\Core\Abilities();
+			add_action( 'wp_abilities_api_categories_init', array( $abilities, 'register_category' ) );
+			add_action( 'wp_abilities_api_init', array( $abilities, 'register_abilities' ) );
 		}
 
 		$this->boot_modules();
@@ -76,13 +78,13 @@ final class Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
 
+		if ( class_exists( \WCB\Admin\SetupWizard::class ) ) {
+			( new \WCB\Admin\SetupWizard() )->boot();
+		}
+
 		if ( is_admin() ) {
 			if ( class_exists( \WCB\Admin\Admin::class ) ) {
 				( new \WCB\Admin\Admin() )->boot();
-			}
-
-			if ( class_exists( \WCB\Admin\SetupWizard::class ) ) {
-				( new \WCB\Admin\SetupWizard() )->boot();
 			}
 		}
 

@@ -254,6 +254,10 @@ class SetupWizard extends \WCB\Api\RestController {
 					'title'   => __( 'Post a Job', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/job-form /-->',
 				),
+				'company_archive_page'     => array(
+					'title'   => __( 'Companies', 'wp-career-board' ),
+					'content' => '<!-- wp:wp-career-board/company-archive /-->',
+				),
 			)
 		);
 

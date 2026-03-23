@@ -24,13 +24,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Abilities {
 
 	/**
-	 * Register all abilities if the Abilities API is available.
+	 * Register the WCB ability category.
+	 *
+	 * Must be called on the `wp_abilities_api_categories_init` action (WP 6.9+).
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function register(): void {
-		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_register_ability_category' ) ) {
+	public function register_category(): void {
+		if ( ! function_exists( 'wp_register_ability_category' ) ) {
 			return;
 		}
 
@@ -38,6 +40,20 @@ final class Abilities {
 			'wcb',
 			array( 'label' => __( 'WP Career Board', 'wp-career-board' ) )
 		);
+	}
+
+	/**
+	 * Register all WCB abilities.
+	 *
+	 * Must be called on the `wp_abilities_api_init` action (WP 6.9+).
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_abilities(): void {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 
 		$this->register_employer_abilities();
 		$this->register_candidate_abilities();
