@@ -1,0 +1,47 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "version": 3,
+    "settings": {
+        "layout": {
+            "contentSize": "720px",
+            "wideSize": "1200px"
+        },
+        "typography": {
+            "fluid": true,
+            "fontSizes": [
+                { "slug": "2xs",  "size": "0.6875rem", "name": "2XS" },
+                { "slug": "xs",   "size": "0.75rem",   "name": "XS" },
+                { "slug": "sm",   "size": "0.8125rem", "name": "SM" },
+                { "slug": "base", "size": "0.875rem",  "name": "Base" },
+                { "slug": "md",   "size": "1rem",      "name": "MD" },
+                { "slug": "lg",   "size": "1.125rem",  "name": "LG" },
+                { "slug": "xl",   "size": "1.5rem",    "name": "XL" },
+                { "slug": "2xl",  "size": "2rem",      "name": "2XL" }
+            ]
+        },
+        "spacing": {
+            "spacingSizes": [
+                { "slug": "10", "size": "0.25rem", "name": "1" },
+                { "slug": "20", "size": "0.5rem",  "name": "2" },
+                { "slug": "30", "size": "0.75rem", "name": "3" },
+                { "slug": "40", "size": "1rem",    "name": "4" },
+                { "slug": "50", "size": "1.25rem", "name": "5" },
+                { "slug": "60", "size": "1.5rem",  "name": "6" },
+                { "slug": "80", "size": "2rem",    "name": "8" }
+            ]
+        },
+        "color": {
+            "palette": [
+                { "slug": "wcb-base",         "color": "#ffffff", "name": "WCB Base" },
+                { "slug": "wcb-contrast",     "color": "#0f172a", "name": "WCB Contrast" },
+                { "slug": "wcb-primary",      "color": "#2563eb", "name": "WCB Primary" },
+                { "slug": "wcb-primary-dark", "color": "#1d4ed8", "name": "WCB Primary Dark" },
+                { "slug": "wcb-avatar-bg",    "color": "#1e293b", "name": "WCB Avatar BG" },
+                { "slug": "wcb-muted",        "color": "#6b7280", "name": "WCB Muted" },
+                { "slug": "wcb-surface",      "color": "#f1f5f9", "name": "WCB Surface" },
+                { "slug": "wcb-border",       "color": "#e2e8f0", "name": "WCB Border" },
+                { "slug": "wcb-featured",     "color": "#f59e0b", "name": "WCB Featured" }
+            ]
+        }
+    }
+}

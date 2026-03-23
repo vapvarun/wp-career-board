@@ -1,0 +1,1699 @@
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+.wcb-dashboard {
+	--wcb-text-primary:   #0f172a;
+	--wcb-text-secondary: #64748b;
+	--wcb-text-muted:     #94a3b8;
+	--wcb-bg-subtle:      #f8fafc;
+	--wcb-bg-hover:       var( --wcb-surface, #f1f5f9 );
+	--wcb-green:          #059669;
+	--wcb-blue:           var( --wcb-primary, #2563eb );
+	--wcb-amber:          #d97706;
+	--wcb-radius:         8px;
+	--wcb-radius-sm:      5px;
+	font-family: inherit;
+	font-size: 1rem;
+	color: var( --wcb-text-primary );
+}
+
+/* ── Gate (logged-out) ───────────────────────────────────────────────────── */
+.wcb-db-gate {
+	text-align: center;
+	padding: 3rem 1rem;
+}
+
+.wcb-db-gate p {
+	color: var( --wcb-text-secondary );
+	margin-bottom: 1rem;
+}
+
+/* ── Shell — sidebar + main ──────────────────────────────────────────────── */
+.wcb-dashboard-shell {
+	display: flex;
+	min-height: 600px;
+	align-items: stretch;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.wcb-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	background: var( --wcb-base, #fff );
+	border-right: 1px solid var( --wcb-border );
+	padding: 20px 0;
+}
+
+/* Logo row — also doubles as Overview link when rendered as <button> */
+.wcb-sidebar-logo {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 16px 16px;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	width: 100%;
+	background: transparent;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+}
+
+.wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-primary, #2563eb );
+}
+
+/* Prevent theme button overrides on the logo */
+.wcb-dashboard .wcb-sidebar-logo {
+	background: transparent;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-dashboard .wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
+}
+
+/* Section labels — act as visual dividers between nav groups */
+.wcb-nav-section-label {
+	display: block;
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var( --wcb-text-muted );
+	padding: 12px 16px 6px;
+	border-top: 1px solid var( --wcb-border );
+	margin-top: 4px;
+}
+
+/* Nav items */
+.wcb-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 8px 16px;
+	font-size: 0.9375rem;
+	font-weight: 400;
+	color: var( --wcb-text-secondary );
+	background: none;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	text-align: left;
+	text-decoration: none;
+	transition: background 0.12s, color 0.12s;
+	box-sizing: border-box;
+}
+
+.wcb-nav-item:hover {
+	background: var( --wcb-bg-subtle );
+	color: var( --wcb-text-primary );
+	text-decoration: none;
+}
+
+/* Active state — toggled by data-wp-class--wcb-nav-active */
+.wcb-nav-item.wcb-nav-active,
+.wcb-nav-item.wcb-view-active {
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-primary );
+	font-weight: 600;
+}
+
+/* Prevent theme button overrides — scoped under .wcb-dashboard for specificity */
+.wcb-dashboard .wcb-nav-item {
+	background: none;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-nav-toggle {
+	background: var( --wcb-base, #fff );
+	color: var( --wcb-text-primary );
+	box-shadow: none;
+}
+.wcb-dashboard .wcb-nav-item:hover {
+	background: var( --wcb-bg-subtle );
+}
+.wcb-dashboard .wcb-nav-item.wcb-nav-active,
+.wcb-dashboard .wcb-nav-item.wcb-view-active {
+	background: var( --wcb-bg-hover );
+}
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	outline: 2px solid var( --wcb-blue );
+	outline-offset: -2px;
+}
+.wcb-dashboard .wcb-filter-pill {
+	background: var( --wcb-base, #fff );
+	box-shadow: none;
+}
+.wcb-dashboard .wcb-filter-pill:hover:not( .wcb-filter-active ):not( .wcb-active ) {
+	background: var( --wcb-bg-hover );
+	border-color: var( --wcb-border );
+}
+.wcb-dashboard .wcb-filter-pill:focus {
+	outline: none;
+}
+.wcb-dashboard .wcb-filter-pill:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+}
+.wcb-dashboard .wcb-filter-pill.wcb-filter-active,
+.wcb-dashboard .wcb-filter-pill.wcb-active {
+	background: var( --wcb-text-primary );
+	color: #fff;
+}
+
+/* Nav badge */
+.wcb-nav-badge {
+	display: inline-block;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-secondary );
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 600;
+	border-radius: 9999px;
+	padding: 1px 6px;
+	line-height: 1.4;
+}
+
+.wcb-nav-badge.wcb-nav-badge--blue,
+.wcb-nav-badge.highlight {
+	background: #dbeafe;
+	color: #1d4ed8;
+}
+
+/* Post a Job CTA */
+.wcb-sidebar-cta {
+	display: block;
+	margin: 16px;
+	padding: 10px 16px;
+	background: var( --wcb-text-primary );
+	color: #fff;
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	text-align: center;
+	text-decoration: none;
+	border-radius: var( --wcb-radius );
+	transition: background 0.12s;
+}
+
+.wcb-sidebar-cta:hover {
+	background: #1e293b;
+	color: #fff;
+	text-decoration: none;
+}
+
+/* User / company row */
+.wcb-sidebar-user {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var( --wcb-border );
+	margin-top: auto;
+}
+
+.wcb-sidebar-avatar {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var( --wcb-border );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 700;
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-sidebar-company {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ── Main content area ────────────────────────────────────────────────────── */
+.wcb-main {
+	flex: 1;
+	background: var( --wcb-bg-subtle );
+	padding: 32px;
+	overflow-y: auto;
+	min-width: 0;
+}
+
+/* ── View panels ──────────────────────────────────────────────────────────── */
+.wcb-view-panel {
+	display: none;
+}
+
+.wcb-view-panel.wcb-view-active {
+	display: block;
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.wcb-page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+}
+
+.wcb-page-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	margin: 0 0 4px;
+}
+
+.wcb-page-sub {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	margin: 0 0 24px;
+}
+
+/* ── Stats row ────────────────────────────────────────────────────────────── */
+.wcb-stats-row {
+	display: grid;
+	grid-template-columns: repeat( 4, 1fr );
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.wcb-stat-card {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	padding: 20px 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	line-height: 1;
+}
+
+.wcb-stat-label {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	font-weight: 500;
+}
+
+/* Accent colour variants — class-based (from render.php) */
+.wcb-stat-card--green .wcb-stat-value { color: var( --wcb-green ); }
+.wcb-stat-card--blue  .wcb-stat-value { color: var( --wcb-blue ); }
+.wcb-stat-card--amber .wcb-stat-value { color: var( --wcb-amber ); }
+
+/* Accent colour variants — data-attribute-based (spec) */
+[data-accent="green"] .wcb-stat-value { color: var( --wcb-green ); }
+[data-accent="blue"]  .wcb-stat-value { color: var( --wcb-blue ); }
+[data-accent="amber"] .wcb-stat-value { color: var( --wcb-amber ); }
+
+/* ── Two-column grid ──────────────────────────────────────────────────────── */
+.wcb-two-col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+/* ── Panel (card container) ───────────────────────────────────────────────── */
+.wcb-panel {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.wcb-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid var( --wcb-border );
+}
+
+.wcb-panel-title {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+}
+
+.wcb-panel-link {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 500;
+	color: var( --wcb-blue );
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.wcb-panel-link:hover {
+	text-decoration: underline;
+}
+
+.wcb-panel-body {
+	padding: 0;
+}
+
+.wcb-panel-empty {
+	display: none;
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	padding: 16px 20px;
+	margin: 0;
+}
+
+.wcb-panel-empty.wcb-shown {
+	display: block;
+}
+
+/* ── Overview rows ────────────────────────────────────────────────────────── */
+.wcb-overview-app-row,
+.wcb-overview-job-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 20px;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wcb-overview-app-row:last-child,
+.wcb-overview-job-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-app-avatar {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var( --wcb-border );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 700;
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-app-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-app-name {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 600;
+	color: var( --wcb-text-primary );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wcb-app-job {
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-text-muted );
+}
+
+.wcb-app-email {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-app-date {
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-text-muted );
+}
+
+/* Status badge (overview panels) */
+.wcb-status-badge {
+	font-size: var( --wp--preset--font-size--xs );
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 9999px;
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-text-secondary );
+	text-transform: capitalize;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.wcb-status-badge[data-status="submitted"]   { background: #dbeafe; color: #1e40af; }
+.wcb-status-badge[data-status="reviewing"]   { background: #fef9c3; color: #854d0e; }
+.wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-status-badge[data-status="hired"],
+.wcb-status-badge[data-status="accepted"]    { background: #dcfce7; color: #166534; }
+.wcb-status-badge[data-status="rejected"]    { background: #fee2e2; color: #991b1b; }
+.wcb-status-badge[data-status="publish"]     { background: #dcfce7; color: #166534; }
+.wcb-status-badge[data-status="draft"]       { background: #f1f5f9; color: #475569; }
+.wcb-status-badge[data-status="pending"]     { background: #fef9c3; color: #854d0e; }
+
+/* Status dot */
+.wcb-status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	background: var( --wcb-text-muted );
+}
+
+.wcb-status-dot--green,
+.wcb-status-dot[data-status="publish"] { background: var( --wcb-green ); }
+.wcb-status-dot[data-status="draft"],
+.wcb-status-dot[data-status="pending"] { background: var( --wcb-amber ); }
+
+/* Job info (overview + jobs view) */
+.wcb-job-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wcb-job-title {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 600;
+	color: var( --wcb-text-primary );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wcb-job-meta {
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-text-muted );
+}
+
+/* ── Filter bar ───────────────────────────────────────────────────────────── */
+.wcb-filter-bar {
+	display: none;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 16px;
+}
+
+.wcb-filter-bar.wcb-shown {
+	display: flex;
+}
+
+/* Always-visible filter bar (Jobs view only — not the apps filter bar) */
+.wcb-view-panel.wcb-view-active > .wcb-filter-bar:not( .wcb-apps-filter-bar ) {
+	display: flex;
+}
+
+.wcb-filter-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 5px 14px;
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 500;
+	color: var( --wcb-text-secondary );
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 9999px;
+	cursor: pointer;
+	transition: background 0.12s, color 0.12s, border-color 0.12s;
+	white-space: nowrap;
+}
+
+.wcb-filter-pill:hover:not( .wcb-filter-active ):not( .wcb-active ) {
+	background: var( --wcb-bg-hover );
+	border-color: var( --wcb-border );
+}
+
+.wcb-filter-pill:focus {
+	outline: none;
+}
+
+.wcb-filter-pill:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+}
+
+.wcb-filter-pill.wcb-filter-active,
+.wcb-filter-pill.wcb-active {
+	background: var( --wcb-text-primary );
+	color: #fff;
+	border-color: var( --wcb-text-primary );
+}
+
+.wcb-pill-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	margin-left: 5px;
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 600;
+	line-height: 1;
+	background: rgba( 0, 0, 0, 0.08 );
+	border-radius: 9999px;
+}
+
+.wcb-filter-pill.wcb-filter-active .wcb-pill-count,
+.wcb-filter-pill.wcb-active .wcb-pill-count {
+	background: rgba( 255, 255, 255, 0.25 );
+}
+
+.wcb-pill-count:empty {
+	display: none;
+}
+
+/* Job search input */
+.wcb-job-search {
+	border: 1px solid var( --wcb-border );
+	border-radius: var( --wcb-radius );
+	padding: 6px 12px;
+	font-size: var( --wp--preset--font-size--base );
+	font-family: inherit;
+	color: var( --wcb-text-primary );
+	background: var( --wcb-base, #fff );
+	margin-left: auto;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wcb-job-search:focus {
+	outline: none;
+	border-color: var( --wcb-blue );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.1 );
+}
+
+/* ── Jobs list ────────────────────────────────────────────────────────────── */
+.wcb-jobs-list {
+	display: none;
+	flex-direction: column;
+}
+
+.wcb-jobs-list.wcb-shown {
+	display: flex;
+}
+
+.wcb-job-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 20px;
+	border-bottom: 1px solid #f1f5f9;
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: var( --wcb-radius );
+	margin-bottom: 8px;
+	transition: background 0.12s;
+}
+
+.wcb-job-row:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-job-row.wcb-job-closed {
+	opacity: 0.55;
+}
+
+.wcb-job-row.wcb-job-closed .wcb-job-title {
+	text-decoration: line-through;
+}
+
+.wcb-job-actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+	flex-wrap: wrap;
+}
+
+/* Apps chip (jobs list) */
+.wcb-apps-chip {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 500;
+	color: var( --wcb-text-secondary );
+	background: var( --wcb-bg-hover );
+	border: none;
+	border-radius: 9999px;
+	padding: 2px 8px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.wcb-apps-chip:hover {
+	background: #dbeafe;
+	color: #1d4ed8;
+}
+
+.wcb-apps-chip--empty {
+	cursor: default;
+}
+
+/* ── Applications selector (searchable job list) ─────────────────────────── */
+.wcb-apps-selector {
+	display: none;
+	flex-direction: column;
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	background: var( --wcb-base, #fff );
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.wcb-apps-selector.wcb-shown {
+	display: flex;
+}
+
+.wcb-apps-selector-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var( --wcb-border );
+	background: var( --wcb-surface, #f8fafc );
+}
+
+.wcb-apps-job-search {
+	flex: 1;
+	border: 1px solid var( --wcb-border );
+	border-radius: var( --wcb-radius );
+	padding: 5px 10px;
+	font-size: var( --wp--preset--font-size--base );
+	font-family: inherit;
+	color: var( --wcb-text-primary );
+	background: var( --wcb-base, #fff );
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wcb-apps-job-search:focus {
+	outline: none;
+	border-color: var( --wcb-blue );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.1 );
+}
+
+.wcb-apps-selector-hint {
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-text-secondary );
+	white-space: nowrap;
+}
+
+.wcb-apps-job-list {
+	display: flex;
+	flex-direction: column;
+	max-height: 280px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
+.wcb-apps-job-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 16px;
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 500;
+	color: var( --wcb-text-primary );
+	background: none;
+	border: none;
+	border-bottom: 1px solid var( --wcb-border );
+	cursor: pointer;
+	text-align: left;
+	width: 100%;
+	transition: background 0.12s, color 0.12s;
+}
+
+.wcb-apps-job-item:last-child {
+	border-bottom: none;
+}
+
+.wcb-apps-job-item:hover:not( .wcb-active ) {
+	background: var( --wcb-bg-hover );
+	color: var( --wcb-blue );
+}
+
+.wcb-apps-job-item:focus {
+	outline: none;
+}
+
+.wcb-apps-job-item:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: -2px;
+}
+
+.wcb-apps-job-item.wcb-active {
+	background: #eff6ff;
+	color: var( --wcb-blue );
+	font-weight: 600;
+}
+
+.wcb-apps-job-item-count {
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 600;
+	background: rgba( 0, 0, 0, 0.08 );
+	border-radius: 9999px;
+	padding: 1px 6px;
+}
+
+.wcb-apps-job-item.wcb-active .wcb-apps-job-item-count {
+	background: rgba( 29, 78, 216, 0.15 );
+}
+
+.wcb-apps-no-match {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	padding: 12px 16px;
+	margin: 0;
+	display: none;
+}
+
+.wcb-apps-no-match.wcb-shown {
+	display: block;
+}
+
+/* ── Split panel (applicant list + detail) ────────────────────────────────── */
+.wcb-split-panel {
+	display: none;
+	grid-template-columns: 280px 1fr;
+	gap: 0;
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	overflow: hidden;
+	min-height: 420px;
+	background: var( --wcb-base, #fff );
+}
+
+.wcb-split-panel.wcb-shown {
+	display: grid;
+}
+
+/* Applicant list column */
+.wcb-applicant-list {
+	border-right: 1px solid var( --wcb-border );
+	overflow-y: auto;
+}
+
+.wcb-applicant-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-bottom: 1px solid #f1f5f9;
+	cursor: pointer;
+	transition: background 0.1s;
+	border-left: 2px solid transparent;
+}
+
+.wcb-applicant-row:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-applicant-row.wcb-selected {
+	background: var( --wcb-bg-subtle );
+	border-left-color: var( --wcb-blue );
+}
+
+/* Unread dot */
+.wcb-unread-dot {
+	display: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var( --wcb-blue );
+	flex-shrink: 0;
+}
+
+.wcb-unread-dot.wcb-shown {
+	display: block;
+}
+
+/* Avatar (generic, used in both overview and applicant rows) */
+.wcb-avatar,
+.wcb-detail-avatar {
+	flex-shrink: 0;
+	border-radius: 50%;
+	background: var( --wcb-border );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	color: var( --wcb-text-secondary );
+}
+
+.wcb-avatar--sm { width: 32px; height: 32px; }
+.wcb-avatar--lg { width: 44px; height: 44px; font-size: var( --wp--preset--font-size--base ); }
+
+.wcb-detail-avatar {
+	width: 44px;
+	height: 44px;
+	font-size: var( --wp--preset--font-size--base );
+}
+
+/* Applicant detail column */
+.wcb-applicant-detail {
+	padding: 24px;
+	overflow-y: auto;
+}
+
+.wcb-no-selection {
+	display: none;
+	color: var( --wcb-text-secondary );
+	font-size: var( --wp--preset--font-size--base );
+}
+
+.wcb-no-selection.wcb-shown {
+	display: block;
+}
+
+.wcb-detail-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.wcb-detail-name {
+	font-size: var( --wp--preset--font-size--lg );
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	margin: 0 0 4px;
+}
+
+.wcb-detail-email,
+.wcb-detail-date {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	margin: 0;
+}
+
+/* Status select */
+.wcb-status-select {
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	padding: 5px 10px;
+	font-size: var( --wp--preset--font-size--base );
+	font-family: inherit;
+	cursor: pointer;
+	background: var( --wcb-base, #fff );
+	color: #374151;
+	margin-left: auto;
+}
+
+.wcb-status-select:focus {
+	outline: 2px solid var( --wcb-blue );
+	outline-offset: 1px;
+}
+
+/* Detail sections */
+.wcb-detail-section {
+	margin-top: 20px;
+}
+
+.wcb-detail-section-label,
+.wcb-section-label {
+	display: block;
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var( --wcb-text-muted );
+	margin-bottom: 6px;
+}
+
+.wcb-cover-letter {
+	background: var( --wcb-bg-subtle );
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	padding: 14px 16px;
+	font-size: var( --wp--preset--font-size--base );
+	line-height: 1.7;
+	color: #374151;
+	margin-top: 8px;
+	white-space: pre-wrap;
+}
+
+.wcb-resume-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	background: var( --wcb-bg-subtle );
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	font-size: var( --wp--preset--font-size--base );
+	color: #374151;
+	text-decoration: none;
+}
+
+.wcb-resume-chip:hover {
+	background: var( --wcb-bg-hover );
+}
+
+/* ── Company profile ──────────────────────────────────────────────────────── */
+.wcb-profile-grid {
+	display: grid;
+	grid-template-columns: 1fr 340px;
+	gap: 24px;
+}
+
+.wcb-logo-placeholder {
+	width: 64px;
+	height: 64px;
+	border: 2px dashed #cbd5e1;
+	border-radius: var( --wcb-radius );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-muted );
+	cursor: default;
+	opacity: 0.55;
+	margin-bottom: 16px;
+}
+
+.wcb-logo-caption {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-muted );
+	margin: 0 0 16px;
+}
+
+.wcb-preview-card {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 10px;
+	padding: 20px;
+	height: fit-content;
+}
+
+.wcb-preview-title {
+	font-size: var( --wp--preset--font-size--base );
+	font-weight: 700;
+	color: var( --wcb-text-muted );
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	margin: 0 0 16px;
+}
+
+
+.wcb-preview-name {
+	font-size: var( --wp--preset--font-size--md );
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	margin: 0 0 4px;
+}
+
+.wcb-preview-tagline {
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	margin: 0;
+}
+
+.wcb-preview-desc {
+	font-size: var( --wp--preset--font-size--base );
+	color: #374151;
+	margin-top: 8px;
+}
+
+.wcb-preview-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 12px;
+}
+
+.wcb-preview-chip {
+	display: inline-block;
+	background: var( --wcb-bg-hover );
+	font-size: var( --wp--preset--font-size--base );
+	color: var( --wcb-text-secondary );
+	padding: 2px 8px;
+	border-radius: 9999px;
+}
+
+/* No-company empty state */
+.wcb-no-company {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 3rem;
+	text-align: center;
+	color: var( --wcb-text-secondary );
+}
+
+/* ── Shared buttons ───────────────────────────────────────────────────────── */
+.wcb-db-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.625rem 1.25rem;
+	border: none;
+	border-radius: var( --wcb-radius );
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background 0.15s;
+	white-space: nowrap;
+}
+
+.wcb-db-btn--primary {
+	background: var( --wcb-blue );
+	color: #fff;
+}
+
+.wcb-db-btn--primary:hover {
+	background: var( --wcb-primary-dark, #1d4ed8 );
+	color: #fff;
+	text-decoration: none;
+}
+
+.wcb-db-btn--secondary {
+	background: var( --wcb-bg-hover );
+	color: #334155;
+}
+
+.wcb-db-btn--secondary:hover {
+	background: var( --wcb-border );
+}
+
+.wcb-db-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* ── Job action link buttons ──────────────────────────────────────────────── */
+.wcb-db-link-btn {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: #475569;
+	text-decoration: none;
+	padding: 0.25rem 0.625rem;
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	background: var( --wcb-base, #fff );
+	white-space: nowrap;
+	transition: background 0.1s, border-color 0.1s;
+	cursor: pointer;
+}
+
+.wcb-db-link-btn:hover {
+	background: var( --wcb-bg-subtle );
+	border-color: #cbd5e1;
+}
+
+.wcb-db-link-btn--edit {
+	color: var( --wcb-blue );
+	border-color: var( --wcb-blue );
+}
+
+.wcb-db-link-btn--edit:hover {
+	background: var( --wcb-blue );
+	color: #fff;
+}
+
+.wcb-db-link-btn--close {
+	color: #b45309;
+	border-color: #fde68a;
+	cursor: pointer;
+}
+
+.wcb-db-link-btn--close:hover {
+	background: #fef3c7;
+	border-color: #f59e0b;
+}
+
+.wcb-db-link-btn--publish {
+	color: var( --wcb-blue );
+	border-color: #bfdbfe;
+	cursor: pointer;
+}
+
+.wcb-db-link-btn--publish:hover {
+	background: #dbeafe;
+}
+
+.wcb-db-link-btn--reopen {
+	color: #166534;
+	border-color: #bbf7d0;
+	cursor: pointer;
+}
+
+.wcb-db-link-btn--reopen:hover {
+	background: #dcfce7;
+	border-color: #4ade80;
+}
+
+/* ── Job status badge ─────────────────────────────────────────────────────── */
+.wcb-job-status-badge {
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.2rem 0.6rem;
+	border-radius: 9999px;
+	text-transform: capitalize;
+	background: var( --wcb-bg-hover );
+	color: #475569;
+}
+
+.wcb-job-status-badge[data-status="publish"]  { background: #dcfce7; color: #166534; }
+.wcb-job-status-badge[data-status="draft"]    { background: var( --wcb-bg-hover ); color: #475569; }
+.wcb-job-status-badge[data-status="pending"]  { background: #fef9c3; color: #854d0e; }
+.wcb-job-status-badge[data-status="private"]  { background: #ede9fe; color: #5b21b6; }
+
+/* ── Application status badge ─────────────────────────────────────────────── */
+.wcb-app-status-badge {
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.2rem 0.6rem;
+	border-radius: 9999px;
+	text-transform: capitalize;
+	background: var( --wcb-bg-hover );
+	color: #475569;
+	white-space: nowrap;
+}
+
+.wcb-app-status-badge[data-status="submitted"]   { background: #dbeafe; color: #1e40af; }
+.wcb-app-status-badge[data-status="reviewing"]   { background: #fef9c3; color: #854d0e; }
+.wcb-app-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-app-status-badge[data-status="hired"]       { background: #dcfce7; color: #166534; }
+.wcb-app-status-badge[data-status="accepted"]    { background: #dcfce7; color: #166534; }
+.wcb-app-status-badge[data-status="rejected"]    { background: #fee2e2; color: #991b1b; }
+
+/* ── Application status select ────────────────────────────────────────────── */
+.wcb-app-status-select {
+	font-size: 0.8rem;
+	padding: 0.3rem 0.5rem;
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	background: var( --wcb-base, #fff );
+	color: #374151;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.wcb-app-status-select:focus {
+	outline: 2px solid var( --wcb-blue );
+	outline-offset: 1px;
+}
+
+/* ── Logo upload field ────────────────────────────────────────────────────── */
+.wcb-logo-field {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.wcb-logo-current {
+	display: none;
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 1px solid var( --wcb-border );
+}
+
+.wcb-logo-current.wcb-shown {
+	display: block;
+}
+
+.wcb-logo-input {
+	display: none;
+}
+
+.wcb-logo-upload-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 14px;
+	border: 1px solid var( --wcb-border );
+	border-radius: 6px;
+	font-size: var( --wp--preset--font-size--sm );
+	font-weight: 500;
+	color: var( --wcb-text );
+	background: var( --wcb-bg );
+	cursor: pointer;
+	transition: border-color 0.15s;
+}
+
+.wcb-logo-upload-label:hover {
+	border-color: var( --wcb-primary );
+	color: var( --wcb-primary );
+}
+
+.wcb-preview-logo-img {
+	display: none;
+	width: 48px;
+	height: 48px;
+	object-fit: cover;
+	border-radius: 6px;
+	margin-bottom: 12px;
+}
+
+.wcb-preview-logo-img.wcb-shown {
+	display: block;
+}
+
+/* ── Company profile form ─────────────────────────────────────────────────── */
+.wcb-profile-form {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border );
+	border-radius: 12px;
+	padding: 2rem;
+}
+
+.wcb-profile-form-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: var( --wcb-text-primary );
+	margin: 0 0 1.5rem;
+	padding-bottom: 0.875rem;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wcb-field-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	margin-bottom: 1.25rem;
+}
+
+.wcb-field-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+.wcb-field-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+}
+
+.wcb-field-hint {
+	font-weight: 400;
+	color: var( --wcb-text-muted );
+	font-size: 0.8125rem;
+	margin-left: 0.35rem;
+}
+
+.wcb-field-input {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	border: 1.5px solid var( --wcb-border );
+	border-radius: var( --wcb-radius );
+	font-size: 0.9375rem;
+	font-family: inherit;
+	color: #1e293b;
+	background: var( --wcb-base, #fff );
+	transition: border-color 0.15s;
+	box-sizing: border-box;
+}
+
+.wcb-field-input:focus {
+	outline: none;
+	border-color: var( --wcb-blue );
+	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
+}
+
+.wcb-field-textarea {
+	resize: vertical;
+	line-height: 1.6;
+}
+
+.wcb-field-select {
+	cursor: pointer;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.875rem center;
+	appearance: none;
+	padding-right: 2.5rem;
+}
+
+/* ── Profile save footer ──────────────────────────────────────────────────── */
+.wcb-profile-actions {
+	margin-top: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.wcb-db-save-success {
+	display: none;
+	color: #166534;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	padding: 0.625rem 1rem;
+	border-radius: var( --wcb-radius );
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.wcb-db-save-success.wcb-shown {
+	display: block;
+}
+
+.wcb-saving-label {
+	display: none;
+}
+
+.wcb-saving-label.wcb-shown {
+	display: inline;
+}
+
+/* ── Interactivity API show/hide utilities ────────────────────────────────── */
+.wcb-hidden { display: none !important; }
+.wcb-shown  { display: block; }
+
+/* ── Loading skeleton ─────────────────────────────────────────────────────── */
+.wcb-db-loading {
+	display: none;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.wcb-db-loading.wcb-shown {
+	display: flex;
+}
+
+.wcb-skeleton-row {
+	height: 72px;
+	background: linear-gradient( 90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75% );
+	background-size: 200% 100%;
+	border-radius: 10px;
+	animation: wcb-shimmer 1.4s infinite;
+}
+
+@keyframes wcb-shimmer {
+	0%   { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+/* ── Empty and error states ───────────────────────────────────────────────── */
+.wcb-db-empty {
+	display: none;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 1rem;
+	padding: 2.5rem;
+	background: var( --wcb-bg-subtle );
+	border: 1px dashed #cbd5e1;
+	border-radius: 10px;
+}
+
+.wcb-db-empty.wcb-shown {
+	display: flex;
+}
+
+.wcb-db-empty-msg {
+	color: var( --wcb-text-secondary );
+	margin: 0;
+	font-size: 0.9375rem;
+}
+
+.wcb-db-error {
+	display: none;
+	color: #b91c1c;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	padding: 0.65rem 1rem;
+	border-radius: var( --wcb-radius );
+	font-size: 0.875rem;
+	margin-bottom: 1rem;
+}
+
+.wcb-db-error.wcb-shown {
+	display: block;
+}
+
+/* Mobile nav toggle — hidden on desktop */
+.wcb-nav-toggle {
+	display: none;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media ( max-width: 1024px ) {
+	.wcb-dashboard-shell {
+		flex-direction: column;
+	}
+
+	.wcb-nav-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 13px 16px;
+		background: var( --wcb-base, #fff );
+		border: none;
+		border-bottom: 1px solid var( --wcb-border );
+		cursor: pointer;
+		font-size: var( --wp--preset--font-size--base );
+		font-weight: 600;
+		color: var( --wcb-text-primary );
+		text-align: left;
+	}
+
+	.wcb-nav-toggle-icon::after {
+		content: '▾';
+		display: block;
+		color: var( --wcb-text-muted );
+		transition: transform 0.15s;
+	}
+
+	.wcb-nav-open .wcb-nav-toggle-icon::after {
+		transform: rotate( 180deg );
+	}
+
+	.wcb-sidebar {
+		width: 100%;
+		flex-direction: column;
+		align-items: stretch;
+		padding: 0;
+		overflow-x: visible;
+		border-right: none;
+		border-bottom: 1px solid var( --wcb-border );
+	}
+
+	.wcb-sidebar-logo,
+	.wcb-sidebar-nav,
+	.wcb-sidebar-cta,
+	.wcb-sidebar-user {
+		display: none;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-nav {
+		display: flex;
+		flex-direction: column;
+		padding: 4px 0;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
+		display: block;
+		margin: 8px 12px;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-user {
+		display: flex;
+		border-top: 1px solid var( --wcb-border );
+		margin-top: 0;
+		padding: 10px 16px;
+	}
+
+	.wcb-nav-section-label {
+		display: none;
+	}
+
+	.wcb-nav-item {
+		width: 100%;
+		padding: 11px 16px;
+		border-radius: 0;
+		border-bottom: none;
+		text-align: left;
+	}
+
+	.wcb-nav-item.wcb-nav-active,
+	.wcb-nav-item.wcb-view-active {
+		background: var( --wcb-bg-hover );
+		color: var( --wcb-blue );
+		border-bottom: none;
+	}
+}
+
+@media ( max-width: 768px ) {
+	.wcb-stats-row {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+
+	.wcb-two-col {
+		grid-template-columns: 1fr;
+	}
+
+	.wcb-split-panel.wcb-shown {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.wcb-applicant-list {
+		border-right: none;
+		border-bottom: 1px solid var( --wcb-border );
+		max-height: 240px;
+	}
+
+	.wcb-profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.wcb-field-row {
+		grid-template-columns: 1fr;
+	}
+
+	.wcb-main {
+		padding: 20px;
+	}
+}
+
+@media ( max-width: 640px ) {
+	/* My Jobs row — stack info above badge + chip + actions */
+	.wcb-job-row {
+		flex-wrap: wrap;
+		gap: 6px 8px;
+	}
+
+	.wcb-job-info {
+		flex: 0 0 calc( 100% - 28px );
+	}
+
+	.wcb-job-title {
+		white-space: normal;
+	}
+
+	.wcb-job-actions {
+		width: 100%;
+	}
+}
+
+@media ( max-width: 480px ) {
+	.wcb-stats-row {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.wcb-main {
+		padding: 16px;
+	}
+}
+
+/* Notification bell */
+.wcb-bell-wrapper {
+	position: relative;
+	display: inline-block;
+}
+.wcb-bell-btn {
+	position: relative;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 6px;
+	color: var( --wcb-text-secondary, #6b7280 );
+	line-height: 1;
+}
+.wcb-bell-btn:hover { color: var( --wcb-primary, #4f46e5 ); }
+.wcb-bell-badge {
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 4px;
+	font-size: var( --wp--preset--font-size--2xs );
+	font-weight: 700;
+	line-height: 18px;
+	text-align: center;
+	color: #fff;
+	background: #ef4444;
+	border-radius: 9999px;
+}
+.wcb-bell-dropdown {
+	position: absolute;
+	top: calc( 100% + 8px );
+	right: 0;
+	width: 320px;
+	background: var( --wcb-base, #fff );
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	box-shadow: 0 4px 24px rgba( 0, 0, 0, .12 );
+	z-index: 100;
+}
+.wcb-bell-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 16px;
+	border-bottom: 1px solid #e5e7eb;
+	font-weight: 600;
+	font-size: var( --wp--preset--font-size--base );
+}
+.wcb-bell-read-all {
+	background: none;
+	border: none;
+	font-size: var( --wp--preset--font-size--xs );
+	color: var( --wcb-primary, #4f46e5 );
+	cursor: pointer;
+}
+.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-item {
+	display: block;
+	padding: 12px 16px;
+	border-bottom: 1px solid #f3f4f6;
+	text-decoration: none;
+	color: inherit;
+}
+.wcb-bell-item:hover { background: #f9fafb; }
+.wcb-bell-unread { background: #eff6ff; }
+.wcb-bell-msg {
+	display: block;
+	font-size: var( --wp--preset--font-size--sm );
+	color: #111827;
+}
+.wcb-bell-time {
+	display: block;
+	font-size: var( --wp--preset--font-size--2xs );
+	color: #9ca3af;
+	margin-top: 2px;
+}
+
+/* Prevent theme button resets from applying solid backgrounds to nav items */
+.wcb-sidebar .wcb-nav-item,
+.wcb-sidebar .wcb-nav-item:hover,
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	box-shadow: none;
+	outline-offset: 2px;
+}
+.wcb-sidebar-cta {
+	cursor: pointer;
+	border: none;
+	background: none;
+	padding: 0;
+	width: 100%;
+	text-align: left;
+}

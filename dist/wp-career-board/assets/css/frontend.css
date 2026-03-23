@@ -1,0 +1,59 @@
+/* ── WP Career Board — global frontend styles ────────────────────────────── */
+
+/*
+ * Color bridge — ensures a good first-load on any theme, no config required.
+ *
+ * The hardcoded fallbacks (#2563eb etc.) are the plugin's brand defaults and
+ * are used automatically on classic themes or any theme that does not define
+ * matching wcb-* color slugs.
+ *
+ * Recommended override path (block themes / child themes):
+ *   Add a "wcb-primary" slug to your theme.json color palette and WordPress
+ *   will automatically recolor all WCB UI — no extra CSS needed.
+ *
+ *   Example child theme.json:
+ *   { "settings": { "color": { "palette": [
+ *     { "slug": "wcb-primary",      "color": "#6d28d9" },
+ *     { "slug": "wcb-primary-dark", "color": "#5b21b6" }
+ *   ] } } }
+ *
+ * Classic theme override: set --wcb-primary directly in :root.
+ */
+:root {
+	--wcb-primary:      var( --wp--preset--color--wcb-primary,      #2563eb );
+	--wcb-primary-dark: var( --wp--preset--color--wcb-primary-dark, #1d4ed8 );
+	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
+	--wcb-base:         var( --wp--preset--color--wcb-base,         #ffffff );
+	--wcb-contrast:     var( --wp--preset--color--wcb-contrast,     #0f172a );
+	--wcb-muted:        var( --wp--preset--color--wcb-muted,        #6b7280 );
+	--wcb-surface:      var( --wp--preset--color--wcb-surface,      #f1f5f9 );
+	--wcb-border:       var( --wp--preset--color--wcb-border,       #e2e8f0 );
+	--wcb-featured:     var( --wp--preset--color--wcb-featured,     #f59e0b );
+}
+
+/* Suppress the theme's page title on WCB app / archive pages. */
+.wcb-page .entry-title,
+.wcb-page .page-title,
+.wcb-page h1.post-title,
+.wcb-page .wp-block-post-title {
+	display: none !important;
+}
+
+/* Suppress the theme sidebar on WCB app / archive pages. */
+.wcb-page #secondary,
+.wcb-page .widget-area,
+.wcb-page aside.sidebar,
+.wcb-page .sidebar-area,
+.wcb-page .site-sidebar,
+.wcb-page #sidebar {
+	display: none !important;
+}
+
+/* ── Page heading — rendered inside listing blocks ───────────────────────── */
+.wcb-page-heading {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #0f172a;
+	margin: 0 0 1.5rem;
+	line-height: 1.2;
+}

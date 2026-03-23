@@ -1,0 +1,498 @@
+/* ── Outer wrapper ──────────────────────────────────────────────────────────── */
+.wcb-cp-wrap {
+	font-family: inherit;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────────── */
+.wcb-cp-hero {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: 16px;
+	overflow: hidden;
+	margin-bottom: 1.25rem;
+}
+
+.wcb-cp-cover {
+	height: 120px;
+	background: var( --wcb-avatar-bg, #1e293b );
+}
+
+.wcb-cp-hero-body {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.25rem;
+	padding: 0 1.75rem 1.75rem;
+	margin-top: -44px;
+}
+
+/* ── Avatar / Logo ──────────────────────────────────────────────────────────── */
+.wcb-cp-avatar-wrap {
+	flex-shrink: 0;
+}
+
+.wcb-cp-logo,
+.wcb-cp-avatar {
+	width: 88px;
+	height: 88px;
+	border-radius: 14px;
+	border: 3px solid #fff;
+	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.12 );
+	display: block;
+	object-fit: cover;
+	background: #fff;
+}
+
+.wcb-cp-avatar {
+	background: var( --wcb-avatar-bg, #1e293b );
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.75rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+/* ── Hero info ──────────────────────────────────────────────────────────────── */
+.wcb-cp-hero-info {
+	flex: 1;
+	min-width: 0;
+	padding-top: 52px;
+}
+
+.wcb-cp-name-row {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+.wcb-cp-name {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var( --wcb-contrast, #0f172a );
+	margin: 0;
+	line-height: 1.2;
+}
+
+/* ── Trust badge ────────────────────────────────────────────────────────────── */
+.wcb-cp-trust-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.2rem 0.55rem;
+	border-radius: 9999px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+.wcb-trust--verified {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.wcb-trust--trusted {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.wcb-trust--premium {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+/* ── Tagline ────────────────────────────────────────────────────────────────── */
+.wcb-cp-tagline {
+	font-size: 0.9375rem;
+	color: #475569;
+	margin: 0.3rem 0 0.75rem;
+	line-height: 1.5;
+}
+
+/* ── Meta chips ─────────────────────────────────────────────────────────────── */
+.wcb-cp-meta-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.wcb-cp-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.2rem 0.65rem;
+	background: var( --wcb-surface, #f1f5f9 );
+	border-radius: 9999px;
+	font-size: 0.8125rem;
+	color: #475569;
+	font-weight: 500;
+}
+
+/* ── External links ─────────────────────────────────────────────────────────── */
+.wcb-cp-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.wcb-cp-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.35rem 0.875rem;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
+	border-radius: 6px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition: border-color 0.12s, color 0.12s;
+	color: #334155;
+}
+
+.wcb-cp-link:hover {
+	border-color: #94a3b8;
+	color: #0f172a;
+	text-decoration: none;
+}
+
+.wcb-cp-link--linkedin:hover {
+	border-color: #0a66c2;
+	color: #0a66c2;
+}
+
+.wcb-cp-link--twitter:hover {
+	border-color: #000;
+	color: #000;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────────── */
+.wcb-cp-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────────── */
+.wcb-cp-section {
+	background: var( --wcb-base, #fff );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: 16px;
+	padding: 1.5rem 1.75rem;
+}
+
+.wcb-cp-section-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	color: var( --wcb-contrast, #0f172a );
+	margin: 0 0 1rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wcb-cp-jobs-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 22px;
+	height: 22px;
+	padding: 0 0.4rem;
+	background: var( --wcb-primary, #2563eb );
+	color: #fff;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+
+/* ── Description ────────────────────────────────────────────────────────────── */
+.wcb-cp-desc {
+	font-size: 0.9375rem;
+	line-height: 1.75;
+	color: #334155;
+}
+
+.wcb-cp-desc p {
+	margin: 0 0 0.75rem;
+}
+
+.wcb-cp-desc p:last-child {
+	margin-bottom: 0;
+}
+
+/* ── Details grid ───────────────────────────────────────────────────────────── */
+.wcb-cp-details-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem 2rem;
+	margin: 0;
+}
+
+.wcb-cp-detail-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.wcb-cp-detail-item dt {
+	font-size: 0.78rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #94a3b8;
+}
+
+.wcb-cp-detail-item dd {
+	font-size: 0.9375rem;
+	color: #1e293b;
+	font-weight: 500;
+	margin: 0;
+}
+
+.wcb-cp-detail-item dd a {
+	color: var( --wcb-primary, #2563eb );
+	text-decoration: none;
+}
+
+.wcb-cp-detail-item dd a:hover {
+	text-decoration: underline;
+}
+
+/* ── Jobs loading ───────────────────────────────────────────────────────────── */
+.wcb-cp-jobs-loading {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var( --wcb-muted, #64748b );
+	font-size: 0.875rem;
+	padding: 0.5rem 0;
+}
+
+.wcb-cp-spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #e2e8f0;
+	border-top-color: var( --wcb-primary, #2563eb );
+	border-radius: 50%;
+	animation: wcb-spin 0.7s linear infinite;
+}
+
+@keyframes wcb-spin {
+	to { transform: rotate( 360deg ); }
+}
+
+/* ── Job cards ──────────────────────────────────────────────────────────────── */
+.wcb-cp-job-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem 0;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wcb-cp-job-card:last-of-type {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.wcb-cp-job-card:first-of-type {
+	padding-top: 0;
+}
+
+.wcb-cp-job-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.wcb-cp-job-title {
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: var( --wcb-contrast, #0f172a );
+	margin: 0 0 0.35rem;
+}
+
+.wcb-cp-job-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-cp-job-title a:hover {
+	color: var( --wcb-primary, #2563eb );
+	text-decoration: underline;
+}
+
+.wcb-cp-job-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	align-items: center;
+}
+
+.wcb-cjbadge {
+	display: none;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0.1rem 0.5rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+.wcb-cjbadge.wcb-shown {
+	display: inline-flex;
+}
+
+.wcb-cjbadge--type     { background: #f1f5f9; color: #475569; }
+.wcb-cjbadge--location { background: #f1f5f9; color: #475569; }
+
+.wcb-cp-job-apply {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	padding: 0.4rem 1.1rem;
+	background: var( --wcb-primary, #2563eb );
+	color: #fff;
+	border-radius: 6px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition: background 0.12s;
+	white-space: nowrap;
+}
+
+.wcb-cp-job-apply:hover {
+	background: var( --wcb-primary-dark, #1d4ed8 );
+	color: #fff;
+	text-decoration: none;
+}
+
+/* ── No jobs message ────────────────────────────────────────────────────────── */
+.wcb-cp-no-jobs {
+	color: var( --wcb-muted, #64748b );
+	font-size: 0.9rem;
+	font-style: italic;
+	margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media ( max-width: 640px ) {
+	.wcb-cp-hero-body {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0;
+		padding: 0 1.25rem 1.5rem;
+	}
+
+	.wcb-cp-avatar-wrap {
+		margin-top: -40px;
+	}
+
+	.wcb-cp-logo,
+	.wcb-cp-avatar {
+		width: 72px;
+		height: 72px;
+		font-size: 1.4rem;
+	}
+
+	.wcb-cp-hero-info {
+		padding-top: 0.75rem;
+	}
+
+	.wcb-cp-name {
+		font-size: 1.25rem;
+	}
+
+	.wcb-cp-section {
+		padding: 1.25rem;
+	}
+
+	.wcb-cp-details-grid {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+
+	.wcb-cp-job-card {
+		flex-wrap: wrap;
+	}
+
+	.wcb-cp-job-apply {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
+/* These selectors cover Twenty-*, Astra, GeneratePress, OceanWP, Kadence,      */
+/* Reign, BuddyX and any other theme that renders a sidebar or post title        */
+/* alongside single CPT posts.                                                    */
+.wcb-company-page #secondary,
+.wcb-company-page .widget-area,
+.wcb-company-page aside.sidebar,
+.wcb-company-page .sidebar-area,
+.wcb-company-page .site-sidebar,
+.wcb-company-page #sidebar { display: none !important; }
+
+.wcb-company-page .entry-title,
+.wcb-company-page .page-title,
+.wcb-company-page h1.post-title,
+.wcb-company-page .post-title,
+.wcb-company-page .wp-block-post-title { display: none !important; }
+
+.wcb-company-page .post-thumbnail,
+.wcb-company-page .entry-thumbnail,
+.wcb-company-page .featured-image,
+.wcb-company-page .wp-block-post-featured-image,
+.wcb-company-page .wp-post-image:not( .wcb-cp-logo ) { display: none !important; }
+
+/* ── Load more / loading state ───────────────────────────────────────────── */
+.wcb-load-more-wrap {
+	display: none;
+	justify-content: center;
+	margin-top: 1.5rem;
+}
+
+.wcb-load-more-wrap.wcb-shown {
+	display: flex;
+}
+
+.wcb-load-more-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.65rem 2rem;
+	border: 1.5px solid var( --wcb-border, #e2e8f0 );
+	border-radius: 8px;
+	background: var( --wcb-base, #fff );
+	font-size: 0.9rem;
+	font-weight: 600;
+	font-family: inherit;
+	color: #475569;
+	cursor: pointer;
+	transition: border-color 0.12s, color 0.12s;
+}
+
+.wcb-load-more-btn:hover:not( :disabled ) {
+	border-color: var( --wcb-primary, #2563eb );
+	color: var( --wcb-primary, #2563eb );
+}
+
+.wcb-load-more-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.wcb-loading-label {
+	display: none;
+}
+
+.wcb-loading-label.wcb-shown {
+	display: inline;
+}
+
+.wcb-hidden { display: none !important; }
