@@ -6,6 +6,8 @@
     <file>.</file>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <!-- Build-generated asset manifests — not hand-written PHP, no WPCS required. -->
+    <exclude-pattern>*/*.asset.php</exclude-pattern>
 
     <!-- Use WordPress coding standards -->
     <rule ref="WordPress">
