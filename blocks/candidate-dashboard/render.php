@@ -24,10 +24,12 @@ $wcb_candidate_id = get_current_user_id();
 $wcb_current_user = wp_get_current_user();
 $wcb_display_name = $wcb_current_user->display_name;
 
-$wcb_settings = (array) get_option( 'wcb_settings', array() );
-$wcb_jobs_url = ! empty( $wcb_settings['jobs_archive_page'] )
-	? (string) get_permalink( (int) $wcb_settings['jobs_archive_page'] )
-	: '#';
+$wcb_settings       = (array) get_option( 'wcb_settings', array() );
+$wcb_jobs_page_id   = (int) ( $wcb_settings['jobs_archive_page'] ?? 0 );
+$wcb_jobs_permalink = $wcb_jobs_page_id > 0 ? get_permalink( $wcb_jobs_page_id ) : false;
+$wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permalink )
+	? (string) $wcb_jobs_permalink
+	: home_url( '/' );
 
 /**
  * Pro populates this with the URL of the resume-builder page (?resume_id=N appended per resume).
