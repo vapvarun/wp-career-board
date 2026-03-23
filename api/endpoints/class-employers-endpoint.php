@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated endpoint name follows project autoloader convention.
 /**
  * Employers REST endpoint — company CRUD and job listing.
  *
@@ -227,10 +227,12 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
-	 * List jobs for the currently authenticated employer's company.
+	 * List jobs for the currently authenticated employer.
 	 *
-	 * Convenience alias for /employers/{id}/jobs that resolves the company ID
-	 * from the current user's linked _wcb_company_id usermeta.
+	 * When the employer has a linked company, delegates to get_jobs() so the
+	 * response shape is identical (includes appCount, editUrl, etc.). When no
+	 * company exists yet the employer may still have pending/published jobs
+	 * (posted before they created a profile), so we query directly by author.
 	 *
 	 * @since 1.0.0
 	 *
@@ -239,15 +241,59 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
-		if ( ! $company_id ) {
-			return new \WP_Error(
-				'wcb_no_company',
-				__( 'No company profile found for the current user.', 'wp-career-board' ),
-				array( 'status' => 404 )
-			);
+		if ( $company_id ) {
+			$request->set_param( 'id', $company_id );
+			return $this->get_jobs( $request );
 		}
-		$request->set_param( 'id', $company_id );
-		return $this->get_jobs( $request );
+
+		// No company yet — return jobs authored by the current user.
+		$user_id      = get_current_user_id();
+		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
+		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
+		$wcb_form_url = $this->get_job_form_page_url();
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_author'    => $user_id,
+				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
+			)
+		);
+
+		$items = array_map(
+			static function ( \WP_Post $p ) use ( $wcb_form_url ): array {
+				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
+				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
+				$status_labels  = array(
+					'publish' => 'Published',
+					'draft'   => 'Draft',
+					'pending' => 'Pending',
+					'private' => 'Private',
+				);
+				return array(
+					'id'          => $p->ID,
+					'title'       => $p->post_title,
+					'status'      => $p->post_status,
+					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'permalink'   => get_permalink( $p->ID ),
+					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+					'appCount'    => 0,
+					'appLabel'    => __( 'No applicants', 'wp-career-board' ),
+					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+				);
+			},
+			$query->posts
+		);
+
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WCB-Total', (string) $query->found_posts );
+		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $response;
 	}
 
 	/**

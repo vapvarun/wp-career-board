@@ -288,11 +288,6 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 	actions: {
 		*init() {
-			if ( ! state.companyId ) {
-				state.noCompany = true;
-				return;
-			}
-
 			// Restore last active view from sessionStorage (skip if URL already dictates view).
 			if ( state.currentView === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_employer_view' );
@@ -309,15 +304,26 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error   = '';
 
 			try {
-				const jobsUrl = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
+				// Use /me/jobs when no company yet — employers can post jobs before
+				// creating a company profile, and those jobs must still appear.
+				const jobsBase = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
+					: state.apiBase + '/employers/me/jobs';
+				const jobsUrl = new URL( jobsBase );
 				jobsUrl.searchParams.set( 'per_page', '50' );
-				const appsUrl = state.apiBase + '/employers/' + String( state.companyId ) + '/applications';
+
+				const appsUrl = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
+					: null;
+
 				const headers = { 'X-WP-Nonce': state.nonce };
 
-				const [ jobsResp, allAppsResp ] = yield Promise.all( [
-					fetch( jobsUrl.toString(), { headers } ),
-					fetch( appsUrl, { headers } ),
-				] );
+				const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];
+				if ( appsUrl ) {
+					fetchPromises.push( fetch( appsUrl, { headers } ) );
+				}
+
+				const [ jobsResp, allAppsResp ] = yield Promise.all( fetchPromises );
 
 				if ( ! jobsResp.ok ) {
 					state.error = 'Could not load your jobs.';
@@ -332,7 +338,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					isDraft:  j.status === 'draft',
 				} ) );
 
-				if ( allAppsResp.ok ) {
+				if ( allAppsResp && allAppsResp.ok ) {
 					state.allApplications = yield allAppsResp.json();
 				}
 			} catch {
