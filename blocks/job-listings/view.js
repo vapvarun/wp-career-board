@@ -217,14 +217,27 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'order', 'DESC' );
 			}
 
-			// Active filters
+			// Active filters — handles both in-block chip keys (type_*, exp_*) and
+			// external filter block keys (wcb_category, wcb_location, etc.).
 			for ( const [ key, value ] of Object.entries( state.activeFilters ) ) {
 				if ( key.startsWith( 'type_' ) ) {
 					url.searchParams.append( 'type', value );
 				} else if ( key.startsWith( 'exp_' ) ) {
 					url.searchParams.append( 'experience', value );
-				} else if ( key === 'remote' ) {
+				} else if ( key === 'remote' || key === 'wcb_remote' ) {
 					url.searchParams.set( 'remote', '1' );
+				} else if ( key === 'wcb_category' ) {
+					url.searchParams.set( 'category', value );
+				} else if ( key === 'wcb_location' ) {
+					url.searchParams.set( 'location', value );
+				} else if ( key === 'wcb_experience' ) {
+					url.searchParams.set( 'experience', value );
+				} else if ( key === 'wcb_job_type' ) {
+					url.searchParams.set( 'type', value );
+				} else if ( key === 'salary_min' && value ) {
+					url.searchParams.set( 'salary_min', value );
+				} else if ( key === 'salary_max' && value ) {
+					url.searchParams.set( 'salary_max', value );
 				}
 			}
 
@@ -273,6 +286,19 @@ const { state, actions } = store( 'wcb-job-listings', {
 				const params = event.detail ?? {};
 				if ( params.search !== undefined ) {
 					state.searchQuery = params.search;
+				}
+				// Merge external filter block values (wcb_category, wcb_location,
+				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
+				if ( params.filters && typeof params.filters === 'object' ) {
+					const merged = Object.assign( {}, state.activeFilters );
+					for ( const [ key, value ] of Object.entries( params.filters ) ) {
+						if ( value ) {
+							merged[ key ] = String( value );
+						} else {
+							delete merged[ key ];
+						}
+					}
+					state.activeFilters = merged;
 				}
 				store( 'wcb-job-listings' ).actions.applyFilters();
 			} );
