@@ -121,11 +121,11 @@ $seed_guest_emails = array(
 );
 
 $seed_taxonomy_terms = array(
-	'wcb_category' => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success', 'DevOps' ),
-	'wcb_job_type' => array( 'Full-time', 'Part-time', 'Contract', 'Internship' ),
-	'wcb_location' => array( 'Remote', 'San Francisco, CA', 'Ottawa, ON', 'New York, NY', 'Austin, TX' ),
+	'wcb_category'   => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success', 'DevOps' ),
+	'wcb_job_type'   => array( 'Full-time', 'Part-time', 'Contract', 'Internship' ),
+	'wcb_location'   => array( 'Remote', 'San Francisco, CA', 'Ottawa, ON', 'New York, NY', 'Austin, TX' ),
 	'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Principal' ),
-	'wcb_tag'      => array( 'Remote-first', 'Series C+', 'Open Source', 'Scale-up', 'Startup', 'SaaS', 'Fintech', 'E-commerce', 'Design Tools', 'DevTools' ),
+	'wcb_tag'        => array( 'Remote-first', 'Series C+', 'Open Source', 'Scale-up', 'Startup', 'SaaS', 'Fintech', 'E-commerce', 'Design Tools', 'DevTools' ),
 );
 
 // Collect all seeded user IDs before deleting users.
@@ -146,13 +146,15 @@ WP_CLI::log( '=== Deleting applications ===' );
 
 // Applications by seeded candidates.
 if ( $all_seeded_user_ids ) {
-	$app_ids = get_posts( array(
-		'post_type'      => 'wcb_application',
-		'post_status'    => 'any',
-		'author__in'     => $all_seeded_user_ids,
-		'numberposts'    => -1,
-		'fields'         => 'ids',
-	) );
+	$app_ids = get_posts(
+		array(
+			'post_type'   => 'wcb_application',
+			'post_status' => 'any',
+			'author__in'  => $all_seeded_user_ids,
+			'numberposts' => -1,
+			'fields'      => 'ids',
+		)
+	);
 	foreach ( $app_ids as $app_id ) {
 		wcb_cleanup_delete_post( (int) $app_id );
 	}
@@ -160,18 +162,20 @@ if ( $all_seeded_user_ids ) {
 
 // Guest applications by known emails.
 foreach ( $seed_guest_emails as $guest_email ) {
-	$guest_apps = get_posts( array(
-		'post_type'   => 'wcb_application',
-		'post_status' => 'any',
-		'numberposts' => -1,
-		'fields'      => 'ids',
-		'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+	$guest_apps = get_posts(
+		array(
+			'post_type'   => 'wcb_application',
+			'post_status' => 'any',
+			'numberposts' => -1,
+			'fields'      => 'ids',
+			'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			array(
 				'key'   => '_wcb_guest_email',
 				'value' => $guest_email,
 			),
-		),
-	) );
+			),
+		)
+	);
 	foreach ( $guest_apps as $app_id ) {
 		wcb_cleanup_delete_post( (int) $app_id );
 	}
@@ -260,11 +264,28 @@ foreach ( $seed_taxonomy_terms as $taxonomy => $names ) {
 // wcb_resume_skill terms (Pro).
 if ( taxonomy_exists( 'wcb_resume_skill' ) ) {
 	$skill_names = array(
-		'React', 'TypeScript', 'Next.js', 'GraphQL', 'Figma',
-		'Motion Design', 'User Research', 'Prototyping',
-		'Product Strategy', 'Data Analysis (SQL)', 'A/B Testing',
-		'Content Strategy', 'SEO', 'Developer Marketing', 'Community Building', 'Demand Generation',
-		'Kubernetes', 'Terraform', 'Go', 'AWS / GCP', 'Observability', 'Python',
+		'React',
+		'TypeScript',
+		'Next.js',
+		'GraphQL',
+		'Figma',
+		'Motion Design',
+		'User Research',
+		'Prototyping',
+		'Product Strategy',
+		'Data Analysis (SQL)',
+		'A/B Testing',
+		'Content Strategy',
+		'SEO',
+		'Developer Marketing',
+		'Community Building',
+		'Demand Generation',
+		'Kubernetes',
+		'Terraform',
+		'Go',
+		'AWS / GCP',
+		'Observability',
+		'Python',
 	);
 	foreach ( $skill_names as $name ) {
 		$term = get_term_by( 'name', $name, 'wcb_resume_skill' );
