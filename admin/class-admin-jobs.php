@@ -467,15 +467,14 @@ class AdminJobs extends \WP_List_Table {
 				continue;
 			}
 			if ( 'approve' === $action ) {
-				$updated = wp_update_post(
+				// wcb_job_approved fires via EmailJobApproved::on_status_transition()
+				// on the transition_post_status hook triggered by wp_update_post().
+				wp_update_post(
 					array(
 						'ID'          => $job_id,
 						'post_status' => 'publish',
 					)
 				);
-				if ( $updated && ! is_wp_error( $updated ) ) {
-					do_action( 'wcb_job_approved', $job_id );
-				}
 			} elseif ( 'trash' === $action ) {
 				wp_trash_post( $job_id );
 			}

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated module name is intentional.
 /**
  * Moderation Module — approve / reject job listings via REST endpoints.
  *
@@ -139,14 +139,9 @@ class ModerationModule extends \WCB\Api\RestController {
 			return $result;
 		}
 
-		/**
-		 * Fires after a job listing is approved by a moderator.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param int $job_id The approved job post ID.
-		 */
-		do_action( 'wcb_job_approved', $job_id );
+		// wcb_job_approved is fired by EmailJobApproved::on_status_transition()
+		// via the transition_post_status hook triggered by wp_update_post() above.
+		// No explicit do_action() needed here — firing it twice would send duplicate emails.
 
 		return rest_ensure_response(
 			array(

@@ -45,13 +45,17 @@ abstract class RestController extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	protected function check_ability( string $ability, array $args = array() ): bool {
-		if ( function_exists( 'wp_is_ability_granted' ) ) {
-			return wp_is_ability_granted( $ability, wp_get_current_user(), $args );
+		if ( function_exists( 'wp_get_ability' ) ) {
+			$ability_obj = wp_get_ability( $ability );
+			if ( $ability_obj ) {
+				$result = $ability_obj->check_permissions();
+				return true === $result;
+			}
 		}
 
-		// Graceful fallback: treat ability slug as a capability name.
+		// Graceful fallback when Abilities API is unavailable or ability not registered.
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-		return current_user_can( $ability );
+		return current_user_can( $ability ) || current_user_can( 'manage_options' );
 	}
 
 	/**
