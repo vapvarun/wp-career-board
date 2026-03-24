@@ -511,11 +511,12 @@ final class ApplicationsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_candidate = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
-		$job_id       = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
-		$job          = get_post( $job_id );
-		$is_employer  = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
-		$is_admin     = $this->check_ability( 'wcb_manage_settings' );
+		$current_user_id = get_current_user_id();
+		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
+		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+		$job             = get_post( $job_id );
+		$is_employer     = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_admin        = $this->check_ability( 'wcb_manage_settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
 
