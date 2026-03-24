@@ -738,7 +738,7 @@ final class JobsEndpoint extends RestController {
 		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$board_id      = (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID );
 
-		return array(
+		$data = array(
 			'id'               => $post->ID,
 			'title'            => $post->post_title,
 			'description'      => $post->post_content,
@@ -781,6 +781,19 @@ final class JobsEndpoint extends RestController {
 			'lat'              => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
 			'lng'              => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);
+
+		/**
+		 * Filter the job REST response array.
+		 *
+		 * Pro (and other extensions) hook here to append extra data such as
+		 * custom field values without touching the Free codebase.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array    $data Job response array.
+		 * @param \WP_Post $post The job post object.
+		 */
+		return apply_filters( 'wcb_job_response', $data, $post );
 	}
 
 	/**
