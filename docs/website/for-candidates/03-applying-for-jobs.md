@@ -27,15 +27,19 @@ Registered candidates get:
 | **Full Name** | Required (pre-filled if logged in) |
 | **Email Address** | Required (pre-filled if logged in) |
 | **Cover Letter** | Optional — but strongly recommended |
-| **Attach Resume** | Shown if the employer requires it |
+| **Select Resume** | Choose from your saved resumes (Pro) |
+| **Upload Resume** | Upload a PDF, DOC, or DOCX file — max 5 MB |
 
-> **With WP Career Board Pro:** candidates can attach resumes they built inside the platform, and employers can add custom screening questions to each job.
+When Pro is active, you'll see both options: pick an existing resume from your profile **or** upload a file directly. The "— or upload a file —" divider separates the two methods.
+
+> **With WP Career Board Pro:** employers can also add custom screening questions to each job.
 
 ## What Happens After You Apply
 
 1. You receive a **confirmation email** with the job title and company name
 2. The employer receives a **notification email** about your application
 3. Your application appears in your **Candidate Dashboard → My Applications** with status **Submitted**
+4. **Get notified about similar jobs** — after submitting, you'll see a prompt to create a job alert based on this job's category, type, and location (Pro feature)
 
 ## Withdrawing an Application
 

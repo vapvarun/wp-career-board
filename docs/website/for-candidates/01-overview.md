@@ -9,17 +9,30 @@ Candidates are job seekers who browse listings and apply on your job board. They
 - Browse and search job listings
 - Filter jobs by category, type, location, and experience level
 - Bookmark jobs to review and apply later
-- Apply for jobs with a cover letter
+- Apply for jobs with a cover letter and resume upload (PDF/DOC)
 - Track all applications and their statuses from a single dashboard
 - Receive email notifications when their application status changes
+- Set up **job alerts** to get notified when matching jobs are posted (Pro)
+
+## Registration
+
+Visit the **Create Account** page and choose **"Find a Job"** to register as a candidate. You'll need:
+- First name and last name
+- Email address
+- Password (minimum 8 characters)
+
+After registration, you're automatically logged in and redirected to your Candidate Dashboard.
+
+> Employers choose **"Hire Talent"** on the same page — one registration form for both roles.
 
 ## The Candidate Role
 
 When a user registers as a candidate, they get the **Candidate** role. This gives access to:
 
-- The **Candidate Dashboard**
+- The **Candidate Dashboard** — applications, saved jobs, resumes, job alerts
 - The ability to apply for jobs
 - The saved jobs (bookmarks) list
+- **Job Alerts** management (Pro)
 
 Admins can manually assign the Candidate role from **Users → Edit User** in wp-admin.
 
@@ -35,3 +48,5 @@ Candidates can apply without creating an account. Guest applicants provide their
 - [Applying for Jobs](./03-applying-for-jobs.md) — the application process step by step
 - [My Applications](./04-my-applications.md) — tracking application statuses
 - [Saved Jobs](./05-saved-jobs.md) — bookmarking jobs for later
+- [Resume Builder](./06-resume-builder.md) — creating and managing resumes (Pro)
+- [Job Alerts](./07-job-alerts.md) — getting notified about matching jobs (Pro)

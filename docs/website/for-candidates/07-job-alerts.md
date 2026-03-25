@@ -4,25 +4,21 @@
 
 Job Alerts let candidates subscribe to saved searches and receive email notifications when new matching jobs are posted. Candidates set a frequency — instant, daily, or weekly — and WP Career Board sends digests automatically.
 
-## How It Works
+## Three Ways to Create Alerts
 
-1. A candidate searches or filters jobs on your board
-2. They click **Save Alert** in the Job Alerts block
-3. New jobs that match their saved filters trigger an email at their chosen frequency
-4. Every alert email includes an unsubscribe link
+### 1. From the Job Listings Page
 
-## Adding the Job Alerts Block
+When browsing jobs, click the **"Alert me"** button in the toolbar (next to the results count). This saves your current search query and active filters as a daily alert.
 
-Add the **Job Alerts** block to your jobs page. The recommended placement is below the Job Filters block:
+The button turns into **"Alert saved"** with a green checkmark to confirm.
 
-```
-[ Job Search ]
-[ Job Filters ]
-[ Job Alerts  ]  ← subscribe to current search
-[ Job Listings ]
-```
+### 2. After Applying for a Job
 
-The block automatically reads the current search state — whatever filters the visitor has applied become the alert criteria when they subscribe.
+After submitting an application, you'll see a **"Get notified about similar jobs"** button below the success message. Clicking it creates an alert based on the job you just applied to — matching its category, type, and remote status.
+
+### 3. From the Candidate Dashboard
+
+Go to **Candidate Dashboard → Job Alerts** to view and manage all your alerts. From here you can also adjust the frequency of each alert.
 
 ## Alert Frequency Options
 
@@ -30,33 +26,34 @@ The block automatically reads the current search state — whatever filters the 
 |---|---|
 | **Instant** | As soon as a matching job is posted |
 | **Daily** | Once per day (morning digest) |
-| **Weekly** | Once per week |
+| **Weekly** | Once per week (Monday morning) |
 
-Candidates choose their preferred frequency at the time of subscription and can change it from their dashboard.
+You can change the frequency at any time from the dashboard.
 
-## Candidate Experience
+## What Gets Matched
 
-### Logged-In Candidates
+Alerts match new jobs against these criteria:
 
-Logged-in candidates see a **Save as Alert** button in the Job Alerts block. After clicking:
-1. A frequency selector appears (Instant / Daily / Weekly)
-2. They click **Save Alert**
-3. The alert is active immediately
-
-### Guest Visitors
-
-Guests are asked for their email address. After submitting, they receive a confirmation email with a double opt-in link. The alert only activates after they confirm.
+- **Keywords** — job title contains your search terms
+- **Category** — job is in the same category
+- **Job Type** — full-time, part-time, contract, etc.
+- **Location** — matches the location taxonomy
+- **Salary Range** — job salary falls within your range
+- **Remote** — remote-only filter
 
 ## Managing Alerts
 
-Candidates manage their active alerts from **Candidate Dashboard → My Alerts**:
-- View all active alerts with their saved filters
-- Change frequency
-- Delete an alert
+From **Candidate Dashboard → Job Alerts**:
 
-## Admin: Viewing Alerts
+- View all active alerts with their saved filters shown as pills
+- Change frequency using the dropdown (Instant / Daily / Weekly)
+- Delete an alert with the Delete button
 
-Admins can view all active alerts per user from **WP Career Board → Candidates → [candidate name] → Alerts**.
+The nav badge shows your total alert count.
+
+## Overview Stats
+
+Your alert count also appears on the **Dashboard Overview** page alongside your Applications, Saved Jobs, and Resumes counts. Click the Job Alerts stat card to jump directly to the alerts tab.
 
 ## Email Delivery
 
