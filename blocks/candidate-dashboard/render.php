@@ -110,6 +110,7 @@ wp_interactivity_state(
 	<!-- SIDEBAR -->
 	<aside class="wcb-sidebar" data-wp-class--wcb-nav-open="state.navOpen">
 		<button type="button" class="wcb-nav-toggle"
+			aria-label="<?php esc_attr_e( 'Toggle navigation', 'wp-career-board' ); ?>"
 			data-wp-on--click="actions.toggleNav"
 			data-wp-bind--aria-expanded="state.navOpen">
 			<span data-wp-text="state.activeTabLabel"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></span>
@@ -286,7 +287,7 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Applications', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-cd-loading" data-wp-class--wcb-shown="state.loading">
+			<div class="wcb-cd-loading" role="status" data-wp-class--wcb-shown="state.loading">
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
@@ -330,7 +331,7 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-cd-loading" data-wp-class--wcb-shown="state.loading">
+			<div class="wcb-cd-loading" role="status" data-wp-class--wcb-shown="state.loading">
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
@@ -396,8 +397,10 @@ wp_interactivity_state(
 						<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
 					</div>
 					<div class="wcb-new-resume-form" data-wp-class--wcb-hidden="!state.showNewResumeForm">
+						<label class="screen-reader-text" for="wcb-new-resume-title"><?php esc_html_e( 'Resume title', 'wp-career-board' ); ?></label>
 						<input
 							type="text"
+							id="wcb-new-resume-title"
 							class="wcb-input"
 							placeholder="<?php esc_attr_e( 'e.g. Software Developer', 'wp-career-board' ); ?>"
 							data-wp-bind--value="state.newResumeTitle"
@@ -409,7 +412,7 @@ wp_interactivity_state(
 				</div>
 			</div>
 
-			<div class="wcb-cd-loading" data-wp-class--wcb-shown="state.loading">
+			<div class="wcb-cd-loading" role="status" data-wp-class--wcb-shown="state.loading">
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
@@ -476,7 +479,7 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-cd-loading" data-wp-class--wcb-shown="state.alertsLoading">
+			<div class="wcb-cd-loading" role="status" data-wp-class--wcb-shown="state.alertsLoading">
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 			</div>
 
