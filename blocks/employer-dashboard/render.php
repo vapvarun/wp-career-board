@@ -71,7 +71,7 @@ if ( $wcb_company_id ) {
 			(string) $wcb_company_id
 		)
 	);
-	$wcb_live_employer_jobs = (int) $GLOBALS['wpdb']->get_var(
+	$wcb_live_employer_jobs  = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
 			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} p
 			 INNER JOIN {$GLOBALS['wpdb']->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_wcb_company_id'
@@ -79,7 +79,7 @@ if ( $wcb_company_id ) {
 			(string) $wcb_company_id
 		)
 	);
-	$wcb_total_apps = (int) $GLOBALS['wpdb']->get_var(
+	$wcb_total_apps          = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
 			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
 			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
@@ -88,8 +88,8 @@ if ( $wcb_company_id ) {
 			(string) $wcb_company_id
 		)
 	);
-	$wcb_week_ago   = gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS );
-	$wcb_new_apps   = (int) $GLOBALS['wpdb']->get_var(
+	$wcb_week_ago            = gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS );
+	$wcb_new_apps            = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
 			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
 			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'

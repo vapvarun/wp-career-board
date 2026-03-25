@@ -74,7 +74,7 @@ $wcb_jobs_raw = $wcb_company_ids
 
 $wcb_jobs_by_company = array();
 foreach ( $wcb_jobs_raw as $wcb_jpost ) {
-	$wcb_cid                          = (int) get_post_meta( $wcb_jpost->ID, '_wcb_company_id', true );
+	$wcb_cid                         = (int) get_post_meta( $wcb_jpost->ID, '_wcb_company_id', true );
 	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
 }
 

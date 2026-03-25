@@ -509,6 +509,7 @@ class WpjmImporter {
 		}
 
 		// Fall back to the admin running the import.
-		return get_current_user_id() ?: 1;
+		$current = get_current_user_id();
+		return $current > 0 ? $current : 1;
 	}
 }

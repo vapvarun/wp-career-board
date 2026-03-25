@@ -160,10 +160,10 @@ if ( $wcb_current_user_id && $wcb_show_apply ) {
 }
 
 // ── Bookmark state ────────────────────────────────────────────────────────────
-$wcb_bookmarks       = $wcb_current_user_id
+$wcb_bookmarks     = $wcb_current_user_id
 	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_bookmark', false ) )
 	: array();
-$wcb_is_bookmarked   = in_array( $wcb_job_id, $wcb_bookmarks, true );
+$wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
 // ── Resume data for apply panel ───────────────────────────────────────────────
 $wcb_user_resumes    = array();
@@ -201,32 +201,32 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
-		'jobId'            => $wcb_job_id,
-		'apiBase'          => rest_url( 'wcb/v1' ),
-		'nonce'            => wp_create_nonce( 'wp_rest' ),
-		'panelOpen'        => false,
-		'submitting'       => false,
-		'submitted'        => $wcb_has_applied,
-		'bookmarked'       => $wcb_is_bookmarked,
-		'bookmarking'      => false,
-		'coverLetter'      => '',
-		'error'            => '',
-		'userResumes'      => $wcb_user_resumes,
-		'selectedResumeId' => 0,
-		'resumePageUrl'    => $wcb_resume_page_url,
-		'proActive'        => post_type_exists( 'wcb_resume' ),
-		'jobPermalink'     => (string) get_permalink( $wcb_job_id ),
-		'jobTitle'         => $wcb_job->post_title,
-		'linkCopied'       => false,
-		'isLoggedIn'       => is_user_logged_in(),
-		'guestName'        => '',
-		'guestEmail'       => '',
-		'resumeFileName'       => '',
-		'alertFromJobSaved'    => false,
-		'alertFromJobSaving'   => false,
-		'jobCategories'        => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
-		'jobTypes'             => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
-		'jobRemote'            => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
+		'jobId'              => $wcb_job_id,
+		'apiBase'            => rest_url( 'wcb/v1' ),
+		'nonce'              => wp_create_nonce( 'wp_rest' ),
+		'panelOpen'          => false,
+		'submitting'         => false,
+		'submitted'          => $wcb_has_applied,
+		'bookmarked'         => $wcb_is_bookmarked,
+		'bookmarking'        => false,
+		'coverLetter'        => '',
+		'error'              => '',
+		'userResumes'        => $wcb_user_resumes,
+		'selectedResumeId'   => 0,
+		'resumePageUrl'      => $wcb_resume_page_url,
+		'proActive'          => post_type_exists( 'wcb_resume' ),
+		'jobPermalink'       => (string) get_permalink( $wcb_job_id ),
+		'jobTitle'           => $wcb_job->post_title,
+		'linkCopied'         => false,
+		'isLoggedIn'         => is_user_logged_in(),
+		'guestName'          => '',
+		'guestEmail'         => '',
+		'resumeFileName'     => '',
+		'alertFromJobSaved'  => false,
+		'alertFromJobSaving' => false,
+		'jobCategories'      => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
+		'jobTypes'           => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
+		'jobRemote'          => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
 	)
 );
 ?>
