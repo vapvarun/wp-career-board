@@ -92,6 +92,50 @@ const { state, actions } = store( 'wcb-job-listings', {
 	},
 
 	actions: {
+		// ── Save search as alert ──────────────────────────────────────
+		*saveSearchAlert() {
+			if ( state.alertSaved || state.alertSaving ) {
+				return;
+			}
+
+			state.alertSaving = true;
+
+			const filters = {};
+			Object.keys( state.activeFilters ).forEach( ( key ) => {
+				if ( key.startsWith( 'type_' ) ) {
+					filters.type = key.replace( 'type_', '' );
+				} else if ( key.startsWith( 'exp_' ) ) {
+					filters.experience = key.replace( 'exp_', '' );
+				}
+			} );
+
+			try {
+				const response = yield fetch(
+					state.apiBase.replace( '/jobs', '/alerts' ),
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( {
+							search_query: state.searchQuery || '',
+							filters,
+							frequency:    'daily',
+						} ),
+					}
+				);
+
+				if ( response.ok ) {
+					state.alertSaved = true;
+				}
+			} catch {
+				// Silent failure — button stays enabled.
+			} finally {
+				state.alertSaving = false;
+			}
+		},
+
 		// ── Layout toggle ─────────────────────────────────────────────
 		setGridLayout() {
 			state.layout = 'grid';

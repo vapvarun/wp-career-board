@@ -92,6 +92,8 @@ wp_interactivity_state(
 			'bellUnreadCount'       => 0,
 			'bellOpen'              => false,
 			'bellLoading'           => false,
+			'alerts'                => array(),
+			'alertsLoading'         => false,
 		),
 		$wcb_resumes_state
 	)
@@ -149,6 +151,14 @@ wp_interactivity_state(
 				<?php echo $wcb_resume_embed_id > 0 ? '' : 'hidden'; ?>
 				data-wp-bind--hidden="!state.resumeEmbedId"
 			><?php esc_html_e( 'Edit Resume', 'wp-career-board' ); ?></button>
+			<?php endif; ?>
+			<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+			<button type="button" class="wcb-nav-item"
+				data-wp-class--wcb-nav-active="state.isTabAlerts"
+				data-wp-on--click="actions.switchToAlerts">
+				<?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?>
+				<span class="wcb-nav-badge wcb-nav-badge--green" data-wp-text="state.alertsCount">0</span>
+			</button>
 			<?php endif; ?>
 		</nav>
 
@@ -221,6 +231,12 @@ wp_interactivity_state(
 					<span class="wcb-stat-value" data-wp-text="state.resumeCount"><?php echo esc_html( (string) ( $wcb_resumes_state['resumeCount'] ?? 0 ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></span>
 				</div>
+				<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+				<div class="wcb-stat-card wcb-stat-card--green" style="cursor:pointer" data-wp-on--click="actions.switchToAlerts">
+					<span class="wcb-stat-value" data-wp-text="state.alertsCount">0</span>
+					<span class="wcb-stat-label"><?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?></span>
+				</div>
+				<?php endif; ?>
 			</div>
 
 			<div class="wcb-two-col">
@@ -450,6 +466,51 @@ wp_interactivity_state(
 				echo do_blocks( '<!-- wp:wcb/resume-builder /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			?>
+		</div>
+		<?php endif; ?>
+
+	<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+		<!-- VIEW: Job Alerts (Pro) -->
+		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabAlerts">
+			<div class="wcb-page-header">
+				<h1 class="wcb-page-title"><?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?></h1>
+			</div>
+
+			<div class="wcb-cd-loading" data-wp-class--wcb-shown="state.alertsLoading">
+				<span class="wcb-cd-spinner" aria-hidden="true"></span>
+			</div>
+
+			<div data-wp-class--wcb-shown="state.hasAlerts">
+				<template data-wp-each--alert="state.alerts" data-wp-each-key="context.alert.id">
+					<div class="wcb-alert-row">
+						<div class="wcb-alert-main">
+							<h3 class="wcb-alert-title" data-wp-text="context.alert.label"></h3>
+							<div class="wcb-alert-meta">
+								<template data-wp-each--pill="context.alert.filterPills" data-wp-each-key="context.pill">
+									<span class="wcb-alert-pill" data-wp-text="context.pill"></span>
+								</template>
+							</div>
+						</div>
+						<div class="wcb-alert-actions">
+							<select class="wcb-alert-freq" data-wp-bind--value="context.alert.frequency" data-wp-on--change="actions.changeAlertFrequency">
+								<option value="instant"><?php esc_html_e( 'Instant', 'wp-career-board' ); ?></option>
+								<option value="daily"><?php esc_html_e( 'Daily', 'wp-career-board' ); ?></option>
+								<option value="weekly"><?php esc_html_e( 'Weekly', 'wp-career-board' ); ?></option>
+							</select>
+							<button type="button" class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm" data-wp-on--click="actions.deleteAlert">
+								<?php esc_html_e( 'Delete', 'wp-career-board' ); ?>
+							</button>
+						</div>
+					</div>
+				</template>
+			</div>
+
+			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noAlerts">
+				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No job alerts yet. Search for jobs and click "Alert me" to get notified when matching jobs are posted.', 'wp-career-board' ); ?></p>
+				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-cbtn wcb-cbtn--primary">
+					<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
+				</a>
+			</div>
 		</div>
 		<?php endif; ?>
 

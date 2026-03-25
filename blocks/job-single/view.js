@@ -108,6 +108,51 @@ const { state } = store( 'wcb-job-single', {
 			state.resumeFileName = state.resumeFile ? state.resumeFile.name : '';
 		},
 
+		*createAlertFromJob() {
+			if ( state.alertFromJobSaved || state.alertFromJobSaving ) {
+				return;
+			}
+
+			state.alertFromJobSaving = true;
+
+			const filters = {};
+			if ( state.jobCategories && state.jobCategories.length ) {
+				filters.category = state.jobCategories[ 0 ];
+			}
+			if ( state.jobTypes && state.jobTypes.length ) {
+				filters.type = state.jobTypes[ 0 ];
+			}
+			if ( state.jobRemote ) {
+				filters.remote = true;
+			}
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts',
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( {
+							search_query: state.jobTitle,
+							filters,
+							frequency:    'daily',
+						} ),
+					}
+				);
+
+				if ( response.ok ) {
+					state.alertFromJobSaved = true;
+				}
+			} catch {
+				// Silent.
+			} finally {
+				state.alertFromJobSaving = false;
+			}
+		},
+
 		*submitApplication() {
 			if ( state.submitting ) {
 				return;

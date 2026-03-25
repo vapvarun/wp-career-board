@@ -197,7 +197,12 @@ wp_interactivity_state(
 		'isLoggedIn'       => is_user_logged_in(),
 		'guestName'        => '',
 		'guestEmail'       => '',
-		'resumeFileName'   => '',
+		'resumeFileName'       => '',
+		'alertFromJobSaved'    => false,
+		'alertFromJobSaving'   => false,
+		'jobCategories'        => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
+		'jobTypes'             => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
+		'jobRemote'            => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
 	)
 );
 ?>
@@ -297,6 +302,20 @@ wp_interactivity_state(
 				<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
 					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
 				</p>
+				<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+				<div class="wcb-post-apply-alert" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
+					<button
+						type="button"
+						class="wcb-post-apply-alert-btn"
+						data-wp-on--click="actions.createAlertFromJob"
+						data-wp-bind--disabled="state.alertFromJobSaving"
+						data-wp-class--wcb-hidden="state.alertFromJobSaved"
+					>&#128276; <?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
+					<span class="wcb-post-apply-alert-done" data-wp-class--wcb-shown="state.alertFromJobSaved">
+						<?php esc_html_e( '✓ You will be notified about similar jobs', 'wp-career-board' ); ?>
+					</span>
+				</div>
+				<?php endif; ?>
 				<?php if ( $wcb_deadline_formatted ) : ?>
 					<p class="wcb-deadline-note">
 						<?php

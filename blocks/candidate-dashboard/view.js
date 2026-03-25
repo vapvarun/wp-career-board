@@ -15,6 +15,33 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 
+/**
+ * Convert an alert's filters JSON string/object into readable pill labels.
+ */
+function buildFilterPills( filters ) {
+	if ( typeof filters === 'string' ) {
+		try {
+			filters = JSON.parse( filters );
+		} catch {
+			return [];
+		}
+	}
+	if ( ! filters || typeof filters !== 'object' ) {
+		return [];
+	}
+	const pills = [];
+	if ( filters.category ) pills.push( filters.category );
+	if ( filters.type ) pills.push( filters.type );
+	if ( filters.location ) pills.push( filters.location );
+	if ( filters.remote ) pills.push( 'Remote' );
+	if ( filters.salary_min || filters.salary_max ) {
+		const min = filters.salary_min ? '$' + Number( filters.salary_min ).toLocaleString() : '';
+		const max = filters.salary_max ? '$' + Number( filters.salary_max ).toLocaleString() : '';
+		pills.push( min && max ? min + '–' + max : min || max );
+	}
+	return pills;
+}
+
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
 		navOpen: false,
@@ -24,6 +51,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				applications:       'My Applications',
 				bookmarks:          'Saved Jobs',
 				resumes:            'My Resumes',
+				alerts:             'Job Alerts',
 				'resume-builder':   'Edit Resume',
 			};
 			return map[ state.tab ] || 'Dashboard';
@@ -42,6 +70,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get isTabOverview() {
 			return state.tab === 'overview';
+		},
+		get isTabAlerts() {
+			return state.tab === 'alerts';
+		},
+		get alertsCount() {
+			return state.alerts.length;
+		},
+		get hasAlerts() {
+			return ! state.alertsLoading && state.alerts.length > 0;
+		},
+		get noAlerts() {
+			return ! state.alertsLoading && state.alerts.length === 0;
 		},
 		get isAtResumesCap() {
 			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
@@ -153,6 +193,25 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				// Non-critical — overview saved jobs panel will show empty state.
 			}
 
+			// Prefetch alerts count for Overview stat card and nav badge.
+			try {
+				const alertsRes = yield fetch(
+					state.apiBase + '/alerts',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( alertsRes.ok ) {
+					const raw = yield alertsRes.json();
+					state.alerts = raw.map( ( a ) => ( {
+						id:          a.id,
+						label:       a.search_query || 'All jobs',
+						frequency:   a.frequency,
+						filterPills: buildFilterPills( a.filters ),
+					} ) );
+				}
+			} catch {
+				// Non-critical.
+			}
+
 			// If resumes tab was restored from sessionStorage, fetch resumes now.
 			if ( state.tab === 'resumes' ) {
 				yield actions.switchToResumes();
@@ -213,6 +272,88 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
+		},
+
+		*switchToAlerts() {
+			state.tab     = 'alerts';
+			state.error   = '';
+			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'alerts' );
+
+			if ( state.alerts.length ) {
+				return;
+			}
+
+			state.alertsLoading = true;
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+
+				if ( ! response.ok ) {
+					state.error = 'Could not load your alerts.';
+					return;
+				}
+
+				const raw = yield response.json();
+				state.alerts = raw.map( ( a ) => ( {
+					id:          a.id,
+					label:       a.search_query || 'All jobs',
+					frequency:   a.frequency,
+					filterPills: buildFilterPills( a.filters ),
+				} ) );
+			} catch {
+				state.error = 'Connection error.';
+			} finally {
+				state.alertsLoading = false;
+			}
+		},
+
+		*deleteAlert() {
+			const ctx = getContext();
+			const alertId = ctx.alert.id;
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts/' + String( alertId ),
+					{
+						method:  'DELETE',
+						headers: { 'X-WP-Nonce': state.nonce },
+					}
+				);
+
+				if ( response.ok ) {
+					state.alerts = state.alerts.filter( ( a ) => a.id !== alertId );
+				}
+			} catch {
+				// Silent — row stays visible.
+			}
+		},
+
+		*changeAlertFrequency( event ) {
+			const ctx       = getContext();
+			const alertId   = ctx.alert.id;
+			const frequency = event.target.value;
+
+			ctx.alert.frequency = frequency;
+
+			try {
+				yield fetch(
+					state.apiBase + '/alerts/' + String( alertId ),
+					{
+						method:  'PATCH',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( { frequency } ),
+					}
+				);
+			} catch {
+				// Silent — optimistic update already applied.
+			}
 		},
 
 		toggleNewResumeForm() {
