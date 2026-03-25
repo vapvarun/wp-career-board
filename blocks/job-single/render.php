@@ -303,7 +303,7 @@ wp_interactivity_state(
 					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
 				</p>
 				<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
-				<div class="wcb-post-apply-alert" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
+				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
 					<button
 						type="button"
 						class="wcb-post-apply-alert-btn"
@@ -311,7 +311,7 @@ wp_interactivity_state(
 						data-wp-bind--disabled="state.alertFromJobSaving"
 						data-wp-class--wcb-hidden="state.alertFromJobSaved"
 					>&#128276; <?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
-					<span class="wcb-post-apply-alert-done" data-wp-class--wcb-shown="state.alertFromJobSaved">
+					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
 						<?php esc_html_e( '✓ You will be notified about similar jobs', 'wp-career-board' ); ?>
 					</span>
 				</div>

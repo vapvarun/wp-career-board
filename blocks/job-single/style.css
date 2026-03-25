@@ -649,6 +649,14 @@ a.wcb-company-card-name:hover {
 	margin-top: 0.5rem;
 }
 
+.wcb-post-apply-alert.wcb-shown {
+	display: block !important;
+}
+
+.wcb-post-apply-alert-done.wcb-shown {
+	display: inline !important;
+}
+
 .wcb-post-apply-alert-btn {
 	display: inline-flex;
 	align-items: center;
