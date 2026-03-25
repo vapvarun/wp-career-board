@@ -182,6 +182,7 @@ wp_interactivity_state(
 						data-wp-bind--value="state.password"
 						data-wp-on--input="actions.updatePassword"
 					/>
+					<span class="wcb-form-hint"><?php esc_html_e( 'Minimum 8 characters', 'wp-career-board' ); ?></span>
 				</div>
 
 				<p class="wcb-reg-error" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>

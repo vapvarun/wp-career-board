@@ -245,6 +245,7 @@ $wcb_step_labels = array(
 	<!-- ── Validation error banner ───────────────────────────────────────── -->
 	<p
 		class="wcb-form-error"
+		role="alert"
 		data-wp-class--wcb-form-error--show="state.hasValidation"
 		data-wp-text="state.validationError"
 	></p>
