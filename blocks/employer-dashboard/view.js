@@ -519,6 +519,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! jobId ) {
 				return;
 			}
+			if ( ! window.confirm( state.strings.confirmCloseJob ) ) {
+				return;
+			}
 			try {
 				const response = yield fetch(
 					state.apiBase + '/jobs/' + String( jobId ),

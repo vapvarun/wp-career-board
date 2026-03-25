@@ -174,6 +174,7 @@ wp_interactivity_state(
 			'jobsPlural'          => __( ' jobs', 'wp-career-board' ),
 			'appsHeadingPrefix'   => __( 'Applications: ', 'wp-career-board' ),
 			'appsHeadingDefault'  => __( 'Applications', 'wp-career-board' ),
+			'confirmCloseJob'     => __( 'Are you sure you want to close this job? It will no longer be visible to candidates.', 'wp-career-board' ),
 		),
 	)
 );
