@@ -1,6 +1,10 @@
 <?php
 /**
- * Block render: wcb/employer-registration — frontend sign-up form for new employers.
+ * Block render: wcb/employer-registration — unified sign-up form with role picker.
+ *
+ * Step 1: Choose role (Candidate / Employer)
+ * Step 2: Fill in details (company name shown only for employers)
+ * Step 3: Success — redirect to appropriate dashboard
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -13,8 +17,11 @@ defined( 'ABSPATH' ) || exit;
 // Already logged in — show a contextual message instead of the form.
 if ( is_user_logged_in() ) {
 	$wcb_settings      = (array) get_option( 'wcb_settings', array() );
-	$wcb_dashboard_url = ! empty( $wcb_settings['employer_dashboard_page'] )
-		? (string) get_permalink( (int) $wcb_settings['employer_dashboard_page'] )
+	$wcb_user          = wp_get_current_user();
+	$wcb_is_employer   = in_array( 'wcb_employer', (array) $wcb_user->roles, true );
+	$wcb_dash_page_key = $wcb_is_employer ? 'employer_dashboard_page' : 'candidate_dashboard_page';
+	$wcb_dashboard_url = ! empty( $wcb_settings[ $wcb_dash_page_key ] )
+		? (string) get_permalink( (int) $wcb_settings[ $wcb_dash_page_key ] )
 		: '';
 	?>
 	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--logged-in' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -38,6 +45,7 @@ wp_interactivity_state(
 	array(
 		'apiBase'      => rest_url( 'wcb/v1' ),
 		'nonce'        => wp_create_nonce( 'wp_rest' ),
+		'role'         => '',
 		'firstName'    => '',
 		'lastName'     => '',
 		'email'        => '',
@@ -57,111 +65,147 @@ wp_interactivity_state(
 	<?php /* ── Success state ── */ ?>
 	<div class="wcb-reg-success" data-wp-class--wcb-hidden="!state.submitted">
 		<h2 class="wcb-reg-success-title"><?php esc_html_e( 'Account created!', 'wp-career-board' ); ?></h2>
-		<p><?php esc_html_e( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?></p>
+		<p data-wp-class--wcb-hidden="state.isCandidate">
+			<?php esc_html_e( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?>
+		</p>
+		<p data-wp-class--wcb-hidden="!state.isCandidate">
+			<?php esc_html_e( 'You are now logged in as a candidate. Start browsing jobs and building your resume.', 'wp-career-board' ); ?>
+		</p>
 		<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.dashboardUrl">
 			<?php esc_html_e( 'Go to Dashboard →', 'wp-career-board' ); ?>
 		</a>
 	</div>
 
-	<?php /* ── Registration form ── */ ?>
+	<?php /* ── Step 1: Role picker ── */ ?>
 	<div class="wcb-reg-form-wrap" data-wp-class--wcb-hidden="state.submitted">
-		<h2 class="wcb-reg-title"><?php esc_html_e( 'Create an Employer Account', 'wp-career-board' ); ?></h2>
-		<p class="wcb-reg-subtitle">
-			<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
-			<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
-		</p>
-
-		<form class="wcb-reg-form" data-wp-on--submit="actions.submit">
-			<?php /* Honeypot */ ?>
-			<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" />
-
-			<div class="wcb-reg-row">
-				<div class="wcb-field-group">
-					<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?></label>
-					<input
-						id="wcb-reg-first-name"
-						type="text"
-						class="wcb-field-input"
-						autocomplete="given-name"
-						required
-						data-wp-bind--value="state.firstName"
-						data-wp-on--input="actions.updateFirstName"
-					/>
-				</div>
-				<div class="wcb-field-group">
-					<label class="wcb-field-label" for="wcb-reg-last-name"><?php esc_html_e( 'Last Name', 'wp-career-board' ); ?></label>
-					<input
-						id="wcb-reg-last-name"
-						type="text"
-						class="wcb-field-input"
-						autocomplete="family-name"
-						required
-						data-wp-bind--value="state.lastName"
-						data-wp-on--input="actions.updateLastName"
-					/>
-				</div>
-			</div>
-
-			<div class="wcb-field-group">
-				<label class="wcb-field-label" for="wcb-reg-email"><?php esc_html_e( 'Work Email', 'wp-career-board' ); ?></label>
-				<input
-					id="wcb-reg-email"
-					type="email"
-					class="wcb-field-input"
-					autocomplete="email"
-					required
-					data-wp-bind--value="state.email"
-					data-wp-on--input="actions.updateEmail"
-				/>
-			</div>
-
-			<div class="wcb-field-group">
-				<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
-				<input
-					id="wcb-reg-company"
-					type="text"
-					class="wcb-field-input"
-					autocomplete="organization"
-					required
-					data-wp-bind--value="state.companyName"
-					data-wp-on--input="actions.updateCompanyName"
-				/>
-			</div>
-
-			<div class="wcb-field-group">
-				<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></label>
-				<input
-					id="wcb-reg-password"
-					type="password"
-					class="wcb-field-input"
-					autocomplete="new-password"
-					required
-					data-wp-bind--value="state.password"
-					data-wp-on--input="actions.updatePassword"
-				/>
-			</div>
-
-			<p class="wcb-reg-error" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>
-
-			<button
-				type="submit"
-				class="wcb-btn wcb-btn--primary wcb-btn--full"
-				data-wp-bind--disabled="state.submitting"
-			>
-				<span data-wp-class--wcb-hidden="state.submitting"><?php esc_html_e( 'Create Account', 'wp-career-board' ); ?></span>
-				<span data-wp-class--wcb-hidden="!state.submitting"><?php esc_html_e( 'Creating account…', 'wp-career-board' ); ?></span>
-			</button>
-
-			<p class="wcb-reg-terms">
-				<?php
-				printf(
-					/* translators: 1: privacy policy link open, 2: link close */
-					esc_html__( 'By creating an account you agree to our %1$sPrivacy Policy%2$s.', 'wp-career-board' ),
-					'<a href="' . esc_url( (string) get_privacy_policy_url() ) . '" target="_blank" rel="noopener noreferrer">',
-					'</a>'
-				);
-				?>
+		<div class="wcb-role-picker" data-wp-class--wcb-hidden="state.role">
+			<h2 class="wcb-reg-title"><?php esc_html_e( 'Join WP Career Board', 'wp-career-board' ); ?></h2>
+			<p class="wcb-reg-subtitle">
+				<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
+				<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
 			</p>
-		</form>
+			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
+			<div class="wcb-role-options">
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate">
+					<span class="wcb-role-icon" aria-hidden="true">&#128188;</span>
+					<span class="wcb-role-label"><?php esc_html_e( 'Find a Job', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
+				</button>
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer">
+					<span class="wcb-role-icon" aria-hidden="true">&#127970;</span>
+					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
+				</button>
+			</div>
+		</div>
+
+		<?php /* ── Step 2: Registration form ── */ ?>
+		<div data-wp-class--wcb-hidden="!state.role">
+			<div class="wcb-reg-header-row">
+				<button type="button" class="wcb-reg-back" data-wp-on--click="actions.backToRolePicker" aria-label="<?php esc_attr_e( 'Back', 'wp-career-board' ); ?>">
+					&#8592;
+				</button>
+				<div>
+					<h2 class="wcb-reg-title" data-wp-text="state.roleTitle"></h2>
+					<p class="wcb-reg-subtitle">
+						<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
+						<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
+					</p>
+				</div>
+			</div>
+
+			<form class="wcb-reg-form" data-wp-on--submit="actions.submit">
+				<?php /* Honeypot */ ?>
+				<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" />
+
+				<div class="wcb-reg-row">
+					<div class="wcb-field-group">
+						<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?></label>
+						<input
+							id="wcb-reg-first-name"
+							type="text"
+							class="wcb-field-input"
+							autocomplete="given-name"
+							required
+							data-wp-bind--value="state.firstName"
+							data-wp-on--input="actions.updateFirstName"
+						/>
+					</div>
+					<div class="wcb-field-group">
+						<label class="wcb-field-label" for="wcb-reg-last-name"><?php esc_html_e( 'Last Name', 'wp-career-board' ); ?></label>
+						<input
+							id="wcb-reg-last-name"
+							type="text"
+							class="wcb-field-input"
+							autocomplete="family-name"
+							required
+							data-wp-bind--value="state.lastName"
+							data-wp-on--input="actions.updateLastName"
+						/>
+					</div>
+				</div>
+
+				<div class="wcb-field-group">
+					<label class="wcb-field-label" for="wcb-reg-email" data-wp-text="state.emailLabel"></label>
+					<input
+						id="wcb-reg-email"
+						type="email"
+						class="wcb-field-input"
+						autocomplete="email"
+						required
+						data-wp-bind--value="state.email"
+						data-wp-on--input="actions.updateEmail"
+					/>
+				</div>
+
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
+					<input
+						id="wcb-reg-company"
+						type="text"
+						class="wcb-field-input"
+						autocomplete="organization"
+						data-wp-bind--required="!state.isCandidate"
+						data-wp-bind--value="state.companyName"
+						data-wp-on--input="actions.updateCompanyName"
+					/>
+				</div>
+
+				<div class="wcb-field-group">
+					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></label>
+					<input
+						id="wcb-reg-password"
+						type="password"
+						class="wcb-field-input"
+						autocomplete="new-password"
+						required
+						data-wp-bind--value="state.password"
+						data-wp-on--input="actions.updatePassword"
+					/>
+				</div>
+
+				<p class="wcb-reg-error" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>
+
+				<button
+					type="submit"
+					class="wcb-btn wcb-btn--primary wcb-btn--full"
+					data-wp-bind--disabled="state.submitting"
+				>
+					<span data-wp-class--wcb-hidden="state.submitting"><?php esc_html_e( 'Create Account', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.submitting"><?php esc_html_e( 'Creating account…', 'wp-career-board' ); ?></span>
+				</button>
+
+				<p class="wcb-reg-terms">
+					<?php
+					printf(
+						/* translators: 1: privacy policy link open, 2: link close */
+						esc_html__( 'By creating an account you agree to our %1$sPrivacy Policy%2$s.', 'wp-career-board' ),
+						'<a href="' . esc_url( (string) get_privacy_policy_url() ) . '" target="_blank" rel="noopener noreferrer">',
+						'</a>'
+					);
+					?>
+				</p>
+			</form>
+		</div>
 	</div>
 </div>

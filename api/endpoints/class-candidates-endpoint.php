@@ -60,9 +60,124 @@ final class CandidatesEndpoint extends RestController {
 				'permission_callback' => array( $this, 'self_permissions_check' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/candidates/register',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'register_candidate' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'first_name' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'last_name'  => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'email'      => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_email',
+					),
+					'password'   => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
+
+	/**
+	 * Register a new candidate user.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function register_candidate( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+			return new \WP_Error(
+				'wcb_registration_disabled',
+				__( 'User registration is currently disabled.', 'wp-career-board' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$first_name = (string) $request->get_param( 'first_name' );
+		$last_name  = (string) $request->get_param( 'last_name' );
+		$email      = (string) $request->get_param( 'email' );
+		$password   = (string) $request->get_param( 'password' );
+
+		if ( email_exists( $email ) ) {
+			return new \WP_Error(
+				'wcb_email_exists',
+				__( 'An account with this email address already exists.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( strlen( $password ) < 8 ) {
+			return new \WP_Error(
+				'wcb_weak_password',
+				__( 'Password must be at least 8 characters.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
+		if ( ! $username ) {
+			$username = sanitize_user( strtolower( $email ), true );
+		}
+		if ( username_exists( $username ) ) {
+			$username = $username . wp_rand( 100, 999 );
+		}
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => $username,
+				'user_email'   => $email,
+				'user_pass'    => $password,
+				'first_name'   => $first_name,
+				'last_name'    => $last_name,
+				'display_name' => trim( $first_name . ' ' . $last_name ),
+				'role'         => 'wcb_candidate',
+			)
+		);
+
+		if ( is_wp_error( $user_id ) ) {
+			return new \WP_Error(
+				'wcb_registration_failed',
+				$user_id->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		wp_set_current_user( $user_id );
+		wp_set_auth_cookie( $user_id, false );
+
+		do_action( 'wcb_candidate_registered', $user_id );
+
+		$settings      = (array) get_option( 'wcb_settings', array() );
+		$dashboard_url = ! empty( $settings['candidate_dashboard_page'] )
+			? (string) get_permalink( (int) $settings['candidate_dashboard_page'] )
+			: home_url( '/' );
+
+		return rest_ensure_response(
+			array(
+				'user_id'       => $user_id,
+				'dashboard_url' => $dashboard_url,
+			)
+		);
+	}
 
 	/**
 	 * Retrieve a candidate profile.

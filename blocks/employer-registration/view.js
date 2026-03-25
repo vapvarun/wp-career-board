@@ -1,13 +1,9 @@
 /**
- * WP Career Board — employer-registration block Interactivity API store.
+ * WP Career Board — unified registration block Interactivity API store.
  *
- * Actions:
- *   updateFirstName   — sync first name field.
- *   updateLastName    — sync last name field.
- *   updateEmail       — sync email field.
- *   updateCompanyName — sync company name field.
- *   updatePassword    — sync password field.
- *   submit            — POST to /wcb/v1/employers/register, log user in on success.
+ * Step 1: Role picker (candidate / employer).
+ * Step 2: Registration form (company name shown only for employers).
+ * Step 3: Success state with dashboard redirect.
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -16,7 +12,37 @@
 import { store } from '@wordpress/interactivity';
 
 const { state } = store( 'wcb-employer-registration', {
+	state: {
+		get isCandidate() {
+			return state.role === 'candidate';
+		},
+		get isEmployer() {
+			return state.role === 'employer';
+		},
+		get roleTitle() {
+			return state.role === 'candidate'
+				? 'Create a Candidate Account'
+				: 'Create an Employer Account';
+		},
+		get emailLabel() {
+			return state.role === 'candidate' ? 'Email' : 'Work Email';
+		},
+	},
+
 	actions: {
+		selectCandidate() {
+			state.role  = 'candidate';
+			state.error = '';
+		},
+		selectEmployer() {
+			state.role  = 'employer';
+			state.error = '';
+		},
+		backToRolePicker() {
+			state.role  = '';
+			state.error = '';
+		},
+
 		updateFirstName( event ) {
 			state.firstName = event.target.value;
 		},
@@ -33,7 +59,7 @@ const { state } = store( 'wcb-employer-registration', {
 			state.password = event.target.value;
 		},
 
-		* submit( event ) {
+		*submit( event ) {
 			event.preventDefault();
 
 			// Honeypot — bail silently if filled.
@@ -50,22 +76,31 @@ const { state } = store( 'wcb-employer-registration', {
 			state.submitting = true;
 			state.error      = '';
 
+			const endpoint = state.role === 'candidate'
+				? '/candidates/register'
+				: '/employers/register';
+
+			const body = {
+				first_name: state.firstName,
+				last_name:  state.lastName,
+				email:      state.email,
+				password:   state.password,
+			};
+
+			if ( state.role === 'employer' ) {
+				body.company_name = state.companyName;
+			}
+
 			try {
 				const response = yield fetch(
-					state.apiBase + '/employers/register',
+					state.apiBase + endpoint,
 					{
 						method:  'POST',
 						headers: {
 							'Content-Type': 'application/json',
 							'X-WP-Nonce':   state.nonce,
 						},
-						body: JSON.stringify( {
-							first_name:   state.firstName,
-							last_name:    state.lastName,
-							email:        state.email,
-							company_name: state.companyName,
-							password:     state.password,
-						} ),
+						body: JSON.stringify( body ),
 					}
 				);
 
