@@ -134,8 +134,32 @@ if ( $wcb_is_job_owner ) {
 	}
 }
 
-// ── Bookmark state ────────────────────────────────────────────────────────────
+// ── Already-applied check ─────────────────────────────────────────────────────
 $wcb_current_user_id = get_current_user_id();
+$wcb_has_applied     = false;
+if ( $wcb_current_user_id && $wcb_show_apply ) {
+	$wcb_has_applied = (bool) get_posts(
+		array(
+			'post_type'      => 'wcb_application',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'   => '_wcb_job_id',
+					'value' => $wcb_job_id,
+				),
+				array(
+					'key'   => '_wcb_candidate_id',
+					'value' => $wcb_current_user_id,
+				),
+			),
+		)
+	);
+}
+
+// ── Bookmark state ────────────────────────────────────────────────────────────
 $wcb_bookmarks       = $wcb_current_user_id
 	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_bookmark', false ) )
 	: array();
@@ -182,7 +206,7 @@ wp_interactivity_state(
 		'nonce'            => wp_create_nonce( 'wp_rest' ),
 		'panelOpen'        => false,
 		'submitting'       => false,
-		'submitted'        => false,
+		'submitted'        => $wcb_has_applied,
 		'bookmarked'       => $wcb_is_bookmarked,
 		'bookmarking'      => false,
 		'coverLetter'      => '',
