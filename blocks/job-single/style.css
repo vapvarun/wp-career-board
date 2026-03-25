@@ -477,6 +477,10 @@ a.wcb-company-card-name:hover {
 	to   { transform: translateX(0); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.wcb-apply-panel { animation: none !important; transition: none !important; }
+}
+
 .wcb-panel-body {
 	padding: 2.5rem 2rem;
 }

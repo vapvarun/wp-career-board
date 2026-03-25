@@ -604,7 +604,7 @@ wp_interactivity_state(
 			class="wcb-apply-panel"
 			role="dialog"
 			aria-modal="true"
-			aria-label="<?php esc_attr_e( 'Apply for this job', 'wp-career-board' ); ?>"
+			aria-labelledby="wcb-apply-title"
 			data-wp-class--wcb-open="state.panelOpen"
 			data-wp-on--keydown="actions.handlePanelKeydown"
 		>
@@ -612,11 +612,11 @@ wp_interactivity_state(
 				type="button"
 				class="wcb-panel-close"
 				data-wp-on--click="actions.closePanel"
-				aria-label="<?php esc_attr_e( 'Close panel', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'Close application panel', 'wp-career-board' ); ?>"
 			>&times;</button>
 
 			<div class="wcb-panel-body">
-				<h2 class="wcb-panel-title"><?php esc_html_e( 'Apply for this job', 'wp-career-board' ); ?></h2>
+				<h2 id="wcb-apply-title" class="wcb-panel-title"><?php esc_html_e( 'Apply for this job', 'wp-career-board' ); ?></h2>
 				<p class="wcb-panel-subtitle"><?php echo esc_html( $wcb_job->post_title ); ?></p>
 				<?php if ( $wcb_company_name ) : ?>
 					<p class="wcb-panel-company"><?php echo esc_html( $wcb_company_name ); ?></p>
