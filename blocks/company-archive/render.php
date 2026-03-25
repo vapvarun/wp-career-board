@@ -210,7 +210,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<button
 				type="button"
 				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
 				data-wp-on--click="actions.setList"
 				data-wp-class--wcb-active="state.isList"
 			>
@@ -219,7 +219,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<button
 				type="button"
 				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
 				data-wp-on--click="actions.setGrid"
 				data-wp-class--wcb-active="state.isGrid"
 			>
