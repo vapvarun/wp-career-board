@@ -256,15 +256,17 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<span class="wcb-search-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
 				</span>
+				<label class="screen-reader-text" for="wcb-job-search"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<input
 					type="search"
+					id="wcb-job-search"
 					class="wcb-listings-search"
 					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 					data-wp-bind--value="state.searchQuery"
 					data-wp-on--input="actions.updateSearch"
 				/>
 			</div>
-			<select class="wcb-sort-select" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
+			<select class="wcb-sort-select" aria-label="<?php esc_attr_e( 'Sort jobs', 'wp-career-board' ); ?>" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
 				<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
 				<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
 			</select>
