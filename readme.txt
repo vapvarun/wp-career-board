@@ -20,6 +20,29 @@ WP Career Board is a full-featured job board plugin built on Gutenberg blocks an
 2. Activate the plugin.
 3. Go to Career Board → Settings and run the Setup Wizard to create all required pages.
 
+== Frequently Asked Questions ==
+
+= Does this plugin require WooCommerce? =
+No. WP Career Board is a standalone job board — no e-commerce plugin is needed.
+
+= Can candidates apply without creating an account? =
+Yes. Guest applications are supported out of the box with name, email, and cover letter fields.
+
+= Does it work with block themes? =
+Yes. All frontend UI uses Gutenberg blocks with the WordPress Interactivity API, compatible with both classic and block themes.
+
+= How do I migrate from WP Job Manager? =
+Go to Career Board → Import and use the built-in one-click migration tool. Your original WPJM data is never modified.
+
+== Screenshots ==
+
+1. Homepage with hero search, featured jobs, and industry categories.
+2. Find Jobs page with keyword search, type filters, and grid/list toggle.
+3. Single job page with apply panel, company sidebar, and share buttons.
+4. Employer dashboard with job stats, recent applications, and active jobs.
+5. Candidate dashboard with applications tracker and saved jobs.
+6. Admin settings with tabbed configuration panels.
+
 == Changelog ==
 
 = 1.0.0 =

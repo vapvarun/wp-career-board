@@ -372,7 +372,7 @@ class WpjmImporter {
 				'post_content'  => $source->post_content,
 				'post_excerpt'  => $source->post_excerpt,
 				'post_status'   => 'publish' === $source->post_status ? 'publish' : 'pending',
-				'post_author'   => $source->post_author,
+				'post_author'   => $this->resolve_author( $source ),
 				'post_date'     => $source->post_date,
 				'post_date_gmt' => $source->post_date_gmt,
 			),
@@ -480,5 +480,35 @@ class WpjmImporter {
 		if ( ! empty( $target_term_ids ) ) {
 			wp_set_object_terms( $new_id, $target_term_ids, $target_tax );
 		}
+	}
+
+	/**
+	 * Resolve a valid post_author for a migrated post.
+	 *
+	 * If the source post_author is 0 (guest submission), try to match by
+	 * _candidate_email meta to find an existing WP user. Falls back to the
+	 * current logged-in user (the admin running the migration).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post $source Source WPJM post.
+	 * @return int Valid user ID (never 0).
+	 */
+	private function resolve_author( \WP_Post $source ): int {
+		if ( $source->post_author > 0 ) {
+			return (int) $source->post_author;
+		}
+
+		// Try to match by candidate email.
+		$email = (string) get_post_meta( $source->ID, '_candidate_email', true );
+		if ( $email ) {
+			$user = get_user_by( 'email', $email );
+			if ( $user ) {
+				return $user->ID;
+			}
+		}
+
+		// Fall back to the admin running the import.
+		return get_current_user_id() ?: 1;
 	}
 }

@@ -314,13 +314,19 @@ class SetupWizard extends \WCB\Api\RestController {
 		}
 
 		// Sample company.
-		wp_insert_post(
+		$company_id = wp_insert_post(
 			array(
-				'post_type'   => 'wcb_company',
-				'post_title'  => 'Acme Corp',
-				'post_status' => 'publish',
+				'post_type'    => 'wcb_company',
+				'post_title'   => 'Acme Corp',
+				'post_status'  => 'publish',
+				'post_author'  => get_current_user_id() ?: 1,
 			)
 		);
+
+		// Link company to the current admin user.
+		if ( $company_id && ! is_wp_error( $company_id ) ) {
+			update_user_meta( get_current_user_id() ?: 1, '_wcb_company_id', $company_id );
+		}
 
 		// Sample job posting.
 		$job_id = wp_insert_post(
@@ -329,6 +335,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'post_title'   => 'Senior PHP Developer',
 				'post_content' => '<p>We are looking for an experienced PHP developer to join our growing team.</p>',
 				'post_status'  => 'publish',
+				'post_author'  => get_current_user_id() ?: 1,
 			)
 		);
 
@@ -337,6 +344,9 @@ class SetupWizard extends \WCB\Api\RestController {
 		}
 
 		update_post_meta( $job_id, '_wcb_company_name', 'Acme Corp' );
+		if ( $company_id && ! is_wp_error( $company_id ) ) {
+			update_post_meta( $job_id, '_wcb_company_id', $company_id );
+		}
 		update_post_meta( $job_id, '_wcb_salary_min', 80000 );
 		update_post_meta( $job_id, '_wcb_salary_max', 120000 );
 		update_post_meta( $job_id, '_wcb_salary_currency', 'USD' );
