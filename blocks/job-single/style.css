@@ -196,8 +196,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-bookmark-hero-btn:hover {
-	border-color: #94a3b8;
-	color: #334155;
+	border-color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary, #2563eb);
+	background: #eff6ff;
 }
 
 .wcb-bookmark-hero-btn.wcb-bookmarked {
