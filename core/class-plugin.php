@@ -73,6 +73,7 @@ final class Plugin {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
+		add_action( 'init', array( $this, 'register_shortcodes' ) );
 		add_action( 'init', array( $this, 'register_patterns' ) );
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
@@ -177,6 +178,38 @@ final class Plugin {
 			if ( is_dir( $block_dir ) ) {
 				register_block_type_from_metadata( $block_dir );
 			}
+		}
+	}
+
+	/**
+	 * Register shortcodes that render Gutenberg blocks.
+	 *
+	 * Provides fallback for sites with the classic editor or page builders
+	 * that cannot insert blocks directly.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_shortcodes(): void {
+		$shortcodes = array(
+			'wcb_job_listings'        => 'wp-career-board/job-listings',
+			'wcb_job_search'          => 'wp-career-board/job-search',
+			'wcb_job_form'            => 'wp-career-board/job-form',
+			'wcb_employer_dashboard'  => 'wp-career-board/employer-dashboard',
+			'wcb_candidate_dashboard' => 'wp-career-board/candidate-dashboard',
+			'wcb_registration'        => 'wp-career-board/employer-registration',
+			'wcb_company_archive'     => 'wp-career-board/company-archive',
+			'wcb_job_stats'           => 'wp-career-board/job-stats',
+			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
+		);
+
+		foreach ( $shortcodes as $tag => $block_name ) {
+			add_shortcode(
+				$tag,
+				static function () use ( $block_name ): string {
+					return do_blocks( '<!-- wp:' . $block_name . ' /-->' );
+				}
+			);
 		}
 	}
 
