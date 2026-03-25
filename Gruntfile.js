@@ -68,6 +68,7 @@ module.exports = function ( grunt ) {
 					'build/**',
 					'cli/**',
 					'core/**',
+					'import/**',
 					'integrations/**',
 					'languages/**',
 					'modules/**',
