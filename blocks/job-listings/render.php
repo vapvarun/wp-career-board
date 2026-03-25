@@ -96,7 +96,8 @@ $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string 
 	if ( $wcb_min ) {
 		return $wcb_fmt( $wcb_min ) . '+' . $wcb_suffix;
 	}
-	return 'Up to ' . $wcb_fmt( $wcb_max ) . $wcb_suffix;
+	/* translators: %s: formatted maximum salary with currency symbol and period suffix */
+	return sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_fmt( $wcb_max ) . $wcb_suffix );
 };
 
 /**
@@ -231,6 +232,16 @@ $wcb_state = array(
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+	),
+	'strings'       => array(
+		'bookmarkRemove' => __( 'Remove bookmark', 'wp-career-board' ),
+		'bookmarkAdd'    => __( 'Bookmark job', 'wp-career-board' ),
+		/* translators: %d: number of jobs */
+		'jobCountSingle' => __( '1 job', 'wp-career-board' ),
+		/* translators: %d: number of jobs */
+		'jobCountPlural' => __( '%d jobs', 'wp-career-board' ),
+		/* translators: 1: number of shown jobs, 2: total number of jobs */
+		'jobCountOf'     => __( '%1$d of %2$d jobs', 'wp-career-board' ),
 	),
 );
 

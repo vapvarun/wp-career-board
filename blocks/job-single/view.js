@@ -19,7 +19,7 @@ let panelTriggerEl = null;
 const { state } = store( 'wcb-job-single', {
 	state: {
 		get bookmarkLabel() {
-			return state.bookmarked ? 'Saved' : 'Save Job';
+			return state.bookmarked ? state.strings.bookmarkSaved : state.strings.bookmarkSave;
 		},
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;
@@ -173,7 +173,7 @@ const { state } = store( 'wcb-job-single', {
 			// Guest validation — require name + email before submitting.
 			if ( ! state.isLoggedIn ) {
 				if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
-					state.error = 'Please enter your name and email to apply.';
+					state.error = state.strings.guestFieldsRequired;
 					return;
 				}
 			}
@@ -199,7 +199,7 @@ const { state } = store( 'wcb-job-single', {
 					);
 
 					if ( ! uploadRes.ok ) {
-						state.error = 'Resume upload failed. Please try again.';
+						state.error = state.strings.resumeUploadFailed;
 						return;
 					}
 
@@ -240,7 +240,7 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( ! response.ok ) {
 					const err   = yield response.json().catch( () => null );
-					state.error = ( err && err.message ) ? err.message : 'Application could not be submitted. Please try again.';
+					state.error = ( err && err.message ) ? err.message : state.strings.applicationFailed;
 					return;
 				}
 
@@ -250,7 +250,7 @@ const { state } = store( 'wcb-job-single', {
 					window.wcbCaptchaReset();
 				}
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.connectionError;
 			} finally {
 				state.submitting = false;
 			}

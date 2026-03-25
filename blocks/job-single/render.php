@@ -227,6 +227,14 @@ wp_interactivity_state(
 		'jobCategories'      => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
 		'jobTypes'           => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
 		'jobRemote'          => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
+		'strings'            => array(
+			'bookmarkSaved'         => __( 'Saved', 'wp-career-board' ),
+			'bookmarkSave'          => __( 'Save Job', 'wp-career-board' ),
+			'guestFieldsRequired'   => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
+			'resumeUploadFailed'    => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
+			'applicationFailed'     => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
+			'connectionError'       => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		),
 	)
 );
 ?>

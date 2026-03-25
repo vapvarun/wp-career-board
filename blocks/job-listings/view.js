@@ -71,10 +71,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			const total = state.totalCount;
 			if ( shown >= total ) {
 				return total === 1
-					? '1 job'
-					: `${ total } jobs`;
+					? state.strings.jobCountSingle
+					: state.strings.jobCountPlural.replace( '%d', total );
 			}
-			return `${ shown } of ${ total } jobs`;
+			return state.strings.jobCountOf
+				.replace( '%1$d', shown )
+				.replace( '%2$d', total );
 		},
 
 		// ── Derived: job list ─────────────────────────────────────────
@@ -86,8 +88,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 		get bookmarkLabel() {
 			const ctx = getContext();
 			return ctx.job?.bookmarked
-				? 'Remove bookmark'
-				: 'Bookmark job';
+				? state.strings.bookmarkRemove
+				: state.strings.bookmarkAdd;
 		},
 	},
 
