@@ -165,6 +165,7 @@ wp_interactivity_state(
 	<!-- SIDEBAR -->
 	<aside class="wcb-sidebar" data-wp-class--wcb-nav-open="state.navOpen">
 		<button type="button" class="wcb-nav-toggle"
+			aria-label="<?php esc_attr_e( 'Toggle navigation', 'wp-career-board' ); ?>"
 			data-wp-on--click="actions.toggleNav"
 			data-wp-bind--aria-expanded="state.navOpen">
 			<span data-wp-text="state.activeTabLabel"><?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?></span>
@@ -319,7 +320,7 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isViewJobs">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Jobs', 'wp-career-board' ); ?></h1>
-				<input type="search" class="wcb-job-search" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
+				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
 			</div>
 
 			<div class="wcb-filter-bar">
@@ -330,7 +331,7 @@ wp_interactivity_state(
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
 			</div>
 
-			<div class="wcb-db-loading" data-wp-class--wcb-shown="state.loading">
+			<div class="wcb-db-loading" role="status" aria-label="<?php esc_attr_e( 'Loading', 'wp-career-board' ); ?>" data-wp-class--wcb-shown="state.loading">
 				<div class="wcb-skeleton-row"></div>
 				<div class="wcb-skeleton-row"></div>
 				<div class="wcb-skeleton-row"></div>
@@ -379,7 +380,7 @@ wp_interactivity_state(
 
 			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">
 				<div class="wcb-apps-selector-header">
-					<input type="search" class="wcb-apps-job-search" placeholder="<?php esc_attr_e( 'Search jobs...', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
+					<input type="search" class="wcb-apps-job-search" aria-label="<?php esc_attr_e( 'Search applications by job', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs...', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
 					<span class="wcb-apps-selector-hint" data-wp-text="state.appsJobSelectorHint"></span>
 				</div>
 				<div class="wcb-apps-job-list">
@@ -427,7 +428,7 @@ wp_interactivity_state(
 
 			<p class="wcb-db-error" data-wp-class--wcb-shown="state.appsError" data-wp-text="state.appsError"></p>
 
-			<div class="wcb-db-loading" data-wp-class--wcb-shown="state.appsLoading">
+			<div class="wcb-db-loading" role="status" aria-label="<?php esc_attr_e( 'Loading', 'wp-career-board' ); ?>" data-wp-class--wcb-shown="state.appsLoading">
 				<div class="wcb-skeleton-row"></div>
 				<div class="wcb-skeleton-row"></div>
 			</div>
