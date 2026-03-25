@@ -44,10 +44,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ! state.loading && ! state.noCompany && ! state.error && state.filteredJobs.length === 0;
 		},
 		get totalJobs() {
-			return state.jobs.length;
+			return state.jobs.length || state.ssrTotalJobs || 0;
 		},
 		get publishedJobs() {
-			return state.jobs.filter( ( j ) => j.status === 'publish' ).length;
+			return state.jobs.length
+				? state.jobs.filter( ( j ) => j.status === 'publish' ).length
+				: ( state.ssrPublishedJobs || 0 );
 		},
 
 		// Job filter.
@@ -113,9 +115,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Applications.
 		get totalApps() {
-			return state.allApplications.length > 0
-				? state.allApplications.length
-				: state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
+			if ( state.allApplications.length > 0 ) {
+				return state.allApplications.length;
+			}
+			if ( state.jobs.length > 0 ) {
+				return state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
+			}
+			return state.ssrTotalApps || 0;
 		},
 		get hasApplications() {
 			return state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
@@ -250,6 +256,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.overviewActiveJobs.length === 0;
 		},
 		get newThisWeek() {
+			if ( state.allApplications.length === 0 ) {
+				return state.ssrNewThisWeek || 0;
+			}
 			const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
 			return state.allApplications.filter(
 				( a ) => new Date( a.submitted_at ).getTime() > cutoff

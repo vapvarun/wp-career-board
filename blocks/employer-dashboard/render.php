@@ -59,6 +59,53 @@ $wcb_dashboard_url = (string) get_permalink();
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_edit_job_id = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
 
+// Pre-compute lightweight stats for instant render (avoids zero-flash before JS hydrates).
+$wcb_job_counts = (array) wp_count_posts( 'wcb_job' );
+if ( $wcb_company_id ) {
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- lightweight count for initial render only.
+	$wcb_total_employer_jobs = (int) $GLOBALS['wpdb']->get_var(
+		$GLOBALS['wpdb']->prepare(
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} p
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_wcb_company_id'
+			 WHERE p.post_type = 'wcb_job' AND p.post_status IN ('publish','pending','draft') AND pm.meta_value = %s",
+			(string) $wcb_company_id
+		)
+	);
+	$wcb_live_employer_jobs = (int) $GLOBALS['wpdb']->get_var(
+		$GLOBALS['wpdb']->prepare(
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} p
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_wcb_company_id'
+			 WHERE p.post_type = 'wcb_job' AND p.post_status = 'publish' AND pm.meta_value = %s",
+			(string) $wcb_company_id
+		)
+	);
+	$wcb_total_apps = (int) $GLOBALS['wpdb']->get_var(
+		$GLOBALS['wpdb']->prepare(
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} jc ON aj.meta_value = jc.post_id AND jc.meta_key = '_wcb_company_id'
+			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND jc.meta_value = %s",
+			(string) $wcb_company_id
+		)
+	);
+	$wcb_week_ago   = gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS );
+	$wcb_new_apps   = (int) $GLOBALS['wpdb']->get_var(
+		$GLOBALS['wpdb']->prepare(
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} jc ON aj.meta_value = jc.post_id AND jc.meta_key = '_wcb_company_id'
+			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND jc.meta_value = %s AND a.post_date >= %s",
+			(string) $wcb_company_id,
+			$wcb_week_ago
+		)
+	);
+} else {
+	$wcb_total_employer_jobs = 0;
+	$wcb_live_employer_jobs  = 0;
+	$wcb_total_apps          = 0;
+	$wcb_new_apps            = 0;
+}
+
 wp_interactivity_state(
 	'wcb-employer-dashboard',
 	array(
@@ -69,7 +116,11 @@ wp_interactivity_state(
 		'selectedAppId'     => null,
 		'allApplications'   => array(),
 		'jobs'              => array(),
-		'loading'           => false,
+		'ssrTotalJobs'      => $wcb_total_employer_jobs,
+		'ssrPublishedJobs'  => $wcb_live_employer_jobs,
+		'ssrTotalApps'      => $wcb_total_apps,
+		'ssrNewThisWeek'    => $wcb_new_apps,
+		'loading'           => true,
 		'error'             => '',
 		'noCompany'         => false,
 		'apiBase'           => rest_url( 'wcb/v1' ),
