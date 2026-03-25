@@ -10,13 +10,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		navOpen: false,
 		get activeTabLabel() {
 			const map = {
-				overview:     'Overview',
-				jobs:         'My Jobs',
-				applications: 'Applications',
-				company:      'Profile',
-				'post-job':   'Post a Job',
+				overview:     state.strings.overview,
+				jobs:         state.strings.myJobs,
+				applications: state.strings.applications,
+				company:      state.strings.profile,
+				'post-job':   state.strings.postAJob,
 			};
-			return map[ state.currentView ] || 'Dashboard';
+			return map[ state.currentView ] || state.strings.dashboard;
 		},
 
 		// View getters.
@@ -102,9 +102,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const total    = state.jobsWithApps.length;
 			const filtered = state.filteredJobsWithApps.length;
 			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
-				return total + ' job' + ( total === 1 ? '' : 's' ) + ' with applications';
+				return total + state.strings.jobSingular + ( total === 1 ? '' : 's' ) + state.strings.jobsWithApps;
 			}
-			return filtered + ' of ' + total + ' jobs';
+			return filtered + state.strings.jobsOf + total + state.strings.jobsPlural;
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -225,7 +225,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get applicantRowLabel() {
 			const ctx = getContext();
 			const name = ctx.app?.applicant_name || '';
-			return 'View application from ' + name;
+			return state.strings.viewAppFrom + name;
 		},
 
 		// Overview panel getters.
@@ -278,15 +278,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		get logoUploadLabel() {
-			if ( state.logoUploading ) return 'Uploading\u2026';
-			return state.companyLogoUrl ? 'Change Logo' : 'Upload Logo';
+			if ( state.logoUploading ) return state.strings.logoUploading;
+			return state.companyLogoUrl ? state.strings.logoChange : state.strings.logoUpload;
 		},
 
 		// Legacy heading used by some templates.
 		get appsHeading() {
 			return state.appsJobTitle
-				? 'Applications: ' + state.appsJobTitle
-				: 'Applications';
+				? state.strings.appsHeadingPrefix + state.appsJobTitle
+				: state.strings.appsHeadingDefault;
 		},
 
 		// Bell notification getters.
@@ -335,7 +335,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				const [ jobsResp, allAppsResp ] = yield Promise.all( fetchPromises );
 
 				if ( ! jobsResp.ok ) {
-					state.error = 'Could not load your jobs.';
+					state.error = state.strings.errorLoadJobs;
 					return;
 				}
 
@@ -351,7 +351,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.allApplications = yield allAppsResp.json();
 				}
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errorConnection;
 			} finally {
 				state.loading = false;
 			}
@@ -463,7 +463,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.appsError = 'Could not load applications.';
+					state.appsError = state.strings.errorLoadApps;
 					return;
 				}
 
@@ -479,7 +479,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.appsJobTitle = match.title;
 				}
 			} catch {
-				state.appsError = 'Connection error loading applications.';
+				state.appsError = state.strings.errorConnectionApps;
 			} finally {
 				state.appsLoading = false;
 			}
@@ -587,7 +587,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			if ( ! state.companyId ) {
-				state.error = 'Please save your company profile before uploading a logo.';
+				state.error = state.strings.errorSaveLogo;
 				return;
 			}
 			state.logoUploading = true;
@@ -649,7 +649,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not save profile. Please try again.';
+					state.error = state.strings.errorSaveProfile;
 					return;
 				}
 
@@ -660,7 +660,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 				state.saved = true;
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errorConnection;
 			} finally {
 				state.saving = false;
 			}
