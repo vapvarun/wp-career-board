@@ -63,7 +63,7 @@ wp_interactivity_state(
 	data-wp-interactive="wcb-employer-registration"
 >
 	<?php /* ── Success state ── */ ?>
-	<div class="wcb-reg-success" data-wp-class--wcb-hidden="!state.submitted">
+	<div class="wcb-reg-success wcb-hidden" data-wp-class--wcb-hidden="!state.submitted">
 		<h2 class="wcb-reg-success-title"><?php esc_html_e( 'Account created!', 'wp-career-board' ); ?></h2>
 		<p data-wp-class--wcb-hidden="state.isCandidate">
 			<?php esc_html_e( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?>
@@ -100,7 +100,7 @@ wp_interactivity_state(
 		</div>
 
 		<?php /* ── Step 2: Registration form ── */ ?>
-		<div data-wp-class--wcb-hidden="!state.role">
+		<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.role">
 			<div class="wcb-reg-header-row">
 				<button type="button" class="wcb-reg-back" data-wp-on--click="actions.backToRolePicker" aria-label="<?php esc_attr_e( 'Back', 'wp-career-board' ); ?>">
 					&#8592;

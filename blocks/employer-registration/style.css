@@ -1,5 +1,9 @@
 /* Employer Registration block — wcb/employer-registration */
 
+.wcb-employer-reg .wcb-hidden {
+	display: none !important;
+}
+
 .wcb-employer-reg {
 	max-width: 480px;
 	margin: 0 auto;
