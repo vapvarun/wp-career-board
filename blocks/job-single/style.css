@@ -577,9 +577,71 @@ a.wcb-company-card-name:hover {
 }
 
 .wcb-apply-resume-file {
-	display: block;
+	position: absolute;
+	inset: 0;
 	width: 100%;
+	height: 100%;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.wcb-upload-zone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 1.25rem 1rem;
+	border: 2px dashed #d1d5db;
+	border-radius: 8px;
+	text-align: center;
+	cursor: pointer;
+	position: relative;
+	transition: border-color 0.15s, background 0.15s;
+}
+
+.wcb-upload-zone:hover {
+	border-color: var(--wcb-primary, #2563eb);
+	background: #eff6ff;
+}
+
+.wcb-upload-zone.wcb-has-file {
+	border-color: #22c55e;
+	background: #f0fdf4;
+}
+
+.wcb-upload-icon {
+	font-size: 1.5rem;
+	line-height: 1;
+	color: #9ca3af;
+}
+
+.wcb-upload-zone:hover .wcb-upload-icon {
+	color: var(--wcb-primary, #2563eb);
+}
+
+.wcb-upload-zone.wcb-has-file .wcb-upload-icon {
+	color: #22c55e;
+}
+
+.wcb-upload-text {
 	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
+}
+
+.wcb-upload-hint {
+	font-size: 0.75rem;
+	color: #9ca3af;
+}
+
+.wcb-upload-filename {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #22c55e;
+}
+
+.wcb-upload-filename:empty {
+	display: none;
 }
 
 .wcb-apply-no-resume {
@@ -590,6 +652,13 @@ a.wcb-company-card-name:hover {
 
 .wcb-apply-no-resume a {
 	color: var( --wcb-primary, #2563eb );
+}
+
+.wcb-apply-or-divider {
+	text-align: center;
+	font-size: 0.8125rem;
+	color: #9ca3af;
+	margin: 1rem 0 0.75rem;
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

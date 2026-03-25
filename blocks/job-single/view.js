@@ -104,7 +104,8 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		selectResumeFile( event ) {
-			state.resumeFile = event.target.files[ 0 ] || null;
+			state.resumeFile     = event.target.files[ 0 ] || null;
+			state.resumeFileName = state.resumeFile ? state.resumeFile.name : '';
 		},
 
 		*submitApplication() {
@@ -138,8 +139,8 @@ const { state } = store( 'wcb-job-single', {
 			try {
 				let resumeAttachmentId = 0;
 
-				// Free mode: upload the file first, then get attachment ID.
-				if ( ! state.proActive && state.resumeFile ) {
+				// Upload resume file if one was selected (works in both Free and Pro mode).
+				if ( state.resumeFile ) {
 					const formData = new FormData();
 					formData.append( 'resume_file', state.resumeFile );
 

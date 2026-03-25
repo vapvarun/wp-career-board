@@ -197,6 +197,7 @@ wp_interactivity_state(
 		'isLoggedIn'       => is_user_logged_in(),
 		'guestName'        => '',
 		'guestEmail'       => '',
+		'resumeFileName'   => '',
 	)
 );
 ?>
@@ -612,7 +613,7 @@ wp_interactivity_state(
 				<?php if ( is_user_logged_in() && post_type_exists( 'wcb_resume' ) ) : ?>
 					<div class="wcb-apply-resume-section">
 						<label class="wcb-field-label" for="wcb-resume-select">
-							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
+							<?php esc_html_e( 'Select Resume', 'wp-career-board' ); ?>
 						</label>
 						<?php if ( ! empty( $wcb_user_resumes ) ) : ?>
 							<select
@@ -637,20 +638,38 @@ wp_interactivity_state(
 								<?php endif; ?>
 							</p>
 						<?php endif; ?>
+
+						<p class="wcb-apply-or-divider"><?php esc_html_e( '— or upload a file —', 'wp-career-board' ); ?></p>
+
+						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
+							<span class="wcb-upload-icon">&#8593;</span>
+							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
+							<input
+								type="file"
+								id="wcb-resume-file"
+								class="wcb-apply-resume-file"
+								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+								data-wp-on--change="actions.selectResumeFile"
+							/>
+						</label>
 					</div>
 				<?php elseif ( is_user_logged_in() ) : ?>
 					<div class="wcb-apply-resume-section">
-						<label class="wcb-field-label" for="wcb-resume-file">
-							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
-							<span class="wcb-field-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
+							<span class="wcb-upload-icon">&#8593;</span>
+							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
+							<input
+								type="file"
+								id="wcb-resume-file"
+								class="wcb-apply-resume-file"
+								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+								data-wp-on--change="actions.selectResumeFile"
+							/>
 						</label>
-						<input
-							type="file"
-							id="wcb-resume-file"
-							class="wcb-apply-resume-file"
-							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-							data-wp-on--change="actions.selectResumeFile"
-						/>
 					</div>
 				<?php endif; ?>
 
