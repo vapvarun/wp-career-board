@@ -35,16 +35,16 @@
 	width: 88px;
 	height: 88px;
 	border-radius: 14px;
-	border: 3px solid #fff;
+	border: 3px solid var(--wp--preset--color--wcb-base);
 	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.12 );
 	display: block;
 	object-fit: cover;
-	background: #fff;
+	background: var(--wp--preset--color--wcb-base);
 }
 
 .wcb-cp-avatar {
 	background: var( --wcb-avatar-bg, #1e293b );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -154,7 +154,7 @@
 
 .wcb-cp-link:hover {
 	border-color: #94a3b8;
-	color: #0f172a;
+	color: var(--wp--preset--color--wcb-contrast);
 	text-decoration: none;
 }
 
@@ -192,7 +192,7 @@
 	color: var( --wcb-contrast, #0f172a );
 	margin: 0 0 1rem;
 	padding-bottom: 0.75rem;
-	border-bottom: 1px solid #f1f5f9;
+	border-bottom: 1px solid var(--wp--preset--color--wcb-surface);
 }
 
 .wcb-cp-jobs-count {
@@ -203,7 +203,7 @@
 	height: 22px;
 	padding: 0 0.4rem;
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	border-radius: 9999px;
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -248,7 +248,7 @@
 
 .wcb-cp-detail-item dd {
 	font-size: 0.9375rem;
-	color: #1e293b;
+	color: var(--wp--preset--color--wcb-avatar-bg);
 	font-weight: 500;
 	margin: 0;
 }
@@ -276,7 +276,7 @@
 	display: inline-block;
 	width: 16px;
 	height: 16px;
-	border: 2px solid #e2e8f0;
+	border: 2px solid var(--wp--preset--color--wcb-border);
 	border-top-color: var( --wcb-primary, #2563eb );
 	border-radius: 50%;
 	animation: wcb-spin 0.7s linear infinite;
@@ -293,7 +293,7 @@
 	justify-content: space-between;
 	gap: 1rem;
 	padding: 1rem 0;
-	border-bottom: 1px solid #f1f5f9;
+	border-bottom: 1px solid var(--wp--preset--color--wcb-surface);
 }
 
 .wcb-cp-job-card:last-of-type {
@@ -348,8 +348,8 @@
 	display: inline-flex;
 }
 
-.wcb-cjbadge--type     { background: #f1f5f9; color: #475569; }
-.wcb-cjbadge--location { background: #f1f5f9; color: #475569; }
+.wcb-cjbadge--type     { background: var(--wp--preset--color--wcb-surface); color: #475569; }
+.wcb-cjbadge--location { background: var(--wp--preset--color--wcb-surface); color: #475569; }
 
 .wcb-cp-job-apply {
 	flex-shrink: 0;
@@ -357,7 +357,7 @@
 	align-items: center;
 	padding: 0.4rem 1.1rem;
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	border-radius: 6px;
 	font-size: 0.8125rem;
 	font-weight: 600;
@@ -368,7 +368,7 @@
 
 .wcb-cp-job-apply:hover {
 	background: var( --wcb-primary-dark, #1d4ed8 );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	text-decoration: none;
 }
 
