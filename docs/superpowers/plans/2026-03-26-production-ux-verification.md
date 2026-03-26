@@ -4,7 +4,7 @@
 
 **Goal:** Complete production-readiness verification of all user-facing actions, hover effects, notices, and UX flows across WP Career Board (Free + Pro). No browser alerts (window.confirm/alert), all actions use inline notices, all hover effects are uniform, all interactive states are polished.
 
-**Architecture:** Browser-based verification using Playwright MCP tools. Each task covers one page/flow. Screenshot before/after. Fix issues inline.
+**Architecture:** Two-phase verification. Phase 1: code-level audit (grep/read source for patterns). Phase 2: browser verification with Playwright MCP. Code audit catches systemic issues across all blocks; browser confirms the rendered output.
 
 **Tech Stack:** Playwright MCP, WordPress Interactivity API blocks
 
@@ -13,6 +13,51 @@
 **Mailpit:** `http://localhost:10106` (email verification)
 
 ---
+
+## Phase 0: Code-Level Flow Audit (run BEFORE browser verification)
+
+Grep/read all block source files to catch systemic issues across the entire plugin.
+
+### Task 0.1: Hover Effect Consistency (CSS audit)
+
+- [ ] Grep all `style.css` files for `:hover` rules — verify they all use the same pattern (border-color + light bg tint, not just text color change)
+- [ ] Check all button hover states use `var(--wp--preset--color--wcb-primary)` for border/color
+- [ ] Check no hover state uses hardcoded hex colors (should all be tokens now)
+- [ ] Verify `:focus-visible` exists on all interactive elements alongside `:hover`
+- [ ] Check `transition` properties are scoped (not `all`) to prevent layout shifts
+
+### Task 0.2: Action Flow Audit (JS audit)
+
+- [ ] Grep all `view.js` files for `window.alert(` — should be ZERO occurrences
+- [ ] Grep all `view.js` files for `window.confirm(` — list all occurrences, verify each is for a destructive action only
+- [ ] Grep for `state.error =` — verify all error messages come from `state.strings.*` (not hardcoded)
+- [ ] Grep for `catch {` or `catch (` — verify no silent failures (each should set an error state)
+- [ ] Check all AJAX actions (fetch calls) have: loading state before, success/error state after
+- [ ] Verify no `console.log` or `console.error` left in production JS
+
+### Task 0.3: Notice/Feedback Patterns (render.php audit)
+
+- [ ] Grep all `render.php` files for `role="alert"` — verify all error containers have it
+- [ ] Grep for `role="status"` — verify all loading containers have it
+- [ ] Grep for `aria-live` — verify all dynamically updated regions have it
+- [ ] Check all form submit buttons have a loading/disabled state during submission
+- [ ] Verify all success states show inline feedback (not page reload or alert)
+
+### Task 0.4: Empty State Audit
+
+- [ ] Grep all `render.php` for `return;` with no output — blocks that silently vanish when empty
+- [ ] Each list/grid block should show a "No items found" message when empty
+- [ ] Dashboard overview panels should show loading skeleton, not "No data" while fetching
+
+### Task 0.5: Theme Override Resilience
+
+- [ ] Check all inputs have inline style or high-specificity CSS for padding (Reign theme overrides)
+- [ ] Check all buttons have sufficient specificity to override theme button styles
+- [ ] Verify block wrapper class matches WordPress naming convention (`wp-block-{namespace}-{name}`)
+
+---
+
+## Phase 1: Browser Verification (run AFTER code audit fixes)
 
 ## Verification Checklist Per Page
 
