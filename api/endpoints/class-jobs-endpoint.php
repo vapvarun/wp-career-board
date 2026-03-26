@@ -743,6 +743,11 @@ final class JobsEndpoint extends RestController {
 		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$board_id      = (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID );
 
+		$rejection_reason = '';
+		if ( 'draft' === $post->post_status || 'trash' === $post->post_status ) {
+			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+		}
+
 		$data = array(
 			'id'               => $post->ID,
 			'title'            => $post->post_title,
@@ -752,6 +757,7 @@ final class JobsEndpoint extends RestController {
 			'author'           => $author_id,
 			'date'             => $post->post_date,
 			'permalink'        => get_permalink( $post->ID ),
+			'rejection_reason' => $rejection_reason,
 			// Company fields.
 			'company'          => $company_name,
 			'initials'         => $this->company_initials( $company_name ),

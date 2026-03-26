@@ -623,15 +623,19 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_application( \WP_Post $post ): array {
-		$status = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+		$status_log           = get_post_meta( $post->ID, '_wcb_status_log', true );
 		return array(
-			'id'           => $post->ID,
-			'job_id'       => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
-			'candidate_id' => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
-			'cover_letter' => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-			'resume_id'    => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
-			'status'       => $status ? $status : 'submitted',
-			'submitted_at' => $post->post_date,
+			'id'             => $post->ID,
+			'job_id'         => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'candidate_id'   => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
+			'cover_letter'   => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			'resume_id'      => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
+			'resume_url'     => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'status'         => $status ? $status : 'submitted',
+			'status_history' => is_array( $status_log ) ? $status_log : array(),
+			'submitted_at'   => $post->post_date,
 		);
 	}
 }
