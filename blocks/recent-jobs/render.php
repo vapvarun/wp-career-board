@@ -33,6 +33,9 @@ $wcb_jobs = get_posts(
 );
 
 if ( empty( $wcb_jobs ) ) {
+	if ( current_user_can( 'edit_posts' ) ) {
+		echo '<p class="wcb-admin-empty-state" style="padding:1rem;color:#6b7280;font-style:italic;text-align:center;">' . esc_html__( 'No recent jobs to display.', 'wp-career-board' ) . '</p>';
+	}
 	return;
 }
 

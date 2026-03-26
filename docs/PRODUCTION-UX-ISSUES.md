@@ -110,17 +110,17 @@
 
 ---
 
-## Priority Fixes
+## Fix Status
 
-### Must Fix (breaks i18n/a11y)
-1. J-1, J-2, J-3: Move remaining 3 hardcoded JS strings to state.strings
-2. H-1 to H-4: Replace 4 hardcoded hex in bell hover with tokens
+### Must Fix — DONE
+1. ~~J-1, J-2, J-3: Move remaining 3 hardcoded JS strings to state.strings~~ — Fixed in `e9b86ac`
+2. ~~H-1 to H-4: Replace 4 hardcoded hex in bell hover with tokens~~ — Fixed in `412105b`
 
-### Should Fix (UX polish)
-3. H-5, H-6: Scope `transition: all` to specific properties
-4. Add `role="alert"` to all error containers (4 missing)
-5. Add `aria-live="polite"` to all dynamic list containers (3+ missing)
+### Should Fix — DONE
+3. ~~H-5, H-6: Scope `transition: all` to specific properties~~ — Fixed in `412105b`
+4. ~~Add `role="alert"` to all error containers (4 missing)~~ — Fixed in `e9b86ac`
+5. ~~Add `aria-live="polite"` to all dynamic list containers (3+ missing)~~ — Fixed in `e9b86ac` (Free) + `349024c` (Pro)
 
-### Nice to Have
-6. Add empty state messages to 5 vanishing blocks
-7. Review 4 silent catches — consider adding subtle error feedback
+### Nice to Have — IN PROGRESS
+6. Add empty state messages to 5 vanishing blocks — fixing now
+7. Review 4 silent catches — intentional, documented, no action needed
