@@ -43,34 +43,39 @@ $wcb_companies_raw = get_posts(
 	)
 );
 
-// ── Build author → job count map (scoped to companies on this page) ──────────
-$wcb_author_ids = $wcb_companies_raw
-	? array_unique(
-		array_map(
-			static function ( \WP_Post $p ) {
-				return (int) $p->post_author; },
-			$wcb_companies_raw
-		)
+// ── Build company_id → job count map ─────────────────────────────────────────
+$wcb_company_ids = $wcb_companies_raw
+	? array_map(
+		static function ( \WP_Post $p ) {
+			return $p->ID;
+		},
+		$wcb_companies_raw
 	)
 	: array();
 
-$wcb_jobs_raw = $wcb_author_ids
+$wcb_jobs_raw = $wcb_company_ids
 	? get_posts(
 		array(
 			'post_type'     => 'wcb_job',
 			'post_status'   => 'publish',
 			'numberposts'   => -1,
-			'author__in'    => $wcb_author_ids,
 			'no_found_rows' => true,
 			'orderby'       => 'none',
+			'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => '_wcb_company_id',
+					'value'   => $wcb_company_ids,
+					'compare' => 'IN',
+				),
+			),
 		)
 	)
 	: array();
 
-$wcb_jobs_by_author = array();
+$wcb_jobs_by_company = array();
 foreach ( $wcb_jobs_raw as $wcb_jpost ) {
-	$wcb_aid                        = (int) $wcb_jpost->post_author;
-	$wcb_jobs_by_author[ $wcb_aid ] = ( $wcb_jobs_by_author[ $wcb_aid ] ?? 0 ) + 1;
+	$wcb_cid                         = (int) get_post_meta( $wcb_jpost->ID, '_wcb_company_id', true );
+	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
 }
 
 // ── Build initial state array ─────────────────────────────────────────────────
@@ -82,7 +87,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	$wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
 	$wcb_trust    = (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true );
 	$wcb_size     = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
-	$wcb_job_cnt  = $wcb_jobs_by_author[ (int) $wcb_co->post_author ] ?? 0;
+	$wcb_job_cnt  = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
 
 	// Build up-to-2-letter initials.
 	$wcb_words    = array_filter( explode( ' ', trim( $wcb_co_name ) ) );
@@ -205,7 +210,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<button
 				type="button"
 				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
 				data-wp-on--click="actions.setList"
 				data-wp-class--wcb-active="state.isList"
 			>
@@ -214,7 +219,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<button
 				type="button"
 				class="wcb-layout-btn"
-				title="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
 				data-wp-on--click="actions.setGrid"
 				data-wp-class--wcb-active="state.isGrid"
 			>

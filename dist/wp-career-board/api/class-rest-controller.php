@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated name follows project autoloader convention.
 /**
  * Abstract REST controller base class for all WCB endpoints.
  *
@@ -45,13 +45,17 @@ abstract class RestController extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	protected function check_ability( string $ability, array $args = array() ): bool {
-		if ( function_exists( 'wp_is_ability_granted' ) ) {
-			return wp_is_ability_granted( $ability, wp_get_current_user(), $args );
+		if ( function_exists( 'wp_get_ability' ) ) {
+			$ability_obj = wp_get_ability( $ability );
+			if ( $ability_obj ) {
+				$result = $ability_obj->check_permissions();
+				return true === $result;
+			}
 		}
 
-		// Graceful fallback: treat ability slug as a capability name.
+		// Graceful fallback when Abilities API is unavailable or ability not registered.
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-		return current_user_can( $ability );
+		return current_user_can( $ability ) || current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -66,13 +70,22 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Standard 403 permission error response.
+	 * Standard permission error response.
+	 *
+	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return \WP_Error
 	 */
 	protected function permission_error(): \WP_Error {
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'wcb_unauthorized',
+				__( 'Authentication is required to perform this action.', 'wp-career-board' ),
+				array( 'status' => 401 )
+			);
+		}
 		return new \WP_Error(
 			'wcb_forbidden',
 			__( 'You do not have permission to perform this action.', 'wp-career-board' ),

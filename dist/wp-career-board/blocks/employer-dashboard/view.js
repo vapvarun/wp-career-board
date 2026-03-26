@@ -10,13 +10,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		navOpen: false,
 		get activeTabLabel() {
 			const map = {
-				overview:     'Overview',
-				jobs:         'My Jobs',
-				applications: 'Applications',
-				company:      'Profile',
-				'post-job':   'Post a Job',
+				overview:     state.strings.overview,
+				jobs:         state.strings.myJobs,
+				applications: state.strings.applications,
+				company:      state.strings.profile,
+				'post-job':   state.strings.postAJob,
 			};
-			return map[ state.currentView ] || 'Dashboard';
+			return map[ state.currentView ] || state.strings.dashboard;
 		},
 
 		// View getters.
@@ -44,10 +44,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ! state.loading && ! state.noCompany && ! state.error && state.filteredJobs.length === 0;
 		},
 		get totalJobs() {
-			return state.jobs.length;
+			return state.jobs.length || state.ssrTotalJobs || 0;
 		},
 		get publishedJobs() {
-			return state.jobs.filter( ( j ) => j.status === 'publish' ).length;
+			return state.jobs.length
+				? state.jobs.filter( ( j ) => j.status === 'publish' ).length
+				: ( state.ssrPublishedJobs || 0 );
 		},
 
 		// Job filter.
@@ -100,9 +102,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const total    = state.jobsWithApps.length;
 			const filtered = state.filteredJobsWithApps.length;
 			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
-				return total + ' job' + ( total === 1 ? '' : 's' ) + ' with applications';
+				return total + state.strings.jobSingular + ( total === 1 ? '' : 's' ) + state.strings.jobsWithApps;
 			}
-			return filtered + ' of ' + total + ' jobs';
+			return filtered + state.strings.jobsOf + total + state.strings.jobsPlural;
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -113,9 +115,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Applications.
 		get totalApps() {
-			return state.allApplications.length > 0
-				? state.allApplications.length
-				: state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
+			if ( state.allApplications.length > 0 ) {
+				return state.allApplications.length;
+			}
+			if ( state.jobs.length > 0 ) {
+				return state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
+			}
+			return state.ssrTotalApps || 0;
 		},
 		get hasApplications() {
 			return state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
@@ -219,7 +225,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get applicantRowLabel() {
 			const ctx = getContext();
 			const name = ctx.app?.applicant_name || '';
-			return 'View application from ' + name;
+			return state.strings.viewAppFrom + name;
 		},
 
 		// Overview panel getters.
@@ -250,6 +256,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.overviewActiveJobs.length === 0;
 		},
 		get newThisWeek() {
+			if ( state.allApplications.length === 0 ) {
+				return state.ssrNewThisWeek || 0;
+			}
 			const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
 			return state.allApplications.filter(
 				( a ) => new Date( a.submitted_at ).getTime() > cutoff
@@ -269,15 +278,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		get logoUploadLabel() {
-			if ( state.logoUploading ) return 'Uploading\u2026';
-			return state.companyLogoUrl ? 'Change Logo' : 'Upload Logo';
+			if ( state.logoUploading ) return state.strings.logoUploading;
+			return state.companyLogoUrl ? state.strings.logoChange : state.strings.logoUpload;
 		},
 
 		// Legacy heading used by some templates.
 		get appsHeading() {
 			return state.appsJobTitle
-				? 'Applications: ' + state.appsJobTitle
-				: 'Applications';
+				? state.strings.appsHeadingPrefix + state.appsJobTitle
+				: state.strings.appsHeadingDefault;
 		},
 
 		// Bell notification getters.
@@ -288,11 +297,6 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 	actions: {
 		*init() {
-			if ( ! state.companyId ) {
-				state.noCompany = true;
-				return;
-			}
-
 			// Restore last active view from sessionStorage (skip if URL already dictates view).
 			if ( state.currentView === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_employer_view' );
@@ -309,18 +313,29 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error   = '';
 
 			try {
-				const jobsUrl = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/jobs' );
+				// Use /me/jobs when no company yet — employers can post jobs before
+				// creating a company profile, and those jobs must still appear.
+				const jobsBase = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
+					: state.apiBase + '/employers/me/jobs';
+				const jobsUrl = new URL( jobsBase );
 				jobsUrl.searchParams.set( 'per_page', '50' );
-				const appsUrl = state.apiBase + '/employers/' + String( state.companyId ) + '/applications';
+
+				const appsUrl = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
+					: null;
+
 				const headers = { 'X-WP-Nonce': state.nonce };
 
-				const [ jobsResp, allAppsResp ] = yield Promise.all( [
-					fetch( jobsUrl.toString(), { headers } ),
-					fetch( appsUrl, { headers } ),
-				] );
+				const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];
+				if ( appsUrl ) {
+					fetchPromises.push( fetch( appsUrl, { headers } ) );
+				}
+
+				const [ jobsResp, allAppsResp ] = yield Promise.all( fetchPromises );
 
 				if ( ! jobsResp.ok ) {
-					state.error = 'Could not load your jobs.';
+					state.error = state.strings.errorLoadJobs;
 					return;
 				}
 
@@ -332,11 +347,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					isDraft:  j.status === 'draft',
 				} ) );
 
-				if ( allAppsResp.ok ) {
+				if ( allAppsResp && allAppsResp.ok ) {
 					state.allApplications = yield allAppsResp.json();
 				}
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errorConnection;
 			} finally {
 				state.loading = false;
 			}
@@ -448,7 +463,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.appsError = 'Could not load applications.';
+					state.appsError = state.strings.errorLoadApps;
 					return;
 				}
 
@@ -464,7 +479,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.appsJobTitle = match.title;
 				}
 			} catch {
-				state.appsError = 'Connection error loading applications.';
+				state.appsError = state.strings.errorConnectionApps;
 			} finally {
 				state.appsLoading = false;
 			}
@@ -502,6 +517,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		*closeJob( event ) {
 			const jobId = Number( event.target.dataset.wcbJobId );
 			if ( ! jobId ) {
+				return;
+			}
+			if ( ! window.confirm( state.strings.confirmCloseJob ) ) {
 				return;
 			}
 			try {
@@ -571,6 +589,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! file ) {
 				return;
 			}
+			if ( ! state.companyId ) {
+				state.error = state.strings.errorSaveLogo;
+				return;
+			}
 			state.logoUploading = true;
 			try {
 				const fd = new FormData();
@@ -603,11 +625,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.saved  = false;
 			state.error  = '';
 
+			const isNew = ! state.companyId;
+			const url   = isNew
+				? state.apiBase + '/employers'
+				: state.apiBase + '/employers/' + String( state.companyId );
+
 			try {
 				const response = yield fetch(
-					state.apiBase + '/employers/' + String( state.companyId ),
+					url,
 					{
-						method: 'PATCH',
+						method: isNew ? 'POST' : 'PATCH',
 						headers: {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
@@ -625,13 +652,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not save profile. Please try again.';
+					state.error = state.strings.errorSaveProfile;
 					return;
+				}
+
+				if ( isNew ) {
+					const data       = yield response.json();
+					state.companyId  = data.id ?? 0;
 				}
 
 				state.saved = true;
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errorConnection;
 			} finally {
 				state.saving = false;
 			}

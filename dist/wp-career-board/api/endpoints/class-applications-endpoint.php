@@ -418,6 +418,8 @@ final class ApplicationsEndpoint extends RestController {
 		$job_id       = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 		wp_delete_post( $app_id, true );
+		// Allow add-ons to clean up when an application is permanently deleted.
+		do_action( 'wcb_application_deleted', $app_id );
 
 		do_action( 'wcb_application_withdrawn', $app_id, $job_id, $candidate_id );
 
@@ -488,10 +490,25 @@ final class ApplicationsEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
-	public function submit_permissions_check( \WP_REST_Request $request ): bool {
-		return true;
+	public function submit_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		// Guests can always apply (no account needed).
+		if ( ! is_user_logged_in() ) {
+			return true;
+		}
+
+		// Logged-in users must have the wcb_apply_jobs capability.
+		// This prevents employers from applying to jobs.
+		if ( current_user_can( 'wcb_apply_jobs' ) || current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'wcb_forbidden',
+			__( 'You do not have permission to apply for jobs.', 'wp-career-board' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -509,11 +526,12 @@ final class ApplicationsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_candidate = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
-		$job_id       = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
-		$job          = get_post( $job_id );
-		$is_employer  = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
-		$is_admin     = $this->check_ability( 'wcb_manage_settings' );
+		$current_user_id = get_current_user_id();
+		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
+		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+		$job             = get_post( $job_id );
+		$is_employer     = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_admin        = $this->check_ability( 'wcb_manage_settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -605,15 +623,19 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_application( \WP_Post $post ): array {
-		$status = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+		$status_log           = get_post_meta( $post->ID, '_wcb_status_log', true );
 		return array(
-			'id'           => $post->ID,
-			'job_id'       => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
-			'candidate_id' => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
-			'cover_letter' => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-			'resume_id'    => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
-			'status'       => $status ? $status : 'submitted',
-			'submitted_at' => $post->post_date,
+			'id'             => $post->ID,
+			'job_id'         => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'candidate_id'   => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
+			'cover_letter'   => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			'resume_id'      => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
+			'resume_url'     => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'status'         => $status ? $status : 'submitted',
+			'status_history' => is_array( $status_log ) ? $status_log : array(),
+			'submitted_at'   => $post->post_date,
 		);
 	}
 }

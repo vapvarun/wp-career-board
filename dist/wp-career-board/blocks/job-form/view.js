@@ -153,6 +153,10 @@ store(
 				const { state } = store( 'wcb-job-form' );
 				return state.editJobId > 0 ? 'Update Job' : 'Post Job';
 			},
+			get jobPending() {
+				const { state } = store( 'wcb-job-form' );
+				return state.jobStatus === 'pending';
+			},
 
 			// ── Preview badge display names (slug → term name via PHP-injected map) ──
 			get typeDisplay() {
@@ -284,7 +288,7 @@ store(
 					if ( ! response.ok ) {
 						const err = yield response.json().catch( () => null );
 						if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
-							state.error = 'Your session has expired. Please refresh the page and try again.';
+							state.error = state.strings.errorSessionExpired;
 						} else {
 							state.error = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
 						}
@@ -293,9 +297,10 @@ store(
 
 					const data      = yield response.json();
 					state.jobUrl    = data.permalink || '';
+					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
 				} catch {
-					state.error = 'Connection error. Please check your network and try again.';
+					state.error = state.strings.errorConnection;
 				} finally {
 					state.submitting = false;
 				}

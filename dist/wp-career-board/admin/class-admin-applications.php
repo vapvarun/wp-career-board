@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated admin class name follows project autoloader convention.
 /**
  * Admin Applications list — full WP_List_Table with search, status tabs,
  * pagination, sortable columns, row actions, and bulk trash.
@@ -62,6 +62,7 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
+		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-applications-list">

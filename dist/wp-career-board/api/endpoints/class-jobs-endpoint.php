@@ -114,10 +114,15 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_items( $request ): \WP_REST_Response {
+		if ( ! $request->has_param( 'per_page' ) ) {
+			$settings = (array) get_option( 'wcb_settings', array() );
+			$request->set_param( 'per_page', ! empty( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 15 );
+		}
+
 		$args = array(
 			'post_type'      => 'wcb_job',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ( $request->get_param( 'per_page' ) ?? 20 ),
+			'posts_per_page' => (int) ( $request->get_param( 'per_page' ) ?? 15 ),
 			'paged'          => (int) ( $request->get_param( 'page' ) ?? 1 ),
 			'tax_query'      => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
@@ -738,7 +743,12 @@ final class JobsEndpoint extends RestController {
 		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$board_id      = (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID );
 
-		return array(
+		$rejection_reason = '';
+		if ( 'draft' === $post->post_status || 'trash' === $post->post_status ) {
+			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+		}
+
+		$data = array(
 			'id'               => $post->ID,
 			'title'            => $post->post_title,
 			'description'      => $post->post_content,
@@ -747,6 +757,7 @@ final class JobsEndpoint extends RestController {
 			'author'           => $author_id,
 			'date'             => $post->post_date,
 			'permalink'        => get_permalink( $post->ID ),
+			'rejection_reason' => $rejection_reason,
 			// Company fields.
 			'company'          => $company_name,
 			'initials'         => $this->company_initials( $company_name ),
@@ -781,6 +792,19 @@ final class JobsEndpoint extends RestController {
 			'lat'              => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
 			'lng'              => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);
+
+		/**
+		 * Filter the job REST response array.
+		 *
+		 * Pro (and other extensions) hook here to append extra data such as
+		 * custom field values without touching the Free codebase.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array    $data Job response array.
+		 * @param \WP_Post $post The job post object.
+		 */
+		return apply_filters( 'wcb_job_response', $data, $post );
 	}
 
 	/**

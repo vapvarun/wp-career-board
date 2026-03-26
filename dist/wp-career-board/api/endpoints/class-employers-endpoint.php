@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated endpoint name follows project autoloader convention.
 /**
  * Employers REST endpoint — company CRUD and job listing.
  *
@@ -33,6 +33,43 @@ final class EmployersEndpoint extends RestController {
 	 * @return void
 	 */
 	public function register_routes(): void {
+		register_rest_route(
+			$this->namespace,
+			'/employers/register',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'register_employer' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'first_name'   => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'last_name'    => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'email'        => array(
+						'type'              => 'string',
+						'required'          => true,
+						'format'            => 'email',
+						'sanitize_callback' => 'sanitize_email',
+					),
+					'company_name' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'password'     => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/employers',
@@ -106,6 +143,112 @@ final class EmployersEndpoint extends RestController {
 	// --- Route callbacks --------------------------------------------------------
 
 	/**
+	 * Register a new employer user with a company profile.
+	 *
+	 * Open endpoint — requires no authentication.
+	 * Creates a WordPress user, assigns the wcb_employer role, creates a
+	 * wcb_company post, and logs the new user in via auth cookies.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function register_employer( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+			return new \WP_Error(
+				'wcb_registration_disabled',
+				__( 'User registration is currently disabled.', 'wp-career-board' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$first_name   = (string) $request->get_param( 'first_name' );
+		$last_name    = (string) $request->get_param( 'last_name' );
+		$email        = (string) $request->get_param( 'email' );
+		$company_name = (string) $request->get_param( 'company_name' );
+		$password     = (string) $request->get_param( 'password' );
+
+		if ( email_exists( $email ) ) {
+			return new \WP_Error(
+				'wcb_email_exists',
+				__( 'An account with this email address already exists.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( strlen( $password ) < 8 ) {
+			return new \WP_Error(
+				'wcb_weak_password',
+				__( 'Password must be at least 8 characters.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
+		if ( ! $username ) {
+			$username = sanitize_user( strtolower( $email ), true );
+		}
+		if ( username_exists( $username ) ) {
+			$username = $username . wp_rand( 100, 999 );
+		}
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => $username,
+				'user_email'   => $email,
+				'user_pass'    => $password,
+				'first_name'   => $first_name,
+				'last_name'    => $last_name,
+				'display_name' => trim( $first_name . ' ' . $last_name ),
+				'role'         => 'wcb_employer',
+			)
+		);
+
+		if ( is_wp_error( $user_id ) ) {
+			return new \WP_Error(
+				'wcb_registration_failed',
+				$user_id->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Create the employer's company profile and link it to the user.
+		$company_id = wp_insert_post(
+			array(
+				'post_type'   => 'wcb_company',
+				'post_title'  => $company_name,
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			)
+		);
+
+		if ( $company_id && ! is_wp_error( $company_id ) ) {
+			update_user_meta( $user_id, '_wcb_company_id', $company_id );
+		}
+
+		// Authenticate the new user immediately.
+		wp_set_current_user( $user_id );
+		wp_set_auth_cookie( $user_id, false );
+
+		$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
+		do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
+
+		$settings      = (array) get_option( 'wcb_settings', array() );
+		$dashboard_url = ! empty( $settings['employer_dashboard_page'] )
+			? (string) get_permalink( (int) $settings['employer_dashboard_page'] )
+			: home_url( '/' );
+
+		return rest_ensure_response(
+			array(
+				'user_id'       => $user_id,
+				'company_id'    => $resolved_company_id,
+				'dashboard_url' => $dashboard_url,
+			)
+		);
+	}
+
+	/**
 	 * Create a new company profile for the current employer.
 	 *
 	 * @since 1.0.0
@@ -141,7 +284,7 @@ final class EmployersEndpoint extends RestController {
 		$meta_map = array(
 			'website'  => '_wcb_website',
 			'industry' => '_wcb_industry',
-			'size'     => '_wcb_size',
+			'size'     => '_wcb_company_size',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -227,10 +370,12 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
-	 * List jobs for the currently authenticated employer's company.
+	 * List jobs for the currently authenticated employer.
 	 *
-	 * Convenience alias for /employers/{id}/jobs that resolves the company ID
-	 * from the current user's linked _wcb_company_id usermeta.
+	 * When the employer has a linked company, delegates to get_jobs() so the
+	 * response shape is identical (includes appCount, editUrl, etc.). When no
+	 * company exists yet the employer may still have pending/published jobs
+	 * (posted before they created a profile), so we query directly by author.
 	 *
 	 * @since 1.0.0
 	 *
@@ -239,15 +384,59 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
-		if ( ! $company_id ) {
-			return new \WP_Error(
-				'wcb_no_company',
-				__( 'No company profile found for the current user.', 'wp-career-board' ),
-				array( 'status' => 404 )
-			);
+		if ( $company_id ) {
+			$request->set_param( 'id', $company_id );
+			return $this->get_jobs( $request );
 		}
-		$request->set_param( 'id', $company_id );
-		return $this->get_jobs( $request );
+
+		// No company yet — return jobs authored by the current user.
+		$user_id      = get_current_user_id();
+		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
+		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
+		$wcb_form_url = $this->get_job_form_page_url();
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_author'    => $user_id,
+				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
+			)
+		);
+
+		$items = array_map(
+			static function ( \WP_Post $p ) use ( $wcb_form_url ): array {
+				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
+				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
+				$status_labels  = array(
+					'publish' => 'Published',
+					'draft'   => 'Draft',
+					'pending' => 'Pending',
+					'private' => 'Private',
+				);
+				return array(
+					'id'          => $p->ID,
+					'title'       => $p->post_title,
+					'status'      => $p->post_status,
+					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'permalink'   => get_permalink( $p->ID ),
+					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+					'appCount'    => 0,
+					'appLabel'    => __( 'No applicants', 'wp-career-board' ),
+					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+				);
+			},
+			$query->posts
+		);
+
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WCB-Total', (string) $query->found_posts );
+		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $response;
 	}
 
 	/**

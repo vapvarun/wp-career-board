@@ -19,7 +19,7 @@ let panelTriggerEl = null;
 const { state } = store( 'wcb-job-single', {
 	state: {
 		get bookmarkLabel() {
-			return state.bookmarked ? 'Saved' : 'Save Job';
+			return state.bookmarked ? state.strings.bookmarkSaved : state.strings.bookmarkSave;
 		},
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;
@@ -104,7 +104,53 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		selectResumeFile( event ) {
-			state.resumeFile = event.target.files[ 0 ] || null;
+			state.resumeFile     = event.target.files[ 0 ] || null;
+			state.resumeFileName = state.resumeFile ? state.resumeFile.name : '';
+		},
+
+		*createAlertFromJob() {
+			if ( state.alertFromJobSaved || state.alertFromJobSaving ) {
+				return;
+			}
+
+			state.alertFromJobSaving = true;
+
+			const filters = {};
+			if ( state.jobCategories && state.jobCategories.length ) {
+				filters.category = state.jobCategories[ 0 ];
+			}
+			if ( state.jobTypes && state.jobTypes.length ) {
+				filters.type = state.jobTypes[ 0 ];
+			}
+			if ( state.jobRemote ) {
+				filters.remote = true;
+			}
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts',
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( {
+							search_query: state.jobTitle,
+							filters,
+							frequency:    'daily',
+						} ),
+					}
+				);
+
+				if ( response.ok ) {
+					state.alertFromJobSaved = true;
+				}
+			} catch {
+				// Silent.
+			} finally {
+				state.alertFromJobSaving = false;
+			}
 		},
 
 		*submitApplication() {
@@ -127,7 +173,7 @@ const { state } = store( 'wcb-job-single', {
 			// Guest validation — require name + email before submitting.
 			if ( ! state.isLoggedIn ) {
 				if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
-					state.error = 'Please enter your name and email to apply.';
+					state.error = state.strings.guestFieldsRequired;
 					return;
 				}
 			}
@@ -138,8 +184,8 @@ const { state } = store( 'wcb-job-single', {
 			try {
 				let resumeAttachmentId = 0;
 
-				// Free mode: upload the file first, then get attachment ID.
-				if ( ! state.proActive && state.resumeFile ) {
+				// Upload resume file if one was selected (works in both Free and Pro mode).
+				if ( state.resumeFile ) {
 					const formData = new FormData();
 					formData.append( 'resume_file', state.resumeFile );
 
@@ -153,7 +199,7 @@ const { state } = store( 'wcb-job-single', {
 					);
 
 					if ( ! uploadRes.ok ) {
-						state.error = 'Resume upload failed. Please try again.';
+						state.error = state.strings.resumeUploadFailed;
 						return;
 					}
 
@@ -194,7 +240,7 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( ! response.ok ) {
 					const err   = yield response.json().catch( () => null );
-					state.error = ( err && err.message ) ? err.message : 'Application could not be submitted. Please try again.';
+					state.error = ( err && err.message ) ? err.message : state.strings.applicationFailed;
 					return;
 				}
 
@@ -204,7 +250,7 @@ const { state } = store( 'wcb-job-single', {
 					window.wcbCaptchaReset();
 				}
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.connectionError;
 			} finally {
 				state.submitting = false;
 			}

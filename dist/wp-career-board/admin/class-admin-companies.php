@@ -223,6 +223,7 @@ class AdminCompanies extends \WP_List_Table {
 		$statuses = array(
 			'publish' => __( 'Published', 'wp-career-board' ),
 			'draft'   => __( 'Draft', 'wp-career-board' ),
+			'trash'   => __( 'Trash', 'wp-career-board' ),
 		);
 
 		foreach ( $statuses as $slug => $label ) {
@@ -421,8 +422,8 @@ class AdminCompanies extends \WP_List_Table {
 				'fields'         => 'ids',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
-						'key'   => '_wcb_company_name',
-						'value' => get_the_title( $item ),
+						'key'   => '_wcb_company_id',
+						'value' => $item->ID,
 					),
 				),
 			)

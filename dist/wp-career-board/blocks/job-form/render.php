@@ -204,6 +204,10 @@ $wcb_initial_state = apply_filters(
 		'expNames'          => (object) $wcb_exp_names,
 		'locationNames'     => (object) $wcb_location_names,
 		'categoryNames'     => (object) $wcb_category_names,
+		'strings'           => array(
+			'errorSessionExpired' => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
+			'errorConnection'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		),
 	),
 	$attributes
 );
@@ -245,6 +249,7 @@ $wcb_step_labels = array(
 	<!-- ── Validation error banner ───────────────────────────────────────── -->
 	<p
 		class="wcb-form-error"
+		role="alert"
 		data-wp-class--wcb-form-error--show="state.hasValidation"
 		data-wp-text="state.validationError"
 	></p>
@@ -253,10 +258,15 @@ $wcb_step_labels = array(
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
 		<span class="wcb-form-success__icon" aria-hidden="true">✓</span>
 		<div>
-			<p class="wcb-form-success__title">
-				<?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?>
+			<p class="wcb-form-success__title" data-wp-class--wcb-form-success__title--pending="state.jobPending">
+				<span data-wp-class--wcb-hidden="state.jobPending">
+					<?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?>
+				</span>
+				<span data-wp-class--wcb-hidden="!state.jobPending">
+					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>
+				</span>
 			</p>
-			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl">
+			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
 		</div>
@@ -686,7 +696,7 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
-			<p class="wcb-form-error" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
+			<p class="wcb-form-error" role="alert" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
 
 			<div class="wcb-form-nav">
 				<button

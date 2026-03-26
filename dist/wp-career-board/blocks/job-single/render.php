@@ -22,12 +22,14 @@ $wcb_location_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_location' );
 $wcb_type_terms       = wp_get_object_terms( $wcb_job_id, 'wcb_job_type' );
 $wcb_experience_terms = wp_get_object_terms( $wcb_job_id, 'wcb_experience' );
 $wcb_category_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_category' );
+$wcb_tag_terms        = wp_get_object_terms( $wcb_job_id, 'wcb_tag' );
 
 // Plain-text strings used in sidebar detail list.
 $wcb_location   = ! is_wp_error( $wcb_location_terms ) ? implode( ', ', wp_list_pluck( $wcb_location_terms, 'name' ) ) : '';
 $wcb_type       = ! is_wp_error( $wcb_type_terms ) ? implode( ' · ', wp_list_pluck( $wcb_type_terms, 'name' ) ) : '';
 $wcb_experience = ! is_wp_error( $wcb_experience_terms ) ? implode( ', ', wp_list_pluck( $wcb_experience_terms, 'name' ) ) : '';
 $wcb_categories = ! is_wp_error( $wcb_category_terms ) ? $wcb_category_terms : array();
+$wcb_tags       = ! is_wp_error( $wcb_tag_terms ) ? $wcb_tag_terms : array();
 
 // Normalize to arrays for safe iteration.
 $wcb_location_terms   = is_wp_error( $wcb_location_terms ) ? array() : $wcb_location_terms;
@@ -134,12 +136,36 @@ if ( $wcb_is_job_owner ) {
 	}
 }
 
-// ── Bookmark state ────────────────────────────────────────────────────────────
+// ── Already-applied check ─────────────────────────────────────────────────────
 $wcb_current_user_id = get_current_user_id();
-$wcb_bookmarks       = $wcb_current_user_id
+$wcb_has_applied     = false;
+if ( $wcb_current_user_id && $wcb_show_apply ) {
+	$wcb_has_applied = (bool) get_posts(
+		array(
+			'post_type'      => 'wcb_application',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'   => '_wcb_job_id',
+					'value' => $wcb_job_id,
+				),
+				array(
+					'key'   => '_wcb_candidate_id',
+					'value' => $wcb_current_user_id,
+				),
+			),
+		)
+	);
+}
+
+// ── Bookmark state ────────────────────────────────────────────────────────────
+$wcb_bookmarks     = $wcb_current_user_id
 	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_bookmark', false ) )
 	: array();
-$wcb_is_bookmarked   = in_array( $wcb_job_id, $wcb_bookmarks, true );
+$wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
 // ── Resume data for apply panel ───────────────────────────────────────────────
 $wcb_user_resumes    = array();
@@ -177,26 +203,40 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
-		'jobId'            => $wcb_job_id,
-		'apiBase'          => rest_url( 'wcb/v1' ),
-		'nonce'            => wp_create_nonce( 'wp_rest' ),
-		'panelOpen'        => false,
-		'submitting'       => false,
-		'submitted'        => false,
-		'bookmarked'       => $wcb_is_bookmarked,
-		'bookmarking'      => false,
-		'coverLetter'      => '',
-		'error'            => '',
-		'userResumes'      => $wcb_user_resumes,
-		'selectedResumeId' => 0,
-		'resumePageUrl'    => $wcb_resume_page_url,
-		'proActive'        => post_type_exists( 'wcb_resume' ),
-		'jobPermalink'     => (string) get_permalink( $wcb_job_id ),
-		'jobTitle'         => $wcb_job->post_title,
-		'linkCopied'       => false,
-		'isLoggedIn'       => is_user_logged_in(),
-		'guestName'        => '',
-		'guestEmail'       => '',
+		'jobId'              => $wcb_job_id,
+		'apiBase'            => rest_url( 'wcb/v1' ),
+		'nonce'              => wp_create_nonce( 'wp_rest' ),
+		'panelOpen'          => false,
+		'submitting'         => false,
+		'submitted'          => $wcb_has_applied,
+		'bookmarked'         => $wcb_is_bookmarked,
+		'bookmarking'        => false,
+		'coverLetter'        => '',
+		'error'              => '',
+		'userResumes'        => $wcb_user_resumes,
+		'selectedResumeId'   => 0,
+		'resumePageUrl'      => $wcb_resume_page_url,
+		'proActive'          => post_type_exists( 'wcb_resume' ),
+		'jobPermalink'       => (string) get_permalink( $wcb_job_id ),
+		'jobTitle'           => $wcb_job->post_title,
+		'linkCopied'         => false,
+		'isLoggedIn'         => is_user_logged_in(),
+		'guestName'          => '',
+		'guestEmail'         => '',
+		'resumeFileName'     => '',
+		'alertFromJobSaved'  => false,
+		'alertFromJobSaving' => false,
+		'jobCategories'      => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
+		'jobTypes'           => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
+		'jobRemote'          => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
+		'strings'            => array(
+			'bookmarkSaved'         => __( 'Saved', 'wp-career-board' ),
+			'bookmarkSave'          => __( 'Save Job', 'wp-career-board' ),
+			'guestFieldsRequired'   => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
+			'resumeUploadFailed'    => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
+			'applicationFailed'     => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
+			'connectionError'       => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		),
 	)
 );
 ?>
@@ -296,6 +336,20 @@ wp_interactivity_state(
 				<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
 					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
 				</p>
+				<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
+					<button
+						type="button"
+						class="wcb-post-apply-alert-btn"
+						data-wp-on--click="actions.createAlertFromJob"
+						data-wp-bind--disabled="state.alertFromJobSaving"
+						data-wp-class--wcb-hidden="state.alertFromJobSaved"
+					>&#128276; <?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
+					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
+						<?php esc_html_e( '✓ You will be notified about similar jobs', 'wp-career-board' ); ?>
+					</span>
+				</div>
+				<?php endif; ?>
 				<?php if ( $wcb_deadline_formatted ) : ?>
 					<p class="wcb-deadline-note">
 						<?php
@@ -374,6 +428,18 @@ wp_interactivity_state(
 						<?php foreach ( $wcb_categories as $wcb_cat ) : ?>
 							<a href="<?php echo esc_url( (string) get_term_link( $wcb_cat ) ); ?>" class="wcb-tag">
 								<?php echo esc_html( $wcb_cat->name ); ?>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+			<?php if ( ! empty( $wcb_tags ) ) : ?>
+				<div class="wcb-section">
+					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Skills & Tags', 'wp-career-board' ); ?></h3>
+					<div class="wcb-tag-row">
+						<?php foreach ( $wcb_tags as $wcb_tag_item ) : ?>
+							<a href="<?php echo esc_url( (string) get_term_link( $wcb_tag_item ) ); ?>" class="wcb-tag">
+								<?php echo esc_html( $wcb_tag_item->name ); ?>
 							</a>
 						<?php endforeach; ?>
 					</div>
@@ -560,7 +626,7 @@ wp_interactivity_state(
 			class="wcb-apply-panel"
 			role="dialog"
 			aria-modal="true"
-			aria-label="<?php esc_attr_e( 'Apply for this job', 'wp-career-board' ); ?>"
+			aria-labelledby="wcb-apply-title"
 			data-wp-class--wcb-open="state.panelOpen"
 			data-wp-on--keydown="actions.handlePanelKeydown"
 		>
@@ -568,11 +634,11 @@ wp_interactivity_state(
 				type="button"
 				class="wcb-panel-close"
 				data-wp-on--click="actions.closePanel"
-				aria-label="<?php esc_attr_e( 'Close panel', 'wp-career-board' ); ?>"
+				aria-label="<?php esc_attr_e( 'Close application panel', 'wp-career-board' ); ?>"
 			>&times;</button>
 
 			<div class="wcb-panel-body">
-				<h2 class="wcb-panel-title"><?php esc_html_e( 'Apply for this job', 'wp-career-board' ); ?></h2>
+				<h2 id="wcb-apply-title" class="wcb-panel-title"><?php esc_html_e( 'Apply for this job', 'wp-career-board' ); ?></h2>
 				<p class="wcb-panel-subtitle"><?php echo esc_html( $wcb_job->post_title ); ?></p>
 				<?php if ( $wcb_company_name ) : ?>
 					<p class="wcb-panel-company"><?php echo esc_html( $wcb_company_name ); ?></p>
@@ -612,7 +678,7 @@ wp_interactivity_state(
 				<?php if ( is_user_logged_in() && post_type_exists( 'wcb_resume' ) ) : ?>
 					<div class="wcb-apply-resume-section">
 						<label class="wcb-field-label" for="wcb-resume-select">
-							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
+							<?php esc_html_e( 'Select Resume', 'wp-career-board' ); ?>
 						</label>
 						<?php if ( ! empty( $wcb_user_resumes ) ) : ?>
 							<select
@@ -637,20 +703,38 @@ wp_interactivity_state(
 								<?php endif; ?>
 							</p>
 						<?php endif; ?>
+
+						<p class="wcb-apply-or-divider"><?php esc_html_e( '— or upload a file —', 'wp-career-board' ); ?></p>
+
+						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
+							<span class="wcb-upload-icon">&#8593;</span>
+							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
+							<input
+								type="file"
+								id="wcb-resume-file"
+								class="wcb-apply-resume-file"
+								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+								data-wp-on--change="actions.selectResumeFile"
+							/>
+						</label>
 					</div>
 				<?php elseif ( is_user_logged_in() ) : ?>
 					<div class="wcb-apply-resume-section">
-						<label class="wcb-field-label" for="wcb-resume-file">
-							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
-							<span class="wcb-field-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
+							<span class="wcb-upload-icon">&#8593;</span>
+							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
+							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
+							<input
+								type="file"
+								id="wcb-resume-file"
+								class="wcb-apply-resume-file"
+								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+								data-wp-on--change="actions.selectResumeFile"
+							/>
 						</label>
-						<input
-							type="file"
-							id="wcb-resume-file"
-							class="wcb-apply-resume-file"
-							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-							data-wp-on--change="actions.selectResumeFile"
-						/>
 					</div>
 				<?php endif; ?>
 

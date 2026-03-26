@@ -16,13 +16,13 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-$wcb_filter_category = isset( $_GET['wcb_category'] )
+$wcb_filter_category   = isset( $_GET['wcb_category'] )
 	? sanitize_text_field( wp_unslash( $_GET['wcb_category'] ) )
 	: '';
-$wcb_filter_type     = isset( $_GET['wcb_job_type'] )
+$wcb_filter_type       = isset( $_GET['wcb_job_type'] )
 	? sanitize_text_field( wp_unslash( $_GET['wcb_job_type'] ) )
 	: '';
-$wcb_filter_location = isset( $_GET['wcb_location'] )
+$wcb_filter_location   = isset( $_GET['wcb_location'] )
 	? sanitize_text_field( wp_unslash( $_GET['wcb_location'] ) )
 	: '';
 $wcb_filter_exp        = isset( $_GET['wcb_experience'] )

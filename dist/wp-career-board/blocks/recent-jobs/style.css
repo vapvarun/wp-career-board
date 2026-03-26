@@ -84,7 +84,7 @@
 	width: 16px;
 	height: 16px;
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	font-size: 9px;
 	font-weight: 700;
 	border-radius: 2px;

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated admin class name follows project autoloader convention.
 /**
  * Admin Jobs list — full WP_List_Table with search, status tabs, pagination,
  * sortable columns, row actions, and bulk approve/trash.
@@ -55,6 +55,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
+		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-jobs-list">
@@ -216,6 +217,7 @@ class AdminJobs extends \WP_List_Table {
 			'publish' => __( 'Published', 'wp-career-board' ),
 			'pending' => __( 'Pending Review', 'wp-career-board' ),
 			'draft'   => __( 'Draft', 'wp-career-board' ),
+			'trash'   => __( 'Trash', 'wp-career-board' ),
 		);
 
 		foreach ( $statuses as $slug => $label ) {
@@ -465,15 +467,14 @@ class AdminJobs extends \WP_List_Table {
 				continue;
 			}
 			if ( 'approve' === $action ) {
-				$updated = wp_update_post(
+				// wcb_job_approved fires via EmailJobApproved::on_status_transition()
+				// on the transition_post_status hook triggered by wp_update_post().
+				wp_update_post(
 					array(
 						'ID'          => $job_id,
 						'post_status' => 'publish',
 					)
 				);
-				if ( $updated && ! is_wp_error( $updated ) ) {
-					do_action( 'wcb_job_approved', $job_id );
-				}
 			} elseif ( 'trash' === $action ) {
 				wp_trash_post( $job_id );
 			}

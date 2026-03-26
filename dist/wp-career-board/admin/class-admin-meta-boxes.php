@@ -214,14 +214,27 @@ class AdminMetaBoxes {
 		$wcb_remote              = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 		$wcb_featured            = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
 		$wcb_deadline            = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
+		$wcb_company_id          = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$wcb_company_name        = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 
-		// Employer's linked company (auto-fill suggestion).
-		$wcb_employer_company_id = (int) get_user_meta( (int) $post->post_author, '_wcb_company_id', true );
-		$wcb_employer_company    = $wcb_employer_company_id ? get_post( $wcb_employer_company_id ) : null;
-		if ( ! $wcb_company_name && $wcb_employer_company instanceof \WP_Post ) {
-			$wcb_company_name = $wcb_employer_company->post_title;
+		// Fall back to employer's linked company when no company is selected yet.
+		if ( ! $wcb_company_id ) {
+			$wcb_employer_company_id = (int) get_user_meta( (int) $post->post_author, '_wcb_company_id', true );
+			if ( $wcb_employer_company_id ) {
+				$wcb_company_id = $wcb_employer_company_id;
+			}
 		}
+
+		$wcb_companies = get_posts(
+			array(
+				'post_type'      => 'wcb_company',
+				'post_status'    => 'publish',
+				'posts_per_page' => 200,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+			)
+		);
 		?>
 		<style>
 			.wcb-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; padding:8px 0; }
@@ -284,14 +297,34 @@ class AdminMetaBoxes {
 				/>
 			</div>
 			<div>
-				<label for="wcb_company_name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
-				<input
-					type="text"
-					id="wcb_company_name"
-					name="wcb_company_name"
-					value="<?php echo esc_attr( $wcb_company_name ); ?>"
-					placeholder="<?php esc_attr_e( 'Displayed on job listing', 'wp-career-board' ); ?>"
-				/>
+				<label for="wcb_company_id"><?php esc_html_e( 'Company', 'wp-career-board' ); ?></label>
+				<?php if ( $wcb_companies ) : ?>
+					<select id="wcb_company_id" name="wcb_company_id">
+						<option value="0"><?php esc_html_e( '— Select a company —', 'wp-career-board' ); ?></option>
+						<?php foreach ( $wcb_companies as $wcb_cid ) : ?>
+							<option value="<?php echo esc_attr( (string) $wcb_cid ); ?>" <?php selected( $wcb_company_id, $wcb_cid ); ?>>
+								<?php echo esc_html( (string) get_the_title( $wcb_cid ) ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				<?php else : ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: URL to add a new company */
+							esc_html__( 'No companies yet. %s', 'wp-career-board' ),
+							'<a href="' . esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ) . '">' . esc_html__( 'Add one', 'wp-career-board' ) . '</a>'
+						);
+						?>
+					</p>
+					<input
+						type="text"
+						id="wcb_company_name"
+						name="wcb_company_name"
+						value="<?php echo esc_attr( $wcb_company_name ); ?>"
+						placeholder="<?php esc_attr_e( 'Company name (displayed on listing)', 'wp-career-board' ); ?>"
+					/>
+				<?php endif; ?>
 			</div>
 			<div class="wcb-meta-full">
 				<label>
@@ -590,9 +623,24 @@ class AdminMetaBoxes {
 		$deadline = isset( $_POST['wcb_deadline'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_deadline'] ) ) : '';
 		update_post_meta( $post_id, '_wcb_deadline', $deadline );
 
-		// Company name.
-		$company_name = isset( $_POST['wcb_company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_name'] ) ) : '';
-		update_post_meta( $post_id, '_wcb_company_name', $company_name );
+		// Company — prefer the select dropdown; fall back to the text input shown when no companies exist.
+		$company_id = isset( $_POST['wcb_company_id'] ) ? absint( $_POST['wcb_company_id'] ) : 0;
+		if ( $company_id > 0 ) {
+			$company_post = get_post( $company_id );
+			if ( $company_post instanceof \WP_Post && 'wcb_company' === $company_post->post_type ) {
+				update_post_meta( $post_id, '_wcb_company_id', $company_id );
+				update_post_meta( $post_id, '_wcb_company_name', $company_post->post_title );
+			}
+		} else {
+			// Fallback text input (shown when no wcb_company posts exist yet).
+			$company_name = isset( $_POST['wcb_company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_name'] ) ) : '';
+			delete_post_meta( $post_id, '_wcb_company_id' );
+			if ( '' !== $company_name ) {
+				update_post_meta( $post_id, '_wcb_company_name', $company_name );
+			} else {
+				delete_post_meta( $post_id, '_wcb_company_name' );
+			}
+		}
 
 		// Remote flag.
 		$remote = isset( $_POST['wcb_remote'] ) && '1' === $_POST['wcb_remote'] ? '1' : '0';

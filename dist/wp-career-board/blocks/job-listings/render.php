@@ -96,7 +96,8 @@ $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string 
 	if ( $wcb_min ) {
 		return $wcb_fmt( $wcb_min ) . '+' . $wcb_suffix;
 	}
-	return 'Up to ' . $wcb_fmt( $wcb_max ) . $wcb_suffix;
+	/* translators: %s: formatted maximum salary with currency symbol and period suffix */
+	return sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_fmt( $wcb_max ) . $wcb_suffix );
 };
 
 /**
@@ -224,11 +225,23 @@ $wcb_state = array(
 	'searchQuery'   => '',
 	'activeFilters' => (object) array(),
 	'sortBy'        => 'date_desc',
+	'alertSaved'    => false,
+	'alertSaving'   => false,
 	'authorId'      => $wcb_author_id_attr,
 	'savedBy'       => $wcb_saved_by_attr,
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+	),
+	'strings'       => array(
+		'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
+		'bookmarkAdd'    => __( 'Save job', 'wp-career-board' ),
+		/* translators: %d: number of jobs */
+		'jobCountSingle' => __( '1 job', 'wp-career-board' ),
+		/* translators: %d: number of jobs */
+		'jobCountPlural' => __( '%d jobs', 'wp-career-board' ),
+		/* translators: 1: number of shown jobs, 2: total number of jobs */
+		'jobCountOf'     => __( '%1$d of %2$d jobs', 'wp-career-board' ),
 	),
 );
 
@@ -254,15 +267,18 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<span class="wcb-search-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
 				</span>
+				<label class="screen-reader-text" for="wcb-job-search"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<input
 					type="search"
+					id="wcb-job-search"
 					class="wcb-listings-search"
+					style="padding-left: 2.25rem; padding-inline-start: 2.25rem;"
 					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 					data-wp-bind--value="state.searchQuery"
 					data-wp-on--input="actions.updateSearch"
 				/>
 			</div>
-			<select class="wcb-sort-select" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
+			<select class="wcb-sort-select" aria-label="<?php esc_attr_e( 'Sort jobs', 'wp-career-board' ); ?>" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
 				<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
 				<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
 			</select>
@@ -311,7 +327,21 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		</div>
 
 		<div class="wcb-listings-toolbar">
-			<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+			<div class="wcb-toolbar-start">
+				<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+				<?php if ( class_exists( 'WCB\Pro\Modules\Alerts\AlertsModule' ) ) : ?>
+				<button
+					type="button"
+					class="wcb-alert-me-btn"
+					data-wp-on--click="actions.saveSearchAlert"
+					data-wp-class--wcb-alert-saved="state.alertSaved"
+					data-wp-bind--disabled="state.alertSaving"
+				>
+					<span data-wp-class--wcb-hidden="state.alertSaved">&#128276; <?php esc_html_e( 'Alert me', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.alertSaved">&#10003; <?php esc_html_e( 'Alert saved', 'wp-career-board' ); ?></span>
+				</button>
+				<?php endif; ?>
+			</div>
 			<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
 				<button type="button" class="wcb-view-btn"
 					data-wp-class--wcb-view-btn--active="state.isGrid"
@@ -360,7 +390,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							data-wp-on--click="actions.toggleBookmark"
 							data-wp-class--wcb-bookmarked="context.job.bookmarked"
 							data-wp-bind--aria-label="state.bookmarkLabel"
-							aria-label="<?php esc_attr_e( 'Bookmark job', 'wp-career-board' ); ?>"
+							aria-label="<?php esc_attr_e( 'Save job', 'wp-career-board' ); ?>"
 						>
 							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
 						</button>

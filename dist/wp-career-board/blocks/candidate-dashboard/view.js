@@ -15,18 +15,46 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 
+/**
+ * Convert an alert's filters JSON string/object into readable pill labels.
+ */
+function buildFilterPills( filters ) {
+	if ( typeof filters === 'string' ) {
+		try {
+			filters = JSON.parse( filters );
+		} catch {
+			return [];
+		}
+	}
+	if ( ! filters || typeof filters !== 'object' ) {
+		return [];
+	}
+	const pills = [];
+	if ( filters.category ) pills.push( filters.category );
+	if ( filters.type ) pills.push( filters.type );
+	if ( filters.location ) pills.push( filters.location );
+	if ( filters.remote ) pills.push( state.strings.filterRemote );
+	if ( filters.salary_min || filters.salary_max ) {
+		const min = filters.salary_min ? '$' + Number( filters.salary_min ).toLocaleString() : '';
+		const max = filters.salary_max ? '$' + Number( filters.salary_max ).toLocaleString() : '';
+		pills.push( min && max ? min + '–' + max : min || max );
+	}
+	return pills;
+}
+
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
 		navOpen: false,
 		get activeTabLabel() {
 			const map = {
-				overview:           'Overview',
-				applications:       'My Applications',
-				bookmarks:          'Saved Jobs',
-				resumes:            'My Resumes',
-				'resume-builder':   'Edit Resume',
+				overview:           state.strings.tabOverview,
+				applications:       state.strings.tabApplications,
+				bookmarks:          state.strings.tabBookmarks,
+				resumes:            state.strings.tabResumes,
+				alerts:             state.strings.tabAlerts,
+				'resume-builder':   state.strings.tabResumeBuilder,
 			};
-			return map[ state.tab ] || 'Dashboard';
+			return map[ state.tab ] || state.strings.tabDashboard;
 		},
 		get isTabApplications() {
 			return state.tab === 'applications';
@@ -43,11 +71,23 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get isTabOverview() {
 			return state.tab === 'overview';
 		},
+		get isTabAlerts() {
+			return state.tab === 'alerts';
+		},
+		get alertsCount() {
+			return state.alerts.length;
+		},
+		get hasAlerts() {
+			return ! state.alertsLoading && state.alerts.length > 0;
+		},
+		get noAlerts() {
+			return ! state.alertsLoading && state.alerts.length === 0;
+		},
 		get isAtResumesCap() {
 			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
 		},
 		get resumeCapLabel() {
-			return state.maxResumes > 0 ? state.resumeCount + '/' + state.maxResumes + ' resumes' : '';
+			return state.maxResumes > 0 ? state.resumeCount + '/' + state.maxResumes + ' ' + state.strings.resumesUnit : '';
 		},
 
 		// Sidebar display.
@@ -129,13 +169,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not load your applications.';
+					state.error = state.strings.errLoadApplications;
 					return;
 				}
 
 				state.applications = yield response.json();
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			} finally {
 				state.loading = false;
 			}
@@ -151,6 +191,25 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 			} catch {
 				// Non-critical — overview saved jobs panel will show empty state.
+			}
+
+			// Prefetch alerts count for Overview stat card and nav badge.
+			try {
+				const alertsRes = yield fetch(
+					state.apiBase + '/alerts',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( alertsRes.ok ) {
+					const raw = yield alertsRes.json();
+					state.alerts = raw.map( ( a ) => ( {
+						id:          a.id,
+						label:       a.search_query || state.strings.alertLabelAllJobs,
+						frequency:   a.frequency,
+						filterPills: buildFilterPills( a.filters ),
+					} ) );
+				}
+			} catch {
+				// Non-critical.
 			}
 
 			// If resumes tab was restored from sessionStorage, fetch resumes now.
@@ -197,13 +256,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not load saved jobs.';
+					state.error = state.strings.errLoadBookmarks;
 					return;
 				}
 
 				state.bookmarks = yield response.json();
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			} finally {
 				state.loading = false;
 			}
@@ -213,6 +272,88 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
+		},
+
+		*switchToAlerts() {
+			state.tab     = 'alerts';
+			state.error   = '';
+			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'alerts' );
+
+			if ( state.alerts.length ) {
+				return;
+			}
+
+			state.alertsLoading = true;
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+
+				if ( ! response.ok ) {
+					state.error = state.strings.errLoadAlerts;
+					return;
+				}
+
+				const raw = yield response.json();
+				state.alerts = raw.map( ( a ) => ( {
+					id:          a.id,
+					label:       a.search_query || state.strings.alertLabelAllJobs,
+					frequency:   a.frequency,
+					filterPills: buildFilterPills( a.filters ),
+				} ) );
+			} catch {
+				state.error = state.strings.errConnectionShort;
+			} finally {
+				state.alertsLoading = false;
+			}
+		},
+
+		*deleteAlert() {
+			const ctx = getContext();
+			const alertId = ctx.alert.id;
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/alerts/' + String( alertId ),
+					{
+						method:  'DELETE',
+						headers: { 'X-WP-Nonce': state.nonce },
+					}
+				);
+
+				if ( response.ok ) {
+					state.alerts = state.alerts.filter( ( a ) => a.id !== alertId );
+				}
+			} catch {
+				// Silent — row stays visible.
+			}
+		},
+
+		*changeAlertFrequency( event ) {
+			const ctx       = getContext();
+			const alertId   = ctx.alert.id;
+			const frequency = event.target.value;
+
+			ctx.alert.frequency = frequency;
+
+			try {
+				yield fetch(
+					state.apiBase + '/alerts/' + String( alertId ),
+					{
+						method:  'PATCH',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( { frequency } ),
+					}
+				);
+			} catch {
+				// Silent — optimistic update already applied.
+			}
 		},
 
 		toggleNewResumeForm() {
@@ -243,13 +384,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not load your resumes.';
+					state.error = state.strings.errLoadResumes;
 					return;
 				}
 
 				state.resumes = yield response.json();
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			} finally {
 				state.loading = false;
 			}
@@ -272,7 +413,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not remove saved job. Please try again.';
+					state.error = state.strings.errRemoveBookmark;
 					return;
 				}
 
@@ -280,7 +421,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return b.id !== bookmark.id;
 				} );
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			}
 		},
 
@@ -324,7 +465,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = 'Could not create resume. Please try again.';
+					state.error = state.strings.errCreateResume;
 					return;
 				}
 
@@ -338,7 +479,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( resume.id );
 				}
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			} finally {
 				state.loading = false;
 			}
@@ -367,7 +508,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				if ( ! response.ok ) {
 					ctx.confirmingDelete = false;
-					state.error = 'Could not delete resume. Please try again.';
+					state.error = state.strings.errDeleteResume;
 					return;
 				}
 
@@ -377,7 +518,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumeCount = Math.max( 0, state.resumeCount - 1 );
 			} catch {
 				ctx.confirmingDelete = false;
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errConnectionFull;
 			}
 		},
 

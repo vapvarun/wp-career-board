@@ -131,6 +131,15 @@ class AdminSettings {
 			'from_email'               => $from_email ? $from_email : '',
 		);
 
+		// Preserve anti-spam keys (saved via separate admin-post handler).
+		$existing       = (array) get_option( 'wcb_settings', array() );
+		$anti_spam_keys = array( 'captcha_provider', 'turnstile_site_key', 'turnstile_secret_key', 'recaptcha_site_key', 'recaptcha_secret_key', 'recaptcha_threshold' );
+		foreach ( $anti_spam_keys as $key ) {
+			if ( isset( $existing[ $key ] ) && ! isset( $input[ $key ] ) ) {
+				$output[ $key ] = $existing[ $key ];
+			}
+		}
+
 		/**
 		 * Filter the sanitized settings output.
 		 *

@@ -40,6 +40,9 @@ $wcb_featured_posts = get_posts(
 );
 
 if ( empty( $wcb_featured_posts ) ) {
+	if ( current_user_can( 'edit_posts' ) ) {
+		echo '<p class="wcb-admin-empty-state" style="padding:1rem;color:#6b7280;font-style:italic;text-align:center;">' . esc_html__( 'No featured jobs to display. Mark jobs as featured in the editor.', 'wp-career-board' ) . '</p>';
+	}
 	return;
 }
 ?>

@@ -2,8 +2,13 @@
 .wp-block-wp-career-board-job-search {
 	border: none !important;
 	box-shadow: none !important;
+	margin: 0 0 1rem;
 	padding: 0 !important;
 	background: none !important;
+}
+
+.wp-block-wp-career-board-job-filters {
+    margin: 0 0 1rem;
 }
 
 /* ── Search form ─────────────────────────────────────────────────────────── */
@@ -22,11 +27,10 @@
 	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
-.wcb-search-input {
+.wcb-search-input,
+.wcb-search-input[type=search] {
 	flex: 1;
 	border: none !important;
-	outline: 2px solid var( --wcb-primary, #2563eb );
-	outline-offset: 2px;
 	box-shadow: none !important;
 	border-radius: 0 !important;
 	-webkit-appearance: none;
@@ -55,7 +59,7 @@
 .wcb-search-button {
 	padding: 0.75rem 1.25rem;
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var(--wp--preset--color--wcb-base);
 	border: none;
 	font-size: 0.9375rem;
 	font-weight: 600;
@@ -82,7 +86,7 @@
 	}
 
 	.wcb-search-input {
-		border-bottom: 1px solid #e2e8f0;
+		border-bottom: 1px solid var(--wp--preset--color--wcb-border);
 	}
 
 	.wcb-search-button {

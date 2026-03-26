@@ -71,10 +71,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			const total = state.totalCount;
 			if ( shown >= total ) {
 				return total === 1
-					? '1 job'
-					: `${ total } jobs`;
+					? state.strings.jobCountSingle
+					: state.strings.jobCountPlural.replace( '%d', total );
 			}
-			return `${ shown } of ${ total } jobs`;
+			return state.strings.jobCountOf
+				.replace( '%1$d', shown )
+				.replace( '%2$d', total );
 		},
 
 		// ── Derived: job list ─────────────────────────────────────────
@@ -86,18 +88,64 @@ const { state, actions } = store( 'wcb-job-listings', {
 		get bookmarkLabel() {
 			const ctx = getContext();
 			return ctx.job?.bookmarked
-				? 'Remove bookmark'
-				: 'Bookmark job';
+				? state.strings.bookmarkRemove
+				: state.strings.bookmarkAdd;
 		},
 	},
 
 	actions: {
+		// ── Save search as alert ──────────────────────────────────────
+		*saveSearchAlert() {
+			if ( state.alertSaved || state.alertSaving ) {
+				return;
+			}
+
+			state.alertSaving = true;
+
+			const filters = {};
+			Object.keys( state.activeFilters ).forEach( ( key ) => {
+				if ( key.startsWith( 'type_' ) ) {
+					filters.type = key.replace( 'type_', '' );
+				} else if ( key.startsWith( 'exp_' ) ) {
+					filters.experience = key.replace( 'exp_', '' );
+				}
+			} );
+
+			try {
+				const response = yield fetch(
+					state.apiBase.replace( '/jobs', '/alerts' ),
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( {
+							search_query: state.searchQuery || '',
+							filters,
+							frequency:    'daily',
+						} ),
+					}
+				);
+
+				if ( response.ok ) {
+					state.alertSaved = true;
+				}
+			} catch {
+				// Silent failure — button stays enabled.
+			} finally {
+				state.alertSaving = false;
+			}
+		},
+
 		// ── Layout toggle ─────────────────────────────────────────────
 		setGridLayout() {
 			state.layout = 'grid';
+			try { localStorage.setItem( 'wcb_layout', 'grid' ); } catch {}
 		},
 		setListLayout() {
 			state.layout = 'list';
+			try { localStorage.setItem( 'wcb_layout', 'list' ); } catch {}
 		},
 
 		// ── Search ────────────────────────────────────────────────────
@@ -217,14 +265,27 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'order', 'DESC' );
 			}
 
-			// Active filters
+			// Active filters — handles both in-block chip keys (type_*, exp_*) and
+			// external filter block keys (wcb_category, wcb_location, etc.).
 			for ( const [ key, value ] of Object.entries( state.activeFilters ) ) {
 				if ( key.startsWith( 'type_' ) ) {
 					url.searchParams.append( 'type', value );
 				} else if ( key.startsWith( 'exp_' ) ) {
 					url.searchParams.append( 'experience', value );
-				} else if ( key === 'remote' ) {
+				} else if ( key === 'remote' || key === 'wcb_remote' ) {
 					url.searchParams.set( 'remote', '1' );
+				} else if ( key === 'wcb_category' ) {
+					url.searchParams.set( 'category', value );
+				} else if ( key === 'wcb_location' ) {
+					url.searchParams.set( 'location', value );
+				} else if ( key === 'wcb_experience' ) {
+					url.searchParams.set( 'experience', value );
+				} else if ( key === 'wcb_job_type' ) {
+					url.searchParams.set( 'type', value );
+				} else if ( key === 'salary_min' && value ) {
+					url.searchParams.set( 'salary_min', value );
+				} else if ( key === 'salary_max' && value ) {
+					url.searchParams.set( 'salary_max', value );
 				}
 			}
 
@@ -269,10 +330,29 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 	callbacks: {
 		init() {
+			try {
+				const saved = localStorage.getItem( 'wcb_layout' );
+				if ( saved === 'grid' || saved === 'list' ) {
+					state.layout = saved;
+				}
+			} catch {}
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
 				if ( params.search !== undefined ) {
 					state.searchQuery = params.search;
+				}
+				// Merge external filter block values (wcb_category, wcb_location,
+				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
+				if ( params.filters && typeof params.filters === 'object' ) {
+					const merged = Object.assign( {}, state.activeFilters );
+					for ( const [ key, value ] of Object.entries( params.filters ) ) {
+						if ( value ) {
+							merged[ key ] = String( value );
+						} else {
+							delete merged[ key ];
+						}
+					}
+					state.activeFilters = merged;
 				}
 				store( 'wcb-job-listings' ).actions.applyFilters();
 			} );
