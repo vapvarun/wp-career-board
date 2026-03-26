@@ -55,6 +55,9 @@ wp_interactivity_state(
 		'submitted'    => false,
 		'error'        => '',
 		'dashboardUrl' => '',
+		'strings'      => array(
+			'errorConnection' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		),
 	)
 );
 ?>
@@ -185,7 +188,7 @@ wp_interactivity_state(
 					<span class="wcb-form-hint"><?php esc_html_e( 'Minimum 8 characters', 'wp-career-board' ); ?></span>
 				</div>
 
-				<p class="wcb-reg-error" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>
+				<p class="wcb-reg-error" role="alert" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>
 
 				<button
 					type="submit"

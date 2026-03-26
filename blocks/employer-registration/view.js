@@ -114,7 +114,7 @@ const { state } = store( 'wcb-employer-registration', {
 				state.dashboardUrl = data.dashboard_url || '';
 				state.submitted    = true;
 			} catch {
-				state.error = 'Connection error. Please check your network and try again.';
+				state.error = state.strings.errorConnection;
 			} finally {
 				state.submitting = false;
 			}

@@ -312,9 +312,9 @@ wp_interactivity_state(
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
-			<p class="wcb-cd-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
+			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-panel" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasApplications">
 				<template data-wp-each--application="state.applications" data-wp-each-key="context.application.id">
 					<div class="wcb-cd-app-row">
 						<div class="wcb-cd-app-main">
@@ -356,9 +356,9 @@ wp_interactivity_state(
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
-			<p class="wcb-cd-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
+			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-panel" data-wp-class--wcb-shown="state.hasBookmarks">
+			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasBookmarks">
 				<template data-wp-each--bookmark="state.bookmarks" data-wp-each-key="context.bookmark.id">
 					<div class="wcb-cd-bookmark-row">
 						<div class="wcb-cd-bookmark-main">
@@ -437,9 +437,9 @@ wp_interactivity_state(
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 				<?php esc_html_e( 'Loading…', 'wp-career-board' ); ?>
 			</div>
-			<p class="wcb-cd-error" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
+			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-panel wcb-shown">
+			<div class="wcb-panel wcb-shown" aria-live="polite">
 			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">
 				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>
 					<div class="wcb-resume-card-info">
@@ -504,7 +504,7 @@ wp_interactivity_state(
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 			</div>
 
-			<div data-wp-class--wcb-shown="state.hasAlerts">
+			<div aria-live="polite" data-wp-class--wcb-shown="state.hasAlerts">
 				<template data-wp-each--alert="state.alerts" data-wp-each-key="context.alert.id">
 					<div class="wcb-alert-row">
 						<div class="wcb-alert-main">

@@ -367,14 +367,14 @@ wp_interactivity_state(
 				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
-			<p class="wcb-db-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobs">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'No jobs posted yet.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_post_job_url ); ?>" class="wcb-db-btn wcb-db-btn--secondary"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></a>
 			</div>
 
-			<div class="wcb-jobs-list" data-wp-class--wcb-shown="state.hasJobs">
+			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs">
 				<template data-wp-each--job="state.filteredJobs" data-wp-each-key="context.job.id">
 					<article class="wcb-job-row" data-wp-class--wcb-job-closed="context.job.isClosed">
 						<div class="wcb-status-dot" data-wp-bind--data-status="context.job.status"></div>
@@ -451,7 +451,7 @@ wp_interactivity_state(
 				</button>
 			</div>
 
-			<p class="wcb-db-error" data-wp-class--wcb-shown="state.appsError" data-wp-text="state.appsError"></p>
+			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.appsError" data-wp-text="state.appsError"></p>
 
 			<div class="wcb-db-loading" role="status" aria-label="<?php esc_attr_e( 'Loading', 'wp-career-board' ); ?>" data-wp-class--wcb-shown="state.appsLoading">
 				<div class="wcb-skeleton-row"></div>
@@ -463,7 +463,7 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications">
-				<div class="wcb-applicant-list">
+				<div class="wcb-applicant-list" aria-live="polite">
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
 						<div class="wcb-applicant-row" role="button" tabindex="0" data-wp-class--wcb-selected="state.isSelectedApp" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-bind--aria-label="state.applicantRowLabel" data-wp-on--click="actions.selectApplicant" data-wp-on--keydown="actions.handleRowKeydown">
 							<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
@@ -586,7 +586,7 @@ wp_interactivity_state(
 
 					<div class="wcb-profile-actions">
 						<p class="wcb-db-save-success" data-wp-class--wcb-shown="state.saved"><?php esc_html_e( '✓ Profile saved successfully.', 'wp-career-board' ); ?></p>
-						<p class="wcb-db-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+						<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 						<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.saveProfile" data-wp-bind--disabled="state.saving">
 							<span data-wp-class--wcb-hidden="state.saving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>
 							<span class="wcb-saving-label" data-wp-class--wcb-shown="state.saving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>

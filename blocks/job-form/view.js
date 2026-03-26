@@ -288,7 +288,7 @@ store(
 					if ( ! response.ok ) {
 						const err = yield response.json().catch( () => null );
 						if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
-							state.error = 'Your session has expired. Please refresh the page and try again.';
+							state.error = state.strings.errorSessionExpired;
 						} else {
 							state.error = ( err && err.message ) ? err.message : 'Job could not be posted. Please try again.';
 						}
@@ -300,7 +300,7 @@ store(
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
 				} catch {
-					state.error = 'Connection error. Please check your network and try again.';
+					state.error = state.strings.errorConnection;
 				} finally {
 					state.submitting = false;
 				}

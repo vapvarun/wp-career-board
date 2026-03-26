@@ -204,6 +204,10 @@ $wcb_initial_state = apply_filters(
 		'expNames'          => (object) $wcb_exp_names,
 		'locationNames'     => (object) $wcb_location_names,
 		'categoryNames'     => (object) $wcb_category_names,
+		'strings'           => array(
+			'errorSessionExpired' => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
+			'errorConnection'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		),
 	),
 	$attributes
 );
@@ -692,7 +696,7 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
-			<p class="wcb-form-error" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
+			<p class="wcb-form-error" role="alert" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
 
 			<div class="wcb-form-nav">
 				<button
