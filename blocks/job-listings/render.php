@@ -272,6 +272,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					type="search"
 					id="wcb-job-search"
 					class="wcb-listings-search"
+					style="padding-left: 2.25rem; padding-inline-start: 2.25rem;"
 					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 					data-wp-bind--value="state.searchQuery"
 					data-wp-on--input="actions.updateSearch"
