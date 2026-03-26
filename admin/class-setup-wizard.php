@@ -266,8 +266,31 @@ class SetupWizard extends \WCB\Api\RestController {
 		);
 
 		foreach ( $pages as $setting_key => $page_data ) {
-			if ( ! empty( $settings[ $setting_key ] ) ) {
+			if ( ! empty( $settings[ $setting_key ] ) && get_post( (int) $settings[ $setting_key ] ) ) {
 				continue;
+			}
+
+			// Re-use an existing published page that already contains this block.
+			$block_name = '';
+			if ( preg_match( '/<!-- wp:([^ \/]+)/', $page_data['content'], $m ) ) {
+				$block_name = $m[1];
+			}
+			if ( $block_name ) {
+				$existing = get_posts(
+					array(
+						'post_type'      => 'page',
+						'post_status'    => 'publish',
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+						's'              => $block_name,
+						'no_found_rows'  => true,
+					)
+				);
+				if ( $existing ) {
+					$settings[ $setting_key ] = $existing[0];
+					$created[ $setting_key ]  = $existing[0];
+					continue;
+				}
 			}
 
 			$page_id = wp_insert_post(
