@@ -344,8 +344,10 @@
 	transition: border-color 0.12s, color 0.12s;
 }
 
-.wcb-load-more-btn:hover:not( :disabled ) {
-	border-color: var( --wcb-primary, #2563eb );
+.wcb-load-more-btn:hover:not( :disabled ),
+.wcb-load-more-btn:focus:not( :disabled ) {
+	background: var( --wcb-base, #fff );
+	border: 1.5px solid var( --wcb-primary, #2563eb );
 	color: var( --wcb-primary, #2563eb );
 }
 

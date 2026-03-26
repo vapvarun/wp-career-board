@@ -346,8 +346,10 @@
 	transition: border-color 0.12s, color 0.12s;
 }
 
-.wcb-load-more-btn:hover:not( :disabled ) {
-	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+.wcb-load-more-btn:hover:not( :disabled ),
+.wcb-load-more-btn:focus:not( :disabled ) {
+	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
+	border: 1.5px solid var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 }
 
