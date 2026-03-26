@@ -114,10 +114,15 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_items( $request ): \WP_REST_Response {
+		if ( ! $request->has_param( 'per_page' ) ) {
+			$settings = (array) get_option( 'wcb_settings', array() );
+			$request->set_param( 'per_page', ! empty( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 15 );
+		}
+
 		$args = array(
 			'post_type'      => 'wcb_job',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ( $request->get_param( 'per_page' ) ?? 20 ),
+			'posts_per_page' => (int) ( $request->get_param( 'per_page' ) ?? 15 ),
 			'paged'          => (int) ( $request->get_param( 'page' ) ?? 1 ),
 			'tax_query'      => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query

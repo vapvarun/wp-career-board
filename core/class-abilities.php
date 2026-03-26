@@ -241,6 +241,7 @@ final class Abilities {
 			)
 		);
 
+		// Reserved for Pro analytics feature.
 		wp_register_ability(
 			'wcb_view_analytics',
 			array(

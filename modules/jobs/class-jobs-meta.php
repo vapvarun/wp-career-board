@@ -46,6 +46,11 @@ final class JobsMeta {
 			'_wcb_remote'          => array( 'type' => 'string' ),
 			'_wcb_featured'        => array( 'type' => 'string' ),
 			'_wcb_board_id'        => array( 'type' => 'integer' ),
+			'_wcb_salary_type'     => array( 'type' => 'string' ),
+			'_wcb_apply_url'       => array( 'type' => 'string' ),
+			'_wcb_apply_email'     => array( 'type' => 'string' ),
+			'_wcb_company_id'      => array( 'type' => 'integer' ),
+			'_wcb_company_name'    => array( 'type' => 'string' ),
 		);
 
 		foreach ( $meta_fields as $key => $schema ) {
