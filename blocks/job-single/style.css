@@ -496,6 +496,7 @@ a.wcb-company-card-name:hover {
 	border-radius: 50%;
 	font-size: 1.25rem;
 	line-height: 1;
+	padding: 0;
 	cursor: pointer;
 	color: #475569;
 	display: flex;
@@ -505,6 +506,7 @@ a.wcb-company-card-name:hover {
 
 .wcb-panel-close:hover {
 	background: var( --wcb-border, #e2e8f0 );
+	color: #475569;
 }
 
 .wcb-panel-title {
