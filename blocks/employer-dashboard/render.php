@@ -290,7 +290,7 @@ wp_interactivity_state(
 				</div>
 				<div class="wcb-stat-card wcb-stat-card--blue">
 					<span class="wcb-stat-value" data-wp-text="state.totalApps">0</span>
-					<span class="wcb-stat-label"><?php esc_html_e( 'Total Applicants', 'wp-career-board' ); ?></span>
+					<span class="wcb-stat-label"><?php esc_html_e( 'Total Applications', 'wp-career-board' ); ?></span>
 				</div>
 				<div class="wcb-stat-card wcb-stat-card--amber">
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>

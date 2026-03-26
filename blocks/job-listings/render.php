@@ -234,8 +234,8 @@ $wcb_state = array(
 		'experiences' => $wcb_exp_opts,
 	),
 	'strings'       => array(
-		'bookmarkRemove' => __( 'Remove bookmark', 'wp-career-board' ),
-		'bookmarkAdd'    => __( 'Bookmark job', 'wp-career-board' ),
+		'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
+		'bookmarkAdd'    => __( 'Save job', 'wp-career-board' ),
 		/* translators: %d: number of jobs */
 		'jobCountSingle' => __( '1 job', 'wp-career-board' ),
 		/* translators: %d: number of jobs */
@@ -387,7 +387,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							data-wp-on--click="actions.toggleBookmark"
 							data-wp-class--wcb-bookmarked="context.job.bookmarked"
 							data-wp-bind--aria-label="state.bookmarkLabel"
-							aria-label="<?php esc_attr_e( 'Bookmark job', 'wp-career-board' ); ?>"
+							aria-label="<?php esc_attr_e( 'Save job', 'wp-career-board' ); ?>"
 						>
 							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
 						</button>
