@@ -327,19 +327,21 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		</div>
 
 		<div class="wcb-listings-toolbar">
-			<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
-			<?php if ( class_exists( 'WCB\Pro\Modules\Alerts\AlertsModule' ) ) : ?>
-			<button
-				type="button"
-				class="wcb-alert-me-btn"
-				data-wp-on--click="actions.saveSearchAlert"
-				data-wp-class--wcb-alert-saved="state.alertSaved"
-				data-wp-bind--disabled="state.alertSaving"
-			>
-				<span data-wp-class--wcb-hidden="state.alertSaved">&#128276; <?php esc_html_e( 'Alert me', 'wp-career-board' ); ?></span>
-				<span data-wp-class--wcb-hidden="!state.alertSaved">&#10003; <?php esc_html_e( 'Alert saved', 'wp-career-board' ); ?></span>
-			</button>
-			<?php endif; ?>
+			<div class="wcb-toolbar-start">
+				<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+				<?php if ( class_exists( 'WCB\Pro\Modules\Alerts\AlertsModule' ) ) : ?>
+				<button
+					type="button"
+					class="wcb-alert-me-btn"
+					data-wp-on--click="actions.saveSearchAlert"
+					data-wp-class--wcb-alert-saved="state.alertSaved"
+					data-wp-bind--disabled="state.alertSaving"
+				>
+					<span data-wp-class--wcb-hidden="state.alertSaved">&#128276; <?php esc_html_e( 'Alert me', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.alertSaved">&#10003; <?php esc_html_e( 'Alert saved', 'wp-career-board' ); ?></span>
+				</button>
+				<?php endif; ?>
+			</div>
 			<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
 				<button type="button" class="wcb-view-btn"
 					data-wp-class--wcb-view-btn--active="state.isGrid"

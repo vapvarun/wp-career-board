@@ -596,6 +596,12 @@
 	display: -webkit-box;
 }
 
+.wcb-toolbar-start {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
 /* ── Alert me button ───────────────────────────────────────────────────── */
 .wcb-alert-me-btn {
 	display: inline-flex;
