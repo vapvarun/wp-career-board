@@ -474,7 +474,7 @@
 	align-items: center;
 	height: 2rem;
 	padding-inline: 0.875rem;
-	border: 1px solid var( --wcb-border, #d1d5db );
+	border: 1px solid var( --wp--preset--color--wcb-border, #d1d5db );
 	border-radius: 9999px;
 	font-size: 0.8125rem;
 	font-weight: 500;
@@ -486,8 +486,15 @@
 }
 
 .wcb-chip:hover {
-	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+	border-color: var(--wp--preset--color--wcb-primary);
+	background: #eff6ff;
+	color: var(--wp--preset--color--wcb-primary);
+}
+
+.wcb-chip.wcb-chip-active:hover {
+	background: var(--wp--preset--color--wcb-primary-dark);
+	border-color: var(--wp--preset--color--wcb-primary-dark);
+	color: var(--wp--preset--color--wcb-base);
 }
 
 .wcb-chip.wcb-chip-active {
@@ -505,7 +512,7 @@
 	display: inline-block;
 	width: 1px;
 	height: 1.25rem;
-	background: #d1d5db;
+	background: var(--wp--preset--color--wcb-border, #d1d5db);
 	margin-inline: 0.25rem;
 }
 
