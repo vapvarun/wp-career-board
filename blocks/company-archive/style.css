@@ -46,7 +46,8 @@
 }
 
 /* ── Layout toggle ───────────────────────────────────────────────────────────── */
-.wcb-layout-toggle {
+.wcb-layout-toggle,
+.wcb-view-switcher {
 	display: flex;
 	gap: 2px;
 	background: var( --wcb-surface, #f1f5f9 );
@@ -55,7 +56,8 @@
 	flex-shrink: 0;
 }
 
-.wcb-layout-btn {
+.wcb-layout-btn,
+.wcb-view-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -70,7 +72,8 @@
 	transition: background 0.12s, color 0.12s;
 }
 
-.wcb-layout-btn svg {
+.wcb-layout-btn svg,
+.wcb-view-btn svg {
 	display: block !important;
 	visibility: visible !important;
 	width: 16px;
@@ -78,12 +81,14 @@
 	flex-shrink: 0;
 }
 
-.wcb-layout-btn:hover {
+.wcb-layout-btn:hover,
+.wcb-view-btn:hover {
 	background: var(--wp--preset--color--wcb-border);
 	color: #334155;
 }
 
-.wcb-layout-btn.wcb-active {
+.wcb-layout-btn.wcb-active,
+.wcb-view-btn.wcb-view-btn--active {
 	background: var( --wcb-base, #fff );
 	color: var( --wcb-primary, #2563eb );
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.1 );
