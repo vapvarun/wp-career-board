@@ -1066,6 +1066,7 @@
 .wcb-db-btn {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 0.4rem;
 	padding: 0.625rem 1.25rem;
 	border: none;
@@ -1698,6 +1699,5 @@
 	border: none;
 	background: none;
 	padding: 0;
-	width: 100%;
 	text-align: start;
 }
