@@ -167,7 +167,6 @@ class WpjmImporter {
 
 		// ── Meta mapping ─────────────────────────────────────────────────────
 		$meta_map = array(
-			'_job_location'        => '_wcb_location',
 			'_job_salary'          => '_wcb_salary_min',
 			'_job_salary_currency' => '_wcb_salary_currency',
 			'_job_salary_unit'     => '_wcb_salary_type',
@@ -175,10 +174,6 @@ class WpjmImporter {
 			'_featured'            => '_wcb_featured',
 			'_remote_position'     => '_wcb_remote',
 			'_company_name'        => '_wcb_company_name',
-			'_company_website'     => '_wcb_website',
-			'_company_tagline'     => '_wcb_tagline',
-			'_company_twitter'     => '_wcb_twitter',
-			'_company_video'       => '_wcb_company_video',
 		);
 
 		foreach ( $meta_map as $wpjm_key => $wcb_key ) {
@@ -186,6 +181,12 @@ class WpjmImporter {
 			if ( '' !== $value && false !== $value ) {
 				update_post_meta( $new_id, $wcb_key, $value );
 			}
+		}
+
+		// Set location as taxonomy term (not postmeta).
+		$wpjm_location = (string) get_post_meta( $source_id, '_job_location', true );
+		if ( $wpjm_location ) {
+			wp_set_object_terms( $new_id, $wpjm_location, 'wcb_location' );
 		}
 
 		// salary_max: WPJM stores one salary value — copy to both min and max.

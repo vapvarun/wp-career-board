@@ -490,10 +490,25 @@ final class ApplicationsEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
-	public function submit_permissions_check( \WP_REST_Request $request ): bool {
-		return true;
+	public function submit_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		// Guests can always apply (no account needed).
+		if ( ! is_user_logged_in() ) {
+			return true;
+		}
+
+		// Logged-in users must have the wcb_apply_jobs capability.
+		// This prevents employers from applying to jobs.
+		if ( current_user_can( 'wcb_apply_jobs' ) || current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'wcb_forbidden',
+			__( 'You do not have permission to apply for jobs.', 'wp-career-board' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**

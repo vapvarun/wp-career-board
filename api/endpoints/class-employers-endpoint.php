@@ -284,7 +284,7 @@ final class EmployersEndpoint extends RestController {
 		$meta_map = array(
 			'website'  => '_wcb_website',
 			'industry' => '_wcb_industry',
-			'size'     => '_wcb_size',
+			'size'     => '_wcb_company_size',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
