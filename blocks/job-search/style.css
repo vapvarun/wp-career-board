@@ -2,8 +2,13 @@
 .wp-block-wp-career-board-job-search {
 	border: none !important;
 	box-shadow: none !important;
+	margin: 0 0 1rem;
 	padding: 0 !important;
 	background: none !important;
+}
+
+.wp-block-wp-career-board-job-filters {
+    margin: 0 0 1rem;
 }
 
 /* ── Search form ─────────────────────────────────────────────────────────── */
@@ -22,7 +27,8 @@
 	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
 }
 
-.wcb-search-input {
+.wcb-search-input,
+.wcb-search-input[type=search] {
 	flex: 1;
 	border: none !important;
 	outline: 2px solid var( --wcb-primary, #2563eb );
