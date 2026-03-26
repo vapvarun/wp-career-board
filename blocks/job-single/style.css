@@ -674,7 +674,7 @@ a.wcb-company-card-name:hover {
 	border: 1px solid var(--wcb-primary, #2563eb);
 	border-radius: 6px;
 	cursor: pointer;
-	transition: all 0.15s;
+	transition: border-color 0.15s, color 0.15s, background-color 0.15s;
 }
 
 .wcb-post-apply-alert-btn:hover {

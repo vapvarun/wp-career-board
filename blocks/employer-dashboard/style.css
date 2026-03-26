@@ -1621,7 +1621,7 @@
 	color: var( --wcb-text-secondary, #6b7280 );
 	line-height: 1;
 }
-.wcb-bell-btn:hover { color: var( --wcb-primary, #4f46e5 ); }
+.wcb-bell-btn:hover { color: var(--wp--preset--color--wcb-primary); }
 .wcb-bell-badge {
 	position: absolute;
 	top: 0;
@@ -1672,7 +1672,7 @@
 	text-decoration: none;
 	color: inherit;
 }
-.wcb-bell-item:hover { background: #f9fafb; }
+.wcb-bell-item:hover { background: var(--wp--preset--color--wcb-surface); }
 .wcb-bell-unread { background: #eff6ff; }
 .wcb-bell-msg {
 	display: block;
