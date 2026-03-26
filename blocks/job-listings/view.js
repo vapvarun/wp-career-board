@@ -141,9 +141,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Layout toggle ─────────────────────────────────────────────
 		setGridLayout() {
 			state.layout = 'grid';
+			try { localStorage.setItem( 'wcb_layout', 'grid' ); } catch {}
 		},
 		setListLayout() {
 			state.layout = 'list';
+			try { localStorage.setItem( 'wcb_layout', 'list' ); } catch {}
 		},
 
 		// ── Search ────────────────────────────────────────────────────
@@ -328,6 +330,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 	callbacks: {
 		init() {
+			try {
+				const saved = localStorage.getItem( 'wcb_layout' );
+				if ( saved === 'grid' || saved === 'list' ) {
+					state.layout = saved;
+				}
+			} catch {}
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
 				if ( params.search !== undefined ) {
