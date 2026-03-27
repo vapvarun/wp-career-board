@@ -1715,10 +1715,3 @@
 	box-shadow: none;
 	outline-offset: 2px;
 }
-.wcb-sidebar-cta {
-	cursor: pointer;
-	border: none;
-	background: none;
-	padding: 0;
-	text-align: start;
-}
