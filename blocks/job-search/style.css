@@ -41,6 +41,7 @@
 	color: var( --wcb-contrast, #1e293b );
 	background: transparent;
 	min-width: 0;
+	min-height: 50px;
 }
 
 /* Focus-within on the parent handles the visible focus ring.
@@ -69,8 +70,11 @@
 	transition: background 0.15s;
 }
 
-.wcb-search-button:hover {
+.wcb-search-button:hover,
+.wcb-search-button:focus {
 	background: var( --wcb-primary-dark, #1d4ed8 );
+	color: var(--wp--preset--color--wcb-base);
+	border: none;
 }
 
 .wcb-search-button:focus-visible {
