@@ -288,7 +288,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				</a>
 			</article>
 		</template>
-		<p class="wcb-no-results" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
+		<p class="wcb-no-results wcb-notice-error" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
 	</div>
 
 	<?php /* ── Load more ── */ ?>

@@ -581,6 +581,8 @@
 
 .wcb-clear-all:hover {
 	color: #374151;
+	background: none;
+	border: none;
 }
 
 .wcb-clear-all:focus-visible {
@@ -657,4 +659,25 @@
 	padding: 0;
 	position: absolute;
 	word-wrap: normal !important;
+}
+
+/* ── Notice + error ───────────────────────────────────────────────────────── */
+.wcb-notice-error {
+	color: #b91c1c;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+	font-size: 0.875rem;
+	margin: 0;
+}
+
+/* ── Notice + Success ──────────────────────────────────────────────────────────────── */
+.wcb-notice-success {
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+	font-size: 0.875rem;
+	margin: 0;
 }
