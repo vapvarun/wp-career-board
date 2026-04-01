@@ -315,12 +315,12 @@ class AdminJobs extends \WP_List_Table {
 		}
 
 		if ( 'pending' === $item->post_status ) {
-			$row_actions['approve'] = sprintf(
+			$row_actions['wcb_approve'] = sprintf(
 				'<button type="button" class="button-link wcb-approve-job" data-job-id="%d">%s</button>',
 				(int) $item->ID,
 				esc_html__( 'Approve', 'wp-career-board' )
 			);
-			$row_actions['reject']  = sprintf(
+			$row_actions['wcb_reject']  = sprintf(
 				'<button type="button" class="button-link wcb-reject-job" data-job-id="%d">%s</button>',
 				(int) $item->ID,
 				esc_html__( 'Reject', 'wp-career-board' )
