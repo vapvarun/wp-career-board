@@ -464,7 +464,7 @@ class Admin {
 		add_submenu_page(
 			'wp-career-board',
 			__( 'Emails', 'wp-career-board' ),
-			null,
+			'',
 			'wcb_manage_settings',
 			'wcb-emails',
 			static function (): void {

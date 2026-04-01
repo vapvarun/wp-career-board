@@ -64,7 +64,7 @@ class SetupWizard extends \WCB\Api\RestController {
 	 */
 	public function register_page(): void {
 		add_submenu_page(
-			null,
+			'',
 			__( 'Setup Wizard', 'wp-career-board' ),
 			'',
 			'wcb_manage_settings', // phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_manage_settings is a registered WCB custom capability.
