@@ -216,6 +216,7 @@
 .wcb-ca-trust-badge {
 	display: none;
 	align-items: center;
+	gap: 0.3rem;
 	padding: 0.15rem 0.5rem;
 	border-radius: 9999px;
 	font-size: 0.7rem;
@@ -234,9 +235,9 @@
 	top: 10px;
 }
 
-.wcb-trust--verified { background: #dcfce7; color: #166534; }
-.wcb-trust--trusted  { background: #dbeafe; color: #1e40af; }
-.wcb-trust--premium  { background: #fef3c7; color: #92400e; }
+.wcb-ca-trust-badge[data-trust="verified"] { background: #dcfce7; color: #166534; }
+.wcb-ca-trust-badge[data-trust="trusted"]  { background: #dbeafe; color: #1e40af; }
+.wcb-ca-trust-badge[data-trust="premium"]  { background: #fef3c7; color: #92400e; }
 
 /* ── Card body ───────────────────────────────────────────────────────────────── */
 .wcb-ca-card-body {

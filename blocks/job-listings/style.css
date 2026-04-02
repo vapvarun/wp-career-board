@@ -188,6 +188,17 @@
 .wcb-verified-sm.wcb-shown {
 	display: inline-flex;
 	align-items: center;
+	gap: 0.25rem;
+}
+
+.wcb-verified-sm[data-trust="trusted"] {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.wcb-verified-sm[data-trust="premium"] {
+	background: #fef3c7;
+	color: #92400e;
 }
 
 /* ── Bookmark button ─────────────────────────────────────────────────────── */

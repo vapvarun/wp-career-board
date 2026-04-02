@@ -732,7 +732,8 @@ final class JobsEndpoint extends RestController {
 		$company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 		$author_id    = (int) $post->post_author;
 		$company_id   = (int) get_user_meta( $author_id, '_wcb_company_id', true );
-		$trust        = $company_id ? (string) get_post_meta( $company_id, '_wcb_trust_level', true ) : '';
+		$trust        = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
+		$trust_info   = $this->trust_badge_info( $trust );
 
 		// Human-readable taxonomy labels for card display.
 		$loc_terms  = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
@@ -761,7 +762,10 @@ final class JobsEndpoint extends RestController {
 			// Company fields.
 			'company'          => $company_name,
 			'initials'         => $this->company_initials( $company_name ),
-			'verified'         => in_array( $trust, array( 'verified', 'trusted', 'premium' ), true ),
+			'trust'            => $trust,
+			'trust_label'      => $trust_info['label'] ?? '',
+			'trust_icon'       => $trust_info['icon'] ?? '',
+			'verified'         => null !== $trust_info,
 			// Job meta.
 			'deadline'         => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'       => $salary_min,
@@ -805,6 +809,35 @@ final class JobsEndpoint extends RestController {
 		 * @param \WP_Post $post The job post object.
 		 */
 		return apply_filters( 'wcb_job_response', $data, $post );
+	}
+
+	/**
+	 * Get trust badge info for a trust level.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $trust_level Trust level meta value.
+	 * @return array{label:string,icon:string}|null
+	 */
+	private function trust_badge_info( string $trust_level ): ?array {
+		$trust_level = sanitize_key( $trust_level );
+
+		$map = array(
+			'verified' => array(
+				'label' => __( 'Verified', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'trusted'  => array(
+				'label' => __( 'Trusted', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'premium'  => array(
+				'label' => __( 'Premium', 'wp-career-board' ),
+				'icon'  => '★',
+			),
+		);
+
+		return $map[ $trust_level ] ?? null;
 	}
 
 	/**

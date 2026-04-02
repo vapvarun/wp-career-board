@@ -201,7 +201,8 @@ final class CompaniesEndpoint extends RestController {
 	 */
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
 		$logo_url  = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
-		$trust     = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
+		$trust     = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
+		$trust_info = $this->trust_badge_info( $trust );
 		$size      = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
 		$job_count = $job_counts[ (int) $post->post_author ] ?? 0;
 		$name      = $post->post_title;
@@ -227,11 +228,42 @@ final class CompaniesEndpoint extends RestController {
 			'size_label' => $this->size_label( $size ),
 			'hq'         => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
 			'trust'      => $trust,
-			'verified'   => in_array( $trust, array( 'verified', 'trusted', 'premium' ), true ),
+			'trust_label'      => $trust_info['label'] ?? '',
+			'trust_icon'       => $trust_info['icon'] ?? '',
+			'verified'         => null !== $trust_info,
 			'permalink'  => get_permalink( $post->ID ),
 			'job_count'  => $job_count,
 			'jobs_label' => $this->jobs_label( $job_count ),
 		);
+	}
+
+	/**
+	 * Get trust badge info for a trust level.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $trust_level Trust level meta value.
+	 * @return array{label:string,icon:string}|null
+	 */
+	private function trust_badge_info( string $trust_level ): ?array {
+		$trust_level = sanitize_key( $trust_level );
+
+		$map = array(
+			'verified' => array(
+				'label' => __( 'Verified', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'trusted'  => array(
+				'label' => __( 'Trusted', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'premium'  => array(
+				'label' => __( 'Premium', 'wp-career-board' ),
+				'icon'  => '★',
+			),
+		);
+
+		return $map[ $trust_level ] ?? null;
 	}
 
 	/**

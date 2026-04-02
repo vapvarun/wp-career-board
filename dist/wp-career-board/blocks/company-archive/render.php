@@ -78,6 +78,22 @@ foreach ( $wcb_jobs_raw as $wcb_jpost ) {
 	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
 }
 
+// ── Trust level badge map ───────────────────────────────────────────────────
+$wcb_trust_badges = array(
+	'verified' => array(
+		'label' => __( 'Verified', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'trusted'  => array(
+		'label' => __( 'Trusted', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'premium'  => array(
+		'label' => __( 'Premium', 'wp-career-board' ),
+		'icon'  => '★',
+	),
+);
+
 // ── Build initial state array ─────────────────────────────────────────────────
 $wcb_companies_state = array();
 
@@ -85,9 +101,10 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	$wcb_co_id    = $wcb_co->ID;
 	$wcb_co_name  = $wcb_co->post_title;
 	$wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
-	$wcb_trust    = (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true );
+	$wcb_trust    = sanitize_key( (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true ) );
 	$wcb_size     = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
 	$wcb_job_cnt  = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
+	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
 	// Build up-to-2-letter initials.
 	$wcb_words    = array_filter( explode( ' ', trim( $wcb_co_name ) ) );
@@ -117,9 +134,12 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'industry'   => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
 		'size_label' => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
 		'hq'         => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
-		'verified'   => in_array( $wcb_trust, array( 'verified', 'trusted', 'premium' ), true ),
-		'permalink'  => get_permalink( $wcb_co_id ),
-		'jobs_label' => $wcb_jobs_label,
+		'trust'            => $wcb_trust,
+		'trust_label'      => $wcb_trust_info['label'] ?? '',
+		'trust_icon'       => $wcb_trust_info['icon'] ?? '',
+		'verified'         => null !== $wcb_trust_info,
+		'permalink'        => get_permalink( $wcb_co_id ),
+		'jobs_label'       => $wcb_jobs_label,
 	);
 }
 
@@ -257,9 +277,13 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						</div>
 
 						<span
-							class="wcb-ca-trust-badge wcb-trust--verified"
+							class="wcb-ca-trust-badge"
 							data-wp-class--wcb-shown="context.company.verified"
-						>&#10003; <?php esc_html_e( 'Verified', 'wp-career-board' ); ?></span>
+							data-wp-bind--data-trust="context.company.trust"
+						>
+							<span aria-hidden="true" data-wp-text="context.company.trust_icon"></span>
+							<span data-wp-text="context.company.trust_label"></span>
+						</span>
 					</div>
 
 					<div class="wcb-ca-card-body">

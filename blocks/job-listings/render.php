@@ -115,6 +115,21 @@ $wcb_initials = static function ( string $wcb_name ): string {
 	return $wcb_init ? $wcb_init : '?';
 };
 
+$wcb_trust_badges = array(
+	'verified' => array(
+		'label' => __( 'Verified', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'trusted'  => array(
+		'label' => __( 'Trusted', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'premium'  => array(
+		'label' => __( 'Premium', 'wp-career-board' ),
+		'icon'  => '★',
+	),
+);
+
 $wcb_jobs_state = array();
 
 foreach ( $wcb_jobs_raw as $wcb_job_post ) {
@@ -131,7 +146,8 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_company_name_val = (string) get_post_meta( $wcb_job_post->ID, '_wcb_company_name', true );
 	$wcb_author_id        = (int) $wcb_job_post->post_author;
 	$wcb_company_post_id  = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
-	$wcb_trust            = $wcb_company_post_id ? (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) : '';
+	$wcb_trust            = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
+	$wcb_trust_info       = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
 	$wcb_jobs_state[] = array(
 		'id'           => $wcb_job_post->ID,
@@ -139,7 +155,10 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'permalink'    => get_permalink( $wcb_job_post->ID ),
 		'company'      => $wcb_company_name_val,
 		'initials'     => $wcb_initials( $wcb_company_name_val ),
-		'verified'     => in_array( $wcb_trust, array( 'verified', 'trusted', 'premium' ), true ),
+		'trust'            => $wcb_trust,
+		'trust_label'      => $wcb_trust_info['label'] ?? '',
+		'trust_icon'       => $wcb_trust_info['icon'] ?? '',
+		'verified'         => null !== $wcb_trust_info,
 		'location'     => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
 		'type'         => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
 		'experience'   => is_wp_error( $wcb_exp_terms ) ? '' : implode( ', ', $wcb_exp_terms ),
@@ -381,7 +400,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							</h3>
 							<p class="wcb-card-company">
 								<span data-wp-text="context.job.company"></span>
-								<span class="wcb-verified-sm" data-wp-class--wcb-shown="context.job.verified">&#10003; <?php esc_html_e( 'Verified', 'wp-career-board' ); ?></span>
+								<span
+									class="wcb-verified-sm"
+									data-wp-class--wcb-shown="context.job.verified"
+									data-wp-bind--data-trust="context.job.trust"
+								>
+									<span aria-hidden="true" data-wp-text="context.job.trust_icon"></span>
+									<span data-wp-text="context.job.trust_label"></span>
+								</span>
 							</p>
 						</div>
 						<button
