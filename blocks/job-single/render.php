@@ -168,8 +168,15 @@ $wcb_bookmarks     = $wcb_current_user_id
 $wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
 // ── Resume data for apply panel ───────────────────────────────────────────────
-$wcb_user_resumes    = array();
-$wcb_resume_page_url = '';
+$wcb_user_resumes            = array();
+$wcb_resume_page_url         = '';
+$wcb_career_board_pro_active = false;
+if ( ! function_exists( 'is_plugin_active' ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+if ( function_exists( 'is_plugin_active' ) ) {
+	$wcb_career_board_pro_active = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' );
+}
 if ( post_type_exists( 'wcb_resume' ) ) {
 	$wcb_resume_posts = get_posts(
 		array(
@@ -217,6 +224,7 @@ wp_interactivity_state(
 		'selectedResumeId'   => 0,
 		'resumePageUrl'      => $wcb_resume_page_url,
 		'proActive'          => post_type_exists( 'wcb_resume' ),
+		'careerBoardProActive' => $wcb_career_board_pro_active,
 		'jobPermalink'       => (string) get_permalink( $wcb_job_id ),
 		'jobTitle'           => $wcb_job->post_title,
 		'linkCopied'         => false,
@@ -695,8 +703,16 @@ wp_interactivity_state(
 							</select>
 						<?php else : ?>
 							<p class="wcb-apply-no-resume">
-								<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
-								<?php if ( $wcb_resume_page_url ) : ?>
+								<span data-wp-class--wcb-hidden="state.resumeFileName">
+									<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
+								</span>
+								<span class="wcb-apply-selected-file" data-wp-class--wcb-hidden="!state.resumeFileName">
+									<span class="wcb-apply-selected-label screen-reader-text">
+										<?php esc_html_e( 'Selected resume file:', 'wp-career-board' ); ?>
+									</span>
+									<span data-wp-text="state.resumeFileName"></span>
+								</span>
+								<?php if ( $wcb_resume_page_url && $wcb_career_board_pro_active ) : ?>
 									<a href="<?php echo esc_url( $wcb_resume_page_url ); ?>">
 										<?php esc_html_e( 'Create your resume →', 'wp-career-board' ); ?>
 									</a>
