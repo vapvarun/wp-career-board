@@ -322,30 +322,6 @@
 .wcb-stat-card--amber  .wcb-stat-value { color: var(--wcb-warning); }
 .wcb-stat-card--purple .wcb-stat-value { color: #7c3aed; }
 
-/* Sidebar credit balance */
-.wcb-sidebar-credits {
-	padding: 0 16px 12px;
-}
-
-.wcb-sidebar-credit-balance {
-	display: flex;
-	align-items: baseline;
-	gap: 6px;
-	padding: 8px 0 4px;
-}
-
-.wcb-credit-num {
-	font-size: 24px;
-	font-weight: 700;
-	color: #7c3aed;
-	line-height: 1;
-}
-
-.wcb-credit-label {
-	font-size: 13px;
-	color: var(--wcb-text-2, #64748b);
-}
-
 [data-accent="green"] .wcb-stat-value { color: var(--wcb-success); }
 [data-accent="blue"]  .wcb-stat-value { color: var(--wcb-primary); }
 [data-accent="amber"] .wcb-stat-value { color: var(--wcb-warning); }
