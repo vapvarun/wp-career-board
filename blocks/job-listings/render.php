@@ -282,6 +282,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php if ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ) : ?>
 	<div class="wcb-listings-header">
 		<div class="wcb-search-sort-row">
+			<?php if ( ! has_block( 'wp-career-board/job-search' ) ) : ?>
 			<div class="wcb-search-wrap">
 				<span class="wcb-search-icon" aria-hidden="true">
 					<i data-lucide="search" aria-hidden="true"></i>
@@ -291,12 +292,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					type="search"
 					id="wcb-job-search"
 					class="wcb-listings-search"
-					style="padding-left: 2.25rem; padding-inline-start: 2.25rem;"
 					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 					data-wp-bind--value="state.searchQuery"
 					data-wp-on--input="actions.updateSearch"
 				/>
 			</div>
+			<?php endif; ?>
 			<select class="wcb-sort-select" aria-label="<?php esc_attr_e( 'Sort jobs', 'wp-career-board' ); ?>" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
 				<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
 				<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>

@@ -209,6 +209,14 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @return void
 	 */
 	public function render(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flag, no state mutation.
+		$rerun = isset( $_GET['wcb_rerun'] ) && '1' === $_GET['wcb_rerun'];
+
+		if ( get_option( 'wcb_setup_complete', false ) && ! $rerun ) {
+			require_once WCB_DIR . 'admin/views/setup-wizard-complete.php';
+			return;
+		}
+
 		require_once WCB_DIR . 'admin/views/setup-wizard.php';
 	}
 
@@ -272,7 +280,7 @@ class SetupWizard extends \WCB\Api\RestController {
 
 			// Re-use an existing published page that already contains this block.
 			$block_name = '';
-			if ( preg_match( '/<!-- wp:([^ \/]+)/', $page_data['content'], $m ) ) {
+			if ( preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
 				$block_name = $m[1];
 			}
 			if ( $block_name ) {

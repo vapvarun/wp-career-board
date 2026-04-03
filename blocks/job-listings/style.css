@@ -442,8 +442,8 @@
 
 .wp-block-wcb-job-listings .wcb-listings-search {
 	width: 100%;
-	padding: var(--wcb-space-sm) var(--wcb-space-md) var(--wcb-space-sm) var(--wcb-space-2xl) !important;
-	padding-inline-start: var(--wcb-space-2xl) !important;
+	padding: var(--wcb-space-sm) var(--wcb-space-md) var(--wcb-space-sm) var(--wcb-space-2xl);
+	padding-inline-start: var(--wcb-space-2xl);
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-base);

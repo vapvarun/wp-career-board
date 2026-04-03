@@ -102,7 +102,7 @@ wp_interactivity_state(
 			'candidateId'           => $wcb_candidate_id,
 			'candidateName'         => $wcb_display_name,
 			'resumeBuilderUrl'      => $wcb_resume_builder_url,
-			'resumesEnabled'        => '' !== $wcb_resume_builder_url,
+			'resumesEnabled'        => $wcb_resume_builder_embedded || '' !== $wcb_resume_builder_url,
 			'dashboardUrl'          => $wcb_dashboard_url,
 			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
 			'resumeEmbedId'         => $wcb_resume_embed_id,

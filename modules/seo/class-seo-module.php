@@ -81,7 +81,7 @@ class SeoModule {
 			'@type'              => 'JobPosting',
 			'title'              => get_the_title( $job ),
 			'description'        => wp_strip_all_tags( $job->post_content ),
-			'datePosted'         => get_the_date( 'c', $job ),
+			'datePosted'         => get_post_time( 'c', true, $job ),
 			'validThrough'       => $valid_through,
 			'employmentType'     => $this->get_employment_types( $job->ID ),
 			'jobLocationType'    => $remote ? 'TELECOMMUTE' : null,
