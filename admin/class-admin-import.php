@@ -40,17 +40,13 @@ class AdminImport {
 		?>
 		<div class="wrap wcb-admin-import">
 
-			<div class="wcb-settings-header">
-				<div class="wcb-settings-header-identity">
-					<div class="wcb-settings-header-icon">
-						<span class="dashicons dashicons-upload"></span>
-					</div>
-					<div class="wcb-settings-header-text">
-						<div class="wcb-settings-header-title"><?php esc_html_e( 'Import & Migration', 'wp-career-board' ); ?></div>
-						<p class="wcb-settings-header-desc">
-							<?php esc_html_e( 'Move your existing job board data into WP Career Board. Your original data is never modified or deleted.', 'wp-career-board' ); ?>
-						</p>
-					</div>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="upload" class="wcb-icon--lg"></i>
+						<?php esc_html_e( 'Import & Migration', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'Move your existing job board data into WP Career Board. Your original data is never modified or deleted.', 'wp-career-board' ); ?></p>
 				</div>
 			</div>
 
@@ -65,7 +61,7 @@ class AdminImport {
 
 				<div class="wcb-import-card-head">
 					<div class="wcb-import-card-title">
-						<span class="dashicons dashicons-portfolio"></span>
+						<i data-lucide="briefcase"></i>
 						<?php esc_html_e( 'WP Job Manager → Jobs', 'wp-career-board' ); ?>
 					</div>
 					<?php if ( $wpjm_jobs ) : ?>
@@ -121,7 +117,7 @@ class AdminImport {
 
 					<div class="wcb-import-actions">
 						<?php if ( $jobs_total > 0 ) : ?>
-							<button type="button" class="button button-primary wcb-import-start"
+							<button type="button" class="wcb-btn wcb-btn--primary wcb-import-start"
 								data-type="wpjm-jobs">
 								<?php esc_html_e( 'Import All Jobs', 'wp-career-board' ); ?>
 							</button>
@@ -159,7 +155,7 @@ class AdminImport {
 
 				<div class="wcb-import-card-head">
 					<div class="wcb-import-card-title">
-						<span class="dashicons dashicons-id-alt"></span>
+						<i data-lucide="file-user"></i>
 						<?php esc_html_e( 'WP Job Manager Resumes → Resumes', 'wp-career-board' ); ?>
 					</div>
 					<?php if ( $wpjm_resumes ) : ?>
@@ -217,7 +213,7 @@ class AdminImport {
 
 					<div class="wcb-import-actions">
 						<?php if ( $resumes_total > 0 ) : ?>
-							<button type="button" class="button button-primary wcb-import-start"
+							<button type="button" class="wcb-btn wcb-btn--primary wcb-import-start"
 								data-type="wpjm-resumes">
 								<?php esc_html_e( 'Import All Resumes', 'wp-career-board' ); ?>
 							</button>

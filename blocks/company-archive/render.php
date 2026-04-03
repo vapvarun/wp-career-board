@@ -98,12 +98,12 @@ $wcb_trust_badges = array(
 $wcb_companies_state = array();
 
 foreach ( $wcb_companies_raw as $wcb_co ) {
-	$wcb_co_id    = $wcb_co->ID;
-	$wcb_co_name  = $wcb_co->post_title;
-	$wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
-	$wcb_trust    = sanitize_key( (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true ) );
-	$wcb_size     = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
-	$wcb_job_cnt  = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
+	$wcb_co_id      = $wcb_co->ID;
+	$wcb_co_name    = $wcb_co->post_title;
+	$wcb_logo_url   = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
+	$wcb_trust      = sanitize_key( (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true ) );
+	$wcb_size       = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
+	$wcb_job_cnt    = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
 	// Build up-to-2-letter initials.
@@ -124,22 +124,22 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		);
 
 	$wcb_companies_state[] = array(
-		'id'         => $wcb_co_id,
-		'name'       => $wcb_co_name,
-		'initials'   => $wcb_initials,
-		'has_logo'   => '' !== $wcb_logo_url,
-		'no_logo'    => '' === $wcb_logo_url,
-		'logo'       => $wcb_logo_url,
-		'tagline'    => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
-		'industry'   => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
-		'size_label' => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
-		'hq'         => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
-		'trust'            => $wcb_trust,
-		'trust_label'      => $wcb_trust_info['label'] ?? '',
-		'trust_icon'       => $wcb_trust_info['icon'] ?? '',
-		'verified'         => null !== $wcb_trust_info,
-		'permalink'        => get_permalink( $wcb_co_id ),
-		'jobs_label'       => $wcb_jobs_label,
+		'id'          => $wcb_co_id,
+		'name'        => $wcb_co_name,
+		'initials'    => $wcb_initials,
+		'has_logo'    => '' !== $wcb_logo_url,
+		'no_logo'     => '' === $wcb_logo_url,
+		'logo'        => $wcb_logo_url,
+		'tagline'     => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
+		'industry'    => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
+		'size_label'  => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
+		'hq'          => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
+		'trust'       => $wcb_trust,
+		'trust_label' => $wcb_trust_info['label'] ?? '',
+		'trust_icon'  => $wcb_trust_info['icon'] ?? '',
+		'verified'    => null !== $wcb_trust_info,
+		'permalink'   => get_permalink( $wcb_co_id ),
+		'jobs_label'  => $wcb_jobs_label,
 	);
 }
 

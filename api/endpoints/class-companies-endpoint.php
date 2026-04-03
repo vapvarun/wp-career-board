@@ -200,12 +200,12 @@ final class CompaniesEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
-		$logo_url  = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
-		$trust     = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
+		$logo_url   = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
+		$trust      = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
 		$trust_info = $this->trust_badge_info( $trust );
-		$size      = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
-		$job_count = $job_counts[ (int) $post->post_author ] ?? 0;
-		$name      = $post->post_title;
+		$size       = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
+		$job_count  = $job_counts[ (int) $post->post_author ] ?? 0;
+		$name       = $post->post_title;
 
 		// Build up-to-2-letter initials.
 		$words    = array_filter( explode( ' ', trim( $name ) ) );
@@ -216,24 +216,24 @@ final class CompaniesEndpoint extends RestController {
 		$initials = $initials ? $initials : '?';
 
 		return array(
-			'id'         => $post->ID,
-			'name'       => $name,
-			'initials'   => $initials,
-			'has_logo'   => '' !== $logo_url,
-			'no_logo'    => '' === $logo_url,
-			'logo'       => $logo_url,
-			'tagline'    => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'industry'   => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'       => $size,
-			'size_label' => $this->size_label( $size ),
-			'hq'         => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
-			'trust'      => $trust,
-			'trust_label'      => $trust_info['label'] ?? '',
-			'trust_icon'       => $trust_info['icon'] ?? '',
-			'verified'         => null !== $trust_info,
-			'permalink'  => get_permalink( $post->ID ),
-			'job_count'  => $job_count,
-			'jobs_label' => $this->jobs_label( $job_count ),
+			'id'          => $post->ID,
+			'name'        => $name,
+			'initials'    => $initials,
+			'has_logo'    => '' !== $logo_url,
+			'no_logo'     => '' === $logo_url,
+			'logo'        => $logo_url,
+			'tagline'     => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+			'industry'    => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
+			'size'        => $size,
+			'size_label'  => $this->size_label( $size ),
+			'hq'          => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
+			'trust'       => $trust,
+			'trust_label' => $trust_info['label'] ?? '',
+			'trust_icon'  => $trust_info['icon'] ?? '',
+			'verified'    => null !== $trust_info,
+			'permalink'   => get_permalink( $post->ID ),
+			'job_count'   => $job_count,
+			'jobs_label'  => $this->jobs_label( $job_count ),
 		);
 	}
 

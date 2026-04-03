@@ -17,15 +17,13 @@ defined( 'ABSPATH' ) || exit;
 <div class="wrap wcb-wizard-wrap">
 	<h1 class="screen-reader-text"><?php esc_html_e( 'WP Career Board Setup', 'wp-career-board' ); ?></h1>
 
-	<div class="wcb-settings-header">
-		<div class="wcb-settings-header-identity">
-			<div class="wcb-settings-header-icon">
-				<span class="dashicons dashicons-portfolio"></span>
-			</div>
-			<div class="wcb-settings-header-text">
-				<div class="wcb-settings-header-title"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></div>
-				<p class="wcb-settings-header-desc"><?php esc_html_e( 'Quick setup — takes about 2 minutes', 'wp-career-board' ); ?></p>
-			</div>
+	<div class="wcb-page-header">
+		<div class="wcb-page-header__left">
+			<h2 class="wcb-page-header__title">
+				<i data-lucide="briefcase" class="wcb-icon--lg"></i>
+				<?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?>
+			</h2>
+			<p class="wcb-page-header__desc"><?php esc_html_e( 'Quick setup — takes about 2 minutes', 'wp-career-board' ); ?></p>
 		</div>
 	</div>
 
@@ -48,7 +46,7 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 			</div>
 			<div class="wcb-settings-footer">
-				<button type="button" class="button button-primary" id="wcb-create-pages">
+				<button type="button" class="wcb-btn wcb-btn--primary" id="wcb-create-pages">
 					<?php esc_html_e( 'Create Pages & Continue', 'wp-career-board' ); ?>
 				</button>
 			</div>
@@ -70,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 			</div>
 			<div class="wcb-settings-footer">
-				<button type="button" class="button button-primary" id="wcb-finish-wizard">
+				<button type="button" class="wcb-btn wcb-btn--primary" id="wcb-finish-wizard">
 					<?php esc_html_e( 'Finish Setup', 'wp-career-board' ); ?>
 				</button>
 			</div>

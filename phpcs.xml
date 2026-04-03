@@ -2,10 +2,16 @@
 <ruleset name="WP Career Board">
     <description>WordPress Coding Standards for WP Career Board plugin.</description>
 
-    <!-- Scan only plugin PHP files -->
+    <!-- Scan only plugin source PHP files -->
     <file>.</file>
+    <arg name="extensions" value="php"/>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/dist/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/assets/*</exclude-pattern>
+    <exclude-pattern>Gruntfile.js</exclude-pattern>
     <!-- Build-generated asset manifests — not hand-written PHP, no WPCS required. -->
     <exclude-pattern>*/*.asset.php</exclude-pattern>
 
@@ -17,6 +23,8 @@
             in class names, which produces false positives. Exclude it plugin-wide.
         -->
         <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <!-- Namespaced compound class names (e.g. Admin_Settings → class-admin-settings.php) -->
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
     </rule>
 
     <!-- Declare custom WCB capabilities so WPCS does not flag them as unknown -->

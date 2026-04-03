@@ -1,0 +1,97 @@
+/* ── Page Header ── */
+.wcb-page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; padding: 16px 20px;
+    background: var(--wcb-bg); border: 1px solid var(--wcb-border);
+    border-radius: var(--wcb-radius-lg); box-shadow: var(--wcb-shadow-sm);
+}
+.wcb-page-header__left { display: flex; flex-direction: column; gap: 2px; }
+.wcb-page-header__title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 20px; font-weight: 600; color: var(--wcb-text); margin: 0;
+}
+.wcb-page-header__desc { font-size: 13px; color: var(--wcb-text-secondary); margin: 0; }
+.wcb-page-header__actions { display: flex; gap: 8px; align-items: center; }
+
+@media (max-width: 782px) {
+    .wcb-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+/* ── Cards ── */
+.wcb-card {
+    background: var(--wcb-bg); border: 1px solid var(--wcb-border);
+    border-radius: var(--wcb-radius-lg); box-shadow: var(--wcb-shadow-sm);
+    margin-bottom: 16px; overflow: hidden;
+}
+.wcb-card__head {
+    padding: 14px 20px 12px; border-bottom: 1px solid var(--wcb-border);
+    background: var(--wcb-bg-secondary);
+}
+.wcb-card__title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--wcb-text); margin: 0 0 2px;
+}
+.wcb-card__desc { font-size: 13px; color: var(--wcb-text-secondary); margin: 0; }
+.wcb-card__body { padding: 20px; }
+
+/* ── Badges ── */
+.wcb-badge {
+    display: inline-flex; align-items: center; padding: 2px 8px;
+    font-size: 11px; font-weight: 600; border-radius: var(--wcb-radius-sm);
+    white-space: nowrap;
+}
+.wcb-badge--success { background: rgba(46,164,79,.1); color: #1a7c3b; }
+.wcb-badge--warn { background: rgba(217,119,6,.1); color: #92400e; }
+.wcb-badge--default { background: #f0f0f1; color: #50575e; }
+.wcb-badge--danger { background: rgba(224,62,62,.1); color: #991b1b; }
+.wcb-badge--muted { background: #f0f0f1; color: #9ca3af; }
+.wcb-badge--info { background: #dff0fa; color: #007cba; }
+.wcb-pro-badge {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-left: auto;
+}
+
+/* ── Buttons ── */
+.wcb-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 32px;
+    padding: 0 14px; font-size: 13px; font-weight: 500;
+    border-radius: var(--wcb-radius-md); border: 1px solid var(--wcb-border);
+    background: var(--wcb-bg); color: var(--wcb-text);
+    cursor: pointer; text-decoration: none; transition: all 0.12s ease;
+}
+.wcb-btn:hover { background: #f6f7f7; color: var(--wcb-text); text-decoration: none; }
+.wcb-btn:active { transform: scale(0.97); }
+.wcb-btn--primary { background: var(--wcb-accent); color: #fff; border-color: var(--wcb-accent); }
+.wcb-btn--primary:hover { background: var(--wcb-accent-hover); color: #fff; }
+.wcb-btn--danger { color: var(--wcb-danger); border-color: var(--wcb-danger); }
+.wcb-btn--sm { height: 28px; font-size: 12px; padding: 0 10px; }
+.wcb-btn--full { width: 100%; justify-content: center; }
+
+/* ── Empty States ── */
+.wcb-empty-state {
+    text-align: center; padding: 48px 20px;
+}
+.wcb-empty-state__icon { width: 48px; height: 48px; color: var(--wcb-text-tertiary); margin: 0 auto 16px; display: block; }
+.wcb-empty-state__title { font-size: 16px; font-weight: 600; color: var(--wcb-text); margin: 0 0 8px; }
+.wcb-empty-state__desc { font-size: 13px; color: var(--wcb-text-secondary); margin: 0 0 16px; }
+
+/* ── Notice Suppression ── */
+.toplevel_page_wp-career-board .notice:not(.wcb-notice),
+.career-board_page_wcb-jobs .notice:not(.wcb-notice),
+.career-board_page_wcb-applications .notice:not(.wcb-notice),
+.career-board_page_wcb-candidates .notice:not(.wcb-notice),
+.career-board_page_wcb-companies .notice:not(.wcb-notice),
+.career-board_page_wcb-employers .notice:not(.wcb-notice),
+.career-board_page_wcb-settings .notice:not(.wcb-notice),
+.career-board_page_wcb-import .notice:not(.wcb-notice),
+.career-board_page_wcb-setup .notice:not(.wcb-notice),
+.toplevel_page_wp-career-board .update-nag,
+.toplevel_page_wp-career-board div.error:not(.wcb-notice),
+.toplevel_page_wp-career-board div.updated:not(.wcb-notice) {
+    display: none !important;
+}

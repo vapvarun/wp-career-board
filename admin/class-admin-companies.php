@@ -56,11 +56,22 @@ class AdminCompanies extends \WP_List_Table {
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-companies-list">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Companies', 'wp-career-board' ); ?></h1>
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="page-title-action">
-				<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
-			</a>
-			<hr class="wp-header-end">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Companies', 'wp-career-board' ); ?></h1>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="building-2"></i>
+						<?php esc_html_e( 'Companies', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'Manage company profiles, trust levels, and employer associations.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-page-header__actions">
+					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="wcb-btn wcb-btn--primary">
+						<i data-lucide="plus" class="wcb-icon--sm"></i>
+						<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
+					</a>
+				</div>
+			</div>
 
 			<?php $this->views(); ?>
 
@@ -255,11 +266,11 @@ class AdminCompanies extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		?>
-		<div class="wcb-no-items-state">
-			<span class="dashicons dashicons-building"></span>
-			<span class="wcb-no-items-title"><?php esc_html_e( 'No companies yet', 'wp-career-board' ); ?></span>
-			<p><?php esc_html_e( 'Company profiles are created when employers complete their profile on the employer dashboard.', 'wp-career-board' ); ?></p>
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="button button-primary">
+		<div class="wcb-empty-state">
+			<i data-lucide="building-2" class="wcb-empty-state__icon"></i>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No companies yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Company profiles are created when employers complete their profile on the employer dashboard.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add Company', 'wp-career-board' ); ?>
 			</a>
 		</div>
@@ -449,9 +460,16 @@ class AdminCompanies extends \WP_List_Table {
 		$status = $item->post_status;
 		$label  = $labels[ $status ] ?? ucfirst( $status );
 
+		$badge_map = array(
+			'publish' => 'success',
+			'draft'   => 'default',
+			'trash'   => 'danger',
+		);
+		$badge_var = $badge_map[ $status ] ?? 'default';
+
 		return sprintf(
-			'<span class="wcb-status-badge wcb-job-status-%s">%s</span>',
-			esc_attr( $status ),
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			esc_attr( $badge_var ),
 			esc_html( $label )
 		);
 	}

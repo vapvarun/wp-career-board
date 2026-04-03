@@ -131,7 +131,7 @@ final class JobsEndpoint extends RestController {
 		// Support wcb_* prefixed aliases so URL filter params forward transparently to the REST API.
 		$search = $request->get_param( 'search' ) ?? $request->get_param( 'wcb_search' );
 		if ( $search ) {
-			// Store search term for later use in posts_where filter
+			// Store search term for later use in posts_where filter.
 			$args['wcb_search_term'] = sanitize_text_field( $search );
 		}
 
@@ -274,7 +274,7 @@ final class JobsEndpoint extends RestController {
 
 		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-		// Add search condition for post_title and company name
+		// Add search condition for post_title and company name.
 		$where .= $wpdb->prepare(
 			" AND ( {$wpdb->posts}.post_title LIKE %s OR EXISTS (
 				SELECT 1 FROM {$wpdb->postmeta} pm

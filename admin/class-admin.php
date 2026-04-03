@@ -217,28 +217,25 @@ class Admin {
 		<div class="wrap wcb-admin-dashboard">
 			<h1 class="screen-reader-text"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></h1>
 
-			<div class="wcb-settings-header">
-				<div class="wcb-settings-header-identity">
-					<div class="wcb-settings-header-icon">
-						<span class="dashicons dashicons-portfolio"></span>
-					</div>
-					<div class="wcb-settings-header-text">
-						<div class="wcb-settings-header-title"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></div>
-						<p class="wcb-settings-header-desc">
-							<?php esc_html_e( 'Manage your job board, applications, and hiring pipeline.', 'wp-career-board' ); ?>
-							<span class="wcb-version-badge">v<?php echo esc_html( WCB_VERSION ); ?></span>
-							<?php if ( function_exists( 'wcbp_init' ) ) : ?>
-								<span class="wcb-pro-badge"><?php esc_html_e( 'Pro', 'wp-career-board' ); ?></span>
-							<?php endif; ?>
-						</p>
-					</div>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="briefcase" class="wcb-icon--lg"></i>
+						<?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?>
+						<span class="wcb-version-badge">v<?php echo esc_html( WCB_VERSION ); ?></span>
+						<?php if ( function_exists( 'wcbp_init' ) ) : ?>
+							<span class="wcb-pro-badge"><?php esc_html_e( 'Pro', 'wp-career-board' ); ?></span>
+						<?php endif; ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'Manage your job board, applications, and hiring pipeline.', 'wp-career-board' ); ?></p>
 				</div>
-				<div class="wcb-settings-header-actions">
-					<a href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener noreferrer" class="button">
+				<div class="wcb-page-header__actions">
+					<a href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener noreferrer" class="wcb-btn">
 						<?php esc_html_e( 'Visit Site', 'wp-career-board' ); ?>
-						<span class="dashicons dashicons-external"></span>
+						<i data-lucide="external-link" class="wcb-icon--sm"></i>
 					</a>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings' ) ); ?>" class="button">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings' ) ); ?>" class="wcb-btn">
+						<i data-lucide="settings" class="wcb-icon--sm"></i>
 						<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
 					</a>
 				</div>
@@ -252,11 +249,11 @@ class Admin {
 				</div>
 				<ul class="wcb-getting-started-list">
 					<li class="wcb-gs-item wcb-gs-done">
-						<span class="wcb-gs-icon dashicons dashicons-yes-alt"></span>
+						<i data-lucide="circle-check" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label"><?php esc_html_e( 'Plugin activated', 'wp-career-board' ); ?></span>
 					</li>
 					<li class="wcb-gs-item <?php echo $wcb_pages_created >= $wcb_total_pages ? 'wcb-gs-done' : ''; ?>">
-						<span class="wcb-gs-icon dashicons <?php echo $wcb_pages_created >= $wcb_total_pages ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>"></span>
+						<i data-lucide="<?php echo $wcb_pages_created >= $wcb_total_pages ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 							<?php
 							echo esc_html(
@@ -274,7 +271,7 @@ class Admin {
 						</span>
 					</li>
 					<li class="wcb-gs-item <?php echo $total_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
-						<span class="wcb-gs-icon dashicons <?php echo $total_jobs > 0 ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>"></span>
+						<i data-lucide="<?php echo $total_jobs > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 							<?php esc_html_e( 'Add your first job', 'wp-career-board' ); ?>
 							<?php if ( 0 === $total_jobs ) : ?>
@@ -283,7 +280,7 @@ class Admin {
 						</span>
 					</li>
 					<li class="wcb-gs-item">
-						<span class="wcb-gs-icon dashicons dashicons-marker"></span>
+						<i data-lucide="circle" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 							<?php esc_html_e( 'Invite an employer', 'wp-career-board' ); ?>
 							&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
@@ -296,27 +293,27 @@ class Admin {
 			<?php /* ── Stats row ── */ ?>
 			<div class="wcb-stats-grid">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box">
-					<span class="wcb-stat-icon"><span class="dashicons dashicons-portfolio"></span></span>
+					<span class="wcb-stat-icon"><i data-lucide="briefcase"></i></span>
 					<span class="wcb-stat-number"><?php echo (int) $total_jobs; ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Active Jobs', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-applications' ) ); ?>" class="wcb-stat-box">
-					<span class="wcb-stat-icon"><span class="dashicons dashicons-clipboard"></span></span>
+					<span class="wcb-stat-icon"><i data-lucide="clipboard-list"></i></span>
 					<span class="wcb-stat-number"><?php echo (int) $total_apps; ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-employers' ) ); ?>" class="wcb-stat-box">
-					<span class="wcb-stat-icon"><span class="dashicons dashicons-building"></span></span>
+					<span class="wcb-stat-icon"><i data-lucide="building-2"></i></span>
 					<span class="wcb-stat-number"><?php echo (int) $total_emp; ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Employers', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-candidates' ) ); ?>" class="wcb-stat-box">
-					<span class="wcb-stat-icon"><span class="dashicons dashicons-groups"></span></span>
+					<span class="wcb-stat-icon"><i data-lucide="users"></i></span>
 					<span class="wcb-stat-number"><?php echo (int) $total_cand; ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box<?php echo $pending_jobs > 0 ? ' wcb-stat-alert' : ''; ?>">
-					<span class="wcb-stat-icon"><span class="dashicons dashicons-flag"></span></span>
+					<span class="wcb-stat-icon"><i data-lucide="flag"></i></span>
 					<span class="wcb-stat-number"><?php echo (int) $pending_jobs; ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Pending Review', 'wp-career-board' ); ?></span>
 				</a>
@@ -334,7 +331,7 @@ class Admin {
 									<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
 								</a>
 								<button type="button" class="wcb-panel-toggle" aria-label="<?php esc_attr_e( 'Toggle panel', 'wp-career-board' ); ?>">
-									<span class="dashicons dashicons-arrow-up-alt2"></span>
+									<i data-lucide="chevron-up"></i>
 								</button>
 							</span>
 						</h2>
@@ -353,8 +350,8 @@ class Admin {
 													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( get_the_date( 'M j', $wcb_job ) ); ?></small>
 												</td>
 												<td style="white-space:nowrap">
-													<button type="button" class="button button-primary button-small wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
-													<button type="button" class="button button-small wcb-reject-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Reject', 'wp-career-board' ); ?></button>
+													<button type="button" class="wcb-btn wcb-btn--primary wcb-btn--sm wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
+													<button type="button" class="wcb-btn wcb-btn--sm wcb-reject-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Reject', 'wp-career-board' ); ?></button>
 												</td>
 											</tr>
 										<?php endforeach; ?>
@@ -375,7 +372,7 @@ class Admin {
 									<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
 								</a>
 								<button type="button" class="wcb-panel-toggle" aria-label="<?php esc_attr_e( 'Toggle panel', 'wp-career-board' ); ?>">
-									<span class="dashicons dashicons-arrow-up-alt2"></span>
+									<i data-lucide="chevron-up"></i>
 								</button>
 							</span>
 						</h2>
@@ -409,7 +406,17 @@ class Admin {
 												</small>
 											</td>
 											<td>
-												<span class="wcb-status-badge wcb-status-<?php echo esc_attr( $wcb_status ); ?>">
+												<?php
+												$wcb_badge_map = array(
+													'submitted'   => 'info',
+													'reviewing'   => 'warn',
+													'shortlisted' => 'success',
+													'rejected'    => 'danger',
+													'hired'       => 'success',
+												);
+												$wcb_badge_var = $wcb_badge_map[ $wcb_status ] ?? 'default';
+												?>
+												<span class="wcb-badge wcb-badge--<?php echo esc_attr( $wcb_badge_var ); ?>">
 													<?php echo esc_html( ucfirst( $wcb_status ) ); ?>
 												</span>
 											</td>
@@ -431,19 +438,19 @@ class Admin {
 				</div>
 				<div class="wcb-dashboard-actions">
 					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-action-item">
-						<span class="dashicons dashicons-plus-alt2"></span>
+						<i data-lucide="plus"></i>
 						<span><?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?></span>
 					</a>
 					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-action-item">
-						<span class="dashicons dashicons-admin-users"></span>
+						<i data-lucide="user-plus"></i>
 						<span><?php esc_html_e( 'Add User', 'wp-career-board' ); ?></span>
 					</a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-settings' ) ); ?>" class="wcb-action-item">
-						<span class="dashicons dashicons-admin-settings"></span>
+						<i data-lucide="settings"></i>
 						<span><?php esc_html_e( 'Settings', 'wp-career-board' ); ?></span>
 					</a>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="wcb-action-item">
-						<span class="dashicons dashicons-admin-tools"></span>
+						<i data-lucide="settings"></i>
 						<span><?php esc_html_e( 'Setup Wizard', 'wp-career-board' ); ?></span>
 					</a>
 				</div>
@@ -501,9 +508,17 @@ class Admin {
 			return;
 		}
 
-		wp_enqueue_style( 'wcb-admin', WCB_URL . 'assets/css/admin.css', array(), WCB_VERSION );
+		wp_enqueue_style( 'wcb-tokens', WCB_URL . 'assets/css/admin/tokens.css', array(), WCB_VERSION );
+		wp_enqueue_style( 'wcb-icons-css', WCB_URL . 'assets/css/admin/icons.css', array( 'wcb-tokens' ), WCB_VERSION );
+		wp_enqueue_style( 'wcb-shared', WCB_URL . 'assets/css/admin/shared.css', array( 'wcb-tokens' ), WCB_VERSION );
+		wp_enqueue_style( 'wcb-toast-css', WCB_URL . 'assets/css/admin/toast.css', array( 'wcb-tokens' ), WCB_VERSION );
+		wp_enqueue_style( 'wcb-admin', WCB_URL . 'assets/css/admin.css', array( 'wcb-tokens' ), WCB_VERSION );
 		wp_style_add_data( 'wcb-admin', 'rtl', 'replace' );
-		wp_enqueue_script( 'wcb-admin', WCB_URL . 'assets/js/admin.js', array( 'wp-api-fetch' ), WCB_VERSION, true );
+
+		wp_enqueue_script( 'lucide', WCB_URL . 'assets/js/vendor/lucide.min.js', array(), '0.460.0', true );
+		wp_enqueue_script( 'wcb-icons', WCB_URL . 'assets/js/admin/icons.js', array( 'lucide' ), WCB_VERSION, true );
+		wp_enqueue_script( 'wcb-toast', WCB_URL . 'assets/js/admin/toast.js', array(), WCB_VERSION, true );
+		wp_enqueue_script( 'wcb-admin', WCB_URL . 'assets/js/admin.js', array( 'wp-api-fetch', 'wcb-toast' ), WCB_VERSION, true );
 
 		wp_localize_script(
 			'wcb-admin',
@@ -525,5 +540,11 @@ class Admin {
 				),
 			)
 		);
+
+		// Settings page — sidebar layout CSS + hash-router JS.
+		if ( str_contains( $hook, 'wcb-settings' ) ) {
+			wp_enqueue_style( 'wcb-settings-css', WCB_URL . 'assets/css/admin/settings.css', array( 'wcb-tokens' ), WCB_VERSION );
+			wp_enqueue_script( 'wcb-settings-nav', WCB_URL . 'assets/js/admin/settings-nav.js', array( 'lucide' ), WCB_VERSION, true );
+		}
 	}
 }

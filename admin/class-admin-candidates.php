@@ -55,11 +55,22 @@ class AdminCandidates extends \WP_List_Table {
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-candidates-list">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></h1>
-			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action">
-				<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
-			</a>
-			<hr class="wp-header-end">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></h1>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="users"></i>
+						<?php esc_html_e( 'Candidates', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'View registered candidates, their applications, and profile visibility.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-page-header__actions">
+					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-btn wcb-btn--primary">
+						<i data-lucide="user-plus" class="wcb-icon--sm"></i>
+						<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
+					</a>
+				</div>
+			</div>
 
 			<?php $this->views(); ?>
 
@@ -140,10 +151,10 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		?>
-		<div class="wcb-no-items-state">
-			<span class="dashicons dashicons-groups"></span>
-			<span class="wcb-no-items-title"><?php esc_html_e( 'No candidates yet', 'wp-career-board' ); ?></span>
-			<p><?php esc_html_e( 'Candidates register on the frontend and appear here once they create an account.', 'wp-career-board' ); ?></p>
+		<div class="wcb-empty-state">
+			<i data-lucide="users" class="wcb-empty-state__icon"></i>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No candidates yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Candidates register on the frontend and appear here once they create an account.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php
 	}
@@ -293,13 +304,13 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_visibility( $item ): string {
-		$vis   = (string) get_user_meta( $item->ID, '_wcb_profile_visibility', true );
-		$vis   = $vis ? $vis : 'public';
-		$class = 'public' === $vis ? 'wcb-job-status-publish' : 'wcb-job-status-draft';
+		$vis       = (string) get_user_meta( $item->ID, '_wcb_profile_visibility', true );
+		$vis       = $vis ? $vis : 'public';
+		$badge_var = 'public' === $vis ? 'success' : 'default';
 
 		return sprintf(
-			'<span class="wcb-status-badge %s">%s</span>',
-			esc_attr( $class ),
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			esc_attr( $badge_var ),
 			esc_html( ucfirst( $vis ) )
 		);
 	}

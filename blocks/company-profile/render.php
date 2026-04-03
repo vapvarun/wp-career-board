@@ -240,11 +240,11 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 
 		$wcb_open_jobs = get_posts(
 			array(
-				'post_type'      => 'wcb_job',
-				'post_status'    => 'publish',
-				'numberposts'    => $wcb_cp_per_page,
-				'no_found_rows'  => true,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'post_type'     => 'wcb_job',
+				'post_status'   => 'publish',
+				'numberposts'   => $wcb_cp_per_page,
+				'no_found_rows' => true,
+				'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_company_id',
 						'value' => $wcb_company->ID,

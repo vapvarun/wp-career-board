@@ -1,0 +1,17 @@
+{
+    "name": "wbcom/wp-career-board",
+    "description": "WP Career Board",
+    "type": "wordpress-plugin",
+    "license": "proprietary",
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "wp-coding-standards/wpcs": "dev-develop",
+        "dealerdirect/phpcodesniffer-composer-installer": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

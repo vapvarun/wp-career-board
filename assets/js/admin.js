@@ -57,12 +57,12 @@
 
 			var cancelBtn = document.createElement( 'button' );
 			cancelBtn.type = 'button';
-			cancelBtn.className = 'button wcb-modal-cancel';
+			cancelBtn.className = 'wcb-btn wcb-modal-cancel';
 			cancelBtn.textContent = wcbAdmin.i18n.cancel;
 
 			var confirmBtn = document.createElement( 'button' );
 			confirmBtn.type = 'button';
-			confirmBtn.className = 'button button-primary wcb-modal-confirm';
+			confirmBtn.className = 'wcb-btn wcb-btn--primary wcb-modal-confirm';
 			confirmBtn.textContent = opts.confirmText || wcbAdmin.i18n.confirm;
 
 			actions.appendChild( cancelBtn );
@@ -131,15 +131,16 @@
 					select.disabled = false;
 					select.dataset.original = status;
 
-					var badge = select.closest( 'tr' ).querySelector( '.wcb-status-badge' );
+					var badge = select.closest( 'tr' ).querySelector( '.wcb-badge' );
 					if ( badge ) {
-						badge.className  = 'wcb-status-badge wcb-status-' + status;
+						var badgeMap = { submitted: 'info', reviewing: 'warn', shortlisted: 'success', rejected: 'danger', hired: 'success' };
+						badge.className  = 'wcb-badge wcb-badge--' + ( badgeMap[ status ] || 'default' );
 						badge.textContent = status.charAt( 0 ).toUpperCase() + status.slice( 1 );
 					}
 				} ).catch( function () {
 					select.disabled = false;
 					select.value = select.dataset.original;
-					alert( wcbAdmin.i18n.saveFailed );
+					wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
 				} );
 			} );
 		} );
@@ -198,7 +199,7 @@
 					return; // User cancelled.
 				}
 				btn.disabled = false;
-				alert( wcbAdmin.i18n.saveFailed );
+				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
 			} );
 		} );
 	}
@@ -229,7 +230,7 @@
 			} ).catch( function () {
 				select.disabled = false;
 				select.value = select.dataset.original || '';
-				alert( wcbAdmin.i18n.saveFailed );
+				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
 			} );
 
 			select.dataset.original = level;

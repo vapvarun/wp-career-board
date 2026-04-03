@@ -339,16 +339,17 @@ class SetupWizard extends \WCB\Api\RestController {
 		// Sample company.
 		$company_id = wp_insert_post(
 			array(
-				'post_type'    => 'wcb_company',
-				'post_title'   => 'Acme Corp',
-				'post_status'  => 'publish',
-				'post_author'  => get_current_user_id() ?: 1,
+				'post_type'   => 'wcb_company',
+				'post_title'  => 'Acme Corp',
+				'post_status' => 'publish',
+				'post_author' => get_current_user_id() ? get_current_user_id() : 1,
 			)
 		);
 
 		// Link company to the current admin user.
 		if ( $company_id && ! is_wp_error( $company_id ) ) {
-			update_user_meta( get_current_user_id() ?: 1, '_wcb_company_id', $company_id );
+			$author_id = get_current_user_id() ? get_current_user_id() : 1;
+			update_user_meta( $author_id, '_wcb_company_id', $company_id );
 		}
 
 		// Sample job posting.
@@ -358,7 +359,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'post_title'   => 'Senior PHP Developer',
 				'post_content' => '<p>We are looking for an experienced PHP developer to join our growing team.</p>',
 				'post_status'  => 'publish',
-				'post_author'  => get_current_user_id() ?: 1,
+				'post_author'  => get_current_user_id() ? get_current_user_id() : 1,
 			)
 		);
 

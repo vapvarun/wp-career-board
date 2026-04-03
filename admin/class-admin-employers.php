@@ -55,11 +55,22 @@ class AdminEmployers extends \WP_List_Table {
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-employers-list">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Employers', 'wp-career-board' ); ?></h1>
-			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action">
-				<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
-			</a>
-			<hr class="wp-header-end">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Employers', 'wp-career-board' ); ?></h1>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="briefcase-business"></i>
+						<?php esc_html_e( 'Employers', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'View employer accounts, their companies, active job listings, and activity.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-page-header__actions">
+					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-btn wcb-btn--primary">
+						<i data-lucide="user-plus" class="wcb-icon--sm"></i>
+						<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
+					</a>
+				</div>
+			</div>
 
 			<?php $this->views(); ?>
 
@@ -140,11 +151,11 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		?>
-		<div class="wcb-no-items-state">
-			<span class="dashicons dashicons-businessman"></span>
-			<span class="wcb-no-items-title"><?php esc_html_e( 'No employers yet', 'wp-career-board' ); ?></span>
-			<p><?php esc_html_e( 'Employers are users with the Employer role. Invite them via the Add New button above or let them self-register from the frontend.', 'wp-career-board' ); ?></p>
-			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="button button-primary">
+		<div class="wcb-empty-state">
+			<i data-lucide="briefcase-business" class="wcb-empty-state__icon"></i>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No employers yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Employers are users with the Employer role. Invite them via the Add New button above or let them self-register from the frontend.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add Employer', 'wp-career-board' ); ?>
 			</a>
 		</div>
