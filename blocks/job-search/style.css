@@ -2,29 +2,29 @@
 .wp-block-wp-career-board-job-search {
 	border: none !important;
 	box-shadow: none !important;
-	margin: 0 0 1rem;
+	margin: 0 0 var(--wcb-space-lg);
 	padding: 0 !important;
 	background: none !important;
 }
 
 .wp-block-wp-career-board-job-filters {
-    margin: 0 0 1rem;
+    margin: 0 0 var(--wcb-space-lg);
 }
 
 /* ── Search form ─────────────────────────────────────────────────────────── */
 .wcb-search-form {
 	display: flex;
 	gap: 0;
-	border-radius: 10px;
-	border: 1.5px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var(--wcb-radius-lg);
+	border: 1.5px solid var(--wcb-border, #e2e8f0);
 	overflow: hidden;
-	background: var( --wcb-base, #fff );
+	background: var(--wcb-base, #fff);
 	transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .wcb-search-form:focus-within {
-	border-color: var( --wcb-primary, #2563eb );
-	box-shadow: 0 0 0 3px rgba( 37, 99, 235, 0.12 );
+	border-color: var(--wcb-primary, #2563eb);
+	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-search-input,
@@ -35,10 +35,10 @@
 	border-radius: 0 !important;
 	-webkit-appearance: none;
 	appearance: none;
-	padding: 0.75rem 1rem;
-	font-size: 0.9375rem;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	font-size: var(--wcb-text-md);
 	font-family: inherit;
-	color: var( --wcb-contrast, #1e293b );
+	color: var(--wcb-contrast, #1e293b);
 	background: transparent;
 	min-width: 0;
 	min-height: 50px;
@@ -47,46 +47,54 @@
 /* Focus-within on the parent handles the visible focus ring.
    This ensures keyboard users see the composite form highlight. */
 .wcb-search-input:focus {
-	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline: 2px solid var(--wcb-primary, #2563eb);
 	outline-offset: 2px;
 	border: none !important;
 	box-shadow: none !important;
 }
 
 .wcb-search-input::placeholder {
-	color: #94a3b8;
+	color: var(--wcb-text-tertiary);
 }
 
 .wcb-search-button {
-	padding: 0.75rem 1.25rem;
-	background: var( --wcb-primary, #2563eb );
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	background: var(--wcb-primary, #2563eb);
 	color: var(--wp--preset--color--wcb-base);
 	border: none;
-	font-size: 0.9375rem;
-	font-weight: 600;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;
+	min-height: 44px;
 	transition: background 0.15s;
 }
 
 .wcb-search-button:hover,
 .wcb-search-button:focus {
-	background: var( --wcb-primary-dark, #1d4ed8 );
+	background: var(--wcb-primary-dark, #1d4ed8);
 	color: var(--wp--preset--color--wcb-base);
 	border: none;
 }
 
 .wcb-search-button:focus-visible {
-	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline: 2px solid var(--wcb-primary, #2563eb);
 	outline-offset: 2px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.wcb-search-form,
+	.wcb-search-button {
+		transition: none !important;
+	}
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media ( max-width: 480px ) {
+@media (max-width: 480px) {
 	.wcb-search-form {
 		flex-direction: column;
-		border-radius: 8px;
+		border-radius: var(--wcb-radius-md);
 	}
 
 	.wcb-search-input {
@@ -94,7 +102,7 @@
 	}
 
 	.wcb-search-button {
-		border-radius: 0 0 8px 8px;
+		border-radius: 0 0 var(--wcb-radius-md) var(--wcb-radius-md);
 		text-align: center;
 	}
 }

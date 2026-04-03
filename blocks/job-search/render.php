@@ -46,12 +46,14 @@ wp_interactivity_state(
 			type="search"
 			class="wcb-search-input"
 			name="wcb_search"
+			aria-label="<?php esc_attr_e( 'Search jobs', 'wp-career-board' ); ?>"
 			placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 			value="<?php echo esc_attr( $wcb_search_query ); ?>"
 			data-wp-bind--value="state.query"
 			data-wp-on--input="actions.updateQuery"
 		/>
 		<button type="submit" class="wcb-search-button">
+			<i data-lucide="search" aria-hidden="true"></i>
 			<?php esc_html_e( 'Search', 'wp-career-board' ); ?>
 		</button>
 	</form>

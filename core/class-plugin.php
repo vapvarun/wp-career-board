@@ -339,6 +339,36 @@ final class Plugin {
 			WCB_VERSION
 		);
 		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
+
+		wp_enqueue_style(
+			'wcb-frontend-tokens',
+			WCB_URL . 'assets/css/frontend-tokens.css',
+			array(),
+			WCB_VERSION
+		);
+
+		wp_enqueue_style(
+			'wcb-frontend-components',
+			WCB_URL . 'assets/css/frontend-components.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
+		wp_enqueue_script(
+			'lucide',
+			WCB_URL . 'assets/js/vendor/lucide.min.js',
+			array(),
+			'0.460.0',
+			true
+		);
+
+		wp_enqueue_script(
+			'wcb-frontend-icons',
+			WCB_URL . 'assets/js/admin/icons.js',
+			array( 'lucide' ),
+			WCB_VERSION,
+			true
+		);
 	}
 
 	/**

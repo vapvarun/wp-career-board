@@ -89,13 +89,13 @@ wp_interactivity_state(
 			</p>
 			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
 			<div class="wcb-role-options">
-				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate">
-					<span class="wcb-role-icon" aria-hidden="true">&#128188;</span>
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
+					<span class="wcb-role-icon" aria-hidden="true"><i data-lucide="briefcase" aria-hidden="true"></i></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Find a Job', 'wp-career-board' ); ?></span>
 					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
 				</button>
-				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer">
-					<span class="wcb-role-icon" aria-hidden="true">&#127970;</span>
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer" aria-label="<?php esc_attr_e( 'Hire Talent', 'wp-career-board' ); ?>">
+					<span class="wcb-role-icon" aria-hidden="true"><i data-lucide="building-2" aria-hidden="true"></i></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
 					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
 				</button>
@@ -130,6 +130,7 @@ wp_interactivity_state(
 							class="wcb-field-input"
 							autocomplete="given-name"
 							required
+							aria-required="true"
 							data-wp-bind--value="state.firstName"
 							data-wp-on--input="actions.updateFirstName"
 						/>
@@ -142,6 +143,7 @@ wp_interactivity_state(
 							class="wcb-field-input"
 							autocomplete="family-name"
 							required
+							aria-required="true"
 							data-wp-bind--value="state.lastName"
 							data-wp-on--input="actions.updateLastName"
 						/>
@@ -156,6 +158,7 @@ wp_interactivity_state(
 						class="wcb-field-input"
 						autocomplete="email"
 						required
+						aria-required="true"
 						data-wp-bind--value="state.email"
 						data-wp-on--input="actions.updateEmail"
 					/>
@@ -182,6 +185,7 @@ wp_interactivity_state(
 						class="wcb-field-input"
 						autocomplete="new-password"
 						required
+						aria-required="true"
 						data-wp-bind--value="state.password"
 						data-wp-on--input="actions.updatePassword"
 					/>

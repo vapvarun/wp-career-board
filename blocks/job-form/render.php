@@ -236,6 +236,10 @@ $wcb_step_labels = array(
 				<?php if ( $wcb_step_num < 4 ) : ?>
 				data-wp-class--wcb-step--done="state.step<?php echo esc_attr( (string) $wcb_step_num ); ?>Done"
 				<?php endif; ?>
+				<?php if ( 1 === $wcb_step_num ) : ?>
+				aria-current="step"
+				<?php endif; ?>
+				data-wp-bind--aria-current="state.step<?php echo esc_attr( (string) $wcb_step_num ); ?>AriaCurrent"
 			>
 				<span class="wcb-step__num"><?php echo esc_html( (string) $wcb_step_num ); ?></span>
 				<span class="wcb-step__label"><?php echo esc_html( $wcb_step_label ); ?></span>
@@ -248,6 +252,7 @@ $wcb_step_labels = array(
 
 	<!-- ── Validation error banner ───────────────────────────────────────── -->
 	<p
+		id="wcb-form-validation-error"
 		class="wcb-form-error"
 		role="alert"
 		data-wp-class--wcb-form-error--show="state.hasValidation"
@@ -295,6 +300,8 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.title"
 					data-wp-on--input="actions.updateField"
 					required
+					aria-required="true"
+					aria-describedby="wcb-form-validation-error"
 					autocomplete="off"
 				/>
 			</div>
@@ -313,6 +320,7 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.description"
 					data-wp-on--input="actions.updateField"
 					required
+					aria-required="true"
 				></textarea>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Plain text or basic Markdown supported.', 'wp-career-board' ); ?>

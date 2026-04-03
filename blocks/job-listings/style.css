@@ -3,13 +3,13 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 1.25rem;
-	gap: 1rem;
+	margin-bottom: var(--wcb-space-xl);
+	gap: var(--wcb-space-lg);
 	flex-wrap: wrap;
 }
 
 .wcb-results-count {
-	font-size: 0.8125rem;
+	font-size: var(--wcb-text-sm);
 	color: var( --wcb-muted, var(--wp--preset--color--wcb-muted) );
 	margin: 0;
 }
@@ -19,7 +19,7 @@
 	display: flex;
 	gap: 2px;
 	background: var( --wcb-surface, var(--wp--preset--color--wcb-surface) );
-	border-radius: 6px;
+	border-radius: var(--wcb-radius-sm);
 	padding: 2px;
 }
 
@@ -27,13 +27,13 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
+	width: var(--wcb-space-3xl);
 	height: 30px;
 	padding: 0;
 	border: none;
 	background: transparent;
-	border-radius: 4px;
-	color: #64748b;
+	border-radius: var(--wcb-space-xs);
+	color: var(--wcb-text-secondary);
 	cursor: pointer;
 	transition: background 0.12s, color 0.12s;
 }
@@ -41,51 +41,51 @@
 .wcb-layout-btn svg {
 	display: block !important;
 	visibility: visible !important;
-	width: 16px;
-	height: 16px;
+	width: var(--wcb-space-lg);
+	height: var(--wcb-space-lg);
 	flex-shrink: 0;
 }
 
 .wcb-layout-btn:hover {
-	background: var(--wp--preset--color--wcb-border);
-	color: #334155;
+	background: var(--wcb-border);
+	color: var(--wcb-contrast);
 }
 
 .wcb-layout-btn.wcb-active {
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.1 );
+	box-shadow: var(--wcb-shadow-sm);
 }
 
 /* ── Jobs container ──────────────────────────────────────────────────────── */
 .wcb-jobs-container {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: var(--wcb-space-md);
 }
 
 .wcb-jobs-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( 300px, 1fr ) );
-	gap: 1rem;
+	grid-template-columns: repeat( auto-fill, minmax( min(100%, 300px), 1fr ) );
+	gap: var(--wcb-space-lg);
 }
 
 /* ── Job Card ────────────────────────────────────────────────────────────── */
 .wcb-job-card {
 	display: flex;
 	align-items: flex-start;
-	gap: 1rem;
+	gap: var(--wcb-space-lg);
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
-	border-radius: 12px;
-	padding: 1.25rem 1.5rem;
+	border-radius: var(--wcb-radius-xl);
+	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
 	transition: border-color 0.15s, box-shadow 0.15s;
 	position: relative;
 }
 
 .wcb-job-card:hover {
-	border-color: #cbd5e1;
-	box-shadow: 0 4px 12px rgba( 0, 0, 0, 0.06 );
+	border-color: var(--wcb-border);
+	box-shadow: var(--wcb-shadow-md);
 }
 
 .wcb-job-card.wcb-featured {
@@ -98,7 +98,7 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	border-radius: 12px;
+	border-radius: var(--wcb-radius-xl);
 }
 
 /* Grid: stack vertically */
@@ -111,14 +111,14 @@
 	width: 52px;
 	height: 52px;
 	flex-shrink: 0;
-	border-radius: 10px;
+	border-radius: var(--wcb-radius-lg);
 	background: var( --wcb-avatar-bg, var(--wp--preset--color--wcb-avatar-bg) );
 	color: var(--wp--preset--color--wcb-base);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 1rem;
-	font-weight: 700;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.02em;
 }
 
@@ -128,14 +128,14 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: var(--wcb-space-sm);
 }
 
 .wcb-card-header {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 0.75rem;
+	gap: var(--wcb-space-md);
 }
 
 .wcb-card-title-wrap {
@@ -144,8 +144,8 @@
 }
 
 .wcb-card-title {
-	font-size: 1rem;
-	font-weight: 700;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
 	line-height: 1.3;
 	margin: 0 0 0.2rem;
 	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
@@ -164,9 +164,9 @@
 }
 
 .wcb-card-company {
-	font-size: 0.875rem;
-	color: #475569;
-	font-weight: 500;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	font-weight: var(--wcb-font-medium);
 	margin: 0;
 	display: flex;
 	align-items: center;
@@ -177,12 +177,12 @@
 /* ── Verified badge ──────────────────────────────────────────────────────── */
 .wcb-verified-sm {
 	display: none;
-	font-size: 0.75rem;
-	color: #166534;
-	font-weight: 600;
-	background: #dcfce7;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-success);
+	font-weight: var(--wcb-font-semibold);
+	background: var(--wcb-success-bg);
 	padding: 0.05rem 0.4rem;
-	border-radius: 4px;
+	border-radius: var(--wcb-space-xs);
 }
 
 .wcb-verified-sm.wcb-shown {
@@ -192,13 +192,13 @@
 }
 
 .wcb-verified-sm[data-trust="trusted"] {
-	background: #dbeafe;
-	color: #1e40af;
+	background: var(--wcb-info-bg);
+	color: var(--wcb-info);
 }
 
 .wcb-verified-sm[data-trust="premium"] {
-	background: #fef3c7;
-	color: #92400e;
+	background: var(--wcb-warning-bg);
+	color: var(--wcb-warning);
 }
 
 /* ── Bookmark button ─────────────────────────────────────────────────────── */
@@ -211,8 +211,8 @@
  */
 .wp-block-wp-career-board-job-listings .wcb-bookmark-btn {
 	flex-shrink: 0;
-	width: 32px;
-	height: 32px;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -221,7 +221,7 @@
 	box-shadow: none !important;
 	color: #cbd5e1;
 	cursor: pointer;
-	border-radius: 6px;
+	border-radius: var(--wcb-radius-sm);
 	transition: color 0.12s, background 0.12s;
 	padding: 0 !important;
 	position: relative;
@@ -230,7 +230,7 @@
 
 .wp-block-wp-career-board-job-listings .wcb-bookmark-btn:hover {
 	color: var(--wp--preset--color--wcb-featured);
-	background: #fef3c7 !important;
+	background: var(--wcb-warning-bg) !important;
 }
 
 .wp-block-wp-career-board-job-listings .wcb-bookmark-btn.wcb-bookmarked {
@@ -251,9 +251,9 @@
 	align-items: center;
 	gap: 0.2rem;
 	padding: 0.15rem 0.55rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 500;
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
 	line-height: 1.4;
 	white-space: nowrap;
 }
@@ -262,17 +262,17 @@
 	display: inline-flex;
 }
 
-.wcb-cbadge--featured { background: #fef3c7; color: #92400e; }
-.wcb-cbadge--remote   { background: #dcfce7; color: #166534; }
-.wcb-cbadge--type     { background: var(--wp--preset--color--wcb-surface); color: #475569; }
-.wcb-cbadge--exp      { background: var(--wp--preset--color--wcb-surface); color: #475569; }
-.wcb-cbadge--location { background: var(--wp--preset--color--wcb-surface); color: #475569; }
+.wcb-cbadge--featured { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
+.wcb-cbadge--remote   { background: var(--wcb-success-bg); color: var(--wcb-success); }
+.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 
 /* ── Card footer ─────────────────────────────────────────────────────────── */
 .wcb-card-footer {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: var(--wcb-space-md);
 	flex-wrap: wrap;
 	margin-top: 0.15rem;
 }
@@ -280,8 +280,8 @@
 /* Hidden by default; shown when .wcb-shown is added */
 .wcb-card-salary {
 	display: none;
-	font-size: 0.875rem;
-	font-weight: 700;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
 	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 }
 
@@ -291,18 +291,18 @@
 }
 
 .wcb-card-date {
-	font-size: 0.8rem;
-	color: #94a3b8;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-tertiary);
 	margin-inline-start: auto;
 }
 
 .wcb-cbtn {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.35rem 1rem;
-	border-radius: 6px;
-	font-size: 0.8125rem;
-	font-weight: 600;
+	padding: 0.35rem var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
 	text-decoration: none;
 	transition: background 0.12s, color 0.12s;
 	white-space: nowrap;
@@ -334,7 +334,7 @@
 .wcb-load-more-wrap {
 	display: none;
 	justify-content: center;
-	margin-top: 1.5rem;
+	margin-top: var(--wcb-space-2xl);
 }
 
 .wcb-load-more-wrap.wcb-shown {
@@ -345,14 +345,14 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
-	padding: 0.65rem 2rem;
+	padding: 0.65rem var(--wcb-space-3xl);
 	border: 1.5px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
-	border-radius: 8px;
+	border-radius: var(--wcb-radius-md);
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
-	font-size: 0.9rem;
-	font-weight: 600;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
 	font-family: inherit;
-	color: #475569;
+	color: var(--wcb-text-secondary);
 	cursor: pointer;
 	transition: border-color 0.12s, color 0.12s;
 }
@@ -383,19 +383,19 @@
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media ( max-width: 640px ) {
 	.wcb-job-card {
-		padding: 1rem;
-		gap: 0.75rem;
+		padding: var(--wcb-space-lg);
+		gap: var(--wcb-space-md);
 	}
 
 	.wcb-card-avatar {
 		width: 44px;
 		height: 44px;
-		font-size: 0.875rem;
-		border-radius: 8px;
+		font-size: var(--wcb-text-base);
+		border-radius: var(--wcb-radius-md);
 	}
 
 	.wcb-card-title {
-		font-size: 0.9375rem;
+		font-size: var(--wcb-text-md);
 	}
 
 	.wcb-jobs-container.wcb-grid {
@@ -412,15 +412,15 @@
 .wcb-listings-header {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
-	margin-block-end: 1.5rem;
+	gap: var(--wcb-space-md);
+	margin-block-end: var(--wcb-space-2xl);
 }
 
 /* Search + sort row */
 .wcb-search-sort-row {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: var(--wcb-space-md);
 }
 
 .wcb-search-wrap {
@@ -430,7 +430,7 @@
 
 .wcb-search-icon {
 	position: absolute;
-	inset-inline-start: 0.75rem;
+	inset-inline-start: var(--wcb-space-md);
 	top: 50%;
 	transform: translateY( -50% );
 	z-index: 1;
@@ -442,14 +442,15 @@
 
 .wp-block-wcb-job-listings .wcb-listings-search {
 	width: 100%;
-	padding: 0.5rem 0.75rem 0.5rem 2.25rem !important;
-	padding-inline-start: 2.25rem !important;
-	border: 1px solid var( --wcb-border, #d1d5db );
-	border-radius: 0.375rem;
-	font-size: 0.875rem;
+	padding: var(--wcb-space-sm) var(--wcb-space-md) var(--wcb-space-sm) var(--wcb-space-2xl) !important;
+	padding-inline-start: var(--wcb-space-2xl) !important;
+	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-base);
 	line-height: 1.5;
-	color: var( --wcb-contrast, #111827 );
+	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
+	font-family: inherit;
 }
 
 .wcb-listings-search:focus {
@@ -459,13 +460,14 @@
 }
 
 .wcb-sort-select {
-	padding: 0.5rem 0.75rem;
-	border: 1px solid var( --wcb-border, #d1d5db );
-	border-radius: 0.375rem;
-	font-size: 0.875rem;
-	color: var( --wcb-contrast, #374151 );
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-base);
+	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	cursor: pointer;
+	font-family: inherit;
 }
 
 .wcb-sort-select:focus-visible {
@@ -485,13 +487,13 @@
 .wcb-chip {
 	display: inline-flex;
 	align-items: center;
-	height: 2rem;
+	height: var(--wcb-space-3xl);
 	padding-inline: 0.875rem;
-	border: 1px solid var( --wp--preset--color--wcb-border, #d1d5db );
-	border-radius: 9999px;
-	font-size: 0.8125rem;
-	font-weight: 500;
-	color: var( --wcb-contrast, #374151 );
+	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	cursor: pointer;
 	transition: border-color 0.15s, color 0.15s, background 0.15s;
@@ -499,21 +501,21 @@
 }
 
 .wcb-chip:hover {
-	border-color: var(--wp--preset--color--wcb-primary);
-	background: #eff6ff;
-	color: var(--wp--preset--color--wcb-primary);
+	border-color: var(--wcb-primary);
+	background: var(--wcb-info-bg);
+	color: var(--wcb-primary);
 }
 
 .wcb-chip.wcb-chip-active:hover {
-	background: var(--wp--preset--color--wcb-primary-dark);
-	border-color: var(--wp--preset--color--wcb-primary-dark);
-	color: var(--wp--preset--color--wcb-base);
+	background: var(--wcb-primary-dark);
+	border-color: var(--wcb-primary-dark);
+	color: var(--wcb-base);
 }
 
 .wcb-chip.wcb-chip-active {
 	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 	background: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var(--wp--preset--color--wcb-base);
+	color: var(--wcb-base);
 }
 
 .wcb-chip:focus-visible {
@@ -524,8 +526,8 @@
 .wcb-chip-divider {
 	display: inline-block;
 	width: 1px;
-	height: 1.25rem;
-	background: var(--wp--preset--color--wcb-border, #d1d5db);
+	height: var(--wcb-space-xl);
+	background: var(--wcb-border);
 	margin-inline: 0.25rem;
 }
 
@@ -547,25 +549,25 @@
 	gap: 0.25rem;
 	height: 1.625rem;
 	padding-inline: 0.625rem;
-	background: #eff6ff;
+	background: var(--wcb-info-bg);
 	border: 1px solid #bfdbfe;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	color: #1e40af;
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-info);
 }
 
 .wcb-active-chip-remove {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1rem;
-	height: 1rem;
+	width: var(--wcb-space-lg);
+	height: var(--wcb-space-lg);
 	padding: 0;
 	border: none;
-	border-radius: 9999px;
+	border-radius: var(--wcb-radius-full);
 	background: transparent;
-	color: #3b82f6;
-	font-size: 0.875rem;
+	color: var(--wcb-primary);
+	font-size: var(--wcb-text-base);
 	line-height: 1;
 	cursor: pointer;
 }
@@ -581,7 +583,7 @@
 }
 
 .wcb-clear-all {
-	font-size: 0.75rem;
+	font-size: var(--wcb-text-xs);
 	color: var(--wp--preset--color--wcb-muted);
 	background: none;
 	border: none;
@@ -591,7 +593,7 @@
 }
 
 .wcb-clear-all:hover {
-	color: #374151;
+	color: var(--wcb-contrast);
 	background: none;
 	border: none;
 }
@@ -606,8 +608,8 @@
 .wcb-card-excerpt {
 	display: none;
 	margin: 0;
-	font-size: 0.875rem;
-	line-height: 1.625;
+	font-size: var(--wcb-text-base);
+	line-height: var(--wcb-leading-relaxed);
 	color: var( --wcb-muted, var(--wp--preset--color--wcb-muted) );
 	overflow: hidden;
 	-webkit-line-clamp: 2;
@@ -621,7 +623,7 @@
 .wcb-toolbar-start {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: var(--wcb-space-md);
 }
 
 /* ── Alert me button ───────────────────────────────────────────────────── */
@@ -630,26 +632,26 @@
 	align-items: center;
 	gap: 0.375rem;
 	padding: 0.375rem 0.875rem;
-	font-size: 0.8125rem;
-	font-weight: 500;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
 	color: var(--wp--preset--color--wcb-muted);
-	background: var(--wp--preset--color--wcb-base);
-	border: 1px solid var(--wp--preset--color--wcb-border);
-	border-radius: 6px;
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
 	cursor: pointer;
 	transition: border-color 0.15s, color 0.15s, background-color 0.15s;
 	white-space: nowrap;
 }
 
 .wcb-alert-me-btn:hover {
-	border-color: var(--wp--preset--color--wcb-primary);
-	color: var(--wp--preset--color--wcb-primary);
-	background: #eff6ff;
+	border-color: var(--wcb-primary);
+	color: var(--wcb-primary);
+	background: var(--wcb-info-bg);
 }
 
 .wcb-alert-me-btn.wcb-alert-saved {
-	border-color: #22c55e;
-	color: #22c55e;
+	border-color: var(--wcb-success);
+	color: var(--wcb-success);
 	background: #f0fdf4;
 	cursor: default;
 }
@@ -674,12 +676,12 @@
 
 /* ── Notice + error ───────────────────────────────────────────────────────── */
 .wcb-notice-error {
-	color: #b91c1c;
-	background: #fef2f2;
+	color: var(--wcb-danger);
+	background: var(--wcb-danger-bg);
 	border: 1px solid #fecaca;
-	border-radius: 8px;
-	padding: 0.75rem 1rem;
-	font-size: 0.875rem;
+	border-radius: var(--wcb-radius-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
 	margin: 0;
 }
 
@@ -687,8 +689,87 @@
 .wcb-notice-success {
 	background: #f0fdf4;
 	border: 1px solid #bbf7d0;
-	border-radius: 8px;
-	padding: 0.75rem 1rem;
-	font-size: 0.875rem;
+	border-radius: var(--wcb-radius-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
 	margin: 0;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.wcb-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
+	text-align: center;
+	color: var(--wcb-text-tertiary);
+}
+
+.wcb-empty-state [data-lucide] {
+	width: var(--wcb-icon-2xl);
+	height: var(--wcb-icon-2xl);
+}
+
+.wcb-empty-state-text {
+	margin: 0;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
+/* ── View switcher ───────────────────────────────────────────────────────── */
+.wcb-view-switcher {
+	display: flex;
+	gap: 2px;
+	background: var(--wcb-surface);
+	border-radius: var(--wcb-radius-sm);
+	padding: 2px;
+	flex-shrink: 0;
+}
+
+.wcb-view-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--wcb-space-3xl);
+	height: 30px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	border-radius: var(--wcb-space-xs);
+	color: var(--wcb-text-secondary);
+	cursor: pointer;
+	transition: background 0.12s, color 0.12s;
+}
+
+.wcb-view-btn [data-lucide] {
+	width: var(--wcb-space-lg);
+	height: var(--wcb-space-lg);
+}
+
+.wcb-view-btn:hover {
+	background: var(--wcb-border);
+	color: var(--wcb-contrast);
+}
+
+.wcb-view-btn.wcb-view-btn--active {
+	background: var(--wcb-base);
+	color: var(--wcb-primary);
+	box-shadow: var(--wcb-shadow-sm);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media ( prefers-reduced-motion: reduce ) {
+	.wcb-job-card,
+	.wcb-layout-btn,
+	.wcb-view-btn,
+	.wcb-bookmark-btn,
+	.wcb-cbtn,
+	.wcb-load-more-btn,
+	.wcb-chip,
+	.wcb-alert-me-btn,
+	.wcb-active-chip-remove {
+		transition: none;
+	}
 }

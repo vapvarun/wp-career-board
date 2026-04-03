@@ -109,11 +109,11 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				<div class="wcb-cp-name-row">
 					<h1 class="wcb-cp-name"><?php echo esc_html( $wcb_name ); ?></h1>
 					<?php if ( $wcb_trust_info ) : ?>
-						<span class="wcb-cp-trust-badge <?php echo esc_attr( $wcb_trust_info['class'] ); ?>">
+						<span class="wcb-cp-trust-badge <?php echo esc_attr( $wcb_trust_info['class'] ); ?>" role="status">
 							<?php if ( 'premium' === $wcb_trust ) : ?>
-								<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+								<i data-lucide="star" aria-hidden="true"></i>
 							<?php else : ?>
-								<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+								<i data-lucide="check" aria-hidden="true"></i>
 							<?php endif; ?>
 							<?php echo esc_html( $wcb_trust_info['label'] ); ?>
 						</span>
@@ -128,19 +128,19 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				<div class="wcb-cp-meta-chips">
 					<?php if ( $wcb_industry ) : ?>
 						<span class="wcb-cp-chip">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-2.18c.07-.44.18-.86.18-1.3C18 2.12 15.88 0 13.3 0c-1.48 0-2.67.73-3.58 1.68L12 4l2.28-2.28C14.8 1.28 15.5 1 16.3 1c2.21 0 4 1.79 4 4 0 .44-.1.86-.18 1.3H20v14H4V6h4V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+							<i data-lucide="briefcase" aria-hidden="true"></i>
 							<?php echo esc_html( $wcb_industry ); ?>
 						</span>
 					<?php endif; ?>
 					<?php if ( $wcb_size_label ) : ?>
 						<span class="wcb-cp-chip">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+							<i data-lucide="users" aria-hidden="true"></i>
 							<?php echo esc_html( $wcb_size_label ); ?>
 						</span>
 					<?php endif; ?>
 					<?php if ( $wcb_hq ) : ?>
 						<span class="wcb-cp-chip">
-							<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+							<i data-lucide="map-pin" aria-hidden="true"></i>
 							<?php echo esc_html( $wcb_hq ); ?>
 						</span>
 					<?php endif; ?>
@@ -150,19 +150,19 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				<div class="wcb-cp-links">
 					<?php if ( $wcb_website ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--web" href="<?php echo esc_url( $wcb_website ); ?>" target="_blank" rel="noopener noreferrer">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>
+							<i data-lucide="globe" aria-hidden="true"></i>
 							<?php esc_html_e( 'Website', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
 					<?php if ( $wcb_linkedin ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--linkedin" href="<?php echo esc_url( $wcb_linkedin ); ?>" target="_blank" rel="noopener noreferrer">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+							<i data-lucide="linkedin" aria-hidden="true"></i>
 							<?php esc_html_e( 'LinkedIn', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
 					<?php if ( $wcb_twitter ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--twitter" href="<?php echo esc_url( $wcb_twitter ); ?>" target="_blank" rel="noopener noreferrer">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.737-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+							<i data-lucide="twitter" aria-hidden="true"></i>
 							<?php esc_html_e( 'X / Twitter', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
@@ -300,7 +300,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 							<div class="wcb-cp-job-badges">
 								<span class="wcb-cjbadge wcb-cjbadge--type" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
 								<span class="wcb-cjbadge wcb-cjbadge--location" data-wp-class--wcb-shown="context.job.location">
-									<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+									<i data-lucide="map-pin" aria-hidden="true"></i>
 									<span data-wp-text="context.job.location"></span>
 								</span>
 							</div>

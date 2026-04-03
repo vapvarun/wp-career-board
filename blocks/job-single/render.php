@@ -379,7 +379,7 @@ wp_interactivity_state(
 					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save Job', 'wp-career-board' ) ); ?>"
 					title="<?php esc_attr_e( 'Save this job', 'wp-career-board' ); ?>"
 				>
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+					<i data-lucide="bookmark" aria-hidden="true"></i>
 					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save Job', 'wp-career-board' ) ); ?></span>
 				</button>
 			<?php endif; ?>

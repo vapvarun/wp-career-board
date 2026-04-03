@@ -1,30 +1,40 @@
 .wcb-featured-jobs {
-	padding: 2rem 0;
+	padding: var(--wcb-space-3xl) 0;
+	font-family: inherit;
 }
 
 .wcb-featured-title {
-	font-size: 1.5rem;
-	margin-bottom: 1.25rem;
+	font-size: var(--wcb-text-2xl);
+	font-weight: var(--wcb-font-bold);
+	margin-bottom: var(--wcb-space-xl);
 }
 
 .wcb-featured-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( 260px, 1fr ) );
-	gap: 1.25rem;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	gap: var(--wcb-space-xl);
 }
 
 .wcb-featured-card {
-	padding: 1.25rem;
-	border: 1px solid var( --wcb-border, #e2e8f0 );
-	border-radius: 8px;
-	background: var( --wcb-base, #fff );
+	padding: var(--wcb-space-xl);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: var(--wcb-space-sm);
+	min-width: 0;
+	transition: box-shadow var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
+}
+
+.wcb-featured-card:hover {
+	border-color: var(--wcb-text-tertiary);
+	box-shadow: var(--wcb-shadow-md);
 }
 
 .wcb-featured-card-title {
-	font-size: 1rem;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
 	margin: 0;
 }
 
@@ -34,36 +44,46 @@
 }
 
 .wcb-featured-card-title a:hover {
-	color: var( --wcb-primary, #2563eb );
+	color: var(--wcb-primary);
 }
 
 .wcb-featured-company {
-	font-weight: 600;
-	color: var( --wcb-muted, #475569 );
-	font-size: 0.9rem;
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-base);
 	margin: 0;
 }
 
 .wcb-featured-location {
-	color: #94a3b8;
-	font-size: 0.85rem;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
 	margin: 0;
 }
 
 .wcb-featured-link {
 	margin-top: auto;
 	display: inline-block;
-	font-size: 0.875rem;
-	color: var( --wcb-primary, #2563eb );
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-primary);
 	text-decoration: none;
-	font-weight: 500;
+	font-weight: var(--wcb-font-medium);
 }
 
 .wcb-featured-link:hover {
 	text-decoration: underline;
 }
 
-@media ( max-width: 600px ) {
+.wcb-featured-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
+	color: var(--wcb-text-secondary);
+	text-align: center;
+}
+
+@media (max-width: 600px) {
 	.wcb-featured-grid {
 		grid-template-columns: 1fr;
 	}

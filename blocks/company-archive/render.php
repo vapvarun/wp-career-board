@@ -234,7 +234,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setList"
 				data-wp-class--wcb-active="state.isList"
 			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2V7.25zm0 3.25h12v1.5H2v-1.5z"/></svg>
+				<i data-lucide="list" aria-hidden="true"></i>
 			</button>
 			<button
 				type="button"
@@ -243,7 +243,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setGrid"
 				data-wp-class--wcb-active="state.isGrid"
 			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zm-7 7h5v5H2V9zm7 0h5v5H9V9z"/></svg>
+				<i data-lucide="layout-grid" aria-hidden="true"></i>
 			</button>
 		</div>
 
@@ -278,6 +278,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 							<span
 								class="wcb-ca-trust-badge"
+								role="status"
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
 							>
