@@ -372,12 +372,27 @@ final class Plugin {
 	}
 
 	/**
-	 * Return true when the current singular post contains at least one WCB block.
+	 * Return true when the current request needs WCB frontend assets.
+	 *
+	 * Matches: pages containing a WCB block, WCB CPT archives, and WCB CPT singles.
 	 *
 	 * @since 1.0.0
 	 * @return bool
 	 */
 	private function current_page_has_wcb_block(): bool {
+		// WCB post-type archives and singles always need styles.
+		$wcb_types = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
+		if ( is_post_type_archive( $wcb_types ) || is_singular( $wcb_types ) ) {
+			return true;
+		}
+
+		// WCB taxonomy archives.
+		$wcb_taxes = array( 'wcb_job_type', 'wcb_job_industry', 'wcb_job_location', 'wcb_experience_level' );
+		if ( is_tax( $wcb_taxes ) ) {
+			return true;
+		}
+
+		// Pages containing a WCB block.
 		global $post;
 		if ( ! $post instanceof \WP_Post ) {
 			return false;
