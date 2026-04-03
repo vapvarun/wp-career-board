@@ -398,14 +398,15 @@
 .wcb-settings-card-header {
 	padding: 14px 24px;
 	border-bottom: 1px solid var(--wcb-border);
+	background: var(--wcb-bg-tertiary, #f1f5f9);
 }
 
 .wcb-settings-card-title {
-	font-size: 11px;
+	font-size: 13px;
 	font-weight: 600;
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	color: var(--wcb-text-secondary);
+	letter-spacing: 0.04em;
+	color: var(--wcb-text);
 	margin: 0;
 }
 

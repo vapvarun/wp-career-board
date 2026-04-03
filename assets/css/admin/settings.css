@@ -42,7 +42,7 @@
 	justify-content: center;
 	width: 36px;
 	height: 36px;
-	background: var(--wcb-accent, #2271b1);
+	background: var(--wcb-accent, #2563eb);
 	color: #fff;
 	border-radius: var(--wcb-radius-md, 6px);
 	flex-shrink: 0;
@@ -71,58 +71,73 @@
 
 /* Nav groups */
 .wcb-settings-nav-group {
-	padding: 12px 0 4px;
+	padding: 8px 8px 4px;
 }
 
 .wcb-settings-nav-group__label {
 	display: block;
-	padding: 0 16px 6px;
+	padding: 0 10px 4px;
 	font-size: 10px;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--wcb-text-tertiary, #9ca3af);
+	letter-spacing: 0.08em;
+	color: var(--wcb-text-tertiary, #94a3b8);
 }
 
-/* Nav items */
+/* Nav items — rounded pill style (matches Jetonomy) */
 .wcb-settings-nav-item {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 8px 16px;
+	padding: 8px 10px;
+	border-radius: 6px;
 	font-size: 13px;
 	font-weight: 500;
-	color: var(--wcb-text-secondary, #757575);
+	color: var(--wcb-text-secondary, #475569);
 	text-decoration: none;
-	border-left: 3px solid transparent;
-	transition: all 0.12s ease;
+	transition: background 0.12s, color 0.12s;
 	cursor: pointer;
+	margin-bottom: 1px;
 }
 
 .wcb-settings-nav-item:hover {
-	color: var(--wcb-text, #1e1e1e);
-	background: var(--wcb-bg-secondary, #f7f7f5);
+	color: var(--wcb-text, #1e293b);
+	background: var(--wcb-bg-secondary, #f8fafc);
 	text-decoration: none;
 }
 
 .wcb-settings-nav-item:focus {
 	text-decoration: none;
 	box-shadow: none;
-	outline: 2px solid var(--wcb-accent, #2271b1);
+	outline: 2px solid var(--wcb-accent, #2563eb);
 	outline-offset: -2px;
 }
 
 .wcb-settings-nav-item.is-active {
-	color: var(--wcb-accent, #2271b1);
-	background: rgba(34, 113, 177, 0.04);
-	border-left-color: var(--wcb-accent, #2271b1);
+	color: var(--wcb-accent, #2563eb);
+	background: var(--wcb-accent-light, #eff6ff);
 	font-weight: 600;
+}
+
+.wcb-settings-nav-item.is-active:hover {
+	background: var(--wcb-accent-light, #eff6ff);
+	color: var(--wcb-accent, #2563eb);
 }
 
 .wcb-settings-nav-item [data-lucide] {
 	width: 16px;
 	height: 16px;
 	flex-shrink: 0;
+	color: var(--wcb-text-tertiary, #94a3b8);
+	transition: color 0.12s;
+}
+
+.wcb-settings-nav-item:hover [data-lucide] {
+	color: var(--wcb-text-secondary, #475569);
+}
+
+.wcb-settings-nav-item.is-active [data-lucide] {
+	color: var(--wcb-accent, #2563eb);
 }
 
 .wcb-settings-nav-item .wcb-pro-badge {
@@ -201,14 +216,8 @@
 
 	.wcb-settings-nav-item {
 		white-space: nowrap;
-		border-left: none;
-		border-bottom: 3px solid transparent;
-		padding: 10px 12px;
-	}
-
-	.wcb-settings-nav-item.is-active {
-		border-left-color: transparent;
-		border-bottom-color: var(--wcb-accent, #2271b1);
+		padding: 8px 12px;
+		border-radius: 6px;
 	}
 
 	.wcb-settings-sidebar__brand {

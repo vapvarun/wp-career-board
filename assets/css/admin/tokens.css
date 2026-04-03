@@ -1,28 +1,20 @@
-.wcb-admin-dashboard,
-.wrap.wcb-admin-wrap,
-.wrap.wcb-jobs-list,
-.wrap.wcb-applications-list,
-.wrap.wcb-candidates-list,
-.wrap.wcb-companies-list,
-.wrap.wcb-employers-list,
-.wrap.wcb-admin-import,
-.wrap.wcb-wizard-wrap,
-.wrap.wcbp-admin-wrap {
+.wcb-admin {
     --wcb-bg: #ffffff;
-    --wcb-bg-secondary: #f7f7f5;
-    --wcb-bg-tertiary: #f0f0ed;
-    --wcb-text: #1e1e1e;
-    --wcb-text-secondary: #757575;
-    --wcb-text-tertiary: #9ca3af;
-    --wcb-accent: #2271b1;
-    --wcb-accent-hover: #135e96;
-    --wcb-success: #2ea44f;
+    --wcb-bg-secondary: #f8fafc;
+    --wcb-bg-tertiary: #f1f5f9;
+    --wcb-text: #1e293b;
+    --wcb-text-secondary: #475569;
+    --wcb-text-tertiary: #94a3b8;
+    --wcb-accent: #2563eb;
+    --wcb-accent-hover: #1d4ed8;
+    --wcb-accent-light: #eff6ff;
+    --wcb-success: #16a34a;
     --wcb-warn: #d97706;
-    --wcb-danger: #d63638;
+    --wcb-danger: #dc2626;
     --wcb-border: #e2e8f0;
-    --wcb-border-heavy: rgba(0,0,0,.12);
-    --wcb-shadow-sm: 0 1px 2px rgba(0,0,0,.04);
-    --wcb-shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    --wcb-border-strong: #cbd5e1;
+    --wcb-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --wcb-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
     --wcb-radius-sm: 4px;
     --wcb-radius-md: 6px;
     --wcb-radius-lg: 8px;

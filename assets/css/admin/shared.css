@@ -29,7 +29,7 @@
 }
 .wcb-card__head {
     padding: 14px 20px 12px; border-bottom: 1px solid var(--wcb-border);
-    background: var(--wcb-bg-secondary);
+    background: var(--wcb-bg-tertiary, #f1f5f9);
 }
 .wcb-card__title {
     font-size: 13px; font-weight: 600; text-transform: uppercase;
@@ -167,7 +167,7 @@
     color: #fff;
 }
 
-/* ── Premium Form Table (Settings) ── */
+/* ── Premium Form Inputs (Settings + Form Tables) ── */
 .wcb-admin .form-table th {
     font-weight: 600;
     color: var(--wcb-text);
@@ -185,18 +185,29 @@
 .wcb-admin .form-table input[type="url"],
 .wcb-admin .form-table input[type="password"],
 .wcb-admin .form-table select,
-.wcb-admin .form-table textarea {
+.wcb-admin .form-table textarea,
+.wcb-admin .wcb-settings-row-control input[type="text"],
+.wcb-admin .wcb-settings-row-control input[type="email"],
+.wcb-admin .wcb-settings-row-control input[type="number"],
+.wcb-admin .wcb-settings-row-control input[type="url"],
+.wcb-admin .wcb-settings-row-control input[type="password"],
+.wcb-admin .wcb-settings-row-control select,
+.wcb-admin .wcb-settings-row-control textarea {
     border: 1.5px solid var(--wcb-border);
     border-radius: var(--wcb-radius-md);
     padding: 6px 12px;
     transition: border-color 0.15s, box-shadow 0.15s;
 }
-.wcb-admin .form-table select {
+.wcb-admin .form-table select,
+.wcb-admin .wcb-settings-row-control select {
     padding-right: 30px;
 }
 .wcb-admin .form-table input:focus,
 .wcb-admin .form-table select:focus,
-.wcb-admin .form-table textarea:focus {
+.wcb-admin .form-table textarea:focus,
+.wcb-admin .wcb-settings-row-control input:focus,
+.wcb-admin .wcb-settings-row-control select:focus,
+.wcb-admin .wcb-settings-row-control textarea:focus {
     border-color: var(--wcb-accent);
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     outline: none;
