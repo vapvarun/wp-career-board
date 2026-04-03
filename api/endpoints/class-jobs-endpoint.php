@@ -353,6 +353,24 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		// Credit gate — if board has a credit cost, check employer balance.
+		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) ( $request->get_param( 'board_id' ) ?? 0 ) );
+		if ( $wcb_credit_cost > 0 ) {
+			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+			if ( $wcb_employer_balance < $wcb_credit_cost ) {
+				return new \WP_Error(
+					'wcb_insufficient_credits',
+					sprintf(
+						/* translators: 1: credit cost, 2: current balance */
+						__( 'This board requires %1$d credits to post a job. Your balance: %2$d credits.', 'wp-career-board' ),
+						$wcb_credit_cost,
+						$wcb_employer_balance
+					),
+					array( 'status' => 402 )
+				);
+			}
+		}
+
 		$settings     = get_option( 'wcb_settings', array() );
 		$auto_publish = ! empty( $settings['auto_publish_jobs'] );
 		$status       = $auto_publish ? 'publish' : 'pending';
