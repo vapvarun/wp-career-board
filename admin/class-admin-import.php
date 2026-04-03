@@ -38,19 +38,8 @@ class AdminImport {
 		$resumes_total    = $importer->wpjm_resumes_total();
 		$resumes_migrated = $importer->wcb_resumes_migrated();
 		?>
-		<div class="wrap wcb-admin wcb-admin-import">
-
-			<div class="wcb-page-header">
-				<div class="wcb-page-header__left">
-					<h2 class="wcb-page-header__title">
-						<i data-lucide="upload" class="wcb-icon--lg"></i>
-						<?php esc_html_e( 'Import & Migration', 'wp-career-board' ); ?>
-					</h2>
-					<p class="wcb-page-header__desc"><?php esc_html_e( 'Move your existing job board data into WP Career Board. Your original data is never modified or deleted.', 'wp-career-board' ); ?></p>
-				</div>
-			</div>
-
-			<p class="wcb-import-intro">
+		<div class="wcb-admin-import">
+			<p class="description" style="margin: 0 0 16px;">
 				<?php esc_html_e( 'Each migration is safe to run multiple times — already-imported records are automatically skipped.', 'wp-career-board' ); ?>
 			</p>
 
@@ -255,7 +244,7 @@ class AdminImport {
 			do_action( 'wcb_import_extra_cards' );
 			?>
 
-		</div><!-- .wrap -->
+		</div><!-- .wcb-admin-import -->
 		<?php
 	}
 }

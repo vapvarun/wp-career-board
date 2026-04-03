@@ -81,6 +81,7 @@ class AdminSettings {
 		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
+		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
 	}
 
 	/**
@@ -294,6 +295,7 @@ class AdminSettings {
 		$tabs = array(
 			'listings'      => __( 'Job Listings', 'wp-career-board' ),
 			'pages'         => __( 'Pages', 'wp-career-board' ),
+			'import'        => __( 'Import', 'wp-career-board' ),
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
 			'emails'        => __( 'Emails', 'wp-career-board' ),
 		);
@@ -323,9 +325,12 @@ class AdminSettings {
 		return array(
 			'listings'      => 'list',
 			'pages'         => 'file-text',
+			'import'        => 'upload',
 			'antispam'      => 'shield',
 			'notifications' => 'bell',
 			'emails'        => 'mail',
+			'boards'        => 'layout-grid',
+			'field-builder' => 'wrench',
 			'ai-settings'   => 'sparkles',
 			'job-feed'      => 'rss',
 			'credits'       => 'credit-card',
@@ -346,6 +351,7 @@ class AdminSettings {
 		return array(
 			'listings'      => 'general',
 			'pages'         => 'general',
+			'import'        => 'general',
 			'antispam'      => 'general',
 			'notifications' => 'notifications',
 			'emails'        => 'notifications',
@@ -360,6 +366,16 @@ class AdminSettings {
 	 */
 	public function render_emails_tab(): void {
 		( new EmailSettings() )->render_form();
+	}
+
+	/**
+	 * Render the Import tab — delegates to AdminImport::render().
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function render_import_tab(): void {
+		( new AdminImport() )->render();
 	}
 
 	/**

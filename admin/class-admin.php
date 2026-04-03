@@ -30,7 +30,6 @@ class Admin {
 	public function boot(): void {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_menu', array( $this, 'register_settings_submenu' ), 25 );
-		add_action( 'admin_menu', array( $this, 'register_import_submenu' ), 30 );
 		add_action( 'admin_menu', array( $this, 'register_emails_submenu' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		( new EmailSettings() )->boot();
@@ -126,22 +125,6 @@ class Admin {
 		);
 	}
 
-	/**
-	 * Register the Import submenu at priority 30 (after Settings).
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
-	public function register_import_submenu(): void {
-		add_submenu_page(
-			'wp-career-board',
-			__( 'Import', 'wp-career-board' ),
-			__( 'Import', 'wp-career-board' ),
-			'wcb_manage_settings',
-			'wcb-import',
-			array( new AdminImport(), 'render' )
-		);
-	}
 
 	/**
 	 * Render the admin dashboard — stats, pending queue, recent applications.
