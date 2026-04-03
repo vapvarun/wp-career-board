@@ -80,33 +80,174 @@
 .wcb-empty-state__title { font-size: 16px; font-weight: 600; color: var(--wcb-text); margin: 0 0 8px; }
 .wcb-empty-state__desc { font-size: 13px; color: var(--wcb-text-secondary); margin: 0 0 16px; }
 
-/* ── Search Box Override ── */
-.wcb-jobs-list .search-box .button,
-.wcb-applications-list .search-box .button,
-.wcb-candidates-list .search-box .button,
-.wcb-companies-list .search-box .button,
-.wcb-employers-list .search-box .button {
-    display: inline-flex; align-items: center; gap: 6px; height: 32px;
-    padding: 0 14px; font-size: 13px; font-weight: 500;
-    border-radius: var(--wcb-radius-md); border: 1px solid var(--wcb-accent);
-    background: var(--wcb-accent); color: #fff;
-    cursor: pointer; text-decoration: none; transition: all 0.12s ease;
+/* ═══════════════════════════════════════════════════════════
+   Scoped WP Overrides — premium styling for native WP elements
+   Follows Jetonomy reference pattern: scope to .wcb-admin
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Premium Buttons ── */
+.wcb-admin .button-primary,
+.wcb-admin .button.button-primary {
+    background: var(--wcb-accent);
+    border-color: var(--wcb-accent);
+    border-radius: var(--wcb-radius-md);
+    font-weight: 600;
+    padding: 4px 16px;
+    height: auto;
+    line-height: 1.6;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
 }
-.wcb-jobs-list .search-box .button:hover,
-.wcb-applications-list .search-box .button:hover,
-.wcb-candidates-list .search-box .button:hover,
-.wcb-companies-list .search-box .button:hover,
-.wcb-employers-list .search-box .button:hover {
-    background: var(--wcb-accent-hover); color: #fff;
+.wcb-admin .button-primary:hover,
+.wcb-admin .button-primary:focus {
+    background: var(--wcb-accent-hover);
+    border-color: var(--wcb-accent-hover);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
 }
-.wcb-jobs-list .search-box input[type="search"],
-.wcb-applications-list .search-box input[type="search"],
-.wcb-candidates-list .search-box input[type="search"],
-.wcb-companies-list .search-box input[type="search"],
-.wcb-employers-list .search-box input[type="search"] {
-    height: 32px; padding: 0 10px;
-    border: 1px solid var(--wcb-border); border-radius: var(--wcb-radius-md);
+.wcb-admin .button:not(.button-primary) {
+    border-radius: var(--wcb-radius-md);
+    font-weight: 500;
+}
+
+/* ── Premium Tables ── */
+.wcb-admin .wp-list-table {
+    border-radius: var(--wcb-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--wcb-shadow-sm);
+    border: 1px solid var(--wcb-border);
+}
+.wcb-admin .wp-list-table thead th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--wcb-text-secondary);
+    background: var(--wcb-bg-secondary);
+    border-bottom: 2px solid var(--wcb-border);
+}
+.wcb-admin .wp-list-table tbody tr:hover {
+    background: var(--wcb-bg-secondary);
+}
+.wcb-admin .wp-list-table tfoot th {
+    background: var(--wcb-bg-secondary);
+}
+
+/* ── Premium Search Box ── */
+.wcb-admin .search-box input[type="search"],
+.wcb-admin .search-box input[type="text"] {
+    height: 32px;
+    padding: 0 10px;
+    border: 1.5px solid var(--wcb-border);
+    border-radius: var(--wcb-radius-md);
     font-size: 13px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.wcb-admin .search-box input:focus {
+    border-color: var(--wcb-accent);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+.wcb-admin .search-box .button {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--wcb-radius-md);
+    border: 1px solid var(--wcb-accent);
+    background: var(--wcb-accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+}
+.wcb-admin .search-box .button:hover {
+    background: var(--wcb-accent-hover);
+    border-color: var(--wcb-accent-hover);
+    color: #fff;
+}
+
+/* ── Premium Form Table (Settings) ── */
+.wcb-admin .form-table th {
+    font-weight: 600;
+    color: var(--wcb-text);
+    font-size: 13px;
+    padding-top: 16px;
+    width: 220px;
+}
+.wcb-admin .form-table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+.wcb-admin .form-table input[type="text"],
+.wcb-admin .form-table input[type="email"],
+.wcb-admin .form-table input[type="number"],
+.wcb-admin .form-table input[type="url"],
+.wcb-admin .form-table input[type="password"],
+.wcb-admin .form-table select,
+.wcb-admin .form-table textarea {
+    border: 1.5px solid var(--wcb-border);
+    border-radius: var(--wcb-radius-md);
+    padding: 6px 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.wcb-admin .form-table select {
+    padding-right: 30px;
+}
+.wcb-admin .form-table input:focus,
+.wcb-admin .form-table select:focus,
+.wcb-admin .form-table textarea:focus {
+    border-color: var(--wcb-accent);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+/* ── Premium Nav Tabs ── */
+.wcb-admin .nav-tab-wrapper {
+    border-bottom: 2px solid var(--wcb-border);
+    margin-bottom: 24px;
+}
+.wcb-admin .nav-tab {
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 8px 16px;
+    font-weight: 500;
+    color: var(--wcb-text-secondary);
+    background: transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+.wcb-admin .nav-tab:hover {
+    color: var(--wcb-text);
+    background: transparent;
+    border-bottom-color: var(--wcb-border);
+}
+.wcb-admin .nav-tab-active,
+.wcb-admin .nav-tab-active:hover,
+.wcb-admin .nav-tab-active:focus {
+    color: var(--wcb-accent);
+    border-bottom-color: var(--wcb-accent);
+    background: transparent;
+    font-weight: 600;
+}
+
+/* ── Premium Pagination ── */
+.wcb-admin .tablenav-pages .button {
+    border-radius: var(--wcb-radius-sm);
+}
+.wcb-admin .tablenav-pages .current-page {
+    border: 1.5px solid var(--wcb-border);
+    border-radius: var(--wcb-radius-sm);
+}
+
+/* ── Premium Subsubsub (filter tabs) ── */
+.wcb-admin .subsubsub a {
+    font-weight: 500;
+    transition: color 0.12s;
+}
+.wcb-admin .subsubsub a.current {
+    color: var(--wcb-accent);
+    font-weight: 600;
 }
 
 /* ── Notice Suppression ── */

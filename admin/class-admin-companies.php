@@ -55,7 +55,7 @@ class AdminCompanies extends \WP_List_Table {
 		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
-		<div class="wrap wcb-companies-list">
+		<div class="wrap wcb-admin wcb-companies-list">
 			<h1 class="screen-reader-text"><?php esc_html_e( 'Companies', 'wp-career-board' ); ?></h1>
 			<div class="wcb-page-header">
 				<div class="wcb-page-header__left">

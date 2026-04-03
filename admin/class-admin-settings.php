@@ -420,7 +420,7 @@ class AdminSettings {
 		// Tabs that save via options.php (Settings API).
 		$wcb_settings_tabs = array( 'listings', 'pages', 'notifications' );
 		?>
-		<div class="wrap">
+		<div class="wrap wcb-admin">
 
 			<h1 class="screen-reader-text"><?php esc_html_e( 'Career Board Settings', 'wp-career-board' ); ?></h1>
 

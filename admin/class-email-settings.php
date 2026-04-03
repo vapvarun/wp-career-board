@@ -142,7 +142,7 @@ class EmailSettings {
 		$brand    = isset( $settings['brand'] ) ? (array) $settings['brand'] : array();
 		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
 		?>
-		<div class="wrap">
+		<div class="wrap wcb-admin">
 			<h1><?php esc_html_e( 'Email Notifications', 'wp-career-board' ); ?></h1>
 			<form method="post">
 				<?php wp_nonce_field( 'wcb_email_settings_save', 'wcb_email_nonce' ); ?>

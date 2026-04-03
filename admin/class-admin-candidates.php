@@ -54,7 +54,7 @@ class AdminCandidates extends \WP_List_Table {
 	public function render(): void {
 		$this->prepare_items();
 		?>
-		<div class="wrap wcb-candidates-list">
+		<div class="wrap wcb-admin wcb-candidates-list">
 			<h1 class="screen-reader-text"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></h1>
 			<div class="wcb-page-header">
 				<div class="wcb-page-header__left">

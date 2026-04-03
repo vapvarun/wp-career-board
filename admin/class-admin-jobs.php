@@ -58,7 +58,7 @@ class AdminJobs extends \WP_List_Table {
 		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
-		<div class="wrap wcb-jobs-list">
+		<div class="wrap wcb-admin wcb-jobs-list">
 			<h1 class="screen-reader-text"><?php esc_html_e( 'Jobs', 'wp-career-board' ); ?></h1>
 			<div class="wcb-page-header">
 				<div class="wcb-page-header__left">

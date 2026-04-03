@@ -214,7 +214,7 @@ class Admin {
 			)
 		);
 		?>
-		<div class="wrap wcb-admin-dashboard">
+		<div class="wrap wcb-admin wcb-admin-dashboard">
 			<h1 class="screen-reader-text"><?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?></h1>
 
 			<div class="wcb-page-header">

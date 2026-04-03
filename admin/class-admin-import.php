@@ -38,7 +38,7 @@ class AdminImport {
 		$resumes_total    = $importer->wpjm_resumes_total();
 		$resumes_migrated = $importer->wcb_resumes_migrated();
 		?>
-		<div class="wrap wcb-admin-import">
+		<div class="wrap wcb-admin wcb-admin-import">
 
 			<div class="wcb-page-header">
 				<div class="wcb-page-header__left">
