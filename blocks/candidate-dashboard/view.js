@@ -433,10 +433,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			// When embedded resume builder is active, reload current page with resume_id param.
 			if ( state.resumeBuilderEmbedded ) {
 				window.location.href = state.dashboardUrl + '?resume_id=' + String( ctx.resume.id );
-				return;
-			}
-			if ( state.resumeBuilderUrl ) {
-				window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
 			}
 		},
 
@@ -475,8 +471,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				if ( state.resumeBuilderEmbedded ) {
 					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
-				} else if ( state.resumeBuilderUrl ) {
-					window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( resume.id );
 				}
 			} catch {
 				state.error = state.strings.errConnectionFull;

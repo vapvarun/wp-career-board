@@ -31,15 +31,6 @@ $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permal
 	? (string) $wcb_jobs_permalink
 	: home_url( '/' );
 
-/**
- * Pro populates this with the URL of the resume-builder page (?resume_id=N appended per resume).
- * Free passes an empty string — the My Resumes tab is hidden when empty.
- *
- * @since 1.0.0
- * @param string $url         Resume builder page URL (empty in Free).
- * @param int    $candidate_id Current user ID.
- */
-$wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
 $wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
@@ -101,8 +92,7 @@ wp_interactivity_state(
 			'nonce'                 => wp_create_nonce( 'wp_rest' ),
 			'candidateId'           => $wcb_candidate_id,
 			'candidateName'         => $wcb_display_name,
-			'resumeBuilderUrl'      => $wcb_resume_builder_url,
-			'resumesEnabled'        => $wcb_resume_builder_embedded || '' !== $wcb_resume_builder_url,
+			'resumesEnabled'        => $wcb_resume_builder_embedded,
 			'dashboardUrl'          => $wcb_dashboard_url,
 			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
 			'resumeEmbedId'         => $wcb_resume_embed_id,
@@ -163,7 +153,7 @@ wp_interactivity_state(
 				data-wp-on--click="actions.switchToResumes"
 				data-wp-bind--hidden="!state.resumesEnabled"
 				<?php
-				if ( ! $wcb_resume_builder_url ) :
+				if ( ! $wcb_resume_builder_embedded ) :
 					?>
 					hidden<?php endif; ?>
 			><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
