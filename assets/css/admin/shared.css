@@ -80,6 +80,35 @@
 .wcb-empty-state__title { font-size: 16px; font-weight: 600; color: var(--wcb-text); margin: 0 0 8px; }
 .wcb-empty-state__desc { font-size: 13px; color: var(--wcb-text-secondary); margin: 0 0 16px; }
 
+/* ── Search Box Override ── */
+.wcb-jobs-list .search-box .button,
+.wcb-applications-list .search-box .button,
+.wcb-candidates-list .search-box .button,
+.wcb-companies-list .search-box .button,
+.wcb-employers-list .search-box .button {
+    display: inline-flex; align-items: center; gap: 6px; height: 32px;
+    padding: 0 14px; font-size: 13px; font-weight: 500;
+    border-radius: var(--wcb-radius-md); border: 1px solid var(--wcb-accent);
+    background: var(--wcb-accent); color: #fff;
+    cursor: pointer; text-decoration: none; transition: all 0.12s ease;
+}
+.wcb-jobs-list .search-box .button:hover,
+.wcb-applications-list .search-box .button:hover,
+.wcb-candidates-list .search-box .button:hover,
+.wcb-companies-list .search-box .button:hover,
+.wcb-employers-list .search-box .button:hover {
+    background: var(--wcb-accent-hover); color: #fff;
+}
+.wcb-jobs-list .search-box input[type="search"],
+.wcb-applications-list .search-box input[type="search"],
+.wcb-candidates-list .search-box input[type="search"],
+.wcb-companies-list .search-box input[type="search"],
+.wcb-employers-list .search-box input[type="search"] {
+    height: 32px; padding: 0 10px;
+    border: 1px solid var(--wcb-border); border-radius: var(--wcb-radius-md);
+    font-size: 13px;
+}
+
 /* ── Notice Suppression ── */
 .toplevel_page_wp-career-board .notice:not(.wcb-notice),
 .career-board_page_wcb-jobs .notice:not(.wcb-notice),
