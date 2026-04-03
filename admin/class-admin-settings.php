@@ -77,7 +77,6 @@ class AdminSettings {
 	public function boot(): void {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_post_wcb_create_pages', array( $this, 'handle_create_pages' ) );
-		add_action( 'admin_post_wcb_send_test_email', array( $this, 'handle_send_test_email' ) );
 		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
@@ -251,39 +250,6 @@ class AdminSettings {
 	}
 
 	/**
-	 * Handle the "Send Test Email" form POST.
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
-	public function handle_send_test_email(): void {
-		check_admin_referer( 'wcb_send_test_email' );
-
-		if ( ! current_user_can( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
-			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
-		}
-
-		$settings = (array) get_option( self::OPTION_KEY, array() );
-		$to       = ! empty( $settings['notification_email'] ) ? $settings['notification_email'] : (string) get_option( 'admin_email' );
-		$subject  = __( 'WP Career Board — Test Email', 'wp-career-board' );
-		$message  = __( 'This is a test email from WP Career Board. Your notification email is configured correctly.', 'wp-career-board' );
-
-		$sent = wp_mail( $to, $subject, $message );
-
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'page'       => 'wcb-settings',
-					'tab'        => 'notifications',
-					'test_email' => $sent ? 'sent' : 'failed',
-				),
-				admin_url( 'admin.php' )
-			)
-		);
-		exit;
-	}
-
-	/**
 	 * Return the ordered list of settings tabs.
 	 *
 	 * Pro extensions add tabs via the `wcb_settings_tabs` filter.
@@ -295,9 +261,9 @@ class AdminSettings {
 		$tabs = array(
 			'listings'      => __( 'Job Listings', 'wp-career-board' ),
 			'pages'         => __( 'Pages', 'wp-career-board' ),
-			'import'        => __( 'Import', 'wp-career-board' ),
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
 			'emails'        => __( 'Emails', 'wp-career-board' ),
+			'import'        => __( 'Import', 'wp-career-board' ),
 		);
 
 		/**
@@ -351,10 +317,10 @@ class AdminSettings {
 		return array(
 			'listings'      => 'general',
 			'pages'         => 'general',
+			'notifications' => 'general',
+			'emails'        => 'general',
 			'import'        => 'general',
 			'antispam'      => 'general',
-			'notifications' => 'notifications',
-			'emails'        => 'notifications',
 		);
 	}
 
@@ -405,15 +371,11 @@ class AdminSettings {
 
 		// Group tabs for the sidebar.
 		$wcb_groups = array(
-			'general'       => array(
+			'general' => array(
 				'label' => __( 'General', 'wp-career-board' ),
 				'items' => array(),
 			),
-			'notifications' => array(
-				'label' => __( 'Notifications', 'wp-career-board' ),
-				'items' => array(),
-			),
-			'pro'           => array(
+			'pro'     => array(
 				'label' => __( 'Pro', 'wp-career-board' ),
 				'items' => array(),
 			),
@@ -727,21 +689,6 @@ class AdminSettings {
 								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
 							</div>
 						</form>
-						<div class="wcb-settings-test-email" style="margin-top:16px;">
-							<div class="wcb-card">
-								<div class="wcb-card__head">
-									<p class="wcb-card__title"><?php esc_html_e( 'Send Test Email', 'wp-career-board' ); ?></p>
-									<p class="wcb-card__desc"><?php esc_html_e( 'Send a test email to the admin notification address to verify your mail configuration.', 'wp-career-board' ); ?></p>
-								</div>
-								<div class="wcb-card__body">
-									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-										<input type="hidden" name="action" value="wcb_send_test_email">
-										<?php wp_nonce_field( 'wcb_send_test_email' ); ?>
-										<?php submit_button( __( 'Send Test Email', 'wp-career-board' ), 'secondary', 'submit', false ); ?>
-									</form>
-								</div>
-							</div>
-						</div>
 					</div>
 
 					<!-- ── Emails ───────────────────────────────────────────── -->
