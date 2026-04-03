@@ -149,7 +149,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_trust            = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
 	$wcb_trust_info       = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
-	$wcb_jobs_state[] = array(
+	$wcb_job_card = array(
 		'id'           => $wcb_job_post->ID,
 		'title'        => $wcb_job_post->post_title,
 		'permalink'    => get_permalink( $wcb_job_post->ID ),
@@ -165,6 +165,8 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'category'     => is_wp_error( $wcb_cat_terms ) ? '' : implode( ', ', $wcb_cat_terms ),
 		'remote'       => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_remote', true ),
 		'featured'     => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
+		'board_id'     => (int) get_post_meta( $wcb_job_post->ID, '_wcb_board_id', true ),
+		'board_name'   => '',
 		'salary_min'   => $wcb_salary_min,
 		'salary_max'   => $wcb_salary_max,
 		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
@@ -173,7 +175,31 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'      => wp_trim_words( (string) preg_replace( '/[*_#`]+/', '', wp_strip_all_tags( $wcb_job_post->post_content ) ), 25, '…' ),
 	);
+
+	/**
+	 * Filter job card data before it's passed to the Interactivity API state.
+	 *
+	 * Pro uses this to inject board_name and auto-feature premium board jobs.
+	 *
+	 * @since 1.0.0
+	 * @param array<string,mixed> $data Job card data array.
+	 * @param \WP_Post            $post Job post object.
+	 */
+	$wcb_jobs_state[] = (array) apply_filters( 'wcb_job_listing_data', $wcb_job_card, $wcb_job_post );
 }
+
+// Sort featured jobs first, then by date (newest).
+usort(
+	$wcb_jobs_state,
+	static function ( array $a, array $b ): int {
+		$fa = ( $a['featured'] ?? false ) ? 1 : 0;
+		$fb = ( $b['featured'] ?? false ) ? 1 : 0;
+		if ( $fa !== $fb ) {
+			return $fb - $fa; // featured first.
+		}
+		return ( $b['id'] ?? 0 ) - ( $a['id'] ?? 0 ); // newest first.
+	}
+);
 
 $wcb_type_terms_raw = get_terms(
 	array(
@@ -426,6 +452,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 
 					<div class="wcb-card-badges">
 						<span class="wcb-cbadge wcb-cbadge--featured" role="status" data-wp-class--wcb-shown="context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
+					<span class="wcb-cbadge wcb-cbadge--board" role="status" data-wp-class--wcb-shown="context.job.board_name" data-wp-text="context.job.board_name"></span>
 						<span class="wcb-cbadge wcb-cbadge--remote" role="status" data-wp-class--wcb-shown="context.job.remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 						<span class="wcb-cbadge wcb-cbadge--type" role="status" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
 						<span class="wcb-cbadge wcb-cbadge--exp" role="status" data-wp-class--wcb-shown="context.job.experience" data-wp-text="context.job.experience"></span>

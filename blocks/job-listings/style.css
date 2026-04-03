@@ -263,6 +263,7 @@
 }
 
 .wcb-cbadge--featured { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
+.wcb-cbadge--board    { background: #eff6ff; color: #2563eb; }
 .wcb-cbadge--remote   { background: var(--wcb-success-bg); color: var(--wcb-success); }
 .wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
