@@ -232,6 +232,24 @@ wp_interactivity_state(
 			</a>
 		</nav>
 
+		<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+		<div class="wcb-sidebar-credits" data-wp-bind--hidden="!state.creditsEnabled">
+			<span class="wcb-nav-section-label"><?php esc_html_e( 'CREDITS', 'wp-career-board' ); ?></span>
+			<div class="wcb-sidebar-credit-balance">
+				<span class="wcb-credit-num" data-wp-text="state.creditBalance">0</span>
+				<span class="wcb-credit-label"><?php esc_html_e( 'credits', 'wp-career-board' ); ?></span>
+			</div>
+			<?php
+			$wcb_purchase_url = (string) apply_filters( 'wcb_credit_purchase_url', '' );
+			if ( $wcb_purchase_url ) :
+				?>
+			<a href="<?php echo esc_url( $wcb_purchase_url ); ?>" class="wcb-nav-item wcb-nav-item--link" target="_blank" rel="noopener noreferrer">
+				<?php esc_html_e( 'Buy Credits', 'wp-career-board' ); ?> &#8599;
+			</a>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
 		<button type="button" class="wcb-sidebar-cta" data-wp-on--click="actions.switchToPostJob">
 			+ <?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?>
 		</button>
@@ -298,6 +316,12 @@ wp_interactivity_state(
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'New This Week', 'wp-career-board' ); ?></span>
 				</div>
+				<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+				<div class="wcb-stat-card wcb-stat-card--purple" data-wp-bind--hidden="!state.creditsEnabled">
+					<span class="wcb-stat-value" data-wp-text="state.creditBalance">0</span>
+					<span class="wcb-stat-label"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
+				</div>
+				<?php endif; ?>
 			</div>
 
 			<div class="wcb-two-col">
