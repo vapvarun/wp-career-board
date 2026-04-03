@@ -124,7 +124,6 @@ class AdminSettings {
 			'jobs_archive_page'        => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'  => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
 			'candidate_dashboard_page' => isset( $input['candidate_dashboard_page'] ) ? (int) $input['candidate_dashboard_page'] : 0,
-			'post_job_page'            => isset( $input['post_job_page'] ) ? (int) $input['post_job_page'] : 0,
 			'company_archive_page'     => isset( $input['company_archive_page'] ) ? (int) $input['company_archive_page'] : 0,
 			'notification_email'       => $notification_email ? $notification_email : '',
 			'from_name'                => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
@@ -206,10 +205,6 @@ class AdminSettings {
 			'candidate_dashboard_page' => array(
 				'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
 				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
-			),
-			'post_job_page'            => array(
-				'title'   => __( 'Post a Job', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-form /-->',
 			),
 			'company_archive_page'     => array(
 				'title'   => __( 'Companies', 'wp-career-board' ),
@@ -361,7 +356,7 @@ class AdminSettings {
 		$wcb_tab_icons = $this->get_tab_icons();
 		$wcb_free_tabs = $this->get_free_tab_slugs();
 
-		$wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page', 'company_archive_page' );
+		$wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page' );
 		$wcb_missing   = array();
 		foreach ( $wcb_page_keys as $wcb_k ) {
 			if ( empty( $settings[ $wcb_k ] ) || ! get_post( (int) $settings[ $wcb_k ] ) ) {
@@ -433,20 +428,25 @@ class AdminSettings {
 			<?php endif; ?>
 
 			<?php if ( ! empty( $wcb_missing ) ) : ?>
+				<?php
+				$wcb_missing_labels = array(
+					'jobs_archive_page'        => __( 'Find Jobs', 'wp-career-board' ),
+					'employer_dashboard_page'   => __( 'Employer Dashboard', 'wp-career-board' ),
+					'candidate_dashboard_page'  => __( 'Candidate Dashboard', 'wp-career-board' ),
+					'company_archive_page'      => __( 'Companies', 'wp-career-board' ),
+				);
+				$wcb_missing_names = array_map( static fn( string $k ): string => $wcb_missing_labels[ $k ] ?? $k, $wcb_missing );
+				?>
 				<div class="notice notice-warning wcb-notice">
 					<p>
-						<strong><?php esc_html_e( 'Page Setup Required', 'wp-career-board' ); ?></strong> —
-						<?php esc_html_e( 'Some required WP Career Board pages have not been created yet.', 'wp-career-board' ); ?>
+						<strong><?php esc_html_e( 'Missing pages:', 'wp-career-board' ); ?></strong>
+						<?php echo esc_html( implode( ', ', $wcb_missing_names ) ); ?>
 					</p>
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 6px;">
 						<input type="hidden" name="action" value="wcb_create_pages">
 						<?php wp_nonce_field( 'wcb_create_pages' ); ?>
 						<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary', 'submit', false ); ?>
 					</form>
-				</div>
-			<?php else : ?>
-				<div class="notice notice-success wcb-notice is-dismissible">
-					<p><?php esc_html_e( 'All required WP Career Board pages are set up.', 'wp-career-board' ); ?></p>
 				</div>
 			<?php endif; ?>
 
