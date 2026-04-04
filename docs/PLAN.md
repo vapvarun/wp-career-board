@@ -208,6 +208,15 @@ wp-career-board/
 | T27a | Salary range + remote filter UI in job-filters block | ✅ | `5378fe1` | 2026-03-17 |
 | T27b | Company name search + REST caching + extension hooks | ✅ | `27162d8` | 2026-03-17 |
 | T28 | Admin dashboard — Getting Started checklist card | ✅ | `8cd6c6f` | 2026-03-24 |
+| T29 | Board filter chips on Find Jobs page | ✅ | `2c358ca` | 2026-04-04 · Board chips in filter bar, REST `board` param, active filter pills |
+| T30 | Frontend credit UX in job form | ✅ | `2c358ca` | 2026-04-04 · Credit info banner, JS-side credit gate, Buy Credits link |
+| T31 | AI description generator button in job form | ✅ | `2c358ca` | 2026-04-04 · "Generate with AI" button, calls POST /jobs/ai-description, shown when AI enabled |
+| T32 | Resume file upload in candidate dashboard | ✅ | `2c358ca` | 2026-04-04 · "Upload CV" button (PDF/DOC/DOCX) alongside resume builder |
+| T33 | Candidate profile edit panel | ✅ | `5bbc48d` | 2026-04-04 · Profile tab with bio editing + save via REST |
+| T34 | Account settings tab (both dashboards) | ✅ | `5bbc48d` | 2026-04-04 · Email display, password reset link |
+| T35 | Employer registration company fields | ✅ | `5bbc48d` | 2026-04-04 · Website, industry, size, HQ collected + saved on register |
+| T36 | Custom application fields hook | ✅ | `5bbc48d` | 2026-04-04 · `do_action('wcb_application_form_fields')` for Pro extensibility |
+| T37 | Jobs endpoint board filter param | ✅ | `2c358ca` | 2026-04-04 · `?board=ID` filters by `_wcb_board_id` postmeta |
 
 ---
 
@@ -216,6 +225,19 @@ wp-career-board/
 | ID | Task | Reason |
 |----|------|--------|
 | T19 | BuddyX Pro integration | Blocks are theme-agnostic. Revisit when BuddyX Pro-specific hooks are confirmed. |
+
+---
+
+## Remaining Tasks (Pre-Launch)
+
+| ID | Task | Priority | Effort | Notes |
+|----|------|----------|--------|-------|
+| R1 | CSS tokens cleanup — ~120 hex colors + ~26 font-sizes → var() refs | MEDIUM | Large | Mechanical but wide-reaching; separate session |
+| R2 | Resume geocoding pipeline | MEDIUM | Medium | Resumes have lat/lng fields but no auto-geocoding hook like jobs |
+| R3 | Job form map picker / address autocomplete | LOW | Medium | No map preview or address autocomplete in job submission form |
+| R4 | Email verification on registration | MEDIUM | Medium | Registration doesn't verify email; typos go undetected |
+| R5 | Resume builder photo + contact info section | LOW | Small | No avatar upload or phone/email on resume |
+| R6 | Application status visibility for candidates | LOW | Small | Candidates can't see current status of their applications |
 
 ---
 
