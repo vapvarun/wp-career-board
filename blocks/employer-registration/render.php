@@ -49,9 +49,13 @@ wp_interactivity_state(
 		'firstName'    => '',
 		'lastName'     => '',
 		'email'        => '',
-		'companyName'  => '',
-		'password'     => '',
-		'submitting'   => false,
+		'companyName'    => '',
+		'companyWebsite' => '',
+		'companyIndustry' => '',
+		'companySize'    => '',
+		'companyHq'      => '',
+		'password'       => '',
+		'submitting'     => false,
 		'submitted'    => false,
 		'error'        => '',
 		'dashboardUrl' => '',
@@ -175,6 +179,36 @@ wp_interactivity_state(
 						data-wp-bind--value="state.companyName"
 						data-wp-on--input="actions.updateCompanyName"
 					/>
+				</div>
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company Website', 'wp-career-board' ); ?></label>
+					<input id="wcb-reg-website" type="url" class="wcb-field-input" placeholder="https://"
+						data-wp-bind--value="state.companyWebsite" data-wp-on--input="actions.updateField" data-wcb-field="companyWebsite" />
+				</div>
+				<div class="wcb-field-row" data-wp-class--wcb-hidden="state.isCandidate">
+					<div class="wcb-field-group wcb-field-half">
+						<label class="wcb-field-label" for="wcb-reg-industry"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></label>
+						<input id="wcb-reg-industry" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. Technology', 'wp-career-board' ); ?>"
+							data-wp-bind--value="state.companyIndustry" data-wp-on--input="actions.updateField" data-wcb-field="companyIndustry" />
+					</div>
+					<div class="wcb-field-group wcb-field-half">
+						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
+						<select id="wcb-reg-size" class="wcb-field-input"
+							data-wp-bind--value="state.companySize" data-wp-on--change="actions.updateField" data-wcb-field="companySize">
+							<option value=""><?php esc_html_e( 'Select…', 'wp-career-board' ); ?></option>
+							<option value="1-10">1-10</option>
+							<option value="11-50">11-50</option>
+							<option value="51-200">51-200</option>
+							<option value="201-500">201-500</option>
+							<option value="501-1000">501-1000</option>
+							<option value="1001+">1001+</option>
+						</select>
+					</div>
+				</div>
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+					<label class="wcb-field-label" for="wcb-reg-hq"><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></label>
+					<input id="wcb-reg-hq" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. San Francisco, CA', 'wp-career-board' ); ?>"
+						data-wp-bind--value="state.companyHq" data-wp-on--input="actions.updateField" data-wcb-field="companyHq" />
 				</div>
 
 				<div class="wcb-field-group">

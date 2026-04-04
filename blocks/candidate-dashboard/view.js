@@ -53,6 +53,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				resumes:            state.strings.tabResumes,
 				alerts:             state.strings.tabAlerts,
 				'resume-builder':   state.strings.tabResumeBuilder,
+				profile:            state.strings.tabProfile,
+				settings:           state.strings.tabSettings,
 			};
 			return map[ state.tab ] || state.strings.tabDashboard;
 		},
@@ -73,6 +75,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get isTabAlerts() {
 			return state.tab === 'alerts';
+		},
+		get isTabProfile() {
+			return state.tab === 'profile';
+		},
+		get isTabSettings() {
+			return state.tab === 'settings';
 		},
 		get alertsCount() {
 			return state.alerts.length;
@@ -272,6 +280,52 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
+		},
+
+		switchToProfile() {
+			state.tab         = 'profile';
+			state.navOpen     = false;
+			state.profileSaved = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'profile' );
+		},
+
+		switchToSettings() {
+			state.tab     = 'settings';
+			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'settings' );
+		},
+
+		updateProfileBio( event ) {
+			state.profileBio   = event.target.value;
+			state.profileSaved = false;
+		},
+
+		*saveProfile() {
+			state.profileSaving = true;
+			state.profileSaved  = false;
+			state.error         = '';
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ),
+					{
+						method: 'PUT',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( { bio: state.profileBio } ),
+					}
+				);
+				if ( response.ok ) {
+					state.profileSaved = true;
+				} else {
+					state.error = 'Could not save profile. Please try again.';
+				}
+			} catch {
+				state.error = 'Connection error. Please try again.';
+			} finally {
+				state.profileSaving = false;
+			}
 		},
 
 		*switchToAlerts() {

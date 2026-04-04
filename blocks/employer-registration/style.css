@@ -184,3 +184,19 @@
 		transform: none;
 	}
 }
+
+/* ── Side-by-side fields ─────────────────────────────────────────────────── */
+.wcb-field-row {
+	display: flex;
+	gap: var(--wcb-space-md, 12px);
+}
+
+.wcb-field-half {
+	flex: 1;
+}
+
+@media (max-width: 480px) {
+	.wcb-field-row {
+		flex-direction: column;
+	}
+}

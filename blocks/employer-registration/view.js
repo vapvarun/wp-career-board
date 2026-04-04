@@ -58,6 +58,12 @@ const { state } = store( 'wcb-employer-registration', {
 		updatePassword( event ) {
 			state.password = event.target.value;
 		},
+		updateField( event ) {
+			const field = event.target.dataset.wcbField;
+			if ( field ) {
+				state[ field ] = event.target.value;
+			}
+		},
 
 		*submit( event ) {
 			event.preventDefault();
@@ -89,6 +95,10 @@ const { state } = store( 'wcb-employer-registration', {
 
 			if ( state.role === 'employer' ) {
 				body.company_name = state.companyName;
+				if ( state.companyWebsite ) body.website = state.companyWebsite;
+				if ( state.companyIndustry ) body.industry = state.companyIndustry;
+				if ( state.companySize ) body.size = state.companySize;
+				if ( state.companyHq ) body.hq = state.companyHq;
 			}
 
 			try {

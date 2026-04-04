@@ -223,6 +223,19 @@ final class EmployersEndpoint extends RestController {
 
 		if ( $company_id && ! is_wp_error( $company_id ) ) {
 			update_user_meta( $user_id, '_wcb_company_id', $company_id );
+
+			$reg_meta = array(
+				'website'  => '_wcb_website',
+				'industry' => '_wcb_industry',
+				'size'     => '_wcb_company_size',
+				'hq'       => '_wcb_hq_location',
+			);
+			foreach ( $reg_meta as $param => $meta_key ) {
+				$val = $request->get_param( $param );
+				if ( $val ) {
+					update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+				}
+			}
 		}
 
 		// Authenticate the new user immediately.

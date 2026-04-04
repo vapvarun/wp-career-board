@@ -68,6 +68,8 @@ wp_interactivity_state(
 				'tabAlerts'           => __( 'Job Alerts', 'wp-career-board' ),
 				'tabResumeBuilder'    => __( 'Edit Resume', 'wp-career-board' ),
 				'tabDashboard'        => __( 'Dashboard', 'wp-career-board' ),
+				'tabProfile'          => __( 'Profile', 'wp-career-board' ),
+				'tabSettings'         => __( 'Settings', 'wp-career-board' ),
 				'resumesUnit'         => __( 'resumes', 'wp-career-board' ),
 				'filterRemote'        => __( 'Remote', 'wp-career-board' ),
 				'alertLabelAllJobs'   => __( 'All jobs', 'wp-career-board' ),
@@ -99,6 +101,11 @@ wp_interactivity_state(
 			'showNewResumeForm'     => false,
 			'newResumeTitle'        => '',
 			'customFieldGroups'     => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+			'profileBio'            => get_the_author_meta( 'description', $wcb_candidate_id ),
+			'profileEmail'          => $wcb_current_user->user_email,
+			'profileSaving'         => false,
+			'profileSaved'          => false,
+			'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 			'bellNotifications'     => array(),
 			'bellUnreadCount'       => 0,
 			'bellOpen'              => false,
@@ -176,6 +183,20 @@ wp_interactivity_state(
 				<span class="wcb-nav-badge wcb-nav-badge--green" data-wp-text="state.alertsCount">0</span>
 			</button>
 			<?php endif; ?>
+
+			<span class="wcb-nav-section-label"><?php esc_html_e( 'ACCOUNT', 'wp-career-board' ); ?></span>
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-profile"
+				data-wp-bind--aria-selected="state.isTabProfile"
+				data-wp-class--wcb-nav-active="state.isTabProfile"
+				data-wp-on--click="actions.switchToProfile">
+				<?php esc_html_e( 'Profile', 'wp-career-board' ); ?>
+			</button>
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-settings"
+				data-wp-bind--aria-selected="state.isTabSettings"
+				data-wp-class--wcb-nav-active="state.isTabSettings"
+				data-wp-on--click="actions.switchToSettings">
+				<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
+			</button>
 		</nav>
 
 		<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-sidebar-cta">
@@ -541,6 +562,55 @@ wp_interactivity_state(
 			</div>
 		</div>
 		<?php endif; ?>
+
+	<!-- ── Profile panel ──────────────────────────────────────────── -->
+	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-profile" data-wp-class--wcb-view-active="state.isTabProfile">
+		<div class="wcb-panel-header">
+			<span class="wcb-panel-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></span>
+		</div>
+		<div class="wcb-panel wcb-shown">
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-profile-bio"><?php esc_html_e( 'Bio / About Me', 'wp-career-board' ); ?></label>
+				<textarea id="wcb-profile-bio" class="wcb-field" rows="5"
+					placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>"
+					data-wp-bind--value="state.profileBio"
+					data-wp-on--input="actions.updateProfileBio"
+				></textarea>
+			</div>
+			<div class="wcb-form-actions" style="margin-top:var(--wcb-space-lg)">
+				<button type="button" class="wcb-cbtn wcb-cbtn--primary"
+					data-wp-on--click="actions.saveProfile"
+					data-wp-bind--disabled="state.profileSaving">
+					<span data-wp-class--wcb-hidden="state.profileSaving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.profileSaving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>
+				</button>
+				<span class="wcb-save-confirm" data-wp-class--wcb-shown="state.profileSaved"><?php esc_html_e( '✓ Saved', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Settings panel ─────────────────────────────────────────── -->
+	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isTabSettings">
+		<div class="wcb-panel-header">
+			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
+		</div>
+		<div class="wcb-panel wcb-shown">
+			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<span data-wp-text="state.profileEmail"></span>
+				</div>
+			</div>
+			<div class="wcb-settings-row">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<a class="wcb-cbtn wcb-cbtn--ghost" data-wp-bind--href="state.passwordResetUrl">
+						<?php esc_html_e( 'Reset Password', 'wp-career-board' ); ?> &#8599;
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	</main>
 

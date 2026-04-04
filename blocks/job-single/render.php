@@ -767,6 +767,20 @@ wp_interactivity_state(
 					data-wp-on--input="actions.updateCoverLetter"
 				></textarea>
 
+				<?php
+				/**
+				 * Hook: inject custom application fields (e.g. phone, portfolio URL, custom questions).
+				 *
+				 * Pro plugins can render additional form fields here. Fields should use
+				 * data-wp-on--input="actions.updateCustomField" with data-wcb-field="fieldKey"
+				 * so values are captured in the Interactivity API state.
+				 *
+				 * @since 1.0.0
+				 * @param int $wcb_job_id The job being applied to.
+				 */
+				do_action( 'wcb_application_form_fields', $wcb_job_id );
+				?>
+
 				<button
 					type="button"
 					class="wcb-btn wcb-btn--primary wcb-btn--full"

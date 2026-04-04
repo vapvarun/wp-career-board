@@ -147,6 +147,8 @@ wp_interactivity_state(
 		'applications'      => array(),
 		'appsLoading'       => false,
 		'appsError'         => '',
+		'employerEmail'     => wp_get_current_user()->user_email,
+		'passwordResetUrl'  => wp_lostpassword_url( $wcb_dashboard_url ),
 		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id ),
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'creditsEnabled'    => (bool) apply_filters( 'wcb_credits_enabled', false ),
@@ -246,8 +248,15 @@ wp_interactivity_state(
 			</a>
 			<?php endif; ?>
 			<?php endif; ?>
-		</nav>
 
+			<span class="wcb-nav-section-label"><?php esc_html_e( 'ACCOUNT', 'wp-career-board' ); ?></span>
+			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-settings"
+				data-wp-bind--aria-selected="state.isViewSettings"
+				data-wp-class--wcb-nav-active="state.isViewSettings"
+				data-wp-on--click="actions.switchToSettings">
+				<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
+			</button>
+		</nav>
 
 		<button type="button" class="wcb-sidebar-cta" data-wp-on--click="actions.switchToPostJob">
 			+ <?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?>
@@ -644,6 +653,29 @@ wp_interactivity_state(
 			}
 			?>
 		</div>
+
+	<!-- ── Settings panel ─────────────────────────────────────────── -->
+	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isViewSettings">
+		<div class="wcb-panel-header">
+			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
+		</div>
+		<div class="wcb-panel wcb-shown">
+			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<span data-wp-text="state.employerEmail"></span>
+				</div>
+			</div>
+			<div class="wcb-settings-row">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<a class="wcb-cbtn wcb-cbtn--ghost" data-wp-bind--href="state.passwordResetUrl">
+						<?php esc_html_e( 'Reset Password', 'wp-career-board' ); ?> &#8599;
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	</main>
 </div>
