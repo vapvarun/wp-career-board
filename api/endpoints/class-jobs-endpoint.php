@@ -171,6 +171,15 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		$board = $request->get_param( 'board' );
+		if ( $board ) {
+			$args['meta_query'][] = array(
+				'key'   => '_wcb_board_id',
+				'value' => absint( $board ),
+				'type'  => 'NUMERIC',
+			);
+		}
+
 		if ( $request->get_param( 'remote' ) ) {
 			$args['meta_query'][] = array(
 				'key'   => '_wcb_remote',

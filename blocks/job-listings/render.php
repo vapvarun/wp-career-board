@@ -240,6 +240,8 @@ $wcb_exp_opts      = array_map(
 	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
 );
 
+$wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
+
 if ( $wcb_author_id_attr > 0 ) {
 	$wcb_count_query = new \WP_Query(
 		array(
@@ -277,6 +279,7 @@ $wcb_state = array(
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+		'boards'      => $wcb_board_opts,
 	),
 	'strings'       => array(
 		'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
@@ -357,6 +360,17 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>"
 			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
 			<?php endforeach; ?>
+
+			<?php if ( $wcb_board_opts ) : ?>
+			<span class="wcb-chip-divider" aria-hidden="true"></span>
+			<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
+			<button type="button" class="wcb-chip"
+				data-wp-class--wcb-chip-active="state.isBoardActive"
+				data-wp-on--click="actions.toggleBoardChip"
+				data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'boardId' => $wcb_opt['id'], 'boardName' => $wcb_opt['name'] ) ) ); ?>"
+			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+			<?php endforeach; ?>
+			<?php endif; ?>
 		</div>
 
 		<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">

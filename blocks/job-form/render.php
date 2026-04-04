@@ -262,6 +262,20 @@ $wcb_step_labels = array(
 		data-wp-text="state.validationError"
 	></p>
 
+	<!-- ── Credit info banner ────────────────────────────────────────────── -->
+	<div
+		class="wcb-credit-banner"
+		data-wp-class--wcb-credit-banner--show="state.hasCreditCost"
+		data-wp-class--wcb-credit-banner--warn="state.insufficientCredits"
+	>
+		<span class="wcb-credit-banner__text" data-wp-text="state.creditMessage"></span>
+		<a
+			class="wcb-credit-banner__link"
+			data-wp-bind--href="state.creditPurchaseUrl"
+			data-wp-class--wcb-hidden="!state.insufficientCredits"
+		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
+	</div>
+
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
 		<span class="wcb-form-success__icon" aria-hidden="true">✓</span>
@@ -310,10 +324,21 @@ $wcb_step_labels = array(
 			</div>
 
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-job-desc">
-					<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
-					<span class="wcb-required" aria-hidden="true">*</span>
-				</label>
+				<div class="wcb-form-label-row">
+					<label class="wcb-form-label" for="wcb-job-desc">
+						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<span class="wcb-required" aria-hidden="true">*</span>
+					</label>
+					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
+					<button type="button" class="wcb-ai-btn"
+						data-wp-on--click="actions.generateDescription"
+						data-wp-bind--disabled="state.aiGenerating"
+					>
+						<span data-wp-class--wcb-hidden="state.aiGenerating">&#10024; <?php esc_html_e( 'Generate with AI', 'wp-career-board' ); ?></span>
+						<span data-wp-class--wcb-hidden="!state.aiGenerating"><?php esc_html_e( 'Generating…', 'wp-career-board' ); ?></span>
+					</button>
+					<?php endif; ?>
+				</div>
 				<textarea
 					id="wcb-job-desc"
 					class="wcb-field"

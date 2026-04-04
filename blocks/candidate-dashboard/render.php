@@ -410,6 +410,15 @@ wp_interactivity_state(
 							data-wp-on--click="actions.toggleNewResumeForm"
 							data-wp-bind--disabled="state.isAtResumesCap"
 						><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
+						<label class="wcb-cbtn wcb-cbtn--ghost wcb-upload-label" data-wp-bind--hidden="state.isAtResumesCap">
+							<?php esc_html_e( 'Upload CV', 'wp-career-board' ); ?>
+							<input
+								type="file"
+								class="wcb-sr-only"
+								accept=".pdf,.doc,.docx"
+								data-wp-on--change="actions.uploadResumeFile"
+							/>
+						</label>
 						<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
 					</div>
 					<div class="wcb-new-resume-form" data-wp-class--wcb-hidden="!state.showNewResumeForm">

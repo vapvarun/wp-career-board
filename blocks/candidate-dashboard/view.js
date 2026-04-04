@@ -479,6 +479,47 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
+		*uploadResumeFile( event ) {
+			const file = event.target?.files?.[ 0 ];
+			if ( ! file ) {
+				return;
+			}
+			event.target.value = '';
+
+			state.loading = true;
+			state.error   = '';
+
+			try {
+				const formData = new FormData();
+				formData.append( 'resume_file', file );
+
+				const response = yield fetch(
+					state.apiBase + '/candidates/resume-upload',
+					{
+						method: 'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+						body: formData,
+					}
+				);
+
+				const data = yield response.json();
+
+				if ( ! response.ok ) {
+					state.error = data.message || 'Upload failed.';
+					return;
+				}
+
+				if ( data.attachment_id ) {
+					state.resumeFileId  = data.attachment_id;
+					state.resumeFileUrl = data.url || '';
+				}
+			} catch {
+				state.error = 'Failed to upload resume file. Please try again.';
+			} finally {
+				state.loading = false;
+			}
+		},
+
 		requestDeleteConfirm() {
 			getContext().confirmingDelete = true;
 		},

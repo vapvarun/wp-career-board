@@ -485,6 +485,10 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	gap: var(--wcb-space-md);
 }
 
+.wcb-upload-label {
+	cursor: pointer;
+}
+
 .wcb-resume-cap-info {
 	font-size: var(--wcb-text-sm);
 	color: var( --wcb-text-muted );

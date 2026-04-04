@@ -49,6 +49,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! state.activeFilters.remote;
 		},
 
+		get isBoardActive() {
+			const ctx = getContext();
+			return !! state.activeFilters[ 'board_' + ctx.boardId ];
+		},
+
 		/** Array of { key, label } for active filter pills. */
 		get activeFilterChips() {
 			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
@@ -61,6 +66,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 					const slug = key.slice( 4 );
 					const match = state.filterOptions.experiences.find( ( e ) => e.slug === slug );
 					label = match ? match.name : slug;
+				} else if ( key.startsWith( 'board_' ) ) {
+					const id = parseInt( key.slice( 6 ), 10 );
+					const match = ( state.filterOptions.boards || [] ).find( ( b ) => b.id === id );
+					label = match ? match.name : value;
 				}
 				return { key, label };
 			} );
@@ -209,6 +218,23 @@ const { state, actions } = store( 'wcb-job-listings', {
 			yield actions.applyFilters();
 		},
 
+		// ── Board chip ────────────────────────────────────────────────
+		* toggleBoardChip() {
+			const ctx = getContext();
+			const key = 'board_' + ctx.boardId;
+			if ( state.activeFilters[ key ] ) {
+				const next = { ...state.activeFilters };
+				delete next[ key ];
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ key ]: String( ctx.boardId ),
+				};
+			}
+			yield actions.applyFilters();
+		},
+
 		// ── Remove single filter pill ─────────────────────────────────
 		* removeFilter() {
 			const ctx = getContext();
@@ -286,6 +312,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 					url.searchParams.set( 'salary_min', value );
 				} else if ( key === 'salary_max' && value ) {
 					url.searchParams.set( 'salary_max', value );
+				} else if ( key.startsWith( 'board_' ) ) {
+					url.searchParams.set( 'board', value );
 				}
 			}
 

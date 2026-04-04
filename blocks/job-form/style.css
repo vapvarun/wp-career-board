@@ -392,6 +392,68 @@ textarea.wcb-field {
 	display: block;
 }
 
+/* ── Label row (label + AI button side by side) ──────────────────────────── */
+.wcb-form-label-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-ai-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 12px;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-primary, #4f46e5);
+	background: var(--wcb-primary-ghost, #eef2ff);
+	border: 1px solid var(--wcb-primary-border, #c7d2fe);
+	border-radius: var(--wcb-radius-full);
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.wcb-ai-btn:hover {
+	background: var(--wcb-primary-hover-bg, #e0e7ff);
+}
+
+.wcb-ai-btn:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+/* ── Credit banner ────────────────────────────────────────────────────────── */
+.wcb-credit-banner {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-sm);
+	margin-bottom: var(--wcb-space-xl);
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1e40af;
+}
+
+.wcb-credit-banner--show {
+	display: flex;
+}
+
+.wcb-credit-banner--warn {
+	background: #fef3c7;
+	border-color: #fcd34d;
+	color: #92400e;
+}
+
+.wcb-credit-banner__link {
+	font-weight: var(--wcb-font-semibold);
+	color: inherit;
+	white-space: nowrap;
+}
+
 /* ── Success ──────────────────────────────────────────────────────────────── */
 .wcb-form-success {
 	display: none;
