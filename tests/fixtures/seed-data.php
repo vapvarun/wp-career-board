@@ -295,7 +295,10 @@ foreach ( $companies_data as $co ) {
 		}
 		// Link company to its employer user (both directions).
 		update_post_meta( $wcb_id, '_wcb_user_id', $employer_uid );
-		update_user_meta( $employer_uid, '_wcb_company_id', $wcb_id );
+		// Only set _wcb_company_id if not already set (first company = primary).
+		if ( ! get_user_meta( $employer_uid, '_wcb_company_id', true ) ) {
+			update_user_meta( $employer_uid, '_wcb_company_id', $wcb_id );
+		}
 		$company_ids[ $co['slug'] ] = $wcb_id;
 	}
 }

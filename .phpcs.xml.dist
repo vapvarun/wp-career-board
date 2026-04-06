@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<ruleset name="WP Career Board">
+	<description>WP Career Board Coding Standards — WordPress + wcb_ prefix enforcement</description>
+
+	<file>.</file>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<config name="testVersion" value="8.1-"/>
+	<config name="minimum_supported_wp_version" value="6.9"/>
+	<config name="text_domain" value="wp-career-board"/>
+
+	<!-- Exclude generated/vendor/dist directories -->
+	<exclude-pattern>dist/*</exclude-pattern>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>build/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
+
+	<!-- WordPress Coding Standards -->
+	<rule ref="WordPress"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
+
+	<!-- Enforce wcb_ prefix on all globals -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="wcb_"/>
+				<element value="WCB"/>
+			</property>
+		</properties>
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+	</rule>
+
+	<!-- Autoloader uses PascalCase-to-hyphenated filenames -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+	</rule>
+
+	<!-- i18n text domain -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-career-board"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Declare WCB custom capabilities -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="wcb_post_jobs"/>
+				<element value="wcb_manage_company"/>
+				<element value="wcb_view_applications"/>
+				<element value="wcb_apply_jobs"/>
+				<element value="wcb_manage_resume"/>
+				<element value="wcb_bookmark_jobs"/>
+				<element value="wcb_moderate_jobs"/>
+				<element value="wcb_manage_settings"/>
+				<element value="wcb_view_analytics"/>
+				<element value="wcb_access_employer_dashboard"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

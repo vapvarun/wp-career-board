@@ -77,6 +77,9 @@ $seed_employer_emails = array(
 	'jobs@example-figma.com',
 );
 
+// Legacy seed users from older versions — always clean up.
+$legacy_employer_logins = array( 'testemployer', 'sarah_hr', 'marcus_jobs', 'priya_recruit' );
+
 $seed_candidate_emails = array(
 	'sarah.chen@example.com',
 	'marcus.williams@example.com',
@@ -136,6 +139,45 @@ foreach ( array_merge( $seed_employer_emails, $seed_candidate_emails ) as $email
 		$all_seeded_user_ids[] = (int) $u->ID;
 	}
 }
+
+// ---------------------------------------------------------------------------
+// 0. Wizard sample data — "Acme Corp" company + "Senior PHP Developer" job
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '' );
+WP_CLI::log( '=== Cleaning up wizard sample data ===' );
+
+$acme = get_page_by_path( 'acme-corp', OBJECT, 'wcb_company' );
+if ( $acme ) {
+	// Delete any jobs linked to Acme Corp.
+	$acme_jobs = get_posts(
+		array(
+			'post_type'   => 'wcb_job',
+			'post_status' => 'any',
+			'numberposts' => -1,
+			'fields'      => 'ids',
+			'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'   => '_wcb_company_id',
+					'value' => $acme->ID,
+				),
+			),
+		)
+	);
+	foreach ( $acme_jobs as $aj ) {
+		wcb_cleanup_delete_post( (int) $aj );
+	}
+	wcb_cleanup_delete_post( (int) $acme->ID );
+}
+// Also catch the wizard job by slug if company link was lost.
+$wizard_job = get_page_by_path( 'senior-php-developer', OBJECT, 'wcb_job' );
+if ( $wizard_job ) {
+	$company_name = get_post_meta( $wizard_job->ID, '_wcb_company_name', true );
+	if ( 'Acme Corp' === $company_name ) {
+		wcb_cleanup_delete_post( (int) $wizard_job->ID );
+	}
+}
+delete_option( 'wcb_sample_data_installed' );
 
 // ---------------------------------------------------------------------------
 // 1. Applications — delete all applications belonging to seeded users / guests
@@ -240,6 +282,57 @@ foreach ( array_merge( $seed_candidate_emails, $seed_employer_emails ) as $email
 	if ( $u ) {
 		wcb_cleanup_delete_user( (int) $u->ID );
 	}
+}
+
+// Legacy users from older seed versions.
+WP_CLI::log( '' );
+WP_CLI::log( '=== Cleaning up legacy seed users ===' );
+
+foreach ( $legacy_employer_logins as $login ) {
+	$u = get_user_by( 'login', $login );
+	if ( $u ) {
+		wcb_cleanup_delete_user( (int) $u->ID );
+	}
+}
+
+// Clean ALL remaining wcb_candidate/wcb_employer users that are not in the current seed.
+$protected_emails = array_merge( $seed_candidate_emails, $seed_employer_emails );
+$wcb_roles        = array( 'wcb_candidate', 'wcb_employer' );
+foreach ( $wcb_roles as $role ) {
+	$leftover_users = get_users( array( 'role' => $role, 'number' => 100 ) );
+	foreach ( $leftover_users as $lu ) {
+		if ( ! in_array( $lu->user_email, $protected_emails, true ) ) {
+			wcb_cleanup_delete_user( (int) $lu->ID );
+		}
+	}
+}
+
+// Remove orphaned _wcb_company_id from admin user.
+$admin_company = get_user_meta( 1, '_wcb_company_id', true );
+if ( $admin_company && ! get_post( (int) $admin_company ) ) {
+	delete_user_meta( 1, '_wcb_company_id' );
+	WP_CLI::log( '  → removed orphaned _wcb_company_id from admin user' );
+}
+
+// Remove orphaned _wcb_bookmark entries for all users.
+global $wpdb;
+$orphaned_bookmarks = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	"DELETE um FROM {$wpdb->usermeta} um
+	LEFT JOIN {$wpdb->posts} p ON um.meta_value = p.ID AND p.post_status = 'publish'
+	WHERE um.meta_key = '_wcb_bookmark' AND p.ID IS NULL"
+);
+if ( $orphaned_bookmarks ) {
+	WP_CLI::log( "  → removed {$orphaned_bookmarks} orphaned bookmark(s)" );
+}
+
+// Remove orphaned _wcb_company_id from all users.
+$orphaned_companies = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	"DELETE um FROM {$wpdb->usermeta} um
+	LEFT JOIN {$wpdb->posts} p ON um.meta_value = p.ID AND p.post_type = 'wcb_company'
+	WHERE um.meta_key = '_wcb_company_id' AND p.ID IS NULL"
+);
+if ( $orphaned_companies ) {
+	WP_CLI::log( "  → removed {$orphaned_companies} orphaned company link(s)" );
 }
 
 // ---------------------------------------------------------------------------

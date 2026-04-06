@@ -337,6 +337,42 @@ class AdminSettings {
 	 */
 	public function render_import_tab(): void {
 		( new AdminImport() )->render();
+
+		// Sample data removal section.
+		if ( get_option( 'wcb_sample_data_installed', false ) ) :
+			?>
+			<div class="wcb-settings-section__block" style="margin-top: 2rem;">
+				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'Remove the demo companies and jobs created by the setup wizard.', 'wp-career-board' ); ?></p>
+				<button type="button" id="wcb-remove-sample-data" class="button button-secondary" style="margin-top: 0.5rem;">
+					<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
+				</button>
+				<span id="wcb-remove-sample-status" style="margin-left: 0.5rem;"></span>
+				<script>
+				document.getElementById('wcb-remove-sample-data')?.addEventListener('click', function() {
+					var btn = this;
+					var status = document.getElementById('wcb-remove-sample-status');
+					btn.disabled = true;
+					btn.textContent = '<?php echo esc_js( __( 'Removing…', 'wp-career-board' ) ); ?>';
+					fetch(wcbAdmin.restUrl + 'wizard/remove-sample-data', {
+						method: 'POST',
+						headers: { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' },
+					})
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						status.textContent = '<?php echo esc_js( __( 'Removed!', 'wp-career-board' ) ); ?>';
+						btn.closest('.wcb-settings-section__block').style.display = 'none';
+					})
+					.catch(function() {
+						status.textContent = '<?php echo esc_js( __( 'Error — please try again.', 'wp-career-board' ) ); ?>';
+						btn.disabled = false;
+						btn.textContent = '<?php echo esc_js( __( 'Remove Sample Data', 'wp-career-board' ) ); ?>';
+					});
+				});
+				</script>
+			</div>
+			<?php
+		endif;
 	}
 
 	/**
