@@ -21,9 +21,9 @@ PLUGIN_DATA = {
     'edd_item_id': EDD_ITEM_ID,
 
     # Hero
-    'badge':   '🚀 Kanban Pipeline · Multi-Board · Stripe · Resume Search',
+    'badge':   '🚀 Kanban Pipeline · Multi-Board · Credits · Resume Search',
     'h1':      'Your job board is growing. Your hiring tools should grow with it.',
-    'subhead':  'WP Career Board Pro adds an ATS-style Kanban pipeline, unlimited boards, resume search, and Stripe monetization to the free WP Career Board plugin. Everything your community\'s hiring process needs — inside WordPress.',
+    'subhead':  'WP Career Board Pro adds an ATS-style Kanban pipeline, unlimited boards, resume search, and WooCommerce monetization to the free WP Career Board plugin. Everything your community\'s hiring process needs — inside WordPress.',
 
     # Problem section
     'problem_headline': 'The free version handles posting and applying. Pro handles hiring at scale.',
@@ -41,18 +41,18 @@ PLUGIN_DATA = {
     'differentiator_1_title': 'Kanban pipeline inside WordPress',
     'differentiator_1_body':  'No other WordPress job board plugin offers a configurable Kanban hiring pipeline. Every ATS that does is a separate SaaS subscription. WP Career Board Pro does it inside your existing WordPress install — with your data, on your server.',
     'differentiator_2_title': 'Multiple boards with per-board everything',
-    'differentiator_2_body':  'Run "Tech Jobs", "Marketing Jobs", and "Remote Only" as completely independent boards — each with its own jobs, employers, pipeline stages, and Stripe credit pricing — from a single WordPress install. No other plugin does this.',
-    'differentiator_3_title': 'Stripe monetization with no platform cut',
-    'differentiator_3_body':  'Charge employers to post jobs via Stripe credit packages. You keep 100% of revenue minus Stripe\'s standard processing fee. There is no Wbcom platform percentage, no per-posting royalty, no revenue sharing.',
+    'differentiator_2_body':  'Run "Tech Jobs", "Marketing Jobs", and "Remote Only" as completely independent boards — each with its own jobs, employers, pipeline stages, and credit pricing — from a single WordPress install. No other plugin does this.',
+    'differentiator_3_title': 'WooCommerce monetization with no platform cut',
+    'differentiator_3_body':  'Charge employers to post jobs via WooCommerce credit packages. You keep 100% of revenue minus your payment gateway\'s processing fee. There is no Wbcom platform percentage, no per-posting royalty, no revenue sharing.',
 
     # Features section
     'features_heading': 'Pro features. One license. No add-on stacking.',
     'features': [
         ('Application Pipeline — Kanban board',  'Configurable hiring stages with drag-and-drop Kanban view. Define Screening, Interview, Offer, and any other stage you need. Per-board stage configuration.'),
-        ('Multi-Board Engine',                   'Run unlimited independent job boards from one WordPress install — each with its own jobs, employers, pipeline stages, and Stripe credit pricing.'),
+        ('Multi-Board Engine',                   'Run unlimited independent job boards from one WordPress install — each with its own jobs, employers, pipeline stages, and WooCommerce credit pricing.'),
         ('Resume Builder + Search',              'Candidates build structured resumes inside WordPress. Employers search by skills, location, and experience. Active recruiting, not just passive application review.'),
         ('Job Alerts',                           'Candidates subscribe to keyword and location combinations. New matching jobs trigger immediate email notifications — keeps candidates engaged between visits.'),
-        ('Stripe Credit System',                 'Create credit packages at any price. Employers buy via Stripe Checkout. Credits added automatically via webhook. 100% revenue to you minus Stripe\'s fee.'),
+        ('WooCommerce Credit System',            'Create credit packages as WooCommerce products. Employers purchase through your store with any payment gateway. Credits added automatically on order completion. 100% revenue to you minus gateway fees.'),
         ('Custom Field Builder',                 'Add custom fields to job listings, company profiles, and candidate profiles — text, select, checkbox, date, file upload. No code required.'),
         ('Job Map',                              'Geographic map view of job listings. Candidates filter by radius and see jobs plotted by location — essential for location-specific boards.'),
         ('AI Job Description Writing',           'AI-assisted job description generation from within the Post a Job form. Employers enter a role title and key requirements — AI drafts the description.'),
@@ -71,7 +71,7 @@ PLUGIN_DATA = {
 
     # Pricing — three tiers
     'pricing_heading': "One license. All Pro features. No add-on stacking.",
-    'pricing_support': '<p>All tiers include every Pro feature: Kanban pipeline, multi-board, resume search, Stripe credits, custom fields, AI writing, job alerts, job map, and job feed. The only difference is the number of site licenses. Requires the free WP Career Board plugin.</p>',
+    'pricing_support': '<p>All tiers include every Pro feature: Kanban pipeline, multi-board, resume search, WooCommerce credits, custom fields, AI writing, job alerts, job map, and job feed. The only difference is the number of site licenses. Requires the free WP Career Board plugin.</p>',
     'annual_prices':   [49, 79, 149],
     'lifetime_prices': [149, 199, 399],
     'annual_descs': [
@@ -85,12 +85,12 @@ PLUGIN_DATA = {
         'Unlimited lifetime deployment for agencies',
     ],
     'annual_includes': [
-        ['1 site license', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'Stripe Credit System', '1 year of updates & support'],
+        ['1 site license', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'WooCommerce Credit System', '1 year of updates & support'],
         ['5 site licenses', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'Custom Field Builder', 'Priority support', '1 year of updates & support'],
         ['Unlimited site licenses', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine + Custom Fields + AI + Job Feed', 'White-label ready', 'Priority support', '1 year of updates & support'],
     ],
     'lifetime_includes': [
-        ['1 site license', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'Stripe Credit System', 'Lifetime updates & support'],
+        ['1 site license', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'WooCommerce Credit System', 'Lifetime updates & support'],
         ['5 site licenses', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine', 'Resume Builder + Search', 'Custom Field Builder', 'Priority support', 'Lifetime updates & support'],
         ['Unlimited site licenses', 'All Pro features included', 'Application Pipeline (Kanban)', 'Multi-Board Engine + Custom Fields + AI + Job Feed', 'White-label ready', 'Priority support', 'Lifetime updates & support'],
     ],
@@ -100,9 +100,9 @@ PLUGIN_DATA = {
         ('Do I need the free plugin too?',
          'Yes. WP Career Board Pro extends the free WP Career Board plugin — both must be active on your site. Pro adds features on top of the free foundation; it doesn\'t replace it. The free plugin is available at wbcomdesigns.com/downloads/wp-career-board/.'),
         ('What\'s included in every Pro tier?',
-         'All tiers include the full Pro feature set: Application Pipeline (Kanban), Multi-Board Engine, Resume Builder and Search, Job Alerts, Job Map, Stripe Credit System, Custom Field Builder, AI job description writing, and Job Feed. The difference between tiers is the number of site licenses.'),
-        ('How does the Stripe Credit System work?',
-         'You create credit packages at any price (e.g., 1 post for $29, 5 posts for $99). Employers buy packages via Stripe Checkout. When payment completes, Stripe sends a webhook to your site and credits are added automatically. You receive 100% of the purchase price minus Stripe\'s standard processing fee — there is no Wbcom cut.'),
+         'All tiers include the full Pro feature set: Application Pipeline (Kanban), Multi-Board Engine, Resume Builder and Search, Job Alerts, Job Map, WooCommerce Credit System, Custom Field Builder, AI job description writing, and Job Feed. The difference between tiers is the number of site licenses.'),
+        ('How does the Credit System work?',
+         'You create credit packages as WooCommerce products at any price (e.g., 1 post for $29, 5 posts for $99). Employers purchase through your WooCommerce store using any payment gateway. When the order completes, credits are added automatically. You receive 100% of the purchase price minus your gateway\'s processing fee — there is no Wbcom cut. Also works with Paid Memberships Pro and MemberPress.'),
         ('Can I run two separate job boards from one WordPress install?',
          'Yes — that\'s the Multi-Board Engine. Create as many boards as you need, each with its own jobs, employers, pipeline stages, and credit pricing. A Board Switcher block lets visitors tab between boards on one page.'),
         ('Is there a money-back guarantee?',

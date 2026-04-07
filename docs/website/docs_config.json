@@ -2,7 +2,7 @@
   "product_name": "WP Career Board",
   "product_slug": "wp-career-board",
   "product_type": "plugin",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "tagline": "The community-powered job board for WordPress",
   "categories": [
     {
@@ -60,7 +60,12 @@
       "label": "Pro Features",
       "docs": [
         "01-job-map.md",
-        "02-multi-board.md"
+        "02-multi-board.md",
+        "03-ai-features.md",
+        "04-analytics.md",
+        "05-job-feed.md",
+        "06-pwa.md",
+        "07-migration.md"
       ]
     },
     {

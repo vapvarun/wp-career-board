@@ -10,7 +10,7 @@
 **Headline:** Charge employers to post jobs — keep 100% of the revenue
 
 **Subheadline:**
-WP Career Board Pro's Credit System uses Stripe to let you sell credit packages to employers. They buy credits, spend credits to post jobs. You set the prices. No platform percentage.
+WP Career Board Pro's Credit System lets you sell credit packages to employers through WooCommerce — works with any payment gateway. They buy credits, spend credits to post jobs. You set the prices. No platform percentage.
 
 **CTA:** Upgrade to Pro
 
@@ -25,25 +25,27 @@ Running a niche job board means you're providing employers with access to a spec
 The Credit System works like this:
 
 1. **You create credit packages** — "1 job post for $29", "5 posts for $99", "10 posts for $179"
-2. **Employers buy credits** via Stripe Checkout — card, Apple Pay, Google Pay
-3. **Credits are added to their balance automatically** when payment confirms (Stripe webhook)
+2. **Employers purchase credits** through your WooCommerce store — using whatever payment gateway you already have configured (Stripe, PayPal, Razorpay, or any other)
+3. **Credits are added to their balance automatically** when the WooCommerce order completes
 4. **When they post a job**, credits are deducted from their balance
 5. **If their balance is zero**, they're prompted to buy more before posting
+
+**Membership integration:** Using Paid Memberships Pro or MemberPress? Assign credit allocations to membership levels — members receive credits automatically when they subscribe or renew.
 
 ---
 
 ## SECTION 2: SETUP
 
-**Heading:** Connected to Stripe in four steps
+**Heading:** Selling credits in four steps
 
 1. Install WP Career Board Pro and activate the Credit System module
-2. Go to **WP Career Board → Settings → Credits** and enter your Stripe API keys
-3. Paste the webhook URL shown in settings into your Stripe Dashboard
-4. Create your credit packages — set the name, price, and credit count
+2. Go to **WP Career Board → Settings → Credits** and create your credit packages — set the name, price, and credit count
+3. Each package automatically creates a linked WooCommerce product — or map packages to existing products
+4. Employers purchase from your store, and credits are added to their balance when the order is marked complete
 
-**Visual:** `credits-stripe-keys.png` — settings screen with API key fields
+**Visual:** `credits-package-setup.png` — credit package configuration screen
 
-**Visual:** `credits-stripe-webhook.png` — webhook configuration
+**Visual:** `credits-woocommerce-product.png` — linked WooCommerce product
 
 ---
 
@@ -61,9 +63,9 @@ The Credit System works like this:
 
 **Heading:** A clean checkout, no friction
 
-Employers click "Buy Credits" on their dashboard. They choose a package and go through Stripe Checkout — the same payment flow they use on major e-commerce sites.
+Employers click "Buy Credits" on their dashboard. They choose a package and complete the purchase through your WooCommerce checkout — using whatever payment method you offer.
 
-When the payment completes, Stripe sends a webhook to your site and credits are added automatically. The employer sees their updated balance immediately.
+When the order completes, credits are added automatically. The employer sees their updated balance immediately.
 
 **Visual:** `credits-package-add.png` — package selection screen
 
@@ -73,7 +75,7 @@ When the payment completes, Stripe sends a webhook to your site and credits are 
 
 | | WP Career Board Pro | Job Board SaaS |
 |---|---|---|
-| Revenue | You keep 100% (minus Stripe fee) | Platform takes a cut or charges per posting |
+| Revenue | You keep 100% (minus gateway fees) | Platform takes a cut or charges per posting |
 | Data | Your WordPress database | Third-party platform |
 | Customization | Block editor + field builder | Whatever the platform allows |
 | Pricing model | One plugin license | Monthly/annual subscription |

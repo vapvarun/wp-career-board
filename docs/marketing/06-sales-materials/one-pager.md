@@ -60,7 +60,7 @@ WP Career Board is built entirely on Gutenberg blocks and the WordPress Interact
 | Resume Builder | Candidates build structured resumes; employers search |
 | Job Alerts | Email + push alerts for matching jobs |
 | Job Map | Geographic map view of listings |
-| Credit System | Stripe payments — charge employers to post |
+| Credit System | WooCommerce payments — charge employers to post |
 | Custom Field Builder | Add fields to jobs, companies, candidates |
 | AI Settings | AI-assisted job description writing |
 | Job Feed | RSS / JSON / XML output |

@@ -46,7 +46,7 @@ Add the following to your privacy policy to inform users what data WP Career Boa
 - Account registration data (name, email)
 - Job applications including cover letters
 - Activity logs for job board interactions
-- No payment data is stored (payments processed by Stripe in Pro version)
+- No payment data is stored (payments are processed by your e-commerce plugin — WooCommerce, PMPro, or MemberPress — not by WP Career Board directly)
 
 ## Cookie Usage
 

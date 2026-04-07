@@ -88,7 +88,7 @@ PLUGIN_DATA = {
     # FAQ
     'faq': [
         ('Is the free version actually free, or is it a limited trial?',
-         'Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, reCAPTCHA, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and Stripe monetization.'),
+         'Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, reCAPTCHA, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and WooCommerce monetization.'),
         ('Do I get WP Career Board if I have a Reign Theme license?',
          'Yes. WP Career Board is included with all Reign Theme licenses. Log in to your Wbcom account, go to Downloads, and download WP Career Board. Run the Setup Wizard and the Reign integration activates automatically.'),
         ('Does it require BuddyPress?',

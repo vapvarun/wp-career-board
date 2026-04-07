@@ -29,7 +29,7 @@ Most job board plugins charge extra for all of that.
 
 5/ Included with Reign Theme. Works with BuddyX Pro and BuddyBoss Platform.
 
-Pro version adds: Kanban pipeline, multi-board, resume search, Stripe credits, custom field builder, AI writing.
+Pro version adds: Kanban pipeline, multi-board, resume search, WooCommerce credits, custom field builder, AI writing.
 
 Get it: [link]
 

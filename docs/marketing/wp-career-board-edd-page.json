@@ -9111,7 +9111,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, reCAPTCHA, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and Stripe monetization.",
+                        "editor": "Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, reCAPTCHA, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and WooCommerce monetization.",
                         "align": "left",
                         "typography_typography": "custom",
                         "text_color": "#001347",

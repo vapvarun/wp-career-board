@@ -103,7 +103,7 @@ The free version handles the full job board workflow. Pro is for specific scenar
 
 - You want to track candidates in a Kanban pipeline (Screening → Interview → Offer → Hired) instead of the 5-status list
 - You need multiple independent job boards from one install ("Tech Jobs", "Remote Only", etc.)
-- You want to charge employers for job postings via Stripe
+- You want to charge employers for job postings through WooCommerce
 - Employers need to search your candidate resume database
 - You want candidates to set up job alerts for matching listings
 - You need custom fields on job listings, company profiles, or candidate profiles

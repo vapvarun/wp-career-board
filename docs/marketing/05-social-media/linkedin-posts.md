@@ -63,7 +63,7 @@ WP Career Board is free and handles:
 - Job moderation
 - GDPR data requests
 
-For sites that need more, WP Career Board Pro adds a Kanban pipeline, multiple boards, resume search, and a Stripe credit system — one license, no recurring platform fee.
+For sites that need more, WP Career Board Pro adds a Kanban pipeline, multiple boards, resume search, and a WooCommerce credit system — one license, no recurring platform fee.
 
 ---
 

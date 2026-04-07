@@ -53,4 +53,47 @@ Go to **WP Career Board → Settings → Notifications** to set:
 
 For reliable email delivery, use an SMTP plugin (WP Mail SMTP, FluentSMTP, or similar). WordPress's built-in mail function can land in spam without SMTP configuration.
 
-> **With WP Career Board Pro:** advanced notification channels are available — SendGrid, Mailgun, Amazon SES, Twilio SMS, and browser push notifications via VAPID keys.
+---
+
+## Pro Email Notifications (Pro)
+
+WP Career Board Pro extends the email system with three additional transactional emails. You can customise the subject line and enable or disable each one from **Career Board -> Settings -> Emails**.
+
+### Job Alert Digest
+
+- **Recipient:** Candidate
+- **Trigger:** Fired when the Job Alerts module finds new jobs matching a candidate's saved search
+- **Content:** A list of matching job titles with direct links
+
+### Credit Top-Up Confirmation
+
+- **Recipient:** Employer
+- **Trigger:** When a credit purchase completes via a supported payment gateway (WooCommerce, Paid Memberships Pro, or MemberPress)
+- **Content:** Confirmation of the purchase and updated balance
+
+### Low Credit Balance Warning
+
+- **Recipient:** Employer
+- **Trigger:** Fired when an employer's credit balance reaches zero
+- **Content:** Balance warning and a link to the Employer Dashboard to purchase more credits
+
+### Email Template Customisation
+
+All Pro emails use the same templating system as Free emails. To override a template, copy the relevant file from `modules/notifications-pro/templates/emails/` into your theme's `woocommerce/` folder or use the `wcb_email_template_dirs` filter to add a custom template directory.
+
+## In-App Notification Bell (Pro)
+
+The notification bell appears in the Employer Dashboard and Candidate Dashboard. It shows a live unread count and drops down to display a list of recent notifications, each with a message and a link to the relevant page.
+
+### Events That Trigger Bell Notifications
+
+| Event | Who Receives It | Message Example |
+|-------|----------------|----------------|
+| Application submitted | Employer | "Jane Doe applied for Senior PHP Developer" |
+| Application submitted | Candidate | "Your application for Senior PHP Developer was submitted" |
+| Application status changed | Candidate | "Your application for Senior PHP Developer is now Shortlisted" |
+| Job approved | Employer | "Your job 'Senior PHP Developer' has been approved" |
+| Job rejected | Employer | "Your job 'Senior PHP Developer' was not approved" |
+| Job expired | Employer | "Your job 'Senior PHP Developer' has expired" |
+
+All notifications are stored in the `wcb_notifications` database table. The `is_read` flag is set to `0` on insert. The bell badge count reflects the number of unread rows for the current user.

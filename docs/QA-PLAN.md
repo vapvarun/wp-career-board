@@ -232,7 +232,7 @@ Run manually before each release using Playwright MCP tools.
 | B30 | Setup Wizard | `/wp-admin/admin.php?page=wcb-wizard` | Steps complete, pages created, sample data install/remove |
 | B31 | Field Builder (Pro) | `/wp-admin/admin.php?page=wcb-fields` | Groups + fields CRUD, drag-reorder |
 | B32 | Boards (Pro) | `/wp-admin/admin.php?page=wcb-boards` | Board list, stage editor, create/edit board |
-| B33 | Credits Config (Pro) | `/wp-admin/admin.php?page=wcb-credits` | Package CRUD, Stripe keys, transaction log |
+| B33 | Credits Config (Pro) | `/wp-admin/admin.php?page=wcb-settings#credits` | Credit mappings, provider detection, admin adjustments |
 | B34 | Import | `/wp-admin/admin.php?page=wcb-import` | WPJM import UI, CSV upload (Pro) |
 
 #### 4e. Responsive (390px viewport)

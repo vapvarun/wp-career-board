@@ -49,7 +49,7 @@
 | GDPR — personal data export + erasure | ✓ | ✓ |
 | Admin jobs/applications/employers list tables | ✓ | ✓ |
 | **MONETIZATION** | | |
-| Stripe Credit System | — | ✓ |
+| WooCommerce Credit System | — | ✓ |
 | Credit packages (one-time + recurring) | — | ✓ |
 | Per-board credit pricing | — | ✓ |
 | **AI** | | |
@@ -76,7 +76,7 @@
 | JobPosting schema.org | ✓ | Partial | — | — |
 | Kanban pipeline | Pro | Add-on ($) | Pro | Pro |
 | Multi-board | Pro | — | Pro | Pro |
-| Stripe monetization | Pro | Add-on ($) | Pro | Pro |
+| WooCommerce monetization | Pro | Add-on ($) | Pro | Pro |
 | Resume builder | Pro | Add-on ($) | Pro | Pro |
 | No jQuery | ✓ | — | — | — |
 | No shortcodes required | ✓ | — | — | — |
@@ -92,7 +92,7 @@ Reign Theme users get the free version bundled. Here's what Pro adds:
 | Track hiring like an ATS | Application Pipeline — Kanban board + custom stages |
 | Run multiple community job boards | Multi-Board Engine |
 | Let employers find candidates | Resume Builder + Resume Search |
-| Charge for job postings | Stripe Credit System |
+| Charge for job postings | WooCommerce Credit System |
 | Notify members of new jobs automatically | Job Alerts |
 | Show jobs on a map | Job Map |
 | Accept applications with a custom form | Custom Field Builder |

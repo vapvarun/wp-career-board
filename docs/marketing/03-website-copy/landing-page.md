@@ -35,7 +35,7 @@ Whether you're running a BuddyPress community, a niche job board, or a startup h
 Add a job board to your BuddyPress or Reign Theme site. Job posts appear in the activity stream. Employer and candidate profiles connect to your existing member directory.
 
 **Niche Job Boards**
-Run one board or ten from a single install. Charge employers with the built-in Stripe credit system. Attract candidates with a fast, filterable job directory.
+Run one board or ten from a single install. Charge employers with the built-in credit system via WooCommerce. Attract candidates with a fast, filterable job directory.
 
 **Company Career Pages**
 Post open roles on your own website. Track applicants in a Kanban pipeline. Send automatic status update emails. No SaaS subscription required.
@@ -127,7 +127,7 @@ Permissions are declared with `wp_register_ability()` and checked with `wp_is_au
 | Resume management | View resumes | Resume Builder + employer search |
 | Job alerts | — | Email + push alerts |
 | Job feed | — | RSS/JSON + XML sitemap |
-| Monetization | — | Stripe credit system |
+| Monetization | — | Credit system (WooCommerce) |
 | Custom fields | — | Field Builder (jobs, companies, candidates) |
 | AI features | — | AI-assisted job description writing |
 | BuddyPress | Full integration | Full integration |
@@ -183,7 +183,7 @@ A: Yes. Guest applications are enabled by default — candidates submit their na
 A: No JavaScript framework is loaded. The frontend runs on the WordPress Interactivity API, which is already part of the WP core bundle. The admin interface uses no additional JavaScript libraries either.
 
 **Q: Can I monetize the job board (charge employers)?**
-A: With Pro. The credit system lets you create credit packages at any price, process payments via Stripe, and require employers to spend credits to post jobs.
+A: With Pro. The credit system lets you create credit packages at any price, sell them through your WooCommerce store using any payment gateway, and require employers to spend credits to post jobs.
 
 ---
 

@@ -93,7 +93,7 @@
 **VISUAL:** wbcomdesigns.com product page
 
 **NARRATOR:**
-"The free version handles the full employer-to-hire workflow. WP Career Board Pro adds a Kanban pipeline, multiple boards, resume search, Stripe monetization, and more. Link in the description."
+"The free version handles the full employer-to-hire workflow. WP Career Board Pro adds a Kanban pipeline, multiple boards, resume search, WooCommerce credit system, and more. Link in the description."
 
 **ON-SCREEN TEXT:** wbcomdesigns.com/downloads/wp-career-board/
 

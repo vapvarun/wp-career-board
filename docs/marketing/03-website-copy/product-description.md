@@ -26,7 +26,7 @@ WP Career Board is a full-featured job board plugin built entirely on Gutenberg 
 - BuddyPress integration — job activity in feeds, employer/candidate member types
 - Reign Theme — included in Reign Theme licenses, integrates automatically
 
-**WP Career Board Pro adds:** Application Pipeline (Kanban), Multi-Board Engine, Resume Builder, Job Alerts, Job Map, Stripe Credit System, Custom Field Builder, AI writing assistance, and more.
+**WP Career Board Pro adds:** Application Pipeline (Kanban), Multi-Board Engine, Resume Builder, Job Alerts, Job Map, WooCommerce Credit System, Custom Field Builder, AI writing assistance, and more.
 
 Built by Wbcom Designs — makers of Reign Theme, BuddyX Pro, and 100+ WordPress plugins.
 
@@ -83,7 +83,7 @@ WP Career Board Pro extends the free version with:
 
 **Job Map** — A geographic map view of job listings. Candidates filter by radius and see jobs plotted by location.
 
-**Credit System** — Create credit packages at any price, process payments via Stripe, and require employers to spend credits to post jobs. Recurring packages and per-listing pricing both supported.
+**Credit System** — Create credit packages at any price, sell them through WooCommerce with any payment gateway, and require employers to spend credits to post jobs. Recurring packages and per-listing pricing both supported. Also integrates with Paid Memberships Pro and MemberPress for membership-based credit allocation.
 
 **Custom Field Builder** — Add custom fields to job listings, company profiles, and candidate profiles — no code required. Text, textarea, number, select, checkbox, date, URL, and file upload. Set visibility per field (public, logged in, employer only, candidate only).
 

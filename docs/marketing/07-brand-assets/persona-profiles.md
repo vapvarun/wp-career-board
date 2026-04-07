@@ -72,12 +72,12 @@
 - Site speed suffers when adding feature-heavy plugins
 
 ### Why WP Career Board Appeals
-- Pro Credit System with Stripe lets him charge employers for job posts — no per-transaction platform fee
+- Pro Credit System with WooCommerce lets him charge employers for job posts — works with any payment gateway, no per-transaction platform fee
 - Interactivity API frontend is fast — good Core Web Vitals without extra optimization work
 - Multi-Board Engine (Pro) lets him run separate boards (e.g., "Full-Time", "Contract", "Remote") from one install
 
 ### Key Message
-> "Charge employers directly via Stripe, no marketplace middleman. Run as many boards as you need from one WordPress install."
+> "Charge employers through WooCommerce with any payment gateway, no marketplace middleman. Run as many boards as you need from one WordPress install."
 
 ---
 

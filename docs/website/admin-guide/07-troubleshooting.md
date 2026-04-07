@@ -103,16 +103,19 @@ If a user registered via the standard WordPress login page, they won't have a jo
 
 ## Credit System (Pro)
 
-### The Stripe payment isn't completing
+### Credits were purchased but not added to the employer's balance
 
-1. Confirm you are using the correct API keys for your environment — test keys for staging, live keys for production.
-2. Go to **WP Career Board → Settings → Credits** and verify the Stripe Secret Key and Publishable Key are entered correctly.
-3. **Webhooks** — Stripe requires a webhook endpoint to confirm payment. The webhook URL is shown in **Settings → Credits**. Paste it into your Stripe Dashboard under **Developers → Webhooks** and enable the `checkout.session.completed` event.
-4. Test with Stripe's built-in test card numbers (`4242 4242 4242 4242`) before going live.
+Credits are added when the WooCommerce order status changes to "completed" (or the equivalent event for PMPro/MemberPress). If credits are missing after a purchase:
 
-### Credits were paid but not added to the employer's balance
+1. **Check order status** — go to **WooCommerce → Orders** and confirm the order is marked "Completed", not "Processing" or "On Hold". Some payment gateways (e.g., bank transfer) leave orders in a non-completed state until manually updated.
+2. **Check the credit mapping** — go to **WP Career Board → Settings → Credits → Credit Mappings** and confirm the purchased product is mapped to a credit amount. If the product is not mapped, no credits are granted.
+3. **Check Detected Providers** — at the bottom of the Credits tab, confirm your payment plugin (WooCommerce, PMPro, or MemberPress) is listed as detected. If it is not shown, activate the plugin and refresh.
+4. **Check the debug log** — enable `WP_DEBUG_LOG` in `wp-config.php` and look for `wcb_credits` entries in `wp-content/debug.log`. The Wbcom Credits SDK logs all credit operations.
+5. **Manual fix** — go to **WP Career Board → Employers**, click the employer's name, and use **Admin Credit Adjustment** to manually add the missing credits with a note explaining the reason.
 
-This is almost always a webhook delivery failure. In the Stripe Dashboard, go to **Developers → Webhooks**, find your endpoint, and check the event log. Re-deliver failed events manually if needed.
+### Employer says "Insufficient credits" but they just purchased
+
+The employer's browser may be showing a cached page. Ask them to refresh the Employer Dashboard. If the issue persists, check the order status and credit mapping as described above.
 
 ---
 

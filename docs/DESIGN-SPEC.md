@@ -49,7 +49,7 @@
 | BuddyPress basic integration | ✓ | ✓ |
 | WCAG 2.1 AA + GDPR basics | ✓ | ✓ |
 | Multi-board engine | ✗ | ✓ |
-| Credit system + Stripe + webhooks | ✗ | ✓ |
+| Credit system + WooCommerce/PMPro adapters | ✗ | ✓ |
 | No-code field builder | ✗ | ✓ |
 | Resume builder (repeater groups) | ✗ | ✓ |
 | Stage pipeline ATS | ✗ | ✓ |
@@ -105,7 +105,7 @@ wp-career-board/
 ├── modules/
 │   ├── boards/              # Multi-board engine
 │   ├── fields/              # No-code field builder
-│   ├── credits/             # Credit ledger + Stripe + webhooks
+│   ├── credits/             # Credit ledger + WooCommerce/PMPro adapters
 │   ├── jobs/                # Job listing CPT + taxonomies
 │   ├── employers/           # Company profiles + dashboards
 │   ├── candidates/          # Resume builder + profiles
@@ -238,9 +238,12 @@ No-code drag-and-drop field builder scoped per board + entity (job, company, can
 ### Module 3 — Credits
 Append-only credit ledger per employer. Credits are the platform currency.
 
-**Top-up methods:**
-- Stripe Checkout (native)
-- Webhook receiver (signed payload — any external system: WooCommerce, EDD, custom)
+**Top-up methods (via Wbcom Credits SDK adapters):**
+- WooCommerce (product purchase → auto-topup)
+- Paid Memberships Pro (membership signup → auto-topup)
+- MemberPress (subscription → auto-topup)
+- WooCommerce Subscriptions (recurring → auto-topup)
+- Admin manual adjustment
 
 **Credit packages** defined in admin (e.g., 10 credits = $29). Each board sets its own credit cost per job.
 
@@ -396,7 +399,7 @@ Admin dashboard: total jobs, applications, employers, candidates, credits issued
 
 | Service / Plugin | What it unlocks | Connection |
 |-----------------|-----------------|------------|
-| Stripe | Credit top-up via Checkout | PHP SDK, API keys |
+| WooCommerce | Credit top-up via product purchase | Adapter, credit mappings |
 | OpenAI | AI features (GPT-4 + embeddings) | API key |
 | Anthropic Claude | Alternative AI provider | API key |
 | Ollama | Local AI, no API cost | Server URL |
@@ -444,7 +447,7 @@ All blocks powered by WordPress Interactivity API. Zero page reloads in any user
 | `wcb/employer-dashboard` | Tabbed: My Jobs, Applications, Company Profile, Credits, Analytics. |
 | `wcb/job-form` | Multi-step job posting form. Live credit cost preview. AI description generator. |
 | `wcb/application-list` | Per-job applications. Stage pipeline Kanban (drag-and-drop). AI score per application. |
-| `wcb/credit-balance` | Live credit balance. Buy credits → Stripe Checkout. |
+| `wcb/credit-balance` | Live credit balance. Buy credits → links to purchase page. |
 | `wcb/company-profile-editor` | Inline editable. Logo + banner upload. Live preview. |
 
 ### Content Blocks
@@ -526,9 +529,8 @@ Block PHP render → wp_interactivity_state() seeds initial data
 ### Credits
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/credits/checkout` | Initiate Stripe checkout |
-| POST | `/credits/webhook` | Signed webhook receiver |
-| GET | `/credits/packages` | Available credit packages |
+| GET | `/employers/{id}/credits` | Balance + ledger history |
+| POST | `/credits/adjust` | Admin manual topup/deduction |
 
 ### Search & Alerts
 | Method | Endpoint | Description |
@@ -591,7 +593,7 @@ Company profiles, employer dashboard (Interactivity API), multi-step job posting
 **Minimal email layer (Phase 2 prerequisite):** A lightweight `wp_mail()`-based email sender is introduced in Phase 2 to support job approval/rejection notifications and low-credit alerts. This is not the full notification engine (Phase 9) — it uses simple template files and `wp_mail()` only. The full engine in Phase 9 replaces and extends it with pluggable drivers and in-app/push/SMS channels.
 
 ### Phase 3 — Credit System
-Credit ledger, credit packages, Stripe Checkout (native), webhook receiver, credit deduction/refund logic, low-credit alerts, credit balance widget, transaction log + CSV export.
+Credit ledger, credit mappings (WooCommerce/PMPro/MemberPress adapters), credit deduction/refund logic, low-credit alerts, credit balance widget, admin adjustments, transaction log.
 
 ### Phase 4 — Candidate Layer
 Candidate profiles, resume builder (all repeater groups: School, College, Job Experience, Certifications, Skills, Languages, Portfolio), PDF upload, privacy toggle, candidate dashboard, bookmarks, application tracking, BP xProfile sync.
@@ -640,7 +642,7 @@ WP Job Manager, WPJobBoard, Simple Job Board, Job Board Manager, BuddyPress Job 
 
 | Service | Feature unlocked | Connection |
 |---------|-----------------|------------|
-| Stripe | Credit top-up | PHP SDK + API keys |
+| WooCommerce | Credit top-up | Adapter + credit mappings |
 | OpenAI | AI features + embeddings | API key |
 | Anthropic Claude | Alternative AI provider | API key |
 | Ollama | Local AI (no cost) | Server URL |

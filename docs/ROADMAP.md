@@ -21,7 +21,7 @@ Both plugins are feature-complete for v1.0.0 release. Distributed via wbcomdesig
 
 ### What's Done --- Pro Plugin
 
-- Credit system (append-only ledger, Stripe + WooCommerce + PMPro adapters)
+- Credit system (append-only ledger, WooCommerce + PMPro + MemberPress adapters)
 - Custom field builder (group/field CRUD, field values per entity)
 - Multi-board engine
 - Application pipeline (kanban stages)

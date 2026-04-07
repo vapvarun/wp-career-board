@@ -129,7 +129,7 @@ Submitted → Reviewing → Shortlisted → Rejected / Hired
 | Applications | 5 statuses | Kanban + custom stages |
 | Boards | 1 | Unlimited |
 | Resumes | View | Build + search |
-| Monetization | — | Stripe credits |
+| Monetization | — | WooCommerce credits |
 | Fields | Standard | Custom field builder |
 | AI | — | AI job descriptions |
 
@@ -169,7 +169,7 @@ WP Career Board is included in your license.
 **Title:** Start your job board today
 
 **Free version:** Full job board — always free
-**Pro version:** Pipeline, multi-board, resume search, Stripe, AI
+**Pro version:** Pipeline, multi-board, resume search, WooCommerce credits, AI
 
 **CTA:** Download Free | See Pro Pricing
 

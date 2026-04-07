@@ -55,7 +55,7 @@ When **WP Career Board Pro** is active, six additional tabs appear:
 | Tab | What It Controls |
 |---|---|
 | **Pipeline** | Application stage configuration (Kanban hiring workflow) |
-| **Credits** | Stripe API keys, webhook secret, and credits-per-job-post value |
+| **Credits** | Credit settings, product-to-credit mappings, detected payment providers, and credits-per-job-post value |
 | **Field Builder** | Custom fields for jobs, companies, and candidates |
 | **AI Settings** | Configures the AI provider key for AI Chat Search and job description generation |
 | **Job Feed** | RSS/JSON feed settings for job listing aggregators |

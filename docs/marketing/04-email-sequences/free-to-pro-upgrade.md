@@ -72,14 +72,15 @@ Hi [First Name],
 
 A job board with consistent job postings is a product employers will pay for — especially when it's in a niche community they care about.
 
-WP Career Board Pro includes a **Credit System** powered by Stripe:
+WP Career Board Pro includes a **Credit System** powered by WooCommerce:
 
 - Create credit packages at any price (e.g., 1 job post for $29, 5 posts for $99)
 - Employers buy credits and spend them to post jobs
 - Per-board pricing — you can charge different rates on different boards
-- Stripe Checkout handles the payment; a webhook confirms it and adds credits automatically
+- Purchases go through your WooCommerce store — works with any payment gateway you already use
+- Also integrates with Paid Memberships Pro and MemberPress for membership-based credits
 
-No transaction fee from us. Stripe's standard rate applies.
+No transaction fee from us. Your payment gateway's standard rate applies.
 
 [See how the Credit System works →](https://wbcomdesigns.com/docs/wp-career-board/credit-system/) | [Upgrade to Pro →](https://wbcomdesigns.com/downloads/wp-career-board-pro/)
 

@@ -18,7 +18,7 @@ Free version includes everything you'd expect from a paid plugin:
 
 No shortcodes. No jQuery. Built on Gutenberg blocks and the WordPress Interactivity API.
 
-Pro version adds: Kanban hiring pipeline, multi-board, resume search, Stripe monetization, AI writing.
+Pro version adds: Kanban hiring pipeline, multi-board, resume search, WooCommerce credit system, AI writing.
 
 Worth checking if you've been putting off adding a job board to your community.
 
@@ -48,7 +48,7 @@ When active alongside BuddyPress:
 - Candidate profiles link to their BuddyPress member profile
 - Works with BuddyBoss Platform too
 
-Free to download. Pro version available for Kanban pipeline, resume search, and Stripe monetization.
+Free to download. Pro version available for Kanban pipeline, resume search, and WooCommerce credit system.
 
 [Link]
 
@@ -64,7 +64,7 @@ For clients, that means it works with their existing theme and they can manage i
 
 For you, it means the extension hooks are clean and the permissions model is auditable.
 
-Free version is a complete job board. Pro adds pipeline, multi-board, resume search, and Stripe.
+Free version is a complete job board. Pro adds pipeline, multi-board, resume search, and WooCommerce credits.
 
 [Link]
 

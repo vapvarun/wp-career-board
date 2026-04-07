@@ -62,7 +62,7 @@
               "isInner": false,
               "isLocked": false,
               "settings": {
-                "title": "🚀 Kanban Pipeline · Multi-Board · Stripe · Resume Search",
+                "title": "🚀 Kanban Pipeline · Multi-Board · Credits · Resume Search",
                 "header_size": "div",
                 "typography_typography": "custom",
                 "typography_font_size": {
@@ -290,7 +290,7 @@
               "isInner": false,
               "isLocked": false,
               "settings": {
-                "editor": "WP Career Board Pro adds an ATS-style Kanban pipeline, unlimited boards, resume search, and Stripe monetization to the free WP Career Board plugin. Everything your community's hiring process needs — inside WordPress.",
+                "editor": "WP Career Board Pro adds an ATS-style Kanban pipeline, unlimited boards, resume search, and WooCommerce monetization to the free WP Career Board plugin. Everything your community's hiring process needs — inside WordPress.",
                 "align": "center",
                 "text_color": "#001347"
               },
@@ -1302,7 +1302,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "<p style=\"color:#64748B;font-size:0.9rem;\">Run \"Tech Jobs\", \"Marketing Jobs\", and \"Remote Only\" as completely independent boards — each with its own jobs, employers, pipeline stages, and Stripe credit pricing — from a single WordPress install. No other plugin does this.</p>"
+                        "editor": "<p style=\"color:#64748B;font-size:0.9rem;\">Run \"Tech Jobs\", \"Marketing Jobs\", and \"Remote Only\" as completely independent boards — each with its own jobs, employers, pipeline stages, and WooCommerce credit pricing — from a single WordPress install. No other plugin does this.</p>"
                       },
                       "defaultEditSettings": {
                         "defaultEditRoute": "content"
@@ -1389,7 +1389,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "title": "Stripe monetization with no platform cut",
+                        "title": "WooCommerce monetization with no platform cut",
                         "header_size": "h3",
                         "align": "left",
                         "title_color": "#0F172A",
@@ -1422,7 +1422,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "<p style=\"color:#64748B;font-size:0.9rem;\">Charge employers to post jobs via Stripe credit packages. You keep 100% of revenue minus Stripe's standard processing fee. There is no Wbcom platform percentage, no per-posting royalty, no revenue sharing.</p>"
+                        "editor": "<p style=\"color:#64748B;font-size:0.9rem;\">Charge employers to post jobs via WooCommerce credit packages. You keep 100% of revenue minus your payment gateway's processing fee. There is no Wbcom platform percentage, no per-posting royalty, no revenue sharing.</p>"
                       },
                       "defaultEditSettings": {
                         "defaultEditRoute": "content"
@@ -1950,7 +1950,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Run unlimited independent job boards from one WordPress install — each with its own jobs, employers, pipeline stages, and Stripe credit pricing.",
+                        "editor": "Run unlimited independent job boards from one WordPress install — each with its own jobs, employers, pipeline stages, and WooCommerce credit pricing.",
                         "align": "center",
                         "align_tablet": "center",
                         "typography_typography": "custom",
@@ -2378,7 +2378,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "title": "Stripe Credit System",
+                        "title": "WooCommerce Credit System",
                         "header_size": "h4",
                         "align": "center",
                         "title_color": "#001347",
@@ -2409,7 +2409,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Create credit packages at any price. Employers buy via Stripe Checkout. Credits added automatically via webhook. 100% revenue to you minus Stripe's fee.",
+                        "editor": "Create credit packages as WooCommerce products. Employers purchase through your store with any payment gateway. Credits added automatically on order completion. 100% revenue to you minus gateway fees.",
                         "align": "center",
                         "align_tablet": "center",
                         "typography_typography": "custom",
@@ -3830,7 +3830,7 @@
           "isInner": false,
           "isLocked": false,
           "settings": {
-            "editor": "All tiers include every Pro feature: Kanban pipeline, multi-board, resume search, Stripe credits, custom fields, AI writing, job alerts, job map, and job feed. The only difference is the number of site licenses. Requires the free WP Career Board plugin.",
+            "editor": "All tiers include every Pro feature: Kanban pipeline, multi-board, resume search, WooCommerce credits, custom fields, AI writing, job alerts, job map, and job feed. The only difference is the number of site licenses. Requires the free WP Career Board plugin.",
             "_margin": {
               "unit": "px",
               "top": "0",
@@ -4521,7 +4521,7 @@
                               },
                               {
                                 "_id": "",
-                                "text": "Stripe Credit System"
+                                "text": "WooCommerce Credit System"
                               },
                               {
                                 "_id": "",
@@ -6218,7 +6218,7 @@
                               },
                               {
                                 "_id": "",
-                                "text": "Stripe Credit System"
+                                "text": "WooCommerce Credit System"
                               },
                               {
                                 "_id": "",
@@ -9025,7 +9025,7 @@
                     "_id": "6392b0e"
                   },
                   {
-                    "item_title": "How does the Stripe Credit System work?",
+                    "item_title": "How does the WooCommerce Credit System work?",
                     "_id": "014f692"
                   },
                   {
@@ -9218,7 +9218,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "All tiers include the full Pro feature set: Application Pipeline (Kanban), Multi-Board Engine, Resume Builder and Search, Job Alerts, Job Map, Stripe Credit System, Custom Field Builder, AI job description writing, and Job Feed. The difference between tiers is the number of site licenses.",
+                        "editor": "All tiers include the full Pro feature set: Application Pipeline (Kanban), Multi-Board Engine, Resume Builder and Search, Job Alerts, Job Map, WooCommerce Credit System, Custom Field Builder, AI job description writing, and Job Feed. The difference between tiers is the number of site licenses.",
                         "align": "left",
                         "typography_typography": "custom",
                         "text_color": "#001347",
@@ -9269,7 +9269,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "You create credit packages at any price (e.g., 1 post for $29, 5 posts for $99). Employers buy packages via Stripe Checkout. When payment completes, Stripe sends a webhook to your site and credits are added automatically. You receive 100% of the purchase price minus Stripe's standard processing fee — there is no Wbcom cut.",
+                        "editor": "You create credit packages as WooCommerce products at any price (e.g., 1 post for $29, 5 posts for $99). Employers purchase through your WooCommerce store using any payment gateway. When the order completes, credits are added automatically. You receive 100% of the purchase price minus your gateway's processing fee — there is no Wbcom cut. Also works with Paid Memberships Pro and MemberPress.",
                         "align": "left",
                         "typography_typography": "custom",
                         "text_color": "#001347",
