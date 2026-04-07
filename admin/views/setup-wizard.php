@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="wrap wcb-wizard-wrap">
+<div class="wrap wcb-admin wcb-wizard-wrap">
 	<h1 class="screen-reader-text"><?php esc_html_e( 'WP Career Board Setup', 'wp-career-board' ); ?></h1>
 
 	<div class="wcb-page-header">

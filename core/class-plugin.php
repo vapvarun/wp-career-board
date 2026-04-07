@@ -282,7 +282,7 @@ final class Plugin {
 		}
 
 		$settings  = (array) get_option( 'wcb_settings', array() );
-		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page' );
+		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'employer_registration_page' );
 		$page_ids  = array_values( array_filter( array_map( static fn( string $key ): int => (int) ( $settings[ $key ] ?? 0 ), $page_keys ) ) );
 
 		/**
@@ -387,7 +387,7 @@ final class Plugin {
 		}
 
 		// WCB taxonomy archives.
-		$wcb_taxes = array( 'wcb_job_type', 'wcb_job_industry', 'wcb_job_location', 'wcb_experience_level' );
+		$wcb_taxes = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
 		if ( is_tax( $wcb_taxes ) ) {
 			return true;
 		}
