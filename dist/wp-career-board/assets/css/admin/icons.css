@@ -1,0 +1,5 @@
+.wcb-admin-dashboard [data-lucide],
+.wrap [data-lucide] { width: 18px; height: 18px; stroke-width: 1.75; }
+.wcb-icon--sm { width: 14px !important; height: 14px !important; }
+.wcb-icon--lg { width: 24px !important; height: 24px !important; }
+.wcb-icon--xl { width: 32px !important; height: 32px !important; }

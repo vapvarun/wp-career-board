@@ -158,6 +158,32 @@ store(
 				return state.jobStatus === 'pending';
 			},
 
+			// ── Credit getters ────────────────────────────────────────────────
+			get hasCreditCost() {
+				const { state } = store( 'wcb-job-form' );
+				return state.creditCost > 0;
+			},
+			get insufficientCredits() {
+				const { state } = store( 'wcb-job-form' );
+				return state.creditCost > 0 && state.creditBalance < state.creditCost;
+			},
+			get creditMessage() {
+				const { state } = store( 'wcb-job-form' );
+				if ( ! state.creditCost ) {
+					return '';
+				}
+				if ( state.creditBalance < state.creditCost ) {
+					return `This board requires ${ state.creditCost } credits. Your balance: ${ state.creditBalance }. Please purchase more credits.`;
+				}
+				return `Posting costs ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance: ${ state.creditBalance }.`;
+			},
+
+			// ── AI generation ─────────────────────────────────────────────
+			get aiGenerating() {
+				const { state } = store( 'wcb-job-form' );
+				return !! state._aiGenerating;
+			},
+
 			// ── Preview badge display names (slug → term name via PHP-injected map) ──
 			get typeDisplay() {
 				const { state } = store( 'wcb-job-form' );
@@ -192,6 +218,41 @@ store(
 			toggleRemote() {
 				const { state } = store( 'wcb-job-form' );
 				state.remote    = ! state.remote;
+			},
+
+			* generateDescription() {
+				const { state } = store( 'wcb-job-form' );
+				if ( state._aiGenerating || ! state.title ) {
+					if ( ! state.title ) {
+						state.validationError = 'Enter a job title first so AI can generate a description.';
+					}
+					return;
+				}
+				state._aiGenerating = true;
+				try {
+					const response = yield fetch( state.apiBase + '/jobs/ai-description', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': state.nonce,
+						},
+						body: JSON.stringify( {
+							title: state.title,
+							company_type: state.companyName || '',
+							location: state.locationSlug || 'remote',
+						} ),
+					} );
+					const data = yield response.json();
+					if ( data.description ) {
+						state.description = data.description;
+					} else if ( data.message ) {
+						state.error = data.message;
+					}
+				} catch {
+					state.error = 'Failed to generate description. Please try again.';
+				} finally {
+					state._aiGenerating = false;
+				}
 			},
 
 			nextStep() {
@@ -233,6 +294,12 @@ store(
 				const hpEl = document.getElementById( 'wcb-hp' );
 				if ( hpEl && hpEl.value ) {
 					state.submitted = true;
+					return;
+				}
+
+				// Credit gate — block submission if balance is insufficient.
+				if ( state.creditCost > 0 && state.creditBalance < state.creditCost ) {
+					state.error = `Insufficient credits. This board requires ${ state.creditCost } credits but your balance is ${ state.creditBalance }.`;
 					return;
 				}
 

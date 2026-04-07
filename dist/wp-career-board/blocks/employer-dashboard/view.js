@@ -35,6 +35,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isViewPostJob() {
 			return state.currentView === 'post-job';
 		},
+		get isViewSettings() {
+			return state.currentView === 'settings';
+		},
 
 		// Jobs list.
 		get hasJobs() {
@@ -394,6 +397,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			sessionStorage.setItem( 'wcb_employer_view', 'company' );
 		},
 
+		switchToSettings() {
+			state.currentView = 'settings';
+			state.error       = '';
+			state.navOpen     = false;
+			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
+		},
+
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
@@ -647,6 +657,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							industry:    state.companyIndustry,
 							size:        state.companySize,
 							hq:          state.companyHq,
+							company_type: state.companyType,
+							founded:     state.companyFounded,
+							linkedin:    state.companyLinkedin,
+							twitter:     state.companyTwitter,
 						} ),
 					}
 				);

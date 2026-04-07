@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WP Career Board
- * Plugin URI:  https://wpcareerboard.com
+ * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
  * Version:     1.0.0
  * Requires at least: 6.9

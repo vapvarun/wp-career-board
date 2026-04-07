@@ -49,9 +49,13 @@ wp_interactivity_state(
 		'firstName'    => '',
 		'lastName'     => '',
 		'email'        => '',
-		'companyName'  => '',
-		'password'     => '',
-		'submitting'   => false,
+		'companyName'    => '',
+		'companyWebsite' => '',
+		'companyIndustry' => '',
+		'companySize'    => '',
+		'companyHq'      => '',
+		'password'       => '',
+		'submitting'     => false,
 		'submitted'    => false,
 		'error'        => '',
 		'dashboardUrl' => '',
@@ -89,13 +93,13 @@ wp_interactivity_state(
 			</p>
 			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
 			<div class="wcb-role-options">
-				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate">
-					<span class="wcb-role-icon" aria-hidden="true">&#128188;</span>
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
+					<span class="wcb-role-icon" aria-hidden="true"><i data-lucide="briefcase" aria-hidden="true"></i></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Find a Job', 'wp-career-board' ); ?></span>
 					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
 				</button>
-				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer">
-					<span class="wcb-role-icon" aria-hidden="true">&#127970;</span>
+				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer" aria-label="<?php esc_attr_e( 'Hire Talent', 'wp-career-board' ); ?>">
+					<span class="wcb-role-icon" aria-hidden="true"><i data-lucide="building-2" aria-hidden="true"></i></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
 					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
 				</button>
@@ -130,6 +134,7 @@ wp_interactivity_state(
 							class="wcb-field-input"
 							autocomplete="given-name"
 							required
+							aria-required="true"
 							data-wp-bind--value="state.firstName"
 							data-wp-on--input="actions.updateFirstName"
 						/>
@@ -142,6 +147,7 @@ wp_interactivity_state(
 							class="wcb-field-input"
 							autocomplete="family-name"
 							required
+							aria-required="true"
 							data-wp-bind--value="state.lastName"
 							data-wp-on--input="actions.updateLastName"
 						/>
@@ -156,6 +162,7 @@ wp_interactivity_state(
 						class="wcb-field-input"
 						autocomplete="email"
 						required
+						aria-required="true"
 						data-wp-bind--value="state.email"
 						data-wp-on--input="actions.updateEmail"
 					/>
@@ -173,6 +180,36 @@ wp_interactivity_state(
 						data-wp-on--input="actions.updateCompanyName"
 					/>
 				</div>
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company Website', 'wp-career-board' ); ?></label>
+					<input id="wcb-reg-website" type="url" class="wcb-field-input" placeholder="https://"
+						data-wp-bind--value="state.companyWebsite" data-wp-on--input="actions.updateField" data-wcb-field="companyWebsite" />
+				</div>
+				<div class="wcb-field-row" data-wp-class--wcb-hidden="state.isCandidate">
+					<div class="wcb-field-group wcb-field-half">
+						<label class="wcb-field-label" for="wcb-reg-industry"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></label>
+						<input id="wcb-reg-industry" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. Technology', 'wp-career-board' ); ?>"
+							data-wp-bind--value="state.companyIndustry" data-wp-on--input="actions.updateField" data-wcb-field="companyIndustry" />
+					</div>
+					<div class="wcb-field-group wcb-field-half">
+						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
+						<select id="wcb-reg-size" class="wcb-field-input"
+							data-wp-bind--value="state.companySize" data-wp-on--change="actions.updateField" data-wcb-field="companySize">
+							<option value=""><?php esc_html_e( 'Select…', 'wp-career-board' ); ?></option>
+							<option value="1-10">1-10</option>
+							<option value="11-50">11-50</option>
+							<option value="51-200">51-200</option>
+							<option value="201-500">201-500</option>
+							<option value="501-1000">501-1000</option>
+							<option value="1001+">1001+</option>
+						</select>
+					</div>
+				</div>
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+					<label class="wcb-field-label" for="wcb-reg-hq"><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></label>
+					<input id="wcb-reg-hq" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. San Francisco, CA', 'wp-career-board' ); ?>"
+						data-wp-bind--value="state.companyHq" data-wp-on--input="actions.updateField" data-wcb-field="companyHq" />
+				</div>
 
 				<div class="wcb-field-group">
 					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></label>
@@ -182,6 +219,7 @@ wp_interactivity_state(
 						class="wcb-field-input"
 						autocomplete="new-password"
 						required
+						aria-required="true"
 						data-wp-bind--value="state.password"
 						data-wp-on--input="actions.updatePassword"
 					/>

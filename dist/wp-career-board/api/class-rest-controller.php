@@ -104,6 +104,10 @@ abstract class RestController extends \WP_REST_Controller {
 	 * @return void
 	 */
 	protected function record_job_view( int $job_id ): void {
+		if ( $this->is_bot_request() ) {
+			return;
+		}
+
 		global $wpdb;
 
 		$ip = isset( $_SERVER['REMOTE_ADDR'] )
@@ -120,5 +124,37 @@ abstract class RestController extends \WP_REST_Controller {
 			),
 			array( '%d', '%s', '%s' )
 		);
+	}
+
+	/**
+	 * Detect bot/crawler requests by User-Agent.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool True if the request appears to be from a bot.
+	 */
+	private function is_bot_request(): bool {
+		$ua = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+			: '';
+
+		if ( '' === $ua ) {
+			return true;
+		}
+
+		/**
+		 * Filter the regex pattern used to detect bot User-Agents.
+		 *
+		 * @since 1.0.0
+		 * @param string $pattern PCRE pattern (without delimiters).
+		 */
+		$pattern = (string) apply_filters(
+			'wcb_bot_ua_pattern',
+			'bot|crawl|spider|slurp|Googlebot|Bingbot|DuckDuckBot|Baiduspider|YandexBot'
+			. '|facebookexternalhit|Twitterbot|LinkedInBot|Applebot|MJ12bot|AhrefsBot'
+			. '|SemrushBot|DotBot|PetalBot|Bytespider'
+		);
+
+		return 1 === preg_match( '/' . $pattern . '/i', $ua );
 	}
 }

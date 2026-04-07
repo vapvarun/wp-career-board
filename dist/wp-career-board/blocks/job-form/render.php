@@ -198,6 +198,9 @@ $wcb_initial_state = apply_filters(
 		'validationError'   => '',
 		'apiBase'           => rest_url( 'wcb/v1' ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		'creditCost'        => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
+		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
+		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		'customFields'      => (object) array(),
 		'typeNames'         => (object) $wcb_type_names,
@@ -236,6 +239,10 @@ $wcb_step_labels = array(
 				<?php if ( $wcb_step_num < 4 ) : ?>
 				data-wp-class--wcb-step--done="state.step<?php echo esc_attr( (string) $wcb_step_num ); ?>Done"
 				<?php endif; ?>
+				<?php if ( 1 === $wcb_step_num ) : ?>
+				aria-current="step"
+				<?php endif; ?>
+				data-wp-bind--aria-current="state.step<?php echo esc_attr( (string) $wcb_step_num ); ?>AriaCurrent"
 			>
 				<span class="wcb-step__num"><?php echo esc_html( (string) $wcb_step_num ); ?></span>
 				<span class="wcb-step__label"><?php echo esc_html( $wcb_step_label ); ?></span>
@@ -248,11 +255,26 @@ $wcb_step_labels = array(
 
 	<!-- ── Validation error banner ───────────────────────────────────────── -->
 	<p
+		id="wcb-form-validation-error"
 		class="wcb-form-error"
 		role="alert"
 		data-wp-class--wcb-form-error--show="state.hasValidation"
 		data-wp-text="state.validationError"
 	></p>
+
+	<!-- ── Credit info banner ────────────────────────────────────────────── -->
+	<div
+		class="wcb-credit-banner"
+		data-wp-class--wcb-credit-banner--show="state.hasCreditCost"
+		data-wp-class--wcb-credit-banner--warn="state.insufficientCredits"
+	>
+		<span class="wcb-credit-banner__text" data-wp-text="state.creditMessage"></span>
+		<a
+			class="wcb-credit-banner__link"
+			data-wp-bind--href="state.creditPurchaseUrl"
+			data-wp-class--wcb-hidden="!state.insufficientCredits"
+		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
+	</div>
 
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
@@ -295,15 +317,28 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.title"
 					data-wp-on--input="actions.updateField"
 					required
+					aria-required="true"
+					aria-describedby="wcb-form-validation-error"
 					autocomplete="off"
 				/>
 			</div>
 
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-job-desc">
-					<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
-					<span class="wcb-required" aria-hidden="true">*</span>
-				</label>
+				<div class="wcb-form-label-row">
+					<label class="wcb-form-label" for="wcb-job-desc">
+						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<span class="wcb-required" aria-hidden="true">*</span>
+					</label>
+					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
+					<button type="button" class="wcb-ai-btn"
+						data-wp-on--click="actions.generateDescription"
+						data-wp-bind--disabled="state.aiGenerating"
+					>
+						<span data-wp-class--wcb-hidden="state.aiGenerating">&#10024; <?php esc_html_e( 'Generate with AI', 'wp-career-board' ); ?></span>
+						<span data-wp-class--wcb-hidden="!state.aiGenerating"><?php esc_html_e( 'Generating…', 'wp-career-board' ); ?></span>
+					</button>
+					<?php endif; ?>
+				</div>
 				<textarea
 					id="wcb-job-desc"
 					class="wcb-field"
@@ -313,6 +348,7 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.description"
 					data-wp-on--input="actions.updateField"
 					required
+					aria-required="true"
 				></textarea>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Plain text or basic Markdown supported.', 'wp-career-board' ); ?>

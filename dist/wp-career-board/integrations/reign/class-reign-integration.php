@@ -181,7 +181,7 @@ class ReignIntegration {
 		wp_enqueue_style(
 			'wcb-reign-compat',
 			WCB_URL . 'integrations/reign/assets/reign-compat.css',
-			array( 'reign-style' ),
+			array( 'reign_main_style' ),
 			WCB_VERSION
 		);
 	}

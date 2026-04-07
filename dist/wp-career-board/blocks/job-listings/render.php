@@ -149,22 +149,24 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_trust            = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
 	$wcb_trust_info       = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
-	$wcb_jobs_state[] = array(
+	$wcb_job_card = array(
 		'id'           => $wcb_job_post->ID,
 		'title'        => $wcb_job_post->post_title,
 		'permalink'    => get_permalink( $wcb_job_post->ID ),
 		'company'      => $wcb_company_name_val,
 		'initials'     => $wcb_initials( $wcb_company_name_val ),
-		'trust'            => $wcb_trust,
-		'trust_label'      => $wcb_trust_info['label'] ?? '',
-		'trust_icon'       => $wcb_trust_info['icon'] ?? '',
-		'verified'         => null !== $wcb_trust_info,
+		'trust'        => $wcb_trust,
+		'trust_label'  => $wcb_trust_info['label'] ?? '',
+		'trust_icon'   => $wcb_trust_info['icon'] ?? '',
+		'verified'     => null !== $wcb_trust_info,
 		'location'     => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
 		'type'         => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
 		'experience'   => is_wp_error( $wcb_exp_terms ) ? '' : implode( ', ', $wcb_exp_terms ),
 		'category'     => is_wp_error( $wcb_cat_terms ) ? '' : implode( ', ', $wcb_cat_terms ),
 		'remote'       => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_remote', true ),
 		'featured'     => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
+		'board_id'     => (int) get_post_meta( $wcb_job_post->ID, '_wcb_board_id', true ),
+		'board_name'   => '',
 		'salary_min'   => $wcb_salary_min,
 		'salary_max'   => $wcb_salary_max,
 		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
@@ -173,7 +175,31 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'      => wp_trim_words( (string) preg_replace( '/[*_#`]+/', '', wp_strip_all_tags( $wcb_job_post->post_content ) ), 25, '…' ),
 	);
+
+	/**
+	 * Filter job card data before it's passed to the Interactivity API state.
+	 *
+	 * Pro uses this to inject board_name and auto-feature premium board jobs.
+	 *
+	 * @since 1.0.0
+	 * @param array<string,mixed> $data Job card data array.
+	 * @param \WP_Post            $post Job post object.
+	 */
+	$wcb_jobs_state[] = (array) apply_filters( 'wcb_job_listing_data', $wcb_job_card, $wcb_job_post );
 }
+
+// Sort featured jobs first, then by date (newest).
+usort(
+	$wcb_jobs_state,
+	static function ( array $a, array $b ): int {
+		$fa = ( $a['featured'] ?? false ) ? 1 : 0;
+		$fb = ( $b['featured'] ?? false ) ? 1 : 0;
+		if ( $fa !== $fb ) {
+			return $fb - $fa; // featured first.
+		}
+		return ( $b['id'] ?? 0 ) - ( $a['id'] ?? 0 ); // newest first.
+	}
+);
 
 $wcb_type_terms_raw = get_terms(
 	array(
@@ -214,6 +240,8 @@ $wcb_exp_opts      = array_map(
 	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
 );
 
+$wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
+
 if ( $wcb_author_id_attr > 0 ) {
 	$wcb_count_query = new \WP_Query(
 		array(
@@ -251,6 +279,7 @@ $wcb_state = array(
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+		'boards'      => $wcb_board_opts,
 	),
 	'strings'       => array(
 		'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
@@ -282,21 +311,22 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php if ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ) : ?>
 	<div class="wcb-listings-header">
 		<div class="wcb-search-sort-row">
+			<?php if ( ! has_block( 'wp-career-board/job-search' ) ) : ?>
 			<div class="wcb-search-wrap">
 				<span class="wcb-search-icon" aria-hidden="true">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+					<i data-lucide="search" aria-hidden="true"></i>
 				</span>
 				<label class="screen-reader-text" for="wcb-job-search"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<input
 					type="search"
 					id="wcb-job-search"
 					class="wcb-listings-search"
-					style="padding-left: 2.25rem; padding-inline-start: 2.25rem;"
 					placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
 					data-wp-bind--value="state.searchQuery"
 					data-wp-on--input="actions.updateSearch"
 				/>
 			</div>
+			<?php endif; ?>
 			<select class="wcb-sort-select" aria-label="<?php esc_attr_e( 'Sort jobs', 'wp-career-board' ); ?>" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
 				<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
 				<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
@@ -330,6 +360,17 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>"
 			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
 			<?php endforeach; ?>
+
+			<?php if ( $wcb_board_opts ) : ?>
+			<span class="wcb-chip-divider" aria-hidden="true"></span>
+			<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
+			<button type="button" class="wcb-chip"
+				data-wp-class--wcb-chip-active="state.isBoardActive"
+				data-wp-on--click="actions.toggleBoardChip"
+				data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'boardId' => $wcb_opt['id'], 'boardName' => $wcb_opt['name'] ) ) ); ?>"
+			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+			<?php endforeach; ?>
+			<?php endif; ?>
 		</div>
 
 		<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">
@@ -367,14 +408,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					data-wp-on--click="actions.setGridLayout"
 					aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+					<i data-lucide="layout-grid" aria-hidden="true"></i>
 				</button>
 				<button type="button" class="wcb-view-btn"
 					data-wp-class--wcb-view-btn--active="state.isList"
 					data-wp-on--click="actions.setListLayout"
 					aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="2" rx="1"/><rect x="3" y="11" width="18" height="2" rx="1"/><rect x="3" y="18" width="18" height="2" rx="1"/></svg>
+					<i data-lucide="list" aria-hidden="true"></i>
 				</button>
 			</div>
 		</div>
@@ -402,6 +443,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 								<span data-wp-text="context.job.company"></span>
 								<span
 									class="wcb-verified-sm"
+									role="status"
 									data-wp-class--wcb-shown="context.job.verified"
 									data-wp-bind--data-trust="context.job.trust"
 								>
@@ -418,17 +460,18 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							data-wp-bind--aria-label="state.bookmarkLabel"
 							aria-label="<?php esc_attr_e( 'Save job', 'wp-career-board' ); ?>"
 						>
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+							<i data-lucide="bookmark" aria-hidden="true"></i>
 						</button>
 					</div>
 
 					<div class="wcb-card-badges">
-						<span class="wcb-cbadge wcb-cbadge--featured" data-wp-class--wcb-shown="context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
-						<span class="wcb-cbadge wcb-cbadge--remote" data-wp-class--wcb-shown="context.job.remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
-						<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
-						<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-shown="context.job.experience" data-wp-text="context.job.experience"></span>
-						<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-shown="context.job.location">
-							<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+						<span class="wcb-cbadge wcb-cbadge--featured" role="status" data-wp-class--wcb-shown="context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
+					<span class="wcb-cbadge wcb-cbadge--board" role="status" data-wp-class--wcb-shown="context.job.board_name" data-wp-text="context.job.board_name"></span>
+						<span class="wcb-cbadge wcb-cbadge--remote" role="status" data-wp-class--wcb-shown="context.job.remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
+						<span class="wcb-cbadge wcb-cbadge--type" role="status" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
+						<span class="wcb-cbadge wcb-cbadge--exp" role="status" data-wp-class--wcb-shown="context.job.experience" data-wp-text="context.job.experience"></span>
+						<span class="wcb-cbadge wcb-cbadge--location" role="status" data-wp-class--wcb-shown="context.job.location">
+							<i data-lucide="map-pin" aria-hidden="true"></i>
 							<span data-wp-text="context.job.location"></span>
 						</span>
 					</div>
@@ -448,7 +491,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</div>
 			</article>
 		</template>
-		<p class="wcb-no-results" data-wp-bind--hidden="!state.hasNoJobs"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
+		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status" <?php echo $wcb_jobs_raw ? 'hidden' : ''; ?>>
+			<i data-lucide="inbox" aria-hidden="true"></i>
+			<p class="wcb-empty-state-text"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
+		</div>
 	</div>
 
 	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">

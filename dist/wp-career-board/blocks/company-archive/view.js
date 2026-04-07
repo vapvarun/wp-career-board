@@ -31,10 +31,12 @@ const { state } = store( 'wcb-company-archive', {
 	actions: {
 		setGrid() {
 			state.layout = 'grid';
+			localStorage.setItem( 'wcb-company-archive-layout', 'grid' );
 		},
 
 		setList() {
 			state.layout = 'list';
+			localStorage.setItem( 'wcb-company-archive-layout', 'list' );
 		},
 
 		filterIndustry( event ) {
@@ -73,6 +75,14 @@ const { state } = store( 'wcb-company-archive', {
 		},
 	},
 } );
+
+// Initialize layout from localStorage
+if ( typeof window !== 'undefined' ) {
+	const savedLayout = localStorage.getItem( 'wcb-company-archive-layout' );
+	if ( savedLayout && [ 'grid', 'list' ].includes( savedLayout ) ) {
+		state.layout = savedLayout;
+	}
+}
 
 /**
  * Build a URL for the /wcb/v1/companies endpoint.

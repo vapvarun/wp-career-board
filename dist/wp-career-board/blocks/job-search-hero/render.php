@@ -75,6 +75,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 				type="search"
 				name="wcb_search"
 				class="wcb-search-hero__input"
+				aria-label="<?php esc_attr_e( 'Search jobs', 'wp-career-board' ); ?>"
 				placeholder="<?php echo esc_attr( $wcb_placeholder ); ?>"
 				value="<?php echo esc_attr( $wcb_current_search ); ?>"
 			/>
@@ -130,6 +131,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 
 		<div class="wcb-search-hero__field wcb-search-hero__field--submit">
 			<button type="submit" class="wcb-search-hero__button">
+				<i data-lucide="search" aria-hidden="true"></i>
 				<?php echo esc_html( $wcb_button_label ); ?>
 			</button>
 		</div>

@@ -133,9 +133,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
-				'permission_callback' => function () {
-					return is_user_logged_in();
-				},
+				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
 			)
 		);
 	}
@@ -225,6 +223,19 @@ final class EmployersEndpoint extends RestController {
 
 		if ( $company_id && ! is_wp_error( $company_id ) ) {
 			update_user_meta( $user_id, '_wcb_company_id', $company_id );
+
+			$reg_meta = array(
+				'website'  => '_wcb_website',
+				'industry' => '_wcb_industry',
+				'size'     => '_wcb_company_size',
+				'hq'       => '_wcb_hq_location',
+			);
+			foreach ( $reg_meta as $param => $meta_key ) {
+				$val = $request->get_param( $param );
+				if ( $val ) {
+					update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+				}
+			}
 		}
 
 		// Authenticate the new user immediately.
@@ -282,9 +293,15 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		$meta_map = array(
-			'website'  => '_wcb_website',
-			'industry' => '_wcb_industry',
-			'size'     => '_wcb_company_size',
+			'website'      => '_wcb_website',
+			'industry'     => '_wcb_industry',
+			'size'         => '_wcb_company_size',
+			'tagline'      => '_wcb_tagline',
+			'hq'           => '_wcb_hq_location',
+			'company_type' => '_wcb_company_type',
+			'founded'      => '_wcb_founded',
+			'linkedin'     => '_wcb_linkedin',
+			'twitter'      => '_wcb_twitter',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -353,11 +370,15 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		$meta_map = array(
-			'website'  => '_wcb_website',
-			'industry' => '_wcb_industry',
-			'size'     => '_wcb_company_size',
-			'tagline'  => '_wcb_tagline',
-			'hq'       => '_wcb_hq_location',
+			'website'      => '_wcb_website',
+			'industry'     => '_wcb_industry',
+			'size'         => '_wcb_company_size',
+			'tagline'      => '_wcb_tagline',
+			'hq'           => '_wcb_hq_location',
+			'company_type' => '_wcb_company_type',
+			'founded'      => '_wcb_founded',
+			'linkedin'     => '_wcb_linkedin',
+			'twitter'      => '_wcb_twitter',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -383,14 +404,17 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
+		$user_id    = get_current_user_id();
+		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
 		if ( $company_id ) {
-			$request->set_param( 'id', $company_id );
-			return $this->get_jobs( $request );
+			$company = get_post( $company_id );
+			if ( $company instanceof \WP_Post && 'wcb_company' === $company->post_type ) {
+				$request->set_param( 'id', $company_id );
+				return $this->get_jobs( $request );
+			}
 		}
 
 		// No company yet — return jobs authored by the current user.
-		$user_id      = get_current_user_id();
 		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
 		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
 		$wcb_form_url = $this->get_job_form_page_url();
@@ -398,7 +422,7 @@ final class EmployersEndpoint extends RestController {
 		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_job',
-				'post_author'    => $user_id,
+				'author'         => (int) $user_id,
 				'post_status'    => array( 'publish', 'pending', 'draft' ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
@@ -458,7 +482,7 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
-		$is_owner    = get_current_user_id() === (int) $company->post_author;
+		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb_manage_settings' );
 		$post_status = ( $is_owner || $is_admin )
 			? array( 'publish', 'pending', 'draft' )
@@ -470,10 +494,17 @@ final class EmployersEndpoint extends RestController {
 		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_job',
-				'post_author'    => (int) $company->post_author,
 				'post_status'    => $post_status,
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => '_wcb_company_id',
+						'value'   => (int) $company->ID,
+						'compare' => '=',
+						'type'    => 'NUMERIC',
+					),
+				),
 			)
 		);
 
@@ -555,7 +586,14 @@ final class EmployersEndpoint extends RestController {
 		$job_ids = get_posts(
 			array(
 				'post_type'      => 'wcb_job',
-				'post_author'    => (int) $company->post_author,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => '_wcb_company_id',
+						'value'   => (int) $company->ID,
+						'compare' => '=',
+						'type'    => 'NUMERIC',
+					),
+				),
 				'post_status'    => array( 'publish', 'pending', 'draft' ),
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -620,14 +658,28 @@ final class EmployersEndpoint extends RestController {
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
-		/**
-		 * Upload a logo image and set it as the company post thumbnail.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param \WP_REST_Request $request Full request object.
-		 * @return \WP_REST_Response|\WP_Error
-		 */
+	/**
+	 * Check if the current user can list their own jobs.
+	 *
+	 * Intended for the employer dashboard "My Jobs" tab.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function get_my_jobs_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		return $this->check_ability( 'wcb_access_employer_dashboard' ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * Upload a logo image and set it as the company post thumbnail.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function upload_logo( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_company' !== $post->post_type ) {
@@ -741,17 +793,21 @@ final class EmployersEndpoint extends RestController {
 		$logo        = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$trust_level = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
 		return array(
-			'id'          => $post->ID,
-			'name'        => $post->post_title,
-			'description' => $post->post_content,
-			'logo'        => $logo ? $logo : '',
-			'tagline'     => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'website'     => (string) get_post_meta( $post->ID, '_wcb_website', true ),
-			'industry'    => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'        => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
-			'hq'          => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
-			'trust_level' => $trust_level ? $trust_level : 'new',
-			'permalink'   => get_permalink( $post->ID ),
+			'id'           => $post->ID,
+			'name'         => $post->post_title,
+			'description'  => $post->post_content,
+			'logo'         => $logo ? $logo : '',
+			'tagline'      => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+			'website'      => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'industry'     => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
+			'size'         => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
+			'hq'           => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
+			'company_type' => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'founded'      => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
+			'linkedin'     => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
+			'twitter'      => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'trust_level'  => $trust_level ? $trust_level : 'new',
+			'permalink'    => get_permalink( $post->ID ),
 		);
 	}
 }

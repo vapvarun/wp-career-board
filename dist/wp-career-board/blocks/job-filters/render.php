@@ -75,8 +75,8 @@ $wcb_active_filters = (object) array_filter(
 		'wcb_job_type'   => $wcb_filter_type,
 		'wcb_location'   => $wcb_filter_location,
 		'wcb_experience' => $wcb_filter_exp,
-		'salary_min'     => $wcb_filter_salary_min ?: '',
-		'salary_max'     => $wcb_filter_salary_max ?: '',
+		'salary_min'     => $wcb_filter_salary_min ? $wcb_filter_salary_min : '',
+		'salary_max'     => $wcb_filter_salary_max ? $wcb_filter_salary_max : '',
 		'remote'         => $wcb_filter_remote ? '1' : '',
 	)
 );

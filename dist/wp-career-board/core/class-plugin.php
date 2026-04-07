@@ -140,6 +140,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\SearchEndpoint::class,
 			\WCB\Api\Endpoints\CompaniesEndpoint::class,
 			\WCB\Api\Endpoints\ImportEndpoint::class,
+			\WCB\Api\Endpoints\AdminEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -282,7 +283,7 @@ final class Plugin {
 		}
 
 		$settings  = (array) get_option( 'wcb_settings', array() );
-		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page', 'company_archive_page' );
+		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'employer_registration_page' );
 		$page_ids  = array_values( array_filter( array_map( static fn( string $key ): int => (int) ( $settings[ $key ] ?? 0 ), $page_keys ) ) );
 
 		/**
@@ -339,15 +340,60 @@ final class Plugin {
 			WCB_VERSION
 		);
 		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
+
+		wp_enqueue_style(
+			'wcb-frontend-tokens',
+			WCB_URL . 'assets/css/frontend-tokens.css',
+			array(),
+			WCB_VERSION
+		);
+
+		wp_enqueue_style(
+			'wcb-frontend-components',
+			WCB_URL . 'assets/css/frontend-components.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
+		wp_enqueue_script(
+			'lucide',
+			WCB_URL . 'assets/js/vendor/lucide.min.js',
+			array(),
+			'0.460.0',
+			true
+		);
+
+		wp_enqueue_script(
+			'wcb-frontend-icons',
+			WCB_URL . 'assets/js/admin/icons.js',
+			array( 'lucide' ),
+			WCB_VERSION,
+			true
+		);
 	}
 
 	/**
-	 * Return true when the current singular post contains at least one WCB block.
+	 * Return true when the current request needs WCB frontend assets.
+	 *
+	 * Matches: pages containing a WCB block, WCB CPT archives, and WCB CPT singles.
 	 *
 	 * @since 1.0.0
 	 * @return bool
 	 */
 	private function current_page_has_wcb_block(): bool {
+		// WCB post-type archives and singles always need styles.
+		$wcb_types = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
+		if ( is_post_type_archive( $wcb_types ) || is_singular( $wcb_types ) ) {
+			return true;
+		}
+
+		// WCB taxonomy archives.
+		$wcb_taxes = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
+		if ( is_tax( $wcb_taxes ) ) {
+			return true;
+		}
+
+		// Pages containing a WCB block.
 		global $post;
 		if ( ! $post instanceof \WP_Post ) {
 			return false;

@@ -225,40 +225,40 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
-		'jobId'              => $wcb_job_id,
-		'apiBase'            => rest_url( 'wcb/v1' ),
-		'nonce'              => wp_create_nonce( 'wp_rest' ),
-		'panelOpen'          => false,
-		'submitting'         => false,
-		'submitted'          => $wcb_has_applied,
-		'bookmarked'         => $wcb_is_bookmarked,
-		'bookmarking'        => false,
-		'coverLetter'        => '',
-		'error'              => '',
-		'userResumes'        => $wcb_user_resumes,
-		'selectedResumeId'   => 0,
-		'resumePageUrl'      => $wcb_resume_page_url,
-		'proActive'          => post_type_exists( 'wcb_resume' ),
+		'jobId'                => $wcb_job_id,
+		'apiBase'              => rest_url( 'wcb/v1' ),
+		'nonce'                => wp_create_nonce( 'wp_rest' ),
+		'panelOpen'            => false,
+		'submitting'           => false,
+		'submitted'            => $wcb_has_applied,
+		'bookmarked'           => $wcb_is_bookmarked,
+		'bookmarking'          => false,
+		'coverLetter'          => '',
+		'error'                => '',
+		'userResumes'          => $wcb_user_resumes,
+		'selectedResumeId'     => 0,
+		'resumePageUrl'        => $wcb_resume_page_url,
+		'proActive'            => post_type_exists( 'wcb_resume' ),
 		'careerBoardProActive' => $wcb_career_board_pro_active,
-		'jobPermalink'       => (string) get_permalink( $wcb_job_id ),
-		'jobTitle'           => $wcb_job->post_title,
-		'linkCopied'         => false,
-		'isLoggedIn'         => is_user_logged_in(),
-		'guestName'          => '',
-		'guestEmail'         => '',
-		'resumeFileName'     => '',
-		'alertFromJobSaved'  => false,
-		'alertFromJobSaving' => false,
-		'jobCategories'      => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
-		'jobTypes'           => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
-		'jobRemote'          => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
-		'strings'            => array(
-			'bookmarkSaved'         => __( 'Saved', 'wp-career-board' ),
-			'bookmarkSave'          => __( 'Save Job', 'wp-career-board' ),
-			'guestFieldsRequired'   => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
-			'resumeUploadFailed'    => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
-			'applicationFailed'     => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
-			'connectionError'       => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		'jobPermalink'         => (string) get_permalink( $wcb_job_id ),
+		'jobTitle'             => $wcb_job->post_title,
+		'linkCopied'           => false,
+		'isLoggedIn'           => is_user_logged_in(),
+		'guestName'            => '',
+		'guestEmail'           => '',
+		'resumeFileName'       => '',
+		'alertFromJobSaved'    => false,
+		'alertFromJobSaving'   => false,
+		'jobCategories'        => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
+		'jobTypes'             => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
+		'jobRemote'            => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
+		'strings'              => array(
+			'bookmarkSaved'       => __( 'Saved', 'wp-career-board' ),
+			'bookmarkSave'        => __( 'Save Job', 'wp-career-board' ),
+			'guestFieldsRequired' => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
+			'resumeUploadFailed'  => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
+			'applicationFailed'   => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
+			'connectionError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		),
 	)
 );
@@ -396,7 +396,7 @@ wp_interactivity_state(
 					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save Job', 'wp-career-board' ) ); ?>"
 					title="<?php esc_attr_e( 'Save this job', 'wp-career-board' ); ?>"
 				>
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+					<i data-lucide="bookmark" aria-hidden="true"></i>
 					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save Job', 'wp-career-board' ) ); ?></span>
 				</button>
 			<?php endif; ?>
@@ -785,6 +785,20 @@ wp_interactivity_state(
 					data-wp-bind--value="state.coverLetter"
 					data-wp-on--input="actions.updateCoverLetter"
 				></textarea>
+
+				<?php
+				/**
+				 * Hook: inject custom application fields (e.g. phone, portfolio URL, custom questions).
+				 *
+				 * Pro plugins can render additional form fields here. Fields should use
+				 * data-wp-on--input="actions.updateCustomField" with data-wcb-field="fieldKey"
+				 * so values are captured in the Interactivity API state.
+				 *
+				 * @since 1.0.0
+				 * @param int $wcb_job_id The job being applied to.
+				 */
+				do_action( 'wcb_application_form_fields', $wcb_job_id );
+				?>
 
 				<button
 					type="button"

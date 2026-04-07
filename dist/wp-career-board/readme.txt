@@ -14,6 +14,23 @@ A complete job board for WordPress — built on Gutenberg blocks and the WordPre
 
 WP Career Board is a full-featured job board plugin built on Gutenberg blocks and the WordPress Interactivity API. Employer dashboards, candidate applications, company profiles, BuddyPress integration, and full applicant tracking — free. Included with Reign Theme.
 
+WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) extends it with advanced hiring tools, monetisation, and automation.
+
+== Pro Features ==
+
+[WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) adds:
+
+* **Application Pipeline** — Drag-and-drop Kanban board with custom hiring stages per job
+* **Resume Builder** — Rich candidate resume profiles with education, experience, and skills
+* **Credits System** — Sell job posting credits to employers via Stripe
+* **AI Job Descriptions** — Auto-generate compelling job posts with AI
+* **Multi-Board Engine** — Run multiple independent job boards from a single install
+* **Custom Field Builder** — Add custom fields to jobs, applications, and company profiles
+* **Job Alerts** — Candidates receive email alerts for new matching jobs
+* **Job Feed** — Publish jobs as RSS/XML feeds for aggregators
+* **Maps Integration** — Display job locations on an interactive map
+* **Priority Support** — Direct support from the Wbcom Designs team
+
 == Installation ==
 
 1. Upload the plugin zip via Plugins → Add New → Upload Plugin.

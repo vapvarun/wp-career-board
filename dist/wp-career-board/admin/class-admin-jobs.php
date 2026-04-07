@@ -58,12 +58,23 @@ class AdminJobs extends \WP_List_Table {
 		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
-		<div class="wrap wcb-jobs-list">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Jobs', 'wp-career-board' ); ?></h1>
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="page-title-action">
-				<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
-			</a>
-			<hr class="wp-header-end">
+		<div class="wrap wcb-admin wcb-jobs-list">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Jobs', 'wp-career-board' ); ?></h1>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="briefcase"></i>
+						<?php esc_html_e( 'Jobs', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'Manage job listings, approve pending submissions, and track active postings.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-page-header__actions">
+					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
+						<i data-lucide="plus" class="wcb-icon--sm"></i>
+						<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
+					</a>
+				</div>
+			</div>
 
 			<?php $this->views(); ?>
 
@@ -249,11 +260,11 @@ class AdminJobs extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		?>
-		<div class="wcb-no-items-state">
-			<span class="dashicons dashicons-portfolio"></span>
-			<span class="wcb-no-items-title"><?php esc_html_e( 'No jobs found', 'wp-career-board' ); ?></span>
-			<p><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="button button-primary">
+		<div class="wcb-empty-state">
+			<i data-lucide="briefcase" class="wcb-empty-state__icon"></i>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs found', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add New Job', 'wp-career-board' ); ?>
 			</a>
 		</div>
@@ -378,9 +389,17 @@ class AdminJobs extends \WP_List_Table {
 		$status = $item->post_status;
 		$label  = $labels[ $status ] ?? ucfirst( $status );
 
+		$badge_map = array(
+			'publish' => 'success',
+			'pending' => 'warn',
+			'draft'   => 'default',
+			'trash'   => 'danger',
+		);
+		$badge_var = $badge_map[ $status ] ?? 'default';
+
 		return sprintf(
-			'<span class="wcb-status-badge wcb-job-status-%s">%s</span>',
-			esc_attr( $status ),
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			esc_attr( $badge_var ),
 			esc_html( $label )
 		);
 	}

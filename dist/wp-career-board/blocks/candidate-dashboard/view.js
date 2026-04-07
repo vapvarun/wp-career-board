@@ -53,6 +53,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				resumes:            state.strings.tabResumes,
 				alerts:             state.strings.tabAlerts,
 				'resume-builder':   state.strings.tabResumeBuilder,
+				profile:            state.strings.tabProfile,
+				settings:           state.strings.tabSettings,
 			};
 			return map[ state.tab ] || state.strings.tabDashboard;
 		},
@@ -73,6 +75,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get isTabAlerts() {
 			return state.tab === 'alerts';
+		},
+		get isTabProfile() {
+			return state.tab === 'profile';
+		},
+		get isTabSettings() {
+			return state.tab === 'settings';
 		},
 		get alertsCount() {
 			return state.alerts.length;
@@ -274,6 +282,52 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
 		},
 
+		switchToProfile() {
+			state.tab         = 'profile';
+			state.navOpen     = false;
+			state.profileSaved = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'profile' );
+		},
+
+		switchToSettings() {
+			state.tab     = 'settings';
+			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'settings' );
+		},
+
+		updateProfileBio( event ) {
+			state.profileBio   = event.target.value;
+			state.profileSaved = false;
+		},
+
+		*saveProfile() {
+			state.profileSaving = true;
+			state.profileSaved  = false;
+			state.error         = '';
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ),
+					{
+						method: 'PUT',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( { bio: state.profileBio } ),
+					}
+				);
+				if ( response.ok ) {
+					state.profileSaved = true;
+				} else {
+					state.error = 'Could not save profile. Please try again.';
+				}
+			} catch {
+				state.error = 'Connection error. Please try again.';
+			} finally {
+				state.profileSaving = false;
+			}
+		},
+
 		*switchToAlerts() {
 			state.tab     = 'alerts';
 			state.error   = '';
@@ -433,10 +487,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			// When embedded resume builder is active, reload current page with resume_id param.
 			if ( state.resumeBuilderEmbedded ) {
 				window.location.href = state.dashboardUrl + '?resume_id=' + String( ctx.resume.id );
-				return;
-			}
-			if ( state.resumeBuilderUrl ) {
-				window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( ctx.resume.id );
 			}
 		},
 
@@ -475,11 +525,50 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				if ( state.resumeBuilderEmbedded ) {
 					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
-				} else if ( state.resumeBuilderUrl ) {
-					window.location.href = state.resumeBuilderUrl + '?resume_id=' + String( resume.id );
 				}
 			} catch {
 				state.error = state.strings.errConnectionFull;
+			} finally {
+				state.loading = false;
+			}
+		},
+
+		*uploadResumeFile( event ) {
+			const file = event.target?.files?.[ 0 ];
+			if ( ! file ) {
+				return;
+			}
+			event.target.value = '';
+
+			state.loading = true;
+			state.error   = '';
+
+			try {
+				const formData = new FormData();
+				formData.append( 'resume_file', file );
+
+				const response = yield fetch(
+					state.apiBase + '/candidates/resume-upload',
+					{
+						method: 'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+						body: formData,
+					}
+				);
+
+				const data = yield response.json();
+
+				if ( ! response.ok ) {
+					state.error = data.message || 'Upload failed.';
+					return;
+				}
+
+				if ( data.attachment_id ) {
+					state.resumeFileId  = data.attachment_id;
+					state.resumeFileUrl = data.url || '';
+				}
+			} catch {
+				state.error = 'Failed to upload resume file. Please try again.';
 			} finally {
 				state.loading = false;
 			}

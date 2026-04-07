@@ -74,6 +74,7 @@ class TurnstileDriver {
 	 * @return void
 	 */
 	public function enqueue(): void {
+		// Cloudflare Turnstile must load from their CDN — cannot be self-hosted.
 		wp_enqueue_script(
 			'wcb-turnstile-api',
 			'https://challenges.cloudflare.com/turnstile/v0/api.js',

@@ -31,15 +31,6 @@ $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permal
 	? (string) $wcb_jobs_permalink
 	: home_url( '/' );
 
-/**
- * Pro populates this with the URL of the resume-builder page (?resume_id=N appended per resume).
- * Free passes an empty string — the My Resumes tab is hidden when empty.
- *
- * @since 1.0.0
- * @param string $url         Resume builder page URL (empty in Free).
- * @param int    $candidate_id Current user ID.
- */
-$wcb_resume_builder_url = (string) apply_filters( 'wcb_resume_builder_url', '', $wcb_candidate_id );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
 $wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
@@ -69,26 +60,28 @@ wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array_merge(
 		array(
-			'strings' => array(
-				'tabOverview'          => __( 'Overview', 'wp-career-board' ),
-				'tabApplications'      => __( 'My Applications', 'wp-career-board' ),
-				'tabBookmarks'         => __( 'Saved Jobs', 'wp-career-board' ),
-				'tabResumes'           => __( 'My Resumes', 'wp-career-board' ),
-				'tabAlerts'            => __( 'Job Alerts', 'wp-career-board' ),
-				'tabResumeBuilder'     => __( 'Edit Resume', 'wp-career-board' ),
-				'tabDashboard'         => __( 'Dashboard', 'wp-career-board' ),
-				'resumesUnit'          => __( 'resumes', 'wp-career-board' ),
-				'filterRemote'         => __( 'Remote', 'wp-career-board' ),
-				'alertLabelAllJobs'    => __( 'All jobs', 'wp-career-board' ),
-				'errLoadApplications'  => __( 'Could not load your applications.', 'wp-career-board' ),
-				'errLoadBookmarks'     => __( 'Could not load saved jobs.', 'wp-career-board' ),
-				'errLoadResumes'       => __( 'Could not load your resumes.', 'wp-career-board' ),
-				'errLoadAlerts'        => __( 'Could not load your alerts.', 'wp-career-board' ),
-				'errRemoveBookmark'    => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
-				'errCreateResume'      => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
-				'errDeleteResume'      => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
-				'errConnectionFull'    => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
-				'errConnectionShort'   => __( 'Connection error.', 'wp-career-board' ),
+			'strings'               => array(
+				'tabOverview'         => __( 'Overview', 'wp-career-board' ),
+				'tabApplications'     => __( 'My Applications', 'wp-career-board' ),
+				'tabBookmarks'        => __( 'Saved Jobs', 'wp-career-board' ),
+				'tabResumes'          => __( 'My Resumes', 'wp-career-board' ),
+				'tabAlerts'           => __( 'Job Alerts', 'wp-career-board' ),
+				'tabResumeBuilder'    => __( 'Edit Resume', 'wp-career-board' ),
+				'tabDashboard'        => __( 'Dashboard', 'wp-career-board' ),
+				'tabProfile'          => __( 'Profile', 'wp-career-board' ),
+				'tabSettings'         => __( 'Settings', 'wp-career-board' ),
+				'resumesUnit'         => __( 'resumes', 'wp-career-board' ),
+				'filterRemote'        => __( 'Remote', 'wp-career-board' ),
+				'alertLabelAllJobs'   => __( 'All jobs', 'wp-career-board' ),
+				'errLoadApplications' => __( 'Could not load your applications.', 'wp-career-board' ),
+				'errLoadBookmarks'    => __( 'Could not load saved jobs.', 'wp-career-board' ),
+				'errLoadResumes'      => __( 'Could not load your resumes.', 'wp-career-board' ),
+				'errLoadAlerts'       => __( 'Could not load your alerts.', 'wp-career-board' ),
+				'errRemoveBookmark'   => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
+				'errCreateResume'     => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
+				'errDeleteResume'     => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
+				'errConnectionFull'   => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+				'errConnectionShort'  => __( 'Connection error.', 'wp-career-board' ),
 			),
 			'tab'                   => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
 			'savedJobsCount'        => $wcb_saved_jobs_count,
@@ -101,14 +94,18 @@ wp_interactivity_state(
 			'nonce'                 => wp_create_nonce( 'wp_rest' ),
 			'candidateId'           => $wcb_candidate_id,
 			'candidateName'         => $wcb_display_name,
-			'resumeBuilderUrl'      => $wcb_resume_builder_url,
-			'resumesEnabled'        => '' !== $wcb_resume_builder_url,
+			'resumesEnabled'        => $wcb_resume_builder_embedded,
 			'dashboardUrl'          => $wcb_dashboard_url,
 			'resumeBuilderEmbedded' => $wcb_resume_builder_embedded,
 			'resumeEmbedId'         => $wcb_resume_embed_id,
 			'showNewResumeForm'     => false,
 			'newResumeTitle'        => '',
 			'customFieldGroups'     => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+			'profileBio'            => get_the_author_meta( 'description', $wcb_candidate_id ),
+			'profileEmail'          => $wcb_current_user->user_email,
+			'profileSaving'         => false,
+			'profileSaved'          => false,
+			'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 			'bellNotifications'     => array(),
 			'bellUnreadCount'       => 0,
 			'bellOpen'              => false,
@@ -143,24 +140,27 @@ wp_interactivity_state(
 			<?php esc_html_e( 'Dashboard', 'wp-career-board' ); ?>
 		</button>
 
-		<nav class="wcb-sidebar-nav" aria-label="<?php esc_attr_e( 'Candidate dashboard navigation', 'wp-career-board' ); ?>">
+		<nav class="wcb-sidebar-nav" role="tablist" aria-label="<?php esc_attr_e( 'Candidate dashboard navigation', 'wp-career-board' ); ?>">
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'MY ACTIVITY', 'wp-career-board' ); ?></span>
-			<button type="button" class="wcb-nav-item" data-wp-class--wcb-nav-active="state.isTabApplications" data-wp-on--click="actions.switchToApplications">
+			<button type="button" class="wcb-nav-item" role="tab" data-wp-bind--aria-selected="state.isTabApplications" data-wp-class--wcb-nav-active="state.isTabApplications" data-wp-on--click="actions.switchToApplications" id="wcb-tab-applications">
 				<?php esc_html_e( 'My Applications', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge wcb-nav-badge--blue" data-wp-text="state.appsCount">0</span>
 			</button>
-			<button type="button" class="wcb-nav-item" data-wp-class--wcb-nav-active="state.isTabBookmarks" data-wp-on--click="actions.switchToBookmarks">
+			<button type="button" class="wcb-nav-item" role="tab" data-wp-bind--aria-selected="state.isTabBookmarks" data-wp-class--wcb-nav-active="state.isTabBookmarks" data-wp-on--click="actions.switchToBookmarks" id="wcb-tab-bookmarks">
 				<?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.bookmarksCount">0</span>
 			</button>
 			<button
 				type="button"
 				class="wcb-nav-item"
+				role="tab"
+				id="wcb-tab-resumes"
+				data-wp-bind--aria-selected="state.isTabResumes"
 				data-wp-class--wcb-nav-active="state.isTabResumes"
 				data-wp-on--click="actions.switchToResumes"
 				data-wp-bind--hidden="!state.resumesEnabled"
 				<?php
-				if ( ! $wcb_resume_builder_url ) :
+				if ( ! $wcb_resume_builder_embedded ) :
 					?>
 					hidden<?php endif; ?>
 			><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
@@ -175,13 +175,28 @@ wp_interactivity_state(
 			><?php esc_html_e( 'Edit Resume', 'wp-career-board' ); ?></button>
 			<?php endif; ?>
 			<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
-			<button type="button" class="wcb-nav-item"
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-alerts"
+				data-wp-bind--aria-selected="state.isTabAlerts"
 				data-wp-class--wcb-nav-active="state.isTabAlerts"
 				data-wp-on--click="actions.switchToAlerts">
 				<?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge wcb-nav-badge--green" data-wp-text="state.alertsCount">0</span>
 			</button>
 			<?php endif; ?>
+
+			<span class="wcb-nav-section-label"><?php esc_html_e( 'ACCOUNT', 'wp-career-board' ); ?></span>
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-profile"
+				data-wp-bind--aria-selected="state.isTabProfile"
+				data-wp-class--wcb-nav-active="state.isTabProfile"
+				data-wp-on--click="actions.switchToProfile">
+				<?php esc_html_e( 'Profile', 'wp-career-board' ); ?>
+			</button>
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-settings"
+				data-wp-bind--aria-selected="state.isTabSettings"
+				data-wp-class--wcb-nav-active="state.isTabSettings"
+				data-wp-on--click="actions.switchToSettings">
+				<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
+			</button>
 		</nav>
 
 		<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-sidebar-cta">
@@ -231,7 +246,7 @@ wp_interactivity_state(
 		<?php endif; ?>
 
 		<!-- VIEW: Overview -->
-		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabOverview">
+		<div class="wcb-view-panel" role="tabpanel" data-wp-class--wcb-view-active="state.isTabOverview">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Overview', 'wp-career-board' ); ?></h1>
 			</div>
@@ -274,7 +289,7 @@ wp_interactivity_state(
 									<span class="wcb-app-name" data-wp-text="context.app.jobTitle"></span>
 									<span class="wcb-app-job" data-wp-text="context.app.company"></span>
 								</div>
-								<span class="wcb-status-badge" data-wp-text="context.app.status" data-wp-bind--data-status="context.app.status"></span>
+								<span class="wcb-status-badge" role="status" data-wp-text="context.app.status" data-wp-bind--data-status="context.app.status"></span>
 							</div>
 						</template>
 					</div>
@@ -293,7 +308,7 @@ wp_interactivity_state(
 									<a class="wcb-app-name" data-wp-bind--href="context.saved.permalink" data-wp-text="context.saved.title" target="_blank" rel="noopener noreferrer"></a>
 									<span class="wcb-app-job" data-wp-text="context.saved.company"></span>
 								</div>
-								<span class="wcb-status-badge" data-wp-text="context.saved.type"></span>
+								<span class="wcb-status-badge" role="status" data-wp-text="context.saved.type"></span>
 							</div>
 						</template>
 					</div>
@@ -303,7 +318,7 @@ wp_interactivity_state(
 		</div>
 
 		<!-- VIEW: My Applications -->
-		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabApplications">
+		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-applications" data-wp-class--wcb-view-active="state.isTabApplications">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Applications', 'wp-career-board' ); ?></h1>
 			</div>
@@ -331,6 +346,7 @@ wp_interactivity_state(
 						</div>
 						<span
 							class="wcb-cd-status-badge"
+							role="status"
 							data-wp-text="context.application.status"
 							data-wp-bind--data-status="context.application.status"
 						></span>
@@ -347,7 +363,7 @@ wp_interactivity_state(
 		</div>
 
 		<!-- VIEW: Saved Jobs -->
-		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabBookmarks">
+		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-bookmarks" data-wp-class--wcb-view-active="state.isTabBookmarks">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?></h1>
 			</div>
@@ -404,7 +420,7 @@ wp_interactivity_state(
 		</div>
 
 		<!-- VIEW: My Resumes (Pro) -->
-		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabResumes">
+		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-resumes" data-wp-class--wcb-view-active="state.isTabResumes">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></h1>
 				<div class="wcb-resumes-header">
@@ -415,6 +431,15 @@ wp_interactivity_state(
 							data-wp-on--click="actions.toggleNewResumeForm"
 							data-wp-bind--disabled="state.isAtResumesCap"
 						><?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?></button>
+						<label class="wcb-cbtn wcb-cbtn--ghost wcb-upload-label" data-wp-bind--hidden="state.isAtResumesCap">
+							<?php esc_html_e( 'Upload CV', 'wp-career-board' ); ?>
+							<input
+								type="file"
+								class="wcb-sr-only"
+								accept=".pdf,.doc,.docx"
+								data-wp-on--change="actions.uploadResumeFile"
+							/>
+						</label>
 						<span class="wcb-resume-cap-info" data-wp-bind--hidden="!state.maxResumes" data-wp-text="state.resumeCapLabel"></span>
 					</div>
 					<div class="wcb-new-resume-form" data-wp-class--wcb-hidden="!state.showNewResumeForm">
@@ -495,7 +520,7 @@ wp_interactivity_state(
 
 	<?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
 		<!-- VIEW: Job Alerts (Pro) -->
-		<div class="wcb-view-panel" data-wp-class--wcb-view-active="state.isTabAlerts">
+		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-alerts" data-wp-class--wcb-view-active="state.isTabAlerts">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?></h1>
 			</div>
@@ -537,6 +562,55 @@ wp_interactivity_state(
 			</div>
 		</div>
 		<?php endif; ?>
+
+	<!-- ── Profile panel ──────────────────────────────────────────── -->
+	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-profile" data-wp-class--wcb-view-active="state.isTabProfile">
+		<div class="wcb-panel-header">
+			<span class="wcb-panel-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></span>
+		</div>
+		<div class="wcb-panel wcb-shown">
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-profile-bio"><?php esc_html_e( 'Bio / About Me', 'wp-career-board' ); ?></label>
+				<textarea id="wcb-profile-bio" class="wcb-field" rows="5"
+					placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>"
+					data-wp-bind--value="state.profileBio"
+					data-wp-on--input="actions.updateProfileBio"
+				></textarea>
+			</div>
+			<div class="wcb-form-actions" style="margin-top:var(--wcb-space-lg)">
+				<button type="button" class="wcb-cbtn wcb-cbtn--primary"
+					data-wp-on--click="actions.saveProfile"
+					data-wp-bind--disabled="state.profileSaving">
+					<span data-wp-class--wcb-hidden="state.profileSaving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.profileSaving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>
+				</button>
+				<span class="wcb-save-confirm" data-wp-class--wcb-shown="state.profileSaved"><?php esc_html_e( '✓ Saved', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Settings panel ─────────────────────────────────────────── -->
+	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isTabSettings">
+		<div class="wcb-panel-header">
+			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
+		</div>
+		<div class="wcb-panel wcb-shown">
+			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<span data-wp-text="state.profileEmail"></span>
+				</div>
+			</div>
+			<div class="wcb-settings-row">
+				<div class="wcb-settings-row-label"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></div>
+				<div class="wcb-settings-row-control">
+					<a class="wcb-cbtn wcb-cbtn--ghost" data-wp-bind--href="state.passwordResetUrl">
+						<?php esc_html_e( 'Reset Password', 'wp-career-board' ); ?> &#8599;
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	</main>
 

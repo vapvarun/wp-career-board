@@ -65,9 +65,17 @@ class AdminApplications extends \WP_List_Table {
 		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
-		<div class="wrap wcb-applications-list">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
-			<hr class="wp-header-end">
+		<div class="wrap wcb-admin wcb-applications-list">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
+			<div class="wcb-page-header">
+				<div class="wcb-page-header__left">
+					<h2 class="wcb-page-header__title">
+						<i data-lucide="clipboard-list"></i>
+						<?php esc_html_e( 'Applications', 'wp-career-board' ); ?>
+					</h2>
+					<p class="wcb-page-header__desc"><?php esc_html_e( 'Review candidate applications, update statuses, and manage your hiring pipeline.', 'wp-career-board' ); ?></p>
+				</div>
+			</div>
 
 			<?php $this->views(); ?>
 
@@ -336,10 +344,10 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		?>
-		<div class="wcb-no-items-state">
-			<span class="dashicons dashicons-email-alt"></span>
-			<span class="wcb-no-items-title"><?php esc_html_e( 'No applications found', 'wp-career-board' ); ?></span>
-			<p><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
+		<div class="wcb-empty-state">
+			<i data-lucide="mail" class="wcb-empty-state__icon"></i>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications found', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php
 	}
@@ -483,9 +491,18 @@ class AdminApplications extends \WP_List_Table {
 		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
 		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
 
+		$badge_map = array(
+			'submitted'   => 'info',
+			'reviewing'   => 'warn',
+			'shortlisted' => 'success',
+			'rejected'    => 'danger',
+			'hired'       => 'success',
+		);
+		$badge_var = $badge_map[ $status ] ?? 'default';
+
 		return sprintf(
-			'<span class="wcb-status-badge wcb-status-%s">%s</span>',
-			esc_attr( $status ),
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			esc_attr( $badge_var ),
 			esc_html( ucfirst( $status ) )
 		);
 	}

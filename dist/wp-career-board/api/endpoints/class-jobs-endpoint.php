@@ -131,7 +131,8 @@ final class JobsEndpoint extends RestController {
 		// Support wcb_* prefixed aliases so URL filter params forward transparently to the REST API.
 		$search = $request->get_param( 'search' ) ?? $request->get_param( 'wcb_search' );
 		if ( $search ) {
-			$args['s'] = sanitize_text_field( $search );
+			// Store search term for later use in posts_where filter.
+			$args['wcb_search_term'] = sanitize_text_field( $search );
 		}
 
 		$category = $request->get_param( 'category' ) ?? $request->get_param( 'wcb_category' );
@@ -167,6 +168,15 @@ final class JobsEndpoint extends RestController {
 				'taxonomy' => 'wcb_experience',
 				'terms'    => array_map( 'sanitize_text_field', explode( ',', $experience ) ),
 				'field'    => 'slug',
+			);
+		}
+
+		$board = $request->get_param( 'board' );
+		if ( $board ) {
+			$args['meta_query'][] = array(
+				'key'   => '_wcb_board_id',
+				'value' => absint( $board ),
+				'type'  => 'NUMERIC',
 			);
 		}
 
@@ -219,13 +229,13 @@ final class JobsEndpoint extends RestController {
 			return $response;
 		}
 
-		if ( ! empty( $args['s'] ) ) {
-			add_filter( 'posts_search', array( $this, 'extend_search_to_company' ), 10, 2 );
+		if ( ! empty( $args['wcb_search_term'] ) ) {
+			add_filter( 'posts_where', array( $this, 'restrict_search_to_title_and_company' ), 10, 2 );
 		}
 
 		$query = new \WP_Query( $args );
 
-		remove_filter( 'posts_search', array( $this, 'extend_search_to_company' ), 10 );
+		remove_filter( 'posts_where', array( $this, 'restrict_search_to_title_and_company' ), 10 );
 
 		$jobs = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
 		$jobs = (array) apply_filters( 'wcb_jobs_post_filter', $jobs, $query, $request );
@@ -248,38 +258,44 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Extend keyword search to include the denormalized company name meta.
+	 * Restrict search to only post_title and company name for wcb_job post types.
 	 *
-	 * Appended as a temporary posts_search filter in get_items() so the
-	 * subquery only fires on wcb_job searches that have an 's' param.
+	 * Uses posts_where filter to completely control the search logic,
+	 * excluding post_content from job searches.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string    $search Existing SQL search clause.
-	 * @param \WP_Query $query  Current WP_Query instance.
+	 * @param string    $where Existing WHERE clause.
+	 * @param \WP_Query $query Current WP_Query instance.
 	 * @return string
 	 */
-	public function extend_search_to_company( string $search, \WP_Query $query ): string {
+	public function restrict_search_to_title_and_company( string $where, \WP_Query $query ): string {
 		global $wpdb;
 
-		if ( ! $search || 'wcb_job' !== $query->get( 'post_type' ) ) {
-			return $search;
+		if ( 'wcb_job' !== $query->get( 'post_type' ) ) {
+			return $where;
 		}
 
-		$term = (string) $query->get( 's' );
-		$like = '%' . $wpdb->esc_like( $term ) . '%';
+		$search_term = $query->get( 'wcb_search_term' );
+		if ( empty( $search_term ) ) {
+			return $where;
+		}
 
-		$search .= $wpdb->prepare(
-			" OR EXISTS (
+		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
+
+		// Add search condition for post_title and company name.
+		$where .= $wpdb->prepare(
+			" AND ( {$wpdb->posts}.post_title LIKE %s OR EXISTS (
 				SELECT 1 FROM {$wpdb->postmeta} pm
 				WHERE pm.post_id = {$wpdb->posts}.ID
 				  AND pm.meta_key = '_wcb_company_name'
 				  AND pm.meta_value LIKE %s
-			)",
+			) )",
+			$like,
 			$like
 		);
 
-		return $search;
+		return $where;
 	}
 
 	/**
@@ -344,6 +360,24 @@ final class JobsEndpoint extends RestController {
 				__( 'Job title is required.', 'wp-career-board' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// Credit gate — if board has a credit cost, check employer balance.
+		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) ( $request->get_param( 'board_id' ) ?? 0 ) );
+		if ( $wcb_credit_cost > 0 ) {
+			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+			if ( $wcb_employer_balance < $wcb_credit_cost ) {
+				return new \WP_Error(
+					'wcb_insufficient_credits',
+					sprintf(
+						/* translators: 1: credit cost, 2: current balance */
+						__( 'This board requires %1$d credits to post a job. Your balance: %2$d credits.', 'wp-career-board' ),
+						$wcb_credit_cost,
+						$wcb_employer_balance
+					),
+					array( 'status' => 402 )
+				);
+			}
 		}
 
 		$settings     = get_option( 'wcb_settings', array() );

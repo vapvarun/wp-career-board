@@ -98,12 +98,12 @@ $wcb_trust_badges = array(
 $wcb_companies_state = array();
 
 foreach ( $wcb_companies_raw as $wcb_co ) {
-	$wcb_co_id    = $wcb_co->ID;
-	$wcb_co_name  = $wcb_co->post_title;
-	$wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
-	$wcb_trust    = sanitize_key( (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true ) );
-	$wcb_size     = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
-	$wcb_job_cnt  = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
+	$wcb_co_id      = $wcb_co->ID;
+	$wcb_co_name    = $wcb_co->post_title;
+	$wcb_logo_url   = (string) get_the_post_thumbnail_url( $wcb_co_id, 'thumbnail' );
+	$wcb_trust      = sanitize_key( (string) get_post_meta( $wcb_co_id, '_wcb_trust_level', true ) );
+	$wcb_size       = (string) get_post_meta( $wcb_co_id, '_wcb_company_size', true );
+	$wcb_job_cnt    = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
 	// Build up-to-2-letter initials.
@@ -124,22 +124,22 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		);
 
 	$wcb_companies_state[] = array(
-		'id'         => $wcb_co_id,
-		'name'       => $wcb_co_name,
-		'initials'   => $wcb_initials,
-		'has_logo'   => '' !== $wcb_logo_url,
-		'no_logo'    => '' === $wcb_logo_url,
-		'logo'       => $wcb_logo_url,
-		'tagline'    => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
-		'industry'   => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
-		'size_label' => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
-		'hq'         => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
-		'trust'            => $wcb_trust,
-		'trust_label'      => $wcb_trust_info['label'] ?? '',
-		'trust_icon'       => $wcb_trust_info['icon'] ?? '',
-		'verified'         => null !== $wcb_trust_info,
-		'permalink'        => get_permalink( $wcb_co_id ),
-		'jobs_label'       => $wcb_jobs_label,
+		'id'          => $wcb_co_id,
+		'name'        => $wcb_co_name,
+		'initials'    => $wcb_initials,
+		'has_logo'    => '' !== $wcb_logo_url,
+		'no_logo'     => '' === $wcb_logo_url,
+		'logo'        => $wcb_logo_url,
+		'tagline'     => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
+		'industry'    => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
+		'size_label'  => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
+		'hq'          => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
+		'trust'       => $wcb_trust,
+		'trust_label' => $wcb_trust_info['label'] ?? '',
+		'trust_icon'  => $wcb_trust_info['icon'] ?? '',
+		'verified'    => null !== $wcb_trust_info,
+		'permalink'   => get_permalink( $wcb_co_id ),
+		'jobs_label'  => $wcb_jobs_label,
 	);
 }
 
@@ -234,7 +234,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setList"
 				data-wp-class--wcb-active="state.isList"
 			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2V7.25zm0 3.25h12v1.5H2v-1.5z"/></svg>
+				<i data-lucide="list" aria-hidden="true"></i>
 			</button>
 			<button
 				type="button"
@@ -243,7 +243,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setGrid"
 				data-wp-class--wcb-active="state.isGrid"
 			>
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zm-7 7h5v5H2V9zm7 0h5v5H9V9z"/></svg>
+				<i data-lucide="layout-grid" aria-hidden="true"></i>
 			</button>
 		</div>
 
@@ -276,15 +276,16 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 							></div>
 						</div>
 
-						<span
-							class="wcb-ca-trust-badge"
-							data-wp-class--wcb-shown="context.company.verified"
-							data-wp-bind--data-trust="context.company.trust"
-						>
-							<span aria-hidden="true" data-wp-text="context.company.trust_icon"></span>
-							<span data-wp-text="context.company.trust_label"></span>
-						</span>
-					</div>
+							<span
+								class="wcb-ca-trust-badge"
+								role="status"
+								data-wp-class--wcb-shown="context.company.verified"
+								data-wp-bind--data-trust="context.company.trust"
+							>
+								<span aria-hidden="true" data-wp-text="context.company.trust_icon"></span>
+								<span data-wp-text="context.company.trust_label"></span>
+							</span>
+						</div>
 
 					<div class="wcb-ca-card-body">
 						<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
@@ -312,7 +313,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				</a>
 			</article>
 		</template>
-		<p class="wcb-no-results" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
+		<p class="wcb-no-results wcb-notice-error" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
 	</div>
 
 	<?php /* ── Load more ── */ ?>
