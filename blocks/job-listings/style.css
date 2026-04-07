@@ -1,3 +1,8 @@
+/* Ensure data-wp-bind--hidden works even when elements have display:flex set below. */
+.wp-block-wp-career-board-job-listings [hidden] {
+	display: none !important;
+}
+
 /* ── Toolbar ─────────────────────────────────────────────────────────────── */
 .wcb-listings-toolbar {
 	display: flex;

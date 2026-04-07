@@ -491,7 +491,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</div>
 			</article>
 		</template>
-		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status">
+		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status" <?php echo $wcb_jobs_raw ? 'hidden' : ''; ?>>
 			<i data-lucide="inbox" aria-hidden="true"></i>
 			<p class="wcb-empty-state-text"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
 		</div>
