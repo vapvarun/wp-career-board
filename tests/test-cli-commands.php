@@ -10,6 +10,10 @@
  * @package WP_Career_Board
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	return;
 }
