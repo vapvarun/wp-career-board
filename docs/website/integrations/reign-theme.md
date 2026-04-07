@@ -12,13 +12,11 @@ WP Career Board includes first-class support for the **Reign** theme by Wbcom De
 ## Requirements
 
 - Reign theme active
-- WP Career Board 0.1.0 or higher
+- WP Career Board 1.0.0 or higher
 
 ## Setup
 
 Activate Reign and WP Career Board, run the Setup Wizard, and the integration activates automatically. No additional settings required.
-
-The integration activates automatically — no additional confirmation step is required.
 
 ## Using Reign Customizer
 

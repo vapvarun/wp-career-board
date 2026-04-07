@@ -4,21 +4,24 @@ WP Career Board uses WordPress blocks to display everything on the frontend. Eac
 
 ## Available Blocks
 
+WP Career Board includes 14 blocks, all registered in the **WP Career Board** category in the block inserter.
+
 | Block | What It Does |
 |---|---|
-| **Job Listings** | Reactive grid of jobs — updates on filter/search without page reload |
-| **Job Search** | Keyword search bar for the listings grid |
-| **Job Filters** | Dropdown filters for category, job type, location, and experience level |
-| **Job Single** | Full job detail page with an inline application panel |
-| **Job Form** | Multi-step form for employers to post jobs |
-| **Featured Jobs** | Static grid of featured jobs — good for homepage use |
-| **Employer Dashboard** | Tabbed dashboard: My Jobs, Applications, Company Profile |
-| **Candidate Dashboard** | Tabbed dashboard: My Applications, Saved Jobs, My Resumes (Pro), Job Alerts (Pro) |
-| **Registration** | Unified registration form with role picker — "Find a Job" or "Hire Talent" |
-| **Company Profile** | Public company profile with active job listings |
-| **Company Archive** | Searchable directory of all companies |
-| **Job Stats** | Display total job count, company count, and candidate count |
-| **Recent Jobs** | Grid of the most recently posted jobs |
+| **Candidate Dashboard** | Tabbed candidate dashboard: My Applications and Saved Jobs. My Resumes and Job Alerts tabs are added by Pro. |
+| **Company Archive** | Interactive company directory with grid/list toggle and industry/size filters. |
+| **Company Profile** | Public company profile with owner inline-edit and active job listings. |
+| **Employer Dashboard** | Tabbed employer dashboard: My Jobs, Applications, and Company Profile. |
+| **Employer Registration** | Registration form for new employers to sign up and create their company profile. |
+| **Featured Jobs** | Static server-rendered grid of featured (flagged) jobs. Good for homepages. |
+| **Job Filters** | Taxonomy filter dropdowns (category, type, location, experience) for the job listings grid. |
+| **Job Form** | Multi-step form for employers to post new jobs. |
+| **Job Listings** | Reactive job listings grid with load-more and bookmark toggle. Updates on search/filter without page reload. |
+| **Job Search** | Keyword search bar that drives the job listings grid. |
+| **Job Search Hero** | Full-width search form with optional category, location, and job type filter dropdowns. Horizontal or vertical layout. Good for homepages. |
+| **Job Single** | Full job detail view with a slide-in application panel. |
+| **Job Stats** | Horizontal stat strip showing total jobs, companies, and candidates. |
+| **Recent Jobs** | Static list of the most recently published jobs. Good for sidebars or homepages. |
 
 > **WP Career Board Pro** adds 9 additional blocks: Resume Builder, Find Resumes, Resume Single, Job Map, Job Alerts, AI Chat Search, Application Kanban, Board Switcher, and Credit Balance. See the [Pro Blocks Reference](https://docs.wbcomdesigns.com/wp-career-board-pro/pro-blocks/blocks-reference/) for details.
 
@@ -48,15 +51,28 @@ All three blocks are connected — they automatically coordinate with each other
 Some blocks have settings you can adjust in the block sidebar:
 
 **Job Listings:**
-- **Jobs per page** — how many jobs to show before the "Load more" button (default: 10)
+- **Jobs per page** — how many jobs to show before the "Load more" button
 - **Layout** — grid (default) or list view
 
+**Job Search Hero:**
+- **Layout** — horizontal (default) or vertical
+- **Show Category Filter**, **Show Location Filter**, **Show Job Type Filter** — toggle each filter dropdown on or off
+
 **Featured Jobs:**
-- **Jobs per page** — how many featured jobs to display
+- **Jobs per page** — how many featured jobs to display (default: 3)
+- **Title** — optional heading above the grid
+- **Show "View All" link** — toggle the link to the full job board
+
+**Recent Jobs:**
+- **Count** — how many recent jobs to list (default: 5)
+- **Show "View All" link** — toggle the link to the full job board
 
 **Company Archive:**
-- **Companies per page** — how many companies per page
+- **Companies per page** — how many companies per page (default: 20)
 - **Layout** — grid or list
+
+**Job Stats:**
+- Toggle **Show Jobs**, **Show Companies**, **Show Candidates** independently to display only the counts you want.
 
 To access these settings, click the block in the editor and look at the **Block** panel in the right sidebar.
 
@@ -77,11 +93,13 @@ If you're using the Classic Editor or a page builder that doesn't support Gutenb
 |---|---|
 | `[wcb_job_listings]` | Job Listings |
 | `[wcb_job_search]` | Job Search |
+| `[wcb_job_filters]` | Job Filters |
 | `[wcb_job_form]` | Job Form |
 | `[wcb_employer_dashboard]` | Employer Dashboard |
+| `[wcb_employer_registration]` | Employer Registration |
 | `[wcb_candidate_dashboard]` | Candidate Dashboard |
-| `[wcb_registration]` | Registration (role picker) |
 | `[wcb_company_archive]` | Company Archive |
+| `[wcb_company_profile]` | Company Profile |
 | `[wcb_job_stats]` | Job Stats |
 | `[wcb_recent_jobs]` | Recent Jobs |
 

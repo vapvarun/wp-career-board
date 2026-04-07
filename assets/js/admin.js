@@ -380,11 +380,36 @@
 		} );
 	}
 
+	// -------------------------------------------------------------------------
+	// Pro upgrade banner dismiss
+	// -------------------------------------------------------------------------
+
+	function initProBannerDismiss() {
+		var btn = document.querySelector( '.wcb-pro-banner-dismiss' );
+		if ( ! btn ) {
+			return;
+		}
+
+		btn.addEventListener( 'click', function () {
+			var banner = document.getElementById( 'wcb-pro-upgrade-banner' );
+			if ( banner ) {
+				banner.style.display = 'none';
+			}
+
+			wp.apiFetch( {
+				path:   '/wcb/v1/admin/dismiss-banner',
+				method: 'POST',
+				data:   { banner: 'pro_banner' },
+			} );
+		} );
+	}
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initStatusSelects();
 		initJobModeration();
 		initTrustSelects();
 		initPanelToggles();
 		initImportPage();
+		initProBannerDismiss();
 	} );
 }() );

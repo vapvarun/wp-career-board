@@ -12,13 +12,11 @@ When BuddyPress is active on your site, WP Career Board automatically connects w
 ## Requirements
 
 - BuddyPress (any recent version) active and configured
-- WP Career Board 0.1.0 or higher
+- WP Career Board 1.0.0 or higher
 
 ## Setup
 
 No configuration required. Activate both plugins and the integration detects BuddyPress automatically.
-
-The integration activates automatically — no additional configuration is required.
 
 ## Activity Stream Integration
 

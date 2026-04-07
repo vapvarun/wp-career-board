@@ -140,6 +140,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\SearchEndpoint::class,
 			\WCB\Api\Endpoints\CompaniesEndpoint::class,
 			\WCB\Api\Endpoints\ImportEndpoint::class,
+			\WCB\Api\Endpoints\AdminEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {

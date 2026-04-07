@@ -188,6 +188,13 @@
 	display: none;
 }
 
+/* Pro teaser nav group — shown in Free only */
+.wcb-settings-nav-group--pro-teasers {
+	border-top: 1px solid var(--wcb-border, #e2e8f0);
+	margin-top: 4px;
+	padding-top: 8px;
+}
+
 /* Responsive — sidebar collapses at 782px */
 @media (max-width: 782px) {
 

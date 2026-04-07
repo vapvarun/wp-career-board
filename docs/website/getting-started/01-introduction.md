@@ -50,12 +50,13 @@ WP Career Board is free and fully functional as a standalone job board. **WP Car
 
 - Resume builder with structured sections
 - Custom field builder for jobs, companies, and candidates
-- Application pipeline (ATS-style stage tracking)
+- Application pipeline (ATS-style Kanban stage tracking)
 - Credit system with Stripe payments
 - Multi-board engine
 - Job alerts (saved searches sent by email)
-- AI-powered job matching
-- Map view and radius search
-- Advanced notifications (push, SMS, WhatsApp)
+- AI job descriptions (auto-generate with AI)
+- Job map (interactive map with geocoded pins)
+- Job feed (RSS/XML for aggregators)
+- Priority support from the Wbcom Designs team
 
 > **Start free.** You can install WP Career Board and run a complete job board at no cost. Upgrade to Pro when you need advanced features.

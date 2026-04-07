@@ -63,3 +63,9 @@ On activation, WP Career Board Pro:
 - Adds Pro settings tabs to **WP Career Board → Settings**
 - Registers 9 additional blocks in the block inserter
 - Enables the Resume Builder, Field Builder, Pipeline, Credit System, Multi-Board, Job Alerts, Job Map, and AI Search modules
+
+## Pro Setup Wizard
+
+After activating the Pro plugin, a **Pro Setup Wizard** runs automatically to configure Pro-specific settings (pipeline stages, credits, resume page, etc.). This wizard appends its own steps to the standard wizard using the `wcb_wizard_steps` filter.
+
+If the Free wizard already ran, the Pro wizard renders as a focused mini-wizard that handles only the Pro steps. You can re-run it any time from **WP Career Board → Settings → Run Setup Wizard**.

@@ -24,10 +24,11 @@ The pages were created but may not have the correct block assigned. Edit each pa
 
 | Page | Block to insert |
 |---|---|
-| Jobs | **Job Listings** |
-| Post a Job | **Post a Job Form** |
-| Candidate Dashboard | **Candidate Dashboard** |
+| Find Jobs | **Job Search** + **Job Filters** + **Job Listings** |
+| Employer Registration | **Employer Registration** |
 | Employer Dashboard | **Employer Dashboard** |
+| Candidate Dashboard | **Candidate Dashboard** |
+| Companies | **Company Archive** |
 
 Then go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
@@ -52,7 +53,7 @@ This is almost always a permalink flush issue. Go to **Settings → Permalinks**
 
 ### The "Apply" button does nothing / the application form doesn't open
 
-- Make sure the candidate is logged in. Guest applications are only available if enabled in **WP Career Board → Settings → Job Listings → Guest Applications**.
+- Guest applications are supported by default — no setting needs to be enabled. If the form still doesn't open, check that the user's browser is not blocking JavaScript.
 - If using a page caching plugin (WP Rocket, W3 Total Cache), purge the cache after activating WP Career Board.
 - Check the browser console for JavaScript errors — a JavaScript conflict with another plugin can prevent the form from loading.
 
@@ -87,7 +88,7 @@ Admin notification emails go to the address set in **Settings → Notifications 
 
 The role is assigned at registration based on which registration form the user used:
 
-- Employers register via the **Employer Dashboard** page (which contains the Employer Dashboard block).
+- Employers register via the **Employer Registration** page (which contains the Employer Registration block).
 - Candidates register via the **Candidate Dashboard** page.
 
 If a user registered via the standard WordPress login page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and manually assign the user.
@@ -96,7 +97,7 @@ If a user registered via the standard WordPress login page, they won't have a jo
 
 1. Check the employer's account in **WP Career Board → Employers** — confirm they have the Employer role.
 2. If the Credit System is active (Pro), confirm the employer has available credits. A zero balance blocks job posting.
-3. Confirm the Post a Job page has the **Post a Job Form** block inserted.
+3. Confirm the Job Form page has the **Job Form** block inserted.
 
 ---
 

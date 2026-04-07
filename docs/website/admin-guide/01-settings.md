@@ -23,10 +23,10 @@ Links each feature to its dedicated page. If the Setup Wizard ran successfully, 
 
 | Setting | Purpose |
 |---|---|
-| **Jobs Page** | The main job board browse page |
-| **Post a Job Page** | The page with the Job Form block |
+| **Jobs Archive Page** | The main job board browse page (Find Jobs) |
 | **Employer Dashboard Page** | The employer's management page |
 | **Candidate Dashboard Page** | The candidate's tracking page |
+| **Company Archive Page** | The public company directory |
 
 If a page assignment is blank, the related functionality (e.g., "View your dashboard" links in emails) won't work correctly. Always fill these in.
 
@@ -40,16 +40,26 @@ Controls the sender name, from email, and admin notification email address used 
 
 Lets you enable or disable each individual email notification and customize its subject line and body. See [Email Notifications](./02-email-notifications.md) for placeholders and customization options.
 
+## Import Tab
+
+One-click migration from WP Job Manager. See [Import & Migration](./05-import.md) for the full guide.
+
+## Antispam Tab
+
+Configure reCAPTCHA v3 for job application and registration forms. Enter your reCAPTCHA Site Key and Secret Key to enable bot protection.
+
 ## Pro-Only Tabs
 
-When **WP Career Board Pro** is active, three additional tabs appear:
+When **WP Career Board Pro** is active, six additional tabs appear:
 
 | Tab | What It Controls |
 |---|---|
-| **Resumes** | Enables the resume builder, sets the Resume Builder page |
-| **AI Settings** | Configures the AI provider key for AI Chat Search |
-| **Job Feed** | RSS/JSON feed settings for job listings |
+| **Pipeline** | Application stage configuration (Kanban hiring workflow) |
 | **Credits** | Stripe API keys, webhook secret, and credits-per-job-post value |
+| **Field Builder** | Custom fields for jobs, companies, and candidates |
+| **AI Settings** | Configures the AI provider key for AI Chat Search and job description generation |
+| **Job Feed** | RSS/JSON feed settings for job listing aggregators |
+| **Boards** | Multi-board engine: create and manage independent job boards |
 
 ## Saving Settings
 

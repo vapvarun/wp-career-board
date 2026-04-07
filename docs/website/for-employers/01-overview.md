@@ -17,7 +17,7 @@ Employers are businesses or individuals who post jobs and manage applications on
 
 When a user registers as an employer, they get the **Employer** role. This gives them access to:
 
-- The **Post a Job** page
+- The **Job Form** (post new jobs)
 - The **Employer Dashboard**
 - Their own company profile
 
@@ -28,7 +28,7 @@ Admins can also manually assign the Employer role to any user from **Users → E
 When a candidate applies to a job, the employer sees the application immediately in their dashboard. They get:
 
 - Applicant name and email
-- Application status (Submitted → Reviewed → Closed)
+- Application status (Submitted / Reviewing / Shortlisted / Rejected / Hired / Withdrawn)
 - Submission date
 - A direct link to the applicant's profile (if they are a registered candidate)
 
@@ -38,3 +38,5 @@ When a candidate applies to a job, the employer sees the application immediately
 - [Manage Jobs](./03-manage-jobs.md) — editing, closing, and re-opening jobs
 - [Review Applications](./04-review-applications.md) — working through the applicant list
 - [Company Profile](./05-company-profile.md) — setting up the public employer page
+- [Application Pipeline](./06-application-pipeline.md) — Kanban ATS workflow (Pro)
+- [Find Resumes](./07-find-resumes.md) — browsing the candidate resume archive (Pro)
