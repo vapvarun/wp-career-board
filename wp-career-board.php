@@ -39,7 +39,7 @@ add_action(
 				'item_id' => WCB_EDD_ITEM_ID,
 				'version' => WCB_VERSION,
 				'file'    => WCB_FILE,
-				'license' => 'wbcomfreea4f9c2d8b7e61a3c9d5e0f4b2c8a7e19',
+				'license' => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
 			)
 		);
 	}
@@ -52,7 +52,7 @@ if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
 add_action(
 	'admin_init',
 	function () {
-		$preset_key = 'wbcomfreea4f9c2d8b7e61a3c9d5e0f4b2c8a7e19';
+		$preset_key = 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00';
 		$option     = 'wcb_license_key';
 		$activated  = 'wcb_preset_activated';
 
