@@ -48,8 +48,4 @@ Admins have full control over all jobs from **WP Career Board → Jobs**:
 
 ## Admin Notifications
 
-Admins receive an email when:
-- A new employer registers
-- A new candidate registers
-
-These keep you informed of who is joining your board. Notification content can be customized in **Settings → Notifications**.
+Admins receive a **New Job Pending Review** email when an employer submits a job for approval. This is the only admin-facing email notification. Notification content can be customized in **Settings → Emails**.

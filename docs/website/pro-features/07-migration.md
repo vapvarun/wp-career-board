@@ -121,12 +121,10 @@ If you are switching from WP Job Manager, the WPJM importer copies all `job_list
 
 ### How to Run the WPJM Import
 
-The WPJM importer is triggered programmatically. Use WP-CLI or a one-time admin action:
+The WPJM importer is triggered via the REST API. Go to **Career Board -> Import** and use the **WP Job Manager** card, or call the endpoint directly:
 
-```php
-$importer = new \WCB\Pro\Modules\Migration\WpjmImporter();
-$result   = $importer->import();
-// $result: [ 'imported' => N, 'skipped' => N, 'errors' => [...] ]
+```
+POST /wp-json/wcb/v1/import/wpjm
 ```
 
 The importer is safe to run multiple times. Jobs already migrated are marked with `_wcb_imported_from_wpjm` meta and are skipped on subsequent runs.

@@ -1,34 +1,44 @@
 # Post a Job
 
-Employers post jobs using the **Job Form** block on the Post a Job page. The form is a multi-step wizard that walks through each section of the listing.
+Jobs are posted from within the **Employer Dashboard** — there is no separate "Post a Job" page. Navigate to your dashboard and click the **Post a Job** tab in the top navigation, or use the **+ Post a Job** button on the Overview tab.
 
 ![Job Form — Step 1](../images/job-form-step1.png)
 
 ## Before You Post
 
-Make sure you are logged in as a user with the **Employer** role. If you are not logged in, the page will show a prompt to register or log in.
+Make sure you are logged in as a user with the **Employer** role. If you are not logged in, the dashboard will show a prompt to register or log in.
 
 ## Step-by-Step: Posting a Job
 
-### Step 1 — Job Details
+The job form is a 4-step wizard that walks you through each section of the listing.
 
-Fill in the core information about the role:
+### Step 1 — Basics
+
+Enter the core information about the role:
 
 - **Job Title** — the position name (required)
 - **Job Description** — full description of the role, responsibilities, and requirements
-- **Job Type** — Full-time, Part-time, Contract, Freelance, or Internship
-- **Experience Level** — Entry, Mid, Senior, Lead, or Executive
-- **Job Category** — select the industry or function category
 
-### Step 2 — Location & Salary
+### Step 2 — Details
+
+Provide the specifics:
 
 - **Location** — city, state/country, or Remote
 - **Salary** — optional; enter a range or a fixed amount
+- **Job Type** — Full-time, Part-time, Contract, Freelance, or Internship
+- **Experience Level** — Entry, Mid, Senior, Lead, or Executive
 - **Application Deadline** — optional; date after which the job closes automatically
 
-### Step 3 — Review & Submit
+### Step 3 — Categories
 
-Review all the information you entered. Click **Submit Job** to post.
+Classify the job so candidates can find it:
+
+- **Job Category** — select the industry or function category
+- **Tags** — add relevant tags for better discoverability
+
+### Step 4 — Preview
+
+Review all the information you entered across the previous steps. If everything looks correct, click **Submit Job** to post.
 
 ![Job Form — Review Step](../images/job-form-review.png)
 

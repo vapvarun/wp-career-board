@@ -28,7 +28,6 @@ Each application card shows:
 | **Shortlisted** | You're being considered — the employer is interested |
 | **Rejected** | The employer is no longer considering your application |
 | **Hired** | Congratulations — you got the job |
-| **Withdrawn** | You withdrew your application |
 
 > **Status updates:** You will receive an email notification whenever your application status changes.
 
@@ -40,7 +39,7 @@ To withdraw from a role you are no longer interested in:
 2. Click the **Withdraw** button
 3. Confirm in the prompt
 
-Once withdrawn, you cannot resubmit. The employer will see the application marked as Withdrawn.
+Withdrawing permanently deletes the application. It is removed from both your dashboard and the employer's view. You cannot resubmit after withdrawing.
 
 ## Overview Panel
 

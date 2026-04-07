@@ -16,14 +16,14 @@ Candidates are job seekers who browse listings and apply on your job board. They
 
 ## Registration
 
-Visit the **Create Account** page and choose **"Find a Job"** to register as a candidate. You'll need:
+Visit the **Employer Registration** page (which despite its name handles both roles) and choose **"Find a Job"** to register as a candidate. The heading on the registration block is "Join WP Career Board". You'll need:
 - First name and last name
 - Email address
 - Password (minimum 8 characters)
 
 After registration, you're automatically logged in and redirected to your Candidate Dashboard.
 
-> Employers choose **"Hire Talent"** on the same page — one registration form for both roles.
+> Employers choose **"Hire Talent"** on the same page — one unified registration form for both roles.
 
 ## The Candidate Role
 

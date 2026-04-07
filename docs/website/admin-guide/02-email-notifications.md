@@ -8,15 +8,14 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 
 | Email | Sent To | Trigger |
 |---|---|---|
-| **New Application Received** | Employer | A candidate submits an application |
-| **Application Status Changed** | Candidate | Employer updates application status (Reviewed, Shortlisted, Closed) |
-| **Application Withdrawn** | Employer | Candidate withdraws their application |
-| **Job Approved** | Employer | Admin approves a pending job listing |
-| **Job Rejected** | Employer | Admin rejects a pending job listing |
-| **Job Expiry Reminder** | Employer | Job is about to expire (sent 3 days before) |
-| **Job Expired** | Employer | Job has expired and been closed |
-| **New Employer Registration** | Admin | A new user registers as an employer |
-| **New Candidate Registration** | Admin | A new user registers as a candidate |
+| **New Job Pending Review** | Admin | Employer submits a new job |
+| **Job Approved** | Employer | Admin approves a pending job |
+| **Job Rejected** | Employer | Admin rejects a pending job |
+| **Job Expired** | Employer | Job reaches its expiry date |
+| **Application Received** | Employer | Candidate applies to their job |
+| **Application Confirmation (Candidate)** | Candidate | Registered candidate submits an application |
+| **Application Confirmation (Guest)** | Guest | Guest applicant submits an application |
+| **Application Status Changed** | Candidate | Employer updates application status (Reviewing, Shortlisted, Rejected, Hired) |
 
 ## Managing Notifications
 
@@ -47,7 +46,7 @@ Use these placeholders in email subjects and bodies — they are replaced with r
 Go to **WP Career Board → Settings → Notifications** to set:
 - **From Name** — the sender name shown in inboxes (e.g. "Career Board")
 - **From Email** — the reply-to address for all WCB emails
-- **Admin Notification Email** — where new job and registration alerts are sent
+- **Admin Notification Email** — where admin alerts (e.g. new job pending review) are sent
 
 ## SMTP / Deliverability
 

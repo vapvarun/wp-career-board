@@ -14,7 +14,7 @@ The Field Builder lets you add custom fields to job listings, company profiles, 
 
 ## Accessing the Field Builder
 
-Go to **WP Career Board → Field Builder** in wp-admin.
+Go to **Career Board → Settings → Field Builder** in wp-admin.
 
 You will see three tabs:
 - **Job Fields** — fields added to job listings

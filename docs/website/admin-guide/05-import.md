@@ -2,7 +2,7 @@
 
 WP Career Board includes a built-in migration tool to import jobs and resumes from **WP Job Manager**. Access it from **WP Career Board → Settings → Import**.
 
-![Import Page](../images/admin-import.png)
+![Import Page](../images/settings-import.png)
 
 ## Overview
 

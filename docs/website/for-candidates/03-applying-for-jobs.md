@@ -49,7 +49,7 @@ If you change your mind:
 2. Find the application you want to withdraw
 3. Click **Withdraw**
 
-The employer will see your application marked as Withdrawn. You cannot resubmit after withdrawing.
+Withdrawing permanently deletes the application. It is removed from both your dashboard and the employer's view. You cannot resubmit after withdrawing.
 
 ## Application Limits
 

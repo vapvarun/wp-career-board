@@ -88,8 +88,8 @@ Admin notification emails go to the address set in **Settings → Notifications 
 
 The role is assigned at registration based on which registration form the user used:
 
-- Employers register via the **Employer Registration** page (which contains the Employer Registration block).
-- Candidates register via the **Candidate Dashboard** page.
+- Employers register via the **Registration** page (which contains the unified Registration block).
+- Candidates register via the **Registration** page (which contains the unified Registration block).
 
 If a user registered via the standard WordPress login page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and manually assign the user.
 
@@ -97,7 +97,7 @@ If a user registered via the standard WordPress login page, they won't have a jo
 
 1. Check the employer's account in **WP Career Board → Employers** — confirm they have the Employer role.
 2. If the Credit System is active (Pro), confirm the employer has available credits. A zero balance blocks job posting.
-3. Confirm the Job Form page has the **Job Form** block inserted.
+3. Confirm the employer can access the **Employer Dashboard**, where job posting is done.
 
 ---
 

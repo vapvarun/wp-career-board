@@ -34,7 +34,6 @@ If you have multiple jobs, use the **Filter by job** dropdown at the top to see 
 | **Shortlisted** | Candidate is worth moving forward |
 | **Rejected** | No longer considering this applicant |
 | **Hired** | Offer accepted — position filled |
-| **Withdrawn** | Candidate withdrew their own application |
 
 ## Updating Application Status
 
@@ -48,4 +47,4 @@ Click the applicant's email address to open a new email in your mail client. All
 
 ## When Candidates Withdraw
 
-If a candidate withdraws their application, it will be marked as **Withdrawn** and removed from your active applicant list. The record is still visible in your history.
+If a candidate withdraws their application, it is permanently deleted and will no longer appear in your application list.

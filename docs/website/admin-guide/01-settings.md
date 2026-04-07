@@ -50,16 +50,18 @@ Configure reCAPTCHA v3 for job application and registration forms. Enter your re
 
 ## Pro-Only Tabs
 
-When **WP Career Board Pro** is active, six additional tabs appear:
+When **WP Career Board Pro** is active, seven additional tabs appear:
 
 | Tab | What It Controls |
 |---|---|
-| **Pipeline** | Application stage configuration (Kanban hiring workflow) |
-| **Credits** | Credit settings, product-to-credit mappings, detected payment providers, and credits-per-job-post value |
+| **Resumes** | Resume visibility, file upload, and resume builder settings |
+| **Boards** | Multi-board engine: create and manage independent job boards; pipeline stages are configured within this tab |
 | **Field Builder** | Custom fields for jobs, companies, and candidates |
+| **Credits** | Credit settings, product-to-credit mappings, detected payment providers, and credits-per-job-post value |
 | **AI Settings** | Configures the AI provider key for AI Chat Search and job description generation |
 | **Job Feed** | RSS/JSON feed settings for job listing aggregators |
-| **Boards** | Multi-board engine: create and manage independent job boards |
+| **Integrations** | Third-party service connections and API integrations |
+| **License** | Pro license key activation and management |
 
 ## Saving Settings
 

@@ -13,7 +13,7 @@ The wizard creates five pages automatically, each with the correct block placed 
 | Page | Block(s) | Purpose |
 |---|---|---|
 | Find Jobs | Job Search + Job Filters + Job Listings | Main job board browse page |
-| Employer Registration | Employer Registration | New employer sign-up |
+| Employer Registration | Employer Registration | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
 | Employer Dashboard | Employer Dashboard | Employer manages jobs + applications |
 | Candidate Dashboard | Candidate Dashboard | Candidate tracks applications + saved jobs |
 | Companies | Company Archive | Browsable company directory |

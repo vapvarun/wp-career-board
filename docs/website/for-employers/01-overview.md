@@ -15,11 +15,14 @@ Employers are businesses or individuals who post jobs and manage applications on
 
 ## The Employer Role
 
-When a user registers as an employer, they get the **Employer** role. This gives them access to:
+When a user registers as an employer, they get the **Employer** role. This gives them access to the **Employer Dashboard**, which contains six tabs:
 
-- The **Job Form** (post new jobs)
-- The **Employer Dashboard**
-- Their own company profile
+1. **Overview** — summary stats and quick actions
+2. **My Jobs** — manage all job listings
+3. **Post a Job** — submit a new job using the multi-step form
+4. **Applications** — review and filter incoming applications
+5. **Company Profile** — set up the public employer page
+6. **Settings** — notification and account preferences
 
 Admins can also manually assign the Employer role to any user from **Users → Edit User** in wp-admin.
 
@@ -28,7 +31,7 @@ Admins can also manually assign the Employer role to any user from **Users → E
 When a candidate applies to a job, the employer sees the application immediately in their dashboard. They get:
 
 - Applicant name and email
-- Application status (Submitted / Reviewing / Shortlisted / Rejected / Hired / Withdrawn)
+- Application status (Submitted / Reviewing / Shortlisted / Rejected / Hired)
 - Submission date
 - A direct link to the applicant's profile (if they are a registered candidate)
 

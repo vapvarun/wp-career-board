@@ -61,7 +61,7 @@ On activation, WP Career Board Pro:
 
 - Creates additional Pro database tables
 - Adds Pro settings tabs to **WP Career Board → Settings**
-- Registers 9 additional blocks in the block inserter
+- Registers 15 additional blocks in the block inserter
 - Enables the Resume Builder, Field Builder, Pipeline, Credit System, Multi-Board, Job Alerts, Job Map, and AI Search modules
 
 ## Pro Setup Wizard
