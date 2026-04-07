@@ -42,6 +42,10 @@ $wcb_company_site    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_ind     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
 $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
+$wcb_company_type    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true ) : '';
+$wcb_company_founded = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_founded', true ) : '';
+$wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) : '';
+$wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
 $wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
 $wcb_settings        = (array) get_option( 'wcb_settings', array() );
@@ -130,6 +134,10 @@ wp_interactivity_state(
 		'companyIndustry'   => $wcb_company_ind,
 		'companySize'       => $wcb_company_size,
 		'companyHq'         => $wcb_company_hq,
+		'companyType'       => $wcb_company_type,
+		'companyFounded'    => $wcb_company_founded,
+		'companyLinkedin'   => $wcb_company_li,
+		'companyTwitter'    => $wcb_company_tw,
 		'companyLogoUrl'    => $wcb_company_logo,
 		'logoUploading'     => false,
 		'saving'            => false,
@@ -612,6 +620,47 @@ wp_interactivity_state(
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-site"><?php esc_html_e( 'Website', 'wp-career-board' ); ?></label>
 							<input id="wcb-company-site" type="url" class="wcb-field-input" placeholder="https://" data-wcb-field="companySite" data-wp-bind--value="state.companySite" data-wp-on--input="actions.updateField" />
+						</div>
+					</div>
+					<div class="wcb-field-row">
+						<div class="wcb-field-group">
+							<label class="wcb-field-label" for="wcb-company-type"><?php esc_html_e( 'Company Type', 'wp-career-board' ); ?></label>
+							<select id="wcb-company-type" class="wcb-field-input wcb-field-select" data-wcb-field="companyType" data-wp-on--change="actions.updateField">
+								<option value=""><?php esc_html_e( '— Select type —', 'wp-career-board' ); ?></option>
+								<?php
+								$wcb_type_options = array(
+									'public'        => __( 'Public Company', 'wp-career-board' ),
+									'private'       => __( 'Privately Held', 'wp-career-board' ),
+									'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
+									'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
+									'government'    => __( 'Government Agency', 'wp-career-board' ),
+									'educational'   => __( 'Educational Institution', 'wp-career-board' ),
+									'partnership'   => __( 'Partnership', 'wp-career-board' ),
+								);
+								foreach ( $wcb_type_options as $wcb_val => $wcb_label ) {
+									printf(
+										'<option value="%s"%s>%s</option>',
+										esc_attr( $wcb_val ),
+										selected( $wcb_company_type, $wcb_val, false ),
+										esc_html( $wcb_label )
+									);
+								}
+								?>
+							</select>
+						</div>
+						<div class="wcb-field-group">
+							<label class="wcb-field-label" for="wcb-company-founded"><?php esc_html_e( 'Founded Year', 'wp-career-board' ); ?></label>
+							<input id="wcb-company-founded" type="number" class="wcb-field-input" min="1800" max="<?php echo esc_attr( (string) gmdate( 'Y' ) ); ?>" placeholder="<?php esc_attr_e( 'e.g. 2012', 'wp-career-board' ); ?>" data-wcb-field="companyFounded" data-wp-bind--value="state.companyFounded" data-wp-on--input="actions.updateField" />
+						</div>
+					</div>
+					<div class="wcb-field-row">
+						<div class="wcb-field-group">
+							<label class="wcb-field-label" for="wcb-company-linkedin"><?php esc_html_e( 'LinkedIn', 'wp-career-board' ); ?></label>
+							<input id="wcb-company-linkedin" type="url" class="wcb-field-input" placeholder="https://linkedin.com/company/…" data-wcb-field="companyLinkedin" data-wp-bind--value="state.companyLinkedin" data-wp-on--input="actions.updateField" />
+						</div>
+						<div class="wcb-field-group">
+							<label class="wcb-field-label" for="wcb-company-twitter"><?php esc_html_e( 'X (Twitter)', 'wp-career-board' ); ?></label>
+							<input id="wcb-company-twitter" type="url" class="wcb-field-input" placeholder="https://x.com/…" data-wcb-field="companyTwitter" data-wp-bind--value="state.companyTwitter" data-wp-on--input="actions.updateField" />
 						</div>
 					</div>
 

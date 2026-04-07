@@ -293,9 +293,15 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		$meta_map = array(
-			'website'  => '_wcb_website',
-			'industry' => '_wcb_industry',
-			'size'     => '_wcb_company_size',
+			'website'      => '_wcb_website',
+			'industry'     => '_wcb_industry',
+			'size'         => '_wcb_company_size',
+			'tagline'      => '_wcb_tagline',
+			'hq'           => '_wcb_hq_location',
+			'company_type' => '_wcb_company_type',
+			'founded'      => '_wcb_founded',
+			'linkedin'     => '_wcb_linkedin',
+			'twitter'      => '_wcb_twitter',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -364,11 +370,15 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		$meta_map = array(
-			'website'  => '_wcb_website',
-			'industry' => '_wcb_industry',
-			'size'     => '_wcb_company_size',
-			'tagline'  => '_wcb_tagline',
-			'hq'       => '_wcb_hq_location',
+			'website'      => '_wcb_website',
+			'industry'     => '_wcb_industry',
+			'size'         => '_wcb_company_size',
+			'tagline'      => '_wcb_tagline',
+			'hq'           => '_wcb_hq_location',
+			'company_type' => '_wcb_company_type',
+			'founded'      => '_wcb_founded',
+			'linkedin'     => '_wcb_linkedin',
+			'twitter'      => '_wcb_twitter',
 		);
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
@@ -783,17 +793,21 @@ final class EmployersEndpoint extends RestController {
 		$logo        = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$trust_level = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
 		return array(
-			'id'          => $post->ID,
-			'name'        => $post->post_title,
-			'description' => $post->post_content,
-			'logo'        => $logo ? $logo : '',
-			'tagline'     => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'website'     => (string) get_post_meta( $post->ID, '_wcb_website', true ),
-			'industry'    => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'        => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
-			'hq'          => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
-			'trust_level' => $trust_level ? $trust_level : 'new',
-			'permalink'   => get_permalink( $post->ID ),
+			'id'           => $post->ID,
+			'name'         => $post->post_title,
+			'description'  => $post->post_content,
+			'logo'         => $logo ? $logo : '',
+			'tagline'      => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+			'website'      => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'industry'     => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
+			'size'         => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
+			'hq'           => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
+			'company_type' => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'founded'      => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
+			'linkedin'     => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
+			'twitter'      => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'trust_level'  => $trust_level ? $trust_level : 'new',
+			'permalink'    => get_permalink( $post->ID ),
 		);
 	}
 }

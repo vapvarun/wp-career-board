@@ -657,6 +657,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							industry:    state.companyIndustry,
 							size:        state.companySize,
 							hq:          state.companyHq,
+							company_type: state.companyType,
+							founded:     state.companyFounded,
+							linkedin:    state.companyLinkedin,
+							twitter:     state.companyTwitter,
 						} ),
 					}
 				);
