@@ -45,9 +45,6 @@ $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
 $wcb_settings        = (array) get_option( 'wcb_settings', array() );
-$wcb_post_job_url    = ! empty( $wcb_settings['post_job_page'] )
-	? (string) get_permalink( (int) $wcb_settings['post_job_page'] )
-	: '#';
 $wcb_company_dir_url = ! empty( $wcb_settings['company_archive_page'] )
 	? (string) get_permalink( (int) $wcb_settings['company_archive_page'] )
 	: '#';
@@ -405,7 +402,7 @@ wp_interactivity_state(
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobs">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'No jobs posted yet.', 'wp-career-board' ); ?></p>
-				<a href="<?php echo esc_url( $wcb_post_job_url ); ?>" class="wcb-db-btn wcb-db-btn--secondary"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></a>
+				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs">
