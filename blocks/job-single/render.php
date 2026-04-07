@@ -91,7 +91,22 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 $wcb_company_url   = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
 $wcb_company_desc  = $wcb_company_post instanceof \WP_Post ? wp_trim_words( $wcb_company_post->post_content, 40 ) : '';
 $wcb_company_site  = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
-$wcb_company_trust = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) : '';
+$wcb_company_trust = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
+$wcb_trust_map     = array(
+	'verified' => array(
+		'label' => __( 'Verified', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'trusted'  => array(
+		'label' => __( 'Trusted', 'wp-career-board' ),
+		'icon'  => '✓',
+	),
+	'premium'  => array(
+		'label' => __( 'Premium', 'wp-career-board' ),
+		'icon'  => '★',
+	),
+);
+$wcb_trust_info    = $wcb_trust_map[ $wcb_company_trust ] ?? null;
 
 // ── Posted date ───────────────────────────────────────────────────────────────
 $wcb_days_ago = (int) round( ( time() - (int) strtotime( $wcb_job->post_date ) ) / DAY_IN_SECONDS );
@@ -271,8 +286,10 @@ wp_interactivity_state(
 						<?php else : ?>
 							<?php echo esc_html( $wcb_company_name ); ?>
 						<?php endif; ?>
-						<?php if ( 'verified' === $wcb_company_trust ) : ?>
-							<span class="wcb-verified-badge"><?php esc_html_e( '✓ Verified', 'wp-career-board' ); ?></span>
+						<?php if ( $wcb_trust_info ) : ?>
+							<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
+								<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+							</span>
 						<?php endif; ?>
 					</p>
 				<?php endif; ?>
@@ -589,8 +606,10 @@ wp_interactivity_state(
 							<?php else : ?>
 								<p class="wcb-company-card-name"><?php echo esc_html( $wcb_company_name ); ?></p>
 							<?php endif; ?>
-							<?php if ( 'verified' === $wcb_company_trust ) : ?>
-								<span class="wcb-verified-badge"><?php esc_html_e( '✓ Verified', 'wp-career-board' ); ?></span>
+							<?php if ( $wcb_trust_info ) : ?>
+								<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
+									<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+								</span>
 							<?php endif; ?>
 						</div>
 					</div>
