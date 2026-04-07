@@ -30,6 +30,7 @@ final class JobsModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_filter( 'template_include', array( $this, 'single_job_template' ) );
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
@@ -104,6 +105,29 @@ final class JobsModule {
 
 		$header = '<ul>' . implode( '', array_map( fn( $line ) => '<li>' . $line . '</li>', $meta ) ) . '</ul>';
 		return $header . $content;
+	}
+
+	/**
+	 * Render single wcb_job pages using the wcb/job-single block.
+	 *
+	 * Ensures every theme displays the full job detail view (apply button,
+	 * sidebar, company card) instead of the raw post content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $template Current template path.
+	 * @return string
+	 */
+	public function single_job_template( string $template ): string {
+		if ( ! is_singular( 'wcb_job' ) ) {
+			return $template;
+		}
+		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
+		if ( str_contains( $template, 'wp-career-board' ) ) {
+			return $template;
+		}
+		$override = plugin_dir_path( __FILE__ ) . 'templates/single-wcb_job.php';
+		return file_exists( $override ) ? $override : $template;
 	}
 
 	/**
