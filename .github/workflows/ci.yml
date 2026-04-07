@@ -2,11 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, develop]
   pull_request:
-    branches: [main, master]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # ── PHP Lint ── syntax check across PHP versions (BLOCKING) ─────────
   php-lint:
     name: PHP Lint (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -15,7 +20,7 @@ jobs:
       matrix:
         php: ['8.1', '8.2', '8.3', '8.4']
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP ${{ matrix.php }}
@@ -25,51 +30,21 @@ jobs:
           tools: none
 
       - name: Check PHP syntax
-        run: find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" | xargs php -l
-
-  phpstan:
-    name: PHPStan
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: composer
-
-      - name: Install PHPStan and WordPress stubs
-        run: composer require --dev szepeviktor/phpstan-wordpress phpstan/phpstan --no-interaction 2>/dev/null || true
-
-      - name: Create phpstan.neon if not exists
         run: |
-          if [ ! -f phpstan.neon ] && [ ! -f phpstan.neon.dist ]; then
-            cat > phpstan.neon << 'NEON'
-          includes:
-            - vendor/szepeviktor/phpstan-wordpress/extension.neon
-          parameters:
-            level: 5
-            paths:
-              - .
-            excludePaths:
-              - vendor
-              - node_modules
-              - tests
-          NEON
-          fi
+          find . -name "*.php" \
+            -not -path "./vendor/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./build/*" \
+            -not -path "./dist/*" \
+            | xargs -P4 php -l
 
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M 2>/dev/null || echo "PHPStan completed with warnings"
-
+  # ── WPCS ── WordPress coding standards (BLOCKING: errors fail, warnings pass) ─
   wpcs:
-    name: WordPress Coding Standards
+    name: WPCS
     runs-on: ubuntu-latest
-    continue-on-error: true
+    needs: php-lint
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP
@@ -78,8 +53,116 @@ jobs:
           php-version: '8.3'
           tools: composer, cs2pr
 
-      - name: Install WPCS
-        run: composer require --dev wp-coding-standards/wpcs:"^3.0" --no-interaction 2>/dev/null || true
+      - name: Get Composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
-      - name: Run PHPCS with WordPress-Extra standard
-        run: vendor/bin/phpcs --standard=WordPress-Extra --extensions=php --ignore=vendor,node_modules,build,assets/js/min -n . 2>/dev/null || echo "WPCS completed with warnings"
+      - name: Cache Composer deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPCS (errors = fail, warnings = pass)
+        run: vendor/bin/phpcs -n --standard=phpcs.xml --report=checkstyle | cs2pr
+
+  # ── PHPStan ── static analysis level 5 with baseline (BLOCKING) ─────
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Get Composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+  # ── PHPUnit ── unit tests (non-blocking) ────────────────────────────
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    needs: php-lint
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          extensions: mysqli
+
+      - name: Get Composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPUnit
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit
+          elif [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
+            phpunit
+          else
+            echo "No PHPUnit configuration found -- skipping."
+          fi
+
+  # ── Plugin Check ── WordPress Plugin Check with noise filtering ─────
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+    needs: php-lint
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          extensions: mysqli
+
+      - name: Setup WordPress environment
+        uses: WordPress/plugin-check-action@v1
+        with:
+          build-dir: '.'
+          wp-version: 'latest'
+          exclude-checks: 'performant_wp_query_params'

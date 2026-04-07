@@ -1,0 +1,451 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Offset ''hired''\|''rejected''\|''reviewing''\|''shortlisted''\|''submitted'' on array\{submitted\: ''info'', reviewing\: ''warn'', shortlisted\: ''success'', rejected\: ''danger'', hired\: ''success''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: admin/class-admin-applications.php
+
+		-
+			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-applications.php
+
+		-
+			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-candidates.php
+
+		-
+			message: '#^Parameter \#1 \$args of function get_users expects array\{blog_id\?\: int, role\?\: array\<string\>\|string, role__in\?\: array\<string\>, role__not_in\?\: array\<string\>, meta_key\?\: array\<string\>\|string, meta_value\?\: array\<string\>\|string, meta_compare\?\: string, meta_compare_key\?\: string, \.\.\.\}, array\{meta_key\: ''_wcb_company_id'', meta_value\: int, number\: 1, fields\: array\{''ID'', ''display_name''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-companies.php
+
+		-
+			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-companies.php
+
+		-
+			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-employers.php
+
+		-
+			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: admin/class-admin-jobs.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<1, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: admin/class-admin-settings.php
+
+		-
+			message: '#^Offset ''candidate_dashboard…''\|''company_archive_page''\|''employer_dashboard…''\|''jobs_archive_page'' on array\{jobs_archive_page\: string, employer_dashboard_page\: string, candidate_dashboard_page\: string, company_archive_page\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: admin/class-admin-settings.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: admin/class-admin.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<1, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 3
+			path: admin/class-setup-wizard.php
+
+		-
+			message: '#^Method WCB\\Api\\Endpoints\\AdminEndpoint\:\:dismiss_banner\(\) never returns WP_Error so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: api/endpoints/class-admin-endpoint.php
+
+		-
+			message: '#^Found usage of constant MULTISITE\. Use is_multisite\(\) instead\.$#'
+			identifier: phpstanWP.wpConstant.fetch
+			count: 1
+			path: api/endpoints/class-candidates-endpoint.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<1, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 2
+			path: api/endpoints/class-employers-endpoint.php
+
+		-
+			message: '#^Found usage of constant MULTISITE\. Use is_multisite\(\) instead\.$#'
+			identifier: phpstanWP.wpConstant.fetch
+			count: 1
+			path: api/endpoints/class-employers-endpoint.php
+
+		-
+			message: '#^Method WCB\\Api\\Endpoints\\JobsEndpoint\:\:get_applications\(\) never returns WP_Error so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: api/endpoints/class-jobs-endpoint.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: blocks/employer-dashboard/render.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: blocks/employer-registration/render.php
+
+		-
+			message: '#^Variable \$attributes might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: blocks/job-form/render.php
+
+		-
+			message: '#^Variable \$attributes might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: blocks/job-search-hero/render.php
+
+		-
+			message: '#^Call to method finish\(\) on an unknown class cli\\progress\\Bar\.$#'
+			identifier: class.notFound
+			count: 2
+			path: cli/class-migrate-commands.php
+
+		-
+			message: '#^Call to method tick\(\) on an unknown class cli\\progress\\Bar\.$#'
+			identifier: class.notFound
+			count: 2
+			path: cli/class-migrate-commands.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 9
+			path: core/class-abilities.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: core/class-abilities.php
+
+		-
+			message: '#^Constant WCB_BASENAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: core/class-install.php
+
+		-
+			message: '#^Constant WCB_BASENAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: core/class-plugin.php
+
+		-
+			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''wcb_job'', meta_key\: ''_wcb_migrated_from'', meta_value\: int, posts_per_page\: 1, fields\: ''ids'', post_status\: ''any''\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: import/class-wpjm-importer.php
+
+		-
+			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''wcb_resume'', meta_key\: ''_wcb_migrated_from'', meta_value\: int, posts_per_page\: 1, fields\: ''ids'', post_status\: ''any''\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: import/class-wpjm-importer.php
+
+		-
+			message: '#^Parameter \#1 \$postarr of function wp_insert_post expects array\{ID\?\: int, post_author\?\: int, post_date\?\: string, post_date_gmt\?\: string, post_content\?\: string, post_content_filtered\?\: string, post_title\?\: string, post_excerpt\?\: string, \.\.\.\}, array\{post_type\: ''wcb_job'', post_title\: string, post_content\: string, post_excerpt\: string, post_status\: ''pending''\|''publish'', post_author\: string, post_date\: string, post_date_gmt\: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: import/class-wpjm-importer.php
+
+		-
+			message: '#^Callback expects 1 parameter, \$accepted_args is set to 2\.$#'
+			identifier: arguments.count
+			count: 1
+			path: integrations/buddypress/class-bp-integration.php
+
+		-
+			message: '#^Function bp_core_get_userlink not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: integrations/buddypress/class-bp-integration.php
+
+		-
+			message: '#^Function bp_register_member_type not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: integrations/buddypress/class-bp-integration.php
+
+		-
+			message: '#^Function bp_set_member_type not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: integrations/buddypress/class-bp-integration.php
+
+		-
+			message: '#^Call to function is_wp_error\(\) with int\<1, max\> will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: modules/boards/class-boards-module.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-confirmation.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-confirmation.php
+
+		-
+			message: '#^Variable \$app_id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$guest_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$job_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$candidate_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-received.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-received.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-received.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-status-changed.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-status-changed.php
+
+		-
+			message: '#^Variable \$new_status might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/application-status-changed.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-confirmation.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-confirmation.php
+
+		-
+			message: '#^Variable \$guest_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$job_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-guest-confirmation.php
+
+		-
+			message: '#^Variable \$candidate_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-received.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-received.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-received.php
+
+		-
+			message: '#^Variable \$dashboard_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-status-changed.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-status-changed.php
+
+		-
+			message: '#^Variable \$new_status might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/application-status-changed.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-approved.php
+
+		-
+			message: '#^Variable \$job_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-approved.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-expired.php
+
+		-
+			message: '#^Variable \$repost_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-expired.php
+
+		-
+			message: '#^Variable \$approve_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-pending-review.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-pending-review.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/emails/job-rejected.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-approved.php
+
+		-
+			message: '#^Variable \$job_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-approved.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-expired.php
+
+		-
+			message: '#^Variable \$repost_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-expired.php
+
+		-
+			message: '#^Variable \$approve_url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-pending-review.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-pending-review.php
+
+		-
+			message: '#^Variable \$job_title might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/notifications/templates/job-rejected.php
+
+		-
+			message: '#^Call to function is_array\(\) with list\<string\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: modules/seo/class-seo-module.php
+
+		-
+			message: '#^Action callback returns WCB\\Core\\Plugin but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: wp-career-board.php
+
+		-
+			message: '#^Call to method register\(\) on an unknown class EasyDigitalDownloads\\Updater\\Registry\.$#'
+			identifier: class.notFound
+			count: 1
+			path: wp-career-board.php
+
+		-
+			message: '#^Parameter \$registry of anonymous function has invalid type EasyDigitalDownloads\\Updater\\Registry\.$#'
+			identifier: class.notFound
+			count: 1
+			path: wp-career-board.php

@@ -2,6 +2,10 @@
 .github
 .gitignore
 .phpcs.xml.dist
+phpcs.xml
+phpstan.neon
+phpstan-baseline.neon
+phpstan-bootstrap.php
 .eslintrc*
 .stylelintrc*
 .editorconfig
@@ -15,7 +19,6 @@ package.json
 package-lock.json
 composer.json
 composer.lock
-phpstan.neon
 phpunit.xml.dist
 webpack.config.js
 Gruntfile.js

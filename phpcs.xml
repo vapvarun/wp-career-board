@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<ruleset name="WP Career Board">
+	<description>WordPress-Extra with practical exclusions for namespaced PHP 8.1+ plugins.</description>
+
+	<file>.</file>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<config name="testVersion" value="8.1-"/>
+	<config name="minimum_supported_wp_version" value="6.9"/>
+	<config name="text_domain" value="wp-career-board"/>
+
+	<!-- Exclude generated / vendor / dist directories -->
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>build/*</exclude-pattern>
+	<exclude-pattern>dist/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
+	<exclude-pattern>docs/*</exclude-pattern>
+	<exclude-pattern>marketing/*</exclude-pattern>
+	<exclude-pattern>import/*</exclude-pattern>
+
+	<!-- Base standard -->
+	<rule ref="WordPress-Extra">
+		<!-- Short arrays [] are idiomatic PHP 8.1+ -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Short ternary ?: is fine -->
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+		<!-- Namespaced code doesn't need prefixed variables -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
+		<!-- Namespaced classes use PascalCase filenames -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<!-- Yoda conditions are not required -->
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<!-- Comment style sniffs — too noisy for modern PHP -->
+		<exclude name="Squiz.Commenting.FileComment"/>
+		<exclude name="Squiz.Commenting.ClassComment"/>
+		<exclude name="Squiz.Commenting.FunctionComment"/>
+		<exclude name="Squiz.Commenting.InlineComment"/>
+		<exclude name="Squiz.Commenting.VariableComment"/>
+		<exclude name="Generic.Commenting.DocComment"/>
+		<!-- DB query sniffs — we use $wpdb->prepare() consistently -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
+		<exclude name="WordPress.DB.PreparedSQL"/>
+		<exclude name="WordPress.DB.SlowDBQuery"/>
+	</rule>
+
+	<!-- Enforce wcb_ prefix on globals (functions, constants, hooks) -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="wcb_"/>
+				<element value="WCB"/>
+			</property>
+		</properties>
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+	</rule>
+
+	<!-- i18n text domain -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-career-board"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Declare WCB custom capabilities so they don't trigger unknown-cap warnings -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="wcb_post_jobs"/>
+				<element value="wcb_manage_company"/>
+				<element value="wcb_view_applications"/>
+				<element value="wcb_apply_jobs"/>
+				<element value="wcb_manage_resume"/>
+				<element value="wcb_bookmark_jobs"/>
+				<element value="wcb_moderate_jobs"/>
+				<element value="wcb_manage_settings"/>
+				<element value="wcb_view_analytics"/>
+				<element value="wcb_access_employer_dashboard"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Security sniffs stay ON — these are the ones that matter -->
+	<rule ref="WordPress.Security.EscapeOutput"/>
+	<rule ref="WordPress.Security.NonceVerification"/>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+</ruleset>

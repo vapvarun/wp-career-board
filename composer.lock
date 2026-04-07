@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fdd4446c1a20c8b33d21fb5c9343c06c",
+    "content-hash": "d3f738e4896c86d6fa4352ad5da1a5ba",
     "packages": [],
     "packages-dev": [
         {
@@ -154,6 +154,50 @@
                 "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.9.1"
             },
             "time": "2026-02-03T19:29:21+00:00"
+        },
+        {
+            "name": "php-stubs/wp-cli-stubs",
+            "version": "v2.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-stubs/wp-cli-stubs.git",
+                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-stubs/wp-cli-stubs/zipball/af16401e299a3fd2229bd0fa9a037638a4174a9d",
+                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d",
+                "shasum": ""
+            },
+            "require": {
+                "php-stubs/wordpress-stubs": "^4.7 || ^5.0 || ^6.0"
+            },
+            "require-dev": {
+                "php": "~7.3 || ~8.0",
+                "php-stubs/generator": "^0.8.0"
+            },
+            "suggest": {
+                "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
+                "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "WP-CLI function and class declaration stubs for static analysis.",
+            "homepage": "https://github.com/php-stubs/wp-cli-stubs",
+            "keywords": [
+                "PHPStan",
+                "static analysis",
+                "wordpress",
+                "wp-cli"
+            ],
+            "support": {
+                "issues": "https://github.com/php-stubs/wp-cli-stubs/issues",
+                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/v2.12.0"
+            },
+            "time": "2025-06-10T09:58:05+00:00"
         },
         {
             "name": "phpcsstandards/phpcsextra",
@@ -531,12 +575,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "12b5637ff685a8556f4b70fead3556905bd13242"
+                "reference": "8643436ede79f08033abebc62d9f84ecac119ff2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/12b5637ff685a8556f4b70fead3556905bd13242",
-                "reference": "12b5637ff685a8556f4b70fead3556905bd13242",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/8643436ede79f08033abebc62d9f84ecac119ff2",
+                "reference": "8643436ede79f08033abebc62d9f84ecac119ff2",
                 "shasum": ""
             },
             "require": {
@@ -590,7 +634,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-03-21T00:13:40+00:00"
+            "time": "2026-04-06T00:15:02+00:00"
         }
     ],
     "aliases": [],
