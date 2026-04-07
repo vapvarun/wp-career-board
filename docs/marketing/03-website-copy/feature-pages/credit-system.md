@@ -67,7 +67,7 @@ Employers click "Buy Credits" on their dashboard. They choose a package and comp
 
 When the order completes, credits are added automatically. The employer sees their updated balance immediately.
 
-**Visual:** `credits-package-add.png` — package selection screen
+**Visual:** `credits-settings.png` — credit mappings and provider configuration
 
 ---
 
