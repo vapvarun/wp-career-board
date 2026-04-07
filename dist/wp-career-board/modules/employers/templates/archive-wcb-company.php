@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-do_action( 'reign_before_content_section' );
+do_action( 'reign_before_content_section' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Reign theme compatibility hook.
 ?>
 
 <div class="content-wrapper">
@@ -31,6 +31,6 @@ do_action( 'reign_before_content_section' );
 </div>
 
 <?php
-do_action( 'reign_after_content_section' );
+do_action( 'reign_after_content_section' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Reign theme compatibility hook.
 
 get_footer();

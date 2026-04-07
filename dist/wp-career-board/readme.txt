@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,12 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix: WPCS formatting cleanup across entire codebase (tabs, braces, spacing).
+* Fix: Hardcoded localhost URLs replaced with home_url() in seed data.
+* Improvement: PHPStan config optimized with explicit source paths.
+* Improvement: CI pipeline streamlined to PHP Lint + PHPStan.
 
 = 1.0.0 =
 * New: Initial release.

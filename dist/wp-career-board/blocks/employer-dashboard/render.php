@@ -244,14 +244,14 @@ wp_interactivity_state(
 				<?php esc_html_e( 'Balance', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.creditBalance">0</span>
 			</span>
-			<?php
-			$wcb_purchase_url = (string) apply_filters( 'wcb_credit_purchase_url', '' );
-			if ( $wcb_purchase_url ) :
-				?>
+				<?php
+				$wcb_purchase_url = (string) apply_filters( 'wcb_credit_purchase_url', '' );
+				if ( $wcb_purchase_url ) :
+					?>
 			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_purchase_url ); ?>" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'Buy Credits', 'wp-career-board' ); ?> &#8599;
+					<?php esc_html_e( 'Buy Credits', 'wp-career-board' ); ?> &#8599;
 			</a>
-			<?php endif; ?>
+				<?php endif; ?>
 			<?php endif; ?>
 
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'ACCOUNT', 'wp-career-board' ); ?></span>

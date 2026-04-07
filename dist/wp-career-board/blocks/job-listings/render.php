@@ -363,11 +363,22 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 
 			<?php if ( $wcb_board_opts ) : ?>
 			<span class="wcb-chip-divider" aria-hidden="true"></span>
-			<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
+				<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
 			<button type="button" class="wcb-chip"
 				data-wp-class--wcb-chip-active="state.isBoardActive"
 				data-wp-on--click="actions.toggleBoardChip"
-				data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'boardId' => $wcb_opt['id'], 'boardName' => $wcb_opt['name'] ) ) ); ?>"
+				data-wp-context="
+					<?php
+					echo esc_attr(
+						wp_json_encode(
+							array(
+								'boardId'   => $wcb_opt['id'],
+								'boardName' => $wcb_opt['name'],
+							)
+						)
+					);
+					?>
+									"
 			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
 			<?php endforeach; ?>
 			<?php endif; ?>
