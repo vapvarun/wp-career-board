@@ -48,6 +48,42 @@ if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
 	require_once __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php';
 }
 
+// Auto-activate the preset license key on first load so updates work.
+add_action(
+	'admin_init',
+	function () {
+		$preset_key = 'wbcomfreea4f9c2d8b7e61a3c9d5e0f4b2c8a7e19';
+		$option     = 'wcb_license_key';
+		$activated  = 'wcb_preset_activated';
+
+		if ( get_option( $activated ) ) {
+			return;
+		}
+
+		update_option( $option, $preset_key, false );
+
+		$response = wp_remote_post(
+			'https://wbcomdesigns.com',
+			array(
+				'timeout' => 15,
+				'body'    => array(
+					'edd_action' => 'activate_license',
+					'license'    => $preset_key,
+					'item_id'    => WCB_EDD_ITEM_ID,
+					'url'        => home_url(),
+				),
+			)
+		);
+
+		if ( ! is_wp_error( $response ) ) {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( 'valid' === ( $body['license'] ?? '' ) ) {
+				update_option( $activated, 1, false );
+			}
+		}
+	}
+);
+
 // Autoloader: maps WCB\ namespace to /core, /modules, /api, /integrations, /admin.
 // NAMING CONSTRAINT: Class names must use PascalCase for acronyms.
 // e.g. RestController, CptLoader — NOT RESTController, CPTLoader.
