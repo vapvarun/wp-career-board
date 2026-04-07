@@ -1592,9 +1592,9 @@ WP_CLI::log( '' );
 WP_CLI::log( 'Login credentials (password: password):' );
 WP_CLI::log( '  Employers:' );
 foreach ( $employers_data as $emp ) {
-	WP_CLI::log( '    http://job-portal.local/?autologin=' . $emp['login'] );
+	WP_CLI::log( '    ' . home_url( '/?autologin=' . $emp['login'] ) );
 }
 WP_CLI::log( '  Candidates:' );
 foreach ( $candidates_data as $c ) {
-	WP_CLI::log( '    http://job-portal.local/?autologin=' . $c['login'] );
+	WP_CLI::log( '    ' . home_url( '/?autologin=' . $c['login'] ) );
 }

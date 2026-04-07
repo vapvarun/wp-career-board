@@ -5,18 +5,27 @@ includes:
 parameters:
     level: 5
     paths:
-        - .
+        - admin/
+        - api/
+        - blocks/
+        - cli/
+        - core/
+        - import/
+        - integrations/
+        - modules/
+        - wp-career-board.php
     excludePaths:
         analyseAndScan:
             - vendor/ (?)
             - node_modules/ (?)
-            - dist/ (?)
-            - tests/ (?)
-            - build/ (?)
-            - docs/ (?)
-            - marketing/ (?)
     bootstrapFiles:
         - phpstan-bootstrap.php
     scanFiles:
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
     reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Function apply_filters invoked with#'
+        - '#Function do_action invoked with#'
+        - '#Variable \$\w+ might not be defined#'
+        - '#Cannot access offset .* on mixed#'

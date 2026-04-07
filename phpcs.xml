@@ -21,6 +21,7 @@
 	<exclude-pattern>docs/*</exclude-pattern>
 	<exclude-pattern>marketing/*</exclude-pattern>
 	<exclude-pattern>import/*</exclude-pattern>
+	<exclude-pattern>wp-career-board/*</exclude-pattern>
 
 	<!-- Base standard -->
 	<rule ref="WordPress-Extra">

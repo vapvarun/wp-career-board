@@ -7,7 +7,7 @@
 
 // WordPress core constant.
 if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', '/tmp/wordpress/' );
+	define( 'ABSPATH', '/tmp/wordpress/' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core constant.
 }
 
 // Plugin constants.
