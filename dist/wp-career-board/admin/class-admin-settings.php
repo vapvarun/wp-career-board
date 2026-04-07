@@ -109,12 +109,18 @@ class AdminSettings {
 	 * @return array<string,mixed>
 	 */
 	public function sanitize( mixed $input ): array {
-		$input = is_array( $input ) ? $input : array();
+		$input    = is_array( $input ) ? $input : array();
+		$existing = (array) get_option( self::OPTION_KEY, array() );
 
-		$notification_email = isset( $input['notification_email'] ) ? sanitize_email( $input['notification_email'] ) : '';
-		$from_email         = isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '';
+		// Determine which tab was submitted based on which fields are present.
+		$tab_fields = array(
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency' ),
+			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'post_job_page', 'company_archive_page' ),
+			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
+		);
 
-		$output = array(
+		// Sanitize every known key; use submitted value when present, otherwise keep existing.
+		$sanitized = array(
 			'auto_publish_jobs'        => ! empty( $input['auto_publish_jobs'] ),
 			'jobs_per_page'            => isset( $input['jobs_per_page'] ) ? max( 1, min( 100, (int) $input['jobs_per_page'] ) ) : 10,
 			'jobs_expire_days'         => isset( $input['jobs_expire_days'] ) ? max( 1, (int) $input['jobs_expire_days'] ) : 30,
@@ -126,18 +132,31 @@ class AdminSettings {
 			'candidate_dashboard_page' => isset( $input['candidate_dashboard_page'] ) ? (int) $input['candidate_dashboard_page'] : 0,
 			'post_job_page'            => isset( $input['post_job_page'] ) ? (int) $input['post_job_page'] : 0,
 			'company_archive_page'     => isset( $input['company_archive_page'] ) ? (int) $input['company_archive_page'] : 0,
-			'notification_email'       => $notification_email ? $notification_email : '',
+			'notification_email'       => isset( $input['notification_email'] ) ? sanitize_email( $input['notification_email'] ) : '',
 			'from_name'                => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
-			'from_email'               => $from_email ? $from_email : '',
+			'from_email'               => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
 		);
 
-		// Preserve anti-spam keys (saved via separate admin-post handler).
-		$existing       = (array) get_option( 'wcb_settings', array() );
-		$anti_spam_keys = array( 'captcha_provider', 'turnstile_site_key', 'turnstile_secret_key', 'recaptcha_site_key', 'recaptcha_secret_key', 'recaptcha_threshold' );
-		foreach ( $anti_spam_keys as $key ) {
-			if ( isset( $existing[ $key ] ) && ! isset( $input[ $key ] ) ) {
-				$output[ $key ] = $existing[ $key ];
+		// Identify which tab was submitted by checking for its fields in $input.
+		$submitted_tab = '';
+		foreach ( $tab_fields as $tab => $fields ) {
+			foreach ( $fields as $field ) {
+				if ( array_key_exists( $field, $input ) ) {
+					$submitted_tab = $tab;
+					break 2;
+				}
 			}
+		}
+
+		// Start from existing settings, then overlay only the submitted tab's keys.
+		$output = $existing;
+		if ( $submitted_tab ) {
+			foreach ( $tab_fields[ $submitted_tab ] as $field ) {
+				$output[ $field ] = $sanitized[ $field ];
+			}
+		} else {
+			// Fallback: unknown tab or full-form submission — apply all sanitized keys.
+			$output = array_merge( $existing, $sanitized );
 		}
 
 		/**
