@@ -145,7 +145,10 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_deadline_val     = (string) get_post_meta( $wcb_job_post->ID, '_wcb_deadline', true );
 	$wcb_company_name_val = (string) get_post_meta( $wcb_job_post->ID, '_wcb_company_name', true );
 	$wcb_author_id        = (int) $wcb_job_post->post_author;
-	$wcb_company_post_id  = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
+	$wcb_company_post_id  = (int) get_post_meta( $wcb_job_post->ID, '_wcb_company_id', true );
+	if ( ! $wcb_company_post_id ) {
+		$wcb_company_post_id = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
+	}
 	$wcb_trust            = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
 	$wcb_trust_info       = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
