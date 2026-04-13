@@ -1,8 +1,9 @@
 # Worktrees
 .worktrees/
 
-# Dependencies
-vendor/
+# Dependencies — track production SDKs, ignore dev packages
+/vendor/*
+!/vendor/edd-sl-sdk/
 node_modules/
 
 # Build output
