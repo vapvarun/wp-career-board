@@ -364,10 +364,26 @@ const { state, actions } = store( 'wcb-job-listings', {
 					state.layout = saved;
 				}
 			} catch {}
+			// Hydrate search state from URL so reloads and shared links survive.
+			// Mirrors the ?wcb_search=… param written by job-search/view.js.
+			// Only refetch when a value was actually present, to avoid an
+			// unnecessary REST round-trip on a clean page load (the SSR
+			// already rendered the unfiltered first page).
+			try {
+				const urlParams = new URLSearchParams( window.location.search );
+				const initialQuery = urlParams.get( 'wcb_search' );
+				if ( initialQuery !== null && initialQuery !== '' ) {
+					state.searchQuery = initialQuery;
+					store( 'wcb-job-listings' ).actions.applyFilters();
+				}
+			} catch {}
+
+			// `wcb:search` event contract (dispatched by job-search and
+			// job-filters blocks): { detail: { query: string, filters: object } }
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
-				if ( params.search !== undefined ) {
-					state.searchQuery = params.search;
+				if ( params.query !== undefined ) {
+					state.searchQuery = params.query;
 				}
 				// Merge external filter block values (wcb_category, wcb_location,
 				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
