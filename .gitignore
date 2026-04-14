@@ -11,6 +11,10 @@ build/
 assets/js/build/
 assets/css/build/
 
+# dist/ holds only release zips — never the source mirror that grunt dist generates.
+dist/*
+!dist/*.zip
+
 # Environment
 .env
 .env.*
