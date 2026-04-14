@@ -273,9 +273,9 @@
 .wcb-cbadge--featured { background: var(--wcb-warning-bg); color: #92400e; }
 .wcb-cbadge--board    { background: #eff6ff; color: #1d4ed8; }
 .wcb-cbadge--remote   { background: var(--wcb-success-bg); color: #14532d; }
-.wcb-cbadge--type     { background: var(--wcb-surface); color: #475569; }
-.wcb-cbadge--exp      { background: var(--wcb-surface); color: #475569; }
-.wcb-cbadge--location { background: var(--wcb-surface); color: #475569; }
+.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
+.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
+.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
 
 /* ── Card footer ─────────────────────────────────────────────────────────── */
 .wcb-card-footer {

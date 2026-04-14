@@ -6,16 +6,18 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	display: none !important;
 }
 
-/* ── Design tokens ────────────────────────────────────────────────────────── */
+/*
+ * Local aliases used throughout this block. --wcb-bg-subtle, --wcb-text-secondary
+ * and --wcb-bg-hover are NOT re-declared here — they cascade from the :root
+ * definitions in frontend-tokens.css and the html.dark-mode overrides in
+ * frontend.css, so both dashboards flip colors consistently in dark mode.
+ */
 .wcb-dashboard {
-	--wcb-text-primary:   var(--wcb-contrast, var(--wp--preset--color--wcb-contrast));
-	--wcb-text-secondary: var(--wcb-text-secondary, #64748b);
-	--wcb-text-muted:     var(--wcb-text-tertiary, #9ca3af);
-	--wcb-bg-subtle:      var(--wcb-bg-subtle, #f8fafc);
-	--wcb-bg-hover:       var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-	--wcb-blue:           var(--wcb-primary, var(--wp--preset--color--wcb-primary));
-	--wcb-green:          #059669;
-	--wcb-radius:         var(--wcb-radius-md);
+	--wcb-text-primary: var(--wcb-contrast, var(--wp--preset--color--wcb-contrast));
+	--wcb-text-muted:   var(--wcb-text-tertiary, #9ca3af);
+	--wcb-blue:         var(--wcb-primary, var(--wp--preset--color--wcb-primary));
+	--wcb-green:        #059669;
+	--wcb-radius:       var(--wcb-radius-md);
 	font-family: inherit;
 	font-size: 1rem;
 	color: var(--wcb-text-primary);
