@@ -474,7 +474,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'  => array(
 					'_wcb_tagline'      => 'Building the future, one product at a time',
 					'_wcb_website'      => 'https://acme-corp.example.com',
-					'_wcb_industry'     => 'SaaS / Productivity',
+					'_wcb_industry'     => 'technology',
 					'_wcb_company_size' => '201-500',
 					'_wcb_hq_location'  => 'San Francisco, CA',
 				),
@@ -485,7 +485,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'  => array(
 					'_wcb_tagline'      => 'Developer tools for the modern web',
 					'_wcb_website'      => 'https://starterlabs.example.com',
-					'_wcb_industry'     => 'Developer Tools',
+					'_wcb_industry'     => 'technology',
 					'_wcb_company_size' => '51-200',
 					'_wcb_hq_location'  => 'Remote',
 				),
@@ -496,7 +496,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'  => array(
 					'_wcb_tagline'      => 'Payments infrastructure for the internet',
 					'_wcb_website'      => 'https://payflow.example.com',
-					'_wcb_industry'     => 'Fintech',
+					'_wcb_industry'     => 'finance',
 					'_wcb_company_size' => '501-1000',
 					'_wcb_hq_location'  => 'New York, NY',
 				),

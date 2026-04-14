@@ -131,7 +131,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'no_logo'     => '' === $wcb_logo_url,
 		'logo'        => $wcb_logo_url,
 		'tagline'     => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
-		'industry'    => (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ),
+		'industry'    => \WCB\Core\Industries::label( (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ) ),
 		'size_label'  => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
 		'hq'          => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
 		'trust'       => $wcb_trust,
@@ -155,15 +155,29 @@ $wcb_all_co_ids = get_posts(
 	)
 );
 
-$wcb_filter_industries = array();
+// Build the industry filter from the canonical slug list, restricted to
+// slugs that at least one published company actually uses. Falls back to
+// any legacy free-text values still stored from before the slug enforcement
+// landed, so existing data stays selectable until a migration runs.
+$wcb_used_industries = array();
 foreach ( $wcb_all_co_ids as $wcb_cid ) {
 	$wcb_ind = (string) get_post_meta( $wcb_cid, '_wcb_industry', true );
-	if ( $wcb_ind ) {
-		$wcb_filter_industries[ $wcb_ind ] = true;
+	if ( '' !== $wcb_ind ) {
+		$wcb_used_industries[ $wcb_ind ] = true;
 	}
 }
-$wcb_filter_industries = array_keys( $wcb_filter_industries );
-sort( $wcb_filter_industries );
+$wcb_industry_labels = \WCB\Core\Industries::all();
+unset( $wcb_industry_labels[''] );
+$wcb_filter_industries = array();
+foreach ( $wcb_industry_labels as $wcb_slug => $wcb_label ) {
+	if ( isset( $wcb_used_industries[ $wcb_slug ] ) ) {
+		$wcb_filter_industries[ $wcb_slug ] = $wcb_label;
+		unset( $wcb_used_industries[ $wcb_slug ] );
+	}
+}
+foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
+	$wcb_filter_industries[ $wcb_legacy ] = $wcb_legacy;
+}
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
 $wcb_state = array(
@@ -208,8 +222,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--change="actions.filterIndustry"
 			>
 				<option value=""><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></option>
-				<?php foreach ( $wcb_filter_industries as $wcb_ind_val ) : ?>
-					<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"><?php echo esc_html( $wcb_ind_val ); ?></option>
+				<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
+					<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"><?php echo esc_html( $wcb_ind_lbl ); ?></option>
 				<?php endforeach; ?>
 			</select>
 

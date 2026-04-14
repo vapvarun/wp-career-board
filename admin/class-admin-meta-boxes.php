@@ -372,25 +372,7 @@ class AdminMetaBoxes {
 		$wcb_founded          = (string) get_post_meta( $post->ID, '_wcb_founded', true );
 		$wcb_hq_location      = (string) get_post_meta( $post->ID, '_wcb_hq_location', true );
 
-		$wcb_industries = array(
-			''               => __( '— Select Industry —', 'wp-career-board' ),
-			'technology'     => __( 'Technology & Software', 'wp-career-board' ),
-			'healthcare'     => __( 'Healthcare & Life Sciences', 'wp-career-board' ),
-			'finance'        => __( 'Finance & Banking', 'wp-career-board' ),
-			'education'      => __( 'Education', 'wp-career-board' ),
-			'retail'         => __( 'Retail & E-commerce', 'wp-career-board' ),
-			'manufacturing'  => __( 'Manufacturing', 'wp-career-board' ),
-			'media'          => __( 'Media & Entertainment', 'wp-career-board' ),
-			'consulting'     => __( 'Consulting & Professional Services', 'wp-career-board' ),
-			'nonprofit'      => __( 'Non-profit & NGO', 'wp-career-board' ),
-			'government'     => __( 'Government & Public Sector', 'wp-career-board' ),
-			'real-estate'    => __( 'Real Estate & Construction', 'wp-career-board' ),
-			'transportation' => __( 'Transportation & Logistics', 'wp-career-board' ),
-			'energy'         => __( 'Energy & Utilities', 'wp-career-board' ),
-			'hospitality'    => __( 'Hospitality & Tourism', 'wp-career-board' ),
-			'design'         => __( 'Design & Creative', 'wp-career-board' ),
-			'other'          => __( 'Other', 'wp-career-board' ),
-		);
+		$wcb_industries = \WCB\Core\Industries::all();
 
 		$wcb_sizes = array(
 			''          => __( '— Select Size —', 'wp-career-board' ),

@@ -132,6 +132,7 @@ wp_interactivity_state(
 		'companyTagline'    => $wcb_company_tagline,
 		'companySite'       => $wcb_company_site,
 		'companyIndustry'   => $wcb_company_ind,
+		'industryLabels'    => \WCB\Core\Industries::all(),
 		'companySize'       => $wcb_company_size,
 		'companyHq'         => $wcb_company_hq,
 		'companyType'       => $wcb_company_type,
@@ -584,7 +585,13 @@ wp_interactivity_state(
 					<div class="wcb-field-row">
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-ind"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></label>
-							<input id="wcb-company-ind" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. Technology', 'wp-career-board' ); ?>" data-wcb-field="companyIndustry" data-wp-bind--value="state.companyIndustry" data-wp-on--input="actions.updateField" />
+							<select id="wcb-company-ind" class="wcb-field-input wcb-field-select" data-wcb-field="companyIndustry" data-wp-bind--value="state.companyIndustry" data-wp-on--change="actions.updateField">
+								<?php foreach ( \WCB\Core\Industries::all() as $wcb_ind_val => $wcb_ind_label ) : ?>
+									<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"<?php selected( (string) $wcb_company_ind, (string) $wcb_ind_val ); ?>>
+										<?php echo esc_html( $wcb_ind_label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
 						</div>
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
@@ -682,7 +689,7 @@ wp_interactivity_state(
 						<p class="wcb-preview-tagline" data-wp-text="state.companyTagline"></p>
 						<p class="wcb-preview-desc" data-wp-text="state.companyDescExcerpt"></p>
 						<div class="wcb-preview-chips">
-							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companyIndustry" data-wp-text="state.companyIndustry"></span>
+							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companyIndustry" data-wp-text="state.companyIndustryLabel"></span>
 							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companySize" data-wp-text="state.companySize"></span>
 							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companyHq" data-wp-text="state.companyHq"></span>
 						</div>
