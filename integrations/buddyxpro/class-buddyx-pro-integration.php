@@ -51,7 +51,7 @@ class BuddyxProIntegration {
 	 */
 	public function single_template( string $template ): string {
 		if ( is_singular( 'wcb_job' ) ) {
-			$tpl = WCB_DIR . 'integrations/buddyx-pro/templates/single-wcb_job.php';
+			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/single-wcb_job.php';
 			if ( file_exists( $tpl ) ) {
 				return $tpl;
 			}
@@ -69,7 +69,7 @@ class BuddyxProIntegration {
 	 */
 	public function archive_template( string $template ): string {
 		if ( is_post_type_archive( 'wcb_job' ) ) {
-			$tpl = WCB_DIR . 'integrations/buddyx-pro/templates/archive-wcb_job.php';
+			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/archive-wcb_job.php';
 			if ( file_exists( $tpl ) ) {
 				return $tpl;
 			}
@@ -100,12 +100,22 @@ class BuddyxProIntegration {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) ) {
+		$wcb_cpts      = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
+		$wcb_is_tax    = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
+		$wcb_has_block = false;
+		if ( is_singular() ) {
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				$wcb_has_block = str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
+					|| str_contains( $post->post_content, '<!-- wp:wcb/' );
+			}
+		}
+		if ( ! is_singular( $wcb_cpts ) && ! is_post_type_archive( $wcb_cpts ) && ! $wcb_is_tax && ! $wcb_has_block ) {
 			return;
 		}
 		wp_enqueue_style(
 			'wcb-buddyx-compat',
-			WCB_URL . 'integrations/buddyx-pro/assets/buddyx-compat.css',
+			WCB_URL . 'integrations/buddyxpro/assets/buddyx-compat.css',
 			array(),
 			WCB_VERSION
 		);
