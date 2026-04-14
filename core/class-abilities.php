@@ -187,6 +187,22 @@ final class Abilities {
 				},
 			)
 		);
+
+		wp_register_ability(
+			'wcb_access_candidate_dashboard',
+			array(
+				'category'            => 'wcb',
+				'label'               => __( 'Access Candidate Dashboard', 'wp-career-board' ),
+				'description'         => __( 'Allows a candidate to access their job-seeker dashboard.', 'wp-career-board' ),
+				'permission_callback' => static function (): bool {
+					$user = wp_get_current_user();
+					return $user && ( $user->has_cap( 'wcb_access_candidate_dashboard' ) || $user->has_cap( 'manage_options' ) );
+				},
+				'execute_callback'    => static function (): bool {
+					return true;
+				},
+			)
+		);
 	}
 
 	/**

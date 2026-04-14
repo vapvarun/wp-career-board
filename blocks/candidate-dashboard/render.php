@@ -16,7 +16,23 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 if ( ! is_user_logged_in() ) {
-	echo '<p>' . esc_html__( 'Please log in to view your candidate dashboard.', 'wp-career-board' ) . '</p>';
+	?>
+	<div class="wcb-db-gate">
+		<p><?php esc_html_e( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ); ?></p>
+		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-db-btn wcb-db-btn--primary">
+			<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
+		</a>
+	</div>
+	<?php
+	return;
+}
+
+$wcb_can_access_candidate_dashboard = function_exists( 'wp_is_ability_granted' )
+	? wp_is_ability_granted( 'wcb_access_candidate_dashboard' )
+	: current_user_can( 'wcb_access_candidate_dashboard' );
+
+if ( ! $wcb_can_access_candidate_dashboard ) {
+	echo '<p>' . esc_html__( 'You do not have permission to view this dashboard.', 'wp-career-board' ) . '</p>';
 	return;
 }
 

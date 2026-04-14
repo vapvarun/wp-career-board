@@ -35,17 +35,13 @@ final class Roles {
 	}
 
 	/**
-	 * Add the Employer role with job-posting capabilities.
+	 * Add or sync the Employer role.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	private function add_employer_role(): void {
-		if ( get_role( 'wcb_employer' ) ) {
-			return;
-		}
-
-		add_role(
+		$this->sync_role(
 			'wcb_employer',
 			__( 'Employer', 'wp-career-board' ),
 			array(
@@ -59,40 +55,33 @@ final class Roles {
 	}
 
 	/**
-	 * Add the Candidate role with job-seeking capabilities.
+	 * Add or sync the Candidate role.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	private function add_candidate_role(): void {
-		if ( get_role( 'wcb_candidate' ) ) {
-			return;
-		}
-
-		add_role(
+		$this->sync_role(
 			'wcb_candidate',
 			__( 'Candidate', 'wp-career-board' ),
 			array(
-				'read'              => true,
-				'wcb_apply_jobs'    => true,
-				'wcb_manage_resume' => true,
-				'wcb_bookmark_jobs' => true,
+				'read'                           => true,
+				'wcb_apply_jobs'                 => true,
+				'wcb_manage_resume'              => true,
+				'wcb_bookmark_jobs'              => true,
+				'wcb_access_candidate_dashboard' => true,
 			)
 		);
 	}
 
 	/**
-	 * Add the Board Moderator role with moderation capabilities.
+	 * Add or sync the Board Moderator role.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	private function add_moderator_role(): void {
-		if ( get_role( 'wcb_board_moderator' ) ) {
-			return;
-		}
-
-		add_role(
+		$this->sync_role(
 			'wcb_board_moderator',
 			__( 'Board Moderator', 'wp-career-board' ),
 			array(
@@ -100,6 +89,31 @@ final class Roles {
 				'wcb_moderate_jobs' => true,
 			)
 		);
+	}
+
+	/**
+	 * Create a role or top up missing capabilities on an existing one.
+	 *
+	 * Idempotent: safe to run on every `init` so cap changes shipped in plugin
+	 * upgrades reach existing installs without requiring re-activation.
+	 *
+	 * @since 1.0.2
+	 * @param string             $role_slug Role slug.
+	 * @param string             $label     Human-readable role label.
+	 * @param array<string,bool> $caps      Capability map.
+	 * @return void
+	 */
+	private function sync_role( string $role_slug, string $label, array $caps ): void {
+		$role = get_role( $role_slug );
+		if ( ! $role ) {
+			add_role( $role_slug, $label, $caps );
+			return;
+		}
+		foreach ( $caps as $cap => $grant ) {
+			if ( $grant && ! $role->has_cap( $cap ) ) {
+				$role->add_cap( $cap );
+			}
+		}
 	}
 
 	/**
@@ -126,6 +140,7 @@ final class Roles {
 			'wcb_manage_settings',
 			'wcb_view_analytics',
 			'wcb_access_employer_dashboard',
+			'wcb_access_candidate_dashboard',
 		);
 
 		foreach ( $caps as $cap ) {
