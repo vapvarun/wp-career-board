@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,15 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fix: Candidate dashboard now gates access via the `wcb_access_candidate_dashboard` ability — employers can no longer reach the candidate dashboard.
+* Fix: Job listings search input filtering on the Find Jobs page now matches the `wcb:search` event contract dispatched by the search block (`params.query`), and the listings hydrate from the `wcb_search` URL parameter.
+* Fix: Company industry field is now a single source of truth — both the employer dashboard and the admin meta box render the same dropdown of 16 predefined industries from `WCB\Core\Industries::all()`.
+* Fix: `wcb-btn--primary` and other variant text colors no longer get clobbered by the wrapper-scoped theme isolation reset — the reset no longer overrides per-variant `color`.
+* Fix: EDD SL SDK `plugins_api_filter` no longer fatals on PHP 8+ when the licensing API call fails and the cache is empty (`Attempt to assign property "plugin" on false`).
+* Improvement: Listings card typography rebalanced — title bumped to ~19px, description shrunk and muted, card body gap widened, badge contrast retuned to WCAG AA on every background, and the title link tap target raised above the WCAG 2.5.5 AAA threshold.
+* Improvement: Accessibility pass — replaced 33 `outline: none` focus-strip sites with `outline: 2px solid transparent` so focus indicators show in Windows High Contrast / forced-colors mode, added missing form labels and ARIA labels across admin and block templates, and gave Interactivity API anchor stubs static aria-labels that hydrate at runtime.
 
 = 1.0.1 =
 * Fix: WPCS formatting cleanup across entire codebase (tabs, braces, spacing).
