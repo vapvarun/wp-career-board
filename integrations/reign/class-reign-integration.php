@@ -160,22 +160,16 @@ class ReignIntegration {
 	 */
 	public function enqueue_styles(): void {
 		$wcb_is_tax    = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
-		$wcb_blocks    = array(
-			'wp-career-board/job-listings',
-			'wp-career-board/job-single',
-			'wp-career-board/employer-dashboard',
-			'wp-career-board/candidate-dashboard',
-		);
+		$wcb_cpts      = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
 		$wcb_has_block = false;
 		if ( is_singular() ) {
-			foreach ( $wcb_blocks as $block_name ) {
-				if ( has_block( $block_name ) ) {
-					$wcb_has_block = true;
-					break;
-				}
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				$wcb_has_block = str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
+					|| str_contains( $post->post_content, '<!-- wp:wcb/' );
 			}
 		}
-		if ( ! is_singular( 'wcb_job' ) && ! is_post_type_archive( 'wcb_job' ) && ! $wcb_is_tax && ! $wcb_has_block ) {
+		if ( ! is_singular( $wcb_cpts ) && ! is_post_type_archive( $wcb_cpts ) && ! $wcb_is_tax && ! $wcb_has_block ) {
 			return;
 		}
 		wp_enqueue_style(
