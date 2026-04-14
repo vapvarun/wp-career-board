@@ -1346,7 +1346,7 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 
 		if ( $wcb_id ) {
 			update_post_meta( $wcb_id, '_wcb_resume_summary', $resume['summary'] );
-			update_post_meta( $id, '_wcb_resume_public', '1' );
+			update_post_meta( $wcb_id, '_wcb_resume_public', '1' );
 
 			$section_keys = array( 'experience', 'skills', 'education_college', 'education_school', 'certifications', 'languages', 'portfolio' );
 			foreach ( $section_keys as $key ) {
