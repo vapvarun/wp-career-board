@@ -85,6 +85,7 @@ class AdminCompanies extends \WP_List_Table {
 					<label class="screen-reader-text" for="wcb-company-search-input">
 						<?php esc_html_e( 'Search Companies', 'wp-career-board' ); ?>
 					</label>
+					<label for="wcb-company-search-input" class="screen-reader-text"><?php esc_html_e( 'Search companies', 'wp-career-board' ); ?></label>
 					<input type="search" id="wcb-company-search-input" name="s" value="<?php echo esc_attr( $wcb_s ); ?>" placeholder="<?php esc_attr_e( 'Company name…', 'wp-career-board' ); ?>">
 					<?php submit_button( __( 'Search Companies', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
 				</p>
@@ -106,7 +107,7 @@ class AdminCompanies extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'          => '<input type="checkbox">',
+			'cb'          => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all companies', 'wp-career-board' ) ),
 			'title'       => __( 'Company Name', 'wp-career-board' ),
 			'employer'    => __( 'Employer', 'wp-career-board' ),
 			'website'     => __( 'Website', 'wp-career-board' ),

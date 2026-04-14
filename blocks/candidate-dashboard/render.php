@@ -248,10 +248,7 @@ wp_interactivity_state(
 				</div>
 				<div class="wcb-bell-list">
 					<template data-wp-each--notif="state.bellNotifications" data-wp-each-key="context.notif.id">
-						<a class="wcb-bell-item"
-							data-wp-bind--href="context.notif.link"
-							data-wp-class--wcb-bell-unread="!context.notif.is_read"
-							data-wp-on--click="actions.markBellRead">
+						<a class="wcb-bell-item" data-wp-bind--href="context.notif.link" data-wp-class--wcb-bell-unread="!context.notif.is_read" data-wp-on--click="actions.markBellRead">
 							<span class="wcb-bell-msg" data-wp-text="context.notif.message"></span>
 							<span class="wcb-bell-time" data-wp-text="context.notif.created_at"></span>
 						</a>
@@ -321,7 +318,7 @@ wp_interactivity_state(
 						<template data-wp-each--saved="state.overviewRecentSavedJobs" data-wp-each-key="context.saved.id">
 							<div class="wcb-overview-app-row">
 								<div class="wcb-app-info">
-									<a class="wcb-app-name" data-wp-bind--href="context.saved.permalink" data-wp-text="context.saved.title" target="_blank" rel="noopener noreferrer"></a>
+									<a class="wcb-app-name" role="link" tabindex="0" aria-label="<?php esc_attr_e( 'Saved job', 'wp-career-board' ); ?>" data-wp-bind--href="context.saved.permalink" data-wp-bind--aria-label="context.saved.title" data-wp-text="context.saved.title" target="_blank" rel="noopener noreferrer"></a>
 									<span class="wcb-app-job" data-wp-text="context.saved.company"></span>
 								</div>
 								<span class="wcb-status-badge" role="status" data-wp-text="context.saved.type"></span>
@@ -557,7 +554,7 @@ wp_interactivity_state(
 							</div>
 						</div>
 						<div class="wcb-alert-actions">
-							<select class="wcb-alert-freq" data-wp-bind--value="context.alert.frequency" data-wp-on--change="actions.changeAlertFrequency">
+							<select class="wcb-alert-freq" aria-label="<?php esc_attr_e( 'Alert frequency', 'wp-career-board' ); ?>" data-wp-bind--value="context.alert.frequency" data-wp-on--change="actions.changeAlertFrequency">
 								<option value="instant"><?php esc_html_e( 'Instant', 'wp-career-board' ); ?></option>
 								<option value="daily"><?php esc_html_e( 'Daily', 'wp-career-board' ); ?></option>
 								<option value="weekly"><?php esc_html_e( 'Weekly', 'wp-career-board' ); ?></option>

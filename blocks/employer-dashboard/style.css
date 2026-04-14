@@ -157,7 +157,7 @@
 	border-color: var(--wcb-border);
 }
 .wcb-dashboard .wcb-filter-pill:focus {
-	outline: none;
+	outline: 2px solid transparent;
 }
 .wcb-dashboard .wcb-filter-pill:focus-visible {
 	outline: 2px solid var(--wcb-primary);
@@ -547,7 +547,7 @@
 }
 
 .wcb-filter-pill:focus {
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .wcb-filter-pill:focus-visible {
@@ -600,7 +600,7 @@
 }
 
 .wcb-job-search:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -705,7 +705,7 @@
 }
 
 .wcb-apps-job-search:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -752,7 +752,7 @@
 }
 
 .wcb-apps-job-item:focus {
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .wcb-apps-job-item:focus-visible {
@@ -1334,7 +1334,7 @@
 }
 
 .wcb-field-input:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }

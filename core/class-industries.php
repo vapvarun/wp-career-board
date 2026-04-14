@@ -30,7 +30,7 @@ final class Industries {
 	/**
 	 * Slug → translated label for every supported industry.
 	 *
-	 * Includes the empty placeholder at index 0 for use as a `<select>`
+	 * Includes the empty placeholder at index 0 for use as a select-element
 	 * default option. Filterable via the `wcb_industries` hook.
 	 *
 	 * @since 1.0.2

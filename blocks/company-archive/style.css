@@ -42,7 +42,7 @@
 }
 
 .wcb-ca-filter-select:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }

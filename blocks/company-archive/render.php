@@ -216,22 +216,14 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 		<div class="wcb-ca-filter-bar">
 
-			<select
-				class="wcb-ca-filter-select"
-				aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>"
-				data-wp-on--change="actions.filterIndustry"
-			>
+			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterIndustry">
 				<option value=""><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></option>
 				<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
 					<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"><?php echo esc_html( $wcb_ind_lbl ); ?></option>
 				<?php endforeach; ?>
 			</select>
 
-			<select
-				class="wcb-ca-filter-select"
-				aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>"
-				data-wp-on--change="actions.filterSize"
-			>
+			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterSize">
 				<option value=""><?php esc_html_e( 'All Sizes', 'wp-career-board' ); ?></option>
 				<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
 					<option value="<?php echo esc_attr( $wcb_size_key ); ?>"><?php echo esc_html( $wcb_size_lbl ); ?></option>
@@ -275,13 +267,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 					<div class="wcb-ca-card-top">
 						<div class="wcb-ca-avatar-wrap">
-							<img
-								class="wcb-ca-logo"
-								alt=""
-								data-wp-class--wcb-shown="context.company.has_logo"
-								data-wp-bind--src="context.company.logo"
-								data-wp-bind--alt="context.company.name"
-							/>
+							<img class="wcb-ca-logo" alt="" data-wp-class--wcb-shown="context.company.has_logo" data-wp-bind--src="context.company.logo" data-wp-bind--alt="context.company.name" />
 							<div
 								class="wcb-ca-avatar"
 								data-wp-class--wcb-shown="context.company.no_logo"

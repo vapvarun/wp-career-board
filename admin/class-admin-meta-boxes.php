@@ -317,13 +317,7 @@ class AdminMetaBoxes {
 						);
 						?>
 					</p>
-					<input
-						type="text"
-						id="wcb_company_name"
-						name="wcb_company_name"
-						value="<?php echo esc_attr( $wcb_company_name ); ?>"
-						placeholder="<?php esc_attr_e( 'Company name (displayed on listing)', 'wp-career-board' ); ?>"
-					/>
+					<input type="text" id="wcb_company_name" name="wcb_company_name" aria-label="<?php esc_attr_e( 'Company name', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_company_name ); ?>" placeholder="<?php esc_attr_e( 'Company name (displayed on listing)', 'wp-career-board' ); ?>" />
 				<?php endif; ?>
 			</div>
 			<div class="wcb-meta-full">

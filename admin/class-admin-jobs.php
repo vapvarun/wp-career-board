@@ -80,6 +80,7 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
+				<label for="wcb-job-search-input" class="screen-reader-text"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<?php $this->search_box( __( 'Search Jobs', 'wp-career-board' ), 'wcb-job' ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -99,7 +100,7 @@ class AdminJobs extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'      => '<input type="checkbox">',
+			'cb'      => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all jobs', 'wp-career-board' ) ),
 			'title'   => __( 'Title', 'wp-career-board' ),
 			'status'  => __( 'Status', 'wp-career-board' ),
 			'company' => __( 'Company', 'wp-career-board' ),

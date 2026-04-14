@@ -339,17 +339,7 @@ $wcb_step_labels = array(
 					</button>
 					<?php endif; ?>
 				</div>
-				<textarea
-					id="wcb-job-desc"
-					class="wcb-field"
-					rows="12"
-					placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>"
-					data-wcb-field="description"
-					data-wp-bind--value="state.description"
-					data-wp-on--input="actions.updateField"
-					required
-					aria-required="true"
-				></textarea>
+				<textarea id="wcb-job-desc" class="wcb-field" rows="12" aria-label="<?php esc_attr_e( 'Job description', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>" data-wcb-field="description" data-wp-bind--value="state.description" data-wp-on--input="actions.updateField" required aria-required="true"></textarea>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Plain text or basic Markdown supported.', 'wp-career-board' ); ?>
 				</span>

@@ -53,7 +53,7 @@
 
 /* Featured job card — prevent Reign's global :focus-within outline from bleeding in */
 .wcb-job-card.wcb-featured:focus-within {
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 /* Keep a clean focus ring on focusable elements inside featured cards */

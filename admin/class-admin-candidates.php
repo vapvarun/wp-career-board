@@ -84,6 +84,7 @@ class AdminCandidates extends \WP_List_Table {
 					<label class="screen-reader-text" for="wcb-candidate-search-input">
 						<?php esc_html_e( 'Search Candidates', 'wp-career-board' ); ?>
 					</label>
+					<label for="wcb-candidate-search-input" class="screen-reader-text"><?php esc_html_e( 'Search candidates', 'wp-career-board' ); ?></label>
 					<input type="search" id="wcb-candidate-search-input" name="s" value="<?php echo esc_attr( $wcb_s ); ?>" placeholder="<?php esc_attr_e( 'Name or email…', 'wp-career-board' ); ?>">
 					<?php submit_button( __( 'Search Candidates', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
 				</p>
@@ -105,7 +106,7 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'           => '<input type="checkbox">',
+			'cb'           => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all candidates', 'wp-career-board' ) ),
 			'name'         => __( 'Name', 'wp-career-board' ),
 			'visibility'   => __( 'Profile Visibility', 'wp-career-board' ),
 			'applications' => __( 'Applications', 'wp-career-board' ),

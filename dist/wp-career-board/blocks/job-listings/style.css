@@ -133,7 +133,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-space-sm);
+	gap: var(--wcb-space-md);
 }
 
 .wcb-card-header {
@@ -149,7 +149,7 @@
 }
 
 .wcb-card-title {
-	font-size: var(--wcb-text-base);
+	font-size: var(--wcb-text-lg);
 	font-weight: var(--wcb-font-bold);
 	line-height: 1.3;
 	margin: 0 0 0.2rem;
@@ -161,6 +161,8 @@
 	text-decoration: none;
 	position: relative;
 	z-index: 2;
+	display: inline-block;
+	padding: 4px 0;
 }
 
 .wcb-card-title a:hover {
@@ -267,12 +269,13 @@
 	display: inline-flex;
 }
 
-.wcb-cbadge--featured { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
-.wcb-cbadge--board    { background: #eff6ff; color: #2563eb; }
-.wcb-cbadge--remote   { background: var(--wcb-success-bg); color: var(--wcb-success); }
-.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+/* Tuned for WCAG AA contrast on each background pairing. */
+.wcb-cbadge--featured { background: var(--wcb-warning-bg); color: #92400e; }
+.wcb-cbadge--board    { background: #eff6ff; color: #1d4ed8; }
+.wcb-cbadge--remote   { background: var(--wcb-success-bg); color: #14532d; }
+.wcb-cbadge--type     { background: var(--wcb-surface); color: #475569; }
+.wcb-cbadge--exp      { background: var(--wcb-surface); color: #475569; }
+.wcb-cbadge--location { background: var(--wcb-surface); color: #475569; }
 
 /* ── Card footer ─────────────────────────────────────────────────────────── */
 .wcb-card-footer {
@@ -298,7 +301,7 @@
 
 .wcb-card-date {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin-inline-start: auto;
 }
 
@@ -614,9 +617,9 @@
 .wcb-card-excerpt {
 	display: none;
 	margin: 0;
-	font-size: var(--wcb-text-base);
+	font-size: var(--wcb-text-sm);
 	line-height: var(--wcb-leading-relaxed);
-	color: var( --wcb-muted, var(--wp--preset--color--wcb-muted) );
+	color: var(--wcb-text-secondary);
 	overflow: hidden;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;

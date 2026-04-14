@@ -136,7 +136,7 @@
 }
 
 .wcb-field:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary, #2563eb);
 	box-shadow: var(--wcb-shadow-focus);
 }

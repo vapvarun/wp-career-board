@@ -649,7 +649,7 @@
 .wcb-meta-row select:focus {
 	border-color: var(--wcb-accent);
 	box-shadow: 0 0 0 1px var(--wcb-accent);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .wcb-meta-row .description {
@@ -687,7 +687,7 @@
 .wcb-social-row input:focus {
 	border-color: var(--wcb-accent);
 	box-shadow: 0 0 0 1px var(--wcb-accent);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 /* Trust sidebar box */
@@ -754,7 +754,7 @@
 .wcb-modal-textarea:focus {
 	border-color: var(--wcb-accent);
 	box-shadow: 0 0 0 1px var(--wcb-accent);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .wcb-modal-actions {

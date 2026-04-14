@@ -294,10 +294,7 @@ wp_interactivity_state(
 				</div>
 				<div class="wcb-bell-list">
 					<template data-wp-each--notif="state.bellNotifications" data-wp-each-key="context.notif.id">
-						<a class="wcb-bell-item"
-							data-wp-bind--href="context.notif.link"
-							data-wp-class--wcb-bell-unread="!context.notif.is_read"
-							data-wp-on--click="actions.markBellRead">
+						<a class="wcb-bell-item" data-wp-bind--href="context.notif.link" data-wp-class--wcb-bell-unread="!context.notif.is_read" data-wp-on--click="actions.markBellRead">
 							<span class="wcb-bell-msg" data-wp-text="context.notif.message"></span>
 							<span class="wcb-bell-time" data-wp-text="context.notif.created_at"></span>
 						</a>
