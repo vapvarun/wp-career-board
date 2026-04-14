@@ -200,7 +200,7 @@
 
 .wcb-ca-avatar {
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-base);
+	color: #ffffff;
 	align-items: center;
 	justify-content: center;
 	font-size: var(--wcb-text-lg);

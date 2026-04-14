@@ -117,8 +117,8 @@
 	height: 52px;
 	flex-shrink: 0;
 	border-radius: var(--wcb-radius-lg);
-	background: var( --wcb-avatar-bg, var(--wp--preset--color--wcb-avatar-bg) );
-	color: var(--wp--preset--color--wcb-base);
+	background: var( --wcb-avatar-bg, #1e293b );
+	color: #ffffff;
 	display: flex;
 	align-items: center;
 	justify-content: center;
