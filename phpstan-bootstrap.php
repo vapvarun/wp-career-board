@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'WCB_VERSION', '1.0.1' );
+define( 'WCB_VERSION', '1.0.2' );
 define( 'WCB_FILE', __DIR__ . '/wp-career-board.php' );
 define( 'WCB_PLUGIN_FILE', WCB_FILE );
 define( 'WCB_DIR', __DIR__ . '/' );
