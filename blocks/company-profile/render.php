@@ -36,7 +36,7 @@ $wcb_tagline  = (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true );
 $wcb_website  = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
 $wcb_linkedin = (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true );
 $wcb_twitter  = (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true );
-$wcb_industry = (string) get_post_meta( $wcb_company_id, '_wcb_industry', true );
+$wcb_industry = \WCB\Core\Industries::label( (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) );
 $wcb_size     = (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true );
 $wcb_type     = (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true );
 $wcb_founded  = (string) get_post_meta( $wcb_company_id, '_wcb_founded', true );
@@ -93,11 +93,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 			<?php /* Avatar / Logo */ ?>
 			<div class="wcb-cp-avatar-wrap">
 				<?php if ( $wcb_logo_url ) : ?>
-					<img
-						class="wcb-cp-logo"
-						src="<?php echo esc_url( $wcb_logo_url ); ?>"
-						alt="<?php echo esc_attr( $wcb_name ); ?>"
-					/>
+					<img class="wcb-cp-logo" src="<?php echo esc_url( $wcb_logo_url ); ?>" alt="<?php echo esc_attr( $wcb_name ); ?>" />
 				<?php else : ?>
 					<div class="wcb-cp-avatar" aria-hidden="true">
 						<?php echo esc_html( $wcb_initials ); ?>
@@ -295,7 +291,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 					<article class="wcb-cp-job-card">
 						<div class="wcb-cp-job-main">
 							<h3 class="wcb-cp-job-title">
-								<a data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title"></a>
+								<a aria-label="<?php esc_attr_e( 'Job listing', 'wp-career-board' ); ?>" data-wp-bind--href="context.job.permalink" data-wp-bind--aria-label="context.job.title" data-wp-text="context.job.title"></a>
 							</h3>
 							<div class="wcb-cp-job-badges">
 								<span class="wcb-cjbadge wcb-cjbadge--type" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>

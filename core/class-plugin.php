@@ -399,7 +399,8 @@ final class Plugin {
 			return false;
 		}
 		return has_block( 'wp-career-board/', $post )
-			|| str_contains( $post->post_content, '<!-- wp:wp-career-board/' );
+			|| str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
+			|| str_contains( $post->post_content, '<!-- wp:wcb/' );
 	}
 
 	/**

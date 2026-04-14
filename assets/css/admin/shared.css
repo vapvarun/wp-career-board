@@ -144,7 +144,7 @@
 .wcb-admin .search-box input:focus {
     border-color: var(--wcb-accent);
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    outline: none;
+    outline: 2px solid transparent;
 }
 .wcb-admin .search-box .button {
     display: inline-flex;
@@ -210,7 +210,7 @@
 .wcb-admin .wcb-settings-row-control textarea:focus {
     border-color: var(--wcb-accent);
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    outline: none;
+    outline: 2px solid transparent;
 }
 
 /* ── Premium Nav Tabs ── */

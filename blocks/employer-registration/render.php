@@ -188,8 +188,14 @@ wp_interactivity_state(
 				<div class="wcb-field-row" data-wp-class--wcb-hidden="state.isCandidate">
 					<div class="wcb-field-group wcb-field-half">
 						<label class="wcb-field-label" for="wcb-reg-industry"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></label>
-						<input id="wcb-reg-industry" type="text" class="wcb-field-input" placeholder="<?php esc_attr_e( 'e.g. Technology', 'wp-career-board' ); ?>"
-							data-wp-bind--value="state.companyIndustry" data-wp-on--input="actions.updateField" data-wcb-field="companyIndustry" />
+						<select id="wcb-reg-industry" class="wcb-field-input"
+							data-wp-bind--value="state.companyIndustry" data-wp-on--change="actions.updateField" data-wcb-field="companyIndustry">
+							<?php foreach ( \WCB\Core\Industries::all() as $wcb_reg_ind_val => $wcb_reg_ind_label ) : ?>
+								<option value="<?php echo esc_attr( $wcb_reg_ind_val ); ?>">
+									<?php echo esc_html( $wcb_reg_ind_label ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
 					</div>
 					<div class="wcb-field-group wcb-field-half">
 						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>

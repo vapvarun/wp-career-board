@@ -44,7 +44,7 @@
 
 .wcb-cp-avatar {
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-base);
+	color: #ffffff;
 	display: flex;
 	align-items: center;
 	justify-content: center;

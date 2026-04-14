@@ -69,7 +69,7 @@ class EmailSettings {
 						?>
 						<input type="hidden" id="wcb-email-logo-id" name="wcb_email[brand][logo_id]" value="<?php echo (int) $wcb_logo_id; ?>">
 						<div id="wcb-logo-preview" style="margin-bottom: 8px;<?php echo $wcb_logo_url ? '' : ' display:none;'; ?>">
-							<img src="<?php echo esc_url( (string) $wcb_logo_url ); ?>" style="max-width: 200px; max-height: 60px; border: 1px solid var(--wcb-border, #e2e8f0); border-radius: 4px; padding: 4px;">
+							<img src="<?php echo esc_url( (string) $wcb_logo_url ); ?>" alt="<?php esc_attr_e( 'Email logo preview', 'wp-career-board' ); ?>" style="max-width: 200px; max-height: 60px; border: 1px solid var(--wcb-border, #e2e8f0); border-radius: 4px; padding: 4px;">
 						</div>
 						<button type="button" class="wcb-btn wcb-btn--sm" id="wcb-logo-upload">
 							<i data-lucide="image" class="wcb-icon--sm"></i>
@@ -123,14 +123,10 @@ class EmailSettings {
 							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
 							<td><?php echo esc_html( ucfirst( $email->get_recipient() ) ); ?></td>
 							<td>
-								<input type="text" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]"
-									value="<?php echo esc_attr( $subject ); ?>"
-									placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>"
-									style="width:100%;max-width:400px;">
+								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
 							</td>
 							<td>
-								<input type="checkbox" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]"
-									value="1" <?php checked( $enabled ); ?>>
+								<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
 							</td>
 						</tr>
 					<?php endforeach; ?>
@@ -207,23 +203,20 @@ class EmailSettings {
 					<tr>
 						<th><?php esc_html_e( 'Header Color', 'wp-career-board' ); ?></th>
 						<td>
-							<input type="color" name="wcb_email[brand][header_color]"
-								value="<?php echo esc_attr( isset( $brand['header_color'] ) ? $brand['header_color'] : '#4f46e5' ); ?>">
+							<input type="color" aria-label="<?php esc_attr_e( 'Header color', 'wp-career-board' ); ?>" name="wcb_email[brand][header_color]" value="<?php echo esc_attr( isset( $brand['header_color'] ) ? $brand['header_color'] : '#4f46e5' ); ?>">
 						</td>
 					</tr>
 					<tr>
 						<th><?php esc_html_e( 'Logo', 'wp-career-board' ); ?></th>
 						<td>
-							<input type="number" name="wcb_email[brand][logo_id]"
-								value="<?php echo (int) ( isset( $brand['logo_id'] ) ? $brand['logo_id'] : 0 ); ?>"
-								placeholder="<?php esc_attr_e( 'Attachment ID', 'wp-career-board' ); ?>">
+							<input type="number" aria-label="<?php esc_attr_e( 'Logo attachment ID', 'wp-career-board' ); ?>" name="wcb_email[brand][logo_id]" value="<?php echo (int) ( isset( $brand['logo_id'] ) ? $brand['logo_id'] : 0 ); ?>" placeholder="<?php esc_attr_e( 'Attachment ID', 'wp-career-board' ); ?>">
 							<p class="description"><?php esc_html_e( 'Enter the attachment ID of your logo image.', 'wp-career-board' ); ?></p>
 						</td>
 					</tr>
 					<tr>
 						<th><?php esc_html_e( 'Footer Text', 'wp-career-board' ); ?></th>
 						<td>
-							<textarea name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
+							<textarea name="wcb_email[brand][footer_text]" aria-label="<?php esc_attr_e( 'Email footer text', 'wp-career-board' ); ?>" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
 						</td>
 					</tr>
 				</table>
@@ -252,14 +245,10 @@ class EmailSettings {
 							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
 							<td><?php echo esc_html( ucfirst( $email->get_recipient() ) ); ?></td>
 							<td>
-								<input type="text" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]"
-									value="<?php echo esc_attr( $subject ); ?>"
-									placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>"
-									style="width:100%;max-width:400px;">
+								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
 							</td>
 							<td>
-								<input type="checkbox" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]"
-									value="1" <?php checked( $enabled ); ?>>
+								<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
 							</td>
 						</tr>
 					<?php endforeach; ?>

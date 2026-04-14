@@ -23,11 +23,15 @@
 	padding: 0;
 }
 
+/*
+ * Theme isolation: strip the theme's anchor underline from .wcb-btn states.
+ * Do NOT reset `color` here — it would inherit the wrapper's --wcb-contrast
+ * and override every .wcb-btn--variant color (specificity 0,2,0 vs 0,1,0).
+ */
 [class*="wp-block-wp-career-board"] .wcb-btn,
 [class*="wp-block-wp-career-board"] .wcb-btn:hover,
 [class*="wp-block-wp-career-board"] .wcb-btn:visited {
 	text-decoration: none;
-	color: inherit;
 }
 
 [class*="wp-block-wp-career-board"] h1,
@@ -217,7 +221,7 @@
 }
 
 .wcb-field:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }

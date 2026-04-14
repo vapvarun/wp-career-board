@@ -48,12 +48,12 @@
 }
 
 .wcb-clear-all:hover {
-	color: #0f172a;
+	color: var( --wcb-contrast, #0f172a );
 }
 
 /* Featured job card — prevent Reign's global :focus-within outline from bleeding in */
 .wcb-job-card.wcb-featured:focus-within {
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 /* Keep a clean focus ring on focusable elements inside featured cards */
@@ -73,7 +73,7 @@
 	background: var( --wcb-base, #fff ) !important;
 	font-size: 0.9rem;
 	font-weight: 600;
-	color: #475569 !important;
+	color: var( --wcb-text-secondary, #475569 ) !important;
 	cursor: pointer;
 	text-decoration: none !important;
 }

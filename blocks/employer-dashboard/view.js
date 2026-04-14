@@ -8,6 +8,17 @@ import { store, getContext } from '@wordpress/interactivity';
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
+		// Resolves the stored industry slug to its translated label using the
+		// industryLabels map seeded from PHP. Falls back to the raw value so
+		// legacy free-text entries still display until migrated.
+		get companyIndustryLabel() {
+			const slug = state.companyIndustry || '';
+			if ( ! slug ) {
+				return '';
+			}
+			const labels = state.industryLabels || {};
+			return labels[ slug ] || slug;
+		},
 		get activeTabLabel() {
 			const map = {
 				overview:     state.strings.overview,

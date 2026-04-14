@@ -355,6 +355,7 @@ final class CompaniesEndpoint extends RestController {
 			),
 			'industry' => array(
 				'type'              => 'string',
+				'enum'              => array_merge( array( '' ), \WCB\Core\Industries::slugs() ),
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'size'     => array(
