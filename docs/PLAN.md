@@ -4,7 +4,13 @@
 
 **Stack:** PHP 8.1+ · WP 6.9+ · WordPress Interactivity API · WordPress Abilities API · Gutenberg blocks · REST API (`/wp-json/wcb/v1/`) · wp_mail · WP-Cron
 
-**Status: v1.0.0 — Feature Complete, QA Complete ✅**
+**Status: v1.1.0 — Shipped 2026-04-27 ✅**
+
+> 1.1.0 ships the modular widget registry, single-page job form,
+> declarative custom-field filters, REST list envelope, deadline + featured
+> expiry crons, and the design-token registry that Pro inherits. See
+> [`docs/CHANGELOG.md`](CHANGELOG.md) for the full set of changes and
+> [`docs/PLAN-1.2.0.md`](PLAN-1.2.0.md) for what's next.
 
 ---
 

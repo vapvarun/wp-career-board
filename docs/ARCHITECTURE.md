@@ -1,5 +1,8 @@
 # WP Career Board — Architecture Overview
 
+> **Last revision:** 2026-04-27 (v1.1.0). Block count, REST envelope,
+> widget registry, and design tokens reflect the 1.1.0 ship.
+
 ## 1. System Overview
 
 | Layer | Detail |
@@ -37,16 +40,17 @@
 | Locations | `wcb_location` | Yes | `wcb_job` |
 | Experience Levels | `wcb_experience` | No | `wcb_job` |
 
-### Gutenberg Blocks (14)
+### Gutenberg Blocks (15)
 
 | Block | Description |
 |-------|-------------|
-| `job-listings` | Reactive job grid with infinite scroll and bookmark toggle |
+| `job-listings` | Reactive job grid with infinite scroll and bookmark toggle. New 1.1.0 attrs: `boardId`, `metaFilter`. |
 | `job-single` | Full job detail view with slide-in application panel |
 | `job-search` | Search bar for the job listings grid |
 | `job-search-hero` | Full-width search form with optional filters (horizontal/vertical) |
 | `job-filters` | Taxonomy filter dropdowns for the listings grid |
-| `job-form` | Multi-step form for employers to post new jobs |
+| `job-form` | Multi-step wizard for employers to post new jobs |
+| `job-form-simple` | **New 1.1.0** — single-page job-posting form for sidebars / modals / partner pages |
 | `job-stats` | Horizontal stat strip (total jobs, companies, candidates) |
 | `featured-jobs` | Static server-rendered grid of featured jobs |
 | `recent-jobs` | Sidebar widget listing most recently published jobs |
@@ -56,9 +60,24 @@
 | `company-archive` | Interactive company directory with grid/list toggle |
 | `company-profile` | Public company profile with owner inline-edit |
 
+### Shortcodes
+
+Every block above is also a shortcode (forwarded attributes JSON-encoded
+into the block comment markup so page builders work with `block.json`
+type validation). Plus the modular widget renderer:
+
+| Shortcode | Renders |
+|-----------|---------|
+| `[wcb_job_listings]`, `[wcb_job_search]`, `[wcb_job_form]`, etc. | The matching block (with attribute forwarding) |
+| `[wcb_job_form_simple]` | **New 1.1.0** — single-page form |
+| `[wcb_widget id="application/applicant-card" application_id="..."]` | **New 1.1.0** — any registered `WCB\Core\Widgets\AbstractWidget` |
+
+Full reference: [`docs/SHORTCODES.md`](SHORTCODES.md).
+
 ### REST Endpoints (7)
 
-All under `/wp-json/wcb/v1/`.
+All under `/wp-json/wcb/v1/`. Permission via Abilities API
+(`wp_is_authorized()`) — never `current_user_can()`.
 
 | Endpoint | Class | Purpose |
 |----------|-------|---------|
@@ -69,6 +88,24 @@ All under `/wp-json/wcb/v1/`.
 | `/companies` | `Companies_Endpoint` | Company CRUD |
 | `/search` | `Search_Endpoint` | Full-text job search with filters |
 | `/import` | `Import_Endpoint` | Bulk job import (CSV/JSON) |
+
+#### Response envelope (1.1.0)
+
+Every list endpoint returns a uniform envelope shape:
+
+```json
+{
+  "jobs":      [ /* ... */ ],
+  "total":     142,
+  "pages":     12,
+  "has_more":  true
+}
+```
+
+The resource key (`jobs`, `applications`, `companies`, …) matches the
+endpoint. Legacy `X-WCB-Total` headers are still populated for one cycle
+to give downstream consumers (the Pro `job-map` block, third-party
+integrators) time to migrate.
 
 ### Database Tables (3)
 
@@ -82,6 +119,31 @@ All under `/wp-json/wcb/v1/`.
 
 `jobs`, `employers`, `candidates`, `applications`, `search`, `notifications`, `moderation`, `seo`, `gdpr`, `antispam`, `boards`, `theme-integration`
 
+### Modular widget system (new in 1.1.0)
+
+`WCB\Core\Widgets\WidgetRegistry` is a singleton registry for composable
+admin/front-end widgets. The empty native "Edit Application" admin
+screen was rebuilt as a stack of six widgets — each one also publicly
+addressable via `[wcb_widget id="..."]`.
+
+| Widget id | Class | Renders |
+|-----------|-------|---------|
+| `application/applicant-card` | `Widgets\ApplicantCard` | Avatar, name, contact, applied job, status |
+| `application/cover-letter` | `Widgets\CoverLetter` | Formatted cover letter |
+| `application/resume-preview` | `Widgets\ResumePreview` | Embedded resume preview + download |
+| `application/status-changer` | `Widgets\StatusChanger` | Status dropdown (employer-only) |
+| `application/status-timeline` | `Widgets\StatusTimeline` | Audit log of status transitions |
+| `application/quick-actions` | `Widgets\QuickActions` | Email / interview / archive / hire |
+
+Add a custom widget by extending `AbstractWidget` and registering on
+`init`:
+
+```php
+add_action( 'init', function () {
+    WCB\Core\Widgets\WidgetRegistry::instance()->register( new MyApp\Widgets\InterviewNotes() );
+}, 20 );
+```
+
 ### WP-CLI Commands (4)
 
 | Command | Purpose |
@@ -91,11 +153,33 @@ All under `/wp-json/wcb/v1/`.
 | `wp wcb application list\|view` | Application management |
 | `wp wcb migrate wpjm\|wpjm-resumes` | Import from WP Job Manager |
 
-### Cron Jobs (1)
+### Cron Jobs (3 in 1.1.0)
 
 | Hook | Schedule | Purpose |
 |------|----------|---------|
-| `wcb_check_job_expiry` | Daily | Transition expired jobs to `wcb_expired` status |
+| `wcb_check_job_expiry` | Daily | Transition past-deadline jobs to `wcb_expired` |
+| `wcb_check_featured_expiry` | Daily | Auto-clear `_wcb_featured` after configured duration (default 30 days) |
+| `wcb_send_deadline_reminders` | Daily | Bookmarked-but-unapplied reminder emails (3-day + 1-day buckets) |
+
+### Design tokens (expanded in 1.1.0)
+
+`assets/css/frontend-tokens.css` is the single source of truth for the
+design system. Pro inherits via cascade — there is no Pro tokens file.
+
+- `--wcb-primary`, `--wcb-primary-dark`, theme-aware tints via `color-mix(in srgb, …)` with rgba fallback
+- Status quintets: `--wcb-{success,warning,danger,info}-fg/-bg-soft/-border`
+- Avatar size scale, transition tokens (`--wcb-transition-snappy`)
+- Theme bridges in `integrations/reign/assets/reign-compat.css` and `integrations/buddyxpro/assets/buddyx-compat.css` map `--bb-*` / `--bbg-*` theme vars to `--wcb-*` tokens.
+
+### Customer-facing extension hooks
+
+Field-group filters with a uniform schema (see [`docs/HOOKS.md`](HOOKS.md)):
+
+| Filter | Form |
+|--------|------|
+| `wcb_job_form_fields` | Job-posting wizard + single-page form |
+| `wcb_resume_form_fields` (Pro) | Resume builder + single-page resume form |
+| `wcb_application_form_fields_groups` | Apply modal |
 
 ### Integrations
 
@@ -117,7 +201,7 @@ All under `/wp-json/wcb/v1/`.
 |----------|------|-------------|-------|
 | Skills | `wcb_resume_skill` | `wcb_resume` | Hidden UI, synced from `_wcb_resume_skills` meta |
 
-### Additional Blocks (15)
+### Additional Blocks (16)
 
 | Block | Description |
 |-------|-------------|
@@ -126,8 +210,9 @@ All under `/wp-json/wcb/v1/`.
 | `credit-balance` | Employer credit balance with Buy Credits button and transaction history |
 | `ai-chat-search` | Natural language job search powered by AI (semantic matching) |
 | `job-alerts` | Subscribe to alerts for current search filters, manage frequency |
-| `job-map` | Leaflet map with job pins synced to listings search state |
+| `job-map` | Leaflet map with job pins synced to listings search state. Reads new envelope shape in 1.1.0. |
 | `resume-builder` | Section-by-section resume editor (education, experience, skills) |
+| `resume-form-simple` | **New 1.1.0** — single-page profile-completion form (sibling of the multi-section builder) |
 | `resume-archive` | Public archive of candidate resumes with avatar, skills, location |
 | `resume-single` | Public-facing resume page for `wcb_resume` post template |
 | `resume-search-hero` | Full-width resume search with skill and open-to-work filters |
@@ -136,6 +221,18 @@ All under `/wp-json/wcb/v1/`.
 | `featured-candidates` | Sidebar widget listing featured public resumes |
 | `featured-companies` | Sidebar widget listing featured companies with open role counts |
 | `open-to-work` | Sidebar widget listing candidates open to work |
+
+### Pro Shortcodes (new in 1.1.0)
+
+Same attribute-forwarding pattern as Free. Full reference:
+[`wp-career-board-pro/docs/SHORTCODES.md`](../../wp-career-board-pro/docs/SHORTCODES.md).
+
+| Shortcode | Block |
+|-----------|-------|
+| `[wcbp_resume_form_simple]` | `wcb/resume-form-simple` |
+| `[wcbp_resume_archive]` | `wcb/resume-archive` |
+| `[wcbp_credit_balance]` | `wcb/credit-balance` |
+| `[wcbp_job_alerts]` | `wcb/job-alerts` |
 
 ### Additional REST Endpoints (9)
 
@@ -184,8 +281,22 @@ Pro creates 9 tables. It also reads the Free `wcb_job_views` table for analytics
 
 | Integration | Scope |
 |-------------|-------|
-| WooCommerce | Credit purchases via WooCommerce products, subscriptions, and memberships |
-| BuddyPress | Profile tabs (Employer/Candidate), BP notifications on new applications |
+| WooCommerce | Credit purchases via WooCommerce products |
+| PMPro | Credit purchases tied to PMPro membership levels |
+| MemberPress | Credit purchases tied to MemberPress memberships |
+| BuddyPress | Profile tabs, BP notifications, **new in 1.1.0:** group-scoped boards (`BpGroupBoards`), activity stream entries (`BpActivity`), member directory filters (`BpMemberFilters`), tiered credit pricing (`BpTieredCreditCost`), candidate notifications on application status changes |
+
+### Credit consumers (Pro)
+
+Registered with `\Wbcom\Credits\Registry` from the Pro plugin bootstrap.
+
+| Consumer | Cost source | Hold / Deduct / Refund actions |
+|----------|-------------|---------------------------------|
+| `job_post` | `_wcb_board_settings.credit_cost` post-meta on the board | `wcb_job_created` / `wcb_job_approved` / `wcb_job_rejected` |
+| `featured_upgrade` (**1.1.0**) | `wcbp_featured_upgrade_cost` option (default 10) | `wcb_featured_upgrade_requested` / `_completed` / `_failed` |
+
+Both consumers run their `cost` callback through the `wcbp_consumer_cost`
+filter so `BpTieredCreditCost` can apply per-membership-level pricing.
 
 ### Licensing
 
