@@ -112,7 +112,7 @@ final class Install {
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id),
 				KEY event_type  (event_type)
-			) {$charset};"
+			) ENGINE=InnoDB {$charset};"
 		);
 
 		dbDelta(
@@ -124,7 +124,7 @@ final class Install {
 				PRIMARY KEY  (id),
 				KEY job_id  (job_id),
 				KEY viewed_at  (viewed_at)
-			) {$charset};"
+			) ENGINE=InnoDB {$charset};"
 		);
 
 		dbDelta(
@@ -137,7 +137,7 @@ final class Install {
 				created_at DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id)
-			) {$charset};"
+			) ENGINE=InnoDB {$charset};"
 		);
 	}
 

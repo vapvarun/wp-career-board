@@ -22,8 +22,8 @@ $wcb_tables = array(
 );
 
 foreach ( $wcb_tables as $wcb_table ) {
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Uninstall must drop tables directly; caching is irrelevant here.
-	$wpdb->query( "DROP TABLE IF EXISTS `{$wcb_table}`" );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Schema change at uninstall; %i identifier placeholder requires WP 6.2+ (plugin requires 6.9+).
+	$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wcb_table ) );
 }
 
 delete_option( 'wcb_version' );
