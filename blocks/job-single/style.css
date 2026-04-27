@@ -452,11 +452,12 @@ a.wcb-company-card-name:hover {
 }
 
 /* ── Apply panel ─────────────────────────────────────────────────────────── */
+/* z-index above common theme overlays (Reign rg-dark__scheme-toggle uses 99999). */
 .wcb-panel-overlay {
 	position: fixed;
 	inset: 0;
 	background: rgba(15, 23, 42, 0.45);
-	z-index: 9998;
+	z-index: 100000;
 	backdrop-filter: blur(2px);
 }
 
@@ -467,9 +468,17 @@ a.wcb-company-card-name:hover {
 	bottom: 0;
 	width: min(520px, 100%);
 	background: var(--wcb-base, #fff);
-	z-index: 9999;
+	z-index: 100001;
 	overflow-y: auto;
 	box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Hide common theme-supplied floating widgets while the apply panel is open
+   so they don't visually overlap form fields (Reign light/dark toggle, etc.). */
+body:has(.wcb-apply-panel.wcb-open) .rg-dark__scheme-toggle,
+body:has(.wcb-apply-panel.wcb-open) [class*="scheme-toggle"],
+body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
+	display: none !important;
 }
 
 .wcb-apply-panel.wcb-open {
@@ -739,12 +748,10 @@ a.wcb-company-card-name:hover {
 		grid-template-columns: 1fr;
 	}
 
+	/* On mobile, drop sticky behaviour but keep the natural document order
+	   so "About This Role" stays the first heading users see (audit fix). */
 	.wcb-job-sidebar {
 		position: static;
-	}
-
-	.wcb-job-sidebar {
-		order: -1;
 	}
 }
 
