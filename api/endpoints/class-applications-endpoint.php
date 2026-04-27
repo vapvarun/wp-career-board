@@ -385,6 +385,14 @@ final class ApplicationsEndpoint extends RestController {
 		);
 
 		$items = array();
+
+		// Prime meta cache once for the application page so the per-row
+		// get_post_meta() lookups inside the loop hit the object cache.
+		$wcb_app_ids = wp_list_pluck( $query->posts, 'ID' );
+		if ( ! empty( $wcb_app_ids ) ) {
+			update_meta_cache( 'post', $wcb_app_ids );
+		}
+
 		foreach ( $query->posts as $app ) {
 			$job_id  = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 			$job     = $job_id ? get_post( $job_id ) : null;

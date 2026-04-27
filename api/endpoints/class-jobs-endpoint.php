@@ -266,6 +266,18 @@ final class JobsEndpoint extends RestController {
 
 		remove_filter( 'posts_where', array( $this, 'restrict_search_to_title_and_company' ), 10 );
 
+		// Prime caches before the prepare loop so per-post get_post_meta() and
+		// get_the_terms() inside prepare_item_for_response_array() hit the
+		// object cache instead of round-tripping the DB N times.
+		$wcb_post_ids = wp_list_pluck( $query->posts, 'ID' );
+		if ( ! empty( $wcb_post_ids ) ) {
+			update_meta_cache( 'post', $wcb_post_ids );
+			update_object_term_cache(
+				$wcb_post_ids,
+				array( 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag' )
+			);
+		}
+
 		$jobs = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
 		$jobs = (array) apply_filters( 'wcb_jobs_post_filter', $jobs, $query, $request );
 
@@ -835,10 +847,22 @@ final class JobsEndpoint extends RestController {
 		$trust_info   = $this->trust_badge_info( $trust );
 
 		// Human-readable taxonomy labels for card display.
-		$loc_terms  = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
-		$type_terms = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
-		$exp_terms  = wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'names' ) );
-		$cat_terms  = wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'names' ) );
+		// get_the_terms() honours object_term_cache primed in get_items() before the loop.
+		$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
+		$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
+		$exp_term_objs  = get_the_terms( $post->ID, 'wcb_experience' );
+		$cat_term_objs  = get_the_terms( $post->ID, 'wcb_category' );
+		$tag_term_objs  = get_the_terms( $post->ID, 'wcb_tag' );
+
+		$loc_names  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
+		$type_names = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
+		$exp_names  = is_array( $exp_term_objs ) ? wp_list_pluck( $exp_term_objs, 'name' ) : array();
+		$cat_names  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'name' ) : array();
+		$cat_slugs  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'slug' ) : array();
+		$type_slugs = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'slug' ) : array();
+		$loc_slugs  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'slug' ) : array();
+		$exp_slugs  = is_array( $exp_term_objs ) ? wp_list_pluck( $exp_term_objs, 'slug' ) : array();
+		$tag_slugs  = is_array( $tag_term_objs ) ? wp_list_pluck( $tag_term_objs, 'slug' ) : array();
 
 		$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$board_id      = (int) apply_filters( 'wcb_job_board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ), $post->ID );
@@ -880,18 +904,18 @@ final class JobsEndpoint extends RestController {
 			'board_id'         => $board_id,
 			'board_currency'   => function_exists( 'wcbp_get_board_currency' ) ? wcbp_get_board_currency( $board_id ) : 'USD',
 			// Display-name strings for cards.
-			'location'         => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
-			'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
-			'experience'       => is_wp_error( $exp_terms ) ? '' : implode( ', ', $exp_terms ),
-			'category'         => is_wp_error( $cat_terms ) ? '' : implode( ', ', $cat_terms ),
+			'location'         => implode( ', ', $loc_names ),
+			'type'             => implode( ', ', $type_names ),
+			'experience'       => implode( ', ', $exp_names ),
+			'category'         => implode( ', ', $cat_names ),
 			// Relative time.
 			'days_ago'         => human_time_diff( (int) strtotime( $post->post_date ), time() ) . ' ago',
 			// Slug arrays for filter/API consumers.
-			'categories'       => wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'slugs' ) ),
-			'job_types'        => wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
-			'locations'        => wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'slugs' ) ),
-			'experience_slugs' => wp_get_object_terms( $post->ID, 'wcb_experience', array( 'fields' => 'slugs' ) ),
-			'tags'             => wp_get_object_terms( $post->ID, 'wcb_tag', array( 'fields' => 'slugs' ) ),
+			'categories'       => $cat_slugs,
+			'job_types'        => $type_slugs,
+			'locations'        => $loc_slugs,
+			'experience_slugs' => $exp_slugs,
+			'tags'             => $tag_slugs,
 			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
 			'apply_url'        => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
 			'apply_email'      => (string) get_post_meta( $post->ID, '_wcb_apply_email', true ),

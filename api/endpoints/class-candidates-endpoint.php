@@ -284,22 +284,31 @@ final class CandidatesEndpoint extends RestController {
 		$bookmark_ids  = array_map( 'intval', (array) $raw_bookmarks );
 
 		$items = array();
+
+		// Prime caches once for every bookmarked job before the loop.
+		if ( ! empty( $bookmark_ids ) ) {
+			update_meta_cache( 'post', $bookmark_ids );
+			update_object_term_cache( $bookmark_ids, array( 'wcb_location', 'wcb_job_type' ) );
+		}
+
 		foreach ( $bookmark_ids as $job_id ) {
 			$post = get_post( $job_id );
 			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
 				continue;
 			}
 
-			$loc_terms  = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
-			$type_terms = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+			$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
+			$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
+			$loc_names      = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
+			$type_names     = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
 
 			$items[] = array(
 				'id'        => $post->ID,
 				'title'     => $post->post_title,
 				'permalink' => get_permalink( $post->ID ),
 				'company'   => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
-				'location'  => is_wp_error( $loc_terms ) ? '' : implode( ', ', $loc_terms ),
-				'type'      => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+				'location'  => implode( ', ', $loc_names ),
+				'type'      => implode( ', ', $type_names ),
 			);
 		}
 
