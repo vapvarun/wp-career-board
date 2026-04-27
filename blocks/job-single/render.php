@@ -222,6 +222,12 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	}
 }
 
+$wcb_settings_arr    = (array) get_option( 'wcb_settings', array() );
+$wcb_resume_required = ! empty( $wcb_settings_arr['apply_resume_required'] );
+$wcb_resume_max_mb   = isset( $wcb_settings_arr['apply_resume_max_mb'] )
+	? max( 1, min( 20, (int) $wcb_settings_arr['apply_resume_max_mb'] ) )
+	: 5;
+
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
@@ -247,6 +253,8 @@ wp_interactivity_state(
 		'guestName'            => '',
 		'guestEmail'           => '',
 		'resumeFileName'       => '',
+		'resumeRequired'       => $wcb_resume_required,
+		'resumeMaxMb'          => $wcb_resume_max_mb,
 		'alertFromJobSaved'    => false,
 		'alertFromJobSaving'   => false,
 		'jobCategories'        => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
@@ -257,6 +265,7 @@ wp_interactivity_state(
 			'bookmarkSave'        => __( 'Save Job', 'wp-career-board' ),
 			'guestFieldsRequired' => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
 			'resumeUploadFailed'  => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
+			'resumeRequiredError' => __( 'Please attach your resume to apply.', 'wp-career-board' ),
 			'applicationFailed'   => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
 			'connectionError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		),
@@ -702,8 +711,10 @@ wp_interactivity_state(
 					</div>
 				<?php endif; ?>
 
-				<?php if ( is_user_logged_in() && post_type_exists( 'wcb_resume' ) ) : ?>
-					<div class="wcb-apply-resume-section">
+				<?php $wcb_show_pro_picker = is_user_logged_in() && post_type_exists( 'wcb_resume' ); ?>
+
+				<div class="wcb-apply-resume-section">
+					<?php if ( $wcb_show_pro_picker ) : ?>
 						<label class="wcb-field-label" for="wcb-resume-select">
 							<?php esc_html_e( 'Select Resume', 'wp-career-board' ); ?>
 						</label>
@@ -725,12 +736,6 @@ wp_interactivity_state(
 								<span data-wp-class--wcb-hidden="state.resumeFileName">
 									<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
 								</span>
-								<span class="wcb-apply-selected-file" data-wp-class--wcb-hidden="!state.resumeFileName">
-									<span class="wcb-apply-selected-label screen-reader-text">
-										<?php esc_html_e( 'Selected resume file:', 'wp-career-board' ); ?>
-									</span>
-									<span data-wp-text="state.resumeFileName"></span>
-								</span>
 								<?php if ( $wcb_resume_page_url && $wcb_career_board_pro_active ) : ?>
 									<a href="<?php echo esc_url( $wcb_resume_page_url ); ?>">
 										<?php esc_html_e( 'Create your resume →', 'wp-career-board' ); ?>
@@ -740,38 +745,37 @@ wp_interactivity_state(
 						<?php endif; ?>
 
 						<p class="wcb-apply-or-divider"><?php esc_html_e( '— or upload a file —', 'wp-career-board' ); ?></p>
+					<?php else : ?>
+						<label class="wcb-field-label" for="wcb-resume-file">
+							<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
+							<?php if ( $wcb_resume_required ) : ?>
+								<span class="wcb-field-required" aria-hidden="true">*</span>
+							<?php else : ?>
+								<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
+							<?php endif; ?>
+						</label>
+					<?php endif; ?>
 
-						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
-							<span class="wcb-upload-icon">&#8593;</span>
-							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
-							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
-							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
-							<input
-								type="file"
-								id="wcb-resume-file"
-								class="wcb-apply-resume-file"
-								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-								data-wp-on--change="actions.selectResumeFile"
-							/>
-						</label>
-					</div>
-				<?php elseif ( is_user_logged_in() ) : ?>
-					<div class="wcb-apply-resume-section">
-						<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
-							<span class="wcb-upload-icon">&#8593;</span>
-							<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
-							<span class="wcb-upload-hint"><?php esc_html_e( 'PDF, DOC or DOCX — max 5 MB', 'wp-career-board' ); ?></span>
-							<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
-							<input
-								type="file"
-								id="wcb-resume-file"
-								class="wcb-apply-resume-file"
-								accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-								data-wp-on--change="actions.selectResumeFile"
-							/>
-						</label>
-					</div>
-				<?php endif; ?>
+					<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFile">
+						<span class="wcb-upload-icon">&#8593;</span>
+						<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
+						<span class="wcb-upload-hint">
+							<?php
+							/* translators: %d: max upload size in MB */
+							printf( esc_html__( 'PDF, DOC or DOCX — max %d MB', 'wp-career-board' ), absint( $wcb_resume_max_mb ) );
+							?>
+						</span>
+						<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>
+						<input
+							type="file"
+							id="wcb-resume-file"
+							class="wcb-apply-resume-file"
+							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+							data-wp-on--change="actions.selectResumeFile"
+							<?php echo $wcb_resume_required ? 'required' : ''; ?>
+						/>
+					</label>
+				</div>
 
 				<label class="wcb-field-label" for="wcb-cover-letter">
 					<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>

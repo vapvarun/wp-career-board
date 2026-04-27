@@ -250,12 +250,25 @@ final class ApplicationsEndpoint extends RestController {
 				}
 			}
 			update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
+		}
 
-			// Store uploaded resume file attachment (Free mode — no wcb_resume post).
-			$attachment_id = (int) $request->get_param( 'resume_attachment_id' );
-			if ( $attachment_id > 0 ) {
-				update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
-			}
+		// Resume file attachment — accepted from both guests and logged-in users
+		// either as a multipart upload on this request or as a pre-uploaded
+		// attachment id from the legacy /candidates/resume-upload flow.
+		$attachment_id = $this->resolve_resume_attachment( $request, $is_guest ? 0 : $candidate_id, $app_id );
+		if ( is_wp_error( $attachment_id ) ) {
+			wp_delete_post( $app_id, true );
+			return $attachment_id;
+		}
+		if ( $attachment_id > 0 ) {
+			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+		} elseif ( $this->resume_required() ) {
+			wp_delete_post( $app_id, true );
+			return new \WP_Error(
+				'wcb_resume_required',
+				__( 'A resume is required to apply for this job.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		update_post_meta( $app_id, '_wcb_status', 'submitted' );
@@ -438,19 +451,91 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function upload_resume_file(): \WP_REST_Response|\WP_Error {
-		if ( empty( $_FILES['resume_file'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WP REST infrastructure via X-WP-Nonce header.
+		$attachment_id = $this->handle_resume_upload( get_current_user_id(), 0 );
+		if ( is_wp_error( $attachment_id ) ) {
+			return $attachment_id;
+		}
+		if ( 0 === $attachment_id ) {
 			return new \WP_Error(
 				'wcb_no_file',
 				__( 'No file provided.', 'wp-career-board' ),
 				array( 'status' => 400 )
 			);
 		}
+		return rest_ensure_response( array( 'attachment_id' => $attachment_id ) );
+	}
 
-		$file     = $_FILES['resume_file']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- media_handle_upload() sanitizes internally.
-		$allowed  = array( 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' );
-		$max_size = 5 * MB_IN_BYTES;
+	/**
+	 * Resolve the resume attachment for an in-flight application.
+	 *
+	 * Prefers a freshly uploaded multipart file (atomic — no orphans on
+	 * validation failure) and falls back to a pre-uploaded attachment id
+	 * supplied by the legacy two-step flow.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WP_REST_Request $request   Full request.
+	 * @param int              $author_id Owner user id (0 for guests).
+	 * @param int              $parent_id Parent application id for the attachment.
+	 * @return int|\WP_Error Attachment ID, 0 when none provided, or WP_Error on failure.
+	 */
+	private function resolve_resume_attachment( \WP_REST_Request $request, int $author_id, int $parent_id ): int|\WP_Error {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WP REST infrastructure.
+		if ( ! empty( $_FILES['resume_file'] ) ) {
+			return $this->handle_resume_upload( $author_id, $parent_id );
+		}
 
-		if ( ! in_array( $file['type'], $allowed, true ) ) {
+		$pre_uploaded = (int) $request->get_param( 'resume_attachment_id' );
+		if ( $pre_uploaded > 0 ) {
+			$attachment = get_post( $pre_uploaded );
+			if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
+				return new \WP_Error(
+					'wcb_invalid_resume',
+					__( 'Invalid resume attachment.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+			if ( $author_id > 0 && (int) $attachment->post_author !== $author_id ) {
+				return new \WP_Error(
+					'wcb_invalid_resume',
+					__( 'Invalid resume attachment.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+			return $pre_uploaded;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Validate $_FILES['resume_file'] and sideload it to the media library.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $author_id Attachment owner (0 for guest uploads).
+	 * @param int $parent_id Parent post id (0 when uploading standalone).
+	 * @return int|\WP_Error
+	 */
+	private function handle_resume_upload( int $author_id, int $parent_id ): int|\WP_Error {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WP REST infrastructure.
+		if ( empty( $_FILES['resume_file'] ) ) {
+			return 0;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- media_handle_upload sanitizes internally.
+		$file     = $_FILES['resume_file'];
+		$mime     = isset( $file['type'] ) ? (string) $file['type'] : '';
+		$size     = isset( $file['size'] ) ? (int) $file['size'] : 0;
+		$allowed  = array(
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		);
+		$max_mb   = $this->resume_max_mb();
+		$max_size = $max_mb * MB_IN_BYTES;
+
+		if ( ! in_array( $mime, $allowed, true ) ) {
 			return new \WP_Error(
 				'wcb_invalid_file_type',
 				__( 'Only PDF, DOC, and DOCX files are allowed.', 'wp-career-board' ),
@@ -458,10 +543,19 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		if ( $file['size'] > $max_size ) {
+		if ( $size <= 0 ) {
+			return new \WP_Error(
+				'wcb_no_file',
+				__( 'No file provided.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( $size > $max_size ) {
 			return new \WP_Error(
 				'wcb_file_too_large',
-				__( 'File must be under 5 MB.', 'wp-career-board' ),
+				/* translators: %d: max file size in MB */
+				sprintf( __( 'File must be under %d MB.', 'wp-career-board' ), $max_mb ),
 				array( 'status' => 400 )
 			);
 		}
@@ -470,13 +564,54 @@ final class ApplicationsEndpoint extends RestController {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$attachment_id = media_handle_upload( 'resume_file', 0 );
+		$overrides = array(
+			'test_form' => false,
+			'mimes'     => array(
+				'pdf'  => 'application/pdf',
+				'doc'  => 'application/msword',
+				'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			),
+		);
+
+		$attachment_id = media_handle_upload( 'resume_file', $parent_id, array(), $overrides );
 
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}
 
-		return rest_ensure_response( array( 'attachment_id' => $attachment_id ) );
+		if ( $author_id > 0 ) {
+			wp_update_post(
+				array(
+					'ID'          => $attachment_id,
+					'post_author' => $author_id,
+				)
+			);
+		}
+
+		return (int) $attachment_id;
+	}
+
+	/**
+	 * Whether a resume is required to submit an application.
+	 *
+	 * @since 1.1.0
+	 * @return bool
+	 */
+	private function resume_required(): bool {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		return ! empty( $settings['apply_resume_required'] );
+	}
+
+	/**
+	 * Maximum resume size in megabytes (defaults to 5 MB).
+	 *
+	 * @since 1.1.0
+	 * @return int
+	 */
+	private function resume_max_mb(): int {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		$mb       = isset( $settings['apply_resume_max_mb'] ) ? (int) $settings['apply_resume_max_mb'] : 5;
+		return max( 1, min( 20, $mb ) );
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

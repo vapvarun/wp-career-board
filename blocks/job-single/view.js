@@ -178,63 +178,40 @@ const { state } = store( 'wcb-job-single', {
 				}
 			}
 
+			// Resume requirement check (server enforces too).
+			if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
+				state.error = state.strings.resumeRequiredError;
+				return;
+			}
+
 			state.submitting = true;
 			state.error      = '';
 
 			try {
-				let resumeAttachmentId = 0;
-
-				// Upload resume file if one was selected (works in both Free and Pro mode).
-				if ( state.resumeFile ) {
-					const formData = new FormData();
-					formData.append( 'resume_file', state.resumeFile );
-
-					const uploadRes = yield fetch(
-						state.apiBase + '/candidates/resume-upload',
-						{
-							method:  'POST',
-							headers: { 'X-WP-Nonce': state.nonce },
-							body:    formData,
-						}
-					);
-
-					if ( ! uploadRes.ok ) {
-						state.error = state.strings.resumeUploadFailed;
-						return;
-					}
-
-					const uploadData   = yield uploadRes.json();
-					resumeAttachmentId = uploadData.attachment_id || 0;
-				}
-
-				const body = {
-					cover_letter:      state.coverLetter,
-					hp:                hpEl ? hpEl.value : '',
-					wcb_captcha_token: captchaToken,
-				};
+				const formData = new FormData();
+				formData.append( 'cover_letter', state.coverLetter );
+				formData.append( 'hp', hpEl ? hpEl.value : '' );
+				formData.append( 'wcb_captcha_token', captchaToken || '' );
 
 				if ( ! state.isLoggedIn ) {
-					body.guest_name  = state.guestName;
-					body.guest_email = state.guestEmail;
+					formData.append( 'guest_name', state.guestName );
+					formData.append( 'guest_email', state.guestEmail );
 				}
 
 				if ( state.proActive && state.selectedResumeId > 0 ) {
-					body.resume_id = state.selectedResumeId;
+					formData.append( 'resume_id', String( state.selectedResumeId ) );
 				}
 
-				if ( resumeAttachmentId > 0 ) {
-					body.resume_attachment_id = resumeAttachmentId;
+				if ( state.resumeFile ) {
+					formData.append( 'resume_file', state.resumeFile );
 				}
 
 				const response = yield fetch(
 					state.apiBase + '/jobs/' + String( state.jobId ) + '/apply',
 					{
 						method:  'POST',
-						headers: {
-							'X-WP-Nonce':   state.nonce,
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify( body ),
+						headers: { 'X-WP-Nonce': state.nonce },
+						body:    formData,
 					}
 				);
 
