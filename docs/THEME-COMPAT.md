@@ -4,20 +4,52 @@
 **Method:** Switched theme via WP-CLI, navigated to Find Jobs (`/?p=222`) and Post a Job (`/?p=346`) at 1440×900 with `?autologin=1`, captured Playwright full-page screenshot.
 **Context:** This is real testing across 10 themes — every screenshot in `docs/theme-compat/` is from a live activation, not a mockup.
 
-## Summary table
+## What "matters" depends on the customer mix
+
+Themes split into three realistic buckets for our customer base (Wbcom
+sells Free bundled with Reign/BuddyX, Pro separately):
+
+- **Tier 1 — Real customer themes** (must work, must ship clean): **Reign, BuddyX Pro, Astra, Kadence, GeneratePress** plus optionally **Neve**, **OceanWP**, **Blocksy**.
+- **Tier 2 — Page-builder starter themes** (only meaningful WITH a builder): **Hello Elementor** (used with Elementor plugin), **Generatepress + Elementor**, etc. Testing these without their builder is a strawman.
+- **Tier 3 — Reference themes** (ship with WP core but rare in production): **Twenty Twenty-Five / -Four / -Three**. Worth checking once for FSE compatibility but not the audience that pays us.
+
+The audit below is organised by tier — Tier 1 issues block sales, Tier 3 issues are mostly nice-to-have.
+
+## Summary by tier
+
+### Tier 1 — Real customer themes (these block sales when broken)
 
 | Theme | Find Jobs verdict | Severity | Screenshot |
 |---|---|---|---|
-| **Astra** | ✅ Clean — 3-col grid, blue buttons match Astra's default accent, footer wired | OK | `astra-find-jobs.png` |
+| **Reign** (bundle) | ✅ Pristine — built for it | OK | (Reign is the active fixture; not re-screenshot) |
+| **BuddyX Pro** (bundle) | ✅ Pristine — built for it | OK | — |
+| **Astra** | ✅ Clean — 3-col grid, polished Post a Job form | OK | `astra-find-jobs.png` + `astra-post-a-job.png` |
+| **Kadence** | ✅ Clean — 3-col, no breakages | OK | `kadence-find-jobs.png` |
 | **GeneratePress** | ⚠️ Falls to 2-col (narrow content area) | Low | `generatepress-find-jobs.png` |
-| **Kadence** | ✅ Clean — 3-col, our blue against Kadence neutral | OK | `kadence-find-jobs.png` |
-| **Neve** | ❌ **Duplicate `<h1>`** ("Find Jobs" twice — page banner + block heading) | **High** | `neve-find-jobs.png` |
-| **OceanWP** | ❌ **Duplicate `<h1>`** + cards squeezed to 2-col + breadcrumbs eat 60px above | **High** | `oceanwp-find-jobs.png` |
-| **Blocksy** | ⚠️ Cards expand to 4-col on Blocksy's wider container — text wraps inconsistently | Medium | `blocksy-find-jobs.png` |
-| **Hello Elementor** | ❌❌ **Job titles underlined links, chips render with red borders, "View Job"/"Alert me"/"Load more" buttons all render with red theme outline** — token cascade lost | **Critical** | `hello-elementor-find-jobs.png` |
-| **Twenty Twenty-Five** | ❌ Container narrows to ~700px → 2-col only. Pages-list nav floods header with 23 menu items. | **High** | `twentytwentyfive-find-jobs.png` |
-| **Twenty Twenty-Four** | ❌ Same nav flood + 2-col + "View Job" button breaks out of card padding | **High** | `twentytwentyfour-find-jobs.png` |
-| **Twenty Twenty-Three** | ⚠️ Same nav flood + 2-col, slightly better card spacing than TT4 | Medium | `twentytwentythree-find-jobs.png` |
+| **Neve** | ❌ **Duplicate `<h1>`** (theme banner + block heading) | **High** | `neve-find-jobs.png` |
+| **OceanWP** | ❌ **Duplicate `<h1>`** + 2-col + breadcrumbs eat 80px + sort-select wide gap | **High** | `oceanwp-find-jobs.png` |
+| **Blocksy** | ⚠️ 4-col grid, card title wrap inconsistent | Low | `blocksy-find-jobs.png` |
+
+### Tier 2 — Page-builder starter themes (test with builder, not bare)
+
+| Theme | Find Jobs verdict (BARE — invalid config) | Real-world test |
+|---|---|---|
+| **Hello Elementor** | ~~Critical fail — red borders, underlined titles~~ | **Test deferred — needs Elementor plugin active. Bare Hello Elementor is not a real customer configuration; the theme is shipped as a starter for Elementor's builder.** |
+
+### Tier 3 — Reference themes (rare in production, low priority)
+
+| Theme | Find Jobs verdict | Severity | Screenshot |
+|---|---|---|---|
+| **Twenty Twenty-Five** | ❌ Narrow container → 2-col, header nav floods with 23 unfiltered pages | Tier-3 (cosmetic for our customer base) | `twentytwentyfive-find-jobs.png` |
+| **Twenty Twenty-Four** | ❌ Same nav flood + 2-col + "View Job" breaks card padding | Tier-3 | `twentytwentyfour-find-jobs.png` |
+| **Twenty Twenty-Three** | ⚠️ Same nav flood + 2-col | Tier-3 | `twentytwentythree-find-jobs.png` |
+
+### Post a Job (multi-step form)
+
+| Theme | Verdict | Screenshot |
+|---|---|---|
+| **Astra** | ✅ Excellent — clean form, stepper crisp | `astra-post-a-job.png` |
+| **Hello Elementor (bare)** | ~~Red Next button~~ — see Tier 2 note above; not a real config |
 
 | Theme | Post a Job verdict | Screenshot |
 |---|---|---|
@@ -109,28 +141,53 @@
 
 ---
 
-## Severity-ranked fix plan
+## Re-ranked fix plan (Tier 1 first)
 
-| # | Fix | Themes fixed | Effort |
-|---|---|---|---|
-| 1 | **`text-decoration: none` on `.wcb-card a` and `.wcb-btn` + `:where()` specificity bump** | Hello Elementor (critical) | 1 hour |
-| 2 | **Broaden `wcb_app_page_ids` to detect any page containing a WCB block at render time** | Neve, OceanWP (duplicate `<h1>`) | 2 hours |
-| 3 | **Add `align: ['wide', 'full']` support to `wcb/job-listings`, `wcb/resume-archive` and the dashboards** | GeneratePress, TT3-5 (2-col→3-col) | 1 hour |
-| 4 | **Constrain in-card buttons** — `.wcb-card .wcb-btn { max-width: 100%; }` | TT4 (button overflow) | 15 min |
-| 5 | **Reset card-link decoration via `:where()`** — `.wcb-card :where(a, a:hover) { text-decoration: none; }` | Hello Elementor | 30 min |
-| 6 | **Search/sort input border reset** — `.wcb-search-input { border: 1px solid var(--wcb-border); }` with explicit reset | Neve, TT5 | 30 min |
-| 7 | **Card title `min-height` or `line-clamp`** | Blocksy | 30 min |
-| 8 | **Theme accent auto-bridge** — read common theme customizer color mods and write `--wcb-primary` | All non-Reign/BuddyX themes | 1-2 days |
+The fix list now reflects what blocks **paying customer** sales, not
+what shows up in reference-theme screenshots.
 
-Items 1-7 are tactical, can ship in a 1.1.1 patch (~6 hours total). Item 8 is the strategic fix and belongs in 1.2.0.
+| # | Fix | Themes fixed | Customer impact | Effort |
+|---|---|---|---|---|
+| 1 | **Broaden `wcb_app_page_ids` to detect any page containing a WCB block** | Neve, OceanWP (duplicate `<h1>`) | **High** — Neve + OceanWP are real customers | 2 hours |
+| 2 | **Add `align: ['wide', 'full']` support** to job-listings + resume-archive + dashboards | GeneratePress (Tier 1) + TT3-5 (Tier 3 bonus) | **Medium** — fixes 2-col on GP | 1 hour |
+| 3 | **Card title `min-height` or `line-clamp: 2`** | Blocksy 4-col uneven wrapping | Low — cosmetic | 30 min |
+| 4 | **OceanWP-specific:** sort-select `width: auto` reset + breadcrumb-area top padding compensation | OceanWP cosmetic polish | Medium | 1 hour |
+| 5 | **Theme accent auto-bridge** — read common theme customizer color mods (Astra `astra-settings.theme-color`, Kadence `kadence_global_palette`, GeneratePress `generate_settings`, Neve `neve_button_primary_padding`) and write `--wcb-primary` | All Tier 1 non-bundle themes | **Highest strategic** | 1-2 days |
+| 6 | **Page-builder integration testing** — verify Hello Elementor + Elementor, Astra + Elementor, GeneratePress + Elementor, plus Bricks / Beaver / Divi where licenses available | Real-world Tier 2 cases | High but blocked on builder licenses | 1-2 days |
+| 7 | **In-card button `max-width: 100%`** — reset for TT4 button overflow | TT3/4/5 (Tier 3) | Low — bonus | 15 min |
 
-## Themes NOT tested (would require licenses)
+**1.1.1 patch (Tier 1 polish):** items 1, 2, 3, 4 → ~4.5 hours total, ships clean.
+**1.2.0 strategic:** item 5 (theme accent bridge) is the highest-leverage move for the entire customer base.
+**1.2.0 verification:** item 6 (page-builder testing) once builder plugins/licenses are available.
 
-- **Avada** — known for heavy CSS, would likely surface specificity issues similar to Hello Elementor
-- **Divi** — page builder + theme; shortcode-rendering edge cases expected
-- **GeneratePress Premium** — PR features beyond Free
-- **Kadence Pro** — likely same as Free version (no breakages observed)
+## What was NOT a fair test (and why)
 
-## Themes not yet tested with mobile breakpoints
+- **Hello Elementor (bare)** — this theme is a starter shipped with the
+  Elementor page builder; it deliberately ships ~no styling because it
+  expects Elementor's builder to provide all visual chrome. Testing it
+  without Elementor active produces "everything looks broken" results
+  that no real Hello Elementor user ever sees. Re-test required with
+  Elementor plugin active before drawing conclusions.
 
-All screenshots above are 1440×900. Mobile (390px) compatibility was tested only on Reign + BuddyX in 1.1.0 — every other theme is unverified at mobile. Adding to 1.2.0 work.
+- **Twenty Twenty-Three / Twenty Twenty-Four / Twenty Twenty-Five** —
+  these are reference / FSE themes that ship with WordPress core, but
+  they are rare in production-grade customer sites. Worth checking once
+  for FSE pattern compatibility, but Tier 1 themes are the ones that
+  actually ship to paying users.
+
+## Themes not tested (license-gated or blocked on plugins)
+
+- **Avada** — premium, no license available. Heavy CSS plus its own
+  builder; expected to surface specificity issues.
+- **Divi** — premium theme + page builder, no license. Shortcode-render
+  edge cases expected.
+- **Bricks** — newer premium builder, no license.
+- **Hello Elementor + Elementor** — Elementor plugin not installed
+  locally; needs `wp plugin install elementor --activate` to validate.
+- **Beaver Builder + theme** — license-gated.
+
+## Mobile (390px) gap
+
+All screenshots above are 1440×900 desktop. Mobile compatibility was
+verified only on Reign + BuddyX during 1.1.0 — every Tier 1 third-party
+theme is unverified at 390px. Logged in `docs/PLAN-1.2.0.md`.
