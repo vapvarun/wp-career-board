@@ -322,16 +322,24 @@ const { state, actions } = store( 'wcb-job-listings', {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 
-				const total = parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 );
 				const data = yield response.json();
+				// Envelope shape since 1.1.0: { jobs, total, pages, has_more }.
+				// Fall back to bare-array + header for any external reverse proxy still serving the old shape.
+				const jobs  = Array.isArray( data ) ? data : ( data?.jobs ?? [] );
+				const total = Array.isArray( data )
+					? parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 )
+					: ( data?.total ?? jobs.length );
+				const hasMore = Array.isArray( data )
+					? ( ( ( state.page * jobs.length ) || jobs.length ) < total )
+					: !! data?.has_more;
 
 				state.totalCount = total;
 				if ( state.page === 1 ) {
-					state.jobs = data;
+					state.jobs = jobs;
 				} else {
-					state.jobs = [ ...state.jobs, ...data ];
+					state.jobs = [ ...state.jobs, ...jobs ];
 				}
-				state.hasMore = state.jobs.length < total;
+				state.hasMore = hasMore && state.jobs.length < total;
 			} finally {
 				state.loading = false;
 			}

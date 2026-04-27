@@ -64,9 +64,11 @@ const { state } = store( 'wcb-company-archive', {
 					return;
 				}
 
-				const companies = yield response.json();
+				const data = yield response.json();
+				const companies = Array.isArray( data ) ? data : ( data?.companies ?? [] );
+				const hasMore   = Array.isArray( data ) ? companies.length === state.perPage : !! data?.has_more;
 				state.companies.push( ...companies );
-				state.hasMore = companies.length === state.perPage;
+				state.hasMore = hasMore;
 			} catch {
 				state.page--;
 			} finally {
@@ -119,12 +121,14 @@ function wcbFetchCompanies() {
 			}
 			return response.json();
 		} )
-		.then( function( companies ) {
-			if ( ! companies ) {
+		.then( function( data ) {
+			if ( ! data ) {
 				return;
 			}
+			const companies = Array.isArray( data ) ? data : ( data.companies ?? [] );
+			const hasMore   = Array.isArray( data ) ? companies.length === state.perPage : !! data.has_more;
 			state.companies = companies;
-			state.hasMore   = companies.length === state.perPage;
+			state.hasMore   = hasMore;
 			state.loading   = false;
 		} )
 		.catch( function() {

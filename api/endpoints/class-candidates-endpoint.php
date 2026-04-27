@@ -303,7 +303,20 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		return rest_ensure_response( $items );
+		// Bookmarks aren't paginated server-side — surface the total + pages
+		// fields anyway so the envelope shape stays consistent with paged
+		// list endpoints (callers can rely on response.bookmarks etc).
+		$count    = count( $items );
+		$response = rest_ensure_response(
+			array(
+				'bookmarks' => $items,
+				'total'     => $count,
+				'pages'     => $count > 0 ? 1 : 0,
+				'has_more'  => false,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $count );
+		return $response;
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

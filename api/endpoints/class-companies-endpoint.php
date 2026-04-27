@@ -160,11 +160,12 @@ final class CompaniesEndpoint extends RestController {
 
 		$query = new \WP_Query( $args );
 
+		$paged = (int) $args['paged'];
+		$total = (int) $query->found_posts;
+		$pages = (int) $query->max_num_pages;
+
 		if ( empty( $query->posts ) ) {
-			$response = rest_ensure_response( array() );
-			$response->header( 'X-WCB-Total', '0' );
-			$response->header( 'X-WCB-TotalPages', '0' );
-			return $response;
+			return $this->build_companies_response( array(), 0, 0, $paged );
 		}
 
 		// Build author → job count map scoped to companies on this page.
@@ -184,9 +185,31 @@ final class CompaniesEndpoint extends RestController {
 			$query->posts
 		);
 
-		$response = rest_ensure_response( $companies );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $this->build_companies_response( $companies, $total, $pages, $paged );
+	}
+
+	/**
+	 * Wrap a companies list page in the standard envelope.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array<int, array<string, mixed>> $companies Prepared rows.
+	 * @param int                              $total     Total matches.
+	 * @param int                              $pages     Total page count.
+	 * @param int                              $paged     Current page.
+	 * @return \WP_REST_Response
+	 */
+	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
+		$response = rest_ensure_response(
+			array(
+				'companies' => $companies,
+				'total'     => $total,
+				'pages'     => $pages,
+				'has_more'  => $paged < $pages,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
 		return $response;
 	}
 

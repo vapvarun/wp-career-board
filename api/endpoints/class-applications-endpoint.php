@@ -399,9 +399,18 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$response = rest_ensure_response( $items );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		$total    = (int) $query->found_posts;
+		$pages    = (int) $query->max_num_pages;
+		$response = rest_ensure_response(
+			array(
+				'applications' => $items,
+				'total'        => $total,
+				'pages'        => $pages,
+				'has_more'     => $paged < $pages,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
 		return $response;
 	}
 

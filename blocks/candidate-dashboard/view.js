@@ -181,7 +181,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return;
 				}
 
-				state.applications = yield response.json();
+				const data = yield response.json();
+				// Envelope since 1.1.0; tolerate the legacy bare-array shape.
+				state.applications = Array.isArray( data ) ? data : ( data?.applications ?? [] );
 			} catch {
 				state.error = state.strings.errConnectionFull;
 			} finally {
@@ -195,7 +197,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( bmResponse.ok ) {
-					state.bookmarks = yield bmResponse.json();
+					const bmData = yield bmResponse.json();
+					state.bookmarks = Array.isArray( bmData ) ? bmData : ( bmData?.bookmarks ?? [] );
 				}
 			} catch {
 				// Non-critical — overview saved jobs panel will show empty state.
@@ -268,7 +271,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return;
 				}
 
-				state.bookmarks = yield response.json();
+				const data = yield response.json();
+				state.bookmarks = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
 			} catch {
 				state.error = state.strings.errConnectionFull;
 			} finally {

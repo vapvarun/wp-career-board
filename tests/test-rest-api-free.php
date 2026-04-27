@@ -102,13 +102,18 @@ WP_CLI::log( '' );
 WP_CLI::log( '--- Jobs: GET /wcb/v1/jobs (public) ---' );
 $r = wcb_rest( 'GET', '/wcb/v1/jobs', array(), 0 );
 wcb_assert( 200 === $r->get_status(), 'GET /jobs returns 200 for anonymous' );
-wcb_assert( is_array( $r->get_data() ), 'response is an array' );
-wcb_assert( count( $r->get_data() ) > 0, 'at least one job returned' );
+$data = $r->get_data();
+wcb_assert(
+	is_array( $data ) && isset( $data['jobs'], $data['total'], $data['pages'], $data['has_more'] ),
+	'response uses envelope shape {jobs,total,pages,has_more}'
+);
+wcb_assert( is_array( $data['jobs'] ) && count( $data['jobs'] ) > 0, 'at least one job returned' );
 
 WP_CLI::log( '--- Jobs: GET /wcb/v1/jobs (with filters) ---' );
 $r = wcb_rest( 'GET', '/wcb/v1/jobs', array( 'per_page' => 5, 'page' => 1 ), 0 );
 wcb_assert( 200 === $r->get_status(), 'GET /jobs with per_page returns 200' );
-wcb_assert( count( $r->get_data() ) <= 5, 'respects per_page limit' );
+$data = $r->get_data();
+wcb_assert( is_array( $data['jobs'] ) && count( $data['jobs'] ) <= 5, 'respects per_page limit' );
 
 WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs (anon = 401/403) ---' );
 $r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => 'Test Job' ), 0 );

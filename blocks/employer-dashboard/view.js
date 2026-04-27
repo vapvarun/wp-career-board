@@ -353,8 +353,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					return;
 				}
 
-				const jobs  = yield jobsResp.json();
-				state.jobs  = jobs.map( ( j ) => ( {
+				const jobsData = yield jobsResp.json();
+				const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
+				state.jobs     = jobs.map( ( j ) => ( {
 					...j,
 					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
 					isClosed: j.status !== 'publish',
@@ -362,7 +363,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} ) );
 
 				if ( allAppsResp && allAppsResp.ok ) {
-					state.allApplications = yield allAppsResp.json();
+					const appsData = yield allAppsResp.json();
+					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
 				}
 			} catch {
 				state.error = state.strings.errorConnection;
@@ -488,7 +490,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					return;
 				}
 
-				const apps         = yield response.json();
+				const appsData = yield response.json();
+				const apps     = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
 				state.applications = apps.map( ( a ) => ( {
 					...a,
 					initials: a.applicant_name

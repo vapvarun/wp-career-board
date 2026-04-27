@@ -227,11 +227,12 @@ final class JobsEndpoint extends RestController {
 		$cached_value = get_transient( $cache_key );
 
 		if ( false !== $cached_value && is_array( $cached_value ) ) {
-			$response = rest_ensure_response( $cached_value['jobs'] );
-			$response->header( 'X-WCB-Total', $cached_value['total'] );
-			$response->header( 'X-WCB-TotalPages', $cached_value['pages'] );
-			$response->header( 'Cache-Control', 'public, max-age=300' );
-			return $response;
+			return $this->build_jobs_response(
+				(array) ( $cached_value['jobs'] ?? array() ),
+				(int) ( $cached_value['total'] ?? 0 ),
+				(int) ( $cached_value['pages'] ?? 0 ),
+				$paged
+			);
 		}
 
 		if ( ! empty( $args['wcb_search_term'] ) ) {
@@ -249,15 +250,41 @@ final class JobsEndpoint extends RestController {
 			$cache_key,
 			array(
 				'jobs'  => $jobs,
-				'total' => (string) $query->found_posts,
-				'pages' => (string) $query->max_num_pages,
+				'total' => (int) $query->found_posts,
+				'pages' => (int) $query->max_num_pages,
 			),
 			5 * MINUTE_IN_SECONDS
 		);
 
-		$response = rest_ensure_response( $jobs );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
+		return $this->build_jobs_response( $jobs, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
+	}
+
+	/**
+	 * Wrap a jobs list page in the standard {jobs, total, pages, has_more} envelope.
+	 *
+	 * Keeps the legacy X-WCB-Total / X-WCB-TotalPages headers populated for one
+	 * release cycle so any external consumers that still read them keep working;
+	 * remove the headers in 1.2.0 once known consumers are migrated.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array<int, array<string, mixed>> $jobs  Prepared job rows.
+	 * @param int                              $total Total matching posts.
+	 * @param int                              $pages Total page count.
+	 * @param int                              $paged Current page number.
+	 * @return \WP_REST_Response
+	 */
+	private function build_jobs_response( array $jobs, int $total, int $pages, int $paged ): \WP_REST_Response {
+		$response = rest_ensure_response(
+			array(
+				'jobs'     => $jobs,
+				'total'    => $total,
+				'pages'    => $pages,
+				'has_more' => $paged < $pages,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
 		$response->header( 'Cache-Control', 'public, max-age=300' );
 		return $response;
 	}
@@ -684,7 +711,17 @@ final class JobsEndpoint extends RestController {
 			$posts
 		);
 
-		return rest_ensure_response( $items );
+		// Always returns the full set today; envelope shape kept consistent with
+		// other list endpoints so the frontend always reads response.applications.
+		$count = count( $items );
+		return rest_ensure_response(
+			array(
+				'applications' => $items,
+				'total'        => $count,
+				'pages'        => $count > 0 ? 1 : 0,
+				'has_more'     => false,
+			)
+		);
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

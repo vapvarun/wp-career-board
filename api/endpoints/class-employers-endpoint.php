@@ -457,10 +457,7 @@ final class EmployersEndpoint extends RestController {
 			$query->posts
 		);
 
-		$response = rest_ensure_response( $items );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
-		return $response;
+		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
 	}
 
 	/**
@@ -558,10 +555,7 @@ final class EmployersEndpoint extends RestController {
 			$query->posts
 		);
 
-		$response = rest_ensure_response( $items );
-		$response->header( 'X-WCB-Total', (string) $query->found_posts );
-		$response->header( 'X-WCB-TotalPages', (string) $query->max_num_pages );
-		return $response;
+		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
 	}
 
 	/**
@@ -601,7 +595,7 @@ final class EmployersEndpoint extends RestController {
 		);
 
 		if ( empty( $job_ids ) ) {
-			return rest_ensure_response( array() );
+			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}
 
 		global $wpdb;
@@ -639,7 +633,38 @@ final class EmployersEndpoint extends RestController {
 			$rows
 		);
 
-		return rest_ensure_response( $items );
+		// This endpoint always returns the latest 20 with no pagination — total
+		// equals returned count and pages is 1 so consumers can use the same
+		// envelope shape as paginated lists.
+		$count = count( $items );
+		return $this->build_envelope( 'applications', $items, $count, $count > 0 ? 1 : 0, 1 );
+	}
+
+	/**
+	 * Wrap a list page in the standard envelope. Shared across this endpoint's
+	 * three list responses (me/jobs, company/jobs, employer/applications).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string                           $items_key Resource key, e.g. "jobs".
+	 * @param array<int, array<string, mixed>> $items     Prepared rows.
+	 * @param int                              $total     Total matches.
+	 * @param int                              $pages     Total page count.
+	 * @param int                              $paged     Current page.
+	 * @return \WP_REST_Response
+	 */
+	private function build_envelope( string $items_key, array $items, int $total, int $pages, int $paged ): \WP_REST_Response {
+		$response = rest_ensure_response(
+			array(
+				$items_key => $items,
+				'total'    => $total,
+				'pages'    => $pages,
+				'has_more' => $paged < $pages,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		return $response;
 	}
 
 	/**
