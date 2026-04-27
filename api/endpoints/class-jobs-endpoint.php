@@ -934,7 +934,21 @@ final class JobsEndpoint extends RestController {
 		 * @param array    $data Job response array.
 		 * @param \WP_Post $post The job post object.
 		 */
-		return apply_filters( 'wcb_job_response', $data, $post );
+		$data = (array) apply_filters( 'wcb_job_response', $data, $post );
+
+		/**
+		 * Canonical wcb_rest_prepare_* filter — fires on every prepared resource.
+		 *
+		 * Customer-extension surface for theme integrators and add-ons. Mirrors
+		 * the WP core `rest_prepare_<post_type>` pattern.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array $data Job response array.
+		 * @param \WP_Post $post The job post object.
+		 * @param \WP_REST_Request|null $request The originating REST request, when available.
+		 */
+		return (array) apply_filters( 'wcb_rest_prepare_job', $data, $post, null );
 	}
 
 	/**

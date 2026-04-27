@@ -238,7 +238,7 @@ final class CompaniesEndpoint extends RestController {
 		}
 		$initials = $initials ? $initials : '?';
 
-		return array(
+		$data = array(
 			'id'          => $post->ID,
 			'name'        => $name,
 			'initials'    => $initials,
@@ -258,6 +258,17 @@ final class CompaniesEndpoint extends RestController {
 			'job_count'   => $job_count,
 			'jobs_label'  => $this->jobs_label( $job_count ),
 		);
+
+		/**
+		 * Canonical wcb_rest_prepare_* filter for the company resource.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array    $data Company response array.
+		 * @param \WP_Post $post The company post object.
+		 * @param \WP_REST_Request|null $request The originating REST request, when available.
+		 */
+		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
 	}
 
 	/**

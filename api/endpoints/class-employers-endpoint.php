@@ -817,7 +817,7 @@ final class EmployersEndpoint extends RestController {
 		}
 		$logo        = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$trust_level = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
-		return array(
+		$data        = array(
 			'id'           => $post->ID,
 			'name'         => $post->post_title,
 			'description'  => $post->post_content,
@@ -834,5 +834,10 @@ final class EmployersEndpoint extends RestController {
 			'trust_level'  => $trust_level ? $trust_level : 'new',
 			'permalink'    => get_permalink( $post->ID ),
 		);
+
+		// Employer endpoint shapes a company sub-resource — fires the same
+		// canonical filter as class-companies-endpoint so extension authors
+		// only have to hook one place.
+		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
 	}
 }

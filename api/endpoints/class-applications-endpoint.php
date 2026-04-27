@@ -783,7 +783,7 @@ final class ApplicationsEndpoint extends RestController {
 		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
 		$status_log           = get_post_meta( $post->ID, '_wcb_status_log', true );
-		return array(
+		$data                 = array(
 			'id'             => $post->ID,
 			'job_id'         => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
 			'candidate_id'   => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
@@ -794,5 +794,16 @@ final class ApplicationsEndpoint extends RestController {
 			'status_history' => is_array( $status_log ) ? $status_log : array(),
 			'submitted_at'   => $post->post_date,
 		);
+
+		/**
+		 * Canonical wcb_rest_prepare_* filter for the application resource.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array    $data Application response array.
+		 * @param \WP_Post $post The application post object.
+		 * @param \WP_REST_Request|null $request The originating REST request, when available.
+		 */
+		return (array) apply_filters( 'wcb_rest_prepare_application', $data, $post, null );
 	}
 }

@@ -386,7 +386,7 @@ final class CandidatesEndpoint extends RestController {
 		}
 		$raw_visibility  = (string) get_user_meta( $user->ID, '_wcb_profile_visibility', true );
 		$raw_resume_data = get_user_meta( $user->ID, '_wcb_resume_data', true );
-		return array(
+		$data            = array(
 			'id'                 => $user->ID,
 			'display_name'       => $user->display_name,
 			'bio'                => $user->description,
@@ -394,5 +394,16 @@ final class CandidatesEndpoint extends RestController {
 			'avatar'             => get_avatar_url( $user->ID ),
 			'resume_data'        => $raw_resume_data ? $raw_resume_data : array(),
 		);
+
+		/**
+		 * Canonical wcb_rest_prepare_* filter for the candidate resource.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array    $data Candidate response array.
+		 * @param \WP_User $user The candidate user object.
+		 * @param \WP_REST_Request|null $request The originating REST request, when available.
+		 */
+		return (array) apply_filters( 'wcb_rest_prepare_candidate', $data, $user, null );
 	}
 }
