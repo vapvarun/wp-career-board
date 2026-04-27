@@ -792,11 +792,92 @@ wp_interactivity_state(
 
 				<?php
 				/**
-				 * Hook: inject custom application fields (e.g. phone, portfolio URL, custom questions).
+				 * Filter: declarative custom field groups for the apply form.
 				 *
-				 * Pro plugins can render additional form fields here. Fields should use
-				 * data-wp-on--input="actions.updateCustomField" with data-wcb-field="fieldKey"
-				 * so values are captured in the Interactivity API state.
+				 * Mirrors wcb_job_form_fields, wcb_company_form_fields,
+				 * wcb_candidate_form_fields, wcb_resume_form_fields. Returns an
+				 * array of groups, each with `id`, `label`, and `fields` —
+				 * see docs/HOOKS.md for the schema.
+				 *
+				 *   add_filter( 'wcb_application_form_fields_groups',
+				 *     function( $groups, $job_id ) {
+				 *         $groups[] = array(
+				 *             'id'     => 'screening',
+				 *             'label'  => __( 'Screening', 'my-theme' ),
+				 *             'fields' => array(
+				 *                 array(
+				 *                     'key'      => 'phone',
+				 *                     'label'    => __( 'Phone', 'my-theme' ),
+				 *                     'type'     => 'tel',
+				 *                     'required' => true,
+				 *                 ),
+				 *             ),
+				 *         );
+				 *         return $groups;
+				 *     }, 10, 2
+				 *   );
+				 *
+				 * @since 1.1.0
+				 *
+				 * @param array<int,array<string,mixed>> $groups Empty by default.
+				 * @param int                            $job_id Job being applied to.
+				 */
+				$wcb_app_field_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $wcb_job_id );
+				if ( ! empty( $wcb_app_field_groups ) ) {
+					echo '<div class="wcb-apply-custom-fields" data-wp-context="' . esc_attr(
+						(string) wp_json_encode( array( 'fieldGroups' => $wcb_app_field_groups ) )
+					) . '">';
+					foreach ( $wcb_app_field_groups as $wcb_group ) {
+						if ( ! is_array( $wcb_group ) || empty( $wcb_group['fields'] ) ) {
+							continue;
+						}
+						if ( ! empty( $wcb_group['label'] ) ) {
+							echo '<h3 class="wcb-apply-custom-fields__heading">' . esc_html( (string) $wcb_group['label'] ) . '</h3>';
+						}
+						foreach ( (array) $wcb_group['fields'] as $wcb_field ) {
+							if ( ! is_array( $wcb_field ) || empty( $wcb_field['key'] ) || empty( $wcb_field['type'] ) ) {
+								continue;
+							}
+							$wcb_key = sanitize_key( (string) $wcb_field['key'] );
+							$wcb_id  = 'wcb-apply-' . $wcb_key;
+							echo '<div class="wcb-form-field">';
+							if ( ! empty( $wcb_field['label'] ) ) {
+								echo '<label class="wcb-field-label" for="' . esc_attr( $wcb_id ) . '">' . esc_html( (string) $wcb_field['label'] );
+								if ( ! empty( $wcb_field['required'] ) ) {
+									echo ' <span class="wcb-field-required" aria-hidden="true">*</span>';
+								}
+								echo '</label>';
+							}
+							$wcb_type        = (string) $wcb_field['type'];
+							$wcb_required    = ! empty( $wcb_field['required'] ) ? ' required aria-required="true"' : '';
+							$wcb_placeholder = isset( $wcb_field['placeholder'] ) ? ' placeholder="' . esc_attr( (string) $wcb_field['placeholder'] ) . '"' : '';
+							if ( 'textarea' === $wcb_type ) {
+								echo '<textarea id="' . esc_attr( $wcb_id ) . '" class="wcb-field" rows="4" data-wp-on--input="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_placeholder . $wcb_required . '></textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attrs already escaped.
+							} elseif ( 'select' === $wcb_type && ! empty( $wcb_field['options'] ) && is_array( $wcb_field['options'] ) ) {
+								echo '<select id="' . esc_attr( $wcb_id ) . '" class="wcb-field" data-wp-on--change="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_required . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								foreach ( $wcb_field['options'] as $wcb_val => $wcb_label ) {
+									echo '<option value="' . esc_attr( (string) $wcb_val ) . '">' . esc_html( (string) $wcb_label ) . '</option>';
+								}
+								echo '</select>';
+							} else {
+								$wcb_input_type = in_array( $wcb_type, array( 'text', 'email', 'tel', 'url', 'number', 'date' ), true ) ? $wcb_type : 'text';
+								echo '<input type="' . esc_attr( $wcb_input_type ) . '" id="' . esc_attr( $wcb_id ) . '" class="wcb-field" data-wp-on--input="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_placeholder . $wcb_required . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							}
+							if ( ! empty( $wcb_field['description'] ) ) {
+								echo '<span class="wcb-field-hint">' . esc_html( (string) $wcb_field['description'] ) . '</span>';
+							}
+							echo '</div>';
+						}
+					}
+					echo '</div>';
+				}
+
+				/**
+				 * Action: legacy raw-HTML injection point — kept for back-compat.
+				 *
+				 * Prefer the wcb_application_form_fields_groups filter above for
+				 * new integrations; this action stays so existing add-ons keep
+				 * working without changes.
 				 *
 				 * @since 1.0.0
 				 * @param int $wcb_job_id The job being applied to.
