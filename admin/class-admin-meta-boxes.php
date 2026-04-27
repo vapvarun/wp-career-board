@@ -123,13 +123,64 @@ class AdminMetaBoxes {
 		);
 
 		add_meta_box(
-			'wcb-application-audit-log',
-			__( 'Status History', 'wp-career-board' ),
-			array( $this, 'render_application_audit_log_box' ),
+			'wcb-application-overview',
+			__( 'Application', 'wp-career-board' ),
+			array( $this, 'render_application_overview_box' ),
 			'wcb_application',
 			'normal',
-			'default'
+			'high'
 		);
+
+		add_meta_box(
+			'wcb-application-status',
+			__( 'Status', 'wp-career-board' ),
+			array( $this, 'render_application_status_box' ),
+			'wcb_application',
+			'side',
+			'high'
+		);
+	}
+
+	/**
+	 * Render the composite Application overview metabox.
+	 *
+	 * Composes ApplicantCard, CoverLetter, ResumePreview, StatusTimeline widgets
+	 * via the WidgetRegistry so the same UI is reusable as [wcb_widget] shortcodes.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WP_Post $post Current post.
+	 * @return void
+	 */
+	public function render_application_overview_box( \WP_Post $post ): void {
+		$registry = \WCB\Core\Widgets\WidgetRegistry::instance();
+		$args     = array( 'application_id' => $post->ID );
+
+		$ids = array(
+			'application/applicant-card',
+			'application/cover-letter',
+			'application/resume-preview',
+			'application/status-timeline',
+		);
+
+		foreach ( $ids as $widget_id ) {
+			echo $registry->render( $widget_id, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- widgets escape internally.
+		}
+	}
+
+	/**
+	 * Render the side Status metabox — changer + quick actions.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WP_Post $post Current post.
+	 * @return void
+	 */
+	public function render_application_status_box( \WP_Post $post ): void {
+		$registry = \WCB\Core\Widgets\WidgetRegistry::instance();
+		$args     = array( 'application_id' => $post->ID );
+		echo $registry->render( 'application/status-changer', $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $registry->render( 'application/quick-actions', $args );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -147,42 +198,6 @@ class AdminMetaBoxes {
 			return;
 		}
 		echo '<p style="margin:0;">' . esc_html( $reason ) . '</p>';
-	}
-
-	/**
-	 * Render the Status History (audit log) meta box on the application edit screen.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param \WP_Post $post The current post object.
-	 * @return void
-	 */
-	public function render_application_audit_log_box( \WP_Post $post ): void {
-		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
-		if ( empty( $log ) ) {
-			echo '<p class="wcb-audit-log-empty">' . esc_html__( 'No status changes recorded yet.', 'wp-career-board' ) . '</p>';
-			return;
-		}
-
-		echo '<ul class="wcb-audit-log">';
-		foreach ( array_reverse( $log ) as $entry ) {
-			if ( ! is_array( $entry ) ) {
-				continue;
-			}
-			$user      = isset( $entry['by'] ) ? get_userdata( (int) $entry['by'] ) : false;
-			$user_name = $user instanceof \WP_User ? $user->display_name : __( 'System', 'wp-career-board' );
-			$from      = isset( $entry['from'] ) ? (string) $entry['from'] : '';
-			$to        = isset( $entry['to'] ) ? (string) $entry['to'] : '';
-			$at        = isset( $entry['at'] ) ? (string) $entry['at'] : '';
-			printf(
-				'<li><span class="wcb-audit-log-date">%s</span><span>%s &rarr; %s &mdash; %s</span></li>',
-				esc_html( $at ),
-				esc_html( '' !== $from ? $from : __( '(none)', 'wp-career-board' ) ),
-				esc_html( $to ),
-				esc_html( $user_name )
-			);
-		}
-		echo '</ul>';
 	}
 
 	/**

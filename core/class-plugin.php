@@ -75,6 +75,8 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
 		add_action( 'init', array( $this, 'register_patterns' ) );
+
+		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );

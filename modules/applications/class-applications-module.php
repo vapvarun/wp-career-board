@@ -29,6 +29,26 @@ final class ApplicationsModule {
 	 */
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'init', array( $this, 'register_widgets' ) );
+	}
+
+	/**
+	 * Register all application widgets with the global registry.
+	 *
+	 * Each widget renders identically inside an admin metabox, a [wcb_widget]
+	 * shortcode, or a future Gutenberg block — see WCB\Core\Widgets.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function register_widgets(): void {
+		$registry = \WCB\Core\Widgets\WidgetRegistry::instance();
+		$registry->register( new Widgets\ApplicantCard() );
+		$registry->register( new Widgets\CoverLetter() );
+		$registry->register( new Widgets\ResumePreview() );
+		$registry->register( new Widgets\StatusTimeline() );
+		$registry->register( new Widgets\StatusChanger() );
+		$registry->register( new Widgets\QuickActions() );
 	}
 
 	/**

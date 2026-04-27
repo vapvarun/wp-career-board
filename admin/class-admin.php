@@ -531,7 +531,7 @@ class Admin {
 	public function enqueue_assets( string $hook ): void {
 		global $post_type;
 		$wcb_cpt_edit = ( 'post.php' === $hook || 'post-new.php' === $hook )
-		&& in_array( $post_type, array( 'wcb_job', 'wcb_company' ), true );
+		&& in_array( $post_type, array( 'wcb_job', 'wcb_company', 'wcb_application' ), true );
 		if ( ! $wcb_cpt_edit && false === strpos( $hook, 'wcb' ) && false === strpos( $hook, 'wp-career-board' ) ) {
 			return;
 		}
@@ -573,6 +573,32 @@ class Admin {
 		if ( str_contains( $hook, 'wcb-settings' ) ) {
 			wp_enqueue_style( 'wcb-settings-css', WCB_URL . 'assets/css/admin/settings.css', array( 'wcb-tokens' ), WCB_VERSION );
 			wp_enqueue_script( 'wcb-settings-nav', WCB_URL . 'assets/js/admin/settings-nav.js', array( 'lucide' ), WCB_VERSION, true );
+		}
+
+		// Application edit screen — composite widget assets.
+		if ( ( 'post.php' === $hook || 'post-new.php' === $hook ) && 'wcb_application' === $post_type ) {
+			wp_enqueue_style(
+				'wcb-application-detail',
+				WCB_URL . 'assets/css/admin/application-detail.css',
+				array( 'wcb-tokens' ),
+				WCB_VERSION
+			);
+			wp_enqueue_script(
+				'wcb-application-detail',
+				WCB_URL . 'assets/js/admin/application-detail.js',
+				array(),
+				WCB_VERSION,
+				true
+			);
+			wp_localize_script(
+				'wcb-application-detail',
+				'wcbAppDetail',
+				array(
+					'savedLabel' => __( 'Saved.', 'wp-career-board' ),
+					'errorLabel' => __( 'Could not save.', 'wp-career-board' ),
+					'labels'     => \WCB\Modules\Applications\Widgets\StatusTimeline::status_labels(),
+				)
+			);
 		}
 	}
 }
