@@ -108,6 +108,7 @@ final class Plugin {
 			\WCB\Modules\Jobs\JobsMeta::class,
 			\WCB\Modules\Jobs\JobsExpiry::class,
 			\WCB\Modules\Jobs\DeadlineReminders::class,
+			\WCB\Modules\Jobs\FeaturedExpiry::class,
 			\WCB\Modules\Employers\EmployersModule::class,
 			\WCB\Modules\Candidates\CandidatesModule::class,
 			\WCB\Modules\Applications\ApplicationsModule::class,
