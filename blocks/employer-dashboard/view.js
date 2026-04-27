@@ -543,7 +543,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! jobId ) {
 				return;
 			}
-			if ( ! window.confirm( state.strings.confirmCloseJob ) ) {
+			// Promise-based modal replacement for window.confirm() —
+			// wcbConfirm() resolves on confirm and rejects on cancel/ESC.
+			try {
+				yield window.wcbConfirm( {
+					title:        state.strings.confirmCloseTitle || state.strings.confirmCloseJob,
+					message:      state.strings.confirmCloseJob,
+					confirmText:  state.strings.confirmCloseConfirm || 'Close job',
+					destructive:  true,
+				} );
+			} catch ( cancelled ) {
 				return;
 			}
 			try {

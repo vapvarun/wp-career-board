@@ -387,6 +387,29 @@ final class Plugin {
 			WCB_VERSION
 		);
 
+		wp_register_style(
+			'wcb-confirm-modal',
+			WCB_URL . 'assets/css/wcb-confirm-modal.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
+		wp_register_script(
+			'wcb-confirm-modal',
+			WCB_URL . 'assets/js/wcb-confirm-modal.js',
+			array(),
+			WCB_VERSION,
+			true
+		);
+		wp_localize_script(
+			'wcb-confirm-modal',
+			'wcbConfirmI18n',
+			array(
+				'confirm' => __( 'Confirm', 'wp-career-board' ),
+				'cancel'  => __( 'Cancel', 'wp-career-board' ),
+			)
+		);
+
 		wp_enqueue_script(
 			'lucide',
 			WCB_URL . 'assets/js/vendor/lucide.min.js',

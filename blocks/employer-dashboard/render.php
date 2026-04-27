@@ -31,6 +31,10 @@ if ( ! $wcb_can_manage ) {
 	return;
 }
 
+// Shared confirm-modal — used by closeJob() in view.js.
+wp_enqueue_style( 'wcb-confirm-modal' );
+wp_enqueue_script( 'wcb-confirm-modal' );
+
 $wcb_employer_id = get_current_user_id();
 $wcb_company_id  = (int) get_user_meta( $wcb_employer_id, '_wcb_company_id', true );
 $wcb_company     = $wcb_company_id ? get_post( $wcb_company_id ) : null;

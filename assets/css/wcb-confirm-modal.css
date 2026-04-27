@@ -1,0 +1,53 @@
+/**
+ * WP Career Board — shared confirm-modal styles (frontend).
+ *
+ * Mirrors the admin-side modal styles. Token-driven so Reign / BuddyX
+ * Pro overrides via --wcb-* automatically restyle the dialog.
+ *
+ * @since 1.1.1
+ */
+
+.wcb-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba( 15, 23, 42, 0.6 );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100000;
+	padding: var( --wcb-space-md, 16px );
+}
+
+.wcb-modal {
+	background: var( --wcb-base, #ffffff );
+	color: var( --wcb-contrast, #0f172a );
+	border-radius: var( --wcb-radius-lg, 12px );
+	box-shadow: 0 20px 50px rgba( 15, 23, 42, 0.2 );
+	max-width: 480px;
+	width: 100%;
+	padding: var( --wcb-space-xl, 24px );
+}
+
+.wcb-modal-title {
+	margin: 0 0 var( --wcb-space-sm, 8px );
+	font-size: var( --wcb-text-lg, 18px );
+	font-weight: var( --wcb-font-semibold, 600 );
+	color: var( --wcb-contrast, #0f172a );
+}
+
+.wcb-modal-msg {
+	margin: 0 0 var( --wcb-space-lg, 16px );
+	color: var( --wcb-text-secondary, #475569 );
+	line-height: var( --wcb-leading-normal, 1.5 );
+}
+
+.wcb-modal-actions {
+	display: flex;
+	gap: var( --wcb-space-sm, 8px );
+	justify-content: flex-end;
+}
+
+.wcb-modal-cancel,
+.wcb-modal-confirm {
+	min-height: 40px;
+}
