@@ -239,8 +239,11 @@ final class JobsEndpoint extends RestController {
 
 		$orderby = $request->get_param( 'orderby' );
 		if ( $orderby ) {
-			$args['orderby'] = (string) $orderby;
-			$args['order']   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
+			$primary_order   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
+			$args['orderby'] = array(
+				(string) $orderby => $primary_order,
+				'ID'              => 'DESC', // ID tiebreaker for stable infinite-scroll pagination.
+			);
 		}
 
 		$cache_key    = $this->get_items_cache_key( $args );
@@ -852,6 +855,9 @@ final class JobsEndpoint extends RestController {
 			'excerpt'          => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
 			'status'           => $post->post_status,
 			'author'           => $author_id,
+			'created_at'       => mysql_to_rfc3339( $post->post_date_gmt ),
+			'updated_at'       => mysql_to_rfc3339( $post->post_modified_gmt ),
+			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
 			'date'             => $post->post_date,
 			'permalink'        => get_permalink( $post->ID ),
 			'rejection_reason' => $rejection_reason,

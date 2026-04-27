@@ -130,6 +130,43 @@ These are real but the value-per-effort favours Pro:
 
 ---
 
+### wp-plugin-development skill — REST contract gaps
+
+Carried over from the 2026-04-28 skill audit. Each item is a real gap
+against `~/.claude/skills/wp-plugin-development/SKILL.md`, not a false
+positive.
+
+- **`wcb_rest_prepare_*` filters on every prepared resource.** Skill
+  §3.9 mandates `apply_filters( 'wcb_rest_prepare_<resource>', $data,
+  $post, $request )` at the end of every `prepare_*()` method (jobs,
+  applications, candidates, employers, companies, search). Currently
+  zero sites. Touches ~6 prepare methods.
+- **`GET /wcb/v1/settings/app-config` bootstrap endpoint.** Skill §3.8
+  mandatory mobile-readiness. Returns non-sensitive startup config
+  (`per_page`, `currency`, `moderation_mode`, `feature_toggles`,
+  `is_pro_active`, `timezone`) behind the `wcb_rest_app_config` filter.
+  Apps call this once on launch.
+- **REST cache priming in list endpoints.** `update_meta_cache()` +
+  `update_object_term_cache()` are wired in `blocks/job-listings/render.php`
+  but missing in `class-jobs-endpoint.php` itself. Mirror the priming
+  pattern across every list controller before the prepare loop.
+- **Migrate `wp_get_object_terms()` → `get_the_terms()` in REST loops.**
+  Skill §4.5. 7 sites in `class-jobs-endpoint.php`, 2 in
+  `class-candidates-endpoint.php`. Each call is uncached; at per_page=12
+  that's ~84 extra DB queries per page render.
+- **`before_save` / `after_save` lifecycle hooks on every write op.**
+  Skill §1.2. `do_action( 'wcb_before_save', $type, $data )` /
+  `do_action( 'wcb_after_save', $type, $id, $data )` on jobs,
+  applications, companies, candidates, resumes. Currently only Reign
+  theme compat hooks are present.
+
+### Drop the deprecated `date` / `items` aliases shipped in 1.1.0
+
+1.1.0 added `created_at` / `updated_at` to applications + jobs single
+responses while keeping the legacy `date` key as a one-cycle alias. Pro
+`/resumes` likewise kept `items` alongside `resumes`. 1.2.0 removes both
+aliases — bump app integrators a release in advance via the docs site.
+
 ## Definition of done for 1.2.0
 
 - [ ] Every item above ships behind a feature flag where it could affect

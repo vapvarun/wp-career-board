@@ -395,6 +395,9 @@ final class ApplicationsEndpoint extends RestController {
 				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
 				'company'      => $job instanceof \WP_Post ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : '',
 				'status'       => $status ? $status : 'submitted',
+				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
+				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
+				// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
 				'date'         => get_the_date( 'Y-m-d', $app ),
 			);
 		}
