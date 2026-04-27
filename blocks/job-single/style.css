@@ -21,7 +21,7 @@
 	font-family: inherit;
 	cursor: pointer;
 	text-decoration: none;
-	transition: background 0.15s, opacity 0.15s;
+	transition: background var(--wcb-transition-snappy), opacity var(--wcb-transition-snappy);
 	white-space: nowrap;
 }
 .wcb-btn--primary {
@@ -53,7 +53,7 @@
 	text-decoration: none;
 	color: inherit;
 }
-.wcb-badge--featured  { background: var(--wcb-warning-bg); color: #92400e; }
+.wcb-badge--featured  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
 .wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success); }
 .wcb-badge--type      { background: var(--wcb-surface, #f1f5f9); color: var(--wcb-text-secondary); }
 .wcb-badge--exp       { background: var(--wcb-surface, #f1f5f9); color: var(--wcb-text-secondary); }
@@ -66,9 +66,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-verified-badge {
 	font-size: var(--wcb-text-xs);
-	color: #0f766e;
+	color: var(--wcb-teal-fg);
 	font-weight: var(--wcb-font-semibold);
-	background: #ccfbf1;
+	background: var(--wcb-teal-bg);
 	padding: 0.1rem 0.45rem;
 	border-radius: var(--wcb-space-xs);
 	margin-inline-start: 0.4rem;
@@ -127,7 +127,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 .wcb-job-title {
 	font-size: 1.625rem;
 	font-weight: var(--wcb-font-bold);
-	line-height: 1.25;
+	line-height: var(--wcb-leading-tight);
 	margin: 0 0 0.3rem;
 	color: var(--wcb-contrast, #0f172a);
 }
@@ -195,14 +195,14 @@ a.wcb-badge:hover { opacity: 0.8; }
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
 	cursor: pointer;
-	transition: border-color 0.15s, color 0.15s, background 0.15s;
+	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
 	white-space: nowrap;
 }
 
 .wcb-bookmark-hero-btn:hover {
 	border-color: var(--wcb-primary, #2563eb);
 	color: var(--wcb-primary, #2563eb);
-	background: #eff6ff;
+	background: var(--wcb-info-bg-soft);
 }
 
 .wcb-bookmark-hero-btn.wcb-bookmarked {
@@ -221,7 +221,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-success);
-	background: #f0fdf4;
+	background: var(--wcb-success-bg-soft);
 	border: 1px solid #bbf7d0;
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
@@ -432,7 +432,7 @@ a.wcb-company-card-name:hover {
 
 .wcb-apply-error {
 	display: none;
-	background: #fef2f2;
+	background: var(--wcb-danger-bg-soft);
 	border: 1px solid #fecaca;
 	color: #b91c1c;
 	padding: 0.65rem var(--wcb-space-lg);
@@ -566,7 +566,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	resize: vertical;
 	color: var(--wcb-contrast, #1e293b);
 	margin-bottom: var(--wcb-space-lg);
-	transition: border-color 0.15s;
+	transition: border-color var(--wcb-transition-snappy);
 	box-sizing: border-box;
 }
 
@@ -617,17 +617,17 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	text-align: center;
 	cursor: pointer;
 	position: relative;
-	transition: border-color 0.15s, background 0.15s;
+	transition: border-color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
 }
 
 .wcb-upload-zone:hover {
 	border-color: var(--wcb-primary, #2563eb);
-	background: #eff6ff;
+	background: var(--wcb-info-bg-soft);
 }
 
 .wcb-upload-zone.wcb-has-file {
 	border-color: #22c55e;
-	background: #f0fdf4;
+	background: var(--wcb-success-bg-soft);
 }
 
 .wcb-upload-icon {
@@ -687,11 +687,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
 	color: var(--wcb-primary, #2563eb);
-	background: #eff6ff;
+	background: var(--wcb-info-bg-soft);
 	border: 1px solid var(--wcb-primary, #2563eb);
 	border-radius: var(--wcb-radius-sm);
 	cursor: pointer;
-	transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background-color var(--wcb-transition-snappy);
 }
 
 .wcb-post-apply-alert-btn:hover {
@@ -786,7 +786,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-text-secondary);
 	text-decoration: none;
 	cursor: pointer;
-	transition: border-color 0.12s, color 0.12s;
+	transition: border-color var(--wcb-transition-fast), color var(--wcb-transition-fast);
 	padding: 0;
 }
 

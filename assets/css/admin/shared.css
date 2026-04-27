@@ -45,9 +45,9 @@
     white-space: nowrap;
 }
 .wcb-badge--success { background: rgba(46,164,79,.1); color: #1a7c3b; }
-.wcb-badge--warn { background: rgba(217,119,6,.1); color: #92400e; }
+.wcb-badge--warn { background: rgba(217,119,6,.1); color: var(--wcb-warning-fg); }
 .wcb-badge--default { background: #f0f0f1; color: #50575e; }
-.wcb-badge--danger { background: rgba(224,62,62,.1); color: #991b1b; }
+.wcb-badge--danger { background: rgba(224,62,62,.1); color: var(--wcb-danger-fg); }
 .wcb-badge--muted { background: #f0f0f1; color: #9ca3af; }
 .wcb-badge--info { background: #dff0fa; color: #007cba; }
 .wcb-pro-badge {
@@ -139,7 +139,7 @@
     border: 1.5px solid var(--wcb-border);
     border-radius: var(--wcb-radius-md);
     font-size: 13px;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 }
 .wcb-admin .search-box input:focus {
     border-color: var(--wcb-accent);
@@ -196,7 +196,7 @@
     border: 1.5px solid var(--wcb-border);
     border-radius: var(--wcb-radius-md);
     padding: 6px 12px;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 }
 .wcb-admin .form-table select,
 .wcb-admin .wcb-settings-row-control select {
@@ -226,7 +226,7 @@
     font-weight: 500;
     color: var(--wcb-text-secondary);
     background: transparent;
-    transition: color 0.15s, border-color 0.15s;
+    transition: color var(--wcb-transition-snappy), border-color var(--wcb-transition-snappy);
 }
 .wcb-admin .nav-tab:hover {
     color: var(--wcb-text);

@@ -237,9 +237,9 @@
 	top: var(--wcb-space-lg);
 }
 
-.wcb-ca-trust-badge[data-trust="verified"] { background: var(--wcb-success-bg); color: #166534; }
+.wcb-ca-trust-badge[data-trust="verified"] { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-ca-trust-badge[data-trust="trusted"]  { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-ca-trust-badge[data-trust="premium"]  { background: var(--wcb-warning-bg); color: #92400e; }
+.wcb-ca-trust-badge[data-trust="premium"]  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
 
 /* -- Card body -- */
 .wcb-ca-card-body {

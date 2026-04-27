@@ -59,7 +59,7 @@
 	cursor: pointer;
 	white-space: nowrap;
 	min-height: 44px;
-	transition: opacity 0.15s ease;
+	transition: opacity var(--wcb-transition-snappy) ease;
 }
 
 .wcb-search-hero__button:hover {

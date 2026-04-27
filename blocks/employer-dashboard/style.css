@@ -464,9 +464,9 @@
 .wcb-status-badge[data-status="reviewing"]   { background: #fef9c3; color: #854d0e; }
 .wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
 .wcb-status-badge[data-status="hired"],
-.wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: #166534; }
-.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: #991b1b; }
-.wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: #166534; }
+.wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
+.wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="draft"]       { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); color: var(--wcb-text-secondary); }
 .wcb-status-badge[data-status="pending"]     { background: #fef9c3; color: #854d0e; }
 
@@ -1158,8 +1158,8 @@
 }
 
 .wcb-db-link-btn--reopen {
-	color: #166534;
-	border-color: #bbf7d0;
+	color: var(--wcb-success-fg);
+	border-color: var(--wcb-success-border);
 	cursor: pointer;
 }
 
@@ -1179,7 +1179,7 @@
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-job-status-badge[data-status="publish"]  { background: var(--wcb-success-bg); color: #166534; }
+.wcb-job-status-badge[data-status="publish"]  { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-job-status-badge[data-status="draft"]    { background: var(--wcb-bg-hover); color: var(--wcb-text-secondary); }
 .wcb-job-status-badge[data-status="pending"]  { background: #fef9c3; color: #854d0e; }
 .wcb-job-status-badge[data-status="private"]  { background: #ede9fe; color: #5b21b6; }
@@ -1199,9 +1199,9 @@
 .wcb-app-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-app-status-badge[data-status="reviewing"]   { background: #fef9c3; color: #854d0e; }
 .wcb-app-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
-.wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: #166534; }
-.wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: #166534; }
-.wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: #991b1b; }
+.wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+.wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+.wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 
 /* -- Application status select -- */
 .wcb-app-status-select {
@@ -1372,7 +1372,7 @@
 
 .wcb-db-save-success {
 	display: none;
-	color: #166534;
+	color: var(--wcb-success-fg);
 	background: var(--wcb-success-bg);
 	border: 1px solid #bbf7d0;
 	padding: var(--wcb-space-lg) var(--wcb-space-lg);

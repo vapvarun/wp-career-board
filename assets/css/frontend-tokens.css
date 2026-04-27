@@ -62,19 +62,62 @@
 	--wcb-text-tertiary:  #9ca3af;
 	--wcb-bg-subtle:      #f8fafc;
 	--wcb-bg-hover:       #f1f5f9;
-	--wcb-success:        #16a34a;
-	--wcb-success-bg:     #dcfce7;
-	--wcb-warning:        #d97706;
-	--wcb-warning-bg:     #fef3c7;
-	--wcb-danger:         #dc2626;
-	--wcb-danger-bg:      #fee2e2;
-	--wcb-info:           #2563eb;
-	--wcb-info-bg:        #dbeafe;
+
+	/* Status colors come in three layers:
+	 *   --wcb-{status}        — solid, used as text on light backgrounds
+	 *   --wcb-{status}-fg     — darker text used on the soft-bg variants
+	 *   --wcb-{status}-bg     — primary tinted background (e.g. badges, banners)
+	 *   --wcb-{status}-bg-soft — lighter tinted background (used for full-section panels)
+	 *   --wcb-{status}-border — mid-tone, used on banners + outlined chips
+	 */
+	--wcb-success:         #16a34a;
+	--wcb-success-fg:      #166534;
+	--wcb-success-bg:      #dcfce7;
+	--wcb-success-bg-soft: #f0fdf4;
+	--wcb-success-border:  #bbf7d0;
+
+	--wcb-warning:         #d97706;
+	--wcb-warning-fg:      #92400e;
+	--wcb-warning-bg:      #fef3c7;
+	--wcb-warning-bg-soft: #fffbeb;
+	--wcb-warning-border:  #fde68a;
+
+	--wcb-danger:          #dc2626;
+	--wcb-danger-fg:       #991b1b;
+	--wcb-danger-bg:       #fee2e2;
+	--wcb-danger-bg-soft:  #fef2f2;
+	--wcb-danger-border:   #fecaca;
+
+	--wcb-info:            #2563eb;
+	--wcb-info-fg:         #1d4ed8;
+	--wcb-info-bg:         #dbeafe;
+	--wcb-info-bg-soft:    #eff6ff;
+	--wcb-info-border:     #bfdbfe;
+
+	/* Verified/trust accent (teal) — used on Verified company badges,
+	   open-to-work pills, and resume-completeness meters. */
+	--wcb-teal:            #0d9488;
+	--wcb-teal-fg:         #0f766e;
+	--wcb-teal-bg:         #ccfbf1;
+	--wcb-teal-bg-soft:    #f0fdfa;
 
 	/* ── Transitions ─────────────────────────────────────────────────── */
 	--wcb-transition-fast:   0.12s ease;
+	--wcb-transition-snappy: 0.15s ease;
 	--wcb-transition-normal: 0.2s ease;
 	--wcb-transition-slow:   0.3s ease;
+
+	/* ── Avatar sizes ────────────────────────────────────────────────
+	   Used by company avatars, candidate avatars, employer cards. The
+	   size scale keeps card / list / hero layouts visually consistent. */
+	--wcb-avatar-sm:  44px;
+	--wcb-avatar-md:  52px;
+	--wcb-avatar-lg:  56px;
+	--wcb-avatar-xl:  64px;
+	--wcb-avatar-2xl: 80px;
+
+	/* Default fallback for the avatar background (overridden per-theme). */
+	--wcb-avatar-bg: #1e293b;
 
 	/* ── Lucide Icon Sizing ──────────────────────────────────────────── */
 	--wcb-icon-xs:     14px;

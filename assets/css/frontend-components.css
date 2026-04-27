@@ -78,8 +78,8 @@
 .wcb-badge--warning  { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
 .wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger); }
 .wcb-badge--info     { background: var(--wcb-info-bg);    color: var(--wcb-info); }
-.wcb-badge--muted    { background: #f3f4f6;               color: #6b7280; }
-.wcb-badge--featured { background: #fef3c7;               color: #92400e; }
+.wcb-badge--muted    { background: #f3f4f6;               color: var(--wcb-text-secondary); }
+.wcb-badge--featured { background: var(--wcb-warning-bg);  color: var(--wcb-warning-fg); }
 
 .wcb-badge [data-lucide] {
 	width: var(--wcb-icon-xs);

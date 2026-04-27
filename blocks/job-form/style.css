@@ -19,7 +19,7 @@
 	color: var(--wcb-text-tertiary);
 	background: var(--wcb-surface, #f1f5f9);
 	white-space: nowrap;
-	transition: background 0.15s, color 0.15s;
+	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
 }
 
 .wcb-step__num {
@@ -34,7 +34,7 @@
 	background: #cbd5e1;
 	color: var(--wcb-text-secondary);
 	flex-shrink: 0;
-	transition: background 0.15s, color 0.15s;
+	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
 }
 
 .wcb-step--active {
@@ -49,7 +49,7 @@
 }
 
 .wcb-step--done {
-	background: #f0fdf4;
+	background: var(--wcb-success-bg-soft);
 	color: var(--wcb-success);
 }
 
@@ -127,7 +127,7 @@
 	font-family: inherit;
 	color: var(--wcb-contrast, #1e293b);
 	background: var(--wcb-base, #fff);
-	transition: border-color 0.12s, box-shadow 0.12s;
+	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 	-webkit-appearance: none;
 	appearance: none;
 	box-sizing: border-box;
@@ -190,8 +190,8 @@ textarea.wcb-field {
 }
 
 .wcb-checkbox-label input[type="checkbox"] {
-	width: 18px;
-	height: 18px;
+	width: var(--wcb-icon-md);
+	height: var(--wcb-icon-md);
 	cursor: pointer;
 	flex-shrink: 0;
 	accent-color: var(--wcb-primary, #2563eb);
@@ -222,7 +222,7 @@ textarea.wcb-field {
 	font-weight: var(--wcb-font-semibold);
 	font-family: inherit;
 	cursor: pointer;
-	transition: background 0.12s, color 0.12s;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 	white-space: nowrap;
 }
 
@@ -380,7 +380,7 @@ textarea.wcb-field {
 .wcb-form-error {
 	display: none;
 	color: #b91c1c;
-	background: #fef2f2;
+	background: var(--wcb-danger-bg-soft);
 	border: 1px solid #fecaca;
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -412,7 +412,7 @@ textarea.wcb-field {
 	border: 1px solid var(--wcb-primary-border, #c7d2fe);
 	border-radius: var(--wcb-radius-full);
 	cursor: pointer;
-	transition: background 0.15s;
+	transition: background var(--wcb-transition-snappy);
 }
 
 .wcb-ai-btn:hover {
@@ -433,9 +433,9 @@ textarea.wcb-field {
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-sm);
 	margin-bottom: var(--wcb-space-xl);
-	background: #eff6ff;
+	background: var(--wcb-info-bg-soft);
 	border: 1px solid #bfdbfe;
-	color: #1e40af;
+	color: var(--wcb-info-fg);
 }
 
 .wcb-credit-banner--show {
@@ -443,9 +443,9 @@ textarea.wcb-field {
 }
 
 .wcb-credit-banner--warn {
-	background: #fef3c7;
+	background: var(--wcb-warning-bg);
 	border-color: #fcd34d;
-	color: #92400e;
+	color: var(--wcb-warning-fg);
 }
 
 .wcb-credit-banner__link {
@@ -460,7 +460,7 @@ textarea.wcb-field {
 	align-items: flex-start;
 	gap: var(--wcb-space-lg);
 	padding: var(--wcb-space-2xl);
-	background: #f0fdf4;
+	background: var(--wcb-success-bg-soft);
 	border: 1.5px solid #bbf7d0;
 	border-radius: var(--wcb-radius-xl);
 	margin-bottom: var(--wcb-space-2xl);

@@ -120,7 +120,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	cursor: pointer;
 	text-align: start;
 	text-decoration: none;
-	transition: background 0.12s, color 0.12s;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 	box-sizing: border-box;
 }
 
@@ -179,7 +179,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	text-decoration: none;
 	border: none;
 	border-radius: var(--wcb-radius);
-	transition: background 0.12s;
+	transition: background var(--wcb-transition-fast);
 }
 
 .wcb-sidebar-cta:hover {
@@ -332,7 +332,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	gap: var(--wcb-space-md);
 	padding: 14px var(--wcb-space-xl);
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
-	transition: background 0.12s;
+	transition: background var(--wcb-transition-fast);
 }
 
 .wcb-cd-app-row:last-child {
@@ -413,7 +413,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 
 .wcb-cd-status-badge[data-status="rejected"] {
 	background: var(--wcb-danger-bg);
-	color: #991b1b;
+	color: var(--wcb-danger-fg);
 }
 
 /* ── Bookmark rows ────────────────────────────────────────────────────────── */
@@ -424,7 +424,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	gap: var(--wcb-space-md);
 	padding: 14px var(--wcb-space-xl);
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
-	transition: background 0.12s;
+	transition: background var(--wcb-transition-fast);
 }
 
 .wcb-cd-bookmark-row:last-child {
@@ -503,7 +503,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	padding: 14px var(--wcb-space-xl);
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
-	transition: background 0.12s;
+	transition: background var(--wcb-transition-fast);
 }
 
 .wcb-resume-card:last-child {
@@ -569,7 +569,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	text-decoration: none;
 	cursor: pointer;
 	border: 1px solid transparent;
-	transition: background 0.12s, color 0.12s, border-color 0.12s;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
 	white-space: nowrap;
 	line-height: 1.4;
 }
@@ -604,7 +604,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 }
 
 .wcb-cbtn--ghost:hover {
-	background: #eff6ff;
+	background: var(--wcb-info-bg-soft);
 	color: var( --wcb-primary-dark, var(--wp--preset--color--wcb-primary-dark) ) !important;
 	border-color: var( --wcb-primary-dark, var(--wp--preset--color--wcb-primary-dark) );
 	text-decoration: none;
@@ -617,7 +617,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 }
 
 .wcb-cbtn--danger:hover {
-	background: #fef2f2;
+	background: var(--wcb-danger-bg-soft);
 	color: #b91c1c !important;
 	border-color: var(--wcb-danger);
 	text-decoration: none;
@@ -655,7 +655,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 		content: '\25BE';
 		display: block;
 		color: var(--wcb-text-muted);
-		transition: transform 0.15s;
+		transition: transform var(--wcb-transition-snappy);
 	}
 
 	.wcb-nav-open .wcb-nav-toggle-icon::after {
@@ -822,7 +822,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	color: inherit;
 }
 .wcb-bell-item:hover { background: var(--wcb-surface, #f1f5f9); }
-.wcb-bell-unread { background: #eff6ff; }
+.wcb-bell-unread { background: var(--wcb-info-bg-soft); }
 .wcb-bell-msg {
 	display: block;
 	font-size: var(--wcb-text-sm);
@@ -979,7 +979,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 .wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
 .wcb-status-badge[data-status="hired"],
 .wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success); }
-.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: #991b1b; }
+.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 
 /* ── Responsive: stack to single column on narrow screens ────────────────── */
 @media ( max-width: 640px ) {

@@ -19,7 +19,7 @@
 	border: 1.5px solid var(--wcb-border, #e2e8f0);
 	overflow: hidden;
 	background: var(--wcb-base, #fff);
-	transition: border-color 0.15s, box-shadow 0.15s;
+	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 }
 
 .wcb-search-form:focus-within {
@@ -68,7 +68,7 @@
 	cursor: pointer;
 	white-space: nowrap;
 	min-height: 44px;
-	transition: background 0.15s;
+	transition: background var(--wcb-transition-snappy);
 }
 
 .wcb-search-button:hover,

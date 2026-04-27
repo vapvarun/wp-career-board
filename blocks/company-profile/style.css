@@ -90,7 +90,7 @@
 
 .wcb-trust--verified {
 	background: var(--wcb-success-bg);
-	color: #166534;
+	color: var(--wcb-success-fg);
 }
 
 .wcb-trust--trusted {
@@ -100,7 +100,7 @@
 
 .wcb-trust--premium {
 	background: var(--wcb-warning-bg);
-	color: #92400e;
+	color: var(--wcb-warning-fg);
 }
 
 /* -- Tagline -- */

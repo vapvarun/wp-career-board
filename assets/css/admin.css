@@ -137,7 +137,7 @@
 	text-decoration: none;
 	color: inherit;
 	box-shadow: var(--wcb-shadow-sm);
-	transition: border-color 0.15s, box-shadow 0.15s;
+	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 }
 
 .wcb-stat-box:hover {
@@ -858,7 +858,7 @@
 	color: var(--wcb-text);
 	font-size: 13px;
 	font-weight: 500;
-	transition: border-color 0.15s, background 0.15s, color 0.15s;
+	transition: border-color var(--wcb-transition-snappy), background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
 }
 
 .wcb-action-item:hover {
@@ -873,7 +873,7 @@
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
-	transition: color 0.15s;
+	transition: color var(--wcb-transition-snappy);
 }
 
 .wcb-action-item:hover .dashicons,

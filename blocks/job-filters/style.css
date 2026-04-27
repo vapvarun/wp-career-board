@@ -22,13 +22,13 @@
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right var(--wcb-space-md) center;
-	transition: border-color 0.15s;
+	transition: border-color var(--wcb-transition-snappy);
 }
 
 .wcb-filter-select:focus {
 	outline: 2px solid transparent;
 	border-color: var(--wcb-primary, #2563eb);
-	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+	box-shadow: var(--wcb-shadow-focus);
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
@@ -61,13 +61,13 @@
 	font-family: inherit;
 	color: var(--wcb-contrast, #334155);
 	background: var(--wcb-base, #fff);
-	transition: border-color 0.15s;
+	transition: border-color var(--wcb-transition-snappy);
 }
 
 .wcb-filter-input:focus {
 	outline: 2px solid transparent;
 	border-color: var(--wcb-primary, #2563eb);
-	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+	box-shadow: var(--wcb-shadow-focus);
 }
 
 /* ── Remote checkbox ─────────────────────────────────────────────────────── */
