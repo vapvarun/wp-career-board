@@ -9,11 +9,9 @@
  */
 
 .wcb-form-simple {
-	--wcb-fs-radius:        14px;
-	--wcb-fs-input-radius:  10px;
-	--wcb-fs-pad:           clamp(1.25rem, 2vw, 2rem);
-	--wcb-fs-gap:           1.25rem;
-	--wcb-fs-section-gap:   2rem;
+	--wcb-fs-input-radius:  8px;
+	--wcb-fs-gap:           1.1rem;
+	--wcb-fs-section-gap:   1.75rem;
 	--wcb-fs-border:        var(--wcb-border, #e2e8f0);
 	--wcb-fs-border-strong: var(--wcb-text-tertiary, #94a3b8);
 	--wcb-fs-bg:            var(--wcb-base, #ffffff);
@@ -22,17 +20,15 @@
 	--wcb-fs-text-subtle:   var(--wcb-text-tertiary, #64748b);
 	--wcb-fs-primary:       var(--wcb-primary, #2563eb);
 	--wcb-fs-primary-soft:  rgba(37, 99, 235, 0.08);
-	--wcb-fs-primary-ring:  rgba(37, 99, 235, 0.18);
-	--wcb-fs-shadow:        0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
-	--wcb-fs-shadow-focus:  0 0 0 4px var(--wcb-fs-primary-ring);
+	--wcb-fs-primary-ring:  rgba(37, 99, 235, 0.16);
+	--wcb-fs-shadow-focus:  0 0 0 3px var(--wcb-fs-primary-ring);
 
+	/* Inherits the page background — no card chrome on desktop. The
+	   theme's content container already provides the right max-width
+	   for centered single-page templates; we just constrain when
+	   embedded inside a wider page builder column. */
 	max-width: 760px;
 	margin: 0 auto;
-	background: var(--wcb-fs-bg);
-	border-radius: var(--wcb-fs-radius);
-	box-shadow: var(--wcb-fs-shadow);
-	border: 1px solid var(--wcb-fs-border);
-	padding: var(--wcb-fs-pad);
 	color: var(--wcb-fs-text);
 }
 
@@ -189,36 +185,24 @@
 .wcb-form-simple .wcb-checkbox-label {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.6rem;
-	padding: 0.7rem 0.9rem;
-	border: 1px solid var(--wcb-fs-border);
-	border-radius: var(--wcb-fs-input-radius);
+	gap: 0.55rem;
 	font-size: 14px;
 	font-weight: 500;
+	color: var(--wcb-fs-text);
 	cursor: pointer;
-	transition: border-color 0.12s ease, background 0.12s ease;
-	min-height: 48px;
-	box-sizing: border-box;
+	user-select: none;
 }
-.wcb-form-simple .wcb-checkbox-label:hover { border-color: var(--wcb-fs-border-strong); }
 .wcb-form-simple .wcb-checkbox-label input[type="checkbox"] {
 	width: 18px;
 	height: 18px;
 	accent-color: var(--wcb-fs-primary);
 	margin: 0;
 }
-.wcb-form-simple .wcb-checkbox-label:has(input:checked) {
-	background: var(--wcb-fs-primary-soft);
-	border-color: var(--wcb-fs-primary);
-}
 
-/* The remote/deadline row needs the checkbox to span the field column. */
+/* In the remote/deadline pair, push the checkbox down so it baselines
+   with the date input rather than the deadline label above. */
 .wcb-form-simple__remote-deadline .wcb-form-field--remote {
-	display: flex;
-	align-items: flex-end;
-}
-.wcb-form-simple__remote-deadline .wcb-form-field--remote .wcb-checkbox-label {
-	width: 100%;
+	justify-content: flex-end;
 }
 
 /* ── Honeypot ────────────────────────────────────────────────────────── */
