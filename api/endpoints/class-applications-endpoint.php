@@ -633,9 +633,11 @@ final class ApplicationsEndpoint extends RestController {
 			return true;
 		}
 
-		// Logged-in users must have the wcb_apply_jobs capability.
-		// This prevents employers from applying to jobs.
-		if ( current_user_can( 'wcb_apply_jobs' ) || current_user_can( 'manage_options' ) ) {
+		// Logged-in users must have the wcb_apply_jobs ability/cap.
+		// This prevents employers from applying to jobs. Admins are granted
+		// this ability automatically by Roles::register(), so no manage_options
+		// fallback is needed (per CLAUDE.md: Abilities API only).
+		if ( $this->check_ability( 'wcb_apply_jobs' ) ) {
 			return true;
 		}
 

@@ -119,11 +119,16 @@ final class JobsEndpoint extends RestController {
 			$request->set_param( 'per_page', ! empty( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 15 );
 		}
 
+		// Clamp per_page in the handler (the schema declares maximum: 100 but
+		// schema validation only emits a warning; clamp here to enforce it).
+		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?? 15 ) ) );
+		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?? 1 ) );
+
 		$args = array(
 			'post_type'      => 'wcb_job',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ( $request->get_param( 'per_page' ) ?? 15 ),
-			'paged'          => (int) ( $request->get_param( 'page' ) ?? 1 ),
+			'posts_per_page' => $per_page,
+			'paged'          => $paged,
 			'tax_query'      => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);

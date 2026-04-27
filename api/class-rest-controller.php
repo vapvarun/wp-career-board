@@ -35,8 +35,10 @@ abstract class RestController extends \WP_REST_Controller {
 	/**
 	 * Check an ability via the WordPress Abilities API with cap fallback.
 	 *
-	 * This is the ONLY place in the codebase where current_user_can() is
-	 * permitted — as a graceful fallback when the Abilities API is absent.
+	 * Falls back to current_user_can( $ability ) when the Abilities API is
+	 * not available; the ability slug doubles as a custom capability and
+	 * Roles::add_admin_caps() grants every wcb_* cap to administrators, so
+	 * no manage_options bypass is necessary (forbidden per CLAUDE.md).
 	 *
 	 * @since 1.0.0
 	 *
@@ -53,9 +55,8 @@ abstract class RestController extends \WP_REST_Controller {
 			}
 		}
 
-		// Graceful fallback when Abilities API is unavailable or ability not registered.
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-		return current_user_can( $ability ) || current_user_can( 'manage_options' );
+		return current_user_can( $ability );
 	}
 
 	/**
