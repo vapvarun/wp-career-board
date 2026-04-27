@@ -157,8 +157,19 @@ positive.
 - **`before_save` / `after_save` lifecycle hooks on every write op.**
   Skill §1.2. `do_action( 'wcb_before_save', $type, $data )` /
   `do_action( 'wcb_after_save', $type, $id, $data )` on jobs,
-  applications, companies, candidates, resumes. Currently only Reign
-  theme compat hooks are present.
+  applications, companies, candidates, resumes. 1.1.0 shipped
+  `wcb_before_create_job`, `wcb_before_update_job`, `wcb_before_delete_job`,
+  `wcb_before_create_application` — generic `wcb_before_save` /
+  `wcb_after_save` envelopes are the next level up.
+- **REST `get_item_schema()` completion across endpoints.** Jobs has a
+  partial 4-property schema (`api/endpoints/class-jobs-endpoint.php:1093`).
+  The other Free endpoints (applications, candidates, employers,
+  companies, search, import, admin, settings) return ad-hoc arrays
+  with no schema declaration. Plan: extract authoritative shape from
+  each `prepare_*()` method, declare the schema, gate with a contract
+  test so schema/response drift fails CI. Deferred from 1.1.0 because
+  shipping a partial schema is worse than no schema — any drift
+  becomes a new app-breaking bug class.
 
 ### Drop the deprecated `date` / `items` aliases shipped in 1.1.0
 
