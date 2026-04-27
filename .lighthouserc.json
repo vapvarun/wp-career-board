@@ -1,0 +1,30 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:8888/",
+        "http://localhost:8888/?p=2"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "preset": "desktop",
+        "skipAudits": [
+          "is-on-https",
+          "uses-http2",
+          "redirects-http"
+        ]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance":   ["warn", { "minScore": 0.80 }],
+        "categories:accessibility": ["error", { "minScore": 0.90 }],
+        "categories:best-practices": ["warn", { "minScore": 0.80 }],
+        "categories:seo":            ["warn", { "minScore": 0.80 }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}

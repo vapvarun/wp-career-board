@@ -1,16 +1,18 @@
 {
   "name": "wp-career-board",
   "version": "1.0.2",
-  "description": "WP Career Board \u2014 Gutenberg blocks and Interactivity API frontend",
+  "description": "WP Career Board — Gutenberg blocks and Interactivity API frontend",
   "scripts": {
     "build": "wp-scripts build",
     "start": "wp-scripts start",
     "lint:js": "wp-scripts lint-js",
     "release": "grunt release",
     "dist": "grunt dist",
-    "pot": "grunt pot"
+    "pot": "grunt pot",
+    "size": "size-limit"
   },
   "devDependencies": {
+    "@size-limit/file": "^11.2.0",
     "@wordpress/scripts": "^30.0.0",
     "grunt": "^1.6.1",
     "grunt-checktextdomain": "^1.0.1",
@@ -18,6 +20,34 @@
     "grunt-contrib-compress": "^2.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-rtlcss": "^2.0.2",
-    "grunt-shell": "^4.0.0"
-  }
+    "grunt-shell": "^4.0.0",
+    "size-limit": "^11.2.0"
+  },
+  "size-limit": [
+    {
+      "name": "block: job-single view.js",
+      "path": "blocks/job-single/view.js",
+      "limit": "20 KB"
+    },
+    {
+      "name": "block: employer-dashboard view.js",
+      "path": "blocks/employer-dashboard/view.js",
+      "limit": "30 KB"
+    },
+    {
+      "name": "block: candidate-dashboard view.js",
+      "path": "blocks/candidate-dashboard/view.js",
+      "limit": "20 KB"
+    },
+    {
+      "name": "block: job-listings view.js",
+      "path": "blocks/job-listings/view.js",
+      "limit": "20 KB"
+    },
+    {
+      "name": "frontend.css",
+      "path": "assets/css/frontend.css",
+      "limit": "30 KB"
+    }
+  ]
 }
