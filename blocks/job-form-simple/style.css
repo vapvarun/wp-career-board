@@ -146,16 +146,12 @@
 	}
 }
 
-/* The taxonomy block uses a 2-col grid that becomes 4-col on wide screens. */
+/* Classification block: always 2×2 — 4 dropdowns in one row is too dense
+   even on wide screens, and 2-up keeps each field a comfortable width. */
 .wcb-form-simple__tax-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--wcb-fs-gap);
-}
-@media (min-width: 900px) {
-	.wcb-form-simple__tax-grid {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-	}
 }
 @media (max-width: 480px) {
 	.wcb-form-simple__tax-grid { grid-template-columns: 1fr; }
@@ -199,10 +195,10 @@
 	margin: 0;
 }
 
-/* In the remote/deadline pair, push the checkbox down so it baselines
-   with the date input rather than the deadline label above. */
-.wcb-form-simple__remote-deadline .wcb-form-field--remote {
-	justify-content: flex-end;
+/* Date input: cap width so the deadline picker doesn't stretch full
+   width and dwarf the rest of the column when on its own row. */
+.wcb-form-simple .wcb-form-field--deadline .wcb-field {
+	max-width: 280px;
 }
 
 /* ── Honeypot ────────────────────────────────────────────────────────── */

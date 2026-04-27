@@ -271,17 +271,15 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 				<span class="wcb-form-hint"><?php esc_html_e( 'Leave blank to hide salary from candidates.', 'wp-career-board' ); ?></span>
 			</div>
 
-			<div class="wcb-form-grid wcb-form-simple__remote-deadline">
-				<div class="wcb-form-field wcb-form-field--remote">
-					<label class="wcb-checkbox-label">
-						<input type="checkbox" data-wp-bind--checked="state.remote" data-wp-on--change="actions.toggleRemote" />
-						<span><?php esc_html_e( 'Remote-friendly position', 'wp-career-board' ); ?></span>
-					</label>
-				</div>
-				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-					<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wcb-field="deadline" data-wp-bind--value="state.deadline" data-wp-on--input="actions.updateField" />
-				</div>
+			<div class="wcb-form-field">
+				<label class="wcb-checkbox-label">
+					<input type="checkbox" data-wp-bind--checked="state.remote" data-wp-on--change="actions.toggleRemote" />
+					<span><?php esc_html_e( 'Remote-friendly position', 'wp-career-board' ); ?></span>
+				</label>
+			</div>
+			<div class="wcb-form-field wcb-form-field--deadline">
+				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
+				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wcb-field="deadline" data-wp-bind--value="state.deadline" data-wp-on--input="actions.updateField" />
 			</div>
 		</section>
 
