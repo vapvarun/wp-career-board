@@ -2,7 +2,15 @@
 
 /* ── Theme Isolation Reset ────────────────────────────────────────────── */
 
-[class*="wp-block-wp-career-board"] {
+/*
+ * The selectors here match BOTH Free (.wp-block-wp-career-board-*) AND
+ * Pro (.wp-block-wcb-*) block wrappers. The double-selector pattern
+ * keeps theme-isolation behaviour identical across both plugins so a
+ * customer running Free-only or Free+Pro gets the same defensive reset.
+ */
+
+[class*="wp-block-wp-career-board"],
+[class*="wp-block-wcb-"] {
 	font-family: inherit;
 	font-size: var(--wcb-text-base);
 	line-height: var(--wcb-leading-normal);
@@ -12,12 +20,17 @@
 
 [class*="wp-block-wp-career-board"] *,
 [class*="wp-block-wp-career-board"] *::before,
-[class*="wp-block-wp-career-board"] *::after {
+[class*="wp-block-wp-career-board"] *::after,
+[class*="wp-block-wcb-"] *,
+[class*="wp-block-wcb-"] *::before,
+[class*="wp-block-wcb-"] *::after {
 	box-sizing: inherit;
 }
 
 [class*="wp-block-wp-career-board"] ul,
-[class*="wp-block-wp-career-board"] ol {
+[class*="wp-block-wp-career-board"] ol,
+[class*="wp-block-wcb-"] ul,
+[class*="wp-block-wcb-"] ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -30,14 +43,21 @@
  */
 [class*="wp-block-wp-career-board"] .wcb-btn,
 [class*="wp-block-wp-career-board"] .wcb-btn:hover,
-[class*="wp-block-wp-career-board"] .wcb-btn:visited {
+[class*="wp-block-wp-career-board"] .wcb-btn:visited,
+[class*="wp-block-wcb-"] .wcb-btn,
+[class*="wp-block-wcb-"] .wcb-btn:hover,
+[class*="wp-block-wcb-"] .wcb-btn:visited {
 	text-decoration: none;
 }
 
 [class*="wp-block-wp-career-board"] h1,
 [class*="wp-block-wp-career-board"] h2,
 [class*="wp-block-wp-career-board"] h3,
-[class*="wp-block-wp-career-board"] h4 {
+[class*="wp-block-wp-career-board"] h4,
+[class*="wp-block-wcb-"] h1,
+[class*="wp-block-wcb-"] h2,
+[class*="wp-block-wcb-"] h3,
+[class*="wp-block-wcb-"] h4 {
 	font-family: inherit;
 	margin: 0;
 	padding: 0;

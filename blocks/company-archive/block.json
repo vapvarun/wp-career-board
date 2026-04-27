@@ -26,6 +26,7 @@
   "style": "file:./style.css",
   "render": "file:./render.php",
   "supports": {
-    "interactivity": true
+    "interactivity": true,
+    "align": [ "wide", "full" ]
   }
 }

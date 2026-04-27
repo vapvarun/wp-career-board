@@ -81,6 +81,14 @@ final class Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
 
+		// Theme accent auto-bridge — for non-bundle themes only.
+		// Reign / BuddyX / BuddyX Pro skip via the bridge's internal allow-list
+		// because their dedicated compat CSS files in integrations/ already
+		// own the bidirectional token bridge.
+		if ( class_exists( \WCB\Core\ThemeAccentBridge::class ) ) {
+			( new \WCB\Core\ThemeAccentBridge() )->boot();
+		}
+
 		if ( class_exists( \WCB\Admin\SetupWizard::class ) ) {
 			( new \WCB\Admin\SetupWizard() )->boot();
 		}
@@ -328,7 +336,42 @@ final class Plugin {
 		 */
 		$page_ids = (array) apply_filters( 'wcb_app_page_ids', $page_ids );
 
-		if ( in_array( $page_id, $page_ids, true ) ) {
+		$is_wcb_page = in_array( $page_id, $page_ids, true );
+
+		// Detection-by-content fallback (1.1.0): if the visited page contains a
+		// WCB block or shortcode in its post_content, treat it as a WCB app
+		// page. Catches user-mapped pages where the customer pasted our block
+		// outside the wizard-mapped settings keys, fixing the duplicate-<h1>
+		// issue on Neve / OceanWP.
+		if ( ! $is_wcb_page ) {
+			$post = get_post( $page_id );
+			if ( $post instanceof \WP_Post ) {
+				$content = (string) $post->post_content;
+				if (
+					false !== strpos( $content, '<!-- wp:wp-career-board/' )
+					|| false !== strpos( $content, '<!-- wp:wcb/' )
+					|| false !== strpos( $content, '[wcb_' )
+					|| false !== strpos( $content, '[wcbp_' )
+				) {
+					$is_wcb_page = true;
+				}
+			}
+		}
+
+		/**
+		 * Final opt-out filter — return false to skip the wcb-page body class
+		 * on a specific page even when content detection picked it up.
+		 * Useful when a customer wants to keep the theme entry-title visible
+		 * alongside our block heading.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool $is_wcb_page Whether the body class will be added.
+		 * @param int  $page_id     Current queried page ID.
+		 */
+		$is_wcb_page = (bool) apply_filters( 'wcb_apply_page_class', $is_wcb_page, $page_id );
+
+		if ( $is_wcb_page ) {
 			$classes[] = 'wcb-page';
 		}
 

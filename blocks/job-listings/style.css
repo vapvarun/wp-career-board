@@ -154,9 +154,18 @@
 	line-height: 1.3;
 	margin: 0 0 0.2rem;
 	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
+	/* Two-line clamp + min-height stabilises card row height on themes
+	   that stretch content area wider than 3 columns (Blocksy 4-col)
+	   so adjacent cards align even when titles wrap unevenly. */
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	min-height: 2.6em;
 }
 
-.wcb-card-title a {
+.wcb-card-title a,
+.wcb-card-title a:visited {
 	color: inherit;
 	text-decoration: none;
 	position: relative;
@@ -477,6 +486,11 @@
 
 .wcb-sort-select {
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	/* width:auto + max-width prevents OceanWP-style sidebar themes from
+	   stretching the select to the full row width when only the search
+	   input is on the same line. */
+	width: auto;
+	max-width: 200px;
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-base);
