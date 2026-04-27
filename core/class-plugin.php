@@ -214,8 +214,32 @@ final class Plugin {
 		foreach ( $shortcodes as $tag => $block_name ) {
 			add_shortcode(
 				$tag,
-				static function () use ( $block_name ): string {
-					return do_blocks( '<!-- wp:' . $block_name . ' /-->' );
+				static function ( $atts ) use ( $block_name ): string {
+					// Forward shortcode attributes to the block as JSON.
+					// Lets page builders / classic editors / any shortcode
+					// host scope a block via attributes:
+					//   [wcb_job_listings boardId="42" metaFilter="_wcb_partner_id:5"]
+					$attrs_json = '';
+					if ( ! empty( $atts ) ) {
+						$cast = array();
+						foreach ( (array) $atts as $key => $value ) {
+							if ( ! is_string( $key ) ) {
+								continue;
+							}
+							// Auto-cast numeric and boolean strings so block.json type checks pass.
+							if ( is_numeric( $value ) && (string) (int) $value === (string) $value ) {
+								$cast[ $key ] = (int) $value;
+							} elseif ( 'true' === $value || 'false' === $value ) {
+								$cast[ $key ] = ( 'true' === $value );
+							} else {
+								$cast[ $key ] = (string) $value;
+							}
+						}
+						if ( ! empty( $cast ) ) {
+							$attrs_json = ' ' . wp_json_encode( $cast );
+						}
+					}
+					return do_blocks( '<!-- wp:' . $block_name . $attrs_json . ' /-->' );
 				}
 			);
 		}
