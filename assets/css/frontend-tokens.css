@@ -48,6 +48,15 @@
 	--wcb-shadow-lg:    0 8px 24px rgba(0, 0, 0, 0.12);
 	--wcb-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
 
+	/* ── Primary tints (theme-aware via color-mix) ──────────────────────
+	   Useful for hover backgrounds and focus rings that should track
+	   any theme override of --wcb-primary. Older browsers without
+	   color-mix() support fall back to the static rgba below. */
+	--wcb-primary-soft: rgba(37, 99, 235, 0.08);
+	--wcb-primary-ring: rgba(37, 99, 235, 0.16);
+	--wcb-primary-soft: color-mix(in srgb, var(--wcb-primary, #2563eb) 8%, transparent);
+	--wcb-primary-ring: color-mix(in srgb, var(--wcb-primary, #2563eb) 16%, transparent);
+
 	/* ── Semantic Colors (supplementary — core palette is in frontend.css) ── */
 	--wcb-text-secondary: #6b7280;
 	--wcb-text-tertiary:  #9ca3af;

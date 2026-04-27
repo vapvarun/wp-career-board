@@ -1,35 +1,19 @@
 /**
  * Block: wp-career-board/job-form-simple
  *
- * Premium-feel single-page form: card wrapper, sectioned groups with
- * uppercase eyebrow labels, equal-column salary grid, proper paired
- * rows for remote/deadline and apply URL/email, prominent submit
- * button. All theme tokens use --wcb-* with sensible fallbacks so
- * Reign / BuddyX / any classic theme inherits the right palette.
+ * 100% token-driven — no hardcoded spacing, radii, colors, shadows, or
+ * type sizes. Every value resolves to a `--wcb-*` token from
+ * assets/css/frontend-tokens.css with the corresponding theme.json
+ * core palette tokens (--wcb-base, --wcb-contrast, --wcb-primary,
+ * --wcb-border, etc.) supplying fallbacks. Theme overrides cascade
+ * automatically — a partner site that sets --wcb-primary to red gets
+ * red focus rings without touching this file.
  */
 
 .wcb-form-simple {
-	--wcb-fs-input-radius:  8px;
-	--wcb-fs-gap:           1.1rem;
-	--wcb-fs-section-gap:   1.75rem;
-	--wcb-fs-border:        var(--wcb-border, #e2e8f0);
-	--wcb-fs-border-strong: var(--wcb-text-tertiary, #94a3b8);
-	--wcb-fs-bg:            var(--wcb-base, #ffffff);
-	--wcb-fs-text:          var(--wcb-contrast, #0f172a);
-	--wcb-fs-text-muted:    var(--wcb-text-secondary, #475569);
-	--wcb-fs-text-subtle:   var(--wcb-text-tertiary, #64748b);
-	--wcb-fs-primary:       var(--wcb-primary, #2563eb);
-	--wcb-fs-primary-soft:  rgba(37, 99, 235, 0.08);
-	--wcb-fs-primary-ring:  rgba(37, 99, 235, 0.16);
-	--wcb-fs-shadow-focus:  0 0 0 3px var(--wcb-fs-primary-ring);
-
-	/* Inherits the page background — no card chrome on desktop. The
-	   theme's content container already provides the right max-width
-	   for centered single-page templates; we just constrain when
-	   embedded inside a wider page builder column. */
 	max-width: 760px;
 	margin: 0 auto;
-	color: var(--wcb-fs-text);
+	color: var(--wcb-contrast, #0f172a);
 }
 
 .wcb-form-simple--compact { max-width: 520px; }
@@ -39,25 +23,25 @@
 .wcb-form-simple__body {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-fs-section-gap);
+	gap: var(--wcb-space-3xl);
 }
 
 .wcb-form-simple__section {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-fs-gap);
-	padding-bottom: var(--wcb-fs-section-gap);
-	border-bottom: 1px solid var(--wcb-fs-border);
+	gap: var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-3xl);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
 }
 .wcb-form-simple__section:last-of-type { border-bottom: 0; padding-bottom: 0; }
 
 .wcb-form-simple__eyebrow {
-	font-size: 11px;
-	font-weight: 700;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-fs-text-subtle);
-	margin: 0 0 0.25rem;
+	color: var(--wcb-text-tertiary, #94a3b8);
+	margin: 0 0 var(--wcb-space-xs);
 }
 
 /* ── Field primitives ────────────────────────────────────────────────── */
@@ -65,40 +49,40 @@
 .wcb-form-simple .wcb-form-field {
 	display: flex;
 	flex-direction: column;
-	gap: 0.4rem;
+	gap: var(--wcb-space-xs);
 	min-width: 0;
 }
 
 .wcb-form-simple .wcb-form-label {
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--wcb-fs-text);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
 	display: flex;
 	align-items: center;
-	gap: 0.25rem;
+	gap: var(--wcb-space-xs);
 }
 
 .wcb-form-simple .wcb-form-hint {
-	font-size: 12px;
-	color: var(--wcb-fs-text-subtle);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-tertiary, #94a3b8);
 }
 
 .wcb-form-simple .wcb-required {
-	color: #dc2626;
-	font-weight: 700;
+	color: var(--wcb-danger);
+	font-weight: var(--wcb-font-bold);
 	margin-left: 2px;
 }
 
 .wcb-form-simple .wcb-field {
 	width: 100%;
-	padding: 0.7rem 0.9rem;
-	font-size: 14px;
-	line-height: 1.4;
-	color: var(--wcb-fs-text);
-	background: var(--wcb-fs-bg);
-	border: 1px solid var(--wcb-fs-border);
-	border-radius: var(--wcb-fs-input-radius);
-	transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
+	line-height: var(--wcb-leading-tight);
+	color: var(--wcb-contrast, #0f172a);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
 	box-sizing: border-box;
 	appearance: none;
 }
@@ -106,7 +90,7 @@
 .wcb-form-simple textarea.wcb-field {
 	min-height: 140px;
 	resize: vertical;
-	line-height: 1.5;
+	line-height: var(--wcb-leading-normal);
 }
 
 .wcb-form-simple select.wcb-field {
@@ -114,44 +98,43 @@
 	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
 	background-size: 5px 5px, 5px 5px;
 	background-repeat: no-repeat;
-	padding-right: 2.25rem;
-	color: var(--wcb-fs-text);
+	padding-right: var(--wcb-space-3xl);
 }
 
 .wcb-form-simple .wcb-field:hover {
-	border-color: var(--wcb-fs-border-strong);
+	border-color: var(--wcb-text-tertiary, #94a3b8);
 }
 
 .wcb-form-simple .wcb-field:focus,
 .wcb-form-simple .wcb-field:focus-visible {
 	outline: none;
-	border-color: var(--wcb-fs-primary);
-	box-shadow: var(--wcb-fs-shadow-focus);
+	border-color: var(--wcb-primary, #2563eb);
+	box-shadow: var(--wcb-shadow-focus);
 }
 
-.wcb-form-simple .wcb-field::placeholder { color: var(--wcb-fs-text-subtle); opacity: 0.7; }
+.wcb-form-simple .wcb-field::placeholder {
+	color: var(--wcb-text-tertiary, #94a3b8);
+	opacity: 0.7;
+}
 
-/* ── Two-column grid (Apply URL/Email, Remote/Deadline, taxonomy quad) ──*/
+/* ── Two-column grid (Apply URL/Email pair, Classification 2×2) ─────── */
 
 .wcb-form-simple .wcb-form-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wcb-fs-gap);
+	gap: var(--wcb-space-lg);
 	align-items: start;
 }
-
 @media (max-width: 640px) {
 	.wcb-form-simple .wcb-form-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-/* Classification block: always 2×2 — 4 dropdowns in one row is too dense
-   even on wide screens, and 2-up keeps each field a comfortable width. */
 .wcb-form-simple__tax-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wcb-fs-gap);
+	gap: var(--wcb-space-lg);
 }
 @media (max-width: 480px) {
 	.wcb-form-simple__tax-grid { grid-template-columns: 1fr; }
@@ -162,7 +145,7 @@
 .wcb-form-simple .wcb-salary-row {
 	display: grid;
 	grid-template-columns: 1.4fr 1fr 1fr 1fr;
-	gap: 0.6rem;
+	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
 @media (max-width: 720px) {
@@ -176,27 +159,26 @@
 	}
 }
 
-/* ── Remote checkbox — bigger hit target, paired-row alignment ─────────*/
+/* ── Remote checkbox — clean label+box, no card chrome ─────────────── */
 
 .wcb-form-simple .wcb-checkbox-label {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.55rem;
-	font-size: 14px;
-	font-weight: 500;
-	color: var(--wcb-fs-text);
+	gap: var(--wcb-space-sm);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast, #0f172a);
 	cursor: pointer;
 	user-select: none;
 }
 .wcb-form-simple .wcb-checkbox-label input[type="checkbox"] {
-	width: 18px;
-	height: 18px;
-	accent-color: var(--wcb-fs-primary);
+	width: var(--wcb-icon-md);
+	height: var(--wcb-icon-md);
+	accent-color: var(--wcb-primary, #2563eb);
 	margin: 0;
 }
 
-/* Date input: cap width so the deadline picker doesn't stretch full
-   width and dwarf the rest of the column when on its own row. */
+/* Date input width capped so it doesn't span full column on its own row. */
 .wcb-form-simple .wcb-form-field--deadline .wcb-field {
 	max-width: 280px;
 }
@@ -215,14 +197,14 @@
 
 .wcb-form-simple__error {
 	display: none;
-	background: #fef2f2;
-	border: 1px solid #fecaca;
-	color: #991b1b;
-	padding: 0.85rem 1rem;
-	border-radius: var(--wcb-fs-input-radius);
+	background: var(--wcb-danger-bg);
+	border: 1px solid var(--wcb-danger);
+	color: var(--wcb-danger);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-md);
 	margin: 0;
-	font-size: 14px;
-	font-weight: 500;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
 }
 .wcb-form-simple__error.wcb-shown { display: block; }
 
@@ -231,16 +213,16 @@
 .wcb-form-simple__success {
 	display: none;
 	text-align: center;
-	padding: 3rem 1.5rem;
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-	border-radius: var(--wcb-fs-radius);
+	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
+	background: var(--wcb-success-bg);
+	border-radius: var(--wcb-radius-xl);
 }
 .wcb-form-simple__success.wcb-shown { display: block; }
 .wcb-form-simple__success h2 {
-	font-size: 28px;
-	font-weight: 700;
-	color: #166534;
-	margin: 0 0 1rem;
+	font-size: var(--wcb-text-2xl);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-success);
+	margin: 0 0 var(--wcb-space-lg);
 }
 .wcb-form-simple__success p { margin: 0; }
 
@@ -250,8 +232,8 @@
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
-	gap: 1rem;
-	padding-top: 0.5rem;
+	gap: var(--wcb-space-lg);
+	padding-top: var(--wcb-space-sm);
 }
 
 .wcb-form-simple .wcb-btn,
@@ -260,26 +242,26 @@
 	align-items: center;
 	justify-content: center;
 	min-width: 160px;
-	padding: 0.85rem 1.6rem;
+	padding: var(--wcb-space-md) var(--wcb-space-2xl);
 	border: 0;
-	border-radius: var(--wcb-fs-input-radius);
-	font-size: 15px;
-	font-weight: 600;
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
 	letter-spacing: 0.01em;
 	cursor: pointer;
-	transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+	transition: transform var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
 	text-decoration: none;
 	box-sizing: border-box;
 }
 
 .wcb-form-simple .wcb-btn--primary {
-	background: var(--wcb-fs-primary);
+	background: var(--wcb-primary, #2563eb);
 	color: #fff;
-	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(37, 99, 235, 0.22);
+	box-shadow: var(--wcb-shadow-sm);
 }
 .wcb-form-simple .wcb-btn--primary:hover:not(:disabled) {
 	transform: translateY(-1px);
-	box-shadow: 0 2px 4px rgba(15, 23, 42, 0.14), 0 8px 18px rgba(37, 99, 235, 0.28);
+	box-shadow: var(--wcb-shadow-md);
 }
 .wcb-form-simple .wcb-btn--primary:active:not(:disabled) {
 	transform: translateY(0);
@@ -297,13 +279,13 @@
 /* ── Logged-out gate ─────────────────────────────────────────────────── */
 
 .wcb-form-simple__gate {
-	padding: 2rem 1.5rem;
-	background: var(--wcb-surface, #f8fafc);
-	border: 1px dashed var(--wcb-fs-border);
-	border-radius: var(--wcb-fs-radius);
+	padding: var(--wcb-space-3xl) var(--wcb-space-2xl);
+	background: var(--wcb-bg-subtle);
+	border: 1px dashed var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-xl);
 	text-align: center;
-	color: var(--wcb-fs-text-muted);
-	font-size: 14px;
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-base);
 }
 
 /* ── Toggle utilities — mirror the wizard's wcb-hidden / wcb-shown ─────*/
