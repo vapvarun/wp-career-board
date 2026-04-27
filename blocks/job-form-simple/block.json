@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wp-career-board/job-form-simple",
+  "version": "0.1.0",
+  "title": "Job Form (Single-Page)",
+  "category": "widgets",
+  "description": "Single-page job posting form — every field on one screen, suitable for sidebars, modals, or partner pages where the multi-step wizard is overkill.",
+  "editorScript": "file:./index.js",
+  "textdomain": "wp-career-board",
+  "attributes": {
+    "boardId": {
+      "type": "integer",
+      "default": 0
+    },
+    "showCompanyField": {
+      "type": "boolean",
+      "default": true
+    },
+    "compact": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "viewScriptModule": "file:./view.js",
+  "style": "file:./style.css",
+  "render": "file:./render.php",
+  "supports": {
+    "interactivity": true
+  }
+}

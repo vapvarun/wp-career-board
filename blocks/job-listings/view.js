@@ -407,6 +407,9 @@ const { state, actions } = store( 'wcb-job-listings', {
 					url.searchParams.set( 'salary_max', value );
 				} else if ( key.startsWith( 'board_' ) ) {
 					url.searchParams.set( 'board', value );
+				} else if ( key.startsWith( 'meta_' ) && value ) {
+					// Forward as ?meta_<key>=<value>; REST endpoint validates against allowlist.
+					url.searchParams.set( key, value );
 				}
 			}
 

@@ -217,6 +217,26 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
+		// Allowlisted post-meta filters via ?meta_<key>=<value>.
+		// Integrators register their custom meta keys via the
+		// `wcb_jobs_allowed_meta_filters` filter — only allowlisted keys
+		// reach meta_query, preventing arbitrary-meta probes.
+		$allowed_meta = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
+		foreach ( $allowed_meta as $meta_key ) {
+			if ( ! is_string( $meta_key ) || '' === $meta_key ) {
+				continue;
+			}
+			$param_name = 'meta_' . $meta_key;
+			$raw        = $request->get_param( $param_name );
+			if ( null === $raw || '' === $raw ) {
+				continue;
+			}
+			$args['meta_query'][] = array(
+				'key'   => $meta_key,
+				'value' => is_scalar( $raw ) ? sanitize_text_field( (string) $raw ) : '',
+			);
+		}
+
 		$orderby = $request->get_param( 'orderby' );
 		if ( $orderby ) {
 			$args['orderby'] = (string) $orderby;

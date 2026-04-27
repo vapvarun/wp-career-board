@@ -28,6 +28,14 @@
     "savedBy": {
       "type": "integer",
       "default": 0
+    },
+    "boardId": {
+      "type": "integer",
+      "default": 0
+    },
+    "metaFilter": {
+      "type": "string",
+      "default": ""
     }
   },
   "viewScriptModule": "file:./view.js",

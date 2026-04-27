@@ -1,0 +1,58 @@
+/**
+ * Block: wp-career-board/job-form-simple
+ *
+ * Reuses the wizard's .wcb-form-field, .wcb-field, .wcb-form-grid,
+ * .wcb-salary-row, .wcb-form-label, .wcb-form-hint primitives so
+ * theme overrides for the wizard cascade here automatically. Only
+ * declares container-level structure unique to the single-page shell.
+ */
+
+.wcb-form-simple {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+.wcb-form-simple--compact {
+	max-width: 480px;
+}
+
+.wcb-form-simple__body { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.wcb-form-simple__success {
+	display: none;
+	text-align: center;
+	padding: 2rem 1rem;
+}
+
+.wcb-form-simple__success.wcb-shown { display: block; }
+
+.wcb-form-simple__error {
+	display: none;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #991b1b;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	margin: 0;
+}
+.wcb-form-simple__error.wcb-shown { display: block; }
+
+.wcb-form-simple__nav { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+
+.wcb-form-simple__gate {
+	padding: 1.5rem;
+	background: #f9fafb;
+	border-radius: 8px;
+	text-align: center;
+	color: #6b7280;
+}
+
+.wcb-form-simple .wcb-hp { display: none; }
+
+/* Interactivity API toggle utility — wcb-hidden hides the bound element. */
+.wcb-form-simple .wcb-hidden { display: none !important; }
+.wcb-form-simple .wcb-shown  { display: block; }
+
+@media (max-width: 640px) {
+	.wcb-form-simple__nav .wcb-btn { width: 100%; }
+}

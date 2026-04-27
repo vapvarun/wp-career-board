@@ -23,6 +23,17 @@ $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true
 
 $wcb_author_id_attr = (int) ( $attributes['authorId'] ?? 0 );
 $wcb_saved_by_attr  = (int) ( $attributes['savedBy'] ?? 0 );
+$wcb_board_id_attr  = (int) ( $attributes['boardId'] ?? 0 );
+
+// Parse metaFilter "key:value" attribute. Format kept as a single string so the
+// shortcode wrapper can pass it without quoting nightmares; meta_key is
+// validated against the allowlist in the REST endpoint at runtime.
+$wcb_meta_filter_attr = (string) ( $attributes['metaFilter'] ?? '' );
+$wcb_meta_filter_key  = '';
+$wcb_meta_filter_val  = '';
+if ( '' !== $wcb_meta_filter_attr && false !== strpos( $wcb_meta_filter_attr, ':' ) ) {
+	[ $wcb_meta_filter_key, $wcb_meta_filter_val ] = array_map( 'trim', explode( ':', $wcb_meta_filter_attr, 2 ) );
+}
 
 $wcb_query_args = array(
 	'post_type'   => 'wcb_job',
@@ -39,6 +50,26 @@ if ( $wcb_author_id_attr > 0 ) {
 	$wcb_query_args['post__in']    = ! empty( $wcb_bookmark_ids ) ? $wcb_bookmark_ids : array( 0 );
 	$wcb_query_args['numberposts'] = -1;
 }
+
+// Apply boardId + metaFilter to first-paint server query so the initial
+// render is already scoped (avoids a flash of unfiltered jobs before JS
+// re-fetches with the same filters).
+if ( $wcb_board_id_attr > 0 ) {
+	$wcb_query_args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		'key'   => '_wcb_board_id',
+		'value' => $wcb_board_id_attr,
+	);
+}
+if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
+	$wcb_meta_filter_allowed = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
+	if ( in_array( $wcb_meta_filter_key, $wcb_meta_filter_allowed, true ) ) {
+		$wcb_query_args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'key'   => $wcb_meta_filter_key,
+			'value' => $wcb_meta_filter_val,
+		);
+	}
+}
+
 $wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
 
 if ( $wcb_jobs_raw ) {
@@ -270,12 +301,21 @@ $wcb_state = array(
 	'nonce'         => wp_create_nonce( 'wp_rest' ),
 	'totalCount'    => $wcb_total_count,
 	'searchQuery'   => '',
-	'activeFilters' => (object) array(),
+	// Seed activeFilters from boardId + metaFilter so subsequent JS fetches
+	// keep the scope. JS reads these the same way it reads any other filter.
+	'activeFilters' => (object) array_filter(
+		array(
+			'board_' . $wcb_board_id_attr  => $wcb_board_id_attr > 0 ? (string) $wcb_board_id_attr : '',
+			'meta_' . $wcb_meta_filter_key => ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) ? $wcb_meta_filter_val : '',
+		)
+	),
 	'sortBy'        => 'date_desc',
 	'alertSaved'    => false,
 	'alertSaving'   => false,
 	'authorId'      => $wcb_author_id_attr,
 	'savedBy'       => $wcb_saved_by_attr,
+	'boardId'       => $wcb_board_id_attr,
+	'metaFilter'    => $wcb_meta_filter_attr,
 	'salaryMin'     => 0,
 	'salaryMax'     => 0,
 	'filterOptions' => array(
