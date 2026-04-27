@@ -94,11 +94,31 @@ class ModerationModule extends \WCB\Api\RestController {
 	/**
 	 * Permission check: user must hold the wcb_moderate_jobs ability.
 	 *
+	 * Also exposes a `wcb_moderate_jobs_ability_check` filter so
+	 * context-scoped moderators (e.g. BuddyPress group admins for jobs
+	 * posted to their group's board) can be granted moderation rights
+	 * without holding the global cap.
+	 *
 	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request|null $request Current request, when available.
 	 * @return bool|\WP_Error
 	 */
-	public function moderate_permissions_check(): bool|\WP_Error {
+	public function moderate_permissions_check( ?\WP_REST_Request $request = null ): bool|\WP_Error {
 		if ( $this->check_ability( 'wcb_moderate_jobs' ) ) {
+			return true;
+		}
+
+		$job_id = $request instanceof \WP_REST_Request ? (int) $request['id'] : 0;
+		/**
+		 * Filter — allow extensions to grant moderation for a specific job.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool $allowed Default false (no global cap).
+		 * @param int  $job_id  Target job post id (0 when no job context).
+		 */
+		if ( (bool) apply_filters( 'wcb_moderate_jobs_ability_check', false, $job_id ) ) {
 			return true;
 		}
 
