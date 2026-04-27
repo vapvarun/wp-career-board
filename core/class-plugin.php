@@ -118,6 +118,7 @@ final class Plugin {
 			\WCB\Modules\Moderation\ModerationModule::class,
 			\WCB\Modules\AntiSpam\AntiSpamModule::class,
 			\WCB\Modules\Seo\SeoModule::class,
+			\WCB\Modules\Seo\RssFeedEnrichment::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
 			\WCB\Modules\ThemeIntegration\ThemeIntegrationModule::class,
 		);
