@@ -451,16 +451,31 @@ final class JobsEndpoint extends RestController {
 		$auto_publish = ! empty( $settings['auto_publish_jobs'] );
 		$status       = $auto_publish ? 'publish' : 'pending';
 
-		$job_id = wp_insert_post(
-			array(
-				'post_type'    => 'wcb_job',
-				'post_title'   => $title,
-				'post_content' => wp_kses_post( (string) ( $request->get_param( 'description' ) ?? '' ) ),
-				'post_status'  => $status,
-				'post_author'  => get_current_user_id(),
-			),
-			true
+		$wcb_post_data = array(
+			'post_type'    => 'wcb_job',
+			'post_title'   => $title,
+			'post_content' => wp_kses_post( (string) ( $request->get_param( 'description' ) ?? '' ) ),
+			'post_status'  => $status,
+			'post_author'  => get_current_user_id(),
 		);
+
+		/**
+		 * Filter — abort or modify a job-create write before it happens.
+		 *
+		 * Return a WP_Error to abort. Return the (possibly modified) post-data
+		 * array to continue. Skill §1.2 lifecycle pattern.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array            $post_data wp_insert_post arg array.
+		 * @param \WP_REST_Request $request   The originating REST request.
+		 */
+		$wcb_post_data = apply_filters( 'wcb_before_create_job', $wcb_post_data, $request );
+		if ( is_wp_error( $wcb_post_data ) ) {
+			return $wcb_post_data;
+		}
+
+		$job_id = wp_insert_post( $wcb_post_data, true );
 
 		if ( is_wp_error( $job_id ) ) {
 			return $job_id;
@@ -571,6 +586,21 @@ final class JobsEndpoint extends RestController {
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
+
+			/**
+			 * Filter — abort or modify a job-update write before it happens.
+			 *
+			 * @since 1.1.1
+			 *
+			 * @param array            $data    wp_update_post arg array (with ID set).
+			 * @param \WP_Post         $post    The existing job post.
+			 * @param \WP_REST_Request $request The originating REST request.
+			 */
+			$data = apply_filters( 'wcb_before_update_job', $data, $post, $request );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+
 			wp_update_post( $data );
 		}
 
@@ -646,6 +676,22 @@ final class JobsEndpoint extends RestController {
 				array( 'status' => 404 )
 			);
 		}
+		/**
+		 * Filter — abort a job-trash operation before it happens.
+		 *
+		 * Return WP_Error to abort. Default `true` to allow.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param bool|\WP_Error   $can     Whether to proceed.
+		 * @param \WP_Post         $post    The job post.
+		 * @param \WP_REST_Request $request The originating REST request.
+		 */
+		$wcb_can_delete = apply_filters( 'wcb_before_delete_job', true, $post, $request );
+		if ( is_wp_error( $wcb_can_delete ) ) {
+			return $wcb_can_delete;
+		}
+
 		wp_trash_post( $post->ID );
 		// Allow add-ons to clean up when a job is trashed.
 		do_action( 'wcb_job_deleted', $post->ID );

@@ -210,15 +210,32 @@ final class ApplicationsEndpoint extends RestController {
 			$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
 		}
 
-		$app_id = wp_insert_post(
-			array(
-				'post_type'   => 'wcb_application',
-				'post_title'  => $post_title,
-				'post_status' => 'publish',
-				'post_author' => $is_guest ? 0 : $candidate_id,
-			),
-			true
+		$wcb_app_data = array(
+			'post_type'   => 'wcb_application',
+			'post_title'  => $post_title,
+			'post_status' => 'publish',
+			'post_author' => $is_guest ? 0 : $candidate_id,
 		);
+
+		/**
+		 * Filter — abort or modify an application-create write before it happens.
+		 *
+		 * Return WP_Error to abort (e.g. fail anti-spam check). Return the
+		 * (possibly modified) post-data array to continue.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array            $post_data    wp_insert_post arg array.
+		 * @param int              $job_id       The job being applied to.
+		 * @param int              $candidate_id The applying user (0 for guest).
+		 * @param \WP_REST_Request $request      The originating REST request.
+		 */
+		$wcb_app_data = apply_filters( 'wcb_before_create_application', $wcb_app_data, $job_id, $is_guest ? 0 : $candidate_id, $request );
+		if ( is_wp_error( $wcb_app_data ) ) {
+			return $wcb_app_data;
+		}
+
+		$app_id = wp_insert_post( $wcb_app_data, true );
 
 		if ( is_wp_error( $app_id ) ) {
 			return $app_id;
