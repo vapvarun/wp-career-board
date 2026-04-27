@@ -159,6 +159,8 @@ class AdminJobs extends \WP_List_Table {
 		$order = isset( $_GET['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) : 'DESC';
 		$order = in_array( $order, array( 'ASC', 'DESC' ), true ) ? $order : 'DESC';
 
+		// Jobs go through moderation, so 'pending' is a valid status here.
+		// Companies (class-admin-companies.php) don't moderate, so their list omits 'pending' by design.
 		$post_status = in_array( $status_filter, array( 'publish', 'pending', 'draft', 'trash' ), true )
 			? $status_filter
 			: array( 'publish', 'pending', 'draft' );

@@ -105,9 +105,15 @@
 	border-color: var(--wcb-text-tertiary, #94a3b8);
 }
 
-.wcb-form-simple .wcb-field:focus,
-.wcb-form-simple .wcb-field:focus-visible {
+.wcb-form-simple .wcb-field:focus {
 	outline: none;
+	border-color: var(--wcb-primary, #2563eb);
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-form-simple .wcb-field:focus-visible {
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
 	border-color: var(--wcb-primary, #2563eb);
 	box-shadow: var(--wcb-shadow-focus);
 }
