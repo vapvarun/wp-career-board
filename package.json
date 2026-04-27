@@ -9,7 +9,8 @@
     "release": "grunt release",
     "dist": "grunt dist",
     "pot": "grunt pot",
-    "size": "size-limit"
+    "size": "size-limit",
+    "ci": "bash bin/ci-local.sh"
   },
   "devDependencies": {
     "@size-limit/file": "^11.2.0",
