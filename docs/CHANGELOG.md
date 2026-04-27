@@ -12,6 +12,7 @@
 - **Resume upload for guests** — multipart-aware path in `submit_application()`. Settings `apply_resume_required` and `apply_resume_max_mb`.
 - **Application detail rebuild** — empty native edit screen replaced by composite metabox of six modular widgets via the new `WCB\Core\Widgets\WidgetRegistry`.
 - **Modular widget system** — `[wcb_widget id="..."]` shortcode renders any registered widget on any page.
+- **`docs/SHORTCODES.md`** — full shortcode reference with attribute tables, examples, and screenshots for every shortcode (new in 1.1.0 and existing).
 - **REST list envelope** — every list endpoint returns `{<resource>, total, pages, has_more}` shape. Legacy `X-WCB-Total` headers populated one cycle.
 - **`boardId` and `metaFilter` attributes** on `job-listings` block.
 - **`wcb_jobs_allowed_meta_filters` REST allowlist** for `?meta_<key>=<value>`.
