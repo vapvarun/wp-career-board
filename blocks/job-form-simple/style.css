@@ -1,58 +1,332 @@
 /**
  * Block: wp-career-board/job-form-simple
  *
- * Reuses the wizard's .wcb-form-field, .wcb-field, .wcb-form-grid,
- * .wcb-salary-row, .wcb-form-label, .wcb-form-hint primitives so
- * theme overrides for the wizard cascade here automatically. Only
- * declares container-level structure unique to the single-page shell.
+ * Premium-feel single-page form: card wrapper, sectioned groups with
+ * uppercase eyebrow labels, equal-column salary grid, proper paired
+ * rows for remote/deadline and apply URL/email, prominent submit
+ * button. All theme tokens use --wcb-* with sensible fallbacks so
+ * Reign / BuddyX / any classic theme inherits the right palette.
  */
 
 .wcb-form-simple {
-	max-width: 720px;
+	--wcb-fs-radius:        14px;
+	--wcb-fs-input-radius:  10px;
+	--wcb-fs-pad:           clamp(1.25rem, 2vw, 2rem);
+	--wcb-fs-gap:           1.25rem;
+	--wcb-fs-section-gap:   2rem;
+	--wcb-fs-border:        var(--wcb-border, #e2e8f0);
+	--wcb-fs-border-strong: var(--wcb-text-tertiary, #94a3b8);
+	--wcb-fs-bg:            var(--wcb-base, #ffffff);
+	--wcb-fs-text:          var(--wcb-contrast, #0f172a);
+	--wcb-fs-text-muted:    var(--wcb-text-secondary, #475569);
+	--wcb-fs-text-subtle:   var(--wcb-text-tertiary, #64748b);
+	--wcb-fs-primary:       var(--wcb-primary, #2563eb);
+	--wcb-fs-primary-soft:  rgba(37, 99, 235, 0.08);
+	--wcb-fs-primary-ring:  rgba(37, 99, 235, 0.18);
+	--wcb-fs-shadow:        0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+	--wcb-fs-shadow-focus:  0 0 0 4px var(--wcb-fs-primary-ring);
+
+	max-width: 760px;
 	margin: 0 auto;
+	background: var(--wcb-fs-bg);
+	border-radius: var(--wcb-fs-radius);
+	box-shadow: var(--wcb-fs-shadow);
+	border: 1px solid var(--wcb-fs-border);
+	padding: var(--wcb-fs-pad);
+	color: var(--wcb-fs-text);
 }
 
-.wcb-form-simple--compact {
-	max-width: 480px;
+.wcb-form-simple--compact { max-width: 520px; }
+
+/* ── Body & sections ─────────────────────────────────────────────────── */
+
+.wcb-form-simple__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-fs-section-gap);
 }
 
-.wcb-form-simple__body { display: flex; flex-direction: column; gap: 1.25rem; }
+.wcb-form-simple__section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-fs-gap);
+	padding-bottom: var(--wcb-fs-section-gap);
+	border-bottom: 1px solid var(--wcb-fs-border);
+}
+.wcb-form-simple__section:last-of-type { border-bottom: 0; padding-bottom: 0; }
 
-.wcb-form-simple__success {
-	display: none;
-	text-align: center;
-	padding: 2rem 1rem;
+.wcb-form-simple__eyebrow {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wcb-fs-text-subtle);
+	margin: 0 0 0.25rem;
 }
 
-.wcb-form-simple__success.wcb-shown { display: block; }
+/* ── Field primitives ────────────────────────────────────────────────── */
+
+.wcb-form-simple .wcb-form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	min-width: 0;
+}
+
+.wcb-form-simple .wcb-form-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wcb-fs-text);
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.wcb-form-simple .wcb-form-hint {
+	font-size: 12px;
+	color: var(--wcb-fs-text-subtle);
+}
+
+.wcb-form-simple .wcb-required {
+	color: #dc2626;
+	font-weight: 700;
+	margin-left: 2px;
+}
+
+.wcb-form-simple .wcb-field {
+	width: 100%;
+	padding: 0.7rem 0.9rem;
+	font-size: 14px;
+	line-height: 1.4;
+	color: var(--wcb-fs-text);
+	background: var(--wcb-fs-bg);
+	border: 1px solid var(--wcb-fs-border);
+	border-radius: var(--wcb-fs-input-radius);
+	transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+	box-sizing: border-box;
+	appearance: none;
+}
+
+.wcb-form-simple textarea.wcb-field {
+	min-height: 140px;
+	resize: vertical;
+	line-height: 1.5;
+}
+
+.wcb-form-simple select.wcb-field {
+	background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+	background-size: 5px 5px, 5px 5px;
+	background-repeat: no-repeat;
+	padding-right: 2.25rem;
+	color: var(--wcb-fs-text);
+}
+
+.wcb-form-simple .wcb-field:hover {
+	border-color: var(--wcb-fs-border-strong);
+}
+
+.wcb-form-simple .wcb-field:focus,
+.wcb-form-simple .wcb-field:focus-visible {
+	outline: none;
+	border-color: var(--wcb-fs-primary);
+	box-shadow: var(--wcb-fs-shadow-focus);
+}
+
+.wcb-form-simple .wcb-field::placeholder { color: var(--wcb-fs-text-subtle); opacity: 0.7; }
+
+/* ── Two-column grid (Apply URL/Email, Remote/Deadline, taxonomy quad) ──*/
+
+.wcb-form-simple .wcb-form-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wcb-fs-gap);
+	align-items: start;
+}
+
+@media (max-width: 640px) {
+	.wcb-form-simple .wcb-form-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* The taxonomy block uses a 2-col grid that becomes 4-col on wide screens. */
+.wcb-form-simple__tax-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wcb-fs-gap);
+}
+@media (min-width: 900px) {
+	.wcb-form-simple__tax-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+@media (max-width: 480px) {
+	.wcb-form-simple__tax-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Salary range — 4 equal columns at desktop, 2 at tablet, 1 at mobile ─*/
+
+.wcb-form-simple .wcb-salary-row {
+	display: grid;
+	grid-template-columns: 1.4fr 1fr 1fr 1fr;
+	gap: 0.6rem;
+	align-items: stretch;
+}
+@media (max-width: 720px) {
+	.wcb-form-simple .wcb-salary-row {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 420px) {
+	.wcb-form-simple .wcb-salary-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ── Remote checkbox — bigger hit target, paired-row alignment ─────────*/
+
+.wcb-form-simple .wcb-checkbox-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.7rem 0.9rem;
+	border: 1px solid var(--wcb-fs-border);
+	border-radius: var(--wcb-fs-input-radius);
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background 0.12s ease;
+	min-height: 48px;
+	box-sizing: border-box;
+}
+.wcb-form-simple .wcb-checkbox-label:hover { border-color: var(--wcb-fs-border-strong); }
+.wcb-form-simple .wcb-checkbox-label input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	accent-color: var(--wcb-fs-primary);
+	margin: 0;
+}
+.wcb-form-simple .wcb-checkbox-label:has(input:checked) {
+	background: var(--wcb-fs-primary-soft);
+	border-color: var(--wcb-fs-primary);
+}
+
+/* The remote/deadline row needs the checkbox to span the field column. */
+.wcb-form-simple__remote-deadline .wcb-form-field--remote {
+	display: flex;
+	align-items: flex-end;
+}
+.wcb-form-simple__remote-deadline .wcb-form-field--remote .wcb-checkbox-label {
+	width: 100%;
+}
+
+/* ── Honeypot ────────────────────────────────────────────────────────── */
+
+.wcb-form-simple .wcb-hp {
+	position: absolute;
+	left: -10000px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+/* ── Banners ─────────────────────────────────────────────────────────── */
 
 .wcb-form-simple__error {
 	display: none;
 	background: #fef2f2;
 	border: 1px solid #fecaca;
 	color: #991b1b;
-	padding: 0.75rem 1rem;
-	border-radius: 8px;
+	padding: 0.85rem 1rem;
+	border-radius: var(--wcb-fs-input-radius);
 	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
 }
 .wcb-form-simple__error.wcb-shown { display: block; }
 
-.wcb-form-simple__nav { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+/* ── Success state ───────────────────────────────────────────────────── */
 
-.wcb-form-simple__gate {
-	padding: 1.5rem;
-	background: #f9fafb;
-	border-radius: 8px;
+.wcb-form-simple__success {
+	display: none;
 	text-align: center;
-	color: #6b7280;
+	padding: 3rem 1.5rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+	border-radius: var(--wcb-fs-radius);
+}
+.wcb-form-simple__success.wcb-shown { display: block; }
+.wcb-form-simple__success h2 {
+	font-size: 28px;
+	font-weight: 700;
+	color: #166534;
+	margin: 0 0 1rem;
+}
+.wcb-form-simple__success p { margin: 0; }
+
+/* ── Submit nav ──────────────────────────────────────────────────────── */
+
+.wcb-form-simple__nav {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 1rem;
+	padding-top: 0.5rem;
 }
 
-.wcb-form-simple .wcb-hp { display: none; }
+.wcb-form-simple .wcb-btn,
+.wcb-form-simple__success .wcb-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 160px;
+	padding: 0.85rem 1.6rem;
+	border: 0;
+	border-radius: var(--wcb-fs-input-radius);
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	cursor: pointer;
+	transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+	text-decoration: none;
+	box-sizing: border-box;
+}
 
-/* Interactivity API toggle utility — wcb-hidden hides the bound element. */
-.wcb-form-simple .wcb-hidden { display: none !important; }
-.wcb-form-simple .wcb-shown  { display: block; }
+.wcb-form-simple .wcb-btn--primary {
+	background: var(--wcb-fs-primary);
+	color: #fff;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(37, 99, 235, 0.22);
+}
+.wcb-form-simple .wcb-btn--primary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(15, 23, 42, 0.14), 0 8px 18px rgba(37, 99, 235, 0.28);
+}
+.wcb-form-simple .wcb-btn--primary:active:not(:disabled) {
+	transform: translateY(0);
+}
+.wcb-form-simple .wcb-btn--primary:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
 
 @media (max-width: 640px) {
-	.wcb-form-simple__nav .wcb-btn { width: 100%; }
+	.wcb-form-simple__nav { justify-content: stretch; }
+	.wcb-form-simple .wcb-btn { width: 100%; min-width: 0; }
 }
+
+/* ── Logged-out gate ─────────────────────────────────────────────────── */
+
+.wcb-form-simple__gate {
+	padding: 2rem 1.5rem;
+	background: var(--wcb-surface, #f8fafc);
+	border: 1px dashed var(--wcb-fs-border);
+	border-radius: var(--wcb-fs-radius);
+	text-align: center;
+	color: var(--wcb-fs-text-muted);
+	font-size: 14px;
+}
+
+/* ── Toggle utilities — mirror the wizard's wcb-hidden / wcb-shown ─────*/
+
+.wcb-form-simple .wcb-hidden { display: none !important; }
+.wcb-form-simple .wcb-shown  { display: block; }

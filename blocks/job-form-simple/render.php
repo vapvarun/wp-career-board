@@ -151,158 +151,171 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<!-- Error banner -->
 		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
-		<!-- Title -->
-		<div class="wcb-form-field">
-			<label class="wcb-form-label" for="wcb-simple-title">
-				<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
-				<span class="wcb-required" aria-hidden="true">*</span>
-			</label>
-			<input
-				id="wcb-simple-title"
-				type="text"
-				class="wcb-field"
-				placeholder="<?php esc_attr_e( 'e.g. Senior PHP Developer', 'wp-career-board' ); ?>"
-				data-wcb-field="title"
-				data-wp-bind--value="state.title"
-				data-wp-on--input="actions.updateField"
-				required
-			/>
-		</div>
+		<!-- ── Section 1: Basics ───────────────────────────────────── -->
+		<section class="wcb-form-simple__section">
+			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'About the role', 'wp-career-board' ); ?></p>
 
-		<!-- Description -->
-		<div class="wcb-form-field">
-			<label class="wcb-form-label" for="wcb-simple-desc">
-				<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
-				<span class="wcb-required" aria-hidden="true">*</span>
-			</label>
-			<textarea
-				id="wcb-simple-desc"
-				class="wcb-field"
-				rows="8"
-				placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>"
-				data-wcb-field="description"
-				data-wp-bind--value="state.description"
-				data-wp-on--input="actions.updateField"
-				required
-			></textarea>
-		</div>
-
-		<!-- Taxonomy row -->
-		<div class="wcb-form-grid">
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-category"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></label>
-				<select id="wcb-simple-category" class="wcb-field" data-wcb-field="categorySlug" data-wp-bind--value="state.categorySlug" data-wp-on--change="actions.updateField">
-					<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
-					<?php foreach ( $wcb_categories as $wcb_t ) : ?>
-						<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></label>
-				<select id="wcb-simple-type" class="wcb-field" data-wcb-field="typeSlug" data-wp-bind--value="state.typeSlug" data-wp-on--change="actions.updateField">
-					<option value=""><?php esc_html_e( 'Select a job type', 'wp-career-board' ); ?></option>
-					<?php foreach ( $wcb_job_types as $wcb_t ) : ?>
-						<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-location"><?php esc_html_e( 'Location', 'wp-career-board' ); ?></label>
-				<select id="wcb-simple-location" class="wcb-field" data-wcb-field="locationSlug" data-wp-bind--value="state.locationSlug" data-wp-on--change="actions.updateField">
-					<option value=""><?php esc_html_e( 'Select a location', 'wp-career-board' ); ?></option>
-					<?php foreach ( $wcb_locations as $wcb_t ) : ?>
-						<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-exp"><?php esc_html_e( 'Experience', 'wp-career-board' ); ?></label>
-				<select id="wcb-simple-exp" class="wcb-field" data-wcb-field="expSlug" data-wp-bind--value="state.expSlug" data-wp-on--change="actions.updateField">
-					<option value=""><?php esc_html_e( 'Select experience level', 'wp-career-board' ); ?></option>
-					<?php foreach ( $wcb_experiences as $wcb_t ) : ?>
-						<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-		</div>
-
-		<!-- Tags -->
-		<div class="wcb-form-field">
-			<label class="wcb-form-label" for="wcb-simple-tags"><?php esc_html_e( 'Skills / Tags', 'wp-career-board' ); ?></label>
-			<input
-				id="wcb-simple-tags"
-				type="text"
-				class="wcb-field"
-				placeholder="<?php esc_attr_e( 'e.g. React, TypeScript, Node.js', 'wp-career-board' ); ?>"
-				data-wcb-field="tags"
-				data-wp-bind--value="state.tags"
-				data-wp-on--input="actions.updateField"
-			/>
-			<span class="wcb-form-hint"><?php esc_html_e( 'Comma-separated.', 'wp-career-board' ); ?></span>
-		</div>
-
-		<!-- Salary row -->
-		<div class="wcb-form-field">
-			<span class="wcb-form-label"><?php esc_html_e( 'Salary Range', 'wp-career-board' ); ?></span>
-			<div class="wcb-salary-row">
-				<select class="wcb-field" data-wcb-field="currencyCode" data-wp-bind--value="state.currencyCode" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Currency', 'wp-career-board' ); ?>">
-					<?php foreach ( $wcb_currencies as $wcb_code => $wcb_label ) : ?>
-						<option value="<?php echo esc_attr( $wcb_code ); ?>"><?php echo esc_html( $wcb_label ); ?></option>
-					<?php endforeach; ?>
-				</select>
-				<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
-				<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
-				<select class="wcb-field" data-wcb-field="salaryType" data-wp-bind--value="state.salaryType" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Period', 'wp-career-board' ); ?>">
-					<option value="yearly"><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
-					<option value="monthly"><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>
-					<option value="hourly"><?php esc_html_e( 'Hour', 'wp-career-board' ); ?></option>
-				</select>
-			</div>
-			<span class="wcb-form-hint"><?php esc_html_e( 'Leave blank to hide salary from candidates.', 'wp-career-board' ); ?></span>
-		</div>
-
-		<!-- Remote + deadline -->
-		<div class="wcb-form-grid">
-			<div class="wcb-form-field">
-				<label class="wcb-checkbox-label">
-					<input type="checkbox" data-wp-bind--checked="state.remote" data-wp-on--change="actions.toggleRemote" />
-					<span><?php esc_html_e( 'Remote-friendly position', 'wp-career-board' ); ?></span>
+				<label class="wcb-form-label" for="wcb-simple-title">
+					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
+					<span class="wcb-required" aria-hidden="true">*</span>
 				</label>
+				<input
+					id="wcb-simple-title"
+					type="text"
+					class="wcb-field"
+					placeholder="<?php esc_attr_e( 'e.g. Senior PHP Developer', 'wp-career-board' ); ?>"
+					data-wcb-field="title"
+					data-wp-bind--value="state.title"
+					data-wp-on--input="actions.updateField"
+					required
+				/>
 			</div>
-			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wcb-field="deadline" data-wp-bind--value="state.deadline" data-wp-on--input="actions.updateField" />
-			</div>
-		</div>
 
-		<!-- Apply method -->
-		<div class="wcb-form-grid">
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-apply-url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="https://yourcompany.com/careers/apply" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+				<label class="wcb-form-label" for="wcb-simple-desc">
+					<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+					<span class="wcb-required" aria-hidden="true">*</span>
+				</label>
+				<textarea
+					id="wcb-simple-desc"
+					class="wcb-field"
+					rows="8"
+					placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>"
+					data-wcb-field="description"
+					data-wp-bind--value="state.description"
+					data-wp-on--input="actions.updateField"
+					required
+				></textarea>
 			</div>
-			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-apply-email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-apply-email" type="email" class="wcb-field" placeholder="jobs@yourcompany.com" data-wcb-field="applyEmail" data-wp-bind--value="state.applyEmail" data-wp-on--input="actions.updateField" />
-			</div>
-		</div>
+		</section>
 
-		<?php
-		/**
-		 * Action: render extra fields inside the single-page form, after the
-		 * default field set and before the submit button.
-		 *
-		 * Mirrors the wcb_job_form_step*_fields actions on the wizard so
-		 * integrators that target the wizard via those actions can opt into
-		 * the simple form too.
-		 *
-		 * @since 1.1.0
-		 *
-		 * @param array $attributes Block attributes.
-		 */
-		do_action( 'wcb_job_form_simple_extra_fields', $attributes );
-		?>
+		<!-- ── Section 2: Classification ───────────────────────────── -->
+		<section class="wcb-form-simple__section">
+			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Classification', 'wp-career-board' ); ?></p>
+
+			<div class="wcb-form-simple__tax-grid">
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-category"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></label>
+					<select id="wcb-simple-category" class="wcb-field" data-wcb-field="categorySlug" data-wp-bind--value="state.categorySlug" data-wp-on--change="actions.updateField">
+						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
+						<?php foreach ( $wcb_categories as $wcb_t ) : ?>
+							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></label>
+					<select id="wcb-simple-type" class="wcb-field" data-wcb-field="typeSlug" data-wp-bind--value="state.typeSlug" data-wp-on--change="actions.updateField">
+						<option value=""><?php esc_html_e( 'Select a job type', 'wp-career-board' ); ?></option>
+						<?php foreach ( $wcb_job_types as $wcb_t ) : ?>
+							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-location"><?php esc_html_e( 'Location', 'wp-career-board' ); ?></label>
+					<select id="wcb-simple-location" class="wcb-field" data-wcb-field="locationSlug" data-wp-bind--value="state.locationSlug" data-wp-on--change="actions.updateField">
+						<option value=""><?php esc_html_e( 'Select a location', 'wp-career-board' ); ?></option>
+						<?php foreach ( $wcb_locations as $wcb_t ) : ?>
+							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-exp"><?php esc_html_e( 'Experience', 'wp-career-board' ); ?></label>
+					<select id="wcb-simple-exp" class="wcb-field" data-wcb-field="expSlug" data-wp-bind--value="state.expSlug" data-wp-on--change="actions.updateField">
+						<option value=""><?php esc_html_e( 'Select experience level', 'wp-career-board' ); ?></option>
+						<?php foreach ( $wcb_experiences as $wcb_t ) : ?>
+							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			</div>
+
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-simple-tags"><?php esc_html_e( 'Skills / Tags', 'wp-career-board' ); ?></label>
+				<input
+					id="wcb-simple-tags"
+					type="text"
+					class="wcb-field"
+					placeholder="<?php esc_attr_e( 'e.g. React, TypeScript, Node.js', 'wp-career-board' ); ?>"
+					data-wcb-field="tags"
+					data-wp-bind--value="state.tags"
+					data-wp-on--input="actions.updateField"
+				/>
+				<span class="wcb-form-hint"><?php esc_html_e( 'Comma-separated.', 'wp-career-board' ); ?></span>
+			</div>
+		</section>
+
+		<!-- ── Section 3: Compensation & Schedule ──────────────────── -->
+		<section class="wcb-form-simple__section">
+			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Compensation & schedule', 'wp-career-board' ); ?></p>
+
+			<div class="wcb-form-field">
+				<span class="wcb-form-label"><?php esc_html_e( 'Salary Range', 'wp-career-board' ); ?></span>
+				<div class="wcb-salary-row">
+					<select class="wcb-field" data-wcb-field="currencyCode" data-wp-bind--value="state.currencyCode" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Currency', 'wp-career-board' ); ?>">
+						<?php foreach ( $wcb_currencies as $wcb_code => $wcb_label ) : ?>
+							<option value="<?php echo esc_attr( $wcb_code ); ?>"><?php echo esc_html( $wcb_label ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
+					<select class="wcb-field" data-wcb-field="salaryType" data-wp-bind--value="state.salaryType" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Period', 'wp-career-board' ); ?>">
+						<option value="yearly"><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
+						<option value="monthly"><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>
+						<option value="hourly"><?php esc_html_e( 'Hour', 'wp-career-board' ); ?></option>
+					</select>
+				</div>
+				<span class="wcb-form-hint"><?php esc_html_e( 'Leave blank to hide salary from candidates.', 'wp-career-board' ); ?></span>
+			</div>
+
+			<div class="wcb-form-grid wcb-form-simple__remote-deadline">
+				<div class="wcb-form-field wcb-form-field--remote">
+					<label class="wcb-checkbox-label">
+						<input type="checkbox" data-wp-bind--checked="state.remote" data-wp-on--change="actions.toggleRemote" />
+						<span><?php esc_html_e( 'Remote-friendly position', 'wp-career-board' ); ?></span>
+					</label>
+				</div>
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
+					<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wcb-field="deadline" data-wp-bind--value="state.deadline" data-wp-on--input="actions.updateField" />
+				</div>
+			</div>
+		</section>
+
+		<!-- ── Section 4: How candidates apply ─────────────────────── -->
+		<section class="wcb-form-simple__section">
+			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'How candidates apply', 'wp-career-board' ); ?></p>
+
+			<div class="wcb-form-grid">
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-apply-url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
+					<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="https://yourcompany.com/careers/apply" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+				</div>
+				<div class="wcb-form-field">
+					<label class="wcb-form-label" for="wcb-simple-apply-email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>
+					<input id="wcb-simple-apply-email" type="email" class="wcb-field" placeholder="jobs@yourcompany.com" data-wcb-field="applyEmail" data-wp-bind--value="state.applyEmail" data-wp-on--input="actions.updateField" />
+				</div>
+			</div>
+
+			<?php
+			/**
+			 * Action: render extra fields inside the single-page form, after the
+			 * default field set and before the submit button.
+			 *
+			 * Mirrors wcb_job_form_step*_fields on the wizard so integrators
+			 * that target the wizard via those actions can opt into the
+			 * simple form too.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array $attributes Block attributes.
+			 */
+			do_action( 'wcb_job_form_simple_extra_fields', $attributes );
+			?>
+		</section>
 
 		<!-- Submit -->
 		<div class="wcb-form-simple__nav">
