@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.0.2
+Stable tag: 1.1.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,35 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: Single-page job posting form — drop a one-screen form into any sidebar, modal, partner page, or page builder using the new "Job Form (Single-Page)" block or `[wcb_job_form_simple]` shortcode. Sits alongside the existing multi-step wizard.
+* New: Bulk applicant CSV export — select applications in the admin list table and download a UTF-8 spreadsheet with applicant name, email, job, status, applied date, cover letter, and resume URL.
+* New: Salary range slider on the Find Jobs page so candidates can filter by minimum and maximum salary live, with chip pills showing the active range.
+* New: Application deadline reminder emails — candidates who saved a job but haven't applied get a 3-day and 1-day-out reminder automatically via daily cron.
+* New: Resume upload on the apply form for guests too — the previous version only accepted resumes from logged-in candidates. PDF, DOC, and DOCX, with configurable required-vs-optional and size cap up to 20 MB.
+* New: Featured listings now expire automatically after a configurable duration (default 30 days). Sets up Featured as a real time-bound paid SKU.
+* New: Re-built Edit Application admin screen — applicant card with avatar and contact info, cover letter, resume preview with Open / Download buttons, status changer, quick-action buttons (Shortlist / Mark Hired / Reject / Message), and full status history. Replaces the previously-empty native post-edit screen.
+* New: Modular widget system — every component on the rebuilt application screen also works as a `[wcb_widget id="..."]` shortcode on any page (e.g. partner profile pages, candidate-facing application detail pages).
+* New: Rich RSS at /jobs/feed/ with company, salary (currency + period + min + max), location, type, category, tags, experience, deadline, apply URL — works in any RSS reader, IFTTT, Zapier flow.
+* New: WPML / Polylang config so multilingual sites can translate job board CPTs, taxonomies, and key strings out of the box.
+* New: Page-builder compatibility — every shortcode (`[wcb_job_listings]`, `[wcb_job_form]`, `[wcb_job_form_simple]`, etc.) now accepts attributes and forwards them to the block, so Elementor, Divi, Bricks, Beaver Builder, and classic editor users can scope blocks (e.g. `[wcb_job_listings boardId="42" perPage="6"]`).
+* New: `boardId` and `metaFilter` attributes on the Job Listings block — render a board-scoped or custom-relationship-scoped listing anywhere without writing custom code.
+* New: REST `?meta_<key>=<value>` query support for the jobs endpoint with safelist filter (`wcb_jobs_allowed_meta_filters`) so integrators can filter listings by registered custom meta from the frontend.
+* New: Custom-field flexibility on every form — declarative filters (`wcb_job_form_fields`, `wcb_company_form_fields`, `wcb_candidate_form_fields`, `wcb_application_form_fields_groups`) take a single field-group schema documented in `docs/HOOKS.md`. Add custom fields with one `add_filter` call.
+* New: Local CI runner via `npm run ci` — runs PHP lint, WPCS, PHPStan, and size-limit on the dev workstation before every push.
+* Improvement: Site-wide design token system extended with status color triplets (`--wcb-{status}-fg`, `-bg-soft`, `-border`), `--wcb-transition-snappy`, avatar size scale, theme-aware primary tints (`--wcb-primary-soft`, `--wcb-primary-ring` via `color-mix`). All blocks now token-driven so theme overrides cascade automatically — Reign and BuddyX integrators override one place to restyle the whole plugin.
+* Improvement: REST API list endpoints now return a structured envelope with `total`, `pages`, and `has_more` (legacy `X-WCB-Total` and `X-WCB-TotalPages` headers kept populated for one release cycle).
+* Improvement: Mobile single-job page reading order corrected — "About This Role" now appears first on phones, was previously below Job Details / Share / Company. Apply panel z-index lifted above theme toggles so light/dark switchers no longer overlap form fields.
+* Improvement: Plugin Check (PCP) and WPCS gates added to GitHub Actions CI alongside the existing PHP lint and PHPStan jobs. Branch trigger pattern expanded so release branches (1.1.0, 1.2.0, etc.) run CI on push.
+* Improvement: Custom database tables now declare `ENGINE=InnoDB` explicitly so the plugin works on hosts whose MySQL default storage engine is still MyISAM.
+* Improvement: Daily cron now schedules deadline reminders and featured-listing expiry sweeps automatically; deactivation cleanly clears scheduled events.
+* Fix: Uninstall.php now uses `$wpdb->prepare('DROP TABLE IF EXISTS %i', $table)` with the WP 6.2+ identifier placeholder.
+* Fix: Removed all `manage_options` capability fallbacks from REST permission checks — Abilities API is now the single permission source.
+* Fix: Per-page parameter on the jobs list endpoint is now clamped to 100 in the handler (schema-only `maximum: 100` was previously a warning, not an enforced cap).
+* Fix: `posts_per_page = -1` removed from frontend job query paths (replaced with bounded queries).
+* Fix: BuddyPress group Jobs tab now correctly filters jobs to that group's board — the previous `defaultBoardId` block attribute wasn't declared and was silently dropped.
+* Fix: Various visual alignment issues on the single-page job form (salary row breaking awkwardly, remote-deadline pair misaligning, button placement).
 
 = 1.0.2 =
 * New: Reign Theme dark-mode support — every WCB component (Find Jobs, Find Candidates, employer/candidate dashboards, companies archive, job and resume singles) re-colors cleanly when Reign's `html.dark-mode` class is active, driven by a new `html.dark-mode` token layer in `frontend.css` that maps `--wcb-*` to dark values.
