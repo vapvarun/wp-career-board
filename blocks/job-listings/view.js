@@ -9,6 +9,27 @@ import { store, getContext } from '@wordpress/interactivity';
 
 let searchDebounceTimer = null;
 
+/**
+ * Compact salary formatter — 60000 → "$60k", 1500000 → "$1.5M".
+ * Lives outside the store so getters stay pure.
+ *
+ * @param {number} value Salary in base currency units.
+ * @return {string}
+ */
+function wcbFormatSalaryShort( value ) {
+	const n = Number( value ) || 0;
+	if ( n <= 0 ) {
+		return '';
+	}
+	if ( n >= 1_000_000 ) {
+		return '$' + ( n / 1_000_000 ).toFixed( 1 ).replace( /\.0$/, '' ) + 'M';
+	}
+	if ( n >= 1_000 ) {
+		return '$' + Math.round( n / 1_000 ) + 'k';
+	}
+	return '$' + n;
+}
+
 const { state, actions } = store( 'wcb-job-listings', {
 	state: {
 		// ── Derived: layout ──────────────────────────────────────────
@@ -54,6 +75,31 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! state.activeFilters[ 'board_' + ctx.boardId ];
 		},
 
+		get isSalaryActive() {
+			return !! ( state.activeFilters.salary_min || state.activeFilters.salary_max );
+		},
+
+		get salaryMinDisplay() {
+			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin ) : ( state.strings.anyLabel || 'Any' );
+		},
+
+		get salaryMaxDisplay() {
+			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax ) : ( state.strings.anyLabel || 'Any' );
+		},
+
+		get salaryChipLabel() {
+			const min = state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin ) : '';
+			const max = state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax ) : '';
+			const fallback = state.strings.salaryChipDefault || 'Salary';
+			if ( ! min && ! max ) {
+				return fallback;
+			}
+			if ( min && max ) {
+				return min + '–' + max;
+			}
+			return min ? min + '+' : '≤' + max;
+		},
+
 		/** Array of { key, label } for active filter pills. */
 		get activeFilterChips() {
 			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
@@ -70,6 +116,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 					const id = parseInt( key.slice( 6 ), 10 );
 					const match = ( state.filterOptions.boards || [] ).find( ( b ) => b.id === id );
 					label = match ? match.name : value;
+				} else if ( key === 'salary_min' ) {
+					label = wcbFormatSalaryShort( parseInt( value, 10 ) ) + '+';
+				} else if ( key === 'salary_max' ) {
+					label = '≤' + wcbFormatSalaryShort( parseInt( value, 10 ) );
 				}
 				return { key, label };
 			} );
@@ -246,10 +296,53 @@ const { state, actions } = store( 'wcb-job-listings', {
 			yield actions.applyFilters();
 		},
 
+		// ── Salary slider — preview shows live, change commits ────────
+		previewSalaryMin( event ) {
+			state.salaryMin = parseInt( event.target.value, 10 ) || 0;
+			// Keep max ≥ min so the popover never shows an inverted range.
+			if ( state.salaryMax > 0 && state.salaryMin > state.salaryMax ) {
+				state.salaryMax = state.salaryMin;
+			}
+		},
+
+		previewSalaryMax( event ) {
+			state.salaryMax = parseInt( event.target.value, 10 ) || 0;
+		},
+
+		* updateSalaryMin( event ) {
+			state.salaryMin = parseInt( event.target.value, 10 ) || 0;
+			if ( state.salaryMin > 0 ) {
+				state.activeFilters.salary_min = String( state.salaryMin );
+			} else {
+				delete state.activeFilters.salary_min;
+			}
+			yield actions.applyFilters();
+		},
+
+		* updateSalaryMax( event ) {
+			state.salaryMax = parseInt( event.target.value, 10 ) || 0;
+			if ( state.salaryMax > 0 ) {
+				state.activeFilters.salary_max = String( state.salaryMax );
+			} else {
+				delete state.activeFilters.salary_max;
+			}
+			yield actions.applyFilters();
+		},
+
+		* resetSalary() {
+			state.salaryMin = 0;
+			state.salaryMax = 0;
+			delete state.activeFilters.salary_min;
+			delete state.activeFilters.salary_max;
+			yield actions.applyFilters();
+		},
+
 		// ── Clear all filters ─────────────────────────────────────────
 		* clearFilters() {
 			state.activeFilters = {};
 			state.searchQuery = '';
+			state.salaryMin = 0;
+			state.salaryMax = 0;
 			yield actions.applyFilters();
 		},
 

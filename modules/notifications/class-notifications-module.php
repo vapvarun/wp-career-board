@@ -49,6 +49,7 @@ class NotificationsModule {
 			Emails\EmailAppConfirmation::class,
 			Emails\EmailAppGuest::class,
 			Emails\EmailAppStatus::class,
+			Emails\EmailDeadlineReminder::class,
 		);
 
 		foreach ( $classes as $class ) {

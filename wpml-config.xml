@@ -1,0 +1,76 @@
+<wpml-config>
+	<!--
+		WPML / Polylang integration manifest for WP Career Board.
+		Registers translatable CPT/taxonomy labels, key post-meta strings,
+		and plugin options so multilingual community sites running Reign
+		or BuddyX themes can translate the job board UI alongside their
+		other content. Polylang reads the same format.
+	-->
+
+	<custom-types>
+		<custom-type translate="1">wcb_job</custom-type>
+		<custom-type translate="1">wcb_company</custom-type>
+		<custom-type translate="1">wcb_resume</custom-type>
+		<custom-type translate="0">wcb_application</custom-type>
+		<custom-type translate="0">wcb_board</custom-type>
+	</custom-types>
+
+	<taxonomies>
+		<taxonomy translate="1">wcb_category</taxonomy>
+		<taxonomy translate="1">wcb_job_type</taxonomy>
+		<taxonomy translate="1">wcb_tag</taxonomy>
+		<taxonomy translate="1">wcb_location</taxonomy>
+		<taxonomy translate="1">wcb_experience</taxonomy>
+	</taxonomies>
+
+	<custom-fields>
+		<!-- Strings displayed publicly, translatable per-job. -->
+		<custom-field action="translate">_wcb_company_name</custom-field>
+		<custom-field action="translate">_wcb_tagline</custom-field>
+
+		<!-- Numeric / structural meta — copy from source language unchanged. -->
+		<custom-field action="copy">_wcb_salary_min</custom-field>
+		<custom-field action="copy">_wcb_salary_max</custom-field>
+		<custom-field action="copy">_wcb_salary_currency</custom-field>
+		<custom-field action="copy">_wcb_salary_type</custom-field>
+		<custom-field action="copy">_wcb_remote</custom-field>
+		<custom-field action="copy">_wcb_featured</custom-field>
+		<custom-field action="copy">_wcb_deadline</custom-field>
+		<custom-field action="copy">_wcb_company_id</custom-field>
+		<custom-field action="copy">_wcb_apply_url</custom-field>
+		<custom-field action="copy">_wcb_apply_email</custom-field>
+		<custom-field action="copy">_wcb_board_id</custom-field>
+		<custom-field action="copy">_wcb_industry</custom-field>
+		<custom-field action="copy">_wcb_company_size</custom-field>
+		<custom-field action="copy">_wcb_company_type</custom-field>
+		<custom-field action="copy">_wcb_founded</custom-field>
+		<custom-field action="copy">_wcb_hq_location</custom-field>
+		<custom-field action="copy">_wcb_website</custom-field>
+		<custom-field action="copy">_wcb_linkedin</custom-field>
+		<custom-field action="copy">_wcb_twitter</custom-field>
+		<custom-field action="copy">_wcb_trust_level</custom-field>
+
+		<!-- Application meta — never translatable, applications aren't multilingual. -->
+		<custom-field action="copy">_wcb_status</custom-field>
+		<custom-field action="copy">_wcb_job_id</custom-field>
+		<custom-field action="copy">_wcb_candidate_id</custom-field>
+		<custom-field action="copy">_wcb_resume_id</custom-field>
+		<custom-field action="copy">_wcb_resume_attachment_id</custom-field>
+		<custom-field action="copy">_wcb_guest_name</custom-field>
+		<custom-field action="copy">_wcb_guest_email</custom-field>
+		<custom-field action="ignore">_wcb_status_log</custom-field>
+		<custom-field action="ignore">_wcb_cover_letter</custom-field>
+	</custom-fields>
+
+	<admin-texts>
+		<key name="wcb_settings">
+			<key name="from_name" />
+			<key name="from_email" />
+			<key name="notification_email" />
+		</key>
+		<key name="wcb_email_settings">
+			<key name="footer_text" />
+			<key name="primary_color" />
+		</key>
+	</admin-texts>
+</wpml-config>

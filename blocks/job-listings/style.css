@@ -539,6 +539,70 @@
 	outline-offset: 2px;
 }
 
+/* Salary slider popover — <details>/<summary> with the summary acting as a chip. */
+.wcb-chip-popover {
+	display: inline-block;
+	position: relative;
+}
+.wcb-chip-popover > summary {
+	list-style: none;
+	cursor: pointer;
+}
+.wcb-chip-popover > summary::-webkit-details-marker {
+	display: none;
+}
+.wcb-salary-popover__body {
+	position: absolute;
+	z-index: 5;
+	top: calc(100% + 6px);
+	inset-inline-start: 0;
+	min-width: 260px;
+	padding: 1rem;
+	background: var(--wcb-base, #fff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg, 12px);
+	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+.wcb-salary-popover__label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: var(--wcb-text-secondary, #475569);
+}
+.wcb-salary-popover__value {
+	font-variant-numeric: tabular-nums;
+	color: var(--wcb-contrast, #0f172a);
+}
+.wcb-salary-popover__slider {
+	width: 100%;
+	accent-color: var(--wcb-primary, #2563eb);
+}
+.wcb-salary-popover__reset {
+	align-self: flex-end;
+	background: none;
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	color: var(--wcb-text-secondary, #475569);
+	padding: 0.25rem 0.65rem;
+	border-radius: var(--wcb-radius-sm, 6px);
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+.wcb-salary-popover__reset:hover {
+	color: var(--wcb-contrast, #0f172a);
+	border-color: var(--wcb-text-tertiary, #94a3b8);
+}
+@media (max-width: 640px) {
+	.wcb-salary-popover__body {
+		inset-inline-start: auto;
+		inset-inline-end: 0;
+	}
+}
+
 .wcb-chip-divider {
 	display: inline-block;
 	width: 1px;

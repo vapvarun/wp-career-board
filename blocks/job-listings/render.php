@@ -276,20 +276,24 @@ $wcb_state = array(
 	'alertSaving'   => false,
 	'authorId'      => $wcb_author_id_attr,
 	'savedBy'       => $wcb_saved_by_attr,
+	'salaryMin'     => 0,
+	'salaryMax'     => 0,
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
 		'boards'      => $wcb_board_opts,
 	),
 	'strings'       => array(
-		'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
-		'bookmarkAdd'    => __( 'Save job', 'wp-career-board' ),
+		'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
+		'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
+		'salaryChipDefault' => __( 'Salary', 'wp-career-board' ),
+		'anyLabel'          => __( 'Any', 'wp-career-board' ),
 		/* translators: %d: number of jobs */
-		'jobCountSingle' => __( '1 job', 'wp-career-board' ),
+		'jobCountSingle'    => __( '1 job', 'wp-career-board' ),
 		/* translators: %d: number of jobs */
-		'jobCountPlural' => __( '%d jobs', 'wp-career-board' ),
+		'jobCountPlural'    => __( '%d jobs', 'wp-career-board' ),
 		/* translators: 1: number of shown jobs, 2: total number of jobs */
-		'jobCountOf'     => __( '%1$d of %2$d jobs', 'wp-career-board' ),
+		'jobCountOf'        => __( '%1$d of %2$d jobs', 'wp-career-board' ),
 	),
 );
 
@@ -382,6 +386,48 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			><?php echo esc_html( $wcb_opt['name'] ); ?></button>
 			<?php endforeach; ?>
 			<?php endif; ?>
+
+			<span class="wcb-chip-divider" aria-hidden="true"></span>
+			<details class="wcb-chip-popover wcb-salary-popover">
+				<summary class="wcb-chip" data-wp-class--wcb-chip-active="state.isSalaryActive">
+					<span data-wp-text="state.salaryChipLabel"><?php esc_html_e( 'Salary', 'wp-career-board' ); ?></span>
+				</summary>
+				<div class="wcb-salary-popover__body">
+					<label class="wcb-salary-popover__label" for="wcb-salary-min-range">
+						<?php esc_html_e( 'Minimum salary', 'wp-career-board' ); ?>
+						<span class="wcb-salary-popover__value" data-wp-text="state.salaryMinDisplay"></span>
+					</label>
+					<input
+						id="wcb-salary-min-range"
+						type="range"
+						class="wcb-salary-popover__slider"
+						min="0"
+						max="500000"
+						step="5000"
+						data-wp-bind--value="state.salaryMin"
+						data-wp-on--change="actions.updateSalaryMin"
+						data-wp-on--input="actions.previewSalaryMin"
+					/>
+					<label class="wcb-salary-popover__label" for="wcb-salary-max-range">
+						<?php esc_html_e( 'Maximum salary', 'wp-career-board' ); ?>
+						<span class="wcb-salary-popover__value" data-wp-text="state.salaryMaxDisplay"></span>
+					</label>
+					<input
+						id="wcb-salary-max-range"
+						type="range"
+						class="wcb-salary-popover__slider"
+						min="0"
+						max="500000"
+						step="5000"
+						data-wp-bind--value="state.salaryMax"
+						data-wp-on--change="actions.updateSalaryMax"
+						data-wp-on--input="actions.previewSalaryMax"
+					/>
+					<button type="button" class="wcb-salary-popover__reset" data-wp-on--click="actions.resetSalary">
+						<?php esc_html_e( 'Reset', 'wp-career-board' ); ?>
+					</button>
+				</div>
+			</details>
 		</div>
 
 		<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">

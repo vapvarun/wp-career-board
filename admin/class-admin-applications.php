@@ -144,6 +144,7 @@ class AdminApplications extends \WP_List_Table {
 			'bulk_status_shortlisted' => __( 'Mark as Shortlisted', 'wp-career-board' ),
 			'bulk_status_rejected'    => __( 'Mark as Rejected', 'wp-career-board' ),
 			'bulk_status_hired'       => __( 'Mark as Hired', 'wp-career-board' ),
+			'export_csv'              => __( 'Export to CSV', 'wp-career-board' ),
 			'trash'                   => __( 'Move to Trash', 'wp-career-board' ),
 		);
 	}
@@ -589,6 +590,11 @@ class AdminApplications extends \WP_List_Table {
 			return;
 		}
 
+		if ( 'export_csv' === $action ) {
+			$this->export_applications_csv( $app_ids );
+			return; // exits inside.
+		}
+
 		$bulk_status_map = array(
 			'bulk_status_reviewing'   => 'reviewing',
 			'bulk_status_shortlisted' => 'shortlisted',
@@ -611,6 +617,85 @@ class AdminApplications extends \WP_List_Table {
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=wcb-applications' ) );
+		exit;
+	}
+
+	/**
+	 * Stream a CSV download of the selected applications.
+	 *
+	 * Columns: ID, Job ID, Job Title, Applicant Name, Applicant Email,
+	 * Status, Submitted, Cover Letter, Resume URL.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int[] $app_ids Application post IDs.
+	 * @return void Exits after streaming.
+	 */
+	private function export_applications_csv( array $app_ids ): void {
+		$filename = 'wcb-applications-' . gmdate( 'Y-m-d-His' ) . '.csv';
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+		$out = fopen( 'php://output', 'w' );
+		// UTF-8 BOM so Excel respects the encoding.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- streaming to php://output, not a real file.
+		fwrite( $out, "\xEF\xBB\xBF" );
+		fputcsv(
+			$out,
+			array(
+				__( 'ID', 'wp-career-board' ),
+				__( 'Job ID', 'wp-career-board' ),
+				__( 'Job Title', 'wp-career-board' ),
+				__( 'Applicant Name', 'wp-career-board' ),
+				__( 'Applicant Email', 'wp-career-board' ),
+				__( 'Status', 'wp-career-board' ),
+				__( 'Submitted', 'wp-career-board' ),
+				__( 'Cover Letter', 'wp-career-board' ),
+				__( 'Resume URL', 'wp-career-board' ),
+			)
+		);
+
+		foreach ( $app_ids as $app_id ) {
+			if ( ! current_user_can( 'edit_post', $app_id ) ) {
+				continue;
+			}
+			$post = get_post( $app_id );
+			if ( ! $post instanceof \WP_Post || 'wcb_application' !== $post->post_type ) {
+				continue;
+			}
+
+			$job_id        = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+			$candidate_id  = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true );
+			$user          = $candidate_id > 0 ? get_userdata( $candidate_id ) : false;
+			$name          = $user instanceof \WP_User
+				? $user->display_name
+				: (string) get_post_meta( $post->ID, '_wcb_guest_name', true );
+			$email         = $user instanceof \WP_User
+				? $user->user_email
+				: (string) get_post_meta( $post->ID, '_wcb_guest_email', true );
+			$status        = (string) get_post_meta( $post->ID, '_wcb_status', true );
+			$attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+			$resume_url    = $attachment_id > 0 ? (string) wp_get_attachment_url( $attachment_id ) : '';
+
+			fputcsv(
+				$out,
+				array(
+					(string) $post->ID,
+					(string) $job_id,
+					$job_id > 0 ? (string) get_the_title( $job_id ) : '',
+					$name,
+					$email,
+					'' !== $status ? $status : 'submitted',
+					$post->post_date,
+					(string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+					$resume_url,
+				)
+			);
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- streaming to php://output, not a real file.
+		fclose( $out );
 		exit;
 	}
 }
