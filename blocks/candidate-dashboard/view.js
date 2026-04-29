@@ -10,6 +10,7 @@
  *   createResume          — POST to /candidates/{id}/resumes to create a new resume.
  *   openResumeEditor      — navigate to resume builder for the current resume.
  *   deleteResume          — DELETE /resumes/{id}.
+ *   withdrawApplication   — DELETE /applications/{id}; removes from list.
  *
  * @package WP_Career_Board
  */
@@ -664,6 +665,43 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				n.is_read = true;
 			} );
 			state.bellUnreadCount = 0;
+		},
+
+		*withdrawApplication() {
+			const ctx         = getContext();
+			const application = ctx.application;
+
+			try {
+				yield window.wcbConfirm( {
+					title:       state.strings.confirmWithdrawTitle,
+					message:     state.strings.confirmWithdrawMsg,
+					confirmText: state.strings.withdraw,
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/applications/' + String( application.id ),
+					{
+						method:  'DELETE',
+						headers: { 'X-WP-Nonce': state.nonce },
+					}
+				);
+
+				if ( ! response.ok ) {
+					state.error = state.strings.errWithdraw;
+					return;
+				}
+
+				state.applications = state.applications.filter( function( a ) {
+					return a.id !== application.id;
+				} );
+			} catch {
+				state.error = state.strings.errConnectionFull;
+			}
 		},
 	},
 } );

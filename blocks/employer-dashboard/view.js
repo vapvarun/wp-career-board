@@ -654,11 +654,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 
+			const isNew = ! state.companyId;
+
+			if ( isNew && ! state.companyName.trim() ) {
+				state.error = state.strings.errorCompanyNameRequired;
+				return;
+			}
+
 			state.saving = true;
 			state.saved  = false;
 			state.error  = '';
-
-			const isNew = ! state.companyId;
 			const url   = isNew
 				? state.apiBase + '/employers'
 				: state.apiBase + '/employers/' + String( state.companyId );

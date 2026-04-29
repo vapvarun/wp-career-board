@@ -7,6 +7,7 @@
  *   nextStep     — advance step; validates title on step 1.
  *   prevStep     — go back one step.
  *   submitJob    — POST job data to /wcb/v1/jobs.
+ *   resetForm    — Clear success state and return to step 1.
  *
  * State getters:
  *   isStep1 … isStep4          — drive wcb-form-step--show CSS class on each step panel.
@@ -371,6 +372,14 @@ store(
 				} finally {
 					state.submitting = false;
 				}
+			},
+
+			resetForm() {
+				state.submitted = false;
+				state.step      = 1;
+				state.error     = '';
+				state.jobUrl    = '';
+				state.jobStatus = '';
 			},
 		},
 	}
