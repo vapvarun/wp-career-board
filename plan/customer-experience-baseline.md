@@ -233,6 +233,46 @@ Round 1 flagged 10 items as broken. Round 2 found:
 - **2 admin items were under-classified** — A-5 / A-7 actually work; round 1 scoring was too conservative.
 - **2 are real missing functionality** in B-3 — the test-send button + log viewer + bounce tracking. These are buildable, not bugs.
 
+### Round 3 (continuing the unverified-item sweep, 2026-04-29 evening)
+
+Verified the rest of Round 2's unverified items + caught one more real bug.
+
+| Item | Round 2 | Round 3 | Note |
+|---|---|---|---|
+| C-10 bookmark / save jobs | 🟡 Unverified | ✅ Works | POST /wcb/v1/jobs/198/bookmark as Sarah Chen → 200 {bookmarked:true}, user_meta `_wcb_bookmark` grew 2 → 3. Toggle again → 200 {bookmarked:false}, shrunk back to 2. |
+| C-4 fresh candidate registration | 🟡 Unverified | ✅ Works (with gap) | POST /wcb/v1/candidates/register → 200, user with `wcb_candidate` role created, all 4 candidate abilities granted, dashboard URL returned. **Gap**: Settings panel (render.php:623) shows only Email + Reset Password — no welcome card or first-action guidance for fresh signups. Per-tab empty states exist but no top-level onboarding. |
+| C-15 mobile resume builder (owner view) | 🟡 Unverified (high-risk feared) | ✅ Works | At 390px, accordion sections + full-width inputs make the 7-section repeater genuinely usable. Concern was unfounded. |
+| A-11 GDPR data export/erase | 🟡 Unverified | ⚠️ Backend OK, user-facing missing | GdprModule properly registers `wp-career-board` as a WP Privacy API exporter + eraser; verified live (returns 3 data groups for sarah.chen@example.com). **Gap**: candidate dashboard has no user-facing "Export my data" / "Delete my account" buttons — candidates must email support to trigger their own GDPR rights. |
+| A-12 anti-spam (recaptcha/turnstile) | 🟡 Unverified | 🔴 → ✅ Fixed | **NEW BUG B-5 FOUND**: AntiSpamModule never autoloaded for the entire 1.x lifetime. File was at `class-antispam-module.php` but autoloader expected `class-anti-spam-module.php` (PascalCase→kebab-case convention). Result: zero callbacks on `wcb_pre_application_submit` and `wcb_pre_job_submit`. Even with Turnstile/reCAPTCHA configured, no verification ever fired. Fixed by renaming the file. Now: 1 callback per filter at boot, REST apply still 200 with no provider configured (correct — provider gates enforcement). When customers configure a provider in Settings → Anti-Spam, verification will actually run. |
+| A-13 verified-employer badge | 🟡 Unverified | ✅ Works | Admin meta box on wcb_company edit screen has Trust Level select (verified/trusted/premium); save persists `_wcb_trust_level` post_meta; frontend renders trust badge in 4 blocks (job-listings, company-profile, job-single, company-archive); REST endpoint `POST /companies/{id}/trust` exists. Complete admin → frontend workflow. |
+| A-15 WPJM migration | 🟡 Unverified | ⚠️ CLI exists, untested with real data | `wp wcb migrate wpjm` CLI is fully implemented with `--dry-run`, `--limit`, `--offset`, `--status` options. Maps job_listing CPT → wcb_job, job_listing_category → wcb_category, job_listing_type → wcb_job_type. Idempotent via `_wcb_migrated_from` meta. Not exercised against real WPJM-shaped data this session. |
+| A-16 1000-job perf | 🟡 Unverified | ⚠️ Risk identified | Spot-check at 31 jobs: GET /wcb/v1/jobs?per_page=50 → 21.3ms, but **144 cumulative wpdb queries** for one listing render — likely per-row meta lookups in `prepare_item_for_response_array`. WP_Query call (line 127-134) doesn't set `no_found_rows`, doesn't pre-batch meta. At 1000 jobs/50 per page, this scales to ~4500+ queries per listing render. Not a blocker today; filed as 1.2.0 perf work. |
+
+### Updated scorecard (Round 3)
+
+| Category | Promised | Verified working | Partial | Broken | Unverified |
+|---|---:|---:|---:|---:|---:|
+| Candidate journey | 16 | 14 | 1 | 0 | 1 |
+| Employer journey | 16 | 13 | 0 | 1 | 2 |
+| Site admin | 16 | 13 | 2 | 0 | 1 |
+| Email templates | 9 | 9 | 0 | 0 | 0 |
+| Mobile (sample) | 8 | 8 | 0 | 0 | 0 |
+| **Total** | **65** | **57** | **3** | **1** | **4** |
+
+**Round 3 score: 88% verified working, 6% partial, 1.5% broken, 6% unverified.**
+
+The remaining 1 broken item is E-12 bulk operations (real missing functionality, planned for 1.2.0). The 3 partial items are: C-4 onboarding empty-state, A-11 user-facing GDPR controls, A-16 listing scale.
+
+### Bugs found and fixed during Track A (cumulative)
+
+| Bug | Description | Status | Commit |
+|---|---|---|---|
+| B-1 | wcb-confirm-modal not enqueued on candidate dashboard → withdraw button silent fail | ✅ Fixed | `2d4db35` |
+| B-2 | 4 email templates "broken" | ✅ False alarm — all fire correctly | n/a |
+| B-3 | No admin UI for email log + no test-send | ✅ Built | `b153c4c` (initial), `400be22` (polish + asset extraction) |
+| B-4 | Stale wcbp_version blocks bug #3 deferred-flush | ✅ Fixed | `83355ac` (Pro plugin) |
+| B-5 | AntiSpamModule never autoloaded — anti-spam silently disabled across entire 1.x lifetime | ✅ Fixed | `4162eb1` |
+
 ---
 
 ## 8. Top 10 actionable items for 1.2.0 (customer-experience priority order)
