@@ -1,5 +1,7 @@
 # WP Career Board — Claude Code Rules
 
+> **READ FIRST:** [`audit/manifest.json`](audit/manifest.json) is the canonical inventory — 35 REST endpoints, 3 tables, 11 capabilities, 15 blocks, 4 WP-CLI commands, 3 cron hooks. Use this before grepping. See also [`audit/FEATURE_AUDIT.md`](audit/FEATURE_AUDIT.md), [`audit/CODE_FLOWS.md`](audit/CODE_FLOWS.md), [`audit/ROLE_MATRIX.md`](audit/ROLE_MATRIX.md). Refresh via `/wp-plugin-onboard --refresh` after non-trivial changes.
+
 ## MANDATORY: WPCS MCP Before Every Commit
 
 Use MCP tools — do NOT run phpcs manually:
