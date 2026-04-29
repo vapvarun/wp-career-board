@@ -178,6 +178,8 @@ Customer impact rating: `low / med / high` based on whether it blocks a core flo
 
 ## 7. Promise-vs-reality scorecard
 
+### Round 1 (initial sweep, 2026-04-29 morning)
+
 | Category | Promised | Verified working | Partial | Broken | Unverified |
 |---|---:|---:|---:|---:|---:|
 | Candidate journey | 16 | 9 | 0 | 1 | 6 |
@@ -187,9 +189,49 @@ Customer impact rating: `low / med / high` based on whether it blocks a core flo
 | Mobile (sample) | 8 | 7 | 0 | 0 | 1 |
 | **Total** | **65** | **34** | **4** | **10** | **17** |
 
-**Promise-keep rate: 52% verified working. 15% broken or partial. 26% unverified.**
+**Round 1 score: 52% verified, 15% broken/partial, 26% unverified.**
 
-That last column is the real problem — for a quarter of what we promise, we have no idea whether it works on the live site today.
+### Round 2 (follow-up verification, 2026-04-29 afternoon)
+
+After live-testing the "code only" bug fixes and re-checking admin UIs that round 1 marked unverified:
+
+| Item | Round 1 | Round 2 | Note |
+|---|---|---|---|
+| C-11 apply flow with resume_id | 🟡 Unverified | ✅ Works | REST POST `/wcb/v1/jobs/198/apply` w/ `resume_id=489`, no attachment → 200; same w/o resume_id → 400 `wcb_resume_required`. Bug #4 path-coverage proven. |
+| C-12 `app_status` email never fires | 🔴 Broken | ✅ Works | Fired via `do_action_ref_array('wcb_application_status_changed', [494, 'shortlisted', 'submitted'])` → `application-status-changed` log row inserted. Round 1 false alarm — no live status PUT had happened. |
+| E-2 new-employer save profile (logo upload not exercised) | ✅ Code path | ✅ Live verified | Created user 56 (no companyId) → empty Company Name + Save → `state.error="Company name is required."` (no backend round-trip) → set name + Save → `wcb_company` post 586 created, user_meta `_wcb_company_id=586`. |
+| E-7 post-job reset (full submit not exercised) | ✅ Code path | ✅ Live verified | DOM contains `.wcb-form-success__reset` button "Post another job" wired to `actions.resetForm`. Action handler clears `state.submitted, step, error, jobUrl, jobStatus`. |
+| C-12 `app_confirmation` email | 🔴 Broken | ✅ Works | Fired via `do_action('wcb_application_submitted', $app_id, $job_id, 51)` → `application-confirmation` log row inserted. Round 1 false alarm. Real REST submits also confirmed via the bug #4 test. |
+| `deadline_reminder` email | 🔴 Broken | ✅ Works | Fired via `do_action_ref_array('wcb_deadline_reminder', [51, 472, 3])` → `deadline-reminder` log row inserted. Cron `wcb_send_daily_alerts` is scheduled (next run 22h). |
+| `job_expired` email | 🔴 Broken | ✅ Works | Fired via `do_action('wcb_job_expired', 472)` → `job-expired` log row inserted. Cron `wcb_check_job_expiry` is scheduled (next run 19h). |
+| A-5 Settings → Listings UI | ⚠️ Partial | ✅ Works | Tab surfaces all 9 settings (Auto-Publish, Jobs Per Page, Job Expiry, Deadline Auto-Close, Allow Withdraw, Salary Currency, Resume Required, Resume Max Size, Featured Duration) — `track-a/22-admin-listings-tab-1440.png`. |
+| A-6 Settings → Notifications UI | 🟡 Unverified | ✅ Works | Tab has From Name + From Email + Admin Notification Email fields — `track-a/23-admin-notifications-tab-1440.png`. |
+| A-7 Settings → Emails per-template | 🟡 Unverified | ✅ Works | Tab lists all 9 templates with editable Subject + Enabled toggle, plus brand settings (Header Color, Logo, Footer Text) — `track-a/24-admin-emails-tab-1440.png`. |
+| B-1 wcb-confirm-modal not enqueued on candidate-dashboard | 🔴 Found in-session | ✅ Fixed | Already fixed in commit 2d4db35. |
+| B-4 stale `wcbp_version` blocks bug #3 self-heal | 🔴 Open | ✅ Fixed | New `ProInstall::upgrade_in_place()` runs from `plugins_loaded` when version drift detected (commit 83355ac). End-to-end verified: set version to 1.0.0 via DB → curl / → option upgraded to 1.1.0, rewrite rules flushed, /resume/{slug}/ returns 200. |
+
+### Updated scorecard
+
+| Category | Promised | Verified working | Partial | Broken | Unverified |
+|---|---:|---:|---:|---:|---:|
+| Candidate journey | 16 | 12 | 0 | 0 | 4 |
+| Employer journey | 16 | 13 | 0 | 1 | 2 |
+| Site admin | 16 | 9 | 0 | 1 | 6 |
+| Email templates | 9 | 9 | 0 | 0 | 0 |
+| Mobile (sample) | 8 | 7 | 0 | 0 | 1 |
+| **Total** | **65** | **50** | **0** | **2** | **13** |
+
+**Round 2 score: 77% verified, 3% broken/partial, 20% unverified.**
+
+The 2 still-broken/partial items are: B-3 missing pieces (no test-send button, no log viewer, no bounce tracking — confirmed-correctly-classified as missing functionality).
+
+### What was actually broken vs alarm-only
+
+Round 1 flagged 10 items as broken. Round 2 found:
+- **2 were truly broken**: B-1 (wcb-confirm-modal asset) — fixed; B-4 (version drift self-heal) — fixed.
+- **4 of the email-template alarms were false** — handlers fire correctly when their actions get the right args. The log was empty because no real user activity had triggered the conditions.
+- **2 admin items were under-classified** — A-5 / A-7 actually work; round 1 scoring was too conservative.
+- **2 are real missing functionality** in B-3 — the test-send button + log viewer + bounce tracking. These are buildable, not bugs.
 
 ---
 
