@@ -104,6 +104,42 @@ spl_autoload_register(
 	}
 );
 
+/**
+ * Read the email-template settings sub-array.
+ *
+ * 1.2.0 (F-5) consolidated `wcb_email_settings` into `wcb_settings.emails` so
+ * everything sanitises through the Settings API. The legacy option is read as
+ * a fallback for the upgrade window — once Install::maybe_upgrade has run on
+ * a site, the legacy row is gone and this helper returns the new sub-array
+ * directly. Calling code should never read the raw option.
+ *
+ * @since  1.2.0
+ * @return array<string,mixed>
+ */
+function wcb_get_email_settings(): array {
+	$settings = (array) get_option( 'wcb_settings', array() );
+	if ( isset( $settings['emails'] ) && is_array( $settings['emails'] ) ) {
+		return $settings['emails'];
+	}
+	return (array) get_option( 'wcb_email_settings', array() );
+}
+
+/**
+ * Read the captcha driver slug.
+ *
+ * Same F-5 consolidation as wcb_get_email_settings().
+ *
+ * @since  1.2.0
+ * @return string
+ */
+function wcb_get_captcha_driver(): string {
+	$settings = (array) get_option( 'wcb_settings', array() );
+	if ( isset( $settings['captcha']['driver'] ) ) {
+		return (string) $settings['captcha']['driver'];
+	}
+	return (string) get_option( 'wcb_captcha_driver', '' );
+}
+
 register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );
 register_deactivation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'deactivate' ) );
 

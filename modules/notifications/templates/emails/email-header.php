@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_email_s          = (array) get_option( 'wcb_email_settings', array() );
+$wcb_email_s          = function_exists( 'wcb_get_email_settings' ) ? wcb_get_email_settings() : (array) get_option( 'wcb_email_settings', array() );
 $wcb_header_color_raw = sanitize_hex_color( $wcb_email_s['brand']['header_color'] ?? '' );
 $wcb_header_color     = $wcb_header_color_raw ? $wcb_header_color_raw : '#4f46e5';
 $wcb_logo_id          = ! empty( $wcb_email_s['brand']['logo_id'] ) ? (int) $wcb_email_s['brand']['logo_id'] : 0;

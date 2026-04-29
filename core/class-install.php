@@ -180,6 +180,34 @@ final class Install {
 						$candidate_role->remove_cap( 'wcb_withdraw_application' );
 					}
 				}
+
+				// 1.2 — F-5: consolidate wcb_email_settings + wcb_captcha_driver
+				// under wcb_settings so the Settings API is the single write
+				// path. After migration the legacy options are deleted; reads
+				// go through the wcb_get_email_settings / wcb_get_captcha_driver
+				// helpers that fall back to the legacy rows during the upgrade
+				// window.
+				$current = (array) get_option( 'wcb_settings', array() );
+				$dirty   = false;
+
+				$legacy_emails = get_option( 'wcb_email_settings', null );
+				if ( null !== $legacy_emails && ! isset( $current['emails'] ) ) {
+					$current['emails'] = (array) $legacy_emails;
+					$dirty             = true;
+				}
+
+				$legacy_captcha = get_option( 'wcb_captcha_driver', null );
+				if ( null !== $legacy_captcha && ! isset( $current['captcha']['driver'] ) ) {
+					$current['captcha']            = isset( $current['captcha'] ) && is_array( $current['captcha'] ) ? $current['captcha'] : array();
+					$current['captcha']['driver'] = (string) $legacy_captcha;
+					$dirty                        = true;
+				}
+
+				if ( $dirty ) {
+					update_option( 'wcb_settings', $current );
+					delete_option( 'wcb_email_settings' );
+					delete_option( 'wcb_captcha_driver' );
+				}
 			}
 
 			update_option( 'wcb_db_version', self::DB_VERSION, false );

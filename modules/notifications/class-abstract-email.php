@@ -63,7 +63,7 @@ abstract class AbstractEmail {
 	 * @return bool
 	 */
 	public function is_enabled(): bool {
-		$settings = (array) get_option( 'wcb_email_settings', array() );
+		$settings = wcb_get_email_settings();
 		return isset( $settings[ $this->get_id() ]['enabled'] )
 			? (bool) $settings[ $this->get_id() ]['enabled']
 			: true;
@@ -75,7 +75,7 @@ abstract class AbstractEmail {
 	 * @return string
 	 */
 	public function get_subject(): string {
-		$settings = (array) get_option( 'wcb_email_settings', array() );
+		$settings = wcb_get_email_settings();
 		$saved    = $settings[ $this->get_id() ]['subject'] ?? '';
 		return $saved ? (string) $saved : $this->get_default_subject();
 	}

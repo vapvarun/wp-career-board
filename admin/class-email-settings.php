@@ -100,7 +100,7 @@ class EmailSettings
      */
     public function render_form(): void
     {
-        $settings = (array) get_option('wcb_email_settings', array());
+        $settings = wcb_get_email_settings();
         $brand    = isset($settings['brand']) ? (array) $settings['brand'] : array();
         $emails   = (array) apply_filters('wcb_registered_emails', array());
         ?>
@@ -352,7 +352,7 @@ class EmailSettings
      */
     public function render(): void
     {
-        $settings = (array) get_option('wcb_email_settings', array());
+        $settings = wcb_get_email_settings();
         $brand    = isset($settings['brand']) ? (array) $settings['brand'] : array();
         $emails   = (array) apply_filters('wcb_registered_emails', array());
         ?>
@@ -469,7 +469,14 @@ class EmailSettings
             );
         }
 
-        update_option('wcb_email_settings', $settings);
+        // F-5 — write through wcb_settings so sanitization stays in one
+        // path. Settings API sanitize fires too because we still pass through
+        // its filter on read; the legacy row is left alone here and dropped
+        // by the install migration so existing reads stay correct until that
+        // upgrade pass runs.
+        $aggregate           = (array) get_option('wcb_settings', array());
+        $aggregate['emails'] = $settings;
+        update_option('wcb_settings', $aggregate);
         add_action(
             'admin_notices',
             static function () {

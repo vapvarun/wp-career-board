@@ -60,7 +60,7 @@ final class SettingsEndpoint extends RestController {
 	public function get_app_config(): \WP_REST_Response {
 		$wcb_settings   = (array) get_option( 'wcb_settings', array() );
 		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
-		$captcha_driver = (string) get_option( 'wcb_captcha_driver', '' );
+		$captcha_driver = wcb_get_captcha_driver();
 
 		$data = array(
 			'site_name'        => (string) get_bloginfo( 'name' ),
