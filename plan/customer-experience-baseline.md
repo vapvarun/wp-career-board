@@ -295,6 +295,44 @@ The remaining 1 broken item is E-12 bulk operations (real missing functionality,
 
 **Round 4 score: 92% verified working. 1.5% partial (A-16 listing N+1 risk at 1000+ jobs). 1.5% broken (E-12 bulk operations — real missing functionality on 1.2.0 roadmap). 4.5% unverified (E-1 new-employer registration, A-15 WPJM migration, A-16 perf at scale).**
 
+### Round 5 — Free→Pro coordination contract (2026-04-30 morning)
+
+The dependency arrow gets enforced at the architecture level: Free fires, Pro hooks. No more "Pro renames a class → Free breaks."
+
+| Item | Round 4 | Round 5 | Note |
+|---|---|---|---|
+| Pro→Free coordination contract | ❌ Implicit (Free reached into Pro classes) | ✅ Documented filter API | F-1: `core/class-pro-coordination.php` declares the 11 filters + 2 actions Pro is allowed to hook. F-2: 22 Free callsites migrated to use the filter surface; zero direct Pro references remain in Free runtime code. Pairs with Pro's P-6 (`core/class-free-coordination.php`) which hooks every filter Free declares. End-to-end smoke test: Free renders correctly with all filters returning defaults; Pro overrides surface module HTML, currency, license badge, alerts CTAs. |
+| Pro version-drift guard | ❌ Pro could boot against an older Free | ✅ P-2 shipped | Pro defines `WCBP_FREE_MIN_VERSION='1.1.0'`, exposes `wcbp_free_compatible()`, refuses to boot at `plugins_loaded` and refuses to activate if Free is older than the version Pro was built against. Three guard points (boot, activation, helper). |
+
+### Round 6 — Pro stability sweep (2026-04-30 afternoon)
+
+Closing every Pro-side acceptance criterion in `plan/1.2.0-stability.md`.
+
+| Item | Status | Note |
+|---|---|---|
+| P-4 unified data cleanup | ✅ Shipped | New `WCB\Pro\Core\DataCleanup` cascades 9 Pro tables on `wcb_job_deleted`, `wcb_application_deleted`, `before_delete_post` (boards, resumes, companies + safety net), and `delete_user`. Plus a one-time orphan sweep on the 1.2 → 1.3 db_version bump that catches historical orphans across all 5 entity-type variants of `wcb_ai_vectors`. End-to-end smoke test: created a job + 3 satellite rows, force-deleted, all 3 satellite rows cleaned. |
+| P-5 ability enforcement audit | ✅ Shipped | All 9 Pro REST endpoints now check the right Pro-specific ability instead of the broad `wcb_manage_settings` fallback. Subscriber → 403 on every manage endpoint, admin passes, per-resource self checks still grant the owner. Pipeline split into separate view (`wcb_view_applications`) + manage (`wcb_moderate_jobs`) so reviewers can read the Kanban without being able to silently advance candidates. |
+| P-7 + F-3 wcb_resume CPT visibility | ✅ Shipped | Free 1.2 owns the CPT contract via `wcb_settings.resume_archive_enabled` (+ `wcb_resume_archive_enabled` filter for programmatic override). Pro stops mutating CPT args at runtime; activation flips the Free setting once. Single-resume URLs now survive Pro deactivation. F-3 migration auto-seeds the setting from `is_plugin_active(Pro)` for existing 1.1.x sites. |
+| F-4 wcb_withdraw_application ability | ✅ Shipped | Per-role ability replaces the global `allow_withdraw` site setting. Site owners now manage withdraw permission through Users → Roles like every other action. Migration revokes the cap from `wcb_candidate` for sites that had `allow_withdraw=false`. |
+| F-5 settings consolidation | ✅ Shipped | `wcb_email_settings` and `wcb_captcha_driver` collapsed into `wcb_settings.emails` / `wcb_settings.captcha.driver`. Two procedural helpers (`wcb_get_email_settings`, `wcb_get_captcha_driver`) handle the read path with legacy-fallback for the upgrade window. Migration runs on db_version bump and deletes the legacy rows. |
+| F-6 CI gate against Pro coupling | ✅ Shipped | New `bin/check-pro-decoupling.sh` wired into `.github/workflows/ci.yml` as a blocking job. Catches direct `WCB\Pro\` class refs, `wcbp_*()` function calls, `WCBP_` constant reads, and `wp-career-board-pro` slug references outside docs/comments/upsell-URL filter defaults. Trip-tested by injecting a violation. |
+| P-8 extension surface for addons | ✅ Shipped | 7 new hooks (4 filters + 3 actions) documented in `docs/HOOKS.md` with example. Filters: `wcbp_ai_provider_drivers`, `wcbp_alert_dispatch_channels`, `wcbp_resume_pdf_renderer`, `wcbp_kanban_card_columns`. Actions: `wcbp_field_value_saved`, `wcbp_resume_published`, `wcbp_credit_consumed`. Smoke-tested AI driver registry (built-in + filter-registered + unknown-fallback) and alert dispatch (email + custom Slack channel). |
+| P-9 admin-ajax → REST | ✅ Shipped | `wp_ajax_wcbp_analytics_csv` replaced with `GET /wcb/v1/analytics/credits.csv` via new `AnalyticsEndpoint`. Closes the "wp_ajax_wcbp_* count = zero" acceptance criterion. Same license + ability gate as the other 9 Pro endpoints. |
+
+### Updated scorecard (Round 6)
+
+| Category | Promised | Verified working | Partial | Broken | Unverified |
+|---|---:|---:|---:|---:|---:|
+| Candidate journey | 16 | 16 | 0 | 0 | 0 |
+| Employer journey | 16 | 13 | 0 | 1 | 2 |
+| Site admin | 16 | 14 | 1 | 0 | 1 |
+| Email templates | 9 | 9 | 0 | 0 | 0 |
+| Mobile (sample) | 8 | 8 | 0 | 0 | 0 |
+| Architectural (1.2.0 plan) | 15 | 15 | 0 | 0 | 0 |
+| **Total** | **80** | **75** | **1** | **1** | **3** |
+
+**Round 6 score: 94% verified working. All 6 Free-side and all 9 Pro-side stability tasks (F-1…F-6, P-1…P-9) shipped. Remaining 5 partial/broken/unverified items are customer-feature gaps tracked separately (E-1 new-employer registration, E-12 bulk ops, A-15 WPJM migration, A-16 perf at scale) — none are 1.2.0 architectural blockers.**
+
 ### Cumulative commits this Track A campaign
 
 | Commit | Plugin | Subject |
