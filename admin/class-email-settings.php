@@ -26,13 +26,71 @@ class EmailSettings
 {
 
     /**
-     * Register admin_init save handler.
+     * Register admin_init save handler + asset enqueue for the Emails tab.
      *
      * @since 1.0.0
      */
     public function boot(): void
     {
         add_action('admin_init', array( $this, 'save' ));
+        add_action('admin_enqueue_scripts', array( $this, 'enqueue_assets' ));
+    }
+
+    /**
+     * Enqueue the dedicated Emails-tab CSS + JS only on the Career Board settings page
+     * with tab=emails. Keeps inline asset blobs out of the PHP render path.
+     *
+     * @since 1.1.1
+     *
+     * @param  string $hook_suffix Current admin page hook.
+     * @return void
+     */
+    public function enqueue_assets( string $hook_suffix ): void
+    {
+        // Only fire on Career Board → Settings → Emails tab.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab discriminator.
+        $current_tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : '';
+        if ('emails' !== $current_tab) {
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $current_page = isset($_GET['page']) ? sanitize_key((string) wp_unslash($_GET['page'])) : '';
+        if ('wcb-settings' !== $current_page) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'wcb-admin-emails',
+            WCB_URL . 'assets/css/admin/emails.css',
+            array(),
+            WCB_VERSION
+        );
+
+        wp_enqueue_script(
+            'wcb-admin-emails',
+            WCB_URL . 'assets/js/admin/emails.js',
+            array(),
+            WCB_VERSION,
+            true
+        );
+
+        wp_localize_script(
+            'wcb-admin-emails',
+            'wcbAdminEmails',
+            array(
+                'restBase' => esc_url_raw(rest_url('wcb/v1')),
+                'nonce'    => wp_create_nonce('wp_rest'),
+                'i18n'     => array(
+                    'sending' => __('Sending…', 'wp-career-board'),
+                    'sent'    => __('Sent', 'wp-career-board'),
+                    'failed'  => __('Failed', 'wp-career-board'),
+                    'empty'   => __('No emails logged for the current filters.', 'wp-career-board'),
+                    'fail'    => __('Failed to load activity log.', 'wp-career-board'),
+                    'page'    => __('Page', 'wp-career-board'),
+                    'records' => __('records', 'wp-career-board'),
+                ),
+            )
+        );
     }
 
     /**
@@ -134,10 +192,11 @@ class EmailSettings
                                 <input type="checkbox" aria-label="<?php esc_attr_e('Enable this email notification', 'wp-career-board'); ?>" name="wcb_email[<?php echo esc_attr($id); ?>][enabled]" value="1" <?php checked($enabled); ?>>
                             </td>
                             <td>
-                                <button type="button" class="button button-secondary wcb-email-test-btn" data-email-id="<?php echo esc_attr($id); ?>" aria-label="<?php
+                                <button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-test-btn" data-email-id="<?php echo esc_attr($id); ?>" aria-label="<?php
                                 /* translators: %s: email title */
                                 echo esc_attr(sprintf(__('Send test of %s to me', 'wp-career-board'), $email->get_title())); ?>">
-            <?php esc_html_e('Send test', 'wp-career-board'); ?>
+                                    <i data-lucide="send" class="wcb-icon--xs" aria-hidden="true"></i>
+                                    <span><?php esc_html_e('Send test', 'wp-career-board'); ?></span>
                                 </button>
                             </td>
                         </tr>
@@ -163,52 +222,6 @@ class EmailSettings
         wp_enqueue_media();
         ?>
         <script>
-        (function(){
-            // Test-send wiring — POSTs to /wcb/v1/admin/emails/test and surfaces a toast.
-            var nonce = '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>';
-            var apiBase = '<?php echo esc_js(esc_url_raw(rest_url('wcb/v1'))); ?>';
-            document.querySelectorAll('.wcb-email-test-btn').forEach(function(btn){
-                btn.addEventListener('click', function(){
-                    var emailId = btn.getAttribute('data-email-id');
-                    var origText = btn.textContent;
-                    btn.disabled = true;
-                    btn.textContent = '<?php echo esc_js(__('Sending…', 'wp-career-board')); ?>';
-                    fetch(apiBase + '/admin/emails/test', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email_id: emailId })
-                    }).then(function(r){ return r.json(); }).then(function(data){
-                        btn.disabled = false;
-                        btn.textContent = origText;
-                        if (data && data.sent) {
-                            btn.classList.add('wcb-email-test-btn--ok');
-                            btn.textContent = '<?php echo esc_js(__('Sent ✓', 'wp-career-board')); ?>';
-                            setTimeout(function(){
-                                btn.classList.remove('wcb-email-test-btn--ok');
-                                btn.textContent = origText;
-                                if (window.wcbReloadEmailLog) { window.wcbReloadEmailLog(); }
-                            }, 2500);
-                        } else {
-                            btn.classList.add('wcb-email-test-btn--err');
-                            btn.textContent = '<?php echo esc_js(__('Failed', 'wp-career-board')); ?>';
-                            setTimeout(function(){
-                                btn.classList.remove('wcb-email-test-btn--err');
-                                btn.textContent = origText;
-                            }, 3500);
-                        }
-                    }).catch(function(){
-                        btn.disabled = false;
-                        btn.classList.add('wcb-email-test-btn--err');
-                        btn.textContent = '<?php echo esc_js(__('Failed', 'wp-career-board')); ?>';
-                        setTimeout(function(){
-                            btn.classList.remove('wcb-email-test-btn--err');
-                            btn.textContent = origText;
-                        }, 3500);
-                    });
-                });
-            });
-        })();
         (function(){
             var btn = document.getElementById('wcb-logo-upload');
             var rmv = document.getElementById('wcb-logo-remove');
@@ -262,157 +275,74 @@ class EmailSettings
     {
         $emails = (array) apply_filters('wcb_registered_emails', array());
         ?>
-        <div class="wcb-settings-card" id="wcb-email-activity-log" style="margin-top: 24px;">
+        <div class="wcb-settings-card wcb-email-log-card" id="wcb-email-activity-log">
             <div class="wcb-settings-card-header">
                 <h2 class="wcb-settings-card-title"><?php esc_html_e('Email Activity Log', 'wp-career-board'); ?></h2>
                 <p class="wcb-settings-card-desc">
         <?php esc_html_e('Recent transactional emails dispatched by Career Board. Helps verify whether emails are firing under live conditions and which recipients received them.', 'wp-career-board'); ?>
                 </p>
             </div>
-            <div style="padding: 16px 24px;">
-                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 12px; align-items: center;">
-                    <label style="display:flex; gap:6px; align-items:center;">
-                        <span><?php esc_html_e('Template:', 'wp-career-board'); ?></span>
-                        <select id="wcb-log-filter-event">
+            <div class="wcb-email-log-body">
+                <div class="wcb-email-log-toolbar">
+                    <label class="wcb-email-log-filter">
+                        <span class="wcb-email-log-filter__label"><?php esc_html_e('Template', 'wp-career-board'); ?></span>
+                        <select id="wcb-log-filter-event" class="wcb-email-log-filter__select">
                             <option value=""><?php esc_html_e('All templates', 'wp-career-board'); ?></option>
         <?php foreach ( $emails as $email ) : ?>
-            <?php if (! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) { continue; 
-            } ?>
+            <?php
+            if (! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
+                continue;
+            }
+            ?>
                                 <option value="<?php echo esc_attr($email->get_id()); ?>"><?php echo esc_html($email->get_title()); ?></option>
         <?php endforeach; ?>
                         </select>
                     </label>
-                    <label style="display:flex; gap:6px; align-items:center;">
-                        <span><?php esc_html_e('Status:', 'wp-career-board'); ?></span>
-                        <select id="wcb-log-filter-status">
+                    <label class="wcb-email-log-filter">
+                        <span class="wcb-email-log-filter__label"><?php esc_html_e('Status', 'wp-career-board'); ?></span>
+                        <select id="wcb-log-filter-status" class="wcb-email-log-filter__select">
                             <option value=""><?php esc_html_e('All statuses', 'wp-career-board'); ?></option>
                             <option value="sent"><?php esc_html_e('Sent', 'wp-career-board'); ?></option>
                             <option value="failed"><?php esc_html_e('Failed', 'wp-career-board'); ?></option>
                         </select>
                     </label>
-                    <button type="button" class="button" id="wcb-log-refresh"><?php esc_html_e('Refresh', 'wp-career-board'); ?></button>
+                    <button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost" id="wcb-log-refresh">
+                        <i data-lucide="refresh-cw" class="wcb-icon--xs" aria-hidden="true"></i>
+                        <span><?php esc_html_e('Refresh', 'wp-career-board'); ?></span>
+                    </button>
                 </div>
-                <table class="widefat striped" id="wcb-email-log-table">
-                    <thead>
-                        <tr>
-                            <th style="width:140px;"><?php esc_html_e('When', 'wp-career-board'); ?></th>
-                            <th><?php esc_html_e('Template', 'wp-career-board'); ?></th>
-                            <th><?php esc_html_e('Recipient', 'wp-career-board'); ?></th>
-                            <th><?php esc_html_e('Subject', 'wp-career-board'); ?></th>
-                            <th style="width:80px;"><?php esc_html_e('Status', 'wp-career-board'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="5" style="text-align:center; color: var(--wcb-muted, #6b7280);"><?php esc_html_e('Loading…', 'wp-career-board'); ?></td></tr>
-                    </tbody>
-                </table>
-                <p class="wcb-log-pagination" style="margin-top: 12px; display:flex; gap:8px; align-items:center; color: var(--wcb-muted, #6b7280);">
-                    <button type="button" class="button" id="wcb-log-prev" disabled>‹ <?php esc_html_e('Prev', 'wp-career-board'); ?></button>
-                    <span id="wcb-log-pageinfo">—</span>
-                    <button type="button" class="button" id="wcb-log-next" disabled><?php esc_html_e('Next', 'wp-career-board'); ?> ›</button>
-                </p>
+                <div class="wcb-email-log-table-wrap">
+                    <table class="wcb-email-log-table" id="wcb-email-log-table">
+                        <thead>
+                            <tr>
+                                <th class="wcb-email-log-col-when"><?php esc_html_e('When', 'wp-career-board'); ?></th>
+                                <th class="wcb-email-log-col-template"><?php esc_html_e('Template', 'wp-career-board'); ?></th>
+                                <th class="wcb-email-log-col-recipient"><?php esc_html_e('Recipient', 'wp-career-board'); ?></th>
+                                <th class="wcb-email-log-col-subject"><?php esc_html_e('Subject', 'wp-career-board'); ?></th>
+                                <th class="wcb-email-log-col-status"><?php esc_html_e('Status', 'wp-career-board'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" class="wcb-email-log-empty"><?php esc_html_e('Loading…', 'wp-career-board'); ?></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="wcb-email-log-pagination">
+                    <button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost" id="wcb-log-prev" disabled>
+                        <i data-lucide="chevron-left" class="wcb-icon--xs" aria-hidden="true"></i>
+                        <span><?php esc_html_e('Previous', 'wp-career-board'); ?></span>
+                    </button>
+                    <span class="wcb-email-log-pageinfo" id="wcb-log-pageinfo">—</span>
+                    <button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost" id="wcb-log-next" disabled>
+                        <span><?php esc_html_e('Next', 'wp-career-board'); ?></span>
+                        <i data-lucide="chevron-right" class="wcb-icon--xs" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
         </div>
-        <style>
-            .wcb-email-test-btn--ok { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
-            .wcb-email-test-btn--err { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
-            .wcb-log-status-sent { color: #065f46; font-weight: 600; }
-            .wcb-log-status-failed { color: #991b1b; font-weight: 600; }
-        </style>
-        <script>
-        (function(){
-            var nonce = '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>';
-            var apiBase = '<?php echo esc_js(esc_url_raw(rest_url('wcb/v1'))); ?>';
-            var emptyMsg = '<?php echo esc_js(__('No emails logged for the current filters.', 'wp-career-board')); ?>';
-            var failMsg = '<?php echo esc_js(__('Failed to load activity log.', 'wp-career-board')); ?>';
-            var pageLabel = '<?php echo esc_js(__('Page', 'wp-career-board')); ?>';
-            var recordsLabel = '<?php echo esc_js(__('records', 'wp-career-board')); ?>';
-            var page = 1;
-            var perPage = 20;
-
-            function formatWhen(iso) {
-                if (!iso) return '—';
-                var d = new Date(String(iso).replace(' ', 'T') + 'Z');
-                if (isNaN(d.getTime())) return String(iso);
-                return d.toLocaleString();
-            }
-
-            function makeRow(row) {
-                var tr = document.createElement('tr');
-                var cells = [
-                    { text: formatWhen(row.sent_at) },
-                    { html: 'code', text: row.event_type || '' },
-                    { text: row.recipient || '—' },
-                    { text: row.subject || '—' },
-                    { html: 'span', cls: 'wcb-log-status-' + (row.status || ''), text: row.status || '' }
-                ];
-                cells.forEach(function(c){
-                    var td = document.createElement('td');
-                    if (c.html) {
-                        var inner = document.createElement(c.html);
-                        if (c.cls) inner.className = c.cls;
-                        inner.textContent = c.text;
-                        td.appendChild(inner);
-                    } else {
-                        td.textContent = c.text;
-                    }
-                    tr.appendChild(td);
-                });
-                return tr;
-            }
-
-            function setBodyMessage(text, color) {
-                var tbody = document.querySelector('#wcb-email-log-table tbody');
-                while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
-                var tr = document.createElement('tr');
-                var td = document.createElement('td');
-                td.colSpan = 5;
-                td.style.textAlign = 'center';
-                td.style.padding = '24px';
-                if (color) td.style.color = color;
-                td.textContent = text;
-                tr.appendChild(td);
-                tbody.appendChild(tr);
-            }
-
-            function load() {
-                var event_type = document.getElementById('wcb-log-filter-event').value || '';
-                var status = document.getElementById('wcb-log-filter-status').value || '';
-                var url = apiBase + '/admin/emails/log?per_page=' + perPage + '&page=' + page;
-                if (event_type) url += '&event_type=' + encodeURIComponent(event_type);
-                if (status) url += '&status=' + encodeURIComponent(status);
-                fetch(url, { credentials: 'same-origin', headers: { 'X-WP-Nonce': nonce } })
-                    .then(function(r){ return r.json(); })
-                    .then(function(data){
-                        var tbody = document.querySelector('#wcb-email-log-table tbody');
-                        while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
-                        if (!data || !data.items || data.items.length === 0) {
-                            setBodyMessage(emptyMsg);
-                        } else {
-                            data.items.forEach(function(row){ tbody.appendChild(makeRow(row)); });
-                        }
-                        var info = document.getElementById('wcb-log-pageinfo');
-                        info.textContent = pageLabel + ' ' + (data.page || 1) + ' / ' + (data.pages || 1) +
-                            ' — ' + (data.total || 0) + ' ' + recordsLabel;
-                        document.getElementById('wcb-log-prev').disabled = (data.page || 1) <= 1;
-                        document.getElementById('wcb-log-next').disabled = (data.page || 1) >= (data.pages || 1);
-                    })
-                    .catch(function(){
-                        setBodyMessage(failMsg, '#991b1b');
-                    });
-            }
-
-            window.wcbReloadEmailLog = function(){ page = 1; load(); };
-            document.getElementById('wcb-log-refresh').addEventListener('click', function(){ page = 1; load(); });
-            document.getElementById('wcb-log-prev').addEventListener('click', function(){ if (page > 1) { page--; load(); } });
-            document.getElementById('wcb-log-next').addEventListener('click', function(){ page++; load(); });
-            document.getElementById('wcb-log-filter-event').addEventListener('change', function(){ page = 1; load(); });
-            document.getElementById('wcb-log-filter-status').addEventListener('change', function(){ page = 1; load(); });
-
-            load();
-        })();
-        </script>
         <?php
+        // Note: CSS + JS for this section live in assets/css/admin/emails.css and
+        // assets/js/admin/emails.js — enqueued from EmailSettings::enqueue_assets().
     }
 
     /**

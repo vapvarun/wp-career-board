@@ -1,0 +1,165 @@
+/**
+ * WP Career Board — Emails settings tab styling.
+ *
+ * Polished styling for the test-send buttons + activity log table on the
+ * Career Board → Settings → Emails admin page.
+ *
+ * @package WP_Career_Board
+ * @since   1.1.1
+ */
+
+/* ── Test-send button transient states ─────────────────────────────────── */
+.wcb-email-test-btn { gap: 6px; align-items: center; }
+.wcb-email-test-btn--ok { background: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; }
+.wcb-email-test-btn--err { background: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+
+/* ── Activity log card ─────────────────────────────────────────────────── */
+#wcb-email-activity-log { margin-top: 24px; }
+.wcb-email-log-body { padding: 20px 24px 24px; }
+
+.wcb-email-log-toolbar {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	margin-bottom: 16px;
+}
+
+.wcb-email-log-filter {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 200px;
+}
+
+.wcb-email-log-filter__label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--wcb-muted, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wcb-email-log-filter__select {
+	height: 36px;
+	padding: 0 28px 0 10px;
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: 6px;
+	background: #fff;
+	font-size: 13px;
+	min-width: 200px;
+}
+
+.wcb-email-log-filter__select:focus {
+	outline: 2px solid var(--wcb-primary, #4f46e5);
+	outline-offset: -1px;
+	border-color: var(--wcb-primary, #4f46e5);
+}
+
+#wcb-log-refresh { align-self: flex-end; margin-bottom: 0; }
+
+/* ── Activity log table ────────────────────────────────────────────────── */
+.wcb-email-log-table-wrap {
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.wcb-email-log-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.wcb-email-log-table thead th {
+	background: var(--wcb-bg-soft, #f9fafb);
+	padding: 10px 12px;
+	text-align: left;
+	font-weight: 600;
+	color: var(--wcb-muted, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 11px;
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+.wcb-email-log-table tbody td {
+	padding: 12px;
+	border-bottom: 1px solid var(--wcb-border, #f1f5f9);
+	vertical-align: middle;
+}
+
+.wcb-email-log-table tbody tr:last-child td { border-bottom: none; }
+.wcb-email-log-table tbody tr:hover td { background: var(--wcb-bg-soft, #f9fafb); }
+
+.wcb-email-log-col-when { width: 160px; white-space: nowrap; }
+.wcb-email-log-col-template { width: 220px; }
+.wcb-email-log-col-recipient { width: 200px; }
+.wcb-email-log-col-status { width: 100px; text-align: center; }
+
+.wcb-email-log-table tbody td code {
+	background: var(--wcb-bg-soft, #f1f5f9);
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+	color: var(--wcb-text, #334155);
+	white-space: nowrap;
+}
+
+.wcb-email-log-table tbody td.wcb-email-log-col-status { text-align: center; }
+
+.wcb-email-log-empty {
+	padding: 32px 12px !important;
+	text-align: center;
+	color: var(--wcb-muted, #6b7280);
+	font-style: italic;
+}
+
+/* ── Status pills ──────────────────────────────────────────────────────── */
+.wcb-log-status-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.wcb-log-status-pill--sent { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.wcb-log-status-pill--failed { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.wcb-log-status-pill--unknown {
+	background: var(--wcb-bg-soft, #f1f5f9);
+	color: var(--wcb-muted, #6b7280);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+/* ── Pagination ────────────────────────────────────────────────────────── */
+.wcb-email-log-pagination {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	justify-content: flex-end;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--wcb-border, #f1f5f9);
+}
+
+.wcb-email-log-pageinfo {
+	font-size: 12px;
+	color: var(--wcb-muted, #6b7280);
+	font-weight: 500;
+}
+
+#wcb-log-prev[disabled], #wcb-log-next[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Mobile breakpoint ─────────────────────────────────────────────────── */
+@media (max-width: 782px) {
+	.wcb-email-log-toolbar { flex-direction: column; align-items: stretch; }
+	.wcb-email-log-filter { min-width: 0; }
+	.wcb-email-log-filter__select { width: 100%; }
+	.wcb-email-log-col-template, .wcb-email-log-col-recipient { display: none; }
+	.wcb-email-log-pagination { flex-wrap: wrap; justify-content: center; }
+}
