@@ -119,7 +119,7 @@ class AdminSettings
 
         // Determine which tab was submitted based on which fields are present.
         $tab_fields = array(
-        'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days' ),
+        'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled' ),
         'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page' ),
         'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
         );
@@ -134,6 +134,7 @@ class AdminSettings
         'apply_resume_required'    => ! empty($input['apply_resume_required']),
         'apply_resume_max_mb'      => isset($input['apply_resume_max_mb']) ? max(1, min(20, (int) $input['apply_resume_max_mb'])) : 5,
         'apply_featured_days'      => isset($input['apply_featured_days']) ? max(1, min(365, (int) $input['apply_featured_days'])) : 30,
+        'resume_archive_enabled'   => ! empty($input['resume_archive_enabled']),
         'salary_currency'          => isset($input['salary_currency']) && array_key_exists($input['salary_currency'], self::CURRENCIES) ? $input['salary_currency'] : 'USD',
         'jobs_archive_page'        => isset($input['jobs_archive_page']) ? (int) $input['jobs_archive_page'] : 0,
         'employer_dashboard_page'  => isset($input['employer_dashboard_page']) ? (int) $input['employer_dashboard_page'] : 0,
@@ -709,6 +710,19 @@ class AdminSettings
                                                 <?php esc_html_e('Require applicants to attach a resume', 'wp-career-board'); ?>
                                             </label>
                                             <span class="description"><?php esc_html_e('When off, the resume field is shown but optional.', 'wp-career-board'); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="wcb-settings-row">
+                                        <div class="wcb-settings-row-label"><?php esc_html_e('Public Resume Archive', 'wp-career-board'); ?></div>
+                                        <div class="wcb-settings-row-control">
+                                            <label class="wcb-toggle-label">
+                                                <span class="wcb-toggle">
+                                                    <input type="checkbox" name="wcb_settings[resume_archive_enabled]" value="1" <?php checked(! empty($settings['resume_archive_enabled'])); ?>>
+                                                    <span class="wcb-toggle-slider"></span>
+                                                </span>
+                                                <?php esc_html_e('Make resume profiles publicly viewable at /resume/{slug}', 'wp-career-board'); ?>
+                                            </label>
+                                            <span class="description"><?php esc_html_e('Enable this only when you intend to publish candidate profiles to the open web. Toggling refreshes the URL rewrite rules automatically.', 'wp-career-board'); ?></span>
                                         </div>
                                     </div>
                                     <div class="wcb-settings-row">

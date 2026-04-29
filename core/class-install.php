@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.0';
+	const DB_VERSION = '1.2';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -152,6 +152,25 @@ final class Install {
 
 		if ( version_compare( (string) $installed, self::DB_VERSION, '<' ) ) {
 			self::create_tables();
+
+			// 1.2 — F-3: resume CPT visibility moved from Pro filter to Free
+			// setting. Pre-existing sites with Pro active expect the resume
+			// archive to stay public, so seed the setting from the install
+			// state rather than letting the new default flip URLs to 404.
+			if ( version_compare( (string) $installed, '1.2', '<' ) ) {
+				$settings = (array) get_option( 'wcb_settings', array() );
+				if ( ! array_key_exists( 'resume_archive_enabled', $settings ) ) {
+					if ( ! function_exists( 'is_plugin_active' ) ) {
+						require_once ABSPATH . 'wp-admin/includes/plugin.php';
+					}
+					$pro_active                         = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' )
+						|| defined( 'WCBP_VERSION' );
+					$settings['resume_archive_enabled'] = (bool) $pro_active;
+					update_option( 'wcb_settings', $settings );
+					update_option( 'wcb_flush_rewrite_rules', 1 );
+				}
+			}
+
 			update_option( 'wcb_db_version', self::DB_VERSION, false );
 		}
 	}
