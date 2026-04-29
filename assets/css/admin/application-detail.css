@@ -106,10 +106,10 @@
 	color: #1f2937;
 }
 .wcb-app-status--submitted   { background: #e0e7ff; color: #3730a3; }
-.wcb-app-status--reviewing   { background: var(--wcb-warning-bg, #fef3c7); color: var(--wcb-warning-fg); }
-.wcb-app-status--shortlisted { background: var(--wcb-info-bg, #dbeafe); color: var(--wcb-info-fg); }
-.wcb-app-status--rejected    { background: var(--wcb-danger-bg, #fee2e2); color: var(--wcb-danger-fg); }
-.wcb-app-status--hired       { background: var(--wcb-success-bg, #dcfce7); color: var(--wcb-success-fg); }
+.wcb-app-status--reviewing   { background: var(--wcb-warning-bg, #fef3c7); color: var(--wcb-warning-fg, #92400e); }
+.wcb-app-status--shortlisted { background: var(--wcb-info-bg, #dbeafe); color: var(--wcb-info-fg, #1d4ed8); }
+.wcb-app-status--rejected    { background: var(--wcb-danger-bg, #fee2e2); color: var(--wcb-danger-fg, #991b1b); }
+.wcb-app-status--hired       { background: var(--wcb-success-bg, #dcfce7); color: var(--wcb-success-fg, #166534); }
 
 .wcb-app-timeline {
 	margin: 8px 0 0;
@@ -139,7 +139,7 @@
 
 .wcb-app-actions__btn--danger {
 	color: #b91c1c;
-	border-color: var(--wcb-danger-border);
+	border-color: var(--wcb-danger-border, #fecaca);
 }
 .wcb-app-actions__btn--danger:hover {
 	color: #fff;
@@ -154,7 +154,7 @@
 	min-height: 1em;
 }
 .wcb-app-changer__feedback--ok,
-.wcb-app-actions__feedback--ok    { color: var(--wcb-success-fg); }
+.wcb-app-actions__feedback--ok    { color: var(--wcb-success-fg, #166534); }
 .wcb-app-changer__feedback--err,
 .wcb-app-actions__feedback--err   { color: #b91c1c; }
 
