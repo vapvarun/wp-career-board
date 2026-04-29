@@ -487,6 +487,16 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	gap: var(--wcb-space-md);
 }
 
+.wcb-new-resume-form {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-new-resume-form .wcb-field {
+	width: 220px;
+}
+
 .wcb-upload-label {
 	cursor: pointer;
 }
@@ -1064,6 +1074,85 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	.wcb-alert-actions {
 		width: 100%;
 		justify-content: flex-end;
+	}
+}
+
+/* ── Clickable stat card ─────────────────────────────────────────────────── */
+.wcb-stat-card--link {
+	cursor: pointer;
+}
+
+/* ── Profile form ────────────────────────────────────────────────────────── */
+.wcb-form-field {
+	margin-bottom: var(--wcb-space-lg);
+}
+
+.wcb-form-label {
+	display: block;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-primary);
+	margin-bottom: var(--wcb-space-xs);
+}
+
+.wcb-form-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	margin-top: var(--wcb-space-lg);
+}
+
+.wcb-save-confirm {
+	display: none;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-success);
+}
+
+.wcb-save-confirm.wcb-shown {
+	display: inline;
+}
+
+/* ── Settings rows ───────────────────────────────────────────────────────── */
+.wcb-settings-row {
+	display: grid;
+	grid-template-columns: 160px 1fr;
+	align-items: start;
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-settings-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-settings-row-label {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-primary);
+	padding-top: 3px;
+}
+
+.wcb-settings-row-control {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 480px) {
+	.wcb-new-resume-form {
+		flex-wrap: wrap;
+	}
+
+	.wcb-new-resume-form .wcb-field {
+		width: 100%;
+	}
+
+	.wcb-settings-row {
+		grid-template-columns: 1fr;
+		gap: var(--wcb-space-sm);
 	}
 }
 
