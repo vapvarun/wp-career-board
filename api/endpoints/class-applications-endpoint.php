@@ -759,8 +759,12 @@ final class ApplicationsEndpoint extends RestController
     /**
      * Check if the current user can withdraw the given application.
      *
-     * Requires the allow_withdraw setting to be enabled and the current user
-     * to be the candidate who submitted the application.
+     * Gates on the wcb_withdraw_application ability + ownership of the
+     * application post. Site owners revoke the ability from wcb_candidate to
+     * disable the feature site-wide, or grant it to a custom role for niche
+     * deployments. The legacy allow_withdraw setting still controls the UI
+     * visibility (CandidateDashboard reads it through the ability), so existing
+     * sites that turned the feature off keep that intent through the migration.
      *
      * @since 1.0.0
      *
@@ -769,8 +773,7 @@ final class ApplicationsEndpoint extends RestController
      */
     public function withdraw_permissions_check( \WP_REST_Request $request ): bool|\WP_Error
     {
-        $settings = (array) get_option('wcb_settings', array());
-        if (empty($settings['allow_withdraw']) ) {
+        if (! $this->check_ability('wcb_withdraw_application') ) {
             return new \WP_Error(
                 'wcb_withdraw_disabled',
                 __('Application withdrawal is not enabled on this site.', 'wp-career-board'),

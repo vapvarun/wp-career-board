@@ -203,6 +203,22 @@ final class Abilities {
 				},
 			)
 		);
+
+		wp_register_ability(
+			'wcb_withdraw_application',
+			array(
+				'category'            => 'wcb',
+				'label'               => __( 'Withdraw Application', 'wp-career-board' ),
+				'description'         => __( 'Allows a candidate to retract a previously submitted job application.', 'wp-career-board' ),
+				'permission_callback' => static function (): bool {
+					$user = wp_get_current_user();
+					return $user && ( $user->has_cap( 'wcb_withdraw_application' ) || $user->has_cap( 'manage_options' ) );
+				},
+				'execute_callback'    => static function (): bool {
+					return true;
+				},
+			)
+		);
 	}
 
 	/**

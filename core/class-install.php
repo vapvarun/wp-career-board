@@ -169,6 +169,18 @@ final class Install {
 					update_option( 'wcb_settings', $settings );
 					update_option( 'wcb_flush_rewrite_rules', 1 );
 				}
+
+				// 1.2 — F-4: allow_withdraw setting → wcb_withdraw_application
+				// ability. Default ability grant covers true; only the false case
+				// needs explicit revocation so site-owner intent survives the
+				// migration. Setting is left in place for one cycle as a
+				// deprecated tombstone, removed in 1.3.0.
+				if ( array_key_exists( 'allow_withdraw', $settings ) && false === (bool) $settings['allow_withdraw'] ) {
+					$candidate_role = get_role( 'wcb_candidate' );
+					if ( $candidate_role && $candidate_role->has_cap( 'wcb_withdraw_application' ) ) {
+						$candidate_role->remove_cap( 'wcb_withdraw_application' );
+					}
+				}
 			}
 
 			update_option( 'wcb_db_version', self::DB_VERSION, false );

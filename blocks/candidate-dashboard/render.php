@@ -140,7 +140,7 @@ wp_interactivity_state(
             'bellLoading'           => false,
             'alerts'                => array(),
             'alertsLoading'         => false,
-            'allowWithdraw'         => ! empty($wcb_settings['allow_withdraw']),
+            'allowWithdraw'         => function_exists('wp_is_authorized') ? wp_is_authorized('wcb_withdraw_application') : current_user_can('wcb_withdraw_application'),
             'privacyBusy'           => false,
             'privacyExportRequested' => false,
             'privacyEraseRequested' => false,

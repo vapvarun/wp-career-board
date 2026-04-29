@@ -70,6 +70,7 @@ final class Roles {
 				'wcb_manage_resume'              => true,
 				'wcb_bookmark_jobs'              => true,
 				'wcb_access_candidate_dashboard' => true,
+				'wcb_withdraw_application'       => true,
 			)
 		);
 	}
@@ -141,6 +142,7 @@ final class Roles {
 			'wcb_view_analytics',
 			'wcb_access_employer_dashboard',
 			'wcb_access_candidate_dashboard',
+			'wcb_withdraw_application',
 		);
 
 		foreach ( $caps as $cap ) {
