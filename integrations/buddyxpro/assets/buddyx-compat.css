@@ -65,7 +65,12 @@ html.dark-mode {
 	--wcb-avatar-bg: var( --bbg-headings-color, var( --color-site-title, #1e293b ) );
 }
 
-/* Ensure WCB blocks respect BuddyX Pro's content width variable. */
+/*
+ * Ensure WCB blocks respect BuddyX Pro's content width.
+ * `--buddyx-content-width` is set inline by the integration when the site owner
+ * picks a custom width; 1200px mirrors BuddyX Pro's default content container.
+ * `margin-inline: auto` centres the block when it's narrower than the viewport.
+ */
 .wcb-job-single,
 .wcb-job-listings,
 .wcb-resume-archive,
@@ -73,8 +78,9 @@ html.dark-mode {
 .wcb-dashboard,
 .wcb-company-archive,
 .wcb-company-profile {
-	max-width: var( --buddyx-content-width, 100% );
+	max-width: var( --buddyx-content-width, 1200px );
 	margin-inline: auto;
+	box-sizing: border-box;
 }
 
 /*

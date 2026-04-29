@@ -345,7 +345,7 @@ $wcb_page_heading    = ( $wcb_archive_page_id && (int) get_queried_object_id() =
 wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 ?>
 <div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-listings' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-listings"
 	data-wp-init="callbacks.init"
 >

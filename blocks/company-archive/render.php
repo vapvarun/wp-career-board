@@ -201,7 +201,7 @@ $wcb_ca_page_heading = ( $wcb_ca_archive_id && (int) get_queried_object_id() ===
 wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 ?>
 <div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-company-archive' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-company-archive"
 >
 

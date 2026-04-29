@@ -27,6 +27,13 @@
   "render": "file:./render.php",
   "supports": {
     "interactivity": true,
-    "align": [ "wide", "full" ]
+    "align": [ "wide", "full" ],
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "__experimentalDefaultControls": {
+        "padding": false
+      }
+    }
   }
 }

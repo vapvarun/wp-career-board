@@ -83,7 +83,7 @@ $wcb_size_labels = array(
 $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 
 ?>
-<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-company-profile wcb-cp-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
 	<?php /* ── Hero ── */ ?>
 	<div class="wcb-cp-hero">
