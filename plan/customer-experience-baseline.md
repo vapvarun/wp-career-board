@@ -273,6 +273,46 @@ The remaining 1 broken item is E-12 bulk operations (real missing functionality,
 | B-4 | Stale wcbp_version blocks bug #3 deferred-flush | ✅ Fixed | `83355ac` (Pro plugin) |
 | B-5 | AntiSpamModule never autoloaded — anti-spam silently disabled across entire 1.x lifetime | ✅ Fixed | `4162eb1` |
 
+### Round 4 — Architectural + customer-experience improvements (2026-04-29 night)
+
+| Item | Round 3 | Round 4 | Note |
+|---|---|---|---|
+| Pro license enforcement at REST | ❌ Not done | ✅ P-1 + P-3 shipped | Pro features were keeping working after license expiry (license check lived only in admin UI badges). New `WCB\Pro\Api\ProRestController` middle layer with `pro_check()` wrapper now returns 402 `wcb_pro_license_required` on every Pro write endpoint. All 9 Pro endpoint classes migrated; 30 routes license-gated, 3 correctly skip the gate (public resume archive, public credits packages, personal notifications bell). End-to-end smoke-tested. Resolves P-1 + P-3 from plan/1.2.0-stability.md. |
+| C-4 first-time candidate welcome card | ⚠️ Partial (no welcome card) | ✅ Shipped | New welcome card on candidate-dashboard overview, surfaces only when `state.isFirstTime` (applications=0 AND saved=0 AND resumes=0 AND alerts=0). 1-3 numbered steps based on Pro module presence: Browse Jobs (always), Build Resume, Set up Alerts. Auto-hides on first user action. Gradient bg, hover lift, mobile-stacked. |
+| A-11 user-facing GDPR controls | ⚠️ Partial (backend only) | ✅ Shipped | New REST route POST `/candidates/me/privacy/{export\|erase}` wraps `wp_create_user_request()`. Settings panel now has a "Privacy & My Data" card with Request data export + Request account deletion buttons. Erase confirms first via shared modal. Backend GdprModule (registered with WP Privacy API as `wp-career-board`) was already wired — this commit adds the user-facing front door so candidates self-trigger instead of emailing support. Smoke-tested live. |
+
+### Updated scorecard (Round 4)
+
+| Category | Promised | Verified working | Partial | Broken | Unverified |
+|---|---:|---:|---:|---:|---:|
+| Candidate journey | 16 | 16 | 0 | 0 | 0 |
+| Employer journey | 16 | 13 | 0 | 1 | 2 |
+| Site admin | 16 | 14 | 1 | 0 | 1 |
+| Email templates | 9 | 9 | 0 | 0 | 0 |
+| Mobile (sample) | 8 | 8 | 0 | 0 | 0 |
+| Architectural (Pro license) | 1 | 1 | 0 | 0 | 0 |
+| **Total** | **66** | **61** | **1** | **1** | **3** |
+
+**Round 4 score: 92% verified working. 1.5% partial (A-16 listing N+1 risk at 1000+ jobs). 1.5% broken (E-12 bulk operations — real missing functionality on 1.2.0 roadmap). 4.5% unverified (E-1 new-employer registration, A-15 WPJM migration, A-16 perf at scale).**
+
+### Cumulative commits this Track A campaign
+
+| Commit | Plugin | Subject |
+|---|---|---|
+| `2d4db35` | wcb | enqueue wcb-confirm-modal + add Track A baseline |
+| `40ac2c1` (audit) | wcb | audit/ folder via wp-plugin-onboard skill |
+| `342eb73` (audit) | wcbp | audit/ folder |
+| `d86ea79` (plan) | wcb | 1.2.0-stability plan |
+| `d3ee4c5` (plan) | wcbp | 1.2.0-stability plan |
+| `83355ac` | wcbp | self-heal version drift on plugins_loaded |
+| `b153c4c` | wcb | admin email activity log + test-send |
+| `400be22` | wcb | extract email admin CSS + JS into proper enqueued assets |
+| `d4e34ae` | wcb | baseline round 2 update |
+| `4162eb1` | wcb | rename antispam module file (B-5) |
+| `6f6d2eb` | wcb | baseline round 3 update |
+| `acf009f` | wcbp | P-1 + P-3 — Pro license enforcement at REST layer |
+| `678fae7` | wcb | C-4 welcome card + A-11 GDPR self-service |
+
 ---
 
 ## 8. Top 10 actionable items for 1.2.0 (customer-experience priority order)
