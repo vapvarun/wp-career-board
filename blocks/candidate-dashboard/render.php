@@ -36,6 +36,10 @@ if (! $wcb_can_access_candidate_dashboard ) {
     return;
 }
 
+// Shared confirm-modal — used by withdrawApplication() and deleteResume() in view.js.
+wp_enqueue_style('wcb-confirm-modal');
+wp_enqueue_script('wcb-confirm-modal');
+
 $wcb_candidate_id = get_current_user_id();
 $wcb_current_user = wp_get_current_user();
 $wcb_display_name = $wcb_current_user->display_name;
