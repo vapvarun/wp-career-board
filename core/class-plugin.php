@@ -71,6 +71,12 @@ final class Plugin {
 
 		$this->boot_modules();
 
+		// Pro-coordination filter API — single source of truth for the Free→Pro contract.
+		// Free fires; Pro hooks. See core/class-pro-coordination.php for the documented surface.
+		if ( class_exists( \WCB\Core\ProCoordination::class ) ) {
+			( new \WCB\Core\ProCoordination() )->boot();
+		}
+
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
@@ -350,10 +356,17 @@ final class Plugin {
 				if (
 					false !== strpos( $content, '<!-- wp:wp-career-board/' )
 					|| false !== strpos( $content, '<!-- wp:wcb/' )
-					|| false !== strpos( $content, '[wcb_' )
-					|| false !== strpos( $content, '[wcbp_' )
 				) {
 					$is_wcb_page = true;
+				} else {
+					// Pro adds 'wcbp_' to this filter so its shortcodes also flag the page.
+					$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_' ) );
+					foreach ( $shortcode_prefixes as $prefix ) {
+						if ( false !== strpos( $content, '[' . $prefix ) ) {
+							$is_wcb_page = true;
+							break;
+						}
+					}
 				}
 			}
 		}

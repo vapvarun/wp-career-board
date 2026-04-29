@@ -206,7 +206,7 @@ class Admin {
 						<i data-lucide="briefcase" class="wcb-icon--lg"></i>
 		<?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?>
 						<span class="wcb-version-badge">v<?php echo esc_html( WCB_VERSION ); ?></span>
-		<?php if ( function_exists( 'wcbp_init' ) ) : ?>
+		<?php if ( apply_filters( 'wcb_pro_active', false ) ) : ?>
 							<span class="wcb-pro-badge"><?php esc_html_e( 'Pro', 'wp-career-board' ); ?></span>
 		<?php endif; ?>
 					</h2>
@@ -443,7 +443,8 @@ class Admin {
 
 		<?php /* ── Pro upgrade banner — hidden once Pro is active or banner dismissed ── */ ?>
 		<?php
-		$wcb_pro_active    = defined( 'WCBP_VERSION' ) || class_exists( 'WCB\Pro\Core\ProPlugin' );
+		$wcb_pro_active    = (bool) apply_filters( 'wcb_pro_active', false );
+		$wcb_pro_upsell    = (string) apply_filters( 'wcb_pro_upsell_url', 'https://store.wbcomdesigns.com/wp-career-board-pro/' );
 		$wcb_banner_hidden = (bool) get_user_meta( get_current_user_id(), 'wcb_pro_banner_dismissed', true );
 		?>
 		<?php if ( ! $wcb_pro_active && ! $wcb_banner_hidden ) : ?>
@@ -473,7 +474,7 @@ class Admin {
 							<span><?php esc_html_e( 'Credits System — Sell job post credits via Stripe', 'wp-career-board' ); ?></span>
 						</li>
 					</ul>
-					<a href="<?php echo esc_url( 'https://store.wbcomdesigns.com/wp-career-board-pro/' ); ?>"
+					<a href="<?php echo esc_url( $wcb_pro_upsell ); ?>"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="wcb-btn wcb-btn--primary">

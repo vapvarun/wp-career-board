@@ -135,27 +135,13 @@ $wcb_currencies = array(
     'SGD' => __('SGD — Singapore Dollar', 'wp-career-board'),
 );
 
-// Extend currency list with Pro currencies when available.
-if (function_exists('wcbp_get_board_currency') ) {
-    $wcb_currencies = array_merge(
-        $wcb_currencies,
-        array(
-        'JPY' => 'JPY — Japanese Yen',
-        'BRL' => 'BRL — Brazilian Real',
-        'MXN' => 'MXN — Mexican Peso',
-        'ZAR' => 'ZAR — South African Rand',
-        'AED' => 'AED — UAE Dirham',
-        'NGN' => 'NGN — Nigerian Naira',
-        'PKR' => 'PKR — Pakistani Rupee',
-        'BDT' => 'BDT — Bangladeshi Taka',
-        )
-    );
-}
+// Extend currency list — Pro hooks this filter to add JPY/BRL/MXN/etc.
+$wcb_currencies = (array) apply_filters('wcb_currency_options', $wcb_currencies);
 
-// ── Board currency (Pro) — overrides employer preference when board is set ──
+// ── Board currency — Pro returns the per-board currency when boardId is set ──
 $wcb_board_id       = isset($attributes['boardId']) ? (int) $attributes['boardId'] : 0;
-$wcb_board_currency = function_exists('wcbp_get_board_currency') && $wcb_board_id > 0
-    ? wcbp_get_board_currency($wcb_board_id)
+$wcb_board_currency = $wcb_board_id > 0
+    ? (string) apply_filters('wcb_board_currency', '', $wcb_board_id)
     : '';
 
 /**

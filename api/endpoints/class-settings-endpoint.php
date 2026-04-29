@@ -59,16 +59,16 @@ final class SettingsEndpoint extends RestController {
 	 */
 	public function get_app_config(): \WP_REST_Response {
 		$wcb_settings   = (array) get_option( 'wcb_settings', array() );
-		$is_pro_active  = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' );
+		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
 		$captcha_driver = (string) get_option( 'wcb_captcha_driver', '' );
 
 		$data = array(
 			'site_name'        => (string) get_bloginfo( 'name' ),
 			'site_url'         => (string) home_url( '/' ),
 			'plugin_version'   => defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
-			'pro_version'      => defined( 'WCBP_VERSION' ) ? WCBP_VERSION : '',
+			'pro_version'      => (string) apply_filters( 'wcb_pro_version', '' ),
 			'is_pro_active'    => $is_pro_active,
-			'is_pro_licensed'  => $is_pro_active && function_exists( 'wcbp_is_licensed' ) && wcbp_is_licensed(),
+			'is_pro_licensed'  => (bool) apply_filters( 'wcb_pro_licensed', false ),
 			'per_page'         => (int) ( $wcb_settings['jobs_per_page'] ?? 10 ),
 			'currency'         => (string) ( $wcb_settings['salary_currency'] ?? 'USD' ),
 			'moderation_mode'  => isset( $wcb_settings['auto_publish_jobs'] ) && $wcb_settings['auto_publish_jobs'] ? 'auto_publish' : 'pending_review',

@@ -139,7 +139,7 @@ class AdminImport {
 			</div>
 
 		<?php /* ── WP Job Manager Resumes ── */ ?>
-		<?php $wcb_pro_active = defined( 'WCBP_VERSION' ) || class_exists( 'WCB\Pro\Core\ProPlugin' ); ?>
+		<?php $wcb_pro_active = (bool) apply_filters( 'wcb_pro_active', false ); ?>
 		<?php if ( $wcb_pro_active ) : ?>
 			<div class="wcb-import-card" id="wcb-import-wpjm-resumes"
 				data-type="wpjm-resumes"
@@ -277,7 +277,7 @@ class AdminImport {
 				</div>
 
 				<div class="wcb-import-actions">
-					<a href="<?php echo esc_url( 'https://store.wbcomdesigns.com/wp-career-board-pro/' ); ?>"
+					<a href="<?php echo esc_url( (string) apply_filters( 'wcb_pro_upsell_url', 'https://store.wbcomdesigns.com/wp-career-board-pro/' ) ); ?>"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="wcb-btn wcb-btn--primary">

@@ -282,32 +282,14 @@ wp_interactivity_state(
     <!-- MAIN CONTENT -->
     <main class="wcb-main">
 
-        <?php if (class_exists('WCB\Pro\Modules\NotificationsBell\NotificationsBellModule') ) : ?>
-        <div class="wcb-bell-wrapper" data-wp-class--wcb-bell-open="state.bellOpen">
-            <button type="button" class="wcb-bell-btn"
-                data-wp-on--click="actions.toggleBell"
-                aria-label="<?php esc_attr_e('Notifications', 'wp-career-board'); ?>">
-                <i data-lucide="bell" aria-hidden="true"></i>
-                <span class="wcb-bell-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
-            </button>
-            <div class="wcb-bell-dropdown" data-wp-class--wcb-hidden="!state.bellOpen">
-                <div class="wcb-bell-header">
-                    <span><?php esc_html_e('Notifications', 'wp-career-board'); ?></span>
-                    <button type="button" class="wcb-bell-read-all" data-wp-on--click="actions.markAllRead" data-wp-class--wcb-hidden="!state.bellUnreadCount">
-            <?php esc_html_e('Mark all read', 'wp-career-board'); ?>
-                    </button>
-                </div>
-                <div class="wcb-bell-list">
-                    <template data-wp-each--notif="state.bellNotifications" data-wp-each-key="context.notif.id">
-                        <a class="wcb-bell-item" data-wp-bind--href="context.notif.link" data-wp-class--wcb-bell-unread="!context.notif.is_read" data-wp-on--click="actions.markBellRead">
-                            <span class="wcb-bell-msg" data-wp-text="context.notif.message"></span>
-                            <span class="wcb-bell-time" data-wp-text="context.notif.created_at"></span>
-                        </a>
-                    </template>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
+        <?php
+        // Pro injects the notifications-bell HTML for the notifications_bell slot.
+        // Filter declared in core/class-pro-coordination.php (F-1).
+        $wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+        if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
+            echo wp_kses_post( $wcb_module_renders['notifications_bell'] );
+        }
+        ?>
 
         <!-- VIEW: Overview -->
         <div class="wcb-view-panel" id="wcb-panel-overview" role="tabpanel" aria-labelledby="wcb-tab-overview" data-wp-class--wcb-view-active="state.isViewOverview">

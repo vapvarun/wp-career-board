@@ -499,11 +499,18 @@ class AdminSettings
                 </div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['wcbp_saved']) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+        <?php
+        // Pro returns a notice text when its own settings save fired (e.g. ?wcbp_saved=1).
+        // Filter declared in core/class-pro-coordination.php (F-1).
+        $wcb_pro_saved_notice = apply_filters('wcb_pro_settings_saved_notice', null);
+        if (! empty($wcb_pro_saved_notice) ) :
+            ?>
                 <div class="notice notice-success wcb-notice is-dismissible">
-                    <p><?php esc_html_e('Settings saved.', 'wp-career-board'); ?></p>
+                    <p><?php echo esc_html((string) $wcb_pro_saved_notice); ?></p>
                 </div>
-        <?php endif; ?>
+            <?php
+        endif;
+        ?>
 
         <?php if (isset($_GET['created']) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <div class="notice notice-success wcb-notice is-dismissible">
@@ -590,12 +597,17 @@ class AdminSettings
             <?php endforeach; ?>
                     </nav>
         <?php endforeach; ?>
-        <?php if (! defined('WCBP_VERSION') && ! class_exists('WCB\Pro\Core\ProPlugin') ) : ?>
+        <?php
+        // Pro filter (F-1) decides whether to show the Pro teasers nav group.
+        $wcb_pro_active_for_teasers = (bool) apply_filters('wcb_pro_active', false);
+        $wcb_pro_upsell_url         = (string) apply_filters('wcb_pro_upsell_url', 'https://store.wbcomdesigns.com/wp-career-board-pro/');
+        if (! $wcb_pro_active_for_teasers ) :
+            ?>
             <?php $wcb_pro_teasers = $this->get_pro_teaser_tabs(); ?>
                     <nav class="wcb-settings-nav-group wcb-settings-nav-group--pro-teasers" aria-label="<?php esc_attr_e('Pro', 'wp-career-board'); ?>">
                         <span class="wcb-settings-nav-group__label"><?php esc_html_e('Pro', 'wp-career-board'); ?></span>
             <?php foreach ( $wcb_pro_teasers as $wcb_teaser_slug => $wcb_teaser ) : ?>
-                            <a href="<?php echo esc_url('https://store.wbcomdesigns.com/wp-career-board-pro/'); ?>"
+                            <a href="<?php echo esc_url($wcb_pro_upsell_url); ?>"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 class="wcb-settings-nav-item wcb-settings-nav-item--teaser"

@@ -208,7 +208,7 @@ wp_interactivity_state(
                 data-wp-bind--hidden="!state.resumeEmbedId"
             ><?php esc_html_e('Edit Resume', 'wp-career-board'); ?></button>
             <?php endif; ?>
-            <?php if (class_exists('WCB\\Pro\\Modules\\Alerts\\AlertsModule') ) : ?>
+            <?php if (apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
             <button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-alerts"
                 data-wp-bind--aria-selected="state.isTabAlerts"
                 data-wp-class--wcb-nav-active="state.isTabAlerts"
@@ -246,35 +246,14 @@ wp_interactivity_state(
     <!-- MAIN CONTENT -->
     <main class="wcb-main">
 
-        <?php if (class_exists('WCB\Pro\Modules\NotificationsBell\NotificationsBellModule') ) : ?>
-        <div class="wcb-bell-wrapper" data-wp-class--wcb-bell-open="state.bellOpen">
-            <button type="button" class="wcb-bell-btn"
-                data-wp-on--click="actions.toggleBell"
-                aria-label="<?php esc_attr_e('Notifications', 'wp-career-board'); ?>">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-                <span class="wcb-bell-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
-            </button>
-            <div class="wcb-bell-dropdown" data-wp-class--wcb-hidden="!state.bellOpen">
-                <div class="wcb-bell-header">
-                    <span><?php esc_html_e('Notifications', 'wp-career-board'); ?></span>
-                    <button type="button" class="wcb-bell-read-all" data-wp-on--click="actions.markAllRead" data-wp-class--wcb-hidden="!state.bellUnreadCount">
-            <?php esc_html_e('Mark all read', 'wp-career-board'); ?>
-                    </button>
-                </div>
-                <div class="wcb-bell-list">
-                    <template data-wp-each--notif="state.bellNotifications" data-wp-each-key="context.notif.id">
-                        <a class="wcb-bell-item" data-wp-bind--href="context.notif.link" data-wp-class--wcb-bell-unread="!context.notif.is_read" data-wp-on--click="actions.markBellRead">
-                            <span class="wcb-bell-msg" data-wp-text="context.notif.message"></span>
-                            <span class="wcb-bell-time" data-wp-text="context.notif.created_at"></span>
-                        </a>
-                    </template>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
+        <?php
+        // Pro injects the notifications-bell HTML for the notifications_bell slot.
+        // Filter declared in core/class-pro-coordination.php (F-1).
+        $wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+        if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
+            echo wp_kses_post( $wcb_module_renders['notifications_bell'] );
+        }
+        ?>
 
         <!-- VIEW: Overview -->
         <div class="wcb-view-panel" role="tabpanel" data-wp-class--wcb-view-active="state.isTabOverview">
@@ -313,7 +292,7 @@ wp_interactivity_state(
                         </div>
                     </button>
                     <?php endif; ?>
-                    <?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+                    <?php if ( apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
                     <button type="button" class="wcb-welcome-step" data-wp-on--click="actions.switchToAlerts">
                         <span class="wcb-welcome-step__num">3</span>
                         <div class="wcb-welcome-step__body">
@@ -342,7 +321,7 @@ wp_interactivity_state(
                     <span class="wcb-stat-value" data-wp-text="state.resumeCount"><?php echo esc_html((string) ( $wcb_resumes_state['resumeCount'] ?? 0 )); ?></span>
                     <span class="wcb-stat-label"><?php esc_html_e('My Resumes', 'wp-career-board'); ?></span>
                 </div>
-                <?php if (class_exists('WCB\\Pro\\Modules\\Alerts\\AlertsModule') ) : ?>
+                <?php if (apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
                 <div class="wcb-stat-card wcb-stat-card--green" style="cursor:pointer" data-wp-on--click="actions.switchToAlerts">
                     <span class="wcb-stat-value" data-wp-text="state.alertsCount">0</span>
                     <span class="wcb-stat-label"><?php esc_html_e('Job Alerts', 'wp-career-board'); ?></span>
@@ -600,7 +579,7 @@ wp_interactivity_state(
         </div>
         <?php endif; ?>
 
-    <?php if (class_exists('WCB\\Pro\\Modules\\Alerts\\AlertsModule') ) : ?>
+    <?php if (apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
         <!-- VIEW: Job Alerts (Pro) -->
         <div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-alerts" data-wp-class--wcb-view-active="state.isTabAlerts">
             <div class="wcb-page-header">

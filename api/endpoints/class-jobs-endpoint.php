@@ -948,7 +948,7 @@ final class JobsEndpoint extends RestController {
 			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
 			'board_id'         => $board_id,
-			'board_currency'   => function_exists( 'wcbp_get_board_currency' ) ? wcbp_get_board_currency( $board_id ) : 'USD',
+			'board_currency'   => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
 			// Display-name strings for cards.
 			'location'         => implode( ', ', $loc_names ),
 			'type'             => implode( ', ', $type_names ),

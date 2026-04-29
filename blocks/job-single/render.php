@@ -185,13 +185,7 @@ $wcb_is_bookmarked = in_array($wcb_job_id, $wcb_bookmarks, true);
 // ── Resume data for apply panel ───────────────────────────────────────────────
 $wcb_user_resumes            = array();
 $wcb_resume_page_url         = '';
-$wcb_career_board_pro_active = false;
-if (! function_exists('is_plugin_active') && file_exists(ABSPATH . 'wp-admin/includes/plugin.php') ) {
-    include_once ABSPATH . 'wp-admin/includes/plugin.php';
-}
-if (function_exists('is_plugin_active') ) {
-    $wcb_career_board_pro_active = is_plugin_active('wp-career-board-pro/wp-career-board-pro.php');
-}
+$wcb_career_board_pro_active = (bool) apply_filters('wcb_pro_active', false);
 if (post_type_exists('wcb_resume') ) {
     $wcb_resume_posts = get_posts(
         array(
@@ -370,7 +364,7 @@ wp_interactivity_state(
                 <p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
                 <?php esc_html_e('✓ Application Submitted', 'wp-career-board'); ?>
                 </p>
-                <?php if (class_exists('WCB\\Pro\\Modules\\Alerts\\AlertsModule') ) : ?>
+                <?php if (apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
                 <div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
                     <button
                         type="button"
