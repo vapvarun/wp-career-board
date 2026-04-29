@@ -25,6 +25,37 @@ attribute forwarding in 1.1.0 — see "Shortcode attributes" below.
 
 ---
 
+## New in 1.2.0 — full block-to-shortcode coverage
+
+Every frontend block in Free now ships with a matching shortcode so page
+builders work without leaving their surface. Five blocks that previously
+had no shortcode wrapper (`featured-jobs`, `job-filters`, `job-search-hero`,
+`job-single`, `company-profile`) are now usable from any shortcode host.
+
+| Shortcode | Block | Common attributes |
+|---|---|---|
+| `[wcb_job_listings]` | `wp-career-board/job-listings` | `boardId`, `perPage`, `metaFilter`, `showFilters` |
+| `[wcb_job_search]` | `wp-career-board/job-search` | `placeholder`, `submitLabel` |
+| `[wcb_job_search_hero]` | `wp-career-board/job-search-hero` | `headline`, `subheadline`, `bgImage` |
+| `[wcb_job_filters]` | `wp-career-board/job-filters` | `boardId`, `showLocation`, `showType`, `showCategory` |
+| `[wcb_job_form]` | `wp-career-board/job-form` | (multi-step wizard, no public attributes) |
+| `[wcb_job_form_simple]` | `wp-career-board/job-form-simple` | (see section below) |
+| `[wcb_job_single]` | `wp-career-board/job-single` | `jobId` (override `?p` context) |
+| `[wcb_employer_dashboard]` | `wp-career-board/employer-dashboard` | (auto-scoped to current user) |
+| `[wcb_candidate_dashboard]` | `wp-career-board/candidate-dashboard` | (auto-scoped to current user) |
+| `[wcb_registration]` | `wp-career-board/employer-registration` | `redirect`, `successMessage` |
+| `[wcb_company_archive]` | `wp-career-board/company-archive` | `perPage`, `orderBy` |
+| `[wcb_company_profile]` | `wp-career-board/company-profile` | `companyId` (override post context) |
+| `[wcb_job_stats]` | `wp-career-board/job-stats` | `boardId` |
+| `[wcb_recent_jobs]` | `wp-career-board/recent-jobs` | `limit`, `boardId` |
+| `[wcb_featured_jobs]` | `wp-career-board/featured-jobs` | `limit`, `boardId` |
+
+For blocks with context-bound attributes (`jobId`, `companyId`), pass the
+attribute when the host page doesn't provide a queried-post context — e.g.
+on a custom Elementor page that's not the single-job template.
+
+---
+
 ## `[wcb_job_form_simple]` — Single-Page Job Form
 
 A single-page sibling of the multi-step wizard (`[wcb_job_form]`). Every

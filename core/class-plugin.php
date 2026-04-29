@@ -213,17 +213,28 @@ final class Plugin {
 	 * @return void
 	 */
 	public function register_shortcodes(): void {
+		// Every frontend block also ships as a shortcode so site owners can
+		// drop it into Elementor / Beaver / Bricks / Divi / Visual Composer /
+		// classic editor without leaving the page-builder surface they
+		// already know. Attributes pass through verbatim with numeric +
+		// boolean string-coercion so block.json type checks still validate:
+		//   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
 		$shortcodes = array(
 			'wcb_job_listings'        => 'wp-career-board/job-listings',
 			'wcb_job_search'          => 'wp-career-board/job-search',
+			'wcb_job_search_hero'     => 'wp-career-board/job-search-hero',
+			'wcb_job_filters'         => 'wp-career-board/job-filters',
 			'wcb_job_form'            => 'wp-career-board/job-form',
 			'wcb_job_form_simple'     => 'wp-career-board/job-form-simple',
+			'wcb_job_single'          => 'wp-career-board/job-single',
 			'wcb_employer_dashboard'  => 'wp-career-board/employer-dashboard',
 			'wcb_candidate_dashboard' => 'wp-career-board/candidate-dashboard',
 			'wcb_registration'        => 'wp-career-board/employer-registration',
 			'wcb_company_archive'     => 'wp-career-board/company-archive',
+			'wcb_company_profile'     => 'wp-career-board/company-profile',
 			'wcb_job_stats'           => 'wp-career-board/job-stats',
 			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
+			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
 		);
 
 		foreach ( $shortcodes as $tag => $block_name ) {
