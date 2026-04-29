@@ -144,6 +144,21 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noRecentApps() {
 			return ! state.loading && state.overviewRecentApps.length === 0;
 		},
+		/**
+		 * Surface the welcome card only when the user has zero of every key signal.
+		 *
+		 * Render-side signals are pulled from initial state (savedJobsCount,
+		 * resumeCount) so the card displays on first paint without waiting for
+		 * the applications API call. Once any signal flips to non-zero (apply,
+		 * save, build resume, set up alert) the card hides automatically.
+		 */
+		get isFirstTime() {
+			return ! state.loading
+				&& state.applications.length === 0
+				&& Number( state.savedJobsCount ) === 0
+				&& Number( state.resumeCount ) === 0
+				&& ( ! state.alertsCount || Number( state.alertsCount ) === 0 );
+		},
 		get overviewShortlistedCount() {
 			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length;
 		},
@@ -701,6 +716,70 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				} );
 			} catch {
 				state.error = state.strings.errConnectionFull;
+			}
+		},
+
+		/**
+		 * GDPR self-service: request a data export. Hits the privacy REST route
+		 * which calls wp_create_user_request() server-side. Visual feedback is
+		 * a one-shot toggle on state.privacyExportRequested — the actual export
+		 * is processed by the site admin.
+		 */
+		*requestExport() {
+			yield this.runPrivacyRequest( 'export' );
+		},
+
+		/**
+		 * GDPR self-service: request account erasure. Confirms first via the
+		 * shared modal, then hits the same privacy REST route.
+		 */
+		*requestErase() {
+			try {
+				yield window.wcbConfirm( {
+					title:       state.strings.confirmEraseTitle,
+					message:     state.strings.confirmEraseMsg,
+					confirmText: state.strings.confirmEraseConfirm,
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			yield this.runPrivacyRequest( 'erase' );
+		},
+
+		/**
+		 * Internal: shared POST helper for both export and erase requests.
+		 *
+		 * @param {string} action 'export' or 'erase'.
+		 */
+		*runPrivacyRequest( action ) {
+			if ( state.privacyBusy ) {
+				return;
+			}
+			state.privacyBusy  = true;
+			state.privacyError = '';
+
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/me/privacy/' + String( action ),
+					{
+						method:  'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+					}
+				);
+				if ( ! response.ok ) {
+					state.privacyError = state.strings.errPrivacy;
+					return;
+				}
+				if ( 'export' === action ) {
+					state.privacyExportRequested = true;
+				} else {
+					state.privacyEraseRequested = true;
+				}
+			} catch {
+				state.privacyError = state.strings.errConnectionFull;
+			} finally {
+				state.privacyBusy = false;
 			}
 		},
 	},

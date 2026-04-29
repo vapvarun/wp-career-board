@@ -91,6 +91,29 @@ final class CandidatesEndpoint extends RestController {
 				),
 			)
 		);
+
+		// User-facing GDPR self-service: candidate requests an export OR erase of their
+		// own data. Routes wrap WP's wp_create_user_request() so the request enters the
+		// standard admin queue at Tools → Export/Erase Personal Data — admins still
+		// confirm, but candidates can self-trigger from their dashboard instead of
+		// emailing support.
+		register_rest_route(
+			$this->namespace,
+			'/candidates/me/privacy/(?P<action>export|erase)',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'request_privacy_action' ),
+				'permission_callback' => array( $this, 'me_logged_in_check' ),
+				'args'                => array(
+					'action' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'enum'              => array( 'export', 'erase' ),
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
@@ -405,5 +428,60 @@ final class CandidatesEndpoint extends RestController {
 		 * @param \WP_REST_Request|null $request The originating REST request, when available.
 		 */
 		return (array) apply_filters( 'wcb_rest_prepare_candidate', $data, $user, null );
+	}
+
+	/**
+	 * GDPR self-service: trigger an export or erase request for the current user.
+	 *
+	 * Wraps WP's wp_create_user_request() so the request enters the standard
+	 * admin queue at Tools → Export/Erase Personal Data. The site admin still
+	 * has to confirm and process the request — this just removes the "email
+	 * support" friction for the candidate.
+	 *
+	 * The actual data shaping is delegated to GdprModule's exporter and eraser
+	 * (already registered with WP's privacy API as `wp-career-board`). The user
+	 * receives a confirmation email at their account address.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param  \WP_REST_Request $request Full REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function request_privacy_action( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$action  = (string) $request->get_param( 'action' );
+		$user    = wp_get_current_user();
+		$wp_type = 'erase' === $action ? 'remove_personal_data' : 'export_personal_data';
+
+		$request_id = wp_create_user_request( $user->user_email, $wp_type );
+		if ( is_wp_error( $request_id ) ) {
+			return new \WP_Error(
+				'wcb_privacy_request_failed',
+				$request_id->get_error_message(),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Send the user the standard confirmation email so they know to expect it.
+		wp_send_user_request( $request_id );
+
+		return rest_ensure_response(
+			array(
+				'request_id' => (int) $request_id,
+				'action'     => $action,
+				'email'      => $user->user_email,
+				'pending'    => true,
+			)
+		);
+	}
+
+	/**
+	 * Permission check for the privacy self-service route.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public function me_logged_in_check(): bool|\WP_Error {
+		return is_user_logged_in() ? true : $this->permission_error();
 	}
 }

@@ -106,6 +106,10 @@ wp_interactivity_state(
                 'confirmWithdrawMsg'  => __('Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board'),
                 'withdraw'            => __('Withdraw', 'wp-career-board'),
                 'errWithdraw'         => __('Could not withdraw application. Please try again.', 'wp-career-board'),
+                'confirmEraseTitle'   => __('Delete your account?', 'wp-career-board'),
+                'confirmEraseMsg'     => __('We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board'),
+                'confirmEraseConfirm' => __('Send confirmation email', 'wp-career-board'),
+                'errPrivacy'          => __('Could not submit your privacy request. Please try again or contact support.', 'wp-career-board'),
             ),
             'tab'                   => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
             'savedJobsCount'        => $wcb_saved_jobs_count,
@@ -137,6 +141,10 @@ wp_interactivity_state(
             'alerts'                => array(),
             'alertsLoading'         => false,
             'allowWithdraw'         => ! empty($wcb_settings['allow_withdraw']),
+            'privacyBusy'           => false,
+            'privacyExportRequested' => false,
+            'privacyEraseRequested' => false,
+            'privacyError'          => '',
         ),
         $wcb_resumes_state
     )
@@ -272,6 +280,49 @@ wp_interactivity_state(
         <div class="wcb-view-panel" role="tabpanel" data-wp-class--wcb-view-active="state.isTabOverview">
             <div class="wcb-page-header">
                 <h1 class="wcb-page-title"><?php esc_html_e('Overview', 'wp-career-board'); ?></h1>
+            </div>
+
+            <!-- ── Welcome card — only when applications=0 AND saved=0 AND resumes=0 ── -->
+            <div class="wcb-welcome-card" data-wp-class--wcb-shown="state.isFirstTime">
+                <div class="wcb-welcome-card__header">
+                    <h2 class="wcb-welcome-card__title">
+                        <?php
+                        printf(
+                            /* translators: %s: candidate's first name */
+                            esc_html__( 'Welcome, %s 👋', 'wp-career-board' ),
+                            esc_html( $wcb_current_user->first_name ? $wcb_current_user->first_name : $wcb_display_name )
+                        );
+                        ?>
+                    </h2>
+                    <p class="wcb-welcome-card__subtitle"><?php esc_html_e( 'Here\'s how to get started:', 'wp-career-board' ); ?></p>
+                </div>
+                <div class="wcb-welcome-card__steps">
+                    <a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-welcome-step">
+                        <span class="wcb-welcome-step__num">1</span>
+                        <div class="wcb-welcome-step__body">
+                            <span class="wcb-welcome-step__title"><?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?></span>
+                            <span class="wcb-welcome-step__desc"><?php esc_html_e( 'Search and apply to roles that match your skills.', 'wp-career-board' ); ?></span>
+                        </div>
+                    </a>
+                    <?php if ( $wcb_resume_builder_embedded ) : ?>
+                    <button type="button" class="wcb-welcome-step" data-wp-on--click="actions.switchToResumes">
+                        <span class="wcb-welcome-step__num">2</span>
+                        <div class="wcb-welcome-step__body">
+                            <span class="wcb-welcome-step__title"><?php esc_html_e( 'Build your resume', 'wp-career-board' ); ?></span>
+                            <span class="wcb-welcome-step__desc"><?php esc_html_e( 'A complete profile gets noticed by employers faster.', 'wp-career-board' ); ?></span>
+                        </div>
+                    </button>
+                    <?php endif; ?>
+                    <?php if ( class_exists( 'WCB\\Pro\\Modules\\Alerts\\AlertsModule' ) ) : ?>
+                    <button type="button" class="wcb-welcome-step" data-wp-on--click="actions.switchToAlerts">
+                        <span class="wcb-welcome-step__num">3</span>
+                        <div class="wcb-welcome-step__body">
+                            <span class="wcb-welcome-step__title"><?php esc_html_e( 'Set up job alerts', 'wp-career-board' ); ?></span>
+                            <span class="wcb-welcome-step__desc"><?php esc_html_e( 'Get notified when matching roles are posted.', 'wp-career-board' ); ?></span>
+                        </div>
+                    </button>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="wcb-stats-row">
@@ -632,7 +683,7 @@ wp_interactivity_state(
                     <span data-wp-text="state.profileEmail"></span>
                 </div>
             </div>
-            <div class="wcb-settings-row">
+            <div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
                 <div class="wcb-settings-row-label"><?php esc_html_e('Password', 'wp-career-board'); ?></div>
                 <div class="wcb-settings-row-control">
                     <a class="wcb-cbtn wcb-cbtn--ghost" data-wp-bind--href="state.passwordResetUrl">
@@ -640,6 +691,39 @@ wp_interactivity_state(
                     </a>
                 </div>
             </div>
+        </div>
+
+        <!-- ── Privacy & data controls (GDPR self-service, A-11) ─────── -->
+        <div class="wcb-panel-header" style="margin-top: var(--wcb-space-xl);">
+            <span class="wcb-panel-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></span>
+        </div>
+        <div class="wcb-panel wcb-shown wcb-privacy-panel">
+            <p class="wcb-privacy-desc">
+                <?php esc_html_e( 'Request a copy of your personal data, or delete your account permanently. Both actions are processed by the site administrator and you\'ll receive an email confirmation when complete.', 'wp-career-board' ); ?>
+            </p>
+            <div class="wcb-settings-row">
+                <div class="wcb-settings-row-label"><?php esc_html_e( 'Export my data', 'wp-career-board' ); ?></div>
+                <div class="wcb-settings-row-control">
+                    <button type="button" class="wcb-cbtn wcb-cbtn--ghost"
+                        data-wp-on--click="actions.requestExport"
+                        data-wp-bind--disabled="state.privacyBusy">
+                        <span data-wp-class--wcb-hidden="state.privacyExportRequested"><?php esc_html_e( 'Request data export', 'wp-career-board' ); ?></span>
+                        <span class="wcb-hidden" data-wp-class--wcb-hidden="!state.privacyExportRequested"><?php esc_html_e( 'Export requested ✓', 'wp-career-board' ); ?></span>
+                    </button>
+                </div>
+            </div>
+            <div class="wcb-settings-row">
+                <div class="wcb-settings-row-label"><?php esc_html_e( 'Delete my account', 'wp-career-board' ); ?></div>
+                <div class="wcb-settings-row-control">
+                    <button type="button" class="wcb-cbtn wcb-cbtn--danger"
+                        data-wp-on--click="actions.requestErase"
+                        data-wp-bind--disabled="state.privacyBusy">
+                        <span data-wp-class--wcb-hidden="state.privacyEraseRequested"><?php esc_html_e( 'Request account deletion', 'wp-career-board' ); ?></span>
+                        <span class="wcb-hidden" data-wp-class--wcb-hidden="!state.privacyEraseRequested"><?php esc_html_e( 'Deletion requested ✓', 'wp-career-board' ); ?></span>
+                    </button>
+                </div>
+            </div>
+            <p class="wcb-privacy-note" data-wp-class--wcb-shown="state.privacyError" data-wp-text="state.privacyError"></p>
         </div>
     </div>
 

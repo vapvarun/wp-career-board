@@ -1169,3 +1169,154 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 		animation: none !important;
 	}
 }
+
+/* ── Welcome card — first-time candidate onboarding (C-4) ─────────────────── */
+
+.wcb-welcome-card {
+	display: none;
+	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, #ffffff 100% );
+	border: 1px solid var( --wcb-primary, #4f46e5 );
+	border-radius: var( --wcb-radius-lg, 12px );
+	padding: var( --wcb-space-lg, 24px );
+	margin-bottom: var( --wcb-space-lg, 24px );
+}
+
+.wcb-welcome-card.wcb-shown {
+	display: block;
+}
+
+.wcb-welcome-card__header {
+	margin-bottom: var( --wcb-space-md, 16px );
+}
+
+.wcb-welcome-card__title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0 0 4px 0;
+	color: var( --wcb-text, #111827 );
+}
+
+.wcb-welcome-card__subtitle {
+	margin: 0;
+	color: var( --wcb-muted, #6b7280 );
+	font-size: 0.95rem;
+}
+
+.wcb-welcome-card__steps {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 240px, 1fr ) );
+	gap: var( --wcb-space-md, 16px );
+}
+
+.wcb-welcome-step {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: var( --wcb-space-md, 16px );
+	background: #ffffff;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius-md, 8px );
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+	text-align: left;
+	font: inherit;
+}
+
+.wcb-welcome-step:hover,
+.wcb-welcome-step:focus-visible {
+	border-color: var( --wcb-primary, #4f46e5 );
+	box-shadow: 0 1px 4px rgba( 79, 70, 229, 0.15 );
+	transform: translateY( -1px );
+}
+
+.wcb-welcome-step:focus-visible {
+	outline: 2px solid var( --wcb-primary, #4f46e5 );
+	outline-offset: 2px;
+}
+
+.wcb-welcome-step__num {
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: var( --wcb-primary, #4f46e5 );
+	color: #ffffff;
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.wcb-welcome-step__body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wcb-welcome-step__title {
+	font-weight: 600;
+	color: var( --wcb-text, #111827 );
+}
+
+.wcb-welcome-step__desc {
+	font-size: 0.875rem;
+	color: var( --wcb-muted, #6b7280 );
+	line-height: 1.4;
+}
+
+@media ( max-width: 640px ) {
+	.wcb-welcome-card { padding: var( --wcb-space-md, 16px ); }
+	.wcb-welcome-card__title { font-size: 1.25rem; }
+	.wcb-welcome-card__steps { grid-template-columns: 1fr; }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.wcb-welcome-step { transition: none !important; }
+	.wcb-welcome-step:hover,
+	.wcb-welcome-step:focus-visible { transform: none !important; }
+}
+
+/* ── Privacy panel — GDPR self-service controls (A-11) ────────────────────── */
+
+.wcb-privacy-panel { margin-top: var( --wcb-space-md, 16px ); }
+
+.wcb-privacy-desc {
+	color: var( --wcb-muted, #6b7280 );
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 0 0 var( --wcb-space-md, 16px ) 0;
+}
+
+.wcb-privacy-note {
+	color: #991b1b;
+	font-size: 0.85rem;
+	margin: var( --wcb-space-sm, 8px ) 0 0 0;
+	display: none;
+}
+
+.wcb-privacy-note.wcb-shown { display: block; }
+
+.wcb-cbtn--danger {
+	color: #991b1b;
+	border-color: #fecaca;
+	background: #ffffff;
+}
+
+.wcb-cbtn--danger:hover,
+.wcb-cbtn--danger:focus-visible {
+	background: #fef2f2;
+	border-color: #ef4444;
+	color: #7f1d1d;
+}
+
+.wcb-cbtn--danger:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.wcb-hidden { display: none !important; }
