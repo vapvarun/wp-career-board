@@ -40,6 +40,18 @@ jobs:
             -not -path "./wp-career-board/*" \
             | xargs -P4 php -l
 
+  # ── Pro decoupling ── F-6: Free must be Pro-blind (BLOCKING) ────────
+  pro-decoupling:
+    name: Pro decoupling
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run decoupling gate
+        run: bash bin/check-pro-decoupling.sh
+
   # ── WPCS ── WordPress Coding Standards (BLOCKING) ───────────────────
   wpcs:
     name: WPCS

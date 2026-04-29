@@ -163,8 +163,7 @@ final class Install {
 					if ( ! function_exists( 'is_plugin_active' ) ) {
 						require_once ABSPATH . 'wp-admin/includes/plugin.php';
 					}
-					$pro_active                         = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' )
-						|| defined( 'WCBP_VERSION' );
+					$pro_active                         = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' );
 					$settings['resume_archive_enabled'] = (bool) $pro_active;
 					update_option( 'wcb_settings', $settings );
 					update_option( 'wcb_flush_rewrite_rules', 1 );

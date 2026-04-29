@@ -80,7 +80,7 @@ final class SettingsEndpoint extends RestController {
 				'application_pipeline' => $is_pro_active,
 				'resume_archive'       => $is_pro_active,
 				'credits'              => $is_pro_active,
-				'ai_matching'          => $is_pro_active && function_exists( 'wcbp_ai_enabled' ) && wcbp_ai_enabled(),
+				'ai_matching'          => $is_pro_active && (bool) apply_filters( 'wcb_pro_ai_enabled', false ),
 			),
 			'timezone'         => (string) wp_timezone_string(),
 			'locale'           => (string) get_locale(),
