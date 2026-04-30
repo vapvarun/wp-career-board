@@ -10,8 +10,16 @@ declare( strict_types=1 );
 
 defined('ABSPATH') || exit;
 
-$wcb_job_id = get_queried_object_id();
-$wcb_job    = $wcb_job_id ? get_post($wcb_job_id) : null;
+// Resolve job: explicit `jobId` attribute (page builders, shortcode) wins
+// over the queried-object context (canonical single-job CPT template).
+// Lets the block + [wcb_job_single jobId="..."] shortcode render outside
+// the single-job archive — Elementor / Bricks / classic editor / a manually
+// composed page in Gutenberg.
+$wcb_job_id = (int) ( $attributes['jobId'] ?? 0 );
+if (! $wcb_job_id ) {
+    $wcb_job_id = get_queried_object_id();
+}
+$wcb_job = $wcb_job_id ? get_post($wcb_job_id) : null;
 
 if (! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
     return;

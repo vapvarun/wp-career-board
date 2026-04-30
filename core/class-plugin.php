@@ -237,10 +237,48 @@ final class Plugin {
 			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
 		);
 
+		// WordPress's shortcode parser lowercases attribute keys (jobId →
+		// jobid), but block.json schemas use camelCase. Without remapping,
+		// the block sees no value and renders the empty-state branch. This
+		// table covers every camelCase attr the bundled blocks declare so
+		// site owners can write [wcb_job_single jobId="123"] and get the
+		// same render as the Gutenberg block. Addons can extend it via
+		// the `wcb_shortcode_attr_aliases` filter.
+		$camel_aliases = array(
+			'jobid'           => 'jobId',
+			'boardid'         => 'boardId',
+			'companyid'       => 'companyId',
+			'resumeid'        => 'resumeId',
+			'perpage'         => 'perPage',
+			'orderby'         => 'orderBy',
+			'showfilters'     => 'showFilters',
+			'showlocation'    => 'showLocation',
+			'showtype'        => 'showType',
+			'showcategory'    => 'showCategory',
+			'showjobcount'    => 'showJobCount',
+			'showskills'      => 'showSkills',
+			'metafilter'      => 'metaFilter',
+			'submitlabel'     => 'submitLabel',
+			'successmessage'  => 'successMessage',
+			'bgimage'         => 'bgImage',
+			'subheadline'     => 'subHeadline',
+			'centerlat'       => 'centerLat',
+			'centerlng'       => 'centerLng',
+		);
+		/**
+		 * Filter the snake/lowercase → camelCase attribute alias map used
+		 * by every Free shortcode wrapper.
+		 *
+		 * @since 1.2.0
+		 *
+		 * @param array<string,string> $camel_aliases Lowercase → camelCase map.
+		 */
+		$camel_aliases = (array) apply_filters( 'wcb_shortcode_attr_aliases', $camel_aliases );
+
 		foreach ( $shortcodes as $tag => $block_name ) {
 			add_shortcode(
 				$tag,
-				static function ( $atts ) use ( $block_name ): string {
+				static function ( $atts ) use ( $block_name, $camel_aliases ): string {
 					// Forward shortcode attributes to the block as JSON.
 					// Lets page builders / classic editors / any shortcode
 					// host scope a block via attributes:
@@ -252,6 +290,9 @@ final class Plugin {
 							if ( ! is_string( $key ) ) {
 								continue;
 							}
+							// Map known lowercase aliases back to the camelCase
+							// keys block.json declares.
+							$key = $camel_aliases[ $key ] ?? $key;
 							// Auto-cast numeric and boolean strings so block.json type checks pass.
 							if ( is_numeric( $value ) && (string) (int) $value === (string) $value ) {
 								$cast[ $key ] = (int) $value;
