@@ -553,7 +553,7 @@ class Admin {
 			'wcb-admin',
 			'wcbAdmin',
 			array(
-				'restUrl'   => esc_url_raw( rest_url( 'wcb/v1/' ) ),
+				'restUrl'   => esc_url_raw( rest_url( 'wcb/v1' ) ),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
 					'approveTitle' => __( 'Approve Job', 'wp-career-board' ),

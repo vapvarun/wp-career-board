@@ -44,7 +44,7 @@
 	 */
 	function completeWizard() {
 		wp.apiFetch( {
-			url: wcbWizard.restUrl + 'complete',
+			url: wcbWizard.restUrl + '/complete',
 			method: 'POST',
 		} ).then( function ( response ) {
 			if ( response && response.redirect ) {
@@ -104,7 +104,7 @@
 			createPagesBtn.disabled = true;
 
 			wp.apiFetch( {
-				url: wcbWizard.restUrl + 'create-pages',
+				url: wcbWizard.restUrl + '/create-pages',
 				method: 'POST',
 			} ).then( function () {
 				dispatchComplete( stepNum );
@@ -122,7 +122,7 @@
 			finishBtn.disabled = true;
 
 			wp.apiFetch( {
-				url: wcbWizard.restUrl + 'sample-data',
+				url: wcbWizard.restUrl + '/sample-data',
 				method: 'POST',
 				data: { install_sample: doInstall },
 			} ).then( function () {

@@ -142,7 +142,7 @@ class SetupWizard extends \WCB\Api\RestController
             'wcb-wizard',
             'wcbWizard',
             array(
-            'restUrl'    => esc_url_raw(rest_url('wcb/v1/wizard/')),
+            'restUrl'    => esc_url_raw(rest_url('wcb/v1/wizard')),
             'steps'      => array_keys($steps),
             'totalSteps' => count($steps),
             )

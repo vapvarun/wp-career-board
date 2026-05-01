@@ -414,7 +414,7 @@ class AdminSettings
                     var status = document.getElementById('wcb-remove-sample-status');
                     btn.disabled = true;
                     btn.textContent = '<?php echo esc_js(__('Removing…', 'wp-career-board')); ?>';
-                    fetch(wcbAdmin.restUrl + 'wizard/remove-sample-data', {
+                    fetch(wcbAdmin.restUrl + '/wizard/remove-sample-data', {
                         method: 'POST',
                         headers: { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' },
                     })
