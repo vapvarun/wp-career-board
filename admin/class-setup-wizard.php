@@ -68,10 +68,14 @@ class SetupWizard extends \WCB\Api\RestController
      */
     public function register_page(): void
     {
+        // Parent slug 'options.php' keeps the page accessible at
+        // admin.php?page=wcb-setup but registers it in the $submenu global
+        // so get_admin_page_title() resolves the title without WordPress
+        // tripping on PHP 8.1+ strip_tags(null) in admin-header.php.
         add_submenu_page(
-            '',
+            'options.php',
             __('Setup Wizard', 'wp-career-board'),
-            '',
+            __('Setup Wizard', 'wp-career-board'),
             'wcb_manage_settings', // phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_manage_settings is a registered WCB custom capability.
             'wcb-setup',
             array( $this, 'render' )
