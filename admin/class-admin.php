@@ -152,6 +152,7 @@ class Admin {
 				'candidate_dashboard_page',
 				'jobs_archive_page',
 				'company_archive_page',
+				'post_job_page',
 			);
 			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => (int) ( $wcb_settings[ $k ] ?? 0 ), $wcb_page_keys ) ) );
 			$wcb_total_pages   = count( $wcb_page_keys );

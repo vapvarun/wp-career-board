@@ -120,7 +120,7 @@ class AdminSettings
         // Determine which tab was submitted based on which fields are present.
         $tab_fields = array(
         'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled' ),
-        'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page' ),
+        'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page' ),
         'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
         );
 
@@ -141,6 +141,7 @@ class AdminSettings
         'candidate_dashboard_page' => isset($input['candidate_dashboard_page']) ? (int) $input['candidate_dashboard_page'] : 0,
         'company_archive_page'     => isset($input['company_archive_page']) ? (int) $input['company_archive_page'] : 0,
         'post_job_page'            => isset($input['post_job_page']) ? (int) $input['post_job_page'] : 0,
+        'employer_registration_page' => isset($input['employer_registration_page']) ? (int) $input['employer_registration_page'] : 0,
         'notification_email'       => isset($input['notification_email']) ? sanitize_email($input['notification_email']) : '',
         'from_name'                => isset($input['from_name']) ? sanitize_text_field($input['from_name']) : '',
         'from_email'               => isset($input['from_email']) ? sanitize_email($input['from_email']) : '',
@@ -245,6 +246,10 @@ class AdminSettings
         'post_job_page'            => array(
         'title'   => __('Post a Job', 'wp-career-board'),
         'content' => '<!-- wp:wp-career-board/job-form /-->',
+        ),
+        'employer_registration_page' => array(
+        'title'   => __('Employer Registration', 'wp-career-board'),
+        'content' => '<!-- wp:wp-career-board/employer-registration /-->',
         ),
         );
 
@@ -453,7 +458,7 @@ class AdminSettings
         $wcb_tab_icons = $this->get_tab_icons();
         $wcb_free_tabs = $this->get_free_tab_slugs();
 
-        $wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page' );
+        $wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page' );
         $wcb_missing   = array();
         foreach ( $wcb_page_keys as $wcb_k ) {
             if (empty($settings[ $wcb_k ]) || ! get_post((int) $settings[ $wcb_k ]) ) {
@@ -794,6 +799,10 @@ class AdminSettings
                                     'post_job_page'        => array(
                                     'label' => __('Post a Job Page', 'wp-career-board'),
                                     'desc'  => __('Contains the wcb/job-form block. Employers use this to post new jobs.', 'wp-career-board'),
+                                    ),
+                                    'employer_registration_page' => array(
+                                    'label' => __('Employer Registration Page', 'wp-career-board'),
+                                    'desc'  => __('Contains the wcb/employer-registration block. New employers sign up and gain posting access here.', 'wp-career-board'),
                                     ),
                                     );
 
