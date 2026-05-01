@@ -225,7 +225,11 @@ if (post_type_exists('wcb_resume') ) {
 }
 
 $wcb_settings_arr    = (array) get_option('wcb_settings', array());
-$wcb_resume_required = ! empty($wcb_settings_arr['apply_resume_required']);
+// Mirror the server-side default in ApplicationsEndpoint::resume_required():
+// resume is required out-of-the-box; only an explicit "off" disables it.
+$wcb_resume_required = array_key_exists('apply_resume_required', $wcb_settings_arr)
+    ? ! empty($wcb_settings_arr['apply_resume_required'])
+    : true;
 $wcb_resume_max_mb   = isset($wcb_settings_arr['apply_resume_max_mb'])
     ? max(1, min(20, (int) $wcb_settings_arr['apply_resume_max_mb']))
     : 5;

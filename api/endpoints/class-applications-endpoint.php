@@ -649,7 +649,13 @@ final class ApplicationsEndpoint extends RestController
     private function resume_required(): bool
     {
         $settings = (array) get_option('wcb_settings', array());
-        return ! empty($settings['apply_resume_required']);
+        // Default to true on installs that have never written the setting:
+        // candidate-side validation is the customer expectation for a job
+        // board (see Basecamp 9818132111). Site owners who explicitly turn
+        // it off keep their saved value.
+        return array_key_exists('apply_resume_required', $settings)
+            ? ! empty($settings['apply_resume_required'])
+            : true;
     }
 
     /**
