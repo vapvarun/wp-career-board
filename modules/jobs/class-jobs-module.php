@@ -34,6 +34,32 @@ final class JobsModule {
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+		add_filter( 'wcb_jobs_allowed_meta_filters', array( $this, 'register_default_meta_filters' ) );
+	}
+
+	/**
+	 * Register Free's first-party job meta keys in the allow-list so the
+	 * `metaFilter` shortcode/REST attribute works zero-config for the most
+	 * common cases. Custom integrator keys still require their own filter
+	 * hook so arbitrary-meta probes stay blocked.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param array<int,string> $keys Existing allow-list (typically empty).
+	 * @return array<int,string>
+	 */
+	public function register_default_meta_filters( array $keys ): array {
+		return array_values(
+			array_unique(
+				array_merge(
+					$keys,
+					array(
+						'_wcb_featured',
+						'_wcb_company_id',
+					)
+				)
+			)
+		);
 	}
 
 	/**
