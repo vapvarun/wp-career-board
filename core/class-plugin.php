@@ -245,25 +245,37 @@ final class Plugin {
 		// same render as the Gutenberg block. Addons can extend it via
 		// the `wcb_shortcode_attr_aliases` filter.
 		$camel_aliases = array(
-			'jobid'           => 'jobId',
-			'boardid'         => 'boardId',
-			'companyid'       => 'companyId',
-			'resumeid'        => 'resumeId',
-			'perpage'         => 'perPage',
-			'orderby'         => 'orderBy',
-			'showfilters'     => 'showFilters',
-			'showlocation'    => 'showLocation',
-			'showtype'        => 'showType',
-			'showcategory'    => 'showCategory',
-			'showjobcount'    => 'showJobCount',
-			'showskills'      => 'showSkills',
-			'metafilter'      => 'metaFilter',
-			'submitlabel'     => 'submitLabel',
-			'successmessage'  => 'successMessage',
-			'bgimage'         => 'bgImage',
-			'subheadline'     => 'subHeadline',
-			'centerlat'       => 'centerLat',
-			'centerlng'       => 'centerLng',
+			'jobid'                => 'jobId',
+			'boardid'              => 'boardId',
+			'companyid'            => 'companyId',
+			'resumeid'             => 'resumeId',
+			'authorid'             => 'authorId',
+			'savedby'              => 'savedBy',
+			'perpage'              => 'perPage',
+			'orderby'              => 'orderBy',
+			'showfilters'          => 'showFilters',
+			'showlocation'         => 'showLocation',
+			'showtype'             => 'showType',
+			'showcategory'         => 'showCategory',
+			'showjobcount'         => 'showJobCount',
+			'showskills'           => 'showSkills',
+			'showjobs'             => 'showJobs',
+			'showcandidates'       => 'showCandidates',
+			'showcompanies'        => 'showCompanies',
+			'showcompanyfield'     => 'showCompanyField',
+			'showcategoryfilter'   => 'showCategoryFilter',
+			'showjobtypefilter'    => 'showJobTypeFilter',
+			'showlocationfilter'   => 'showLocationFilter',
+			'showviewall'          => 'showViewAll',
+			'viewallurl'           => 'viewAllUrl',
+			'buttonlabel'          => 'buttonLabel',
+			'metafilter'           => 'metaFilter',
+			'submitlabel'          => 'submitLabel',
+			'successmessage'       => 'successMessage',
+			'bgimage'              => 'bgImage',
+			'subheadline'          => 'subHeadline',
+			'centerlat'            => 'centerLat',
+			'centerlng'            => 'centerLng',
 		);
 		/**
 		 * Filter the snake/lowercase → camelCase attribute alias map used
@@ -385,7 +397,7 @@ final class Plugin {
 		}
 
 		$settings  = (array) get_option( 'wcb_settings', array() );
-		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'employer_registration_page' );
+		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'employer_registration_page', 'post_job_page' );
 		$page_ids  = array_values( array_filter( array_map( static fn( string $key ): int => (int) ( $settings[ $key ] ?? 0 ), $page_keys ) ) );
 
 		/**
