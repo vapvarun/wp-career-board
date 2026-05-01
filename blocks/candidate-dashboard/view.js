@@ -564,10 +564,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 
 			try {
+				// Upload the file and get an attachment_id back.
 				const formData = new FormData();
 				formData.append( 'resume_file', file );
 
-				const response = yield fetch(
+				const uploadResp = yield fetch(
 					state.apiBase + '/candidates/resume-upload',
 					{
 						method: 'POST',
@@ -575,18 +576,43 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 						body: formData,
 					}
 				);
+				const uploadData = yield uploadResp.json();
 
-				const data = yield response.json();
-
-				if ( ! response.ok ) {
-					state.error = data.message || 'Upload failed.';
+				if ( ! uploadResp.ok ) {
+					state.error = uploadData.message || 'Upload failed.';
 					return;
 				}
 
-				if ( data.attachment_id ) {
-					state.resumeFileId  = data.attachment_id;
-					state.resumeFileUrl = data.url || '';
+				const attachmentId = uploadData.attachment_id;
+				if ( ! attachmentId ) {
+					state.error = 'Upload failed: no attachment returned.';
+					return;
 				}
+
+				// Wrap the uploaded file in a wcb_resume post so it shows up
+				// in the candidate's resume list. Without this step the file
+				// uploads silently and the user has nothing to click on.
+				const title = file.name.replace( /\.[^.]+$/, '' ) || 'Uploaded CV';
+				const createResp = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/resumes',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( { title, attachment_id: attachmentId } ),
+					}
+				);
+
+				if ( ! createResp.ok ) {
+					state.error = state.strings.errCreateResume || 'Could not create resume.';
+					return;
+				}
+
+				const resume     = yield createResp.json();
+				state.resumes    = [ resume, ...state.resumes ];
+				state.resumeCount = state.resumeCount + 1;
 			} catch {
 				state.error = 'Failed to upload resume file. Please try again.';
 			} finally {

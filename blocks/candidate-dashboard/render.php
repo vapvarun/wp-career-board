@@ -536,6 +536,7 @@ wp_interactivity_state(
                         <a
                             class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
                             data-wp-bind--href="context.resume.permalink"
+                            data-wp-bind--hidden="!context.resume.permalink"
                             target="_blank"
                             rel="noopener"
                         ><?php esc_html_e('View', 'wp-career-board'); ?></a>

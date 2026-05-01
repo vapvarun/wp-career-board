@@ -404,17 +404,26 @@ class AdminSettings
         ( new AdminImport() )->render();
 
         // Sample data removal section.
-        if (get_option('wcb_sample_data_installed', false) ) :
+        // Show whenever wizard-tracked sample IDs exist OR the legacy installed
+        // flag is on. Either is enough proof that demo content is still around;
+        // checking only the flag misses sites where the option flipped out of
+        // sync but the IDs are still tracked.
+        $wcb_sample_ids = (array) get_option('wcb_sample_data_ids', array());
+        $wcb_has_sample = ! empty($wcb_sample_ids) || (bool) get_option('wcb_sample_data_installed', false);
+        if ($wcb_has_sample ) :
             ?>
             <div class="wcb-settings-section__block" style="margin-top: 2rem;">
                 <h3><?php esc_html_e('Sample Data', 'wp-career-board'); ?></h3>
-                <p class="description"><?php esc_html_e('Remove the demo companies and jobs created by the setup wizard.', 'wp-career-board'); ?></p>
+                <p class="description"><?php esc_html_e('Remove the demo companies, jobs, and taxonomy terms created by the setup wizard.', 'wp-career-board'); ?></p>
                 <button type="button" id="wcb-remove-sample-data" class="button button-secondary" style="margin-top: 0.5rem;">
             <?php esc_html_e('Remove Sample Data', 'wp-career-board'); ?>
                 </button>
                 <span id="wcb-remove-sample-status" style="margin-left: 0.5rem;"></span>
                 <script>
                 document.getElementById('wcb-remove-sample-data')?.addEventListener('click', function() {
+                    var confirmMsg = '<?php echo esc_js(__('Permanently delete all demo companies, jobs, and unused taxonomy terms? This cannot be undone.', 'wp-career-board')); ?>';
+                    if (!window.confirm(confirmMsg)) { return; }
+
                     var btn = this;
                     var status = document.getElementById('wcb-remove-sample-status');
                     btn.disabled = true;
@@ -425,11 +434,25 @@ class AdminSettings
                     })
                     .then(function(r) { return r.json(); })
                     .then(function(data) {
-                        status.textContent = '<?php echo esc_js(__('Removed!', 'wp-career-board')); ?>';
-                        btn.closest('.wcb-settings-section__block').style.display = 'none';
+                        var jobs = parseInt(data && data.jobs, 10) || 0;
+                        var companies = parseInt(data && data.companies, 10) || 0;
+                        var terms = parseInt(data && data.terms, 10) || 0;
+                        var msg = '<?php echo esc_js(__('Removed: %JOBS% jobs, %COMPANIES% companies, %TERMS% terms.', 'wp-career-board')); ?>'
+                            .replace('%JOBS%', String(jobs))
+                            .replace('%COMPANIES%', String(companies))
+                            .replace('%TERMS%', String(terms));
+                        status.textContent = msg;
+                        if (jobs + companies + terms > 0) {
+                            setTimeout(function() {
+                                btn.closest('.wcb-settings-section__block').style.display = 'none';
+                            }, 2500);
+                        } else {
+                            btn.disabled = false;
+                            btn.textContent = '<?php echo esc_js(__('Remove Sample Data', 'wp-career-board')); ?>';
+                        }
                     })
                     .catch(function() {
-                        status.textContent = '<?php echo esc_js(__('Error — please try again.', 'wp-career-board')); ?>';
+                        status.textContent = '<?php echo esc_js(__('Error, please try again.', 'wp-career-board')); ?>';
                         btn.disabled = false;
                         btn.textContent = '<?php echo esc_js(__('Remove Sample Data', 'wp-career-board')); ?>';
                     });
