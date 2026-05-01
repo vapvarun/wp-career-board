@@ -1113,6 +1113,35 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	display: inline;
 }
 
+/* ── Withdraw button ─────────────────────────────────────────────────────── */
+/* Hidden until the candidate has wcb_withdraw_application; the wcb-shown
+   class is toggled by data-wp-class--wcb-shown="state.allowWithdraw" in
+   render.php. */
+.wcb-cd-withdraw-btn {
+	display: none;
+	background: transparent;
+	color: var(--wcb-danger);
+	border: 1px solid #fca5a5;
+	border-radius: var(--wcb-radius);
+	padding: 4px var(--wcb-space-md);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	cursor: pointer;
+	transition: all var(--wcb-transition-fast);
+}
+
+.wcb-cd-withdraw-btn.wcb-shown {
+	display: inline-flex;
+	align-items: center;
+}
+
+.wcb-cd-withdraw-btn:hover,
+.wcb-cd-withdraw-btn:focus-visible {
+	background: var(--wcb-danger-bg-soft);
+	color: #b91c1c;
+	border-color: var(--wcb-danger);
+}
+
 /* ── Settings rows ───────────────────────────────────────────────────────── */
 .wcb-settings-row {
 	display: grid;
