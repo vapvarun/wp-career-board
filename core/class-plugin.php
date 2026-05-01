@@ -282,10 +282,11 @@ final class Plugin {
 					// Forward shortcode attributes to the block as JSON.
 					// Lets page builders / classic editors / any shortcode
 					// host scope a block via attributes:
-					//   [wcb_job_listings boardId="42" metaFilter="_wcb_featured:1"]
-					// Allow-list defaults: _wcb_featured, _wcb_company_id.
-					// Extend via the `wcb_jobs_allowed_meta_filters` filter
-					// to surface custom integrator meta keys safely.
+					//   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
+					// metaFilter="key:value" is an integrator extension point:
+					// the key must be registered via the wcb_jobs_allowed_meta_filters
+					// filter, otherwise it is dropped. Empty by default to block
+					// arbitrary-meta probes.
 					$attrs_json = '';
 					if ( ! empty( $atts ) ) {
 						$cast = array();
