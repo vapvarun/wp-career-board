@@ -693,14 +693,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				);
 
+				const data = yield response.json();
 				if ( ! response.ok ) {
-					state.error = state.strings.errorSaveProfile;
+					state.error = ( data && data.message ) ? String( data.message ) : state.strings.errorSaveProfile;
 					return;
 				}
 
 				if ( isNew ) {
-					const data       = yield response.json();
-					state.companyId  = data.id ?? 0;
+					state.companyId = data.id ?? 0;
+					state.noCompany = ! state.companyId;
 				}
 
 				state.saved = true;

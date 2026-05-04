@@ -127,7 +127,7 @@ wp_interactivity_state(
 		'ssrNewThisWeek'    => $wcb_new_apps,
 		'loading'           => true,
 		'error'             => '',
-		'noCompany'         => false,
+		'noCompany'         => 0 === (int) $wcb_company_id,
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
 		'companyId'         => $wcb_company_id,
@@ -541,7 +541,7 @@ wp_interactivity_state(
 
 			<div class="wcb-profile-grid">
 				<div class="wcb-profile-form">
-					<div class="wcb-field-group">
+					<div class="wcb-field-group" data-wp-class--wcb-shown="state.companyId">
 						<label class="wcb-field-label"><?php esc_html_e( 'Company Logo', 'wp-career-board' ); ?></label>
 						<div class="wcb-logo-field">
 							<img class="wcb-logo-current" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" width="64" height="64" />
@@ -551,6 +551,7 @@ wp_interactivity_state(
 							<input id="wcb-company-logo" type="file" class="wcb-logo-input" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
 						</div>
 					</div>
+					<p class="wcb-field-hint" data-wp-class--wcb-shown="state.noCompany"><?php esc_html_e( 'Save your company profile first to enable logo upload.', 'wp-career-board' ); ?></p>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
 						<input id="wcb-company-name" type="text" class="wcb-field-input" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />
