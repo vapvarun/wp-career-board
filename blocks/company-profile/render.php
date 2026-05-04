@@ -272,7 +272,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				'loading'   => false,
 				'hasMore'   => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
 				'hasNoJobs' => empty( $wcb_cp_jobs_state ),
-				'apiBase'   => rest_url( 'wcb/v1/jobs' ),
+				'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/jobs' ) ),
 			)
 		);
 		?>

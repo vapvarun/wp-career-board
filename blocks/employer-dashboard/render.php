@@ -128,7 +128,7 @@ wp_interactivity_state(
         'loading'           => true,
         'error'             => '',
         'noCompany'         => false,
-        'apiBase'           => rest_url('wcb/v1'),
+        'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
         'nonce'             => wp_create_nonce('wp_rest'),
         'companyId'         => $wcb_company_id,
         'companyName'       => $wcb_company_name,

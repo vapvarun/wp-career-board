@@ -187,7 +187,7 @@ $wcb_state = array(
 	'layout'    => $wcb_layout,
 	'loading'   => false,
 	'hasMore'   => count( $wcb_companies_raw ) >= $wcb_per_page,
-	'apiBase'   => rest_url( 'wcb/v1/companies' ),
+	'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 	'industry'  => '',
 	'size'      => '',
 );

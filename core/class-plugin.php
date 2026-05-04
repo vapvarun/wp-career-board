@@ -195,10 +195,25 @@ final class Plugin {
 			'job-search-hero',
 		);
 
+		// Register tokens stylesheet so blocks can declare it as a dependency.
+		// Block style.css references --wcb-* variables that live here; without
+		// this, the variables are undefined when WP loads a block's style.css
+		// independently (FSE templates, widgets, lazy block-asset loading).
+		wp_register_style(
+			'wcb-frontend-tokens',
+			WCB_URL . 'assets/css/frontend-tokens.css',
+			array(),
+			WCB_VERSION
+		);
+
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
 			if ( is_dir( $block_dir ) ) {
 				register_block_type_from_metadata( $block_dir );
+				wp_enqueue_block_style(
+					'wp-career-board/' . $block,
+					array( 'handle' => 'wcb-frontend-tokens' )
+				);
 			}
 		}
 	}

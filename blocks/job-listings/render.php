@@ -61,11 +61,30 @@ if ( $wcb_board_id_attr > 0 ) {
 	);
 }
 if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
+	/**
+	 * Allowlist of meta keys that metaFilter may query.
+	 *
+	 * Empty by default — integrators opt in to specific keys here. Keeps
+	 * arbitrary-meta probes blocked. See docs/HOOKS.md.
+	 *
+	 * @since 1.0.0
+	 * @param array<int,string> $keys Allowlisted meta keys.
+	 */
 	$wcb_meta_filter_allowed = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
 	if ( in_array( $wcb_meta_filter_key, $wcb_meta_filter_allowed, true ) ) {
 		$wcb_query_args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			'key'   => $wcb_meta_filter_key,
 			'value' => $wcb_meta_filter_val,
+		);
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		_doing_it_wrong(
+			'wcb_job_listings',
+			sprintf(
+				/* translators: %s: meta key the integrator tried to filter on. */
+				esc_html__( 'metaFilter key "%s" is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', ... ) to enable filtering.', 'wp-career-board' ),
+				esc_html( $wcb_meta_filter_key )
+			),
+			'1.1.0'
 		);
 	}
 }
@@ -297,7 +316,7 @@ $wcb_state = array(
 	'layout'        => $wcb_layout,
 	'loading'       => false,
 	'hasMore'       => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) >= $wcb_per_page,
-	'apiBase'       => (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ),
+	'apiBase'       => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
 	'nonce'         => wp_create_nonce( 'wp_rest' ),
 	'totalCount'    => $wcb_total_count,
 	'searchQuery'   => '',

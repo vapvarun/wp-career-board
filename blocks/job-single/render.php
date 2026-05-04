@@ -238,7 +238,7 @@ wp_interactivity_state(
     'wcb-job-single',
     array(
         'jobId'                => $wcb_job_id,
-        'apiBase'              => rest_url('wcb/v1'),
+        'apiBase'              => untrailingslashit( rest_url( 'wcb/v1' ) ),
         'nonce'                => wp_create_nonce('wp_rest'),
         'panelOpen'            => false,
         'submitting'           => false,

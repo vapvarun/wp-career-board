@@ -146,7 +146,7 @@ class SetupWizard extends \WCB\Api\RestController
             'wcb-wizard',
             'wcbWizard',
             array(
-            'restUrl'    => esc_url_raw(rest_url('wcb/v1/wizard')),
+            'restUrl'    => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1/wizard' ) ) ),
             'steps'      => array_keys($steps),
             'totalSteps' => count($steps),
             )
@@ -213,9 +213,9 @@ class SetupWizard extends \WCB\Api\RestController
      * Permission check for all wizard REST routes.
      *
      * @since  1.0.0
-     * @return true|\WP_Error
+     * @return bool|\WP_Error
      */
-    public function wizard_permission_check(): true|\WP_Error
+    public function wizard_permission_check(): bool|\WP_Error
     {
         if ($this->check_ability('wcb_manage_settings') ) {
             return true;

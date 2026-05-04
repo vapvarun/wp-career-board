@@ -118,7 +118,7 @@ wp_interactivity_state(
             'resumes'               => array(),
             'loading'               => false,
             'error'                 => '',
-            'apiBase'               => rest_url('wcb/v1'),
+            'apiBase'               => untrailingslashit( rest_url( 'wcb/v1' ) ),
             'nonce'                 => wp_create_nonce('wp_rest'),
             'candidateId'           => $wcb_candidate_id,
             'candidateName'         => $wcb_display_name,

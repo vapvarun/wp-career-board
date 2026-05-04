@@ -43,7 +43,7 @@ $wcb_login_url = wp_login_url( get_permalink() ?? '' );
 wp_interactivity_state(
 	'wcb-employer-registration',
 	array(
-		'apiBase'         => rest_url( 'wcb/v1' ),
+		'apiBase'         => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'           => wp_create_nonce( 'wp_rest' ),
 		'role'            => '',
 		'firstName'       => '',
