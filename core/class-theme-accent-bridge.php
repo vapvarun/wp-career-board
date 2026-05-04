@@ -165,7 +165,7 @@ final class ThemeAccentBridge {
 	 * @return string|null
 	 */
 	private function generatepress_accent(): ?string {
-		$settings = (array) get_option( 'generate_settings', array() );
+		$settings   = (array) get_option( 'generate_settings', array() );
 		$candidates = array(
 			'form_button_background_color',
 			'navigation_background_color',

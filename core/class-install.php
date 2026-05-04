@@ -198,7 +198,7 @@ final class Install {
 
 				$legacy_captcha = get_option( 'wcb_captcha_driver', null );
 				if ( null !== $legacy_captcha && ! isset( $current['captcha']['driver'] ) ) {
-					$current['captcha']            = isset( $current['captcha'] ) && is_array( $current['captcha'] ) ? $current['captcha'] : array();
+					$current['captcha']           = isset( $current['captcha'] ) && is_array( $current['captcha'] ) ? $current['captcha'] : array();
 					$current['captcha']['driver'] = (string) $legacy_captcha;
 					$dirty                        = true;
 				}
