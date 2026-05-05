@@ -367,6 +367,20 @@ store(
 					state.jobUrl    = data.permalink || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
+
+					// Auto-reset the success state after 8 seconds so a returning
+					// user sees a fresh form instead of a stuck success banner —
+					// matches the spec on Basecamp card 9817915492.
+					setTimeout( () => {
+						const live = store( 'wcb-job-form' );
+						if ( live && live.state && live.state.submitted ) {
+							if ( typeof live.actions?.resetForm === 'function' ) {
+								live.actions.resetForm();
+							} else {
+								live.state.submitted = false;
+							}
+						}
+					}, 8000 );
 				} catch {
 					state.error = state.strings.errorConnection;
 				} finally {
@@ -375,11 +389,29 @@ store(
 			},
 
 			resetForm() {
-				state.submitted = false;
-				state.step      = 1;
-				state.error     = '';
-				state.jobUrl    = '';
-				state.jobStatus = '';
+				// Clear success-state flags AND all volatile form values so the
+				// user is not editing a copy of their last submission.
+				state.submitted        = false;
+				state.step             = 1;
+				state.error            = '';
+				state.validationError  = '';
+				state.jobUrl           = '';
+				state.jobStatus        = '';
+				state.editJobId        = 0;
+				state.title            = '';
+				state.description      = '';
+				state.salaryMin        = '';
+				state.salaryMax        = '';
+				state.deadline         = '';
+				state.applyUrl         = '';
+				state.applyEmail       = '';
+				state.locationSlug     = '';
+				state.typeSlug         = '';
+				state.categorySlug     = '';
+				state.expSlug          = '';
+				state.tags             = '';
+				state.remote           = false;
+				state.customFields     = {};
 			},
 		},
 	}
