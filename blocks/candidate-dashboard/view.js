@@ -340,6 +340,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 				if ( response.ok ) {
 					state.profileSaved = true;
+					setTimeout( () => {
+						state.profileSaved = false;
+					}, 3000 );
 				} else {
 					state.error = 'Could not save profile. Please try again.';
 				}

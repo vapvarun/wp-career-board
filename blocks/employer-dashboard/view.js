@@ -707,6 +707,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				}
 
 				state.saved = true;
+				setTimeout( () => {
+					state.saved = false;
+				}, 3000 );
 			} catch {
 				state.error = state.strings.errorConnection;
 			} finally {
