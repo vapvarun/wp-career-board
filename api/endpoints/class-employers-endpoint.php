@@ -154,6 +154,75 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function register_employer( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company_name = (string) $request->get_param( 'company_name' );
+
+		// Logged-in user without the employer role: just promote them and create their company.
+		if ( is_user_logged_in() ) {
+			$user = wp_get_current_user();
+			if ( in_array( 'wcb_employer', (array) $user->roles, true ) ) {
+				return new \WP_Error(
+					'wcb_already_employer',
+					__( 'You are already registered as an employer.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			if ( in_array( 'wcb_candidate', (array) $user->roles, true ) ) {
+				return new \WP_Error(
+					'wcb_candidate_account',
+					__( 'Your account is already registered as a candidate. Use a different account to post jobs.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			if ( '' === trim( $company_name ) ) {
+				return new \WP_Error(
+					'wcb_missing_company',
+					__( 'Company name is required.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+			$user->add_role( 'wcb_employer' );
+			$user_id = $user->ID;
+
+			$company_id = wp_insert_post(
+				array(
+					'post_type'   => 'wcb_company',
+					'post_title'  => $company_name,
+					'post_status' => 'publish',
+					'post_author' => $user_id,
+				)
+			);
+			if ( $company_id && ! is_wp_error( $company_id ) ) {
+				update_user_meta( $user_id, '_wcb_company_id', $company_id );
+				$reg_meta = array(
+					'website'  => '_wcb_website',
+					'industry' => '_wcb_industry',
+					'size'     => '_wcb_company_size',
+					'hq'       => '_wcb_hq_location',
+				);
+				foreach ( $reg_meta as $param => $meta_key ) {
+					$val = $request->get_param( $param );
+					if ( $val ) {
+						update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+					}
+				}
+			}
+			$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
+			do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
+
+			$settings      = (array) get_option( 'wcb_settings', array() );
+			$dashboard_url = ! empty( $settings['employer_dashboard_page'] )
+				? (string) get_permalink( (int) $settings['employer_dashboard_page'] )
+				: home_url( '/' );
+
+			return rest_ensure_response(
+				array(
+					'user_id'       => $user_id,
+					'company_id'    => $resolved_company_id,
+					'dashboard_url' => $dashboard_url,
+				)
+			);
+		}
+
 		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
@@ -162,11 +231,10 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		$first_name   = (string) $request->get_param( 'first_name' );
-		$last_name    = (string) $request->get_param( 'last_name' );
-		$email        = (string) $request->get_param( 'email' );
-		$company_name = (string) $request->get_param( 'company_name' );
-		$password     = (string) $request->get_param( 'password' );
+		$first_name = (string) $request->get_param( 'first_name' );
+		$last_name  = (string) $request->get_param( 'last_name' );
+		$email      = (string) $request->get_param( 'email' );
+		$password   = (string) $request->get_param( 'password' );
 
 		if ( email_exists( $email ) ) {
 			return new \WP_Error(

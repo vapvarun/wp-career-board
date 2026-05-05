@@ -127,6 +127,39 @@ final class CandidatesEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function register_candidate( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		// Logged-in user without the candidate role: just promote them.
+		if ( is_user_logged_in() ) {
+			$user = wp_get_current_user();
+			if ( in_array( 'wcb_candidate', (array) $user->roles, true ) ) {
+				return new \WP_Error(
+					'wcb_already_candidate',
+					__( 'You are already registered as a candidate.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			if ( in_array( 'wcb_employer', (array) $user->roles, true ) ) {
+				return new \WP_Error(
+					'wcb_employer_account',
+					__( 'Your account is already registered as an employer. Use a different account to apply for jobs.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			$user->add_role( 'wcb_candidate' );
+			do_action( 'wcb_candidate_registered', $user->ID );
+
+			$settings      = (array) get_option( 'wcb_settings', array() );
+			$dashboard_url = ! empty( $settings['candidate_dashboard_page'] )
+				? (string) get_permalink( (int) $settings['candidate_dashboard_page'] )
+				: home_url( '/' );
+
+			return rest_ensure_response(
+				array(
+					'user_id'       => $user->ID,
+					'dashboard_url' => $dashboard_url,
+				)
+			);
+		}
+
 		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',

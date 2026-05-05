@@ -14,19 +14,26 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// Already logged in — show a contextual message instead of the form.
-if ( is_user_logged_in() ) {
-	$wcb_settings      = (array) get_option( 'wcb_settings', array() );
-	$wcb_user          = wp_get_current_user();
-	$wcb_is_employer   = in_array( 'wcb_employer', (array) $wcb_user->roles, true );
+$wcb_user           = is_user_logged_in() ? wp_get_current_user() : null;
+$wcb_user_roles     = $wcb_user ? (array) $wcb_user->roles : array();
+$wcb_is_employer    = in_array( 'wcb_employer', $wcb_user_roles, true );
+$wcb_is_candidate   = in_array( 'wcb_candidate', $wcb_user_roles, true );
+$wcb_settings       = (array) get_option( 'wcb_settings', array() );
+
+// Logged-in users who already have a WCB role get a contextual notice + dashboard link.
+// Logged-in users without a role fall through to the form so they can pick one.
+if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 	$wcb_dash_page_key = $wcb_is_employer ? 'employer_dashboard_page' : 'candidate_dashboard_page';
 	$wcb_dashboard_url = ! empty( $wcb_settings[ $wcb_dash_page_key ] )
 		? (string) get_permalink( (int) $wcb_settings[ $wcb_dash_page_key ] )
 		: '';
+	$wcb_role_label = $wcb_is_employer
+		? __( 'You\'re registered as an employer.', 'wp-career-board' )
+		: __( 'You\'re registered as a candidate.', 'wp-career-board' );
 	?>
 	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--logged-in' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<p class="wcb-reg-notice">
-			<?php esc_html_e( 'You are already logged in.', 'wp-career-board' ); ?>
+			<?php echo esc_html( $wcb_role_label ); ?>
 			<?php if ( $wcb_dashboard_url ) : ?>
 				<a href="<?php echo esc_url( $wcb_dashboard_url ); ?>" class="wcb-reg-link">
 					<?php esc_html_e( 'Go to your dashboard →', 'wp-career-board' ); ?>
@@ -38,7 +45,18 @@ if ( is_user_logged_in() ) {
 	return;
 }
 
-$wcb_login_url = wp_login_url( get_permalink() ?? '' );
+$wcb_login_url     = wp_login_url( get_permalink() ?? '' );
+$wcb_is_logged_in  = (bool) $wcb_user;
+$wcb_first_name    = $wcb_user ? (string) $wcb_user->first_name : '';
+$wcb_last_name     = $wcb_user ? (string) $wcb_user->last_name : '';
+$wcb_user_email    = $wcb_user ? (string) $wcb_user->user_email : '';
+
+if ( $wcb_user && '' === trim( $wcb_first_name . $wcb_last_name ) ) {
+	$display = (string) $wcb_user->display_name;
+	$parts   = preg_split( '/\s+/', trim( $display ), 2 );
+	$wcb_first_name = $parts[0] ?? '';
+	$wcb_last_name  = $parts[1] ?? '';
+}
 
 wp_interactivity_state(
 	'wcb-employer-registration',
@@ -46,15 +64,16 @@ wp_interactivity_state(
 		'apiBase'         => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'           => wp_create_nonce( 'wp_rest' ),
 		'role'            => '',
-		'firstName'       => '',
-		'lastName'        => '',
-		'email'           => '',
+		'firstName'       => $wcb_first_name,
+		'lastName'        => $wcb_last_name,
+		'email'           => $wcb_user_email,
 		'companyName'     => '',
 		'companyWebsite'  => '',
 		'companyIndustry' => '',
 		'companySize'     => '',
 		'companyHq'       => '',
 		'password'        => '',
+		'isLoggedIn'      => $wcb_is_logged_in,
 		'submitting'      => false,
 		'submitted'       => false,
 		'error'           => '',
@@ -125,6 +144,7 @@ wp_interactivity_state(
 				<?php /* Honeypot */ ?>
 				<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" />
 
+				<?php if ( ! $wcb_is_logged_in ) : ?>
 				<div class="wcb-reg-row">
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?></label>
@@ -167,6 +187,14 @@ wp_interactivity_state(
 						data-wp-on--input="actions.updateEmail"
 					/>
 				</div>
+				<?php else : ?>
+				<p class="wcb-reg-logged-in-note">
+					<?php
+					/* translators: %s: user's display name. */
+					echo esc_html( sprintf( __( 'Continuing as %s. Your account will be linked to this role.', 'wp-career-board' ), $wcb_user->display_name ) );
+					?>
+				</p>
+				<?php endif; ?>
 
 				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
 					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
@@ -217,6 +245,7 @@ wp_interactivity_state(
 						data-wp-bind--value="state.companyHq" data-wp-on--input="actions.updateField" data-wcb-field="companyHq" />
 				</div>
 
+				<?php if ( ! $wcb_is_logged_in ) : ?>
 				<div class="wcb-field-group">
 					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></label>
 					<input
@@ -231,6 +260,7 @@ wp_interactivity_state(
 					/>
 					<span class="wcb-form-hint"><?php esc_html_e( 'Minimum 8 characters', 'wp-career-board' ); ?></span>
 				</div>
+				<?php endif; ?>
 
 				<p class="wcb-reg-error" role="alert" data-wp-class--wcb-hidden="!state.error" data-wp-text="state.error"></p>
 

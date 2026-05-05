@@ -86,12 +86,14 @@ const { state } = store( 'wcb-employer-registration', {
 				? '/candidates/register'
 				: '/employers/register';
 
-			const body = {
-				first_name: state.firstName,
-				last_name:  state.lastName,
-				email:      state.email,
-				password:   state.password,
-			};
+			const body = state.isLoggedIn
+				? {}
+				: {
+					first_name: state.firstName,
+					last_name:  state.lastName,
+					email:      state.email,
+					password:   state.password,
+				};
 
 			if ( state.role === 'employer' ) {
 				body.company_name = state.companyName;
