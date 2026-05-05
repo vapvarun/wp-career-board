@@ -674,7 +674,9 @@ final class Plugin {
 					( new \WCB\Integrations\Reign\ReignIntegration() )->boot();
 				}
 
-				if ( 'buddyx-pro' === $theme && class_exists( \WCB\Integrations\BuddyxPro\BuddyxProIntegration::class ) ) {
+				// Same compat shim covers both BuddyX (free) and BuddyX Pro — content
+				// width and layout tokens are identical between the two.
+				if ( in_array( $theme, array( 'buddyx', 'buddyx-pro' ), true ) && class_exists( \WCB\Integrations\BuddyxPro\BuddyxProIntegration::class ) ) {
 					( new \WCB\Integrations\BuddyxPro\BuddyxProIntegration() )->boot();
 				}
 			}
