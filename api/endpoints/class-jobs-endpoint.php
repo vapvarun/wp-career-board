@@ -835,10 +835,16 @@ final class JobsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = (int) $post->post_author === $this->current_user_id()
+		$user_id      = $this->current_user_id();
+		$is_author    = (int) $post->post_author === $user_id
 			&& $this->check_ability( 'wcb_post_jobs' );
-		$is_admin = $this->check_ability( 'wcb_manage_settings' );
-		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+		$user_company = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$job_company  = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+		$is_company_member = $user_company > 0
+			&& $user_company === $job_company
+			&& $this->check_ability( 'wcb_post_jobs' );
+		$is_admin     = $this->check_ability( 'wcb_manage_settings' );
+		return ( $is_author || $is_company_member || $is_admin ) ? true : $this->permission_error();
 	}
 
 	/**

@@ -98,10 +98,15 @@ $wcb_e_exps   = array();
 $wcb_e_tags   = array();
 
 if ( $wcb_edit_id > 0 ) {
-	$wcb_edit_job = get_post( $wcb_edit_id );
+	$wcb_edit_job        = get_post( $wcb_edit_id );
+	$wcb_user_company_id = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true );
+	$wcb_job_company_id  = (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true );
+	$wcb_same_company    = $wcb_user_company_id > 0 && $wcb_user_company_id === $wcb_job_company_id;
+
 	$wcb_can_edit = $wcb_edit_job instanceof \WP_Post
 	&& 'wcb_job' === $wcb_edit_job->post_type
 	&& ( (int) $wcb_edit_job->post_author === $wcb_user_id
+	|| $wcb_same_company
 	|| ( function_exists( 'wp_is_ability_granted' ) && wp_is_ability_granted( 'wcb_manage_settings' ) ) );
 
 	if ( ! $wcb_can_edit ) {
