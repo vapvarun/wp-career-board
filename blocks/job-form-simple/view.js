@@ -121,6 +121,30 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				if ( window.wcbCaptchaReset ) {
 					window.wcbCaptchaReset();
 				}
+
+				// Auto-dismiss the success state after 8 seconds and clear
+				// volatile fields so the user gets a fresh form instead of a
+				// stuck banner — same UX rule as the multi-step job-form.
+				setTimeout( () => {
+					if ( ! state.submitted ) return;
+					state.submitted   = false;
+					state.jobUrl      = '';
+					state.error       = '';
+					state.title       = '';
+					state.description = '';
+					state.salaryMin   = '';
+					state.salaryMax   = '';
+					state.deadline    = '';
+					state.applyUrl    = '';
+					state.applyEmail  = '';
+					state.locationSlug = '';
+					state.typeSlug     = '';
+					state.categorySlug = '';
+					state.expSlug      = '';
+					state.tags         = '';
+					state.remote       = false;
+					state.customFields = {};
+				}, 8000 );
 			} catch {
 				state.error = state.strings.errorConnection;
 			} finally {
