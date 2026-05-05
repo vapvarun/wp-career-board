@@ -1322,7 +1322,8 @@
 
 .wcb-field-input {
 	width: 100%;
-	/* padding: var(--wcb-space-lg) 0.875rem; */
+	min-height: 44px;
+	padding: 0.625rem 0.875rem;
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
