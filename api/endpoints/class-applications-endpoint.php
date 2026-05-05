@@ -545,6 +545,20 @@ final class ApplicationsEndpoint extends RestController {
 			return $pre_uploaded;
 		}
 
+		// Fall back to the attachment stored on the selected resume CPT post.
+		// Without this, picking a saved resume leaves the application's
+		// _wcb_resume_attachment_id empty and the preview renders blank.
+		$resume_id = (int) $request->get_param( 'resume_id' );
+		if ( $resume_id > 0 && $author_id > 0 ) {
+			$resume = get_post( $resume_id );
+			if ( $resume && 'wcb_resume' === $resume->post_type && (int) $resume->post_author === $author_id ) {
+				$resume_attachment_id = (int) get_post_meta( $resume_id, '_wcb_resume_attachment_id', true );
+				if ( $resume_attachment_id > 0 && get_post( $resume_attachment_id ) ) {
+					return $resume_attachment_id;
+				}
+			}
+		}
+
 		return 0;
 	}
 
