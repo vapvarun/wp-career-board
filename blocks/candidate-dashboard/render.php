@@ -138,6 +138,7 @@ wp_interactivity_state(
 			'bellUnreadCount'        => 0,
 			'bellOpen'               => false,
 			'bellLoading'            => false,
+			'bellEnabled'            => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
 			'alerts'                 => array(),
 			'alertsLoading'          => false,
 			'allowWithdraw'          => function_exists( 'wp_is_authorized' ) ? wp_is_authorized( 'wcb_withdraw_application' ) : current_user_can( 'wcb_withdraw_application' ),

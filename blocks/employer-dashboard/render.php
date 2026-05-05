@@ -166,6 +166,7 @@ wp_interactivity_state(
 		'bellUnreadCount'   => 0,
 		'bellOpen'          => false,
 		'bellLoading'       => false,
+		'bellEnabled'       => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
 		'strings'           => array(
 			'errorLoadJobs'            => __( 'Could not load your jobs.', 'wp-career-board' ),
 			'errorLoadApps'            => __( 'Could not load applications.', 'wp-career-board' ),

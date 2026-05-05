@@ -376,7 +376,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				yield actions.loadApplications();
 			}
 
-			yield actions.fetchBellNotifications();
+			if ( state.bellEnabled ) {
+				yield actions.fetchBellNotifications();
+			}
 		},
 
 		toggleNav() {
@@ -714,7 +716,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		*toggleBell() {
 			state.bellOpen = ! state.bellOpen;
-			if ( state.bellOpen && state.bellNotifications.length === 0 ) {
+			if ( state.bellOpen && state.bellEnabled && state.bellNotifications.length === 0 ) {
 				yield actions.fetchBellNotifications();
 			}
 		},
