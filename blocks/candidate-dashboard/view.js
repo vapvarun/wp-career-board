@@ -512,6 +512,42 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
+		*reuploadResumePdf( event ) {
+			const ctx  = getContext();
+			const file = event.target.files && event.target.files[ 0 ];
+			if ( ! ctx.resume || ! file ) {
+				return;
+			}
+			const formData = new FormData();
+			formData.append( 'resume_file', file );
+
+			state.loading = true;
+			state.error   = '';
+			try {
+				const response = yield fetch(
+					state.apiBase + '/resumes/' + String( ctx.resume.id ) + '/pdf',
+					{
+						method:  'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+						body:    formData,
+					}
+				);
+				if ( ! response.ok ) {
+					state.error = state.strings.errLoadResumes;
+					return;
+				}
+				const data    = yield response.json();
+				ctx.resume.pdfUrl       = data.pdf_url || ctx.resume.pdfUrl;
+				ctx.resume.attachmentId = data.attachment_id || ctx.resume.attachmentId;
+				ctx.resume.isPdf        = !! ctx.resume.pdfUrl;
+			} catch {
+				state.error = state.strings.errConnectionShort;
+			} finally {
+				state.loading           = false;
+				event.target.value      = '';
+			}
+		},
+
 		*createResume() {
 			const title = state.newResumeTitle.trim();
 			if ( ! title ) {

@@ -538,7 +538,15 @@ wp_interactivity_state(
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">
 						<a
 							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+							data-wp-bind--href="context.resume.pdfUrl"
+							data-wp-class--wcb-hidden="!context.resume.isPdf"
+							target="_blank"
+							rel="noopener"
+						><?php esc_html_e( 'Open PDF', 'wp-career-board' ); ?></a>
+						<a
+							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
 							data-wp-bind--href="context.resume.permalink"
+							data-wp-class--wcb-hidden="context.resume.isPdf"
 							data-wp-bind--hidden="!context.resume.permalink"
 							target="_blank"
 							rel="noopener"
@@ -546,8 +554,21 @@ wp_interactivity_state(
 						<button
 							type="button"
 							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+							data-wp-class--wcb-hidden="context.resume.isPdf"
 							data-wp-on--click="actions.openResumeEditor"
 						><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></button>
+						<label
+							class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm wcb-resume-reupload"
+							data-wp-class--wcb-hidden="!context.resume.isPdf"
+						>
+							<?php esc_html_e( 'Re-upload PDF', 'wp-career-board' ); ?>
+							<input
+								type="file"
+								accept="application/pdf"
+								data-wp-on--change="actions.reuploadResumePdf"
+								class="wcb-resume-reupload-input"
+							/>
+						</label>
 						<button
 							type="button"
 							class="wcb-cbtn wcb-cbtn--danger wcb-cbtn--sm"
