@@ -85,6 +85,7 @@ final class Plugin {
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_shared_assets' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
 
 		// Theme accent auto-bridge — for non-bundle themes only.
@@ -526,28 +527,7 @@ final class Plugin {
 			WCB_VERSION
 		);
 
-		wp_register_style(
-			'wcb-confirm-modal',
-			WCB_URL . 'assets/css/wcb-confirm-modal.css',
-			array( 'wcb-frontend-tokens' ),
-			WCB_VERSION
-		);
-
-		wp_register_script(
-			'wcb-confirm-modal',
-			WCB_URL . 'assets/js/wcb-confirm-modal.js',
-			array(),
-			WCB_VERSION,
-			true
-		);
-		wp_localize_script(
-			'wcb-confirm-modal',
-			'wcbConfirmI18n',
-			array(
-				'confirm' => __( 'Confirm', 'wp-career-board' ),
-				'cancel'  => __( 'Cancel', 'wp-career-board' ),
-			)
-		);
+		$this->register_confirm_modal_assets();
 
 		wp_enqueue_script(
 			'lucide',
@@ -564,6 +544,66 @@ final class Plugin {
 			WCB_VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Register the shared confirm-modal style and script.
+	 *
+	 * Idempotent. The style depends on wcb-frontend-tokens when those are
+	 * registered (frontend); on admin pages where tokens are absent, the
+	 * dependency is dropped and the CSS falls back to its built-in defaults.
+	 * The Pro field-builder enqueues this on admin_enqueue_scripts, which is
+	 * why the registration must run on both hooks.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function register_confirm_modal_assets(): void {
+		if ( wp_script_is( 'wcb-confirm-modal', 'registered' ) ) {
+			return;
+		}
+
+		$style_deps = wp_style_is( 'wcb-frontend-tokens', 'registered' )
+			? array( 'wcb-frontend-tokens' )
+			: array();
+
+		wp_register_style(
+			'wcb-confirm-modal',
+			WCB_URL . 'assets/css/wcb-confirm-modal.css',
+			$style_deps,
+			WCB_VERSION
+		);
+
+		wp_register_script(
+			'wcb-confirm-modal',
+			WCB_URL . 'assets/js/wcb-confirm-modal.js',
+			array(),
+			WCB_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'wcb-confirm-modal',
+			'wcbConfirmI18n',
+			array(
+				'confirm' => __( 'Confirm', 'wp-career-board' ),
+				'cancel'  => __( 'Cancel', 'wp-career-board' ),
+			)
+		);
+	}
+
+	/**
+	 * Register shared assets that admin-side modules may depend on.
+	 *
+	 * Hooked early so consumers (e.g. the Pro field-builder) can declare
+	 * wcb-confirm-modal as a dependency without WP printing a "doing it
+	 * wrong" notice.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function register_admin_shared_assets(): void {
+		$this->register_confirm_modal_assets();
 	}
 
 	/**
