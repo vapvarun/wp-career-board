@@ -40,6 +40,10 @@ class Admin {
 
 		// Boot meta boxes for the wcb_job CPT.
 		( new AdminMetaBoxes() )->boot();
+
+		// Replace the default WP editor on the wcb_job edit screen with our
+		// Editor.js surface — matches the simplified admin pattern from Learnomy.
+		( new AdminJobEditor() )->boot();
 	}
 
 	/**
