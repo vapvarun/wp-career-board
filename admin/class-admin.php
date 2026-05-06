@@ -32,6 +32,8 @@ class Admin {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_menu', array( $this, 'register_settings_submenu' ), 25 );
 		add_action( 'admin_menu', array( $this, 'register_emails_submenu' ), 20 );
+		add_filter( 'parent_file', array( $this, 'highlight_parent_for_taxonomies' ) );
+		add_filter( 'submenu_file', array( $this, 'highlight_submenu_for_taxonomies' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		( new EmailSettings() )->boot();
 
@@ -111,6 +113,80 @@ class Admin {
 			'wcb-employers',
 			array( new AdminEmployers(), 'render' )
 		);
+
+		// Taxonomy submenu items — point at the stock WP edit-tags screens so
+		// admins can create/edit job categories, types, locations, etc. without
+		// having to know the post-type-aware URL by hand. Filled into the
+		// $submenu global directly because add_submenu_page() rewrites slugs
+		// into admin.php?page=…, which doesn't apply here.
+		global $submenu;
+		$wcb_tax_links = array(
+			'wcb_category'   => __( 'Job Categories', 'wp-career-board' ),
+			'wcb_job_type'   => __( 'Job Types', 'wp-career-board' ),
+			'wcb_location'   => __( 'Job Locations', 'wp-career-board' ),
+			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
+			'wcb_tag'        => __( 'Job Tags', 'wp-career-board' ),
+		);
+		foreach ( $wcb_tax_links as $wcb_tax => $wcb_label ) {
+			$submenu['wp-career-board'][] = array(
+				$wcb_label,
+				'wcb_manage_settings',
+				'edit-tags.php?taxonomy=' . $wcb_tax . '&post_type=wcb_job',
+			);
+		}
+	}
+
+	/**
+	 * Keep the Career Board top-level menu highlighted while admins are on the
+	 * taxonomy admin pages registered as cross-links above. Without this filter
+	 * WP can't tell the edit-tags.php?taxonomy=wcb_… screens belong to our menu
+	 * and falls back to highlighting "Posts" or nothing.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param  string $parent_file The parent menu file currently set.
+	 * @return string
+	 */
+	public function highlight_parent_for_taxonomies( string $parent_file ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
+		if ( isset( $_GET['post_type'] ) && 'wcb_job' === sanitize_key( (string) $_GET['post_type'] )
+			&& isset( $_GET['taxonomy'] )
+			&& in_array(
+				sanitize_key( (string) $_GET['taxonomy'] ),
+				array( 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag' ),
+				true
+			)
+		) {
+			return 'wp-career-board';
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		return $parent_file;
+	}
+
+	/**
+	 * Highlight the matching submenu item (Job Categories / Job Types / etc.)
+	 * while on its corresponding edit-tags.php screen.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param  string|null $submenu_file Currently highlighted submenu file.
+	 * @param  string      $parent_file  Currently highlighted parent file.
+	 * @return string|null
+	 */
+	public function highlight_submenu_for_taxonomies( $submenu_file, $parent_file ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
+		if ( 'wp-career-board' !== $parent_file ) {
+			return $submenu_file;
+		}
+		if ( ! isset( $_GET['taxonomy'] ) ) {
+			return $submenu_file;
+		}
+		$wcb_tax = sanitize_key( (string) $_GET['taxonomy'] );
+		if ( ! in_array( $wcb_tax, array( 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag' ), true ) ) {
+			return $submenu_file;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		return 'edit-tags.php?taxonomy=' . $wcb_tax . '&post_type=wcb_job';
 	}
 
 	/**
