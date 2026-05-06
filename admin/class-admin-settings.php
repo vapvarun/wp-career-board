@@ -717,7 +717,7 @@ class AdminSettings {
 										<div class="wcb-settings-row-label"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input type="number" id="wcb-jobs-expire-days" name="wcb_settings[jobs_expire_days]" value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>" min="1" max="365" style="width:80px">
-											<span class="description"><?php esc_html_e( 'Jobs are automatically closed after this many days.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Default: 30 days. Jobs older than this auto-close. Closing is reversible — open the job in admin and republish to extend the lifetime.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -730,7 +730,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Automatically close jobs when their application deadline passes', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Runs via WP-Cron. Closed jobs remain visible but show "Applications Closed".', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Off by default. Runs hourly via WP-Cron — make sure your host has cron working (DISABLE_WP_CRON should not be set, or wp-cli should run it externally). Closed jobs remain visible but show "Applications Closed" instead of the apply form.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
