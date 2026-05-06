@@ -61,6 +61,12 @@ final class CandidatesEndpoint extends RestController {
 			)
 		);
 
+		// `required: true` is intentionally NOT declared on these args — the
+		// REST server would short-circuit with 400 before `register_candidate()`
+		// runs, breaking the logged-in promote-only path (where the user is
+		// already authenticated and we don't need new credentials). The
+		// callback enforces the requirements explicitly for the not-logged-in
+		// branch instead.
 		register_rest_route(
 			$this->namespace,
 			'/candidates/register',
@@ -71,22 +77,18 @@ final class CandidatesEndpoint extends RestController {
 				'args'                => array(
 					'first_name' => array(
 						'type'              => 'string',
-						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'last_name'  => array(
 						'type'              => 'string',
-						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'email'      => array(
 						'type'              => 'string',
-						'required'          => true,
 						'sanitize_callback' => 'sanitize_email',
 					),
 					'password'   => array(
-						'type'     => 'string',
-						'required' => true,
+						'type' => 'string',
 					),
 				),
 			)
@@ -172,6 +174,31 @@ final class CandidatesEndpoint extends RestController {
 		$last_name  = (string) $request->get_param( 'last_name' );
 		$email      = (string) $request->get_param( 'email' );
 		$password   = (string) $request->get_param( 'password' );
+
+		$missing = array();
+		if ( '' === $first_name ) {
+			$missing[] = 'first_name';
+		}
+		if ( '' === $last_name ) {
+			$missing[] = 'last_name';
+		}
+		if ( '' === $email ) {
+			$missing[] = 'email';
+		}
+		if ( '' === $password ) {
+			$missing[] = 'password';
+		}
+		if ( ! empty( $missing ) ) {
+			return new \WP_Error(
+				'wcb_missing_params',
+				sprintf(
+					/* translators: %s: comma-separated list of missing field names. */
+					__( 'Missing required fields: %s', 'wp-career-board' ),
+					implode( ', ', $missing )
+				),
+				array( 'status' => 400 )
+			);
+		}
 
 		if ( email_exists( $email ) ) {
 			return new \WP_Error(

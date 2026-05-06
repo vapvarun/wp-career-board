@@ -34,6 +34,11 @@ final class EmployersEndpoint extends RestController {
 	 * @return void
 	 */
 	public function register_routes(): void {
+		// `required: true` is intentionally NOT declared on these args — same
+		// reason as candidates/register: a logged-in user with no role should
+		// be promote-only (no new credentials needed) and `required` would
+		// short-circuit with 400 before `register_employer()` runs. The
+		// callback validates the not-logged-in branch explicitly.
 		register_rest_route(
 			$this->namespace,
 			'/employers/register',
@@ -44,7 +49,6 @@ final class EmployersEndpoint extends RestController {
 				'args'                => array(
 					'first_name'   => array(
 						'type'              => 'string',
-						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'last_name'    => array(
@@ -54,18 +58,15 @@ final class EmployersEndpoint extends RestController {
 					),
 					'email'        => array(
 						'type'              => 'string',
-						'required'          => true,
 						'format'            => 'email',
 						'sanitize_callback' => 'sanitize_email',
 					),
 					'company_name' => array(
 						'type'              => 'string',
-						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'password'     => array(
-						'type'     => 'string',
-						'required' => true,
+						'type' => 'string',
 					),
 				),
 			)
@@ -235,6 +236,32 @@ final class EmployersEndpoint extends RestController {
 		$last_name  = (string) $request->get_param( 'last_name' );
 		$email      = (string) $request->get_param( 'email' );
 		$password   = (string) $request->get_param( 'password' );
+		$cn_input   = (string) $request->get_param( 'company_name' );
+
+		$missing = array();
+		if ( '' === trim( $first_name ) ) {
+			$missing[] = 'first_name';
+		}
+		if ( '' === trim( $email ) ) {
+			$missing[] = 'email';
+		}
+		if ( '' === trim( $cn_input ) ) {
+			$missing[] = 'company_name';
+		}
+		if ( '' === $password ) {
+			$missing[] = 'password';
+		}
+		if ( ! empty( $missing ) ) {
+			return new \WP_Error(
+				'wcb_missing_params',
+				sprintf(
+					/* translators: %s: comma-separated list of missing field names. */
+					__( 'Missing required fields: %s', 'wp-career-board' ),
+					implode( ', ', $missing )
+				),
+				array( 'status' => 400 )
+			);
+		}
 
 		if ( email_exists( $email ) ) {
 			return new \WP_Error(

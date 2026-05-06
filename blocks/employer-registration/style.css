@@ -140,24 +140,38 @@
 	margin-bottom: var(--wcb-space-xs);
 }
 
+/*
+ * `!important` on color / padding / width / height is intentional — Astra
+ * (and several other themes) push their primary-button defaults onto every
+ * <button> via `.entry-content button` selectors at higher specificity,
+ * which gave the back button white text on white background and the
+ * theme's primary-button padding (15 px × 30 px). The arrow disappeared
+ * and the button became a giant empty rectangle. We own this small
+ * back-arrow button deterministically via property-level overrides.
+ */
 .wcb-reg-back {
-	display: inline-flex;
+	display: inline-flex !important;
 	align-items: center;
 	justify-content: center;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
-	background: var(--wcb-base);
+	width: var(--wcb-space-3xl) !important;
+	height: var(--wcb-space-3xl) !important;
+	padding: 0 !important;
+	border: 1px solid var(--wcb-border) !important;
+	border-radius: var(--wcb-radius-sm) !important;
+	background: var(--wcb-base) !important;
+	color: var(--wcb-text-secondary) !important;
 	cursor: pointer;
-	font-size: var(--wcb-text-base);
+	font-size: var(--wcb-text-md);
+	font-family: inherit;
+	line-height: 1;
 	flex-shrink: 0;
 	margin-top: var(--wcb-space-xs);
-	transition: border-color var(--wcb-transition-fast);
+	transition: border-color var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
 .wcb-reg-back:hover {
-	border-color: var(--wcb-primary);
+	border-color: var(--wcb-primary) !important;
+	color: var(--wcb-primary) !important;
 }
 
 .wcb-reg-back:focus-visible {
