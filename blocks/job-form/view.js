@@ -112,7 +112,13 @@ store(
 			},
 			get hasLocation() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.locationSlug;
+				return state.locationSlug === '__custom__'
+					? !! ( state.locationCustom || '' ).trim()
+					: !! state.locationSlug;
+			},
+			get locationIsCustom() {
+				const { state } = store( 'wcb-job-form' );
+				return state.locationSlug === '__custom__';
 			},
 			get hasCategory() {
 				const { state } = store( 'wcb-job-form' );
@@ -196,6 +202,9 @@ store(
 			},
 			get locationDisplay() {
 				const { state } = store( 'wcb-job-form' );
+				if ( state.locationSlug === '__custom__' ) {
+					return ( state.locationCustom || '' ).trim();
+				}
 				return state.locationSlug ? ( state.locationNames[ state.locationSlug ] || state.locationSlug ) : '';
 			},
 			get categoryDisplay() {
@@ -331,7 +340,12 @@ store(
 						apply_email:     state.applyEmail,
 						categories:      state.categorySlug ? [ state.categorySlug ] : [],
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
-						locations:       state.locationSlug ? [ state.locationSlug ] : [],
+						locations:       state.locationSlug && state.locationSlug !== '__custom__'
+							? [ state.locationSlug ]
+							: [],
+						location_custom: state.locationSlug === '__custom__'
+							? ( state.locationCustom || '' ).trim()
+							: '',
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						hp:                hpEl ? hpEl.value : '',
@@ -407,6 +421,7 @@ store(
 				state.applyUrl         = '';
 				state.applyEmail       = '';
 				state.locationSlug     = '';
+				state.locationCustom   = '';
 				state.typeSlug         = '';
 				state.categorySlug     = '';
 				state.expSlug          = '';

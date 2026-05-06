@@ -170,6 +170,11 @@ $wcb_initial_state = apply_filters(
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
+		// Manual override path for jobs whose location isn't an existing term —
+		// employer types a one-off string ('Berlin, DE', 'Remote — Europe', etc.).
+		// On submit the form sends `location_custom` and the create/update
+		// callback wp_inserts a matching term so the listings filter still works.
+		'locationCustom'    => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_location_custom', true ) : '',
 		'typeSlug'          => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
 		'categorySlug'      => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
 		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
@@ -596,7 +601,19 @@ $wcb_step_labels = array(
 							<?php echo esc_html( $wcb_term->name ); ?>
 							</option>
 						<?php endforeach; ?>
+						<option value="__custom__"><?php esc_html_e( 'Other (enter manually)…', 'wp-career-board' ); ?></option>
 					</select>
+					<input
+						type="text"
+						id="wcb-location-custom"
+						class="wcb-field"
+						data-wcb-field="locationCustom"
+						data-wp-bind--value="state.locationCustom"
+						data-wp-on--input="actions.updateField"
+						data-wp-class--wcb-hidden="!state.locationIsCustom"
+						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote — Europe', 'wp-career-board' ); ?>"
+						maxlength="120"
+					/>
 				</div>
 
 				<div class="wcb-form-field">

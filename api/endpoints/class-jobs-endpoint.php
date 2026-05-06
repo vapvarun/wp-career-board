@@ -536,6 +536,21 @@ final class JobsEndpoint extends RestController {
 		if ( $locations ) {
 			wp_set_object_terms( $job_id, (array) $locations, 'wcb_location' );
 		}
+		// Manual one-off location string from the form's "Other (enter
+		// manually)" path. Insert/attach a matching wcb_location term so the
+		// listings filter still indexes the job, and stash the raw label in
+		// post meta for display fidelity (term names get sanitized).
+		$wcb_loc_custom = sanitize_text_field( (string) ( $request->get_param( 'location_custom' ) ?? '' ) );
+		if ( '' !== $wcb_loc_custom ) {
+			$wcb_term = term_exists( $wcb_loc_custom, 'wcb_location' );
+			if ( ! $wcb_term ) {
+				$wcb_term = wp_insert_term( $wcb_loc_custom, 'wcb_location' );
+			}
+			if ( ! is_wp_error( $wcb_term ) && isset( $wcb_term['term_id'] ) ) {
+				wp_set_object_terms( $job_id, array( (int) $wcb_term['term_id'] ), 'wcb_location', true );
+				update_post_meta( $job_id, '_wcb_location_custom', $wcb_loc_custom );
+			}
+		}
 		$experience_param = $request->get_param( 'experience' );
 		if ( $experience_param ) {
 			wp_set_object_terms( $job_id, (array) $experience_param, 'wcb_experience' );
@@ -646,6 +661,24 @@ final class JobsEndpoint extends RestController {
 			$terms = $request->get_param( $param );
 			if ( null !== $terms ) {
 				wp_set_object_terms( $post->ID, (array) $terms, $taxonomy );
+			}
+		}
+
+		// Manual location override — same flow as create_item().
+		$wcb_loc_custom = $request->get_param( 'location_custom' );
+		if ( null !== $wcb_loc_custom ) {
+			$wcb_loc_custom = sanitize_text_field( (string) $wcb_loc_custom );
+			if ( '' !== $wcb_loc_custom ) {
+				$wcb_term = term_exists( $wcb_loc_custom, 'wcb_location' );
+				if ( ! $wcb_term ) {
+					$wcb_term = wp_insert_term( $wcb_loc_custom, 'wcb_location' );
+				}
+				if ( ! is_wp_error( $wcb_term ) && isset( $wcb_term['term_id'] ) ) {
+					wp_set_object_terms( $post->ID, array( (int) $wcb_term['term_id'] ), 'wcb_location', true );
+					update_post_meta( $post->ID, '_wcb_location_custom', $wcb_loc_custom );
+				}
+			} else {
+				delete_post_meta( $post->ID, '_wcb_location_custom' );
 			}
 		}
 
