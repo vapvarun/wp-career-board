@@ -406,13 +406,10 @@ class AdminSettings {
 	public function render_import_tab(): void {
 		( new AdminImport() )->render();
 
-		// Sample data removal section.
-		// Show whenever wizard-tracked sample IDs exist OR the legacy installed
-		// flag is on. Either is enough proof that demo content is still around;
-		// checking only the flag misses sites where the option flipped out of
-		// sync but the IDs are still tracked.
-		$wcb_sample_ids = (array) get_option( 'wcb_sample_data_ids', array() );
-		$wcb_has_sample = ! empty( $wcb_sample_ids ) || (bool) get_option( 'wcb_sample_data_installed', false );
+		// Sample data removal section. Defer detection to the wizard so out-of-sync
+		// sites — flag is false but `wcb-sample-` jobs / `*.example.com` companies
+		// still exist — also see the cleanup button instead of being stranded.
+		$wcb_has_sample = SetupWizard::has_sample_data();
 		if ( $wcb_has_sample ) :
 			?>
 			<div class="wcb-settings-section__block" style="margin-top: 2rem;">
