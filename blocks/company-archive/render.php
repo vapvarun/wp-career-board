@@ -32,16 +32,20 @@ $wcb_size_labels = array(
 );
 
 // ── Fetch first page of companies ────────────────────────────────────────────
-$wcb_companies_raw = get_posts(
+// WP_Query (not get_posts) so found_posts is available for the hasMore seed.
+// Comparing the page count against per_page would mis-flag exact-boundary
+// pages (e.g. exactly 12 companies → infinitely-fetching empty pages).
+$wcb_companies_query = new \WP_Query(
 	array(
-		'post_type'     => 'wcb_company',
-		'post_status'   => 'publish',
-		'numberposts'   => $wcb_per_page,
-		'orderby'       => 'date',
-		'order'         => 'DESC',
-		'no_found_rows' => true,
+		'post_type'      => 'wcb_company',
+		'post_status'    => 'publish',
+		'posts_per_page' => $wcb_per_page,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
 	)
 );
+$wcb_companies_raw   = $wcb_companies_query->posts;
+$wcb_companies_total = (int) $wcb_companies_query->found_posts;
 
 // ── Build company_id → job count map ─────────────────────────────────────────
 $wcb_company_ids = $wcb_companies_raw
@@ -186,7 +190,7 @@ $wcb_state = array(
 	'perPage'   => $wcb_per_page,
 	'layout'    => $wcb_layout,
 	'loading'   => false,
-	'hasMore'   => count( $wcb_companies_raw ) >= $wcb_per_page,
+	'hasMore'   => count( $wcb_companies_raw ) < $wcb_companies_total,
 	'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 	'industry'  => '',
 	'size'      => '',

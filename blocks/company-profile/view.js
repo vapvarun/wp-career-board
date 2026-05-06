@@ -30,9 +30,20 @@ const { state } = store( 'wcb-company-profile', {
 					return;
 				}
 
-				const jobs = yield response.json();
+				const data = yield response.json();
+				// /wcb/v1/jobs since 1.1.0 returns { jobs, total, has_more }.
+				// Fall back to bare-array + per_page heuristic for old proxies,
+				// but prefer the authoritative value when available.
+				const jobs = Array.isArray( data ) ? data : ( data?.jobs ?? [] );
+				const total = Array.isArray( data )
+					? parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 )
+					: ( data?.total ?? 0 );
 				state.jobs.push( ...jobs );
-				state.hasMore = jobs.length === state.perPage;
+				if ( ! Array.isArray( data ) && typeof data?.has_more === 'boolean' ) {
+					state.hasMore = data.has_more && state.jobs.length < total;
+				} else {
+					state.hasMore = state.jobs.length < total;
+				}
 			} catch {
 				state.page--;
 			} finally {
