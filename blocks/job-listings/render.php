@@ -333,6 +333,20 @@ $wcb_state = array(
 	'metaFilter'    => $wcb_meta_filter_attr,
 	'salaryMin'     => 0,
 	'salaryMax'     => 0,
+	// Symbol used for the salary-filter chip + slider tooltips. Salary
+	// filtering is currency-agnostic (compares raw min/max numbers across
+	// jobs of any currency), so we surface the SITE default currency's
+	// symbol to label the slider — site owners on INR/EUR sites should
+	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
+	'currencySymbol' => (
+		static function (): string {
+			$wcb_settings_default = (string) ( ( (array) get_option( 'wcb_settings', array() ) )['salary_currency'] ?? 'USD' );
+			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
+			return isset( $wcb_catalog[ $wcb_settings_default ]['symbol'] )
+				? (string) $wcb_catalog[ $wcb_settings_default ]['symbol']
+				: '$';
+		}
+	)(),
 	'filterOptions' => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,

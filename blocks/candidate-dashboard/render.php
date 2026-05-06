@@ -169,6 +169,18 @@ wp_interactivity_state(
 			'privacyExportRequested' => false,
 			'privacyEraseRequested'  => false,
 			'privacyError'           => '',
+			// Site-default currency symbol — surfaced to the saved-search filter
+			// pill labels in view.js so dashboards on INR / EUR / etc. don't show
+			// a hardcoded $ on the alert summary.
+			'currencySymbol'         => (
+				static function (): string {
+					$wcb_default = (string) ( ( (array) get_option( 'wcb_settings', array() ) )['salary_currency'] ?? 'USD' );
+					$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
+					return isset( $wcb_catalog[ $wcb_default ]['symbol'] )
+						? (string) $wcb_catalog[ $wcb_default ]['symbol']
+						: '$';
+				}
+			)(),
 		),
 		$wcb_resumes_state
 	)

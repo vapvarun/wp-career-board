@@ -16,18 +16,19 @@ let searchDebounceTimer = null;
  * @param {number} value Salary in base currency units.
  * @return {string}
  */
-function wcbFormatSalaryShort( value ) {
+function wcbFormatSalaryShort( value, symbol ) {
 	const n = Number( value ) || 0;
+	const s = String( symbol || '$' );
 	if ( n <= 0 ) {
 		return '';
 	}
 	if ( n >= 1_000_000 ) {
-		return '$' + ( n / 1_000_000 ).toFixed( 1 ).replace( /\.0$/, '' ) + 'M';
+		return s + ( n / 1_000_000 ).toFixed( 1 ).replace( /\.0$/, '' ) + 'M';
 	}
 	if ( n >= 1_000 ) {
-		return '$' + Math.round( n / 1_000 ) + 'k';
+		return s + Math.round( n / 1_000 ) + 'k';
 	}
-	return '$' + n;
+	return s + n;
 }
 
 const { state, actions } = store( 'wcb-job-listings', {
@@ -80,16 +81,16 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		get salaryMinDisplay() {
-			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin ) : ( state.strings.anyLabel || 'Any' );
+			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : ( state.strings.anyLabel || 'Any' );
 		},
 
 		get salaryMaxDisplay() {
-			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax ) : ( state.strings.anyLabel || 'Any' );
+			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : ( state.strings.anyLabel || 'Any' );
 		},
 
 		get salaryChipLabel() {
-			const min = state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin ) : '';
-			const max = state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax ) : '';
+			const min = state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : '';
+			const max = state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : '';
 			const fallback = state.strings.salaryChipDefault || 'Salary';
 			if ( ! min && ! max ) {
 				return fallback;
@@ -117,9 +118,9 @@ const { state, actions } = store( 'wcb-job-listings', {
 					const match = ( state.filterOptions.boards || [] ).find( ( b ) => b.id === id );
 					label = match ? match.name : value;
 				} else if ( key === 'salary_min' ) {
-					label = wcbFormatSalaryShort( parseInt( value, 10 ) ) + '+';
+					label = wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol ) + '+';
 				} else if ( key === 'salary_max' ) {
-					label = '≤' + wcbFormatSalaryShort( parseInt( value, 10 ) );
+					label = '≤' + wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol );
 				}
 				return { key, label };
 			} );

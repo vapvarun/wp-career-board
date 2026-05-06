@@ -36,8 +36,9 @@ function buildFilterPills( filters ) {
 	if ( filters.location ) pills.push( filters.location );
 	if ( filters.remote ) pills.push( state.strings.filterRemote );
 	if ( filters.salary_min || filters.salary_max ) {
-		const min = filters.salary_min ? '$' + Number( filters.salary_min ).toLocaleString() : '';
-		const max = filters.salary_max ? '$' + Number( filters.salary_max ).toLocaleString() : '';
+		const sym = String( state.currencySymbol || '$' );
+		const min = filters.salary_min ? sym + Number( filters.salary_min ).toLocaleString() : '';
+		const max = filters.salary_max ? sym + Number( filters.salary_max ).toLocaleString() : '';
 		pills.push( min && max ? min + '–' + max : min || max );
 	}
 	return pills;
