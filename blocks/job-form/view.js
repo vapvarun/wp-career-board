@@ -391,6 +391,7 @@ store(
 			resetForm() {
 				// Clear success-state flags AND all volatile form values so the
 				// user is not editing a copy of their last submission.
+				const { state } = store( 'wcb-job-form' );
 				state.submitted        = false;
 				state.step             = 1;
 				state.error            = '';
