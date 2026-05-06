@@ -147,7 +147,12 @@ wp_interactivity_state(
 			'bellEnabled'            => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
 			'alerts'                 => array(),
 			'alertsLoading'          => false,
-			'allowWithdraw'          => function_exists( 'wp_is_authorized' ) ? wp_is_authorized( 'wcb_withdraw_application' ) : current_user_can( 'wcb_withdraw_application' ),
+			// Withdraw is gated by BOTH the site setting and the user ability —
+			// admins disable the setting on sites that want apply-once-final
+			// flows, in which case no candidate (regardless of caps) gets the
+			// button.
+			'allowWithdraw'          => ! empty( ( (array) get_option( 'wcb_settings', array() ) )['allow_withdraw'] )
+				&& ( function_exists( 'wp_is_authorized' ) ? wp_is_authorized( 'wcb_withdraw_application' ) : current_user_can( 'wcb_withdraw_application' ) ),
 			'privacyBusy'            => false,
 			'privacyExportRequested' => false,
 			'privacyEraseRequested'  => false,

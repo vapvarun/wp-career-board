@@ -778,6 +778,17 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function withdraw_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+		// Site setting toggle — when admins turn this off, the REST endpoint
+		// must also refuse so a hidden button + curl call can't bypass the UI.
+		$wcb_settings = (array) get_option( 'wcb_settings', array() );
+		if ( empty( $wcb_settings['allow_withdraw'] ) ) {
+			return new \WP_Error(
+				'wcb_withdraw_disabled',
+				__( 'Application withdrawal is not enabled on this site.', 'wp-career-board' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		if ( ! $this->check_ability( 'wcb_withdraw_application' ) ) {
 			return new \WP_Error(
 				'wcb_withdraw_disabled',
