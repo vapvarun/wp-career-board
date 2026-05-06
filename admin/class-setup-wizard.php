@@ -26,6 +26,38 @@ class SetupWizard extends \WCB\Api\RestController {
 
 
 	/**
+	 * Detect whether first-run setup has completed.
+	 *
+	 * Composes two signals so a desynced flag (DB restore, manual option
+	 * deletion, partial wizard run that never persisted the flag) doesn't
+	 * silently re-launch the wizard over a configured site:
+	 *
+	 *  1. The legacy `wcb_setup_complete` flag we explicitly write at the
+	 *     end of the wizard.
+	 *  2. Content fallback — if `wcb_settings` already maps any of the core
+	 *     page IDs (employer dashboard, candidate dashboard, jobs archive)
+	 *     to a real post, the wizard has run at some point in this site's
+	 *     life and we should not restart it.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @return bool
+	 */
+	public static function is_setup_complete(): bool {
+		if ( (bool) get_option( 'wcb_setup_complete', false ) ) {
+			return true;
+		}
+		$wcb_settings = (array) get_option( 'wcb_settings', array() );
+		foreach ( array( 'employer_dashboard_page', 'candidate_dashboard_page', 'jobs_archive_page' ) as $wcb_key ) {
+			$wcb_id = isset( $wcb_settings[ $wcb_key ] ) ? (int) $wcb_settings[ $wcb_key ] : 0;
+			if ( $wcb_id > 0 && get_post( $wcb_id ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Boot the setup wizard.
 	 *
 	 * @since  1.0.0
@@ -49,7 +81,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			return;
 		}
 
-		if ( get_option( 'wcb_setup_complete', false ) ) {
+		if ( self::is_setup_complete() ) {
 			return;
 		}
 
@@ -311,7 +343,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		 */
 		$force_render = apply_filters( 'wcb_wizard_force_render', $rerun );
 
-		if ( get_option( 'wcb_setup_complete', false ) && ! $force_render ) {
+		if ( self::is_setup_complete() && ! $force_render ) {
 			include_once WCB_DIR . 'admin/views/setup-wizard-complete.php';
 			return;
 		}

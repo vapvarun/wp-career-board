@@ -221,7 +221,7 @@ class Admin {
 		$pending_jobs = isset( $jobs_count->pending ) ? (int) $jobs_count->pending : 0;
 
 		// Getting Started card: hide once setup complete AND at least one job is published.
-		$wcb_setup_done = (bool) get_option( 'wcb_setup_complete', false );
+		$wcb_setup_done = SetupWizard::is_setup_complete();
 		$wcb_show_gs    = ! ( $wcb_setup_done && $total_jobs > 0 );
 
 		if ( $wcb_show_gs ) {
@@ -513,7 +513,7 @@ class Admin {
 						<i data-lucide="settings"></i>
 						<span><?php esc_html_e( 'Settings', 'wp-career-board' ); ?></span>
 					</a>
-		<?php if ( ! get_option( 'wcb_setup_complete', false ) ) : ?>
+		<?php if ( ! SetupWizard::is_setup_complete() ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="settings"></i>
 						<span><?php esc_html_e( 'Setup Wizard', 'wp-career-board' ); ?></span>
