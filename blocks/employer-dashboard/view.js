@@ -362,7 +362,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.jobs     = jobs.map( ( j ) => ( {
 					...j,
 					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
-					isClosed: j.status !== 'publish',
+					// Only the "closed" status is closed. "pending" is awaiting
+					// moderation, "draft" is unsaved — neither should render
+					// struck-through or dimmed like a finished listing.
+					isClosed: j.status === 'closed',
 					isDraft:  j.status === 'draft',
 				} ) );
 
