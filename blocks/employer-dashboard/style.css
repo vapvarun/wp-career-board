@@ -1701,3 +1701,74 @@
 		transition: none;
 	}
 }
+
+/*
+ * Credits banners — success (post-purchase) and low-balance warning. Hidden
+ * by default; the .wcb-shown class toggle is bound by the Interactivity API.
+ */
+.wcb-credit-success-banner,
+.wcb-credit-low-banner {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-lg);
+	margin-bottom: var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
+	border: 1px solid;
+}
+
+.wcb-credit-success-banner.wcb-shown,
+.wcb-credit-low-banner.wcb-shown {
+	display: flex;
+}
+
+.wcb-credit-success-banner {
+	background: var(--wcb-success-bg);
+	border-color: var(--wcb-success);
+	color: var(--wcb-success-fg, var(--wcb-contrast));
+}
+
+.wcb-credit-low-banner {
+	background: var(--wcb-warn-bg, #fff7ed);
+	border-color: var(--wcb-warn, #fb923c);
+	color: var(--wcb-text-primary, var(--wcb-contrast));
+}
+
+.wcb-credit-banner__icon {
+	font-size: var(--wcb-text-lg);
+	line-height: 1;
+}
+
+.wcb-credit-banner__text {
+	flex: 1;
+}
+
+.wcb-credit-banner__link {
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-primary);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wcb-credit-banner__dismiss {
+	background: transparent;
+	border: 0;
+	font-size: var(--wcb-text-xl);
+	line-height: 1;
+	color: inherit;
+	opacity: 0.7;
+	cursor: pointer;
+	padding: 0 var(--wcb-space-xs);
+}
+
+.wcb-credit-banner__dismiss:hover {
+	opacity: 1;
+}
+
+@media (max-width: 640px) {
+	.wcb-credit-success-banner,
+	.wcb-credit-low-banner {
+		flex-wrap: wrap;
+	}
+}

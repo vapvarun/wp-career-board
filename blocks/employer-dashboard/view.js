@@ -50,6 +50,35 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.currentView === 'settings';
 		},
 
+		// Credits banners — derived state so the markup can stay declarative.
+		get justAddedCredits() {
+			return state.creditsEnabled && Number( state.creditsJustAdded || 0 ) > 0;
+		},
+		get justAddedCreditsMessage() {
+			const n = Number( state.creditsJustAdded || 0 );
+			if ( n === 1 ) {
+				return state.strings.creditsAddedSingular;
+			}
+			return ( state.strings.creditsAdded || '' ).replace( '%d', String( n ) );
+		},
+		get isCreditBalanceLow() {
+			if ( ! state.creditsEnabled ) {
+				return false;
+			}
+			const t = Number( state.creditLowThreshold || 0 );
+			if ( t <= 0 ) {
+				return false;
+			}
+			return Number( state.creditBalance || 0 ) <= t;
+		},
+		get lowBalanceMessage() {
+			const n = Number( state.creditBalance || 0 );
+			if ( n === 1 ) {
+				return state.strings.lowBalanceSingular;
+			}
+			return ( state.strings.lowBalance || '' ).replace( '%d', String( n ) );
+		},
+
 		// Jobs list.
 		get hasJobs() {
 			return ! state.loading && ! state.noCompany && state.filteredJobs.length > 0;
@@ -314,6 +343,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 	},
 
 	actions: {
+		// Hide the credits-added success banner. Also strips the
+		// ?wcb_credits_added param from the URL so a manual reload doesn't
+		// resurface the banner.
+		dismissCreditSuccess() {
+			state.creditsJustAdded = 0;
+			if ( typeof window !== 'undefined' && window.history?.replaceState ) {
+				const url = new URL( window.location.href );
+				url.searchParams.delete( 'wcb_credits_added' );
+				window.history.replaceState( {}, '', url.toString() );
+			}
+		},
 		*init() {
 			// Restore last active view from sessionStorage (skip if URL already dictates view).
 			if ( state.currentView === 'overview' ) {

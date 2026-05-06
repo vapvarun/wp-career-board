@@ -162,6 +162,15 @@ wp_interactivity_state(
 		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id ),
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'creditsEnabled'    => (bool) apply_filters( 'wcb_credits_enabled', false ),
+		// Low-balance threshold — Pro returns the admin-configured value, Free
+		// defaults to 0 (no warning). When balance dips below the threshold
+		// dashboard renders a subtle banner pointing at the Buy Credits page.
+		'creditLowThreshold' => (int) apply_filters( 'wcb_credit_low_threshold', 0 ),
+		// Post-purchase success — set when the checkout redirect lands the
+		// employer back on the dashboard with ?wcb_credits_added=N. Banner
+		// auto-dismisses on first interaction so the message doesn't linger.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag.
+		'creditsJustAdded'  => isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0,
 		'bellNotifications' => array(),
 		'bellUnreadCount'   => 0,
 		'bellOpen'          => false,
@@ -192,6 +201,12 @@ wp_interactivity_state(
 			'appsHeadingPrefix'        => __( 'Applications: ', 'wp-career-board' ),
 			'appsHeadingDefault'       => __( 'Applications', 'wp-career-board' ),
 			'confirmCloseJob'          => __( 'Are you sure you want to close this job? It will no longer be visible to candidates.', 'wp-career-board' ),
+			/* translators: %d is the credit count just added to the employer's balance. */
+			'creditsAdded'             => __( '%d credits added to your balance.', 'wp-career-board' ),
+			'creditsAddedSingular'     => __( '1 credit added to your balance.', 'wp-career-board' ),
+			/* translators: %d is the current low-credit balance. */
+			'lowBalance'               => __( 'Low balance: %d credits left.', 'wp-career-board' ),
+			'lowBalanceSingular'       => __( 'Low balance: 1 credit left.', 'wp-career-board' ),
 		),
 	)
 );
@@ -297,6 +312,25 @@ wp_interactivity_state(
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Overview', 'wp-career-board' ); ?></h1>
 			</div>
+
+			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+			<!--
+				Credits banners — only render when credits are enabled. The success
+				banner appears once after a successful WooCommerce checkout
+				redirected back here with ?wcb_credits_added=N. The low-balance
+				banner shows when state.creditBalance dips below the threshold.
+			-->
+			<div class="wcb-credit-success-banner" data-wp-class--wcb-shown="state.justAddedCredits" role="status">
+				<span class="wcb-credit-banner__icon" aria-hidden="true">&#10003;</span>
+				<span class="wcb-credit-banner__text" data-wp-text="state.justAddedCreditsMessage"></span>
+				<button type="button" class="wcb-credit-banner__dismiss" data-wp-on--click="actions.dismissCreditSuccess" aria-label="<?php esc_attr_e( 'Dismiss', 'wp-career-board' ); ?>">&times;</button>
+			</div>
+			<div class="wcb-credit-low-banner" data-wp-class--wcb-shown="state.isCreditBalanceLow" role="status">
+				<span class="wcb-credit-banner__icon" aria-hidden="true">&#9888;</span>
+				<span class="wcb-credit-banner__text" data-wp-text="state.lowBalanceMessage"></span>
+				<a class="wcb-credit-banner__link" data-wp-bind--href="state.creditPurchaseUrl" data-wp-class--wcb-hidden="!state.creditPurchaseUrl"><?php esc_html_e( 'Buy more', 'wp-career-board' ); ?></a>
+			</div>
+			<?php endif; ?>
 
 			<div class="wcb-stats-row">
 				<div class="wcb-stat-card">
