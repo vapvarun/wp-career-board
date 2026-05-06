@@ -661,12 +661,17 @@ select.wcb-field {
  * is purely the OUTER frame.
  */
 
-body.wcb-page-fullwidth [class*="wp-block-wp-career-board"],
-body.wcb-page-fullwidth [class*="wp-block-wcb-"],
+/*
+ * When a WCB block is rendered inside our `.wcb-archive-shell` (the plugin's
+ * own archive template wraps blocks in this), the shell already provides
+ * the canonical max-width + padding — strip the block-level padding so we
+ * don't double-up.
+ */
 .wcb-archive-shell [class*="wp-block-wp-career-board"],
 .wcb-archive-shell [class*="wp-block-wcb-"] {
 	max-width: 100%;
 	margin-inline: 0;
+	padding: 0;
 }
 
 /*
@@ -699,20 +704,15 @@ body.wcb-page-fullwidth .wp-block-wcb-company-archive,
 body.wcb-page-fullwidth .wp-block-wcb-company-profile {
 	max-width: var(--wcb-container-max-width, 1280px);
 	margin-inline: auto;
-	padding-inline: var(--wcb-space-lg);
+	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
 	box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
 
-	body.wcb-page-fullwidth > .wp-site-blocks > [class*="wp-block-wp-career-board"],
-	body.wcb-page-fullwidth .entry-content > [class*="wp-block-wp-career-board"],
-	body.wcb-page-fullwidth .entry-content > [class*="wp-block-wcb-"],
-	body.wcb-page-fullwidth main > [class*="wp-block-wp-career-board"],
-	body.wcb-page-fullwidth main > [class*="wp-block-wcb-"],
-	body.wcb-page-fullwidth article > [class*="wp-block-wp-career-board"],
-	body.wcb-page-fullwidth article > [class*="wp-block-wcb-"] {
-		padding-inline: var(--wcb-space-md);
+	body.wcb-page-fullwidth [class*="wp-block-wp-career-board"],
+	body.wcb-page-fullwidth [class*="wp-block-wcb-"] {
+		padding: var(--wcb-space-xl) var(--wcb-space-md);
 	}
 }
 
@@ -787,6 +787,45 @@ body.wcb-page-fullwidth .ast-secondary {
 	.wcb-archive-shell {
 		padding: var(--wcb-space-xl) var(--wcb-space-md);
 	}
+}
+
+/* ── Theme-Button Defence — Global ────────────────────────────────────── */
+
+/*
+ * "Starter" themes like Hello Elementor (used as a base for Elementor-built
+ * sites) ship default `button { border: 1px solid; color: var(--ele-pink) }`
+ * styling that leaks onto our role="tab" buttons, sidebar nav items, and
+ * card "View all" buttons — every interactive element gets a magenta border
+ * and pink text. Same issue on bare-Genesis-child themes. This rule strips
+ * the theme defaults from buttons that are clearly nav-style (no .wcb-btn
+ * class — those have their own deliberate borders).
+ */
+
+[class*="wp-block-wp-career-board"] button[role="tab"],
+[class*="wp-block-wp-career-board"] .wcb-nav-item,
+[class*="wp-block-wp-career-board"] .wcb-sidebar button,
+[class*="wp-block-wp-career-board"] .wcb-tab,
+[class*="wp-block-wp-career-board"] .wcb-panel-link,
+[class*="wp-block-wp-career-board"] .wcb-card-link,
+[class*="wp-block-wcb-"] button[role="tab"],
+[class*="wp-block-wcb-"] .wcb-nav-item,
+[class*="wp-block-wcb-"] .wcb-sidebar button,
+[class*="wp-block-wcb-"] .wcb-tab,
+[class*="wp-block-wcb-"] .wcb-panel-link,
+[class*="wp-block-wcb-"] .wcb-card-link {
+	border: none;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-card-action,
+[class*="wp-block-wp-career-board"] .wcb-link,
+[class*="wp-block-wcb-"] .wcb-card-action,
+[class*="wp-block-wcb-"] .wcb-link {
+	border: none;
+	background: transparent;
+	color: var(--wcb-primary);
 }
 
 /* ── Theme-Link Defence — Global ─────────────────────────────────────── */
