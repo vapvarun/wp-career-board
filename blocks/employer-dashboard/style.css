@@ -295,9 +295,17 @@
 }
 
 /* -- Stats row -- */
+
+/*
+ * `auto-fit` + `minmax` lets the row hold 5 cards on wide containers
+ * (so Total Jobs / Live / Applications / New / Credits sit on one line),
+ * 3 on medium widths, 2 on tablet, 1 on mobile — without ever leaving an
+ * orphan card alone on its own row, which is what `repeat(4, 1fr)` did
+ * when there were 5 cards.
+ */
 .wcb-stats-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }

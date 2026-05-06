@@ -274,24 +274,86 @@ a.wcb-badge:hover { opacity: 0.8; }
 	margin: 0 0 var(--wcb-space-md);
 }
 
+/* Editor.js-authored job description — explicit rhythm so it reads as
+   premium prose regardless of which theme is active. */
 .wcb-job-description {
 	font-size: var(--wcb-text-md);
 	line-height: 1.75;
 	color: var(--wcb-contrast, #334155);
 }
 
+.wcb-job-description > :first-child {
+	margin-top: 0;
+}
+
+.wcb-job-description > :last-child {
+	margin-bottom: 0;
+}
+
+.wcb-job-description p {
+	margin: 0 0 var(--wcb-space-md);
+}
+
+.wcb-job-description h2,
+.wcb-job-description h3,
+.wcb-job-description h4 {
+	margin: var(--wcb-space-xl) 0 var(--wcb-space-sm);
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.35;
+}
+
+.wcb-job-description h2 { font-size: 1.25rem; font-weight: var(--wcb-font-bold); }
+.wcb-job-description h3 { font-size: 1.0625rem; font-weight: var(--wcb-font-bold); }
+.wcb-job-description h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); }
+
 .wcb-job-description ul,
 .wcb-job-description ol {
 	padding-inline-start: var(--wcb-space-2xl);
-	margin: var(--wcb-space-md) 0;
+	margin: 0 0 var(--wcb-space-md);
 }
 
 .wcb-job-description li {
-	margin-bottom: 0.35rem;
+	margin-bottom: var(--wcb-space-xs);
 }
 
-.wcb-job-description strong {
+.wcb-job-description li::marker {
+	color: var(--wcb-text-tertiary);
+}
+
+.wcb-job-description strong,
+.wcb-job-description b {
 	color: var(--wcb-contrast, #0f172a);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-job-description blockquote {
+	margin: var(--wcb-space-md) 0;
+	padding: 0.5rem 0 0.5rem 1rem;
+	border-inline-start: 3px solid var(--wcb-border, #e2e8f0);
+	color: var(--wcb-text-secondary);
+	font-style: italic;
+}
+
+.wcb-job-description blockquote cite {
+	display: block;
+	margin-top: var(--wcb-space-xs);
+	font-size: var(--wcb-text-sm);
+	font-style: normal;
+	color: var(--wcb-primary);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-job-description a {
+	color: var(--wcb-primary);
+	text-decoration: underline;
+}
+
+.wcb-job-description code {
+	background: var(--wcb-bg-subtle, rgba(0, 0, 0, 0.05));
+	border-radius: var(--wcb-radius-sm, 4px);
+	padding: 0.125em 0.375em;
+	font-size: 0.9em;
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .wcb-tag-row {

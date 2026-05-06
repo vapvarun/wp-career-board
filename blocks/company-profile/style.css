@@ -209,19 +209,70 @@
 	font-weight: var(--wcb-font-bold);
 }
 
-/* -- Description -- */
+/* -- Description (Editor.js-authored rich content) -- */
 .wcb-cp-desc {
 	font-size: var(--wcb-text-md);
 	line-height: 1.75;
 	color: var(--wcb-contrast);
 }
 
+.wcb-cp-desc > :first-child {
+	margin-top: 0;
+}
+
+.wcb-cp-desc > :last-child {
+	margin-bottom: 0;
+}
+
 .wcb-cp-desc p {
 	margin: 0 0 var(--wcb-space-md);
 }
 
-.wcb-cp-desc p:last-child {
-	margin-bottom: 0;
+.wcb-cp-desc h2,
+.wcb-cp-desc h3,
+.wcb-cp-desc h4 {
+	margin: var(--wcb-space-xl) 0 var(--wcb-space-sm);
+	color: var(--wcb-contrast);
+	line-height: 1.35;
+}
+
+.wcb-cp-desc h2 { font-size: 1.25rem; font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h3 { font-size: 1.0625rem; font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); }
+
+.wcb-cp-desc ul,
+.wcb-cp-desc ol {
+	margin: 0 0 var(--wcb-space-md);
+	padding-inline-start: 1.5rem;
+}
+
+.wcb-cp-desc li {
+	margin-bottom: var(--wcb-space-xs);
+}
+
+.wcb-cp-desc li::marker {
+	color: var(--wcb-text-tertiary);
+}
+
+.wcb-cp-desc blockquote {
+	margin: var(--wcb-space-md) 0;
+	padding: 0.5rem 0 0.5rem 1rem;
+	border-inline-start: 3px solid var(--wcb-border);
+	color: var(--wcb-text-secondary);
+	font-style: italic;
+}
+
+.wcb-cp-desc a {
+	color: var(--wcb-primary);
+	text-decoration: underline;
+}
+
+.wcb-cp-desc code {
+	background: var(--wcb-bg-subtle);
+	border-radius: var(--wcb-radius-sm, 4px);
+	padding: 0.125em 0.375em;
+	font-size: 0.9em;
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 /* -- Details grid -- */
@@ -314,17 +365,29 @@
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast);
-	margin: 0 0 0.35rem;
+	margin: 0 0 var(--wcb-space-sm);
+	line-height: 1.35;
 }
 
-.wcb-cp-job-title a {
+/*
+ * !important on text-decoration is intentional theme defence — Astra,
+ * Twenty Twenty-Four, and several other themes ship `entry-content a {
+ * text-decoration: underline }` at higher specificity than a single
+ * class selector, which gave the job title a default-blue underline
+ * inside our company profile card. We're owning the link styling
+ * deterministically so the card looks identical across themes.
+ */
+.wcb-cp-job-title a,
+.wcb-cp-job-title a:visited {
 	color: inherit;
-	text-decoration: none;
+	text-decoration: none !important;
+	box-shadow: none;
 }
 
-.wcb-cp-job-title a:hover {
+.wcb-cp-job-title a:hover,
+.wcb-cp-job-title a:focus-visible {
 	color: var(--wcb-primary);
-	text-decoration: underline;
+	text-decoration: underline !important;
 }
 
 .wcb-cp-job-badges {

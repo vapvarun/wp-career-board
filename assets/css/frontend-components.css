@@ -544,6 +544,50 @@ select.wcb-field {
 	border: 0;
 }
 
+/* ── Theme-Link Defence — Global ─────────────────────────────────────── */
+
+/*
+ * Many WordPress themes ship `entry-content a { text-decoration: underline }`
+ * at higher specificity than a single class selector, which makes nav-style
+ * links inside our blocks (card titles, sidebar tabs, role-picker cards,
+ * dashboard menu items) render with theme-default underlines and theme-default
+ * blue. The component-specific stylesheets each set `text-decoration: none`
+ * on these elements but a single-class selector loses the cascade against
+ * `entry-content a`. Here we win by raising specificity via the block-wrapper
+ * scope — same trick used for the WPDS button isolation reset above.
+ *
+ * Tested against: Reign, BuddyX, BuddyX Pro, Astra, Twenty Twenty-Four, GeneratePress.
+ */
+
+[class*="wp-block-wp-career-board"] .wcb-job-card a,
+[class*="wp-block-wp-career-board"] .wcb-cp-job-title a,
+[class*="wp-block-wp-career-board"] .wcb-card-title a,
+[class*="wp-block-wp-career-board"] .wcb-listing-title a,
+[class*="wp-block-wp-career-board"] [role="tab"],
+[class*="wp-block-wp-career-board"] .wcb-role-card,
+[class*="wp-block-wp-career-board"] .wcb-sidebar a,
+[class*="wp-block-wcb-"] .wcb-job-card a,
+[class*="wp-block-wcb-"] .wcb-cp-job-title a,
+[class*="wp-block-wcb-"] .wcb-card-title a,
+[class*="wp-block-wcb-"] .wcb-listing-title a,
+[class*="wp-block-wcb-"] [role="tab"],
+[class*="wp-block-wcb-"] .wcb-role-card,
+[class*="wp-block-wcb-"] .wcb-sidebar a {
+	text-decoration: none;
+	box-shadow: none;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-job-card a:hover,
+[class*="wp-block-wp-career-board"] .wcb-cp-job-title a:hover,
+[class*="wp-block-wp-career-board"] .wcb-card-title a:hover,
+[class*="wp-block-wp-career-board"] .wcb-listing-title a:hover,
+[class*="wp-block-wcb-"] .wcb-job-card a:hover,
+[class*="wp-block-wcb-"] .wcb-cp-job-title a:hover,
+[class*="wp-block-wcb-"] .wcb-card-title a:hover,
+[class*="wp-block-wcb-"] .wcb-listing-title a:hover {
+	text-decoration: underline;
+}
+
 /* ── Focus Visible — Global ──────────────────────────────────────────── */
 
 [class*="wp-block-wp-career-board"] a:focus-visible,

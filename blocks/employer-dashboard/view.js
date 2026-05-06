@@ -287,8 +287,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				: '';
 		},
 		get companyDescExcerpt() {
-			const d = state.companyDesc || '';
-			return d.length > 120 ? d.slice( 0, 120 ) + '\u2026' : d;
+			// Description is now rich HTML (Editor.js output). For the live preview
+			// snippet we want a plain-text teaser, not raw markup, so strip tags
+			// and collapse whitespace before truncating.
+			const raw   = state.companyDesc || '';
+			const plain = raw.replace( /<[^>]*>/g, ' ' ).replace( /\s+/g, ' ' ).trim();
+			return plain.length > 120 ? plain.slice( 0, 120 ) + '\u2026' : plain;
 		},
 
 		get logoUploadLabel() {
