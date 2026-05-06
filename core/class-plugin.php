@@ -407,118 +407,196 @@ final class Plugin {
 	}
 
 	/**
-	 * Add `wcb-page` body class on any page configured as a WCB app page.
+	 * Add WCB body classes on every page the plugin owns the layout of.
+	 *
+	 * Adds `wcb-page` (signal: this page is plugin-controlled) and
+	 * `wcb-page-fullwidth` (signal: theme content-area constraints should
+	 * be ignored in favour of the canonical `.wcb-archive-shell`). Both
+	 * decisions flow from the single shared {@see resolve_page_context()}
+	 * helper so this method, the template router, and any future consumer
+	 * stay in sync.
 	 *
 	 * @since 1.0.0
 	 * @param string[] $classes Existing body classes.
 	 * @return string[]
 	 */
 	public function add_page_class( array $classes ): array {
-		// Post-type archives served via our archive template need the same
-		// full-width treatment as singular WCB pages — Astra constrains
-		// archive parents to ~1140 px even when no sidebar is rendered, so
-		// without the body class our `.wcb-archive-shell` inherits that
-		// narrower context and the canonical 1280 px container can't apply.
-		if ( is_post_type_archive( array( 'wcb_company', 'wcb_job', 'wcb_resume' ) ) ) {
-			$classes[] = 'wcb-page';
+		$context = $this->resolve_page_context();
+		if ( ! $context['is_wcb_page'] ) {
+			return $classes;
+		}
+
+		$classes[] = 'wcb-page';
+		if ( $context['fullwidth'] ) {
 			$classes[] = 'wcb-page-fullwidth';
-			return $classes;
+		}
+		return $classes;
+	}
+
+	/**
+	 * Resolve the WCB context for the current request.
+	 *
+	 * Single source of truth shared by `add_page_class()` and
+	 * `use_wcb_archive_template()`. Returns:
+	 *
+	 *   - `is_wcb_page` (bool) — whether the page is plugin-controlled
+	 *   - `fullwidth`   (bool) — whether the canonical container should apply
+	 *   - `mode`        (string) — 'archive' | 'page' | 'embed'
+	 *   - `post_type`   (string) — for archive mode, the queried post type
+	 *
+	 * The `wcb_apply_page_class` filter still fires here so existing opt-out
+	 * customisations keep working.
+	 *
+	 * @since 1.1.0
+	 * @return array{is_wcb_page: bool, fullwidth: bool, mode: string, post_type: string}
+	 */
+	private function resolve_page_context(): array {
+		$default = array(
+			'is_wcb_page' => false,
+			'fullwidth'   => false,
+			'mode'        => 'embed',
+			'post_type'   => '',
+		);
+
+		// Post-type archives — always WCB-controlled and full-width.
+		if ( is_post_type_archive( array( 'wcb_company', 'wcb_job', 'wcb_resume' ) ) ) {
+			$pt = '';
+			foreach ( array( 'wcb_company', 'wcb_job', 'wcb_resume' ) as $candidate ) {
+				if ( is_post_type_archive( $candidate ) ) {
+					$pt = $candidate;
+					break;
+				}
+			}
+			return array(
+				'is_wcb_page' => true,
+				'fullwidth'   => true,
+				'mode'        => 'archive',
+				'post_type'   => $pt,
+			);
 		}
 
-		$page_id = (int) get_queried_object_id();
-		if ( ! $page_id ) {
-			return $classes;
+		// Singular pages — three detection paths in order of cost.
+		if ( ! is_singular( 'page' ) ) {
+			return $default;
+		}
+		global $post;
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			return $default;
 		}
 
-		$settings  = (array) get_option( 'wcb_settings', array() );
-		$page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'employer_registration_page', 'post_job_page' );
-		$page_ids  = array_values( array_filter( array_map( static fn( string $key ): int => (int) ( $settings[ $key ] ?? 0 ), $page_keys ) ) );
+		$is_wcb_page = false;
 
-		/**
-		 * Filter the page IDs that receive the `wcb-page` body class.
-		 *
-		 * Pro and other add-ons append their own mapped page IDs here.
-		 *
-		 * @since 1.0.0
-		 * @param int[] $page_ids Array of WordPress page IDs.
-		 */
-		$page_ids = (array) apply_filters( 'wcb_app_page_ids', $page_ids );
+		// Path 1 — explicit Settings mapping (cheapest).
+		$settings    = (array) get_option( 'wcb_settings', array() );
+		$mapped_keys = array(
+			'jobs_archive_page',
+			'employer_dashboard_page',
+			'candidate_dashboard_page',
+			'company_archive_page',
+			'employer_registration_page',
+			'post_job_page',
+			'find_candidates_page',
+			'resume_archive_page',
+		);
+		$mapped_ids  = array();
+		foreach ( $mapped_keys as $key ) {
+			$id = (int) ( $settings[ $key ] ?? 0 );
+			if ( $id > 0 ) {
+				$mapped_ids[] = $id;
+			}
+		}
+		$mapped_ids = (array) apply_filters( 'wcb_app_page_ids', $mapped_ids );
+		if ( in_array( $post->ID, $mapped_ids, true ) ) {
+			$is_wcb_page = true;
+		}
 
-		$is_wcb_page = in_array( $page_id, $page_ids, true );
-
-		// Detection-by-content fallback (1.1.0): if the visited page contains a
-		// WCB block or shortcode in its post_content, treat it as a WCB app
-		// page. Catches user-mapped pages where the customer pasted our block
-		// outside the wizard-mapped settings keys, fixing the duplicate-<h1>
-		// issue on Neve / OceanWP.
+		// Path 2 — block detection.
 		if ( ! $is_wcb_page ) {
-			$post = get_post( $page_id );
-			if ( $post instanceof \WP_Post ) {
-				$content = (string) $post->post_content;
-				if (
-					false !== strpos( $content, '<!-- wp:wp-career-board/' )
-					|| false !== strpos( $content, '<!-- wp:wcb/' )
-				) {
+			foreach ( $this->wcb_block_names() as $block_name ) {
+				if ( has_block( $block_name, $post ) ) {
 					$is_wcb_page = true;
-				} else {
-					// Pro adds 'wcbp_' to this filter so its shortcodes also flag the page.
-					$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_' ) );
-					foreach ( $shortcode_prefixes as $prefix ) {
-						if ( false !== strpos( $content, '[' . $prefix ) ) {
-							$is_wcb_page = true;
-							break;
-						}
-					}
+					break;
+				}
+			}
+		}
+
+		// Path 3 — shortcode detection.
+		if ( ! $is_wcb_page ) {
+			$content            = (string) $post->post_content;
+			$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
+			foreach ( $shortcode_prefixes as $prefix ) {
+				if ( false !== strpos( $content, '[' . $prefix ) ) {
+					$is_wcb_page = true;
+					break;
 				}
 			}
 		}
 
 		/**
-		 * Final opt-out filter — return false to skip the wcb-page body class
-		 * on a specific page even when content detection picked it up.
-		 * Useful when a customer wants to keep the theme entry-title visible
-		 * alongside our block heading.
+		 * Opt-out filter — returning false skips both the wcb-page body class
+		 * AND the plugin page template, returning theme-default rendering.
 		 *
 		 * @since 1.1.0
 		 *
-		 * @param bool $is_wcb_page Whether the body class will be added.
+		 * @param bool $is_wcb_page Whether the page is plugin-controlled.
 		 * @param int  $page_id     Current queried page ID.
 		 */
-		$is_wcb_page = (bool) apply_filters( 'wcb_apply_page_class', $is_wcb_page, $page_id );
+		$is_wcb_page = (bool) apply_filters( 'wcb_apply_page_class', $is_wcb_page, $post->ID );
 
-		if ( $is_wcb_page ) {
-			$classes[] = 'wcb-page';
+		return array(
+			'is_wcb_page' => $is_wcb_page,
+			'fullwidth'   => $is_wcb_page,
+			'mode'        => $is_wcb_page ? 'page' : 'embed',
+			'post_type'   => '',
+		);
+	}
 
-			/*
-			 * Pages that exist solely to host a WCB archive / dashboard / listings
-			 * block deserve full content width — the cards / form columns inside
-			 * those blocks are designed for ~1100 px+ viewports and look cramped
-			 * inside a theme's narrow archive-with-sidebar layout. Adding the
-			 * `wcb-page-fullwidth` class lets `frontend-components.css` reset the
-			 * common theme content-column max-widths (Astra, GeneratePress,
-			 * OceanWP, Storefront, Twenty Twenty-Three) without the customer
-			 * having to manually pick a Full Width page template.
-			 */
-			global $post;
-			if ( $post instanceof \WP_Post ) {
-				$fullwidth_blocks = array(
-					'wp-career-board/company-archive',
-					'wp-career-board/job-listings',
-					'wp-career-board/employer-dashboard',
-					'wp-career-board/candidate-dashboard',
-					'wp-career-board/job-form',
-					'wp-career-board/job-form-simple',
-				);
-				foreach ( $fullwidth_blocks as $block_name ) {
-					if ( has_block( $block_name, $post ) ) {
-						$classes[] = 'wcb-page-fullwidth';
-						break;
-					}
-				}
-			}
-		}
-
-		return $classes;
+	/**
+	 * Canonical list of WCB block names — Free + Pro.
+	 *
+	 * Single list consumed by `resolve_page_context()` and any other
+	 * detection callsite. Filterable via `wcb_fullwidth_block_names`.
+	 *
+	 * @since 1.1.0
+	 * @return string[]
+	 */
+	private function wcb_block_names(): array {
+		/**
+		 * Filter the list of WCB block names that trigger the plugin's
+		 * full-width page template + body class.
+		 *
+		 * Pro adds resume-archive, recruiter-search, etc. through this
+		 * filter so Pro block pages get the same canonical centering as
+		 * the Free pages.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param string[] $blocks Block names (namespace/slug).
+		 */
+		return (array) apply_filters(
+			'wcb_fullwidth_block_names',
+			array(
+				'wp-career-board/employer-dashboard',
+				'wp-career-board/candidate-dashboard',
+				'wp-career-board/job-form',
+				'wp-career-board/job-form-simple',
+				'wp-career-board/employer-registration',
+				'wp-career-board/job-listings',
+				'wp-career-board/company-archive',
+				'wp-career-board/company-profile',
+				'wp-career-board/job-search',
+				'wp-career-board/job-search-hero',
+				'wp-career-board/featured-jobs',
+				'wp-career-board/recent-jobs',
+				'wcb/resume-archive',
+				'wcb/recruiter-search',
+				'wcb/employer-dashboard',
+				'wcb/candidate-dashboard',
+				'wcb/job-listings',
+				'wcb/company-archive',
+				'wcb/company-profile',
+			)
+		);
 	}
 
 	/**
@@ -658,116 +736,22 @@ final class Plugin {
 	 * @return string Plugin-shipped template path or original.
 	 */
 	public function use_wcb_archive_template( string $template ): string {
-		// Post-type archives (Companies, Jobs) — use our archive template so
-		// the grid renders inside `.wcb-archive-shell` regardless of theme.
-		$post_type = '';
-		if ( is_post_type_archive( 'wcb_company' ) ) {
-			$post_type = 'wcb_company';
-		} elseif ( is_post_type_archive( 'wcb_job' ) ) {
-			$post_type = 'wcb_job';
+		$context = $this->resolve_page_context();
+		if ( ! $context['is_wcb_page'] ) {
+			return $template;
 		}
 
-		if ( '' !== $post_type ) {
-			$candidate = WCB_DIR . 'templates/archive-' . $post_type . '.php';
+		if ( 'archive' === $context['mode'] && '' !== $context['post_type'] ) {
+			$candidate = WCB_DIR . 'templates/archive-' . $context['post_type'] . '.php';
 			if ( file_exists( $candidate ) ) {
 				return $candidate;
 			}
 		}
 
-		// Singular pages that host a top-level WCB dashboard / form / archive
-		// block, OR are explicitly mapped via Settings (Jobs Archive,
-		// Employer Dashboard, etc.) OR contain a WCB shortcode — all route
-		// through our page template so the block / shortcode always sits
-		// inside the same `.wcb-archive-shell` centering used by the archive
-		// pages above. Without this, /find-jobs/ on Astra renders flush-left
-		// at the viewport edge while /companies/ centers cleanly.
-		if ( is_singular( 'page' ) ) {
-			global $post;
-			if ( $post instanceof \WP_Post ) {
-				// 1. Mapped page detection from Settings — covers shortcode-only
-				//    pages where has_block() wouldn't fire.
-				$settings    = (array) get_option( 'wcb_settings', array() );
-				$mapped_keys = array(
-					'jobs_archive_page',
-					'employer_dashboard_page',
-					'candidate_dashboard_page',
-					'company_archive_page',
-					'employer_registration_page',
-					'post_job_page',
-					'find_candidates_page',
-					'resume_archive_page',
-				);
-				$mapped_ids  = array();
-				foreach ( $mapped_keys as $k ) {
-					$id = (int) ( $settings[ $k ] ?? 0 );
-					if ( $id > 0 ) {
-						$mapped_ids[] = $id;
-					}
-				}
-				$mapped_ids = (array) apply_filters( 'wcb_app_page_ids', $mapped_ids );
-				if ( in_array( $post->ID, $mapped_ids, true ) ) {
-					$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
-					if ( file_exists( $page_template ) ) {
-						return $page_template;
-					}
-				}
-
-				// 2. Shortcode detection — catches pages that paste
-				//    [wcb_*] / [wcbp_*] without going through a block.
-				$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
-				foreach ( $shortcode_prefixes as $prefix ) {
-					if ( false !== strpos( (string) $post->post_content, '[' . $prefix ) ) {
-						$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
-						if ( file_exists( $page_template ) ) {
-							return $page_template;
-						}
-					}
-				}
-
-				// 3. Block-by-block detection (existing path).
-				/**
-				 * Filter the list of WCB block names that trigger the plugin's
-				 * full-width page template. Pro adds its own resume-archive,
-				 * recruiter-search, etc. block names through this filter so
-				 * the Pro block-hosting pages get the same canonical centering
-				 * as the Free pages.
-				 *
-				 * @since 1.1.0
-				 *
-				 * @param string[] $blocks Block names (namespace/slug).
-				 */
-				$wcb_blocks = (array) apply_filters(
-					'wcb_fullwidth_block_names',
-					array(
-						'wp-career-board/employer-dashboard',
-						'wp-career-board/candidate-dashboard',
-						'wp-career-board/job-form',
-						'wp-career-board/job-form-simple',
-						'wp-career-board/employer-registration',
-						'wp-career-board/job-listings',
-						'wp-career-board/company-archive',
-						'wp-career-board/company-profile',
-						'wp-career-board/job-search',
-						'wp-career-board/job-search-hero',
-						'wp-career-board/featured-jobs',
-						'wp-career-board/recent-jobs',
-						'wcb/resume-archive',
-						'wcb/recruiter-search',
-						'wcb/employer-dashboard',
-						'wcb/candidate-dashboard',
-						'wcb/job-listings',
-						'wcb/company-archive',
-						'wcb/company-profile',
-					)
-				);
-				foreach ( $wcb_blocks as $block_name ) {
-					if ( has_block( $block_name, $post ) ) {
-						$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
-						if ( file_exists( $page_template ) ) {
-							return $page_template;
-						}
-					}
-				}
+		if ( 'page' === $context['mode'] ) {
+			$candidate = WCB_DIR . 'templates/page-wcb-fullwidth.php';
+			if ( file_exists( $candidate ) ) {
+				return $candidate;
 			}
 		}
 

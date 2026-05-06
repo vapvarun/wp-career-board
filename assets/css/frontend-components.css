@@ -707,10 +707,18 @@ body.wcb-page-fullwidth .ast-secondary {
  * unconstrained by theme archive sidebar layouts.
  */
 
+/*
+ * `!important` on max-width / margin is intentional — Astra and several
+ * other themes ship `#primary { max-width: 100% }` at higher specificity
+ * (1,0,0) than a single class selector (0,1,0) and the template emits
+ * `id="primary"` so the shell can integrate with theme conventions. We
+ * still want the canonical 1280 px container to win deterministically,
+ * so we override at the property level rather than chasing IDs.
+ */
 .wcb-archive-shell {
 	width: 100%;
-	max-width: var(--wcb-container-max-width, 1280px);
-	margin: 0 auto;
+	max-width: var(--wcb-container-max-width, 1280px) !important;
+	margin: 0 auto !important;
 	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
 	box-sizing: border-box;
 }
