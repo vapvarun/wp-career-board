@@ -637,84 +637,21 @@ select.wcb-field {
 	cursor: pointer;
 }
 
-/* ── Canonical Container — single source of truth for WCB block widths ──── */
+/* ── Canonical Container — `.wcb-archive-shell` only ──────────────────── */
 
 /*
- * Every WCB block at the top level of `entry-content` renders inside this
- * canonical max-width so the layout is identical regardless of the active
- * theme. Without it, T24 stretches blocks to 100 % of the viewport, Astra
- * crams them into a ~600 px sidebar column, and Reign / BuddyX use their
- * own theme widths — three different reading experiences for the same
- * customer, on the same plugin, on the same page. This rule pins all of
- * them to 1280 px max with consistent gutters, so the dashboard, the
- * post-a-job form, and the company profile all read the same on Twenty
- * Twenty-Four, Astra, GeneratePress, OceanWP, and beyond.
+ * The canonical max-width lives on `.wcb-archive-shell` (defined below) —
+ * the wrapper produced by `templates/archive-wcb_*.php` and
+ * `templates/page-wcb-fullwidth.php`. Blocks themselves carry NO width or
+ * margin opinion at this layer — when a block is dropped into a sidebar
+ * widget area, a Gutenberg group, an Elementor section, or any other
+ * customer-built layout, it inherits whatever container it lives in.
  *
- * Themes that already implement their own content-width contract (Reign,
- * BuddyX, BuddyX Pro) opt out by detecting the `wcb-` body class in their
- * own integrations/<theme>/ compat sheets — they already do this for
- * `wcb-btn`, etc. The opt-out path keeps Wbcom-bundle themes' pixel-perfect
- * layouts untouched.
- *
- * Block-specific dashboards and forms still set their own internal
- * max-widths (live preview column, multi-step wizard, etc.) — this rule
- * is purely the OUTER frame.
+ * Width is therefore set in exactly one place per page (the body-level
+ * shell) instead of being repeated on every block selector — which is what
+ * the user explicitly asked for: "nothing related to block widget as that
+ * should use whatever body have".
  */
-
-/*
- * When a WCB block is rendered inside our `.wcb-archive-shell` (the plugin's
- * own archive template wraps blocks in this), the shell already provides
- * the canonical max-width + padding — strip the block-level padding so we
- * don't double-up.
- */
-.wcb-archive-shell [class*="wp-block-wp-career-board"],
-.wcb-archive-shell [class*="wp-block-wcb-"] {
-	max-width: 100%;
-	margin-inline: 0;
-	padding: 0;
-}
-
-/*
- * Targeting each top-level WCB block by its full block-wrapper class is more
- * reliable than chasing every theme's content-wrapper class (Astra ships
- * `.entry-content`, OceanWP `.entry`, GeneratePress `.inside-article`,
- * Storefront `.entry-content`, Twenty Twenty-Three `.wp-block-post-content`,
- * Kadence `.entry-content-wrap`, Neve `.nv-content-wrap`). The block class
- * is stable across all of them.
- */
-body.wcb-page-fullwidth .wp-block-wp-career-board-employer-dashboard,
-body.wcb-page-fullwidth .wp-block-wp-career-board-candidate-dashboard,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-form,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-form-simple,
-body.wcb-page-fullwidth .wp-block-wp-career-board-employer-registration,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-listings,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-search,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-search-hero,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-filters,
-body.wcb-page-fullwidth .wp-block-wp-career-board-job-single,
-body.wcb-page-fullwidth .wp-block-wp-career-board-company-archive,
-body.wcb-page-fullwidth .wp-block-wp-career-board-company-profile,
-body.wcb-page-fullwidth .wp-block-wp-career-board-featured-jobs,
-body.wcb-page-fullwidth .wp-block-wp-career-board-recent-jobs,
-body.wcb-page-fullwidth .wp-block-wcb-resume-archive,
-body.wcb-page-fullwidth .wp-block-wcb-job-listings,
-body.wcb-page-fullwidth .wp-block-wcb-employer-dashboard,
-body.wcb-page-fullwidth .wp-block-wcb-candidate-dashboard,
-body.wcb-page-fullwidth .wp-block-wcb-company-archive,
-body.wcb-page-fullwidth .wp-block-wcb-company-profile {
-	max-width: var(--wcb-container-max-width, 1280px);
-	margin-inline: auto;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
-	box-sizing: border-box;
-}
-
-@media (max-width: 768px) {
-
-	body.wcb-page-fullwidth [class*="wp-block-wp-career-board"],
-	body.wcb-page-fullwidth [class*="wp-block-wcb-"] {
-		padding: var(--wcb-space-xl) var(--wcb-space-md);
-	}
-}
 
 /* ── Page Full-Width Override — for pages hosting WCB archive blocks ───── */
 

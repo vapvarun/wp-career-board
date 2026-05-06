@@ -560,10 +560,27 @@ final class Plugin {
 	 * @return void
 	 */
 	public function print_container_width_css_var(): void {
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$default  = isset( $settings['container_max_width'] )
+		// Resolution order:
+		//   1. `wcb_container_max_width` filter (developer override)
+		//   2. wcb_settings.container_max_width (admin UI)
+		//   3. Theme `theme.json` wideSize / contentSize (if a px / rem
+		//      value is declared by the active theme)
+		//   4. Default: 1280 px
+		//
+		// The theme value is consulted before the default so block themes
+		// that already publish a content-width contract (Twenty Twenty-Four,
+		// Twenty Twenty-Three, etc.) see their value honoured. Plugin
+		// settings + filter sit ABOVE the theme value because customers may
+		// have explicitly tuned the WCB layout.
+		$settings        = (array) get_option( 'wcb_settings', array() );
+		$setting_value   = isset( $settings['container_max_width'] )
 			? (int) $settings['container_max_width']
-			: 1280;
+			: 0;
+		$theme_value     = $this->resolve_theme_content_width();
+		$default_pixels  = 1280;
+		$resolved_pixels = $setting_value > 0
+			? $setting_value
+			: ( $theme_value > 0 ? $theme_value : $default_pixels );
 
 		/**
 		 * Filter the canonical WCB container max-width (in pixels).
@@ -577,13 +594,49 @@ final class Plugin {
 		 *
 		 * @param int $width Canonical container width in pixels.
 		 */
-		$width = (int) apply_filters( 'wcb_container_max_width', $default );
+		$width = (int) apply_filters( 'wcb_container_max_width', $resolved_pixels );
 		$width = max( 720, min( 1920, $width ) );
 
 		printf(
 			'<style id="wcb-container-width">:root{--wcb-container-max-width:%dpx;}</style>',
 			(int) $width
 		);
+	}
+
+	/**
+	 * Read the active theme's content-width contract from theme.json.
+	 *
+	 * Returns the wideSize value (preferred) or falls back to contentSize.
+	 * Px values are returned as integers; rem values are converted at 16 px
+	 * per rem. Returns 0 when the theme doesn't publish a layout contract.
+	 *
+	 * @since 1.1.0
+	 * @return int Content width in pixels, or 0 if not declared.
+	 */
+	private function resolve_theme_content_width(): int {
+		if ( ! function_exists( 'wp_get_global_settings' ) ) {
+			return 0;
+		}
+		$layout = wp_get_global_settings( array( 'layout' ) );
+		if ( ! is_array( $layout ) ) {
+			return 0;
+		}
+		$candidate = '';
+		if ( ! empty( $layout['wideSize'] ) && is_string( $layout['wideSize'] ) ) {
+			$candidate = $layout['wideSize'];
+		} elseif ( ! empty( $layout['contentSize'] ) && is_string( $layout['contentSize'] ) ) {
+			$candidate = $layout['contentSize'];
+		}
+		if ( '' === $candidate ) {
+			return 0;
+		}
+		if ( preg_match( '/^(\d+(?:\.\d+)?)px$/i', $candidate, $m ) ) {
+			return (int) round( (float) $m[1] );
+		}
+		if ( preg_match( '/^(\d+(?:\.\d+)?)rem$/i', $candidate, $m ) ) {
+			return (int) round( (float) $m[1] * 16.0 );
+		}
+		return 0;
 	}
 
 	/**
@@ -622,24 +675,90 @@ final class Plugin {
 		}
 
 		// Singular pages that host a top-level WCB dashboard / form / archive
-		// block — route through our page template so the block always sits
+		// block, OR are explicitly mapped via Settings (Jobs Archive,
+		// Employer Dashboard, etc.) OR contain a WCB shortcode — all route
+		// through our page template so the block / shortcode always sits
 		// inside the same `.wcb-archive-shell` centering used by the archive
-		// pages above. Without this, /find-jobs/ on Astra renders
-		// flush-left at the viewport edge while /companies/ centers cleanly.
+		// pages above. Without this, /find-jobs/ on Astra renders flush-left
+		// at the viewport edge while /companies/ centers cleanly.
 		if ( is_singular( 'page' ) ) {
 			global $post;
 			if ( $post instanceof \WP_Post ) {
-				$wcb_blocks = array(
-					'wp-career-board/employer-dashboard',
-					'wp-career-board/candidate-dashboard',
-					'wp-career-board/job-form',
-					'wp-career-board/job-form-simple',
-					'wp-career-board/employer-registration',
-					'wp-career-board/job-listings',
-					'wp-career-board/company-archive',
-					'wp-career-board/company-profile',
-					'wp-career-board/job-search',
-					'wp-career-board/job-search-hero',
+				// 1. Mapped page detection from Settings — covers shortcode-only
+				//    pages where has_block() wouldn't fire.
+				$settings    = (array) get_option( 'wcb_settings', array() );
+				$mapped_keys = array(
+					'jobs_archive_page',
+					'employer_dashboard_page',
+					'candidate_dashboard_page',
+					'company_archive_page',
+					'employer_registration_page',
+					'post_job_page',
+					'find_candidates_page',
+					'resume_archive_page',
+				);
+				$mapped_ids  = array();
+				foreach ( $mapped_keys as $k ) {
+					$id = (int) ( $settings[ $k ] ?? 0 );
+					if ( $id > 0 ) {
+						$mapped_ids[] = $id;
+					}
+				}
+				$mapped_ids = (array) apply_filters( 'wcb_app_page_ids', $mapped_ids );
+				if ( in_array( $post->ID, $mapped_ids, true ) ) {
+					$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
+					if ( file_exists( $page_template ) ) {
+						return $page_template;
+					}
+				}
+
+				// 2. Shortcode detection — catches pages that paste
+				//    [wcb_*] / [wcbp_*] without going through a block.
+				$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
+				foreach ( $shortcode_prefixes as $prefix ) {
+					if ( false !== strpos( (string) $post->post_content, '[' . $prefix ) ) {
+						$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
+						if ( file_exists( $page_template ) ) {
+							return $page_template;
+						}
+					}
+				}
+
+				// 3. Block-by-block detection (existing path).
+				/**
+				 * Filter the list of WCB block names that trigger the plugin's
+				 * full-width page template. Pro adds its own resume-archive,
+				 * recruiter-search, etc. block names through this filter so
+				 * the Pro block-hosting pages get the same canonical centering
+				 * as the Free pages.
+				 *
+				 * @since 1.1.0
+				 *
+				 * @param string[] $blocks Block names (namespace/slug).
+				 */
+				$wcb_blocks = (array) apply_filters(
+					'wcb_fullwidth_block_names',
+					array(
+						'wp-career-board/employer-dashboard',
+						'wp-career-board/candidate-dashboard',
+						'wp-career-board/job-form',
+						'wp-career-board/job-form-simple',
+						'wp-career-board/employer-registration',
+						'wp-career-board/job-listings',
+						'wp-career-board/company-archive',
+						'wp-career-board/company-profile',
+						'wp-career-board/job-search',
+						'wp-career-board/job-search-hero',
+						'wp-career-board/featured-jobs',
+						'wp-career-board/recent-jobs',
+						'wcb/resume-archive',
+						'wcb/recruiter-search',
+						'wcb/employer-dashboard',
+						'wcb/candidate-dashboard',
+						'wcb/job-listings',
+						'wcb/company-archive',
+						'wcb/company-profile',
+					)
 				);
 				foreach ( $wcb_blocks as $block_name ) {
 					if ( has_block( $block_name, $post ) ) {
