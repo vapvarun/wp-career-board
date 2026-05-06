@@ -803,13 +803,11 @@ body.wcb-page-fullwidth .ast-secondary {
 
 [class*="wp-block-wp-career-board"] button[role="tab"],
 [class*="wp-block-wp-career-board"] .wcb-nav-item,
-[class*="wp-block-wp-career-board"] .wcb-sidebar button,
 [class*="wp-block-wp-career-board"] .wcb-tab,
 [class*="wp-block-wp-career-board"] .wcb-panel-link,
 [class*="wp-block-wp-career-board"] .wcb-card-link,
 [class*="wp-block-wcb-"] button[role="tab"],
 [class*="wp-block-wcb-"] .wcb-nav-item,
-[class*="wp-block-wcb-"] .wcb-sidebar button,
 [class*="wp-block-wcb-"] .wcb-tab,
 [class*="wp-block-wcb-"] .wcb-panel-link,
 [class*="wp-block-wcb-"] .wcb-card-link {
