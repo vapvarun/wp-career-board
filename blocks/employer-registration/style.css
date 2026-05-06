@@ -185,18 +185,12 @@
 	}
 }
 
-/* ── Side-by-side fields ─────────────────────────────────────────────────── */
-.wcb-field-row {
-	display: flex;
-	gap: var(--wcb-space-md, 12px);
-}
-
+/*
+ * Side-by-side fields use the shared `.wcb-field-row` grid defined in
+ * `assets/css/frontend-components.css` (1fr 1fr, auto-stacks at <=600px).
+ * `.wcb-field-half` is retained for backwards-compatibility on existing
+ * markup but is now a no-op grid item.
+ */
 .wcb-field-half {
-	flex: 1;
-}
-
-@media (max-width: 480px) {
-	.wcb-field-row {
-		flex-direction: column;
-	}
+	min-width: 0;
 }

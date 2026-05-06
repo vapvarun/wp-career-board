@@ -255,6 +255,16 @@
 /* -- View panels -- */
 .wcb-view-panel {
 	display: none;
+
+	/*
+	 * Establish an inline-size container so child grids (`.wcb-profile-grid`,
+	 * `.wcb-two-col`, etc.) can react to the actual width they're rendered in
+	 * — not the viewport. This is what lets the dashboard render correctly on
+	 * theme templates that steal width via a sidebar widget area (Reign with
+	 * its right sidebar gives our `.wcb-main` ~610px on a 1614px viewport).
+	 */
+	container-type: inline-size;
+	container-name: wcb-panel;
 }
 
 .wcb-view-panel.wcb-view-active {
@@ -972,8 +982,21 @@
 /* -- Company profile -- */
 .wcb-profile-grid {
 	display: grid;
-	grid-template-columns: 1fr 340px;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
 	gap: var(--wcb-space-2xl);
+}
+
+/*
+ * Stack form / live preview vertically when the panel container is too narrow
+ * for the side-by-side layout — this triggers on Reign-with-sidebar pages
+ * (~610px panel) and on tablet / mobile widths. Without this, the form column
+ * collapses to a hostile ~200px and every input becomes unusable.
+ */
+@container wcb-panel (max-width: 880px) {
+
+	.wcb-profile-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 .wcb-logo-placeholder {
@@ -1294,69 +1317,13 @@
 	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 }
 
-.wcb-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: 0.375rem;
-	margin-bottom: var(--wcb-space-xl);
-}
-
-.wcb-field-row {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: var(--wcb-space-lg);
-}
-
-.wcb-field-label {
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-}
-
-.wcb-field-hint {
-	font-weight: var(--wcb-font-normal);
-	color: var(--wcb-text-tertiary);
-	font-size: var(--wcb-text-sm);
-	margin-inline-start: 0.35rem;
-}
-
-.wcb-field-input {
-	width: 100%;
-	min-height: 44px;
-	padding: 0.625rem 0.875rem;
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-md);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	transition: border-color var(--wcb-transition-fast);
-	box-sizing: border-box;
-}
-
-.wcb-field-input:focus {
-	outline: 2px solid transparent;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field-textarea {
-	resize: vertical;
-	line-height: 1.6;
-}
-
-.wcb-field-select {
-	cursor: pointer;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 0.875rem center;
-	appearance: none;
-	padding-inline-end: 2.5rem;
-}
-
-[dir="rtl"] .wcb-field-select {
-	background-position: left 0.875rem center;
-}
+/*
+ * Form-primitive rules (.wcb-field-group/row/label/hint/input/textarea/select)
+ * live in `assets/css/frontend-components.css` so blocks that don't enqueue
+ * this stylesheet (registration, post-a-job, etc.) still get them. Only the
+ * 2-col grid is dashboard-specific — it stays here, scoped under the shell
+ * so it can't bleed into other blocks.
+ */
 
 /* -- Guest fields -- */
 .wcb-apply-guest-fields .wcb-guest-field {
