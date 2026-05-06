@@ -373,13 +373,8 @@
 	overflow: hidden;
 }
 
-.wcb-panel-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-border);
-}
+/* `.wcb-panel-header` and `.wcb-panel-body` live globally in
+ * `assets/css/frontend-components.css`. */
 
 .wcb-panel-title {
 	font-size: var(--wcb-text-base);
@@ -400,10 +395,6 @@
 
 .wcb-panel-link:hover {
 	text-decoration: underline;
-}
-
-.wcb-panel-body {
-	padding: 2.5rem var(--wcb-space-3xl);
 }
 
 .wcb-panel-empty {

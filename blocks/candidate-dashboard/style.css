@@ -902,15 +902,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	gap: var(--wcb-space-xl);
 }
 
-/* ── Overview: Panel header / title / link / empty ───────────────────────── */
-.wcb-panel-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-border);
-}
-
+/* ── Overview: Panel title / link / empty (panel-header lives globally) ──── */
 .wcb-panel-title {
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-bold);

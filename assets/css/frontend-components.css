@@ -530,6 +530,27 @@ select.wcb-field {
 	background-position: left 0.875rem center;
 }
 
+/* ── Panel — shared dashboard / detail panel structure ──────────────── */
+
+/*
+ * Used by candidate-dashboard, employer-dashboard, job-single. Block-specific
+ * panel TITLE styling (font sizes vary between dashboards and job-single)
+ * stays in each block's own stylesheet — only the truly identical wrappers
+ * are hoisted here.
+ */
+
+.wcb-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-panel-body {
+	padding: 2.5rem var(--wcb-space-3xl);
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*

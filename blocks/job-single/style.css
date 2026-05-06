@@ -555,9 +555,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	.wcb-apply-panel { animation: none !important; transition: none !important; }
 }
 
-.wcb-panel-body {
-	padding: 2.5rem var(--wcb-space-3xl);
-}
+/* `.wcb-panel-body` lives globally in `assets/css/frontend-components.css`. */
 
 .wcb-panel-close {
 	position: absolute;
