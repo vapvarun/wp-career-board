@@ -282,6 +282,17 @@ final class ApplicationsEndpoint extends RestController {
 		}
 		if ( $attachment_id > 0 ) {
 			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+		} elseif ( $resume_id > 0 && $this->resume_required() ) {
+			// Candidate picked a saved resume but it has no PDF attached yet —
+			// happens when the resume was created in the manual builder but
+			// never exported. Tell the candidate exactly what to do next
+			// instead of letting the application land with a blank file.
+			wp_delete_post( $app_id, true );
+			return new \WP_Error(
+				'wcb_resume_no_pdf',
+				__( "This resume doesn't have a PDF attached yet. Open it in the resume builder and use 'Download as PDF' (or upload a file below) before applying.", 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
 		} elseif ( $this->resume_required() && $resume_id <= 0 ) {
 			wp_delete_post( $app_id, true );
 			return new \WP_Error(

@@ -205,9 +205,11 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 		)
 	);
 	foreach ( $wcb_resume_posts as $wcb_r ) {
+		$wcb_resume_pdf_id   = (int) get_post_meta( $wcb_r->ID, '_wcb_resume_attachment_id', true );
 		$wcb_user_resumes[] = array(
-			'id'    => $wcb_r->ID,
-			'title' => $wcb_r->post_title,
+			'id'     => $wcb_r->ID,
+			'title'  => $wcb_r->post_title,
+			'hasPdf' => $wcb_resume_pdf_id > 0 && (bool) get_post( $wcb_resume_pdf_id ),
 		);
 	}
 	$wcb_rb_pages = get_posts(
@@ -732,8 +734,14 @@ wp_interactivity_state(
 							>
 								<option value="0"><?php esc_html_e( '— Select a resume —', 'wp-career-board' ); ?></option>
 				<?php foreach ( $wcb_user_resumes as $wcb_r ) : ?>
-									<option value="<?php echo (int) $wcb_r['id']; ?>">
-					<?php echo esc_html( $wcb_r['title'] ); ?>
+									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo empty( $wcb_r['hasPdf'] ) ? ' disabled' : ''; ?>>
+					<?php
+					echo esc_html( $wcb_r['title'] );
+					if ( empty( $wcb_r['hasPdf'] ) ) {
+						/* translators: shown next to a resume that has no PDF attachment yet. */
+						echo ' ' . esc_html__( '(no PDF — open in builder and download to attach)', 'wp-career-board' );
+					}
+					?>
 									</option>
 				<?php endforeach; ?>
 							</select>
