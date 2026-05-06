@@ -71,6 +71,21 @@ class AdminSettings {
 	);
 
 	/**
+	 * Currency dropdown options — the single source of truth.
+	 *
+	 * Runs the base list through the `wcb_currency_options` filter so Pro can
+	 * add JPY/BRL/MXN/etc. and so admin settings, the post-job form, and the
+	 * simple post-job form all render the same dropdown.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @return array<string,string> Map of code => label.
+	 */
+	public static function get_currency_options(): array {
+		return (array) apply_filters( 'wcb_currency_options', self::CURRENCIES );
+	}
+
+	/**
 	 * Boot the settings module.
 	 *
 	 * @since  1.0.0
@@ -132,7 +147,7 @@ class AdminSettings {
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
 			'resume_archive_enabled'     => ! empty( $input['resume_archive_enabled'] ),
-			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( $input['salary_currency'], self::CURRENCIES ) ? $input['salary_currency'] : 'USD',
+			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( $input['salary_currency'], self::get_currency_options() ) ? $input['salary_currency'] : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
 			'candidate_dashboard_page'   => isset( $input['candidate_dashboard_page'] ) ? (int) $input['candidate_dashboard_page'] : 0,
@@ -707,7 +722,7 @@ class AdminSettings {
 										<div class="wcb-settings-row-label"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<select id="wcb-salary-currency" name="wcb_settings[salary_currency]">
-												<?php foreach ( self::CURRENCIES as $wcb_code => $wcb_label ) : ?>
+												<?php foreach ( self::get_currency_options() as $wcb_code => $wcb_label ) : ?>
 													<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>><?php echo esc_html( $wcb_label ); ?></option>
 												<?php endforeach; ?>
 											</select>

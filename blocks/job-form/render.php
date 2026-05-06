@@ -121,27 +121,20 @@ if ( $wcb_edit_id > 0 ) {
 	$wcb_e_tags  = wp_get_object_terms( $wcb_edit_id, 'wcb_tag', array( 'fields' => 'slugs' ) );
 }
 
-// ── Default currency: employer preference → site admin setting → USD ──────────
+// ── Currency options — pulled from the single source of truth in Settings,
+// so admin settings + Pro additions (JPY/BRL/MXN/etc.) are guaranteed to
+// match what the post-form lets employers pick.
+$wcb_currencies = \WCB\Admin\AdminSettings::get_currency_options();
+
+// ── Default currency: employer preference → site admin setting → first option.
 $wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
 if ( ! $wcb_preferred ) {
 	$wcb_site_settings = (array) get_option( 'wcb_settings', array() );
 	$wcb_preferred     = ! empty( $wcb_site_settings['salary_currency'] ) ? $wcb_site_settings['salary_currency'] : 'USD';
 }
-$wcb_default_currency = in_array( $wcb_preferred, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $wcb_preferred : 'USD';
-
-// ── Currency options ───────────────────────────────────────────────────────
-$wcb_currencies = array(
-	'USD' => __( 'USD — US Dollar', 'wp-career-board' ),
-	'EUR' => __( 'EUR — Euro', 'wp-career-board' ),
-	'GBP' => __( 'GBP — British Pound', 'wp-career-board' ),
-	'CAD' => __( 'CAD — Canadian Dollar', 'wp-career-board' ),
-	'AUD' => __( 'AUD — Australian Dollar', 'wp-career-board' ),
-	'INR' => __( 'INR — Indian Rupee', 'wp-career-board' ),
-	'SGD' => __( 'SGD — Singapore Dollar', 'wp-career-board' ),
-);
-
-// Extend currency list — Pro hooks this filter to add JPY/BRL/MXN/etc.
-$wcb_currencies = (array) apply_filters( 'wcb_currency_options', $wcb_currencies );
+$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currencies )
+	? $wcb_preferred
+	: ( array_key_exists( 'USD', $wcb_currencies ) ? 'USD' : (string) array_key_first( $wcb_currencies ) );
 
 // ── Board currency — Pro returns the per-board currency when boardId is set ──
 $wcb_board_id       = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;

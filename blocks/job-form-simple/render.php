@@ -55,22 +55,16 @@ $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true )
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
+$wcb_currencies = \WCB\Admin\AdminSettings::get_currency_options();
+
 $wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
 if ( ! $wcb_preferred ) {
 	$wcb_settings  = (array) get_option( 'wcb_settings', array() );
 	$wcb_preferred = ! empty( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : 'USD';
 }
-$wcb_default_currency = in_array( $wcb_preferred, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $wcb_preferred : 'USD';
-
-$wcb_currencies = array(
-	'USD' => __( 'USD — US Dollar', 'wp-career-board' ),
-	'EUR' => __( 'EUR — Euro', 'wp-career-board' ),
-	'GBP' => __( 'GBP — British Pound', 'wp-career-board' ),
-	'CAD' => __( 'CAD — Canadian Dollar', 'wp-career-board' ),
-	'AUD' => __( 'AUD — Australian Dollar', 'wp-career-board' ),
-	'INR' => __( 'INR — Indian Rupee', 'wp-career-board' ),
-	'SGD' => __( 'SGD — Singapore Dollar', 'wp-career-board' ),
-);
+$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currencies )
+	? $wcb_preferred
+	: ( array_key_exists( 'USD', $wcb_currencies ) ? 'USD' : (string) array_key_first( $wcb_currencies ) );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
