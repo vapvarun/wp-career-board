@@ -48,7 +48,20 @@ if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
 	require_once __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php';
 }
 
-// Auto-activate the preset license key on first load so updates work.
+/*
+ * Auto-activate the preset license key on first load so updates work.
+ *
+ * Wbcom licensing model: the license is for AUTOMATIC UPDATES via EDD
+ * Software Licensing only. It does NOT gate any plugin functionality —
+ * if activation fails (network error, EDD store rejecting the key, 403
+ * Forbidden response), the plugin still works the same. So we set the
+ * `wcb_preset_activated` flag unconditionally after one attempt; the
+ * remote call is best-effort and never retries.
+ *
+ * Earlier behaviour retried the remote on every admin_init when the
+ * response was anything other than a valid license — surfacing the
+ * remote 403 as a recurring PHP error in admin (Basecamp 9862270651).
+ */
 add_action(
 	'admin_init',
 	function () {
@@ -61,12 +74,15 @@ add_action(
 		}
 
 		update_option( $option, $preset_key, false );
+		update_option( $activated, 1, false );
 
-		$response = wp_remote_post(
+		// Best-effort remote activation; result is not enforced anywhere.
+		wp_remote_post(
 			'https://wbcomdesigns.com',
 			array(
-				'timeout' => 15,
-				'body'    => array(
+				'timeout'  => 15,
+				'blocking' => false,
+				'body'     => array(
 					'edd_action' => 'activate_license',
 					'license'    => $preset_key,
 					'item_id'    => WCB_EDD_ITEM_ID,
@@ -74,13 +90,6 @@ add_action(
 				),
 			)
 		);
-
-		if ( ! is_wp_error( $response ) ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( 'valid' === ( $body['license'] ?? '' ) ) {
-				update_option( $activated, 1, false );
-			}
-		}
 	}
 );
 
