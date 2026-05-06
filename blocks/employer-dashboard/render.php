@@ -566,7 +566,19 @@ wp_interactivity_state(
 					</div>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-desc"><?php esc_html_e( 'About the Company', 'wp-career-board' ); ?></label>
-						<textarea id="wcb-company-desc" class="wcb-field-input wcb-field-textarea" rows="4" data-wcb-field="companyDesc" data-wp-bind--value="state.companyDesc" data-wp-on--input="actions.updateField"></textarea>
+						<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'What does your company do? Mission, products, culture…', 'wp-career-board' ); ?>">
+							<div class="wcb-editor-holder" id="wcb-editor-company-desc"></div>
+							<textarea
+								id="wcb-company-desc"
+								class="wcb-editor-source"
+								rows="1"
+								tabindex="-1"
+								aria-label="<?php esc_attr_e( 'About the company', 'wp-career-board' ); ?>"
+								data-wcb-field="companyDesc"
+								data-wp-bind--value="state.companyDesc"
+								data-wp-on--input="actions.updateField"
+							></textarea>
+						</div>
 					</div>
 					<div class="wcb-field-row">
 						<div class="wcb-field-group">

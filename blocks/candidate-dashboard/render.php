@@ -657,11 +657,18 @@ wp_interactivity_state(
 		<div class="wcb-panel wcb-shown">
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-profile-bio"><?php esc_html_e( 'Bio / About Me', 'wp-career-board' ); ?></label>
-				<textarea id="wcb-profile-bio" class="wcb-field" rows="5"
-					placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>"
-					data-wp-bind--value="state.profileBio"
-					data-wp-on--input="actions.updateProfileBio"
-				></textarea>
+				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>">
+					<div class="wcb-editor-holder" id="wcb-editor-profile-bio"></div>
+					<textarea
+						id="wcb-profile-bio"
+						class="wcb-editor-source"
+						rows="1"
+						tabindex="-1"
+						aria-label="<?php esc_attr_e( 'Bio / About me', 'wp-career-board' ); ?>"
+						data-wp-bind--value="state.profileBio"
+						data-wp-on--input="actions.updateProfileBio"
+					></textarea>
+				</div>
 			</div>
 			<div class="wcb-form-actions" style="margin-top:var(--wcb-space-lg)">
 				<button type="button" class="wcb-cbtn wcb-cbtn--primary"

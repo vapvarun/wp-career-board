@@ -135,22 +135,26 @@
 			holder.id = 'wcb-editor-' + Math.random().toString( 36 ).slice( 2, 10 );
 		}
 
-		const initial = htmlToBlocks( textarea.value );
-		let isSaving  = false;
+		let isSaving       = false;
+		let lastRendered   = textarea.value;
+		let isUserEditing  = false;
 
 		const editor = new window.EditorJS( {
 			holder: holder.id,
 			tools: buildTools(),
-			data: initial,
+			data: htmlToBlocks( textarea.value ),
 			placeholder: editorEl.dataset.placeholder || 'Describe the role, responsibilities and requirements...',
 			minHeight: 200,
 			onChange: () => {
 				if ( isSaving ) {
 					return;
 				}
-				isSaving = true;
+				isUserEditing = true;
+				isSaving      = true;
 				editor.save().then( ( saved ) => {
-					textarea.value = blocksToHtml( saved );
+					const html     = blocksToHtml( saved );
+					textarea.value = html;
+					lastRendered   = html;
 					textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 				} ).finally( () => {
 					isSaving = false;
@@ -158,12 +162,38 @@
 			},
 		} );
 
-		// Allow producers (AI generate, autosave) to force a re-render by
-		// dispatching `wcb:editor:hydrate` on the textarea after they update
-		// its value externally.
-		textarea.addEventListener( 'wcb:editor:hydrate', () => {
-			editor.isReady.then( () => editor.render( htmlToBlocks( textarea.value ) ) );
-		} );
+		const rerenderFromTextarea = () => {
+			isSaving = true;
+			editor.isReady.then( () => editor.render( htmlToBlocks( textarea.value ) ) ).finally( () => {
+				lastRendered = textarea.value;
+				isSaving     = false;
+			} );
+		};
+
+		// Late hydration: Interactivity API binds `data-wp-bind--value` after
+		// our init runs, so the textarea may pick up its real value (existing
+		// post_content, autosave, AI-generated, etc.) several hundred ms after
+		// Editor.js mounted with an empty document. Poll briefly and re-render
+		// once when the value diverges. Stops after 2s OR as soon as the user
+		// starts typing, so we never clobber active editing.
+		let polls = 0;
+		const pollId = setInterval( () => {
+			if ( isUserEditing || polls > 10 ) {
+				clearInterval( pollId );
+				return;
+			}
+			if ( textarea.value && textarea.value !== lastRendered ) {
+				rerenderFromTextarea();
+				clearInterval( pollId );
+				return;
+			}
+			polls++;
+		}, 200 );
+
+		// Producers (AI generate, autosave restore, programmatic value pushes)
+		// can dispatch `wcb:editor:hydrate` after writing textarea.value to
+		// force an immediate re-render — bypasses the polling window.
+		textarea.addEventListener( 'wcb:editor:hydrate', rerenderFromTextarea );
 
 		editorEl.wcbEditor = editor;
 		editorEl.dataset.wcbEditorVersion = EDITOR_VERSION;

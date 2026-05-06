@@ -787,14 +787,18 @@ wp_interactivity_state(
 		<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>
 					<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
 				</label>
-				<textarea
-					id="wcb-cover-letter"
-					class="wcb-cover-letter"
-					rows="8"
-					placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>"
-					data-wp-bind--value="state.coverLetter"
-					data-wp-on--input="actions.updateCoverLetter"
-				></textarea>
+				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
+					<div class="wcb-editor-holder" id="wcb-editor-cover-letter"></div>
+					<textarea
+						id="wcb-cover-letter"
+						class="wcb-editor-source"
+						rows="1"
+						tabindex="-1"
+						aria-label="<?php esc_attr_e( 'Cover letter', 'wp-career-board' ); ?>"
+						data-wp-bind--value="state.coverLetter"
+						data-wp-on--input="actions.updateCoverLetter"
+					></textarea>
+				</div>
 
 		<?php
 		/**
