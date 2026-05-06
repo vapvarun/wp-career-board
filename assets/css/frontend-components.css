@@ -669,13 +669,34 @@ body.wcb-page-fullwidth [class*="wp-block-wcb-"],
 	margin-inline: 0;
 }
 
-body.wcb-page-fullwidth > .wp-site-blocks > [class*="wp-block-wp-career-board"],
-body.wcb-page-fullwidth .entry-content > [class*="wp-block-wp-career-board"],
-body.wcb-page-fullwidth .entry-content > [class*="wp-block-wcb-"],
-body.wcb-page-fullwidth main > [class*="wp-block-wp-career-board"],
-body.wcb-page-fullwidth main > [class*="wp-block-wcb-"],
-body.wcb-page-fullwidth article > [class*="wp-block-wp-career-board"],
-body.wcb-page-fullwidth article > [class*="wp-block-wcb-"] {
+/*
+ * Targeting each top-level WCB block by its full block-wrapper class is more
+ * reliable than chasing every theme's content-wrapper class (Astra ships
+ * `.entry-content`, OceanWP `.entry`, GeneratePress `.inside-article`,
+ * Storefront `.entry-content`, Twenty Twenty-Three `.wp-block-post-content`,
+ * Kadence `.entry-content-wrap`, Neve `.nv-content-wrap`). The block class
+ * is stable across all of them.
+ */
+body.wcb-page-fullwidth .wp-block-wp-career-board-employer-dashboard,
+body.wcb-page-fullwidth .wp-block-wp-career-board-candidate-dashboard,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-form,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-form-simple,
+body.wcb-page-fullwidth .wp-block-wp-career-board-employer-registration,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-listings,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-search,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-search-hero,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-filters,
+body.wcb-page-fullwidth .wp-block-wp-career-board-job-single,
+body.wcb-page-fullwidth .wp-block-wp-career-board-company-archive,
+body.wcb-page-fullwidth .wp-block-wp-career-board-company-profile,
+body.wcb-page-fullwidth .wp-block-wp-career-board-featured-jobs,
+body.wcb-page-fullwidth .wp-block-wp-career-board-recent-jobs,
+body.wcb-page-fullwidth .wp-block-wcb-resume-archive,
+body.wcb-page-fullwidth .wp-block-wcb-job-listings,
+body.wcb-page-fullwidth .wp-block-wcb-employer-dashboard,
+body.wcb-page-fullwidth .wp-block-wcb-candidate-dashboard,
+body.wcb-page-fullwidth .wp-block-wcb-company-archive,
+body.wcb-page-fullwidth .wp-block-wcb-company-profile {
 	max-width: var(--wcb-container-max-width, 1280px);
 	margin-inline: auto;
 	padding-inline: var(--wcb-space-lg);
