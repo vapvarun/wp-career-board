@@ -414,6 +414,17 @@ final class Plugin {
 	 * @return string[]
 	 */
 	public function add_page_class( array $classes ): array {
+		// Post-type archives served via our archive template need the same
+		// full-width treatment as singular WCB pages — Astra constrains
+		// archive parents to ~1140 px even when no sidebar is rendered, so
+		// without the body class our `.wcb-archive-shell` inherits that
+		// narrower context and the canonical 1280 px container can't apply.
+		if ( is_post_type_archive( array( 'wcb_company', 'wcb_job', 'wcb_resume' ) ) ) {
+			$classes[] = 'wcb-page';
+			$classes[] = 'wcb-page-fullwidth';
+			return $classes;
+		}
+
 		$page_id = (int) get_queried_object_id();
 		if ( ! $page_id ) {
 			return $classes;
@@ -594,10 +605,8 @@ final class Plugin {
 	 * @return string Plugin-shipped template path or original.
 	 */
 	public function use_wcb_archive_template( string $template ): string {
-		// Detect the post type via `is_post_type_archive()` directly — the
-		// `post_type` query var is sometimes an array and sometimes empty
-		// at the point WP resolves the archive_template filter, so checking
-		// each known archive explicitly is the reliable path.
+		// Post-type archives (Companies, Jobs) — use our archive template so
+		// the grid renders inside `.wcb-archive-shell` regardless of theme.
 		$post_type = '';
 		if ( is_post_type_archive( 'wcb_company' ) ) {
 			$post_type = 'wcb_company';
@@ -605,12 +614,45 @@ final class Plugin {
 			$post_type = 'wcb_job';
 		}
 
-		if ( '' === $post_type ) {
-			return $template;
+		if ( '' !== $post_type ) {
+			$candidate = WCB_DIR . 'templates/archive-' . $post_type . '.php';
+			if ( file_exists( $candidate ) ) {
+				return $candidate;
+			}
 		}
 
-		$candidate = WCB_DIR . 'templates/archive-' . $post_type . '.php';
-		return file_exists( $candidate ) ? $candidate : $template;
+		// Singular pages that host a top-level WCB dashboard / form / archive
+		// block — route through our page template so the block always sits
+		// inside the same `.wcb-archive-shell` centering used by the archive
+		// pages above. Without this, /find-jobs/ on Astra renders
+		// flush-left at the viewport edge while /companies/ centers cleanly.
+		if ( is_singular( 'page' ) ) {
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				$wcb_blocks = array(
+					'wp-career-board/employer-dashboard',
+					'wp-career-board/candidate-dashboard',
+					'wp-career-board/job-form',
+					'wp-career-board/job-form-simple',
+					'wp-career-board/employer-registration',
+					'wp-career-board/job-listings',
+					'wp-career-board/company-archive',
+					'wp-career-board/company-profile',
+					'wp-career-board/job-search',
+					'wp-career-board/job-search-hero',
+				);
+				foreach ( $wcb_blocks as $block_name ) {
+					if ( has_block( $block_name, $post ) ) {
+						$page_template = WCB_DIR . 'templates/page-wcb-fullwidth.php';
+						if ( file_exists( $page_template ) ) {
+							return $page_template;
+						}
+					}
+				}
+			}
+		}
+
+		return $template;
 	}
 
 	/**
