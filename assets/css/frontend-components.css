@@ -653,50 +653,6 @@ select.wcb-field {
  * should use whatever body have".
  */
 
-/* ── Page Full-Width Override — for pages hosting WCB archive blocks ───── */
-
-/*
- * When a regular WordPress page hosts one of our archive / dashboard /
- * listings blocks, the `body.wcb-page-fullwidth` class is added by
- * `Plugin::add_page_class()`. This block resets the common theme
- * content-column max-widths so our blocks render at full content width on
- * top WordPress.org themes without the customer having to manually set a
- * "Full Width" page template. Each theme's wrapper class is targeted
- * explicitly so we never affect other content on the page.
- *
- * Tested against: Astra, OceanWP, GeneratePress, Storefront, Twenty
- * Twenty-Three, Twenty Twenty-Four, Kadence, Neve, Blocksy.
- */
-
-body.wcb-page-fullwidth .ast-container,
-body.wcb-page-fullwidth .site .container,
-body.wcb-page-fullwidth #content .container,
-body.wcb-page-fullwidth #content > .inside-article,
-body.wcb-page-fullwidth #content .inside-article,
-body.wcb-page-fullwidth #content-wrap .container-wrap,
-body.wcb-page-fullwidth #main .entry,
-body.wcb-page-fullwidth .neve-main .container,
-body.wcb-page-fullwidth .ct-container,
-body.wcb-page-fullwidth .wp-site-blocks .wp-block-group.has-global-padding {
-	max-width: none;
-	width: 100%;
-}
-
-body.wcb-page-fullwidth .ast-content-area,
-body.wcb-page-fullwidth #primary,
-body.wcb-page-fullwidth .content-area,
-body.wcb-page-fullwidth main#main,
-body.wcb-page-fullwidth main#primary {
-	width: 100%;
-	max-width: none;
-}
-
-body.wcb-page-fullwidth #secondary,
-body.wcb-page-fullwidth .widget-area,
-body.wcb-page-fullwidth .ast-secondary {
-	display: none;
-}
-
 /* ── Archive Shell — full-width container for plugin archive templates ─── */
 
 /*
