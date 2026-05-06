@@ -804,6 +804,15 @@ body.wcb-page-fullwidth .ast-secondary {
  * Tested against: Reign, BuddyX, BuddyX Pro, Astra, Twenty Twenty-Four, GeneratePress.
  */
 
+/*
+ * `!important` on text-decoration is intentional — Storefront, Astra,
+ * Twenty Twenty-Four, and several other themes ship rules at equal or
+ * higher specificity (`.entry-content a`, `.site-main a:not(.button)`,
+ * `body .content-area a`) that load AFTER our component sheet and win
+ * the cascade by source order. This is the same pattern we use on
+ * `.wcb-cp-job-title a` for the same reason.
+ */
+
 [class*="wp-block-wp-career-board"] .wcb-job-card a,
 [class*="wp-block-wp-career-board"] .wcb-cp-job-title a,
 [class*="wp-block-wp-career-board"] .wcb-card-title a,
@@ -811,14 +820,16 @@ body.wcb-page-fullwidth .ast-secondary {
 [class*="wp-block-wp-career-board"] [role="tab"],
 [class*="wp-block-wp-career-board"] .wcb-role-card,
 [class*="wp-block-wp-career-board"] .wcb-sidebar a,
+[class*="wp-block-wp-career-board"] .wcb-nav-item,
 [class*="wp-block-wcb-"] .wcb-job-card a,
 [class*="wp-block-wcb-"] .wcb-cp-job-title a,
 [class*="wp-block-wcb-"] .wcb-card-title a,
 [class*="wp-block-wcb-"] .wcb-listing-title a,
 [class*="wp-block-wcb-"] [role="tab"],
 [class*="wp-block-wcb-"] .wcb-role-card,
-[class*="wp-block-wcb-"] .wcb-sidebar a {
-	text-decoration: none;
+[class*="wp-block-wcb-"] .wcb-sidebar a,
+[class*="wp-block-wcb-"] .wcb-nav-item {
+	text-decoration: none !important;
 	box-shadow: none;
 }
 
