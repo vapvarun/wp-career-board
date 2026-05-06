@@ -724,7 +724,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Require applicants to attach a resume', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'When off, the resume field is shown but optional.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'On by default. Turn off only for boards where applicants can apply with a cover letter alone (e.g. internal job boards, walk-in roles).', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
