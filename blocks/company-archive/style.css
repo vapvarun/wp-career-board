@@ -12,8 +12,8 @@
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-secondary);
 	margin: 0;
-	flex: 1;
-	min-width: 100px;
+	font-weight: var(--wcb-font-medium);
+	flex: 0 0 auto;
 }
 
 /* -- Filter bar -- */
@@ -21,6 +21,19 @@
 	display: flex;
 	gap: var(--wcb-space-sm);
 	flex-wrap: wrap;
+	align-items: center;
+	flex: 1 1 auto;
+}
+
+/*
+ * Pushes the layout toggle (.wcb-layout-toggle / .wcb-view-switcher) to the
+ * right edge of the toolbar without leaving an awkward gap between the
+ * results count and the filter selects on the left. Achieved by giving the
+ * filter bar `flex: 1 1 auto` so it absorbs the remaining horizontal space.
+ */
+.wcb-ca-toolbar > .wcb-layout-toggle,
+.wcb-ca-toolbar > .wcb-view-switcher {
+	margin-inline-start: auto;
 }
 
 .wcb-ca-filter-select {

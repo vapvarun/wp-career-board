@@ -86,6 +86,7 @@ final class Plugin {
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_filter( 'template_include', array( $this, 'use_wcb_archive_template' ), 99 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
+		add_action( 'wp_head', array( $this, 'print_container_width_css_var' ), 5 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_shared_assets' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
 
@@ -527,6 +528,51 @@ final class Plugin {
 			$theme_json->update_with( $data );
 		}
 		return $theme_json;
+	}
+
+	/**
+	 * Print the canonical container width as a CSS custom property in <head>.
+	 *
+	 * The frontend stylesheet reads `--wcb-container-max-width` everywhere it
+	 * needs the canonical container width (archive shells, full-width
+	 * dashboard / form pages, etc.). Surfacing the value as a CSS variable
+	 * means a site owner / Pro / theme integration can override the entire
+	 * layout system in one place — either through:
+	 *
+	 *   - the `wcb_container_max_width` PHP filter (this method),
+	 *   - the `container_max_width` key under `wcb_settings` (admin UI), or
+	 *   - a `<style>` block in the active theme that overrides the variable.
+	 *
+	 * Default: 1280 px. Min: 720, max: 1920 (clamped to keep layouts sane).
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function print_container_width_css_var(): void {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		$default  = isset( $settings['container_max_width'] )
+			? (int) $settings['container_max_width']
+			: 1280;
+
+		/**
+		 * Filter the canonical WCB container max-width (in pixels).
+		 *
+		 * Developers can wrap this filter to set a per-site, per-theme, or
+		 * per-page width — the value flows down into every WCB block via
+		 * `--wcb-container-max-width` so the entire layout system shifts in
+		 * one filter call.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param int $width Canonical container width in pixels.
+		 */
+		$width = (int) apply_filters( 'wcb_container_max_width', $default );
+		$width = max( 720, min( 1920, $width ) );
+
+		printf(
+			'<style id="wcb-container-width">:root{--wcb-container-max-width:%dpx;}</style>',
+			(int) $width
+		);
 	}
 
 	/**
