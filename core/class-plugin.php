@@ -782,6 +782,7 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
+		wp_style_add_data( 'wcb-frontend-tokens', 'rtl', 'replace' );
 
 		wp_enqueue_style(
 			'wcb-frontend-components',
@@ -789,6 +790,7 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
+		wp_style_add_data( 'wcb-frontend-components', 'rtl', 'replace' );
 
 		$this->enqueue_editor_assets();
 
@@ -848,6 +850,7 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
+		wp_style_add_data( 'wcb-editor', 'rtl', 'replace' );
 
 		wp_enqueue_script(
 			'wcb-editor',

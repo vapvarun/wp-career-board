@@ -106,6 +106,7 @@ final class ProCoordination {
 	 * | wcb_pro_version            | (string) ""                          | Pro plugin version string (Pro returns WCBP_VERSION constant) |
 	 * | wcb_module_renders         | []                                   | Map slug => HTML; Pro injects HTML for module slots (alerts subscribe button, notifications bell, board switcher) |
 	 * | wcb_pro_alerts_enabled     | false                                | Whether Pro Alerts module is loaded — gates Free's "Job Alerts" tab + alert-saving CTAs |
+	 * | wcb_pro_resumes_enabled    | false                                | Whether Pro Resumes module is loaded — gates Free's "My Resumes" tab + resume REST calls |
 	 * | wcb_board_currency         | (string) $default                    | Currency code for a given board ID |
 	 * | wcb_currency_options       | array<code,label>                    | Currency dropdown options on the job form |
 	 * | wcb_pro_upsell_html        | (string) $default                    | HTML for Pro upsell at a named location ("admin_dashboard", "settings_pro_tab", etc.) |
@@ -126,6 +127,7 @@ final class ProCoordination {
 			'wcb_pro_version'               => 'Pro plugin version string',
 			'wcb_module_renders'            => 'Map of slug => HTML for Pro-rendered module slots',
 			'wcb_pro_alerts_enabled'        => 'Whether Pro Alerts module is loaded',
+			'wcb_pro_resumes_enabled'       => 'Whether Pro Resumes module is loaded — gates Free\'s "My Resumes" tab + resume REST calls',
 			'wcb_board_currency'            => 'Currency code for a given board ID',
 			'wcb_currency_options'          => 'Currency dropdown options on the job form',
 			'wcb_pro_upsell_html'           => 'HTML for Pro upsell at a named location',

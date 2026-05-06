@@ -122,7 +122,13 @@ wp_interactivity_state(
 			'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			'candidateId'            => $wcb_candidate_id,
 			'candidateName'          => $wcb_display_name,
-			'resumesEnabled'         => $wcb_resume_builder_embedded,
+			// `resumesEnabled` is true when Pro's Resumes module is loaded
+			// (regardless of whether the customer has dropped a wcb/resume-builder
+			// block). On Free-only installs, the My Resumes tab and the
+			// `/wcb/v1/candidates/{id}/resumes` REST call are both Pro-only —
+			// gating here prevents the "Could not load your resumes." 402 error
+			// surfaced in the candidate-dashboard audit on 2026-05-06.
+			'resumesEnabled'         => (bool) apply_filters( 'wcb_pro_resumes_enabled', false ) || $wcb_resume_builder_embedded,
 			'dashboardUrl'           => $wcb_dashboard_url,
 			'resumeBuilderEmbedded'  => $wcb_resume_builder_embedded,
 			'resumeEmbedId'          => $wcb_resume_embed_id,
