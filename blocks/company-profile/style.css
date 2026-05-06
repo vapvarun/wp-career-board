@@ -557,7 +557,6 @@
 	display: inline;
 }
 
-.wcb-hidden { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
 	.wcb-cp-spinner {

@@ -530,6 +530,21 @@ select.wcb-field {
 	background-position: left 0.875rem center;
 }
 
+/* ── Visibility Utilities — global ───────────────────────────────────── */
+
+/*
+ * `.wcb-hidden` is the canonical "hide via Interactivity API" toggle —
+ * `data-wp-class--wcb-hidden="state.foo"` adds the class when state.foo
+ * is truthy. Defined here once so every block doesn't redefine it.
+ */
+.wcb-hidden {
+	display: none !important;
+}
+
+.wcb-shown {
+	display: block;
+}
+
 /* ── Screen Reader Only ──────────────────────────────────────────────── */
 
 .wcb-sr-only {

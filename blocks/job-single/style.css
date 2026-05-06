@@ -480,7 +480,6 @@ a.wcb-company-card-name:hover {
 }
 
 /* ── Interactivity API — class-based visibility ──────────────────────────── */
-.wcb-hidden { display: none !important; }
 
 .wcb-panel-overlay,
 .wcb-apply-panel {

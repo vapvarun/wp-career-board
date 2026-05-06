@@ -28,7 +28,6 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	display: none !important;
 }
 
-.wcb-hidden { display: none !important; }
 
 /* ── Shell — sidebar + main ──────────────────────────────────────────────── */
 .wcb-dashboard-shell {
@@ -1363,4 +1362,3 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	cursor: not-allowed;
 }
 
-.wcb-hidden { display: none !important; }

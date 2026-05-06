@@ -512,12 +512,9 @@ textarea.wcb-field {
 	white-space: nowrap;
 }
 
-/* ── Success ─────────────────────────────────────────────────────────── */
-.wcb-form-success .wcb-hidden,
-.wcb-hidden {
-	display: none !important;
-}
+/* `.wcb-hidden` lives in `assets/css/frontend-components.css` globally. */
 
+/* ── Success ─────────────────────────────────────────────────────────── */
 .wcb-form-success {
 	display: none;
 	align-items: flex-start;

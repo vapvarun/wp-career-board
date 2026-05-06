@@ -1385,7 +1385,6 @@
 }
 
 /* -- Interactivity API show/hide utilities -- */
-.wcb-hidden { display: none !important; }
 .wcb-shown  { display: block; }
 
 /* -- Loading skeleton -- */
