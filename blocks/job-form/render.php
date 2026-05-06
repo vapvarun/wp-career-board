@@ -142,6 +142,31 @@ $wcb_board_currency = $wcb_board_id > 0
 	? (string) apply_filters( 'wcb_board_currency', '', $wcb_board_id )
 	: '';
 
+// ── Board picker options — multi-board sites (Pro) get a dropdown so the
+// employer can target the post at a specific board. Single-board sites skip
+// the picker entirely; the REST callback falls back to the default board.
+$wcb_board_options = array();
+if ( post_type_exists( 'wcb_board' ) ) {
+	$wcb_board_posts = get_posts(
+		array(
+			'post_type'      => 'wcb_board',
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+			'no_found_rows'  => true,
+		)
+	);
+	foreach ( $wcb_board_posts as $wcb_b ) {
+		$wcb_board_options[] = array(
+			'id'    => (int) $wcb_b->ID,
+			'title' => $wcb_b->post_title,
+		);
+	}
+}
+if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
+	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
+	$wcb_board_id           = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
+}
+
 /**
  * Filter the initial Interactivity API state for the job form block.
  *
@@ -191,6 +216,12 @@ $wcb_initial_state = apply_filters(
 		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+		// Board picker — only meaningful when more than one board exists, since
+		// a single-board site has nothing to pick from. The REST callback falls
+		// back to the default board id when boardId stays 0.
+		'boardId'           => $wcb_board_id,
+		'boardOptions'      => $wcb_board_options,
+		'showBoardPicker'   => count( $wcb_board_options ) > 1,
 		'customFields'      => (object) array(),
 		'typeNames'         => (object) $wcb_type_names,
 		'expNames'          => (object) $wcb_exp_names,
@@ -294,6 +325,27 @@ $wcb_step_labels = array(
 			<h2 class="wcb-form-step__title">
 				<?php esc_html_e( 'Job Basics', 'wp-career-board' ); ?>
 			</h2>
+
+			<?php if ( count( $wcb_board_options ) > 1 ) : ?>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-board-id">
+					<?php esc_html_e( 'Post to Board', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-board-id"
+					class="wcb-field"
+					data-wcb-field="boardId"
+					data-wp-bind--value="state.boardId"
+					data-wp-on--change="actions.updateField"
+				>
+					<?php foreach ( $wcb_board_options as $wcb_b ) : ?>
+						<option value="<?php echo (int) $wcb_b['id']; ?>" <?php selected( $wcb_board_id, (int) $wcb_b['id'] ); ?>>
+							<?php echo esc_html( $wcb_b['title'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php endif; ?>
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-job-title">

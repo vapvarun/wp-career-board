@@ -348,6 +348,7 @@ store(
 							: '',
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
+						board_id:          state.boardId ? Number( state.boardId ) : 0,
 						hp:                hpEl ? hpEl.value : '',
 						wcb_captcha_token: captchaToken,
 					};
