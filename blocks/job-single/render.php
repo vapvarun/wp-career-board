@@ -46,17 +46,11 @@ $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_ex
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
 $wcb_currency_code_raw = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
-$wcb_currency_code     = '' !== $wcb_currency_code_raw ? $wcb_currency_code_raw : 'USD';
-$wcb_symbol_map        = array(
-	'USD' => '$',
-	'EUR' => '€',
-	'GBP' => '£',
-	'CAD' => 'CA$',
-	'AUD' => 'A$',
-	'INR' => '₹',
-	'SGD' => 'S$',
-);
-$wcb_currency          = isset( $wcb_symbol_map[ $wcb_currency_code ] ) ? $wcb_symbol_map[ $wcb_currency_code ] : $wcb_currency_code . ' ';
+$wcb_currency_code     = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
+$wcb_currency_catalog  = \WCB\Admin\AdminSettings::get_currency_catalog();
+$wcb_currency          = isset( $wcb_currency_catalog[ $wcb_currency_code ]['symbol'] )
+	? (string) $wcb_currency_catalog[ $wcb_currency_code ]['symbol']
+	: $wcb_currency_code . ' ';
 $wcb_remote            = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
 $wcb_salary_min        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
 $wcb_salary_max        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );

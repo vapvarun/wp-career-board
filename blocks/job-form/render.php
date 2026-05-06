@@ -121,10 +121,10 @@ if ( $wcb_edit_id > 0 ) {
 	$wcb_e_tags  = wp_get_object_terms( $wcb_edit_id, 'wcb_tag', array( 'fields' => 'slugs' ) );
 }
 
-// ── Currency options — pulled from the single source of truth in Settings,
-// so admin settings + Pro additions (JPY/BRL/MXN/etc.) are guaranteed to
-// match what the post-form lets employers pick.
-$wcb_currencies = \WCB\Admin\AdminSettings::get_currency_options();
+// ── Currency catalog — pulled from the canonical source in AdminSettings so
+// admin settings + Pro additions (JPY/BRL/MXN/etc.) are guaranteed to match
+// what the post-form lets employers pick. Each entry is array{name,symbol}.
+$wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
 // ── Default currency: employer preference → site admin setting → first option.
 $wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
@@ -132,9 +132,10 @@ if ( ! $wcb_preferred ) {
 	$wcb_site_settings = (array) get_option( 'wcb_settings', array() );
 	$wcb_preferred     = ! empty( $wcb_site_settings['salary_currency'] ) ? $wcb_site_settings['salary_currency'] : 'USD';
 }
-$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currencies )
+$wcb_preferred        = strtoupper( $wcb_preferred );
+$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
-	: ( array_key_exists( 'USD', $wcb_currencies ) ? 'USD' : (string) array_key_first( $wcb_currencies ) );
+	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
 
 // ── Board currency — Pro returns the per-board currency when boardId is set ──
 $wcb_board_id       = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
@@ -444,9 +445,17 @@ $wcb_step_labels = array(
 							data-wp-bind--value="state.currencyCode"
 							data-wp-on--change="actions.updateField"
 						>
-							<?php foreach ( $wcb_currencies as $wcb_code => $wcb_label ) : ?>
+							<?php foreach ( $wcb_currency_catalog as $wcb_code => $wcb_meta ) : ?>
 								<option value="<?php echo esc_attr( $wcb_code ); ?>">
-								<?php echo esc_html( $wcb_label ); ?>
+									<?php
+									printf(
+										/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
+										esc_html__( '%1$s — %2$s (%3$s)', 'wp-career-board' ),
+										esc_html( (string) $wcb_code ),
+										esc_html( (string) $wcb_meta['name'] ),
+										esc_html( (string) $wcb_meta['symbol'] )
+									);
+									?>
 								</option>
 							<?php endforeach; ?>
 						</select>

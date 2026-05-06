@@ -108,7 +108,7 @@ final class ProCoordination {
 	 * | wcb_pro_alerts_enabled     | false                                | Whether Pro Alerts module is loaded — gates Free's "Job Alerts" tab + alert-saving CTAs |
 	 * | wcb_pro_resumes_enabled    | false                                | Whether Pro Resumes module is loaded — gates Free's "My Resumes" tab + resume REST calls |
 	 * | wcb_board_currency         | (string) $default                    | Currency code for a given board ID |
-	 * | wcb_currency_options       | array<code,label>                    | Currency dropdown options on the job form |
+	 * | wcb_currency_catalog       | array<code,array{name,symbol}>       | Currency catalog — every consumer (admin dropdowns, REST schema, salary formatters, Pro board settings, Pro CSV importer) reads from this single filter |
 	 * | wcb_pro_upsell_html        | (string) $default                    | HTML for Pro upsell at a named location ("admin_dashboard", "settings_pro_tab", etc.) |
 	 * | wcb_pro_upsell_url         | (string) "https://store.wbcomdesigns.com/wp-career-board-pro/" | Upsell destination URL — overridable for white-label installs |
 	 * | wcb_pro_settings_saved_notice | null                              | Text for "Settings saved" notice when Pro fires its own settings save |
@@ -129,7 +129,7 @@ final class ProCoordination {
 			'wcb_pro_alerts_enabled'        => 'Whether Pro Alerts module is loaded',
 			'wcb_pro_resumes_enabled'       => 'Whether Pro Resumes module is loaded — gates Free\'s "My Resumes" tab + resume REST calls',
 			'wcb_board_currency'            => 'Currency code for a given board ID',
-			'wcb_currency_options'          => 'Currency dropdown options on the job form',
+			'wcb_currency_catalog'          => 'Currency catalog (code => array{name, symbol}) — single source of truth for every currency consumer',
 			'wcb_pro_upsell_html'           => 'HTML for Pro upsell at a named location',
 			'wcb_pro_upsell_url'            => 'Upsell destination URL (overridable for white-label)',
 			'wcb_pro_settings_saved_notice' => 'Text for the Pro-side settings-saved notice',

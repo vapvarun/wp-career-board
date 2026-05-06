@@ -55,16 +55,17 @@ $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true )
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
-$wcb_currencies = \WCB\Admin\AdminSettings::get_currency_options();
+$wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
 $wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
 if ( ! $wcb_preferred ) {
 	$wcb_settings  = (array) get_option( 'wcb_settings', array() );
 	$wcb_preferred = ! empty( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : 'USD';
 }
-$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currencies )
+$wcb_preferred        = strtoupper( $wcb_preferred );
+$wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
-	: ( array_key_exists( 'USD', $wcb_currencies ) ? 'USD' : (string) array_key_first( $wcb_currencies ) );
+	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -254,8 +255,18 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 				<span class="wcb-form-label"><?php esc_html_e( 'Salary Range', 'wp-career-board' ); ?></span>
 				<div class="wcb-salary-row">
 					<select class="wcb-field" data-wcb-field="currencyCode" data-wp-bind--value="state.currencyCode" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Currency', 'wp-career-board' ); ?>">
-						<?php foreach ( $wcb_currencies as $wcb_code => $wcb_label ) : ?>
-							<option value="<?php echo esc_attr( $wcb_code ); ?>"><?php echo esc_html( $wcb_label ); ?></option>
+						<?php foreach ( $wcb_currency_catalog as $wcb_code => $wcb_meta ) : ?>
+							<option value="<?php echo esc_attr( $wcb_code ); ?>">
+								<?php
+								printf(
+									/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
+									esc_html__( '%1$s — %2$s (%3$s)', 'wp-career-board' ),
+									esc_html( (string) $wcb_code ),
+									esc_html( (string) $wcb_meta['name'] ),
+									esc_html( (string) $wcb_meta['symbol'] )
+								);
+								?>
+							</option>
 						<?php endforeach; ?>
 					</select>
 					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />

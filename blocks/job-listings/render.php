@@ -118,16 +118,9 @@ $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string 
 	if ( ! $wcb_min && ! $wcb_max ) {
 		return '';
 	}
-	$wcb_symbols = array(
-		'USD' => '$',
-		'EUR' => '€',
-		'GBP' => '£',
-		'CAD' => 'CA$',
-		'AUD' => 'A$',
-		'INR' => '₹',
-		'SGD' => 'S$',
-	);
-	$wcb_symbol  = isset( $wcb_symbols[ $wcb_currency ] ) ? $wcb_symbols[ $wcb_currency ] : $wcb_currency . ' ';
+	$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
+	$wcb_code    = strtoupper( $wcb_currency );
+	$wcb_symbol  = isset( $wcb_catalog[ $wcb_code ]['symbol'] ) ? (string) $wcb_catalog[ $wcb_code ]['symbol'] : $wcb_code . ' ';
 	$wcb_suffix  = match ( $wcb_type ) {
 		'monthly' => '/mo',
 		'hourly'  => '/hr',

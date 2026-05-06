@@ -55,34 +55,65 @@ class AdminSettings {
 	const OPTION_KEY = 'wcb_settings';
 
 	/**
-	 * Allowed currency codes.
+	 * Canonical currency catalog. Every consumer in Free + Pro reads from
+	 * here — admin dropdowns, salary formatters, REST enum, sanitize
+	 * allow-lists, Pro board settings, Pro CSV importer. There is no
+	 * derivative helper; callers iterate the catalog and pick the
+	 * field they need (`['symbol']`, `array_keys(...)`, etc.).
 	 *
-	 * @since 1.0.0
-	 * @var   array<string,string>
+	 * Pro extends the catalog via the `wcb_currency_catalog` filter and
+	 * MUST return the same `array{name, symbol}` shape so every consumer
+	 * keeps trusting it.
+	 *
+	 * @since 1.0.0 (1.1.1: shape became array{name,symbol}; was string label).
+	 * @var   array<string,array{name:string,symbol:string}>
 	 */
 	const CURRENCIES = array(
-		'USD' => 'USD — US Dollar ($)',
-		'EUR' => 'EUR — Euro (€)',
-		'GBP' => 'GBP — British Pound (£)',
-		'CAD' => 'CAD — Canadian Dollar (CA$)',
-		'AUD' => 'AUD — Australian Dollar (A$)',
-		'INR' => 'INR — Indian Rupee (₹)',
-		'SGD' => 'SGD — Singapore Dollar (S$)',
+		'USD' => array( 'name' => 'US Dollar',         'symbol' => '$' ),
+		'EUR' => array( 'name' => 'Euro',              'symbol' => '€' ),
+		'GBP' => array( 'name' => 'British Pound',     'symbol' => '£' ),
+		'CAD' => array( 'name' => 'Canadian Dollar',   'symbol' => 'CA$' ),
+		'AUD' => array( 'name' => 'Australian Dollar', 'symbol' => 'A$' ),
+		'INR' => array( 'name' => 'Indian Rupee',      'symbol' => '₹' ),
+		'SGD' => array( 'name' => 'Singapore Dollar',  'symbol' => 'S$' ),
 	);
 
 	/**
-	 * Currency dropdown options — the single source of truth.
-	 *
-	 * Runs the base list through the `wcb_currency_options` filter so Pro can
-	 * add JPY/BRL/MXN/etc. and so admin settings, the post-job form, and the
-	 * simple post-job form all render the same dropdown.
+	 * Filtered currency catalog — the single source of truth.
 	 *
 	 * @since 1.1.1
 	 *
-	 * @return array<string,string> Map of code => label.
+	 * @return array<string,array{name:string,symbol:string}>
 	 */
-	public static function get_currency_options(): array {
-		return (array) apply_filters( 'wcb_currency_options', self::CURRENCIES );
+	public static function get_currency_catalog(): array {
+		/**
+		 * Filter the canonical currency catalog. Pro hooks this to add
+		 * JPY / BRL / MXN / etc. with their own names and symbols. Each
+		 * entry must be `array{name: string, symbol: string}`; malformed
+		 * entries are dropped so callers can trust the shape.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array<string,array{name:string,symbol:string}> $catalog Base catalog.
+		 */
+		/** @var array<mixed,mixed> $catalog Filtered output may be anything. */
+		$catalog = (array) apply_filters( 'wcb_currency_catalog', self::CURRENCIES );
+		$out     = array();
+		foreach ( $catalog as $code => $entry ) {
+			if ( ! is_string( $code ) || ! is_array( $entry ) ) {
+				continue;
+			}
+			$name   = $entry['name']   ?? null;
+			$symbol = $entry['symbol'] ?? null;
+			if ( ! is_string( $name ) || ! is_string( $symbol ) ) {
+				continue;
+			}
+			$out[ $code ] = array(
+				'name'   => $name,
+				'symbol' => $symbol,
+			);
+		}
+		return $out;
 	}
 
 	/**
@@ -147,7 +178,7 @@ class AdminSettings {
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
 			'resume_archive_enabled'     => ! empty( $input['resume_archive_enabled'] ),
-			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( $input['salary_currency'], self::get_currency_options() ) ? $input['salary_currency'] : 'USD',
+			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
 			'candidate_dashboard_page'   => isset( $input['candidate_dashboard_page'] ) ? (int) $input['candidate_dashboard_page'] : 0,
@@ -719,8 +750,18 @@ class AdminSettings {
 										<div class="wcb-settings-row-label"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<select id="wcb-salary-currency" name="wcb_settings[salary_currency]">
-												<?php foreach ( self::get_currency_options() as $wcb_code => $wcb_label ) : ?>
-													<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>><?php echo esc_html( $wcb_label ); ?></option>
+												<?php foreach ( self::get_currency_catalog() as $wcb_code => $wcb_meta ) : ?>
+													<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $salary_currency, $wcb_code ); ?>>
+														<?php
+														printf(
+															/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
+															esc_html__( '%1$s — %2$s (%3$s)', 'wp-career-board' ),
+															esc_html( (string) $wcb_code ),
+															esc_html( (string) $wcb_meta['name'] ),
+															esc_html( (string) $wcb_meta['symbol'] )
+														);
+														?>
+													</option>
 												<?php endforeach; ?>
 											</select>
 											<span class="description"><?php esc_html_e( 'Site-wide default for new job postings. Employers can override it per job.', 'wp-career-board' ); ?></span>

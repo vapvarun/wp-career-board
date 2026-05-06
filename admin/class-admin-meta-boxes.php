@@ -213,19 +213,11 @@ class AdminMetaBoxes {
 
 		$wcb_salary_min          = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$wcb_salary_max          = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
-		$wcb_salary_currency_raw = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
-		$wcb_salary_currency     = in_array( $wcb_salary_currency_raw, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $wcb_salary_currency_raw : 'USD';
+		$wcb_currency_catalog    = AdminSettings::get_currency_catalog();
+		$wcb_salary_currency_raw = strtoupper( (string) get_post_meta( $post->ID, '_wcb_salary_currency', true ) );
+		$wcb_salary_currency     = array_key_exists( $wcb_salary_currency_raw, $wcb_currency_catalog ) ? $wcb_salary_currency_raw : 'USD';
 		$wcb_salary_type_raw     = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
 		$wcb_salary_type         = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
-		$wcb_meta_currencies     = array(
-			'USD' => 'USD ($)',
-			'EUR' => 'EUR (€)',
-			'GBP' => 'GBP (£)',
-			'CAD' => 'CAD (CA$)',
-			'AUD' => 'AUD (A$)',
-			'INR' => 'INR (₹)',
-			'SGD' => 'SGD (S$)',
-		);
 		$wcb_remote              = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 		$wcb_featured            = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
 		$wcb_deadline            = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
@@ -265,8 +257,17 @@ class AdminMetaBoxes {
 			<div>
 				<label for="wcb_salary_currency"><?php esc_html_e( 'Currency', 'wp-career-board' ); ?></label>
 				<select id="wcb_salary_currency" name="wcb_salary_currency">
-					<?php foreach ( $wcb_meta_currencies as $wcb_code => $wcb_label ) : ?>
-						<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $wcb_salary_currency, $wcb_code ); ?>><?php echo esc_html( $wcb_label ); ?></option>
+					<?php foreach ( $wcb_currency_catalog as $wcb_code => $wcb_meta ) : ?>
+						<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $wcb_salary_currency, $wcb_code ); ?>>
+							<?php
+							printf(
+								/* translators: 1: code (USD), 2: symbol ($). */
+								esc_html__( '%1$s (%2$s)', 'wp-career-board' ),
+								esc_html( (string) $wcb_code ),
+								esc_html( (string) $wcb_meta['symbol'] )
+							);
+							?>
+						</option>
 					<?php endforeach; ?>
 				</select>
 			</div>
@@ -593,8 +594,8 @@ class AdminMetaBoxes {
 		}
 
 		// Salary currency.
-		$salary_currency_raw = isset( $_POST['wcb_salary_currency'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_currency'] ) ) : 'USD'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$salary_currency     = in_array( $salary_currency_raw, array( 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'SGD' ), true ) ? $salary_currency_raw : 'USD';
+		$salary_currency_raw = isset( $_POST['wcb_salary_currency'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['wcb_salary_currency'] ) ) ) : 'USD'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$salary_currency     = array_key_exists( $salary_currency_raw, AdminSettings::get_currency_catalog() ) ? $salary_currency_raw : 'USD';
 		update_post_meta( $post_id, '_wcb_salary_currency', $salary_currency );
 
 		// Salary type.

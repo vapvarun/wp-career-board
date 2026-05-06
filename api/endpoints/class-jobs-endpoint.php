@@ -488,11 +488,14 @@ final class JobsEndpoint extends RestController {
 			$expire_days      = ! empty( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30;
 			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 		}
+		$wcb_currency_input    = strtoupper( (string) ( $request->get_param( 'salary_currency' ) ?? 'USD' ) );
+		$wcb_currency_catalog  = \WCB\Admin\AdminSettings::get_currency_catalog();
+		$wcb_currency_param    = array_key_exists( $wcb_currency_input, $wcb_currency_catalog ) ? $wcb_currency_input : 'USD';
 		$meta = array(
 			'_wcb_deadline'        => $wcb_deadline_raw,
 			'_wcb_salary_min'      => $request->get_param( 'salary_min' ),
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
-			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? 'USD',
+			'_wcb_salary_currency' => $wcb_currency_param,
 			'_wcb_salary_type'     => in_array( $salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type_raw : 'yearly',
 			'_wcb_remote'          => $request->get_param( 'remote' ) ? '1' : '0',
 			'_wcb_board_id'        => $request->get_param( 'board_id' ) ?? BoardsModule::get_default_board_id(),
@@ -1097,16 +1100,9 @@ final class JobsEndpoint extends RestController {
 		if ( ! $min && ! $max ) {
 			return '';
 		}
-		$symbols = array(
-			'USD' => '$',
-			'EUR' => '€',
-			'GBP' => '£',
-			'CAD' => 'CA$',
-			'AUD' => 'A$',
-			'INR' => '₹',
-			'SGD' => 'S$',
-		);
-		$symbol  = isset( $symbols[ $currency ] ) ? $symbols[ $currency ] : $currency . ' ';
+		$catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
+		$code    = strtoupper( $currency );
+		$symbol  = isset( $catalog[ $code ]['symbol'] ) ? (string) $catalog[ $code ]['symbol'] : $code . ' ';
 		$suffix  = match ( $type ) {
 			'monthly' => '/mo',
 			'hourly'  => '/hr',
