@@ -352,52 +352,8 @@
 	text-align: center;
 }
 
-/* -- Load more -- */
-.wcb-load-more-wrap {
-	display: none;
-	justify-content: center;
-	margin-top: var(--wcb-space-2xl);
-}
-
-.wcb-load-more-wrap.wcb-shown {
-	display: flex;
-}
-
-.wcb-load-more-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: var(--wcb-space-md) var(--wcb-space-3xl);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	background: var(--wcb-base);
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	font-family: inherit;
-	color: var(--wcb-text-secondary);
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-fast), color var(--wcb-transition-fast);
-}
-
-.wcb-load-more-btn:hover:not(:disabled),
-.wcb-load-more-btn:focus:not(:disabled) {
-	background: var(--wcb-base);
-	border: 1.5px solid var(--wcb-primary);
-	color: var(--wcb-primary);
-}
-
-.wcb-load-more-btn:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-}
-
-.wcb-loading-label {
-	display: none;
-}
-
-.wcb-loading-label.wcb-shown {
-	display: inline;
-}
+/* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
+ * `assets/css/frontend-components.css`. */
 
 /* -- Utilities -- */
 
