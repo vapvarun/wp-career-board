@@ -5,12 +5,12 @@
  * Settings stored as a single serialised array under the 'wcb_settings' option key.
  *
  * Keys and usage:
- *  auto_publish_jobs        — publish employer jobs without admin review
- *  jobs_per_page            — listings per page in the job-listings block
- *  jobs_expire_days         — default listing lifetime (modules/jobs/class-jobs-expiry.php)
- *  deadline_auto_close      — auto-close jobs when application deadline passes
- *  allow_withdraw           — let candidates withdraw their own applications
- *  salary_currency          — default currency code for new job postings
+ *  auto_publish_jobs        — publish employer jobs without admin review (default: OFF)
+ *  jobs_per_page            — listings per page in the job-listings block (default: 10)
+ *  jobs_expire_days         — default listing lifetime in days (default: 30)
+ *  deadline_auto_close      — auto-close jobs when application deadline passes (default: OFF)
+ *  allow_withdraw           — let candidates withdraw their own applications (default: ON, only an explicit OFF turns it off)
+ *  salary_currency          — default currency code for new job postings (default: USD)
  *  jobs_archive_page        — page containing wcb/job-listings block
  *  employer_dashboard_page  — page containing wcb/employer-dashboard block
  *  candidate_dashboard_page — page containing wcb/candidate-dashboard block
@@ -738,12 +738,12 @@ class AdminSettings {
 										<div class="wcb-settings-row-control">
 											<label class="wcb-toggle-label">
 												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[allow_withdraw]" value="1" <?php checked( ! empty( $settings['allow_withdraw'] ) ); ?>>
+													<input type="checkbox" name="wcb_settings[allow_withdraw]" value="1" <?php checked( array_key_exists( 'allow_withdraw', $settings ) ? ! empty( $settings['allow_withdraw'] ) : true ); ?>>
 													<span class="wcb-toggle-slider"></span>
 												</span>
 												<?php esc_html_e( 'Let candidates withdraw their own applications', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Withdrawn applications are removed from the employer\'s applicant list.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'On by default. Withdrawn applications are removed from the employer\'s applicant list. Turn off for boards that want apply-once-final flows (compliance, regulated hiring).', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

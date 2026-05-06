@@ -149,10 +149,22 @@ wp_interactivity_state(
 			'alertsLoading'          => false,
 			// Withdraw is gated by BOTH the site setting and the user ability —
 			// admins disable the setting on sites that want apply-once-final
-			// flows, in which case no candidate (regardless of caps) gets the
-			// button.
-			'allowWithdraw'          => ! empty( ( (array) get_option( 'wcb_settings', array() ) )['allow_withdraw'] )
-				&& ( function_exists( 'wp_is_authorized' ) ? wp_is_authorized( 'wcb_withdraw_application' ) : current_user_can( 'wcb_withdraw_application' ) ),
+			// flows. Intended default is ON: a fresh install (no saved value)
+			// lets candidates withdraw, mirroring the REST gate's default.
+			'allowWithdraw'          => (
+				static function (): bool {
+					$wcb_s = (array) get_option( 'wcb_settings', array() );
+					$wcb_setting_on = array_key_exists( 'allow_withdraw', $wcb_s )
+						? ! empty( $wcb_s['allow_withdraw'] )
+						: true;
+					if ( ! $wcb_setting_on ) {
+						return false;
+					}
+					return function_exists( 'wp_is_authorized' )
+						? wp_is_authorized( 'wcb_withdraw_application' )
+						: current_user_can( 'wcb_withdraw_application' );
+				}
+			)(),
 			'privacyBusy'            => false,
 			'privacyExportRequested' => false,
 			'privacyEraseRequested'  => false,

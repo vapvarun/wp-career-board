@@ -791,8 +791,14 @@ final class ApplicationsEndpoint extends RestController {
 	public function withdraw_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		// Site setting toggle — when admins turn this off, the REST endpoint
 		// must also refuse so a hidden button + curl call can't bypass the UI.
-		$wcb_settings = (array) get_option( 'wcb_settings', array() );
-		if ( empty( $wcb_settings['allow_withdraw'] ) ) {
+		// Intended default is ON: a fresh install (no saved value) lets
+		// candidates withdraw, matching the customer-friendly default. Only an
+		// explicit `false` from the admin settings turns it off.
+		$wcb_settings        = (array) get_option( 'wcb_settings', array() );
+		$wcb_allow_withdraw  = array_key_exists( 'allow_withdraw', $wcb_settings )
+			? ! empty( $wcb_settings['allow_withdraw'] )
+			: true;
+		if ( ! $wcb_allow_withdraw ) {
 			return new \WP_Error(
 				'wcb_withdraw_disabled',
 				__( 'Application withdrawal is not enabled on this site.', 'wp-career-board' ),
