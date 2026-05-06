@@ -308,11 +308,15 @@
  * (so Total Jobs / Live / Applications / New / Credits sit on one line),
  * 3 on medium widths, 2 on tablet, 1 on mobile — without ever leaving an
  * orphan card alone on its own row, which is what `repeat(4, 1fr)` did
- * when there were 5 cards.
+ * when there were 5 cards. The 140 px min lets all 5 cards fit on a
+ * ~780 px main panel (1280 px canonical container minus the 220 px
+ * sidebar minus 64 px main padding minus 16 px gaps), which is exactly
+ * what the dashboard renders at on Astra / GeneratePress / OceanWP /
+ * Storefront / Twenty Twenty-Three when they put a sidebar on the page.
  */
 .wcb-stats-row {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }
