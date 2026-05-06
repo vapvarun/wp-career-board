@@ -177,16 +177,20 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 					<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
 					<span class="wcb-required" aria-hidden="true">*</span>
 				</label>
-				<textarea
-					id="wcb-simple-desc"
-					class="wcb-field"
-					rows="8"
-					placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>"
-					data-wcb-field="description"
-					data-wp-bind--value="state.description"
-					data-wp-on--input="actions.updateField"
-					required
-				></textarea>
+				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<div class="wcb-editor-holder" id="wcb-editor-job-desc-simple"></div>
+					<textarea
+						id="wcb-simple-desc"
+						class="wcb-editor-source"
+						rows="1"
+						tabindex="-1"
+						aria-label="<?php esc_attr_e( 'Job description', 'wp-career-board' ); ?>"
+						data-wcb-field="description"
+						data-wp-bind--value="state.description"
+						data-wp-on--input="actions.updateField"
+						required
+					></textarea>
+				</div>
 			</div>
 		</section>
 

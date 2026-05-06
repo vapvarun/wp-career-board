@@ -333,9 +333,23 @@ $wcb_step_labels = array(
 					</button>
 					<?php endif; ?>
 				</div>
-				<textarea id="wcb-job-desc" class="wcb-field" rows="12" aria-label="<?php esc_attr_e( 'Job description', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>" data-wcb-field="description" data-wp-bind--value="state.description" data-wp-on--input="actions.updateField" required aria-required="true"></textarea>
+				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<div class="wcb-editor-holder" id="wcb-editor-job-desc"></div>
+					<textarea
+						id="wcb-job-desc"
+						class="wcb-editor-source"
+						rows="1"
+						tabindex="-1"
+						aria-label="<?php esc_attr_e( 'Job description', 'wp-career-board' ); ?>"
+						data-wcb-field="description"
+						data-wp-bind--value="state.description"
+						data-wp-on--input="actions.updateField"
+						required
+						aria-required="true"
+					><?php echo esc_textarea( $wcb_edit_job ? (string) $wcb_edit_job->post_content : '' ); ?></textarea>
+				</div>
 				<span class="wcb-form-hint">
-					<?php esc_html_e( 'Plain text or basic Markdown supported.', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format — headings, lists, links, quotes.', 'wp-career-board' ); ?>
 				</span>
 			</div>
 

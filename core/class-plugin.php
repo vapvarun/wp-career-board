@@ -229,12 +229,15 @@ final class Plugin {
 	 * @return void
 	 */
 	public function register_shortcodes(): void {
-		// Every frontend block also ships as a shortcode so site owners can
-		// drop it into Elementor / Beaver / Bricks / Divi / Visual Composer /
-		// classic editor without leaving the page-builder surface they
-		// already know. Attributes pass through verbatim with numeric +
-		// boolean string-coercion so block.json type checks still validate:
-		//   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
+		/*
+		 * Every frontend block also ships as a shortcode so site owners can
+		 * drop it into Elementor / Beaver / Bricks / Divi / Visual Composer /
+		 * classic editor without leaving the page-builder surface they
+		 * already know. Attributes pass through verbatim with numeric +
+		 * boolean string-coercion so block.json type checks still validate.
+		 * Example:
+		 *   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
+		 */
 		$shortcodes = array(
 			'wcb_job_listings'        => 'wp-career-board/job-listings',
 			'wcb_job_search'          => 'wp-career-board/job-search',
@@ -307,14 +310,16 @@ final class Plugin {
 			add_shortcode(
 				$tag,
 				static function ( $atts ) use ( $block_name, $camel_aliases ): string {
-					// Forward shortcode attributes to the block as JSON.
-					// Lets page builders / classic editors / any shortcode
-					// host scope a block via attributes:
-					//   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
-					// metaFilter="key:value" is an integrator extension point:
-					// the key must be registered via the wcb_jobs_allowed_meta_filters
-					// filter, otherwise it is dropped. Empty by default to block
-					// arbitrary-meta probes.
+					/*
+					 * Forward shortcode attributes to the block as JSON.
+					 * Lets page builders / classic editors / any shortcode
+					 * host scope a block via attributes. Example:
+					 *   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
+					 * metaFilter="key:value" is an integrator extension point:
+					 * the key must be registered via the wcb_jobs_allowed_meta_filters
+					 * filter, otherwise it is dropped. Empty by default to block
+					 * arbitrary-meta probes.
+					 */
 					$attrs_json = '';
 					if ( ! empty( $atts ) ) {
 						$cast = array();
@@ -527,6 +532,8 @@ final class Plugin {
 			WCB_VERSION
 		);
 
+		$this->enqueue_editor_assets();
+
 		$this->register_confirm_modal_assets();
 
 		wp_enqueue_script(
@@ -541,6 +548,53 @@ final class Plugin {
 			'wcb-frontend-icons',
 			WCB_URL . 'assets/js/admin/icons.js',
 			array( 'lucide' ),
+			WCB_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Enqueue the rich-text editor stack — Editor.js core, the supported tool
+	 * bundles, our editor CSS, and the WCB bootstrap that initialises them on
+	 * any `.wcb-editor` element.
+	 *
+	 * Vendor bundles are pinned to the same versions used in Learnomy
+	 * (assets/js/vendor/editorjs/) so the rich-text experience is identical
+	 * across the Wbcom plugin family. Only the tool subset relevant to a job
+	 * description is shipped — header, list, quote, marker, inline-code,
+	 * delimiter — to keep the page weight under ~290KB.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	private function enqueue_editor_assets(): void {
+		$vendor = WCB_URL . 'assets/js/vendor/editorjs/';
+
+		wp_enqueue_script( 'editorjs', $vendor . 'editor.umd.js', array(), '2.30.8', true );
+
+		$tools = array(
+			'editorjs-header'      => 'header.umd.js',
+			'editorjs-list'        => 'list.umd.js',
+			'editorjs-quote'       => 'quote.umd.js',
+			'editorjs-marker'      => 'marker.umd.js',
+			'editorjs-inline-code' => 'inline-code.umd.js',
+			'editorjs-delimiter'   => 'delimiter.umd.js',
+		);
+		foreach ( $tools as $handle => $file ) {
+			wp_enqueue_script( $handle, $vendor . $file, array( 'editorjs' ), WCB_VERSION, true );
+		}
+
+		wp_enqueue_style(
+			'wcb-editor',
+			WCB_URL . 'assets/css/wcb-editor.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
+		wp_enqueue_script(
+			'wcb-editor',
+			WCB_URL . 'assets/js/wcb-editor.js',
+			array_merge( array( 'editorjs' ), array_keys( $tools ) ),
 			WCB_VERSION,
 			true
 		);
