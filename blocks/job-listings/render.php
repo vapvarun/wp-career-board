@@ -315,7 +315,10 @@ $wcb_state = array(
 	'perPage'       => $wcb_per_page,
 	'layout'        => $wcb_layout,
 	'loading'       => false,
-	'hasMore'       => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) >= $wcb_per_page,
+	// Render Load More only when there are actually more rows beyond what we
+	// just rendered. The previous heuristic (count >= per_page) showed the
+	// button even when the first batch was the only batch (count == total).
+	'hasMore'       => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) < $wcb_total_count,
 	'apiBase'       => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
 	'nonce'         => wp_create_nonce( 'wp_rest' ),
 	'totalCount'    => $wcb_total_count,
