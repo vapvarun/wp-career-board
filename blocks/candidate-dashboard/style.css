@@ -862,7 +862,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 /* ── Overview: Stats row ──────────────────────────────────────────────────── */
 .wcb-stats-row {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }
