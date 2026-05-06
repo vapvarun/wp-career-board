@@ -24,6 +24,13 @@
 }
 
 /* -- Sidebar -- */
+
+/*
+ * Top padding matches `.wcb-main` (3xl, ~32 px) so the first sidebar link
+ * vertically aligns with the first heading inside the main content panel.
+ * Without this match the user sees the white sidebar background extending
+ * higher than the grey main panel, which reads as misaligned.
+ */
 .wcb-sidebar {
 	width: 220px;
 	flex-shrink: 0;
@@ -31,7 +38,7 @@
 	flex-direction: column;
 	background: var(--wcb-base);
 	border-inline-end: 1px solid var(--wcb-border);
-	padding: var(--wcb-space-xl) 0;
+	padding: var(--wcb-space-3xl) 0;
 }
 
 /* Logo row */

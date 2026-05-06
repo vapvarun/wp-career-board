@@ -544,6 +544,172 @@ select.wcb-field {
 	border: 0;
 }
 
+/* ── Listings Header / Search / Sort — shared archive primitives ──────── */
+
+/*
+ * Used by every WCB archive-style block: job-listings (Free), resume-archive
+ * (Pro), company-archive. Originally lived only in `blocks/job-listings/
+ * style.css`, which made the search input collapse to ~50 px on the
+ * resume-archive page (the Pro block doesn't enqueue job-listings's CSS).
+ * Hoisted here so any block carrying these classes renders correctly.
+ */
+
+[class*="wp-block-wp-career-board"] .wcb-listings-header,
+[class*="wp-block-wcb-"] .wcb-listings-header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-md);
+	margin-block-start: var(--wcb-space-2xl);
+	margin-block-end: var(--wcb-space-2xl);
+}
+
+@media (max-width: 640px) {
+
+	[class*="wp-block-wp-career-board"] .wcb-listings-header,
+	[class*="wp-block-wcb-"] .wcb-listings-header {
+		margin-block-start: var(--wcb-space-lg);
+	}
+}
+
+[class*="wp-block-wp-career-board"] .wcb-search-sort-row,
+[class*="wp-block-wcb-"] .wcb-search-sort-row {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	flex-wrap: wrap;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-search-wrap,
+[class*="wp-block-wcb-"] .wcb-search-wrap {
+	position: relative;
+	flex: 1 1 240px;
+	min-width: 240px;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-search-icon,
+[class*="wp-block-wcb-"] .wcb-search-icon {
+	position: absolute;
+	inset-inline-start: var(--wcb-space-md);
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
+	color: var(--wcb-text-tertiary, var(--wp--preset--color--wcb-muted));
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-listings-search,
+[class*="wp-block-wcb-"] .wcb-listings-search {
+	width: 100%;
+	min-height: 44px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	padding-inline-start: 2.25rem;
+	border: 1.5px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-base);
+	line-height: 1.5;
+	color: var(--wcb-contrast);
+	background: var(--wcb-base);
+	font-family: inherit;
+	transition: border-color var(--wcb-transition-fast);
+	box-sizing: border-box;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-listings-search:focus,
+[class*="wp-block-wcb-"] .wcb-listings-search:focus {
+	outline: 2px solid transparent;
+	border-color: var(--wcb-primary);
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-sort-select,
+[class*="wp-block-wcb-"] .wcb-sort-select {
+	min-height: 44px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	width: auto;
+	max-width: 220px;
+	border: 1.5px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast);
+	background: var(--wcb-base);
+	cursor: pointer;
+}
+
+/* ── Page Full-Width Override — for pages hosting WCB archive blocks ───── */
+
+/*
+ * When a regular WordPress page hosts one of our archive / dashboard /
+ * listings blocks, the `body.wcb-page-fullwidth` class is added by
+ * `Plugin::add_page_class()`. This block resets the common theme
+ * content-column max-widths so our blocks render at full content width on
+ * top WordPress.org themes without the customer having to manually set a
+ * "Full Width" page template. Each theme's wrapper class is targeted
+ * explicitly so we never affect other content on the page.
+ *
+ * Tested against: Astra, OceanWP, GeneratePress, Storefront, Twenty
+ * Twenty-Three, Twenty Twenty-Four, Kadence, Neve, Blocksy.
+ */
+
+body.wcb-page-fullwidth .ast-container,
+body.wcb-page-fullwidth .site .container,
+body.wcb-page-fullwidth #content .container,
+body.wcb-page-fullwidth #content > .inside-article,
+body.wcb-page-fullwidth #content .inside-article,
+body.wcb-page-fullwidth #content-wrap .container-wrap,
+body.wcb-page-fullwidth #main .entry,
+body.wcb-page-fullwidth .neve-main .container,
+body.wcb-page-fullwidth .ct-container,
+body.wcb-page-fullwidth .wp-site-blocks .wp-block-group.has-global-padding {
+	max-width: none;
+	width: 100%;
+}
+
+body.wcb-page-fullwidth .ast-content-area,
+body.wcb-page-fullwidth #primary,
+body.wcb-page-fullwidth .content-area,
+body.wcb-page-fullwidth main#main,
+body.wcb-page-fullwidth main#primary {
+	width: 100%;
+	max-width: none;
+}
+
+body.wcb-page-fullwidth #secondary,
+body.wcb-page-fullwidth .widget-area,
+body.wcb-page-fullwidth .ast-secondary {
+	display: none;
+}
+
+/* ── Archive Shell — full-width container for plugin archive templates ─── */
+
+/*
+ * Shipped via templates/archive-wcb_company.php and archive-wcb_job.php so
+ * the Companies / Jobs grids render at full content width regardless of
+ * which theme is active. The shell sits inside `get_header()`/`get_footer()`
+ * so the theme's brand chrome is preserved, but the content column is
+ * unconstrained by theme archive sidebar layouts.
+ */
+
+.wcb-archive-shell {
+	width: 100%;
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
+	box-sizing: border-box;
+}
+
+.wcb-archive-main {
+	width: 100%;
+}
+
+@media (max-width: 768px) {
+
+	.wcb-archive-shell {
+		padding: var(--wcb-space-xl) var(--wcb-space-md);
+	}
+}
+
 /* ── Theme-Link Defence — Global ─────────────────────────────────────── */
 
 /*

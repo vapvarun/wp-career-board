@@ -84,6 +84,7 @@ final class Plugin {
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
+		add_filter( 'template_include', array( $this, 'use_wcb_archive_template' ), 99 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_shared_assets' ) );
 		add_filter( 'wp_theme_json_data_default', array( $this, 'register_theme_json_defaults' ) );
@@ -475,6 +476,34 @@ final class Plugin {
 
 		if ( $is_wcb_page ) {
 			$classes[] = 'wcb-page';
+
+			/*
+			 * Pages that exist solely to host a WCB archive / dashboard / listings
+			 * block deserve full content width — the cards / form columns inside
+			 * those blocks are designed for ~1100 px+ viewports and look cramped
+			 * inside a theme's narrow archive-with-sidebar layout. Adding the
+			 * `wcb-page-fullwidth` class lets `frontend-components.css` reset the
+			 * common theme content-column max-widths (Astra, GeneratePress,
+			 * OceanWP, Storefront, Twenty Twenty-Three) without the customer
+			 * having to manually pick a Full Width page template.
+			 */
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				$fullwidth_blocks = array(
+					'wp-career-board/company-archive',
+					'wp-career-board/job-listings',
+					'wp-career-board/employer-dashboard',
+					'wp-career-board/candidate-dashboard',
+					'wp-career-board/job-form',
+					'wp-career-board/job-form-simple',
+				);
+				foreach ( $fullwidth_blocks as $block_name ) {
+					if ( has_block( $block_name, $post ) ) {
+						$classes[] = 'wcb-page-fullwidth';
+						break;
+					}
+				}
+			}
 		}
 
 		return $classes;
@@ -498,6 +527,44 @@ final class Plugin {
 			$theme_json->update_with( $data );
 		}
 		return $theme_json;
+	}
+
+	/**
+	 * Override the theme's archive template for our post types.
+	 *
+	 * Most themes ship `archive.php` that assumes the page has a sidebar
+	 * widget area, which collapses our Companies / Jobs grid to a ~600 px
+	 * column on otherwise wide viewports (Astra, Storefront, OceanWP, T23,
+	 * etc.). Routing those archives through our plugin-shipped templates
+	 * lets us render the block at full content width while still wrapping
+	 * the page in the theme's `get_header()` / `get_footer()` so brand /
+	 * navigation / footer remain consistent.
+	 *
+	 * Filter priority 99 so theme overrides via lower priorities still win.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $template Theme-resolved template path.
+	 * @return string Plugin-shipped template path or original.
+	 */
+	public function use_wcb_archive_template( string $template ): string {
+		// Detect the post type via `is_post_type_archive()` directly — the
+		// `post_type` query var is sometimes an array and sometimes empty
+		// at the point WP resolves the archive_template filter, so checking
+		// each known archive explicitly is the reliable path.
+		$post_type = '';
+		if ( is_post_type_archive( 'wcb_company' ) ) {
+			$post_type = 'wcb_company';
+		} elseif ( is_post_type_archive( 'wcb_job' ) ) {
+			$post_type = 'wcb_job';
+		}
+
+		if ( '' === $post_type ) {
+			return $template;
+		}
+
+		$candidate = WCB_DIR . 'templates/archive-' . $post_type . '.php';
+		return file_exists( $candidate ) ? $candidate : $template;
 	}
 
 	/**
