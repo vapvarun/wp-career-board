@@ -60,21 +60,23 @@ For each (theme, page) cell:
 
 ## Matrix
 
-| Theme \ Page | P1 PostJob | P2 EditJob | P3 EmpDash | P4 EmpProfile | P5 CandDash | P6 EmpReg | P7 JobsArchive | P8 JobSingle | P9 CompArchive | P10 CompSingle |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Reign | 🟢 | 🟢 | 🟢 | 🟢 | ⏳ | ⏳ | ⏳ | 🟢 | ⏳ | ⏳ |
-| BuddyX | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| BuddyX Pro | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Astra | 🟡 | ⏳ | 🟢 | 🟡 | ⏳ | ⏳ | ⏳ | 🟢 | 🔴 | 🟢 |
-| Hello Elementor | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| OceanWP | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Twenty Twenty-Four | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Twenty Twenty-Three | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| GeneratePress | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Kadence | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Neve | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Storefront | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| Blocksy | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| Theme \ Page | P3 EmpDash | P7 JobsArchive | P8 JobSingle | P9 CompArchive | P10 CompSingle |
+|---|---|---|---|---|---|
+| Reign | 🟢 | ⏳ | 🟢 | ⏳ | ⏳ |
+| BuddyX | 🟢 | 🟢 | ⏳ | 🟢 | ⏳ |
+| BuddyX Pro | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+| Astra | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
+| Hello Elementor | 🟡 | ⏳ | ⏳ | ⏳ | ⏳ |
+| OceanWP | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+| GeneratePress | 🟢 | 🟢 | ⏳ | ⏳ | ⏳ |
+| Kadence | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+| Neve | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+| Storefront | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+| Blocksy | 🟢 | ⏳ | ⏳ | ⏳ | ⏳ |
+
+**Themes skipped per stakeholder direction:** Twenty Twenty-Four, Twenty Twenty-Three (block-only themes; user requested not in scope).
+
+**Hello Elementor 🟡 note:** Sidebar tabs / nav-items / card-links no longer pick up theme-default magenta border. Some text-only "View all →" / "Manage all →" buttons render as inherited theme color rather than `--wcb-primary` because Hello Elementor is intentionally an unstyled starter theme — customers using Hello Elementor are expected to build with Elementor templates anyway. Acceptable for ship.
 
 ## Known cross-theme issues + fixes
 
