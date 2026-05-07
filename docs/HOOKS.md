@@ -156,3 +156,30 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
   intended for theme integrators.
 - All form-fields filters return the same group/field schema documented at
   the top of this file. Use it once, use it everywhere.
+
+## REST controller carve-outs
+
+The architecture rule (see `CLAUDE.md`) is that every REST route ships as an
+Endpoint class under `WCB\Api\Endpoints\` (Free) or `WCB\Pro\Api\Endpoints\`
+(Pro), extends `WCB\Api\RestController` / `WCB\Pro\Api\Pro_REST_Controller`,
+and gets registered through the central `register_rest_routes()` loop in
+`core/class-plugin.php` (Free) or `core/class-pro-plugin.php` (Pro).
+
+Three classes are documented exceptions. Each still extends `RestController`
+(so it inherits `check_ability()`, `permission_error()`, `$this->namespace`),
+but it calls `register_rest_route()` directly inside its own
+`register_routes()` instead of being added to the central Endpoint registry.
+They sit alongside their feature, not in the api/endpoints directory:
+
+| Routes | File:line | Why it carves out |
+|---|---|---|
+| `POST /wcb/v1/wizard/create-pages`, `/wizard/sample-data`, `/wizard/complete`, `/wizard/remove-sample-data` | `admin/class-setup-wizard.php:189,199,216,226` | First-run admin wizard. The class lives under `WCB\Admin\` because it owns the admin-side activation hook + the localized JS handle (`wcb-wizard`); pulling its 4 routes into `api/endpoints/` would split one feature across two namespaces. |
+| `POST /wcb/v1/jobs/(id)/approve`, `/jobs/(id)/reject` | `modules/moderation/class-moderation-module.php:60,73` | Moderation lives as a self-contained module under `WCB\Modules\Moderation\`. The two routes are part of that module's contract (alongside its filter `wcb_moderate_jobs_ability_check`); moving them to `api/endpoints/` would orphan them from the rest of the module. |
+| `POST /wcb/v1/wizard/activate-license`, `/wizard/setup-credits`, `/wizard/create-pro-pages` | Pro: `wp-career-board-pro/admin/class-pro-setup-wizard.php:167,184,206` | Same reasoning as Free's setup wizard — Pro extension steps that belong with the wizard's admin code, not in `api/endpoints/`. |
+
+These are the documented exceptions to the "all REST routes go through
+Endpoint classes registered in `register_rest_routes()`" rule. New REST
+work should still ship as an Endpoint class unless the route is part of an
+already-co-located feature module (admin wizard, self-contained module).
+Reviewers seeing direct `register_rest_route()` calls in any *other* file
+should flag it.

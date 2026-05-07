@@ -75,6 +75,7 @@ function. Until a custom sniff is configured, gating sites get a single
 - Every route: `permission_callback`, `validate_callback`, `sanitize_callback`
 - Return `WP_Error` — never throw exceptions
 - Schema in `get_item_schema()` — no ad-hoc arrays
+- Two documented carve-outs (setup wizard + moderation module) call `register_rest_route()` directly while still extending the base — see `docs/HOOKS.md` § REST controller carve-outs. New routes should still ship as Endpoint classes.
 
 ### Database
 - Table creation via `dbDelta()` only
