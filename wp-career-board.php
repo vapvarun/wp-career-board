@@ -153,3 +153,8 @@ register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );
 register_deactivation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'deactivate' ) );
 
 add_action( 'plugins_loaded', array( 'WCB\\Core\\Plugin', 'instance' ) );
+
+// Runtime DB-version self-heal — covers WP-CLI / managed-host auto-updates
+// that bypass register_activation_hook. Runs at init@5 so Pro's
+// `wcb_pro_active` filter (registered on plugins_loaded@10) is in place.
+add_action( 'init', array( 'WCB\\Core\\Install', 'maybe_migrate' ), 5 );

@@ -56,6 +56,25 @@ final class Install {
 	}
 
 	/**
+	 * Idempotent runtime self-heal — runs from `init` priority 5 when the
+	 * stored DB version is older than the file constant. Hosts that update
+	 * via WP-CLI / managed-host auto-update skip register_activation_hook
+	 * entirely, which left the 1.2 migration unrun on otherwise-current
+	 * installs. The 1.2 block also reads the `wcb_pro_active` filter, which
+	 * Pro registers from its `plugins_loaded@10` boot — `init@5` is the
+	 * earliest hook guaranteed to fire after Pro's filter is registered.
+	 *
+	 * @since 1.2.0
+	 * @return void
+	 */
+	public static function maybe_migrate(): void {
+		$installed = (string) get_option( 'wcb_db_version', '0' );
+		if ( version_compare( $installed, self::DB_VERSION, '<' ) ) {
+			self::maybe_upgrade();
+		}
+	}
+
+	/**
 	 * Run on plugin deactivation.
 	 *
 	 * @since 1.0.0
@@ -160,11 +179,7 @@ final class Install {
 			if ( version_compare( (string) $installed, '1.2', '<' ) ) {
 				$settings = (array) get_option( 'wcb_settings', array() );
 				if ( ! array_key_exists( 'resume_archive_enabled', $settings ) ) {
-					if ( ! function_exists( 'is_plugin_active' ) ) {
-						require_once ABSPATH . 'wp-admin/includes/plugin.php';
-					}
-					$pro_active                         = is_plugin_active( 'wp-career-board-pro/wp-career-board-pro.php' );
-					$settings['resume_archive_enabled'] = (bool) $pro_active;
+					$settings['resume_archive_enabled'] = (bool) apply_filters( 'wcb_pro_active', false );
 					update_option( 'wcb_settings', $settings );
 					update_option( 'wcb_flush_rewrite_rules', 1 );
 				}

@@ -7,15 +7,12 @@
 #   - documentation files (audit/, plan/, docs/) — they describe the contract
 #   - comments — they describe what Pro does
 #   - hardcoded default URLs to the marketing/store page (filterable)
-#   - is_plugin_active("wp-career-board-pro/...") used during one-time
-#     migrations; this is a runtime existence check, not a class/function
-#     reference, and it cannot be replaced by a filter (the migration runs
-#     before plugins are loaded enough to fire filters)
 #
 # Anything else — direct WCBP_ constant reads, WCB\Pro\ class references,
-# wcbp_*() function calls, or property/option-key reads — is a coupling bug
-# and must be replaced with a documented filter or action declared in
-# core/class-pro-coordination.php.
+# wcbp_*() function calls, property/option-key reads, or
+# is_plugin_active("wp-career-board-pro/...") — is a coupling bug and must be
+# replaced with a documented filter or action declared in
+# core/class-pro-coordination.php (e.g. `wcb_pro_active`).
 #
 # Wire into CI as a required check on every Free-plugin PR.
 
@@ -34,7 +31,6 @@ violations=$(grep -rEn "$hard_patterns" \
     --exclude-dir=tests \
     . 2>/dev/null \
     | grep -vE '^[^:]+:[0-9]+:\s*(\*|//|#)' \
-    | grep -vE 'is_plugin_active.*wp-career-board-pro' \
     | grep -vE 'core/class-pro-coordination\.php' \
     || true)
 
@@ -44,6 +40,15 @@ if [ -n "$violations" ]; then
     echo "core/class-pro-coordination.php and let Pro hook it."
     echo
     echo "$violations"
+    exit 1
+fi
+
+# F-1: Verify the install migration uses the wcb_pro_active filter, not a
+# hardcoded plugin path. The 1.2 resume-archive-enabled migration must read
+# the documented filter so Pro stays the single source of truth for "is Pro
+# active?" — see core/class-pro-coordination.php.
+if grep -q "is_plugin_active.*wp-career-board-pro" core/class-install.php; then
+    echo "FAIL: core/class-install.php must use wcb_pro_active filter, not is_plugin_active"
     exit 1
 fi
 
