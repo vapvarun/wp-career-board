@@ -15,5 +15,10 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "scripts": {
+        "scale:seed": "wp --path=../../.. --user=1 wcb scale seed",
+        "scale:bench": "wp --path=../../.. --user=1 wcb scale benchmark",
+        "scale:teardown": "wp --path=../../.. --user=1 wcb scale teardown"
     }
 }
