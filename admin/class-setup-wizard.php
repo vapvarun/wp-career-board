@@ -564,6 +564,7 @@ class SetupWizard extends \WCB\Api\RestController {
 					update_post_meta( $cid, $k, $v );
 				}
 				update_post_meta( $cid, '_wcb_user_id', $author_id );
+				\WCB\Core\Locations::sync_company_hq( (int) $cid, (string) $co['meta']['_wcb_hq_location'] );
 				$company_ids[ $co['slug'] ] = $cid;
 				$created_ids['companies'][] = $cid;
 			}

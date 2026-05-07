@@ -42,9 +42,11 @@ $wcb_term_args = static function ( string $tax ): array {
 	);
 };
 
-$wcb_categories  = array_filter( (array) get_terms( $wcb_term_args( 'wcb_category' ) ), static fn( $t ) => $t instanceof \WP_Term );
-$wcb_job_types   = array_filter( (array) get_terms( $wcb_term_args( 'wcb_job_type' ) ), static fn( $t ) => $t instanceof \WP_Term );
-$wcb_locations   = array_filter( (array) get_terms( $wcb_term_args( 'wcb_location' ) ), static fn( $t ) => $t instanceof \WP_Term );
+$wcb_categories = array_filter( (array) get_terms( $wcb_term_args( 'wcb_category' ) ), static fn( $t ) => $t instanceof \WP_Term );
+$wcb_job_types  = array_filter( (array) get_terms( $wcb_term_args( 'wcb_job_type' ) ), static fn( $t ) => $t instanceof \WP_Term );
+// Location dropdown is scoped to the employer's company HQ + reserved
+// 'remote' / 'other' terms. Admins (wcb/manage-settings) still get every term.
+$wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
 $wcb_experiences = array_filter( (array) get_terms( $wcb_term_args( 'wcb_experience' ) ), static fn( $t ) => $t instanceof \WP_Term );
 
 // ── Currency: site-wide admin setting → USD. One source of truth across every

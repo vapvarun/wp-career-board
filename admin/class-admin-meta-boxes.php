@@ -687,6 +687,11 @@ class AdminMetaBoxes {
 			update_post_meta( $post_id, $wcb_meta_key, $wcb_value );
 		}
 
+		// Mirror the HQ value into the wcb_location taxonomy so the employer's
+		// job-form dropdown finds it. Idempotent on slug.
+		$wcb_hq_input = isset( $_POST['wcb_hq_location'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_hq_location'] ) ) : '';
+		\WCB\Core\Locations::sync_company_hq( $post_id, $wcb_hq_input );
+
 		$wcb_size = isset( $_POST['wcb_company_size'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_size'] ) ) : '';
 		if ( in_array( $wcb_size, $allowed_sizes, true ) ) {
 			update_post_meta( $post_id, '_wcb_company_size', $wcb_size );

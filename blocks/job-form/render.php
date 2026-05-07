@@ -43,12 +43,6 @@ $wcb_job_types_raw   = get_terms(
 		'hide_empty' => false,
 	)
 );
-$wcb_locations_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_location',
-		'hide_empty' => false,
-	)
-);
 $wcb_experiences_raw = get_terms(
 	array(
 		'taxonomy'   => 'wcb_experience',
@@ -58,7 +52,10 @@ $wcb_experiences_raw = get_terms(
 
 $wcb_categories  = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
 $wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
-$wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_raw;
+// Location dropdown is scoped to the employer: company HQ + reserved
+// 'remote' / 'other' terms. Admins (wcb/manage-settings) get the full taxonomy.
+// See \WCB\Core\Locations::get_dropdown_terms() for the resolution logic.
+$wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
 $wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
 
 // ── Slug → display-name maps (used by preview card getters in view.js) ─────

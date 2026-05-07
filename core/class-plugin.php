@@ -93,6 +93,14 @@ final class Plugin {
 			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
 		}
 
+		// Reserved location terms ('remote', 'other') — runs after the
+		// Jobs module registers `wcb_location` on init@10. Idempotent: every
+		// pageload re-asserts the terms exist, but `term_exists` short-circuits
+		// the insert when they do.
+		if ( class_exists( \WCB\Core\Locations::class ) ) {
+			add_action( 'init', array( \WCB\Core\Locations::class, 'seed_reserved_terms' ), 20 );
+		}
+
 		if ( class_exists( \WCB\Core\Abilities::class ) ) {
 			$abilities = new \WCB\Core\Abilities();
 			add_action( 'wp_abilities_api_categories_init', array( $abilities, 'register_category' ) );

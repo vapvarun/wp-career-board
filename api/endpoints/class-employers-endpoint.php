@@ -206,6 +206,7 @@ final class EmployersEndpoint extends RestController {
 						update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
 					}
 				}
+				\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
 			}
 			$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 			do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
@@ -332,6 +333,7 @@ final class EmployersEndpoint extends RestController {
 					update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
 				}
 			}
+			\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
 		}
 
 		// Authenticate the new user immediately.
@@ -404,6 +406,10 @@ final class EmployersEndpoint extends RestController {
 			if ( null !== $value ) {
 				update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $value ) );
 			}
+		}
+		$hq_value = $request->get_param( 'hq' );
+		if ( null !== $hq_value ) {
+			\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $hq_value );
 		}
 		// New companies start at trust level "new".
 		update_post_meta( $company_id, '_wcb_trust_level', 'new' );
@@ -481,6 +487,10 @@ final class EmployersEndpoint extends RestController {
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, sanitize_text_field( (string) $value ) );
 			}
+		}
+		$hq_value = $request->get_param( 'hq' );
+		if ( null !== $hq_value ) {
+			\WCB\Core\Locations::sync_company_hq( (int) $post->ID, (string) $hq_value );
 		}
 
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );

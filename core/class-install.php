@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.2';
+	const DB_VERSION = '1.2.3';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -172,6 +172,9 @@ final class Install {
 		if ( version_compare( (string) $installed, self::DB_VERSION, '<' ) ) {
 			self::create_tables();
 			self::seed_default_settings();
+			// Reserved location terms ('remote', 'other') are seeded by
+			// Plugin::init on init@20 — taxonomy registration happens on
+			// init@10 and is unavailable during activation. Idempotent.
 
 			// 1.2 — F-3: resume CPT visibility moved from Pro filter to Free
 			// setting. Pre-existing sites with Pro active expect the resume
@@ -236,6 +239,22 @@ final class Install {
 			// have NO existing meta value.
 			if ( version_compare( (string) $installed, '1.2.1', '<' ) ) {
 				self::migrate_resume_public_flag();
+			}
+
+			// 1.2.3 — Backfill `_wcb_hq_location` company meta into the
+			// `wcb_location` taxonomy. Pre-1.2.3 the HQ value was stored as
+			// post meta only, so the employer-scoped job-form dropdown found
+			// no terms attached to the company and fell back to "no location".
+			// Idempotent: companies that already have HQ terms attached are
+			// left untouched. Runs on init@20 once the taxonomy is registered.
+			if ( version_compare( (string) $installed, '1.2.3', '<' ) ) {
+				add_action(
+					'init',
+					static function (): void {
+						Locations::backfill_existing_company_hq_terms();
+					},
+					25
+				);
 			}
 
 			// 1.2.2 — F-2: absorb Pro's wcbp_resume_settings into wcb_settings.
