@@ -113,6 +113,12 @@ spl_autoload_register(
 	}
 );
 
+// WCB\Admin\Settings (U9 accessor) lives in core/ because every layer reads
+// it (blocks, modules, REST, admin), but its namespace says Admin — so the
+// autoloader path convention misses it. Required up-front so the class is
+// reachable from any hook ordering.
+require_once WCB_DIR . 'core/class-settings.php';
+
 /**
  * Read the email-template settings sub-array.
  *
