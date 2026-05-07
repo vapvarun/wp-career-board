@@ -26,10 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class AbstractCliCommand extends \WP_CLI_Command {
 
 	/**
-	 * Check an ability via the WordPress Abilities API with cap fallback.
+	 * Check an ability via the WordPress Abilities API.
 	 *
 	 * Mirrors WCB\Api\RestController::check_ability() so the same
-	 * permission model applies over REST and WP-CLI.
+	 * permission model applies over REST and WP-CLI. wp_is_ability_granted()
+	 * is provided by WP core (when available) or by the polyfill at
+	 * core/abilities-api-polyfill.php.
 	 *
 	 * @since 1.0.0
 	 *
@@ -38,12 +40,7 @@ abstract class AbstractCliCommand extends \WP_CLI_Command {
 	 * @return bool
 	 */
 	protected function check_ability( string $ability, array $args = array() ): bool {
-		if ( function_exists( 'wp_is_ability_granted' ) ) {
-			return wp_is_ability_granted( $ability, wp_get_current_user(), $args );
-		}
-
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-		return current_user_can( $ability );
+		return wp_is_ability_granted( $ability );
 	}
 
 	/**

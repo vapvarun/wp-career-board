@@ -27,9 +27,7 @@ if ( ! is_user_logged_in() ) {
 	return;
 }
 
-$wcb_can_access_candidate_dashboard = function_exists( 'wp_is_ability_granted' )
-	? wp_is_ability_granted( 'wcb_access_candidate_dashboard' )
-	: current_user_can( 'wcb_access_candidate_dashboard' );
+$wcb_can_access_candidate_dashboard = wp_is_ability_granted( 'wcb_access_candidate_dashboard' );
 
 if ( ! $wcb_can_access_candidate_dashboard ) {
 	echo '<p>' . esc_html__( 'You do not have permission to view this dashboard.', 'wp-career-board' ) . '</p>';
@@ -155,9 +153,7 @@ wp_interactivity_state(
 					if ( ! \WCB\Admin\Settings::bool( 'allow_withdraw', true ) ) {
 						return false;
 					}
-					return function_exists( 'wp_is_authorized' )
-						? wp_is_authorized( 'wcb_withdraw_application' )
-						: current_user_can( 'wcb_withdraw_application' );
+					return wp_is_ability_granted( 'wcb_withdraw_application' );
 				}
 			)(),
 			'privacyBusy'            => false,

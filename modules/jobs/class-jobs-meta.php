@@ -62,8 +62,7 @@ final class JobsMeta {
 					'single'        => true,
 					'type'          => $schema['type'],
 					'auth_callback' => static function (): bool {
-						// phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_post_jobs is a custom WCB ability/cap.
-						return current_user_can( 'wcb_post_jobs' );
+						return wp_is_ability_granted( 'wcb_post_jobs' );
 					},
 				)
 			);

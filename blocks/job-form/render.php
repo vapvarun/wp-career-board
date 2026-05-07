@@ -23,9 +23,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_can_post_job = function_exists( 'wp_is_ability_granted' )
-	? wp_is_ability_granted( 'wcb_post_jobs' )
-	: current_user_can( 'wcb_post_jobs' );
+$wcb_can_post_job = wp_is_ability_granted( 'wcb_post_jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	echo '<p>' . esc_html__( 'You must be logged in as an employer to post a job.', 'wp-career-board' ) . '</p>';
@@ -107,7 +105,7 @@ if ( $wcb_edit_id > 0 ) {
 	&& 'wcb_job' === $wcb_edit_job->post_type
 	&& ( (int) $wcb_edit_job->post_author === $wcb_user_id
 	|| $wcb_same_company
-	|| ( function_exists( 'wp_is_ability_granted' ) && wp_is_ability_granted( 'wcb_manage_settings' ) ) );
+	|| wp_is_ability_granted( 'wcb_manage_settings' ) );
 
 	if ( ! $wcb_can_edit ) {
 		echo '<p>' . esc_html__( 'You are not authorized to edit this job.', 'wp-career-board' ) . '</p>';

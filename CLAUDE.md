@@ -37,14 +37,21 @@ REST namespace: `wcb/v1`.
 
 ### Permissions — Abilities API only
 ```php
-// CORRECT
-wp_register_ability( 'wcb_post_job', __( 'Post a Job', 'wp-career-board' ) );
-if ( ! wp_is_authorized( 'wcb_post_job' ) ) { ... }
+// Define
+wp_register_ability( 'wcb_post_jobs', __( 'Post a Job', 'wp-career-board' ) );
+
+// Check (uses our polyfill at core/abilities-api-polyfill.php — wraps
+// wp_get_ability($name)->check_permissions() until WP core ships the helper)
+if ( ! wp_is_ability_granted( 'wcb_post_jobs' ) ) { ... }
 
 // FORBIDDEN
 current_user_can( 'manage_options' );  // never
 current_user_can( 'edit_posts' );      // never
 ```
+
+Note: WPCS does not yet recognize `wp_is_ability_granted` as a permission
+function. Until a custom sniff is configured, gating sites get a single
+`phpcs:ignore` comment citing the polyfill.
 
 ### REST API
 - All endpoints extend `WCB\Api\REST_Controller`

@@ -154,7 +154,7 @@ class AntiSpamModule {
 	 * @return void
 	 */
 	public function render_settings_tab( array $settings ): void {
-		if ( ! current_user_can( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( ! wp_is_ability_granted( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return;
 		}
 
@@ -276,7 +276,7 @@ class AntiSpamModule {
 	public function save_settings(): void {
 		check_admin_referer( 'wcb_save_antispam' );
 
-		if ( ! current_user_can( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( ! wp_is_ability_granted( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			wp_die( esc_html__( 'Permission denied.', 'wp-career-board' ) );
 		}
 

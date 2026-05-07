@@ -83,10 +83,6 @@ abstract class AbstractWidget {
 		if ( '' === $ability ) {
 			return true;
 		}
-		if ( function_exists( 'wp_is_ability_granted' ) ) {
-			return (bool) wp_is_ability_granted( $ability );
-		}
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WCB abilities registered via the Abilities API.
-		return current_user_can( $ability );
+		return wp_is_ability_granted( $ability );
 	}
 }

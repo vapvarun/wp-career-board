@@ -27,6 +27,12 @@ define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
 define( 'WCB_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WCB_EDD_ITEM_ID', 1659888 );
 
+// Polyfill wp_is_ability_granted() — WP 6.9 core ships the Abilities API
+// registry but no top-level "is granted" helper. Loaded early so any block
+// render, REST controller, or admin page can call it. function_exists guard
+// inside the file means this yields the moment WP core ships the helper.
+require_once WCB_DIR . 'core/abilities-api-polyfill.php';
+
 // EDD Software Licensing SDK — automatic updates from wbcomdesigns.com.
 // Free plugin uses a shared community license key for silent update checks.
 add_action(

@@ -435,7 +435,7 @@ class EmailSettings {
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wcb_email_nonce'] ) ), 'wcb_email_settings_save' ) ) {
 			return;
 		}
-		if ( ! current_user_can( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( ! wp_is_ability_granted( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return;
 		}
 

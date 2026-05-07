@@ -167,10 +167,8 @@ class Cli extends AbstractCliCommand {
 		$abilities = (array) apply_filters( 'wcb_cli_abilities', self::ABILITIES );
 
 		foreach ( $abilities as $slug => $label ) {
-			$granted = function_exists( 'wp_is_ability_granted' )
-				? wp_is_ability_granted( $slug, $user )
-				// phpcs:ignore WordPress.WP.Capabilities.Unknown -- ability slug used as fallback cap.
-				: user_can( $user, $slug );
+			// phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_* abilities double as custom caps; this CLI command checks a target user, not the current user, so the polyfilled wp_is_ability_granted() (current-user-only contract) is not appropriate here.
+			$granted = user_can( $user, $slug );
 
 			$rows[] = array(
 				'Ability' => $slug,
