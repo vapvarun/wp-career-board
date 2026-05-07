@@ -1041,6 +1041,25 @@
       "class": "WCB\\Modules\\ThemeIntegration\\ThemeIntegrationModule",
       "added": "1.0.0",
       "purpose": "Theme template/style integration shim"
+    },
+    {
+      "key": "admin.pages",
+      "class": "WCB\\Admin\\Pages",
+      "added": "1.2.4",
+      "purpose": "Resolver for the 7 canonical Career Board pages (Post a Job, dashboards, archives, registration). get_id() reads wcb_settings then falls back to slug match. backfill_from_slugs() runs once at install/upgrade to populate missing IDs."
+    },
+    {
+      "key": "core.locations",
+      "class": "WCB\\Core\\Locations",
+      "added": "1.2.3",
+      "purpose": "Coordinates the wcb_location taxonomy with company HQ data. Reserves 'remote' / 'other' slugs, syncs free-text HQ input into terms, scopes the employer job-form dropdown to HQ + Remote + Other."
+    },
+    {
+      "key": "compat.wp_is_ability_granted",
+      "class": "function",
+      "file": "core/abilities-api-polyfill.php",
+      "added": "1.2.0",
+      "purpose": "Polyfill for wp_is_ability_granted() — wraps wp_get_ability($name)->check_permissions(). WP 6.9 ships the registry but no top-level granted helper; becomes a no-op when WP core ships its own."
     }
   ],
   "hooks_fired": [
@@ -1755,6 +1774,21 @@
         "wpjm-resumes"
       ],
       "where": "cli/class-migrate-commands.php"
+    },
+    {
+      "command": "wcb scale",
+      "class": "WCB\\Cli\\ScaleCommand",
+      "subcommands": [
+        "seed",
+        "benchmark",
+        "teardown"
+      ],
+      "where": "cli/class-scale-command.php",
+      "subcommand_purposes": {
+        "seed": "Populate a representative dataset (10K candidates, 1K employers, 500 companies, 5K jobs, 50K applications) for hot-path benchmarking.",
+        "benchmark": "Time hot-path REST queries against BUDGETS_MS; exits 1 if any op is over budget.",
+        "teardown": "Drop seeded rows. Idempotent."
+      }
     }
   ],
   "storage_drivers": [
@@ -1885,12 +1919,12 @@
     ]
   },
   "generated": {
-    "at": "2026-05-07T12:47:55Z",
+    "at": "2026-05-07T18:00:00Z",
     "from": "wp-plugin-onboard skill (refresh mode, targeted patch)",
     "schema_version": "v1",
     "scan_scope": "distignore",
     "scan_path": ".",
     "php_file_count": 148,
-    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly."
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) — canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) — ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands."
   }
 }
