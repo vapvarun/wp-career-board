@@ -1,0 +1,119 @@
+/**
+ * Candidate Dashboard — Main content area styles.
+ *
+ * Main wrapper, view-panel frame, page header, panel base, two-column
+ * grid, and the @media (max-width: 640px) rules that target these
+ * selectors. Co-locating responsive overrides with their base rules
+ * keeps the cascade order correct independent of block.json file
+ * declaration order.
+ *
+ * Extracted from style.css (was 1356 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.2).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* ── Main content area ────────────────────────────────────────────────────── */
+.wcb-main {
+	flex: 1;
+	background: var(--wcb-bg-subtle);
+	padding: var(--wcb-space-3xl);
+	overflow-y: auto;
+	min-width: 0;
+}
+
+/* ── View panels ──────────────────────────────────────────────────────────── */
+.wcb-view-panel {
+	display: none;
+}
+
+.wcb-view-panel.wcb-view-active {
+	display: block;
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+.wcb-page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin-bottom: var(--wcb-space-2xl);
+	flex-wrap: wrap;
+}
+
+.wcb-page-title {
+	font-size: var(--wcb-text-xl);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-primary);
+	margin: 0;
+}
+
+/* ── Panel wrapper (matches employer dashboard .wcb-panel) ────────────────── */
+.wcb-panel {
+	display: none;
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius);
+	overflow: hidden;
+	margin-bottom: var(--wcb-space-xl);
+}
+
+.wcb-panel.wcb-shown {
+	display: block;
+}
+
+/* ── Overview: Two-column grid ────────────────────────────────────────────── */
+.wcb-two-col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--wcb-space-xl);
+}
+
+/* ── Overview: Panel title / link / empty (panel-header lives globally) ──── */
+.wcb-panel-title {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-primary);
+}
+
+.wcb-panel-link {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	font-family: inherit;
+	color: var(--wcb-blue);
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.wcb-panel-link:hover {
+	text-decoration: underline;
+}
+
+.wcb-panel-empty {
+	display: none;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	margin: 0;
+}
+
+.wcb-panel-empty.wcb-shown {
+	display: block;
+}
+
+/* ── Responsive: tighten main padding and stack two-col on narrow screens ─ */
+@media (max-width: 640px) {
+	.wcb-main {
+		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+	}
+
+	.wcb-two-col {
+		grid-template-columns: 1fr;
+	}
+}

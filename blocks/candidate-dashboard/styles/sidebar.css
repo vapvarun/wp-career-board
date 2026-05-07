@@ -1,0 +1,294 @@
+/**
+ * Candidate Dashboard — Sidebar styles.
+ *
+ * Sidebar wrapper, nav items, badges, CTA, user/company row, and the
+ * @media (max-width: 1024px) rules that collapse the sidebar into a
+ * mobile nav drawer. Co-locating the responsive overrides with their
+ * base rules ensures correct cascade order regardless of which
+ * order block.json declares the style files.
+ *
+ * Extracted from style.css (was 1356 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.2).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.wcb-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border-inline-end: 1px solid var(--wcb-border);
+	padding: var(--wcb-space-xl) 0;
+}
+
+/* Logo row — also doubles as Overview link when rendered as <button> */
+.wcb-sidebar-logo {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) var(--wcb-space-lg);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-primary);
+	width: 100%;
+	background: transparent;
+	border: none;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.wcb-sidebar-logo:hover {
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-text-primary);
+	border: none;
+}
+
+.wcb-sidebar-logo.wcb-nav-active {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-primary, var(--wp--preset--color--wcb-primary));
+	border: none;
+}
+
+/* Prevent theme button overrides on the logo */
+.wcb-dashboard .wcb-sidebar-logo {
+	background: transparent;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-logo:hover {
+	background: var( --wcb-bg-subtle );
+}
+
+.wcb-dashboard .wcb-sidebar-logo.wcb-nav-active {
+	background: var( --wcb-bg-hover );
+}
+
+/* Section labels — act as visual dividers between nav groups */
+.wcb-nav-section-label {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var(--wcb-text-muted);
+	padding: var(--wcb-space-md) var(--wcb-space-lg) var(--wcb-space-sm);
+	border-top: 1px solid var(--wcb-border);
+	margin-top: var(--wcb-space-xs);
+}
+
+.wcb-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-normal);
+	font-family: inherit;
+	color: var(--wcb-text-secondary);
+	background: none;
+	border: none;
+	border-radius: var(--wcb-radius-sm);
+	cursor: pointer;
+	text-align: start;
+	text-decoration: none;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+	box-sizing: border-box;
+}
+
+.wcb-nav-item:hover {
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-text-primary);
+	border: none;
+	text-decoration: none;
+}
+
+.wcb-nav-item.wcb-nav-active {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-text-primary);
+	font-weight: var(--wcb-font-semibold);
+	border: none;
+}
+
+/* Prevent theme button overrides on sidebar elements */
+.wcb-dashboard .wcb-nav-toggle {
+	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
+	color: var( --wcb-text-primary );
+	box-shadow: none;
+}
+
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	outline: 2px solid var( --wcb-blue );
+	outline-offset: -2px;
+}
+
+.wcb-nav-badge {
+	display: inline-block;
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	border-radius: var(--wcb-radius-full);
+	padding: 1px var(--wcb-space-sm);
+	line-height: 1.4;
+}
+
+.wcb-nav-badge--blue {
+	background: var(--wcb-info-bg);
+	color: var(--wcb-info);
+}
+
+.wcb-sidebar-cta {
+	display: block;
+	margin: var(--wcb-space-lg);
+	padding: var(--wcb-space-lg) var(--wcb-space-lg);
+	background: var(--wcb-text-primary);
+	color: var(--wcb-base, #fff);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	font-family: inherit;
+	text-align: center;
+	text-decoration: none;
+	border: none;
+	border-radius: var(--wcb-radius);
+	transition: background var(--wcb-transition-fast);
+}
+
+.wcb-sidebar-cta:hover {
+	background: var(--wp--preset--color--wcb-avatar-bg);
+	color: var(--wp--preset--color--wcb-base);
+	border: none;
+	text-decoration: none;
+}
+
+.wcb-sidebar-user {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-top: 1px solid var(--wcb-border);
+	margin-top: auto;
+}
+
+.wcb-sidebar-avatar {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--wcb-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-sidebar-company {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-primary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Mobile nav toggle — hidden on desktop */
+.wcb-nav-toggle {
+	display: none;
+}
+
+/* ── Responsive: collapse sidebar into mobile nav drawer ─────────────────── */
+@media ( max-width: 1024px ) {
+	.wcb-dashboard-shell {
+		flex-direction: column;
+	}
+
+	.wcb-nav-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 13px var(--wcb-space-lg);
+		background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+		border: none;
+		border-bottom: 1px solid var(--wcb-border);
+		cursor: pointer;
+		font-size: var(--wcb-text-base);
+		font-weight: var(--wcb-font-semibold);
+		font-family: inherit;
+		color: var(--wcb-text-primary);
+		text-align: start;
+	}
+
+	.wcb-nav-toggle-icon::after {
+		content: '\25BE';
+		display: block;
+		color: var(--wcb-text-muted);
+		transition: transform var(--wcb-transition-snappy);
+	}
+
+	.wcb-nav-open .wcb-nav-toggle-icon::after {
+		transform: rotate(180deg);
+	}
+
+	.wcb-sidebar {
+		width: 100%;
+		flex-direction: column;
+		align-items: stretch;
+		padding: 0;
+		overflow-x: visible;
+		border-inline-end: none;
+		border-bottom: 1px solid var( --wcb-border );
+	}
+
+	.wcb-sidebar-logo,
+	.wcb-sidebar-nav,
+	.wcb-sidebar-cta,
+	.wcb-sidebar-user {
+		display: none;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-nav {
+		display: flex;
+		flex-direction: column;
+		padding: 4px 0;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
+		display: block;
+		margin: 8px 12px;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-user {
+		display: flex;
+		border-top: 1px solid var( --wcb-border );
+		margin-top: 0;
+		padding: 10px 16px;
+	}
+
+	.wcb-nav-section-label {
+		display: none;
+	}
+
+	.wcb-nav-item {
+		width: 100%;
+		padding: 11px 16px;
+		border-radius: 0;
+		border-bottom: none;
+		text-align: start;
+	}
+
+	.wcb-nav-item.wcb-nav-active {
+		background: var( --wcb-bg-hover );
+		color: var( --wcb-blue );
+		border-bottom: none;
+	}
+}

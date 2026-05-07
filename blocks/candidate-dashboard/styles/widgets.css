@@ -1,0 +1,293 @@
+/**
+ * Candidate Dashboard — Widget styles.
+ *
+ * Notification bell, overview stats cards, first-time welcome card,
+ * GDPR privacy panel, and the @media rules that target these
+ * selectors. Co-locating responsive overrides with their base rules
+ * keeps the cascade order correct independent of block.json file
+ * declaration order.
+ *
+ * Extracted from style.css (was 1356 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.2).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* Notification bell */
+.wcb-bell-wrapper {
+	position: relative;
+	display: inline-block;
+}
+.wcb-bell-btn {
+	position: relative;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 6px;
+	color: var( --wcb-text-secondary, var(--wp--preset--color--wcb-muted) );
+	line-height: 1;
+}
+.wcb-bell-btn:hover { color: var(--wp--preset--color--wcb-primary); }
+.wcb-bell-badge {
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 var(--wcb-space-xs);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	line-height: 18px;
+	text-align: center;
+	color: var(--wcb-base, #fff);
+	background: var(--wcb-danger);
+	border-radius: var(--wcb-radius-full);
+}
+.wcb-bell-dropdown {
+	position: absolute;
+	top: calc(100% + var(--wcb-space-sm));
+	right: 0;
+	width: 320px;
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+	box-shadow: var(--wcb-shadow-lg);
+	z-index: 100;
+}
+.wcb-bell-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+	font-weight: var(--wcb-font-semibold);
+	font-size: var(--wcb-text-base);
+}
+.wcb-bell-read-all {
+	background: none;
+	border: none;
+	font-size: var(--wcb-text-xs);
+	color: var( --wcb-primary, #4f46e5 );
+	cursor: pointer;
+}
+.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-item {
+	display: block;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+	text-decoration: none;
+	color: inherit;
+}
+.wcb-bell-item:hover { background: var(--wcb-surface, #f1f5f9); }
+.wcb-bell-unread { background: var(--wcb-info-bg-soft); }
+.wcb-bell-msg {
+	display: block;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-contrast, #111827);
+}
+.wcb-bell-time {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-tertiary);
+	margin-top: 2px;
+}
+
+/* ── Overview: Stats row ──────────────────────────────────────────────────── */
+.wcb-stats-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: var(--wcb-space-lg);
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+.wcb-stat-card {
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+}
+
+.wcb-stat-value {
+	font-size: 1.75rem;
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-primary);
+	line-height: 1;
+}
+
+.wcb-stat-label {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	font-weight: var(--wcb-font-medium);
+}
+
+.wcb-stat-card--green .wcb-stat-value { color: var( --wcb-green ); }
+.wcb-stat-card--blue  .wcb-stat-value { color: var( --wcb-blue ); }
+.wcb-stat-card--amber .wcb-stat-value { color: var( --wcb-amber ); }
+
+/* ── Clickable stat card ─────────────────────────────────────────────────── */
+.wcb-stat-card--link {
+	cursor: pointer;
+}
+
+/* ── Responsive: 2-up stats on narrow screens ────────────────────────────── */
+@media ( max-width: 640px ) {
+	.wcb-stats-row {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+}
+
+/* ── Welcome card — first-time candidate onboarding (C-4) ─────────────────── */
+
+.wcb-welcome-card {
+	display: none;
+	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, #ffffff 100% );
+	border: 1px solid var( --wcb-primary, #4f46e5 );
+	border-radius: var( --wcb-radius-lg, 12px );
+	padding: var( --wcb-space-lg, 24px );
+	margin-bottom: var( --wcb-space-lg, 24px );
+}
+
+.wcb-welcome-card.wcb-shown {
+	display: block;
+}
+
+.wcb-welcome-card__header {
+	margin-bottom: var( --wcb-space-md, 16px );
+}
+
+.wcb-welcome-card__title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0 0 4px 0;
+	color: var( --wcb-text, #111827 );
+}
+
+.wcb-welcome-card__subtitle {
+	margin: 0;
+	color: var( --wcb-muted, #6b7280 );
+	font-size: 0.95rem;
+}
+
+.wcb-welcome-card__steps {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 240px, 1fr ) );
+	gap: var( --wcb-space-md, 16px );
+}
+
+.wcb-welcome-step {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: var( --wcb-space-md, 16px );
+	background: #ffffff;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius-md, 8px );
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+	text-align: left;
+	font: inherit;
+}
+
+.wcb-welcome-step:hover,
+.wcb-welcome-step:focus-visible {
+	border-color: var( --wcb-primary, #4f46e5 );
+	box-shadow: 0 1px 4px rgba( 79, 70, 229, 0.15 );
+	transform: translateY( -1px );
+}
+
+.wcb-welcome-step:focus-visible {
+	outline: 2px solid var( --wcb-primary, #4f46e5 );
+	outline-offset: 2px;
+}
+
+.wcb-welcome-step__num {
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: var( --wcb-primary, #4f46e5 );
+	color: #ffffff;
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.wcb-welcome-step__body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wcb-welcome-step__title {
+	font-weight: 600;
+	color: var( --wcb-text, #111827 );
+}
+
+.wcb-welcome-step__desc {
+	font-size: 0.875rem;
+	color: var( --wcb-muted, #6b7280 );
+	line-height: 1.4;
+}
+
+@media ( max-width: 640px ) {
+	.wcb-welcome-card { padding: var( --wcb-space-md, 16px ); }
+	.wcb-welcome-card__title { font-size: 1.25rem; }
+	.wcb-welcome-card__steps { grid-template-columns: 1fr; }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.wcb-welcome-step { transition: none !important; }
+	.wcb-welcome-step:hover,
+	.wcb-welcome-step:focus-visible { transform: none !important; }
+}
+
+/* ── Privacy panel — GDPR self-service controls (A-11) ────────────────────── */
+
+.wcb-privacy-panel { margin-top: var( --wcb-space-md, 16px ); }
+
+.wcb-privacy-desc {
+	color: var( --wcb-muted, #6b7280 );
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 0 0 var( --wcb-space-md, 16px ) 0;
+}
+
+.wcb-privacy-note {
+	color: #991b1b;
+	font-size: 0.85rem;
+	margin: var( --wcb-space-sm, 8px ) 0 0 0;
+	display: none;
+}
+
+.wcb-privacy-note.wcb-shown { display: block; }
+
+.wcb-cbtn--danger {
+	color: #991b1b;
+	border-color: #fecaca;
+	background: #ffffff;
+}
+
+.wcb-cbtn--danger:hover,
+.wcb-cbtn--danger:focus-visible {
+	background: #fef2f2;
+	border-color: #ef4444;
+	color: #7f1d1d;
+}
+
+.wcb-cbtn--danger:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
