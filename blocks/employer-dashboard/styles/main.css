@@ -111,3 +111,19 @@
 .wcb-panel-empty.wcb-shown {
 	display: block;
 }
+
+@media (max-width: 768px) {
+	.wcb-two-col {
+		grid-template-columns: 1fr;
+	}
+
+	.wcb-main {
+		padding: var(--wcb-space-xl);
+	}
+}
+
+@media (max-width: 480px) {
+	.wcb-main {
+		padding: var(--wcb-space-lg);
+	}
+}

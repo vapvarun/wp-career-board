@@ -374,9 +374,31 @@
 	opacity: 1;
 }
 
+@media (max-width: 768px) {
+	.wcb-stats-row {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.wcb-profile-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
 @media (max-width: 640px) {
 	.wcb-credit-success-banner,
 	.wcb-credit-low-banner {
 		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 480px) {
+	.wcb-stats-row {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wcb-logo-upload-label {
+		transition: none;
 	}
 }

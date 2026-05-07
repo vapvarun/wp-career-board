@@ -840,3 +840,53 @@
 .wcb-saving-label.wcb-shown {
 	display: inline;
 }
+
+@media (max-width: 768px) {
+	.wcb-split-panel.wcb-shown {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.wcb-applicant-list {
+		border-inline-end: none;
+		border-bottom: 1px solid var(--wcb-border);
+		max-height: 240px;
+	}
+
+	.wcb-field-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 640px) {
+	/* My Jobs row -- stack info above badge + chip + actions */
+	.wcb-job-row {
+		flex-wrap: wrap;
+		gap: var(--wcb-space-sm) var(--wcb-space-sm);
+	}
+
+	.wcb-job-info {
+		flex: 0 0 calc(100% - 28px);
+	}
+
+	.wcb-job-title {
+		white-space: normal;
+	}
+
+	.wcb-job-actions {
+		width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wcb-filter-pill,
+	.wcb-job-row,
+	.wcb-db-btn,
+	.wcb-db-link-btn,
+	.wcb-job-search,
+	.wcb-apps-job-search,
+	.wcb-apps-job-item,
+	.wcb-field-input {
+		transition: none;
+	}
+}
