@@ -524,7 +524,7 @@ class AdminSettings {
 		$wcb_page_keys = array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page' );
 		$wcb_missing   = array();
 		foreach ( $wcb_page_keys as $wcb_k ) {
-			if ( empty( $settings[ $wcb_k ] ) || ! get_post( (int) $settings[ $wcb_k ] ) ) {
+			if ( 0 === Pages::get_id( $wcb_k ) ) {
 				$wcb_missing[] = $wcb_k;
 			}
 		}
@@ -887,6 +887,7 @@ class AdminSettings {
 									$wcb_page_settings = (array) apply_filters( 'wcb_page_settings', $wcb_page_settings );
 									?>
 		<?php foreach ( $wcb_page_settings as $wcb_key => $wcb_info ) : ?>
+			<?php $wcb_resolved_id = (int) Pages::get_id( (string) $wcb_key ); ?>
 										<div class="wcb-settings-row">
 											<div class="wcb-settings-row-label">
 												<label for="wcb-page-<?php echo esc_attr( sanitize_key( $wcb_key ) ); ?>"><?php echo esc_html( $wcb_info['label'] ); ?></label>
@@ -897,13 +898,12 @@ class AdminSettings {
 				array(
 					'id'               => 'wcb-page-' . sanitize_key( $wcb_key ),
 					'name'             => 'wcb_settings[' . sanitize_key( $wcb_key ) . ']',
-					'selected'         => isset( $settings[ $wcb_key ] ) ? (int) $settings[ $wcb_key ] : 0,
+					'selected'         => (int) $wcb_resolved_id,
 					'show_option_none' => esc_html__( '— Select a page —', 'wp-career-board' ),
 				)
 			);
-												$wcb_mapped_id = ! empty( $settings[ $wcb_key ] ) ? (int) $settings[ $wcb_key ] : 0;
-			if ( $wcb_mapped_id && get_post( $wcb_mapped_id ) ) {
-				$wcb_page_url = get_permalink( $wcb_mapped_id );
+			if ( $wcb_resolved_id ) {
+				$wcb_page_url = get_permalink( $wcb_resolved_id );
 				if ( $wcb_page_url ) {
 					echo ' <a href="' . esc_url( $wcb_page_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View Page →', 'wp-career-board' ) . '</a>';
 				}
@@ -996,6 +996,16 @@ class AdminSettings {
 
 				</div><!-- .wcb-settings-content -->
 			</div><!-- .wcb-settings-wrap -->
+
+			<p class="wcb-settings-page-footer">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup&wcb_rerun=1' ) ); ?>">
+					<?php esc_html_e( 'Re-run Setup Wizard', 'wp-career-board' ); ?>
+				</a>
+				<span class="separator" aria-hidden="true">·</span>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wp-career-board' ) ); ?>">
+					<?php esc_html_e( 'Back to Dashboard', 'wp-career-board' ); ?>
+				</a>
+			</p>
 
 		</div>
 		<?php

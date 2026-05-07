@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.3';
+	const DB_VERSION = '1.2.4';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -255,6 +255,17 @@ final class Install {
 					},
 					25
 				);
+			}
+
+			// 1.2.4 — Backfill canonical page IDs into wcb_settings by slug.
+			// Sites that ran the setup wizard before \WCB\Admin\Pages existed,
+			// or that lost their wcb_settings page assignments without losing
+			// the underlying pages, end up with empty Pages-tab dropdowns and
+			// look broken on first admin visit. The resolver writes assigned
+			// IDs only for keys that are missing or stale, so site-owner
+			// edits survive the migration.
+			if ( version_compare( (string) $installed, '1.2.4', '<' ) ) {
+				\WCB\Admin\Pages::backfill_from_slugs();
 			}
 
 			// 1.2.2 — F-2: absorb Pro's wcbp_resume_settings into wcb_settings.
