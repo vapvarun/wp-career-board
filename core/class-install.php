@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2';
+	const DB_VERSION = '1.2.1';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -225,7 +225,59 @@ final class Install {
 				}
 			}
 
+			// 1.2.1 — F-5: every wcb_resume must carry an explicit
+			// `_wcb_resume_public` flag so the resume-single render gate
+			// (Pro) can default to private when the meta is absent. Pre-1.2.1
+			// installs may have unset rows because the meta was only written
+			// when the user toggled the public flag in the editor. Default
+			// to private on migration: candidates explicitly opt back in via
+			// the resume editor toggle. Idempotent — only writes rows that
+			// have NO existing meta value.
+			if ( version_compare( (string) $installed, '1.2.1', '<' ) ) {
+				self::migrate_resume_public_flag();
+			}
+
 			update_option( 'wcb_db_version', self::DB_VERSION, false );
+		}
+	}
+
+	/**
+	 * Backfill `_wcb_resume_public` on every wcb_resume that lacks the meta.
+	 *
+	 * Default: private (`'0'`). Candidates re-opt-in through the resume
+	 * editor toggle which writes `'1'`. Idempotent — only touches rows
+	 * with no existing value, so re-running the migration cannot flip an
+	 * existing public resume back to private.
+	 *
+	 * Resumes whose author has been deleted are still defaulted to private —
+	 * the orphaned resume cannot consent for itself.
+	 *
+	 * @since 1.2.1
+	 * @return void
+	 */
+	private static function migrate_resume_public_flag(): void {
+		// Pro might not be active when this runs from Free's activation hook;
+		// the wcb_resume CPT is registered by Pro. The query stays safe — if
+		// the post type isn't registered yet, `get_posts` returns an empty
+		// array and we exit cleanly. The migration re-runs idempotently next
+		// time it boots.
+		$resume_ids = get_posts(
+			array(
+				'post_type'      => 'wcb_resume',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
+					array(
+						'key'     => '_wcb_resume_public',
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		foreach ( $resume_ids as $resume_id ) {
+			update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
 		}
 	}
 }

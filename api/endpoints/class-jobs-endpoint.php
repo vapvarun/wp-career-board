@@ -997,7 +997,12 @@ final class JobsEndpoint extends RestController {
 			'tags'             => $tag_slugs,
 			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
 			'apply_url'        => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
-			'apply_email'      => (string) get_post_meta( $post->ID, '_wcb_apply_email', true ),
+			// apply_email intentionally NOT exposed via REST. Anonymous scrapers
+			// were harvesting recruiter inboxes in bulk (F-1 in
+			// plan/role-data-baseline-2026-05-07.md). The apply submission
+			// posts to /wcb/v1/jobs/{id}/apply which delivers email
+			// server-side; no client needs the literal address. Postmeta
+			// `_wcb_apply_email` remains for the apply handler + RSS feed.
 			'lat'              => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
 			'lng'              => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);

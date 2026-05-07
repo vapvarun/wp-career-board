@@ -835,7 +835,16 @@ final class ApplicationsEndpoint extends RestController {
 	// --- Helpers ----------------------------------------------------------------
 
 	/**
-	 * Shape a WP_Post (wcb_application) into the REST response array.
+	 * Shape a WP_Post (wcb_application) into a role-aware REST response array.
+	 *
+	 * Three viewer roles, three response shapes (F-3 in
+	 * plan/role-data-baseline-2026-05-07.md):
+	 *
+	 * - candidate (own application): submission + current status + simple
+	 *   timestamps. NO status_history (audit trail), NO reviewer identity.
+	 * - employer (job owner): full applicant + status_history with reviewer
+	 *   identity redacted to "Hiring team".
+	 * - admin: everything, including reviewer user_ids in status_history.
 	 *
 	 * @since 1.0.0
 	 *
@@ -843,20 +852,28 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_application( \WP_Post $post ): array {
-		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
-		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
-		$status_log           = get_post_meta( $post->ID, '_wcb_status_log', true );
-		$data                 = array(
-			'id'             => $post->ID,
-			'job_id'         => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
-			'candidate_id'   => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
-			'cover_letter'   => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-			'resume_id'      => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
-			'resume_url'     => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
-			'status'         => $status ? $status : 'submitted',
-			'status_history' => is_array( $status_log ) ? $status_log : array(),
-			'submitted_at'   => $post->post_date,
-		);
+		$current_user_id = get_current_user_id();
+		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
+
+		if ( $is_admin ) {
+			$data = $this->prepare_for_admin( $post );
+		} else {
+			$candidate_id = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true );
+			$job_id       = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+			$job          = $job_id ? get_post( $job_id ) : null;
+			$is_owner     = $candidate_id > 0 && $candidate_id === $current_user_id;
+			$is_employer  = $job instanceof \WP_Post && $current_user_id === (int) $job->post_author;
+
+			if ( $is_employer ) {
+				$data = $this->prepare_for_employer( $post );
+			} elseif ( $is_owner ) {
+				$data = $this->prepare_for_candidate( $post );
+			} else {
+				// Permission_callback already gated; defensive fallback to the
+				// most-redacted shape rather than leaking the audit trail.
+				$data = $this->prepare_for_candidate( $post );
+			}
+		}
 
 		/**
 		 * Canonical wcb_rest_prepare_* filter for the application resource.
@@ -868,5 +885,122 @@ final class ApplicationsEndpoint extends RestController {
 		 * @param \WP_REST_Request|null $request The originating REST request, when available.
 		 */
 		return (array) apply_filters( 'wcb_rest_prepare_application', $data, $post, null );
+	}
+
+	/**
+	 * Candidate view — own submission + status, no audit trail.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  \WP_Post $post Application post object.
+	 * @return array<string, mixed>
+	 */
+	private function prepare_for_candidate( \WP_Post $post ): array {
+		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+		return array(
+			'id'           => $post->ID,
+			'job_id'       => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'candidate_id' => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
+			'cover_letter' => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			'resume_id'    => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
+			'resume_url'   => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'status'       => '' !== $status ? $status : 'submitted',
+			'submitted_at' => $post->post_date,
+			// status_history intentionally omitted — internal employer audit
+			// trail. F-3 in plan/role-data-baseline-2026-05-07.md.
+		);
+	}
+
+	/**
+	 * Employer view — full applicant + redacted status history.
+	 *
+	 * Reviewer identity is redacted to "Hiring team" so a fellow reviewer's
+	 * user_id never reaches the employer who owns the job. Admins still see
+	 * the raw user_ids via prepare_for_admin().
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  \WP_Post $post Application post object.
+	 * @return array<string, mixed>
+	 */
+	private function prepare_for_employer( \WP_Post $post ): array {
+		$base = $this->prepare_for_candidate( $post );
+		return array_merge(
+			$base,
+			array(
+				'status_history' => $this->status_history_for_employer( $post ),
+			)
+		);
+	}
+
+	/**
+	 * Admin view — everything, including raw reviewer user_ids.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  \WP_Post $post Application post object.
+	 * @return array<string, mixed>
+	 */
+	private function prepare_for_admin( \WP_Post $post ): array {
+		$base = $this->prepare_for_employer( $post );
+		return array_merge(
+			$base,
+			array(
+				'status_history' => $this->status_history_for_admin( $post ),
+			)
+		);
+	}
+
+	/**
+	 * Status history rows with reviewer identity redacted.
+	 *
+	 * The on-disk shape is `{from, to, by: <user_id>, at}`. The employer
+	 * sees `{status, timestamp, reviewer: 'Hiring team'}` — same audit trail
+	 * minus the reviewer's user_id.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  \WP_Post $post Application post object.
+	 * @return array<int, array<string, string>>
+	 */
+	private function status_history_for_employer( \WP_Post $post ): array {
+		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		return array_map(
+			static function ( $entry ): array {
+				$entry = is_array( $entry ) ? $entry : array();
+				return array(
+					'status'    => isset( $entry['to'] ) ? (string) $entry['to'] : '',
+					'from'      => isset( $entry['from'] ) ? (string) $entry['from'] : '',
+					'timestamp' => isset( $entry['at'] ) ? (string) $entry['at'] : '',
+					'reviewer'  => __( 'Hiring team', 'wp-career-board' ),
+				);
+			},
+			$log
+		);
+	}
+
+	/**
+	 * Status history rows with reviewer user_ids preserved.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  \WP_Post $post Application post object.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function status_history_for_admin( \WP_Post $post ): array {
+		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		return array_map(
+			static function ( $entry ): array {
+				$entry = is_array( $entry ) ? $entry : array();
+				return array(
+					'status'           => isset( $entry['to'] ) ? (string) $entry['to'] : '',
+					'from'             => isset( $entry['from'] ) ? (string) $entry['from'] : '',
+					'timestamp'        => isset( $entry['at'] ) ? (string) $entry['at'] : '',
+					'reviewer_user_id' => isset( $entry['by'] ) ? (int) $entry['by'] : 0,
+				);
+			},
+			$log
+		);
 	}
 }
