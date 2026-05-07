@@ -104,10 +104,46 @@ sponsors, brands, etc.):
 | `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs` |
 | `wcb_jobs_query_args` | Modify the WP_Query args used by the listings block on first paint |
 | `wcb_jobs_post_filter` | Post-process the prepared job array before REST response |
-| `wcb_job_response` | Shape an individual job's REST response |
+| `wcb_job_response` | Shape an individual job's REST response (legacy alias; prefer `wcb_rest_prepare_job`) |
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
 | `wcb_job_listings_board_options` | Add custom chips to the listings filter bar |
 | `wcb_job_listing_data` | Shape per-card data on the listings block |
+
+## REST response filters (`wcb_rest_prepare_*`)
+
+Canonical pattern for decorating any prepared REST resource. Mirrors WP
+core's `rest_prepare_<post_type>` convention so Pro and third-party
+extensions can attach extra fields to every prepared response without
+patching the Free codebase.
+
+| Filter | Resource | Args | Purpose |
+|---|---|---|---|
+| `wcb_rest_prepare_job` | Job | `(array $data, WP_Post $job, WP_REST_Request\|null $request)` | Decorate the prepared job response. Sibling to legacy `wcb_job_response` (still fires for back-compat). |
+| `wcb_rest_prepare_application` | Application | `(array $data, WP_Post $app, WP_REST_Request\|null $request, string $viewer_role)` | Decorate the prepared application response. `viewer_role` is `candidate`, `employer`, or `admin` — indicates which role-aware shape was generated so consumers can decorate safely without leaking employer-only fields back to candidates. Also fires on the candidate dashboard list (`viewer_role = 'candidate'`) and the employer applications list (`viewer_role = 'employer'`). |
+| `wcb_rest_prepare_company` | Company | `(array $data, WP_Post $company, WP_REST_Request\|null $request)` | Decorate the prepared company response. Fired both by the companies endpoint and the employer endpoint's company sub-resource. |
+| `wcb_rest_prepare_candidate` | Candidate | `(array $data, WP_User $user, WP_REST_Request\|null $request)` | Decorate the prepared candidate response. |
+
+Example — append a custom field to every job response:
+
+```php
+add_filter( 'wcb_rest_prepare_job', function ( array $data, WP_Post $job ): array {
+    $data['featured_until'] = (string) get_post_meta( $job->ID, '_my_featured_until', true );
+    return $data;
+}, 10, 2 );
+```
+
+Example — only decorate the employer view of an application (so the
+candidate response stays minimal):
+
+```php
+add_filter( 'wcb_rest_prepare_application', function ( array $data, WP_Post $app, $request, string $viewer_role ): array {
+    if ( 'employer' !== $viewer_role ) {
+        return $data;
+    }
+    $data['internal_notes'] = (string) get_post_meta( $app->ID, '_my_internal_notes', true );
+    return $data;
+}, 10, 4 );
+```
 
 ## Lifecycle actions
 

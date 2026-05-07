@@ -332,7 +332,7 @@ final class ApplicationsEndpoint extends RestController {
 				array( 'status' => 404 )
 			);
 		}
-		return rest_ensure_response( $this->prepare_application( $post ) );
+		return rest_ensure_response( $this->prepare_application( $post, $request ) );
 	}
 
 	/**
@@ -425,10 +425,10 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		foreach ( $query->posts as $app ) {
-			$job_id  = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
-			$job     = $job_id ? get_post( $job_id ) : null;
-			$status  = (string) get_post_meta( $app->ID, '_wcb_status', true );
-			$items[] = array(
+			$job_id = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
+			$job    = $job_id ? get_post( $job_id ) : null;
+			$status = (string) get_post_meta( $app->ID, '_wcb_status', true );
+			$row    = array(
 				'id'           => $app->ID,
 				'jobTitle'     => $job instanceof \WP_Post ? $job->post_title : '',
 				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
@@ -439,6 +439,9 @@ final class ApplicationsEndpoint extends RestController {
 				// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
 				'date'         => get_the_date( 'Y-m-d', $app ),
 			);
+
+			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
+			$items[] = (array) apply_filters( 'wcb_rest_prepare_application', $row, $app, $request, 'candidate' );
 		}
 
 		$total    = (int) $query->found_posts;
@@ -848,15 +851,18 @@ final class ApplicationsEndpoint extends RestController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  \WP_Post $post Application post object.
+	 * @param  \WP_Post              $post    Application post object.
+	 * @param  \WP_REST_Request|null $request The originating REST request, when available.
 	 * @return array<string, mixed>
 	 */
-	private function prepare_application( \WP_Post $post ): array {
+	private function prepare_application( \WP_Post $post, ?\WP_REST_Request $request = null ): array {
 		$current_user_id = get_current_user_id();
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
+		$viewer_role     = 'candidate';
 
 		if ( $is_admin ) {
-			$data = $this->prepare_for_admin( $post );
+			$data        = $this->prepare_for_admin( $post );
+			$viewer_role = 'admin';
 		} else {
 			$candidate_id = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true );
 			$job_id       = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
@@ -865,7 +871,8 @@ final class ApplicationsEndpoint extends RestController {
 			$is_employer  = $job instanceof \WP_Post && $current_user_id === (int) $job->post_author;
 
 			if ( $is_employer ) {
-				$data = $this->prepare_for_employer( $post );
+				$data        = $this->prepare_for_employer( $post );
+				$viewer_role = 'employer';
 			} elseif ( $is_owner ) {
 				$data = $this->prepare_for_candidate( $post );
 			} else {
@@ -878,13 +885,22 @@ final class ApplicationsEndpoint extends RestController {
 		/**
 		 * Canonical wcb_rest_prepare_* filter for the application resource.
 		 *
-		 * @since 1.1.1
+		 * Pro and third-party extensions can decorate the prepared response.
+		 * The `viewer_role` arg indicates which role-aware shape was produced
+		 * (candidate / employer / admin) so consumers can tailor decoration
+		 * safely without leaking employer-only fields back to the candidate
+		 * view (see Task 3.7A's role-split in
+		 * plan/role-data-baseline-2026-05-07.md).
 		 *
-		 * @param array    $data Application response array.
-		 * @param \WP_Post $post The application post object.
-		 * @param \WP_REST_Request|null $request The originating REST request, when available.
+		 * @since 1.1.1
+		 * @since 1.2.2 Added `viewer_role` argument.
+		 *
+		 * @param array                 $data        Application response array.
+		 * @param \WP_Post              $post        The application post object.
+		 * @param \WP_REST_Request|null $request     The originating REST request, when available.
+		 * @param string                $viewer_role 'candidate' | 'employer' | 'admin'.
 		 */
-		return (array) apply_filters( 'wcb_rest_prepare_application', $data, $post, null );
+		return (array) apply_filters( 'wcb_rest_prepare_application', $data, $post, $request, $viewer_role );
 	}
 
 	/**

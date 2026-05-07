@@ -705,14 +705,14 @@ final class EmployersEndpoint extends RestController {
      // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		$items = array_map(
-			static function ( object $row ): array {
+			static function ( object $row ) use ( $request ): array {
 				$app_id         = (int) $row->ID;
 				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
 				$status_raw     = (string) get_post_meta( $app_id, '_wcb_status', true );
 				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
-				return array(
+				$prepared = array(
 					'id'              => $app_id,
 					'job_id'          => $job_id,
 					'job_title'       => $job_id > 0 ? get_the_title( $job_id ) : '',
@@ -725,6 +725,11 @@ final class EmployersEndpoint extends RestController {
 					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
 					'submitted_at'    => get_the_date( 'M j, Y', $app_id ),
 				);
+
+				$application_post = get_post( $app_id );
+
+				/** This filter is documented in api/endpoints/class-applications-endpoint.php */
+				return (array) apply_filters( 'wcb_rest_prepare_application', $prepared, $application_post, $request, 'employer' );
 			},
 			$rows
 		);
