@@ -15,8 +15,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_site_settings    = (array) get_option( 'wcb_settings', array() );
-$wcb_setting_per_page = ! empty( $wcb_site_settings['jobs_per_page'] ) ? (int) $wcb_site_settings['jobs_per_page'] : 10;
+$wcb_setting_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 10 );
 $wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['perPage'] : $wcb_setting_per_page;
 $wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
@@ -340,7 +339,7 @@ $wcb_state = array(
 	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
 	'currencySymbol' => (
 		static function (): string {
-			$wcb_settings_default = (string) ( ( (array) get_option( 'wcb_settings', array() ) )['salary_currency'] ?? 'USD' );
+			$wcb_settings_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
 			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
 			return isset( $wcb_catalog[ $wcb_settings_default ]['symbol'] )
 				? (string) $wcb_catalog[ $wcb_settings_default ]['symbol']
@@ -366,7 +365,7 @@ $wcb_state = array(
 	),
 );
 
-$wcb_archive_page_id = (int) ( $wcb_site_settings['jobs_archive_page'] ?? 0 );
+$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
 $wcb_page_heading    = ( $wcb_archive_page_id && (int) get_queried_object_id() === $wcb_archive_page_id )
 	? (string) get_the_title( $wcb_archive_page_id )
 	: '';

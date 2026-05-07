@@ -129,8 +129,7 @@ $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 // ── Default currency: site-wide admin setting wins for every employer. The
 // per-job currency stored on an existing post still wins when editing, and the
 // Pro per-board currency still wins when posting against a board (see below).
-$wcb_site_settings    = (array) get_option( 'wcb_settings', array() );
-$wcb_preferred        = strtoupper( ! empty( $wcb_site_settings['salary_currency'] ) ? (string) $wcb_site_settings['salary_currency'] : 'USD' );
+$wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );

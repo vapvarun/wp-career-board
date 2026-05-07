@@ -26,9 +26,9 @@ $wcb_show_category = (bool) ( $attributes['showCategoryFilter'] ?? true );
 $wcb_show_location = (bool) ( $attributes['showLocationFilter'] ?? true );
 $wcb_show_type     = (bool) ( $attributes['showJobTypeFilter'] ?? true );
 
-$wcb_settings   = (array) get_option( 'wcb_settings', array() );
-$wcb_action_url = ! empty( $wcb_settings['jobs_archive_page'] )
-	? (string) get_permalink( (int) $wcb_settings['jobs_archive_page'] )
+$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+$wcb_action_url      = $wcb_archive_page_id > 0
+	? (string) get_permalink( $wcb_archive_page_id )
 	: home_url( '/' );
 
 // Pre-populate from current GET params for coexistence with job-filters block.

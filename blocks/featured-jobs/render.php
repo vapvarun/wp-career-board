@@ -23,9 +23,9 @@ $wcb_show_all     = (bool) ( $attributes['showViewAll'] ?? true );
 $wcb_view_all_url = trim( (string) ( $attributes['viewAllUrl'] ?? '' ) );
 
 if ( ! $wcb_view_all_url ) {
-	$wcb_settings     = (array) get_option( 'wcb_settings', array() );
-	$wcb_view_all_url = ! empty( $wcb_settings['jobs_archive_page'] )
-		? (string) get_permalink( (int) $wcb_settings['jobs_archive_page'] )
+	$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+	$wcb_view_all_url    = $wcb_archive_page_id > 0
+		? (string) get_permalink( $wcb_archive_page_id )
 		: '';
 }
 
