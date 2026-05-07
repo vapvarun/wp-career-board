@@ -52,4 +52,36 @@ if grep -q "is_plugin_active.*wp-career-board-pro" core/class-install.php; then
     exit 1
 fi
 
+# U9: Block raw get_option('wcb_settings') reads outside the documented
+# accessor. Phase 2 migrated 41 reader sites across Free + Pro to
+# \WCB\Admin\Settings::get()/all(). Any new raw read is a regression.
+#
+# Documented exceptions:
+#   - admin/class-settings.php              the accessor itself reads via get_option
+#   - admin/class-admin-settings.php        settings page sanitizer/renderer (writer)
+#   - api/endpoints/class-settings-endpoint.php  REST endpoint exposes raw shape
+#   - core/class-install.php                migration may read pre-migration data
+u9_hits=$(grep -rEn "get_option\s*\(\s*['\"]wcb_settings['\"]" \
+    --include="*.php" \
+    --exclude-dir=vendor --exclude-dir=node_modules \
+    --exclude-dir=dist --exclude-dir=build \
+    --exclude-dir=audit --exclude-dir=plan --exclude-dir=docs \
+    --exclude-dir=tests \
+    . 2>/dev/null \
+    | grep -vE '^[^:]+:[0-9]+:\s*(\*|//|#)' \
+    | grep -vE '(^|/)admin/class-settings\.php:' \
+    | grep -vE '(^|/)admin/class-admin-settings\.php:' \
+    | grep -vE '(^|/)api/endpoints/class-settings-endpoint\.php:' \
+    | grep -vE '(^|/)core/class-install\.php:' \
+    || true)
+
+if [ -n "$u9_hits" ]; then
+    echo "ERROR: U9 — raw get_option('wcb_settings') reads outside the accessor."
+    echo "Use WCB\\Admin\\Settings::get(\$key) or ::all() instead."
+    echo "If a new exception is genuinely required, add it to bin/check-pro-decoupling.sh."
+    echo
+    echo "$u9_hits"
+    exit 1
+fi
+
 echo "OK — Free plugin is Pro-blind."
