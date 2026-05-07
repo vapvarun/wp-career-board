@@ -58,11 +58,11 @@ final class SettingsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_app_config(): \WP_REST_Response {
-		// Endpoint exposes raw option shape; do not pre-process via accessor.
-		// SPA / mobile clients consume the wcb_settings array layout directly,
-		// so reads here intentionally bypass \WCB\Admin\Settings to keep the
-		// REST contract aligned with the persisted option shape.
-		$wcb_settings   = (array) get_option( 'wcb_settings', array() );
+		// The response intentionally renames internal sanitizer keys to
+		// stable client-facing field names (jobs_per_page → per_page,
+		// salary_currency → currency, auto_publish_jobs → moderation_mode).
+		// Reads use \WCB\Admin\Settings so internal callers and this endpoint
+		// share one source of truth for canonical keys.
 		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
 		$captcha_driver = wcb_get_captcha_driver();
 
@@ -73,10 +73,10 @@ final class SettingsEndpoint extends RestController {
 			'pro_version'      => (string) apply_filters( 'wcb_pro_version', '' ),
 			'is_pro_active'    => $is_pro_active,
 			'is_pro_licensed'  => (bool) apply_filters( 'wcb_pro_licensed', false ),
-			'per_page'         => (int) ( $wcb_settings['jobs_per_page'] ?? 10 ),
-			'currency'         => (string) ( $wcb_settings['salary_currency'] ?? 'USD' ),
-			'moderation_mode'  => isset( $wcb_settings['auto_publish_jobs'] ) && $wcb_settings['auto_publish_jobs'] ? 'auto_publish' : 'pending_review',
-			'allow_withdraw'   => (bool) ( $wcb_settings['allow_withdraw'] ?? false ),
+			'per_page'         => \WCB\Admin\Settings::int( 'jobs_per_page', 10 ),
+			'currency'         => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
+			'moderation_mode'  => \WCB\Admin\Settings::bool( 'auto_publish_jobs', false ) ? 'auto_publish' : 'pending_review',
+			'allow_withdraw'   => \WCB\Admin\Settings::bool( 'allow_withdraw', false ),
 			'feature_toggles'  => array(
 				'guest_apply'          => true,
 				'bookmarks'            => true,
