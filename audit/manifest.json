@@ -1053,13 +1053,6 @@
       "class": "WCB\\Core\\Locations",
       "added": "1.2.3",
       "purpose": "Coordinates the wcb_location taxonomy with company HQ data. Reserves 'remote' / 'other' slugs, syncs free-text HQ input into terms, scopes the employer job-form dropdown to HQ + Remote + Other."
-    },
-    {
-      "key": "compat.wp_is_ability_granted",
-      "class": "function",
-      "file": "core/abilities-api-polyfill.php",
-      "added": "1.2.0",
-      "purpose": "Polyfill for wp_is_ability_granted() — wraps wp_get_ability($name)->check_permissions(). WP 6.9 ships the registry but no top-level granted helper; becomes a no-op when WP core ships its own."
     }
   ],
   "hooks_fired": [
@@ -1783,12 +1776,7 @@
         "benchmark",
         "teardown"
       ],
-      "where": "cli/class-scale-command.php",
-      "subcommand_purposes": {
-        "seed": "Populate a representative dataset (10K candidates, 1K employers, 500 companies, 5K jobs, 50K applications) for hot-path benchmarking.",
-        "benchmark": "Time hot-path REST queries against BUDGETS_MS; exits 1 if any op is over budget.",
-        "teardown": "Drop seeded rows. Idempotent."
-      }
+      "where": "cli/class-scale-command.php"
     }
   ],
   "storage_drivers": [
