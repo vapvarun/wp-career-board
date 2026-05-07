@@ -1,0 +1,73 @@
+# U3 audit — current_user_can call sites
+# Generated: 2026-05-07
+# Total: 58
+# wcb_ability: 29 (action: migrate)
+# wcbp_ability: 1 (action: migrate)
+# wp_core: 16 (action: keep_with_carve_out)
+# unknown: 12 (action: investigate)
+#
+# Notes:
+# - Rows where the regex caught `bp_current_user_can(...)` (BuddyPress) are kind=unknown action=investigate.
+# - Rows where the regex caught the literal text inside a /** docblock */ are kind=unknown action=investigate.
+# - The three wrapper fallbacks (REST_Controller, Abstract_CLI_Command, Abstract_Widget) take a $ability
+#   variable; they already prefer wp_is_ability_granted/wp_get_ability when available. Marked unknown/investigate
+#   so 3.2/3.3 review whether to drop the legacy current_user_can fallback once Abilities API is mandatory.
+file,line,cap,ctx,kind,action
+wp-career-board/blocks/job-form-simple/render.php,28,wcb_post_jobs,,wcb_ability,migrate
+wp-career-board/blocks/candidate-dashboard/render.php,32,wcb_access_candidate_dashboard,,wcb_ability,migrate
+wp-career-board/blocks/candidate-dashboard/render.php,160,wcb_withdraw_application,,wcb_ability,migrate
+wp-career-board/blocks/job-form/render.php,28,wcb_post_jobs,,wcb_ability,migrate
+wp-career-board/blocks/employer-dashboard/render.php,15,wcb_manage_company,,wcb_ability,migrate
+wp-career-board/blocks/job-single/render.php,121,wcb_apply_jobs,,wcb_ability,migrate
+wp-career-board/blocks/job-single/render.php,141,wcb_post_jobs,,wcb_ability,migrate
+wp-career-board/blocks/featured-jobs/render.php,43,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board/blocks/recent-jobs/render.php,36,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board/core/widgets/class-abstract-widget.php,90,$ability,,unknown,investigate
+wp-career-board/admin/class-admin-settings.php,269,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board/admin/class-admin-meta-boxes.php,592,edit_post,$post_id,wp_core,keep_with_carve_out
+wp-career-board/admin/class-admin-meta-boxes.php,668,edit_post,$post_id,wp_core,keep_with_carve_out
+wp-career-board/admin/class-admin-jobs.php,488,edit_post,$job_id,wp_core,keep_with_carve_out
+wp-career-board/admin/class-admin-companies.php,567,edit_post,$company_id,wp_core,keep_with_carve_out
+wp-career-board/admin/class-admin-applications.php,606,edit_post,$app_id,wp_core,keep_with_carve_out
+wp-career-board/admin/class-admin-applications.php,660,edit_post,$app_id,wp_core,keep_with_carve_out
+wp-career-board/cli/class-abstract-cli-command.php,46,$ability,,unknown,investigate
+wp-career-board/integrations/reign/class-reign-integration.php,124,wcb_post_jobs,,wcb_ability,migrate
+wp-career-board/integrations/reign/class-reign-integration.php,141,wcb_apply_jobs,,wcb_ability,migrate
+wp-career-board/api/class-rest-controller.php,38,(docblock),,unknown,investigate
+wp-career-board/api/class-rest-controller.php,59,$ability,,unknown,investigate
+wp-career-board/api/endpoints/class-candidates-endpoint.php,24,(docblock),,unknown,investigate
+wp-career-board/modules/antispam/class-anti-spam-module.php,157,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board/modules/antispam/class-anti-spam-module.php,279,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board/admin/class-email-settings.php,438,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board/api/endpoints/class-applications-endpoint.php,23,(docblock),,unknown,investigate
+wp-career-board/modules/jobs/class-jobs-meta.php,66,wcb_post_jobs,,wcb_ability,migrate
+wp-career-board/modules/applications/class-applications-meta.php,64,wcb_view_applications,,wcb_ability,migrate
+wp-career-board-pro/blocks/my-applications/render.php,24,wcbp_manage_boards,,wcbp_ability,migrate
+wp-career-board-pro/blocks/featured-companies/render.php,58,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board-pro/blocks/featured-candidates/render.php,53,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board-pro/blocks/open-to-work/render.php,42,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board-pro/blocks/open-to-work/render.php,66,edit_posts,,wp_core,keep_with_carve_out
+wp-career-board-pro/admin/class-pro-admin.php,262,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,282,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,302,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,312,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,344,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,367,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,387,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,1078,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,1169,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,1252,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-pro-admin.php,1267,manage_options,,wp_core,keep_with_carve_out
+wp-career-board-pro/admin/class-pro-admin.php,1386,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,88,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,344,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,388,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,420,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,451,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/integrations/buddypress/class-bp-pro-integration.php,486,bp_moderate(bp_current_user_can),,unknown,investigate
+wp-career-board-pro/admin/class-admin-credits.php,36,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/admin/class-admin-credits.php,66,manage_options,,wp_core,keep_with_carve_out
+wp-career-board-pro/modules/resume/class-resume-module.php,687,edit_post,$post_id,wp_core,keep_with_carve_out
+wp-career-board-pro/modules/resume/class-resume-module.php,1204,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/modules/resume/class-resume-module.php,1240,wcb_manage_settings,,wcb_ability,migrate
+wp-career-board-pro/modules/boards/class-boards-pro-module.php,72,edit_post,$post_id,wp_core,keep_with_carve_out
