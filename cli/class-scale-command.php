@@ -900,7 +900,7 @@ class ScaleCommand extends AbstractCliCommand {
 		$columns = '(post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, comment_status, ping_status, post_password, post_name, post_modified, post_modified_gmt, post_content_filtered, post_type, post_mime_type)';
 		$wpdb->query(
 			$wpdb->prepare(
-				"INSERT INTO {$wpdb->posts} {$columns} VALUES " . implode( ',', $post_phs ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				"INSERT INTO {$wpdb->posts} {$columns} VALUES " . implode( ',', $post_phs ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $columns is a hardcoded literal column list (line 900); {$wpdb->posts} is server-side; placeholders array is built from %d/%s only.
 				$post_vals
 			)
 		);
