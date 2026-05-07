@@ -730,7 +730,7 @@
         "wcb_employer",
         "administrator"
       ],
-      "ability_id": "wcb_post_jobs",
+      "ability_id": "wcb/post-jobs",
       "where": "core/class-abilities.php:71"
     },
     {
@@ -739,7 +739,7 @@
         "wcb_employer",
         "administrator"
       ],
-      "ability_id": "wcb_manage_company",
+      "ability_id": "wcb/manage-company",
       "where": "core/class-abilities.php:87"
     },
     {
@@ -748,7 +748,7 @@
         "wcb_employer",
         "administrator"
       ],
-      "ability_id": "wcb_view_applications",
+      "ability_id": "wcb/view-applications",
       "where": "core/class-abilities.php:103"
     },
     {
@@ -757,7 +757,7 @@
         "wcb_employer",
         "administrator"
       ],
-      "ability_id": "wcb_access_employer_dashboard",
+      "ability_id": "wcb/access-employer-dashboard",
       "where": "core/class-abilities.php:119"
     },
     {
@@ -766,7 +766,7 @@
         "wcb_candidate",
         "administrator"
       ],
-      "ability_id": "wcb_apply_jobs",
+      "ability_id": "wcb/apply-jobs",
       "where": "core/class-abilities.php:143"
     },
     {
@@ -775,7 +775,7 @@
         "wcb_candidate",
         "administrator"
       ],
-      "ability_id": "wcb_manage_resume",
+      "ability_id": "wcb/manage-resume",
       "where": "core/class-abilities.php:159"
     },
     {
@@ -784,7 +784,7 @@
         "wcb_candidate",
         "administrator"
       ],
-      "ability_id": "wcb_bookmark_jobs",
+      "ability_id": "wcb/bookmark-jobs",
       "where": "core/class-abilities.php:175"
     },
     {
@@ -793,7 +793,7 @@
         "wcb_candidate",
         "administrator"
       ],
-      "ability_id": "wcb_access_candidate_dashboard",
+      "ability_id": "wcb/access-candidate-dashboard",
       "where": "core/class-abilities.php:191"
     },
     {
@@ -802,7 +802,7 @@
         "wcb_board_moderator",
         "administrator"
       ],
-      "ability_id": "wcb_moderate_jobs",
+      "ability_id": "wcb/moderate-jobs",
       "where": "core/class-abilities.php:217"
     },
     {
@@ -810,7 +810,7 @@
       "default_roles": [
         "administrator"
       ],
-      "ability_id": "wcb_manage_settings",
+      "ability_id": "wcb/manage-settings",
       "where": "core/class-abilities.php:244"
     },
     {
@@ -818,7 +818,7 @@
       "default_roles": [
         "administrator"
       ],
-      "ability_id": "wcb_view_analytics",
+      "ability_id": "wcb/view-analytics",
       "where": "core/class-abilities.php:261"
     },
     {
@@ -827,76 +827,16 @@
         "wcb_candidate",
         "administrator"
       ],
-      "ability_id": "wcb_withdraw_application",
+      "ability_id": "wcb/withdraw-application",
       "where": "core/class-abilities.php (1.2.0)"
     }
   ],
   "services": [
     {
-      "key": "core.plugin",
-      "class": "WCB\\Core\\Plugin",
-      "added": "1.0.0",
-      "purpose": "Singleton bootloader"
-    },
-    {
-      "key": "core.roles",
-      "class": "WCB\\Core\\Roles",
-      "added": "1.0.0",
-      "purpose": "Custom role registration + cap sync"
-    },
-    {
-      "key": "core.abilities",
-      "class": "WCB\\Core\\Abilities",
-      "added": "1.0.0",
-      "purpose": "Abilities API registration"
-    },
-    {
-      "key": "core.industries",
-      "class": "WCB\\Core\\Industries",
-      "added": "1.0.0",
-      "purpose": "Industry taxonomy seed data"
-    },
-    {
-      "key": "core.install",
-      "class": "WCB\\Core\\Install",
-      "added": "1.0.0",
-      "purpose": "Activation, dbDelta tables, upgrades"
-    },
-    {
-      "key": "core.theme_bridge",
-      "class": "WCB\\Core\\ThemeAccentBridge",
-      "added": "1.0.0",
-      "purpose": "Map theme accent → wcb-* CSS vars"
-    },
-    {
-      "key": "core.widgets",
-      "class": "WCB\\Core\\Widgets\\WidgetRegistry",
-      "added": "1.0.0",
-      "purpose": "Widget + [wcb_widget] shortcode adapter"
-    },
-    {
       "key": "admin.admin",
       "class": "WCB\\Admin\\Admin",
       "added": "1.0.0",
       "purpose": "Admin menu + assets"
-    },
-    {
-      "key": "admin.settings",
-      "class": "WCB\\Admin\\AdminSettings",
-      "added": "1.0.0",
-      "purpose": "Main settings page (Listings / Pages / Notifications tabs)"
-    },
-    {
-      "key": "admin.email_settings",
-      "class": "WCB\\Admin\\EmailSettings",
-      "added": "1.0.0",
-      "purpose": "Email-per-event settings page"
-    },
-    {
-      "key": "admin.setup_wizard",
-      "class": "WCB\\Admin\\SetupWizard",
-      "added": "1.0.0",
-      "purpose": "First-run wizard (pages, sample data)"
     },
     {
       "key": "admin.applications",
@@ -915,6 +855,12 @@
       "class": "WCB\\Admin\\AdminCompanies",
       "added": "1.0.0",
       "purpose": "Companies admin list-table screens"
+    },
+    {
+      "key": "admin.email_settings",
+      "class": "WCB\\Admin\\EmailSettings",
+      "added": "1.0.0",
+      "purpose": "Email-per-event settings page"
     },
     {
       "key": "admin.employers",
@@ -941,16 +887,106 @@
       "purpose": "Meta-box rendering for wcb_* CPTs"
     },
     {
-      "key": "module.jobs",
-      "class": "WCB\\Modules\\Jobs\\JobsModule",
+      "key": "admin.settings",
+      "class": "WCB\\Admin\\AdminSettings",
       "added": "1.0.0",
-      "purpose": "wcb_job CPT + taxonomies + meta + cron sub-services"
+      "purpose": "Main settings page (Listings / Pages / Notifications tabs)"
+    },
+    {
+      "key": "admin.settings_accessor",
+      "class": "WCB\\Admin\\Settings",
+      "added": "1.2.2",
+      "purpose": "Centralized read accessor for the wcb_settings option. Single read path across Free + Pro; uniform array_key_exists semantic eliminates the absent-vs-falsy drift class. Writers (admin sanitizer, REST endpoint) stay on get_option/update_option directly."
+    },
+    {
+      "key": "admin.setup_wizard",
+      "class": "WCB\\Admin\\SetupWizard",
+      "added": "1.0.0",
+      "purpose": "First-run wizard (pages, sample data)"
+    },
+    {
+      "key": "core.abilities",
+      "class": "WCB\\Core\\Abilities",
+      "added": "1.0.0",
+      "purpose": "Abilities API registration"
+    },
+    {
+      "key": "core.industries",
+      "class": "WCB\\Core\\Industries",
+      "added": "1.0.0",
+      "purpose": "Industry taxonomy seed data"
+    },
+    {
+      "key": "core.install",
+      "class": "WCB\\Core\\Install",
+      "added": "1.0.0",
+      "purpose": "Activation, dbDelta tables, upgrades"
+    },
+    {
+      "key": "core.plugin",
+      "class": "WCB\\Core\\Plugin",
+      "added": "1.0.0",
+      "purpose": "Singleton bootloader"
+    },
+    {
+      "key": "core.pro_coordination",
+      "class": "WCB\\Core\\ProCoordination",
+      "added": "1.2.0",
+      "purpose": "Documented Free→Pro filter API surface — single source of truth for what Pro is allowed to hook"
+    },
+    {
+      "key": "core.roles",
+      "class": "WCB\\Core\\Roles",
+      "added": "1.0.0",
+      "purpose": "Custom role registration + cap sync"
+    },
+    {
+      "key": "core.theme_bridge",
+      "class": "WCB\\Core\\ThemeAccentBridge",
+      "added": "1.0.0",
+      "purpose": "Map theme accent → wcb-* CSS vars"
+    },
+    {
+      "key": "core.widgets",
+      "class": "WCB\\Core\\Widgets\\WidgetRegistry",
+      "added": "1.0.0",
+      "purpose": "Widget + [wcb_widget] shortcode adapter"
+    },
+    {
+      "key": "integration.buddypress",
+      "class": "WCB\\Integrations\\Buddypress\\BpIntegration",
+      "added": "1.0.0",
+      "purpose": "BuddyPress profile + activity bridge"
+    },
+    {
+      "key": "integration.buddyx_pro",
+      "class": "WCB\\Integrations\\BuddyxPro\\BuddyxProIntegration",
+      "added": "1.0.0",
+      "purpose": "BuddyX Pro theme template/style integration"
+    },
+    {
+      "key": "integration.reign",
+      "class": "WCB\\Integrations\\Reign\\ReignIntegration",
+      "added": "1.0.0",
+      "purpose": "Reign theme template/style integration"
+    },
+    {
+      "key": "module.antispam",
+      "class": "WCB\\Modules\\Antispam\\AntiSpamModule",
+      "added": "1.0.0",
+      "purpose": "reCAPTCHA / Turnstile gate on submit hooks"
     },
     {
       "key": "module.applications",
       "class": "WCB\\Modules\\Applications\\ApplicationsModule",
       "added": "1.0.0",
       "purpose": "wcb_application CPT + meta"
+    },
+    {
+      "key": "module.boards",
+      "class": "WCB\\Modules\\Boards\\BoardsModule",
+      "added": "1.0.0",
+      "purpose": "wcb_board CPT (multi-board)"
     },
     {
       "key": "module.candidates",
@@ -965,10 +1001,16 @@
       "purpose": "wcb_company CPT + employer registration flow"
     },
     {
-      "key": "module.boards",
-      "class": "WCB\\Modules\\Boards\\BoardsModule",
+      "key": "module.gdpr",
+      "class": "WCB\\Modules\\Gdpr\\GdprModule",
       "added": "1.0.0",
-      "purpose": "wcb_board CPT (multi-board)"
+      "purpose": "Privacy eraser + wcb_gdpr_log audit table"
+    },
+    {
+      "key": "module.jobs",
+      "class": "WCB\\Modules\\Jobs\\JobsModule",
+      "added": "1.0.0",
+      "purpose": "wcb_job CPT + taxonomies + meta + cron sub-services"
     },
     {
       "key": "module.moderation",
@@ -989,18 +1031,6 @@
       "purpose": "Faceted search; pre_get_posts archive filtering"
     },
     {
-      "key": "module.antispam",
-      "class": "WCB\\Modules\\Antispam\\AntiSpamModule",
-      "added": "1.0.0",
-      "purpose": "reCAPTCHA / Turnstile gate on submit hooks"
-    },
-    {
-      "key": "module.gdpr",
-      "class": "WCB\\Modules\\Gdpr\\GdprModule",
-      "added": "1.0.0",
-      "purpose": "Privacy eraser + wcb_gdpr_log audit table"
-    },
-    {
       "key": "module.seo",
       "class": "WCB\\Modules\\Seo\\SeoModule",
       "added": "1.0.0",
@@ -1011,30 +1041,6 @@
       "class": "WCB\\Modules\\ThemeIntegration\\ThemeIntegrationModule",
       "added": "1.0.0",
       "purpose": "Theme template/style integration shim"
-    },
-    {
-      "key": "integration.buddypress",
-      "class": "WCB\\Integrations\\Buddypress\\BpIntegration",
-      "added": "1.0.0",
-      "purpose": "BuddyPress profile + activity bridge"
-    },
-    {
-      "key": "integration.reign",
-      "class": "WCB\\Integrations\\Reign\\ReignIntegration",
-      "added": "1.0.0",
-      "purpose": "Reign theme template/style integration"
-    },
-    {
-      "key": "integration.buddyx_pro",
-      "class": "WCB\\Integrations\\BuddyxPro\\BuddyxProIntegration",
-      "added": "1.0.0",
-      "purpose": "BuddyX Pro theme template/style integration"
-    },
-    {
-      "key": "core.pro_coordination",
-      "class": "WCB\\Core\\ProCoordination",
-      "added": "1.2.0",
-      "purpose": "Documented Free→Pro filter API surface — single source of truth for what Pro is allowed to hook"
     }
   ],
   "hooks_fired": [
@@ -1879,12 +1885,12 @@
     ]
   },
   "generated": {
-    "at": "2026-04-29T19:39:04Z",
-    "from": "wp-plugin-onboard skill (refresh mode)",
+    "at": "2026-05-07T12:47:55Z",
+    "from": "wp-plugin-onboard skill (refresh mode, targeted patch)",
     "schema_version": "v1",
     "scan_scope": "distignore",
     "scan_path": ".",
     "php_file_count": 148,
-    "refresh_notes": "Targeted refresh after Round 5 + Round 6 (F-1/F-2 done before, F-3/F-4/F-5/F-6 in this round). Updated capabilities (+wcb_withdraw_application), hooks_fired (+2 filters), services (+ProCoordination), settings (consolidated under wcb_settings), ci_guards (+decoupling gate). NOTE: ground-truth grep finds 89 wcb_* hooks fired vs 72 in this manifest — 17 hooks predate this manifest gen and are not yet enumerated; flagged for next full audit-only re-run."
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly."
   }
 }
