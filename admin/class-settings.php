@@ -37,8 +37,8 @@ final class Settings {
 	 *
 	 * The autoloaded option is already in WP's option cache; this static
 	 * avoids the (array) cast + null-coalesce on every accessor call. It
-	 * is invalidated via flush_cache() from updated_option / added_option
-	 * hooks wired in core/class-plugin.php.
+	 * is invalidated via flush_cache() from updated_option / added_option /
+	 * deleted_option hooks wired in core/class-plugin.php.
 	 *
 	 * @var array<string,mixed>|null
 	 */
@@ -70,7 +70,9 @@ final class Settings {
 	 *
 	 * The "absent key" case returns $fallback — never conflates "not set"
 	 * with "set to false". When the key is present, ! empty() is used so
-	 * '0', 0, '', and false all read as false.
+	 * '0', 0, '', and false all read as false. This matches the WP Settings
+	 * API idiom where unchecked checkboxes persist as the string '0' rather
+	 * than being omitted.
 	 *
 	 * @param string $key      Setting key.
 	 * @param bool   $fallback Value returned when the key is missing.
@@ -83,6 +85,11 @@ final class Settings {
 
 	/**
 	 * Read an integer setting.
+	 *
+	 * Cast semantics: when the key is present, the stored value is hard-cast
+	 * via (int). A stored boolean true reads as 1, false as 0, and numeric
+	 * strings like '15' read as 15 — matching the WP Settings API idiom
+	 * where checkbox + number fields are persisted interchangeably.
 	 *
 	 * @param string $key      Setting key.
 	 * @param int    $fallback Value returned when the key is missing.
@@ -108,9 +115,11 @@ final class Settings {
 	/**
 	 * Drop the per-request cache so the next read re-fetches from the option.
 	 *
-	 * Called from updated_option / added_option hooks registered in
-	 * core/class-plugin.php so writes to wcb_settings invalidate the cache
-	 * for the rest of the request.
+	 * Public because tests and the option-write hooks (updated_option /
+	 * added_option / deleted_option in core/class-plugin.php) need to invoke
+	 * it; not intended for Pro consumers or third-party integrations.
+	 *
+	 * @internal
 	 *
 	 * @return void
 	 */

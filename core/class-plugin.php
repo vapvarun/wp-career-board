@@ -59,10 +59,11 @@ final class Plugin {
 	private function init(): void {
 		load_plugin_textdomain( 'wp-career-board', false, dirname( WCB_BASENAME ) . '/languages' );
 
-		// WCB\Admin\Settings cache invalidation (U9). The class itself is
-		// required from wp-career-board.php so it is reachable from any hook;
-		// the cache flush is wired here because add_action requires WP core
-		// to be loaded.
+		// WCB\Admin\Settings cache invalidation (U9). The class is resolved by
+		// the autoloader (admin/class-settings.php matches the WCB\Admin\*
+		// convention); cache flush is wired here because add_action requires
+		// WP core to be loaded. deleted_option covers uninstall / reset / any
+		// debug tooling that calls delete_option('wcb_settings').
 		add_action(
 			'updated_option',
 			static function ( string $option ): void {
@@ -73,6 +74,14 @@ final class Plugin {
 		);
 		add_action(
 			'added_option',
+			static function ( string $option ): void {
+				if ( 'wcb_settings' === $option ) {
+					\WCB\Admin\Settings::flush_cache();
+				}
+			}
+		);
+		add_action(
+			'deleted_option',
 			static function ( string $option ): void {
 				if ( 'wcb_settings' === $option ) {
 					\WCB\Admin\Settings::flush_cache();

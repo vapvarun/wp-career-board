@@ -193,6 +193,16 @@ wcb_settings_assert(
 	'updated_option hook flushes the accessor cache automatically'
 );
 
+// 10. Cache auto-flushes on delete_option (uninstall / reset / debug tooling).
+wcb_settings_test_set( array( 'foo' => 'bar' ) );
+Settings::all(); // Populate the per-request cache.
+delete_option( 'wcb_settings' );
+$wcb_after_delete = Settings::all();
+wcb_settings_assert(
+	array() === $wcb_after_delete,
+	'deleted_option hook flushes the accessor cache automatically'
+);
+
 // Restore the original option so this test does not leak settings state.
 wcb_settings_test_restore( $wcb_settings_snapshot );
 
