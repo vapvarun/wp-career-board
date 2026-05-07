@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.1';
+	const DB_VERSION = '1.2.2';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -235,6 +235,27 @@ final class Install {
 			// have NO existing meta value.
 			if ( version_compare( (string) $installed, '1.2.1', '<' ) ) {
 				self::migrate_resume_public_flag();
+			}
+
+			// 1.2.2 — F-2: absorb Pro's wcbp_resume_settings into wcb_settings.
+			// Pre-1.2.2 the legacy migration ran inside Pro's resume module and
+			// wrote to Free's option, violating the dependency arrow (Pro → Free,
+			// never Free → Pro). Free now owns the migration; Pro reads via the
+			// \WCB\Admin\Settings accessor. Idempotent: the per-key existence
+			// guard plus delete_option() of the legacy row mean re-runs no-op.
+			if ( version_compare( (string) $installed, '1.2.2', '<' ) ) {
+				$legacy_resume = get_option( 'wcbp_resume_settings', null );
+				if ( is_array( $legacy_resume ) && ! empty( $legacy_resume ) ) {
+					$settings = (array) get_option( 'wcb_settings', array() );
+					foreach ( array( 'max_resumes', 'resume_archive_page' ) as $key ) {
+						if ( ! isset( $settings[ $key ] ) && isset( $legacy_resume[ $key ] ) ) {
+							$settings[ $key ] = $legacy_resume[ $key ];
+						}
+					}
+					update_option( 'wcb_settings', $settings );
+					delete_option( 'wcbp_resume_settings' );
+				}
+				delete_option( 'wcbp_resume_settings_migrated' );
 			}
 
 			update_option( 'wcb_db_version', self::DB_VERSION, false );

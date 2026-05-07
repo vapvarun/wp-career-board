@@ -20,6 +20,8 @@
  *  notification_email       — address that receives admin notifications
  *  from_name                — sender name for all WCB notification emails
  *  from_email               — sender address for all WCB notification emails
+ *  max_resumes              — maximum resumes a candidate may create (Pro reader; default: 2)
+ *  resume_archive_page      — page containing wcb/resume-archive block (Pro reader; default: 0)
  *
  * Developer hooks (for Pro extensions):
  *  Filter: wcb_settings_tabs( array $tabs )                      — add or reorder settings tabs
@@ -168,8 +170,8 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled' ),
-			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled', 'max_resumes' ),
+			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
 
@@ -194,6 +196,8 @@ class AdminSettings {
 			'notification_email'         => isset( $input['notification_email'] ) ? sanitize_email( $input['notification_email'] ) : '',
 			'from_name'                  => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
 			'from_email'                 => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
+			'max_resumes'                => isset( $input['max_resumes'] ) ? max( 1, min( 20, (int) $input['max_resumes'] ) ) : 2,
+			'resume_archive_page'        => isset( $input['resume_archive_page'] ) ? (int) $input['resume_archive_page'] : 0,
 		);
 
 		// Identify which tab was submitted by checking for its fields in $input.
