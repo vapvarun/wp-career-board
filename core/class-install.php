@@ -171,6 +171,7 @@ final class Install {
 
 		if ( version_compare( (string) $installed, self::DB_VERSION, '<' ) ) {
 			self::create_tables();
+			self::seed_default_settings();
 
 			// 1.2 — F-3: resume CPT visibility moved from Pro filter to Free
 			// setting. Pre-existing sites with Pro active expect the resume
@@ -259,6 +260,65 @@ final class Install {
 			}
 
 			update_option( 'wcb_db_version', self::DB_VERSION, false );
+		}
+	}
+
+	/**
+	 * Seed default `wcb_settings` keys that are absent.
+	 *
+	 * Runs from `maybe_upgrade()` on Free's own activation/upgrade and from
+	 * Pro's activation hook. Idempotent: only writes keys that the existing
+	 * option does not already have, so site-owner choices survive re-runs
+	 * untouched. Pro contributes its own defaults through the
+	 * `wcb_install_default_settings` filter — Pro registers the filter at
+	 * plugins_loaded priority 10 and also calls this method directly from
+	 * its own activation hook, so the filter contribution lands without a
+	 * second pageload.
+	 *
+	 * The dependency arrow is preserved: Pro never writes wcb_settings on
+	 * its own behalf — Free's installer reads Pro's filter contribution and
+	 * performs the write.
+	 *
+	 * Public so Pro's activation/upgrade hook can invoke it; not part of any
+	 * documented extension surface for third-party plugins (use the
+	 * `wcb_install_default_settings` filter to contribute defaults).
+	 *
+	 * @since 1.2.2
+	 * @return void
+	 */
+	public static function seed_default_settings(): void {
+		$existing = (array) get_option( 'wcb_settings', array() );
+
+		/**
+		 * Filter the default wcb_settings values written on plugin install/upgrade.
+		 *
+		 * Pro hooks this to seed Pro-specific defaults (e.g. resume_archive_enabled).
+		 * Free's installer merges the filter output onto the existing option using
+		 * key-absence as the gate, so user-configured values are never overwritten.
+		 *
+		 * Use this filter only for keys that have a sensible Pro-side default; do
+		 * not overwrite Free-owned defaults from Pro.
+		 *
+		 * @since 1.2.2
+		 *
+		 * @param array<string,mixed> $defaults Default settings array.
+		 */
+		$defaults = (array) apply_filters( 'wcb_install_default_settings', array() );
+
+		if ( empty( $defaults ) ) {
+			return;
+		}
+
+		$dirty = false;
+		foreach ( $defaults as $key => $value ) {
+			if ( ! array_key_exists( $key, $existing ) ) {
+				$existing[ $key ] = $value;
+				$dirty            = true;
+			}
+		}
+
+		if ( $dirty ) {
+			update_option( 'wcb_settings', $existing );
 		}
 	}
 
