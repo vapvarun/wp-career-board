@@ -563,9 +563,6 @@ final class JobsEndpoint extends RestController {
 			wp_set_object_terms( $job_id, (array) $tags, 'wcb_tag' );
 		}
 
-		// Remember the employer's preferred currency for future job posts.
-		update_user_meta( get_current_user_id(), '_wcb_preferred_currency', $meta['_wcb_salary_currency'] );
-
 		do_action( 'wcb_job_created', $job_id, $request );
 
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
@@ -683,12 +680,6 @@ final class JobsEndpoint extends RestController {
 			} else {
 				delete_post_meta( $post->ID, '_wcb_location_custom' );
 			}
-		}
-
-		// Update employer's preferred currency if they changed it.
-		$updated_currency = $request->get_param( 'salary_currency' );
-		if ( $updated_currency ) {
-			update_user_meta( (int) $post->post_author, '_wcb_preferred_currency', sanitize_text_field( $updated_currency ) );
 		}
 
 		do_action( 'wcb_job_updated', $post->ID, $request );

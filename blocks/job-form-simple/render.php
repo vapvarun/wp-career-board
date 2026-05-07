@@ -49,7 +49,8 @@ $wcb_job_types   = array_filter( (array) get_terms( $wcb_term_args( 'wcb_job_typ
 $wcb_locations   = array_filter( (array) get_terms( $wcb_term_args( 'wcb_location' ) ), static fn( $t ) => $t instanceof \WP_Term );
 $wcb_experiences = array_filter( (array) get_terms( $wcb_term_args( 'wcb_experience' ) ), static fn( $t ) => $t instanceof \WP_Term );
 
-// ── Currency: employer preference → admin setting → USD ──────────────────────
+// ── Currency: site-wide admin setting → USD. One source of truth across every
+// employer; the dropdown still lets them override per job.
 $wcb_user_id      = get_current_user_id();
 $wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
@@ -57,12 +58,8 @@ $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_pos
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
-$wcb_preferred = (string) get_user_meta( $wcb_user_id, '_wcb_preferred_currency', true );
-if ( ! $wcb_preferred ) {
-	$wcb_settings  = (array) get_option( 'wcb_settings', array() );
-	$wcb_preferred = ! empty( $wcb_settings['salary_currency'] ) ? $wcb_settings['salary_currency'] : 'USD';
-}
-$wcb_preferred        = strtoupper( $wcb_preferred );
+$wcb_settings         = (array) get_option( 'wcb_settings', array() );
+$wcb_preferred        = strtoupper( ! empty( $wcb_settings['salary_currency'] ) ? (string) $wcb_settings['salary_currency'] : 'USD' );
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );

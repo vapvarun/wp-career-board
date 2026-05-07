@@ -11,6 +11,7 @@
  *  deadline_auto_close      — auto-close jobs when application deadline passes (default: OFF)
  *  allow_withdraw           — let candidates withdraw their own applications (default: ON, only an explicit OFF turns it off)
  *  salary_currency          — default currency code for new job postings (default: USD)
+ *  apply_resume_required    — require a resume on applications (default: ON, only an explicit OFF turns it off)
  *  jobs_archive_page        — page containing wcb/job-listings block
  *  employer_dashboard_page  — page containing wcb/employer-dashboard block
  *  candidate_dashboard_page — page containing wcb/candidate-dashboard block
@@ -772,7 +773,7 @@ class AdminSettings {
 										<div class="wcb-settings-row-control">
 											<label class="wcb-toggle-label">
 												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[apply_resume_required]" value="1" <?php checked( ! empty( $settings['apply_resume_required'] ) ); ?>>
+													<input type="checkbox" name="wcb_settings[apply_resume_required]" value="1" <?php checked( array_key_exists( 'apply_resume_required', $settings ) ? ! empty( $settings['apply_resume_required'] ) : true ); ?>>
 													<span class="wcb-toggle-slider"></span>
 												</span>
 												<?php esc_html_e( 'Require applicants to attach a resume', 'wp-career-board' ); ?>
