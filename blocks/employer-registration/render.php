@@ -18,14 +18,14 @@ $wcb_user           = is_user_logged_in() ? wp_get_current_user() : null;
 $wcb_user_roles     = $wcb_user ? (array) $wcb_user->roles : array();
 $wcb_is_employer    = in_array( 'wcb_employer', $wcb_user_roles, true );
 $wcb_is_candidate   = in_array( 'wcb_candidate', $wcb_user_roles, true );
-$wcb_settings       = (array) get_option( 'wcb_settings', array() );
 
 // Logged-in users who already have a WCB role get a contextual notice + dashboard link.
 // Logged-in users without a role fall through to the form so they can pick one.
 if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 	$wcb_dash_page_key = $wcb_is_employer ? 'employer_dashboard_page' : 'candidate_dashboard_page';
-	$wcb_dashboard_url = ! empty( $wcb_settings[ $wcb_dash_page_key ] )
-		? (string) get_permalink( (int) $wcb_settings[ $wcb_dash_page_key ] )
+	$wcb_dash_page_id  = \WCB\Admin\Settings::int( $wcb_dash_page_key, 0 );
+	$wcb_dashboard_url = $wcb_dash_page_id > 0
+		? (string) get_permalink( $wcb_dash_page_id )
 		: '';
 	$wcb_role_label = $wcb_is_employer
 		? __( 'You\'re registered as an employer.', 'wp-career-board' )

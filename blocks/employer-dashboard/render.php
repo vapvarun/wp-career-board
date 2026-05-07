@@ -52,11 +52,11 @@ $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
 $wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
-$wcb_settings        = (array) get_option( 'wcb_settings', array() );
-$wcb_company_dir_url = ! empty( $wcb_settings['company_archive_page'] )
-	? (string) get_permalink( (int) $wcb_settings['company_archive_page'] )
+$wcb_company_archive_id = \WCB\Admin\Settings::int( 'company_archive_page', 0 );
+$wcb_company_dir_url    = $wcb_company_archive_id > 0
+	? (string) get_permalink( $wcb_company_archive_id )
 	: '#';
-$wcb_company_url     = $wcb_company_id ? (string) get_permalink( $wcb_company_id ) : $wcb_company_dir_url;
+$wcb_company_url        = $wcb_company_id ? (string) get_permalink( $wcb_company_id ) : $wcb_company_dir_url;
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_apps_job_id   = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );

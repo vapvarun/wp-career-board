@@ -147,9 +147,9 @@ if ( $wcb_show_apply && is_user_logged_in() ) {
 
 $wcb_dashboard_url = '';
 if ( $wcb_is_job_owner ) {
-	$wcb_js_settings = (array) get_option( 'wcb_settings', array() );
-	if ( ! empty( $wcb_js_settings['employer_dashboard_page'] ) ) {
-		$wcb_dashboard_url = (string) get_permalink( (int) $wcb_js_settings['employer_dashboard_page'] );
+	$wcb_employer_dash_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+	if ( $wcb_employer_dash_id > 0 ) {
+		$wcb_dashboard_url = (string) get_permalink( $wcb_employer_dash_id );
 	}
 }
 
@@ -220,15 +220,10 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	}
 }
 
-$wcb_settings_arr = (array) get_option( 'wcb_settings', array() );
 // Mirror the server-side default in ApplicationsEndpoint::resume_required():
 // resume is required out-of-the-box; only an explicit "off" disables it.
-$wcb_resume_required = array_key_exists( 'apply_resume_required', $wcb_settings_arr )
-	? ! empty( $wcb_settings_arr['apply_resume_required'] )
-	: true;
-$wcb_resume_max_mb   = isset( $wcb_settings_arr['apply_resume_max_mb'] )
-	? max( 1, min( 20, (int) $wcb_settings_arr['apply_resume_max_mb'] ) )
-	: 5;
+$wcb_resume_required = \WCB\Admin\Settings::bool( 'apply_resume_required', true );
+$wcb_resume_max_mb   = max( 1, min( 20, \WCB\Admin\Settings::int( 'apply_resume_max_mb', 5 ) ) );
 
 wp_interactivity_state(
 	'wcb-job-single',

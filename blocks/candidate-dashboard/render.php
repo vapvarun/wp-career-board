@@ -44,8 +44,7 @@ $wcb_candidate_id = get_current_user_id();
 $wcb_current_user = wp_get_current_user();
 $wcb_display_name = $wcb_current_user->display_name;
 
-$wcb_settings       = (array) get_option( 'wcb_settings', array() );
-$wcb_jobs_page_id   = (int) ( $wcb_settings['jobs_archive_page'] ?? 0 );
+$wcb_jobs_page_id   = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
 $wcb_jobs_permalink = $wcb_jobs_page_id > 0 ? get_permalink( $wcb_jobs_page_id ) : false;
 $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permalink )
 	? (string) $wcb_jobs_permalink
@@ -153,11 +152,7 @@ wp_interactivity_state(
 			// lets candidates withdraw, mirroring the REST gate's default.
 			'allowWithdraw'          => (
 				static function (): bool {
-					$wcb_s = (array) get_option( 'wcb_settings', array() );
-					$wcb_setting_on = array_key_exists( 'allow_withdraw', $wcb_s )
-						? ! empty( $wcb_s['allow_withdraw'] )
-						: true;
-					if ( ! $wcb_setting_on ) {
+					if ( ! \WCB\Admin\Settings::bool( 'allow_withdraw', true ) ) {
 						return false;
 					}
 					return function_exists( 'wp_is_authorized' )
@@ -174,7 +169,7 @@ wp_interactivity_state(
 			// a hardcoded $ on the alert summary.
 			'currencySymbol'         => (
 				static function (): string {
-					$wcb_default = (string) ( ( (array) get_option( 'wcb_settings', array() ) )['salary_currency'] ?? 'USD' );
+					$wcb_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
 					$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 					return isset( $wcb_catalog[ $wcb_default ]['symbol'] )
 						? (string) $wcb_catalog[ $wcb_default ]['symbol']
