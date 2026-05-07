@@ -1,0 +1,382 @@
+/**
+ * Employer Dashboard — Widget styles.
+ *
+ * Stats cards, company profile preview, logo upload field, notification
+ * bell, credit banners.
+ *
+ * Extracted from style.css (was 1774 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.1).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* -- Stats row -- */
+
+/*
+ * `auto-fit` + `minmax` lets the row hold 5 cards on wide containers
+ * (so Total Jobs / Live / Applications / New / Credits sit on one line),
+ * 3 on medium widths, 2 on tablet, 1 on mobile — without ever leaving an
+ * orphan card alone on its own row, which is what `repeat(4, 1fr)` did
+ * when there were 5 cards. The 140 px min lets all 5 cards fit on a
+ * ~780 px main panel (1280 px canonical container minus the 220 px
+ * sidebar minus 64 px main padding minus 16 px gaps), which is exactly
+ * what the dashboard renders at on Astra / GeneratePress / OceanWP /
+ * Storefront / Twenty Twenty-Three when they put a sidebar on the page.
+ */
+.wcb-stats-row {
+	display: grid;
+	/* 125 px min lets all 5 cards fit at 5 * 125 + 4 * 16 gap = 689 px,
+	 * comfortably within the ~748 px row width Storefront / Twenty
+	 * Twenty-Three / certain Astra layouts produce on a 1024 px viewport. */
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr));
+	gap: var(--wcb-space-lg);
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+.wcb-stat-card {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+}
+
+.wcb-stat-value {
+	font-size: 1.75rem;
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	line-height: 1;
+}
+
+.wcb-stat-label {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	font-weight: var(--wcb-font-medium);
+}
+
+/* Accent colour variants */
+.wcb-stat-card--green  .wcb-stat-value { color: var(--wcb-success); }
+.wcb-stat-card--blue   .wcb-stat-value { color: var(--wcb-primary); }
+.wcb-stat-card--amber  .wcb-stat-value { color: var(--wcb-warning); }
+.wcb-stat-card--purple .wcb-stat-value { color: #7c3aed; }
+
+[data-accent="green"] .wcb-stat-value { color: var(--wcb-success); }
+[data-accent="blue"]  .wcb-stat-value { color: var(--wcb-primary); }
+[data-accent="amber"] .wcb-stat-value { color: var(--wcb-warning); }
+
+/* -- Company profile -- */
+.wcb-profile-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+	gap: var(--wcb-space-2xl);
+}
+
+/*
+ * Stack form / live preview vertically when the panel container is too narrow
+ * for the side-by-side layout — this triggers on Reign-with-sidebar pages
+ * (~610px panel) and on tablet / mobile widths. Without this, the form column
+ * collapses to a hostile ~200px and every input becomes unusable.
+ */
+@container wcb-panel (max-width: 880px) {
+
+	.wcb-profile-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.wcb-logo-placeholder {
+	width: 64px;
+	height: 64px;
+	border: 2px dashed var(--wcb-text-tertiary);
+	border-radius: var(--wcb-radius-md);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-tertiary);
+	cursor: default;
+	opacity: 0.55;
+	margin-bottom: var(--wcb-space-lg);
+}
+
+.wcb-logo-caption {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-tertiary);
+	margin: 0 0 var(--wcb-space-lg);
+}
+
+.wcb-preview-card {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	padding: var(--wcb-space-xl);
+	height: fit-content;
+}
+
+.wcb-preview-title {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-tertiary);
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	margin: 0 0 var(--wcb-space-lg);
+}
+
+.wcb-preview-name {
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-xs);
+}
+
+.wcb-preview-tagline {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	margin: 0;
+}
+
+.wcb-preview-desc {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast);
+	margin-top: var(--wcb-space-sm);
+}
+
+.wcb-preview-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	margin-top: var(--wcb-space-md);
+}
+
+.wcb-preview-chip {
+	display: inline-block;
+	background: var(--wcb-bg-hover);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+}
+
+/* No-company empty state */
+.wcb-no-company {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: var(--wcb-space-4xl);
+	text-align: center;
+	color: var(--wcb-text-secondary);
+}
+
+/* -- Logo upload field -- */
+.wcb-logo-field {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-logo-current {
+	display: none;
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: var(--wcb-radius-md);
+	border: 1px solid var(--wcb-border);
+}
+
+.wcb-logo-current.wcb-shown {
+	display: block;
+}
+
+.wcb-logo-input {
+	display: none;
+}
+
+.wcb-logo-upload-label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: 7px 14px;
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast);
+	background: var(--wcb-base);
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-fast);
+}
+
+.wcb-logo-upload-label:hover {
+	border-color: var(--wcb-primary);
+	color: var(--wcb-primary);
+}
+
+.wcb-preview-logo-img {
+	display: none;
+	width: var(--wcb-space-4xl);
+	height: var(--wcb-space-4xl);
+	object-fit: cover;
+	border-radius: var(--wcb-radius-sm);
+	margin-bottom: var(--wcb-space-md);
+}
+
+.wcb-preview-logo-img.wcb-shown {
+	display: block;
+}
+
+/* Notification bell */
+.wcb-bell-wrapper {
+	position: relative;
+	display: inline-block;
+}
+.wcb-bell-btn {
+	position: relative;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: var(--wcb-space-sm);
+	color: var(--wcb-text-secondary);
+	line-height: 1;
+}
+.wcb-bell-btn:hover { color: var(--wcb-primary); }
+.wcb-bell-badge {
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 var(--wcb-space-xs);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	line-height: 18px;
+	text-align: center;
+	color: var(--wcb-base);
+	background: var(--wcb-danger);
+	border-radius: var(--wcb-radius-full);
+}
+.wcb-bell-dropdown {
+	position: absolute;
+	top: calc(100% + var(--wcb-space-sm));
+	right: 0;
+	width: 320px;
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	box-shadow: var(--wcb-shadow-lg);
+	z-index: 100;
+}
+.wcb-bell-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-bottom: 1px solid var(--wcb-border);
+	font-weight: var(--wcb-font-semibold);
+	font-size: var(--wcb-text-base);
+}
+.wcb-bell-read-all {
+	background: none;
+	border: none;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-primary);
+	cursor: pointer;
+}
+.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-item {
+	display: block;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-bottom: 1px solid var(--wcb-bg-subtle);
+	text-decoration: none;
+	color: inherit;
+}
+.wcb-bell-item:hover { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); }
+.wcb-bell-unread { background: var(--wcb-info-bg); }
+.wcb-bell-msg {
+	display: block;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-contrast);
+}
+.wcb-bell-time {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-tertiary);
+	margin-top: 2px;
+}
+
+/*
+ * Credits banners — success (post-purchase) and low-balance warning. Hidden
+ * by default; the .wcb-shown class toggle is bound by the Interactivity API.
+ */
+.wcb-credit-success-banner,
+.wcb-credit-low-banner {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-lg);
+	margin-bottom: var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
+	border: 1px solid;
+}
+
+.wcb-credit-success-banner.wcb-shown,
+.wcb-credit-low-banner.wcb-shown {
+	display: flex;
+}
+
+.wcb-credit-success-banner {
+	background: var(--wcb-success-bg);
+	border-color: var(--wcb-success);
+	color: var(--wcb-success-fg, var(--wcb-contrast));
+}
+
+.wcb-credit-low-banner {
+	background: var(--wcb-warn-bg, #fff7ed);
+	border-color: var(--wcb-warn, #fb923c);
+	color: var(--wcb-text-primary, var(--wcb-contrast));
+}
+
+.wcb-credit-banner__icon {
+	font-size: var(--wcb-text-lg);
+	line-height: 1;
+}
+
+.wcb-credit-banner__text {
+	flex: 1;
+}
+
+.wcb-credit-banner__link {
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-primary);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wcb-credit-banner__dismiss {
+	background: transparent;
+	border: 0;
+	font-size: var(--wcb-text-xl);
+	line-height: 1;
+	color: inherit;
+	opacity: 0.7;
+	cursor: pointer;
+	padding: 0 var(--wcb-space-xs);
+}
+
+.wcb-credit-banner__dismiss:hover {
+	opacity: 1;
+}
+
+@media (max-width: 640px) {
+	.wcb-credit-success-banner,
+	.wcb-credit-low-banner {
+		flex-wrap: wrap;
+	}
+}

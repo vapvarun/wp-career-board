@@ -1,0 +1,113 @@
+/**
+ * Employer Dashboard — Main content area styles.
+ *
+ * Extracted from style.css (was 1774 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.1).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* -- Main content area -- */
+.wcb-main {
+	flex: 1;
+	background: var(--wcb-bg-subtle);
+	padding: var(--wcb-space-3xl);
+	overflow-y: auto;
+	min-width: 0;
+}
+
+/* -- View panels -- */
+.wcb-view-panel {
+	display: none;
+
+	/*
+	 * Establish an inline-size container so child grids (`.wcb-profile-grid`,
+	 * `.wcb-two-col`, etc.) can react to the actual width they're rendered in
+	 * — not the viewport. This is what lets the dashboard render correctly on
+	 * theme templates that steal width via a sidebar widget area (Reign with
+	 * its right sidebar gives our `.wcb-main` ~610px on a 1614px viewport).
+	 */
+	container-type: inline-size;
+	container-name: wcb-panel;
+}
+
+.wcb-view-panel.wcb-view-active {
+	display: block;
+}
+
+/* -- Page header -- */
+.wcb-page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin-bottom: var(--wcb-space-2xl);
+	flex-wrap: wrap;
+}
+
+.wcb-page-title {
+	font-size: var(--wcb-text-xl);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-xs);
+}
+
+.wcb-page-sub {
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	margin: 0 0 var(--wcb-space-2xl);
+}
+
+/* -- Two-column grid -- */
+.wcb-two-col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--wcb-space-xl);
+}
+
+/* -- Panel (card container) -- */
+.wcb-panel {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	overflow: hidden;
+}
+
+/* `.wcb-panel-header` and `.wcb-panel-body` live globally in
+ * `assets/css/frontend-components.css`. */
+
+.wcb-panel-title {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+}
+
+.wcb-panel-link {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-primary);
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.wcb-panel-link:hover {
+	text-decoration: underline;
+}
+
+.wcb-panel-empty {
+	display: none;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	margin: 0;
+}
+
+.wcb-panel-empty.wcb-shown {
+	display: block;
+}

@@ -9,7 +9,13 @@
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "viewScriptModule": "file:./view.js",
-  "style": "file:./style.css",
+  "style": [
+    "file:./style.css",
+    "file:./styles/sidebar.css",
+    "file:./styles/main.css",
+    "file:./styles/views.css",
+    "file:./styles/widgets.css"
+  ],
   "render": "file:./render.php",
   "supports": {
     "interactivity": true,

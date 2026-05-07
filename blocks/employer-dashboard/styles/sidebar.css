@@ -1,0 +1,226 @@
+/**
+ * Employer Dashboard — Sidebar styles.
+ *
+ * Extracted from style.css (was 1774 LOC) per the upscale stabilization
+ * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.1).
+ * Tokens are inherited from frontend-tokens.css via cascade — no
+ * duplication.
+ *
+ * @package WP_Career_Board
+ * @since   1.2.2
+ */
+
+/* -- Sidebar -- */
+
+/*
+ * Top padding matches `.wcb-main` (3xl, ~32 px) so the first sidebar link
+ * vertically aligns with the first heading inside the main content panel.
+ * Without this match the user sees the white sidebar background extending
+ * higher than the grey main panel, which reads as misaligned.
+ */
+.wcb-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--wcb-base);
+	border-inline-end: 1px solid var(--wcb-border);
+	padding: var(--wcb-space-3xl) 0;
+}
+
+/* Logo row */
+.wcb-sidebar-logo {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) var(--wcb-space-lg);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	width: 100%;
+	background: transparent;
+	border: none;
+	text-align: start;
+	cursor: pointer;
+	border-radius: 0;
+}
+
+.wcb-sidebar-logo:hover {
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-contrast);
+	border: none;
+}
+
+.wcb-sidebar-logo.wcb-nav-active {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-primary);
+	border: none;
+}
+
+/* Prevent theme button overrides on the logo */
+.wcb-dashboard .wcb-sidebar-logo {
+	background: transparent;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-logo:hover {
+	background: var(--wcb-bg-subtle);
+}
+
+.wcb-dashboard .wcb-sidebar-logo.wcb-nav-active {
+	background: var(--wcb-bg-hover);
+}
+
+/* Section labels */
+.wcb-nav-section-label {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var(--wcb-text-tertiary);
+	padding: var(--wcb-space-md) var(--wcb-space-lg) var(--wcb-space-sm);
+	border-top: 1px solid var(--wcb-border);
+	margin-top: var(--wcb-space-xs);
+}
+
+/* Nav items */
+.wcb-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-normal);
+	color: var(--wcb-text-secondary);
+	background: none;
+	border: none;
+	border-radius: var(--wcb-radius-sm);
+	cursor: pointer;
+	text-align: start;
+	text-decoration: none;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+	box-sizing: border-box;
+}
+
+.wcb-nav-item:hover {
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-contrast);
+	border: none;
+	text-decoration: none;
+}
+
+/* Active state */
+.wcb-nav-item.wcb-nav-active,
+.wcb-nav-item.wcb-view-active {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-contrast);
+	font-weight: var(--wcb-font-semibold);
+	border: none;
+}
+
+/* Prevent theme button overrides */
+.wcb-dashboard .wcb-nav-item {
+	background: none;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-nav-toggle {
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	box-shadow: none;
+}
+.wcb-dashboard .wcb-nav-item:hover {
+	background: var(--wcb-bg-subtle);
+}
+.wcb-dashboard .wcb-nav-item.wcb-nav-active,
+.wcb-dashboard .wcb-nav-item.wcb-view-active {
+	background: var(--wcb-bg-hover);
+}
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: -2px;
+}
+
+/* Nav badge */
+.wcb-nav-badge {
+	display: inline-block;
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	border-radius: var(--wcb-radius-full);
+	padding: 1px var(--wcb-space-sm);
+	line-height: 1.4;
+}
+
+.wcb-nav-badge.wcb-nav-badge--blue,
+.wcb-nav-badge.highlight {
+	background: var(--wcb-info-bg);
+	color: var(--wcb-primary-dark);
+}
+
+/* Post a Job CTA */
+.wcb-sidebar-cta {
+	display: block;
+	margin: var(--wcb-space-lg);
+	padding: var(--wcb-space-lg) var(--wcb-space-lg);
+	background: var(--wcb-contrast);
+	color: var(--wcb-base);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	text-align: center;
+	text-decoration: none;
+	border: none;
+	border-radius: var(--wcb-radius-md);
+	transition: background var(--wcb-transition-fast);
+}
+
+.wcb-sidebar-cta:hover {
+	background: var(--wcb-avatar-bg, #1e293b);
+	color: var(--wcb-base);
+	border: none;
+	text-decoration: none;
+}
+
+/* User / company row */
+.wcb-sidebar-user {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-top: 1px solid var(--wcb-border);
+	margin-top: auto;
+}
+
+.wcb-sidebar-avatar {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--wcb-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-sidebar-company {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Prevent theme button resets */
+.wcb-sidebar .wcb-nav-item,
+.wcb-sidebar .wcb-nav-item:hover,
+.wcb-sidebar .wcb-nav-item:focus-visible {
+	box-shadow: none;
+	outline-offset: 2px;
+}
