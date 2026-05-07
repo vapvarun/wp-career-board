@@ -114,7 +114,7 @@ $wcb_trust_info    = $wcb_trust_map[ $wcb_company_trust ] ?? null;
 $wcb_days_ago = (int) round( ( time() - (int) strtotime( $wcb_job->post_date ) ) / DAY_IN_SECONDS );
 
 // ── Apply permission ──────────────────────────────────────────────────────────
-$wcb_can_apply = is_user_logged_in() && wp_is_ability_granted( 'wcb_apply_jobs' );
+$wcb_can_apply = is_user_logged_in() && wp_is_ability_granted( 'wcb/apply-jobs' );
 
 // Guests may always apply — the endpoint accepts unauthenticated submissions.
 $wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
@@ -122,7 +122,7 @@ $wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
 // ── Job owner check — employers see "View Applications" instead of "Apply Now" ─
 $wcb_is_job_owner = is_user_logged_in()
 	&& ( get_current_user_id() === (int) $wcb_job->post_author
-		|| wp_is_ability_granted( 'wcb_manage_settings' ) );
+		|| wp_is_ability_granted( 'wcb/manage-settings' ) );
 
 if ( $wcb_is_job_owner ) {
 	$wcb_show_apply = false;
@@ -130,7 +130,7 @@ if ( $wcb_is_job_owner ) {
 
 // Suppress Apply Now for any employer — they post jobs, not apply to them.
 if ( $wcb_show_apply && is_user_logged_in() ) {
-	$wcb_is_employer_user = wp_is_ability_granted( 'wcb_post_jobs' );
+	$wcb_is_employer_user = wp_is_ability_granted( 'wcb/post-jobs' );
 	if ( $wcb_is_employer_user ) {
 		$wcb_show_apply = false;
 	}

@@ -576,7 +576,7 @@ final class EmployersEndpoint extends RestController {
 
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
 		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
-		$is_admin    = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		$post_status = ( $is_owner || $is_admin )
 		? array( 'publish', 'pending', 'draft' )
 		: array( 'publish' );
@@ -774,8 +774,8 @@ final class EmployersEndpoint extends RestController {
 	public function get_applications_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		$post     = get_post( (int) $request['id'] );
 		$is_owner = $post && get_current_user_id() === (int) $post->post_author
-		&& $this->check_ability( 'wcb_view_applications' );
-		$is_admin = $this->check_ability( 'wcb_manage_settings' );
+		&& $this->check_ability( 'wcb/view-applications' );
+		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -790,7 +790,7 @@ final class EmployersEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function get_my_jobs_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_access_employer_dashboard' ) ? true : $this->permission_error();
+		return $this->check_ability( 'wcb/access-employer-dashboard' ) ? true : $this->permission_error();
 	}
 
 	/**
@@ -847,7 +847,7 @@ final class EmployersEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function create_item_permissions_check( $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_manage_company' ) ? true : $this->permission_error();
+		return $this->check_ability( 'wcb/manage-company' ) ? true : $this->permission_error();
 	}
 
 	/**
@@ -866,8 +866,8 @@ final class EmployersEndpoint extends RestController {
 			return $this->permission_error();
 		}
 		$is_owner = get_current_user_id() === (int) $post->post_author
-		&& $this->check_ability( 'wcb_manage_company' );
-		$is_admin = $this->check_ability( 'wcb_manage_settings' );
+		&& $this->check_ability( 'wcb/manage-company' );
+		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 

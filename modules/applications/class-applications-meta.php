@@ -57,7 +57,7 @@ final class ApplicationsMeta {
 					'single'        => true,
 					'type'          => $schema['type'],
 					'auth_callback' => static function (): bool {
-						return wp_is_ability_granted( 'wcb_view_applications' );
+						return wp_is_ability_granted( 'wcb/view-applications' );
 					},
 				)
 			);

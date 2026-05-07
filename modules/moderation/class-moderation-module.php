@@ -105,7 +105,7 @@ class ModerationModule extends \WCB\Api\RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function moderate_permissions_check( ?\WP_REST_Request $request = null ): bool|\WP_Error {
-		if ( $this->check_ability( 'wcb_moderate_jobs' ) ) {
+		if ( $this->check_ability( 'wcb/moderate-jobs' ) ) {
 			return true;
 		}
 

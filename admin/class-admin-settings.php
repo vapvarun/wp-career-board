@@ -266,7 +266,7 @@ class AdminSettings {
 	public function handle_create_pages(): void {
 		check_admin_referer( 'wcb_create_pages' );
 
-		if ( ! wp_is_ability_granted( 'wcb_manage_settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
 		}
 

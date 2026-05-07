@@ -36,13 +36,30 @@ Namespace: `WCB\` (maps via `spl_autoload_register`).
 REST namespace: `wcb/v1`.
 
 ### Permissions — Abilities API only
+
+Ability slugs use the WP 6.9 `namespace/slug` format. Free uses the `wcb/`
+namespace; Pro extends the same namespace (no `wcbp/` fork). The role cap
+underneath stays snake_case (`wcb_post_jobs` in `class-roles.php`) — that's
+a separate namespace from abilities.
+
 ```php
 // Define
-wp_register_ability( 'wcb_post_jobs', __( 'Post a Job', 'wp-career-board' ) );
+wp_register_ability( 'wcb/post-jobs', array(
+    'category'            => 'wcb',
+    'label'               => __( 'Post Jobs', 'wp-career-board' ),
+    'description'         => __( 'Allows an employer to submit job listings.', 'wp-career-board' ),
+    'permission_callback' => static function (): bool {
+        $user = wp_get_current_user();
+        return $user && ( $user->has_cap( 'wcb_post_jobs' ) || $user->has_cap( 'manage_options' ) );
+    },
+    'execute_callback'    => static function (): bool {
+        return true;
+    },
+) );
 
 // Check (uses our polyfill at core/abilities-api-polyfill.php — wraps
 // wp_get_ability($name)->check_permissions() until WP core ships the helper)
-if ( ! wp_is_ability_granted( 'wcb_post_jobs' ) ) { ... }
+if ( ! wp_is_ability_granted( 'wcb/post-jobs' ) ) { ... }
 
 // FORBIDDEN
 current_user_can( 'manage_options' );  // never

@@ -843,7 +843,7 @@ final class JobsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function create_item_permissions_check( $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_post_jobs' ) ? true : $this->permission_error();
+		return $this->check_ability( 'wcb/post-jobs' ) ? true : $this->permission_error();
 	}
 
 	/**
@@ -864,13 +864,13 @@ final class JobsEndpoint extends RestController {
 		}
 		$user_id           = $this->current_user_id();
 		$is_author         = (int) $post->post_author === $user_id
-			&& $this->check_ability( 'wcb_post_jobs' );
+			&& $this->check_ability( 'wcb/post-jobs' );
 		$user_company      = (int) get_user_meta( $user_id, '_wcb_company_id', true );
 		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$is_company_member = $user_company > 0
 			&& $user_company === $job_company
-			&& $this->check_ability( 'wcb_post_jobs' );
-		$is_admin          = $this->check_ability( 'wcb_manage_settings' );
+			&& $this->check_ability( 'wcb/post-jobs' );
+		$is_admin          = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_author || $is_company_member || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -895,7 +895,7 @@ final class JobsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function view_applications_permissions_check( \WP_REST_Request $request ) {
-		return $this->check_ability( 'wcb_view_applications' ) ? true : $this->permission_error();
+		return $this->check_ability( 'wcb/view-applications' ) ? true : $this->permission_error();
 	}
 
 	// --- Helpers ----------------------------------------------------------------

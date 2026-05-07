@@ -288,7 +288,7 @@ final class CandidatesEndpoint extends RestController {
 		$raw_visibility = (string) get_user_meta( $user_id, '_wcb_profile_visibility', true );
 		$visibility     = $raw_visibility ? $raw_visibility : 'public';
 		$is_self        = get_current_user_id() === $user_id;
-		$is_admin       = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin       = $this->check_ability( 'wcb/manage-settings' );
 		if ( 'private' === $visibility && ! $is_self && ! $is_admin ) {
 			return new \WP_Error(
 				'wcb_private',
@@ -435,7 +435,7 @@ final class CandidatesEndpoint extends RestController {
 	 */
 	public function update_item_permissions_check( $request ): bool|\WP_Error {
 		$same_user = get_current_user_id() === (int) $request['id'];
-		$is_admin  = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -449,7 +449,7 @@ final class CandidatesEndpoint extends RestController {
 	 */
 	public function self_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		$same_user = get_current_user_id() === (int) $request['id'];
-		$is_admin  = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
 

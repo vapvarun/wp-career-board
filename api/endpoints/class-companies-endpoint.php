@@ -76,7 +76,7 @@ final class CompaniesEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function manage_permissions_check(): bool|\WP_Error {
-		if ( $this->check_ability( 'wcb_manage_settings' ) ) {
+		if ( $this->check_ability( 'wcb/manage-settings' ) ) {
 			return true;
 		}
 

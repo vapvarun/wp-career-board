@@ -119,7 +119,7 @@ class ReignIntegration {
 			'icon'  => 'dashicons-portfolio',
 		);
 
-		$wcb_can_post = wp_is_ability_granted( 'wcb_post_jobs' );
+		$wcb_can_post = wp_is_ability_granted( 'wcb/post-jobs' );
 
 		if ( $wcb_can_post ) {
 			$employer_page_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
@@ -134,7 +134,7 @@ class ReignIntegration {
 			);
 		}
 
-		$wcb_can_apply = wp_is_ability_granted( 'wcb_apply_jobs' );
+		$wcb_can_apply = wp_is_ability_granted( 'wcb/apply-jobs' );
 
 		if ( $wcb_can_apply ) {
 			$candidate_page_id = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );

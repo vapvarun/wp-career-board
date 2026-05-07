@@ -10,7 +10,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_can_manage = wp_is_ability_granted( 'wcb_manage_company' );
+$wcb_can_manage = wp_is_ability_granted( 'wcb/manage-company' );
 
 if ( ! is_user_logged_in() ) {
 	?>

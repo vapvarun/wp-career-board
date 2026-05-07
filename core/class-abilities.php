@@ -38,7 +38,10 @@ final class Abilities {
 
 		wp_register_ability_category(
 			'wcb',
-			array( 'label' => __( 'WP Career Board', 'wp-career-board' ) )
+			array(
+				'label'       => __( 'WP Career Board', 'wp-career-board' ),
+				'description' => __( 'Abilities for the WP Career Board job board (employer, candidate, moderation, and admin actions).', 'wp-career-board' ),
+			)
 		);
 	}
 
@@ -69,7 +72,7 @@ final class Abilities {
 	 */
 	private function register_employer_abilities(): void {
 		wp_register_ability(
-			'wcb_post_jobs',
+			'wcb/post-jobs',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Post Jobs', 'wp-career-board' ),
@@ -85,7 +88,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_manage_company',
+			'wcb/manage-company',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Manage Company Profile', 'wp-career-board' ),
@@ -101,7 +104,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_view_applications',
+			'wcb/view-applications',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'View Applications', 'wp-career-board' ),
@@ -117,7 +120,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_access_employer_dashboard',
+			'wcb/access-employer-dashboard',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Access Employer Dashboard', 'wp-career-board' ),
@@ -141,7 +144,7 @@ final class Abilities {
 	 */
 	private function register_candidate_abilities(): void {
 		wp_register_ability(
-			'wcb_apply_jobs',
+			'wcb/apply-jobs',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Apply to Jobs', 'wp-career-board' ),
@@ -157,7 +160,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_manage_resume',
+			'wcb/manage-resume',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Manage Resume', 'wp-career-board' ),
@@ -173,7 +176,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_bookmark_jobs',
+			'wcb/bookmark-jobs',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Bookmark Jobs', 'wp-career-board' ),
@@ -189,7 +192,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_access_candidate_dashboard',
+			'wcb/access-candidate-dashboard',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Access Candidate Dashboard', 'wp-career-board' ),
@@ -205,7 +208,7 @@ final class Abilities {
 		);
 
 		wp_register_ability(
-			'wcb_withdraw_application',
+			'wcb/withdraw-application',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Withdraw Application', 'wp-career-board' ),
@@ -231,7 +234,7 @@ final class Abilities {
 	 */
 	private function register_moderation_ability(): void {
 		wp_register_ability(
-			'wcb_moderate_jobs',
+			'wcb/moderate-jobs',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Moderate Jobs', 'wp-career-board' ),
@@ -258,7 +261,7 @@ final class Abilities {
 	 */
 	private function register_admin_abilities(): void {
 		wp_register_ability(
-			'wcb_manage_settings',
+			'wcb/manage-settings',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Manage Settings', 'wp-career-board' ),
@@ -275,7 +278,7 @@ final class Abilities {
 
 		// Reserved for Pro analytics feature.
 		wp_register_ability(
-			'wcb_view_analytics',
+			'wcb/view-analytics',
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'View Analytics', 'wp-career-board' ),

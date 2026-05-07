@@ -187,7 +187,7 @@ class ApplicationCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function update( array $args, array $assoc_args ): void {
-		$this->require_ability( 'wcb_view_applications' );
+		$this->require_ability( 'wcb/view-applications' );
 
 		$app_id = (int) ( $args[0] ?? 0 );
 		if ( ! $app_id ) {

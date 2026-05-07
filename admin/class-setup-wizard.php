@@ -241,7 +241,7 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function wizard_permission_check(): bool|\WP_Error {
-		if ( $this->check_ability( 'wcb_manage_settings' ) ) {
+		if ( $this->check_ability( 'wcb/manage-settings' ) ) {
 			return true;
 		}
 		return $this->permission_error();

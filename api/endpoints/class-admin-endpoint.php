@@ -111,7 +111,7 @@ final class AdminEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function admin_check( \WP_REST_Request $request ): bool|\WP_Error {
-		return $this->check_ability( 'wcb_manage_settings' ) ? true : $this->permission_error();
+		return $this->check_ability( 'wcb/manage-settings' ) ? true : $this->permission_error();
 	}
 
 	/**

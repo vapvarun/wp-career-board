@@ -148,7 +148,7 @@ class JobCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function approve( array $args, array $assoc_args ): void {
-		$this->require_ability( 'wcb_moderate_jobs' );
+		$this->require_ability( 'wcb/moderate-jobs' );
 
 		$job_id = (int) ( $args[0] ?? 0 );
 		if ( ! $job_id ) {
@@ -210,7 +210,7 @@ class JobCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function reject( array $args, array $assoc_args ): void {
-		$this->require_ability( 'wcb_moderate_jobs' );
+		$this->require_ability( 'wcb/moderate-jobs' );
 
 		$job_id = (int) ( $args[0] ?? 0 );
 		if ( ! $job_id ) {
@@ -273,7 +273,7 @@ class JobCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function expire( array $args, array $assoc_args ): void {
-		$this->require_ability( 'wcb_moderate_jobs' );
+		$this->require_ability( 'wcb/moderate-jobs' );
 
 		$job_id = (int) ( $args[0] ?? 0 );
 		if ( ! $job_id ) {
@@ -331,7 +331,7 @@ class JobCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function run_expiry( array $args, array $assoc_args ): void {
-		$this->require_ability( 'wcb_manage_settings' );
+		$this->require_ability( 'wcb/manage-settings' );
 
 		\WP_CLI::log( 'Running job expiry check…' );
 

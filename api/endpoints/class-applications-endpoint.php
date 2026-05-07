@@ -704,7 +704,7 @@ final class ApplicationsEndpoint extends RestController {
 		// This prevents employers from applying to jobs. Admins are granted
 		// this ability automatically by Roles::register(), so no manage_options
 		// fallback is needed (per CLAUDE.md: Abilities API only).
-		if ( $this->check_ability( 'wcb_apply_jobs' ) ) {
+		if ( $this->check_ability( 'wcb/apply-jobs' ) ) {
 			return true;
 		}
 
@@ -735,7 +735,7 @@ final class ApplicationsEndpoint extends RestController {
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
 		$is_employer     = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
-		$is_admin        = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -751,11 +751,11 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function update_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		if ( ! $this->check_ability( 'wcb_view_applications' ) ) {
+		if ( ! $this->check_ability( 'wcb/view-applications' ) ) {
 			return $this->permission_error();
 		}
 		// Admins may update any application.
-		if ( $this->check_ability( 'wcb_manage_settings' ) ) {
+		if ( $this->check_ability( 'wcb/manage-settings' ) ) {
 			return true;
 		}
 		// Employers may only update applications belonging to their own jobs.
@@ -798,7 +798,7 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		if ( ! $this->check_ability( 'wcb_withdraw_application' ) ) {
+		if ( ! $this->check_ability( 'wcb/withdraw-application' ) ) {
 			return new \WP_Error(
 				'wcb_withdraw_disabled',
 				__( 'Application withdrawal is not enabled on this site.', 'wp-career-board' ),
@@ -812,7 +812,7 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		$is_owner = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
-		$is_admin = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -828,7 +828,7 @@ final class ApplicationsEndpoint extends RestController {
 	 */
 	public function candidate_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		$same_user = get_current_user_id() === (int) $request['id'];
-		$is_admin  = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
 

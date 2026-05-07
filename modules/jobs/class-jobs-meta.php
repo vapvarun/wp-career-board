@@ -62,7 +62,7 @@ final class JobsMeta {
 					'single'        => true,
 					'type'          => $schema['type'],
 					'auth_callback' => static function (): bool {
-						return wp_is_ability_granted( 'wcb_post_jobs' );
+						return wp_is_ability_granted( 'wcb/post-jobs' );
 					},
 				)
 			);
