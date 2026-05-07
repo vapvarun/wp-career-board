@@ -98,9 +98,7 @@ final class FeaturedExpiry {
 	 * @return void
 	 */
 	public function sweep(): void {
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$days     = isset( $settings['apply_featured_days'] ) ? (int) $settings['apply_featured_days'] : 30;
-		$days     = max( 1, min( 365, $days ) );
+		$days = max( 1, min( 365, \WCB\Admin\Settings::int( 'apply_featured_days', 30 ) ) );
 
 		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
 

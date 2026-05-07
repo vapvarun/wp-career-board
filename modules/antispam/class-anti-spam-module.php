@@ -45,7 +45,7 @@ class AntiSpamModule {
 	 * @return void
 	 */
 	public function boot(): void {
-		$settings = (array) get_option( 'wcb_settings', array() );
+		$settings = \WCB\Admin\Settings::all();
 		$provider = (string) ( $settings['captcha_provider'] ?? 'none' );
 
 		$this->driver = match ( $provider ) {
@@ -284,7 +284,7 @@ class AntiSpamModule {
 		$wcb_input = isset( $_POST['captcha_provider'] ) ? sanitize_key( wp_unslash( $_POST['captcha_provider'] ) ) : 'none';
 		$provider  = in_array( $wcb_input, $allowed, true ) ? $wcb_input : 'none';
 
-		$settings = (array) get_option( 'wcb_settings', array() );
+		$settings = \WCB\Admin\Settings::all();
 
 		$settings['captcha_provider']     = $provider;
 		$settings['turnstile_site_key']   = sanitize_text_field( wp_unslash( $_POST['turnstile_site_key'] ?? '' ) );

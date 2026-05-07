@@ -65,8 +65,7 @@ final class JobsExpiry {
 	 * @return void
 	 */
 	public function expire_jobs(): void {
-		$settings = (array) get_option( 'wcb_settings', array() );
-		if ( empty( $settings['deadline_auto_close'] ) ) {
+		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
 			return;
 		}
 

@@ -81,8 +81,8 @@ class EmailJobPending extends AbstractEmail {
 			return;
 		}
 
-		$wcb_s = (array) get_option( 'wcb_settings', array() );
-		$to    = ! empty( $wcb_s['notification_email'] ) ? $wcb_s['notification_email'] : (string) get_option( 'admin_email', '' );
+		$notification_email = \WCB\Admin\Settings::string( 'notification_email', '' );
+		$to                 = '' !== $notification_email ? $notification_email : (string) get_option( 'admin_email', '' );
 
 		$this->send(
 			$to,
