@@ -471,7 +471,7 @@ class EmailSettings {
 		// its filter on read; the legacy row is left alone here and dropped
 		// by the install migration so existing reads stay correct until that
 		// upgrade pass runs.
-		$aggregate           = (array) get_option( 'wcb_settings', array() );
+		$aggregate           = Settings::all();
 		$aggregate['emails'] = $settings;
 		update_option( 'wcb_settings', $aggregate );
 		add_action(

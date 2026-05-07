@@ -58,6 +58,10 @@ final class SettingsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_app_config(): \WP_REST_Response {
+		// Endpoint exposes raw option shape; do not pre-process via accessor.
+		// SPA / mobile clients consume the wcb_settings array layout directly,
+		// so reads here intentionally bypass \WCB\Admin\Settings to keep the
+		// REST contract aligned with the persisted option shape.
 		$wcb_settings   = (array) get_option( 'wcb_settings', array() );
 		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
 		$captcha_driver = wcb_get_captcha_driver();

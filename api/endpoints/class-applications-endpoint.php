@@ -663,14 +663,11 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool
 	 */
 	private function resume_required(): bool {
-		$settings = (array) get_option( 'wcb_settings', array() );
 		// Default to true on installs that have never written the setting:
 		// candidate-side validation is the customer expectation for a job
 		// board (see Basecamp 9818132111). Site owners who explicitly turn
 		// it off keep their saved value.
-		return array_key_exists( 'apply_resume_required', $settings )
-			? ! empty( $settings['apply_resume_required'] )
-			: true;
+		return \WCB\Admin\Settings::bool( 'apply_resume_required', true );
 	}
 
 	/**
@@ -680,8 +677,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return int
 	 */
 	private function resume_max_mb(): int {
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$mb       = isset( $settings['apply_resume_max_mb'] ) ? (int) $settings['apply_resume_max_mb'] : 5;
+		$mb = \WCB\Admin\Settings::int( 'apply_resume_max_mb', 5 );
 		return max( 1, min( 20, $mb ) );
 	}
 
@@ -794,11 +790,7 @@ final class ApplicationsEndpoint extends RestController {
 		// Intended default is ON: a fresh install (no saved value) lets
 		// candidates withdraw, matching the customer-friendly default. Only an
 		// explicit `false` from the admin settings turns it off.
-		$wcb_settings        = (array) get_option( 'wcb_settings', array() );
-		$wcb_allow_withdraw  = array_key_exists( 'allow_withdraw', $wcb_settings )
-			? ! empty( $wcb_settings['allow_withdraw'] )
-			: true;
-		if ( ! $wcb_allow_withdraw ) {
+		if ( ! \WCB\Admin\Settings::bool( 'allow_withdraw', true ) ) {
 			return new \WP_Error(
 				'wcb_withdraw_disabled',
 				__( 'Application withdrawal is not enabled on this site.', 'wp-career-board' ),

@@ -41,6 +41,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Manages the WCB settings page (Career Board > Settings).
  *
+ * Writer — read raw option to render the form. This class is the sanitize
+ * + render pair for the wcb_settings option, so every read here intentionally
+ * uses get_option() directly. Reader sites elsewhere route through
+ * \WCB\Admin\Settings (the cached accessor); this file is the exception.
+ *
  * @since 1.0.0
  */
 class AdminSettings {

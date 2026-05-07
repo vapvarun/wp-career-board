@@ -517,7 +517,6 @@ final class Plugin {
 		$is_wcb_page = false;
 
 		// Path 1 — explicit Settings mapping (cheapest).
-		$settings    = (array) get_option( 'wcb_settings', array() );
 		$mapped_keys = array(
 			'jobs_archive_page',
 			'employer_dashboard_page',
@@ -530,7 +529,7 @@ final class Plugin {
 		);
 		$mapped_ids  = array();
 		foreach ( $mapped_keys as $key ) {
-			$id = (int) ( $settings[ $key ] ?? 0 );
+			$id = \WCB\Admin\Settings::int( $key, 0 );
 			if ( $id > 0 ) {
 				$mapped_ids[] = $id;
 			}
@@ -680,10 +679,7 @@ final class Plugin {
 		// Twenty Twenty-Three, etc.) see their value honoured. Plugin
 		// settings + filter sit ABOVE the theme value because customers may
 		// have explicitly tuned the WCB layout.
-		$settings        = (array) get_option( 'wcb_settings', array() );
-		$setting_value   = isset( $settings['container_max_width'] )
-			? (int) $settings['container_max_width']
-			: 0;
+		$setting_value   = \WCB\Admin\Settings::int( 'container_max_width', 0 );
 		$theme_value     = $this->resolve_theme_content_width();
 		$default_pixels  = 1280;
 		$resolved_pixels = $setting_value > 0

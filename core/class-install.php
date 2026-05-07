@@ -177,7 +177,7 @@ final class Install {
 			// archive to stay public, so seed the setting from the install
 			// state rather than letting the new default flip URLs to 404.
 			if ( version_compare( (string) $installed, '1.2', '<' ) ) {
-				$settings = (array) get_option( 'wcb_settings', array() );
+				$settings = \WCB\Admin\Settings::all();
 				if ( ! array_key_exists( 'resume_archive_enabled', $settings ) ) {
 					$settings['resume_archive_enabled'] = (bool) apply_filters( 'wcb_pro_active', false );
 					update_option( 'wcb_settings', $settings );
@@ -202,7 +202,7 @@ final class Install {
 				// go through the wcb_get_email_settings / wcb_get_captcha_driver
 				// helpers that fall back to the legacy rows during the upgrade
 				// window.
-				$current = (array) get_option( 'wcb_settings', array() );
+				$current = \WCB\Admin\Settings::all();
 				$dirty   = false;
 
 				$legacy_emails = get_option( 'wcb_email_settings', null );

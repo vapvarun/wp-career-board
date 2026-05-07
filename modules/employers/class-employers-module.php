@@ -50,8 +50,7 @@ final class EmployersModule {
 			return $redirect_to;
 		}
 
-		$settings     = (array) get_option( 'wcb_settings', array() );
-		$dashboard_id = ! empty( $settings['employer_dashboard_page'] ) ? (int) $settings['employer_dashboard_page'] : 0;
+		$dashboard_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
 
 		if ( ! $dashboard_id ) {
 			return $redirect_to;

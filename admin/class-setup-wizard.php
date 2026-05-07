@@ -47,9 +47,8 @@ class SetupWizard extends \WCB\Api\RestController {
 		if ( (bool) get_option( 'wcb_setup_complete', false ) ) {
 			return true;
 		}
-		$wcb_settings = (array) get_option( 'wcb_settings', array() );
 		foreach ( array( 'employer_dashboard_page', 'candidate_dashboard_page', 'jobs_archive_page' ) as $wcb_key ) {
-			$wcb_id = isset( $wcb_settings[ $wcb_key ] ) ? (int) $wcb_settings[ $wcb_key ] : 0;
+			$wcb_id = Settings::int( $wcb_key, 0 );
 			if ( $wcb_id > 0 && get_post( $wcb_id ) ) {
 				return true;
 			}
@@ -361,7 +360,7 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @return array Map of setting_key => page_id for each page that was created.
 	 */
 	private function create_required_pages(): array {
-		$settings = (array) get_option( 'wcb_settings', array() );
+		$settings = Settings::all();
 		$created  = array();
 
 		/**

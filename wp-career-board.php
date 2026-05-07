@@ -126,9 +126,9 @@ spl_autoload_register(
  * @return array<string,mixed>
  */
 function wcb_get_email_settings(): array {
-	$settings = (array) get_option( 'wcb_settings', array() );
-	if ( isset( $settings['emails'] ) && is_array( $settings['emails'] ) ) {
-		return $settings['emails'];
+	$emails = \WCB\Admin\Settings::get( 'emails' );
+	if ( is_array( $emails ) ) {
+		return $emails;
 	}
 	return (array) get_option( 'wcb_email_settings', array() );
 }
@@ -142,9 +142,9 @@ function wcb_get_email_settings(): array {
  * @return string
  */
 function wcb_get_captcha_driver(): string {
-	$settings = (array) get_option( 'wcb_settings', array() );
-	if ( isset( $settings['captcha']['driver'] ) ) {
-		return (string) $settings['captcha']['driver'];
+	$captcha = \WCB\Admin\Settings::get( 'captcha' );
+	if ( is_array( $captcha ) && isset( $captcha['driver'] ) ) {
+		return (string) $captcha['driver'];
 	}
 	return (string) get_option( 'wcb_captcha_driver', '' );
 }

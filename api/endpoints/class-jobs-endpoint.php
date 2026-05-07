@@ -115,8 +115,8 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function get_items( $request ): \WP_REST_Response {
 		if ( ! $request->has_param( 'per_page' ) ) {
-			$settings = (array) get_option( 'wcb_settings', array() );
-			$request->set_param( 'per_page', ! empty( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 15 );
+			$wcb_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 15 );
+			$request->set_param( 'per_page', $wcb_per_page > 0 ? $wcb_per_page : 15 );
 		}
 
 		// Clamp per_page in the handler (the schema declares maximum: 100 but
@@ -447,8 +447,7 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
-		$settings     = get_option( 'wcb_settings', array() );
-		$auto_publish = ! empty( $settings['auto_publish_jobs'] );
+		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$status       = $auto_publish ? 'publish' : 'pending';
 
 		$wcb_post_data = array(
@@ -485,13 +484,14 @@ final class JobsEndpoint extends RestController {
 		$salary_type_raw  = $request->get_param( 'salary_type' );
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
-			$expire_days      = ! empty( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30;
+			$expire_days      = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+			$expire_days      = $expire_days > 0 ? $expire_days : 30;
 			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 		}
-		$wcb_currency_input    = strtoupper( (string) ( $request->get_param( 'salary_currency' ) ?? 'USD' ) );
-		$wcb_currency_catalog  = \WCB\Admin\AdminSettings::get_currency_catalog();
-		$wcb_currency_param    = array_key_exists( $wcb_currency_input, $wcb_currency_catalog ) ? $wcb_currency_input : 'USD';
-		$meta = array(
+		$wcb_currency_input   = strtoupper( (string) ( $request->get_param( 'salary_currency' ) ?? 'USD' ) );
+		$wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
+		$wcb_currency_param   = array_key_exists( $wcb_currency_input, $wcb_currency_catalog ) ? $wcb_currency_input : 'USD';
+		$meta                 = array(
 			'_wcb_deadline'        => $wcb_deadline_raw,
 			'_wcb_salary_min'      => $request->get_param( 'salary_min' ),
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
@@ -862,15 +862,15 @@ final class JobsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$user_id      = $this->current_user_id();
-		$is_author    = (int) $post->post_author === $user_id
+		$user_id           = $this->current_user_id();
+		$is_author         = (int) $post->post_author === $user_id
 			&& $this->check_ability( 'wcb_post_jobs' );
-		$user_company = (int) get_user_meta( $user_id, '_wcb_company_id', true );
-		$job_company  = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+		$user_company      = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$is_company_member = $user_company > 0
 			&& $user_company === $job_company
 			&& $this->check_ability( 'wcb_post_jobs' );
-		$is_admin     = $this->check_ability( 'wcb_manage_settings' );
+		$is_admin          = $this->check_ability( 'wcb_manage_settings' );
 		return ( $is_author || $is_company_member || $is_admin ) ? true : $this->permission_error();
 	}
 

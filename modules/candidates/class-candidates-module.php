@@ -82,8 +82,7 @@ final class CandidatesModule {
 	 * @return void
 	 */
 	public function register_post_type(): void {
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$public   = (bool) ( $settings['resume_archive_enabled'] ?? false );
+		$public = \WCB\Admin\Settings::bool( 'resume_archive_enabled', false );
 
 		/**
 		 * Filter the public-archive visibility of `wcb_resume`.

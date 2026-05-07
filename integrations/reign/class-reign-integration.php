@@ -108,10 +108,9 @@ class ReignIntegration {
 	 * @return array<int,array<string,string>>
 	 */
 	public function add_nav_items( array $items ): array {
-		$settings = (array) get_option( 'wcb_settings', array() );
-
-		$jobs_url = ! empty( $settings['jobs_archive_page'] )
-			? (string) get_permalink( (int) $settings['jobs_archive_page'] )
+		$jobs_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+		$jobs_url     = $jobs_page_id > 0
+			? (string) get_permalink( $jobs_page_id )
 			: home_url( '/jobs/' );
 
 		$items[] = array(
@@ -125,8 +124,9 @@ class ReignIntegration {
 			: current_user_can( 'wcb_post_jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 
 		if ( $wcb_can_post ) {
-			$employer_url = ! empty( $settings['employer_dashboard_page'] )
-				? (string) get_permalink( (int) $settings['employer_dashboard_page'] )
+			$employer_page_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+			$employer_url     = $employer_page_id > 0
+				? (string) get_permalink( $employer_page_id )
 				: '#';
 
 			$items[] = array(
@@ -141,8 +141,9 @@ class ReignIntegration {
 			: current_user_can( 'wcb_apply_jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 
 		if ( $wcb_can_apply ) {
-			$candidate_url = ! empty( $settings['candidate_dashboard_page'] )
-				? (string) get_permalink( (int) $settings['candidate_dashboard_page'] )
+			$candidate_page_id = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+			$candidate_url     = $candidate_page_id > 0
+				? (string) get_permalink( $candidate_page_id )
 				: '#';
 
 			$items[] = array(

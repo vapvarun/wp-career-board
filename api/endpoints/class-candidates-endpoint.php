@@ -149,9 +149,9 @@ final class CandidatesEndpoint extends RestController {
 			$user->add_role( 'wcb_candidate' );
 			do_action( 'wcb_candidate_registered', $user->ID );
 
-			$settings      = (array) get_option( 'wcb_settings', array() );
-			$dashboard_url = ! empty( $settings['candidate_dashboard_page'] )
-				? (string) get_permalink( (int) $settings['candidate_dashboard_page'] )
+			$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+			$dashboard_url = $dashboard_id > 0
+				? (string) get_permalink( $dashboard_id )
 				: home_url( '/' );
 
 			return rest_ensure_response(
@@ -249,9 +249,9 @@ final class CandidatesEndpoint extends RestController {
 
 		do_action( 'wcb_candidate_registered', $user_id );
 
-		$settings      = (array) get_option( 'wcb_settings', array() );
-		$dashboard_url = ! empty( $settings['candidate_dashboard_page'] )
-			? (string) get_permalink( (int) $settings['candidate_dashboard_page'] )
+		$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$dashboard_url = $dashboard_id > 0
+			? (string) get_permalink( $dashboard_id )
 			: home_url( '/' );
 
 		return rest_ensure_response(
