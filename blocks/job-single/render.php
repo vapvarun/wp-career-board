@@ -90,10 +90,19 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 	$wcb_company_name = $wcb_company_post->post_title;
 }
 
-$wcb_company_url   = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
-$wcb_company_desc  = $wcb_company_post instanceof \WP_Post ? wp_trim_words( $wcb_company_post->post_content, 40 ) : '';
-$wcb_company_site  = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
-$wcb_company_trust = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
+$wcb_company_url     = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+$wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true ) : '';
+// Company "bio" prefers the post body, falls back to the marketing tagline so
+// the sidebar card never shows an empty space when an employer skipped the
+// long-form description.
+$wcb_company_desc  = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
+	? wp_trim_words( $wcb_company_post->post_content, 40 )
+	: $wcb_company_tagline;
+$wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
+$wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
+$wcb_company_industry = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
+$wcb_company_size     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
+$wcb_company_hq       = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
 $wcb_trust_map     = array(
 	'verified' => array(
 		'label' => __( 'Verified', 'wp-career-board' ),
@@ -613,6 +622,35 @@ wp_interactivity_state(
 				<?php if ( $wcb_company_desc ) : ?>
 						<p class="wcb-company-bio"><?php echo esc_html( $wcb_company_desc ); ?></p>
 				<?php endif; ?>
+
+				<?php if ( $wcb_company_industry || $wcb_company_size || $wcb_company_hq ) : ?>
+						<dl class="wcb-company-facts">
+					<?php if ( $wcb_company_industry ) : ?>
+								<div class="wcb-company-fact">
+									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
+									<dd class="wcb-company-fact__value"><?php echo esc_html( ucfirst( str_replace( array( '-', '_' ), ' ', $wcb_company_industry ) ) ); ?></dd>
+								</div>
+					<?php endif; ?>
+					<?php if ( $wcb_company_size ) : ?>
+								<div class="wcb-company-fact">
+									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
+									<dd class="wcb-company-fact__value">
+									<?php
+									/* translators: %s: employee count range, e.g. 501-1000 */
+									printf( esc_html__( '%s employees', 'wp-career-board' ), esc_html( $wcb_company_size ) );
+									?>
+									</dd>
+								</div>
+					<?php endif; ?>
+					<?php if ( $wcb_company_hq ) : ?>
+								<div class="wcb-company-fact">
+									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
+									<dd class="wcb-company-fact__value"><?php echo esc_html( $wcb_company_hq ); ?></dd>
+								</div>
+					<?php endif; ?>
+						</dl>
+				<?php endif; ?>
+
 				<?php if ( $wcb_company_url ) : ?>
 						<a href="<?php echo esc_url( $wcb_company_url ); ?>" class="wcb-company-link">
 					<?php esc_html_e( 'View Company Profile', 'wp-career-board' ); ?> →
