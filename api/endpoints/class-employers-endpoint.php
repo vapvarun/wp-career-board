@@ -529,7 +529,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'post_type'      => 'wcb_job',
 				'author'         => (int) $user_id,
-				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 			)
@@ -541,15 +541,25 @@ final class EmployersEndpoint extends RestController {
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 				$status_labels  = array(
-					'publish' => 'Published',
-					'draft'   => 'Draft',
-					'pending' => 'Pending',
-					'private' => 'Private',
+					'publish'     => 'Published',
+					'draft'       => 'Draft',
+					'pending'     => 'Pending',
+					'private'     => 'Private',
+					'wcb_closed'  => 'Closed',
+					'wcb_expired' => 'Expired',
 				);
+				// Mirror the public-facing 'closed' / 'expired' status used by
+				// the dashboard JS; matches the inverse mapping in
+				// JobsEndpoint::get_item().
+				$public_status = match ( $p->post_status ) {
+					'wcb_closed'  => 'closed',
+					'wcb_expired' => 'expired',
+					default       => $p->post_status,
+				};
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $p->post_status,
+					'status'      => $public_status,
 					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
@@ -588,7 +598,7 @@ final class EmployersEndpoint extends RestController {
 		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		$post_status = ( $is_owner || $is_admin )
-		? array( 'publish', 'pending', 'draft' )
+		? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
 		: array( 'publish' );
 
 		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
@@ -636,16 +646,24 @@ final class EmployersEndpoint extends RestController {
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 
 				$status_labels = array(
-					'publish' => 'Published',
-					'draft'   => 'Draft',
-					'pending' => 'Pending',
-					'private' => 'Private',
+					'publish'     => 'Published',
+					'draft'       => 'Draft',
+					'pending'     => 'Pending',
+					'private'     => 'Private',
+					'wcb_closed'  => 'Closed',
+					'wcb_expired' => 'Expired',
 				);
+
+				$public_status = match ( $p->post_status ) {
+					'wcb_closed'  => 'closed',
+					'wcb_expired' => 'expired',
+					default       => $p->post_status,
+				};
 
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $p->post_status,
+					'status'      => $public_status,
 					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),

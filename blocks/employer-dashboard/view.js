@@ -613,15 +613,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							'Content-Type': 'application/json',
 							'X-WP-Nonce':   state.nonce,
 						},
-						body: JSON.stringify( { status: 'draft' } ),
+						body: JSON.stringify( { status: 'closed' } ),
 					}
 				);
 				if ( response.ok ) {
 					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
 					if ( idx !== -1 ) {
-						state.jobs[ idx ].status      = 'draft';
-						state.jobs[ idx ].statusLabel = 'Draft';
+						state.jobs[ idx ].status      = 'closed';
+						state.jobs[ idx ].statusLabel = 'Closed';
 						state.jobs[ idx ].isClosed    = true;
+						state.jobs[ idx ].isDraft     = false;
 					}
 				}
 			} catch {

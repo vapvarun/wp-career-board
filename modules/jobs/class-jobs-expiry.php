@@ -30,6 +30,7 @@ final class JobsExpiry {
 	 */
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_expired_status' ) );
+		add_action( 'init', array( $this, 'register_closed_status' ) );
 		add_action( 'wcb_check_job_expiry', array( $this, 'expire_jobs' ) );
 
 		if ( ! wp_next_scheduled( 'wcb_check_job_expiry' ) ) {
@@ -54,6 +55,32 @@ final class JobsExpiry {
 				'show_in_admin_status_list' => true,
 				/* translators: %s: number of expired jobs */
 				'label_count'               => _n_noop( 'Expired <span class="count">(%s)</span>', 'Expired <span class="count">(%s)</span>', 'wp-career-board' ),
+			)
+		);
+	}
+
+	/**
+	 * Register the wcb_closed custom post status.
+	 *
+	 * Used when an employer manually closes a job listing (filled, withdrawn,
+	 * etc.). Distinct from `wcb_expired` (auto-transition past deadline) and
+	 * `draft` (unsaved/rejected) — keeping these separate lets the dashboard
+	 * filter and label each lifecycle outcome correctly.
+	 *
+	 * @since 1.2.5
+	 * @return void
+	 */
+	public function register_closed_status(): void {
+		register_post_status(
+			'wcb_closed',
+			array(
+				'label'                     => _x( 'Closed', 'job post status', 'wp-career-board' ),
+				'public'                    => false,
+				'exclude_from_search'       => true,
+				'show_in_admin_all_list'    => true,
+				'show_in_admin_status_list' => true,
+				/* translators: %s: number of closed jobs */
+				'label_count'               => _n_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'wp-career-board' ),
 			)
 		);
 	}

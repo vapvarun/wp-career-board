@@ -596,8 +596,11 @@ final class JobsEndpoint extends RestController {
 			$data['post_content'] = wp_kses_post( $desc );
 		}
 		$status = $request->get_param( 'status' );
-		if ( null !== $status && in_array( $status, array( 'publish', 'draft' ), true ) ) {
-			$data['post_status'] = $status;
+		if ( null !== $status && in_array( $status, array( 'publish', 'draft', 'closed' ), true ) ) {
+			// Map the public 'closed' value to the internal wcb_closed post
+			// status — keeps the JS layer free of the wcb_ prefix while still
+			// using the registered custom status under the hood.
+			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
@@ -956,7 +959,10 @@ final class JobsEndpoint extends RestController {
 			'title'            => $post->post_title,
 			'description'      => $post->post_content,
 			'excerpt'          => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
-			'status'           => $post->post_status,
+			// Map internal wcb_closed → public 'closed' so the dashboard JS
+			// can keep its prefix-free status comparisons (mirrors the inverse
+			// mapping in update_item()).
+			'status'           => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
 			'author'           => $author_id,
 			'created_at'       => mysql_to_rfc3339( $post->post_date_gmt ),
 			'updated_at'       => mysql_to_rfc3339( $post->post_modified_gmt ),
