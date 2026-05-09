@@ -171,3 +171,46 @@ fix(wcb): T{N} — {description}
 - **Slug:** `wp-career-board`  |  **Prefix:** `wcb_`  |  **Namespace:** `WCB\`
 - **Min WP:** 6.9  |  **Min PHP:** 8.1
 - **Plan:** `docs/PLAN.md`  |  **Spec:** `docs/DESIGN-SPEC.md`
+- **Basecamp project:** `46502739` ("WP Career Board") — Bugs column `9691964821`
+
+---
+
+## Local CI pipeline (REQUIRED before push)
+
+Self-contained gate. Pre-push git hook runs it automatically.
+
+```bash
+composer install-hooks    # one-time per clone — activates .githooks/pre-commit + bin/git-hooks/pre-push
+composer ci               # full pipeline (PHPStan + WPCS + coding-rules + qa-coverage + journeys)
+composer ci:no-journeys   # everything except journey walks (~25s)
+composer ci:quick         # PHPStan + coding-rules only (~10s, tight loop)
+```
+
+Stages (in order):
+
+| Stage | Tool | Catches |
+|---|---|---|
+| 1 | `composer phpstan` | static type errors (level 5/6, baseline-aware) |
+| 2 | `composer phpcs` | WordPress coding standards |
+| 3 | `bin/coding-rules-check.sh` | inline JS/CSS, em-dash i18n, hardcoded JS strings, `current_user_can` outside chokepoint, ability-slug format, raw `$wpdb->query` |
+| 4 | `php bin/qa-coverage-check.php` | manifest-driven coverage drift — uncovered_total can shrink, never grow |
+| 5 | `bin/run-journeys.sh --priority=critical` | customer journey regression sentinels |
+
+**Bypass for emergencies only:** `SKIP_LOCAL_CI=1 git push` (pre-push), `COVERAGE_SKIP=1 git commit ...` (pre-commit coverage gate).
+
+## Customer journeys
+
+Bug fixes that survive a refactor are journey-covered. See [`audit/journeys/README.md`](audit/journeys/README.md) for the schema. When a new bug is fixed, add or update the journey that would have caught it. The journey IS the regression test.
+
+```bash
+composer journeys:list      # what's available
+composer journeys:dry-run   # what would run at priority=critical
+composer journeys:stale     # journeys with last_verified > 90 days
+composer journeys           # actually run critical journeys
+```
+
+Critical journeys today: `apply-to-job`, `employer-post-job`, `anonymous-cant-apply`. The `wp-career-board-smoke` skill (Sonnet+Playwright) reads these as Section C/E inputs at release time.
+
+## Pre-release smoke
+
+Plugin-scoped skill at `../wp-career-board-pro/.claude/skills/wp-career-board-smoke/`. Dispatches Sonnet to walk `docs/qa/AGENT_SMOKE_RUNBOOK.md` (sections A–F + Pro supplement). Writes `docs/qa/.last-smoke-pass.json`. Trigger: ask Claude Code to "run the smoke skill in combo mode".

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Pre-push gate for WP Career Board — runs the local-CI gate before push.
+#
+# Install (one-time per clone): `composer install-hooks`
+# Bypass for emergencies: `SKIP_LOCAL_CI=1 git push`
+# Bypass all hooks (last resort): `git push --no-verify`
+
+set -uo pipefail
+
+[ "${SKIP_LOCAL_CI:-0}" = "1" ] && {
+    echo "pre-push: SKIP_LOCAL_CI=1 — skipping local-CI gate."
+    exit 0
+}
+
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Run the existing ci-local.sh if present, else composer ci:no-journeys, else fail loudly.
+if [ -x bin/ci-local.sh ]; then
+    bin/ci-local.sh \
+        || { echo; echo "pre-push FAILED: bin/ci-local.sh exited non-zero. Bypass: SKIP_LOCAL_CI=1 git push"; exit 1; }
+elif command -v composer >/dev/null && grep -q '"ci:no-journeys"' composer.json 2>/dev/null; then
+    composer ci:no-journeys \
+        || { echo; echo "pre-push FAILED: composer ci:no-journeys exited non-zero."; exit 1; }
+else
+    echo "pre-push: no local-CI script found (bin/ci-local.sh or composer ci:no-journeys). Skipping."
+fi
+
+exit 0

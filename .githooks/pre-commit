@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# Pre-commit gate for WP Career Board — blocks commits that fail PHPStan,
+# WPCS, plugin-specific coding rules, or grow the qa-coverage uncovered
+# count. Mirrors Jetonomy's gate pattern.
+#
+# Install (one-time per clone): `composer install-hooks` runs:
+#   git config core.hooksPath .githooks
+#
+# Bypass (emergencies only): `git commit --no-verify`
+# Bypass coverage gate only:  `COVERAGE_SKIP=1 git commit ...`
+#
+# Target latency: under 30 seconds. If you need longer, split the check.
+
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php' | tr '\n' ' ')
+
+if [ -z "$STAGED_PHP" ]; then
+    echo "pre-commit: no staged PHP — skipping PHP checks."
+else
+    echo "pre-commit: checking $(echo $STAGED_PHP | wc -w) staged PHP file(s)..."
+
+    # PHPStan: whole project (baseline-aware). Cached, ~20-30s.
+    if [ -x vendor/bin/phpstan ]; then
+        echo "  -> phpstan"
+        vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=raw \
+            || { echo; echo "pre-commit FAILED: PHPStan errors above. Fix or --no-verify (discouraged)."; exit 1; }
+    else
+        echo "  -> phpstan (SKIPPED — vendor/bin/phpstan missing. Run: composer install)"
+    fi
+
+    # WPCS: only on staged files.
+    if [ -x vendor/bin/phpcs ]; then
+        echo "  -> phpcs (staged)"
+        if [ -f phpcs.xml ]; then
+            vendor/bin/phpcs --standard=phpcs.xml $STAGED_PHP \
+                || { echo; echo "pre-commit FAILED: WPCS errors above. composer phpcbf to auto-fix many."; exit 1; }
+        else
+            vendor/bin/phpcs $STAGED_PHP \
+                || { echo; echo "pre-commit FAILED: WPCS errors above."; exit 1; }
+        fi
+    else
+        echo "  -> phpcs (SKIPPED — vendor/bin/phpcs missing)"
+    fi
+fi
+
+# Plugin-specific coding rules (no inline JS/CSS, abilities-API only,
+# em-dash sweep, hardcoded JS strings, ability slug format, $wpdb prepare).
+if [ -x bin/coding-rules-check.sh ]; then
+    echo "  -> coding-rules"
+    bin/coding-rules-check.sh --staged --quiet \
+        || { echo; echo "pre-commit FAILED: see violations above. Each rule has a fix line."; exit 1; }
+fi
+
+# Manifest-driven QA coverage drift gate. Skip with COVERAGE_SKIP=1.
+if [ -f bin/qa-coverage-check.php ] && [ -z "${COVERAGE_SKIP:-}" ]; then
+    echo "  -> qa-coverage drift"
+    if ! php bin/qa-coverage-check.php --quiet; then
+        echo
+        echo "pre-commit FAILED: QA coverage regressed. See audit/qa-coverage.json — each"
+        echo "uncovered entry has a stub_command. Run those, fill in TODOs, retry."
+        echo "Bypass (emergency only): COVERAGE_SKIP=1 git commit ..."
+        exit 1
+    fi
+fi
+
+echo "pre-commit: OK"
+exit 0

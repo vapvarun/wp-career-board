@@ -17,6 +17,35 @@
         }
     },
     "scripts": {
+        "install-hooks": "git config core.hooksPath .githooks && echo 'hooks installed: pre-commit + pre-push (.githooks/ + bin/git-hooks/)'",
+        "phpcs": "vendor/bin/phpcs --standard=phpcs.xml",
+        "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
+        "lint": [
+            "@phpcs",
+            "@phpstan"
+        ],
+        "coding-rules": "bin/coding-rules-check.sh --full",
+        "qa-coverage": "php bin/qa-coverage-check.php",
+        "qa-coverage:strict": "php bin/qa-coverage-check.php --strict",
+        "ci:quick": [
+            "@phpstan",
+            "@coding-rules"
+        ],
+        "ci:no-journeys": [
+            "@phpstan",
+            "@phpcs",
+            "@coding-rules",
+            "@qa-coverage"
+        ],
+        "journeys": "bin/run-journeys.sh --priority=critical",
+        "journeys:dry-run": "bin/run-journeys.sh --dry-run",
+        "journeys:list": "bin/run-journeys.sh --list",
+        "journeys:stale": "bin/run-journeys.sh --audit-stale",
+        "ci": [
+            "@ci:no-journeys",
+            "@journeys"
+        ],
         "scale:seed": "wp --path=../../.. --user=1 wcb scale seed",
         "scale:bench": "wp --path=../../.. --user=1 wcb scale benchmark",
         "scale:teardown": "wp --path=../../.. --user=1 wcb scale teardown"
