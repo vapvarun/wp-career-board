@@ -82,7 +82,17 @@ $wcb_state = apply_filters(
 		'currencyCode'      => $wcb_default_currency,
 		'salaryType'        => 'yearly',
 		'remote'            => false,
-		'deadline'          => '',
+		// Auto-filled from the wcb_job_default_expiry_days filter chain (board
+		// override if set, otherwise the global jobs_expire_days). Form input
+		// is read-only; admins control the policy.
+		'deadline'          => ( static function () use ( $wcb_board_id_attr ): string {
+			$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+			$wcb_preview_request->set_param( 'board_id', $wcb_board_id_attr );
+			$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+			$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
+			$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
+			return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
+		} )(),
 		'applyUrl'          => '',
 		'applyEmail'        => '',
 		'locationSlug'      => '',
@@ -284,7 +294,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wcb-field="deadline" data-wp-bind--value="state.deadline" data-wp-on--input="actions.updateField" />
+				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wp-bind--value="state.deadline" readonly aria-readonly="true" tabindex="-1" />
+				<span class="wcb-form-hint"><?php esc_html_e( 'Auto-filled from the job-board policy. Contact your site admin to extend the listing window.', 'wp-career-board' ); ?></span>
 			</div>
 		</section>
 

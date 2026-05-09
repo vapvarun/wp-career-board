@@ -640,6 +640,48 @@ final class JobsEndpoint extends RestController {
 			// status — keeps the JS layer free of the wcb_ prefix while still
 			// using the registered custom status under the hood.
 			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
+
+			// Republish gate — when an employer flips an expired or closed
+			// listing back to publish, treat it as a fresh post for billing
+			// purposes so paid boards re-charge instead of giving free
+			// extensions. Skipped when the post never carried a cost (free
+			// boards, boardless posts) since the gate filter returns 0 there.
+			$republish_from = array( 'wcb_expired', 'wcb_closed' );
+			if ( 'publish' === $status && in_array( $post->post_status, $republish_from, true ) ) {
+				$republish_board_id = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
+				$republish_cost     = (int) apply_filters( 'wcb_board_credit_cost', 0, $republish_board_id );
+
+				/**
+				 * Filter the credit cost charged when an expired or closed job
+				 * is brought back to publish status. Pro hooks this to apply a
+				 * republish discount (e.g. 50% of the original board cost) so
+				 * site owners can offer "renew listings cheaper than re-post"
+				 * pricing without rewriting the board cost callable.
+				 *
+				 * @since 1.2.5
+				 *
+				 * @param int     $cost     Credits required to republish.
+				 * @param \WP_Post $post     The job being republished.
+				 * @param string  $previous The post status the job is leaving.
+				 */
+				$republish_cost = (int) apply_filters( 'wcb_job_republish_credit_cost', $republish_cost, $post, $post->post_status );
+
+				if ( $republish_cost > 0 ) {
+					$republish_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+					if ( $republish_balance < $republish_cost ) {
+						return new \WP_Error(
+							'wcb_insufficient_credits',
+							sprintf(
+								/* translators: 1: credit cost, 2: current balance */
+								__( 'Republishing this job requires %1$d credits. Your balance: %2$d credits.', 'wp-career-board' ),
+								$republish_cost,
+								$republish_balance
+							),
+							array( 'status' => 402 )
+						);
+					}
+				}
+			}
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
@@ -659,6 +701,25 @@ final class JobsEndpoint extends RestController {
 			}
 
 			wp_update_post( $data );
+
+			// Notify when an expired or closed listing was just republished —
+			// Pro hooks this to debit credits and refresh the listing window.
+			// Free emits the signal; the actual ledger work lives in Pro.
+			if (
+				isset( $data['post_status'] )
+				&& 'publish' === $data['post_status']
+				&& in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true )
+			) {
+				/**
+				 * Fires after an expired or closed job is republished.
+				 *
+				 * @since 1.2.5
+				 *
+				 * @param int    $job_id   The republished job's post ID.
+				 * @param string $previous The post status the job left.
+				 */
+				do_action( 'wcb_job_republished', $post->ID, $post->post_status );
+			}
 		}
 
 		// Postmeta — only update keys present in the request.

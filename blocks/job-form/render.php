@@ -184,7 +184,21 @@ $wcb_initial_state = apply_filters(
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
-		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '',
+		// Application deadline is admin-controlled, not employer-editable. For
+		// new submissions we compute the deadline using the same filter chain
+		// the REST callback applies on save, so the read-only display matches
+		// what the server will store. For edits we surface the existing value
+		// untouched.
+		'deadline'          => $wcb_edit_job
+			? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true )
+			: ( static function () use ( $wcb_board_id ): string {
+				$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+				$wcb_preview_request->set_param( 'board_id', $wcb_board_id );
+				$wcb_default_days    = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+				$wcb_resolved_days   = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
+				$wcb_resolved_days   = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
+				return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
+			} )(),
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
@@ -516,7 +530,12 @@ $wcb_step_labels = array(
 				</label>
 			</div>
 
-			<!-- Deadline -->
+			<!--
+				Deadline is admin-controlled, not employer-editable. The displayed
+				value is computed server-side using the same wcb_job_default_expiry_days
+				filter chain the REST callback applies on save (per-board override
+				if set, falls back to the global jobs_expire_days setting).
+			-->
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-deadline">
 					<?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?>
@@ -525,10 +544,14 @@ $wcb_step_labels = array(
 					id="wcb-deadline"
 					type="date"
 					class="wcb-field wcb-field--date"
-					data-wcb-field="deadline"
 					data-wp-bind--value="state.deadline"
-					data-wp-on--input="actions.updateField"
+					readonly
+					aria-readonly="true"
+					tabindex="-1"
 				/>
+				<p class="wcb-form-help">
+					<?php esc_html_e( 'Auto-filled from the job-board policy. Contact your site admin to extend the listing window.', 'wp-career-board' ); ?>
+				</p>
 			</div>
 
 			<!-- Apply URL -->
