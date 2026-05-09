@@ -700,7 +700,11 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		// Fetch all jobs for this employer (any status).
+		// Fetch all jobs for this employer (any status the employer can manage).
+		// Includes wcb_closed and wcb_expired so applications received on a
+		// since-closed job remain visible to the employer dashboard. Without
+		// these statuses, an employer who closed a job they hired from would
+		// silently lose their entire applicant pipeline for that job.
 		$job_ids = get_posts(
 			array(
 				'post_type'      => 'wcb_job',
@@ -712,7 +716,7 @@ final class EmployersEndpoint extends RestController {
 							'type'    => 'NUMERIC',
 				),
 				),
-				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' ),
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 			)
