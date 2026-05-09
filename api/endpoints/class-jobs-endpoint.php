@@ -1074,67 +1074,67 @@ final class JobsEndpoint extends RestController {
 		}
 
 		$data = array(
-			'id'               => $post->ID,
-			'title'            => $post->post_title,
-			'description'      => $post->post_content,
-			'excerpt'          => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
+			'id'                 => $post->ID,
+			'title'              => $post->post_title,
+			'description'        => $post->post_content,
+			'excerpt'            => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
 			// Map internal wcb_closed → public 'closed' so the dashboard JS
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).
-			'status'           => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
-			'author'           => $author_id,
-			'created_at'       => mysql_to_rfc3339( $post->post_date_gmt ),
-			'updated_at'       => mysql_to_rfc3339( $post->post_modified_gmt ),
+			'status'             => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
+			'author'             => $author_id,
+			'created_at'         => mysql_to_rfc3339( $post->post_date_gmt ),
+			'updated_at'         => mysql_to_rfc3339( $post->post_modified_gmt ),
 			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
-			'date'             => $post->post_date,
-			'permalink'        => get_permalink( $post->ID ),
-			'rejection_reason' => $rejection_reason,
+			'date'               => $post->post_date,
+			'permalink'          => get_permalink( $post->ID ),
+			'rejection_reason'   => $rejection_reason,
 			// Company fields.
-			'company'              => $company_name,
-			'initials'             => $this->company_initials( $company_name ),
-			'trust'                => $trust,
-			'trust_label'          => $trust_info['label'] ?? '',
-			'trust_icon'           => $trust_info['icon'] ?? '',
-			'verified'             => null !== $trust_info,
-			'company_tagline'      => $company_tagline,
-			'company_industry'     => $company_industry,
-			'company_size'         => $company_size,
-			'company_size_label'   => $this->size_label( $company_size ),
-			'company_hq'           => $company_hq,
+			'company'            => $company_name,
+			'initials'           => $this->company_initials( $company_name ),
+			'trust'              => $trust,
+			'trust_label'        => $trust_info['label'] ?? '',
+			'trust_icon'         => $trust_info['icon'] ?? '',
+			'verified'           => null !== $trust_info,
+			'company_tagline'    => $company_tagline,
+			'company_industry'   => $company_industry,
+			'company_size'       => $company_size,
+			'company_size_label' => $this->size_label( $company_size ),
+			'company_hq'         => $company_hq,
 			// Job meta.
-			'deadline'         => get_post_meta( $post->ID, '_wcb_deadline', true ),
-			'salary_min'       => $salary_min,
-			'salary_max'       => $salary_max,
-			'salary_currency'  => $currency,
-			'salary_type'      => $salary_type,
-			'salary_label'     => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
-			'remote'           => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
-			'featured'         => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
-			'board_id'         => $board_id,
-			'board_currency'   => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
+			'deadline'           => get_post_meta( $post->ID, '_wcb_deadline', true ),
+			'salary_min'         => $salary_min,
+			'salary_max'         => $salary_max,
+			'salary_currency'    => $currency,
+			'salary_type'        => $salary_type,
+			'salary_label'       => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
+			'remote'             => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
+			'featured'           => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
+			'board_id'           => $board_id,
+			'board_currency'     => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
 			// Display-name strings for cards.
-			'location'         => implode( ', ', $loc_names ),
-			'type'             => implode( ', ', $type_names ),
-			'experience'       => implode( ', ', $exp_names ),
-			'category'         => implode( ', ', $cat_names ),
+			'location'           => implode( ', ', $loc_names ),
+			'type'               => implode( ', ', $type_names ),
+			'experience'         => implode( ', ', $exp_names ),
+			'category'           => implode( ', ', $cat_names ),
 			// Relative time.
-			'days_ago'         => human_time_diff( (int) strtotime( $post->post_date ), time() ) . ' ago',
+			'days_ago'           => human_time_diff( (int) strtotime( $post->post_date ), time() ) . ' ago',
 			// Slug arrays for filter/API consumers.
-			'categories'       => $cat_slugs,
-			'job_types'        => $type_slugs,
-			'locations'        => $loc_slugs,
-			'experience_slugs' => $exp_slugs,
-			'tags'             => $tag_slugs,
-			'thumbnail'        => false !== $thumbnail_url ? (string) $thumbnail_url : '',
-			'apply_url'        => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
+			'categories'         => $cat_slugs,
+			'job_types'          => $type_slugs,
+			'locations'          => $loc_slugs,
+			'experience_slugs'   => $exp_slugs,
+			'tags'               => $tag_slugs,
+			'thumbnail'          => false !== $thumbnail_url ? (string) $thumbnail_url : '',
+			'apply_url'          => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
 			// apply_email intentionally NOT exposed via REST. Anonymous scrapers
 			// were harvesting recruiter inboxes in bulk (F-1 in
 			// plan/role-data-baseline-2026-05-07.md). The apply submission
 			// posts to /wcb/v1/jobs/{id}/apply which delivers email
 			// server-side; no client needs the literal address. Postmeta
 			// `_wcb_apply_email` remains for the apply handler + RSS feed.
-			'lat'              => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
-			'lng'              => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
+			'lat'                => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
+			'lng'                => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);
 
 		/**

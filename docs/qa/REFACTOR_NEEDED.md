@@ -239,6 +239,21 @@ Every create handler then ends with `return $this->created( $payload, rest_url( 
 
 ---
 
+## R10. Inline `<script>` / `<style>` blocks in admin PHP (3 sites)
+
+**Symptom:** `composer ci:quick` Rule 1 flags three sites:
+- `admin/class-admin-meta-boxes.php:246` — `<style>` for meta-box layout
+- `admin/class-admin-settings.php:463` — `<script>` for settings-page interactions
+- `admin/class-email-settings.php:224` — `<script>` for the wp.media logo picker (uses `esc_js( __( ... ) )` so i18n strings are leaked into inline JS)
+
+**Why this is a refactor:** moving these to `wp_enqueue_script()` / `wp_enqueue_style()` requires `wp_localize_script()` for the i18n strings (currently inlined via `esc_js`), per-screen enqueue gating (these only load on the relevant admin pages), and a stable handle naming convention. Three sites, three small extracts, one localized i18n bundle each. Roughly 60–90 min total.
+
+**Customer impact:** none directly (admin-only, behavior identical) but blocks Rule 1 from going green and the inline `esc_js()` strings can't be filtered/translated by translation plugins. Pre-existing on entry to 1.1.0 — not introduced by today's QA cleanup.
+
+**Effort:** small. **Blast radius:** 3 admin screens; tested by walking each (Email Settings logo upload, meta-box save, main settings save).
+
+---
+
 ## Summary — what the journey + audit pass actually surfaced (final tally)
 
 | Class | Count | Pattern |

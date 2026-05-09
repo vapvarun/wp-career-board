@@ -79,10 +79,23 @@ if [ -n "$PHP_FILES" ]; then
 		case "$f" in
 			vendor/*|node_modules/*|tests/*) continue ;;
 			*api/class-rest-controller.php) continue ;; # documented carve-out
+			*core/abilities-api-polyfill.php) continue ;; # the polyfill IS the chokepoint
 			*modules/antispam/*) continue ;;            # uses wcb_manage_settings cap directly
 		esac
+		# Match real call sites only. grep -n on a single file outputs
+		# `<linenum>:<text>` — no filename prefix. Filter out:
+		#   1. phpcs:ignore lines (existing carve-out)
+		#   2. lines whose text portion starts with `*` (docblock continuation),
+		#      `//` (single-line comment), or `#` (rare in PHP) — they only
+		#      MENTION the function, don't call it.
+		#   3. 2-arg per-object meta-cap checks like
+		#      current_user_can( 'edit_post', $post_id ) — Abilities API is
+		#      global-scope only and doesn't replace WordPress's object-scoped
+		#      meta caps (edit_post, delete_post, read_post, edit_user, etc.).
 		hits=$(grep -nE 'current_user_can\s*\(' "$f" 2>/dev/null \
-			| grep -vE '//\s*phpcs:ignore' || true)
+			| grep -vE '//[[:space:]]*phpcs:ignore' \
+			| grep -vE '^[0-9]+:[[:space:]]*(\*|//|#)' \
+			| grep -vE "current_user_can\(\s*['\"](edit|delete|read)_(post|page|user|comment|term)['\"]\s*," || true)
 		[ -n "$hits" ] && OFFENDERS="$OFFENDERS$f:\n$hits\n"
 	done
 	if [ -n "$OFFENDERS" ]; then

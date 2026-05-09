@@ -33,7 +33,7 @@ $wcb_jobs = get_posts(
 );
 
 if ( empty( $wcb_jobs ) ) {
-	if ( current_user_can( 'edit_posts' ) ) {
+	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate; no Abilities API equivalent for "can edit posts in general".
 		?>
 		<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-recent-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<div class="wcb-recent-empty">

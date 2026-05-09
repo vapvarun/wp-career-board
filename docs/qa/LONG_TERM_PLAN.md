@@ -205,7 +205,7 @@ wp-career-board-pro/
 ├── audit/{manifest,qa-coverage,journeys/,journey-runs/}    (Pro side)
 ├── bin/{coding-rules-check,qa-coverage-check,qa-stub-gen,run-journeys,git-hooks/pre-push}
 ├── .githooks/pre-commit
-└── .claude/skills/wp-career-board-smoke/SKILL.md           (Sonnet smoke dispatcher)
+└── .claude/skills/wp-plugin-smoke/SKILL.md           (Sonnet smoke dispatcher)
 ```
 
 Composer scripts in both: `composer ci`, `composer ci:no-journeys`, `composer ci:quick`, `composer journeys`, `composer journeys:list/dry-run/stale`, `composer qa-coverage`, `composer install-hooks`.

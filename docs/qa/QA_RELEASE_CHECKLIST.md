@@ -188,7 +188,7 @@ wp i18n make-pot . languages/wp-career-board.pot
 - [ ] `debug_log_issues[]` is empty (no fatals/warnings during walk)
 - [ ] `manual_required[]` reviewed — Firefox / Safari iOS flows verified separately by a human
 
-If the report is missing or stale, run the `wp-career-board-smoke` skill (lives in `wp-career-board-pro/.claude/skills/wp-career-board-smoke/`).
+If the report is missing or stale, run the `wp-plugin-smoke` skill (lives in `wp-career-board-pro/.claude/skills/wp-plugin-smoke/`).
 
 ## 8 — Packaging dry-run
 

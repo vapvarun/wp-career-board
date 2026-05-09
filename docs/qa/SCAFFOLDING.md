@@ -9,9 +9,12 @@ This document tracks what the `wp-plugin-release-qa` skill scaffolded into this 
 - `docs/qa/UX_AUDIT.md` — per-template surface check
 - `docs/qa/QA_RELEASE_CHECKLIST.md` — release gate (PHPUnit, PHPStan, WPCS, versions, packaging)
 - `bin/seed-qa-fixtures.php` — idempotent reseeder (uses verified v1.1.0 meta keys + Pro table schemas; not normally needed since job-portal.local already has 9 jobs / 35 applications / 9 companies / 7 resumes from prior dev)
-- `wp-career-board-pro/.claude/skills/wp-career-board-smoke/SKILL.md` — combo smoke skill (lives in Pro)
+- `docs/qa/qa.config.json` — plugin facts consumed by the global `/wp-plugin-smoke` skill (slug, version constant, site URL, personas, basecamp IDs, fixture-cleanup SQL, debug-log whitelist). Free + Pro each have their own.
 - `wp-career-board-pro/docs/qa/AGENT_SMOKE_RUNBOOK.md` — Pro-only supplement (P1 lockstep, P2 dependency guard, P3 license, P4 module presence with verified admin-surface mapping, P5 updater, P6 Pro DB)
 - `wp-career-board-pro/docs/qa/QA_RELEASE_CHECKLIST.md` — Pro-only release supplement
+- `wp-career-board-pro/docs/qa/qa.config.json` — Pro counterpart of the config file (declares `extends: wp-career-board` so the smoke skill knows to walk the combo runbook)
+
+> The smoke skill itself is **global** (`/wp-plugin-smoke`) — one skill for every plugin in the Wbcom portfolio. There is no per-plugin smoke `SKILL.md` in `.claude/skills/` (the prior `wp-career-board-smoke` skill was retired during the 2026-05-09 consistency cleanup so the dispatch pattern lives in one place).
 
 ## Verified facts (v1.1.0 audit)
 
@@ -44,21 +47,21 @@ esac
 # Browser smoke gate — refuses to package unless a fresh green smoke report
 # exists. Protects first-hand customer experience: no release ships unless
 # a run of docs/qa/AGENT_SMOKE_RUNBOOK.md (dispatched to Sonnet via the
-# wp-career-board-smoke skill) reported zero failures and zero
+# wp-plugin-smoke skill) reported zero failures and zero
 # debug_log_issues.
 SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass.json"
 if [ "$SKIP_BROWSER_SMOKE" -eq 1 ]; then
     echo "WARN: browser smoke gate skipped (--skip-browser-smoke). Not for customer releases."
 elif [ ! -f "$SMOKE_REPORT" ]; then
     echo "FAIL: no browser smoke report at $SMOKE_REPORT" >&2
-    echo "      Run the wp-career-board-smoke skill first to generate it." >&2
+    echo "      Run the wp-plugin-smoke skill first to generate it." >&2
     echo "      Emergency only: rerun with --skip-browser-smoke." >&2
     exit 30
 else
     REPORT_VERSION="$(grep -oE '"release_version"[[:space:]]*:[[:space:]]*"[^"]+"' "$SMOKE_REPORT" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)"
     if [ "$REPORT_VERSION" != "$VERSION" ]; then
         echo "FAIL: smoke report version ($REPORT_VERSION) doesn't match release version ($VERSION)" >&2
-        echo "      Rerun the wp-career-board-smoke skill against HEAD before packaging." >&2
+        echo "      Rerun the wp-plugin-smoke skill against HEAD before packaging." >&2
         exit 30
     fi
     if grep -qE '"failures"[[:space:]]*:[[:space:]]*\[[[:space:]]*\{' "$SMOKE_REPORT"; then

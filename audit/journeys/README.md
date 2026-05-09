@@ -56,7 +56,7 @@ The executor is forgiving on selectors (treat them as suggestions); strict on co
 
 ## Critical journeys (must be green to release)
 
-The smoke skill (`wp-career-board-smoke`) reads `audit/journeys/*/` for journeys with `priority: critical` and walks them as part of Section C/E. If any critical journey fails, the release gate blocks.
+The smoke skill (`wp-plugin-smoke`) reads `audit/journeys/*/` for journeys with `priority: critical` and walks them as part of Section C/E. If any critical journey fails, the release gate blocks.
 
 ## Differences vs the smoke runbook
 
