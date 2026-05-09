@@ -93,7 +93,15 @@ abstract class AbstractEmail {
 			return;
 		}
 
-		$subject = $this->get_subject();
+		// Subject placeholders (both {key} and {{key}} forms) get substituted
+		// from $vars here. The body template already runs through
+		// render_template() which extracts $vars into PHP scope and the
+		// template echoes them via $candidate_name etc. — different mechanism,
+		// same result. Without this line, subjects like "Application deadline
+		// approaching for {job_title}" reach recipients verbatim. Closes
+		// Basecamp 9874932735 (production) + 9874928455 (test-send via the
+		// reflection bridge in AdminEndpoint::test_send_email — same code path).
+		$subject = self::render_string( $this->get_subject(), $vars );
 		$body    = self::render_template( $this->get_id(), $vars );
 		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
 
@@ -115,6 +123,42 @@ abstract class AbstractEmail {
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
+	}
+
+	/**
+	 * Substitute `{key}` and `{{key}}` placeholders in a string.
+	 *
+	 * Used for subject lines and any other plain-string template fragment
+	 * that needs merge-tag substitution. The body templates (PHP files
+	 * loaded via render_template) use the older `extract($vars)` mechanism
+	 * with `<?php echo $candidate_name; ?>` style — different mechanism,
+	 * same outcome.
+	 *
+	 * Both `{job_title}` (single brace, used by deadline-reminder default)
+	 * and `{{job_title}}` (double brace, used by other templates) are
+	 * handled to keep the existing template authoring conventions working.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param string               $template Template string with placeholders.
+	 * @param array<string, mixed> $vars     Map of merge-tag keys to values.
+	 * @return string The string with placeholders replaced. Non-scalar
+	 *                values are skipped (left as the literal placeholder
+	 *                so the renderer can inspect what didn't substitute).
+	 */
+	public static function render_string( string $template, array $vars ): string {
+		foreach ( $vars as $key => $value ) {
+			if ( ! is_scalar( $value ) ) {
+				continue;
+			}
+			$replacement = (string) $value;
+			$template    = str_replace(
+				array( '{{' . $key . '}}', '{' . $key . '}' ),
+				$replacement,
+				$template
+			);
+		}
+		return $template;
 	}
 
 	/**
