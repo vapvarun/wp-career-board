@@ -750,14 +750,14 @@ wp_interactivity_state(
 								class="wcb-apply-resume-select"
 								data-wp-on--change="actions.selectResume"
 							>
-								<option value="0"><?php esc_html_e( '— Select a resume —', 'wp-career-board' ); ?></option>
+								<option value="0"><?php esc_html_e( ' -  Select a resume  - ', 'wp-career-board' ); ?></option>
 				<?php foreach ( $wcb_user_resumes as $wcb_r ) : ?>
 									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo empty( $wcb_r['hasPdf'] ) ? ' disabled' : ''; ?>>
 					<?php
 					echo esc_html( $wcb_r['title'] );
 					if ( empty( $wcb_r['hasPdf'] ) ) {
 						/* translators: shown next to a resume that has no PDF attachment yet. */
-						echo ' ' . esc_html__( '(no PDF — open in builder and download to attach)', 'wp-career-board' );
+						echo ' ' . esc_html__( '(no PDF  -  open in builder and download to attach)', 'wp-career-board' );
 					}
 					?>
 									</option>
@@ -776,7 +776,7 @@ wp_interactivity_state(
 							</p>
 						<?php endif; ?>
 
-						<p class="wcb-apply-or-divider"><?php esc_html_e( '— or upload a file —', 'wp-career-board' ); ?></p>
+						<p class="wcb-apply-or-divider"><?php esc_html_e( ' -  or upload a file  - ', 'wp-career-board' ); ?></p>
 					<?php else : ?>
 						<label class="wcb-field-label" for="wcb-resume-file">
 						<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
@@ -794,7 +794,7 @@ wp_interactivity_state(
 						<span class="wcb-upload-hint">
 		<?php
 		/* translators: %d: max upload size in MB */
-		printf( esc_html__( 'PDF, DOC or DOCX — max %d MB', 'wp-career-board' ), absint( $wcb_resume_max_mb ) );
+		printf( esc_html__( 'PDF, DOC or DOCX  -  max %d MB', 'wp-career-board' ), absint( $wcb_resume_max_mb ) );
 		?>
 						</span>
 						<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>

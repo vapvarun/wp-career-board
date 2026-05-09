@@ -38,7 +38,7 @@ final class Industries {
 	 */
 	public static function all(): array {
 		$industries = array(
-			''               => __( '— Select Industry —', 'wp-career-board' ),
+			''               => __( ' -  Select Industry  - ', 'wp-career-board' ),
 			'technology'     => __( 'Technology & Software', 'wp-career-board' ),
 			'healthcare'     => __( 'Healthcare & Life Sciences', 'wp-career-board' ),
 			'finance'        => __( 'Finance & Banking', 'wp-career-board' ),

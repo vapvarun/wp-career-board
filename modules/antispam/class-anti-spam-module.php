@@ -192,7 +192,7 @@ class AntiSpamModule {
 							<option value="recaptcha" <?php selected( $wcb_provider, 'recaptcha' ); ?>>Google reCAPTCHA v3</option>
 						</select>
 						<p class="description">
-							<?php esc_html_e( 'Cloudflare Turnstile is recommended — fast, privacy-friendly, and free.', 'wp-career-board' ); ?>
+							<?php esc_html_e( 'Cloudflare Turnstile is recommended  -  fast, privacy-friendly, and free.', 'wp-career-board' ); ?>
 						</p>
 					</td>
 				</tr>

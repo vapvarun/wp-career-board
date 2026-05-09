@@ -468,7 +468,7 @@ $wcb_step_labels = array(
 									<?php
 									printf(
 										/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
-										esc_html__( '%1$s — %2$s (%3$s)', 'wp-career-board' ),
+										esc_html__( '%1$s  -  %2$s (%3$s)', 'wp-career-board' ),
 										esc_html( (string) $wcb_code ),
 										esc_html( (string) $wcb_meta['name'] ),
 										esc_html( (string) $wcb_meta['symbol'] )
@@ -699,7 +699,7 @@ $wcb_step_labels = array(
 						data-wp-bind--value="state.locationCustom"
 						data-wp-on--input="actions.updateField"
 						data-wp-class--wcb-hidden="!state.locationIsCustom"
-						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote — Europe', 'wp-career-board' ); ?>"
+						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
 				</div>

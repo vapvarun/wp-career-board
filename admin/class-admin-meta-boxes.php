@@ -316,7 +316,7 @@ class AdminMetaBoxes {
 				<label for="wcb_company_id"><?php esc_html_e( 'Company', 'wp-career-board' ); ?></label>
 				<?php if ( $wcb_companies ) : ?>
 					<select id="wcb_company_id" name="wcb_company_id">
-						<option value="0"><?php esc_html_e( '— Select a company —', 'wp-career-board' ); ?></option>
+						<option value="0"><?php esc_html_e( ' -  Select a company  - ', 'wp-career-board' ); ?></option>
 						<?php foreach ( $wcb_companies as $wcb_cid ) : ?>
 							<option value="<?php echo esc_attr( (string) $wcb_cid ); ?>" <?php selected( $wcb_company_id, $wcb_cid ); ?>>
 								<?php echo esc_html( (string) get_the_title( $wcb_cid ) ); ?>
@@ -385,7 +385,7 @@ class AdminMetaBoxes {
 		$wcb_industries = \WCB\Core\Industries::all();
 
 		$wcb_sizes = array(
-			''          => __( '— Select Size —', 'wp-career-board' ),
+			''          => __( ' -  Select Size  - ', 'wp-career-board' ),
 			'1-10'      => __( '1–10 employees', 'wp-career-board' ),
 			'11-50'     => __( '11–50 employees', 'wp-career-board' ),
 			'51-200'    => __( '51–200 employees', 'wp-career-board' ),
@@ -396,7 +396,7 @@ class AdminMetaBoxes {
 		);
 
 		$wcb_types = array(
-			''              => __( '— Select Type —', 'wp-career-board' ),
+			''              => __( ' -  Select Type  - ', 'wp-career-board' ),
 			'public'        => __( 'Public Company', 'wp-career-board' ),
 			'private'       => __( 'Privately Held', 'wp-career-board' ),
 			'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),

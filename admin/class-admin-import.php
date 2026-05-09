@@ -41,7 +41,7 @@ class AdminImport {
 		?>
 		<div class="wcb-admin-import">
 			<p class="description" style="margin: 0 0 16px;">
-		<?php esc_html_e( 'Each migration is safe to run multiple times — already-imported records are automatically skipped.', 'wp-career-board' ); ?>
+		<?php esc_html_e( 'Each migration is safe to run multiple times  -  already-imported records are automatically skipped.', 'wp-career-board' ); ?>
 			</p>
 
 		<?php /* ── WP Job Manager — Jobs ── */ ?>
@@ -62,7 +62,7 @@ class AdminImport {
 				</div>
 
 				<p class="wcb-import-desc">
-		<?php esc_html_e( 'Migrates job_listing posts to wcb_job. No data is lost — all fields are preserved.', 'wp-career-board' ); ?>
+		<?php esc_html_e( 'Migrates job_listing posts to wcb_job. No data is lost  -  all fields are preserved.', 'wp-career-board' ); ?>
 				</p>
 
 				<div class="wcb-import-fields">
@@ -158,7 +158,7 @@ class AdminImport {
 				</div>
 
 				<p class="wcb-import-desc">
-			<?php esc_html_e( 'Migrates resume posts to wcb_resume. All candidate data is preserved — nothing is lost.', 'wp-career-board' ); ?>
+			<?php esc_html_e( 'Migrates resume posts to wcb_resume. All candidate data is preserved  -  nothing is lost.', 'wp-career-board' ); ?>
 				</p>
 
 				<div class="wcb-import-fields">
@@ -247,7 +247,7 @@ class AdminImport {
 				</div>
 
 				<p class="wcb-import-desc">
-				<?php esc_html_e( 'Migrates resume posts to wcb_resume. All candidate data is preserved — nothing is lost.', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Migrates resume posts to wcb_resume. All candidate data is preserved  -  nothing is lost.', 'wp-career-board' ); ?>
 				</p>
 
 				<div class="wcb-import-fields">

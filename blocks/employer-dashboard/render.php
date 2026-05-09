@@ -626,7 +626,7 @@ wp_interactivity_state(
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
 							<select id="wcb-company-size" class="wcb-field-input wcb-field-select" data-wcb-field="companySize" data-wp-on--change="actions.updateField">
-								<option value=""><?php esc_html_e( '— Select size —', 'wp-career-board' ); ?></option>
+								<option value=""><?php esc_html_e( ' -  Select size  - ', 'wp-career-board' ); ?></option>
 								<?php
 								$wcb_size_options = array(
 									'1-10'      => __( '1–10 employees', 'wp-career-board' ),
@@ -663,7 +663,7 @@ wp_interactivity_state(
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-type"><?php esc_html_e( 'Company Type', 'wp-career-board' ); ?></label>
 							<select id="wcb-company-type" class="wcb-field-input wcb-field-select" data-wcb-field="companyType" data-wp-on--change="actions.updateField">
-								<option value=""><?php esc_html_e( '— Select type —', 'wp-career-board' ); ?></option>
+								<option value=""><?php esc_html_e( ' -  Select type  - ', 'wp-career-board' ); ?></option>
 								<?php
 								$wcb_type_options = array(
 									'public'        => __( 'Public Company', 'wp-career-board' ),

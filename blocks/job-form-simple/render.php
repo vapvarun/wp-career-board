@@ -284,7 +284,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 								<?php
 								printf(
 									/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
-									esc_html__( '%1$s — %2$s (%3$s)', 'wp-career-board' ),
+									esc_html__( '%1$s  -  %2$s (%3$s)', 'wp-career-board' ),
 									esc_html( (string) $wcb_code ),
 									esc_html( (string) $wcb_meta['name'] ),
 									esc_html( (string) $wcb_meta['symbol'] )

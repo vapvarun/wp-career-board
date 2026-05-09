@@ -405,7 +405,7 @@ final class Plugin {
 			array(
 				'name'        => 'wp-career-board/job-board',
 				'title'       => __( 'Full Job Board', 'wp-career-board' ),
-				'description' => __( 'Search bar, filters, and job listings grid — the complete job board page.', 'wp-career-board' ),
+				'description' => __( 'Search bar, filters, and job listings grid  -  the complete job board page.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
 				'content'     => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
 			),

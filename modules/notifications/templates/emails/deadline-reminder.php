@@ -29,14 +29,14 @@ defined( 'ABSPATH' ) || exit;
 	if ( '' !== (string) $company_name ) {
 		printf(
 			/* translators: 1: job title, 2: company name */
-			esc_html__( 'You saved "%1$s" at %2$s — the application window is closing soon.', 'wp-career-board' ),
+			esc_html__( 'You saved "%1$s" at %2$s  -  the application window is closing soon.', 'wp-career-board' ),
 			esc_html( $job_title ),
 			esc_html( $company_name )
 		);
 	} else {
 		printf(
 			/* translators: %s: job title */
-			esc_html__( 'You saved "%s" — the application window is closing soon.', 'wp-career-board' ),
+			esc_html__( 'You saved "%s"  -  the application window is closing soon.', 'wp-career-board' ),
 			esc_html( $job_title )
 		);
 	}

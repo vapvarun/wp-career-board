@@ -539,19 +539,19 @@ class Admin {
 					<ul class="wcb-pro-feature-list">
 						<li>
 							<i data-lucide="kanban"></i>
-							<span><?php esc_html_e( 'Application Pipeline — Drag-and-drop Kanban hiring stages', 'wp-career-board' ); ?></span>
+							<span><?php esc_html_e( 'Application Pipeline  -  Drag-and-drop Kanban hiring stages', 'wp-career-board' ); ?></span>
 						</li>
 						<li>
 							<i data-lucide="file-user"></i>
-							<span><?php esc_html_e( 'Resume Builder — Candidate resume profiles with rich fields', 'wp-career-board' ); ?></span>
+							<span><?php esc_html_e( 'Resume Builder  -  Candidate resume profiles with rich fields', 'wp-career-board' ); ?></span>
 						</li>
 						<li>
 							<i data-lucide="sparkles"></i>
-							<span><?php esc_html_e( 'AI Job Descriptions — Auto-generate job posts with AI', 'wp-career-board' ); ?></span>
+							<span><?php esc_html_e( 'AI Job Descriptions  -  Auto-generate job posts with AI', 'wp-career-board' ); ?></span>
 						</li>
 						<li>
 							<i data-lucide="credit-card"></i>
-							<span><?php esc_html_e( 'Credits System — Sell job post credits via Stripe', 'wp-career-board' ); ?></span>
+							<span><?php esc_html_e( 'Credits System  -  Sell job post credits via Stripe', 'wp-career-board' ); ?></span>
 						</li>
 					</ul>
 					<a href="<?php echo esc_url( $wcb_pro_upsell ); ?>"

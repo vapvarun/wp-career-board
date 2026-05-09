@@ -488,7 +488,7 @@ class AdminCompanies extends \WP_List_Table {
 	protected function column_trust_level( $item ): string {
 		$current = (string) get_post_meta( $item->ID, '_wcb_trust_level', true );
 		$options = array(
-			''         => __( '— None —', 'wp-career-board' ),
+			''         => __( ' -  None  - ', 'wp-career-board' ),
 			'verified' => __( 'Verified', 'wp-career-board' ),
 			'trusted'  => __( 'Trusted', 'wp-career-board' ),
 			'premium'  => __( 'Premium', 'wp-career-board' ),

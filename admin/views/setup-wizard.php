@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 				<i data-lucide="briefcase" class="wcb-icon--lg"></i>
 				<?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?>
 			</h2>
-			<p class="wcb-page-header__desc"><?php esc_html_e( 'Quick setup — takes about 2 minutes', 'wp-career-board' ); ?></p>
+			<p class="wcb-page-header__desc"><?php esc_html_e( 'Quick setup  -  takes about 2 minutes', 'wp-career-board' ); ?></p>
 		</div>
 	</div>
 
