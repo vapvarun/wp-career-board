@@ -18,6 +18,15 @@ let panelTriggerEl = null;
 
 const { state } = store( 'wcb-job-single', {
 	state: {
+		// Filled per-input by actions.updateCustomField when a site uses
+		// the wcb_application_form_fields_groups filter to add custom
+		// application fields. submitApplication appends each entry as
+		// custom_fields[<key>] = <value> in the POST body. The PHP
+		// endpoint (api/endpoints/class-applications-endpoint.php) reads
+		// them, validates against the filter's active output, and
+		// persists per-key as postmeta on the wcb_application post.
+		// Closes Basecamp 9874915447 (custom fields silently dropped).
+		customFields: {},
 		get bookmarkLabel() {
 			return state.bookmarked ? state.strings.bookmarkSaved : state.strings.bookmarkSave;
 		},
@@ -27,6 +36,22 @@ const { state } = store( 'wcb-job-single', {
 	},
 
 	actions: {
+		// Captures every custom field's value as the user types/selects.
+		// Bound to data-wp-on--input + data-wp-on--change in render.php
+		// (lines ~891, 893, 900). The data-wcb-field attribute on the
+		// input/select carries the field key.
+		updateCustomField( event ) {
+			const target = event && event.target;
+			if ( ! target ) {
+				return;
+			}
+			const key = target.getAttribute( 'data-wcb-field' );
+			if ( ! key ) {
+				return;
+			}
+			state.customFields = { ...state.customFields, [ key ]: target.value };
+		},
+
 		openPanel( event ) {
 			panelTriggerEl  = event?.currentTarget ?? null;
 			state.panelOpen = true;
@@ -204,6 +229,20 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( state.resumeFile ) {
 					formData.append( 'resume_file', state.resumeFile );
+				}
+
+				// Custom application fields registered by site code via the
+				// wcb_application_form_fields_groups filter. Values were
+				// captured into state.customFields by actions.updateCustomField
+				// as the user typed. PHP endpoint validates against the
+				// filter's active output before persisting.
+				for ( const customKey in state.customFields ) {
+					if ( Object.prototype.hasOwnProperty.call( state.customFields, customKey ) ) {
+						formData.append(
+							'custom_fields[' + customKey + ']',
+							String( state.customFields[ customKey ] ?? '' )
+						);
+					}
 				}
 
 				const response = yield fetch(

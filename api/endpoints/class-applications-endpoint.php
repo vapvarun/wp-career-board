@@ -304,6 +304,50 @@ final class ApplicationsEndpoint extends RestController {
 
 		update_post_meta( $app_id, '_wcb_status', 'submitted' );
 
+		// Custom application fields registered via wcb_application_form_fields_groups
+		// filter. The job-single block's view.js captures values into state.customFields
+		// as the user types and POSTs them as custom_fields[<key>] = <value>. We
+		// validate every submitted key against the active filter output (so a
+		// hand-crafted POST can't write arbitrary postmeta) and persist per-key
+		// as `_wcb_application_field_<key>`. Closes Basecamp 9874915447.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- REST nonce checked by infrastructure.
+		$wcb_custom_input = isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] )
+			? wp_unslash( $_POST['custom_fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- per-key sanitized below.
+			: array();
+
+		if ( ! empty( $wcb_custom_input ) ) {
+			$wcb_field_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
+			$wcb_known_fields = array();
+			foreach ( $wcb_field_groups as $wcb_group ) {
+				foreach ( (array) ( $wcb_group['fields'] ?? array() ) as $wcb_field ) {
+					$wcb_field_key = (string) ( $wcb_field['key'] ?? '' );
+					if ( '' !== $wcb_field_key ) {
+						$wcb_known_fields[ $wcb_field_key ] = (string) ( $wcb_field['type'] ?? 'text' );
+					}
+				}
+			}
+
+			$wcb_persisted = array();
+			foreach ( $wcb_custom_input as $wcb_key => $wcb_value ) {
+				$wcb_key = (string) $wcb_key;
+				if ( ! isset( $wcb_known_fields[ $wcb_key ] ) ) {
+					continue; // Drop keys the active filter doesn't declare.
+				}
+				$wcb_clean = match ( $wcb_known_fields[ $wcb_key ] ) {
+					'textarea' => sanitize_textarea_field( (string) $wcb_value ),
+					'email'    => sanitize_email( (string) $wcb_value ),
+					'url'      => esc_url_raw( (string) $wcb_value ),
+					'number'   => (string) (float) $wcb_value,
+					default    => sanitize_text_field( (string) $wcb_value ),
+				};
+				update_post_meta( $app_id, '_wcb_application_field_' . sanitize_key( $wcb_key ), $wcb_clean );
+				$wcb_persisted[ $wcb_key ] = $wcb_clean;
+			}
+			if ( ! empty( $wcb_persisted ) ) {
+				update_post_meta( $app_id, '_wcb_application_custom_fields', $wcb_persisted );
+			}
+		}
+
 		do_action( 'wcb_application_submitted', $app_id, $job_id, $is_guest ? 0 : $candidate_id );
 
 		return rest_ensure_response(
