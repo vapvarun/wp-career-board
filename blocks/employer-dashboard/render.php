@@ -738,7 +738,7 @@ wp_interactivity_state(
 		</div>
 
 	<!-- ── Settings panel ─────────────────────────────────────────── -->
-	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isViewSettings">
+	<div class="wcb-view-panel" id="wcb-panel-settings" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isViewSettings">
 		<div class="wcb-panel-header">
 			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
 		</div>

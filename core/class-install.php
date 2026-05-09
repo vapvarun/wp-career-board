@@ -77,11 +77,21 @@ final class Install {
 	/**
 	 * Run on plugin deactivation.
 	 *
+	 * Clears every plugin-owned cron event by iterating the canonical
+	 * CronRegistry list. Adding a new wp_schedule_event() call requires
+	 * adding the hook to CronRegistry::all() so this teardown stays
+	 * coherent — the registry is the single source of truth.
+	 *
+	 * Closes Basecamp 9874932439 (deactivate left
+	 * wcb_send_deadline_reminders + wcb_expire_featured_jobs orphaned).
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public static function deactivate(): void {
-		wp_clear_scheduled_hook( 'wcb_check_job_expiry' );
+		foreach ( CronRegistry::all() as $hook ) {
+			wp_clear_scheduled_hook( $hook );
+		}
 		flush_rewrite_rules();
 	}
 
