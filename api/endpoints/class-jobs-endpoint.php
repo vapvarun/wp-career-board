@@ -450,6 +450,28 @@ final class JobsEndpoint extends RestController {
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$status       = $auto_publish ? 'publish' : 'pending';
 
+		/**
+		 * Filter the default post status for a newly submitted job.
+		 *
+		 * Pro hooks this to honor the per-board <code>moderation</code>
+		 * setting (auto / approval) so a board configured as
+		 * approval-required forces pending even when the global default is
+		 * auto-publish, and vice versa. Free is the source of truth for the
+		 * global default; Pro adds the per-board override.
+		 *
+		 * Allowed return values: <code>publish</code>, <code>pending</code>,
+		 * <code>draft</code>. Anything else is coerced back to the input.
+		 *
+		 * @since 1.2.5
+		 *
+		 * @param string           $status  Resolved default ('publish' | 'pending').
+		 * @param \WP_REST_Request $request The originating REST request.
+		 */
+		$status = (string) apply_filters( 'wcb_job_default_status', $status, $request );
+		if ( ! in_array( $status, array( 'publish', 'pending', 'draft' ), true ) ) {
+			$status = $auto_publish ? 'publish' : 'pending';
+		}
+
 		$wcb_post_data = array(
 			'post_type'    => 'wcb_job',
 			'post_title'   => $title,
@@ -484,7 +506,24 @@ final class JobsEndpoint extends RestController {
 		$salary_type_raw  = $request->get_param( 'salary_type' );
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
-			$expire_days      = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+			$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+			$expire_days = $expire_days > 0 ? $expire_days : 30;
+
+			/**
+			 * Filter the default expiry window (in days) for a newly submitted
+			 * job when the request did not supply an explicit deadline.
+			 *
+			 * Pro hooks this to honor the per-board <code>expiry_days</code>
+			 * setting so each board can run its own posting cadence (e.g. a
+			 * "weekend gigs" board with 7-day listings vs a "permanent roles"
+			 * board with 60-day listings).
+			 *
+			 * @since 1.2.5
+			 *
+			 * @param int              $expire_days Resolved default (positive integer).
+			 * @param \WP_REST_Request $request     The originating REST request.
+			 */
+			$expire_days      = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
 			$expire_days      = $expire_days > 0 ? $expire_days : 30;
 			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 		}
