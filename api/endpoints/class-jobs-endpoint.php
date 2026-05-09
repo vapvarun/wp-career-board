@@ -176,11 +176,17 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$board = $request->get_param( 'board' );
-		if ( $board ) {
+		// Read `board_id` to match every other site in this file (schema entry,
+		// CREATE handler at line 540, UPDATE meta_map at line 732). The earlier
+		// param key `board` was inconsistent — every JS caller and the
+		// register_rest_args schema use `board_id`, so the filter never engaged
+		// and `?board_id=N` returned all jobs regardless. Aligns 1 outlier with
+		// the convention.
+		$board_id = $request->get_param( 'board_id' );
+		if ( $board_id ) {
 			$args['meta_query'][] = array(
 				'key'   => '_wcb_board_id',
-				'value' => absint( $board ),
+				'value' => absint( $board_id ),
 				'type'  => 'NUMERIC',
 			);
 		}
@@ -1024,9 +1030,22 @@ final class JobsEndpoint extends RestController {
 		$salary_type  = in_array( $salary_type, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type : 'yearly';
 		$company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 		$author_id    = (int) $post->post_author;
-		$company_id   = (int) get_user_meta( $author_id, '_wcb_company_id', true );
-		$trust        = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
-		$trust_info   = $this->trust_badge_info( $trust );
+		// Prefer the job's own _wcb_company_id postmeta (the explicit link
+		// stored at job-create time). Fall back to the author's user-meta
+		// only when the job has no postmeta — covers legacy rows that
+		// pre-date the postmeta convention. The reverse priority would
+		// surface the admin's own "their company" when admin posts a job
+		// for someone else, leaking the wrong company's brand metadata.
+		$company_id = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+		if ( ! $company_id ) {
+			$company_id = (int) get_user_meta( $author_id, '_wcb_company_id', true );
+		}
+		$trust            = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
+		$trust_info       = $this->trust_badge_info( $trust );
+		$company_tagline  = $company_id ? (string) get_post_meta( $company_id, '_wcb_tagline', true ) : '';
+		$company_industry = $company_id ? (string) get_post_meta( $company_id, '_wcb_industry', true ) : '';
+		$company_size     = $company_id ? (string) get_post_meta( $company_id, '_wcb_company_size', true ) : '';
+		$company_hq       = $company_id ? (string) get_post_meta( $company_id, '_wcb_hq_location', true ) : '';
 
 		// Human-readable taxonomy labels for card display.
 		// get_the_terms() honours object_term_cache primed in get_items() before the loop.
@@ -1071,12 +1090,17 @@ final class JobsEndpoint extends RestController {
 			'permalink'        => get_permalink( $post->ID ),
 			'rejection_reason' => $rejection_reason,
 			// Company fields.
-			'company'          => $company_name,
-			'initials'         => $this->company_initials( $company_name ),
-			'trust'            => $trust,
-			'trust_label'      => $trust_info['label'] ?? '',
-			'trust_icon'       => $trust_info['icon'] ?? '',
-			'verified'         => null !== $trust_info,
+			'company'              => $company_name,
+			'initials'             => $this->company_initials( $company_name ),
+			'trust'                => $trust,
+			'trust_label'          => $trust_info['label'] ?? '',
+			'trust_icon'           => $trust_info['icon'] ?? '',
+			'verified'             => null !== $trust_info,
+			'company_tagline'      => $company_tagline,
+			'company_industry'     => $company_industry,
+			'company_size'         => $company_size,
+			'company_size_label'   => $this->size_label( $company_size ),
+			'company_hq'           => $company_hq,
 			// Job meta.
 			'deadline'         => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'       => $salary_min,
@@ -1320,5 +1344,30 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Format a company size code into a human-readable label.
+	 *
+	 * Mirrors {@see Companies_Endpoint::size_label()} so the jobs endpoint
+	 * can surface the same `company_size_label` string consumers expect on
+	 * the companies endpoint.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param string $size Size code (e.g. '501-1000').
+	 * @return string Localised label, or the raw code when unknown.
+	 */
+	private function size_label( string $size ): string {
+		$labels = array(
+			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
+			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
+			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
+			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
+			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
+			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
+			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+		);
+		return $labels[ $size ] ?? $size;
 	}
 }
