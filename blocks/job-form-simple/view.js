@@ -16,6 +16,41 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		get hasInsufficientCredits() {
 			return state.creditCost > 0 && state.creditBalance < state.creditCost;
 		},
+
+		get hasCreditCost() {
+			return state.creditCost > 0;
+		},
+
+		get creditMessage() {
+			if ( ! state.creditCost ) {
+				return '';
+			}
+			if ( state.creditBalance < state.creditCost ) {
+				return `This board requires ${ state.creditCost } credits. Your balance: ${ state.creditBalance }. Please purchase more credits.`;
+			}
+			const balanceAfter = state.creditBalance - state.creditCost;
+			return `Posting deducts ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance after: ${ balanceAfter } (currently ${ state.creditBalance }).`;
+		},
+
+		get hasListingWindow() {
+			return ! ! state.deadline;
+		},
+
+		get listingWindowMessage() {
+			if ( ! state.deadline ) {
+				return '';
+			}
+			let formatted = state.deadline;
+			try {
+				const d = new Date( state.deadline + 'T00:00:00' );
+				if ( ! isNaN( d.getTime() ) ) {
+					formatted = d.toLocaleDateString( undefined, { year: 'numeric', month: 'long', day: 'numeric' } );
+				}
+			} catch ( _e ) {
+				// Fall back to the raw ISO date.
+			}
+			return `Listing runs until ${ formatted }. Reopen on the dashboard to extend (counts as a republish).`;
+		},
 	},
 
 	actions: {

@@ -182,7 +182,33 @@ store(
 				if ( state.creditBalance < state.creditCost ) {
 					return `This board requires ${ state.creditCost } credits. Your balance: ${ state.creditBalance }. Please purchase more credits.`;
 				}
-				return `Posting costs ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance: ${ state.creditBalance }.`;
+				const balanceAfter = state.creditBalance - state.creditCost;
+				return `Posting deducts ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance after: ${ balanceAfter } (currently ${ state.creditBalance }).`;
+			},
+
+			// Pre-publish: tell the employer when their listing will expire so
+			// the deadline isn't a surprise. Pairs with the read-only deadline
+			// field (admin policy, not employer-editable).
+			get listingWindowMessage() {
+				const { state } = store( 'wcb-job-form' );
+				if ( ! state.deadline ) {
+					return '';
+				}
+				let formatted = state.deadline;
+				try {
+					const d = new Date( state.deadline + 'T00:00:00' );
+					if ( ! isNaN( d.getTime() ) ) {
+						formatted = d.toLocaleDateString( undefined, { year: 'numeric', month: 'long', day: 'numeric' } );
+					}
+				} catch ( _e ) {
+					// Fall back to the raw ISO date.
+				}
+				return `Listing runs until ${ formatted }. Reopen on the dashboard to extend (counts as a republish).`;
+			},
+
+			get hasListingWindow() {
+				const { state } = store( 'wcb-job-form' );
+				return ! ! state.deadline;
 			},
 
 			// ── AI generation ─────────────────────────────────────────────

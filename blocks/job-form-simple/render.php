@@ -139,6 +139,11 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 	<!-- Success state -->
 	<div class="wcb-form-simple__success" data-wp-class--wcb-shown="state.submitted">
 		<h2><?php esc_html_e( '✓ Job posted', 'wp-career-board' ); ?></h2>
+		<p
+			class="wcb-form-simple__meta"
+			data-wp-class--wcb-hidden="!state.hasListingWindow"
+			data-wp-text="state.listingWindowMessage"
+		></p>
 		<p data-wp-class--wcb-hidden="!state.jobUrl">
 			<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
@@ -151,6 +156,19 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 		<!-- Error banner -->
 		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+
+		<!-- Credit + listing window banners -->
+		<p
+			class="wcb-form-simple__credit"
+			data-wp-class--wcb-shown="state.hasCreditCost"
+			data-wp-class--wcb-form-simple__credit--warn="state.hasInsufficientCredits"
+			data-wp-text="state.creditMessage"
+		></p>
+		<p
+			class="wcb-form-simple__listing-window"
+			data-wp-class--wcb-shown="state.hasListingWindow"
+			data-wp-text="state.listingWindowMessage"
+		></p>
 
 		<!-- ── Section 1: Basics ───────────────────────────────────── -->
 		<section class="wcb-form-simple__section">

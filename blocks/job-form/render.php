@@ -303,6 +303,13 @@ $wcb_step_labels = array(
 		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
 	</div>
 
+	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->
+	<p
+		class="wcb-form-help wcb-listing-window"
+		data-wp-class--wcb-hidden="!state.hasListingWindow"
+		data-wp-text="state.listingWindowMessage"
+	></p>
+
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
 		<span class="wcb-form-success__icon" aria-hidden="true">✓</span>
@@ -315,6 +322,11 @@ $wcb_step_labels = array(
 					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>
 				</span>
 			</p>
+			<p
+				class="wcb-form-success__meta"
+				data-wp-class--wcb-hidden="!state.hasListingWindow"
+				data-wp-text="state.listingWindowMessage"
+			></p>
 			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
