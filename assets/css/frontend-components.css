@@ -551,6 +551,52 @@ select.wcb-field {
 	padding: 2.5rem var(--wcb-space-3xl);
 }
 
+/* ── Account-settings rows — shared by candidate + employer dashboards ─
+ *
+ * Both dashboards use the same `wcb-settings-row` markup pattern (label
+ * column + control column inside a `.wcb-panel`). Originally the rules
+ * lived only in candidate-dashboard/styles/views.css, so the employer
+ * dashboard's Settings tab rendered as plain stacked text. Hoisted to
+ * frontend-components.css so the look stays consistent across every
+ * future settings panel that opts into the same markup.
+ *
+ * Closes Basecamp 9862907821.
+ */
+
+.wcb-settings-row {
+	display: grid;
+	grid-template-columns: 160px 1fr;
+	align-items: start;
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-settings-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-settings-row-label {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-primary);
+	padding-top: 3px;
+}
+
+.wcb-settings-row-control {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 640px) {
+	.wcb-settings-row {
+		grid-template-columns: 1fr;
+		gap: var(--wcb-space-sm);
+	}
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*

@@ -457,33 +457,12 @@
 	border-color: var(--wcb-danger);
 }
 
-/* ── Settings rows ───────────────────────────────────────────────────────── */
-.wcb-settings-row {
-	display: grid;
-	grid-template-columns: 160px 1fr;
-	align-items: start;
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-border);
-}
-
-.wcb-settings-row:last-child {
-	border-bottom: none;
-}
-
-.wcb-settings-row-label {
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
-	padding-top: 3px;
-}
-
-.wcb-settings-row-control {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-md);
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-}
+/* `.wcb-settings-row*` rules live globally in
+ * `assets/css/frontend-components.css` (shared with employer-dashboard).
+ * The narrow-screen stack-on-small override below is the only candidate-
+ * dashboard-specific tweak — but since the global file also ships the
+ * same @media block, this stays as a documented no-op for now and can
+ * be removed in a future cleanup pass. */
 
 /* ── Responsive: stack rows and actions on narrow screens ────────────────── */
 @media (max-width: 640px) {
@@ -542,8 +521,6 @@
 		width: 100%;
 	}
 
-	.wcb-settings-row {
-		grid-template-columns: 1fr;
-		gap: var(--wcb-space-sm);
-	}
+	/* `.wcb-settings-row` 1-column stack handled globally in
+	 * `assets/css/frontend-components.css` at the 640px breakpoint. */
 }
