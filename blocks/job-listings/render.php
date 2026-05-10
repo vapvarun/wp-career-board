@@ -385,8 +385,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		<div class="wcb-search-sort-row">
 			<?php if ( ! has_block( 'wp-career-board/job-search' ) ) : ?>
 			<div class="wcb-search-wrap">
-				<span class="wcb-search-icon" aria-hidden="true">
-					<i data-lucide="search" aria-hidden="true"></i>
+				<span class="wcb-search-icon" aria-hidden="true" data-wp-ignore>
+					<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				</span>
 				<label class="screen-reader-text" for="wcb-job-search"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<input
@@ -531,14 +531,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					data-wp-on--click="actions.setGridLayout"
 					aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
 				>
-					<i data-lucide="layout-grid" aria-hidden="true"></i>
+					<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				</button>
 				<button type="button" class="wcb-view-btn"
 					data-wp-class--wcb-view-btn--active="state.isList"
 					data-wp-on--click="actions.setListLayout"
 					aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
 				>
-					<i data-lucide="list" aria-hidden="true"></i>
+					<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				</button>
 			</div>
 		</div>
@@ -583,7 +583,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							data-wp-bind--aria-label="state.bookmarkLabel"
 							aria-label="<?php esc_attr_e( 'Save job', 'wp-career-board' ); ?>"
 						>
-							<i data-lucide="bookmark" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 						</button>
 					</div>
 
@@ -594,7 +594,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<span class="wcb-cbadge wcb-cbadge--type" role="status" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
 						<span class="wcb-cbadge wcb-cbadge--exp" role="status" data-wp-class--wcb-shown="context.job.experience" data-wp-text="context.job.experience"></span>
 						<span class="wcb-cbadge wcb-cbadge--location" role="status" data-wp-class--wcb-shown="context.job.location">
-							<i data-lucide="map-pin" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<span data-wp-text="context.job.location"></span>
 						</span>
 					</div>
@@ -615,7 +615,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			</article>
 		</template>
 		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status" <?php echo $wcb_jobs_raw ? 'hidden' : ''; ?>>
-			<i data-lucide="inbox" aria-hidden="true"></i>
+			<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			<p class="wcb-empty-state-text"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
 		</div>
 	</div>

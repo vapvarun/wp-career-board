@@ -402,7 +402,7 @@ wp_interactivity_state(
 					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save Job', 'wp-career-board' ) ); ?>"
 					title="<?php esc_attr_e( 'Save this job', 'wp-career-board' ); ?>"
 				>
-					<i data-lucide="bookmark" aria-hidden="true"></i>
+					<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save Job', 'wp-career-board' ) ); ?></span>
 				</button>
 			<?php endif; ?>

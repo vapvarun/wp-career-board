@@ -239,6 +239,30 @@ Every create handler then ends with `return $this->created( $payload, rest_url( 
 
 ---
 
+## R11. Schema-column reserved-word policy (post-vector audit, 2026-05-10)
+
+**Background:** the Pro `wcb_ai_vectors` schema used `vector` as an unbacktickged column name. MariaDB 11.7+ and MySQL 9+ added `VECTOR` as a reserved data type, so the parser read `vector LONGBLOB` as two type declarations and rejected the CREATE TABLE. Activation hook silently swallowed the error and the table never existed on those server versions. Fixed in commit `fa3a337`.
+
+**Audit performed (2026-05-10):** searched both `core/class-install.php` (Free) and `core/class-pro-install.php` (Pro) for unbacktickged usage of:
+
+- Hard-reserved (MySQL 9.0+ / MariaDB 11.7+ / SQL:2003): `vector`, `lateral`, `array`, `over`, `system`, `period`, `recursive`, `cube`, `rollup`, `grouping`, `window`, `cycle`, `search`, `json_table`
+- Soft-reserved (legal but worth flagging): `rank`, `groups`, `status`, `action`
+
+**Result:** no other hard-reserved collisions. `status` and `action` columns exist in `wcb_notifications_log` and `wcb_gdpr_log` but are non-reserved in MySQL/MariaDB and used in plain SELECT/INSERT contexts — no parser ambiguity.
+
+**Going-forward rule (add to wp-plugin-development skill or coding-rules-check.sh):**
+
+When adding a new column to any `dbDelta` schema:
+1. Backtick the column name if it appears in the reserved-word list above.
+2. Backtick consistently in every INSERT / UPDATE / SELECT call-site too — partial backticking still breaks queries.
+3. If a column name is on the soft-reserved list, leave it unbacktickged but document the choice in a same-line code comment.
+
+**Effort:** policy-only; no code changes needed beyond the existing `fa3a337` fix. Could be enforced by adding a `coding-rules-check.sh` Rule 7 that greps schema files for the hard-reserved list.
+
+**Customer impact:** none currently (no other collisions). The point is to prevent the next schema addition from re-introducing a `vector`-class bug.
+
+---
+
 ## R10. Inline `<script>` / `<style>` blocks in admin PHP (3 sites)
 
 **Symptom:** `composer ci:quick` Rule 1 flags three sites:

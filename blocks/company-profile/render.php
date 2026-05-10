@@ -107,9 +107,9 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 					<?php if ( $wcb_trust_info ) : ?>
 						<span class="wcb-cp-trust-badge <?php echo esc_attr( $wcb_trust_info['class'] ); ?>" role="status">
 							<?php if ( 'premium' === $wcb_trust ) : ?>
-								<i data-lucide="star" aria-hidden="true"></i>
+								<?php echo \WCB\Core\Icon::svg( 'star' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php else : ?>
-								<i data-lucide="check" aria-hidden="true"></i>
+								<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php endif; ?>
 							<?php echo esc_html( $wcb_trust_info['label'] ); ?>
 						</span>
@@ -124,19 +124,19 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				<div class="wcb-cp-meta-chips">
 					<?php if ( $wcb_industry ) : ?>
 						<span class="wcb-cp-chip">
-							<i data-lucide="briefcase" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php echo esc_html( $wcb_industry ); ?>
 						</span>
 					<?php endif; ?>
 					<?php if ( $wcb_size_label ) : ?>
 						<span class="wcb-cp-chip">
-							<i data-lucide="users" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'users' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php echo esc_html( $wcb_size_label ); ?>
 						</span>
 					<?php endif; ?>
 					<?php if ( $wcb_hq ) : ?>
 						<span class="wcb-cp-chip">
-							<i data-lucide="map-pin" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php echo esc_html( $wcb_hq ); ?>
 						</span>
 					<?php endif; ?>
@@ -146,19 +146,19 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 				<div class="wcb-cp-links">
 					<?php if ( $wcb_website ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--web" href="<?php echo esc_url( $wcb_website ); ?>" target="_blank" rel="noopener noreferrer">
-							<i data-lucide="globe" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'globe' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php esc_html_e( 'Website', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
 					<?php if ( $wcb_linkedin ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--linkedin" href="<?php echo esc_url( $wcb_linkedin ); ?>" target="_blank" rel="noopener noreferrer">
-							<i data-lucide="linkedin" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'linkedin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php esc_html_e( 'LinkedIn', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
 					<?php if ( $wcb_twitter ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--twitter" href="<?php echo esc_url( $wcb_twitter ); ?>" target="_blank" rel="noopener noreferrer">
-							<i data-lucide="twitter" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'twitter' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php esc_html_e( 'X / Twitter', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
@@ -296,7 +296,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 							<div class="wcb-cp-job-badges">
 								<span class="wcb-cjbadge wcb-cjbadge--type" data-wp-class--wcb-shown="context.job.type" data-wp-text="context.job.type"></span>
 								<span class="wcb-cjbadge wcb-cjbadge--location" data-wp-class--wcb-shown="context.job.location">
-									<i data-lucide="map-pin" aria-hidden="true"></i>
+									<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 									<span data-wp-text="context.job.location"></span>
 								</span>
 							</div>

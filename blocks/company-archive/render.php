@@ -243,7 +243,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setList"
 				data-wp-class--wcb-active="state.isList"
 			>
-				<i data-lucide="list" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			</button>
 			<button
 				type="button"
@@ -252,7 +252,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--click="actions.setGrid"
 				data-wp-class--wcb-active="state.isGrid"
 			>
-				<i data-lucide="layout-grid" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			</button>
 		</div>
 

@@ -53,7 +53,7 @@ wp_interactivity_state(
 			data-wp-on--input="actions.updateQuery"
 		/>
 		<button type="submit" class="wcb-search-button">
-			<i data-lucide="search" aria-hidden="true"></i>
+			<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			<?php esc_html_e( 'Search', 'wp-career-board' ); ?>
 		</button>
 	</form>
