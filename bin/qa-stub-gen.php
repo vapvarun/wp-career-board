@@ -219,8 +219,8 @@ function gen_hook_stub( string $plugin_dir, array $m, ?string $hook ): int {
 		return 1;
 	}
 
-	$next_id  = next_test_id( file_get_contents( $test_file ), 'H' );
-	$slug     = $hook;
+	$next_id        = next_test_id( file_get_contents( $test_file ), 'H' );
+	$slug           = $hook;
 	$consumer_count = is_array( $found['consumed_by'] ?? null ) ? count( $found['consumed_by'] ) : 0;
 
 	$stub = <<<PHP
@@ -313,7 +313,7 @@ function next_test_id( string $contents, string $prefix ): string {
 }
 
 function append_before_closing_brace( string $file, string $stub ): void {
-	$contents = (string) file_get_contents( $file );
+	$contents   = (string) file_get_contents( $file );
 	$last_brace = strrpos( $contents, '}' );
 	if ( false === $last_brace ) {
 		fwrite( STDERR, "qa-stub-gen: no closing brace found in {$file}\n" );
@@ -324,7 +324,9 @@ function append_before_closing_brace( string $file, string $stub ): void {
 }
 
 function usage_exit( int $code = 2 ): void {
-	fwrite( $code === 0 ? STDOUT : STDERR, <<<USAGE
+	fwrite(
+		$code === 0 ? STDOUT : STDERR,
+		<<<'USAGE'
 qa-stub-gen — generate QA test stubs from manifest entries
 
 Usage:

@@ -302,36 +302,36 @@ if ( $wcb_author_id_attr > 0 ) {
 }
 
 $wcb_state = array(
-	'jobs'          => $wcb_jobs_state,
-	'page'          => 1,
-	'perPage'       => $wcb_per_page,
-	'layout'        => $wcb_layout,
-	'loading'       => false,
+	'jobs'           => $wcb_jobs_state,
+	'page'           => 1,
+	'perPage'        => $wcb_per_page,
+	'layout'         => $wcb_layout,
+	'loading'        => false,
 	// Render Load More only when there are actually more rows beyond what we
 	// just rendered. The previous heuristic (count >= per_page) showed the
 	// button even when the first batch was the only batch (count == total).
-	'hasMore'       => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) < $wcb_total_count,
-	'apiBase'       => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
-	'nonce'         => wp_create_nonce( 'wp_rest' ),
-	'totalCount'    => $wcb_total_count,
-	'searchQuery'   => '',
+	'hasMore'        => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) < $wcb_total_count,
+	'apiBase'        => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
+	'nonce'          => wp_create_nonce( 'wp_rest' ),
+	'totalCount'     => $wcb_total_count,
+	'searchQuery'    => '',
 	// Seed activeFilters from boardId + metaFilter so subsequent JS fetches
 	// keep the scope. JS reads these the same way it reads any other filter.
-	'activeFilters' => (object) array_filter(
+	'activeFilters'  => (object) array_filter(
 		array(
 			'board_' . $wcb_board_id_attr  => $wcb_board_id_attr > 0 ? (string) $wcb_board_id_attr : '',
 			'meta_' . $wcb_meta_filter_key => ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) ? $wcb_meta_filter_val : '',
 		)
 	),
-	'sortBy'        => 'date_desc',
-	'alertSaved'    => false,
-	'alertSaving'   => false,
-	'authorId'      => $wcb_author_id_attr,
-	'savedBy'       => $wcb_saved_by_attr,
-	'boardId'       => $wcb_board_id_attr,
-	'metaFilter'    => $wcb_meta_filter_attr,
-	'salaryMin'     => 0,
-	'salaryMax'     => 0,
+	'sortBy'         => 'date_desc',
+	'alertSaved'     => false,
+	'alertSaving'    => false,
+	'authorId'       => $wcb_author_id_attr,
+	'savedBy'        => $wcb_saved_by_attr,
+	'boardId'        => $wcb_board_id_attr,
+	'metaFilter'     => $wcb_meta_filter_attr,
+	'salaryMin'      => 0,
+	'salaryMax'      => 0,
 	// Symbol used for the salary-filter chip + slider tooltips. Salary
 	// filtering is currency-agnostic (compares raw min/max numbers across
 	// jobs of any currency), so we surface the SITE default currency's
@@ -346,12 +346,12 @@ $wcb_state = array(
 				: '$';
 		}
 	)(),
-	'filterOptions' => array(
+	'filterOptions'  => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
 		'boards'      => $wcb_board_opts,
 	),
-	'strings'       => array(
+	'strings'        => array(
 		'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
 		'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
 		'salaryChipDefault' => __( 'Salary', 'wp-career-board' ),

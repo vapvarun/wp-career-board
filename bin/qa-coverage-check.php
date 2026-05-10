@@ -39,10 +39,10 @@ declare( strict_types = 1 );
 
 const SCHEMA_VERSION = 'v1';
 
-$opts        = parse_cli_options( $argv );
-$plugin_dir  = realpath( $opts['plugin'] );
-$manifest    = $plugin_dir . '/audit/manifest.json';
-$coverage    = $plugin_dir . '/audit/qa-coverage.json';
+$opts       = parse_cli_options( $argv );
+$plugin_dir = realpath( $opts['plugin'] );
+$manifest   = $plugin_dir . '/audit/manifest.json';
+$coverage   = $plugin_dir . '/audit/qa-coverage.json';
 
 if ( ! is_file( $manifest ) ) {
 	fwrite( STDERR, "qa-coverage: manifest not found at {$manifest}\n" );
@@ -66,7 +66,7 @@ $test_globs = array(
 	'tests/**/*.php',
 );
 
-$test_files = collect_files( $plugin_dir, $test_globs );
+$test_files  = collect_files( $plugin_dir, $test_globs );
 $test_corpus = '';
 foreach ( $test_files as $f ) {
 	$test_corpus .= "\n" . file_get_contents( $f );
@@ -79,13 +79,13 @@ foreach ( $test_files as $f ) {
 $result = array(
 	'schema_version' => SCHEMA_VERSION,
 	'plugin'         => array(
-		'slug'    => $m['plugin']['slug']    ?? basename( $plugin_dir ),
+		'slug'    => $m['plugin']['slug'] ?? basename( $plugin_dir ),
 		'version' => $m['plugin']['version'] ?? '0.0.0',
 	),
 	'generated'      => array(
-		'at'             => gmdate( 'c' ),
-		'manifest_at'    => $m['generated']['at'] ?? null,
-		'manifest_branch'=> $m['generated']['branch'] ?? null,
+		'at'              => gmdate( 'c' ),
+		'manifest_at'     => $m['generated']['at'] ?? null,
+		'manifest_branch' => $m['generated']['branch'] ?? null,
 	),
 	'categories'     => array(),
 );
@@ -100,12 +100,15 @@ $result['categories']['wp_cli']      = check_wp_cli( $m, $test_files );
 // 3. Summary roll-up.
 // ─────────────────────────────────────────────────────────
 
-$total = 0; $covered = 0; $uncovered = 0; $skipped = 0;
+$total     = 0;
+$covered   = 0;
+$uncovered = 0;
+$skipped   = 0;
 foreach ( $result['categories'] as $cat ) {
-	$total     += $cat['total']     ?? 0;
-	$covered   += $cat['covered']   ?? 0;
+	$total     += $cat['total'] ?? 0;
+	$covered   += $cat['covered'] ?? 0;
 	$uncovered += $cat['uncovered'] ?? 0;
-	$skipped   += $cat['skipped']   ?? 0;
+	$skipped   += $cat['skipped'] ?? 0;
 }
 
 $result['summary'] = array(
@@ -123,7 +126,7 @@ $result['summary'] = array(
 
 $prev_uncovered = null;
 if ( is_file( $coverage ) ) {
-	$prev = json_decode( (string) file_get_contents( $coverage ), true );
+	$prev           = json_decode( (string) file_get_contents( $coverage ), true );
 	$prev_uncovered = $prev['summary']['items_uncovered'] ?? null;
 }
 
@@ -144,13 +147,13 @@ $should_write = true;
 if ( is_file( $coverage ) ) {
 	$existing = json_decode( (string) file_get_contents( $coverage ), true );
 	if ( is_array( $existing ) ) {
-		$existing_summary  = $existing['summary'] ?? array();
-		$current_summary   = $result['summary'];
+		$existing_summary   = $existing['summary'] ?? array();
+		$current_summary    = $result['summary'];
 		$material_unchanged = (
-			( $existing_summary['items_total']     ?? null ) === $current_summary['items_total']
-			&& ( $existing_summary['items_covered']   ?? null ) === $current_summary['items_covered']
+			( $existing_summary['items_total'] ?? null ) === $current_summary['items_total']
+			&& ( $existing_summary['items_covered'] ?? null ) === $current_summary['items_covered']
 			&& ( $existing_summary['items_uncovered'] ?? null ) === $current_summary['items_uncovered']
-			&& ( $existing_summary['items_skipped']   ?? null ) === $current_summary['items_skipped']
+			&& ( $existing_summary['items_skipped'] ?? null ) === $current_summary['items_skipped']
 		);
 		if ( $material_unchanged ) {
 			$should_write = false;
@@ -181,12 +184,15 @@ if ( $opts['strict'] && $uncovered > 0 ) {
 }
 
 if ( $prev_uncovered !== null && $uncovered > $prev_uncovered ) {
-	fwrite( STDERR, sprintf(
-		"qa-coverage: REGRESSION — uncovered grew from %d to %d (delta +%d)\n",
-		$prev_uncovered,
-		$uncovered,
-		$uncovered - $prev_uncovered
-	) );
+	fwrite(
+		STDERR,
+		sprintf(
+			"qa-coverage: REGRESSION — uncovered grew from %d to %d (delta +%d)\n",
+			$prev_uncovered,
+			$uncovered,
+			$uncovered - $prev_uncovered
+		)
+	);
 	exit( 1 );
 }
 
@@ -210,7 +216,12 @@ function check_rest( array $m, string $corpus ): array {
 	$total     = count( $endpoints );
 
 	if ( $total === 0 ) {
-		return array( 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'skipped' => 0 );
+		return array(
+			'total'     => 0,
+			'covered'   => 0,
+			'uncovered' => 0,
+			'skipped'   => 0,
+		);
 	}
 
 	$covered_items   = array();
@@ -231,7 +242,7 @@ function check_rest( array $m, string $corpus ): array {
 		$method = $tc[1];
 		$path   = $tc[2];
 		// Replace PHP interpolation tokens like {$x} with a wildcard for matching.
-		$path_normalized = preg_replace( '/\{\$[^}]+\}/', '__VAR__', $path );
+		$path_normalized         = preg_replace( '/\{\$[^}]+\}/', '__VAR__', $path );
 		$test_index[ $method ][] = $path_normalized;
 	}
 
@@ -250,16 +261,19 @@ function check_rest( array $m, string $corpus ): array {
 		$method = strtoupper( $tc[1] );
 		$path   = $tc[2];
 		// Test labels often use placeholder syntax `/posts/{id}` directly.
-		$path_normalized = preg_replace( '/\{[^}]+\}/', '__VAR__', $path );
+		$path_normalized         = preg_replace( '/\{[^}]+\}/', '__VAR__', $path );
 		$test_index[ $method ][] = $path_normalized;
 	}
 
 	foreach ( $endpoints as $ep ) {
-		$route   = $ep['route']   ?? '';
+		$route   = $ep['route'] ?? '';
 		$methods = $ep['methods'] ?? array();
 		foreach ( (array) $methods as $method ) {
 			$is_covered = endpoint_covered( $route, $method, $test_index );
-			$record = array( 'method' => $method, 'route' => $route );
+			$record     = array(
+				'method' => $method,
+				'route'  => $route,
+			);
 			if ( $is_covered ) {
 				$covered_items[] = $record;
 			} else {
@@ -268,7 +282,7 @@ function check_rest( array $m, string $corpus ): array {
 					$method,
 					$route
 				);
-				$uncovered_items[] = $record;
+				$uncovered_items[]      = $record;
 			}
 		}
 	}
@@ -336,7 +350,12 @@ function check_ajax( array $m, string $corpus ): array {
 	$total   = count( $actions );
 
 	if ( $total === 0 ) {
-		return array( 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'skipped' => 0 );
+		return array(
+			'total'     => 0,
+			'covered'   => 0,
+			'uncovered' => 0,
+			'skipped'   => 0,
+		);
 	}
 
 	$covered   = array();
@@ -354,7 +373,7 @@ function check_ajax( array $m, string $corpus ): array {
 			$covered[] = $record;
 		} else {
 			$record['stub_command'] = "bin/qa-stub-gen.php ajax {$action}";
-			$uncovered[] = $record;
+			$uncovered[]            = $record;
 		}
 	}
 
@@ -379,7 +398,12 @@ function check_ajax( array $m, string $corpus ): array {
 function check_hooks_fired( array $m, string $corpus ): array {
 	$hooks = $m['hooks_fired'] ?? array();
 	if ( empty( $hooks ) ) {
-		return array( 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'skipped' => 0 );
+		return array(
+			'total'     => 0,
+			'covered'   => 0,
+			'uncovered' => 0,
+			'skipped'   => 0,
+		);
 	}
 
 	$covered   = array();
@@ -387,8 +411,8 @@ function check_hooks_fired( array $m, string $corpus ): array {
 	$skipped   = 0;
 
 	foreach ( $hooks as $h ) {
-		$name        = $h['name']         ?? '';
-		$consumed_by = $h['consumed_by']  ?? array();
+		$name        = $h['name'] ?? '';
+		$consumed_by = $h['consumed_by'] ?? array();
 
 		if ( '' === $name ) {
 			continue;
@@ -397,7 +421,7 @@ function check_hooks_fired( array $m, string $corpus ): array {
 		// Only track hooks with a real consumer; pure extensibility hooks
 		// don't get internal coverage.
 		if ( ! is_array( $consumed_by ) || count( $consumed_by ) === 0 ) {
-			$skipped++;
+			++$skipped;
 			continue;
 		}
 
@@ -406,12 +430,15 @@ function check_hooks_fired( array $m, string $corpus ): array {
 			|| strpos( $corpus, "apply_filters( '{$name}'" ) !== false
 			|| strpos( $corpus, "apply_filters('{$name}'" ) !== false;
 
-		$record = array( 'name' => $name, 'consumer_count' => count( $consumed_by ) );
+		$record = array(
+			'name'           => $name,
+			'consumer_count' => count( $consumed_by ),
+		);
 		if ( $fired ) {
 			$covered[] = $record;
 		} else {
 			$record['stub_command'] = "bin/qa-stub-gen.php hook {$name}";
-			$uncovered[] = $record;
+			$uncovered[]            = $record;
 		}
 	}
 
@@ -431,11 +458,16 @@ function check_hooks_fired( array $m, string $corpus ): array {
  * triggers the handler against a seeded fixture.
  */
 function check_cron( array $m, string $corpus ): array {
-	$cron = $m['cron'] ?? array();
+	$cron  = $m['cron'] ?? array();
 	$total = count( $cron );
 
 	if ( $total === 0 ) {
-		return array( 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'skipped' => 0 );
+		return array(
+			'total'     => 0,
+			'covered'   => 0,
+			'uncovered' => 0,
+			'skipped'   => 0,
+		);
 	}
 
 	$covered   = array();
@@ -453,7 +485,7 @@ function check_cron( array $m, string $corpus ): array {
 			$covered[] = $record;
 		} else {
 			$record['stub_command'] = "bin/qa-stub-gen.php cron {$name}";
-			$uncovered[] = $record;
+			$uncovered[]            = $record;
 		}
 	}
 
@@ -475,10 +507,15 @@ function check_cron( array $m, string $corpus ): array {
  */
 function check_wp_cli( array $m, array $test_files ): array {
 	$commands = $m['wp_cli'] ?? array();
-	$total = count( $commands );
+	$total    = count( $commands );
 
 	if ( $total === 0 ) {
-		return array( 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'skipped' => 0 );
+		return array(
+			'total'     => 0,
+			'covered'   => 0,
+			'uncovered' => 0,
+			'skipped'   => 0,
+		);
 	}
 
 	$test_basenames = array();
@@ -495,7 +532,7 @@ function check_wp_cli( array $m, array $test_files ): array {
 			continue;
 		}
 		// e.g. "user" → "class-user-journey.php"
-		$slug = strtolower( str_replace( ' ', '-', preg_replace( '/^[^ ]+ /', '', $cmd ) ) );
+		$slug       = strtolower( str_replace( ' ', '-', preg_replace( '/^[^ ]+ /', '', $cmd ) ) );
 		$is_covered = strpos( $test_basenames_blob, "class-{$slug}-journey.php" ) !== false
 			|| strpos( $test_basenames_blob, "class-{$slug}-journey-test.php" ) !== false;
 
@@ -504,7 +541,7 @@ function check_wp_cli( array $m, array $test_files ): array {
 			$covered[] = $record;
 		} else {
 			$record['stub_command'] = "bin/qa-stub-gen.php wp_cli {$cmd}";
-			$uncovered[] = $record;
+			$uncovered[]            = $record;
 		}
 	}
 
@@ -575,7 +612,7 @@ function print_human_summary( array $r, array $opts ): void {
 	if ( $opts['quiet'] ) {
 		return;
 	}
-	$s = $r['summary'];
+	$s     = $r['summary'];
 	$drift = $r['drift'];
 	echo "QA coverage — {$r['plugin']['slug']} v{$r['plugin']['version']}\n";
 	echo str_repeat( '─', 60 ) . "\n";
@@ -587,7 +624,7 @@ function print_human_summary( array $r, array $opts ): void {
 			"  %-14s  %3d / %-3d covered  %3d uncovered  %3d skipped  (%d%%)\n",
 			$name,
 			$cat['covered'] ?? 0,
-			$cat['total']   ?? 0,
+			$cat['total'] ?? 0,
 			$cat['uncovered'] ?? 0,
 			$cat['skipped'] ?? 0,
 			$pct
@@ -605,7 +642,7 @@ function print_human_summary( array $r, array $opts ): void {
 
 	if ( $drift['previous_uncovered'] !== null ) {
 		$delta = $drift['delta'];
-		$arrow = $delta > 0 ? "↑ +{$delta}" : ( $delta < 0 ? "↓ {$delta}" : "─ 0" );
+		$arrow = $delta > 0 ? "↑ +{$delta}" : ( $delta < 0 ? "↓ {$delta}" : '─ 0' );
 		echo "  Drift: previous uncovered={$drift['previous_uncovered']}, now={$drift['current_uncovered']} ({$arrow})\n";
 	} else {
 		echo "  Drift: first run — no baseline.\n";

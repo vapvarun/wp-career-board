@@ -50,8 +50,8 @@ $wcb_experiences_raw = get_terms(
 	)
 );
 
-$wcb_categories  = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
-$wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
+$wcb_categories = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
+$wcb_job_types  = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
 // Location dropdown is scoped to the employer: company HQ + reserved
 // 'remote' / 'other' terms. Admins (wcb/manage-settings) get the full taxonomy.
 // See \WCB\Core\Locations::get_dropdown_terms() for the resolution logic.

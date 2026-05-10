@@ -22,6 +22,8 @@
 	<exclude-pattern>marketing/*</exclude-pattern>
 	<exclude-pattern>import/*</exclude-pattern>
 	<exclude-pattern>*/wp-career-board/wp-career-board/*</exclude-pattern>
+	<!-- Dev-only CLI scripts (not bundled in release zip via .distignore) -->
+	<exclude-pattern>bin/*</exclude-pattern>
 
 	<!-- Base standard -->
 	<rule ref="WordPress-Extra">

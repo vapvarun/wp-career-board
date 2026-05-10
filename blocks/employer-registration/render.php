@@ -14,10 +14,10 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_user           = is_user_logged_in() ? wp_get_current_user() : null;
-$wcb_user_roles     = $wcb_user ? (array) $wcb_user->roles : array();
-$wcb_is_employer    = in_array( 'wcb_employer', $wcb_user_roles, true );
-$wcb_is_candidate   = in_array( 'wcb_candidate', $wcb_user_roles, true );
+$wcb_user         = is_user_logged_in() ? wp_get_current_user() : null;
+$wcb_user_roles   = $wcb_user ? (array) $wcb_user->roles : array();
+$wcb_is_employer  = in_array( 'wcb_employer', $wcb_user_roles, true );
+$wcb_is_candidate = in_array( 'wcb_candidate', $wcb_user_roles, true );
 
 // Logged-in users who already have a WCB role get a contextual notice + dashboard link.
 // Logged-in users without a role fall through to the form so they can pick one.
@@ -27,7 +27,7 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 	$wcb_dashboard_url = $wcb_dash_page_id > 0
 		? (string) get_permalink( $wcb_dash_page_id )
 		: '';
-	$wcb_role_label = $wcb_is_employer
+	$wcb_role_label    = $wcb_is_employer
 		? __( 'You\'re registered as an employer.', 'wp-career-board' )
 		: __( 'You\'re registered as a candidate.', 'wp-career-board' );
 	?>
@@ -45,15 +45,15 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 	return;
 }
 
-$wcb_login_url     = wp_login_url( get_permalink() ?? '' );
-$wcb_is_logged_in  = (bool) $wcb_user;
-$wcb_first_name    = $wcb_user ? (string) $wcb_user->first_name : '';
-$wcb_last_name     = $wcb_user ? (string) $wcb_user->last_name : '';
-$wcb_user_email    = $wcb_user ? (string) $wcb_user->user_email : '';
+$wcb_login_url    = wp_login_url( get_permalink() ?? '' );
+$wcb_is_logged_in = (bool) $wcb_user;
+$wcb_first_name   = $wcb_user ? (string) $wcb_user->first_name : '';
+$wcb_last_name    = $wcb_user ? (string) $wcb_user->last_name : '';
+$wcb_user_email   = $wcb_user ? (string) $wcb_user->user_email : '';
 
 if ( $wcb_user && '' === trim( $wcb_first_name . $wcb_last_name ) ) {
-	$display = (string) $wcb_user->display_name;
-	$parts   = preg_split( '/\s+/', trim( $display ), 2 );
+	$display        = (string) $wcb_user->display_name;
+	$parts          = preg_split( '/\s+/', trim( $display ), 2 );
 	$wcb_first_name = $parts[0] ?? '';
 	$wcb_last_name  = $parts[1] ?? '';
 }

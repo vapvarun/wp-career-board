@@ -310,10 +310,11 @@ final class ApplicationsEndpoint extends RestController {
 		// validate every submitted key against the active filter output (so a
 		// hand-crafted POST can't write arbitrary postmeta) and persist per-key
 		// as `_wcb_application_field_<key>`. Closes Basecamp 9874915447.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- REST nonce checked by infrastructure.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- REST nonce checked by infrastructure (permission_callback runs first).
 		$wcb_custom_input = isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] )
 			? wp_unslash( $_POST['custom_fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- per-key sanitized below.
 			: array();
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( ! empty( $wcb_custom_input ) ) {
 			$wcb_field_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );

@@ -78,7 +78,7 @@ if ( $pro_active ) {
 		'wcb_field_values',
 	);
 	foreach ( $pro_tables as $t ) {
-		$full = $wpdb->prefix . $t;
+		$full   = $wpdb->prefix . $t;
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) );
 		if ( $exists ) {
 			$wpdb->query( "DELETE FROM {$full} WHERE 1=1 AND (1=1 OR /* smoke filter */ 0)" );
@@ -153,7 +153,7 @@ $insert = function ( array $args, string $kind, array $meta = array() ) use ( $w
 		),
 		$args
 	);
-	$id = wp_insert_post( $args, true );
+	$id   = wp_insert_post( $args, true );
 	if ( is_wp_error( $id ) ) {
 		WP_CLI::error( "insert {$kind} failed: " . $id->get_error_message() );
 	}
@@ -187,7 +187,7 @@ $company_alice = $insert(
 		'_wcb_company_website' => 'https://alpha.example.test',
 	)
 );
-$company_bob = $insert(
+$company_bob   = $insert(
 	array(
 		'post_type'   => 'wcb_company',
 		'post_title'  => 'Smoke Co Beta',
@@ -240,8 +240,8 @@ for ( $i = 0; $i < 5; $i++ ) {
 		$title  = sprintf( 'Smoke Job %d - DRAFT', $i + 1 );
 	}
 	if ( 4 === $i ) {
-		$title                  = sprintf( 'Smoke Job %d - EXPIRED', $i + 1 );
-		$meta['_wcb_deadline']  = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
+		$title                 = sprintf( 'Smoke Job %d - EXPIRED', $i + 1 );
+		$meta['_wcb_deadline'] = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
 	}
 
 	$jobs[] = $insert(
@@ -333,11 +333,11 @@ if ( $pro_active ) {
 			$wpdb->insert(
 				$stages_table,
 				array(
-					'board_id'        => $board_id,
-					'label'           => $label,
-					'color'           => '#6366f1',
-					'sort_order'      => $idx + 1,
-					'is_terminal'     => 'Rejected' === $label ? 1 : 0,
+					'board_id'         => $board_id,
+					'label'            => $label,
+					'color'            => '#6366f1',
+					'sort_order'       => $idx + 1,
+					'is_terminal'      => 'Rejected' === $label ? 1 : 0,
 					'terminal_outcome' => 'Rejected' === $label ? 'rejected' : null,
 				)
 			);

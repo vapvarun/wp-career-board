@@ -128,6 +128,7 @@ class Admin {
 			'wcb_tag'        => __( 'Job Tags', 'wp-career-board' ),
 		);
 		foreach ( $wcb_tax_links as $wcb_tax => $wcb_label ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- documented WP idiom for appending taxonomy edit links to a custom top-level menu.
 			$submenu['wp-career-board'][] = array(
 				$wcb_label,
 				'wcb_manage_settings',

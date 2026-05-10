@@ -225,7 +225,7 @@ final class Locations {
 			if ( ! is_wp_error( $hq_terms ) ) {
 				foreach ( (array) $hq_terms as $hq_term ) {
 					if ( $hq_term instanceof \WP_Term && ! isset( $seen_ids[ $hq_term->term_id ] ) ) {
-						$terms[]                   = $hq_term;
+						$terms[]                       = $hq_term;
 						$seen_ids[ $hq_term->term_id ] = true;
 					}
 				}
@@ -235,7 +235,7 @@ final class Locations {
 		foreach ( array_keys( self::RESERVED ) as $slug ) {
 			$reserved = get_term_by( 'slug', $slug, 'wcb_location' );
 			if ( $reserved instanceof \WP_Term && ! isset( $seen_ids[ $reserved->term_id ] ) ) {
-				$terms[]                       = $reserved;
+				$terms[]                        = $reserved;
 				$seen_ids[ $reserved->term_id ] = true;
 			}
 		}

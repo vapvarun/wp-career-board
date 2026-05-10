@@ -95,7 +95,7 @@ $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 // Company "bio" prefers the post body, falls back to the marketing tagline so
 // the sidebar card never shows an empty space when an employer skipped the
 // long-form description.
-$wcb_company_desc  = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
+$wcb_company_desc     = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
 	? wp_trim_words( $wcb_company_post->post_content, 40 )
 	: $wcb_company_tagline;
 $wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
@@ -103,7 +103,7 @@ $wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( 
 $wcb_company_industry = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
 $wcb_company_hq       = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
-$wcb_trust_map     = array(
+$wcb_trust_map        = array(
 	'verified' => array(
 		'label' => __( 'Verified', 'wp-career-board' ),
 		'icon'  => '✓',
@@ -117,7 +117,7 @@ $wcb_trust_map     = array(
 		'icon'  => '★',
 	),
 );
-$wcb_trust_info    = $wcb_trust_map[ $wcb_company_trust ] ?? null;
+$wcb_trust_info       = $wcb_trust_map[ $wcb_company_trust ] ?? null;
 
 // ── Posted date ───────────────────────────────────────────────────────────────
 $wcb_days_ago = (int) round( ( time() - (int) strtotime( $wcb_job->post_date ) ) / DAY_IN_SECONDS );
@@ -199,7 +199,7 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 		)
 	);
 	foreach ( $wcb_resume_posts as $wcb_r ) {
-		$wcb_resume_pdf_id   = (int) get_post_meta( $wcb_r->ID, '_wcb_resume_attachment_id', true );
+		$wcb_resume_pdf_id  = (int) get_post_meta( $wcb_r->ID, '_wcb_resume_attachment_id', true );
 		$wcb_user_resumes[] = array(
 			'id'     => $wcb_r->ID,
 			'title'  => $wcb_r->post_title,

@@ -77,13 +77,34 @@ class AdminSettings {
 	 * @var   array<string,array{name:string,symbol:string}>
 	 */
 	const CURRENCIES = array(
-		'USD' => array( 'name' => 'US Dollar',         'symbol' => '$' ),
-		'EUR' => array( 'name' => 'Euro',              'symbol' => '€' ),
-		'GBP' => array( 'name' => 'British Pound',     'symbol' => '£' ),
-		'CAD' => array( 'name' => 'Canadian Dollar',   'symbol' => 'CA$' ),
-		'AUD' => array( 'name' => 'Australian Dollar', 'symbol' => 'A$' ),
-		'INR' => array( 'name' => 'Indian Rupee',      'symbol' => '₹' ),
-		'SGD' => array( 'name' => 'Singapore Dollar',  'symbol' => 'S$' ),
+		'USD' => array(
+			'name'   => 'US Dollar',
+			'symbol' => '$',
+		),
+		'EUR' => array(
+			'name'   => 'Euro',
+			'symbol' => '€',
+		),
+		'GBP' => array(
+			'name'   => 'British Pound',
+			'symbol' => '£',
+		),
+		'CAD' => array(
+			'name'   => 'Canadian Dollar',
+			'symbol' => 'CA$',
+		),
+		'AUD' => array(
+			'name'   => 'Australian Dollar',
+			'symbol' => 'A$',
+		),
+		'INR' => array(
+			'name'   => 'Indian Rupee',
+			'symbol' => '₹',
+		),
+		'SGD' => array(
+			'name'   => 'Singapore Dollar',
+			'symbol' => 'S$',
+		),
 	);
 
 	/**
@@ -111,7 +132,7 @@ class AdminSettings {
 			if ( ! is_string( $code ) || ! is_array( $entry ) ) {
 				continue;
 			}
-			$name   = $entry['name']   ?? null;
+			$name   = $entry['name'] ?? null;
 			$symbol = $entry['symbol'] ?? null;
 			if ( ! is_string( $name ) || ! is_string( $symbol ) ) {
 				continue;
