@@ -96,3 +96,69 @@ The notification bell appears in the Employer Dashboard and Candidate Dashboard.
 | Job expired | Employer | "Your job 'Senior PHP Developer' has expired" |
 
 All notifications are stored in the `wcb_notifications` database table. The `is_read` flag is set to `0` on insert. The bell badge count reflects the number of unread rows for the current user.
+
+## Deadline reminders {#deadline-reminders}
+
+New in 1.1.0 — candidates who saved a job but haven't applied get
+automated reminders before the application deadline closes.
+
+### Reminder schedule
+
+| When | Email |
+|---|---|
+| **3 days** before the deadline | "Your saved job is closing soon" reminder |
+| **1 day** before the deadline | "Last chance to apply" final reminder |
+
+Both reminders are skipped if:
+
+- The candidate has already submitted an application for that job, OR
+- The candidate has un-saved the job, OR
+- The job has been closed / removed before the cron fires.
+
+### Cron event
+
+Registered as `wcb_send_deadline_reminders`, runs daily.
+
+WordPress's wp-cron triggers it on the next page load after the
+scheduled time — for low-traffic sites, install a real cron job that
+hits `wp-cron.php` to keep timing accurate.
+
+To trigger manually:
+
+```bash
+wp cron event run wcb_send_deadline_reminders
+```
+
+### Disabling deadline reminders
+
+Navigate to **Career Board → Settings → Email** and uncheck **Send
+application deadline reminders**. The cron stays scheduled (so
+re-enabling is one click) but skips the dispatch loop.
+
+To disable the cron entirely (for example, on staging environments):
+
+```php
+add_filter( 'wcb_cron_disabled_hooks', function( $hooks ) {
+    $hooks[] = 'wcb_send_deadline_reminders';
+    return $hooks;
+} );
+```
+
+### Email template
+
+Standard plugin email format with the configured logo, header/footer.
+Subject line: "Your saved job '{{job_title}}' closes in {{days}} days".
+
+Custom merge tags available:
+
+| Tag | Value |
+|---|---|
+| `{{candidate_name}}` | Candidate first name |
+| `{{job_title}}` | Title of the saved job |
+| `{{company_name}}` | Company that posted the job |
+| `{{deadline_date}}` | Localized deadline date |
+| `{{days}}` | Days until deadline |
+| `{{job_url}}` | Direct link to the job page |
+
+Override the template by copying `modules/notifications/templates/emails/deadline-reminder.php`
+into your theme's `wp-career-board/emails/` folder.
