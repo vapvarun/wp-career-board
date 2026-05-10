@@ -84,7 +84,12 @@ else
 fi
 
 # 5. Smoke-report gate (per docs/qa/SCAFFOLDING.md paste-block)
-SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass.json"
+# Pro reads its own supplement file; Free reads the combo file.
+if [ "$SLUG" = "wp-career-board-pro" ]; then
+	SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass-pro.json"
+else
+	SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass.json"
+fi
 if [ "$SKIP_BROWSER_SMOKE" -eq 1 ]; then
 	echo "WARN: browser smoke gate skipped (--skip-browser-smoke). Not for customer releases."
 elif [ ! -f "$SMOKE_REPORT" ]; then
