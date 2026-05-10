@@ -50,7 +50,12 @@ final class Install {
 		self::maybe_upgrade();
 		( new Roles() )->register();
 		flush_rewrite_rules();
-		update_option( 'wcb_db_version', self::DB_VERSION, false );
+		// `wcb_db_version` is bumped inside maybe_upgrade() only when every
+		// expected table actually exists. Setting it here unconditionally
+		// (as we did pre-1.1.0) hid silent dbDelta failures: the version
+		// bumped, the next activation skipped create_tables, and the missing
+		// tables stayed missing forever. Closes the underlying class behind
+		// the MariaDB 11.7+ `vector` collision.
 		update_option( 'wcb_version', WCB_VERSION, false );
 		set_transient( 'wcb_activation_redirect', true, 30 );
 	}
@@ -114,6 +119,50 @@ final class Install {
 				array( 'back_link' => true )
 			);
 		}
+	}
+
+	/**
+	 * Canonical list of plugin-owned tables that `create_tables()` must produce.
+	 *
+	 * Used by `verify_tables_exist()` to gate the `wcb_db_version` bump on
+	 * actual schema state. Adding a new dbDelta call to `create_tables()`
+	 * requires adding the bare table name (no `$wpdb->prefix`) here so the
+	 * gate stays coherent.
+	 *
+	 * @since 1.1.0
+	 * @return list<string>
+	 */
+	public static function expected_tables(): array {
+		return array(
+			'wcb_notifications_log',
+			'wcb_job_views',
+			'wcb_gdpr_log',
+		);
+	}
+
+	/**
+	 * Verify every expected table actually exists in the database.
+	 *
+	 * Returns false if even one expected table is missing — the caller (the
+	 * version-bump in maybe_upgrade) must NOT advance `wcb_db_version` in
+	 * that case so the next activation / upgrade-in-place gets to retry
+	 * `create_tables()`. Pre-1.1.0 the version bumped unconditionally,
+	 * which hid the MariaDB 11.7+ `vector`-column dbDelta failure.
+	 *
+	 * @since 1.1.0
+	 * @return bool True when every expected table exists, false otherwise.
+	 */
+	private static function verify_tables_exist(): bool {
+		global $wpdb;
+		foreach ( self::expected_tables() as $table ) {
+			$full = $wpdb->prefix . $table;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name comes from a static method-internal allowlist.
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) );
+			if ( $exists !== $full ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -299,7 +348,16 @@ final class Install {
 				delete_option( 'wcbp_resume_settings_migrated' );
 			}
 
-			update_option( 'wcb_db_version', self::DB_VERSION, false );
+			// Only bump the stored DB version if every expected table now
+			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
+			// `vector` collision pre-fa3a337) used to bump the version
+			// anyway, which masked the failure forever — subsequent
+			// activations skipped `create_tables` because the version
+			// looked current. The verification below makes the bump
+			// dbDelta-success-conditional.
+			if ( self::verify_tables_exist() ) {
+				update_option( 'wcb_db_version', self::DB_VERSION, false );
+			}
 		}
 	}
 
