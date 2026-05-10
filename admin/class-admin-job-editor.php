@@ -110,7 +110,7 @@ class AdminJobEditor {
 			><?php echo esc_textarea( (string) $post->post_content ); ?></textarea>
 		</div>
 		<p class="description" style="margin-top:8px;">
-			<?php esc_html_e( 'Use the inline toolbar (select text) and the block menu (+) to format — headings, lists, links, quotes.', 'wp-career-board' ); ?>
+			<?php esc_html_e( 'Use the inline toolbar (select text) and the block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
 		</p>
 		<?php
 	}

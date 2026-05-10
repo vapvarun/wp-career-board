@@ -1,6 +1,8 @@
 .git
 .github
+.githooks
 .gitignore
+.gitattributes
 .phpcs.xml.dist
 phpcs.xml
 phpstan.neon
@@ -9,6 +11,12 @@ phpstan-bootstrap.php
 .eslintrc*
 .stylelintrc*
 .editorconfig
+.wp-env.json
+.distignore
+.claude
+.playwright-mcp
+.last-smoke-pass.json
+.last-smoke-pass-pro.json
 node_modules
 vendor
 tests
@@ -23,6 +31,13 @@ phpunit.xml.dist
 webpack.config.js
 Gruntfile.js
 Makefile
+audit
+bin
 docs
+plan
+marketing
+import
 *.md
 !readme.txt
+.DS_Store
+*.log

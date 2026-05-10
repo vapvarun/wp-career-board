@@ -629,12 +629,12 @@ wp_interactivity_state(
 								<option value=""><?php esc_html_e( ' -  Select size  - ', 'wp-career-board' ); ?></option>
 								<?php
 								$wcb_size_options = array(
-									'1-10'      => __( '1–10 employees', 'wp-career-board' ),
-									'11-50'     => __( '11–50 employees', 'wp-career-board' ),
-									'51-200'    => __( '51–200 employees', 'wp-career-board' ),
-									'201-500'   => __( '201–500 employees', 'wp-career-board' ),
-									'501-1000'  => __( '501–1,000 employees', 'wp-career-board' ),
-									'1001-5000' => __( '1,001–5,000 employees', 'wp-career-board' ),
+									'1-10'      => __( '1-10 employees', 'wp-career-board' ),
+									'11-50'     => __( '11-50 employees', 'wp-career-board' ),
+									'51-200'    => __( '51-200 employees', 'wp-career-board' ),
+									'201-500'   => __( '201-500 employees', 'wp-career-board' ),
+									'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
+									'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
 									'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
 								);
 								foreach ( $wcb_size_options as $wcb_val => $wcb_label ) {

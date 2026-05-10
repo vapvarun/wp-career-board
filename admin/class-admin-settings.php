@@ -836,7 +836,7 @@ class AdminSettings {
 												max="20"
 												step="1"
 											>
-											<span class="description"><?php esc_html_e( 'Maximum file size for uploaded resumes (1–20 MB). Accepted formats: PDF, DOC, DOCX.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Maximum file size for uploaded resumes (1-20 MB). Accepted formats: PDF, DOC, DOCX.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

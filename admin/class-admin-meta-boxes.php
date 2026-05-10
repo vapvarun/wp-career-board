@@ -386,12 +386,12 @@ class AdminMetaBoxes {
 
 		$wcb_sizes = array(
 			''          => __( ' -  Select Size  - ', 'wp-career-board' ),
-			'1-10'      => __( '1–10 employees', 'wp-career-board' ),
-			'11-50'     => __( '11–50 employees', 'wp-career-board' ),
-			'51-200'    => __( '51–200 employees', 'wp-career-board' ),
-			'201-500'   => __( '201–500 employees', 'wp-career-board' ),
-			'501-1000'  => __( '501–1,000 employees', 'wp-career-board' ),
-			'1001-5000' => __( '1,001–5,000 employees', 'wp-career-board' ),
+			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
+			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
+			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
+			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
+			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
+			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
 			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 

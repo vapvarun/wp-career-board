@@ -257,7 +257,7 @@ class AntiSpamModule {
 						<input type="number" id="wcb-recaptcha-threshold" name="recaptcha_threshold"
 							value="<?php echo esc_attr( (string) $wcb_rc_thresh ); ?>"
 							min="0" max="1" step="0.1" class="small-text">
-						<p class="description"><?php esc_html_e( 'Requests scoring below this are rejected as bots (0.0–1.0). Default: 0.5.', 'wp-career-board' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Requests scoring below this are rejected as bots (0.0-1.0). Default: 0.5.', 'wp-career-board' ); ?></p>
 					</td>
 				</tr>
 			</table>

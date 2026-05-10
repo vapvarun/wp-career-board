@@ -418,7 +418,7 @@ $wcb_step_labels = array(
 					><?php echo esc_textarea( $wcb_edit_job ? (string) $wcb_edit_job->post_content : '' ); ?></textarea>
 				</div>
 				<span class="wcb-form-hint">
-					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format — headings, lists, links, quotes.', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
 				</span>
 			</div>
 
