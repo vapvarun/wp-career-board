@@ -62,6 +62,9 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 == Changelog ==
 
+= 1.1.1 =
+* Maintenance: Version bumped in lockstep with WP Career Board Pro 1.1.1, which migrates its credit ledger to the canonical wbcom-credits-sdk 1.3.0 schema. No functional changes in Free.
+
 = 1.1.0 =
 * New: Single-page job posting form — drop a one-screen form into any sidebar, modal, partner page, or page builder using the new "Job Form (Single-Page)" block or `[wcb_job_form_simple]` shortcode. Sits alongside the existing multi-step wizard.
 * New: Bulk applicant CSV export — select applications in the admin list table and download a UTF-8 spreadsheet with applicant name, email, job, status, applied date, cover letter, and resume URL.
