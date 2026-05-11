@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -62,8 +62,16 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 == Changelog ==
 
-= 1.1.1 =
-* Maintenance: Version bumped in lockstep with WP Career Board Pro 1.1.1, which migrates its credit ledger to the canonical wbcom-credits-sdk 1.3.0 schema. No functional changes in Free.
+= 1.1.1 - May 2026 =
+
+Bug-fix roll-up across the apply flow, the BuddyPress group integration, and the credit banner.
+
+* Fix      - Single job page now lists the Apply Email and routes Apply Now to the external Apply URL when those fields are set on the job.
+* Fix      - Boards picker in the job form now hides BuddyPress group boards the employer is not a member of (the value is delivered by Pro through a new hook).
+* Fix      - Buy Credits link in the job form is suppressed when the credit purchase URL is not configured, so the button no longer points at the current page.
+* Fix      - Pre-publish credit message ("Posting deducts N credits. Balance after: X (currently Y).") now reads its templates from translated PHP strings, with cost and balance interpolated live from the Wbcom Credits SDK.
+* Dev      - New filter wcb_board_options_for_employer( array $options, int $user_id ) lets Pro and integrators restrict the job-form Boards picker.
+* Compat   - Aligned with WP Career Board Pro 1.1.1. Install both updates together.
 
 = 1.1.0 =
 * New: Single-page job posting form — drop a one-screen form into any sidebar, modal, partner page, or page builder using the new "Job Form (Single-Page)" block or `[wcb_job_form_simple]` shortcode. Sits alongside the existing multi-step wizard.
