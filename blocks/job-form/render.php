@@ -154,6 +154,21 @@ if ( post_type_exists( 'wcb_board' ) ) {
 			'title' => $wcb_b->post_title,
 		);
 	}
+
+	/**
+	 * Filter the Boards dropdown shown to the current employer in the job form.
+	 *
+	 * Pro's BP-group integration uses this to drop boards whose linked
+	 * BuddyPress group the employer is not a member, mod, or admin of, so a
+	 * site-admin who manages every group is the only role that sees the full
+	 * list.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list (every published wcb_board).
+	 * @param int                                   $wcb_user_id       Current user id (0 if logged out).
+	 */
+	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
 }
 if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
