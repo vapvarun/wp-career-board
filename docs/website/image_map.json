@@ -2,8 +2,8 @@
   "product": "wp-career-board",
   "product_type": "plugin",
   "live_base_url": "https://docs.wbcomdesigns.com/wp-content/uploads",
-  "generated": "2026-04-07",
-  "total_images": 28.5,
+  "generated": "2026-05-10",
+  "total_images": 33,
   "images": {
     "setup-wizard-welcome.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/setup-wizard-welcome.webp",
     "setup-wizard-welcome.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/setup-wizard-welcome.webp",
@@ -118,6 +118,24 @@
     "candidate-dashboard-saved-jobs.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/candidate-dashboard-saved-jobs.webp",
     "candidate-dashboard-resumes.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/candidate-dashboard-resumes.webp",
     "candidate-dashboard-resumes.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/candidate-dashboard-resumes.webp",
-    "candidate-dashboard-resumes.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/candidate-dashboard-resumes.webp"
+    "candidate-dashboard-resumes.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/04/candidate-dashboard-resumes.webp",
+    "credits-settings.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/credits-settings.webp",
+    "credits-settings.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/credits-settings.webp",
+    "credits-settings.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/credits-settings.webp",
+    "candidate-dashboard-overview.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-overview.webp",
+    "candidate-dashboard-overview.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-overview.webp",
+    "candidate-dashboard-overview.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-overview.webp",
+    "candidate-dashboard-applications.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-applications.webp",
+    "candidate-dashboard-applications.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-applications.webp",
+    "candidate-dashboard-applications.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/candidate-dashboard-applications.webp",
+    "block-inserter.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/block-inserter.webp",
+    "block-inserter.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/block-inserter.webp",
+    "block-inserter.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/block-inserter.webp",
+    "application-panel.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/application-panel.webp",
+    "application-panel.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/application-panel.webp",
+    "application-panel.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/application-panel.webp",
+    "admin-jobs-pending.webp": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/admin-jobs-pending.webp",
+    "admin-jobs-pending.png": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/admin-jobs-pending.webp",
+    "admin-jobs-pending.jpg": "https://docs.wbcomdesigns.com/wp-content/uploads/2026/05/admin-jobs-pending.webp"
   }
 }
