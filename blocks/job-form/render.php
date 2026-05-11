@@ -188,23 +188,23 @@ if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
 $wcb_initial_state = apply_filters(
 	'wcb_job_form_initial_state',
 	array(
-		'editJobId'         => $wcb_edit_id,
-		'step'              => 1,
-		'title'             => $wcb_edit_job ? $wcb_edit_job->post_title : '',
-		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
-		'salaryMin'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
-		'salaryMax'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
-		'currencyCode'      => $wcb_edit_job
+		'editJobId'                  => $wcb_edit_id,
+		'step'                       => 1,
+		'title'                      => $wcb_edit_job ? $wcb_edit_job->post_title : '',
+		'description'                => $wcb_edit_job ? $wcb_edit_job->post_content : '',
+		'salaryMin'                  => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
+		'salaryMax'                  => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
+		'currencyCode'               => $wcb_edit_job
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
-		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
-		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
+		'salaryType'                 => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'remote'                     => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// Application deadline is admin-controlled, not employer-editable. For
 		// new submissions we compute the deadline using the same filter chain
 		// the REST callback applies on save, so the read-only display matches
 		// what the server will store. For edits we surface the existing value
 		// untouched.
-		'deadline'          => $wcb_edit_job
+		'deadline'                   => $wcb_edit_job
 			? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true )
 			: ( static function () use ( $wcb_board_id ): string {
 				$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
@@ -214,42 +214,52 @@ $wcb_initial_state = apply_filters(
 				$wcb_resolved_days   = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
 				return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
 			} )(),
-		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
-		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
-		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
+		'applyUrl'                   => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
+		'applyEmail'                 => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
+		'locationSlug'               => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
 		// Manual override path for jobs whose location isn't an existing term —
 		// employer types a one-off string ('Berlin, DE', 'Remote — Europe', etc.).
 		// On submit the form sends `location_custom` and the create/update
 		// callback wp_inserts a matching term so the listings filter still works.
-		'locationCustom'    => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_location_custom', true ) : '',
-		'typeSlug'          => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
-		'categorySlug'      => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
-		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
-		'tags'              => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
-		'companyName'       => $wcb_company_name,
-		'submitting'        => false,
-		'submitted'         => false,
-		'jobUrl'            => '',
-		'error'             => '',
-		'validationError'   => '',
-		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
-		'nonce'             => wp_create_nonce( 'wp_rest' ),
-		'creditCost'        => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
-		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
-		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
-		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+		'locationCustom'             => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_location_custom', true ) : '',
+		'typeSlug'                   => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
+		'categorySlug'               => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
+		'expSlug'                    => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
+		'tags'                       => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
+		'companyName'                => $wcb_company_name,
+		'submitting'                 => false,
+		'submitted'                  => false,
+		'jobUrl'                     => '',
+		'error'                      => '',
+		'validationError'            => '',
+		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
+		'nonce'                      => wp_create_nonce( 'wp_rest' ),
+		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
+		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
+		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		// Translated templates for state.creditMessage. JS interpolates with
+		// live cost / balance — the strings live in the .pot file, not in view.js.
+		/* translators: 1: required credits, 2: current balance. */
+		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
+		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
+		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
+		/* translators: %d: number of credits (singular). */
+		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
+		/* translators: %d: number of credits (plural). */
+		'creditNounPlural'           => __( '%d credits', 'wp-career-board' ),
+		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
 		// back to the default board id when boardId stays 0.
-		'boardId'           => $wcb_board_id,
-		'boardOptions'      => $wcb_board_options,
-		'showBoardPicker'   => count( $wcb_board_options ) > 1,
-		'customFields'      => (object) array(),
-		'typeNames'         => (object) $wcb_type_names,
-		'expNames'          => (object) $wcb_exp_names,
-		'locationNames'     => (object) $wcb_location_names,
-		'categoryNames'     => (object) $wcb_category_names,
-		'strings'           => array(
+		'boardId'                    => $wcb_board_id,
+		'boardOptions'               => $wcb_board_options,
+		'showBoardPicker'            => count( $wcb_board_options ) > 1,
+		'customFields'               => (object) array(),
+		'typeNames'                  => (object) $wcb_type_names,
+		'expNames'                   => (object) $wcb_exp_names,
+		'locationNames'              => (object) $wcb_location_names,
+		'categoryNames'              => (object) $wcb_category_names,
+		'strings'                    => array(
 			'errorSessionExpired' => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
 			'errorConnection'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		),
@@ -311,11 +321,16 @@ $wcb_step_labels = array(
 		data-wp-class--wcb-credit-banner--warn="state.insufficientCredits"
 	>
 		<span class="wcb-credit-banner__text" data-wp-text="state.creditMessage"></span>
+		<?php
+		$wcb_purchase_url_for_banner = (string) apply_filters( 'wcb_credit_purchase_url', '' );
+		if ( '' !== $wcb_purchase_url_for_banner ) :
+			?>
 		<a
 			class="wcb-credit-banner__link"
 			data-wp-bind--href="state.creditPurchaseUrl"
 			data-wp-class--wcb-hidden="!state.insufficientCredits"
 		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
+		<?php endif; ?>
 	</div>
 
 	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->

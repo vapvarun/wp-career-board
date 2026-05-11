@@ -75,17 +75,17 @@ $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog 
 $wcb_state = apply_filters(
 	'wcb_job_form_simple_initial_state',
 	array(
-		'title'             => '',
-		'description'       => '',
-		'salaryMin'         => '',
-		'salaryMax'         => '',
-		'currencyCode'      => $wcb_default_currency,
-		'salaryType'        => 'yearly',
-		'remote'            => false,
+		'title'                      => '',
+		'description'                => '',
+		'salaryMin'                  => '',
+		'salaryMax'                  => '',
+		'currencyCode'               => $wcb_default_currency,
+		'salaryType'                 => 'yearly',
+		'remote'                     => false,
 		// Auto-filled from the wcb_job_default_expiry_days filter chain (board
 		// override if set, otherwise the global jobs_expire_days). Form input
 		// is read-only; admins control the policy.
-		'deadline'          => ( static function () use ( $wcb_board_id_attr ): string {
+		'deadline'                   => ( static function () use ( $wcb_board_id_attr ): string {
 			$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
 			$wcb_preview_request->set_param( 'board_id', $wcb_board_id_attr );
 			$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
@@ -93,27 +93,37 @@ $wcb_state = apply_filters(
 			$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
 			return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
 		} )(),
-		'applyUrl'          => '',
-		'applyEmail'        => '',
-		'locationSlug'      => '',
-		'typeSlug'          => '',
-		'categorySlug'      => '',
-		'expSlug'           => '',
-		'tags'              => '',
-		'boardId'           => $wcb_board_id_attr,
-		'companyName'       => $wcb_company_name,
-		'submitting'        => false,
-		'submitted'         => false,
-		'jobUrl'            => '',
-		'error'             => '',
-		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
-		'nonce'             => wp_create_nonce( 'wp_rest' ),
-		'creditCost'        => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id_attr ),
-		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
-		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
-		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id_attr ),
-		'customFields'      => (object) array(),
-		'strings'           => array(
+		'applyUrl'                   => '',
+		'applyEmail'                 => '',
+		'locationSlug'               => '',
+		'typeSlug'                   => '',
+		'categorySlug'               => '',
+		'expSlug'                    => '',
+		'tags'                       => '',
+		'boardId'                    => $wcb_board_id_attr,
+		'companyName'                => $wcb_company_name,
+		'submitting'                 => false,
+		'submitted'                  => false,
+		'jobUrl'                     => '',
+		'error'                      => '',
+		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
+		'nonce'                      => wp_create_nonce( 'wp_rest' ),
+		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id_attr ),
+		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
+		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		// Translated templates for state.creditMessage. JS interpolates with
+		// live cost / balance — the strings live in the .pot file, not in view.js.
+		/* translators: 1: required credits, 2: current balance. */
+		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
+		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
+		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
+		/* translators: %d: number of credits (singular). */
+		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
+		/* translators: %d: number of credits (plural). */
+		'creditNounPlural'           => __( '%d credits', 'wp-career-board' ),
+		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id_attr ),
+		'customFields'               => (object) array(),
+		'strings'                    => array(
 			'errorConnection' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'errorGeneric'    => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 		),

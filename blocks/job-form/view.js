@@ -174,16 +174,34 @@ store(
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0 && state.creditBalance < state.creditCost;
 			},
+			// Dynamic message — every number is pulled live from the store.
+			//   cost    ← state.creditCost    (wcb_board_credit_cost filter; Pro per-board pricing)
+			//   balance ← state.creditBalance (wcb_employer_credit_balance filter; SDK get_balance for current user)
+			// Both seed server-side in render.php on page load and update
+			// reactively when the employer switches boards in the picker.
+			// Templates with %1$d/%2$d/%3$d placeholders are pre-translated
+			// PHP-side and pushed via wp_interactivity_state so the literal
+			// English strings live in the .pot file, not in this module.
 			get creditMessage() {
 				const { state } = store( 'wcb-job-form' );
-				if ( ! state.creditCost ) {
+				const cost    = state.creditCost;
+				const balance = state.creditBalance;
+				if ( ! cost ) {
 					return '';
 				}
-				if ( state.creditBalance < state.creditCost ) {
-					return `This board requires ${ state.creditCost } credits. Your balance: ${ state.creditBalance }. Please purchase more credits.`;
+				if ( balance < cost ) {
+					return ( state.creditInsufficientTemplate || '' )
+						.replace( '%1$d', cost )
+						.replace( '%2$d', balance );
 				}
-				const balanceAfter = state.creditBalance - state.creditCost;
-				return `Posting deducts ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance after: ${ balanceAfter } (currently ${ state.creditBalance }).`;
+				const noun = 1 === cost
+					? ( state.creditNounSingular || '' )
+					: ( state.creditNounPlural || '' );
+				const balanceAfter = balance - cost;
+				return ( state.creditDeductionTemplate || '' )
+					.replace( '%1$s', noun.replace( '%d', cost ) )
+					.replace( '%2$d', balanceAfter )
+					.replace( '%3$d', balance );
 			},
 
 			// Pre-publish: tell the employer when their listing will expire so

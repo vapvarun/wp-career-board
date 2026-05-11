@@ -21,15 +21,29 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
+		// Dynamic message — numbers come live from state.creditCost /
+		// state.creditBalance (seeded server-side via SDK). Templates
+		// are pre-translated PHP-side and pushed via wp_interactivity_state
+		// so the literal English strings live in the .pot file.
 		get creditMessage() {
-			if ( ! state.creditCost ) {
+			const cost    = state.creditCost;
+			const balance = state.creditBalance;
+			if ( ! cost ) {
 				return '';
 			}
-			if ( state.creditBalance < state.creditCost ) {
-				return `This board requires ${ state.creditCost } credits. Your balance: ${ state.creditBalance }. Please purchase more credits.`;
+			if ( balance < cost ) {
+				return ( state.creditInsufficientTemplate || '' )
+					.replace( '%1$d', cost )
+					.replace( '%2$d', balance );
 			}
-			const balanceAfter = state.creditBalance - state.creditCost;
-			return `Posting deducts ${ state.creditCost } credit${ state.creditCost !== 1 ? 's' : '' }. Balance after: ${ balanceAfter } (currently ${ state.creditBalance }).`;
+			const noun = 1 === cost
+				? ( state.creditNounSingular || '' )
+				: ( state.creditNounPlural || '' );
+			const balanceAfter = balance - cost;
+			return ( state.creditDeductionTemplate || '' )
+				.replace( '%1$s', noun.replace( '%d', cost ) )
+				.replace( '%2$d', balanceAfter )
+				.replace( '%3$d', balance );
 		},
 
 		get hasListingWindow() {
