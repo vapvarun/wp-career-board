@@ -65,6 +65,14 @@ $wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', 
 $wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
+// External apply routing — URL wins (ATS redirect), email is a passive contact channel.
+// Strict URL validation runs at save-time in Jobs_Endpoint; here we only confirm a usable http(s) scheme.
+$wcb_apply_url      = (string) get_post_meta( $wcb_job_id, '_wcb_apply_url', true );
+$wcb_apply_email    = sanitize_email( (string) get_post_meta( $wcb_job_id, '_wcb_apply_email', true ) );
+$wcb_apply_scheme   = $wcb_apply_url ? strtolower( (string) wp_parse_url( $wcb_apply_url, PHP_URL_SCHEME ) ) : '';
+$wcb_apply_url      = in_array( $wcb_apply_scheme, array( 'http', 'https' ), true ) ? esc_url_raw( $wcb_apply_url ) : '';
+$wcb_apply_external = '' !== $wcb_apply_url;
+
 // ── Salary display ────────────────────────────────────────────────────────────
 $wcb_salary_str = '';
 if ( $wcb_salary_min && $wcb_salary_max ) {
@@ -356,18 +364,29 @@ wp_interactivity_state(
 				<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 				</a>
 			<?php elseif ( $wcb_show_apply ) : ?>
-				<button
-					type="button"
-					class="wcb-btn wcb-btn--primary wcb-apply-trigger"
-					data-wp-on--click="actions.openPanel"
-					data-wp-class--wcb-hidden="state.submitted"
-				>
-				<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
-				</button>
-				<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
-				<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
-				</p>
-				<?php if ( apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
+				<?php if ( $wcb_apply_external ) : ?>
+					<a
+						href="<?php echo esc_url( $wcb_apply_url ); ?>"
+						class="wcb-btn wcb-btn--primary wcb-apply-external"
+						target="_blank"
+						rel="noopener noreferrer nofollow"
+					>
+					<?php esc_html_e( 'Apply on Company Site ↗', 'wp-career-board' ); ?>
+					</a>
+				<?php else : ?>
+					<button
+						type="button"
+						class="wcb-btn wcb-btn--primary wcb-apply-trigger"
+						data-wp-on--click="actions.openPanel"
+						data-wp-class--wcb-hidden="state.submitted"
+					>
+					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+					</button>
+					<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
+					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+					</p>
+				<?php endif; ?>
+				<?php if ( ! $wcb_apply_external && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
 				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
 					<button
 						type="button"
@@ -530,6 +549,37 @@ wp_interactivity_state(
 							<dd><?php echo esc_html( $wcb_deadline_formatted ); ?></dd>
 						</div>
 					<?php endif; ?>
+
+					<?php if ( $wcb_apply_email ) : ?>
+						<div class="wcb-detail-row">
+							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
+							<dd>
+								<a
+									class="wcb-apply-email-link"
+									href="<?php echo esc_url( 'mailto:' . $wcb_apply_email . '?subject=' . rawurlencode( sprintf( /* translators: %s: job title */ __( 'Application for %s', 'wp-career-board' ), $wcb_job->post_title ) ) ); ?>"
+								><?php echo esc_html( $wcb_apply_email ); ?></a>
+							</dd>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( $wcb_apply_external ) : ?>
+						<div class="wcb-detail-row">
+							<dt><?php esc_html_e( 'Apply Via', 'wp-career-board' ); ?></dt>
+							<dd>
+								<?php
+								$wcb_apply_host = (string) wp_parse_url( $wcb_apply_url, PHP_URL_HOST );
+								?>
+								<a
+									class="wcb-apply-url-link"
+									href="<?php echo esc_url( $wcb_apply_url ); ?>"
+									target="_blank"
+									rel="noopener noreferrer nofollow"
+								>
+									<?php echo esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) ); ?> ↗
+								</a>
+							</dd>
+						</div>
+					<?php endif; ?>
 				</dl>
 
 				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
@@ -540,17 +590,28 @@ wp_interactivity_state(
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
 				<?php elseif ( $wcb_show_apply ) : ?>
-					<button
-						type="button"
-						class="wcb-btn wcb-btn--primary wcb-btn--full"
-						data-wp-on--click="actions.openPanel"
-						data-wp-class--wcb-hidden="state.submitted"
-					>
-					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
-					</button>
-					<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
-					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
-					</p>
+					<?php if ( $wcb_apply_external ) : ?>
+						<a
+							href="<?php echo esc_url( $wcb_apply_url ); ?>"
+							class="wcb-btn wcb-btn--primary wcb-btn--full wcb-apply-external"
+							target="_blank"
+							rel="noopener noreferrer nofollow"
+						>
+						<?php esc_html_e( 'Apply on Company Site ↗', 'wp-career-board' ); ?>
+						</a>
+					<?php else : ?>
+						<button
+							type="button"
+							class="wcb-btn wcb-btn--primary wcb-btn--full"
+							data-wp-on--click="actions.openPanel"
+							data-wp-class--wcb-hidden="state.submitted"
+						>
+						<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+						</button>
+						<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
+						<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+						</p>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
@@ -677,7 +738,7 @@ wp_interactivity_state(
 	</div>
 
 	<?php /* ── Slide-in apply panel ───────────────────────────────────── */ ?>
-	<?php if ( $wcb_show_apply ) : ?>
+	<?php if ( $wcb_show_apply && ! $wcb_apply_external ) : ?>
 		<div
 			class="wcb-panel-overlay"
 			data-wp-class--wcb-open="state.panelOpen"
