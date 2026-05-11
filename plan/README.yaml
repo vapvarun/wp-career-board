@@ -1,0 +1,91 @@
+# WP Career Board — plan/ index
+#
+# Single source of truth for everything in plan/. Two kinds of documents:
+#
+#   - LIVING contracts (kind: living) sit at plan/ root because they're
+#     long-lived: INVARIANTS.yaml, this README, any other contract that
+#     evolves with the codebase. They don't have a "shipped" date.
+#
+#   - DATED artifacts (kind: dated) sit in YYYY-MM-DD-<slug>/ folders
+#     because they capture a specific pass: a release plan, a triage
+#     log, a refactor narrative. Once shipped, they don't change.
+#
+# Rule: if you add a document to plan/, add it here too. Strays produce
+# drift. The architecture-invariants gate's U5 check enforces this.
+
+version: 1
+plugin: wp-career-board
+
+# ──────────────────────────────────────────────────────────────────────
+# LIVING contracts — evolve with the codebase, no shipped date
+# ──────────────────────────────────────────────────────────────────────
+
+living:
+
+  - id: README
+    path: README.yaml
+    title: Plan index (this file)
+    scope: Single source of truth for everything under plan/.
+    owner: TBD
+    format: yaml
+
+  - id: INVARIANTS
+    path: INVARIANTS.yaml
+    title: Architecture invariants
+    scope: Every architectural rule the codebase commits to. Parsed at runtime by bin/architecture-checks.sh.
+    owner: TBD
+    format: yaml
+    consumed_by:
+      - bin/architecture-checks.sh
+      - bin/local-ci.sh (via composer arch-checks)
+
+# ──────────────────────────────────────────────────────────────────────
+# DATED artifacts — capture a specific pass, frozen once shipped
+# ──────────────────────────────────────────────────────────────────────
+
+dated:
+
+  - id: 1.2.0-stability
+    path: 1.2.0-stability.md
+    status: in-progress
+    scope: 1.2.0 stability plan — known issues, mitigation, ship criteria.
+    owner: TBD
+    format: markdown
+
+  - id: customer-experience-baseline
+    path: customer-experience-baseline.md
+    status: shipped
+    scope: Baseline snapshot of customer-facing flows before the upscale work.
+    owner: TBD
+    format: markdown
+
+  - id: role-data-baseline-2026-05-07
+    path: role-data-baseline-2026-05-07.md
+    status: shipped
+    shipped: 2026-05-07
+    scope: Role + capability data baseline captured before the upscale audit.
+    owner: TBD
+    format: markdown
+
+  - id: upscale-audit-2026-05-07
+    path: upscale-audit-2026-05-07.md
+    status: shipped
+    shipped: 2026-05-07
+    scope: Audit of upscale-readiness across data models, REST endpoints, and admin flows.
+    owner: TBD
+    format: markdown
+
+  - id: upscale-stabilization-plan-2026-05-07
+    path: upscale-stabilization-plan-2026-05-07.md
+    status: in-progress
+    started: 2026-05-07
+    scope: Sequenced stabilization plan derived from the upscale audit.
+    owner: TBD
+    format: markdown
+
+  - id: u3-current-user-can-audit
+    path: u3-current-user-can-audit.csv
+    status: shipped
+    scope: Spreadsheet capture of every current_user_can() call site used to drive U3 ability-API rollout.
+    owner: TBD
+    format: csv

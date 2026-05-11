@@ -1,0 +1,131 @@
+# WP Career Board — Architecture Invariants
+#
+# Canonical source of truth. `bin/architecture-checks.sh` parses this
+# file at runtime — adding an invariant here AND a matching check_*
+# function in the script are the two halves of a contract. The script
+# refuses to run when they drift apart.
+#
+# Schema for each entry:
+#   id           : stable identifier (e.g. U1, A2, B3) — also names the check function (`check_<id>`)
+#   group        : one of [universal, data-flow, controller, documentation, coupling, security]
+#   title        : short human description
+#   why          : the failure mode this gate prevents
+#   severity     : [error, warning] — errors fail the gate; warnings print only
+#   status       : [enforced, manual-review, planned, partial]
+#   gate_function: the bash function in architecture-checks.sh (null for manual-review)
+#   added_in     : ISO date — when the invariant was added
+
+version: 1
+plugin: wp-career-board
+
+# ──────────────────────────────────────────────────────────────────────
+# Universal invariants (every WBcom plugin should ship with these).
+# Add plugin-specific groups (A/B/C/etc.) below this section.
+# ──────────────────────────────────────────────────────────────────────
+
+invariants:
+
+  - id: U1
+    group: universal
+    title: "Zero raw \\$wpdb outside the Models layer or activate()"
+    why: "All data access via Models. Raw \\$wpdb scattered through services/controllers means cache invalidation, audit logging, and migration concerns get re-implemented per call site instead of centralized."
+    severity: error
+    status: enforced
+    gate_function: check_U1
+    added_in: 2026-05-12
+
+  - id: U2
+    group: universal
+    title: "Every Model class extends the plugin's Model base"
+    why: "Auto-cache, prepared-statement helpers, and table_exists are inherited — free if you extend the base, none of it if you do not."
+    severity: error
+    status: not-applicable
+    gate_function: null
+    added_in: 2026-05-12
+    note: "WP Career Board does not use a Model layer. Data access lives in modules/<area>/class-*-meta.php and api/endpoints/class-*-endpoint.php with direct WP CPT + WPDB calls. Re-enable when the codebase introduces a dedicated Models/ namespace."
+
+  - id: U3
+    group: universal
+    title: "Every REST controller extends the plugin's Base_Controller"
+    why: "Base_Controller owns the SDK response envelope, ETag caching, require_auth, permission_error. A controller that skips it diverges from the canonical response shape."
+    severity: error
+    status: enforced
+    gate_function: check_U3
+    added_in: 2026-05-12
+
+  - id: U4
+    group: universal
+    title: "audit/manifest.json refreshed within 30 days or no structural commits since"
+    why: "Stale manifest equals wrong claims in CLAUDE.md equals drifted understanding. Future sessions read the manifest as truth."
+    severity: warning
+    status: enforced
+    gate_function: check_U4
+    added_in: 2026-05-12
+
+  - id: U5
+    group: universal
+    title: "plan/README.yaml lists every file/folder under plan/"
+    why: "Scattered plan/ docs without an index produce drift. The README is the single source of truth for what is and is not a real plan."
+    severity: error
+    status: enforced
+    gate_function: check_U5
+    added_in: 2026-05-12
+
+  - id: U6
+    group: universal
+    title: "All asset handles use the plugin slug prefix"
+    why: "Prevents enqueue handle collisions across plugins and clearly attributes assets in the WP enqueue ledger."
+    severity: warning
+    status: enforced
+    gate_function: check_U6
+    added_in: 2026-05-12
+
+  - id: U7
+    group: universal
+    title: "Text domain matches plugin slug across all gettext calls"
+    why: "Inconsistent text domains break translation loading silently — strings render in English on translated sites."
+    severity: warning
+    status: manual-review
+    gate_function: null
+    added_in: 2026-05-12
+
+# ──────────────────────────────────────────────────────────────────────
+# Plugin-specific invariants
+#
+# Add groups B/C/D below for your plugin's specific architectural rules.
+# Common patterns:
+#   - Free/Pro coupling rules (A-group, see plan/free-pro-architecture-contract.md if applicable)
+#   - Controller patterns specific to this plugin's Base_Controller subclass
+#   - Service/Repository layer rules
+#   - Capability fallback patterns
+# ──────────────────────────────────────────────────────────────────────
+
+# Example plugin-specific invariant — uncomment and customise:
+#
+#  - id: B1
+#    group: data-flow
+#    title: "Every Service class is a thin facade — no SQL"
+#    why: "SQL belongs in Models. Services orchestrate."
+#    severity: error
+#    status: enforced
+#    gate_function: check_B1
+#    added_in: 2026-05-12
+
+# ──────────────────────────────────────────────────────────────────────
+# Baseline — pre-existing violations recorded here as warnings, not
+# errors. Every entry needs an `eta` (target fix date) so the baseline
+# shrinks over time.
+#
+# Rule: if you add to the baseline, also document in plan/FOLLOWUPS.md
+# so the debt is visible at the plan level too.
+# ──────────────────────────────────────────────────────────────────────
+
+baseline: []
+
+# Example baseline entry — uncomment and customise:
+#
+#  - gate: U1
+#    path: "includes/cli/class-debug.php"
+#    reason: "WP-CLI debug command — reads schema state directly to surface fixture issues."
+#    eta: v1.1
+#    added: 2026-05-12
