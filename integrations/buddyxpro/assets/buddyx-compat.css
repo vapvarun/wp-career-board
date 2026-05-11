@@ -83,17 +83,6 @@ html.dark-mode {
 	box-sizing: border-box;
 }
 
-.wcb-company-archive {
-	margin: 2rem auto;
-	padding-top: 2rem;
-}
-
-@media ( max-width: 1024px ) {
-	.wcb-company-archive {
-		padding-top: 1.5rem;
-	}
-}
-
 /*
  * WCB's brand pill buttons (apply / primary / save) sit on the saturated
  * `--wcb-primary`. BuddyX's own `--button-text-color` varies per palette
