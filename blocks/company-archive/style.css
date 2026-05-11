@@ -1,4 +1,15 @@
-/* -- Toolbar -- */
+/* ── Directory wrapper ───────────────────────────────────────────────────── */
+.wcb-company-archive {
+	max-width: 1200px;
+	margin: 0 auto;
+	font-family: inherit;
+}
+
+.wp-block-wp-career-board-company-archive .wcb-page-heading {
+	margin: 0 0 var(--wcb-space-2xl);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
 .wcb-ca-toolbar {
 	display: flex;
 	align-items: center;

@@ -365,10 +365,7 @@ $wcb_state = array(
 	),
 );
 
-$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
-$wcb_page_heading    = ( $wcb_archive_page_id && (int) get_queried_object_id() === $wcb_archive_page_id )
-	? (string) get_the_title( $wcb_archive_page_id )
-	: '';
+$wcb_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_job', 'jobs_archive_page' );
 
 wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 ?>

@@ -196,10 +196,7 @@ $wcb_state = array(
 	'size'      => '',
 );
 
-$wcb_ca_archive_id   = \WCB\Admin\Settings::int( 'company_archive_page', 0 );
-$wcb_ca_page_heading = ( $wcb_ca_archive_id && (int) get_queried_object_id() === $wcb_ca_archive_id )
-	? (string) get_the_title( $wcb_ca_archive_id )
-	: '';
+$wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
 
 wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 ?>

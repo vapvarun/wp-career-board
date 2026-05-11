@@ -3,6 +3,17 @@
 	display: none !important;
 }
 
+/* ── Directory wrapper ───────────────────────────────────────────────────── */
+.wcb-job-listings {
+	max-width: 1200px;
+	margin: 0 auto;
+	font-family: inherit;
+}
+
+.wp-block-wp-career-board-job-listings .wcb-page-heading {
+	margin: 0 0 var(--wcb-space-2xl);
+}
+
 /* ── Toolbar ─────────────────────────────────────────────────────────────── */
 .wcb-listings-toolbar {
 	display: flex;
