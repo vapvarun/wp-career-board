@@ -96,6 +96,7 @@ $wcb_state = apply_filters(
 		'applyUrl'                   => '',
 		'applyEmail'                 => '',
 		'locationSlug'               => '',
+		'locationCustom'             => '',
 		'typeSlug'                   => '',
 		'categorySlug'               => '',
 		'expSlug'                    => '',
@@ -104,6 +105,7 @@ $wcb_state = apply_filters(
 		'companyName'                => $wcb_company_name,
 		'submitting'                 => false,
 		'submitted'                  => false,
+		'_aiGenerating'              => false,
 		'jobUrl'                     => '',
 		'error'                      => '',
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
@@ -202,10 +204,21 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-simple-desc">
-					<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
-					<span class="wcb-required" aria-hidden="true">*</span>
-				</label>
+				<div class="wcb-form-label-row">
+					<label class="wcb-form-label" for="wcb-simple-desc">
+						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<span class="wcb-required" aria-hidden="true">*</span>
+					</label>
+					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
+					<button type="button" class="wcb-ai-btn"
+						data-wp-on--click="actions.generateDescription"
+						data-wp-bind--disabled="state._aiGenerating"
+					>
+						<span data-wp-class--wcb-hidden="state._aiGenerating">&#10024; <?php esc_html_e( 'Generate with AI', 'wp-career-board' ); ?></span>
+						<span data-wp-class--wcb-hidden="!state._aiGenerating"><?php esc_html_e( 'Generating…', 'wp-career-board' ); ?></span>
+					</button>
+					<?php endif; ?>
+				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-job-desc-simple"></div>
 					<textarea
@@ -253,7 +266,19 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 						<?php foreach ( $wcb_locations as $wcb_t ) : ?>
 							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
 						<?php endforeach; ?>
+						<option value="__custom__"><?php esc_html_e( 'Other (enter manually)…', 'wp-career-board' ); ?></option>
 					</select>
+					<input
+						type="text"
+						id="wcb-simple-location-custom"
+						class="wcb-field wcb-field--mt"
+						data-wcb-field="locationCustom"
+						data-wp-bind--value="state.locationCustom"
+						data-wp-on--input="actions.updateField"
+						data-wp-class--wcb-hidden="!state.locationIsCustom"
+						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
+						maxlength="120"
+					/>
 				</div>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-exp"><?php esc_html_e( 'Experience', 'wp-career-board' ); ?></label>

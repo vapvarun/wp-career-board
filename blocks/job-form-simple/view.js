@@ -65,6 +65,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 			return `Listing runs until ${ formatted }. Reopen on the dashboard to extend (counts as a republish).`;
 		},
+
+		get locationIsCustom() {
+			return state.locationSlug === '__custom__';
+		},
 	},
 
 	actions: {
@@ -72,6 +76,41 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
+			}
+		},
+
+		*generateDescription() {
+			if ( state._aiGenerating || ! state.title ) {
+				if ( ! state.title ) {
+					state.error = 'Enter a job title first so AI can generate a description.';
+				}
+				return;
+			}
+			state._aiGenerating = true;
+			state.error = '';
+			try {
+				const response = yield fetch( state.apiBase + '/jobs/ai-description', {
+					method:  'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce':   state.nonce,
+					},
+					body: JSON.stringify( {
+						title:        state.title,
+						company_type: state.companyName || '',
+						location:     state.locationSlug || 'remote',
+					} ),
+				} );
+				const data = yield response.json();
+				if ( data.description ) {
+					state.description = data.description;
+				} else if ( data.message ) {
+					state.error = data.message;
+				}
+			} catch ( _e ) {
+				state.error = 'Failed to generate description. Please try again.';
+			} finally {
+				state._aiGenerating = false;
 			}
 		},
 
