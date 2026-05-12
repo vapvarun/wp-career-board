@@ -384,6 +384,23 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			?>
 		</section>
 
+		<?php
+		// Render custom-field groups injected via wcb_job_form_fields (used by
+		// Pro Field Builder and by add-ons). Always-rendered when groups are
+		// non-empty; binds into state.customFields via the updateCustomField
+		// action that already exists in view.js. Values persist via the Pro
+		// Fields_Module which hooks wcb_job_created + wcb_job_updated.
+		$wcb_simple_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id_attr );
+		if ( ! empty( $wcb_simple_custom_groups ) ) :
+			?>
+			<section class="wcb-form-simple__section">
+				<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Additional details', 'wp-career-board' ); ?></p>
+				<?php \WCB\Core\FormCustomFields::render_groups( $wcb_simple_custom_groups, 'updateCustomField', 'wcb-simple-custom' ); ?>
+			</section>
+			<?php
+		endif;
+		?>
+
 		<!-- Submit -->
 		<div class="wcb-form-simple__nav">
 			<button
