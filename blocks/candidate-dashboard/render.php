@@ -430,7 +430,7 @@ wp_interactivity_state(
 							<span
 								class="wcb-cd-status-badge"
 								role="status"
-								data-wp-text="context.application.status"
+								data-wp-text="context.application.statusLabel"
 								data-wp-bind--data-status="context.application.status"
 							></span>
 							<button
