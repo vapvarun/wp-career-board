@@ -167,8 +167,10 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 		</div>
 	</div>
 
-	<?php /* ── Body ── */ ?>
+	<?php /* ── Body (2-col on desktop: main + sidebar) ── */ ?>
 	<div class="wcb-cp-body">
+
+	<div class="wcb-cp-main">
 
 		<?php /* About */ ?>
 		<?php if ( $wcb_desc ) : ?>
@@ -319,6 +321,24 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 			</div>
 
 		</section>
+
+	</div>
+
+	<?php /* Sidebar: admin's widgets if any, otherwise 3 default blocks. */ ?>
+	<aside class="wcb-cp-sidebar" aria-label="<?php esc_attr_e( 'Company profile sidebar', 'wp-career-board' ); ?>">
+		<?php
+		if ( is_active_sidebar( 'wcb-company-sidebar' ) ) {
+			dynamic_sidebar( 'wcb-company-sidebar' );
+		} else {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_block returns pre-escaped HTML.
+			echo do_blocks( '<!-- wp:wp-career-board/similar-companies-card /-->' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo do_blocks( '<!-- wp:wp-career-board/recent-jobs {"count":5,"showViewAll":true} /-->' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo do_blocks( '<!-- wp:wp-career-board/job-alert-card /-->' );
+		}
+		?>
+	</aside>
 
 	</div>
 

@@ -1,0 +1,93 @@
+/**
+ * wcb/similar-companies-card — sidebar card styles.
+ */
+
+.wcb-similar-companies-card {
+	background: var(--wcb-surface, #fff);
+	border: 1px solid var(--wcb-border, #e5e7eb);
+	border-radius: var(--wcb-radius-md, 10px);
+	padding: var(--wcb-space-lg, 20px);
+	margin-bottom: var(--wcb-space-lg, 20px);
+}
+
+.wcb-similar-companies-card .wcb-cp-side-card__title {
+	font-size: 16px;
+	font-weight: 700;
+	margin: 0 0 var(--wcb-space-md, 14px);
+	color: var(--wcb-text-strong, #0f172a);
+}
+
+.wcb-similar-companies-card__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm, 10px);
+}
+
+.wcb-similar-companies-card__item {
+	margin: 0;
+}
+
+.wcb-similar-companies-card__link {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px;
+	border-radius: var(--wcb-radius-sm, 6px);
+	color: inherit;
+	text-decoration: none;
+	transition: background 0.15s ease;
+}
+
+.wcb-similar-companies-card__link:hover,
+.wcb-similar-companies-card__link:focus {
+	background: var(--wcb-surface-muted, #f9fafb);
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-similar-companies-card__logo,
+.wcb-similar-companies-card__initial {
+	flex: 0 0 36px;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--wcb-radius-sm, 6px);
+	object-fit: cover;
+}
+
+.wcb-similar-companies-card__initial {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--wcb-accent-bg, #eef2ff);
+	color: var(--wcb-accent-strong, #4338ca);
+	font-weight: 600;
+}
+
+.wcb-similar-companies-card__body {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.wcb-similar-companies-card__name {
+	font-weight: 600;
+	font-size: 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--wcb-text-strong, #0f172a);
+}
+
+.wcb-similar-companies-card__meta {
+	font-size: 12px;
+	color: var(--wcb-text-muted, #64748b);
+}
+
+@media (max-width: 640px) {
+	.wcb-similar-companies-card {
+		padding: var(--wcb-space-md, 14px);
+	}
+}

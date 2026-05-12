@@ -168,11 +168,32 @@
 	color: #000;
 }
 
-/* -- Body -- */
+/* -- Body (2-col grid on desktop: main + sidebar) -- */
 .wcb-cp-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	gap: var(--wcb-space-xl);
+	align-items: start;
+}
+
+.wcb-cp-main {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xl);
+	min-width: 0;
+}
+
+.wcb-cp-sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+	min-width: 0;
+}
+
+@media (max-width: 1024px) {
+	.wcb-cp-body {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* -- Sections -- */
@@ -490,13 +511,50 @@
 	}
 }
 
-/* -- Theme-agnostic sidebar + title suppression -- */
+/* -- Theme-agnostic sidebar + title suppression --
+ *
+ * Many themes (Reign, BuddyX Pro, Astra, Kadence, etc.) reserve a column
+ * slot for their primary sidebar on single posts. Hiding the sidebar
+ * widgets with `display: none` alone leaves the column slot empty,
+ * causing a wide whitespace strip on the right of our content. Below we
+ * hide the sidebar AND expand the content column to fill the freed slot
+ * so our in-block sidebar (rendered inside .wcb-cp-wrap) can use the
+ * space. Selectors target the common content-column patterns found
+ * across modern WP themes.
+ */
 .wcb-company-page #secondary,
 .wcb-company-page .widget-area,
 .wcb-company-page aside.sidebar,
 .wcb-company-page .sidebar-area,
 .wcb-company-page .site-sidebar,
 .wcb-company-page #sidebar { display: none !important; }
+
+.wcb-company-page #primary,
+.wcb-company-page .content-area,
+.wcb-company-page .primary-content,
+.wcb-company-page main.site-main,
+.wcb-company-page .site-main,
+.wcb-company-page .col-md-8,
+.wcb-company-page .col-md-9,
+.wcb-company-page .col-lg-8,
+.wcb-company-page .col-lg-9 {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 0 0 100% !important;
+}
+
+/* Collapse parent grid wrappers that reserve a column slot for the
+ * (now hidden) theme sidebar. BuddyX Pro uses `.site-wrapper` with
+ * `grid-template-columns: 1fr 260px`, Astra uses `.ast-container`,
+ * etc. Forcing a single-column grid here gives our content the full
+ * width that was previously wasted by the reserved-but-empty sidebar
+ * slot.
+ */
+.wcb-company-page .site-wrapper,
+.wcb-company-page .ast-container,
+.wcb-company-page .container-grid {
+	grid-template-columns: 1fr !important;
+}
 
 .wcb-company-page .entry-title,
 .wcb-company-page .page-title,

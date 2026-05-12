@@ -1,0 +1,56 @@
+/**
+ * wcb/job-alert-card — sidebar CTA card styles.
+ */
+
+.wcb-job-alert-card {
+	background: var(--wcb-accent-bg, #eef2ff);
+	border: 1px solid var(--wcb-accent-border, #c7d2fe);
+	border-radius: var(--wcb-radius-md, 10px);
+	padding: var(--wcb-space-lg, 20px);
+	margin-bottom: var(--wcb-space-lg, 20px);
+}
+
+.wcb-job-alert-card .wcb-cp-side-card__title {
+	font-size: 16px;
+	font-weight: 700;
+	margin: 0 0 var(--wcb-space-sm, 10px);
+	color: var(--wcb-accent-strong, #4338ca);
+}
+
+.wcb-job-alert-card__body {
+	font-size: 14px;
+	color: var(--wcb-text, #1f2937);
+	margin: 0 0 var(--wcb-space-md, 14px);
+	line-height: 1.55;
+}
+
+.wcb-job-alert-card__btn {
+	display: inline-block;
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 40px;
+	padding: 10px 16px;
+	background: var(--wcb-accent, #4f46e5);
+	color: #fff;
+	font-weight: 600;
+	font-size: 14px;
+	text-align: center;
+	text-decoration: none;
+	border: 0;
+	border-radius: var(--wcb-radius-sm, 6px);
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.wcb-job-alert-card__btn:hover,
+.wcb-job-alert-card__btn:focus {
+	background: var(--wcb-accent-strong, #4338ca);
+	color: #fff;
+	text-decoration: none;
+}
+
+@media (max-width: 640px) {
+	.wcb-job-alert-card {
+		padding: var(--wcb-space-md, 14px);
+	}
+}

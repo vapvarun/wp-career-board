@@ -234,6 +234,8 @@ final class Plugin {
 			'recent-jobs',
 			'job-stats',
 			'job-search-hero',
+			'similar-companies-card',
+			'job-alert-card',
 		);
 
 		// Register tokens stylesheet so blocks can declare it as a dependency.
@@ -294,6 +296,8 @@ final class Plugin {
 			'wcb_job_stats'           => 'wp-career-board/job-stats',
 			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
 			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
+			'wcb_similar_companies'   => 'wp-career-board/similar-companies-card',
+			'wcb_job_alert_card'      => 'wp-career-board/job-alert-card',
 			// Canonical alias for the existing wcb_registration tag. Matches the
 			// block name (employer-registration) and the docs. wcb_registration
 			// stays registered above as a back-compat tag for sites that already
