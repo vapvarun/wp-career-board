@@ -244,6 +244,14 @@ final class ApplicationsEndpoint extends RestController {
 
 		update_post_meta( $app_id, '_wcb_job_id', $job_id );
 		update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
+
+		// Snapshot the job title + company at apply time so the candidate's
+		// history stays readable if the job post is deleted later.
+		$snapshot_job = get_post( $job_id );
+		if ( $snapshot_job instanceof \WP_Post ) {
+			update_post_meta( $app_id, '_wcb_job_title_snapshot', (string) $snapshot_job->post_title );
+			update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
+		}
 		update_post_meta(
 			$app_id,
 			'_wcb_cover_letter',
@@ -473,11 +481,21 @@ final class ApplicationsEndpoint extends RestController {
 			$job_id = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 			$job    = $job_id ? get_post( $job_id ) : null;
 			$status = (string) get_post_meta( $app->ID, '_wcb_status', true );
-			$row    = array(
+
+			// Job may have been deleted after the candidate applied. Snapshot
+			// meta (saved at apply-time) preserves the title/company so the
+			// row stays informative; the permalink is suppressed because the
+			// post no longer exists.
+			$title_snapshot   = (string) get_post_meta( $app->ID, '_wcb_job_title_snapshot', true );
+			$company_snapshot = (string) get_post_meta( $app->ID, '_wcb_company_name_snapshot', true );
+			$job_exists       = $job instanceof \WP_Post;
+
+			$row = array(
 				'id'           => $app->ID,
-				'jobTitle'     => $job instanceof \WP_Post ? $job->post_title : '',
-				'jobPermalink' => $job instanceof \WP_Post ? (string) get_permalink( $job_id ) : '',
-				'company'      => $job instanceof \WP_Post ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : '',
+				'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
+				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
+				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
+				'jobRemoved'   => ! $job_exists,
 				'status'       => $status ? $status : 'submitted',
 				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
 				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
