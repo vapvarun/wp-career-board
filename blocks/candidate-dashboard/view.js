@@ -323,6 +323,16 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved = false;
 		},
 
+		updateProfilePhone( event ) {
+			state.profilePhone = event.target.value;
+			state.profileSaved = false;
+		},
+
+		updateProfileLocation( event ) {
+			state.profileLocation = event.target.value;
+			state.profileSaved    = false;
+		},
+
 		updateCustomField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) {
@@ -348,7 +358,14 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify( { bio: state.profileBio, custom_fields: state.customFields || {} } ),
+						body: JSON.stringify( {
+						bio:           state.profileBio,
+						resume_data:   {
+							phone:    state.profilePhone || '',
+							location: state.profileLocation || '',
+						},
+						custom_fields: state.customFields || {},
+					} ),
 					}
 				);
 				if ( response.ok ) {

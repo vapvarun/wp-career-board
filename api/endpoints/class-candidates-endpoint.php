@@ -336,6 +336,7 @@ final class CandidatesEndpoint extends RestController {
 			update_user_meta( $user_id, '_wcb_profile_visibility', $visibility );
 		}
 
+		// Legacy parameter name (`resume`) — full replace, used by older clients.
 		$resume_data = $request->get_param( 'resume' );
 		if ( null !== $resume_data ) {
 			// Accept only an array; sanitize each string value.
@@ -346,6 +347,19 @@ final class CandidatesEndpoint extends RestController {
 				}
 			}
 			update_user_meta( $user_id, '_wcb_resume_data', $safe_resume );
+		}
+
+		// `resume_data` — partial-update key used by the candidate dashboard
+		// profile form (phone + location). Merge with existing meta so we
+		// don't wipe headline/linkedin/github/website/twitter set elsewhere.
+		$resume_data_partial = $request->get_param( 'resume_data' );
+		if ( is_array( $resume_data_partial ) ) {
+			$existing = get_user_meta( $user_id, '_wcb_resume_data', true );
+			$existing = is_array( $existing ) ? $existing : array();
+			foreach ( $resume_data_partial as $key => $value ) {
+				$existing[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+			}
+			update_user_meta( $user_id, '_wcb_resume_data', $existing );
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).

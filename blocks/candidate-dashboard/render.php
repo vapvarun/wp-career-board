@@ -143,6 +143,24 @@ wp_interactivity_state(
 			),
 			'profileBio'             => get_the_author_meta( 'description', $wcb_candidate_id ),
 			'profileEmail'           => $wcb_current_user->user_email,
+			// Phone + Location surfaced from the structured `_wcb_resume_data`
+			// user meta so the candidate profile UI matches the contact info
+			// rendered in resume-single + Pro's resume PDF download.
+			'profilePhone'           => (string) (
+				static function () use ( $wcb_candidate_id ): string {
+					$wcb_rd = get_user_meta( $wcb_candidate_id, '_wcb_resume_data', true );
+					return is_array( $wcb_rd ) ? (string) ( $wcb_rd['phone'] ?? '' ) : '';
+				}
+			)(),
+			'profileLocation'        => (string) (
+				static function () use ( $wcb_candidate_id ): string {
+					$wcb_rd = get_user_meta( $wcb_candidate_id, '_wcb_resume_data', true );
+					if ( is_array( $wcb_rd ) && ! empty( $wcb_rd['location'] ) ) {
+						return (string) $wcb_rd['location'];
+					}
+					return (string) get_user_meta( $wcb_candidate_id, '_wcb_location', true );
+				}
+			)(),
 			'profileSaving'          => false,
 			'profileSaved'           => false,
 			'passwordResetUrl'       => wp_lostpassword_url( $wcb_dashboard_url ),
@@ -690,6 +708,41 @@ wp_interactivity_state(
 			<span class="wcb-panel-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></span>
 		</div>
 		<div class="wcb-panel wcb-shown">
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-profile-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
+				<input
+					type="email"
+					id="wcb-profile-email"
+					class="wcb-input"
+					readonly
+					data-wp-bind--value="state.profileEmail"
+				/>
+			</div>
+
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-profile-phone"><?php esc_html_e( 'Phone', 'wp-career-board' ); ?></label>
+				<input
+					type="tel"
+					id="wcb-profile-phone"
+					class="wcb-input"
+					placeholder="<?php esc_attr_e( 'e.g. +1 555 123 4567', 'wp-career-board' ); ?>"
+					data-wp-bind--value="state.profilePhone"
+					data-wp-on--input="actions.updateProfilePhone"
+				/>
+			</div>
+
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-profile-location"><?php esc_html_e( 'Location', 'wp-career-board' ); ?></label>
+				<input
+					type="text"
+					id="wcb-profile-location"
+					class="wcb-input"
+					placeholder="<?php esc_attr_e( 'e.g. Bengaluru, India', 'wp-career-board' ); ?>"
+					data-wp-bind--value="state.profileLocation"
+					data-wp-on--input="actions.updateProfileLocation"
+				/>
+			</div>
+
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-profile-bio"><?php esc_html_e( 'Bio / About Me', 'wp-career-board' ); ?></label>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>">
