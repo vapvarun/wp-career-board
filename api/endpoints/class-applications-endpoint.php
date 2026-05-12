@@ -310,7 +310,7 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		update_post_meta( $app_id, '_wcb_status', 'submitted' );
+		update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
 
 		// Custom application fields registered via wcb_application_form_fields_groups
 		// filter. The job-single block's view.js captures values into state.customFields
@@ -406,7 +406,15 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$allowed    = array( 'submitted', 'reviewing', 'shortlisted', 'rejected', 'hired' );
+		// Employer-actionable statuses only — `withdrawn` is candidate-only,
+		// `job_removed` is system-only (set by ApplicationLifecycle).
+		$allowed    = array(
+			\WCB\Modules\Applications\ApplicationStatus::SUBMITTED,
+			\WCB\Modules\Applications\ApplicationStatus::REVIEWING,
+			\WCB\Modules\Applications\ApplicationStatus::SHORTLISTED,
+			\WCB\Modules\Applications\ApplicationStatus::REJECTED,
+			\WCB\Modules\Applications\ApplicationStatus::HIRED,
+		);
 		$new_status = sanitize_text_field( (string) $request->get_param( 'status' ) );
 		if ( ! in_array( $new_status, $allowed, true ) ) {
 			return new \WP_Error(
@@ -478,14 +486,16 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		foreach ( $query->posts as $app ) {
-			$job_id = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
-			$job    = $job_id ? get_post( $job_id ) : null;
-			$status = (string) get_post_meta( $app->ID, '_wcb_status', true );
+			$job_id      = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
+			$job         = $job_id ? get_post( $job_id ) : null;
+			$status      = (string) get_post_meta( $app->ID, '_wcb_status', true );
+			$status      = $status ? $status : \WCB\Modules\Applications\ApplicationStatus::SUBMITTED;
+			$job_removed = \WCB\Modules\Applications\ApplicationStatus::JOB_REMOVED === $status;
 
-			// Job may have been deleted after the candidate applied. Snapshot
-			// meta (saved at apply-time) preserves the title/company so the
-			// row stays informative; the permalink is suppressed because the
-			// post no longer exists.
+			// Snapshot meta (saved at apply-time) preserves the title/company
+			// when the job post is no longer fetchable. The endpoint prefers
+			// the live job, then the snapshot, then a translated fallback so
+			// pre-snapshot rows still render readably.
 			$title_snapshot   = (string) get_post_meta( $app->ID, '_wcb_job_title_snapshot', true );
 			$company_snapshot = (string) get_post_meta( $app->ID, '_wcb_company_name_snapshot', true );
 			$job_exists       = $job instanceof \WP_Post;
@@ -495,8 +505,9 @@ final class ApplicationsEndpoint extends RestController {
 				'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
 				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
 				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
-				'jobRemoved'   => ! $job_exists,
-				'status'       => $status ? $status : 'submitted',
+				'jobRemoved'   => $job_removed || ! $job_exists,
+				'status'       => $status,
+				'statusLabel'  => \WCB\Modules\Applications\ApplicationStatus::label( $status ),
 				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
 				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
 				// Deprecated alias for the legacy `date` key. Removed in 1.2.0.

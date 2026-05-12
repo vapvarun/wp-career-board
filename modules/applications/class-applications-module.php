@@ -30,6 +30,7 @@ final class ApplicationsModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_widgets' ) );
+		( new ApplicationLifecycle() )->boot();
 	}
 
 	/**

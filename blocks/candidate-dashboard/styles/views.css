@@ -109,6 +109,12 @@
 	color: var(--wcb-danger-fg);
 }
 
+.wcb-cd-status-badge[data-status="job_removed"],
+.wcb-cd-status-badge[data-status="withdrawn"] {
+	background: var(--wcb-muted-bg, #f1f5f9);
+	color: var(--wcb-muted, #64748b);
+}
+
 /* ── Bookmark rows ────────────────────────────────────────────────────────── */
 .wcb-cd-bookmark-row {
 	display: flex;
