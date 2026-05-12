@@ -284,21 +284,23 @@ $wcb_exp_opts      = array_map(
 
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
-if ( $wcb_author_id_attr > 0 ) {
-	$wcb_count_query = new \WP_Query(
-		array(
-			'post_type'      => 'wcb_job',
-			'post_status'    => 'publish',
-			'author'         => $wcb_author_id_attr,
-			'posts_per_page' => 1,
-			'fields'         => 'ids',
-		)
-	);
-	$wcb_total_count = (int) $wcb_count_query->found_posts;
-} elseif ( $wcb_saved_by_attr > 0 ) {
+if ( $wcb_saved_by_attr > 0 ) {
+	// Saved tab loads every bookmark in one go (numberposts = -1), so the
+	// rendered set IS the full set.
 	$wcb_total_count = count( $wcb_jobs_raw );
 } else {
-	$wcb_total_count = (int) wp_count_posts( 'wcb_job' )->publish;
+	// Mirror $wcb_query_args (author + board + metaFilter + Pro filters) so the
+	// found_posts count matches the filtered listing instead of the site-wide
+	// publish count. Site-wide count showed Load More on filtered shortcodes
+	// (e.g. boardId=42 with 3 jobs on a site with 50 total) — clicking it
+	// fetched a second page that REST correctly returned empty.
+	$wcb_count_args                   = (array) apply_filters( 'wcb_job_listings_query_args', $wcb_query_args );
+	$wcb_count_args['posts_per_page'] = 1;
+	$wcb_count_args['fields']         = 'ids';
+	$wcb_count_args['no_found_rows']  = false;
+	unset( $wcb_count_args['numberposts'] );
+	$wcb_count_query = new \WP_Query( $wcb_count_args );
+	$wcb_total_count = (int) $wcb_count_query->found_posts;
 }
 
 $wcb_state = array(

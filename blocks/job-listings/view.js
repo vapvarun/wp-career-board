@@ -436,9 +436,6 @@ const { state, actions } = store( 'wcb-job-listings', {
 				const total = Array.isArray( data )
 					? parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 )
 					: ( data?.total ?? jobs.length );
-				const hasMore = Array.isArray( data )
-					? ( ( ( state.page * jobs.length ) || jobs.length ) < total )
-					: !! data?.has_more;
 
 				state.totalCount = total;
 				if ( state.page === 1 ) {
@@ -446,7 +443,16 @@ const { state, actions } = store( 'wcb-job-listings', {
 				} else {
 					state.jobs = [ ...state.jobs, ...jobs ];
 				}
-				state.hasMore = hasMore && state.jobs.length < total;
+
+				// Truth source for the Load More button — recompute from the
+				// final cumulative count instead of trusting the per-response
+				// flag alone. Covers:
+				//   1. envelope says has_more=true but we already have every row
+				//      (totals can race when the cache version bumps between pages),
+				//   2. legacy array shape that doesn't carry has_more,
+				//   3. a fetched page that returned 0 jobs.
+				const apiHasMore = Array.isArray( data ) ? true : !! data?.has_more;
+				state.hasMore    = apiHasMore && jobs.length > 0 && state.jobs.length < total;
 			} finally {
 				state.loading = false;
 			}
