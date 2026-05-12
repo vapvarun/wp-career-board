@@ -190,6 +190,49 @@
 	min-width: 0;
 }
 
+/* -- Unified side-card shell --
+ *
+ * Every sidebar block, whether one of our defaults (similar-companies,
+ * recent-jobs, job-alert) or an admin-placed widget rendered with our
+ * registered before_widget wrapper, takes the same card shell as
+ * .wcb-cp-section in the main column. Keeps the page reading as one
+ * cohesive layout instead of a main column + visually-different
+ * sidebar.
+ */
+.wcb-cp-side-card,
+.wcb-cp-sidebar > .wcb-recent-jobs,
+.wcb-cp-sidebar > .wp-block-wp-career-board-recent-jobs {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-2xl);
+	padding: var(--wcb-space-2xl) 1.75rem;
+}
+
+.wcb-cp-side-card__title,
+.wcb-cp-sidebar .wcb-widget-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-size: 1.0625rem;
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-cp-sidebar .wcb-widget-header {
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-cp-sidebar .wcb-widget-header .wcb-widget-title {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
 @media (max-width: 1024px) {
 	.wcb-cp-body {
 		grid-template-columns: 1fr;

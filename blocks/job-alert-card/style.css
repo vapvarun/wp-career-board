@@ -1,20 +1,28 @@
 /**
- * wcb/job-alert-card — sidebar CTA card styles.
+ * wcb/job-alert-card - sidebar CTA card.
+ *
+ * Mirrors the main-column .wcb-cp-section card shell. The accent
+ * colour lives on the button only - keeping the card surface uniform
+ * across the sidebar makes the whole column read as one card stack.
  */
 
 .wcb-job-alert-card {
-	background: var(--wcb-accent-bg, #eef2ff);
-	border: 1px solid var(--wcb-accent-border, #c7d2fe);
-	border-radius: var(--wcb-radius-md, 10px);
-	padding: var(--wcb-space-lg, 20px);
-	margin-bottom: var(--wcb-space-lg, 20px);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-2xl);
+	padding: var(--wcb-space-2xl) 1.75rem;
 }
 
 .wcb-job-alert-card .wcb-cp-side-card__title {
-	font-size: 16px;
-	font-weight: 700;
-	margin: 0 0 var(--wcb-space-sm, 10px);
-	color: var(--wcb-accent-strong, #4338ca);
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-size: 1.0625rem;
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-md);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 }
 
 .wcb-job-alert-card__body {
@@ -51,6 +59,6 @@
 
 @media (max-width: 640px) {
 	.wcb-job-alert-card {
-		padding: var(--wcb-space-md, 14px);
+		padding: var(--wcb-space-xl) 1.25rem;
 	}
 }
