@@ -98,9 +98,8 @@ abstract class AbstractEmail {
 		// render_template() which extracts $vars into PHP scope and the
 		// template echoes them via $candidate_name etc. — different mechanism,
 		// same result. Without this line, subjects like "Application deadline
-		// approaching for {job_title}" reach recipients verbatim. Closes
-		// Basecamp 9874932735 (production) + 9874928455 (test-send via the
-		// reflection bridge in AdminEndpoint::test_send_email — same code path).
+		// approaching for {job_title}" reach recipients verbatim, both in
+		// production and via AdminEndpoint::test_send_email (same code path).
 		$subject = self::render_string( $this->get_subject(), $vars );
 		$body    = self::render_template( $this->get_id(), $vars );
 		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );

@@ -65,8 +65,8 @@ if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
  * remote call is best-effort and never retries.
  *
  * Earlier behaviour retried the remote on every admin_init when the
- * response was anything other than a valid license — surfacing the
- * remote 403 as a recurring PHP error in admin (Basecamp 9862270651).
+ * response was anything other than a valid license, surfacing the
+ * remote 403 as a recurring PHP error in admin.
  */
 add_action(
 	'admin_init',

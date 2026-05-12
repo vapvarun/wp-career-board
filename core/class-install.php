@@ -87,9 +87,6 @@ final class Install {
 	 * adding the hook to CronRegistry::all() so this teardown stays
 	 * coherent — the registry is the single source of truth.
 	 *
-	 * Closes Basecamp 9874932439 (deactivate left
-	 * wcb_send_deadline_reminders + wcb_expire_featured_jobs orphaned).
-	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
