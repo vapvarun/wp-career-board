@@ -315,9 +315,17 @@ $wcb_state = array(
 	'nonce'          => wp_create_nonce( 'wp_rest' ),
 	'totalCount'     => $wcb_total_count,
 	'searchQuery'    => '',
-	// Seed activeFilters from boardId + metaFilter so subsequent JS fetches
-	// keep the scope. JS reads these the same way it reads any other filter.
-	'activeFilters'  => (object) array_filter(
+	// User-controlled filters (type chips, exp chips, remote, salary,
+	// external filter block keys). Removable pills + "Clear all" only
+	// touch this map - never the shortcode-baked scope.
+	'activeFilters'  => (object) array(),
+	// Immutable shortcode/block scope (boardId + metaFilter). Merged into
+	// every REST fetch and into "is active" UI signals, but never
+	// surfaced as a removable chip and never wiped by "Clear all". Keeps
+	// the integrator's baked-in scope (e.g. [wcb_job_listings
+	// metaFilter="department:engineering"]) intact across user
+	// interactions and Load more.
+	'baseFilters'    => (object) array_filter(
 		array(
 			'board_' . $wcb_board_id_attr  => $wcb_board_id_attr > 0 ? (string) $wcb_board_id_attr : '',
 			'meta_' . $wcb_meta_filter_key => ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) ? $wcb_meta_filter_val : '',

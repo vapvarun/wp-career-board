@@ -73,7 +73,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 		get isBoardActive() {
 			const ctx = getContext();
-			return !! state.activeFilters[ 'board_' + ctx.boardId ];
+			const key = 'board_' + ctx.boardId;
+			// Treat shortcode-baked boardId scope as "active" too, so the
+			// matching chip in the bar reads as selected even though the
+			// scope is immutable.
+			return !! ( state.activeFilters[ key ] || state.baseFilters?.[ key ] );
 		},
 
 		get isSalaryActive() {
@@ -385,9 +389,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'order', 'DESC' );
 			}
 
+			// Merge immutable shortcode/block scope (baseFilters: boardId,
+			// metaFilter) with the user-controlled activeFilters before
+			// forwarding to REST. baseFilters wins on key collision so an
+			// integrator can pin a scope the user can't override from the UI.
+			const merged = { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) };
+
 			// Active filters — handles both in-block chip keys (type_*, exp_*) and
 			// external filter block keys (wcb_category, wcb_location, etc.).
-			for ( const [ key, value ] of Object.entries( state.activeFilters ) ) {
+			for ( const [ key, value ] of Object.entries( merged ) ) {
 				if ( key.startsWith( 'type_' ) ) {
 					url.searchParams.append( 'type', value );
 				} else if ( key.startsWith( 'exp_' ) ) {
