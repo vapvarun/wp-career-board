@@ -5,11 +5,11 @@
  * Run: wp eval-file wp-content/plugins/wp-career-board/tests/test-settings-accessor.php
  *
  * Covers the array_key_exists vs ! empty semantic split that motivated the
- * accessor (Basecamp 9863100490 — apply_resume_required toggle defaulted
- * to OFF on fresh install because the page renderer used ! empty while the
- * REST validator used array_key_exists). Every accessor in the new class
- * uses array_key_exists for absent-key defaulting; bool() additionally
- * uses ! empty for the present-but-falsy case so '0' / 0 / '' read false.
+ * accessor: apply_resume_required toggle defaulted to OFF on fresh install
+ * because the page renderer used ! empty while the REST validator used
+ * array_key_exists. Every accessor in the new class uses array_key_exists
+ * for absent-key defaulting; bool() additionally uses ! empty for the
+ * present-but-falsy case so '0' / 0 / '' read false.
  *
  * @package WP_Career_Board
  */
