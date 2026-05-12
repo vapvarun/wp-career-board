@@ -667,6 +667,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
+		updateCustomField( event ) {
+			const key = event.target.getAttribute( 'data-wcb-field' );
+			if ( ! key ) {
+				return;
+			}
+			const target = event.target;
+			const value  = ( target.type === 'checkbox' )
+				? target.checked
+				: target.value;
+			state.customFields = { ...state.customFields, [ key ]: value };
+		},
+
 		*uploadLogo( event ) {
 			const file = event.target.files[ 0 ];
 			if ( ! file ) {
@@ -728,17 +740,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify( {
-							name:        state.companyName,
-							description: state.companyDesc,
-							tagline:     state.companyTagline,
-							website:     state.companySite,
-							industry:    state.companyIndustry,
-							size:        state.companySize,
-							hq:          state.companyHq,
-							company_type: state.companyType,
-							founded:     state.companyFounded,
-							linkedin:    state.companyLinkedin,
-							twitter:     state.companyTwitter,
+							name:          state.companyName,
+							description:   state.companyDesc,
+							tagline:       state.companyTagline,
+							website:       state.companySite,
+							industry:      state.companyIndustry,
+							size:          state.companySize,
+							hq:            state.companyHq,
+							company_type:  state.companyType,
+							founded:       state.companyFounded,
+							linkedin:      state.companyLinkedin,
+							twitter:       state.companyTwitter,
+							custom_fields: state.customFields || {},
 						} ),
 					}
 				);

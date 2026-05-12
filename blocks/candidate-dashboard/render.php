@@ -132,6 +132,15 @@ wp_interactivity_state(
 			'showNewResumeForm'      => false,
 			'newResumeTitle'         => '',
 			'customFieldGroups'      => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+			'customFields'           => (object) (
+				$wcb_candidate_id > 0
+					? \WCB\Core\FormCustomFields::load_values(
+						(array) apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+						$wcb_candidate_id,
+						'user_meta'
+					)
+					: array()
+			),
 			'profileBio'             => get_the_author_meta( 'description', $wcb_candidate_id ),
 			'profileEmail'           => $wcb_current_user->user_email,
 			'profileSaving'          => false,
@@ -696,6 +705,16 @@ wp_interactivity_state(
 					></textarea>
 				</div>
 			</div>
+
+			<?php
+			// Custom-field groups from wcb_candidate_form_fields filter.
+			// Stored against the candidate's user meta.
+			$wcb_cd_custom = (array) apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id );
+			if ( ! empty( $wcb_cd_custom ) ) {
+				\WCB\Core\FormCustomFields::render_groups( $wcb_cd_custom, 'updateCustomField', 'wcb-candidate-custom' );
+			}
+			?>
+
 			<div class="wcb-form-actions" style="margin-top:var(--wcb-space-lg)">
 				<button type="button" class="wcb-cbtn wcb-cbtn--primary"
 					data-wp-on--click="actions.saveProfile"

@@ -209,6 +209,109 @@ final class FormCustomFields {
 	}
 
 	/**
+	 * Persist submitted custom-field values to the owning post / user meta.
+	 *
+	 * The accepted shape is what every form's view.js sends in its submit
+	 * body: an associative array keyed by sanitised field_key, with scalar
+	 * values. Boolean checkbox values are coerced to '0' / '1'.
+	 *
+	 * Each value is also pushed through the `wcb_save_custom_field` filter
+	 * so add-ons can validate / transform / reject specific keys without
+	 * having to fork the renderer.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param array<int, array<string, mixed>> $groups   Field-group definitions.
+	 * @param int                              $owner_id Post / user / row id to save into.
+	 * @param array<string, mixed>             $values   Submitted values (untrusted).
+	 * @param string                           $writer   'post_meta' | 'user_meta'.
+	 * @return int Number of values persisted.
+	 */
+	public static function save_values( array $groups, int $owner_id, array $values, string $writer = 'post_meta' ): int {
+		if ( $owner_id <= 0 || empty( $groups ) ) {
+			return 0;
+		}
+
+		$allowed_keys = array();
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) || empty( $group['fields'] ) ) {
+				continue;
+			}
+			foreach ( $group['fields'] as $field ) {
+				if ( ! is_array( $field ) ) {
+					continue;
+				}
+				$normalised = self::normalise_field( $field );
+				if ( '' !== $normalised['key'] ) {
+					$allowed_keys[ $normalised['key'] ] = $normalised['type'];
+				}
+			}
+		}
+
+		$count = 0;
+		foreach ( $values as $key => $raw_value ) {
+			$key = sanitize_key( (string) $key );
+			if ( ! isset( $allowed_keys[ $key ] ) ) {
+				continue;
+			}
+
+			$type      = $allowed_keys[ $key ];
+			$sanitised = self::sanitise_value( $type, $raw_value );
+
+			/**
+			 * Filter a single custom-field value before it's written to meta.
+			 *
+			 * Return null to skip persistence (e.g. add-on validation rejecting
+			 * the value); return any scalar to override.
+			 *
+			 * @since 1.1.1
+			 *
+			 * @param string|null $sanitised Sanitised value, or null to skip.
+			 * @param string      $key       Field key.
+			 * @param int         $owner_id  Owning entity id.
+			 */
+			$sanitised = apply_filters( 'wcb_save_custom_field', $sanitised, $key, $owner_id );
+			if ( null === $sanitised ) {
+				continue;
+			}
+
+			if ( 'user_meta' === $writer ) {
+				update_user_meta( $owner_id, $key, $sanitised );
+			} else {
+				update_post_meta( $owner_id, $key, $sanitised );
+			}
+			++$count;
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Sanitise a raw value based on the declared field type.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param string $type      Field type.
+	 * @param mixed  $raw_value Raw value from request.
+	 * @return string
+	 */
+	private static function sanitise_value( string $type, mixed $raw_value ): string {
+		if ( is_bool( $raw_value ) ) {
+			return $raw_value ? '1' : '0';
+		}
+		$str = is_scalar( $raw_value ) ? (string) $raw_value : '';
+
+		return match ( $type ) {
+			'textarea' => sanitize_textarea_field( $str ),
+			'email'    => sanitize_email( $str ),
+			'url'      => esc_url_raw( $str ),
+			'number'   => is_numeric( $str ) ? (string) (float) $str : '',
+			'date'     => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
+			default    => sanitize_text_field( $str ),
+		};
+	}
+
+	/**
 	 * Load saved values for the configured fields from the owning post's meta.
 	 *
 	 * Used by render.php files to seed the customFields entry in the

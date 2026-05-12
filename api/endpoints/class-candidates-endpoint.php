@@ -348,6 +348,13 @@ final class CandidatesEndpoint extends RestController {
 			update_user_meta( $user_id, '_wcb_resume_data', $safe_resume );
 		}
 
+		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$groups = (array) apply_filters( 'wcb_candidate_form_fields', array(), (int) $user_id );
+			\WCB\Core\FormCustomFields::save_values( $groups, (int) $user_id, $custom, 'user_meta' );
+		}
+
 		return rest_ensure_response( $this->prepare_candidate( get_user_by( 'ID', $user_id ) ) );
 	}
 

@@ -254,7 +254,14 @@ $wcb_initial_state = apply_filters(
 		'boardId'                    => $wcb_board_id,
 		'boardOptions'               => $wcb_board_options,
 		'showBoardPicker'            => count( $wcb_board_options ) > 1,
-		'customFields'               => (object) array(),
+		'customFields'               => (object) (
+			$wcb_edit_id > 0
+				? \WCB\Core\FormCustomFields::load_values(
+					(array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+					$wcb_edit_id
+				)
+				: array()
+		),
 		'typeNames'                  => (object) $wcb_type_names,
 		'expNames'                   => (object) $wcb_exp_names,
 		'locationNames'              => (object) $wcb_location_names,
@@ -782,6 +789,14 @@ $wcb_step_labels = array(
 			 * @param array $attributes Block attributes.
 			 */
 			do_action( 'wcb_job_form_step3_fields', $attributes );
+
+			// Custom-field groups from wcb_job_form_fields (Pro Field Builder
+			// + any add-on). Rendered at the end of step 3 so they appear
+			// just before the preview / submit step.
+			$wcb_step3_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) );
+			if ( ! empty( $wcb_step3_custom_groups ) ) {
+				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom' );
+			}
 			?>
 
 			<div class="wcb-form-nav">

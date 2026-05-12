@@ -269,6 +269,19 @@ store(
 				}
 			},
 
+			updateCustomField( event ) {
+				const { state } = store( 'wcb-job-form' );
+				const key       = event.target.getAttribute( 'data-wcb-field' );
+				if ( ! key ) {
+					return;
+				}
+				const target  = event.target;
+				const value   = ( target.type === 'checkbox' )
+					? target.checked
+					: target.value;
+				state.customFields = { ...state.customFields, [ key ]: value };
+			},
+
 			toggleRemote() {
 				const { state } = store( 'wcb-job-form' );
 				state.remote    = ! state.remote;
@@ -393,6 +406,7 @@ store(
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,
+						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
 						wcb_captcha_token: captchaToken,
 					};

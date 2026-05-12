@@ -493,6 +493,13 @@ final class EmployersEndpoint extends RestController {
 			\WCB\Core\Locations::sync_company_hq( (int) $post->ID, (string) $hq_value );
 		}
 
+		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
+			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );
+		}
+
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );
 	}
 

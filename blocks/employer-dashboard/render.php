@@ -148,7 +148,14 @@ wp_interactivity_state(
 		'companyDirUrl'      => $wcb_company_dir_url,
 		'dashboardUrl'       => $wcb_dashboard_url,
 		'customFieldGroups'  => apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id ),
-		'customFields'       => (object) array(),
+		'customFields'       => (object) (
+			$wcb_company_id > 0
+				? \WCB\Core\FormCustomFields::load_values(
+					(array) apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id ),
+					$wcb_company_id
+				)
+				: array()
+		),
 		'appsJobId'          => $wcb_apps_job_id,
 		'appsJobTitle'       => '',
 		'appsJobSearch'      => '',
@@ -700,6 +707,16 @@ wp_interactivity_state(
 							<input id="wcb-company-twitter" type="url" class="wcb-field-input" placeholder="https://x.com/…" data-wcb-field="companyTwitter" data-wp-bind--value="state.companyTwitter" data-wp-on--input="actions.updateField" />
 						</div>
 					</div>
+
+					<?php
+					// Custom-field groups from wcb_company_form_fields (Pro Field
+					// Builder + add-ons). Rendered above the save button so they
+					// participate in the same profile-save flow.
+					$wcb_ed_company_custom = (array) apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id );
+					if ( ! empty( $wcb_ed_company_custom ) ) {
+						\WCB\Core\FormCustomFields::render_groups( $wcb_ed_company_custom, 'updateCustomField', 'wcb-company-custom' );
+					}
+					?>
 
 					<div class="wcb-profile-actions">
 						<p class="wcb-db-save-success" data-wp-class--wcb-shown="state.saved"><?php esc_html_e( '✓ Profile saved successfully.', 'wp-career-board' ); ?></p>

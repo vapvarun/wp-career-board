@@ -323,6 +323,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved = false;
 		},
 
+		updateCustomField( event ) {
+			const key = event.target.getAttribute( 'data-wcb-field' );
+			if ( ! key ) {
+				return;
+			}
+			const target = event.target;
+			const value  = ( target.type === 'checkbox' )
+				? target.checked
+				: target.value;
+			state.customFields = { ...state.customFields, [ key ]: value };
+		},
+
 		*saveProfile() {
 			state.profileSaving = true;
 			state.profileSaved  = false;
@@ -336,7 +348,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify( { bio: state.profileBio } ),
+						body: JSON.stringify( { bio: state.profileBio, custom_fields: state.customFields || {} } ),
 					}
 				);
 				if ( response.ok ) {
