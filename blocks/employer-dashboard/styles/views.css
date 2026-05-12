@@ -281,11 +281,13 @@
 	background: var(--wcb-bg-subtle);
 }
 
-.wcb-job-row.wcb-job-closed {
+.wcb-job-row.wcb-job-closed,
+.wcb-job-row.wcb-job-expired {
 	opacity: 0.55;
 }
 
-.wcb-job-row.wcb-job-closed .wcb-job-title {
+.wcb-job-row.wcb-job-closed .wcb-job-title,
+.wcb-job-row.wcb-job-expired .wcb-job-title {
 	text-decoration: line-through;
 }
 

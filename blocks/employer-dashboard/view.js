@@ -102,7 +102,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( f === 'live' )         jobs = jobs.filter( ( j ) => j.status === 'publish' );
 			else if ( f === 'draft' )   jobs = jobs.filter( ( j ) => j.status === 'draft' );
 			else if ( f === 'pending' ) jobs = jobs.filter( ( j ) => j.status === 'pending' );
-			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed );
+			// Closed pill surfaces both manually-closed and auto-expired jobs —
+			// employers manage both via the same Reopen flow.
+			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
 			if ( state.jobSearch ) {
 				const q = state.jobSearch.toLowerCase();
 				jobs = jobs.filter( ( j ) => j.title.toLowerCase().includes( q ) );
@@ -154,6 +156,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isSelectedAppsJob() {
 			const ctx = getContext();
 			return ctx.job?.id === state.appsJobId;
+		},
+
+		// Context getter — inside data-wp-each--job loop on My Jobs.
+		// "Inactive" covers both employer-closed and cron-expired jobs so the
+		// row swaps the Close button for Reopen identically in both cases.
+		get isJobInactive() {
+			const ctx = getContext();
+			return Boolean( ctx.job?.isClosed || ctx.job?.isExpired );
 		},
 
 		// Applications.
@@ -402,11 +412,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.jobs     = jobs.map( ( j ) => ( {
 					...j,
 					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
-					// Only the "closed" status is closed. "pending" is awaiting
-					// moderation, "draft" is unsaved — neither should render
-					// struck-through or dimmed like a finished listing.
-					isClosed: j.status === 'closed',
-					isDraft:  j.status === 'draft',
+					// "closed" = employer-closed, "expired" = past-deadline (cron).
+					// Both render as finished listings and offer the Reopen flow.
+					// "pending" is awaiting moderation, "draft" is unsaved.
+					isClosed:  j.status === 'closed',
+					isExpired: j.status === 'expired',
+					isDraft:   j.status === 'draft',
 				} ) );
 
 				if ( allAppsResp && allAppsResp.ok ) {
@@ -622,6 +633,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].status      = 'closed';
 						state.jobs[ idx ].statusLabel = 'Closed';
 						state.jobs[ idx ].isClosed    = true;
+						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
 					}
 				}
@@ -653,6 +665,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].status      = 'publish';
 						state.jobs[ idx ].statusLabel = 'Published';
 						state.jobs[ idx ].isClosed    = false;
+						state.jobs[ idx ].isExpired   = false;
 					}
 				}
 			} catch {

@@ -161,9 +161,13 @@ class AdminJobs extends \WP_List_Table {
 
 		// Jobs go through moderation, so 'pending' is a valid status here.
 		// Companies (class-admin-companies.php) don't moderate, so their list omits 'pending' by design.
-		$post_status = in_array( $status_filter, array( 'publish', 'pending', 'draft', 'trash' ), true )
+		// wcb_expired (cron-expired) and wcb_closed (employer-closed) are
+		// surfaced here so admins can audit and republish past-deadline listings
+		// without forcing the employer to close-then-reopen.
+		$allowed_statuses = array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed', 'trash' );
+		$post_status      = in_array( $status_filter, $allowed_statuses, true )
 			? $status_filter
-			: array( 'publish', 'pending', 'draft' );
+			: array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed' );
 
 		$query_args = array(
 			'post_type'      => 'wcb_job',
@@ -211,7 +215,9 @@ class AdminJobs extends \WP_List_Table {
 		$counts   = wp_count_posts( 'wcb_job' );
 		$all      = ( isset( $counts->publish ) ? (int) $counts->publish : 0 )
 					+ ( isset( $counts->pending ) ? (int) $counts->pending : 0 )
-					+ ( isset( $counts->draft ) ? (int) $counts->draft : 0 );
+					+ ( isset( $counts->draft ) ? (int) $counts->draft : 0 )
+					+ ( isset( $counts->wcb_expired ) ? (int) $counts->wcb_expired : 0 )
+					+ ( isset( $counts->wcb_closed ) ? (int) $counts->wcb_closed : 0 );
 		$base_url = admin_url( 'admin.php?page=wcb-jobs' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -228,10 +234,12 @@ class AdminJobs extends \WP_List_Table {
 		);
 
 		$statuses = array(
-			'publish' => __( 'Published', 'wp-career-board' ),
-			'pending' => __( 'Pending Review', 'wp-career-board' ),
-			'draft'   => __( 'Draft', 'wp-career-board' ),
-			'trash'   => __( 'Trash', 'wp-career-board' ),
+			'publish'     => __( 'Published', 'wp-career-board' ),
+			'pending'     => __( 'Pending Review', 'wp-career-board' ),
+			'draft'       => __( 'Draft', 'wp-career-board' ),
+			'wcb_expired' => __( 'Expired', 'wp-career-board' ),
+			'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
+			'trash'       => __( 'Trash', 'wp-career-board' ),
 		);
 
 		foreach ( $statuses as $slug => $label ) {
@@ -384,19 +392,23 @@ class AdminJobs extends \WP_List_Table {
 	 */
 	protected function column_status( $item ): string {
 		$labels = array(
-			'publish' => __( 'Published', 'wp-career-board' ),
-			'pending' => __( 'Pending', 'wp-career-board' ),
-			'draft'   => __( 'Draft', 'wp-career-board' ),
-			'trash'   => __( 'Trash', 'wp-career-board' ),
+			'publish'     => __( 'Published', 'wp-career-board' ),
+			'pending'     => __( 'Pending', 'wp-career-board' ),
+			'draft'       => __( 'Draft', 'wp-career-board' ),
+			'wcb_expired' => __( 'Expired', 'wp-career-board' ),
+			'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
+			'trash'       => __( 'Trash', 'wp-career-board' ),
 		);
 		$status = $item->post_status;
 		$label  = $labels[ $status ] ?? ucfirst( $status );
 
 		$badge_map = array(
-			'publish' => 'success',
-			'pending' => 'warn',
-			'draft'   => 'default',
-			'trash'   => 'danger',
+			'publish'     => 'success',
+			'pending'     => 'warn',
+			'draft'       => 'default',
+			'wcb_expired' => 'warn',
+			'wcb_closed'  => 'default',
+			'trash'       => 'danger',
 		);
 		$badge_var = $badge_map[ $status ] ?? 'default';
 

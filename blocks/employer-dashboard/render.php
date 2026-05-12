@@ -440,7 +440,7 @@ wp_interactivity_state(
 
 			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs">
 				<template data-wp-each--job="state.filteredJobs" data-wp-each-key="context.job.id">
-					<article class="wcb-job-row" data-wp-class--wcb-job-closed="context.job.isClosed">
+					<article class="wcb-job-row" data-wp-class--wcb-job-closed="context.job.isClosed" data-wp-class--wcb-job-expired="context.job.isExpired">
 						<div class="wcb-status-dot" data-wp-bind--data-status="context.job.status"></div>
 						<div class="wcb-job-info">
 							<span class="wcb-job-title" data-wp-text="context.job.title"></span>
@@ -452,9 +452,9 @@ wp_interactivity_state(
 						<div class="wcb-job-actions">
 							<a class="wcb-db-link-btn" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 							<a class="wcb-db-link-btn wcb-db-link-btn--edit" data-wp-bind--href="context.job.editUrl"><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
-							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--close" data-wp-class--wcb-hidden="context.job.isClosed" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.closeJob"><?php esc_html_e( 'Close', 'wp-career-board' ); ?></button>
+							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--close" data-wp-class--wcb-hidden="state.isJobInactive" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.closeJob"><?php esc_html_e( 'Close', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--publish" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>
-							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--reopen" data-wp-class--wcb-hidden="!context.job.isClosed" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Reopen', 'wp-career-board' ); ?></button>
+							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--reopen" data-wp-class--wcb-hidden="!state.isJobInactive" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Reopen', 'wp-career-board' ); ?></button>
 						</div>
 					</article>
 				</template>
