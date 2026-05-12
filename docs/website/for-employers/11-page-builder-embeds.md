@@ -8,20 +8,32 @@ block editor.
 
 ## Shortcode reference
 
+Every WP Career Board block has a shortcode wrapper that accepts the
+same attributes. Use these in Elementor, Divi, Bricks, Beaver Builder,
+the classic editor, or anywhere a shortcode is accepted.
+
 | Block | Shortcode |
 |---|---|
 | Job Listings | `[wcb_job_listings]` |
+| Job Search Hero | `[wcb_job_search_hero]` |
 | Job Form (multi-step) | `[wcb_job_form]` |
 | Job Form (single-page) | `[wcb_job_form_simple]` |
 | Job Search | `[wcb_job_search]` |
 | Job Single | `[wcb_job_single]` |
 | Job Filters | `[wcb_job_filters]` |
+| Featured Jobs | `[wcb_featured_jobs]` |
+| Recent Jobs | `[wcb_recent_jobs]` |
+| Job Stats | `[wcb_job_stats]` |
 | Company Archive | `[wcb_company_archive]` |
 | Company Profile | `[wcb_company_profile]` |
 | Candidate Dashboard | `[wcb_candidate_dashboard]` |
 | Employer Dashboard | `[wcb_employer_dashboard]` |
 | Employer Registration | `[wcb_employer_registration]` |
 | Modular Widgets | `[wcb_widget id="..."]` |
+
+> **Back-compat alias:** `[wcb_registration]` still works as a synonym
+> for `[wcb_employer_registration]` — sites that already embedded the
+> short form keep rendering. New pages should use the canonical tag.
 
 ## Attribute passthrough
 

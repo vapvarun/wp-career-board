@@ -294,6 +294,11 @@ final class Plugin {
 			'wcb_job_stats'           => 'wp-career-board/job-stats',
 			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
 			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
+			// Canonical alias for the existing wcb_registration tag. Matches the
+			// block name (employer-registration) and the docs. wcb_registration
+			// stays registered above as a back-compat tag for sites that already
+			// embedded it.
+			'wcb_employer_registration' => 'wp-career-board/employer-registration',
 		);
 
 		// WordPress's shortcode parser lowercases attribute keys (jobId →
