@@ -17,6 +17,20 @@
       ]
     },
     {
+      "slug": "tutorials",
+      "label": "Tutorials & Workflows",
+      "docs": [
+        "01-first-day-as-site-owner.md",
+        "02-employer-end-to-end.md",
+        "03-candidate-end-to-end.md",
+        "04-monetizing-your-board.md",
+        "05-community-board-with-buddypress.md",
+        "06-migrating-from-other-plugins.md",
+        "07-multi-language-board.md",
+        "08-privacy-and-gdpr.md"
+      ]
+    },
+    {
       "slug": "for-employers",
       "label": "For Employers",
       "docs": [
