@@ -181,7 +181,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					locations:         state.locationSlug ? [ state.locationSlug ] : [],
 					experience:        state.expSlug ? [ state.expSlug ] : [],
 					tags:              tagSlugs,
-					board_id:          state.boardId || 0,
+					board_id:          state.boardId ? Number( state.boardId ) : 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
 					wcb_captcha_token: captchaToken,

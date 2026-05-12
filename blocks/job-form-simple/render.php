@@ -34,6 +34,48 @@ $wcb_board_id_attr     = isset( $attributes['boardId'] ) ? (int) $attributes['bo
 $wcb_show_company_attr = ! isset( $attributes['showCompanyField'] ) || (bool) $attributes['showCompanyField'];
 $wcb_compact_attr      = ! empty( $attributes['compact'] );
 
+// ── Board picker options — mirrors blocks/job-form/render.php so multi-board
+// sites (Pro) get a dropdown and the employer can target the post at a
+// specific board. Single-board sites skip the picker entirely; the REST
+// callback falls back to the default board when state.boardId stays 0.
+$wcb_board_options = array();
+if ( post_type_exists( 'wcb_board' ) ) {
+	$wcb_board_posts = get_posts(
+		array(
+			'post_type'      => 'wcb_board',
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+			'no_found_rows'  => true,
+		)
+	);
+	foreach ( $wcb_board_posts as $wcb_b ) {
+		$wcb_board_options[] = array(
+			'id'    => (int) $wcb_b->ID,
+			'title' => $wcb_b->post_title,
+		);
+	}
+
+	/**
+	 * Filter the Boards dropdown shown to the current employer in the single-page
+	 * job form. Same filter that the multi-step wizard uses — Pro's BP-group
+	 * integration scopes the list to boards whose linked group the employer is
+	 * a member, mod, or admin of.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list.
+	 * @param int                                   $wcb_user_id       Current user id.
+	 */
+	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+}
+
+// Resolve effective board id: explicit attribute → site-wide default option → first option.
+$wcb_resolved_board_id = $wcb_board_id_attr;
+if ( 0 === $wcb_resolved_board_id && ! empty( $wcb_board_options ) ) {
+	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
+	$wcb_resolved_board_id  = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
+}
+
 // ── Taxonomy terms ─────────────────────────────────────────────────────────
 $wcb_term_args = static function ( string $tax ): array {
 	return array(
@@ -63,6 +105,16 @@ $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog 
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
 
+// Pro returns a per-board currency override when boardId is set — same wiring
+// as the wizard so the form pre-fills the right currency when targeting a
+// board that doesn't accept the site default (e.g. a JPY-only partner board).
+$wcb_board_currency   = $wcb_resolved_board_id > 0
+	? (string) apply_filters( 'wcb_board_currency', '', $wcb_resolved_board_id )
+	: '';
+$wcb_initial_currency = $wcb_board_currency && array_key_exists( $wcb_board_currency, $wcb_currency_catalog )
+	? $wcb_board_currency
+	: $wcb_default_currency;
+
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
  * Filter the initial state for the single-page job form.
@@ -79,15 +131,15 @@ $wcb_state = apply_filters(
 		'description'                => '',
 		'salaryMin'                  => '',
 		'salaryMax'                  => '',
-		'currencyCode'               => $wcb_default_currency,
+		'currencyCode'               => $wcb_initial_currency,
 		'salaryType'                 => 'yearly',
 		'remote'                     => false,
 		// Auto-filled from the wcb_job_default_expiry_days filter chain (board
 		// override if set, otherwise the global jobs_expire_days). Form input
 		// is read-only; admins control the policy.
-		'deadline'                   => ( static function () use ( $wcb_board_id_attr ): string {
+		'deadline'                   => ( static function () use ( $wcb_resolved_board_id ): string {
 			$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
-			$wcb_preview_request->set_param( 'board_id', $wcb_board_id_attr );
+			$wcb_preview_request->set_param( 'board_id', $wcb_resolved_board_id );
 			$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
 			$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
 			$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
@@ -101,7 +153,13 @@ $wcb_state = apply_filters(
 		'categorySlug'               => '',
 		'expSlug'                    => '',
 		'tags'                       => '',
-		'boardId'                    => $wcb_board_id_attr,
+		// Board picker state mirrors the wizard so future board-related changes
+		// flow through both forms. showBoardPicker drives the dropdown visibility;
+		// single-board sites suppress it and the REST callback falls back to the
+		// default board id when boardId stays 0.
+		'boardId'                    => $wcb_resolved_board_id,
+		'boardOptions'               => $wcb_board_options,
+		'showBoardPicker'            => count( $wcb_board_options ) > 1,
 		'companyName'                => $wcb_company_name,
 		'submitting'                 => false,
 		'submitted'                  => false,
@@ -110,7 +168,7 @@ $wcb_state = apply_filters(
 		'error'                      => '',
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
-		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id_attr ),
+		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with
@@ -123,7 +181,7 @@ $wcb_state = apply_filters(
 		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
 		/* translators: %d: number of credits (plural). */
 		'creditNounPlural'           => __( '%d credits', 'wp-career-board' ),
-		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id_attr ),
+		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
 		'customFields'               => (object) array(),
 		'strings'                    => array(
 			'errorConnection' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
@@ -185,6 +243,27 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<!-- ── Section 1: Basics ───────────────────────────────────── -->
 		<section class="wcb-form-simple__section">
 			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'About the role', 'wp-career-board' ); ?></p>
+
+			<?php if ( count( $wcb_board_options ) > 1 ) : ?>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-simple-board-id">
+					<?php esc_html_e( 'Post to Board', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-simple-board-id"
+					class="wcb-field"
+					data-wcb-field="boardId"
+					data-wp-bind--value="state.boardId"
+					data-wp-on--change="actions.updateField"
+				>
+					<?php foreach ( $wcb_board_options as $wcb_b ) : ?>
+						<option value="<?php echo (int) $wcb_b['id']; ?>" <?php selected( $wcb_resolved_board_id, (int) $wcb_b['id'] ); ?>>
+							<?php echo esc_html( $wcb_b['title'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php endif; ?>
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-simple-title">
@@ -390,7 +469,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		// non-empty; binds into state.customFields via the updateCustomField
 		// action that already exists in view.js. Values persist via the Pro
 		// Fields_Module which hooks wcb_job_created + wcb_job_updated.
-		$wcb_simple_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id_attr );
+		$wcb_simple_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id );
 		if ( ! empty( $wcb_simple_custom_groups ) ) :
 			?>
 			<section class="wcb-form-simple__section">
