@@ -6,7 +6,7 @@ This is the **shortest path** from "fresh install" to "first job
 posted, first applicant reviewed." Five tasks, in order, plus where
 to go next when each is done.
 
-## 1 — Finish the setup wizard
+## 1 - Finish the setup wizard
 
 If you skipped the wizard during activation, run it now from
 **Career Board → Setup**. The wizard:
@@ -21,7 +21,7 @@ If you skipped the wizard during activation, run it now from
 **Skip if:** you've already completed it. Verify under
 **Career Board → Settings → Pages** that all seven pages are mapped.
 
-## 2 — Add the menu items your site needs
+## 2 - Add the menu items your site needs
 
 Open **Appearance → Menus** and add at least:
 
@@ -31,31 +31,31 @@ Open **Appearance → Menus** and add at least:
 - **Companies** → `/find-companies/`
 
 A career-board site that doesn't surface these on the main navigation
-silently loses both candidates and employers — they can't find the
+silently loses both candidates and employers - they can't find the
 pages even when they exist.
 
-## 3 — Post your first job (yourself, as admin)
+## 3 - Post your first job (yourself, as admin)
 
 Treat this as a smoke test of the whole pipeline.
 
 1. Go to **`/post-a-job/`** (or click "Post a Job" from your menu).
-2. Fill the form with a real-looking listing — title, company,
+2. Fill the form with a real-looking listing - title, company,
    description, salary range, location, category.
 3. Submit. If you have moderation enabled, the job lands in
    **Career Board → Jobs → Pending**. Approve it.
-4. Visit **`/find-jobs/`** — your job appears in the listing.
-5. Click into it — the single job page should look the way you want
+4. Visit **`/find-jobs/`** - your job appears in the listing.
+5. Click into it - the single job page should look the way you want
    candidates to see it. If something looks wrong (e.g. company
    info missing), it's worth fixing now before you invite real
    employers.
 
-## 4 — Apply to it (yourself, as a test candidate)
+## 4 - Apply to it (yourself, as a test candidate)
 
 1. Log out, or open a private window.
 2. Register a test candidate account at
    **`/candidate-dashboard/`** → Register tab.
 3. Apply to the job you just posted. Upload a real resume PDF and
-   write a real cover letter — see what the experience feels like.
+   write a real cover letter - see what the experience feels like.
 4. Switch back to admin. Go to **Career Board → Applications**.
    Your test application should be there.
 5. Click into it. This is the screen your real employers will see
@@ -63,25 +63,25 @@ Treat this as a smoke test of the whole pipeline.
    tweak the Application Details widget order (admin guide
    covers customization).
 
-## 5 — Decide on moderation, credits, emails
+## 5 - Decide on moderation, credits, emails
 
 Three settings that determine the day-2 experience:
 
 - **Moderation** (Career Board → Settings → General). Auto-publish
   jobs or require admin approval. Most marketplace sites use
   approval; most internal job boards auto-publish.
-- **Credits** (Pro only — Career Board → Settings → Credits).
+- **Credits** (Pro only - Career Board → Settings → Credits).
   Turn on if you want to charge employers per posting. Most
   community boards leave this off and use a monthly Premium
   membership instead via PMPro / WooCommerce Subscriptions.
 - **Email notifications** (Career Board → Emails). Make sure
   candidate-application-received and employer-new-application
-  emails are configured — they're how your candidates know they
+  emails are configured - they're how your candidates know they
   successfully applied and how your employers know to log in.
 
 ## You're ready
 
-Once steps 1–5 are done, the site is operationally ready. Real
+Once steps 1-5 are done, the site is operationally ready. Real
 employers can register, post jobs, and review applicants. Real
 candidates can browse, apply, and track their applications.
 
@@ -89,21 +89,21 @@ What comes next depends on what you're building:
 
 | If you're running... | Read next |
 |---|---|
-| A community / public job board | [for-employers/02-post-a-job.md](../for-employers/02-post-a-job.md) — the full employer flow |
-| A paid job board | [admin-guide/06-credit-system.md](../admin-guide/06-credit-system.md) — credit setup |
-| An internal team hiring board | [admin-guide/01-settings.md](../admin-guide/01-settings.md) — auto-publish + role config |
-| A site with existing classic-editor pages | [for-employers/11-page-builder-embeds.md](../for-employers/11-page-builder-embeds.md) — shortcodes |
+| A community / public job board | [for-employers/02-post-a-job.md](../for-employers/02-post-a-job.md) - the full employer flow |
+| A paid job board | [admin-guide/06-credit-system.md](../admin-guide/06-credit-system.md) - credit setup |
+| An internal team hiring board | [admin-guide/01-settings.md](../admin-guide/01-settings.md) - auto-publish + role config |
+| A site with existing classic-editor pages | [for-employers/11-page-builder-embeds.md](../for-employers/11-page-builder-embeds.md) - shortcodes |
 
 ## Troubleshooting Day-1 issues
 
-- **Pages 404 after wizard** — flush rewrite rules: **Settings →
+- **Pages 404 after wizard** - flush rewrite rules: **Settings →
   Permalinks → Save** (no changes, just save).
-- **Apply button missing on jobs** — the candidate must be logged
+- **Apply button missing on jobs** - the candidate must be logged
   in, or you must have **Allow guest applications** enabled.
-- **No "Post a Job" link for employers** — the employer needs the
+- **No "Post a Job" link for employers** - the employer needs the
   `wcb_post_jobs` capability. Site admin has it by default; for
   other users, grant it via the Users page or use a role manager.
-- **Emails not arriving** — your site's transactional email isn't
+- **Emails not arriving** - your site's transactional email isn't
   set up. Install an SMTP plugin (FluentSMTP, WP Mail SMTP, etc.)
   and configure a real sending domain. Career Board's emails go
   through `wp_mail` like every other plugin.

@@ -20,7 +20,7 @@ fetch( '/wp-json/wcb/v1/jobs', {
 For server-to-server calls, generate an application password
 (Users → Profile → Application Passwords) and use HTTP Basic auth.
 
-A small set of endpoints permit guest access — the apply endpoint
+A small set of endpoints permit guest access - the apply endpoint
 when "Allow guest applications" is enabled in Settings, and the
 read-only jobs listing endpoint. Guest endpoints use the
 `__return_true` permission_callback and rely on rate-limit
@@ -40,7 +40,7 @@ shape is consistent:
 }
 ```
 
-The `wcb_*` prefix on error codes is the plugin's namespace —
+The `wcb_*` prefix on error codes is the plugin's namespace -
 addons should mirror this convention with their own prefix.
 
 ## Routes by area
@@ -124,7 +124,7 @@ add_filter( 'wcb_rest_prepare_job', function ( $row, $post, $request, $context )
 ```
 
 The `$context` parameter is one of `single`, `collection`, or
-`embed` — use it to tailor the response to where it's being read.
+`embed` - use it to tailor the response to where it's being read.
 
 ## Adding new routes
 

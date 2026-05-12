@@ -13,7 +13,9 @@
         "02-installation.md",
         "03-setup-wizard.md",
         "04-adding-blocks.md",
-        "05-pro-license.md"
+        "04-quickstart-workflow.md",
+        "05-pro-license.md",
+        "06-whats-new.md"
       ]
     },
     {
@@ -116,6 +118,17 @@
         "buddyx-pro.md",
         "reign-theme.md",
         "buddypress.md"
+      ]
+    },
+    {
+      "slug": "developer-guide",
+      "label": "Developer Guide",
+      "docs": [
+        "01-overview.md",
+        "02-hooks-reference.md",
+        "03-rest-api.md",
+        "04-wp-cli.md",
+        "05-extension-cookbook.md"
       ]
     }
   ]

@@ -18,13 +18,13 @@ Three things to check, in order:
    either extend the deadline or republish.
 3. **Did the submit actually complete?** Your dashboard shows
    every job you've created. If it's not there, the form
-   didn't save — usually because of a network blip. Re-submit.
+   didn't save - usually because of a network blip. Re-submit.
 
 ## "Applicants aren't coming in"
 
 Posting alone doesn't bring traffic. Check:
 
-- **The job is on `/find-jobs/`** — visit it from a private window.
+- **The job is on `/find-jobs/`** - visit it from a private window.
   If you can't find it there, candidates can't either.
 - **Your job's URL has been shared.** Share on LinkedIn, your
   company's social channels, internal Slack. New job boards
@@ -77,11 +77,11 @@ Employer Dashboard → Credits panel.
 You set an external Apply URL but it isn't showing? Two things:
 
 - **The URL must start with `http://` or `https://`.** Just typing
-  `company.com/careers` won't work — the plugin filters out URLs
+  `company.com/careers` won't work - the plugin filters out URLs
   without a scheme.
 - **It only appears on the public job page.** When you preview
   from your dashboard, the form's preview pane might not show it
-  — check the live job URL instead.
+  - check the live job URL instead.
 
 ## "Candidates report the apply form is broken"
 
@@ -99,14 +99,14 @@ You set an external Apply URL but it isn't showing? Two things:
 ## "I can't see the Pro features I'm paying for"
 
 - **Pro plugin needs to be installed AND active.** Site admin
-  needs to do this — you can't enable it from your dashboard.
+  needs to do this - you can't enable it from your dashboard.
 - **License needs to be activated.** Site admin enters the license
   key under Career Board → Settings → License.
 - **Some features depend on configuration.** Job Map needs Google
   Maps API key, AI needs an OpenAI/Anthropic key, alerts need
   cron working. Site admin handles all this.
 
-## I'm stuck — what should I send my site admin?
+## I'm stuck - what should I send my site admin?
 
 Send them:
 
@@ -117,11 +117,11 @@ Send them:
 5. If applicable: your order/transaction number, the job title,
    the candidate's email.
 
-Don't send screenshots of payment info or sensitive HR data —
+Don't send screenshots of payment info or sensitive HR data -
 just the descriptive details.
 
 ## Related
 
-- [02-post-a-job.md](02-post-a-job.md) — Full post-a-job flow
-- [04-review-applications.md](04-review-applications.md) — Reviewing applicants
-- [10-employer-credit-balance.md](10-employer-credit-balance.md) — Credits FAQ
+- [02-post-a-job.md](02-post-a-job.md) - Full post-a-job flow
+- [04-review-applications.md](04-review-applications.md) - Reviewing applicants
+- [10-employer-credit-balance.md](10-employer-credit-balance.md) - Credits FAQ

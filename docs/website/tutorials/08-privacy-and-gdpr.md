@@ -5,7 +5,7 @@ make it GDPR / CCPA / similar-regulation compliant, and the
 day-to-day operations a board owner needs to handle (consent,
 exports, deletion requests, retention).
 
-This is not legal advice — but it covers the technical operations
+This is not legal advice - but it covers the technical operations
 that translate "be compliant" into "do this in the dashboard."
 
 ## What data Career Board stores about candidates
@@ -24,7 +24,7 @@ A summary so you know what's actually on the line:
 | **IP address** (on registration / apply, optional) | Registration log if logging is on | After 30 days unless retained for audit |
 | **Email + login history** | Auth logs (WP default) | Per WP's standard retention |
 | **AI parse results** (Pro) | Candidate post meta | With user account or on profile deletion |
-| **AI vectors** (Pro, jobs only) | `wcb_ai_vectors` table | Jobs (not candidates) — kept until job is deleted |
+| **AI vectors** (Pro, jobs only) | `wcb_ai_vectors` table | Jobs (not candidates) - kept until job is deleted |
 
 ## What data Career Board stores about employers
 
@@ -50,7 +50,7 @@ A summary so you know what's actually on the line:
 
 The technical operations:
 
-## Step 1 — Privacy policy text
+## Step 1 - Privacy policy text
 
 Career Board doesn't generate your privacy policy text, but here's a
 template paragraph to add to yours:
@@ -73,13 +73,13 @@ template paragraph to add to yours:
 >
 > **Payment Data**: If you purchase services (e.g. job posting
 > credits, subscriptions), payment is processed by [WooCommerce /
-> PMPro / etc.] — see their privacy policy for payment data
+> PMPro / etc.] - see their privacy policy for payment data
 > handling.
 
 **Update** the bracketed bits to your specifics. Always have a
 lawyer review the final version.
 
-## Step 2 — Consent capture
+## Step 2 - Consent capture
 
 Career Board registers a consent checkbox on the registration forms by
 default:
@@ -100,11 +100,11 @@ The consent is logged with a timestamp on the user's account meta. To
 view: open the user in WP Admin → look for `_wcb_privacy_consent`
 meta.
 
-## Step 3 — Handling data export requests (Right of Access)
+## Step 3 - Handling data export requests (Right of Access)
 
 When a user requests their data:
 
-**Option A — User self-serves (recommended)**
+**Option A - User self-serves (recommended)**
 
 1. **Candidate Dashboard → Profile → Download My Data.**
 2. The system generates a ZIP containing:
@@ -116,7 +116,7 @@ When a user requests their data:
 3. Email link to the ZIP. The link expires after 24 hours for
    security.
 
-**Option B — Admin handles it manually**
+**Option B - Admin handles it manually**
 
 1. **WP Admin → Users → search for user.**
 2. **Tools → Export Personal Data** (this is WordPress's built-in
@@ -130,11 +130,11 @@ ZIP generation hits a memory limit on shared hosting if the user has
 many applications. Workaround: increase `WP_MEMORY_LIMIT` or use the
 async export queue (auto-enabled for users with >100 applications).
 
-## Step 4 — Handling data deletion requests (Right to Erasure)
+## Step 4 - Handling data deletion requests (Right to Erasure)
 
 **For candidates:**
 
-**Option A — User self-serves (recommended)**
+**Option A - User self-serves (recommended)**
 
 1. **Candidate Dashboard → Profile → Delete Account.**
 2. The system sends a confirmation email.
@@ -143,24 +143,24 @@ async export queue (auto-enabled for users with >100 applications).
    - User account: deleted.
    - Profile fields: deleted.
    - Resumes: deleted from the media library.
-   - Applications: **anonymised** (not deleted) — the employer
+   - Applications: **anonymised** (not deleted) - the employer
      still sees an "Anonymous candidate" application in their
      history, but no identifying data. This preserves the audit
      trail for the employer's compliance.
    - Saved jobs, job alerts: deleted.
    - AI parse data (Pro): deleted.
 
-**Option B — Admin handles it manually**
+**Option B - Admin handles it manually**
 
 1. **WP Admin → Tools → Erase Personal Data** (WordPress built-in).
 2. Enter the user's email.
 3. Confirm the erase. Career Board hooks into WP's eraser to handle
    the same anonymization above.
 
-**Important — what's NOT deleted:**
+**Important - what's NOT deleted:**
 
 - Applications are **anonymised, not deleted.** This is a deliberate
-  policy choice — employers need a record of having received applications
+  policy choice - employers need a record of having received applications
   for their own compliance. The candidate's personal data is wiped, but
   the application row stays.
 - If your jurisdiction requires *full* deletion (not anonymization),
@@ -179,9 +179,9 @@ async export queue (auto-enabled for users with >100 applications).
    required by jurisdiction, admin must manually purge separately
    from the ledger table.
 
-## Step 5 — Retention policy
+## Step 5 - Retention policy
 
-Career Board doesn't enforce automatic deletion of old data — you
+Career Board doesn't enforce automatic deletion of old data - you
 configure your policy:
 
 1. **Career Board → Settings → Privacy → Retention.**
@@ -193,30 +193,30 @@ configure your policy:
      Default: 12 months.
    - **Delete IP addresses from logs after [N] days.** Default: 30.
    - **Purge unsuccessful login attempts after [N] days.** Default: 7.
-3. These run on a daily cron — `wcb_privacy_retention_cron`. Schedule
+3. These run on a daily cron - `wcb_privacy_retention_cron`. Schedule
    visible in WP-CLI: `wp cron event list | grep wcb_privacy`.
 
-## Step 6 — Cookie policy
+## Step 6 - Cookie policy
 
 Career Board sets cookies in two places:
 
-1. **Login cookie** — standard WP authentication. Same as any
+1. **Login cookie** - standard WP authentication. Same as any
    WordPress site.
-2. **Saved job tracking** (logged-out users) — `wcb_saved_jobs`
+2. **Saved job tracking** (logged-out users) - `wcb_saved_jobs`
    cookie, 90 days. Stores bookmarked job IDs so logged-out users
    keep bookmarks. Encrypted but not personally identifying.
 
 Add to your cookie banner:
 
 ```
-"wcb_saved_jobs" — saved job bookmarks for logged-out users
+"wcb_saved_jobs" - saved job bookmarks for logged-out users
 ```
 
 If you don't want this cookie, disable in **Settings → Privacy →
-Cookies → "Allow logged-out saved jobs"** — turning this off means
+Cookies → "Allow logged-out saved jobs"** - turning this off means
 logged-out bookmarks are not preserved.
 
-## Step 7 — AI features and data exposure (Pro)
+## Step 7 - AI features and data exposure (Pro)
 
 If you have Pro AI enabled, additional disclosure is needed:
 
@@ -236,7 +236,7 @@ If you have Pro AI enabled, additional disclosure is needed:
    Ollama on your server. See
    [../ai-features/02-setup-and-providers.md](../ai-features/02-setup-and-providers.md).
 
-## Step 8 — Data Processing Agreement (DPA)
+## Step 8 - Data Processing Agreement (DPA)
 
 For GDPR compliance, your DPA needs to cover:
 
@@ -252,7 +252,7 @@ For GDPR compliance, your DPA needs to cover:
 This is paperwork, not technical setup. The plugin's role is to make
 sure the data flow doesn't include unexpected processors.
 
-## Step 9 — Breach response checklist
+## Step 9 - Breach response checklist
 
 If you suspect a breach (unauthorised access, data leak):
 
@@ -267,12 +267,12 @@ If you suspect a breach (unauthorised access, data leak):
 5. **Patch.** Fix the underlying cause. Common causes: outdated
    plugin, weak admin password, compromised host.
 6. **Document.** Keep records of what happened, what you did, what
-   was disclosed — for regulator audits.
+   was disclosed - for regulator audits.
 
 ## Common compliance mistakes
 
 - **No consent checkbox at registration.** Easy to forget; required
-  for GDPR. Career Board ships it on by default — make sure it's not
+  for GDPR. Career Board ships it on by default - make sure it's not
   been disabled.
 - **Auto-publishing applications to BP activity stream.** If you have
   BP activity for "applied for job" turned on, candidates may not
@@ -285,14 +285,14 @@ If you suspect a breach (unauthorised access, data leak):
   the policy AND notify existing users of the change.
 - **Half-deletion.** Deleting a user but not their applications, or
   vice versa. Use the dashboard's Delete Account flow (or WP's
-  privacy eraser) — don't manually delete from the database.
+  privacy eraser) - don't manually delete from the database.
 
 ## Where to go next
 
-- [../admin-guide/04-gdpr.md](../admin-guide/04-gdpr.md) — full
+- [../admin-guide/04-gdpr.md](../admin-guide/04-gdpr.md) - full
   GDPR-specific admin reference.
-- [01-first-day-as-site-owner.md](01-first-day-as-site-owner.md) —
+- [01-first-day-as-site-owner.md](01-first-day-as-site-owner.md) -
   if you're still in setup mode, make sure privacy is configured
   from day one.
-- [../ai-features/02-setup-and-providers.md](../ai-features/02-setup-and-providers.md) —
+- [../ai-features/02-setup-and-providers.md](../ai-features/02-setup-and-providers.md) -
   data flow details per AI provider.

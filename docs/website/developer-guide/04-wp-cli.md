@@ -20,7 +20,7 @@ Operate on `wcb_job` posts.
 | `wp wcb job expire` | Run the expiry sweep manually (same as the daily cron) |
 | `wp wcb job feature <id> --days=30` | Promote to featured for N days |
 
-**Example — bulk reject:**
+**Example - bulk reject:**
 
 ```bash
 wp post list --post_type=wcb_job --post_status=pending --field=ID \
@@ -64,7 +64,7 @@ production-shape dataset.
 Budgets are defined in `cli/class-scale-command.php` per query.
 PK lookups ≤5ms, indexed scans ≤30ms, snapshot reads ≤20ms.
 
-**Example — full benchmark cycle:**
+**Example - full benchmark cycle:**
 
 ```bash
 wp wcb scale seed && wp wcb scale benchmark && wp wcb scale teardown

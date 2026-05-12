@@ -1,6 +1,6 @@
-# Hooks Reference — Actions and Filters
+# Hooks Reference - Actions and Filters
 
-WP Career Board fires **29 actions** and **63 filters** (Free only —
+WP Career Board fires **29 actions** and **63 filters** (Free only -
 Pro adds its own; see the Pro developer guide). Hooks are grouped
 by area below.
 
@@ -25,8 +25,8 @@ by area below.
 | `wcb_job_approved` | Action | When admin approves a pending job. Args: `$job_id`. |
 | `wcb_job_rejected` | Action | When admin rejects a job. Args: `$job_id, $reason`. |
 | `wcb_job_expired` | Action | When the deadline passes. Args: `$job_id`. |
-| `wcb_check_job_expiry` | Action | Cron hook — fires daily to expire stale jobs. |
-| `wcb_deadline_reminder` | Action | Cron — fires the deadline-reminder email cycle. |
+| `wcb_check_job_expiry` | Action | Cron hook - fires daily to expire stale jobs. |
+| `wcb_deadline_reminder` | Action | Cron - fires the deadline-reminder email cycle. |
 | `wcb_featured_expired` | Action | When a featured job's promotion window ends. Args: `$job_id`. |
 
 ## Lifecycle / applications
@@ -39,7 +39,7 @@ by area below.
 | `wcb_application_status_changed` | Action | When status moves (`submitted → reviewing → shortlisted → rejected/hired/withdrawn/job_removed`). Args: `$app_id, $new_status, $old_status`. |
 | `wcb_application_withdrawn` | Action | Candidate withdrew. Args: `$app_id, $job_id, $candidate_id`. |
 | `wcb_application_deleted` | Action | Application post deleted. Args: `$app_id, $job_id`. |
-| `wcb_application_form_fields` | Action | Inside the apply form template — render extra `<input>`s here. |
+| `wcb_application_form_fields` | Action | Inside the apply form template - render extra `<input>`s here. |
 | `wcb_application_form_fields_groups` | Filter | Add a group of custom fields to the apply form. |
 
 ## Lifecycle / candidates and employers
@@ -67,7 +67,7 @@ by area below.
 
 The `wcb_rest_prepare_*` family is your hook into every REST
 response. Each fires after the controller builds the row and
-before it's returned — modify, redact, or augment.
+before it's returned - modify, redact, or augment.
 
 | Hook | Adjusts the response for |
 |---|---|
@@ -103,7 +103,7 @@ Pro adds: `wcb_rest_prepare_board`, `wcb_rest_prepare_board_stage`,
 | `wcb_settings_tabs` | Filter | Add a tab to the Settings UI. |
 | `wcb_settings_tab_<slug>` | Action | Render content for a custom tab (the slug becomes the suffix). |
 | `wcb_settings_tab_antispam` | Action | The built-in Anti-Spam tab. Hook to add additional anti-spam controls. |
-| `wcb_settings_tab_emails` | Action | The Emails tab — extend with custom email templates. |
+| `wcb_settings_tab_emails` | Action | The Emails tab - extend with custom email templates. |
 | `wcb_page_settings` | Filter | Modify which pages are mapped for "Career Board page" detection. |
 | `wcb_app_page_ids` | Filter | Add page IDs that should get the `wcb-page` body class. |
 | `wcb_apply_page_class` | Filter | Opt out a page from the `wcb-page` body class entirely. |
@@ -126,16 +126,16 @@ hooks them to return true / version / license status.
 
 | Hook | Returns |
 |---|---|
-| `wcb_pro_active` | bool — is Pro plugin running? |
-| `wcb_pro_licensed` | bool — is the Pro license valid? |
-| `wcb_pro_version` | string — Pro version, e.g. "1.1.1" |
+| `wcb_pro_active` | bool - is Pro plugin running? |
+| `wcb_pro_licensed` | bool - is the Pro license valid? |
+| `wcb_pro_version` | string - Pro version, e.g. "1.1.1" |
 | `wcb_pro_ai_enabled` | bool |
 | `wcb_pro_alerts_enabled` | bool |
 | `wcb_pro_resumes_enabled` | bool |
-| `wcb_pro_upsell_url` | string — where the "Upgrade to Pro" CTA points |
-| `wcb_pro_pre_check` | Action — fires before Pro's compatibility check |
-| `wcb_pro_settings_saved_notice` | Filter — message for the post-save admin notice |
-| `wcb_register_extensions` | Action — Pro hooks this to register its extension classes |
+| `wcb_pro_upsell_url` | string - where the "Upgrade to Pro" CTA points |
+| `wcb_pro_pre_check` | Action - fires before Pro's compatibility check |
+| `wcb_pro_settings_saved_notice` | Filter - message for the post-save admin notice |
+| `wcb_register_extensions` | Action - Pro hooks this to register its extension classes |
 
 ## Miscellaneous
 
@@ -152,7 +152,7 @@ hooks them to return true / version / license status.
 | `wcb_job_listings_query_args` | Filter | Modify the `WP_Query` args for the listings server-side query. |
 | `wcb_job_listings_board_options` | Filter | The boards visible in the listings UI's board picker. |
 | `wcb_job_listing_data` | Filter | Per-card data (each row in the listings block). |
-| `wcb_jobs_post_filter` | Filter | After the listings query but before render — add transformations. |
+| `wcb_jobs_post_filter` | Filter | After the listings query but before render - add transformations. |
 | `wcb_jobs_allowed_meta_filters` | Filter | Allowlist of meta keys the `metaFilter` block attribute may query (prevents arbitrary-meta probes). |
 | `wcb_ai_description_enabled` | Filter | Toggle the AI-assisted description feature (Pro). |
 | `wcb_resume_archive_enabled` | Filter | Toggle the resume directory (Pro). |
@@ -195,4 +195,4 @@ That returns the file:line of every firer; open it and read the
 surrounding lines for the parameter shapes.
 
 For the Pro-side hooks, see
-[wp-career-board-pro/docs/developer-guide/03-hooks-reference.md](../../../wp-career-board-pro/docs/website/developer-guide/03-hooks-reference.md).
+[docs.wbcomdesigns.com/docs/wp-career-board-pro/developer-guide/03-hooks-reference](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/developer-guide/03-hooks-reference/).

@@ -1,6 +1,6 @@
 # Extension Cookbook
 
-Common things developers ask "how do I…" — with the smallest
+Common things developers ask "how do I…" - with the smallest
 working snippet for each. Every recipe uses public hooks; nothing
 here forks the source.
 
@@ -29,7 +29,7 @@ add_filter( 'wcb_application_form_fields_groups', function ( $groups, $job_id ) 
     return $groups;
 }, 10, 2 );
 
-// 3. Read the saved value later — it's stored as `_wcb_application_field_linkedin`.
+// 3. Read the saved value later - it's stored as `_wcb_application_field_linkedin`.
 $url = get_post_meta( $app_id, '_wcb_application_field_linkedin', true );
 ```
 
@@ -93,7 +93,7 @@ add_filter( 'wcb_board_credit_cost', function ( $cost, $board_id ) {
 
 The 4-step wizard fires `wcb_job_form_step1_fields` …
 `wcb_job_form_step4_preview` actions inside each step's container.
-Adding a fifth step takes a JS-side hook too — but injecting
+Adding a fifth step takes a JS-side hook too - but injecting
 fields into an existing step is trivial:
 
 ```php
@@ -121,7 +121,7 @@ add_filter( 'wcb_rest_prepare_job', function ( $row, $post, $request, $context )
 }, 10, 4 );
 ```
 
-This propagates everywhere the jobs API is consumed — the listings
+This propagates everywhere the jobs API is consumed - the listings
 block, the single-job page, third-party integrations.
 
 ## Disable a built-in feature
@@ -189,7 +189,7 @@ do_action( 'wcb_send_email', 'my_addon_welcome', $candidate_id, array(
 
 Read [02-hooks-reference.md](02-hooks-reference.md) for the full
 inventory. For anything not covered by a hook, the next step is
-to extend a Career Board class directly — see
+to extend a Career Board class directly - see
 [03-rest-api.md](03-rest-api.md) for the REST controller base
 class and the WP-CLI section in
 [04-wp-cli.md](04-wp-cli.md) for the CLI base class.

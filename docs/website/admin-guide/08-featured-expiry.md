@@ -8,7 +8,7 @@ Featured as a real time-bound boost.
 ## How it works
 
 When a job is marked Featured (manually by an admin, or via the
-[Featured-upgrade credit consumer](../../../wp-career-board-pro/docs/website/credit-system/04-featured-upgrade.md)
+[Featured-upgrade credit consumer](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/credit-system/04-featured-upgrade/)
 in Pro), the plugin records the expiry timestamp on the job.
 
 A daily cron event (`wcb_expire_featured_jobs`) runs every 24 hours,
@@ -49,7 +49,7 @@ the per-job expiry without affecting other jobs.
 
 ## With Pro: pay-to-renew
 
-Pro's [Featured-upgrade credit consumer](../../../wp-career-board-pro/docs/website/credit-system/04-featured-upgrade.md)
+Pro's [Featured-upgrade credit consumer](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/credit-system/04-featured-upgrade/)
 lets the same job pay for Featured status more than once over its
 life. After auto-expiry, the employer can spend more credits to
 re-feature.

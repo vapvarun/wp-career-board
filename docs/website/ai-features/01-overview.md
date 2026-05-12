@@ -1,42 +1,66 @@
 # AI Features Overview
 
-WP Career Board can use AI to improve four parts of the hiring flow:
-**job search**, **resume parsing**, **job description writing**, and
-**application ranking**. All AI features are part of the **Pro**
-plugin — the Free plugin ships the hook surface and the disabled
-default so a custom add-on or Pro can wire AI in without changes
-elsewhere.
+WP Career Board can use AI to improve three parts of the hiring flow:
+**job description writing**, **natural-language job search**, and
+**candidate-to-job matching**. All AI features ship in the **Pro**
+plugin; the Free plugin defines the gate filter so an add-on or Pro
+can wire AI in without changes elsewhere.
 
-This section explains what AI does, when it's worth enabling, and how
-to set it up. If you're on Free, treat this as a feature preview: the
-flows below are what you get when you upgrade. The setup, privacy, and
-cost notes apply equally either way.
+This page summarises what's actually in the 1.1.1 release, what's
+gated behind the AI provider being configured, and what's queued for a
+later release. If you're on Free, treat this as a feature preview: the
+flows here are what you get when you upgrade.
 
-## The four AI features
+## What ships today (1.1.1)
 
-| Feature | Who uses it | What it does | Plan |
-|---|---|---|---|
-| **AI Chat Search** | Candidates | Natural-language search: "remote React job, $100k+, US time zones" returns semantically matched listings | Pro |
-| **Resume Parsing** | Candidates | Extracts skills, experience, education from an uploaded resume into structured profile fields | Pro |
-| **AI Description Writer** | Employers | Generates a draft job description from a title + key bullets, writable / editable inline | Pro |
-| **AI Application Ranking** | Employers / admins | Scores each applicant against the job (0–100) with a one-line reason — useful when you have dozens of applicants per role | Pro |
+| Feature | Surface | Who uses it |
+|---|---|---|
+| **Job embeddings** | Background: every new job is embedded on `wcb_job_created` into the `wcb_ai_vectors` table. | System |
+| **AI Chat Search block** | `wcb/ai-chat-search` block. Candidate types a natural-language query; closest-matched jobs come back via the `/wcb/v1/ai/match` REST endpoint. | Candidates |
+| **AI Job Description Writer** | "Generate with AI" button on the post-a-job form, gated behind `wcb_ai_description_enabled`. Sends title + company type + location to the provider. | Employers |
+| **Candidate-to-job match data (REST)** | `GET /wcb/v1/candidates/{id}/matches` returns top-N matches for a candidate. No built-in UI surface in 1.1.1 - consumed by add-ons or custom templates. | Add-on developers |
+| **Application ranking data (REST)** | `GET /wcb/v1/ai/ranked-applications/{job_id}` returns each application's AI fit score (0-100). No built-in admin column UI in 1.1.1. | Add-on developers |
 
-In Free, the same code paths exist but skip cleanly: the AI Chat Search
-block returns an empty result set, the description writer button is
-hidden, and the ranking column doesn't render. There is no broken UI
-in Free — the AI surface is fully behind a feature gate.
+In Free, all five paths are gated. The Chat Search block returns an
+empty list, the description button is hidden, the match / rank REST
+routes aren't registered. No broken UI surfaces in Free.
+
+## What's queued for a later release
+
+Listed honestly so expectations are calibrated:
+
+- **Resume parsing** - the `wcbp_candidate_resume_data` filter exists
+  for an add-on to supply parsed data, but Pro does not ship a parser
+  in 1.1.1.
+- **AI fit-score column on the applications admin screen** - data is
+  available via REST, but the column UI isn't registered.
+- **Sort by AI fit score** - depends on the column above.
+- **Per-application refresh button** - manual recomputation is via
+  `AiModule::rank_applications()` from a custom integration; no
+  built-in button.
+- **"Test connection" + "Reindex all jobs" buttons in AI Settings** -
+  validation happens only on real calls; existing jobs (before AI was
+  enabled) don't auto-backfill embeddings.
+- **WP-CLI `wp wcb ai *` commands** - not registered.
+- **AI lifecycle action hooks** (e.g. `wcbp_ai_job_embedded`,
+  `wcbp_ai_application_scored`) - not fired in 1.1.1; instrument from
+  your add-on by wrapping the public AiModule methods.
+- **Semantic match for Pro Job Alerts** - alerts use keyword match in
+  1.1.1.
+
+If any of these is a blocker for your use case, file on the support
+board so it can be prioritised for the next release.
 
 ## Free vs Pro at a glance
 
 | | Free | Pro |
 |---|---|---|
-| **Job posting form** | Full editor | Full editor **+** AI description writer button |
-| **Candidate dashboard** | Resume upload, manual profile fill | Resume upload **+** auto-parse to profile fields |
-| **Search bar** | Keyword search, taxonomy filters | Keyword search, taxonomy filters **+** AI Chat Search block |
-| **Applications screen** | List, status filter, manual review | List, status filter, manual review **+** AI fit score (0–100) per applicant |
-| **AI Settings panel** | Hidden | Visible under **Career Board → Settings → AI** |
+| **Job posting form** | Full editor | Full editor + AI description writer button |
+| **Candidate dashboard** | Resume upload, manual profile fill | Same (Pro does NOT auto-parse in 1.1.1) |
+| **Search bar** | Keyword search, taxonomy filters | Keyword + filters + AI Chat Search block |
+| **Applications screen** | List, status filter, manual review | Same UI as Free in 1.1.1; AI ranking data available via REST for custom UI |
+| **AI Settings tab** | Hidden | Visible under **WP Admin → Career Board → Settings → AI Settings** |
 | **Database** | Standard tables only | Adds `wcb_ai_vectors` for embeddings |
-| **Cron jobs** | Standard cron | Standard cron **+** background embedding generation on job publish |
 
 ## When AI is worth turning on
 
@@ -44,96 +68,83 @@ in Free — the AI surface is fully behind a feature gate.
 
 - Your board has more than ~30 active jobs and candidates struggle to
   find the right one with keyword search alone.
-- You get 20+ applications per role and reviewing each one in full takes
-  too long.
-- Most of your traffic is from candidates whose first language isn't
-  English — natural-language search bridges the keyword gap.
-- You post niche / technical roles where the job title doesn't match
-  the actual skills (a "Full Stack Engineer" who really needs Rust
-  experience won't surface to a "Rust Developer" keyword searcher).
+- You want the description-writer assist to speed up job posting.
+- You're building an add-on or custom UI that wants AI match / rank
+  data from the REST endpoints.
 
 **Skip it if:**
 
-- You're under 20 active jobs and a handful of applications a week —
-  AI doesn't move the needle and the API spend isn't worth it.
-- You can't share candidate or job text with a third-party LLM
-  provider for privacy / compliance reasons. (You can still run
-  **Ollama** locally — see [02-setup-and-providers.md](02-setup-and-providers.md).)
-- You don't have someone who can keep an eye on monthly API costs and
-  cut them off if a runaway script pushes spend up.
+- You're under 20 active jobs and a handful of applications a week -
+  the description writer might still help, but match / rank don't
+  move the needle yet.
+- You can't share job / candidate text with a third-party LLM
+  provider for privacy / compliance reasons. (Use **Ollama** locally;
+  see [02-setup-and-providers.md](02-setup-and-providers.md).)
+- You expect resume parsing, AI-ranked applications visible in the
+  admin, or AI-powered alerts in 1.1.1 - those aren't shipping yet.
 
 ## How it works under the hood
 
-When AI is enabled and a provider is configured, here's what happens
-behind the scenes — useful to understand if you're debugging "why
-isn't search returning the job I expect?"
+When AI is enabled and a provider is configured:
 
-1. **On job publish:** the plugin asks the configured embeddings
-   provider to convert the title + description into a 1536-dim
-   floating-point vector. That vector is stored in the
-   `wcb_ai_vectors` table, keyed by job ID.
-2. **On resume upload:** Pro asks the completions provider to extract
-   structured fields (skills array, experience list, education list)
-   from the resume PDF. The result is saved to candidate post meta.
-3. **On AI Chat Search:** the candidate's query is embedded the same
+1. **On job publish:** Pro hooks `wcb_job_created` and calls
+   `AiModule::generate_job_embedding()`. The job title + content are
+   embedded by the configured provider and stored as a binary-packed
+   float vector in `wcb_ai_vectors`.
+2. **On AI Chat Search:** the candidate's query is embedded the same
    way, then cosine-similarity-compared against every stored job
-   vector. Top N matches are returned ranked.
-4. **On application ranking:** the candidate's profile + the job
-   description are sent to the completions provider with a scoring
-   prompt; the returned `{score, reason}` is cached against the
-   application row.
-5. **On description writer:** the title + key bullets are sent to the
-   completions provider with a job-description prompt; the response is
-   inserted directly into the editor.
+   vector. Top 10 matches are returned via `POST /wcb/v1/ai/match`.
+3. **On description writer:** the form sends title + company type +
+   location to `POST /wcb/v1/jobs/ai-description`. The provider
+   returns a description; the editor inserts it.
+4. **On candidate matching (REST):** the candidate's resume data
+   (provided by an add-on via `wcbp_candidate_resume_data`) is
+   embedded and matched against job vectors.
+5. **On application ranking (REST):** each application's candidate
+   resume data is sent to the completions provider with a 0-100
+   scoring prompt. Returns `[{application_id, score, reason}]`.
 
-All five paths go through the same `AiModule` and the configured
-**provider** (OpenAI / Anthropic Claude / Ollama). One provider
-config drives all features — there is no per-feature API key.
+All paths go through the same `AiModule` and the configured provider
+(OpenAI / Anthropic Claude / Ollama). One provider config drives all
+features - no per-feature API key.
 
 ## What gets sent to the AI provider
 
-This is the privacy-relevant breakdown. Worth understanding before you
-enable.
+The privacy-relevant breakdown:
 
-| Feature | Sent to provider |
+| Feature | What's sent |
 |---|---|
-| AI Chat Search | The candidate's typed query (e.g. "senior frontend in Berlin"). No personally identifying info unless they type it. |
-| Resume Parsing | The full extracted text of the uploaded resume — including the candidate's name, contact info, work history. |
-| AI Description Writer | The job title, key bullets, and any context the employer types in. The employer is the one composing — no candidate data is involved. |
-| AI Application Ranking | The job description AND the candidate's parsed profile (or resume text if not parsed). Sensitive — applies to every applicant on every refresh unless cached. |
+| Job embedding (on publish) | The job title and description as plain text. |
+| AI Chat Search | The candidate's typed query string. |
+| AI Description Writer | The job title, company type, and location. |
+| Candidate match / rank (REST) | The candidate's resume data array, as supplied to `wcbp_candidate_resume_data`. |
 
-If you're concerned about resume / candidate data leaving your server,
-run **Ollama** locally. Setup is documented in
-[02-setup-and-providers.md](02-setup-and-providers.md).
+For privacy-sensitive deployments, run **Ollama** locally - see
+[02-setup-and-providers.md](02-setup-and-providers.md). Nothing leaves
+your server.
 
-## What it doesn't do
+## What it doesn't do (1.1.1)
 
-Some things AI is *not* doing here, so you know:
-
-- **No auto-rejection.** AI Application Ranking surfaces a score and a
-  one-line reason — it never auto-rejects, hides, or shuffles
-  applications. Every decision still lands with the employer.
-- **No auto-matching emails.** When a candidate's resume is parsed, the
-  plugin doesn't send out unsolicited "you might like this job"
-  emails. Job alerts use the standard alert system (manual setup or
-  Pro job alerts), not AI matching for outreach.
-- **No content generation outside the writer.** AI doesn't auto-fill
-  candidate profile bios, employer "about us" sections, or anything
-  else. Only the four documented entry points generate text.
-- **No data sold or shared.** All API calls are between your site
-  and the configured provider directly — Wbcom never sees or
-  proxies the data.
+- **No auto-rejection.** Application ranking returns scores; nothing
+  acts on them automatically. Every decision still lands with the
+  employer.
+- **No auto-matching emails.** Pro Job Alerts (when active) use
+  keyword match in 1.1.1, not AI semantic match.
+- **No content generation outside the writer.** AI does not auto-fill
+  candidate bios, company "about us" sections, etc.
+- **No data sold or shared.** All API calls are between your site and
+  the configured provider directly - Wbcom never sees or proxies the
+  data.
 
 ## Where to go next
 
-- [02-setup-and-providers.md](02-setup-and-providers.md) — Pick a provider,
+- [02-setup-and-providers.md](02-setup-and-providers.md) - pick a provider,
   enter your key, save settings.
-- [03-candidate-ai-features.md](03-candidate-ai-features.md) — What candidates
-  actually do with AI Chat Search and resume parsing.
-- [04-employer-ai-features.md](04-employer-ai-features.md) — Description
-  writer and application ranking walkthroughs.
-- [05-blocks-shortcodes-and-developers.md](05-blocks-shortcodes-and-developers.md) —
-  Embedding AI blocks, shortcodes, and developer hooks for
-  customisation.
-- [06-troubleshooting.md](06-troubleshooting.md) — Common errors and what
-  to do about them.
+- [03-candidate-ai-features.md](03-candidate-ai-features.md) - what
+  candidates do with AI Chat Search.
+- [04-employer-ai-features.md](04-employer-ai-features.md) - the
+  description writer flow and how to access ranking data.
+- [05-blocks-shortcodes-and-developers.md](05-blocks-shortcodes-and-developers.md) -
+  block + REST + filter surface for add-on authors.
+- [06-troubleshooting.md](06-troubleshooting.md) - common errors and
+  what to do about them.

@@ -11,7 +11,7 @@ decide what to grant team members.
 |---|---|---|
 | **Candidate** | `wcb_candidate` | Anyone who applies to jobs and manages a resume |
 | **Board Moderator** | `wcb_board_moderator` | Reviews pending jobs and approves/rejects |
-| **Banned Employer** | `wcb_employer_banned` | Suspended account — can still log in but cannot post |
+| **Banned Employer** | `wcb_employer_banned` | Suspended account - can still log in but cannot post |
 
 **Note:** "Employer" is not a separate role in Career Board. Anyone
 who has the `wcb_post_jobs` capability is an employer for our
@@ -40,7 +40,7 @@ create their own custom role and add it.
 | Role | Capabilities granted |
 |---|---|
 | **Administrator** | All 12 |
-| **Editor** | None by default — usually granted `wcb_post_jobs` + `wcb_view_applications` + `wcb_access_employer_dashboard` for editorial sites |
+| **Editor** | None by default - usually granted `wcb_post_jobs` + `wcb_view_applications` + `wcb_access_employer_dashboard` for editorial sites |
 | **Author** | None by default |
 | **Candidate** (`wcb_candidate`) | `read`, `wcb_apply_jobs`, `wcb_manage_resume`, `wcb_bookmark_jobs`, `wcb_access_candidate_dashboard`, `wcb_withdraw_application` |
 | **Board Moderator** (`wcb_board_moderator`) | `read`, `wcb_moderate_jobs` |
@@ -56,7 +56,7 @@ Members, etc.):
 3. Tick the Career Board capabilities you want to grant.
 4. Save.
 
-**For "Editor as Employer" — the most common scenario:**
+**For "Editor as Employer" - the most common scenario:**
 
 Grant the Editor role:
 - `wcb_post_jobs`
@@ -95,8 +95,8 @@ Or via WP Admin → Users → edit → Role dropdown.
 
 Effects:
 
-- They lose `wcb_post_jobs` — cannot create new jobs.
-- Existing published jobs stay live (use this carefully — if you
+- They lose `wcb_post_jobs` - cannot create new jobs.
+- Existing published jobs stay live (use this carefully - if you
   want them down, change the job's status to `pending` or `draft`
   separately).
 - They can still log in, but the dashboard shows a suspension
@@ -125,7 +125,7 @@ namespaced ability slug:
 | `wcb/view-applications` | `wcb_view_applications` |
 | `wcb/view-analytics` | `wcb_view_analytics` |
 
-You only need to grant the underlying capability — the Abilities
+You only need to grant the underlying capability - the Abilities
 layer reads it. Both forms work for `current_user_can()` checks
 in your own theme/plugin code, though `wp_is_ability_granted()`
 is the canonical call.
@@ -173,7 +173,7 @@ you don't have it.
 **Candidate registered but can't apply.**
 
 Their role might have been overridden by another plugin's
-registration flow. Check `wp user get <login> --field=roles` —
+registration flow. Check `wp user get <login> --field=roles` -
 it should be `wcb_candidate`. If it's `subscriber` or `customer`,
 either change the role manually or add `wcb_apply_jobs` to
 whatever role they got.

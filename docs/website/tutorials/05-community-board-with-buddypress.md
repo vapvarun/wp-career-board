@@ -10,15 +10,15 @@ setup and the design decisions.
 
 Common patterns:
 
-- **Industry association** — a community of professionals where each
+- **Industry association** - a community of professionals where each
   member's organisation occasionally hires. Jobs posted within
   member-only groups, not on a public board.
-- **University alumni network** — alumni hire other alumni; the board
+- **University alumni network** - alumni hire other alumni; the board
   lives inside the alumni community.
-- **Bootcamp / cohort community** — graduates support each other's job
+- **Bootcamp / cohort community** - graduates support each other's job
   search; the board is part of the cohort experience, not a public
   service.
-- **Vertical industry community** — e.g. a developer Slack-style
+- **Vertical industry community** - e.g. a developer Slack-style
   community where a paid plan unlocks the job board area.
 
 If you don't already run BuddyPress, you don't need it. Career Board
@@ -28,7 +28,7 @@ works fine standalone.
 
 - WordPress 6.5+, PHP 8.1+.
 - **BuddyPress 13+** (or BuddyBoss equivalent).
-- WP Career Board **Free or Pro** — most community features work in
+- WP Career Board **Free or Pro** - most community features work in
   Free; Pro adds the Multi-Board feature that maps boards to BP
   groups.
 - Groups component enabled in **WP Admin → BuddyPress → Components.**
@@ -40,10 +40,10 @@ works fine standalone.
 Career Board uses **boards** as a high-level container for jobs. A
 board can be:
 
-- **Public** — visible to everyone, jobs listed on `/find-jobs/`.
-- **Tied to a BP group** (Pro) — only group members see and can post
+- **Public** - visible to everyone, jobs listed on `/find-jobs/`.
+- **Tied to a BP group** (Pro) - only group members see and can post
   to it.
-- **Member-only** — anyone logged in can see and post, no group
+- **Member-only** - anyone logged in can see and post, no group
   required.
 
 The mapping is:
@@ -62,35 +62,35 @@ Members of the "Frontend Engineers" BP group see and can post to the
 > **Pro feature.** The board-to-group mapping requires Pro's
 > **Multi-Board** module. Free supports a single global board only.
 
-## Step 1 — Install and verify components
+## Step 1 - Install and verify components
 
 1. **Activate Career Board and BuddyPress** in the order: BuddyPress
    first, then Career Board.
-2. **BuddyPress → Components** — confirm "Groups" and "Activity
+2. **BuddyPress → Components** - confirm "Groups" and "Activity
    Streams" are enabled.
-3. **Career Board → Settings → Integrations** — the BuddyPress
+3. **Career Board → Settings → Integrations** - the BuddyPress
    integration should show as "Active" with a green checkmark. If
    not, deactivate-reactivate Career Board after BP is on.
 
-## Step 2 — Map a BP group to a Career Board board (Pro)
+## Step 2 - Map a BP group to a Career Board board (Pro)
 
 For each BP group that should have its own job board:
 
 1. **BP group → Manage → Career Board tab** (the tab appears once
    Pro is on).
 2. Click **Create board for this group.** Set:
-   - **Board name** — usually "Group Name Jobs."
-   - **Slug** — auto-generated from the name; tweak if needed.
-   - **Default category** — optional; jobs without an explicit
+   - **Board name** - usually "Group Name Jobs."
+   - **Slug** - auto-generated from the name; tweak if needed.
+   - **Default category** - optional; jobs without an explicit
      category land here.
-   - **Posting cost** — per-board credit cost. 0 if free.
-   - **Visibility** — Group Members Only, Site Members, Public.
+   - **Posting cost** - per-board credit cost. 0 if free.
+   - **Visibility** - Group Members Only, Site Members, Public.
 3. Save.
 
 A new board exists, ready to receive postings. Group members navigating
 to the group's Jobs tab see the listing.
 
-## Step 3 — Add a Jobs tab to each group
+## Step 3 - Add a Jobs tab to each group
 
 The Career Board integration registers a **Jobs** tab on each
 group automatically. To customise:
@@ -104,7 +104,7 @@ group automatically. To customise:
 To rename the tab (e.g. "Hiring" instead of "Jobs"), edit the BP
 group nav label or use the `wcbp_group_jobs_nav_label` filter.
 
-## Step 4 — Member profile job-history field
+## Step 4 - Member profile job-history field
 
 Career Board adds a "Current role" + "Open to Work" pair to BP member
 profiles automatically when the integration is on. Each candidate's
@@ -116,13 +116,13 @@ profile shows:
 
 To extend with custom fields:
 
-1. **BuddyPress → Profile Fields** — add new fields (e.g. "Years of
+1. **BuddyPress → Profile Fields** - add new fields (e.g. "Years of
    experience," "Preferred work mode").
 2. These fields are stored as standard BP XProfile data. Career Board
    reads them via the `wcb_candidate_profile_fields` filter to
    include in candidate searches.
 
-## Step 5 — Activity broadcasts
+## Step 5 - Activity broadcasts
 
 When a member posts a job or applies for a job, Career Board can
 broadcast that to the activity stream. Each event is configurable:
@@ -136,11 +136,11 @@ broadcast that to the activity stream. Each event is configurable:
 | Hired | Off (privacy) | "[Member] was hired for [Job Title]." |
 | New company joined | On | "[Member] added a company: [Company Name]." |
 
-Application-side activity is off by default — most job searches are
+Application-side activity is off by default - most job searches are
 private. Turn on at your discretion. If you do enable, double-check
 your privacy policy reflects it.
 
-## Step 6 — Notifications via BP
+## Step 6 - Notifications via BP
 
 Career Board integrates with BuddyPress's bell notifications. By
 default, these fire as BP notifications **in addition to** standard
@@ -152,9 +152,9 @@ email:
   group's board).
 
 To toggle individual events: **Career Board → Settings →
-Notifications → Channels** — pick "BP notifications" alongside email.
+Notifications → Channels** - pick "BP notifications" alongside email.
 
-## Step 7 — Member types and gating (Pro)
+## Step 7 - Member types and gating (Pro)
 
 If your BP install uses Member Types (e.g. "employer," "candidate,"
 "student," "alumni"), Career Board can gate posting capability and
@@ -164,14 +164,14 @@ board visibility by member type.
 
 Example mapping:
 
-- **Member type "Verified employer"** — can post jobs to any board.
-- **Member type "Student"** — can apply to jobs marked "Open to students."
-- **Member type "Alumni"** — can post AND apply, full access.
-- **Default** — applies to anyone not in a member type.
+- **Member type "Verified employer"** - can post jobs to any board.
+- **Member type "Student"** - can apply to jobs marked "Open to students."
+- **Member type "Alumni"** - can post AND apply, full access.
+- **Default** - applies to anyone not in a member type.
 
 This requires Pro and a one-time custom mapping configuration.
 
-## Step 8 — Test the integration end-to-end
+## Step 8 - Test the integration end-to-end
 
 The standard test path:
 
@@ -236,9 +236,9 @@ group with its own job board.
 
 Board visibility is set too permissively. Check:
 
-- **Multi-Board → Boards** — the board's "Visibility" field. Should
+- **Multi-Board → Boards** - the board's "Visibility" field. Should
   be "Group Members Only" for group-tied boards.
-- Members listed in the group — make sure the user isn't in the
+- Members listed in the group - make sure the user isn't in the
   group when they shouldn't be.
 
 ### BP notification not firing on application
@@ -247,7 +247,7 @@ Board visibility is set too permissively. Check:
 2. The receiving user has BP notifications enabled in their account
    settings.
 3. The BP notification component is active.
-4. Test with `wp cron event list` — Career Board fires notifications
+4. Test with `wp cron event list` - Career Board fires notifications
    through standard hooks, BP picks them up immediately.
 
 ### Activity stream missing the job-posted event
@@ -256,14 +256,14 @@ Board visibility is set too permissively. Check:
    **Settings → Integrations → BuddyPress → Activity.**
 2. The Activity Streams component is enabled in BP.
 3. The job was posted from within a BP group (not from the global
-   Post a Job page) — the activity event only fires when the post
+   Post a Job page) - the activity event only fires when the post
    originates from a group context.
 
 ## Where to go next
 
-- [../integrations/buddypress.md](../integrations/buddypress.md) — full
+- [../integrations/buddypress.md](../integrations/buddypress.md) - full
   integration reference.
-- [04-monetizing-your-board.md](04-monetizing-your-board.md) — if you're
+- [04-monetizing-your-board.md](04-monetizing-your-board.md) - if you're
   pairing BP with paid memberships.
-- [../pro-features/02-multi-board.md](../pro-features/02-multi-board.md) —
+- [../pro-features/02-multi-board.md](../pro-features/02-multi-board.md) -
   more on the multi-board feature that powers the group mapping.

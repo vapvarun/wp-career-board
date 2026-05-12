@@ -20,7 +20,7 @@ every block.
 | What | Where to read |
 |---|---|
 | Salary range slider on the Find Jobs page with active-range chip pills | [Salary range filter](../for-candidates/08-salary-filter.md) |
-| Apply as a guest — upload a resume without creating an account first | [Apply as a guest](../for-candidates/09-guest-apply.md) |
+| Apply as a guest - upload a resume without creating an account first | [Apply as a guest](../for-candidates/09-guest-apply.md) |
 
 ## For site admins
 
@@ -35,24 +35,24 @@ every block.
 
 ## Critical fixes
 
-- **MariaDB 11.7+ / MySQL 9+ compatibility** — fixed the AI-vectors
+- **MariaDB 11.7+ / MySQL 9+ compatibility** - fixed the AI-vectors
   table creation that was silently failing on those server versions.
   Pre-1.1.0 sites running MariaDB 11.7+ or MySQL 9+ will get the table
   on next plugin upgrade.
-- **Verify-before-bump gate** — silent dbDelta failures no longer
+- **Verify-before-bump gate** - silent dbDelta failures no longer
   mask themselves. If a table create fails, the plugin's stored DB
   version stays behind the file constant, so the next activation /
   upgrade-in-place gets to retry.
-- **PWA manifest** — no longer 404s on a missing icon image. Now uses
+- **PWA manifest** - no longer 404s on a missing icon image. Now uses
   the WordPress Site Icon at 192px and 512px; gracefully omits the
   icons key when no Site Icon is configured.
-- **Console errors gone** — every page that uses our blocks now
+- **Console errors gone** - every page that uses our blocks now
   renders icons server-side, so the Interactivity API hydrator no
   longer logs DOM-mismatch warnings on each page load.
 
 ## Improvement
 
-- **Site-wide design token system extension** — status color triplets,
+- **Site-wide design token system extension** - status color triplets,
   transition tokens, avatar size scale, theme-aware primary tints.
   Reign + BuddyX integrators override one place to restyle every block.
 - **REST list endpoints** return a structured envelope (`total`,
@@ -61,6 +61,6 @@ every block.
 
 ## Pair release
 
-Pro `1.1.0` ships in lockstep — both plugins must be at the same
-version. See Pro's [What's New](../../../wp-career-board-pro/docs/website/getting-started/04-whats-new.md)
+Pro `1.1.0` ships in lockstep - both plugins must be at the same
+version. See Pro's [What's New](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/getting-started/04-whats-new/)
 for the BuddyPress integration features added on the Pro side.
