@@ -127,16 +127,18 @@
 	box-shadow: var(--wcb-shadow-md);
 }
 
-/* Grid layout: avatar inline with name + tagline (col 1 | col 2 row 1),
- * chip row spans col 2 (row 2), footer spans full width (row 3). Saves
- * vertical space vs the earlier stacked layout and matches the inline-
- * avatar pattern Find Jobs and Find Candidates are picking up in the
- * same refactor pass — same UX rhythm across all three archives. */
+/* Grid layout: avatar inline with name + tagline (col 1 | col 2 row 1).
+ * Chips + footer flow as siblings BELOW the header row and span the
+ * full card width so they start from the left edge of the card instead
+ * of indenting under col 2. Saves vertical space and avoids the
+ * "wasted gutter" the audit flagged ("rest must start from left side
+ * why leave space"). */
 .wcb-ca-card-link {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	grid-template-areas:
 		"avatar body"
+		"chips chips"
 		"footer footer";
 	column-gap: var(--wcb-space-lg);
 	row-gap: var(--wcb-space-md);
@@ -149,6 +151,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
@@ -156,12 +159,10 @@
 	color: inherit;
 }
 
-/* List view: one horizontal row — avatar | body | footer. Reuses the grid
- * defined for grid view but with a 3-column template so the footer hugs
- * the right edge instead of dropping below. */
+/* List view: one horizontal row — avatar | body | chips | footer. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
-	grid-template-columns: auto 1fr auto;
-	grid-template-areas: "avatar body footer";
+	grid-template-columns: auto 1fr auto auto;
+	grid-template-areas: "avatar body chips footer";
 	align-items: center;
 	column-gap: var(--wcb-space-xl);
 	height: auto;
