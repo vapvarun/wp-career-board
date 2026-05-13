@@ -12,17 +12,23 @@
 	margin-bottom: var(--wcb-space-xl);
 }
 
+/* Cover strip collapsed to zero height so the company hero matches the
+ * job-single and resume-single heroes — none of which carry a cover.
+ * Same-family rule: the visual mark on org pages should be the logo
+ * square + chip row, not a 120px dark band that has no information
+ * payload. Keep the element in the DOM (rendered by the block) for
+ * back-compat; future revision can drop the wrapper entirely. */
 .wcb-cp-cover {
-	height: 120px;
-	background: var(--wcb-avatar-bg, #1e293b);
+	height: 0;
+	background: transparent;
 }
 
 .wcb-cp-hero-body {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-xl);
-	padding: 0 1.75rem 1.75rem;
-	margin-top: -44px;
+	padding: var(--wcb-space-xl) 1.75rem 1.75rem;
+	margin-top: 0;
 }
 
 /* -- Avatar / Logo -- */
