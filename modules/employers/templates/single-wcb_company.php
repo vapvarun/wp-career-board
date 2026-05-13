@@ -4,9 +4,12 @@
  *
  * Mirrors `single-wcb_job.php` and Pro's `single-wcb_resume.php`: renders
  * the wcb/company-profile block inside the active theme's standard
- * header/footer so single company URLs (`/companies/{slug}/`) feel like a
- * sibling of single job (`/jobs/{slug}/`) and single resume
- * (`/resume/{slug}/`) URLs — same chrome, same width, same product family.
+ * header/footer wrapped in `.wcb-archive-shell` so single company pages
+ * inherit the same 1280px max-width + responsive padding as the archive
+ * pages. Without the shell wrapper the company-profile hero card stretches
+ * to the viewport edges (no left/right gap) and butts against the theme's
+ * sticky header (no top gap) — the gap-collapse observed on the
+ * `/companies/starter-labs/` audit.
  *
  * Theme integrations may override this template via `single_template`;
  * this file is the universal fallback.
@@ -20,6 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.
-echo do_blocks( '<!-- wp:wp-career-board/company-profile /-->' );
+?>
+<div id="primary" class="wcb-archive-shell wcb-archive-shell--single">
+	<main class="wcb-archive-main">
+		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.
+		echo do_blocks( '<!-- wp:wp-career-board/company-profile /-->' );
+		?>
+	</main>
+</div>
+<?php
 get_footer();
