@@ -251,13 +251,53 @@ final class Plugin {
 
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
-			if ( is_dir( $block_dir ) ) {
-				register_block_type_from_metadata( $block_dir );
-				wp_enqueue_block_style(
-					'wp-career-board/' . $block,
-					array( 'handle' => 'wcb-frontend-tokens' )
-				);
+			if ( ! is_dir( $block_dir ) ) {
+				continue;
 			}
+			register_block_type_from_metadata( $block_dir );
+			wp_enqueue_block_style(
+				'wp-career-board/' . $block,
+				array( 'handle' => 'wcb-frontend-tokens' )
+			);
+			$this->enqueue_block_style_array( 'wp-career-board/' . $block, $block_dir, $block );
+		}
+	}
+
+	/**
+	 * Enqueue every entry of a block.json `style[]` array as its own block-style handle.
+	 *
+	 * WP's lazy block-asset loader only auto-enqueues the first entry of a
+	 * multi-file `style[]` array reliably; subsequent entries register but
+	 * never reach the page when the block renders (observed on WP 6.9 with
+	 * the dashboard blocks that ship `style.css` + four `styles/*.css`
+	 * partials). Explicitly registering and attaching each file via
+	 * `wp_enqueue_block_style` makes every declared stylesheet land
+	 * whenever the block appears in a post.
+	 *
+	 * @since 1.2.0
+	 * @param string $block_name Fully-qualified block name (namespace/slug).
+	 * @param string $block_dir  Absolute path to the block directory.
+	 * @param string $block_slug Block slug (used to build deterministic style handles).
+	 * @return void
+	 */
+	private function enqueue_block_style_array( string $block_name, string $block_dir, string $block_slug ): void {
+		$data = wp_json_file_decode( $block_dir . '/block.json', array( 'associative' => true ) );
+		if ( ! is_array( $data ) || empty( $data['style'] ) || ! is_array( $data['style'] ) ) {
+			return;
+		}
+		foreach ( $data['style'] as $index => $entry ) {
+			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', (string) $entry ), '/' );
+			if ( '' === $relative ) {
+				continue;
+			}
+			$handle = 'wcb-' . $block_slug . '-style-' . (int) $index;
+			wp_register_style(
+				$handle,
+				WCB_URL . 'blocks/' . $block_slug . '/' . $relative,
+				array( 'wcb-frontend-tokens' ),
+				WCB_VERSION
+			);
+			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
 		}
 	}
 

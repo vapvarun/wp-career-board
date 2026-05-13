@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.4';
+	const DB_VERSION = '1.2.5';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -343,6 +343,18 @@ final class Install {
 					delete_option( 'wcbp_resume_settings' );
 				}
 				delete_option( 'wcbp_resume_settings_migrated' );
+			}
+
+			// 1.2.5 — Decouple wcb_resume CPT from resume_archive_enabled.
+			// The CPT now always registers as publicly_queryable with a
+			// `/resume/{slug}/` permalink (Free `Candidates_Module`), so
+			// every install needs one rewrite-rule flush after the new
+			// args register. `wcb_flush_rewrite_rules` is consumed on the
+			// next init by `Candidates_Module::maybe_flush_rewrites()`.
+			// Idempotent: re-runs set the same flag the next request
+			// clears in one shot.
+			if ( version_compare( (string) $installed, '1.2.5', '<' ) ) {
+				update_option( 'wcb_flush_rewrite_rules', 1 );
 			}
 
 			// Only bump the stored DB version if every expected table now
