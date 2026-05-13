@@ -80,10 +80,13 @@
 	gap: var(--wcb-space-md);
 }
 
+/* Grid sizing aligned with Companies' `.wcb-ca-container.wcb-grid` and Find
+ * Candidates' `.wcb-ra-grid` — 280px card min + `--wcb-space-xl` gap — so
+ * all three archives compute the same column count at identical viewports. */
 .wcb-jobs-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( min(100%, 300px), 1fr ) );
-	gap: var(--wcb-space-lg);
+	grid-template-columns: repeat( auto-fill, minmax( min(100%, 280px), 1fr ) );
+	gap: var(--wcb-space-xl);
 }
 
 /* ── Job Card ──────────────────────────────────────────────────────────────
@@ -112,7 +115,7 @@
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	padding: var(--wcb-space-xl);
 	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 	position: relative;
 }
@@ -189,20 +192,18 @@
 	min-width: 0;
 }
 
+/* Title size aligned with Companies' `.wcb-ca-name` and Find Candidates'
+ * `.wcb-ra-card-name` (both `--wcb-text-base`). The earlier `--wcb-text-lg`
+ * + `min-height: 2.6em` shim was a row-alignment workaround for the older
+ * stacked-avatar layout; the grid-template-areas refactor in
+ * `.wcb-job-card` now stabilises row height structurally, so the clamp
+ * is no longer needed. */
 .wcb-card-title {
-	font-size: var(--wcb-text-lg);
+	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-bold);
 	line-height: 1.3;
 	margin: 0 0 0.2rem;
 	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
-	/* Two-line clamp + min-height stabilises card row height on themes
-	   that stretch content area wider than 3 columns (Blocksy 4-col)
-	   so adjacent cards align even when titles wrap unevenly. */
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-	min-height: 2.6em;
 }
 
 .wcb-card-title a,
@@ -302,12 +303,14 @@
 	align-items: center;
 }
 
-/* Hidden by default; shown when data-wp-class adds .wcb-shown */
+/* Hidden by default; shown when data-wp-class adds .wcb-shown.
+ * Padding aligned with `.wcb-ca-chip` (Companies) + `.wcb-ra-card-location`
+ * /`.wcb-ra-skill-tag` (Find Candidates): `0.15rem var(--wcb-space-sm)`. */
 .wcb-cbadge {
 	display: none;
 	align-items: center;
 	gap: 0.2rem;
-	padding: 0.15rem 0.55rem;
+	padding: 0.15rem var(--wcb-space-sm);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
