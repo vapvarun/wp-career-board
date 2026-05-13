@@ -170,6 +170,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noBookmarks() {
 			return ! state.loading && ! state.error && state.bookmarks.length === 0;
 		},
+		get hasResumes() {
+			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
+		},
+		get noResumes() {
+			return ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
+		},
 
 		// Bell notification getters.
 		get hasBellNotifications() {

@@ -581,7 +581,7 @@ wp_interactivity_state(
 			</div>
 			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-panel wcb-shown" aria-live="polite">
+			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasResumes">
 			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">
 				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>
 					<div class="wcb-resume-card-info">
@@ -644,6 +644,13 @@ wp_interactivity_state(
 				</div>
 			</template>
 		</div><!-- .wcb-panel -->
+
+		<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noResumes">
+			<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No resumes yet. Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
+			<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.toggleNewResumeForm">
+				<?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?>
+			</button>
+		</div>
 		</div><!-- .wcb-view-panel: My Resumes -->
 
 		<?php if ( $wcb_resume_builder_embedded ) : ?>
@@ -806,7 +813,7 @@ wp_interactivity_state(
 		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
 			<h2 class="wcb-page-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
 		</div>
-		<div class="wcb-panel wcb-shown wcb-privacy-panel">
+		<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel">
 			<p class="wcb-privacy-desc">
 				<?php esc_html_e( 'Request a copy of your personal data, or delete your account permanently. Both actions are processed by the site administrator and you\'ll receive an email confirmation when complete.', 'wp-career-board' ); ?>
 			</p>

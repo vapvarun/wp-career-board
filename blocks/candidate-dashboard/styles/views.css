@@ -205,13 +205,17 @@
 	color: var( --wcb-text-muted );
 }
 
+/* Resume row inside the `.wcb-panel` outer card. Drop the per-row background
+ * + bottom border so we don't render a card inside a card (the visible
+ * "double border" the audit flagged). Hairline divider between rows lives
+ * on the row itself; the panel supplies the outer container chrome. */
 .wcb-resume-card {
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
 	padding: 14px var(--wcb-space-xl);
-	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
-	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+	background: transparent;
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
 	transition: background var(--wcb-transition-fast);
 }
 

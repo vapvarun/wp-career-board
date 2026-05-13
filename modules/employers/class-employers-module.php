@@ -32,6 +32,7 @@ final class EmployersModule {
 		add_filter( 'the_content', array( $this, 'inject_company_profile' ) );
 		add_filter( 'body_class', array( $this, 'add_company_body_class' ) );
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
+		add_filter( 'template_include', array( $this, 'single_company_template' ) );
 		add_filter( 'login_redirect', array( $this, 'employer_login_redirect' ), 10, 3 );
 		add_action( 'widgets_init', array( $this, 'register_company_sidebar' ) );
 	}
@@ -148,6 +149,39 @@ final class EmployersModule {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Serve the plugin-shipped single company template for `/companies/{slug}/`.
+	 *
+	 * Mirrors `Jobs_Module::single_job_template()` and Pro's
+	 * `Resume_Module::single_resume_template()` so single company pages render
+	 * with the same `get_header() + block + get_footer()` chrome as single
+	 * jobs and single resumes — same width, same product family, same font
+	 * (which is the active theme's body font; the plugin contributes zero
+	 * font CSS of its own). Without this filter, `/companies/{slug}/` falls
+	 * back to the theme's default `single.php` which uses different chrome
+	 * (sidebar, narrower content column, theme single-page typography), so
+	 * the archive and single visually drift apart.
+	 *
+	 * Theme integrations that ship their own `single-wcb_company.php` win via
+	 * WP's template hierarchy — we only step in when the theme has not.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $template Template path WP would otherwise load.
+	 * @return string
+	 */
+	public function single_company_template( string $template ): string {
+		if ( ! is_singular( 'wcb_company' ) ) {
+			return $template;
+		}
+		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
+		if ( str_contains( $template, 'wp-career-board' ) ) {
+			return $template;
+		}
+		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';
+		return file_exists( $override ) ? $override : $template;
 	}
 
 	/**
