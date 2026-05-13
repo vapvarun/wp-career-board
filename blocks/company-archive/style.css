@@ -186,17 +186,35 @@
 	color: inherit;
 }
 
-/* List view: one horizontal row — avatar | body | chips | footer. */
+/* List view: one horizontal row — avatar | body | chips | footer.
+ * min-height brings parity with Find Jobs' card height (~180px) so a
+ * Companies row doesn't feel half-rendered next to a Jobs row. The
+ * generous block padding lets the tagline breathe instead of getting
+ * clipped against the chip column. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
-	grid-template-columns: auto 1fr auto auto;
+	grid-template-columns: auto minmax(0, 1.4fr) auto auto;
 	grid-template-areas: "avatar body chips footer";
 	align-items: center;
-	column-gap: var(--wcb-space-xl);
+	column-gap: var(--wcb-space-2xl);
+	min-height: 7.5rem; /* ≈ 120px */
+	padding-block: var(--wcb-space-lg);
+	padding-inline: var(--wcb-space-xl);
 	height: auto;
 }
 
 .wcb-ca-container.wcb-list .wcb-ca-card-body {
 	flex: 1;
+	min-width: 0;
+	gap: var(--wcb-space-xs);
+}
+
+/* List view: clamp the tagline to 1 line so it doesn't fight with the
+ * chips column for vertical space. Grid view keeps the 2-line clamp
+ * since vertical card height is generous. */
+.wcb-ca-container.wcb-list .wcb-ca-tagline {
+	-webkit-line-clamp: 1;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .wcb-ca-container.wcb-list .wcb-ca-card-footer {
