@@ -364,14 +364,48 @@ final class JobsEndpoint extends RestController {
 			return $where;
 		}
 
-		$search_term = $query->get( 'wcb_search_term' );
-		if ( empty( $search_term ) ) {
+		$search_term = (string) $query->get( 'wcb_search_term' );
+		if ( '' === $search_term ) {
 			return $where;
 		}
 
 		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-		// Add search condition for post_title and company name.
+		// FULLTEXT path - O(log n) when the term clears MySQL's default
+		// `ft_min_word_len = 3`. Below that floor MATCH() returns no rows
+		// even when a LIKE would match, so fall back to LIKE on the title
+		// for 1-2 character terms.
+		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
+		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
+
+		if ( $use_fulltext ) {
+			// IN BOOLEAN MODE so the term doesn't need to clear the 50%
+			// document threshold IN NATURAL LANGUAGE MODE uses, and so we
+			// can opt into prefix matching with a trailing `*`. Escape the
+			// boolean operators a user might type so they can't break the
+			// query.
+			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
+			$bool_term = trim( (string) $bool_term );
+			if ( '' === $bool_term ) {
+				return $where;
+			}
+			$bool_term .= '*';
+			$where     .= $wpdb->prepare(
+				" AND ( MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE) OR EXISTS (
+					SELECT 1 FROM {$wpdb->postmeta} pm
+					WHERE pm.post_id = {$wpdb->posts}.ID
+					  AND pm.meta_key = '_wcb_company_name'
+					  AND pm.meta_value LIKE %s
+				) )",
+				$bool_term,
+				$like
+			);
+			return $where;
+		}
+
+		// Fallback - LIKE on title + company name. Used when FULLTEXT is
+		// unsupported (MyISAM `wp_posts`, replicated read-only, etc.) or
+		// when the term is shorter than ft_min_word_len.
 		$where .= $wpdb->prepare(
 			" AND ( {$wpdb->posts}.post_title LIKE %s OR EXISTS (
 				SELECT 1 FROM {$wpdb->postmeta} pm

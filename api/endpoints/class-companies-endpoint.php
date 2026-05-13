@@ -182,7 +182,15 @@ final class CompaniesEndpoint extends RestController {
 
 		$search = $request->get_param( 'search' );
 		if ( $search ) {
-			$args['s'] = sanitize_text_field( $search );
+			$search_term = sanitize_text_field( $search );
+			// WP's native `s` parameter LIKEs across post_title +
+			// post_content + post_excerpt which is too wide for companies
+			// (descriptions get noisy) and full-scans wp_posts at 100k.
+			// Route through our own posts_where filter so we (a) scope the
+			// match to post_title, (b) use FULLTEXT when available, (c)
+			// fall back to LIKE otherwise. Same pattern as the jobs search.
+			$args['wcb_company_search_term'] = $search_term;
+			add_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10, 2 );
 		}
 
 		// Industry + size accept either a single slug (legacy) or an array
@@ -215,6 +223,10 @@ final class CompaniesEndpoint extends RestController {
 		}
 
 		$query = new \WP_Query( $args );
+		// Always unhook the search filter even when no rows were returned,
+		// so subsequent WP_Query calls in the request lifecycle don't pick
+		// up our custom WHERE on unrelated post types.
+		remove_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10 );
 
 		$paged = (int) $args['paged'];
 		$total = (int) $query->found_posts;
@@ -255,6 +267,57 @@ final class CompaniesEndpoint extends RestController {
 	 * @param int                              $paged     Current page.
 	 * @return \WP_REST_Response
 	 */
+	/**
+	 * Restrict company search to post_title with FULLTEXT preferred.
+	 *
+	 * Mirrors the jobs-endpoint posts_where pattern so both archives use
+	 * the same MATCH() AGAINST() path when the wp_posts FULLTEXT index is
+	 * present and falls back to a tighter LIKE on title only otherwise.
+	 * Native WP `s` was too noisy (LIKE'd post_content + post_excerpt).
+	 *
+	 * @since 1.2.6
+	 *
+	 * @param string    $where Existing WHERE clause.
+	 * @param \WP_Query $query Current WP_Query instance.
+	 * @return string
+	 */
+	public function restrict_company_search_to_title( string $where, \WP_Query $query ): string {
+		global $wpdb;
+
+		if ( 'wcb_company' !== $query->get( 'post_type' ) ) {
+			return $where;
+		}
+
+		$search_term = (string) $query->get( 'wcb_company_search_term' );
+		if ( '' === $search_term ) {
+			return $where;
+		}
+
+		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
+		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
+
+		if ( $use_fulltext ) {
+			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
+			$bool_term = trim( (string) $bool_term );
+			if ( '' === $bool_term ) {
+				return $where;
+			}
+			$bool_term .= '*';
+			$where     .= $wpdb->prepare(
+				" AND MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE)",
+				$bool_term
+			);
+			return $where;
+		}
+
+		$like   = '%' . $wpdb->esc_like( $search_term ) . '%';
+		$where .= $wpdb->prepare(
+			" AND {$wpdb->posts}.post_title LIKE %s",
+			$like
+		);
+		return $where;
+	}
+
 	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
 		$response = rest_ensure_response(
 			array(

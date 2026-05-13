@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.5';
+	const DB_VERSION = '1.2.6';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -357,6 +357,15 @@ final class Install {
 				update_option( 'wcb_flush_rewrite_rules', 1 );
 			}
 
+			// 1.2.6 — FULLTEXT index on wp_posts(post_title) so the listings
+			// search endpoint can switch from LIKE '%term%' (O(n) full scan
+			// at 100k posts) to MATCH() AGAINST() at index speed. Idempotent
+			// information_schema guard; non-blocking online ALTER on InnoDB.
+			// See plan/SCALE-100K.md.
+			if ( version_compare( (string) $installed, '1.2.6', '<' ) ) {
+				self::migrate_add_fulltext_post_title();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -467,5 +476,58 @@ final class Install {
 		foreach ( $resume_ids as $resume_id ) {
 			update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
 		}
+	}
+
+	/**
+	 * Add a FULLTEXT index on `wp_posts(post_title)` so the WCB listings
+	 * search endpoints can use MATCH() AGAINST() at index speed instead of
+	 * LIKE '%term%' full scans.
+	 *
+	 * Touching a WP core table is unusual but justified here: the search
+	 * surface is plugin-owned and the index is opt-in, non-destructive, and
+	 * benefits every plugin that searches by title. The information_schema
+	 * existence check makes re-runs no-ops. The ALTER itself runs online on
+	 * InnoDB (MySQL 5.6+ / MariaDB 10.0.5+) so production sites see no
+	 * write blocking during the migration.
+	 *
+	 * Engine guard: skipped on MyISAM or storage engines that don't support
+	 * FULLTEXT on the underlying table. Callers fall back to LIKE in that
+	 * case via `posts_search_uses_fulltext()`.
+	 *
+	 * @since  1.2.6
+	 * @return void
+	 */
+	private static function migrate_add_fulltext_post_title(): void {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$engine = (string) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s',
+				DB_NAME,
+				$wpdb->posts
+			)
+		);
+		if ( '' === $engine || 'InnoDB' !== $engine ) {
+			// Persist the gate so the runtime LIKE-fallback knows to stay
+			// on the LIKE path and doesn't speculatively issue MATCH().
+			update_option( 'wcb_posts_fulltext_supported', false, false );
+			return;
+		}
+
+		$exists = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(1) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s',
+				DB_NAME,
+				$wpdb->posts,
+				'wcb_post_title_ft'
+			)
+		);
+		if ( 0 === $exists ) {
+			$wpdb->query( "ALTER TABLE {$wpdb->posts} ADD FULLTEXT KEY wcb_post_title_ft (post_title)" );
+		}
+		// phpcs:enable
+
+		update_option( 'wcb_posts_fulltext_supported', true, false );
 	}
 }
