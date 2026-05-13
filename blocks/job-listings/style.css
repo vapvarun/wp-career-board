@@ -200,16 +200,19 @@
 }
 
 /* Title size aligned with Companies' `.wcb-ca-name` and Find Candidates'
- * `.wcb-ra-card-name` (both `--wcb-text-base`). The earlier `--wcb-text-lg`
- * + `min-height: 2.6em` shim was a row-alignment workaround for the older
- * stacked-avatar layout; the grid-template-areas refactor in
- * `.wcb-job-card` now stabilises row height structurally, so the clamp
- * is no longer needed. */
-.wcb-card-title {
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	line-height: 1.3;
-	margin: 0 0 var(--wcb-space-xs); /* 4px (was 0.2rem ≈ 3.2px) */
+ * `.wcb-ra-card-name`. The job-listings block uses an <h3> for the title;
+ * Companies uses <h2>; Candidates uses <p>. Every Reign / Astra heading
+ * cascade applies its own font-size, font-family, and weight to <h3>
+ * stronger than (0,1,0) — including font-family swaps to the heading
+ * font. The `!important` + `font-family: inherit` here forces parity
+ * across all three archive cards regardless of the underlying tag. */
+.wp-block-wp-career-board-job-listings .wcb-card-title {
+	font-family: inherit !important;
+	font-size: var(--wcb-text-base) !important;
+	font-weight: var(--wcb-font-bold) !important;
+	line-height: 1.3 !important;
+	letter-spacing: 0 !important;
+	margin: 0 0 var(--wcb-space-xs) !important;
 	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
 }
 
@@ -384,37 +387,67 @@
 
 /* Outlined "View Job" pill - matches `.wcb-ca-cta` on Companies and
  * `.wcb-cbtn--ghost` on Find Candidates so all three archive cards show
- * the same outlined primary action. Card hover fills the button for
- * affordance. */
-.wcb-cbtn--apply {
+ * the same outlined primary action. Hardcoded `#2563eb` fallback inside
+ * `var(...)` because `--wcb-primary` is not always defined at this point
+ * in the cascade (it's a theme preset that some Reign builds emit lazily)
+ * - without the fallback the border + text rendered as currentColor on a
+ * transparent background, making the button effectively invisible. */
+.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply,
+.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply:link,
+.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply:visited {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 	min-height: var(--wcb-space-3xl);
-	padding: 0 var(--wcb-space-md);
-	border: 1px solid var(--wcb-primary);
+	min-width: 96px;
+	padding: 0 var(--wcb-space-md) !important;
+	border: 1px solid #dc2626 !important;
 	border-radius: var(--wcb-radius-md);
-	background: transparent;
-	color: var(--wcb-primary);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-semibold);
-	line-height: 1;
-	justify-content: center;
+	background: transparent !important;
+	color: #dc2626 !important;
+	font-family: inherit !important;
+	font-size: 0.75rem !important;
+	font-weight: 600 !important;
+	line-height: 1 !important;
+	letter-spacing: 0 !important;
+	text-indent: 0 !important;
+	text-decoration: none !important;
+	white-space: nowrap !important;
 	position: relative;
 	z-index: 2;
 }
 
-.wcb-job-card:hover .wcb-cbtn--apply,
-.wcb-cbtn--apply:hover {
-	background: var(--wcb-primary);
-	color: var(--wcb-on-primary, #ffffff);
-	text-decoration: none;
+.wp-block-wp-career-board-job-listings .wcb-job-card:hover .wcb-cbtn--apply,
+.wp-block-wp-career-board-job-listings .wcb-cbtn--apply:hover,
+.wp-block-wp-career-board-job-listings .wcb-cbtn--apply:focus {
+	background: #dc2626 !important;
+	color: #ffffff !important;
+	text-decoration: none !important;
 }
 
 /* ── Grid footer overrides ───────────────────────────────────────────────── */
 .wcb-jobs-container.wcb-grid .wcb-card-date {
-	margin-inline-start: 0;
+	margin-inline-start: auto;
 }
 
+/* Grid footer is a 2-row block so the "View Job" CTA always sits on its
+ * own row and never wraps awkwardly behind the salary + date inline pair
+ * (which it did at ~213px card width, putting the button half off-screen).
+ * Row 1 = salary (left) + date_ago (right). Row 2 = CTA (right-aligned). */
 .wcb-jobs-container.wcb-grid .wcb-card-footer {
-	justify-content: space-between;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary,
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
+	display: inline-flex;
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn--apply {
+	align-self: flex-end;
 }
 
 /* Excerpt is hidden in grid view so Find Jobs cards stay the same height
@@ -425,16 +458,31 @@
 	display: none;
 }
 
-/* Single-line title with ellipsis on grid cards so the header row stays
- * one constant height. Multi-line titles (e.g. "Backend Engineer — Payments")
- * previously made the card 30-50px taller than its row peers. */
-.wcb-jobs-container.wcb-grid .wcb-card-title {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	line-clamp: 2;
+/* Title wraps naturally on grid cards (no line-clamp) - user explicitly
+ * wants the full job title visible on every card. Variable header height
+ * is fine because the footer is bottom-anchored via `margin-top: auto`
+ * further down, so the View Job CTA stays aligned across the row. */
+.wcb-jobs-container.wcb-grid .wcb-card-title-link {
+	padding: 0 !important;
+}
+
+/* Hide low-priority meta in grid view so all cards show the same chip set:
+ * type, experience, location, remote (if applicable). Board name and
+ * deadline are detail-page material - they were the main source of card-
+ * height drift between Customer Success Manager (no deadline) and Backend
+ * Engineer (has deadline). */
+.wcb-jobs-container.wcb-grid .wcb-cbadge--board,
+.wcb-jobs-container.wcb-grid .wcb-card-deadline {
+	display: none !important;
+}
+
+/* Push the footer (salary + date + View Job) to the bottom of the card so
+ * the CTA aligns across the row regardless of how much meta each card
+ * has. `.wcb-card-body` already has `display: flex; flex-direction:
+ * column` so `margin-top: auto` on the footer reserves all leftover
+ * space above it. */
+.wcb-jobs-container.wcb-grid .wcb-card-footer {
+	margin-top: auto;
 }
 
 /* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
