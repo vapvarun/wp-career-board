@@ -480,10 +480,12 @@ textarea.wcb-input {
  * default `[hidden] { display: none }` loses to our `display: flex` rule
  * above on specificity. Force `display: none` back when the attribute is
  * present so the empty state actually hides when there's data. */
+/* (0,2,0) `.foo[hidden]` already beats the (0,1,0) `.foo { display: flex }`
+ * rule above on specificity, so this works without `!important`. */
 .wcb-empty-state[hidden],
 .wcb-ca-empty[hidden],
 .wcb-ra-empty[hidden] {
-	display: none !important;
+	display: none;
 }
 
 .wcb-empty-state__icon {
@@ -617,13 +619,18 @@ textarea.wcb-input {
 	gap: var(--wcb-space-xs);
 }
 
-.wcb-cd-bookmark-title {
-	font-size: var(--wcb-text-md) !important;
-	font-weight: var(--wcb-font-semibold) !important;
-	font-family: inherit !important;
-	line-height: 1.3 !important;
+/* Prefixed with `[class*="wp-block-..."]` (0,2,1) so it beats the
+ * Reign/Astra `.entry-content h*` typography cascade (0,2,0) without
+ * `!important`. Both Free (`wp-block-wp-career-board-*`) and Pro
+ * (`wp-block-wcb-*`) block class roots are covered. */
+[class*="wp-block-wp-career-board"] .wcb-cd-bookmark-title,
+[class*="wp-block-wcb-"] .wcb-cd-bookmark-title {
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	font-family: inherit;
+	line-height: 1.3;
 	color: var(--wcb-contrast, #0f172a);
-	margin: 0 !important;
+	margin: 0;
 }
 
 .wcb-cd-bookmark-title a {
@@ -667,19 +674,16 @@ textarea.wcb-input {
  * Find Jobs (.wcb-card-title — <h3>), Companies (.wcb-ca-name — <h2>),
  * Find Candidates (.wcb-ra-card-name — <p>). Each block uses a different
  * tag for semantic / SEO reasons, but the visual paint must match. The
- * Reign / Astra heading cascade owns `<h3>` with a heavier display font
- * + larger size at (0,2,0) - (0,3,0) specificity; pinning the rule under
- * `[class*="wp-block-"]` archive parents + `!important` on `font-family
- * / font-size / weight / line-height` wins regardless of which heading
- * tag the underlying block uses. */
+ * (0,2,1) parent-prefix selector already beats the Reign / Astra
+ * `.entry-content h*` cascade at (0,2,0) without `!important`. */
 [class*="wp-block-wp-career-board"] .wcb-card-title,
 [class*="wp-block-wp-career-board"] .wcb-ca-name,
 [class*="wp-block-wcb-"] .wcb-ra-card-name {
-	font-family: inherit !important;
-	font-size: var(--wcb-text-base) !important;
-	font-weight: var(--wcb-font-bold) !important;
-	line-height: 1.3 !important;
-	letter-spacing: 0 !important;
+	font-family: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	line-height: 1.3;
+	letter-spacing: 0;
 	color: var(--wcb-contrast, #0f172a);
 	margin: 0 0 var(--wcb-space-xs);
 }
@@ -719,51 +723,52 @@ textarea.wcb-input {
 	position: relative;
 }
 
-.wcb-job-card .wcb-bookmark-btn,
-.wcb-ca-card > .wcb-bookmark-btn,
-.wcb-ra-card > .wcb-bookmark-btn {
-	position: absolute !important;
-	top: var(--wcb-space-md) !important;
-	right: var(--wcb-space-md) !important;
-	z-index: 3 !important;
-	width: var(--wcb-space-3xl) !important;
-	height: var(--wcb-space-3xl) !important;
-	min-width: 0 !important;
-	min-height: 0 !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	background: transparent !important;
-	border: 0 !important;
-	box-shadow: none !important;
-	color: var(--wcb-text-tertiary, #94a3b8) !important;
+/* Selector chain prefixed with `[class*="wp-block-..."]` so the rule
+ * lands at (0,3,1) which beats Reign's `.entry-content button` (0,2,1)
+ * and Astra's equivalent without `!important`. Free uses
+ * `wp-block-wp-career-board-*` block names, Pro uses `wp-block-wcb-*`,
+ * so both prefixes are listed. */
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn {
+	position: absolute;
+	top: var(--wcb-space-md);
+	right: var(--wcb-space-md);
+	z-index: 3;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
+	min-width: 0;
+	min-height: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: var(--wcb-text-tertiary, #94a3b8);
 	cursor: pointer;
 	border-radius: var(--wcb-radius-sm);
-	padding: 0 !important;
-	margin: 0 !important;
+	padding: 0;
+	margin: 0;
 	flex-shrink: 0;
 	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
 }
 
-.wcb-job-card .wcb-bookmark-btn:hover,
-.wcb-ca-card > .wcb-bookmark-btn:hover,
-.wcb-ra-card > .wcb-bookmark-btn:hover {
-	color: var(--wcb-warning, #d97706) !important;
-	background: var(--wcb-warning-bg-soft, #fffbeb) !important;
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn:hover,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn:hover,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn:hover,
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn.wcb-bookmarked,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
+	color: var(--wcb-warning, #d97706);
+	background: var(--wcb-warning-bg-soft, #fffbeb);
 }
 
-.wcb-job-card .wcb-bookmark-btn.wcb-bookmarked,
-.wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
-.wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
-	color: var(--wcb-warning, #d97706) !important;
-	background: var(--wcb-warning-bg-soft, #fffbeb) !important;
-}
-
-.wcb-job-card .wcb-bookmark-btn svg,
-.wcb-ca-card > .wcb-bookmark-btn svg,
-.wcb-ra-card > .wcb-bookmark-btn svg {
-	width: 16px !important;
-	height: 16px !important;
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn svg,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn svg,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn svg {
+	width: 16px;
+	height: 16px;
 	fill: none;
 	transition: fill var(--wcb-transition-fast);
 }
@@ -1071,6 +1076,11 @@ textarea.wcb-input {
 
 /* ── Reduced motion ───────────────────────────────────────────────────────── */
 
+/* The only `!important` declaration in this file. Honoring the user's
+ * prefers-reduced-motion preference must win over every other transition
+ * rule on the page, including element-style declarations a theme might
+ * set inline - that's exactly the case `!important` exists for, per
+ * WCAG 2.3.3. Do not refactor away. */
 @media (prefers-reduced-motion: reduce) {
 	.wcb-btn,
 	.wcb-input,
@@ -1102,60 +1112,78 @@ textarea.wcb-input {
 
 .wcb-cbtn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 
-.wcb-cbtn--primary {
+/* Primary fill. Bumped to (0,2,1) via parent prefix so it beats the
+ * Reign / Astra `.entry-content button` cascade (0,2,1) on source-order
+ * tie-break, no `!important` needed. */
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary {
 	background: var(--wcb-primary, #2563eb);
-	color: #ffffff !important;
+	color: #ffffff;
 	border-color: var(--wcb-primary, #2563eb);
 }
 
-.wcb-cbtn--primary:hover,
-.wcb-cbtn--primary:focus-visible {
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
 	background: var(--wcb-primary-dark, #1d4ed8);
 	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: #ffffff !important;
+	color: #ffffff;
 	text-decoration: none;
 }
 
 /* Token-driven outlined-pill. Used as the primary card action on every
  * archive: Find Jobs "View Job", Companies "View Profile", Find
- * Candidates "View Resume". The selector chain below intentionally
- * adds the element name + :link/:visited specificity hooks so the
- * Reign / Astra `.entry-content a` cascade (which sets `color: white`
- * with (0,2,1) specificity) loses without further patchwork inside
- * each per-block stylesheet. `-webkit-text-fill-color` is the safety
- * net for builds where the theme uses it to override `color`. */
-.wcb-cbtn--ghost,
-a.wcb-cbtn--ghost:link,
-a.wcb-cbtn--ghost:visited,
-span.wcb-cbtn--ghost,
-.wcb-cbtn.wcb-cbtn--ghost {
-	background: transparent !important;
-	color: var(--wcb-primary, #2563eb) !important;
-	-webkit-text-fill-color: var(--wcb-primary, #2563eb) !important;
-	border-color: var(--wcb-primary, #2563eb) !important;
-}
-
-.wcb-cbtn--ghost:hover,
-.wcb-cbtn--ghost:focus-visible,
-a.wcb-cbtn--ghost:hover,
-a.wcb-cbtn--ghost:focus-visible {
-	background: var(--wcb-primary, #2563eb) !important;
-	color: var(--wcb-on-primary, #ffffff) !important;
-	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff) !important;
-	border-color: var(--wcb-primary, #2563eb) !important;
-	text-decoration: none !important;
-}
-
-.wcb-cbtn--danger {
+ * Candidates "View Resume", plus the shared Load more button. The
+ * `[class*="wp-block-..."] a.wcb-cbtn--ghost:link` chain lands at
+ * (0,3,1) which beats the Reign / Astra `.entry-content a` cascade
+ * (0,2,1) outright - no `!important` required. `-webkit-text-fill-color`
+ * is the safety net for builds where the theme uses it to override
+ * `color`. */
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wp-career-board"] span.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] .wcb-cbtn.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wcb-"] span.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
 	background: transparent;
-	color: var(--wcb-danger, #dc2626) !important;
+	color: var(--wcb-primary, #2563eb);
+	-webkit-text-fill-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:focus-visible {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+	text-decoration: none;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger {
+	background: transparent;
+	color: var(--wcb-danger, #dc2626);
 	border-color: var(--wcb-danger-border, #fecaca);
 }
 
-.wcb-cbtn--danger:hover,
-.wcb-cbtn--danger:focus-visible {
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:focus-visible {
 	background: var(--wcb-danger-bg-soft, #fef2f2);
-	color: var(--wcb-danger-fg, #991b1b) !important;
+	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger, #dc2626);
 	text-decoration: none;
 }
