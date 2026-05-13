@@ -61,6 +61,26 @@ final class CandidatesEndpoint extends RestController {
 			)
 		);
 
+		register_rest_route(
+			$this->namespace,
+			'/candidates/(?P<id>\d+)/saved-companies',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_saved_companies' ),
+				'permission_callback' => array( $this, 'self_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/candidates/(?P<id>\d+)/saved-resumes',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_saved_resumes' ),
+				'permission_callback' => array( $this, 'self_permissions_check' ),
+			)
+		);
+
 		// `required: true` is intentionally NOT declared on these args — the
 		// REST server would short-circuit with 400 before `register_candidate()`
 		// runs, breaking the logged-in promote-only path (where the user is
@@ -426,6 +446,110 @@ final class CandidatesEndpoint extends RestController {
 				'total'     => $count,
 				'pages'     => $count > 0 ? 1 : 0,
 				'has_more'  => false,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $count );
+		return $response;
+	}
+
+	/**
+	 * List bookmarked companies for the given user.
+	 *
+	 * Mirrors `get_bookmarks` shape so the same dashboard list pattern can
+	 * render the saved Companies tab without any extra envelope mapping.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_saved_companies( \WP_REST_Request $request ): \WP_REST_Response {
+		$raw_ids     = get_user_meta( (int) $request['id'], '_wcb_company_bookmark', false );
+		$company_ids = array_map( 'intval', (array) $raw_ids );
+		$items       = array();
+
+		if ( ! empty( $company_ids ) ) {
+			update_meta_cache( 'post', $company_ids );
+		}
+
+		foreach ( $company_ids as $company_id ) {
+			$post = get_post( $company_id );
+			if ( ! $post instanceof \WP_Post || 'wcb_company' !== $post->post_type ) {
+				continue;
+			}
+
+			$items[] = array(
+				'id'        => $post->ID,
+				'title'     => $post->post_title,
+				'permalink' => get_permalink( $post->ID ),
+				'industry'  => \WCB\Core\Industries::label( (string) get_post_meta( $post->ID, '_wcb_industry', true ) ),
+				'hq'        => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
+				'tagline'   => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+			);
+		}
+
+		$count    = count( $items );
+		$response = rest_ensure_response(
+			array(
+				'items'    => $items,
+				'total'    => $count,
+				'pages'    => $count > 0 ? 1 : 0,
+				'has_more' => false,
+			)
+		);
+		$response->header( 'X-WCB-Total', (string) $count );
+		return $response;
+	}
+
+	/**
+	 * List bookmarked resumes for the given user. Resumes are a Pro CPT;
+	 * Free returns an empty list when the CPT isn't registered so the
+	 * dashboard tab can render its empty state without a 404.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_saved_resumes( \WP_REST_Request $request ): \WP_REST_Response {
+		$items = array();
+
+		if ( post_type_exists( 'wcb_resume' ) ) {
+			$raw_ids    = get_user_meta( (int) $request['id'], '_wcb_resume_bookmark', false );
+			$resume_ids = array_map( 'intval', (array) $raw_ids );
+
+			if ( ! empty( $resume_ids ) ) {
+				update_meta_cache( 'post', $resume_ids );
+			}
+
+			foreach ( $resume_ids as $resume_id ) {
+				$post = get_post( $resume_id );
+				if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type ) {
+					continue;
+				}
+
+				$candidate_id   = (int) $post->post_author;
+				$candidate_name = $candidate_id ? get_the_author_meta( 'display_name', $candidate_id ) : $post->post_title;
+				$job_title      = (string) get_post_meta( $post->ID, '_wcb_job_title', true );
+				$location       = (string) get_post_meta( $post->ID, '_wcb_location', true );
+
+				$items[] = array(
+					'id'        => $post->ID,
+					'title'     => $candidate_name ? $candidate_name : $post->post_title,
+					'permalink' => get_permalink( $post->ID ),
+					'role'      => $job_title,
+					'location'  => $location,
+				);
+			}
+		}
+
+		$count    = count( $items );
+		$response = rest_ensure_response(
+			array(
+				'items'    => $items,
+				'total'    => $count,
+				'pages'    => $count > 0 ? 1 : 0,
+				'has_more' => false,
 			)
 		);
 		$response->header( 'X-WCB-Total', (string) $count );
