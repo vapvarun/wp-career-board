@@ -181,40 +181,10 @@ a.wcb-badge:hover { opacity: 0.8; }
 	text-align: end;
 }
 
-/* ── Hero bookmark button ─────────────────────────────────────────────────── */
-.wcb-bookmark-hero-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
-	padding: var(--wcb-space-sm) var(--wcb-space-lg); /* 0.55rem ≈ 9px → sm */
-	border: 1.5px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-md);
-	background: var(--wcb-base, #fff);
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	font-family: inherit;
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
-	white-space: nowrap;
-}
-
-.wcb-bookmark-hero-btn:hover {
-	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-info-bg-soft);
-}
-
-.wcb-bookmark-hero-btn.wcb-bookmarked {
-	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-bg-subtle);
-}
-
-.wcb-bookmark-hero-btn:disabled {
-	opacity: 0.7;
-	cursor: not-allowed;
-}
+/* `.wcb-bookmark-hero-btn` styles live in assets/css/frontend-components.css
+ * since Find Jobs, Companies, and Find Candidates single pages all use this
+ * affordance. Removing the local copy here so the canonical rules win
+ * regardless of which block stylesheet is enqueued first. */
 
 .wcb-applied-badge {
 	display: none;
@@ -395,12 +365,22 @@ a.wcb-tag:hover {
 }
 
 .wcb-card-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast, #0f172a);
 	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-sm); /* 0.6rem ≈ 10px → sm */
+	padding-bottom: var(--wcb-space-sm);
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+}
+
+.wcb-card-title > svg {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+	color: var(--wcb-primary);
 }
 
 .wcb-detail-list {

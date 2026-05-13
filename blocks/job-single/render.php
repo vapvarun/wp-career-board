@@ -514,7 +514,10 @@ wp_interactivity_state(
 
 			<?php /* Job Details card */ ?>
 			<div class="wcb-sidebar-card">
-				<h3 class="wcb-card-title"><?php esc_html_e( 'Job Details', 'wp-career-board' ); ?></h3>
+				<h3 class="wcb-card-title">
+					<?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php esc_html_e( 'Job Details', 'wp-career-board' ); ?>
+				</h3>
 				<dl class="wcb-detail-list">
 					<?php if ( $wcb_type ) : ?>
 						<div class="wcb-detail-row">
@@ -672,7 +675,10 @@ wp_interactivity_state(
 			<?php /* Company card */ ?>
 			<?php if ( $wcb_company_name ) : ?>
 				<div class="wcb-sidebar-card wcb-company-card">
-					<h3 class="wcb-card-title"><?php esc_html_e( 'About the Company', 'wp-career-board' ); ?></h3>
+					<h3 class="wcb-card-title">
+						<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
+					</h3>
 					<div class="wcb-company-card-header">
 						<div class="wcb-company-avatar wcb-company-avatar--sm">
 				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>

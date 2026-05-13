@@ -5,11 +5,41 @@
 
 /* -- Hero -- */
 .wcb-cp-hero {
+	position: relative;
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-2xl);
 	overflow: hidden;
 	margin-bottom: var(--wcb-space-xl);
+}
+
+/* Save button anchored top-right of the hero card so it sits in the same
+ * spot as Find Jobs single's "Saved" pill. (0,3,1) wins over the canonical
+ * `.wcb-bookmark-hero-btn` rule that has no positioning. */
+[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
+	position: absolute;
+	top: var(--wcb-space-lg);
+	inset-inline-end: var(--wcb-space-lg);
+	z-index: 1;
+}
+
+/* Reserve right padding inside the hero body so the absolute-positioned
+ * Save button doesn't crash into the meta chip row at narrow widths. */
+.wcb-cp-hero-body {
+	padding-inline-end: var(--wcb-space-5xl, 4rem);
+}
+
+/* Below 720px the absolute Save button would overlap the avatar at the top.
+ * Stack the Save button under the chip row in flow on small screens. */
+@media (max-width: 720px) {
+	[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
+		position: static;
+		margin: 0 var(--wcb-space-lg) var(--wcb-space-lg);
+	}
+
+	.wcb-cp-hero-body {
+		padding-inline-end: var(--wcb-space-xl);
+	}
 }
 
 /* Cover strip collapsed to zero height so the company hero matches the
@@ -25,9 +55,9 @@
 
 .wcb-cp-hero-body {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: var(--wcb-space-xl);
-	padding: var(--wcb-space-xl) var(--wcb-space-2xl) var(--wcb-space-2xl);
+	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
 	margin-top: 0;
 }
 
@@ -59,11 +89,15 @@
 	letter-spacing: 0.02em;
 }
 
-/* -- Hero info -- */
+/* -- Hero info --
+ * No `padding-top` offset so the "Name + tagline" group's vertical
+ * center aligns with the logo's vertical center, matching Find Jobs
+ * single hero where the title + company name sit centered against the
+ * avatar. The 52px offset that used to live here was a vestige of an
+ * earlier cover-strip design that has since been collapsed. */
 .wcb-cp-hero-info {
 	flex: 1;
 	min-width: 0;
-	padding-top: 52px;
 }
 
 .wcb-cp-name-row {

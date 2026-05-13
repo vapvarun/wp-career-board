@@ -839,6 +839,55 @@ select.wcb-field {
 	box-shadow: var(--wcb-shadow-sm);
 }
 
+/* ── Canonical hero bookmark / save button ─────────────────────────────
+ * Shared across the 3 single pages (Find Jobs, Companies, Find
+ * Candidates) so a customer's Save affordance is the same shape in the
+ * same spot on every single-page hero. */
+[class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn,
+[class*="wp-block-wcb-"] .wcb-bookmark-hero-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	border: 1.5px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base, #fff);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	font-family: inherit;
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
+	white-space: nowrap;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:hover,
+[class*="wp-block-wcb-"] .wcb-bookmark-hero-btn:hover {
+	border-color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-info-bg-soft);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn.wcb-bookmarked,
+[class*="wp-block-wcb-"] .wcb-bookmark-hero-btn.wcb-bookmarked {
+	border-color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-bg-subtle);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:disabled,
+[class*="wp-block-wcb-"] .wcb-bookmark-hero-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn svg,
+[class*="wp-block-wcb-"] .wcb-bookmark-hero-btn svg {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+}
+
 /* ── Canonical Container — `.wcb-archive-shell` only ──────────────────── */
 
 /*

@@ -82,12 +82,66 @@ $wcb_size_labels = array(
 );
 $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 
+// ── Bookmark state ───────────────────────────────────────────────────────────
+// Mirrors the archive-card bookmark + Find Jobs single hero so a customer who
+// follows a company from /companies/ sees the same Saved state when they land
+// on the company profile from a search engine result.
+$wcb_current_user_id   = get_current_user_id();
+$wcb_company_bookmarks = $wcb_current_user_id
+	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_company_bookmark', false ) )
+	: array();
+$wcb_cp_is_bookmarked  = in_array( $wcb_company_id, $wcb_company_bookmarks, true );
+$wcb_cp_bookmark_label = $wcb_cp_is_bookmarked
+	? __( 'Saved', 'wp-career-board' )
+	: __( 'Save', 'wp-career-board' );
+
+wp_interactivity_state(
+	'wcb-company-profile',
+	array(
+		'companyId'     => $wcb_company_id,
+		'bookmarked'    => $wcb_cp_is_bookmarked,
+		'bookmarking'   => false,
+		'bookmarkLabel' => $wcb_cp_bookmark_label,
+		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+		'restNonce'     => wp_create_nonce( 'wp_rest' ),
+		'labelSave'     => __( 'Save', 'wp-career-board' ),
+		'labelSaved'    => __( 'Saved', 'wp-career-board' ),
+	)
+);
+
 ?>
-<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-company-profile wcb-cp-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-company-profile wcb-cp-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	data-wp-interactive="wcb-company-profile"
+>
 
 	<?php /* ── Hero ── */ ?>
 	<div class="wcb-cp-hero">
 		<div class="wcb-cp-cover" aria-hidden="true"></div>
+
+		<?php
+		/*
+		 * Save button anchored top-right of the hero card, matching Find Jobs
+		 * single hero placement. Out of the inline action row so it stays
+		 * visually paired with the page corner instead of fighting Website /
+		 * LinkedIn pills below the meta.
+		 */
+		?>
+		<?php if ( is_user_logged_in() ) : ?>
+			<button
+				type="button"
+				class="wcb-bookmark-hero-btn wcb-cp-hero-save"
+				data-wp-on--click="actions.toggleBookmark"
+				data-wp-class--wcb-bookmarked="state.bookmarked"
+				data-wp-bind--disabled="state.bookmarking"
+				data-wp-bind--aria-label="state.bookmarkLabel"
+				aria-label="<?php echo esc_attr( $wcb_cp_bookmark_label ); ?>"
+				title="<?php esc_attr_e( 'Save this company', 'wp-career-board' ); ?>"
+			>
+				<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				<span data-wp-text="state.bookmarkLabel"><?php echo esc_html( $wcb_cp_bookmark_label ); ?></span>
+			</button>
+		<?php endif; ?>
 
 		<div class="wcb-cp-hero-body">
 			<?php /* Avatar / Logo */ ?>
@@ -142,7 +196,15 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 					<?php endif; ?>
 				</div>
 
-				<?php /* External links */ ?>
+				<?php
+				/*
+				 * External links + Save affordance.
+				 * Save button matches Find Jobs single hero so a customer who
+				 * follows companies from /companies/ archive cards has the
+				 * same Save button on the profile page. Wires to the same
+				 * /wcb/v1/companies/{id}/bookmark REST route the archive cards.
+				 */
+				?>
 				<div class="wcb-cp-links">
 					<?php if ( $wcb_website ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--web" href="<?php echo esc_url( $wcb_website ); ?>" target="_blank" rel="noopener noreferrer">
@@ -278,10 +340,7 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 			)
 		);
 		?>
-		<section
-			class="wcb-cp-section"
-			data-wp-interactive="wcb-company-profile"
-		>
+		<section class="wcb-cp-section">
 			<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?></h2>
 
 			<p class="wcb-cp-no-jobs" data-wp-bind--hidden="!state.hasNoJobs">
@@ -325,7 +384,8 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 	</div>
 
 	<?php
-	/* Sidebar: always renders the same three plugin blocks for shape
+	/*
+	Sidebar: always renders the same three plugin blocks for shape
 	 * consistency. The previous behavior swapped in admin-placed widgets
 	 * from a `wcb-company-sidebar` widget area when any were assigned,
 	 * but admins routinely misassigned footer / generic widgets there
