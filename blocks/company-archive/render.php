@@ -216,19 +216,35 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 		<div class="wcb-ca-filter-bar">
 
-			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterIndustry">
-				<option value=""><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></option>
+			<?php /* ── Industry chip-filter row — matches the chip pattern used by
+			       Find Jobs (`.wcb-chip-bar`) and Find Candidates' skill filter so
+			       all three archive pages share the same filter affordance. */ ?>
+			<div class="wcb-chip-bar wcb-ca-chip-bar" role="group" aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>">
+				<button type="button" class="wcb-chip" data-value=""
+					data-wp-on--click="actions.filterIndustry"
+					data-wp-class--wcb-chip-active="callbacks.isIndustryActive"
+				><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></button>
 				<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
-					<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"><?php echo esc_html( $wcb_ind_lbl ); ?></option>
+					<button type="button" class="wcb-chip" data-value="<?php echo esc_attr( $wcb_ind_val ); ?>"
+						data-wp-on--click="actions.filterIndustry"
+						data-wp-class--wcb-chip-active="callbacks.isIndustryActive"
+					><?php echo esc_html( $wcb_ind_lbl ); ?></button>
 				<?php endforeach; ?>
-			</select>
+			</div>
 
-			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterSize">
-				<option value=""><?php esc_html_e( 'All Sizes', 'wp-career-board' ); ?></option>
+			<?php /* ── Size chip-filter row. */ ?>
+			<div class="wcb-chip-bar wcb-ca-chip-bar" role="group" aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>">
+				<button type="button" class="wcb-chip" data-value=""
+					data-wp-on--click="actions.filterSize"
+					data-wp-class--wcb-chip-active="callbacks.isSizeActive"
+				><?php esc_html_e( 'All Sizes', 'wp-career-board' ); ?></button>
 				<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
-					<option value="<?php echo esc_attr( $wcb_size_key ); ?>"><?php echo esc_html( $wcb_size_lbl ); ?></option>
+					<button type="button" class="wcb-chip" data-value="<?php echo esc_attr( $wcb_size_key ); ?>"
+						data-wp-on--click="actions.filterSize"
+						data-wp-class--wcb-chip-active="callbacks.isSizeActive"
+					><?php echo esc_html( $wcb_size_lbl ); ?></button>
 				<?php endforeach; ?>
-			</select>
+			</div>
 
 		</div>
 

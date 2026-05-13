@@ -27,48 +27,28 @@
 	flex: 0 0 auto;
 }
 
-/* -- Filter bar -- */
+/* -- Filter bar (chip rows stacked vertically) --
+ * 1.2.0 — selects replaced with `.wcb-chip-bar` rows defined globally in
+ * `assets/css/wcb-ui.css`. The filter bar is the column that hosts both
+ * chip rows (Industry + Size) and absorbs the remaining horizontal space
+ * so the layout toggle on the right keeps its edge alignment. */
 .wcb-ca-filter-bar {
 	display: flex;
+	flex-direction: column;
 	gap: var(--wcb-space-sm);
-	flex-wrap: wrap;
-	align-items: center;
 	flex: 1 1 auto;
+	min-width: 0;
 }
 
 /*
  * Pushes the layout toggle (.wcb-layout-toggle / .wcb-view-switcher) to the
  * right edge of the toolbar without leaving an awkward gap between the
- * results count and the filter selects on the left. Achieved by giving the
+ * results count and the chip filters on the left. Achieved by giving the
  * filter bar `flex: 1 1 auto` so it absorbs the remaining horizontal space.
  */
 .wcb-ca-toolbar > .wcb-layout-toggle,
 .wcb-ca-toolbar > .wcb-view-switcher {
 	margin-inline-start: auto;
-}
-
-.wcb-ca-filter-select {
-	appearance: none;
-	-webkit-appearance: none;
-	background-color: var(--wcb-base);
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 0.6rem center;
-	padding: var(--wcb-space-xs) var(--wcb-space-3xl) var(--wcb-space-xs) var(--wcb-space-md);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-sm);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-fast);
-	max-width: 200px;
-}
-
-.wcb-ca-filter-select:focus {
-	outline: 2px solid transparent;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
 }
 
 /* -- Layout toggle -- */
@@ -457,7 +437,6 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.wcb-ca-card,
-	.wcb-ca-filter-select,
 	.wcb-load-more-btn {
 		transition: none;
 	}

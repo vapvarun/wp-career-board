@@ -337,6 +337,65 @@ textarea.wcb-input {
 	gap: var(--wcb-space-lg);
 }
 
+/* ── Chip filter row ──────────────────────────────────────────────────────── */
+
+/* Shared chip primitive used by every archive filter bar. The earlier
+ * `.wcb-chip` / `.wcb-chip-bar` definitions lived inside
+ * `blocks/job-listings/style.css`, which meant the same class behaved
+ * differently on `/companies/` (no rules loaded, falls back to native
+ * button) and `/find-jobs/` (styled chip). Hoisting the rules into the
+ * global ui primitives stylesheet ensures every block — including the
+ * new Companies chip-bar and any future archive block — renders the
+ * same affordance for free. Block-local stylesheets may still override
+ * locally if a block needs a different size, but no block should
+ * redefine the default state of `.wcb-chip` again. */
+
+.wcb-chip-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.wcb-chip {
+	display: inline-flex;
+	align-items: center;
+	height: var(--wcb-space-3xl);
+	padding-inline: 0.875rem;
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast, #0f172a);
+	background: var(--wcb-base, #ffffff);
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
+	white-space: nowrap;
+}
+
+.wcb-chip:hover {
+	border-color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-info-bg, #dbeafe);
+	color: var(--wcb-primary, #2563eb);
+}
+
+.wcb-chip:focus-visible {
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
+}
+
+.wcb-chip.wcb-chip-active {
+	border-color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary, #2563eb);
+	color: #ffffff;
+}
+
+.wcb-chip.wcb-chip-active:hover {
+	background: var(--wcb-primary-dark, #1d4ed8);
+	border-color: var(--wcb-primary-dark, #1d4ed8);
+	color: #ffffff;
+}
+
 /* ── Badge ────────────────────────────────────────────────────────────────── */
 
 .wcb-badge {

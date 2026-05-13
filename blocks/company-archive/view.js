@@ -9,7 +9,7 @@
  *
  * @package WP_Career_Board
  */
-import { store } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 
 const { state } = store( 'wcb-company-archive', {
 	state: {
@@ -28,6 +28,32 @@ const { state } = store( 'wcb-company-archive', {
 		},
 	},
 
+	callbacks: {
+		// Toggle the active state of an industry chip by comparing its
+		// `data-value` attribute to `state.industry`. The "All Industries"
+		// chip has an empty data-value so it activates whenever no industry
+		// is selected. Null-guarded because `getElement().ref` can briefly
+		// be null during the first pre-paint pass before the Interactivity
+		// runtime has wired up the DOM reference.
+		isIndustryActive() {
+			const el = getElement();
+			const ref = el && el.ref;
+			if ( ! ref ) {
+				return false;
+			}
+			return ( state.industry || '' ) === ( ref.dataset.value || '' );
+		},
+
+		isSizeActive() {
+			const el = getElement();
+			const ref = el && el.ref;
+			if ( ! ref ) {
+				return false;
+			}
+			return ( state.size || '' ) === ( ref.dataset.value || '' );
+		},
+	},
+
 	actions: {
 		setGrid() {
 			state.layout = 'grid';
@@ -39,13 +65,19 @@ const { state } = store( 'wcb-company-archive', {
 			localStorage.setItem( 'wcb-company-archive-layout', 'list' );
 		},
 
-		filterIndustry( event ) {
-			state.industry = event.target.value;
+		filterIndustry() {
+			// Chip filter: read the clicked chip's `data-value` and toggle the
+			// industry filter. Empty data-value (the "All Industries" chip)
+			// clears the filter. Matches the chip pattern used by Find Jobs
+			// and Find Candidates for uniform UX.
+			const { ref } = getElement();
+			state.industry = ref.dataset.value || '';
 			wcbFetchCompanies();
 		},
 
-		filterSize( event ) {
-			state.size = event.target.value;
+		filterSize() {
+			const { ref } = getElement();
+			state.size = ref.dataset.value || '';
 			wcbFetchCompanies();
 		},
 
