@@ -86,11 +86,29 @@
 	gap: var(--wcb-space-lg);
 }
 
-/* ── Job Card ────────────────────────────────────────────────────────────── */
+/* ── Job Card ──────────────────────────────────────────────────────────────
+ * Grid layout: avatar in col 1 row 1, title+bookmark inline in col 2 row 1.
+ * Badges, excerpt, and footer span the full card width on rows 2-4 so they
+ * start flush against the left edge instead of indenting under the avatar.
+ * Matches the same-family pattern adopted by `.wcb-ra-card` (Find Candidates)
+ * and `.wcb-ca-card-link` (Companies) in the v1.2.0 polish pass — same
+ * vertical rhythm across all three archive surfaces.
+ *
+ * `.wcb-card-body` is flattened with `display: contents` so its children
+ * (`.wcb-card-header`, `.wcb-card-badges`, `.wcb-card-excerpt`,
+ * `.wcb-card-footer`) participate directly in the outer grid — no markup
+ * change required.
+ */
 .wcb-job-card {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--wcb-space-lg);
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"avatar header"
+		"badges badges"
+		"excerpt excerpt"
+		"footer footer";
+	column-gap: var(--wcb-space-lg);
+	row-gap: var(--wcb-space-md);
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-xl);
@@ -98,6 +116,13 @@
 	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 	position: relative;
 }
+
+.wcb-job-card > .wcb-card-avatar { grid-area: avatar; align-self: center; }
+.wcb-job-card > .wcb-card-body   { display: contents; }
+.wcb-card-body > .wcb-card-header  { grid-area: header; align-self: center; }
+.wcb-card-body > .wcb-card-badges  { grid-area: badges; }
+.wcb-card-body > .wcb-card-excerpt { grid-area: excerpt; }
+.wcb-card-body > .wcb-card-footer  { grid-area: footer; }
 
 .wcb-job-card:hover {
 	border-color: var(--wcb-border);
