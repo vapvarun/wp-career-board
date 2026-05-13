@@ -34,8 +34,33 @@
 	container-name: wcb-panel;
 }
 
+/* Every dashboard tab content sits inside a consistent card wrapper so
+ * Overview, My Jobs, Applications, Company Profile, Saved tabs, Settings
+ * all look the same regardless of what's inside. .wcb-page-header h1
+ * sits inside this card as its title bar. Inner .wcb-panel blocks lose
+ * their own chrome so nested cards don't double-frame. Mirrors the
+ * matching rule in candidate-dashboard/styles/main.css. */
 .wcb-view-panel.wcb-view-active {
 	display: block;
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
+	padding: var(--wcb-space-xl);
+}
+
+@media (max-width: 640px) {
+	.wcb-view-panel.wcb-view-active {
+		padding: var(--wcb-space-lg);
+	}
+}
+
+.wcb-view-panel.wcb-view-active .wcb-panel {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin-bottom: 0;
 }
 
 /* -- Page header -- */
