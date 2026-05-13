@@ -421,6 +421,45 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	</div>
 
 		<?php
+		/* ── Toolbar sits ABOVE the 2-col layout (full width) so the filter
+			panel on the left and the first card row on the right both start
+			at the same Y position. Matches /companies/ and /find-candidates/
+			where the results count + view toggle live OUTSIDE the right
+			column. */
+		?>
+	<div class="wcb-listings-toolbar">
+		<div class="wcb-toolbar-start">
+			<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
+			<?php
+			/**
+			 * Pro injects the "Alert me" button HTML for the alerts_subscribe slot.
+			 * Filter declared in core/class-pro-coordination.php (F-1).
+			 */
+			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+			if ( ! empty( $wcb_module_renders['alerts_subscribe'] ) ) {
+				echo wp_kses_post( $wcb_module_renders['alerts_subscribe'] );
+			}
+			?>
+		</div>
+		<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
+			<button type="button" class="wcb-view-btn"
+				data-wp-class--wcb-view-btn--active="state.isGrid"
+				data-wp-on--click="actions.setGridLayout"
+				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
+			>
+				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			</button>
+			<button type="button" class="wcb-view-btn"
+				data-wp-class--wcb-view-btn--active="state.isList"
+				data-wp-on--click="actions.setListLayout"
+				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
+			>
+				<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			</button>
+		</div>
+	</div>
+
+		<?php
 		/* ── 2-col layout: filter sidebar + result cards. Mirrors
 			/companies/ and /find-candidates/ so the three archives share one
 			shape. The existing chip actions (toggleTypeChip, toggleExpChip,
@@ -438,68 +477,60 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			<?php if ( $wcb_type_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></span>
-				<div class="wcb-filter-panel__chips" role="group" aria-label="<?php esc_attr_e( 'Filter by job type', 'wp-career-board' ); ?>">
+				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_type_opts as $wcb_opt ) : ?>
-					<button type="button" class="wcb-chip"
-						data-type-slug="<?php echo esc_attr( $wcb_opt['slug'] ); ?>"
-						data-wp-class--wcb-chip-active="state.isTypeActive"
-						data-wp-on--click="actions.toggleTypeChip"
-						data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'typeSlug' => $wcb_opt['slug'] ) ) ); ?>"
-					><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'typeSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleTypeChip" data-wp-bind--checked="state.isTypeActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
 					<?php endforeach; ?>
-				</div>
+				</ul>
 			</div>
 			<?php endif; ?>
 
 			<?php if ( $wcb_exp_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Experience', 'wp-career-board' ); ?></span>
-				<div class="wcb-filter-panel__chips" role="group" aria-label="<?php esc_attr_e( 'Filter by experience', 'wp-career-board' ); ?>">
+				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_exp_opts as $wcb_opt ) : ?>
-					<button type="button" class="wcb-chip"
-						data-exp-slug="<?php echo esc_attr( $wcb_opt['slug'] ); ?>"
-						data-wp-class--wcb-chip-active="state.isExpActive"
-						data-wp-on--click="actions.toggleExpChip"
-						data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>"
-					><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleExpChip" data-wp-bind--checked="state.isExpActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
 					<?php endforeach; ?>
-				</div>
+				</ul>
 			</div>
 			<?php endif; ?>
 
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Location', 'wp-career-board' ); ?></span>
-				<div class="wcb-filter-panel__chips">
-					<button type="button" class="wcb-chip"
-						data-wp-class--wcb-chip-active="state.isRemoteActive"
-						data-wp-on--click="actions.toggleRemote"
-					><?php esc_html_e( 'Remote only', 'wp-career-board' ); ?></button>
-				</div>
+				<ul class="wcb-filter-panel__list">
+					<li>
+						<label class="wcb-filter-panel__option">
+							<input type="checkbox" data-wp-on--change="actions.toggleRemote" data-wp-bind--checked="state.isRemoteActive" />
+							<span><?php esc_html_e( 'Remote only', 'wp-career-board' ); ?></span>
+						</label>
+					</li>
+				</ul>
 			</div>
 
 			<?php if ( $wcb_board_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job board', 'wp-career-board' ); ?></span>
-				<div class="wcb-filter-panel__chips" role="group" aria-label="<?php esc_attr_e( 'Filter by job board', 'wp-career-board' ); ?>">
+				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
-					<button type="button" class="wcb-chip"
-						data-wp-class--wcb-chip-active="state.isBoardActive"
-						data-wp-on--click="actions.toggleBoardChip"
-						data-wp-context="
-							<?php
-							echo esc_attr(
-								wp_json_encode(
-									array(
-										'boardId'   => $wcb_opt['id'],
-										'boardName' => $wcb_opt['name'],
-									)
-								)
-							);
-							?>
-											"
-					><?php echo esc_html( $wcb_opt['name'] ); ?></button>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'boardId' => $wcb_opt['id'], 'boardName' => $wcb_opt['name'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleBoardChip" data-wp-bind--checked="state.isBoardActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
 					<?php endforeach; ?>
-				</div>
+				</ul>
 			</div>
 			<?php endif; ?>
 
@@ -555,38 +586,6 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						>&times;</button>
 					</span>
 				</template>
-			</div>
-
-			<div class="wcb-listings-toolbar">
-				<div class="wcb-toolbar-start">
-					<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
-					<?php
-					/**
-					 * Pro injects the "Alert me" button HTML for the alerts_subscribe slot.
-					 * Filter declared in core/class-pro-coordination.php (F-1).
-					 */
-					$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
-					if ( ! empty( $wcb_module_renders['alerts_subscribe'] ) ) {
-						echo wp_kses_post( $wcb_module_renders['alerts_subscribe'] );
-					}
-					?>
-				</div>
-				<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
-					<button type="button" class="wcb-view-btn"
-						data-wp-class--wcb-view-btn--active="state.isGrid"
-						data-wp-on--click="actions.setGridLayout"
-						aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
-					>
-						<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					</button>
-					<button type="button" class="wcb-view-btn"
-						data-wp-class--wcb-view-btn--active="state.isList"
-						data-wp-on--click="actions.setListLayout"
-						aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
-					>
-						<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					</button>
-				</div>
 			</div>
 	<?php endif; ?>
 

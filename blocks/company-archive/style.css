@@ -14,7 +14,7 @@
  * `.wcb-search-sort-row` in job-listings and the search input in
  * resume-archive so all three archives share the same vertical rhythm. */
 .wcb-ca-search-row {
-	margin-bottom: var(--wcb-space-lg);
+	margin-bottom: var(--wcb-space-2xl);
 }
 
 .wcb-ca-search-row .wcb-search-wrap {
@@ -424,19 +424,26 @@
 
 /* -- Utilities -- */
 
-/* -- Responsive -- */
-@media (max-width: 768px) {
+/* -- Responsive ladder --
+ * Desktop (≥1024px viewport / ≥720px content): 3-col forced.
+ * Tablet  (768-1023): 2-col so cards stay legible.
+ * Mobile  (<768):     1-col, filter panel stacks above (handled in
+ *                     wcb-ui.css via the .wcb-archive-layout @900px rule).
+ */
+@media (max-width: 1023px) {
 	.wcb-ca-container.wcb-grid {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+}
 
+@media (max-width: 768px) {
 	.wcb-ca-filter-bar {
 		flex: 1 1 100%;
 		order: 3;
 	}
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	.wcb-ca-container.wcb-grid {
 		grid-template-columns: 1fr;
 	}

@@ -46,6 +46,18 @@ final class CompaniesEndpoint extends RestController {
 
 		register_rest_route(
 			$this->namespace,
+			'/companies/(?P<id>\d+)/bookmark',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'toggle_bookmark' ),
+				'permission_callback' => static function (): bool {
+					return is_user_logged_in();
+				},
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/companies/(?P<id>\d+)/trust',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -114,6 +126,39 @@ final class CompaniesEndpoint extends RestController {
 			array(
 				'id'          => $company_id,
 				'trust_level' => $trust_level,
+			)
+		);
+	}
+
+	/**
+	 * Toggle company bookmark using non-unique usermeta (one row per
+	 * bookmarked company). Mirrors the `_wcb_bookmark` pattern Jobs uses
+	 * for saved listings - any logged-in user can save any company.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response {
+		$user_id    = get_current_user_id();
+		$company_id = (int) $request['id'];
+
+		$existing = get_user_meta( $user_id, '_wcb_company_bookmark', false );
+		$existing = array_map( 'intval', (array) $existing );
+
+		if ( in_array( $company_id, $existing, true ) ) {
+			delete_user_meta( $user_id, '_wcb_company_bookmark', $company_id );
+			$bookmarked = false;
+		} else {
+			add_user_meta( $user_id, '_wcb_company_bookmark', $company_id, false );
+			$bookmarked = true;
+		}
+
+		return rest_ensure_response(
+			array(
+				'bookmarked' => $bookmarked,
+				'company_id' => $company_id,
 			)
 		);
 	}

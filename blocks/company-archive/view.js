@@ -9,7 +9,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getElement } from '@wordpress/interactivity';
+import { store, getElement, getContext } from '@wordpress/interactivity';
 
 // Module-scoped debounce timer for the search input. Declared before the
 // store() call so the closure captured by `actions.updateSearch` is bound
@@ -94,6 +94,42 @@ const { state } = store( 'wcb-company-archive', {
 			state.size        = '';
 			state.searchQuery = '';
 			wcbFetchCompanies();
+		},
+
+		// Toggle bookmark on a company card. Mirrors the Jobs pattern in
+		// job-listings/view.js - optimistic UI update, rollback on REST
+		// failure. Anyone logged in can save any company; the REST gate
+		// is `is_user_logged_in()`.
+		*toggleBookmark( event ) {
+			if ( event ) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			const ctx = getContext();
+			if ( ! ctx?.company ) {
+				return;
+			}
+			const wasBookmarked = !! ctx.company.bookmarked;
+			ctx.company.bookmarked = ! wasBookmarked;
+
+			const nonce = state.restNonce || ( window.wpApiSettings && window.wpApiSettings.nonce ) || '';
+			const url   = state.apiBase + '/' + ctx.company.id + '/bookmark';
+
+			try {
+				const response = yield fetch( url, {
+					method:      'POST',
+					credentials: 'same-origin',
+					headers:     {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce':   nonce,
+					},
+				} );
+				if ( ! response.ok ) {
+					ctx.company.bookmarked = wasBookmarked;
+				}
+			} catch {
+				ctx.company.bookmarked = wasBookmarked;
+			}
 		},
 
 		// Debounced search input - matches the 250ms debounce used in

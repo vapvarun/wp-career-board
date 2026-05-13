@@ -82,6 +82,12 @@ foreach ( $wcb_jobs_raw as $wcb_jpost ) {
 	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
 }
 
+// ── Current user's bookmarked companies (for initial card state). ────────────
+$wcb_current_user_id = get_current_user_id();
+$wcb_bookmarks       = $wcb_current_user_id
+	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_company_bookmark', false ) )
+	: array();
+
 // ── Trust level badge map ───────────────────────────────────────────────────
 $wcb_trust_badges = array(
 	'verified' => array(
@@ -144,6 +150,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'verified'    => null !== $wcb_trust_info,
 		'permalink'   => get_permalink( $wcb_co_id ),
 		'jobs_label'  => $wcb_jobs_label,
+		'bookmarked'  => in_array( $wcb_co_id, $wcb_bookmarks, true ),
 	);
 }
 
@@ -195,6 +202,7 @@ $wcb_state = array(
 	'industry'    => '',
 	'size'        => '',
 	'searchQuery' => '',
+	'restNonce'   => wp_create_nonce( 'wp_rest' ),
 );
 
 $wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
@@ -329,6 +337,21 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 		>
 		<template data-wp-each--company="state.companies" data-wp-each-key="context.company.id">
 			<article class="wcb-ca-card">
+				<?php
+				/* Bookmark button sits OUTSIDE the card-link anchor so clicks
+						don't bubble into navigation. Absolute-positioned top-right via
+						the shared `.wcb-bookmark-btn` rules in wcb-ui.css so Companies,
+						Find Jobs, and Find Candidates share one save affordance. */
+				?>
+				<button
+					type="button"
+					class="wcb-bookmark-btn"
+					data-wp-on--click="actions.toggleBookmark"
+					data-wp-class--wcb-bookmarked="context.company.bookmarked"
+					aria-label="<?php esc_attr_e( 'Save company', 'wp-career-board' ); ?>"
+				>
+					<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				</button>
 				<a class="wcb-ca-card-link" data-wp-bind--href="context.company.permalink" data-wp-bind--aria-label="context.company.name">
 
 					<div class="wcb-ca-card-top">

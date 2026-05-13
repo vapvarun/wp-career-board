@@ -358,6 +358,56 @@ textarea.wcb-input {
 	}
 }
 
+/* ── Bookmark button (shared across all 3 archive cards) ──────────────────
+ * Companies + Find Candidates put this button OUTSIDE the wrapping anchor
+ * and absolutely position it top-right of the card. Jobs places it inline
+ * inside the card header (no positioning), so the absolute-position rules
+ * here scope to the company + resume cards only via the .wcb-ca-card +
+ * .wcb-ra-card prefixes. Job cards keep their existing inline placement
+ * declared in blocks/job-listings/style.css. */
+.wcb-ca-card,
+.wcb-ra-card {
+	position: relative;
+}
+
+.wcb-ca-card > .wcb-bookmark-btn,
+.wcb-ra-card > .wcb-bookmark-btn {
+	position: absolute;
+	top: var(--wcb-space-md);
+	right: var(--wcb-space-md);
+	z-index: 3;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: var(--wcb-text-tertiary, #cbd5e1);
+	cursor: pointer;
+	border-radius: var(--wcb-radius-sm);
+	padding: 0 !important;
+	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
+}
+
+.wcb-ca-card > .wcb-bookmark-btn:hover,
+.wcb-ra-card > .wcb-bookmark-btn:hover {
+	color: var(--wcb-warning, #d97706);
+	background: var(--wcb-warning-bg-soft, #fffbeb) !important;
+}
+
+.wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
+.wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
+	color: var(--wcb-warning, #d97706);
+}
+
+.wcb-ca-card > .wcb-bookmark-btn svg,
+.wcb-ra-card > .wcb-bookmark-btn svg {
+	width: var(--wcb-icon-md);
+	height: var(--wcb-icon-md);
+}
+
 .wcb-filter-panel {
 	position: sticky;
 	top: var(--wcb-space-2xl);
@@ -366,14 +416,16 @@ textarea.wcb-input {
 	border-radius: var(--wcb-radius-lg);
 	padding: var(--wcb-space-lg) var(--wcb-space-xl);
 	box-shadow: var(--wcb-shadow-sm);
-	max-height: calc(100vh - 100px);
-	overflow-y: auto;
+	/* Each long list (.wcb-filter-panel__list) caps its own height with its
+	 * own internal scroll, so the panel itself never needs to scroll.
+	 * Previously we stacked panel-wide `max-height + overflow-y: auto` on
+	 * top of the per-list scrollbar, which produced a side-by-side double
+	 * scrollbar on Find Jobs once the Job Board list landed (20+ items). */
 }
 
 @media (max-width: 900px) {
 	.wcb-filter-panel {
 		position: static;
-		max-height: none;
 	}
 }
 

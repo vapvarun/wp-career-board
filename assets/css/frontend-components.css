@@ -713,6 +713,10 @@ select.wcb-field {
 	align-items: center;
 	gap: var(--wcb-space-md);
 	flex-wrap: wrap;
+	/* Breathing room before the toolbar / archive-layout so the search
+	 * bar doesn't crash into the results count. Matches the spacing used
+	 * by `.wcb-ca-search-row` on Companies. */
+	margin-bottom: var(--wcb-space-2xl);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-search-wrap,
