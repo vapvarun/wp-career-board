@@ -96,7 +96,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 }
 
 .wcb-cd-error {
-	color: #b91c1c;
+	color: var(--wcb-danger-fg, #b91c1c);
 	font-size: var(--wcb-text-base);
 	margin: 0 0 var(--wcb-space-lg);
 }
@@ -140,8 +140,8 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 }
 
 .wcb-cbtn--sm {
-	padding: 0.25rem 0.625rem;
-	font-size: 0.8rem;
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
 }
 
 .wcb-cbtn--primary {
@@ -178,12 +178,12 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 .wcb-cbtn--danger {
 	background: transparent;
 	color: var(--wcb-danger) !important;
-	border-color: #fca5a5;
+	border-color: var(--wcb-danger-border, #fca5a5);
 }
 
 .wcb-cbtn--danger:hover {
 	background: var(--wcb-danger-bg-soft);
-	color: #b91c1c !important;
+	color: var(--wcb-danger-fg, #b91c1c) !important;
 	border-color: var(--wcb-danger);
 	text-decoration: none;
 }
