@@ -619,15 +619,20 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							</h3>
 							<p class="wcb-card-company">
 								<span data-wp-text="context.job.company"></span>
+								<?php
+								/* Inline green tick after the company name. Tooltip
+										+ aria-label carry the trust level for assistive
+										tech; the word "Verified" was dropped from the UI
+										because the icon already communicates it. */
+								?>
 								<span
-									class="wcb-verified-sm"
-									role="status"
+									class="wcb-ca-trust-tick"
+									role="img"
+									aria-label="<?php esc_attr_e( 'Verified', 'wp-career-board' ); ?>"
 									data-wp-class--wcb-shown="context.job.verified"
 									data-wp-bind--data-trust="context.job.trust"
-								>
-									<span aria-hidden="true" data-wp-text="context.job.trust_icon"></span>
-									<span data-wp-text="context.job.trust_label"></span>
-								</span>
+									data-wp-bind--title="context.job.trust_label"
+								>&#10003;</span>
 							</p>
 						</div>
 						<button

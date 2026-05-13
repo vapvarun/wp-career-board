@@ -337,6 +337,42 @@ textarea.wcb-input {
 	gap: var(--wcb-space-lg);
 }
 
+/* ── Trust tick — shared paint across all archive cards ──────────────────
+ * Small green checkmark rendered INLINE after the company/job name. The
+ * `data-trust` attribute carries the trust level so verified / trusted /
+ * premium can pick up a distinct paint without changing the markup. The
+ * tooltip + aria-label on the host element supply the human label so the
+ * word "Verified" no longer needs to take chip-row space. */
+.wcb-ca-name-row {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	flex-wrap: wrap;
+}
+
+.wcb-ca-trust-tick {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-success, #16a34a);
+	color: #ffffff;
+	font-size: 10px;
+	font-weight: var(--wcb-font-bold);
+	line-height: 1;
+	flex-shrink: 0;
+	cursor: help;
+}
+
+.wcb-ca-trust-tick.wcb-shown {
+	display: inline-flex;
+}
+
+.wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
+.wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
+
 /* ── Archive card title — shared paint across the 3 archive surfaces ────────
  * Find Jobs (.wcb-card-title — <h3>), Companies (.wcb-ca-name — <h2>),
  * Find Candidates (.wcb-ra-card-name — <p>). Each block uses a different

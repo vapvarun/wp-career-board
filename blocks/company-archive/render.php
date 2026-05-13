@@ -364,20 +364,27 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 								aria-hidden="true"
 							></div>
 						</div>
+					</div>
 
+					<?php
+					/* Trust mark is a small green checkmark inline AFTER the
+							company name. The earlier "✓ Verified" pill rendered below
+							the avatar in list view and broke layout - the word
+							"Verified" was redundant given the icon. `aria-label` +
+							`title` carry the human label for assistive tech. */
+					?>
+					<div class="wcb-ca-card-body">
+						<div class="wcb-ca-name-row">
+							<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
 							<span
-								class="wcb-ca-trust-badge"
-								role="status"
+								class="wcb-ca-trust-tick"
+								role="img"
+								aria-label="<?php esc_attr_e( 'Verified', 'wp-career-board' ); ?>"
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
-							>
-								<span aria-hidden="true" data-wp-text="context.company.trust_icon"></span>
-								<span data-wp-text="context.company.trust_label"></span>
-							</span>
+								data-wp-bind--title="context.company.trust_label"
+							>&#10003;</span>
 						</div>
-
-					<div class="wcb-ca-card-body">
-						<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"
 							data-wp-text="context.company.tagline"></p>

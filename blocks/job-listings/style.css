@@ -232,32 +232,9 @@
 	flex-wrap: wrap;
 }
 
-/* ── Verified badge ──────────────────────────────────────────────────────── */
-.wcb-verified-sm {
-	display: none;
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-success);
-	font-weight: var(--wcb-font-semibold);
-	background: var(--wcb-success-bg);
-	padding: 1px var(--wcb-space-xs); /* 0.05rem ≈ 1px hairline; 0.4rem ≈ 6px → xs */
-	border-radius: var(--wcb-space-xs);
-}
-
-.wcb-verified-sm.wcb-shown {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-verified-sm[data-trust="trusted"] {
-	background: var(--wcb-info-bg);
-	color: var(--wcb-info);
-}
-
-.wcb-verified-sm[data-trust="premium"] {
-	background: var(--wcb-warning-bg);
-	color: var(--wcb-warning);
-}
+/* Trust mark is now `.wcb-ca-trust-tick` defined in
+ * `assets/css/wcb-ui.css` and shared across all 3 archive cards. The old
+ * `.wcb-verified-sm` pill ("✓ Verified" with text) is retired. */
 
 /* ── Bookmark button ─────────────────────────────────────────────────────── */
 
@@ -344,12 +321,14 @@
 	margin-top: var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
 }
 
-/* Hidden by default; shown when .wcb-shown is added */
+/* Hidden by default; shown when .wcb-shown is added. Salary uses the
+ * contrast color (not primary red) so it reads as data, not a CTA - the
+ * View Job button is the only red element in the footer. */
 .wcb-card-salary {
 	display: none;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
 }
 
 .wcb-card-salary.wcb-shown {
@@ -358,9 +337,8 @@
 }
 
 .wcb-card-date {
-	font-size: var(--wcb-text-sm);
+	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary);
-	margin-inline-start: auto;
 }
 
 /* `.wcb-cbtn` base + `.wcb-cbtn--ghost` modifier + `.wcb-cbtn--sm` sizing
@@ -369,28 +347,48 @@
  * its card CTA, same as Companies (View Profile) and Find Candidates
  * (View Resume). No per-block button styles are needed here. */
 
-/* ── Grid footer overrides ───────────────────────────────────────────────── */
-.wcb-jobs-container.wcb-grid .wcb-card-date {
-	margin-inline-start: auto;
-}
-
-/* Grid footer stacks vertically so the View Job pill always sits on its
- * own row, right-aligned. Row 1 = salary (left) + date_ago (right).
- * Row 2 = CTA. */
+/* ── Grid footer — mirrors `.wcb-ca-card-footer` (Companies) for parity:
+ * single row, `justify-content: space-between`, thin top divider,
+ * `margin-top: auto` to push to card bottom. Meta (salary + date) on
+ * the left, View Job CTA on the right. */
 .wcb-jobs-container.wcb-grid .wcb-card-footer {
 	display: flex;
-	flex-direction: column;
-	align-items: stretch;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
 	gap: var(--wcb-space-sm);
+	margin-top: auto;
+	padding-top: var(--wcb-space-md);
+	border-top: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
+/* Salary + date inline on the left; the date sits next to the salary
+ * with a thin separator dot rendered via ::before. CTA on the right
+ * via `margin-inline-start: auto` so flex-wrap still works on narrow
+ * tablet columns without losing the right alignment. */
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary,
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
 	display: inline-flex;
+	align-items: center;
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date::before {
+	content: "";
+	display: inline-block;
+	width: 3px;
+	height: 3px;
+	margin-inline-end: var(--wcb-space-xs);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-text-tertiary, #cbd5e1);
 }
 
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
-	align-self: flex-end;
+	margin-inline-start: auto;
 }
 
 /* Excerpt is hidden in grid view so Find Jobs cards stay the same height

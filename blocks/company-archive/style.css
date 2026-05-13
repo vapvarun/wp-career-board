@@ -273,36 +273,10 @@
 	display: flex;
 }
 
-/* -- Trust badge -- */
-.wcb-ca-trust-badge {
-	display: none;
-	align-items: center;
-	gap: var(--wcb-space-xs); /* 0.3rem ≈ 5px → xs */
-	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-xs); /* 0.7rem ≈ 11px → xs */
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
-	white-space: nowrap;
-}
-
-.wcb-ca-trust-badge.wcb-shown {
-	display: inline-flex;
-}
-
-/*
- * List view: badge sits inline below the avatar inside the card-top column.
- * Static positioning prevents the previous absolute placement from
- * overlapping the footer/CTA on the right edge of the row.
- */
-.wcb-ca-container.wcb-list .wcb-ca-trust-badge.wcb-shown {
-	position: static;
-	align-self: center;
-}
-
-.wcb-ca-trust-badge[data-trust="verified"] { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-ca-trust-badge[data-trust="trusted"]  { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-ca-trust-badge[data-trust="premium"]  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+/* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -
+ * small green checkmark inline AFTER the company name. The old
+ * `.wcb-ca-trust-badge` pill (`"✓ Verified"` text) was retired because
+ * it broke layout in list view and the word duplicated the icon. */
 
 /* -- Card body -- */
 .wcb-ca-card-body {
@@ -448,10 +422,6 @@
 		align-self: flex-start;
 	}
 
-	.wcb-ca-container.wcb-list .wcb-ca-trust-badge.wcb-shown {
-		position: static;
-		align-self: center;
-	}
 }
 
 @media (prefers-reduced-motion: reduce) {
