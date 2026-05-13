@@ -570,6 +570,14 @@
  * so our in-block sidebar (rendered inside .wcb-cp-wrap) can use the
  * space. Selectors target the common content-column patterns found
  * across modern WP themes.
+ *
+ * `!important` policy: the rules below fight theme rules that themselves
+ * ship `!important` declarations (Astra's container width, BuddyX Pro's
+ * grid-template-columns, Reign's #sidebar display). Specificity alone
+ * cannot beat the theme's own `!important` - this is the legitimate
+ * use case the keyword exists for. Each `!important` in this section
+ * is intentional and load-bearing; do not refactor without testing
+ * against the four target themes.
  */
 .wcb-company-page #secondary,
 .wcb-company-page .widget-area,

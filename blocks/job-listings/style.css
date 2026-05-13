@@ -1,6 +1,7 @@
-/* Ensure data-wp-bind--hidden works even when elements have display:flex set below. */
+/* `[hidden]` toggle for data-wp-bind--hidden. (0,2,1) selector beats the
+ * (0,2,0) `display: flex` rules below on specificity. */
 .wp-block-wp-career-board-job-listings [hidden] {
-	display: none !important;
+	display: none;
 }
 
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
@@ -54,9 +55,11 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-layout-btn svg {
-	display: block !important;
-	visibility: visible !important;
+/* Bumped to (0,3,1) via the block class prefix so Reign's `button svg`
+ * hide rules can't suppress the layout-toggle icons. */
+.wp-block-wp-career-board-job-listings .wcb-layout-btn svg {
+	display: block;
+	visibility: visible;
 	width: var(--wcb-space-lg);
 	height: var(--wcb-space-lg);
 	flex-shrink: 0;
@@ -236,41 +239,10 @@
  * `assets/css/wcb-ui.css` and shared across all 3 archive cards. The old
  * `.wcb-verified-sm` pill ("✓ Verified" with text) is retired. */
 
-/* ── Bookmark button ─────────────────────────────────────────────────────── */
-
-/*
- * Scoped to block root + !important on reset properties: Reign's nested button
- * rules (e.g. `.entry-content .wc-block-components-button`) have specificity
- * higher than (0,2,0), so !important is required to win without coupling to
- * theme internals.
- */
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn {
-	flex-shrink: 0;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: none !important;
-	border: none !important;
-	box-shadow: none !important;
-	color: var(--wcb-text-tertiary, #cbd5e1);
-	cursor: pointer;
-	border-radius: var(--wcb-radius-sm);
-	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	padding: 0 !important;
-	position: relative;
-	z-index: 2;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn:hover {
-	color: var(--wp--preset--color--wcb-featured);
-	background: var(--wcb-warning-bg) !important;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn.wcb-bookmarked {
-	color: var(--wp--preset--color--wcb-featured);
-}
+/* Bookmark button styling lives in assets/css/wcb-ui.css under the
+ * shared `[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn`
+ * rule at (0,3,1) which beats every Reign / Astra button cascade
+ * without `!important`. No per-block override needed here. */
 
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 .wcb-card-badges {
@@ -390,8 +362,9 @@
  * wants the full job title visible on every card. Variable header height
  * is fine because the footer is bottom-anchored via `margin-top: auto`
  * further down, so the View Job CTA stays aligned across the row. */
-.wcb-jobs-container.wcb-grid .wcb-card-title-link {
-	padding: 0 !important;
+/* (0,3,1) prefix wins over Reign's nested link padding rules. */
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-card-title-link {
+	padding: 0;
 }
 
 /* Hide low-priority meta in grid view so all cards show the same chip set:
@@ -399,9 +372,11 @@
  * deadline are detail-page material - they were the main source of card-
  * height drift between Customer Success Manager (no deadline) and Backend
  * Engineer (has deadline). */
-.wcb-jobs-container.wcb-grid .wcb-cbadge--board,
-.wcb-jobs-container.wcb-grid .wcb-card-deadline {
-	display: none !important;
+/* (0,3,1) selector wins over the (0,2,0) `.wcb-cbadge.wcb-shown { display:
+ * inline-flex }` rule above on specificity, no `!important` needed. */
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-cbadge--board,
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-card-deadline {
+	display: none;
 }
 
 /* Push the footer (salary + date + View Job) to the bottom of the card so
@@ -776,6 +751,9 @@
 }
 
 /* ── Screen reader only ───────────────────────────────────────────────────── */
+/* WordPress-core class kept for parity with theme-supplied screen-reader
+ * helpers some search inputs reuse. `wcb-ui.css` ships `.wcb-sr-only`
+ * for new plugin code. */
 .screen-reader-text {
 	clip: rect(1px, 1px, 1px, 1px);
 	clip-path: inset(50%);
@@ -785,7 +763,7 @@
 	overflow: hidden;
 	padding: 0;
 	position: absolute;
-	word-wrap: normal !important;
+	word-wrap: normal;
 }
 
 /* ── Notice + error ───────────────────────────────────────────────────────── */
