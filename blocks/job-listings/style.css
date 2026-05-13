@@ -85,7 +85,14 @@
  * all three archives compute the same column count at identical viewports. */
 .wcb-jobs-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( min(100%, 280px), 1fr ) );
+	/* Force 3 explicit columns at desktop so Find Jobs renders the same 3-up
+	 * grid as Companies and Find Candidates regardless of the parent chain
+	 * padding deltas Astra applies. The auto-fill 280px template collapsed
+	 * to 2-col once we wrapped this in the sidebar layout (.wcb-archive-
+	 * layout takes ~240px out of the row). Falls back to 2-col / 1-col at
+	 * the @media breakpoints below. Mirrors the same fix used in
+	 * `blocks/company-archive/style.css` + `blocks/resume-archive/style.css`. */
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	gap: var(--wcb-space-xl);
 }
 
@@ -439,7 +446,64 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-/* Chip bar */
+/* Filter panel - chip stack
+ * Wraps chips inside `.wcb-filter-panel__group` so each filter family
+ * (Job type, Experience, Location, Salary) renders as a flex-wrap row.
+ * Width is constrained by the sidebar (~240px), so chips wrap onto
+ * additional rows automatically. */
+.wcb-filter-panel__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-filter-panel__chips .wcb-chip {
+	width: 100%;
+	justify-content: flex-start;
+}
+
+/* Salary range inside the filter panel - no popover wrapper since the
+ * panel itself is already a persistent surface. Sliders stack with their
+ * value labels for legibility at the narrow sidebar width. */
+.wcb-filter-panel__salary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__slider {
+	width: 100%;
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__label {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__value {
+	color: var(--wcb-contrast);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__reset {
+	align-self: flex-start;
+	margin-top: var(--wcb-space-xs);
+	background: transparent;
+	border: 0;
+	padding: 0;
+	color: var(--wcb-primary);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	cursor: pointer;
+}
+
+/* Chip bar (legacy - retained for blocks that still embed horizontal
+ * chip rows outside the filter panel, e.g. saved-jobs and author-feed
+ * variants of this block which intentionally skip the sidebar). */
 .wcb-chip-bar {
 	display: flex;
 	flex-wrap: wrap;
