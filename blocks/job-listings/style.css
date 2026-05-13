@@ -104,10 +104,13 @@
 	box-shadow: var(--wcb-shadow-md);
 }
 
-.wcb-job-card.wcb-featured {
-	border-color: var( --wcb-featured, #fbbf24 );
-	border-inline-start: 3px solid var( --wcb-featured, var(--wp--preset--color--wcb-featured) );
-}
+/* Featured-card visual treatment carried by the `.wcb-cbadge--featured`
+ * pill inside the card (top-right of the title row) — same affordance
+ * pattern as Find Candidates' skill chips and Companies' industry chips.
+ * The earlier yellow border + 3px corner accent broke same-family uniformity
+ * with the other two archive pages and was the visible diff the audit
+ * flagged. Featured rank is preserved through ORDER (featured jobs sort
+ * first), not through chrome divergence. */
 
 /* Full-card click target via pseudo-element — keeps the DOM link visible to AT */
 .wcb-card-title-link::after {
