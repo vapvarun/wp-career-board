@@ -431,9 +431,11 @@ a.wcb-tag:hover {
 	margin: 0;
 }
 
-.wcb-salary-highlight {
+/* Specificity bump to (0,2,1) so it beats theme `.entry-content
+ * strong` typography rules without `!important`. */
+[class*="wp-block-wp-career-board"] .wcb-salary-highlight {
 	color: var(--wcb-primary, #2563eb);
-	font-weight: var(--wcb-font-bold) !important;
+	font-weight: var(--wcb-font-bold);
 }
 
 /* ── Company card ────────────────────────────────────────────────────────── */
@@ -534,8 +536,11 @@ a.wcb-company-card-name:hover {
 	box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Hide common theme-supplied floating widgets while the apply panel is open
-   so they don't visually overlap form fields (Reign light/dark toggle, etc.). */
+/* Hide common theme-supplied floating widgets while the apply panel is
+ * open so they don't visually overlap form fields. `!important` kept:
+ * Reign / BuddyX dark-mode toggles ship their own `display: !important`
+ * on .rg-dark__scheme-toggle / [class*="scheme-toggle"] - specificity
+ * cannot beat their `!important`. */
 body:has(.wcb-apply-panel.wcb-open) .rg-dark__scheme-toggle,
 body:has(.wcb-apply-panel.wcb-open) [class*="scheme-toggle"],
 body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
@@ -729,12 +734,14 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin-top: var(--wcb-space-sm);
 }
 
-.wcb-post-apply-alert.wcb-shown {
-	display: block !important;
+/* `.wcb-shown` toggle - (0,2,1) parent prefix beats the global
+ * `.wcb-shown { display: block }` utility at (0,1,0) on specificity. */
+[class*="wp-block-wp-career-board"] .wcb-post-apply-alert.wcb-shown {
+	display: block;
 }
 
-.wcb-post-apply-alert-done.wcb-shown {
-	display: inline !important;
+[class*="wp-block-wp-career-board"] .wcb-post-apply-alert-done.wcb-shown {
+	display: inline;
 }
 
 .wcb-post-apply-alert-btn {
@@ -854,7 +861,13 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-contrast, #0f172a);
 }
 
-/* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
+/* ── Theme-agnostic sidebar + title suppression ───────────────────────────────
+ *
+ * `!important` kept: target themes (Reign, BuddyX Pro, Astra, Kadence)
+ * ship their `#sidebar` / `.entry-title` rules with their own
+ * `!important` to win over child-theme overrides. Specificity alone
+ * cannot beat a theme's `!important` - we mirror the keyword. Same
+ * pattern as company-profile/style.css and resume-single/style.css. */
 .wcb-job-page #secondary,
 .wcb-job-page .widget-area,
 .wcb-job-page aside.sidebar,

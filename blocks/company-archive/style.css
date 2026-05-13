@@ -90,10 +90,12 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-layout-btn svg,
-.wcb-view-btn svg {
-	display: block !important;
-	visibility: visible !important;
+/* (0,3,1) prefix beats Reign's `button svg` hide rules - no
+ * `!important` needed. */
+[class*="wp-block-wp-career-board"] .wcb-layout-btn svg,
+[class*="wp-block-wp-career-board"] .wcb-view-btn svg {
+	display: block;
+	visibility: visible;
 	width: var(--wcb-space-lg);
 	height: var(--wcb-space-lg);
 	flex-shrink: 0;

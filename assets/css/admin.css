@@ -1223,11 +1223,14 @@
 	opacity: 1;
 }
 
-.wcb-nav-lock-icon {
+/* (0,2,0) selector beats the inherited `[data-lucide]` 18px rule
+ * shipped by `admin/icons.css` on specificity. */
+.wcb-nav-lock-icon[data-lucide],
+.wcb-settings-nav-item .wcb-nav-lock-icon {
 	margin-left: auto;
-	width: 12px !important;
-	height: 12px !important;
-	color: var(--wcb-text-tertiary, #94a3b8) !important;
+	width: 12px;
+	height: 12px;
+	color: var(--wcb-text-tertiary, #94a3b8);
 	flex-shrink: 0;
 }
 

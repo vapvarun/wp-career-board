@@ -99,8 +99,10 @@
 	display: flex;
 }
 
-.wcb-form-steps--hidden {
-	display: none !important;
+/* (0,2,1) prefix beats the parent `.wcb-form-step--show { display: flex }`
+ * rule above on specificity. */
+[class*="wp-block-wp-career-board"] .wcb-form-steps--hidden {
+	display: none;
 }
 
 /* Section title behaves like the simple-form eyebrow. */
