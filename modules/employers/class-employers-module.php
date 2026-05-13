@@ -34,34 +34,17 @@ final class EmployersModule {
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
 		add_filter( 'template_include', array( $this, 'single_company_template' ) );
 		add_filter( 'login_redirect', array( $this, 'employer_login_redirect' ), 10, 3 );
-		add_action( 'widgets_init', array( $this, 'register_company_sidebar' ) );
 	}
 
-	/**
-	 * Register the company-profile sidebar slot.
-	 *
-	 * Site admins can drop any blocks (Career Board blocks or any
-	 * third-party block) into "Company Profile Sidebar" under
-	 * Appearance > Widgets, which since WP 5.8 is itself the block
-	 * editor. When the sidebar is empty, the company-profile block
-	 * render path falls back to three default blocks rendered inline.
-	 *
-	 * @since 1.1.1
-	 * @return void
-	 */
-	public function register_company_sidebar(): void {
-		register_sidebar(
-			array(
-				'id'            => 'wcb-company-sidebar',
-				'name'          => __( 'Company Profile Sidebar', 'wp-career-board' ),
-				'description'   => __( 'Right column on every company single page. Drop in any block. When empty, default blocks render automatically.', 'wp-career-board' ),
-				'before_widget' => '<div id="%1$s" class="wcb-cp-side-card %2$s">',
-				'after_widget'  => '</div>',
-				'before_title'  => '<h3 class="wcb-cp-side-card__title">',
-				'after_title'   => '</h3>',
-			)
-		);
-	}
+	/* Note: the `wcb-company-sidebar` widget area was retired in 1.2.x.
+	 * The company-profile block now always renders its three default
+	 * sidebar blocks (Similar Companies, Recent Jobs, Job Alert) so the
+	 * sidebar shape stays product-coherent. Site admins frequently
+	 * misassigned generic / footer widgets to the company sidebar, which
+	 * produced white-on-white footer columns inside the company profile.
+	 * If you need the widget-area pattern back, hook `register_sidebar()`
+	 * yourself and call `dynamic_sidebar()` via a filter on the rendered
+	 * block output - this plugin no longer exposes the slot. */
 
 	/**
 	 * Redirect employers to the employer dashboard after login.

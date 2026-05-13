@@ -324,19 +324,46 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 
 	</div>
 
-	<?php /* Sidebar: admin's widgets if any, otherwise 3 default blocks. */ ?>
+	<?php
+	/* Sidebar: always renders the same three plugin blocks for shape
+	 * consistency. The previous behavior swapped in admin-placed widgets
+	 * from a `wcb-company-sidebar` widget area when any were assigned,
+	 * but admins routinely misassigned footer / generic widgets there
+	 * and the company sidebar ended up showing white-on-white footer
+	 * columns.
+	 *
+	 * Extensibility hooks (use these instead of the retired widget area):
+	 *
+	 *   do_action( 'wcb_company_sidebar_before', int $company_id )
+	 *   do_action( 'wcb_company_sidebar_after',  int $company_id )
+	 *     - Echo any markup; runs inside `<aside class="wcb-cp-sidebar">`
+	 *       before or after the three default cards.
+	 *
+	 *   apply_filters( 'wcb_company_sidebar_blocks', array $blocks, int $company_id )
+	 *     - Replace, reorder, or append to the default three blocks.
+	 *       Each entry is a Gutenberg block-comment string passed to
+	 *       `do_blocks()`. Return an empty array to render nothing.
+	 */
+	$wcb_cp_sidebar_blocks = (array) apply_filters(
+		'wcb_company_sidebar_blocks',
+		array(
+			'<!-- wp:wp-career-board/similar-companies-card /-->',
+			'<!-- wp:wp-career-board/recent-jobs {"count":5,"showViewAll":true} /-->',
+			'<!-- wp:wp-career-board/job-alert-card /-->',
+		),
+		(int) $wcb_company_id
+	);
+	?>
 	<aside class="wcb-cp-sidebar" aria-label="<?php esc_attr_e( 'Company profile sidebar', 'wp-career-board' ); ?>">
 		<?php
-		if ( is_active_sidebar( 'wcb-company-sidebar' ) ) {
-			dynamic_sidebar( 'wcb-company-sidebar' );
-		} else {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_block returns pre-escaped HTML.
-			echo do_blocks( '<!-- wp:wp-career-board/similar-companies-card /-->' );
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo do_blocks( '<!-- wp:wp-career-board/recent-jobs {"count":5,"showViewAll":true} /-->' );
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo do_blocks( '<!-- wp:wp-career-board/job-alert-card /-->' );
+		do_action( 'wcb_company_sidebar_before', (int) $wcb_company_id );
+
+		foreach ( $wcb_cp_sidebar_blocks as $wcb_cp_sidebar_block ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks returns pre-escaped HTML.
+			echo do_blocks( (string) $wcb_cp_sidebar_block );
 		}
+
+		do_action( 'wcb_company_sidebar_after', (int) $wcb_company_id );
 		?>
 	</aside>
 
