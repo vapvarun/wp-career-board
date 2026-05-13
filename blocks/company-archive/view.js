@@ -34,34 +34,31 @@ const { state } = store( 'wcb-company-archive', {
 	},
 
 	callbacks: {
-		// Toggle the active state of a radio filter by comparing its `value`
-		// to the current state field. The "All …" option has an empty value
-		// so it activates whenever the filter is cleared. Null-guarded
-		// because `getElement().ref` can briefly be null during the first
-		// pre-paint pass before the Interactivity runtime wires up the DOM
-		// reference.
+		// Multi-select active-state lookups. Each checkbox carries a
+		// `data-wp-context` payload with its industry / size slug; the
+		// callback reads that and checks whether the slug is present in
+		// the active array. Mirrors the multi-select pattern Find Jobs
+		// uses for type / experience / board filters.
 		isIndustryActive() {
-			const el = getElement();
-			const ref = el && el.ref;
-			if ( ! ref ) {
+			const { industrySlug } = getContext() || {};
+			if ( ! industrySlug ) {
 				return false;
 			}
-			return ( state.industry || '' ) === ( ref.value || '' );
+			return state.industries.includes( industrySlug );
 		},
 
 		isSizeActive() {
-			const el = getElement();
-			const ref = el && el.ref;
-			if ( ! ref ) {
+			const { sizeSlug } = getContext() || {};
+			if ( ! sizeSlug ) {
 				return false;
 			}
-			return ( state.size || '' ) === ( ref.value || '' );
+			return state.sizes.includes( sizeSlug );
 		},
 
 		// Hide the "Clear all" button when no filters are active so the
 		// affordance only appears when there's something to clear.
 		noActiveFilters() {
-			return ! state.industry && ! state.size;
+			return state.industries.length === 0 && state.sizes.length === 0 && ! state.searchQuery;
 		},
 	},
 
@@ -76,22 +73,41 @@ const { state } = store( 'wcb-company-archive', {
 			localStorage.setItem( 'wcb-company-archive-layout', 'list' );
 		},
 
-		filterIndustry( event ) {
-			// Radio filter inside the sidebar panel. Each radio's value is
-			// the industry slug (empty for "All industries"). The change
-			// event fires with the freshly-checked input as `target`.
-			state.industry = ( event && event.target && event.target.value ) || '';
+		// Multi-select toggle - flips the slug in/out of the active array.
+		// Reads the slug from `data-wp-context` instead of `event.target.value`
+		// so the same handler can serve both lists without per-checkbox
+		// JSON encoding of the value attribute.
+		toggleIndustry() {
+			const { industrySlug } = getContext() || {};
+			if ( ! industrySlug ) {
+				return;
+			}
+			const idx = state.industries.indexOf( industrySlug );
+			if ( idx > -1 ) {
+				state.industries = state.industries.filter( function( s ) { return s !== industrySlug; } );
+			} else {
+				state.industries = [ ...state.industries, industrySlug ];
+			}
 			wcbFetchCompanies();
 		},
 
-		filterSize( event ) {
-			state.size = ( event && event.target && event.target.value ) || '';
+		toggleSize() {
+			const { sizeSlug } = getContext() || {};
+			if ( ! sizeSlug ) {
+				return;
+			}
+			const idx = state.sizes.indexOf( sizeSlug );
+			if ( idx > -1 ) {
+				state.sizes = state.sizes.filter( function( s ) { return s !== sizeSlug; } );
+			} else {
+				state.sizes = [ ...state.sizes, sizeSlug ];
+			}
 			wcbFetchCompanies();
 		},
 
 		clearFilters() {
-			state.industry    = '';
-			state.size        = '';
+			state.industries  = [];
+			state.sizes       = [];
 			state.searchQuery = '';
 			wcbFetchCompanies();
 		},
@@ -189,11 +205,18 @@ function wcbBuildUrl( page ) {
 	const url = new URL( state.apiBase );
 	url.searchParams.set( 'page', String( page ) );
 	url.searchParams.set( 'per_page', String( state.perPage ) );
-	if ( state.industry ) {
-		url.searchParams.set( 'industry', state.industry );
+	// Multi-select: send each selected slug as `industry[]=slug` so the
+	// REST handler receives an array (PHP `$request->get_param('industry')`
+	// resolves to an array when the same key appears multiple times).
+	if ( state.industries && state.industries.length ) {
+		state.industries.forEach( function( slug ) {
+			url.searchParams.append( 'industry[]', slug );
+		} );
 	}
-	if ( state.size ) {
-		url.searchParams.set( 'size', state.size );
+	if ( state.sizes && state.sizes.length ) {
+		state.sizes.forEach( function( slug ) {
+			url.searchParams.append( 'size[]', slug );
+		} );
 	}
 	if ( state.searchQuery ) {
 		url.searchParams.set( 'search', state.searchQuery );

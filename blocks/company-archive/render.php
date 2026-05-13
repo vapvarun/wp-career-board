@@ -199,8 +199,8 @@ $wcb_state = array(
 	'loading'     => false,
 	'hasMore'     => count( $wcb_companies_raw ) < $wcb_companies_total,
 	'apiBase'     => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industry'    => '',
-	'size'        => '',
+	'industries'  => array(),
+	'sizes'       => array(),
 	'searchQuery' => '',
 	'restNonce'   => wp_create_nonce( 'wp_rest' ),
 );
@@ -286,19 +286,20 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 
+			<?php
+			/* Industry + Company Size are multi-select - users can OR
+					across multiple values, same as Find Jobs (type + experience
+					+ board) and Find Candidates (skills + availability). The
+					old single-select radio model meant filtering to "Tech OR
+					Finance" was impossible. */
+			?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
-					<li>
-						<label class="wcb-filter-panel__option">
-							<input type="radio" name="wcb-ca-industry" value="" data-wp-on--change="actions.filterIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
-							<span><?php esc_html_e( 'All industries', 'wp-career-board' ); ?></span>
-						</label>
-					</li>
 					<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
 						<li>
-							<label class="wcb-filter-panel__option">
-								<input type="radio" name="wcb-ca-industry" value="<?php echo esc_attr( $wcb_ind_val ); ?>" data-wp-on--change="actions.filterIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
+							<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'industrySlug' => $wcb_ind_val ) ) ); ?>">
+								<input type="checkbox" data-wp-on--change="actions.toggleIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
 								<span><?php echo esc_html( $wcb_ind_lbl ); ?></span>
 							</label>
 						</li>
@@ -309,16 +310,10 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
-					<li>
-						<label class="wcb-filter-panel__option">
-							<input type="radio" name="wcb-ca-size" value="" data-wp-on--change="actions.filterSize" data-wp-bind--checked="callbacks.isSizeActive" />
-							<span><?php esc_html_e( 'All sizes', 'wp-career-board' ); ?></span>
-						</label>
-					</li>
 					<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
 						<li>
-							<label class="wcb-filter-panel__option">
-								<input type="radio" name="wcb-ca-size" value="<?php echo esc_attr( $wcb_size_key ); ?>" data-wp-on--change="actions.filterSize" data-wp-bind--checked="callbacks.isSizeActive" />
+							<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'sizeSlug' => $wcb_size_key ) ) ); ?>">
+								<input type="checkbox" data-wp-on--change="actions.toggleSize" data-wp-bind--checked="callbacks.isSizeActive" />
 								<span><?php echo esc_html( $wcb_size_lbl ); ?></span>
 							</label>
 						</li>
@@ -415,7 +410,22 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				</a>
 			</article>
 		</template>
-		<p class="wcb-no-results wcb-notice-error" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
+		<?php
+		/* Empty state mirrors the Find Jobs + Find Candidates card chrome
+		(`.wcb-empty-state` paint declared in `assets/css/wcb-ui.css`)
+		so all 3 archives degrade with the same affordance. The Clear
+		all CTA wipes both filters + the search query. */
+		?>
+<div class="wcb-empty-state" role="status" data-wp-bind--hidden="!state.hasNoCompanies">
+	<div class="wcb-empty-state__icon" aria-hidden="true">
+		<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+	</div>
+	<h3 class="wcb-empty-state__title"><?php esc_html_e( 'No companies match your filters', 'wp-career-board' ); ?></h3>
+	<p class="wcb-empty-state__body"><?php esc_html_e( 'Try removing a filter or clearing them all to see more results.', 'wp-career-board' ); ?></p>
+	<button type="button" class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters">
+		<?php esc_html_e( 'Clear filters', 'wp-career-board' ); ?>
+	</button>
+</div>
 	</div>
 
 		<?php /* ── Load more ── */ ?>

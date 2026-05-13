@@ -185,22 +185,33 @@ final class CompaniesEndpoint extends RestController {
 			$args['s'] = sanitize_text_field( $search );
 		}
 
+		// Industry + size accept either a single slug (legacy) or an array
+		// of slugs (multi-select sidebar). Normalize to an array and use
+		// `compare => IN` so callers can OR across multiple values.
 		$industry = $request->get_param( 'industry' );
 		if ( $industry ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_industry',
-				'value'   => sanitize_text_field( $industry ),
-				'compare' => '=',
-			);
+			$industry_values = array_map( 'sanitize_text_field', (array) $industry );
+			$industry_values = array_values( array_filter( $industry_values, 'strlen' ) );
+			if ( ! empty( $industry_values ) ) {
+				$args['meta_query'][] = array(
+					'key'     => '_wcb_industry',
+					'value'   => $industry_values,
+					'compare' => 'IN',
+				);
+			}
 		}
 
 		$size = $request->get_param( 'size' );
 		if ( $size ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_company_size',
-				'value'   => sanitize_text_field( $size ),
-				'compare' => '=',
-			);
+			$size_values = array_map( 'sanitize_text_field', (array) $size );
+			$size_values = array_values( array_filter( $size_values, 'strlen' ) );
+			if ( ! empty( $size_values ) ) {
+				$args['meta_query'][] = array(
+					'key'     => '_wcb_company_size',
+					'value'   => $size_values,
+					'compare' => 'IN',
+				);
+			}
 		}
 
 		$query = new \WP_Query( $args );
@@ -432,14 +443,19 @@ final class CompaniesEndpoint extends RestController {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			// `industry` + `size` accept an array of slugs so the sidebar's
+			// multi-select checkboxes can OR across values. WP REST coerces
+			// `industry[]=design&industry[]=tech` into an array when the
+			// declared type is `array`; declaring it as `string` (as the
+			// schema previously did) made WP silently flatten the array
+			// to its last value, so only one slug was ever filtered on.
 			'industry' => array(
-				'type'              => 'string',
-				'enum'              => array_merge( array( '' ), \WCB\Core\Industries::slugs() ),
-				'sanitize_callback' => 'sanitize_text_field',
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
 			),
 			'size'     => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
 			),
 			'page'     => array(
 				'type'    => 'integer',

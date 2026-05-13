@@ -674,9 +674,24 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</div>
 			</article>
 		</template>
+		<?php
+		/* Empty state renders as a self-contained card so it carries
+				visible weight inside the wide results column instead of
+				floating as a thin icon + line. Title (heading), body (hint),
+				and a "Clear filters" CTA that only shows when filters are
+				active - clicking it routes to `actions.clearFilters` which
+				wipes activeFilters + re-fetches. Mirrors the same card
+				chrome used by Companies + Find Candidates empty states. */
+		?>
 		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status" <?php echo $wcb_jobs_raw ? 'hidden' : ''; ?>>
-			<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			<p class="wcb-empty-state-text"><?php esc_html_e( 'No jobs match your search. Try adjusting your filters.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state__icon" aria-hidden="true">
+				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			</div>
+			<h3 class="wcb-empty-state__title"><?php esc_html_e( 'No jobs match your filters', 'wp-career-board' ); ?></h3>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Try removing a filter or clearing them all to see more results.', 'wp-career-board' ); ?></p>
+			<button type="button" class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-on--click="actions.clearFilters" data-wp-bind--hidden="state.noActiveFilters">
+				<?php esc_html_e( 'Clear filters', 'wp-career-board' ); ?>
+			</button>
 		</div>
 	</div>
 

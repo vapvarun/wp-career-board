@@ -373,6 +373,81 @@ textarea.wcb-input {
 .wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
 .wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
 
+/* ── Archive empty state — shared card chrome across all 3 archives ───────
+ * Renders as a real card (white background, soft border, generous padding)
+ * so the "no results" message has the same visual weight as a card cell
+ * in the grid. Title + body + optional CTA stacked center-aligned. Used
+ * by `.wcb-empty-state` (Find Jobs), `.wcb-ca-empty` (Companies), and
+ * `.wcb-ra-empty` (Find Candidates) so all three archives degrade
+ * identically when filters return zero. */
+.wcb-empty-state,
+.wcb-ca-empty,
+.wcb-ra-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	text-align: center;
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+/* `data-wp-bind--hidden` sets the HTML `hidden` attribute; the user-agent
+ * default `[hidden] { display: none }` loses to our `display: flex` rule
+ * above on specificity. Force `display: none` back when the attribute is
+ * present so the empty state actually hides when there's data. */
+.wcb-empty-state[hidden],
+.wcb-ca-empty[hidden],
+.wcb-ra-empty[hidden] {
+	display: none !important;
+}
+
+.wcb-empty-state__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--wcb-space-4xl);
+	height: var(--wcb-space-4xl);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-surface, #f1f5f9);
+	color: var(--wcb-text-tertiary, #94a3b8);
+}
+
+.wcb-empty-state__icon svg,
+.wcb-empty-state__icon [data-lucide] {
+	width: var(--wcb-icon-lg);
+	height: var(--wcb-icon-lg);
+}
+
+.wcb-empty-state__title {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.3;
+	font-family: inherit;
+}
+
+.wcb-empty-state__body {
+	margin: 0;
+	max-width: 360px;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.5;
+}
+
+/* Span the full row inside a card grid so the empty state doesn't get
+ * squeezed into a single column track. Applies on every archive grid. */
+.wcb-jobs-container.wcb-grid > .wcb-empty-state,
+.wcb-ca-container.wcb-grid > .wcb-ca-empty,
+.wcb-ra-grid > .wcb-ra-empty {
+	grid-column: 1 / -1;
+}
+
 /* ── Dashboard "My Saves" list pattern — shared across both dashboards ─────
  * Used by Saved Jobs / Saved Companies / Saved Resumes views in both the
  * candidate AND employer dashboards. The classes carry the legacy
