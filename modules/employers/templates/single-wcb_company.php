@@ -2,17 +2,28 @@
 /**
  * Generic single company template for all themes.
  *
- * Mirrors `single-wcb_job.php` and Pro's `single-wcb_resume.php`: renders
- * the wcb/company-profile block inside the active theme's standard
- * header/footer wrapped in `.wcb-archive-shell` so single company pages
- * inherit the same 1280px max-width + responsive padding as the archive
- * pages. Without the shell wrapper the company-profile hero card stretches
- * to the viewport edges (no left/right gap) and butts against the theme's
- * sticky header (no top gap) — the gap-collapse observed on the
- * `/companies/starter-labs/` audit.
+ * Renders the wcb/company-profile block via the standard WP loop with
+ * `the_content()` so the theme's `the_content` typography wrappers
+ * (`.entry-content` for Astra, equivalents for other themes) apply —
+ * keeping single CPT pages typographically uniform with archive pages
+ * (which already run through `the_content`). The block injection itself
+ * is handled by `Employers_Module::inject_company_profile()` hooked on
+ * `the_content`, so the block reaches the page even when the wcb_company
+ * post body is empty.
  *
- * Theme integrations may override this template via `single_template`;
- * this file is the universal fallback.
+ * The output is wrapped in `<article class="entry-content">` so the
+ * theme's content typography (font-family, font-size, line-height
+ * declared on `.entry-content`) applies uniformly between archive pages
+ * (where the theme injects `.entry-content` via its own page template)
+ * and single CPT pages (where the theme defers to this template).
+ * Without the explicit wrapper, themes that key typography off
+ * `body.single-*` body classes produced a visible font divergence
+ * between `/companies/` and `/companies/{slug}/`.
+ *
+ * `.wcb-archive-shell` keeps the 1280px canonical container so single
+ * CPT pages share the gap shape of archive pages. Theme integrations
+ * may override this template via `single_template`; this file is the
+ * universal fallback.
  *
  * @package WP_Career_Board
  * @since   1.2.0
@@ -27,8 +38,14 @@ get_header();
 <div id="primary" class="wcb-archive-shell wcb-archive-shell--single">
 	<main class="wcb-archive-main">
 		<?php
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.
-		echo do_blocks( '<!-- wp:wp-career-board/company-profile /-->' );
+		while ( have_posts() ) :
+			the_post();
+			?>
+			<article id="post-<?php the_ID(); ?>" <?php post_class( 'wcb-single entry-content' ); ?>>
+				<?php the_content(); ?>
+			</article>
+			<?php
+		endwhile;
 		?>
 	</main>
 </div>
