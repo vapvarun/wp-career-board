@@ -630,13 +630,23 @@ wp_interactivity_state(
 				<?php endif; ?>
 			</div>
 
-			<?php /* Share bar */ ?>
+			<?php
+			/*
+			Share bar — wrapped in sidebar-card chrome so it
+			 * matches Job Details + About the Company card density
+			 * instead of floating as an orphan between two cards. */
+			?>
 			<?php
 			$wcb_share_url    = rawurlencode( (string) get_permalink( $wcb_job_id ) );
 			$wcb_share_title  = rawurlencode( $wcb_job->post_title );
 			$wcb_twitter_url  = 'https://x.com/intent/tweet?text=' . $wcb_share_title . '&url=' . $wcb_share_url;
 			$wcb_linkedin_url = 'https://www.linkedin.com/sharing/share-offsite/?url=' . $wcb_share_url;
 			?>
+			<div class="wcb-sidebar-card wcb-share-card">
+				<h3 class="wcb-card-title">
+					<?php echo \WCB\Core\Icon::svg( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php esc_html_e( 'Share', 'wp-career-board' ); ?>
+				</h3>
 			<div class="wcb-share-bar">
 				<span class="wcb-share-label"><?php esc_html_e( 'Share:', 'wp-career-board' ); ?></span>
 				<a
@@ -670,6 +680,7 @@ wp_interactivity_state(
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 					</span>
 				</button>
+			</div>
 			</div>
 
 			<?php /* Company card */ ?>
