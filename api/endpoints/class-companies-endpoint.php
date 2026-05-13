@@ -172,11 +172,20 @@ final class CompaniesEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_items( $request ): \WP_REST_Response {
+		// Sort parity with /jobs and /resumes - accepts orderby=date and
+		// order=ASC|DESC. Default newest-first to match the SSR first paint.
+		$orderby = sanitize_key( (string) ( $request->get_param( 'orderby' ) ?? 'date' ) );
+		$order   = strtoupper( sanitize_key( (string) ( $request->get_param( 'order' ) ?? 'DESC' ) ) );
+		$orderby = 'date' === $orderby ? 'date' : 'date'; // only `date` allowed for now.
+		$order   = 'ASC' === $order ? 'ASC' : 'DESC';
+
 		$args = array(
 			'post_type'      => 'wcb_company',
 			'post_status'    => 'publish',
 			'posts_per_page' => min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 ),
 			'paged'          => max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 ),
+			'orderby'        => $orderby,
+			'order'          => $order,
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 

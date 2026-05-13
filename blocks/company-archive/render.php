@@ -208,6 +208,10 @@ $wcb_state = array(
 	'industries'  => array(),
 	'sizes'       => array(),
 	'searchQuery' => '',
+	// Sort order pinned to the same option set as jobs + resumes
+	// (date_desc | date_asc). View.js piping sets ?orderby=date&order=ASC|DESC
+	// on the REST call so the server-side query matches the UI choice.
+	'sortBy'      => 'date_desc',
 	'restNonce'   => wp_create_nonce( 'wp_rest' ),
 );
 
@@ -225,12 +229,14 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<?php endif; ?>
 
 	<?php
-	/* ── Search row mirrors job-listings and resume-archive so all three
-			archives share one shape: a full-width search input above the
-			toolbar, with the filter sidebar starting below. Wired to
-			state.searchQuery + actions.updateSearch in view.js. */
+	/* ── Search + sort row. Same shape as job-listings and resume-archive
+			so all three archives use one canonical pattern: a full-width
+			search input on the left, Newest/Oldest sort dropdown on the
+			right. Class names also match (.wcb-search-sort-row) so the
+			shared wcb-ui.css rules in `.wcb-listings-header *` paint
+			every archive identically. */
 	?>
-	<div class="wcb-ca-search-row">
+	<div class="wcb-search-sort-row">
 		<div class="wcb-search-wrap">
 			<span class="wcb-search-icon" aria-hidden="true" data-wp-ignore>
 				<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
@@ -245,6 +251,15 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				data-wp-on--input="actions.updateSearch"
 			/>
 		</div>
+		<select
+			class="wcb-sort-select"
+			aria-label="<?php esc_attr_e( 'Sort companies', 'wp-career-board' ); ?>"
+			data-wp-on--change="actions.changeSort"
+			data-wp-bind--value="state.sortBy"
+		>
+			<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
+			<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
+		</select>
 	</div>
 
 	<?php

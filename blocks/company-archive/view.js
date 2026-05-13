@@ -158,6 +158,14 @@ const { state } = store( 'wcb-company-archive', {
 			wcbSearchTimer = setTimeout( wcbFetchCompanies, 250 );
 		},
 
+		// Sort dropdown - mirrors jobs + resumes. Resets to page 1 and
+		// re-fetches so newest/oldest order is reflected immediately.
+		changeSort( event ) {
+			const value = ( event && event.target && event.target.value ) || 'date_desc';
+			state.sortBy = value;
+			wcbFetchCompanies();
+		},
+
 		*loadMore() {
 			if ( state.loading ) {
 				return;
@@ -220,6 +228,16 @@ function wcbBuildUrl( page ) {
 	}
 	if ( state.searchQuery ) {
 		url.searchParams.set( 'search', state.searchQuery );
+	}
+	// Sort: REST endpoint accepts orderby + order (date | ASC/DESC).
+	// Default `date_desc` matches the SSR-painted first page so the
+	// initial UI doesn't shuffle on the first client-side fetch.
+	if ( state.sortBy === 'date_asc' ) {
+		url.searchParams.set( 'orderby', 'date' );
+		url.searchParams.set( 'order', 'ASC' );
+	} else {
+		url.searchParams.set( 'orderby', 'date' );
+		url.searchParams.set( 'order', 'DESC' );
 	}
 	return url.toString();
 }
