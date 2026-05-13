@@ -164,11 +164,16 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get bookmarksCount() {
 			return state.bookmarks.length;
 		},
+		// `savedCompaniesCountSeed` + `savedResumesCountSeed` are bootstrapped
+		// from PHP at render time so the sidebar badges show the correct
+		// total BEFORE the user clicks the tab (the lazy fetch only kicks
+		// in on tab open). Once the user has fetched, the live array length
+		// is the source of truth.
 		get savedCompaniesCount() {
-			return state.savedCompanies.length;
+			return state.savedCompanies.length || ( state.savedCompaniesCountSeed || 0 );
 		},
 		get savedResumesCount() {
-			return state.savedResumes.length;
+			return state.savedResumes.length || ( state.savedResumesCountSeed || 0 );
 		},
 
 		// Empty / populated state per panel.

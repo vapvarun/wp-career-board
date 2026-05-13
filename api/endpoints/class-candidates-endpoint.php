@@ -530,8 +530,21 @@ final class CandidatesEndpoint extends RestController {
 
 				$candidate_id   = (int) $post->post_author;
 				$candidate_name = $candidate_id ? get_the_author_meta( 'display_name', $candidate_id ) : $post->post_title;
-				$job_title      = (string) get_post_meta( $post->ID, '_wcb_job_title', true );
-				$location       = (string) get_post_meta( $post->ID, '_wcb_location', true );
+
+				// Job title + location live in `_wcb_resume_experience` (an
+				// array of work entries); the first entry is the most recent
+				// role. Same shape the public archive uses in
+				// `WCB\Pro\Modules\Resume\ResumeModule::build_archive_item`,
+				// so the dashboard meta line matches what users saw when they
+				// bookmarked the resume.
+				$experience = (array) get_post_meta( $post->ID, '_wcb_resume_experience', true );
+				$job_title  = '';
+				$location   = '';
+				if ( ! empty( $experience ) ) {
+					$first     = reset( $experience );
+					$job_title = isset( $first['job_title'] ) ? (string) $first['job_title'] : '';
+					$location  = isset( $first['location'] ) ? (string) $first['location'] : '';
+				}
 
 				$items[] = array(
 					'id'        => $post->ID,

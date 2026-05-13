@@ -77,7 +77,7 @@ wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array_merge(
 		array(
-			'strings'                => array(
+			'strings'                 => array(
 				'tabOverview'          => __( 'Overview', 'wp-career-board' ),
 				'tabApplications'      => __( 'My Applications', 'wp-career-board' ),
 				'tabBookmarks'         => __( 'Saved Jobs', 'wp-career-board' ),
@@ -108,37 +108,41 @@ wp_interactivity_state(
 				'confirmEraseConfirm'  => __( 'Send confirmation email', 'wp-career-board' ),
 				'errPrivacy'           => __( 'Could not submit your privacy request. Please try again or contact support.', 'wp-career-board' ),
 			),
-			'tab'                    => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
-			'savedJobsCount'         => $wcb_saved_jobs_count,
-			'applications'           => array(),
-			'bookmarks'              => array(),
-			'savedCompanies'         => array(),
-			'savedCompaniesLoading'  => false,
-			'savedCompaniesError'    => '',
-			'savedResumes'           => array(),
-			'savedResumesLoading'    => false,
-			'savedResumesError'      => '',
-			'resumes'                => array(),
-			'loading'                => false,
-			'error'                  => '',
-			'apiBase'                => untrailingslashit( rest_url( 'wcb/v1' ) ),
-			'nonce'                  => wp_create_nonce( 'wp_rest' ),
-			'candidateId'            => $wcb_candidate_id,
-			'candidateName'          => $wcb_display_name,
+			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
+			'savedJobsCount'          => $wcb_saved_jobs_count,
+			'applications'            => array(),
+			'bookmarks'               => array(),
+			'savedCompanies'          => array(),
+			'savedCompaniesLoading'   => false,
+			'savedCompaniesError'     => '',
+			'savedCompaniesCountSeed' => (int) count( (array) get_user_meta( $wcb_candidate_id, '_wcb_company_bookmark', false ) ),
+			'savedResumes'            => array(),
+			'savedResumesLoading'     => false,
+			'savedResumesError'       => '',
+			'savedResumesCountSeed'   => post_type_exists( 'wcb_resume' )
+				? (int) count( (array) get_user_meta( $wcb_candidate_id, '_wcb_resume_bookmark', false ) )
+				: 0,
+			'resumes'                 => array(),
+			'loading'                 => false,
+			'error'                   => '',
+			'apiBase'                 => untrailingslashit( rest_url( 'wcb/v1' ) ),
+			'nonce'                   => wp_create_nonce( 'wp_rest' ),
+			'candidateId'             => $wcb_candidate_id,
+			'candidateName'           => $wcb_display_name,
 			// `resumesEnabled` is true when Pro's Resumes module is loaded
 			// (regardless of whether the customer has dropped a wcb/resume-builder
 			// block). On Free-only installs, the My Resumes tab and the
 			// `/wcb/v1/candidates/{id}/resumes` REST call are both Pro-only —
 			// gating here prevents the "Could not load your resumes." 402 error
 			// surfaced in the candidate-dashboard audit on 2026-05-06.
-			'resumesEnabled'         => (bool) apply_filters( 'wcb_pro_resumes_enabled', false ) || $wcb_resume_builder_embedded,
-			'dashboardUrl'           => $wcb_dashboard_url,
-			'resumeBuilderEmbedded'  => $wcb_resume_builder_embedded,
-			'resumeEmbedId'          => $wcb_resume_embed_id,
-			'showNewResumeForm'      => false,
-			'newResumeTitle'         => '',
-			'customFieldGroups'      => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
-			'customFields'           => (object) (
+			'resumesEnabled'          => (bool) apply_filters( 'wcb_pro_resumes_enabled', false ) || $wcb_resume_builder_embedded,
+			'dashboardUrl'            => $wcb_dashboard_url,
+			'resumeBuilderEmbedded'   => $wcb_resume_builder_embedded,
+			'resumeEmbedId'           => $wcb_resume_embed_id,
+			'showNewResumeForm'       => false,
+			'newResumeTitle'          => '',
+			'customFieldGroups'       => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
+			'customFields'            => (object) (
 				$wcb_candidate_id > 0
 					? \WCB\Core\FormCustomFields::load_values(
 						(array) apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
@@ -147,18 +151,18 @@ wp_interactivity_state(
 					)
 					: array()
 			),
-			'profileBio'             => get_the_author_meta( 'description', $wcb_candidate_id ),
-			'profileEmail'           => $wcb_current_user->user_email,
+			'profileBio'              => get_the_author_meta( 'description', $wcb_candidate_id ),
+			'profileEmail'            => $wcb_current_user->user_email,
 			// Phone + Location surfaced from the structured `_wcb_resume_data`
 			// user meta so the candidate profile UI matches the contact info
 			// rendered in resume-single + Pro's resume PDF download.
-			'profilePhone'           => (string) (
+			'profilePhone'            => (string) (
 				static function () use ( $wcb_candidate_id ): string {
 					$wcb_rd = get_user_meta( $wcb_candidate_id, '_wcb_resume_data', true );
 					return is_array( $wcb_rd ) ? (string) ( $wcb_rd['phone'] ?? '' ) : '';
 				}
 			)(),
-			'profileLocation'        => (string) (
+			'profileLocation'         => (string) (
 				static function () use ( $wcb_candidate_id ): string {
 					$wcb_rd = get_user_meta( $wcb_candidate_id, '_wcb_resume_data', true );
 					if ( is_array( $wcb_rd ) && ! empty( $wcb_rd['location'] ) ) {
@@ -167,21 +171,21 @@ wp_interactivity_state(
 					return (string) get_user_meta( $wcb_candidate_id, '_wcb_location', true );
 				}
 			)(),
-			'profileSaving'          => false,
-			'profileSaved'           => false,
-			'passwordResetUrl'       => wp_lostpassword_url( $wcb_dashboard_url ),
-			'bellNotifications'      => array(),
-			'bellUnreadCount'        => 0,
-			'bellOpen'               => false,
-			'bellLoading'            => false,
-			'bellEnabled'            => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
-			'alerts'                 => array(),
-			'alertsLoading'          => false,
+			'profileSaving'           => false,
+			'profileSaved'            => false,
+			'passwordResetUrl'        => wp_lostpassword_url( $wcb_dashboard_url ),
+			'bellNotifications'       => array(),
+			'bellUnreadCount'         => 0,
+			'bellOpen'                => false,
+			'bellLoading'             => false,
+			'bellEnabled'             => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
+			'alerts'                  => array(),
+			'alertsLoading'           => false,
 			// Withdraw is gated by BOTH the site setting and the user ability —
 			// admins disable the setting on sites that want apply-once-final
 			// flows. Intended default is ON: a fresh install (no saved value)
 			// lets candidates withdraw, mirroring the REST gate's default.
-			'allowWithdraw'          => (
+			'allowWithdraw'           => (
 				static function (): bool {
 					if ( ! \WCB\Admin\Settings::bool( 'allow_withdraw', true ) ) {
 						return false;
@@ -189,14 +193,14 @@ wp_interactivity_state(
 					return wp_is_ability_granted( 'wcb/withdraw-application' );
 				}
 			)(),
-			'privacyBusy'            => false,
-			'privacyExportRequested' => false,
-			'privacyEraseRequested'  => false,
-			'privacyError'           => '',
+			'privacyBusy'             => false,
+			'privacyExportRequested'  => false,
+			'privacyEraseRequested'   => false,
+			'privacyError'            => '',
 			// Site-default currency symbol — surfaced to the saved-search filter
 			// pill labels in view.js so dashboards on INR / EUR / etc. don't show
 			// a hardcoded $ on the alert summary.
-			'currencySymbol'         => (
+			'currencySymbol'          => (
 				static function (): string {
 					$wcb_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
 					$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
