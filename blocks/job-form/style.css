@@ -52,13 +52,13 @@
 
 .wcb-step--active {
 	background: var(--wcb-primary, #2563eb);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	font-weight: var(--wcb-font-semibold);
 }
 
 .wcb-step--active .wcb-step__num {
 	background: rgba(255, 255, 255, 0.2);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 }
 
 .wcb-step--done {
@@ -68,7 +68,7 @@
 
 .wcb-step--done .wcb-step__num {
 	background: var(--wcb-success);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	font-size: 0;
 }
 
@@ -135,7 +135,7 @@
 .wcb-required {
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
-	margin-inline-start: 2px;
+	margin-inline-start: 2px; /* hairline gap */
 }
 
 .wcb-form-hint {
@@ -184,7 +184,7 @@
 
 textarea.wcb-field {
 	resize: vertical;
-	min-height: 200px;
+	min-height: 200px; /* component-specific dimension */
 	line-height: var(--wcb-leading-normal);
 }
 
@@ -263,7 +263,7 @@ textarea.wcb-field {
 	align-items: center;
 	justify-content: center;
 	gap: var(--wcb-space-xs);
-	min-width: 160px;
+	min-width: 160px; /* component-specific button width */
 	padding: var(--wcb-space-md) var(--wcb-space-2xl);
 	border: 0;
 	border-radius: var(--wcb-radius-md);
@@ -280,7 +280,7 @@ textarea.wcb-field {
 
 .wcb-btn--primary {
 	background: var(--wcb-primary, #2563eb);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	box-shadow: var(--wcb-shadow-sm);
 	margin-inline-start: auto;
 }
@@ -538,7 +538,7 @@ textarea.wcb-field {
 	height: var(--wcb-space-3xl);
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	flex-shrink: 0;
@@ -563,7 +563,7 @@ textarea.wcb-field {
 .wcb-form-success__reset {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.5rem 1rem;
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
 	margin-top: var(--wcb-space-sm);
 	background: transparent;
 	border: 1.5px solid var(--wcb-success-border);
@@ -578,7 +578,7 @@ textarea.wcb-field {
 .wcb-form-success__reset:hover,
 .wcb-form-success__reset:focus {
 	background: var(--wcb-success);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	outline: none;
 }
 
@@ -629,7 +629,7 @@ textarea.wcb-field {
 /* ── Honeypot (anti-spam) ────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
-	left: -10000px;
+	left: -10000px; /* off-screen honeypot */
 	top: auto;
 	width: 1px;
 	height: 1px;
