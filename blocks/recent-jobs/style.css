@@ -94,7 +94,7 @@
 .wcb-job-widget-body {
 	display: flex;
 	flex-direction: column;
-	gap: 0.2rem;
+	gap: var(--wcb-space-xs);
 	min-width: 0;
 }
 
@@ -122,9 +122,9 @@
 
 .wcb-badge {
 	display: inline-block;
-	padding: 0.125rem var(--wcb-space-sm);
+	padding: 2px var(--wcb-space-sm);
 	border-radius: var(--wcb-radius-full);
-	font-size: 0.6875rem;
+	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
 	line-height: 1.4;
 }
@@ -140,7 +140,7 @@
 }
 
 .wcb-job-widget-age {
-	font-size: 0.6875rem;
+	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary);
 }
 
