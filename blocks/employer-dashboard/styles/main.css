@@ -68,12 +68,24 @@
 	gap: var(--wcb-space-xl);
 }
 
-/* -- Panel (card container) -- */
+/* -- Panel (card container) -- matches the `.wcb-card` look from `wcb-ui.css`
+ * so employer + candidate dashboards read as one product. `.wcb-panel--form`
+ * adds inner padding for tab panels whose children are form fields rather
+ * than row primitives. */
 .wcb-panel {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
 	overflow: hidden;
+}
+
+.wcb-panel--form {
+	padding: var(--wcb-space-xl);
+}
+
+@media (max-width: 640px) {
+	.wcb-panel--form { padding: var(--wcb-space-lg); }
 }
 
 /* `.wcb-panel-header` and `.wcb-panel-body` live globally in

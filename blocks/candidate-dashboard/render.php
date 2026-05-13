@@ -668,7 +668,7 @@ wp_interactivity_state(
 				<span class="wcb-cd-spinner" aria-hidden="true"></span>
 			</div>
 
-			<div aria-live="polite" data-wp-class--wcb-shown="state.hasAlerts">
+			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasAlerts">
 				<template data-wp-each--alert="state.alerts" data-wp-each-key="context.alert.id">
 					<div class="wcb-alert-row">
 						<div class="wcb-alert-main">
@@ -704,10 +704,10 @@ wp_interactivity_state(
 
 	<!-- ── Profile panel ──────────────────────────────────────────── -->
 	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-profile" data-wp-class--wcb-view-active="state.isTabProfile">
-		<div class="wcb-panel-header">
-			<span class="wcb-panel-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></span>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></h1>
 		</div>
-		<div class="wcb-panel wcb-shown">
+		<div class="wcb-panel wcb-panel--form wcb-shown">
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-profile-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
 				<input
@@ -782,10 +782,10 @@ wp_interactivity_state(
 
 	<!-- ── Settings panel ─────────────────────────────────────────── -->
 	<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isTabSettings">
-		<div class="wcb-panel-header">
-			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></h1>
 		</div>
-		<div class="wcb-panel wcb-shown">
+		<div class="wcb-panel wcb-panel--form wcb-shown">
 			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
 				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
 				<div class="wcb-settings-row-control">
@@ -803,8 +803,8 @@ wp_interactivity_state(
 		</div>
 
 		<!-- ── Privacy & data controls (GDPR self-service, A-11) ─────── -->
-		<div class="wcb-panel-header" style="margin-top: var(--wcb-space-xl);">
-			<span class="wcb-panel-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></span>
+		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
+			<h2 class="wcb-page-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-panel wcb-shown wcb-privacy-panel">
 			<p class="wcb-privacy-desc">

@@ -17,6 +17,47 @@
 import { store, getContext } from '@wordpress/interactivity';
 
 /**
+ * Tabs that are eligible to appear in the URL hash. Anything outside this
+ * allowlist is ignored on read so a stale `#whatever` never lands the user
+ * in an undefined tab state.
+ */
+const VALID_TABS = [
+	'overview',
+	'applications',
+	'bookmarks',
+	'resumes',
+	'resume-builder',
+	'alerts',
+	'profile',
+	'settings',
+];
+
+/**
+ * Read the active tab slug from the current URL hash, or null if missing/invalid.
+ */
+function readHashTab() {
+	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
+	return VALID_TABS.includes( raw ) ? raw : null;
+}
+
+/**
+ * Sync the URL hash to a given tab slug without pushing a new history entry.
+ * `replaceState` keeps Back/Forward predictable — one entry per real navigation,
+ * not per tab click. Skip the write when the hash already matches.
+ */
+function writeHashTab( tab ) {
+	if ( ! VALID_TABS.includes( tab ) ) {
+		return;
+	}
+	const target = '#' + tab;
+	if ( window.location.hash === target ) {
+		return;
+	}
+	const url = window.location.pathname + window.location.search + target;
+	window.history.replaceState( null, '', url );
+}
+
+/**
  * Convert an alert's filters JSON string/object into readable pill labels.
  */
 function buildFilterPills( filters ) {
@@ -176,13 +217,27 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 	actions: {
 		*init() {
-			// Restore last active tab from sessionStorage (skip if URL forces resume-builder).
-			if ( state.tab === 'overview' ) {
+			// Tab restoration priority: URL hash → sessionStorage → server default.
+			// Hash wins so deep-links / shared URLs / browser back-forward land on
+			// the intended tab regardless of any prior session activity.
+			const hashTab = readHashTab();
+			if ( hashTab ) {
+				state.tab = hashTab;
+			} else if ( state.tab === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_candidate_tab' );
 				if ( saved ) {
 					state.tab = saved;
 				}
 			}
+			writeHashTab( state.tab );
+
+			// Browser back/forward and manual hash edits stay in sync.
+			window.addEventListener( 'hashchange', () => {
+				const next = readHashTab();
+				if ( next && next !== state.tab ) {
+					state.tab = next;
+				}
+			} );
 
 			state.loading = true;
 			state.error   = '';
@@ -258,6 +313,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'overview';
 			state.navOpen = false;
 			sessionStorage.removeItem( 'wcb_candidate_tab' );
+			writeHashTab( 'overview' );
 		},
 
 		switchToApplications() {
@@ -265,6 +321,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'applications' );
+			writeHashTab( 'applications' );
 		},
 
 		*switchToBookmarks() {
@@ -272,6 +329,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'bookmarks' );
+			writeHashTab( 'bookmarks' );
 
 			if ( state.bookmarks.length ) {
 				return;

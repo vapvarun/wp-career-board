@@ -756,10 +756,10 @@ wp_interactivity_state(
 
 	<!-- ── Settings panel ─────────────────────────────────────────── -->
 	<div class="wcb-view-panel" id="wcb-panel-settings" role="tabpanel" aria-labelledby="wcb-tab-settings" data-wp-class--wcb-view-active="state.isViewSettings">
-		<div class="wcb-panel-header">
-			<span class="wcb-panel-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></span>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></h1>
 		</div>
-		<div class="wcb-panel wcb-shown">
+		<div class="wcb-panel wcb-panel--form wcb-shown">
 			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
 				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
 				<div class="wcb-settings-row-control">

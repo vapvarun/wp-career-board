@@ -51,18 +51,35 @@
 	margin: 0;
 }
 
-/* ── Panel wrapper (matches employer dashboard .wcb-panel) ────────────────── */
+/* ── Panel wrapper — visually matches `.wcb-card` from `wcb-ui.css` so every
+ * tab panel reads as the same card primitive even though it keeps its own
+ * `.wcb-shown` visibility class for the Interactivity API. Inner content
+ * gets its own padding via `.wcb-panel--form` (Profile/Settings) or via
+ * row classes (`.wcb-cd-app-row`, `.wcb-alert-row` etc.) so list rows can
+ * still butt up against the card edge with their own hairline dividers. */
 .wcb-panel {
 	display: none;
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius);
+	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
 	overflow: hidden;
 	margin-bottom: var(--wcb-space-xl);
 }
 
 .wcb-panel.wcb-shown {
 	display: block;
+}
+
+/* Form-shaped panels (Profile, Settings) need internal padding because their
+ * children are form fields, not row primitives. Lists keep the wrapper edge-
+ * flush so per-row padding gives the visual rhythm. */
+.wcb-panel--form {
+	padding: var(--wcb-space-xl);
+}
+
+@media (max-width: 640px) {
+	.wcb-panel--form { padding: var(--wcb-space-lg); }
 }
 
 /* ── Overview: Two-column grid ────────────────────────────────────────────── */

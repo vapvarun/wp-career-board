@@ -249,6 +249,20 @@ final class Plugin {
 			WCB_VERSION
 		);
 
+		// Same-family UI primitives. Every plugin-rendered customer page uses
+		// `.wcb-page`, `.wcb-card`, `.wcb-btn`, `.wcb-input`, `.wcb-badge`,
+		// `.wcb-empty-state` — one shared vocabulary so the dashboard, public
+		// archives, and Pro forms read as one product. Listed as a dependency
+		// when each block's style array is enqueued (see
+		// `enqueue_block_style_array()`) so the primitives load before block
+		// overrides.
+		wp_register_style(
+			'wcb-ui',
+			WCB_URL . 'assets/css/wcb-ui.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
 			if ( ! is_dir( $block_dir ) ) {
@@ -258,6 +272,10 @@ final class Plugin {
 			wp_enqueue_block_style(
 				'wp-career-board/' . $block,
 				array( 'handle' => 'wcb-frontend-tokens' )
+			);
+			wp_enqueue_block_style(
+				'wp-career-board/' . $block,
+				array( 'handle' => 'wcb-ui' )
 			);
 			$this->enqueue_block_style_array( 'wp-career-board/' . $block, $block_dir, $block );
 		}
@@ -294,7 +312,7 @@ final class Plugin {
 			wp_register_style(
 				$handle,
 				WCB_URL . 'blocks/' . $block_slug . '/' . $relative,
-				array( 'wcb-frontend-tokens' ),
+				array( 'wcb-frontend-tokens', 'wcb-ui' ),
 				WCB_VERSION
 			);
 			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );

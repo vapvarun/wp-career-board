@@ -416,6 +416,39 @@
 	margin-bottom: var(--wcb-space-xs);
 }
 
+/* Form-input baseline. Used by the Profile and Settings panel inputs that
+ * predate the shared `.wcb-field-input` primitive in
+ * `assets/css/frontend-components.css`. Keeping the rules local to the
+ * candidate-dashboard scope (vs renaming every markup site) avoids
+ * touching seven other call-sites and Pro's mirroring shortcode renderers
+ * during a UX polish pass. Match `.wcb-field-input` exactly so a future
+ * consolidation can fold the two classes together without visual drift. */
+.wcb-input {
+	width: 100%;
+	min-height: 44px;
+	padding: 0.625rem 0.875rem;
+	border: 1.5px solid var(--wcb-border, #cbd5e1);
+	border-radius: var(--wcb-radius-md, 0.5rem);
+	font-size: var(--wcb-text-md);
+	font-family: inherit;
+	color: var(--wcb-contrast, #0f172a);
+	background: var(--wcb-base, #ffffff);
+	transition: border-color var(--wcb-transition-fast, 150ms ease), box-shadow var(--wcb-transition-fast, 150ms ease);
+	box-sizing: border-box;
+}
+
+.wcb-input:focus {
+	outline: 2px solid transparent;
+	border-color: var(--wcb-primary, #2563eb);
+	box-shadow: var(--wcb-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.15));
+}
+
+.wcb-input[readonly] {
+	background: var(--wcb-surface, #f8fafc);
+	color: var(--wcb-text-secondary, #475569);
+	cursor: default;
+}
+
 .wcb-form-actions {
 	display: flex;
 	align-items: center;
