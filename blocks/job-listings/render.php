@@ -598,16 +598,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 								>&#10003;</span>
 							</p>
 						</div>
-						<button
-							type="button"
-							class="wcb-bookmark-btn"
-							data-wp-on--click="actions.toggleBookmark"
-							data-wp-class--wcb-bookmarked="context.job.bookmarked"
-							data-wp-bind--aria-label="state.bookmarkLabel"
-							aria-label="<?php esc_attr_e( 'Save job', 'wp-career-board' ); ?>"
-						>
-							<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-						</button>
+						<?php
+						$wcb_bookmark = array(
+							'aria_label'            => __( 'Save job', 'wp-career-board' ),
+							'aria_label_bind'       => 'state.bookmarkLabel',
+							'bookmarked_class_bind' => 'context.job.bookmarked',
+						);
+						require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
+						?>
 					</div>
 
 					<div class="wcb-card-badges">

@@ -317,15 +317,13 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						the shared `.wcb-bookmark-btn` rules in wcb-ui.css so Companies,
 						Find Jobs, and Find Candidates share one save affordance. */
 				?>
-				<button
-					type="button"
-					class="wcb-bookmark-btn"
-					data-wp-on--click="actions.toggleBookmark"
-					data-wp-class--wcb-bookmarked="context.company.bookmarked"
-					aria-label="<?php esc_attr_e( 'Save company', 'wp-career-board' ); ?>"
-				>
-					<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				</button>
+				<?php
+				$wcb_bookmark = array(
+					'aria_label'            => __( 'Save company', 'wp-career-board' ),
+					'bookmarked_class_bind' => 'context.company.bookmarked',
+				);
+				require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
+				?>
 				<a class="wcb-ca-card-link" data-wp-bind--href="context.company.permalink" data-wp-bind--aria-label="context.company.name">
 
 					<div class="wcb-ca-card-top">
