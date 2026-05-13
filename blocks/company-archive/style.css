@@ -233,14 +233,14 @@
 	gap: var(--wcb-space-xs);
 }
 
-/* In list view the card is taller (single row) so the bookmark sits
- * better vertically centered than anchored to the top-right corner.
- * Overrides the shared (0,3,1) absolute-positioned rule from wcb-ui.css
- * at (0,3,1) on the same selector chain with an explicit list-view
- * scope ahead of it -> (0,4,1) wins. */
+/* Top-right anchor matches Find Jobs's list-card bookmark placement so
+ * the icon is in the same spot on every archive's card. Earlier the
+ * Companies list bookmark was vertically centered, but visual parity
+ * with the Jobs list (and the bookmark icon a customer expects to find
+ * "in the corner") wins. (0,4,1) beats the shared (0,3,1) wcb-ui rule. */
 [class*="wp-block-wp-career-board"] .wcb-ca-container.wcb-list > .wcb-ca-card > .wcb-bookmark-btn {
-	top: 50%;
-	transform: translateY(-50%);
+	top: var(--wcb-space-md);
+	transform: none;
 }
 
 /* -- Card top: avatar + trust badge -- */
