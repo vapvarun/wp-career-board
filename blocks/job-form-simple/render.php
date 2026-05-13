@@ -363,6 +363,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 						data-wp-bind--value="state.locationCustom"
 						data-wp-on--input="actions.updateField"
 						data-wp-class--wcb-hidden="!state.locationIsCustom"
+						aria-label="<?php esc_attr_e( 'Custom location', 'wp-career-board' ); ?>"
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>

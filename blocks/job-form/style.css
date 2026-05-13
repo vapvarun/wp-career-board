@@ -166,8 +166,12 @@
 	border-color: var(--wcb-text-tertiary, #94a3b8);
 }
 
+/* No `outline: none` on plain `:focus` - modern browsers default to no
+ * visible focus ring on mouse click and `:focus-visible` below adds an
+ * explicit outline for keyboard users. Older browsers without
+ * `:focus-visible` keep the browser-default outline, which is the
+ * correct fallback. */
 .wcb-field:focus {
-	outline: none;
 	border-color: var(--wcb-primary, #2563eb);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -577,11 +581,16 @@ textarea.wcb-field {
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-form-success__reset:hover,
-.wcb-form-success__reset:focus {
+.wcb-form-success__reset:hover {
 	background: var(--wcb-success);
 	color: var(--wcb-on-primary, #fff);
-	outline: none;
+}
+
+.wcb-form-success__reset:focus-visible {
+	background: var(--wcb-success);
+	color: var(--wcb-on-primary, #fff);
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
 }
 
 @media ( max-width: 640px ) {

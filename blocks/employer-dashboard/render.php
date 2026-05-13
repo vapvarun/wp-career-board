@@ -812,7 +812,7 @@ wp_interactivity_state(
 				<div class="wcb-cd-bookmark-row">
 					<div class="wcb-cd-bookmark-main">
 						<h3 class="wcb-cd-bookmark-title">
-							<a data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title" target="_blank" rel="noopener noreferrer"></a>
+							<a aria-label="<?php esc_attr_e( 'Bookmarked job', 'wp-career-board' ); ?>" data-wp-bind--aria-label="context.job.title" data-wp-bind--href="context.job.permalink" data-wp-text="context.job.title" target="_blank" rel="noopener noreferrer"></a>
 						</h3>
 						<div class="wcb-cd-bookmark-meta">
 							<span data-wp-text="context.job.company"></span>
@@ -852,7 +852,7 @@ wp_interactivity_state(
 				<div class="wcb-cd-bookmark-row">
 					<div class="wcb-cd-bookmark-main">
 						<h3 class="wcb-cd-bookmark-title">
-							<a data-wp-bind--href="context.company.permalink" data-wp-text="context.company.title" target="_blank" rel="noopener noreferrer"></a>
+							<a aria-label="<?php esc_attr_e( 'Bookmarked company', 'wp-career-board' ); ?>" data-wp-bind--aria-label="context.company.title" data-wp-bind--href="context.company.permalink" data-wp-text="context.company.title" target="_blank" rel="noopener noreferrer"></a>
 						</h3>
 						<div class="wcb-cd-bookmark-meta">
 							<span data-wp-class--wcb-hidden="!context.company.industry" data-wp-text="context.company.industry"></span>
@@ -891,7 +891,7 @@ wp_interactivity_state(
 				<div class="wcb-cd-bookmark-row">
 					<div class="wcb-cd-bookmark-main">
 						<h3 class="wcb-cd-bookmark-title">
-							<a data-wp-bind--href="context.resume.permalink" data-wp-text="context.resume.title" target="_blank" rel="noopener noreferrer"></a>
+							<a aria-label="<?php esc_attr_e( 'Bookmarked resume', 'wp-career-board' ); ?>" data-wp-bind--aria-label="context.resume.title" data-wp-bind--href="context.resume.permalink" data-wp-text="context.resume.title" target="_blank" rel="noopener noreferrer"></a>
 						</h3>
 						<div class="wcb-cd-bookmark-meta">
 							<span data-wp-class--wcb-hidden="!context.resume.role" data-wp-text="context.resume.role"></span>

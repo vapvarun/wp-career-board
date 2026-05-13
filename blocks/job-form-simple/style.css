@@ -105,8 +105,11 @@
 	border-color: var(--wcb-text-tertiary, #94a3b8);
 }
 
+/* No `outline: none` on plain `:focus` - browsers omit the ring on
+ * mouse focus by default, and `:focus-visible` below adds the
+ * keyboard-only outline. Older browsers keep the default outline as
+ * a graceful fallback. */
 .wcb-form-simple .wcb-field:focus {
-	outline: none;
 	border-color: var(--wcb-primary, #2563eb);
 	box-shadow: var(--wcb-shadow-focus);
 }
