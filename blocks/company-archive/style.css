@@ -127,27 +127,43 @@
 	box-shadow: var(--wcb-shadow-md);
 }
 
+/* Grid layout: avatar inline with name + tagline (col 1 | col 2 row 1),
+ * chip row spans col 2 (row 2), footer spans full width (row 3). Saves
+ * vertical space vs the earlier stacked layout and matches the inline-
+ * avatar pattern Find Jobs and Find Candidates are picking up in the
+ * same refactor pass — same UX rhythm across all three archives. */
 .wcb-ca-card-link {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"avatar body"
+		"footer footer";
+	column-gap: var(--wcb-space-lg);
+	row-gap: var(--wcb-space-md);
 	height: 100%;
 	text-decoration: none;
 	color: inherit;
 	padding: var(--wcb-space-xl);
-	gap: var(--wcb-space-md);
 	position: relative;
 }
+
+.wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
+.wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
+.wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
 	text-decoration: none;
 	color: inherit;
 }
 
-/* List view: cards are horizontal */
+/* List view: one horizontal row — avatar | body | footer. Reuses the grid
+ * defined for grid view but with a 3-column template so the footer hugs
+ * the right edge instead of dropping below. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
-	flex-direction: row;
+	grid-template-columns: auto 1fr auto;
+	grid-template-areas: "avatar body footer";
 	align-items: center;
-	gap: var(--wcb-space-xl);
+	column-gap: var(--wcb-space-xl);
 	height: auto;
 }
 

@@ -120,10 +120,12 @@
 	border-radius: var(--wcb-radius-xl);
 }
 
-/* Grid: stack vertically */
-.wcb-jobs-container.wcb-grid .wcb-job-card {
-	flex-direction: column;
-}
+/* Grid view keeps the row direction set on `.wcb-job-card` (avatar inline
+ * with title/meta), matching Companies + Find Candidates' inline avatar
+ * pattern. The earlier `flex-direction: column` override stacked the
+ * avatar above the title in grid view and broke same-family rhythm with
+ * the other two archive surfaces. List view continues to use the default
+ * row direction so the two card views render with identical anatomy. */
 
 /* ── Card avatar ─────────────────────────────────────────────────────────── */
 .wcb-card-avatar {
