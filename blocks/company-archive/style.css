@@ -68,7 +68,7 @@
 	align-items: center;
 	justify-content: center;
 	width: var(--wcb-space-3xl);
-	height: 30px;
+	height: 30px; /* component dimension */
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -181,7 +181,7 @@
 	border-inline-start: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	padding-inline-start: var(--wcb-space-xl);
 	margin-top: 0;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
 }
 
 /* -- Card top: avatar + trust badge -- */
@@ -239,7 +239,7 @@
 
 .wcb-ca-avatar {
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	align-items: center;
 	justify-content: center;
 	font-size: var(--wcb-text-lg);
@@ -257,10 +257,10 @@
 .wcb-ca-trust-badge {
 	display: none;
 	align-items: center;
-	gap: 0.3rem;
-	padding: 0.15rem var(--wcb-space-sm);
+	gap: var(--wcb-space-xs); /* 0.3rem ≈ 5px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
 	border-radius: var(--wcb-radius-full);
-	font-size: 0.7rem;
+	font-size: var(--wcb-text-xs); /* 0.7rem ≈ 11px → xs */
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.02em;
 	white-space: nowrap;
@@ -290,7 +290,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
 }
 
 .wcb-ca-name {
@@ -321,15 +321,15 @@
 .wcb-ca-chips {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
-	margin-top: 0.2rem;
+	gap: var(--wcb-space-xs);
+	margin-top: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
 }
 
 /* Chips: hidden by default; shown when non-empty */
 .wcb-ca-chip {
 	display: none;
 	align-items: center;
-	padding: 0.15rem var(--wcb-space-sm);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
 	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
@@ -368,7 +368,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 32px;
+	min-height: var(--wcb-space-3xl); /* 32px */
 	padding: 0 var(--wcb-space-md);
 	border: 1px solid var(--wcb-primary);
 	border-radius: var(--wcb-radius-md);
@@ -384,7 +384,7 @@
 
 .wcb-ca-card:hover .wcb-ca-cta {
 	background: var(--wcb-primary);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	text-decoration: none;
 }
 
