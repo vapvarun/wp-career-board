@@ -441,10 +441,14 @@ textarea.wcb-input {
 }
 
 /* Span the full row inside a card grid so the empty state doesn't get
- * squeezed into a single column track. Applies on every archive grid. */
+ * squeezed into a single column track. The Companies block uses the
+ * generic `.wcb-empty-state` class (not the `.wcb-ca-empty` legacy
+ * selector), so include it under both container selectors. */
 .wcb-jobs-container.wcb-grid > .wcb-empty-state,
+.wcb-ca-container.wcb-grid > .wcb-empty-state,
 .wcb-ca-container.wcb-grid > .wcb-ca-empty,
-.wcb-ra-grid > .wcb-ra-empty {
+.wcb-ra-grid > .wcb-ra-empty,
+.wcb-ra-grid > .wcb-empty-state {
 	grid-column: 1 / -1;
 }
 
