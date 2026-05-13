@@ -349,8 +349,10 @@
 
 /* ── Grid footer — mirrors `.wcb-ca-card-footer` (Companies) for parity:
  * single row, `justify-content: space-between`, thin top divider,
- * `margin-top: auto` to push to card bottom. Meta (salary + date) on
- * the left, View Job CTA on the right. */
+ * `margin-top: auto` to push to card bottom. Salary on the left (the
+ * "3 open positions"-equivalent meta), View Job CTA on the right.
+ * Date is hidden in grid view - the recency lives on the single-job
+ * page; the card footer is for the action, not the timestamp. */
 .wcb-jobs-container.wcb-grid .wcb-card-footer {
 	display: flex;
 	flex-direction: row;
@@ -363,28 +365,13 @@
 	border-top: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
-/* Salary + date inline on the left; the date sits next to the salary
- * with a thin separator dot rendered via ::before. CTA on the right
- * via `margin-inline-start: auto` so flex-wrap still works on narrow
- * tablet columns without losing the right alignment. */
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary,
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary {
 	display: inline-flex;
 	align-items: center;
 }
 
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date::before {
-	content: "";
-	display: inline-block;
-	width: 3px;
-	height: 3px;
-	margin-inline-end: var(--wcb-space-xs);
-	border-radius: var(--wcb-radius-full);
-	background: var(--wcb-text-tertiary, #cbd5e1);
+	display: none;
 }
 
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
