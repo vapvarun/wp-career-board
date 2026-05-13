@@ -53,6 +53,30 @@ $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) )
 $wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
 $wcb_dashboard_url           = (string) get_permalink();
 
+// Public-resume permalink for the sidebar shortcut. Mirrors Employer's
+// "Public Page ↗" link so a candidate can preview the version of their
+// resume an employer sees. We pick the most recently updated published
+// resume the candidate owns; if none exists, the link stays hidden.
+$wcb_public_resume_url = '';
+if ( post_type_exists( 'wcb_resume' ) ) {
+	$wcb_public_resumes = get_posts(
+		array(
+			'post_type'      => 'wcb_resume',
+			'author'         => $wcb_candidate_id,
+			'post_status'    => 'publish',
+			'meta_key'       => '_wcb_resume_public', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'orderby'        => 'modified',
+			'order'          => 'DESC',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	);
+	if ( ! empty( $wcb_public_resumes ) ) {
+		$wcb_public_resume_url = (string) get_permalink( (int) $wcb_public_resumes[0] );
+	}
+}
+
 /**
  * Filter extra state keys for the candidate dashboard resumes tab.
  *
@@ -260,6 +284,16 @@ wp_interactivity_state(
 				endif;
 				?>
 			><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></button>
+			<?php if ( '' !== $wcb_public_resume_url ) : ?>
+			<a
+				class="wcb-nav-item wcb-nav-item--link"
+				href="<?php echo esc_url( $wcb_public_resume_url ); ?>"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				<?php esc_html_e( 'Public Resume', 'wp-career-board' ); ?> &#8599;
+			</a>
+			<?php endif; ?>
 			<?php if ( $wcb_resume_builder_embedded ) : ?>
 			<button
 				type="button"
