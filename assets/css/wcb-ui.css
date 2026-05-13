@@ -466,6 +466,7 @@ textarea.wcb-input {
 .wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
 .wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
 	color: var(--wcb-warning, #d97706) !important;
+	background: var(--wcb-warning-bg-soft, #fffbeb) !important;
 }
 
 .wcb-job-card .wcb-bookmark-btn svg,
@@ -473,6 +474,19 @@ textarea.wcb-input {
 .wcb-ra-card > .wcb-bookmark-btn svg {
 	width: 16px !important;
 	height: 16px !important;
+	fill: none;
+	transition: fill var(--wcb-transition-fast);
+}
+
+/* FILLED icon when bookmarked - the Lucide bookmark SVG ships with
+ * `stroke="currentColor" fill="none"`; toggling `fill: currentColor`
+ * via CSS turns the outline into a solid amber bookmark so users can
+ * tell at a glance which cards they've saved. Hover on unbookmarked
+ * gives a preview fill via the same rule. */
+.wcb-job-card .wcb-bookmark-btn.wcb-bookmarked svg,
+.wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked svg,
+.wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked svg {
+	fill: currentColor;
 }
 
 .wcb-filter-panel {
