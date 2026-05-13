@@ -63,6 +63,13 @@
 	--wcb-bg-subtle:      #f8fafc;
 	--wcb-bg-hover:       #f1f5f9;
 
+	/* Foreground color for elements painted with --wcb-primary as
+	 * background (filled buttons, badges, banners). Always-white in
+	 * standard light/dark modes; themes that override --wcb-primary
+	 * with a light accent should override --wcb-on-primary to match
+	 * (e.g. a yellow primary needs a dark on-primary). */
+	--wcb-on-primary: #ffffff;
+
 	/* Status colors come in three layers:
 	 *   --wcb-{status}        — solid, used as text on light backgrounds
 	 *   --wcb-{status}-fg     — darker text used on the soft-bg variants

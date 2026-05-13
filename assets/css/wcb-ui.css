@@ -196,7 +196,7 @@
 
 .wcb-btn--primary {
 	background: var(--wcb-primary, #2563eb);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	border-color: var(--wcb-primary, #2563eb);
 }
 
@@ -204,7 +204,7 @@
 .wcb-btn--primary:focus-visible {
 	background: var(--wcb-primary-dark, #1d4ed8);
 	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	text-decoration: none;
 }
 
@@ -438,7 +438,7 @@ textarea.wcb-input {
 	height: 16px;
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success, #16a34a);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	font-size: 10px;
 	font-weight: var(--wcb-font-bold);
 	line-height: 1;
@@ -950,13 +950,13 @@ textarea.wcb-input {
 .wcb-chip.wcb-chip-active {
 	border-color: var(--wcb-primary, #2563eb);
 	background: var(--wcb-primary, #2563eb);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-chip.wcb-chip-active:hover {
 	background: var(--wcb-primary-dark, #1d4ed8);
 	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 /* ── Badge ────────────────────────────────────────────────────────────────── */
@@ -1118,7 +1118,7 @@ textarea.wcb-input {
 [class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
 [class*="wp-block-wcb-"] .wcb-cbtn--primary {
 	background: var(--wcb-primary, #2563eb);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	border-color: var(--wcb-primary, #2563eb);
 }
 
@@ -1128,7 +1128,7 @@ textarea.wcb-input {
 [class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
 	background: var(--wcb-primary-dark, #1d4ed8);
 	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	text-decoration: none;
 }
 

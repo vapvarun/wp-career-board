@@ -172,7 +172,7 @@
 	flex-shrink: 0;
 	border-radius: var(--wcb-radius-lg);
 	background: var( --wcb-avatar-bg, #1e293b );
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	display: flex;
 	align-items: center;
 	justify-content: center;

@@ -147,14 +147,14 @@
 /* Primary */
 .wcb-btn--primary {
 	background: var(--wcb-primary);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	border-color: var(--wcb-primary);
 }
 
 .wcb-btn--primary:hover {
 	background: var(--wcb-primary-dark);
 	border-color: var(--wcb-primary-dark);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 }
 
 /* Secondary */
@@ -189,7 +189,7 @@
 
 .wcb-btn--danger:hover {
 	background: var(--wcb-danger);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 }
 
 /* Sizes */
@@ -398,7 +398,7 @@ select.wcb-field {
 
 .wcb-pagination__btn--active {
 	background: var(--wcb-primary);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	border-color: var(--wcb-primary);
 }
 
