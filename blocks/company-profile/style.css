@@ -55,7 +55,7 @@
 
 .wcb-cp-hero-body {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: var(--wcb-space-xl);
 	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
 	margin-top: 0;
