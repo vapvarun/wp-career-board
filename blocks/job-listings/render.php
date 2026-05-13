@@ -692,29 +692,24 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				wipes activeFilters + re-fetches. Mirrors the same card
 				chrome used by Companies + Find Candidates empty states. */
 		?>
-		<div class="wcb-empty-state" data-wp-bind--hidden="!state.hasNoJobs" role="status" <?php echo $wcb_jobs_raw ? 'hidden' : ''; ?>>
-			<div class="wcb-empty-state__icon" aria-hidden="true">
-				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</div>
-			<h3 class="wcb-empty-state__title"><?php esc_html_e( 'No jobs match your filters', 'wp-career-board' ); ?></h3>
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'Try removing a filter or clearing them all to see more results.', 'wp-career-board' ); ?></p>
-			<button type="button" class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-on--click="actions.clearFilters" data-wp-bind--hidden="state.noActiveFilters">
-				<?php esc_html_e( 'Clear filters', 'wp-career-board' ); ?>
-			</button>
-		</div>
+		<?php
+		$wcb_empty = array(
+			'wp_bind_hidden'    => '!state.hasNoJobs',
+			'ssr_hidden'        => ! empty( $wcb_jobs_raw ),
+			'title'             => __( 'No jobs match your filters', 'wp-career-board' ),
+			'body'              => __( 'Try removing a filter or clearing them all to see more results.', 'wp-career-board' ),
+			'clear_action'      => 'actions.clearFilters',
+			'clear_hidden_bind' => 'state.noActiveFilters',
+			'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+		);
+		require WCB_DIR . 'templates/parts/archive-empty-state.php';
+		?>
 	</div>
 
-	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
-		<button
-			type="button"
-			class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
-			data-wp-on--click="actions.loadMore"
-			data-wp-bind--disabled="state.loading"
-		>
-			<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more jobs', 'wp-career-board' ); ?></span>
-			<span class="wcb-load-more-loading" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
-		</button>
-	</div>
+	<?php
+	$wcb_load_more = array( 'label' => __( 'Load more jobs', 'wp-career-board' ) );
+	require WCB_DIR . 'templates/parts/archive-load-more.php';
+	?>
 
 	<?php if ( $wcb_jl_has_filter_ui ) : ?>
 		</main>
