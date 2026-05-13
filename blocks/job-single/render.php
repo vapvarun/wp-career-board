@@ -466,7 +466,19 @@ wp_interactivity_state(
 						$wcb_desc_out[] = '</ul>';
 					}
 					$wcb_job_desc = implode( "\n", $wcb_desc_out );
-					echo wp_kses_post( apply_filters( 'the_content', $wcb_job_desc ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					// Render the description through paragraph wrapping +
+					// shortcode expansion + kses sanitization. Earlier this
+					// block called `apply_filters( 'the_content', $wcb_job_desc )`
+					// for the same goal, but that path is unsafe inside a
+					// block render: when the block itself is emitted via
+					// the_content (e.g. by `Jobs_Module::inject_job_single`)
+					// the recursive filter re-fires this render and the
+					// process spins until PHP runs out of memory (observed
+					// crash: 256MB exhausted at `class-wp-tax-query.php`).
+					// The local pipeline produces the same output for
+					// description content without re-entering the global
+					// content filter chain.
+					echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
 					?>
 				</div>
 			</div>
