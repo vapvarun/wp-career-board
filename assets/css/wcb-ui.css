@@ -34,24 +34,15 @@
 
 /* ── Page shell ───────────────────────────────────────────────────────────── */
 
-.wcb-page {
-	box-sizing: border-box;
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
-	color: var(--wcb-contrast, #0f172a);
-	font-family: inherit;
-}
-
-.wcb-page * {
-	box-sizing: border-box;
-}
-
-.wcb-page--list      { max-width: 1280px; }
-.wcb-page--dashboard { max-width: 1280px; padding-inline: var(--wcb-space-xl); }
-.wcb-page--single    { max-width: 980px; }
-.wcb-page--form      { max-width: 820px; }
-.wcb-page--narrow    { max-width: 640px; }
+/* `.wcb-page` is intentionally NOT defined here. Free's `Plugin::body_class()`
+ * adds `wcb-page` to the BODY element on every WCB-controlled page as a
+ * theme-integration marker. Defining a layout rule on `.wcb-page` collided
+ * with the body, overriding the theme's body `font-family` (specificity
+ * 0,1,0 vs 0,0,1) and rendering every dashboard / archive page in the
+ * browser default serif on Astra. Templates use the canonical
+ * `.wcb-archive-shell` wrapper from `frontend-components.css` instead;
+ * no plugin-side body-targeting layout primitive is needed.
+ */
 
 .wcb-page-header {
 	display: flex;
