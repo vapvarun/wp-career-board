@@ -371,22 +371,37 @@ final class CompaniesEndpoint extends RestController {
 			return array();
 		}
 
-		$jobs = get_posts(
-			array(
-				'post_type'     => 'wcb_job',
-				'post_status'   => 'publish',
-				'numberposts'   => -1,
-				'author__in'    => $author_ids,
-				'no_found_rows' => true,
-				'orderby'       => 'none',
+		// One aggregate SQL via the (post_author, post_status, post_type) index
+		// instead of materialising every job row into PHP just to count it.
+		// At 100k jobs the previous numberposts=-1 path returned 100k WP_Post
+		// objects per render; this is an index-only scan.
+		global $wpdb;
+		$author_ids   = array_map( 'intval', $author_ids );
+		$placeholders = implode( ',', array_fill( 0, count( $author_ids ), '%d' ) );
+		$cache_key    = 'wcb_job_counts_by_author_' . md5( implode( ',', $author_ids ) );
+		$cached       = wp_cache_get( $cache_key, 'wcb_companies' );
+		if ( false !== $cached && is_array( $cached ) ) {
+			return $cached;
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_author, COUNT(*) AS c FROM {$wpdb->posts}
+					WHERE post_type = 'wcb_job'
+					  AND post_status = 'publish'
+					  AND post_author IN ({$placeholders})
+					GROUP BY post_author",
+				...$author_ids
 			)
 		);
+		// phpcs:enable
 
 		$counts = array();
-		foreach ( $jobs as $job ) {
-			$aid            = (int) $job->post_author;
-			$counts[ $aid ] = ( $counts[ $aid ] ?? 0 ) + 1;
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->post_author ] = (int) $row->c;
 		}
+		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
 		return $counts;
 	}
 

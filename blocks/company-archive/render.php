@@ -57,29 +57,33 @@ $wcb_company_ids = $wcb_companies_raw
 	)
 	: array();
 
-$wcb_jobs_raw = $wcb_company_ids
-	? get_posts(
-		array(
-			'post_type'     => 'wcb_job',
-			'post_status'   => 'publish',
-			'numberposts'   => -1,
-			'no_found_rows' => true,
-			'orderby'       => 'none',
-			'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					'key'     => '_wcb_company_id',
-					'value'   => $wcb_company_ids,
-					'compare' => 'IN',
-				),
-			),
-		)
-	)
-	: array();
-
+// Open-positions counter — one aggregate SQL keyed on the (meta_key, meta_value)
+// postmeta index instead of materialising every wcb_job into PHP just to count
+// it. At 100k jobs the previous numberposts=-1 path allocated 100k WP_Post
+// objects per archive render; this is an index-only scan grouped in MySQL.
 $wcb_jobs_by_company = array();
-foreach ( $wcb_jobs_raw as $wcb_jpost ) {
-	$wcb_cid                         = (int) get_post_meta( $wcb_jpost->ID, '_wcb_company_id', true );
-	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
+if ( $wcb_company_ids ) {
+	global $wpdb;
+	$wcb_co_ids   = array_map( 'intval', $wcb_company_ids );
+	$placeholders = implode( ',', array_fill( 0, count( $wcb_co_ids ), '%d' ) );
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wcb_rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT pm.meta_value AS company_id, COUNT(*) AS c
+			 FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key = '_wcb_company_id'
+			   AND p.post_type = 'wcb_job'
+			   AND p.post_status = 'publish'
+			   AND pm.meta_value IN ({$placeholders})
+			 GROUP BY pm.meta_value",
+			...$wcb_co_ids
+		)
+	);
+	// phpcs:enable
+	foreach ( (array) $wcb_rows as $wcb_row ) {
+		$wcb_jobs_by_company[ (int) $wcb_row->company_id ] = (int) $wcb_row->c;
+	}
 }
 
 // ── Current user's bookmarked companies (for initial card state). ────────────
@@ -154,28 +158,30 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	);
 }
 
-// ── Get distinct industries for the filter dropdown ───────────────────────────
-$wcb_all_co_ids = get_posts(
-	array(
-		'post_type'     => 'wcb_company',
-		'post_status'   => 'publish',
-		'numberposts'   => -1,
-		'fields'        => 'ids',
-		'no_found_rows' => true,
-		'orderby'       => 'none',
-	)
-);
-
-// Build the industry filter from the canonical slug list, restricted to
-// slugs that at least one published company actually uses. Falls back to
-// any legacy free-text values still stored from before the slug enforcement
-// landed, so existing data stays selectable until a migration runs.
-$wcb_used_industries = array();
-foreach ( $wcb_all_co_ids as $wcb_cid ) {
-	$wcb_ind = (string) get_post_meta( $wcb_cid, '_wcb_industry', true );
-	if ( '' !== $wcb_ind ) {
-		$wcb_used_industries[ $wcb_ind ] = true;
+// Distinct-industry lookup for the filter dropdown. One SELECT DISTINCT on
+// the (meta_key) postmeta index, cached for an hour, busted via save_post
+// hook elsewhere when an admin saves a company. Replaces the previous
+// numberposts=-1 + per-row get_post_meta loop that was O(n) on company
+// count even though the answer changes at most a few times per day.
+$wcb_used_industries = wp_cache_get( 'wcb_distinct_industries', 'wcb_companies' );
+if ( false === $wcb_used_industries ) {
+	global $wpdb;
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wcb_industry_rows = $wpdb->get_col(
+		"SELECT DISTINCT pm.meta_value
+		 FROM {$wpdb->postmeta} pm
+		 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+		 WHERE pm.meta_key = '_wcb_industry'
+		   AND p.post_type = 'wcb_company'
+		   AND p.post_status = 'publish'
+		   AND pm.meta_value <> ''"
+	);
+	// phpcs:enable
+	$wcb_used_industries = array();
+	foreach ( (array) $wcb_industry_rows as $wcb_ind ) {
+		$wcb_used_industries[ (string) $wcb_ind ] = true;
 	}
+	wp_cache_set( 'wcb_distinct_industries', $wcb_used_industries, 'wcb_companies', HOUR_IN_SECONDS );
 }
 $wcb_industry_labels = \WCB\Core\Industries::all();
 unset( $wcb_industry_labels[''] );

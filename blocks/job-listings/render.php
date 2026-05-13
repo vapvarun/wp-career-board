@@ -45,9 +45,13 @@ if ( $wcb_author_id_attr > 0 ) {
 	$wcb_query_args['author'] = $wcb_author_id_attr;
 } elseif ( $wcb_saved_by_attr > 0 ) {
 	$wcb_bookmark_ids = array_map( 'intval', (array) get_user_meta( $wcb_saved_by_attr, '_wcb_bookmark', false ) );
-	// Return no results when the user has no bookmarks.
+	// Cap the bookmark IN-clause + numberposts so a power user with 1k+
+	// saved jobs can't blow the request memory budget on first paint. The
+	// view.js layer paginates beyond this via the REST endpoint, which
+	// streams the rest in pages of `perPage`.
+	$wcb_bookmark_ids              = array_slice( $wcb_bookmark_ids, 0, max( $wcb_per_page, 200 ) );
 	$wcb_query_args['post__in']    = ! empty( $wcb_bookmark_ids ) ? $wcb_bookmark_ids : array( 0 );
-	$wcb_query_args['numberposts'] = -1;
+	$wcb_query_args['numberposts'] = $wcb_per_page;
 }
 
 // Apply boardId + metaFilter to first-paint server query so the initial
@@ -285,9 +289,12 @@ $wcb_exp_opts      = array_map(
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
 if ( $wcb_saved_by_attr > 0 ) {
-	// Saved tab loads every bookmark in one go (numberposts = -1), so the
-	// rendered set IS the full set.
-	$wcb_total_count = count( $wcb_jobs_raw );
+	// Saved tab now paginates - total reflects the unbounded bookmark
+	// count in usermeta so the Load More gate fires when more pages
+	// remain past the first paint slice.
+	$wcb_total_count = is_countable( $wcb_bookmark_ids ?? null )
+		? count( (array) get_user_meta( $wcb_saved_by_attr, '_wcb_bookmark', false ) )
+		: 0;
 } else {
 	// Mirror $wcb_query_args (author + board + metaFilter + Pro filters) so the
 	// found_posts count matches the filtered listing instead of the site-wide
@@ -312,7 +319,9 @@ $wcb_state = array(
 	// Render Load More only when there are actually more rows beyond what we
 	// just rendered. The previous heuristic (count >= per_page) showed the
 	// button even when the first batch was the only batch (count == total).
-	'hasMore'        => 0 === $wcb_saved_by_attr && count( $wcb_jobs_raw ) < $wcb_total_count,
+	// Saved tab participates in Load More now that it paginates instead
+	// of returning every bookmark in one shot.
+	'hasMore'        => count( $wcb_jobs_raw ) < $wcb_total_count,
 	'apiBase'        => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
 	'nonce'          => wp_create_nonce( 'wp_rest' ),
 	'totalCount'     => $wcb_total_count,

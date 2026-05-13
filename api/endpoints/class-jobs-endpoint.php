@@ -93,6 +93,21 @@ final class JobsEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_applications' ),
 				'permission_callback' => array( $this, 'view_applications_permissions_check' ),
+				'args'                => array(
+					'page'     => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'per_page' => array(
+						'type'              => 'integer',
+						'default'           => 20,
+						'minimum'           => 1,
+						'maximum'           => 100,
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 
@@ -882,12 +897,16 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$job_id = (int) $request['id'];
-		$posts  = get_posts(
+		$job_id   = (int) $request['id'];
+		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
+		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?: 1 ) );
+
+		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_application',
 				'post_status'    => 'any',
-				'posts_per_page' => -1,
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_job_id',
@@ -896,6 +915,12 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
+		$posts = $query->posts;
+		if ( $posts ) {
+			// Prime meta cache once so the prepare loop's get_post_meta calls
+			// don't issue a query each. Mirrors the job-listings render pattern.
+			update_postmeta_cache( wp_list_pluck( $posts, 'ID' ) );
+		}
 
 		$items = array_map(
 			static function ( \WP_Post $p ): array {
@@ -928,15 +953,16 @@ final class JobsEndpoint extends RestController {
 			$posts
 		);
 
-		// Always returns the full set today; envelope shape kept consistent with
-		// other list endpoints so the frontend always reads response.applications.
-		$count = count( $items );
+		$total    = (int) $query->found_posts;
+		$pages    = (int) $query->max_num_pages;
+		$has_more = ( $paged * $per_page ) < $total;
+
 		return rest_ensure_response(
 			array(
 				'applications' => $items,
-				'total'        => $count,
-				'pages'        => $count > 0 ? 1 : 0,
-				'has_more'     => false,
+				'total'        => $total,
+				'pages'        => $pages,
+				'has_more'     => $has_more,
 			)
 		);
 	}

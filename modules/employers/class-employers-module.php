@@ -34,6 +34,28 @@ final class EmployersModule {
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
 		add_filter( 'template_include', array( $this, 'single_company_template' ) );
 		add_filter( 'login_redirect', array( $this, 'employer_login_redirect' ), 10, 3 );
+
+		// Distinct-industry lookup is cached for an hour on the Companies
+		// archive (see blocks/company-archive/render.php). When an admin saves
+		// a company - including industry meta changes through the editor or
+		// REST - bust the cache so the filter dropdown reflects reality on
+		// the next request. Same hook runs whether the post enters via wp-admin,
+		// REST, or wp-cli, so we don't need to scatter cache resets per
+		// surface.
+		add_action(
+			'save_post_wcb_company',
+			static function (): void {
+				wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+			}
+		);
+		add_action(
+			'delete_post',
+			static function ( $post_id ): void {
+				if ( 'wcb_company' === get_post_type( $post_id ) ) {
+					wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+				}
+			}
+		);
 	}
 
 	/* Note: the `wcb-company-sidebar` widget area was retired in 1.2.x.
