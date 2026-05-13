@@ -212,8 +212,21 @@ final class Abilities {
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Access Candidate Dashboard', 'wp-career-board' ),
-				'description'         => __( 'Allows a candidate to access their job-seeker dashboard.', 'wp-career-board' ),
-				'permission_callback' => static fn(): bool => self::gate( 'wcb_access_candidate_dashboard' ),
+				'description'         => __( 'Allows any logged-in member to access the candidate dashboard.', 'wp-career-board' ),
+				// Any logged-in member can view the candidate dashboard.
+				// Viewing alone does not unlock candidate actions (apply,
+				// manage resume, withdraw etc. each check their own
+				// ability), so a permissive view-gate matches the product
+				// intent that "membership of this site = candidate access".
+				// Banned employers stay denied via the same meta key the
+				// shared `gate()` helper enforces.
+				'permission_callback' => static function (): bool {
+					$user = wp_get_current_user();
+					if ( ! $user || 0 === $user->ID ) {
+						return false;
+					}
+					return '1' !== (string) get_user_meta( $user->ID, '_wcb_employer_banned', true );
+				},
 				'execute_callback'    => static function (): bool {
 					return true;
 				},
