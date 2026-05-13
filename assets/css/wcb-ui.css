@@ -337,6 +337,141 @@ textarea.wcb-input {
 	gap: var(--wcb-space-lg);
 }
 
+/* ── Archive layout — sidebar filter panel + results ──────────────────────── */
+
+/* Two-column layout used by every archive surface (`/find-jobs/`,
+ * `/companies/`, `/find-candidates/`): sticky filter panel on the left,
+ * result cards on the right. Stacks to a single column on mobile so the
+ * filter panel sits above results. Replaces the earlier "chip row above
+ * cards" pattern that broke down once filter counts grew past a single
+ * line. */
+.wcb-archive-layout {
+	display: grid;
+	grid-template-columns: minmax(240px, 280px) 1fr;
+	gap: var(--wcb-space-2xl);
+	align-items: start;
+}
+
+@media (max-width: 900px) {
+	.wcb-archive-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+.wcb-filter-panel {
+	position: sticky;
+	top: var(--wcb-space-2xl);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	box-shadow: var(--wcb-shadow-sm);
+	max-height: calc(100vh - 100px);
+	overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+	.wcb-filter-panel {
+		position: static;
+		max-height: none;
+	}
+}
+
+.wcb-filter-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+	margin-bottom: var(--wcb-space-md);
+}
+
+.wcb-filter-panel__heading {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-filter-panel__clear {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-primary, #2563eb);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.wcb-filter-panel__group {
+	padding: var(--wcb-space-md) 0;
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+.wcb-filter-panel__group:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.wcb-filter-panel__group-title {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-secondary, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: var(--wcb-space-sm);
+}
+
+.wcb-filter-panel__list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.wcb-filter-panel__option {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: 6px var(--wcb-space-xs);
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+}
+
+.wcb-filter-panel__option:hover {
+	background: var(--wcb-bg-hover, #f1f5f9);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-filter-panel__option--checked {
+	color: var(--wcb-contrast, #0f172a);
+	font-weight: var(--wcb-font-medium);
+}
+
+.wcb-filter-panel__option input[type="checkbox"],
+.wcb-filter-panel__option input[type="radio"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--wcb-primary, #2563eb);
+	cursor: pointer;
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.wcb-archive-results {
+	min-width: 0;
+}
+
 /* ── Chip filter row ──────────────────────────────────────────────────────── */
 
 /* Shared chip primitive used by every archive filter bar. The earlier

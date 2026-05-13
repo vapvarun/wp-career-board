@@ -209,44 +209,11 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
 	<?php endif; ?>
 
-	<?php /* ── Toolbar: results count + filters + layout toggle ── */ ?>
+	<?php /* ── Toolbar (results count + view toggle) sits ABOVE the 2-col grid
+	       so the filter panel on the left and the card column on the right
+	       both start at the same Y position. */ ?>
 	<div class="wcb-ca-toolbar">
-
 		<p class="wcb-ca-results" data-wp-text="state.resultsLabel" aria-live="polite"></p>
-
-		<div class="wcb-ca-filter-bar">
-
-			<?php /* ── Industry chip-filter row — matches the chip pattern used by
-			       Find Jobs (`.wcb-chip-bar`) and Find Candidates' skill filter so
-			       all three archive pages share the same filter affordance. */ ?>
-			<div class="wcb-chip-bar wcb-ca-chip-bar" role="group" aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>">
-				<button type="button" class="wcb-chip" data-value=""
-					data-wp-on--click="actions.filterIndustry"
-					data-wp-class--wcb-chip-active="callbacks.isIndustryActive"
-				><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></button>
-				<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
-					<button type="button" class="wcb-chip" data-value="<?php echo esc_attr( $wcb_ind_val ); ?>"
-						data-wp-on--click="actions.filterIndustry"
-						data-wp-class--wcb-chip-active="callbacks.isIndustryActive"
-					><?php echo esc_html( $wcb_ind_lbl ); ?></button>
-				<?php endforeach; ?>
-			</div>
-
-			<?php /* ── Size chip-filter row. */ ?>
-			<div class="wcb-chip-bar wcb-ca-chip-bar" role="group" aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>">
-				<button type="button" class="wcb-chip" data-value=""
-					data-wp-on--click="actions.filterSize"
-					data-wp-class--wcb-chip-active="callbacks.isSizeActive"
-				><?php esc_html_e( 'All Sizes', 'wp-career-board' ); ?></button>
-				<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
-					<button type="button" class="wcb-chip" data-value="<?php echo esc_attr( $wcb_size_key ); ?>"
-						data-wp-on--click="actions.filterSize"
-						data-wp-class--wcb-chip-active="callbacks.isSizeActive"
-					><?php echo esc_html( $wcb_size_lbl ); ?></button>
-				<?php endforeach; ?>
-			</div>
-
-		</div>
 
 		<div class="wcb-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
 			<button
@@ -268,15 +235,70 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			</button>
 		</div>
-
 	</div>
 
-	<?php /* ── Company cards container ── */ ?>
-	<div
-		class="wcb-ca-container"
-		data-wp-class--wcb-grid="state.isGrid"
-		data-wp-class--wcb-list="state.isList"
-	>
+	<?php /* ── 2-col layout: sidebar filter panel + result cards. Replaces the
+	       horizontal chip bar pattern that didn't scale once filter counts
+	       grew. Shared `.wcb-archive-layout` + `.wcb-filter-panel` styles
+	       live in `assets/css/wcb-ui.css` so Find Jobs and Find Candidates
+	       inherit the same shell. */ ?>
+	<div class="wcb-archive-layout">
+
+		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter companies', 'wp-career-board' ); ?>">
+			<div class="wcb-filter-panel__header">
+				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
+				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
+			</div>
+
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<li>
+						<label class="wcb-filter-panel__option">
+							<input type="radio" name="wcb-ca-industry" value="" data-wp-on--change="actions.filterIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
+							<span><?php esc_html_e( 'All industries', 'wp-career-board' ); ?></span>
+						</label>
+					</li>
+					<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
+						<li>
+							<label class="wcb-filter-panel__option">
+								<input type="radio" name="wcb-ca-industry" value="<?php echo esc_attr( $wcb_ind_val ); ?>" data-wp-on--change="actions.filterIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
+								<span><?php echo esc_html( $wcb_ind_lbl ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<li>
+						<label class="wcb-filter-panel__option">
+							<input type="radio" name="wcb-ca-size" value="" data-wp-on--change="actions.filterSize" data-wp-bind--checked="callbacks.isSizeActive" />
+							<span><?php esc_html_e( 'All sizes', 'wp-career-board' ); ?></span>
+						</label>
+					</li>
+					<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
+						<li>
+							<label class="wcb-filter-panel__option">
+								<input type="radio" name="wcb-ca-size" value="<?php echo esc_attr( $wcb_size_key ); ?>" data-wp-on--change="actions.filterSize" data-wp-bind--checked="callbacks.isSizeActive" />
+								<span><?php echo esc_html( $wcb_size_lbl ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</aside>
+
+		<main class="wcb-archive-results">
+
+		<?php /* ── Company cards container ── */ ?>
+		<div
+			class="wcb-ca-container"
+			data-wp-class--wcb-grid="state.isGrid"
+			data-wp-class--wcb-list="state.isList"
+		>
 		<template data-wp-each--company="state.companies" data-wp-each-key="context.company.id">
 			<article class="wcb-ca-card">
 				<a class="wcb-ca-card-link" data-wp-bind--href="context.company.permalink" data-wp-bind--aria-label="context.company.name">
@@ -308,17 +330,21 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"
 							data-wp-text="context.company.tagline"></p>
-						<div class="wcb-ca-chips">
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.industry"
-									data-wp-text="context.company.industry"></span>
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.size_label"
-									data-wp-text="context.company.size_label"></span>
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.hq"
-									data-wp-text="context.company.hq"></span>
-						</div>
+					</div>
+					<?php /* Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
+					       span it full-width below the avatar/name column rather than indenting
+					       it under col 2 of the name row. Matches the "name+tagline only beside
+					       avatar, everything else flush left" layout the audit requested. */ ?>
+					<div class="wcb-ca-card-chips">
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.industry"
+								data-wp-text="context.company.industry"></span>
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.size_label"
+								data-wp-text="context.company.size_label"></span>
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.hq"
+								data-wp-text="context.company.hq"></span>
 					</div>
 
 					<div class="wcb-ca-card-footer">
@@ -332,17 +358,20 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 		<p class="wcb-no-results wcb-notice-error" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
 	</div>
 
-	<?php /* ── Load more ── */ ?>
-	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
-		<button
-			type="button"
-			class="wcb-load-more-btn"
-			data-wp-on--click="actions.loadMore"
-			data-wp-bind--disabled="state.loading"
-		>
-			<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more companies', 'wp-career-board' ); ?></span>
-			<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
-		</button>
-	</div>
+		<?php /* ── Load more ── */ ?>
+		<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
+			<button
+				type="button"
+				class="wcb-load-more-btn"
+				data-wp-on--click="actions.loadMore"
+				data-wp-bind--disabled="state.loading"
+			>
+				<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more companies', 'wp-career-board' ); ?></span>
+				<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+			</button>
+		</div>
+
+		</main>
+	</div><!-- /.wcb-archive-layout -->
 
 </div>

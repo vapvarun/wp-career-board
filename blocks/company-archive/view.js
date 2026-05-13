@@ -29,19 +29,19 @@ const { state } = store( 'wcb-company-archive', {
 	},
 
 	callbacks: {
-		// Toggle the active state of an industry chip by comparing its
-		// `data-value` attribute to `state.industry`. The "All Industries"
-		// chip has an empty data-value so it activates whenever no industry
-		// is selected. Null-guarded because `getElement().ref` can briefly
-		// be null during the first pre-paint pass before the Interactivity
-		// runtime has wired up the DOM reference.
+		// Toggle the active state of a radio filter by comparing its `value`
+		// to the current state field. The "All …" option has an empty value
+		// so it activates whenever the filter is cleared. Null-guarded
+		// because `getElement().ref` can briefly be null during the first
+		// pre-paint pass before the Interactivity runtime wires up the DOM
+		// reference.
 		isIndustryActive() {
 			const el = getElement();
 			const ref = el && el.ref;
 			if ( ! ref ) {
 				return false;
 			}
-			return ( state.industry || '' ) === ( ref.dataset.value || '' );
+			return ( state.industry || '' ) === ( ref.value || '' );
 		},
 
 		isSizeActive() {
@@ -50,7 +50,13 @@ const { state } = store( 'wcb-company-archive', {
 			if ( ! ref ) {
 				return false;
 			}
-			return ( state.size || '' ) === ( ref.dataset.value || '' );
+			return ( state.size || '' ) === ( ref.value || '' );
+		},
+
+		// Hide the "Clear all" button when no filters are active so the
+		// affordance only appears when there's something to clear.
+		noActiveFilters() {
+			return ! state.industry && ! state.size;
 		},
 	},
 
@@ -65,19 +71,22 @@ const { state } = store( 'wcb-company-archive', {
 			localStorage.setItem( 'wcb-company-archive-layout', 'list' );
 		},
 
-		filterIndustry() {
-			// Chip filter: read the clicked chip's `data-value` and toggle the
-			// industry filter. Empty data-value (the "All Industries" chip)
-			// clears the filter. Matches the chip pattern used by Find Jobs
-			// and Find Candidates for uniform UX.
-			const { ref } = getElement();
-			state.industry = ref.dataset.value || '';
+		filterIndustry( event ) {
+			// Radio filter inside the sidebar panel. Each radio's value is
+			// the industry slug (empty for "All industries"). The change
+			// event fires with the freshly-checked input as `target`.
+			state.industry = ( event && event.target && event.target.value ) || '';
 			wcbFetchCompanies();
 		},
 
-		filterSize() {
-			const { ref } = getElement();
-			state.size = ref.dataset.value || '';
+		filterSize( event ) {
+			state.size = ( event && event.target && event.target.value ) || '';
+			wcbFetchCompanies();
+		},
+
+		clearFilters() {
+			state.industry = '';
+			state.size     = '';
 			wcbFetchCompanies();
 		},
 
