@@ -202,8 +202,22 @@
 	border-top: none;
 	border-inline-start: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	padding-inline-start: var(--wcb-space-xl);
+	/* Right-padding clears the absolute-positioned bookmark button (32px
+	 * wide at 12px from card edge) so the "N open positions" text and
+	 * View Profile button can't slide underneath the bookmark icon. */
+	padding-inline-end: var(--wcb-space-4xl);
 	margin-top: 0;
 	gap: var(--wcb-space-xs);
+}
+
+/* In list view the card is taller (single row) so the bookmark sits
+ * better vertically centered than anchored to the top-right corner.
+ * Overrides the shared (0,3,1) absolute-positioned rule from wcb-ui.css
+ * at (0,3,1) on the same selector chain with an explicit list-view
+ * scope ahead of it -> (0,4,1) wins. */
+[class*="wp-block-wp-career-board"] .wcb-ca-container.wcb-list > .wcb-ca-card > .wcb-bookmark-btn {
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 /* -- Card top: avatar + trust badge -- */
