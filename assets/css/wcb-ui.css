@@ -337,6 +337,86 @@ textarea.wcb-input {
 	gap: var(--wcb-space-lg);
 }
 
+/* ── Detail-page section heading — shared across all detail surfaces ──────
+ * Used by `wcb/job-single` (`.wcb-section-heading`),
+ * `wcb/company-profile` (`.wcb-cp-section-title`), Pro resume-form
+ * (`.wcb-rf-section-title`) — display-style heading with optional icon
+ * and hairline divider.
+ *
+ * Reign / Astra apply `.entry-content h2/h3 { margin-bottom: 0 }` at
+ * specificity (0,2,1). The selectors below use `[class*="wp-block-*"]`
+ * (the block wrapper class) + the heading element tag + the heading
+ * class = (0,2,2). They naturally beat theme overrides without
+ * reaching for `!important`. */
+[class*="wp-block-wp-career-board"] h2.wcb-section-heading,
+[class*="wp-block-wp-career-board"] h2.wcb-cp-section-title,
+[class*="wp-block-wp-career-board"] h2.wcb-rf-section-title,
+[class*="wp-block-wcb-"] h2.wcb-section-heading,
+[class*="wp-block-wcb-"] h2.wcb-cp-section-title,
+[class*="wp-block-wcb-"] h2.wcb-rf-section-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-lg);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+}
+
+/* Eyebrow variant — small uppercase tracked label. Used by `wcb/resume-
+ * single` section headings (h2 — ABOUT / WORK EXPERIENCE / EDUCATION)
+ * AND sidebar widget headings (h3 — SKILLS / LANGUAGES / CERTIFICATIONS).
+ * Same specificity pattern, distinct visual style. The h3 sidebar
+ * variant drops the hairline divider since the widget card itself
+ * already has a border. */
+[class*="wp-block-wp-career-board"] h2.wcb-rs-section-heading,
+[class*="wp-block-wcb-"] h2.wcb-rs-section-heading {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+[class*="wp-block-wp-career-board"] h3.wcb-rs-aside-heading,
+[class*="wp-block-wcb-"] h3.wcb-rs-aside-heading {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding: 0;
+}
+
+/* Sub-heading variant (sections inside sections). */
+[class*="wp-block-wp-career-board"] h3.wcb-section-heading-sm,
+[class*="wp-block-wcb-"] h3.wcb-section-heading-sm {
+	font-family: inherit;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #334155);
+	line-height: 1.3;
+	margin: 0 0 var(--wcb-space-md);
+}
+
 /* ── Trust tick — shared paint across all archive cards ──────────────────
  * Small green checkmark rendered INLINE after the company/job name. The
  * `data-trust` attribute carries the trust level so verified / trusted /
