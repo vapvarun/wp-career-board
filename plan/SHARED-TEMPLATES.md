@@ -89,8 +89,16 @@ wp-career-board/templates/parts/
 └── dashboard-panel.php          (#7, #8 × ~20 panels)
 ```
 
-Pro reuses the same partials via `include WCB_DIR . 'templates/parts/X.php';`
-since Free is always loaded when Pro is active (dependency guard).
+**Pro freely consumes Free's partials.** The upscale model means Pro
+always extends Free (`requires_plugins: wp-career-board` in Pro's
+plugin header + the `wcbp_free_active()` dependency guard at boot).
+That guarantee lets Pro `include WCB_DIR . 'templates/parts/X.php';`
+directly without needing a constant alias - `WCB_DIR` is defined
+before Pro's render callbacks fire. Same guarantee covers Pro using
+Free's PHP classes (`WCB\Core\Icon`, `WCB\Core\Industries`,
+`WCB\Admin\Settings`, etc.) and the new `ArchiveContext` DTO. If Free
+is ever deactivated, Pro's dependency guard short-circuits its own
+boot, so the missing-`WCB_DIR` case is unreachable.
 
 ### B. JS modules (live in `assets/js/lib/`)
 
@@ -213,8 +221,29 @@ of bugs permanently.
 - **No new !important** per [[feedback_no_important_in_plugin_css]]. Partials inherit the existing (0,2,1)-(0,3,1) selector pattern.
 - **Theme-defense rules don't move** per [[feedback_wbcom_themes_not_integrations]]. They stay in `frontend-components.css` so Reign/BuddyX/BuddyX Pro integration shims remain near their cause.
 
+## Pro inheritance pattern (confirmed)
+
+Pro requires Free at runtime (upscale model). Every shared piece
+Free ships is fair game for Pro to consume directly:
+
+- **Partials**: `include WCB_DIR . 'templates/parts/{name}.php';` from any Pro render.php
+- **DTO**: `new \WCB\Core\ArchiveContext( ... )` from any Pro PHP
+- **JS modules**: `import { withArchiveStore } from '/wp-content/plugins/wp-career-board/assets/js/lib/archive-store-mixin.js';` in any Pro view.js (built-asset path; same path Free uses)
+- **CSS tokens**: `var(--wcb-primary, fallback)` resolves on Pro pages because Free's `frontend-tokens.css` is enqueued first via the `wcb-frontend-tokens` style handle Pro lists as a dependency
+- **Hooks**: anything Free fires (e.g. `wcb_module_renders` filter that injects Pro's alert-button HTML into the Free archive toolbar) keeps working - the partial just echoes the filter result
+
+The benefit beyond the immediate 5463 -> ~2400 LOC reduction: future
+Pro-only archives (e.g. Boards archive, Application archive,
+Pro-only Resume Search Hero variant) get the canonical Free shell
+for free. New surface added = include 5 partials, write the domain-
+specific filter sidebar + card markup, ship.
+
+Worth doing in this refactor: a **`Pro extends Free` consumption
+audit** after each phase to confirm no Pro block accidentally
+duplicated a building block we just extracted. Drop the duplicates
+in the same phase to keep the refactor cumulative.
+
 ## Open questions
 
-1. **Pro plugin loading Free partials** — Pro's `include WCB_DIR . 'templates/parts/X.php'` assumes `WCB_DIR` is defined at the moment Pro's block render runs. It is (Free boots first). But hard-coding `WCB_DIR` in Pro creates a Free dependency that's already implicit; surface it explicitly via a constant alias?
-2. **Block patterns vs. partials** — Should some of these (especially the archive layout) ship as a Gutenberg block pattern too, so a site builder can compose without writing PHP? Out of scope for the refactor itself but worth thinking about for v1.4.x.
-3. **REST endpoint shape unification** — Phase 4 assumes all 3 archives use the same `?page= per_page= search= orderby= order=` REST contract. Today the resume archive endpoint accepts `?skill=` while Jobs accepts `?type= experience= board= ...`. The mixin's URL builder should accept a per-archive `filterMap` so the shared core handles pagination/sort/search and each archive ships its own filter mapping.
+1. **Block patterns vs. partials** — should some of these (especially the archive layout) also ship as a Gutenberg block pattern so a site builder can compose without writing PHP? Out of scope for this refactor itself but worth a yes/no for v1.4.x.
+2. **REST endpoint shape unification** — Phase 4 assumes all 3 archives share `?page= per_page= search= orderby= order=`. They do today, but each ships its own filter param names (`?type= experience= board=` for jobs, `?industry= size=` for companies, `?skill=` for resumes). The mixin's URL builder should accept a per-archive `filterMap` so the shared core handles pagination/sort/search and each archive plugs its own filter keys.
