@@ -70,7 +70,7 @@
 .wcb-form-simple .wcb-required {
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
-	margin-left: 2px;
+	margin-left: 2px; /* hairline gap */
 }
 
 .wcb-form-simple .wcb-field {
@@ -88,14 +88,14 @@
 }
 
 .wcb-form-simple textarea.wcb-field {
-	min-height: 140px;
+	min-height: 140px; /* component-specific textarea height */
 	resize: vertical;
 	line-height: var(--wcb-leading-normal);
 }
 
 .wcb-form-simple select.wcb-field {
 	background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; /* arrow caret offsets */
 	background-size: 5px 5px, 5px 5px;
 	background-repeat: no-repeat;
 	padding-right: var(--wcb-space-3xl);
@@ -186,14 +186,14 @@
 
 /* Date input width capped so it doesn't span full column on its own row. */
 .wcb-form-simple .wcb-form-field--deadline .wcb-field {
-	max-width: 280px;
+	max-width: 280px; /* component-specific date-input width */
 }
 
 /* ── Honeypot ────────────────────────────────────────────────────────── */
 
 .wcb-form-simple .wcb-hp {
 	position: absolute;
-	left: -10000px;
+	left: -10000px; /* off-screen honeypot */
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
@@ -247,7 +247,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 160px;
+	min-width: 160px; /* component-specific button width */
 	padding: var(--wcb-space-md) var(--wcb-space-2xl);
 	border: 0;
 	border-radius: var(--wcb-radius-md);
@@ -262,7 +262,7 @@
 
 .wcb-form-simple .wcb-btn--primary {
 	background: var(--wcb-primary, #2563eb);
-	color: #fff;
+	color: var(--wcb-on-primary, #fff);
 	box-shadow: var(--wcb-shadow-sm);
 }
 .wcb-form-simple .wcb-btn--primary:hover:not(:disabled) {
