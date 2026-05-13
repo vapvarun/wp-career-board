@@ -205,11 +205,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Layout toggle ─────────────────────────────────────────────
 		setGridLayout() {
 			state.layout = 'grid';
-			try { localStorage.setItem( 'wcb_layout', 'grid' ); } catch {}
+			try { localStorage.setItem( 'wcb_archive_layout', 'grid' ); } catch {}
 		},
 		setListLayout() {
 			state.layout = 'list';
-			try { localStorage.setItem( 'wcb_layout', 'list' ); } catch {}
+			try { localStorage.setItem( 'wcb_archive_layout', 'list' ); } catch {}
 		},
 
 		// ── Search ────────────────────────────────────────────────────
@@ -480,7 +480,18 @@ const { state, actions } = store( 'wcb-job-listings', {
 	callbacks: {
 		init() {
 			try {
-				const saved = localStorage.getItem( 'wcb_layout' );
+				// Unified key shared across Jobs, Companies, Find Candidates so
+				// a user's list/grid preference syncs across the 3 archives.
+				// Migration: fall back to the legacy per-archive key for users
+				// who set their preference before 1.2.0.
+				let saved = localStorage.getItem( 'wcb_archive_layout' );
+				if ( saved !== 'grid' && saved !== 'list' ) {
+					const legacy = localStorage.getItem( 'wcb_layout' );
+					if ( legacy === 'grid' || legacy === 'list' ) {
+						saved = legacy;
+						localStorage.setItem( 'wcb_archive_layout', legacy );
+					}
+				}
 				if ( saved === 'grid' || saved === 'list' ) {
 					state.layout = saved;
 				}
