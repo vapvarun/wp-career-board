@@ -98,7 +98,7 @@
 .wcb-badge--warning  { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
 .wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger); }
 .wcb-badge--info     { background: var(--wcb-info-bg);    color: var(--wcb-info); }
-.wcb-badge--muted    { background: #f3f4f6;               color: var(--wcb-text-secondary); }
+.wcb-badge--muted    { background: var(--wcb-bg-subtle, #f3f4f6); color: var(--wcb-text-secondary); }
 .wcb-badge--featured { background: var(--wcb-warning-bg);  color: var(--wcb-warning-fg); }
 
 .wcb-badge [data-lucide] {
@@ -266,7 +266,7 @@ select.wcb-field {
 	padding-right: 2.5rem;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
-	background-position: right 0.75rem center;
+	background-position: right var(--wcb-space-md) center;
 	background-size: 16px;
 }
 
@@ -452,7 +452,7 @@ select.wcb-field {
 [class*="wp-block-wcb-"] .wcb-field-group {
 	display: flex;
 	flex-direction: column;
-	gap: 0.375rem;
+	gap: var(--wcb-space-xs);
 	margin-bottom: var(--wcb-space-xl);
 }
 
@@ -484,14 +484,14 @@ select.wcb-field {
 	font-weight: var(--wcb-font-normal);
 	color: var(--wcb-text-tertiary);
 	font-size: var(--wcb-text-sm);
-	margin-inline-start: 0.35rem;
+	margin-inline-start: var(--wcb-space-xs);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-field-input,
 [class*="wp-block-wcb-"] .wcb-field-input {
 	width: 100%;
 	min-height: 44px;
-	padding: 0.625rem 0.875rem;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
@@ -520,14 +520,14 @@ select.wcb-field {
 	cursor: pointer;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
-	background-position: right 0.875rem center;
+	background-position: right var(--wcb-space-md) center;
 	appearance: none;
 	padding-inline-end: 2.5rem;
 }
 
 [dir="rtl"] [class*="wp-block-wp-career-board"] .wcb-field-select,
 [dir="rtl"] [class*="wp-block-wcb-"] .wcb-field-select {
-	background-position: left 0.875rem center;
+	background-position: left var(--wcb-space-md) center;
 }
 
 /* ── Panel — shared dashboard / detail panel structure ──────────────── */
@@ -618,7 +618,7 @@ select.wcb-field {
 .wcb-load-more-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.4rem;
+	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-md) var(--wcb-space-3xl);
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
