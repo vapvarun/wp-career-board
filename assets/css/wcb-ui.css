@@ -359,53 +359,63 @@ textarea.wcb-input {
 }
 
 /* ── Bookmark button (shared across all 3 archive cards) ──────────────────
- * Companies + Find Candidates put this button OUTSIDE the wrapping anchor
- * and absolutely position it top-right of the card. Jobs places it inline
- * inside the card header (no positioning), so the absolute-position rules
- * here scope to the company + resume cards only via the .wcb-ca-card +
- * .wcb-ra-card prefixes. Job cards keep their existing inline placement
- * declared in blocks/job-listings/style.css. */
+ * One canonical paint for the save affordance on Find Jobs, Companies,
+ * and Find Candidates cards. All three position the button absolutely
+ * at the top-right of the card and size the SVG to 16px so the icon
+ * lands at the same pixel offset regardless of the card's internal
+ * markup shape (Jobs nests the button inside the card-header flex row;
+ * Companies + Candidates render it as a direct child of the card).
+ * `.wcb-job-card` already has `position: relative` declared in
+ * blocks/job-listings/style.css; the other two get it here. */
 .wcb-ca-card,
 .wcb-ra-card {
 	position: relative;
 }
 
+.wcb-job-card .wcb-bookmark-btn,
 .wcb-ca-card > .wcb-bookmark-btn,
 .wcb-ra-card > .wcb-bookmark-btn {
-	position: absolute;
-	top: var(--wcb-space-md);
-	right: var(--wcb-space-md);
-	z-index: 3;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	position: absolute !important;
+	top: var(--wcb-space-md) !important;
+	right: var(--wcb-space-md) !important;
+	z-index: 3 !important;
+	width: var(--wcb-space-3xl) !important;
+	height: var(--wcb-space-3xl) !important;
+	min-width: 0 !important;
+	min-height: 0 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 	background: transparent !important;
 	border: 0 !important;
 	box-shadow: none !important;
-	color: var(--wcb-text-tertiary, #cbd5e1);
+	color: var(--wcb-text-tertiary, #94a3b8) !important;
 	cursor: pointer;
 	border-radius: var(--wcb-radius-sm);
 	padding: 0 !important;
+	margin: 0 !important;
+	flex-shrink: 0;
 	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
 }
 
+.wcb-job-card .wcb-bookmark-btn:hover,
 .wcb-ca-card > .wcb-bookmark-btn:hover,
 .wcb-ra-card > .wcb-bookmark-btn:hover {
-	color: var(--wcb-warning, #d97706);
+	color: var(--wcb-warning, #d97706) !important;
 	background: var(--wcb-warning-bg-soft, #fffbeb) !important;
 }
 
+.wcb-job-card .wcb-bookmark-btn.wcb-bookmarked,
 .wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
 .wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
-	color: var(--wcb-warning, #d97706);
+	color: var(--wcb-warning, #d97706) !important;
 }
 
+.wcb-job-card .wcb-bookmark-btn svg,
 .wcb-ca-card > .wcb-bookmark-btn svg,
 .wcb-ra-card > .wcb-bookmark-btn svg {
-	width: var(--wcb-icon-md);
-	height: var(--wcb-icon-md);
+	width: 16px !important;
+	height: 16px !important;
 }
 
 .wcb-filter-panel {
