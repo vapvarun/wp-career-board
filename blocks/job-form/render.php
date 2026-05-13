@@ -139,6 +139,11 @@ $wcb_board_currency = $wcb_board_id > 0
 // employer can target the post at a specific board. Single-board sites skip
 // the picker entirely; the REST callback falls back to the default board.
 $wcb_board_options = array();
+// Per-board credit cost map: { board_id => cost }. Seeded at render so the
+// JS layer can update `state.creditCost` reactively when the employer
+// switches boards in the picker, without a REST round-trip. Pro fulfils
+// the per-board pricing via the `wcb_board_credit_cost` filter.
+$wcb_board_credit_costs = array();
 if ( post_type_exists( 'wcb_board' ) ) {
 	$wcb_board_posts = get_posts(
 		array(
@@ -149,10 +154,11 @@ if ( post_type_exists( 'wcb_board' ) ) {
 		)
 	);
 	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[] = array(
+		$wcb_board_options[]                        = array(
 			'id'    => (int) $wcb_b->ID,
 			'title' => $wcb_b->post_title,
 		);
+		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
 	}
 
 	/**
@@ -235,6 +241,11 @@ $wcb_initial_state = apply_filters(
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
 		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
+		// Per-board cost lookup so view.js can update creditCost
+		// reactively when the employer switches boards. Object keyed by
+		// stringified board ID for predictable JS access. See the
+		// matching `actions.updateField` board-switch branch.
+		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with

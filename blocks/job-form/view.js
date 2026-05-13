@@ -266,6 +266,16 @@ store(
 					if ( field === 'title' && state.validationError ) {
 						state.validationError = '';
 					}
+					// When the employer switches boards, re-derive the
+					// credit cost from the seeded per-board map so the
+					// banner ("Posting deducts X credits") updates without
+					// a REST round-trip. Map is keyed by stringified ID.
+					if ( field === 'boardId' ) {
+						const map  = state.boardCreditCosts || {};
+						const key  = String( state.boardId || 0 );
+						const cost = map[ key ];
+						state.creditCost = Number.isFinite( cost ) ? cost : 0;
+					}
 				}
 			},
 

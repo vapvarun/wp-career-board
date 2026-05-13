@@ -76,6 +76,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
+				// When the employer switches boards, re-derive the credit
+				// cost from the seeded per-board map so the deduction banner
+				// updates without a REST round-trip.
+				if ( key === 'boardId' ) {
+					const map  = state.boardCreditCosts || {};
+					const cost = Number( map[ String( state.boardId || 0 ) ] );
+					state.creditCost = Number.isFinite( cost ) ? cost : 0;
+				}
 			}
 		},
 

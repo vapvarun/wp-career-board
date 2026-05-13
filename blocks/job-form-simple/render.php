@@ -38,7 +38,8 @@ $wcb_compact_attr      = ! empty( $attributes['compact'] );
 // sites (Pro) get a dropdown and the employer can target the post at a
 // specific board. Single-board sites skip the picker entirely; the REST
 // callback falls back to the default board when state.boardId stays 0.
-$wcb_board_options = array();
+$wcb_board_options      = array();
+$wcb_board_credit_costs = array();
 if ( post_type_exists( 'wcb_board' ) ) {
 	$wcb_board_posts = get_posts(
 		array(
@@ -53,6 +54,10 @@ if ( post_type_exists( 'wcb_board' ) ) {
 			'id'    => (int) $wcb_b->ID,
 			'title' => $wcb_b->post_title,
 		);
+		// Per-board credit cost map seeded at render so view.js can update
+		// state.creditCost reactively when the employer switches boards.
+		// Pro fulfils the per-board pricing via the wcb_board_credit_cost filter.
+		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
 	}
 
 	/**
@@ -169,6 +174,9 @@ $wcb_state = apply_filters(
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
 		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id ),
+		// Per-board cost lookup so view.js can recompute creditCost when the
+		// employer switches boards in the picker. Object keyed by board ID.
+		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with

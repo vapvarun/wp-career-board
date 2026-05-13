@@ -116,28 +116,10 @@ html.dark-mode {
 	transition: outline-color var( --wcb-transition-snappy, 0.15s ease );
 }
 
-/* Load more button — Reign may reset button styles to plain text */
-.wcb-load-more-btn {
-	display: inline-flex !important;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.65rem 2rem;
-	border: 1.5px solid var( --wcb-border ) !important;
-	border-radius: var( --wcb-radius-md, 8px );
-	background: var( --wcb-base ) !important;
-	font-size: 0.9rem;
-	font-weight: var( --wcb-font-semibold, 600 );
-	color: var( --wcb-text-secondary ) !important;
-	cursor: pointer;
-	text-decoration: none !important;
-	transition: border-color var( --wcb-transition-snappy, 0.15s ease ),
-		color var( --wcb-transition-snappy, 0.15s ease );
-}
-
-.wcb-load-more-btn:hover:not( :disabled ) {
-	border-color: var( --wcb-primary ) !important;
-	color: var( --wcb-primary ) !important;
-}
+/* Load more button - retired in 1.2.x. The unified .wcb-cbtn--ghost rule
+   in assets/css/wcb-ui.css now scopes the Load more button alongside the
+   in-card View Job / View Profile / View Company CTAs, so a Reign-specific
+   override is no longer needed. */
 
 /* Reign uses box-shadows for card depth — match WCB job cards */
 .wcb-job-card {

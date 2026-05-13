@@ -698,12 +698,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
 		<button
 			type="button"
-			class="wcb-load-more-btn"
+			class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
 			data-wp-on--click="actions.loadMore"
 			data-wp-bind--disabled="state.loading"
 		>
 			<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more jobs', 'wp-career-board' ); ?></span>
-			<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+			<span class="wcb-load-more-loading" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
 		</button>
 	</div>
 

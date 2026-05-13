@@ -1043,14 +1043,30 @@ final class Plugin {
 			return true;
 		}
 
-		// Pages containing a WCB block.
+		// Page-level detection - block markup OR shortcode form. The shortcode
+		// path matters because page builders, classic editors, Elementor, and
+		// Bricks emit `[wcb_*]` rather than block comments; without it those
+		// pages render without frontend-components.css and the load-more
+		// button, empty states, and sort selects fall back to browser default.
 		global $post;
 		if ( ! $post instanceof \WP_Post ) {
 			return false;
 		}
-		return has_block( 'wp-career-board/', $post )
-			|| str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
-			|| str_contains( $post->post_content, '<!-- wp:wcb/' );
+		$content = (string) $post->post_content;
+		if ( has_block( 'wp-career-board/', $post )
+			|| str_contains( $content, '<!-- wp:wp-career-board/' )
+			|| str_contains( $content, '<!-- wp:wcb/' ) ) {
+			return true;
+		}
+		// Mirrors resolve_page_context() shortcode-prefix path so the two
+		// detectors stay in lockstep. Filter is the documented extension hook.
+		$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
+		foreach ( $shortcode_prefixes as $prefix ) {
+			if ( str_contains( $content, '[' . $prefix ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

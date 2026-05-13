@@ -311,12 +311,12 @@ $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
 			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
 				<button
 					type="button"
-					class="wcb-load-more-btn"
+					class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
 					data-wp-on--click="actions.loadMore"
 					data-wp-bind--disabled="state.loading"
 				>
 					<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more jobs', 'wp-career-board' ); ?></span>
-					<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+					<span class="wcb-load-more-loading" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
 				</button>
 			</div>
 
