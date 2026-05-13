@@ -9,6 +9,18 @@
 	margin: 0 0 var(--wcb-space-2xl);
 }
 
+/* ── Search row ──────────────────────────────────────────────────────────
+ * Full-width search input above the toolbar - matches the position of the
+ * `.wcb-search-sort-row` in job-listings and the search input in
+ * resume-archive so all three archives share the same vertical rhythm. */
+.wcb-ca-search-row {
+	margin-bottom: var(--wcb-space-lg);
+}
+
+.wcb-ca-search-row .wcb-search-wrap {
+	max-width: 720px;
+}
+
 /* ── Toolbar ─────────────────────────────────────────────────────────────── */
 .wcb-ca-toolbar {
 	display: flex;
@@ -109,7 +121,15 @@
 
 .wcb-ca-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+	/* Force 3 explicit columns at desktop so Companies renders the same 3-up
+	 * grid as Find Candidates regardless of the parent chain padding deltas
+	 * Astra applies to `.wcb-page-article` (the wrapper our
+	 * `page-wcb-fullwidth.php` template puts the block in). An auto-fill
+	 * template here collapsed to 2-col because the sidebar filter panel
+	 * eats ~240px of the row, leaving < 3 × 280px. Mirrors the same fix
+	 * used in `blocks/resume-archive/style.css`. Falls back to 2-col / 1-col
+	 * at the narrower breakpoints handled by the @media block below. */
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: var(--wcb-space-xl);
 }
 

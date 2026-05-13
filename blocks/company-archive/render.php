@@ -185,15 +185,16 @@ foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
 $wcb_state = array(
-	'companies' => $wcb_companies_state,
-	'page'      => 1,
-	'perPage'   => $wcb_per_page,
-	'layout'    => $wcb_layout,
-	'loading'   => false,
-	'hasMore'   => count( $wcb_companies_raw ) < $wcb_companies_total,
-	'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industry'  => '',
-	'size'      => '',
+	'companies'   => $wcb_companies_state,
+	'page'        => 1,
+	'perPage'     => $wcb_per_page,
+	'layout'      => $wcb_layout,
+	'loading'     => false,
+	'hasMore'     => count( $wcb_companies_raw ) < $wcb_companies_total,
+	'apiBase'     => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+	'industry'    => '',
+	'size'        => '',
+	'searchQuery' => '',
 );
 
 $wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
@@ -209,9 +210,34 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
 	<?php endif; ?>
 
-	<?php /* ── Toolbar (results count + view toggle) sits ABOVE the 2-col grid
-	       so the filter panel on the left and the card column on the right
-	       both start at the same Y position. */ ?>
+	<?php
+	/* ── Search row mirrors job-listings and resume-archive so all three
+			archives share one shape: a full-width search input above the
+			toolbar, with the filter sidebar starting below. Wired to
+			state.searchQuery + actions.updateSearch in view.js. */
+	?>
+	<div class="wcb-ca-search-row">
+		<div class="wcb-search-wrap">
+			<span class="wcb-search-icon" aria-hidden="true" data-wp-ignore>
+				<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			</span>
+			<label class="screen-reader-text" for="wcb-company-search"><?php esc_html_e( 'Search companies', 'wp-career-board' ); ?></label>
+			<input
+				type="search"
+				id="wcb-company-search"
+				class="wcb-listings-search"
+				placeholder="<?php esc_attr_e( 'Search companies…', 'wp-career-board' ); ?>"
+				data-wp-bind--value="state.searchQuery"
+				data-wp-on--input="actions.updateSearch"
+			/>
+		</div>
+	</div>
+
+	<?php
+	/* ── Toolbar (results count + view toggle) sits ABOVE the 2-col grid
+			so the filter panel on the left and the card column on the right
+			both start at the same Y position. */
+	?>
 	<div class="wcb-ca-toolbar">
 		<p class="wcb-ca-results" data-wp-text="state.resultsLabel" aria-live="polite"></p>
 
@@ -237,11 +263,13 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 		</div>
 	</div>
 
-	<?php /* ── 2-col layout: sidebar filter panel + result cards. Replaces the
-	       horizontal chip bar pattern that didn't scale once filter counts
-	       grew. Shared `.wcb-archive-layout` + `.wcb-filter-panel` styles
-	       live in `assets/css/wcb-ui.css` so Find Jobs and Find Candidates
-	       inherit the same shell. */ ?>
+	<?php
+	/* ── 2-col layout: sidebar filter panel + result cards. Replaces the
+			horizontal chip bar pattern that didn't scale once filter counts
+			grew. Shared `.wcb-archive-layout` + `.wcb-filter-panel` styles
+			live in `assets/css/wcb-ui.css` so Find Jobs and Find Candidates
+			inherit the same shell. */
+	?>
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter companies', 'wp-career-board' ); ?>">
@@ -331,10 +359,12 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 							data-wp-class--wcb-shown="context.company.tagline"
 							data-wp-text="context.company.tagline"></p>
 					</div>
-					<?php /* Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
-					       span it full-width below the avatar/name column rather than indenting
-					       it under col 2 of the name row. Matches the "name+tagline only beside
-					       avatar, everything else flush left" layout the audit requested. */ ?>
+					<?php
+					/* Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
+							span it full-width below the avatar/name column rather than indenting
+							it under col 2 of the name row. Matches the "name+tagline only beside
+							avatar, everything else flush left" layout the audit requested. */
+					?>
 					<div class="wcb-ca-card-chips">
 						<span class="wcb-ca-chip"
 								data-wp-class--wcb-shown="context.company.industry"

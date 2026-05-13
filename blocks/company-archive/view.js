@@ -11,6 +11,11 @@
  */
 import { store, getElement } from '@wordpress/interactivity';
 
+// Module-scoped debounce timer for the search input. Declared before the
+// store() call so the closure captured by `actions.updateSearch` is bound
+// to the same identifier across re-fires.
+let wcbSearchTimer = null;
+
 const { state } = store( 'wcb-company-archive', {
 	state: {
 		get isGrid() {
@@ -85,9 +90,20 @@ const { state } = store( 'wcb-company-archive', {
 		},
 
 		clearFilters() {
-			state.industry = '';
-			state.size     = '';
+			state.industry    = '';
+			state.size        = '';
+			state.searchQuery = '';
 			wcbFetchCompanies();
+		},
+
+		// Debounced search input - matches the 250ms debounce used in
+		// job-listings/view.js so all three archives feel consistent.
+		updateSearch( event ) {
+			state.searchQuery = ( event && event.target && event.target.value ) || '';
+			if ( wcbSearchTimer ) {
+				clearTimeout( wcbSearchTimer );
+			}
+			wcbSearchTimer = setTimeout( wcbFetchCompanies, 250 );
 		},
 
 		*loadMore() {
@@ -142,6 +158,9 @@ function wcbBuildUrl( page ) {
 	}
 	if ( state.size ) {
 		url.searchParams.set( 'size', state.size );
+	}
+	if ( state.searchQuery ) {
+		url.searchParams.set( 'search', state.searchQuery );
 	}
 	return url.toString();
 }
