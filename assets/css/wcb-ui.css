@@ -373,6 +373,137 @@ textarea.wcb-input {
 .wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
 .wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
 
+/* ── Dashboard "My Saves" list pattern — shared across both dashboards ─────
+ * Used by Saved Jobs / Saved Companies / Saved Resumes views in both the
+ * candidate AND employer dashboards. The classes carry the legacy
+ * `.wcb-cd-*` prefix (candidate-dashboard origin) because the candidate
+ * dashboard already shipped them; moving the rules here lets the employer
+ * dashboard reuse the exact same markup without dragging the entire
+ * candidate-dashboard stylesheet onto an employer page. */
+.wcb-cd-loading {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	font-size: var(--wcb-text-base);
+	padding: var(--wcb-space-md) 0;
+}
+
+.wcb-cd-loading.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--wcb-border, #e5e7eb);
+	border-top-color: var(--wcb-primary, #2563eb);
+	border-radius: 50%;
+	animation: wcb-cd-spin 0.7s linear infinite;
+}
+
+@keyframes wcb-cd-spin {
+	to { transform: rotate(360deg); }
+}
+
+.wcb-cd-error {
+	color: var(--wcb-danger-fg, #b91c1c);
+	font-size: var(--wcb-text-base);
+	margin: 0 0 var(--wcb-space-lg);
+}
+
+.wcb-cd-empty {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
+	text-align: center;
+}
+
+.wcb-cd-empty.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-empty-msg {
+	font-size: var(--wcb-text-md);
+	color: var(--wcb-text-secondary, #6b7280);
+	margin: 0;
+}
+
+.wcb-cd-bookmark-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+	transition: background var(--wcb-transition-fast);
+}
+
+.wcb-cd-bookmark-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-cd-bookmark-row:hover {
+	background: var(--wcb-bg-subtle, #f8fafc);
+}
+
+.wcb-cd-bookmark-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-cd-bookmark-title {
+	font-size: var(--wcb-text-md) !important;
+	font-weight: var(--wcb-font-semibold) !important;
+	font-family: inherit !important;
+	line-height: 1.3 !important;
+	color: var(--wcb-contrast, #0f172a);
+	margin: 0 !important;
+}
+
+.wcb-cd-bookmark-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-cd-bookmark-title a:hover {
+	color: var(--wcb-primary, #2563eb);
+	text-decoration: underline;
+}
+
+.wcb-cd-bookmark-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-cd-bookmark-meta-sep {
+	color: var(--wcb-text-tertiary, #94a3b8);
+}
+
+.wcb-cd-bookmark-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
+}
+
+/* Hidden helper used by `data-wp-class--wcb-hidden` bindings on the
+ * meta-separator dots so they don't render when the value next to them
+ * is empty. */
+.wcb-cd-bookmark-meta .wcb-hidden {
+	display: none;
+}
+
 /* ── Archive card title — shared paint across the 3 archive surfaces ────────
  * Find Jobs (.wcb-card-title — <h3>), Companies (.wcb-ca-name — <h2>),
  * Find Candidates (.wcb-ra-card-name — <p>). Each block uses a different
