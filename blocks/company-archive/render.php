@@ -229,71 +229,27 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<?php endif; ?>
 
 	<?php
-	/* ── Search + sort row. Same shape as job-listings and resume-archive
-			so all three archives use one canonical pattern: a full-width
-			search input on the left, Newest/Oldest sort dropdown on the
-			right. Class names also match (.wcb-search-sort-row) so the
-			shared wcb-ui.css rules in `.wcb-listings-header *` paint
-			every archive identically. */
+	$wcb_toolbar = array(
+		'search_id'            => 'wcb-company-search',
+		'search_sr_label'      => __( 'Search companies', 'wp-career-board' ),
+		'search_placeholder'   => __( 'Search companies…', 'wp-career-board' ),
+		'sort_aria_label'      => __( 'Sort companies', 'wp-career-board' ),
+		'sort_options'         => array(
+			'date_desc' => __( 'Newest first', 'wp-career-board' ),
+			'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
+		),
+		'switcher_aria_label'  => __( 'View layout', 'wp-career-board' ),
+		'switcher_list_label'  => __( 'List view', 'wp-career-board' ),
+		'switcher_grid_label'  => __( 'Grid view', 'wp-career-board' ),
+		'switcher_list_action' => 'actions.setList',
+		'switcher_grid_action' => 'actions.setGrid',
+	);
+	require WCB_DIR . 'templates/parts/archive-toolbar.php';
 	?>
-	<div class="wcb-search-sort-row">
-		<div class="wcb-search-wrap">
-			<span class="wcb-search-icon" aria-hidden="true" data-wp-ignore>
-				<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</span>
-			<label class="screen-reader-text" for="wcb-company-search"><?php esc_html_e( 'Search companies', 'wp-career-board' ); ?></label>
-			<input
-				type="search"
-				id="wcb-company-search"
-				class="wcb-listings-search"
-				placeholder="<?php esc_attr_e( 'Search companies…', 'wp-career-board' ); ?>"
-				data-wp-bind--value="state.searchQuery"
-				data-wp-on--input="actions.updateSearch"
-			/>
-		</div>
-		<select
-			class="wcb-sort-select"
-			aria-label="<?php esc_attr_e( 'Sort companies', 'wp-career-board' ); ?>"
-			data-wp-on--change="actions.changeSort"
-			data-wp-bind--value="state.sortBy"
-		>
-			<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
-			<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
-		</select>
-	</div>
 
 	<?php
-	/* ── Toolbar (results count + view toggle) sits ABOVE the 2-col grid
-			so the filter panel on the left and the card column on the right
-			both start at the same Y position. */
-	?>
-	<div class="wcb-ca-toolbar">
-		<p class="wcb-ca-results" data-wp-text="state.resultsLabel" aria-live="polite"></p>
-
-		<div class="wcb-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setList"
-				data-wp-class--wcb-active="state.isList"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setGrid"
-				data-wp-class--wcb-active="state.isGrid"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-		</div>
-	</div>
-
-	<?php
-	/* ── 2-col layout: sidebar filter panel + result cards. Replaces the
+	/*
+	── 2-col layout: sidebar filter panel + result cards. Replaces the
 			horizontal chip bar pattern that didn't scale once filter counts
 			grew. Shared `.wcb-archive-layout` + `.wcb-filter-panel` styles
 			live in `assets/css/wcb-ui.css` so Find Jobs and Find Candidates
@@ -308,7 +264,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			</div>
 
 			<?php
-			/* Industry + Company Size are multi-select - users can OR
+			/*
+			Industry + Company Size are multi-select - users can OR
 					across multiple values, same as Find Jobs (type + experience
 					+ board) and Find Candidates (skills + availability). The
 					old single-select radio model meant filtering to "Tech OR
@@ -354,7 +311,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 		<template data-wp-each--company="state.companies" data-wp-each-key="context.company.id">
 			<article class="wcb-ca-card">
 				<?php
-				/* Bookmark button sits OUTSIDE the card-link anchor so clicks
+				/*
+				Bookmark button sits OUTSIDE the card-link anchor so clicks
 						don't bubble into navigation. Absolute-positioned top-right via
 						the shared `.wcb-bookmark-btn` rules in wcb-ui.css so Companies,
 						Find Jobs, and Find Candidates share one save affordance. */
@@ -383,7 +341,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					</div>
 
 					<?php
-					/* Trust mark is a small green checkmark inline AFTER the
+					/*
+					Trust mark is a small green checkmark inline AFTER the
 							company name. The earlier "✓ Verified" pill rendered below
 							the avatar in list view and broke layout - the word
 							"Verified" was redundant given the icon. `aria-label` +
@@ -406,7 +365,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 							data-wp-text="context.company.tagline"></p>
 					</div>
 					<?php
-					/* Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
+					/*
+					Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
 							span it full-width below the avatar/name column rather than indenting
 							it under col 2 of the name row. Matches the "name+tagline only beside
 							avatar, everything else flush left" layout the audit requested. */
@@ -432,7 +392,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			</article>
 		</template>
 		<?php
-		/* Empty state mirrors the Find Jobs + Find Candidates card chrome
+		/*
+		Empty state mirrors the Find Jobs + Find Candidates card chrome
 		(`.wcb-empty-state` paint declared in `assets/css/wcb-ui.css`)
 		so all 3 archives degrade with the same affordance. The Clear
 		all CTA wipes both filters + the search query. */

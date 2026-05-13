@@ -402,74 +402,27 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php if ( $wcb_jl_has_filter_ui ) : ?>
 
 		<?php
-		/* ── Full-width search + sort sits above the 2-col layout so the
-			filter panel on the left and the cards on the right both start at
-			the same Y position. Matches /companies/ and /find-candidates/. */
+		$wcb_toolbar = array(
+			'show_search'         => ! has_block( 'wp-career-board/job-search' ),
+			'search_id'           => 'wcb-job-search',
+			'search_sr_label'     => __( 'Search jobs', 'wp-career-board' ),
+			'search_placeholder'  => __( 'Search jobs…', 'wp-career-board' ),
+			'sort_aria_label'     => __( 'Sort jobs', 'wp-career-board' ),
+			'sort_options'        => array(
+				'date_desc' => __( 'Newest first', 'wp-career-board' ),
+				'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
+			),
+			'inject_slot_key'     => 'alerts_subscribe',
+			'switcher_aria_label' => __( 'View layout', 'wp-career-board' ),
+			'switcher_list_label' => __( 'List view', 'wp-career-board' ),
+			'switcher_grid_label' => __( 'Grid view', 'wp-career-board' ),
+		);
+		require WCB_DIR . 'templates/parts/archive-toolbar.php';
 		?>
-	<div class="wcb-search-sort-row">
-		<?php if ( ! has_block( 'wp-career-board/job-search' ) ) : ?>
-		<div class="wcb-search-wrap">
-			<span class="wcb-search-icon" aria-hidden="true" data-wp-ignore>
-				<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</span>
-			<label class="screen-reader-text" for="wcb-job-search"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
-			<input
-				type="search"
-				id="wcb-job-search"
-				class="wcb-listings-search"
-				placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>"
-				data-wp-bind--value="state.searchQuery"
-				data-wp-on--input="actions.updateSearch"
-			/>
-		</div>
-		<?php endif; ?>
-		<select class="wcb-sort-select" aria-label="<?php esc_attr_e( 'Sort jobs', 'wp-career-board' ); ?>" data-wp-on--change="actions.changeSort" data-wp-bind--value="state.sortBy">
-			<option value="date_desc"><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
-			<option value="date_asc"><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
-		</select>
-	</div>
 
 		<?php
-		/* ── Toolbar sits ABOVE the 2-col layout (full width) so the filter
-			panel on the left and the first card row on the right both start
-			at the same Y position. Matches /companies/ and /find-candidates/
-			where the results count + view toggle live OUTSIDE the right
-			column. */
-		?>
-	<div class="wcb-listings-toolbar">
-		<div class="wcb-toolbar-start">
-			<p class="wcb-results-count" aria-live="polite" data-wp-text="state.resultsLabel"></p>
-			<?php
-			/**
-			 * Pro injects the "Alert me" button HTML for the alerts_subscribe slot.
-			 * Filter declared in core/class-pro-coordination.php (F-1).
-			 */
-			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
-			if ( ! empty( $wcb_module_renders['alerts_subscribe'] ) ) {
-				echo wp_kses_post( $wcb_module_renders['alerts_subscribe'] );
-			}
-			?>
-		</div>
-		<div class="wcb-view-switcher" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
-			<button type="button" class="wcb-view-btn"
-				data-wp-class--wcb-view-btn--active="state.isGrid"
-				data-wp-on--click="actions.setGridLayout"
-				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-			<button type="button" class="wcb-view-btn"
-				data-wp-class--wcb-view-btn--active="state.isList"
-				data-wp-on--click="actions.setListLayout"
-				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-		</div>
-	</div>
-
-		<?php
-		/* ── 2-col layout: filter sidebar + result cards. Mirrors
+		/*
+		── 2-col layout: filter sidebar + result cards. Mirrors
 			/companies/ and /find-candidates/ so the three archives share one
 			shape. The existing chip actions (toggleTypeChip, toggleExpChip,
 			toggleRemote, toggleBoardChip) stay as-is — we just stack the
@@ -629,7 +582,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 							<p class="wcb-card-company">
 								<span data-wp-text="context.job.company"></span>
 								<?php
-								/* Inline green tick after the company name. Tooltip
+								/*
+								Inline green tick after the company name. Tooltip
 										+ aria-label carry the trust level for assistive
 										tech; the word "Verified" was dropped from the UI
 										because the icon already communicates it. */
@@ -684,7 +638,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			</article>
 		</template>
 		<?php
-		/* Empty state renders as a self-contained card so it carries
+		/*
+		Empty state renders as a self-contained card so it carries
 				visible weight inside the wide results column instead of
 				floating as a thin icon + line. Title (heading), body (hint),
 				and a "Clear filters" CTA that only shows when filters are

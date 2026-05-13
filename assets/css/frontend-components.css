@@ -760,6 +760,85 @@ select.wcb-field {
 	cursor: pointer;
 }
 
+/* ── Canonical toolbar (results count + view switcher) ─────────────────
+ * Shared across Find Jobs, Companies, Find Candidates so the count sits
+ * inline-start and the view switcher sits inline-end, with identical
+ * spacing on all three archives. */
+[class*="wp-block-wp-career-board"] .wcb-listings-toolbar,
+[class*="wp-block-wcb-"] .wcb-listings-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-lg);
+	margin-bottom: var(--wcb-space-xl);
+	flex-wrap: wrap;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-toolbar-start,
+[class*="wp-block-wcb-"] .wcb-toolbar-start {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	flex-wrap: wrap;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-results-count,
+[class*="wp-block-wcb-"] .wcb-results-count {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, var(--wp--preset--color--wcb-muted));
+	font-weight: var(--wcb-font-medium);
+	margin: 0;
+	flex: 0 0 auto;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-view-switcher,
+[class*="wp-block-wcb-"] .wcb-view-switcher {
+	display: inline-flex;
+	gap: 2px;
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+	border-radius: var(--wcb-radius-sm);
+	padding: 2px;
+	flex-shrink: 0;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn,
+[class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--wcb-space-3xl);
+	height: 30px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	border-radius: var(--wcb-space-xs);
+	color: var(--wcb-text-secondary);
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn svg,
+[class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn svg {
+	display: block;
+	visibility: visible;
+	width: var(--wcb-space-lg);
+	height: var(--wcb-space-lg);
+	flex-shrink: 0;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn:hover,
+[class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn:hover {
+	background: var(--wcb-border);
+	color: var(--wcb-contrast);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn.wcb-active,
+[class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn.wcb-active {
+	background: var(--wcb-base);
+	color: var(--wcb-primary);
+	box-shadow: var(--wcb-shadow-sm);
+}
+
 /* ── Canonical Container — `.wcb-archive-shell` only ──────────────────── */
 
 /*

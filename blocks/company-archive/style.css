@@ -21,7 +21,12 @@
 	max-width: 720px;
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+/* ── Toolbar ───────────────────────────────────────────────────────────
+ * Legacy `.wcb-ca-toolbar` markup is no longer emitted by render.php —
+ * the canonical `.wcb-listings-toolbar` rules in assets/css/frontend-
+ * components.css now style the Companies toolbar identically to Find
+ * Jobs and Find Candidates. Kept here for any legacy CPT archive
+ * templates that still emit the old class until those are migrated. */
 .wcb-ca-toolbar {
 	display: flex;
 	align-items: center;

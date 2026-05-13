@@ -15,27 +15,16 @@
 	margin: 0 0 var(--wcb-space-2xl);
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────────────────── */
-.wcb-listings-toolbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: var(--wcb-space-xl);
-	gap: var(--wcb-space-lg);
-	flex-wrap: wrap;
-}
-
-.wcb-results-count {
-	font-size: var(--wcb-text-sm);
-	color: var( --wcb-muted, var(--wp--preset--color--wcb-muted) );
-	margin: 0;
-}
-
-/* ── Layout toggle ───────────────────────────────────────────────────────── */
+/* Canonical `.wcb-listings-toolbar`, `.wcb-results-count`,
+ * `.wcb-view-switcher`, `.wcb-layout-btn` styles live in
+ * `assets/css/frontend-components.css` so all 3 archives (Jobs,
+ * Companies, Find Candidates) render the same toolbar layout.
+ * The legacy `.wcb-layout-toggle` alias below preserves any
+ * pre-1.2.0 markup. */
 .wcb-layout-toggle {
 	display: flex;
 	gap: 2px;
-	background: var( --wcb-surface, var(--wp--preset--color--wcb-surface) );
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	border-radius: var(--wcb-radius-sm);
 	padding: 2px;
 }
@@ -709,11 +698,7 @@
 	display: -webkit-box;
 }
 
-.wcb-toolbar-start {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-md);
-}
+/* `.wcb-toolbar-start` flex rules live in assets/css/frontend-components.css. */
 
 /* ── Alert me button ───────────────────────────────────────────────────── */
 .wcb-alert-me-btn {
