@@ -199,22 +199,12 @@
 	min-width: 0;
 }
 
-/* Title size aligned with Companies' `.wcb-ca-name` and Find Candidates'
- * `.wcb-ra-card-name`. The job-listings block uses an <h3> for the title;
- * Companies uses <h2>; Candidates uses <p>. Every Reign / Astra heading
- * cascade applies its own font-size, font-family, and weight to <h3>
- * stronger than (0,1,0) — including font-family swaps to the heading
- * font. The `!important` + `font-family: inherit` here forces parity
- * across all three archive cards regardless of the underlying tag. */
-.wp-block-wp-career-board-job-listings .wcb-card-title {
-	font-family: inherit !important;
-	font-size: var(--wcb-text-base) !important;
-	font-weight: var(--wcb-font-bold) !important;
-	line-height: 1.3 !important;
-	letter-spacing: 0 !important;
-	margin: 0 0 var(--wcb-space-xs) !important;
-	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
-}
+/* `.wcb-card-title` typography is declared once in `assets/css/wcb-ui.css`
+ * alongside `.wcb-ca-name` (Companies) and `.wcb-ra-card-name` (Candidates)
+ * so all three archive card titles render with one canonical paint. The
+ * job-listings block uses an `<h3>`; Companies uses `<h2>`; Candidates
+ * uses `<p>`. The shared rule beats the Reign / Astra heading cascade
+ * via a strong selector chain in wcb-ui.css. */
 
 .wcb-card-title a,
 .wcb-card-title a:visited {
@@ -373,69 +363,20 @@
 	margin-inline-start: auto;
 }
 
-.wcb-cbtn {
-	display: inline-flex;
-	align-items: center;
-	padding: var(--wcb-space-xs) var(--wcb-space-lg); /* 0.35rem ≈ 6px → xs */
-	border-radius: var(--wcb-radius-sm);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	text-decoration: none;
-	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
-	white-space: nowrap;
-}
-
-/* Outlined "View Job" pill - matches `.wcb-ca-cta` on Companies and
- * `.wcb-cbtn--ghost` on Find Candidates so all three archive cards show
- * the same outlined primary action. Hardcoded `#2563eb` fallback inside
- * `var(...)` because `--wcb-primary` is not always defined at this point
- * in the cascade (it's a theme preset that some Reign builds emit lazily)
- * - without the fallback the border + text rendered as currentColor on a
- * transparent background, making the button effectively invisible. */
-.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply,
-.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply:link,
-.wp-block-wp-career-board-job-listings .wcb-job-card .wcb-cbtn--apply:visited {
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	min-height: 38px !important;
-	min-width: 112px !important;
-	padding: 0 16px !important;
-	border: 1.5px solid #dc2626 !important;
-	border-radius: 8px !important;
-	background: transparent !important;
-	color: #dc2626 !important;
-	-webkit-text-fill-color: #dc2626 !important;
-	font-family: inherit !important;
-	font-size: 0.8125rem !important;
-	font-weight: 700 !important;
-	line-height: 1 !important;
-	letter-spacing: 0.01em !important;
-	text-indent: 0 !important;
-	text-decoration: none !important;
-	white-space: nowrap !important;
-	text-transform: none !important;
-	position: relative;
-	z-index: 2;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-job-card:hover .wcb-cbtn--apply,
-.wp-block-wp-career-board-job-listings .wcb-cbtn--apply:hover,
-.wp-block-wp-career-board-job-listings .wcb-cbtn--apply:focus {
-	background: #dc2626 !important;
-	color: #ffffff !important;
-	text-decoration: none !important;
-}
+/* `.wcb-cbtn` base + `.wcb-cbtn--ghost` modifier + `.wcb-cbtn--sm` sizing
+ * all live in `assets/css/wcb-ui.css`. Find Jobs uses
+ * `<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm">View Job</a>` on
+ * its card CTA, same as Companies (View Profile) and Find Candidates
+ * (View Resume). No per-block button styles are needed here. */
 
 /* ── Grid footer overrides ───────────────────────────────────────────────── */
 .wcb-jobs-container.wcb-grid .wcb-card-date {
 	margin-inline-start: auto;
 }
 
-/* Grid footer is a 2-row block so the "View Job" CTA always sits on its
- * own row and never wraps awkwardly behind the salary + date inline pair
- * (which it did at ~213px card width, putting the button half off-screen).
- * Row 1 = salary (left) + date_ago (right). Row 2 = CTA (right-aligned). */
+/* Grid footer stacks vertically so the View Job pill always sits on its
+ * own row, right-aligned. Row 1 = salary (left) + date_ago (right).
+ * Row 2 = CTA. */
 .wcb-jobs-container.wcb-grid .wcb-card-footer {
 	display: flex;
 	flex-direction: column;
@@ -448,7 +389,7 @@
 	display: inline-flex;
 }
 
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn--apply {
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
 	align-self: flex-end;
 }
 

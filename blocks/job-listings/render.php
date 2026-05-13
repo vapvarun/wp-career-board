@@ -524,7 +524,18 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
 					<li>
-						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'boardId' => $wcb_opt['id'], 'boardName' => $wcb_opt['name'] ) ) ); ?>">
+						<label class="wcb-filter-panel__option" data-wp-context="
+						<?php
+						echo esc_attr(
+							wp_json_encode(
+								array(
+									'boardId'   => $wcb_opt['id'],
+									'boardName' => $wcb_opt['name'],
+								)
+							)
+						);
+						?>
+																					">
 							<input type="checkbox" data-wp-on--change="actions.toggleBoardChip" data-wp-bind--checked="state.isBoardActive" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
 						</label>
@@ -652,7 +663,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
-						<a class="wcb-cbtn wcb-cbtn--apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					</div>
 
 				</div>

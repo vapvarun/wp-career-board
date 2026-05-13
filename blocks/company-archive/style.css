@@ -379,34 +379,9 @@
 	font-weight: var(--wcb-font-medium);
 }
 
-/* `.wcb-ca-cta` matches the ghost-button shape used by Find Candidates' "View
- * Resume" pill (`.wcb-cbtn.wcb-cbtn--ghost.wcb-cbtn--sm`) so all three archive
- * pages — find-jobs / companies / find-candidates — show the same outlined
- * primary action on each card. Card hover lifts the button to the filled
- * variant for affordance. */
-.wcb-ca-cta {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: var(--wcb-space-3xl); /* 32px */
-	padding: 0 var(--wcb-space-md);
-	border: 1px solid var(--wcb-primary);
-	border-radius: var(--wcb-radius-md);
-	background: transparent;
-	color: var(--wcb-primary);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-semibold);
-	line-height: 1;
-	white-space: nowrap;
-	flex-shrink: 0;
-	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
-}
-
-.wcb-ca-card:hover .wcb-ca-cta {
-	background: var(--wcb-primary);
-	color: var(--wcb-on-primary, #ffffff);
-	text-decoration: none;
-}
+/* Company card CTA reuses the shared `.wcb-cbtn .wcb-cbtn--ghost
+ * .wcb-cbtn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
+ * No per-block override here. */
 
 /* -- Empty state -- */
 .wcb-ca-empty {

@@ -337,6 +337,27 @@ textarea.wcb-input {
 	gap: var(--wcb-space-lg);
 }
 
+/* ── Archive card title — shared paint across the 3 archive surfaces ────────
+ * Find Jobs (.wcb-card-title — <h3>), Companies (.wcb-ca-name — <h2>),
+ * Find Candidates (.wcb-ra-card-name — <p>). Each block uses a different
+ * tag for semantic / SEO reasons, but the visual paint must match. The
+ * Reign / Astra heading cascade owns `<h3>` with a heavier display font
+ * + larger size at (0,2,0) - (0,3,0) specificity; pinning the rule under
+ * `[class*="wp-block-"]` archive parents + `!important` on `font-family
+ * / font-size / weight / line-height` wins regardless of which heading
+ * tag the underlying block uses. */
+[class*="wp-block-wp-career-board"] .wcb-card-title,
+[class*="wp-block-wp-career-board"] .wcb-ca-name,
+[class*="wp-block-wcb-"] .wcb-ra-card-name {
+	font-family: inherit !important;
+	font-size: var(--wcb-text-base) !important;
+	font-weight: var(--wcb-font-bold) !important;
+	line-height: 1.3 !important;
+	letter-spacing: 0 !important;
+	color: var(--wcb-contrast, #0f172a);
+	margin: 0 0 var(--wcb-space-xs);
+}
+
 /* ── Archive layout — sidebar filter panel + results ──────────────────────── */
 
 /* Two-column layout used by every archive surface (`/find-jobs/`,
@@ -755,18 +776,34 @@ textarea.wcb-input {
 	text-decoration: none;
 }
 
-.wcb-cbtn--ghost {
-	background: transparent;
+/* Token-driven outlined-pill. Used as the primary card action on every
+ * archive: Find Jobs "View Job", Companies "View Profile", Find
+ * Candidates "View Resume". The selector chain below intentionally
+ * adds the element name + :link/:visited specificity hooks so the
+ * Reign / Astra `.entry-content a` cascade (which sets `color: white`
+ * with (0,2,1) specificity) loses without further patchwork inside
+ * each per-block stylesheet. `-webkit-text-fill-color` is the safety
+ * net for builds where the theme uses it to override `color`. */
+.wcb-cbtn--ghost,
+a.wcb-cbtn--ghost:link,
+a.wcb-cbtn--ghost:visited,
+span.wcb-cbtn--ghost,
+.wcb-cbtn.wcb-cbtn--ghost {
+	background: transparent !important;
 	color: var(--wcb-primary, #2563eb) !important;
-	border-color: var(--wcb-primary, #2563eb);
+	-webkit-text-fill-color: var(--wcb-primary, #2563eb) !important;
+	border-color: var(--wcb-primary, #2563eb) !important;
 }
 
 .wcb-cbtn--ghost:hover,
-.wcb-cbtn--ghost:focus-visible {
-	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.08));
-	color: var(--wcb-primary-dark, #1d4ed8) !important;
-	border-color: var(--wcb-primary-dark, #1d4ed8);
-	text-decoration: none;
+.wcb-cbtn--ghost:focus-visible,
+a.wcb-cbtn--ghost:hover,
+a.wcb-cbtn--ghost:focus-visible {
+	background: var(--wcb-primary, #2563eb) !important;
+	color: var(--wcb-on-primary, #ffffff) !important;
+	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff) !important;
+	border-color: var(--wcb-primary, #2563eb) !important;
+	text-decoration: none !important;
 }
 
 .wcb-cbtn--danger {
