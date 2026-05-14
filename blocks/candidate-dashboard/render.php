@@ -315,7 +315,8 @@ wp_interactivity_state(
 			<?php endif; ?>
 
 			<?php
-			/* My Saves - jobs, companies, and resumes are bookmark-able
+			/*
+			My Saves - jobs, companies, and resumes are bookmark-able
 					by any logged-in user (REST gate is `is_user_logged_in()`).
 					Grouping them here keeps the three lists separate so saved
 					jobs don't mix with saved companies or saved candidate
@@ -524,12 +525,27 @@ wp_interactivity_state(
 								data-wp-text="context.application.statusLabel"
 								data-wp-bind--data-status="context.application.status"
 							></span>
+							<?php
+							/*
+							Withdraw shows for live applications (gated by ability).
+							 * Remove shows for "Job no longer available" rows so the
+							 * candidate can clean dead history out of their list -
+							 * both buttons call the same REST endpoint which deletes
+							 * the application record. */
+							?>
 							<button
 								type="button"
 								class="wcb-cd-withdraw-btn"
 								data-wp-class--wcb-shown="state.allowWithdraw"
+								data-wp-class--wcb-hidden="context.application.jobRemoved"
 								data-wp-on--click="actions.withdrawApplication"
 							><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
+							<button
+								type="button"
+								class="wcb-cd-withdraw-btn wcb-cd-withdraw-btn--remove"
+								data-wp-class--wcb-shown="context.application.jobRemoved"
+								data-wp-on--click="actions.withdrawApplication"
+							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
 						</div>
 					</div>
 				</template>

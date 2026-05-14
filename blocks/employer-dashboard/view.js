@@ -5,6 +5,41 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 
+/**
+ * Views that are eligible to appear in the URL hash. Same shape as the
+ * candidate-dashboard `VALID_TABS` allowlist so deep links / bookmarks /
+ * browser back-forward survive across the 2 dashboards. Anything outside
+ * this list is ignored on read.
+ */
+const VALID_VIEWS = [
+	'overview',
+	'jobs',
+	'post-job',
+	'applications',
+	'company',
+	'saved-jobs',
+	'saved-companies',
+	'saved-resumes',
+	'settings',
+];
+
+function readHashView() {
+	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
+	return VALID_VIEWS.includes( raw ) ? raw : null;
+}
+
+function writeHashView( view ) {
+	if ( ! VALID_VIEWS.includes( view ) ) {
+		return;
+	}
+	const target = '#' + view;
+	if ( window.location.hash === target ) {
+		return;
+	}
+	const url = window.location.pathname + window.location.search + target;
+	window.history.replaceState( null, '', url );
+}
+
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
@@ -394,17 +429,32 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 		*init() {
-			// Restore last active view from sessionStorage (skip if URL already dictates view).
-			if ( state.currentView === 'overview' ) {
+			// Tab restoration priority: URL hash → sessionStorage → server default.
+			// Mirrors candidate-dashboard so deep-linking to #saved-jobs /
+			// #applications / etc lands the user on the right tab regardless
+			// of any prior session activity.
+			const hashView = readHashView();
+			if ( hashView ) {
+				state.currentView = hashView;
+			} else if ( state.currentView === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_employer_view' );
 				if ( saved ) {
 					state.currentView = saved;
 				}
-				const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
-				if ( savedJob > 0 && state.currentView === 'applications' ) {
-					state.appsJobId = savedJob;
-				}
 			}
+			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
+			if ( savedJob > 0 && state.currentView === 'applications' ) {
+				state.appsJobId = savedJob;
+			}
+			writeHashView( state.currentView );
+
+			// Browser back/forward and manual hash edits stay in sync.
+			window.addEventListener( 'hashchange', () => {
+				const next = readHashView();
+				if ( next && next !== state.currentView ) {
+					state.currentView = next;
+				}
+			} );
 
 			state.loading = true;
 			state.error   = '';
@@ -491,6 +541,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'overview';
 			state.navOpen     = false;
 			sessionStorage.removeItem( 'wcb_employer_view' );
+			writeHashView( 'overview' );
 		},
 
 		switchToJobs() {
@@ -498,12 +549,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
+			writeHashView( 'jobs' );
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
+			writeHashView( 'applications' );
 		},
 
 		switchToCompany() {
@@ -512,6 +565,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'company' );
+			writeHashView( 'company' );
 		},
 
 		switchToSettings() {
@@ -519,12 +573,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
+			writeHashView( 'settings' );
 		},
 
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
+			writeHashView( 'post-job' );
 		},
 
 		/**
@@ -537,6 +593,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen           = false;
 			state.savedJobsError    = '';
 			sessionStorage.setItem( 'wcb_employer_view', 'saved-jobs' );
+			writeHashView( 'saved-jobs' );
 
 			if ( state.savedJobs.length ) {
 				return;
@@ -565,6 +622,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen              = false;
 			state.savedCompaniesError  = '';
 			sessionStorage.setItem( 'wcb_employer_view', 'saved-companies' );
+			writeHashView( 'saved-companies' );
 
 			if ( state.savedCompanies.length ) {
 				return;
@@ -593,6 +651,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen            = false;
 			state.savedResumesError  = '';
 			sessionStorage.setItem( 'wcb_employer_view', 'saved-resumes' );
+			writeHashView( 'saved-resumes' );
 
 			if ( state.savedResumes.length ) {
 				return;
