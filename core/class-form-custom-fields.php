@@ -120,7 +120,7 @@ final class FormCustomFields {
 		// Options can come as JSON string (DB row) or array (filter contract).
 		$raw_options = $field['options'] ?? array();
 		if ( is_string( $raw_options ) && '' !== trim( $raw_options ) ) {
-			$decoded = json_decode( $raw_options, true );
+			$decoded     = json_decode( $raw_options, true );
 			$raw_options = is_array( $decoded ) ? $decoded : array();
 		}
 		if ( ! is_array( $raw_options ) ) {
@@ -160,7 +160,10 @@ final class FormCustomFields {
 
 		echo '<div class="wcb-form-field wcb-form-field--custom wcb-form-field--' . esc_attr( $type ) . '">';
 
-		if ( ! empty( $field['label'] ) ) {
+		// Checkbox renders its label inline (after the box), not as a
+		// standalone label above an empty control — a lone label over a
+		// checkbox reads as broken. Every other type keeps the label above.
+		if ( ! empty( $field['label'] ) && 'checkbox' !== $type ) {
 			echo '<label class="wcb-form-label" for="' . esc_attr( $dom_id ) . '">';
 			echo esc_html( (string) $field['label'] );
 			if ( ! empty( $field['required'] ) ) {
@@ -171,15 +174,43 @@ final class FormCustomFields {
 
 		$value_bind = 'data-wp-bind--value="state.customFields.' . $key . '"';
 
-		if ( 'textarea' === $type ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All attrs pre-escaped above; static markup safe.
+		/*
+		 * EscapeOutput is disabled for the field-render branches below. Every
+		 * interpolated value is provably safe: $dom_id / $update_fn / $key go
+		 * through esc_attr (and $key is already sanitize_key'd in
+		 * normalise_field); $value_bind embeds that same sanitized $key;
+		 * $required_attr and $placeholder_attr are literal-ternary strings
+		 * ($placeholder_attr's only variable is wrapped in esc_attr at
+		 * assignment). The sniff can't trace those across the concatenation,
+		 * and a single-line phpcs:ignore can't cover these multi-line echoes.
+		 */
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( 'checkbox' === $type ) {
+			// Boolean field. data-wp-bind--checked drives the box from
+			// state.customFields[ key ]; save_values() persists '1' / '' so
+			// the bound value stays JS-falsy when off (the string '0' is
+			// truthy in JS, '' is not). Reuses the .wcb-checkbox-label
+			// pattern the job forms already use — styled in the shared
+			// frontend-components.css so it renders consistently wherever
+			// this renderer is embedded (jobs, company, resume, application).
+			echo '<label class="wcb-checkbox-label" for="' . esc_attr( $dom_id ) . '">';
+			echo '<input type="checkbox" id="' . esc_attr( $dom_id ) . '" class="wcb-field" value="1"'
+				. ' data-wp-on--change="actions.' . esc_attr( $update_fn ) . '"'
+				. ' data-wcb-field="' . esc_attr( $key ) . '"'
+				. ' data-wp-bind--checked="state.customFields.' . esc_attr( $key ) . '"'
+				. $required_attr . ' />';
+			echo '<span>' . esc_html( (string) $field['label'] );
+			if ( ! empty( $field['required'] ) ) {
+				echo ' <span class="wcb-required" aria-hidden="true">*</span>';
+			}
+			echo '</span></label>';
+		} elseif ( 'textarea' === $type ) {
 			echo '<textarea id="' . esc_attr( $dom_id ) . '" class="wcb-field" rows="4"'
 				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
 				. ' ' . $value_bind
 				. $placeholder_attr . $required_attr . '></textarea>';
 		} elseif ( 'select' === $type && ! empty( $field['options'] ) && is_array( $field['options'] ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<select id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
 				. ' data-wp-on--change="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
@@ -191,15 +222,15 @@ final class FormCustomFields {
 			}
 			echo '</select>';
 		} else {
-			$allowed = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
+			$allowed    = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
 			$input_type = in_array( $type, $allowed, true ) ? $type : 'text';
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
 				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
 				. ' ' . $value_bind
 				. $placeholder_attr . $required_attr . ' />';
 		}
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $field['description'] ) ) {
 			echo '<span class="wcb-field-hint">' . esc_html( (string) $field['description'] ) . '</span>';
@@ -296,6 +327,16 @@ final class FormCustomFields {
 	 * @return string
 	 */
 	private static function sanitise_value( string $type, mixed $raw_value ): string {
+		// Checkbox first — it accepts a bool (JS sends target.checked) or any
+		// truthy string shape, and must store '' (not '0') when off so the
+		// data-wp-bind--checked binding stays falsy in JS, where '0' is truthy.
+		if ( 'checkbox' === $type ) {
+			$is_on = is_bool( $raw_value )
+				? $raw_value
+				: in_array( strtolower( (string) $raw_value ), array( '1', 'on', 'true', 'yes' ), true );
+			return $is_on ? '1' : '';
+		}
+
 		if ( is_bool( $raw_value ) ) {
 			return $raw_value ? '1' : '0';
 		}

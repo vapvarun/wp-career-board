@@ -142,7 +142,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		updateCustomField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) return;
-			state.customFields = { ...state.customFields, [ key ]: event.target.value };
+			const target = event.target;
+			const value  = ( target.type === 'checkbox' ) ? target.checked : target.value;
+			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
 		* submitJob() {

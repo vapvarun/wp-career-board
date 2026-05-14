@@ -597,6 +597,34 @@ select.wcb-field {
 	}
 }
 
+/* ── Checkbox label — shared custom-field primitive ─────────────────────
+ *
+ * Used by the shared FormCustomFields renderer's `checkbox` field type so a
+ * custom checkbox renders consistently inside every form that embeds it
+ * (job, company, resume, application). The job-form blocks also define this
+ * locally for their built-in toggles; this shared copy is what makes the
+ * custom-field checkbox styled in the other form contexts too.
+ */
+.wcb-checkbox-label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	cursor: pointer;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast, #0f172a);
+	user-select: none;
+}
+
+.wcb-checkbox-label input[type="checkbox"] {
+	width: var(--wcb-icon-md);
+	height: var(--wcb-icon-md);
+	cursor: pointer;
+	flex-shrink: 0;
+	accent-color: var(--wcb-primary, #2563eb);
+	margin: 0;
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*
