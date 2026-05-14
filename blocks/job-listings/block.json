@@ -33,6 +33,15 @@
       "type": "integer",
       "default": 0
     },
+    "columns": {
+      "type": "integer",
+      "default": 3,
+      "enum": [ 3, 4 ]
+    },
+    "showFilters": {
+      "type": "boolean",
+      "default": true
+    },
     "metaFilter": {
       "type": "string",
       "default": ""

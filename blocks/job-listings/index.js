@@ -7,6 +7,7 @@
 	var PanelBody         = wp.components.PanelBody;
 	var SelectControl     = wp.components.SelectControl;
 	var RangeControl      = wp.components.RangeControl;
+	var ToggleControl     = wp.components.ToggleControl;
 	var useSelect         = wp.data.useSelect;
 
 	wp.blocks.registerBlockType( 'wp-career-board/job-listings', {
@@ -59,6 +60,23 @@
 							],
 							onChange: function ( val ) { setAttr( { layout: val } ); },
 						} ),
+						'grid' === attr.layout && el( SelectControl, {
+							label:    __( 'Grid columns', 'wp-career-board' ),
+							value:    String( attr.columns || 3 ),
+							options:  [
+								{ label: __( '3 columns', 'wp-career-board' ), value: '3' },
+								{ label: __( '4 columns', 'wp-career-board' ), value: '4' },
+							],
+							onChange: function ( val ) { setAttr( { columns: parseInt( val, 10 ) === 4 ? 4 : 3 } ); },
+						} ),
+						el( ToggleControl, {
+							label:    __( 'Show filter sidebar', 'wp-career-board' ),
+							checked:  !! attr.showFilters,
+							help:     attr.showFilters
+								? __( 'Visitors can filter and search the listing.', 'wp-career-board' )
+								: __( 'Listing only - no search box or filter sidebar.', 'wp-career-board' ),
+							onChange: function ( val ) { setAttr( { showFilters: !! val } ); },
+						} ),
 						el( RangeControl, {
 							label:    __( 'Jobs per page (0 uses the site default)', 'wp-career-board' ),
 							value:    attr.perPage,
@@ -71,7 +89,11 @@
 				el( 'div', useBlockProps( { style: { padding: '12px 16px', background: '#f0f6fc', border: '1px dashed #93c5fd', borderRadius: '4px' } } ),
 					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, 'WCB: Job Listings' ),
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } },
-						__( 'Board: ', 'wp-career-board' ) + selectedBoardLabel + '  ·  ' + ( 'list' === attr.layout ? __( 'List', 'wp-career-board' ) : __( 'Grid', 'wp-career-board' ) )
+						__( 'Board: ', 'wp-career-board' ) + selectedBoardLabel
+							+ '  ·  ' + ( 'list' === attr.layout
+								? __( 'List', 'wp-career-board' )
+								: __( 'Grid', 'wp-career-board' ) + ' ' + ( attr.columns || 3 ) + __( '-col', 'wp-career-board' ) )
+							+ '  ·  ' + ( attr.showFilters ? __( 'Filters on', 'wp-career-board' ) : __( 'Filters off', 'wp-career-board' ) )
 					)
 				)
 			);

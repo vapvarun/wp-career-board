@@ -19,6 +19,9 @@ $wcb_setting_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 10 );
 $wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['perPage'] : $wcb_setting_per_page;
 $wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
+$wcb_raw_columns      = (int) ( $attributes['columns'] ?? 3 );
+$wcb_columns          = in_array( $wcb_raw_columns, array( 3, 4 ), true ) ? $wcb_raw_columns : 3;
+$wcb_show_filters     = ( $attributes['showFilters'] ?? true ) ? true : false;
 
 $wcb_author_id_attr = (int) ( $attributes['authorId'] ?? 0 );
 $wcb_saved_by_attr  = (int) ( $attributes['savedBy'] ?? 0 );
@@ -413,7 +416,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
 	<?php endif; ?>
 	<?php
-	$wcb_jl_has_filter_ui = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr );
+	$wcb_jl_has_filter_ui = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr && $wcb_show_filters );
 	?>
 	<?php if ( $wcb_jl_has_filter_ui ) : ?>
 
@@ -583,7 +586,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<?php endif; ?>
 
 	<div
-		class="wcb-jobs-container"
+		class="wcb-jobs-container wcb-cols-<?php echo esc_attr( (string) $wcb_columns ); ?>"
 		data-wp-class--wcb-grid="state.isGrid"
 		data-wp-class--wcb-list="state.isList"
 	>

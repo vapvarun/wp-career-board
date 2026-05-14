@@ -88,6 +88,13 @@
 	gap: var(--wcb-space-xl);
 }
 
+/* Optional 4-up grid — set per block instance via the editor "Grid columns"
+ * control. Reflows to 2-col / 1-col at the same breakpoints as the 3-up
+ * default (see the responsive ladder below). */
+.wcb-jobs-container.wcb-grid.wcb-cols-4 {
+	grid-template-columns: repeat( 4, minmax( 0, 1fr ) );
+}
+
 /* ── Job Card ──────────────────────────────────────────────────────────────
  * Grid layout: avatar in col 1 row 1, title+bookmark inline in col 2 row 1.
  * Badges, excerpt, and footer span the full card width on rows 2-4 so they
@@ -387,7 +394,8 @@
  * 3-col default → 2-col at tablet → 1-col at mobile. Filter panel stacks
  * above at <900px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
 @media ( max-width: 1023px ) {
-	.wcb-jobs-container.wcb-grid {
+	.wcb-jobs-container.wcb-grid,
+	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
@@ -409,7 +417,8 @@
 		font-size: var(--wcb-text-md);
 	}
 
-	.wcb-jobs-container.wcb-grid {
+	.wcb-jobs-container.wcb-grid,
+	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
 		grid-template-columns: 1fr;
 	}
 
