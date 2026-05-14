@@ -656,6 +656,18 @@ select.wcb-field {
 	margin: 0;
 }
 
+/* ── Multiselect group — shared custom-field primitive ─────────────────
+ *
+ * Used by the FormCustomFields renderer's `multiselect` field type. Stacks
+ * its checkbox options; each option reuses .wcb-checkbox-label so the
+ * single-checkbox and multiselect types read consistently.
+ */
+.wcb-multiselect-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*

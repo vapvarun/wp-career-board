@@ -21,7 +21,7 @@
  *         array(
  *           'key'         => '_wcb_partner_id',
  *           'label'       => 'Partner',
- *           'type'        => 'text|textarea|select|email|tel|url|number|date',
+ *           'type'        => 'text|textarea|email|tel|url|number|date|select|checkbox|radio|multiselect',
  *           'required'    => true|false,
  *           'placeholder' => 'optional',
  *           'description' => 'optional hint',
@@ -86,23 +86,24 @@ final class FormCustomFields {
 			return;
 		}
 
-		// radio is the only type that needs a server-side pre-fill (see the
-		// $owner_id doc above). Skip the meta read entirely when no group
-		// actually contains a radio field.
-		$values    = array();
-		$has_radio = false;
+		// radio and multiselect both need a server-side pre-fill (see the
+		// $owner_id doc above) — neither has a single element to two-way
+		// bind. Skip the meta read entirely when no group contains one.
+		$values        = array();
+		$needs_prefill = false;
 		foreach ( $groups as $group ) {
 			if ( ! is_array( $group ) || empty( $group['fields'] ) || ! is_array( $group['fields'] ) ) {
 				continue;
 			}
 			foreach ( $group['fields'] as $field ) {
-				if ( is_array( $field ) && 'radio' === (string) ( $field['type'] ?? $field['field_type'] ?? '' ) ) {
-					$has_radio = true;
+				$field_type = is_array( $field ) ? (string) ( $field['type'] ?? $field['field_type'] ?? '' ) : '';
+				if ( 'radio' === $field_type || 'multiselect' === $field_type ) {
+					$needs_prefill = true;
 					break 2;
 				}
 			}
 		}
-		if ( $has_radio && $owner_id > 0 ) {
+		if ( $needs_prefill && $owner_id > 0 ) {
 			$values = self::load_values( $groups, $owner_id, $reader );
 		}
 
@@ -175,11 +176,14 @@ final class FormCustomFields {
 	 * @param array<string, mixed> $field         Field definition.
 	 * @param string               $update_fn     JS action name.
 	 * @param string               $id_prefix     DOM id prefix.
-	 * @param string               $current_value Saved value, used only by the
-	 *                                            `radio` type to set the
-	 *                                            matching option's `checked`
-	 *                                            server-side. Empty in create
-	 *                                            mode and for every other type.
+	 * @param string               $current_value Saved value, used by the
+	 *                                            `radio` and `multiselect`
+	 *                                            types to set the matching
+	 *                                            option(s) `checked`
+	 *                                            server-side (multiselect is a
+	 *                                            comma-separated list). Empty
+	 *                                            in create mode and for every
+	 *                                            other type.
 	 * @return void
 	 */
 	private static function render_field( array $field, string $update_fn, string $id_prefix, string $current_value = '' ): void {
@@ -282,6 +286,32 @@ final class FormCustomFields {
 				echo '<span>' . esc_html( (string) $label ) . '</span>';
 				echo '</label>';
 				++$radio_index;
+			}
+			echo '</div>';
+		} elseif ( 'multiselect' === $type && ! empty( $field['options'] ) && is_array( $field['options'] ) ) {
+			// Multiple-choice checkbox group. Like radio it has no single
+			// element to two-way bind: each box carries data-wcb-multi so
+			// updateCustomField collects every checked sibling sharing the
+			// field key into an array, and the saved options are `checked`
+			// server-side from the comma-separated $current_value.
+			// save_values() stores the result back as a CSV string, keeping
+			// the single-meta-value model intact.
+			$ms_selected = '' !== $current_value ? explode( ',', $current_value ) : array();
+			echo '<div class="wcb-multiselect-group" role="group">';
+			$ms_index = 0;
+			foreach ( $field['options'] as $val => $label ) {
+				$ms_id      = $dom_id . '-' . $ms_index;
+				$ms_checked = in_array( (string) $val, $ms_selected, true ) ? ' checked' : '';
+				echo '<label class="wcb-checkbox-label" for="' . esc_attr( $ms_id ) . '">';
+				echo '<input type="checkbox" id="' . esc_attr( $ms_id ) . '" class="wcb-field"'
+					. ' value="' . esc_attr( (string) $val ) . '"'
+					. ' data-wp-on--change="actions.' . esc_attr( $update_fn ) . '"'
+					. ' data-wcb-field="' . esc_attr( $key ) . '"'
+					. ' data-wcb-multi="1"'
+					. $ms_checked . ' />';
+				echo '<span>' . esc_html( (string) $label ) . '</span>';
+				echo '</label>';
+				++$ms_index;
 			}
 			echo '</div>';
 		} else {
@@ -398,6 +428,24 @@ final class FormCustomFields {
 				? $raw_value
 				: in_array( strtolower( (string) $raw_value ), array( '1', 'on', 'true', 'yes' ), true );
 			return $is_on ? '1' : '';
+		}
+
+		// Multiselect — JS sends an array of checked option values; an
+		// untouched field re-submits the seeded CSV string. Either way it
+		// collapses back to a comma-separated string so the meta stays a
+		// single scalar value (render_field splits it again on the way out).
+		if ( 'multiselect' === $type ) {
+			$items = is_array( $raw_value )
+				? $raw_value
+				: explode( ',', is_scalar( $raw_value ) ? (string) $raw_value : '' );
+			$items = array_filter(
+				array_map(
+					static fn ( $item ): string => sanitize_text_field( (string) $item ),
+					$items
+				),
+				static fn ( string $item ): bool => '' !== $item
+			);
+			return implode( ',', array_values( $items ) );
 		}
 
 		if ( is_bool( $raw_value ) ) {
