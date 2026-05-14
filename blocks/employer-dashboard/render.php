@@ -756,7 +756,7 @@ wp_interactivity_state(
 					// participate in the same profile-save flow.
 					$wcb_ed_company_custom = (array) apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id );
 					if ( ! empty( $wcb_ed_company_custom ) ) {
-						\WCB\Core\FormCustomFields::render_groups( $wcb_ed_company_custom, 'updateCustomField', 'wcb-company-custom' );
+						\WCB\Core\FormCustomFields::render_groups( $wcb_ed_company_custom, 'updateCustomField', 'wcb-company-custom', (int) $wcb_company_id );
 					}
 					?>
 

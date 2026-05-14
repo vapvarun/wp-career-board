@@ -625,6 +625,37 @@ select.wcb-field {
 	margin: 0;
 }
 
+/* ── Radio group — shared custom-field primitive ───────────────────────
+ *
+ * Used by the FormCustomFields renderer's `radio` field type. The group
+ * stacks its options; each .wcb-radio-label is the same inline input+text
+ * pattern as .wcb-checkbox-label so the two read consistently.
+ */
+.wcb-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-radio-label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	cursor: pointer;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast, #0f172a);
+	user-select: none;
+}
+
+.wcb-radio-label input[type="radio"] {
+	width: var(--wcb-icon-md);
+	height: var(--wcb-icon-md);
+	cursor: pointer;
+	flex-shrink: 0;
+	accent-color: var(--wcb-primary, #2563eb);
+	margin: 0;
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*

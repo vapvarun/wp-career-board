@@ -70,11 +70,40 @@ final class FormCustomFields {
 	 * @param string                           $id_prefix DOM id prefix to keep ids stable
 	 *                                                    when multiple forms render on
 	 *                                                    one page (default: wcb-custom).
+	 * @param int                              $owner_id  Post / user id to pre-fill from.
+	 *                                                    Only the `radio` field type needs
+	 *                                                    this — it has no single element to
+	 *                                                    two-way bind, so the saved option's
+	 *                                                    `checked` is set server-side. Other
+	 *                                                    types pre-fill via the form's seeded
+	 *                                                    state.customFields. 0 = create mode.
+	 * @param string                           $reader    'post_meta' | 'user_meta' for the
+	 *                                                    radio pre-fill lookup.
 	 * @return void
 	 */
-	public static function render_groups( array $groups, string $update_fn = 'updateCustomField', string $id_prefix = 'wcb-custom' ): void {
+	public static function render_groups( array $groups, string $update_fn = 'updateCustomField', string $id_prefix = 'wcb-custom', int $owner_id = 0, string $reader = 'post_meta' ): void {
 		if ( empty( $groups ) ) {
 			return;
+		}
+
+		// radio is the only type that needs a server-side pre-fill (see the
+		// $owner_id doc above). Skip the meta read entirely when no group
+		// actually contains a radio field.
+		$values    = array();
+		$has_radio = false;
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) || empty( $group['fields'] ) || ! is_array( $group['fields'] ) ) {
+				continue;
+			}
+			foreach ( $group['fields'] as $field ) {
+				if ( is_array( $field ) && 'radio' === (string) ( $field['type'] ?? $field['field_type'] ?? '' ) ) {
+					$has_radio = true;
+					break 2;
+				}
+			}
+		}
+		if ( $has_radio && $owner_id > 0 ) {
+			$values = self::load_values( $groups, $owner_id, $reader );
 		}
 
 		echo '<div class="wcb-form-custom-fields">';
@@ -95,7 +124,7 @@ final class FormCustomFields {
 				if ( '' === $normalised['key'] || '' === $normalised['type'] ) {
 					continue;
 				}
-				self::render_field( $normalised, $update_fn, $id_prefix );
+				self::render_field( $normalised, $update_fn, $id_prefix, $values[ $normalised['key'] ] ?? '' );
 			}
 		}
 		echo '</div>';
@@ -143,12 +172,17 @@ final class FormCustomFields {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param array<string, mixed> $field     Field definition.
-	 * @param string               $update_fn JS action name.
-	 * @param string               $id_prefix DOM id prefix.
+	 * @param array<string, mixed> $field         Field definition.
+	 * @param string               $update_fn     JS action name.
+	 * @param string               $id_prefix     DOM id prefix.
+	 * @param string               $current_value Saved value, used only by the
+	 *                                            `radio` type to set the
+	 *                                            matching option's `checked`
+	 *                                            server-side. Empty in create
+	 *                                            mode and for every other type.
 	 * @return void
 	 */
-	private static function render_field( array $field, string $update_fn, string $id_prefix ): void {
+	private static function render_field( array $field, string $update_fn, string $id_prefix, string $current_value = '' ): void {
 		$key    = (string) $field['key'];
 		$type   = (string) $field['type'];
 		$dom_id = $id_prefix . '-' . $key;
@@ -160,16 +194,21 @@ final class FormCustomFields {
 
 		echo '<div class="wcb-form-field wcb-form-field--custom wcb-form-field--' . esc_attr( $type ) . '">';
 
-		// Checkbox renders its label inline (after the box), not as a
-		// standalone label above an empty control — a lone label over a
-		// checkbox reads as broken. Every other type keeps the label above.
+		// Checkbox renders its label inline (after the box) — a lone label
+		// above an empty checkbox reads as broken. Radio renders a group
+		// label as a <span> (a <label for> can only target one input, not a
+		// radio group). Every other type keeps the standard <label for>.
 		if ( ! empty( $field['label'] ) && 'checkbox' !== $type ) {
-			echo '<label class="wcb-form-label" for="' . esc_attr( $dom_id ) . '">';
+			if ( 'radio' === $type ) {
+				echo '<span class="wcb-form-label">';
+			} else {
+				echo '<label class="wcb-form-label" for="' . esc_attr( $dom_id ) . '">';
+			}
 			echo esc_html( (string) $field['label'] );
 			if ( ! empty( $field['required'] ) ) {
 				echo ' <span class="wcb-required" aria-hidden="true">*</span>';
 			}
-			echo '</label>';
+			echo 'radio' === $type ? '</span>' : '</label>';
 		}
 
 		$value_bind = 'data-wp-bind--value="state.customFields.' . $key . '"';
@@ -221,6 +260,30 @@ final class FormCustomFields {
 				echo '<option value="' . esc_attr( (string) $val ) . '">' . esc_html( (string) $label ) . '</option>';
 			}
 			echo '</select>';
+		} elseif ( 'radio' === $type && ! empty( $field['options'] ) && is_array( $field['options'] ) ) {
+			// A radio group has no single element to two-way bind, so it
+			// doesn't use data-wp-bind. The browser keeps the group mutually
+			// exclusive (shared `name`), data-wp-on--change pushes the picked
+			// value into state.customFields via updateCustomField (radio hits
+			// the same target.value path as text/select), and the saved
+			// option's `checked` is set server-side from $current_value.
+			echo '<div class="wcb-radio-group" role="radiogroup">';
+			$radio_index = 0;
+			foreach ( $field['options'] as $val => $label ) {
+				$radio_id      = $dom_id . '-' . $radio_index;
+				$radio_checked = ( (string) $val === $current_value ) ? ' checked' : '';
+				echo '<label class="wcb-radio-label" for="' . esc_attr( $radio_id ) . '">';
+				echo '<input type="radio" id="' . esc_attr( $radio_id ) . '" class="wcb-field"'
+					. ' name="' . esc_attr( $dom_id ) . '"'
+					. ' value="' . esc_attr( (string) $val ) . '"'
+					. ' data-wp-on--change="actions.' . esc_attr( $update_fn ) . '"'
+					. ' data-wcb-field="' . esc_attr( $key ) . '"'
+					. $radio_checked . $required_attr . ' />';
+				echo '<span>' . esc_html( (string) $label ) . '</span>';
+				echo '</label>';
+				++$radio_index;
+			}
+			echo '</div>';
 		} else {
 			$allowed    = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
 			$input_type = in_array( $type, $allowed, true ) ? $type : 'text';

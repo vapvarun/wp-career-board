@@ -817,7 +817,7 @@ $wcb_step_labels = array(
 			// just before the preview / submit step.
 			$wcb_step3_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) );
 			if ( ! empty( $wcb_step3_custom_groups ) ) {
-				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom' );
+				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
 			}
 			?>
 

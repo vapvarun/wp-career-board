@@ -978,7 +978,7 @@ wp_interactivity_state(
 			// Stored against the candidate's user meta.
 			$wcb_cd_custom = (array) apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id );
 			if ( ! empty( $wcb_cd_custom ) ) {
-				\WCB\Core\FormCustomFields::render_groups( $wcb_cd_custom, 'updateCustomField', 'wcb-candidate-custom' );
+				\WCB\Core\FormCustomFields::render_groups( $wcb_cd_custom, 'updateCustomField', 'wcb-candidate-custom', (int) $wcb_candidate_id, 'user_meta' );
 			}
 			?>
 
