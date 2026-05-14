@@ -84,12 +84,18 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
 				// When the employer switches boards, re-derive the credit
-				// cost from the seeded per-board map so the deduction banner
-				// updates without a REST round-trip.
+				// cost AND currency from the seeded per-board maps so the
+				// deduction banner and the salary currency dropdown update
+				// without a REST round-trip.
 				if ( key === 'boardId' ) {
-					const map  = state.boardCreditCosts || {};
-					const cost = Number( map[ String( state.boardId || 0 ) ] );
+					const costMap = state.boardCreditCosts || {};
+					const curMap  = state.boardCurrencies || {};
+					const boardKey = String( state.boardId || 0 );
+					const cost    = Number( costMap[ boardKey ] );
 					state.creditCost = Number.isFinite( cost ) ? cost : 0;
+					if ( curMap[ boardKey ] ) {
+						state.currencyCode = curMap[ boardKey ];
+					}
 				}
 			}
 		},

@@ -40,6 +40,7 @@ $wcb_compact_attr      = ! empty( $attributes['compact'] );
 // callback falls back to the default board when state.boardId stays 0.
 $wcb_board_options      = array();
 $wcb_board_credit_costs = array();
+$wcb_board_currencies   = array();
 if ( post_type_exists( 'wcb_board' ) ) {
 	$wcb_board_posts = get_posts(
 		array(
@@ -54,10 +55,12 @@ if ( post_type_exists( 'wcb_board' ) ) {
 			'id'    => (int) $wcb_b->ID,
 			'title' => $wcb_b->post_title,
 		);
-		// Per-board credit cost map seeded at render so view.js can update
-		// state.creditCost reactively when the employer switches boards.
-		// Pro fulfils the per-board pricing via the wcb_board_credit_cost filter.
+		// Per-board credit cost + currency maps seeded at render so view.js
+		// can update state.creditCost and state.currencyCode reactively when
+		// the employer switches boards. Pro fulfils both overrides via the
+		// wcb_board_credit_cost and wcb_board_currency filters.
 		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
+		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
 	}
 
 	/**
@@ -177,6 +180,9 @@ $wcb_state = apply_filters(
 		// Per-board cost lookup so view.js can recompute creditCost when the
 		// employer switches boards in the picker. Object keyed by board ID.
 		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		// Per-board currency override map so view.js can update currencyCode
+		// on board switch. Empty string means no override - keep current.
+		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with

@@ -274,14 +274,20 @@ store(
 						state.validationError = '';
 					}
 					// When the employer switches boards, re-derive the
-					// credit cost from the seeded per-board map so the
-					// banner ("Posting deducts X credits") updates without
-					// a REST round-trip. Map is keyed by stringified ID.
+					// credit cost AND currency from the seeded per-board
+					// maps so the banner ("Posting deducts X credits") and
+					// the salary currency dropdown update without a REST
+					// round-trip. Maps are keyed by stringified ID.
 					if ( field === 'boardId' ) {
-						const map  = state.boardCreditCosts || {};
-						const key  = String( state.boardId || 0 );
-						const cost = map[ key ];
+						const costMap = state.boardCreditCosts || {};
+						const curMap  = state.boardCurrencies || {};
+						const key     = String( state.boardId || 0 );
+						const cost    = costMap[ key ];
+						const cur     = curMap[ key ];
 						state.creditCost = Number.isFinite( cost ) ? cost : 0;
+						if ( cur ) {
+							state.currencyCode = cur;
+						}
 					}
 				}
 			},

@@ -139,11 +139,13 @@ $wcb_board_currency = $wcb_board_id > 0
 // employer can target the post at a specific board. Single-board sites skip
 // the picker entirely; the REST callback falls back to the default board.
 $wcb_board_options = array();
-// Per-board credit cost map: { board_id => cost }. Seeded at render so the
-// JS layer can update `state.creditCost` reactively when the employer
-// switches boards in the picker, without a REST round-trip. Pro fulfils
-// the per-board pricing via the `wcb_board_credit_cost` filter.
+// Per-board credit cost + currency maps: { board_id => value }. Seeded at
+// render so the JS layer can update `state.creditCost` / `state.currencyCode`
+// reactively when the employer switches boards in the picker, without a REST
+// round-trip. Pro fulfils the per-board overrides via the
+// `wcb_board_credit_cost` and `wcb_board_currency` filters.
 $wcb_board_credit_costs = array();
+$wcb_board_currencies   = array();
 if ( post_type_exists( 'wcb_board' ) ) {
 	$wcb_board_posts = get_posts(
 		array(
@@ -159,6 +161,7 @@ if ( post_type_exists( 'wcb_board' ) ) {
 			'title' => $wcb_b->post_title,
 		);
 		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
+		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
 	}
 
 	/**
@@ -246,6 +249,11 @@ $wcb_initial_state = apply_filters(
 		// stringified board ID for predictable JS access. See the
 		// matching `actions.updateField` board-switch branch.
 		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		// Per-board currency override map: { board_id => 'EUR' }. JS reads
+		// this on board switch so the currency dropdown updates without a
+		// REST round-trip. Empty string means no override - fall back to
+		// the current state.currencyCode.
+		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with
