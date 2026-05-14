@@ -51,7 +51,7 @@
 
 @media (max-width: 640px) {
 	.wcb-view-panel.wcb-view-active {
-		padding: var(--wcb-space-lg);
+		padding: var(--wcb-space-md);
 	}
 }
 
@@ -159,8 +159,12 @@
 	}
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+	/* Drop horizontal main padding so the active view panel spans the
+	 * full content width and matches the mobile nav dropdown above it.
+	 * Mirrors candidate-dashboard's mobile fix - both dashboards now read
+	 * with no offset between the tab selector and its panel. */
 	.wcb-main {
-		padding: var(--wcb-space-lg);
+		padding: var(--wcb-space-xl) 0;
 	}
 }

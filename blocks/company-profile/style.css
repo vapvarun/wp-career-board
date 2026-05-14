@@ -29,16 +29,19 @@
 	padding-inline-end: var(--wcb-space-5xl, 4rem);
 }
 
-/* Below 720px the absolute Save button would overlap the avatar at the top.
- * Stack the Save button under the chip row in flow on small screens. */
+/* On mobile keep the Save button absolutely anchored at the top-right
+ * corner of the hero (same spot as desktop, just snugger). The earlier
+ * `position: static` override pushed the pill into DOM order at the top
+ * of the card where it clipped against the avatar - the avatar now sits
+ * naturally below the header line without needing a negative margin. */
 @media (max-width: 720px) {
 	[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
-		position: static;
-		margin: 0 var(--wcb-space-lg) var(--wcb-space-lg);
+		top: var(--wcb-space-md);
+		inset-inline-end: var(--wcb-space-md);
 	}
 
 	.wcb-cp-hero-body {
-		padding-inline-end: var(--wcb-space-xl);
+		padding-inline-end: var(--wcb-space-4xl);
 	}
 }
 
@@ -549,30 +552,53 @@
 
 /* -- Responsive -- */
 @media (max-width: 640px) {
+	/* Centered profile-card layout - matches the Single Resume hero
+	 * because the Company single page is also a "profile" surface with
+	 * lots of meta (industry, size, location, website). Big logo on
+	 * top, name + tagline + chip row + website button all centered
+	 * under it. Same visual rhythm a customer gets on /resume/<slug>/. */
 	.wcb-cp-hero-body {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 0;
-		padding: 0 var(--wcb-space-xl) var(--wcb-space-2xl);
+		align-items: center;
+		text-align: center;
+		gap: var(--wcb-space-md);
+		padding: var(--wcb-space-2xl) var(--wcb-space-xl);
 	}
 
 	.wcb-cp-avatar-wrap {
-		margin-top: -40px;
+		margin-top: 0;
 	}
 
 	.wcb-cp-logo,
 	.wcb-cp-avatar {
-		width: 72px;
-		height: 72px;
-		font-size: var(--wcb-text-xl);
+		width: 88px;
+		height: 88px;
+		font-size: var(--wcb-text-2xl);
 	}
 
 	.wcb-cp-hero-info {
-		padding-top: var(--wcb-space-md);
+		padding-top: 0;
+		width: 100%;
+	}
+
+	.wcb-cp-name-row {
+		justify-content: center;
 	}
 
 	.wcb-cp-name {
 		font-size: var(--wcb-text-xl);
+	}
+
+	.wcb-cp-tagline {
+		margin-inline: auto;
+	}
+
+	.wcb-cp-meta-chips {
+		justify-content: center;
+	}
+
+	.wcb-cp-links {
+		justify-content: center;
 	}
 
 	.wcb-cp-section {

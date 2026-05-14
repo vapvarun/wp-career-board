@@ -805,6 +805,26 @@ textarea.wcb-input {
 	}
 }
 
+/* Visually-hidden checkbox that powers the mobile collapse toggle below.
+ * Pure-CSS sibling-selector toggle - no JS needed, no per-archive store
+ * changes. Native checkbox keeps full keyboard + screen reader support;
+ * the `<label>` chevron acts as the trigger. */
+.wcb-filter-panel__toggle-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+	padding: 0;
+	margin: -1px;
+	white-space: nowrap;
+}
+
+.wcb-filter-panel__toggle {
+	display: none;
+}
+
 .wcb-filter-panel__header {
 	display: flex;
 	align-items: center;
@@ -894,6 +914,80 @@ textarea.wcb-input {
 	cursor: pointer;
 	margin: 0;
 	flex-shrink: 0;
+}
+
+/* ── Mobile collapse for the filter panel ────────────────────────────────
+ * At ≤640px the filter panel costs ~500-700px of viewport above any
+ * result card, forcing every visitor to scroll past the entire filter
+ * UI before seeing a single Job / Company / Resume. Collapsed by default
+ * on mobile - a chevron in the panel header expands it on tap. The
+ * checkbox-as-state pattern keeps this purely CSS so the existing
+ * Interactivity stores on the three archives don't need to learn a new
+ * "filtersOpen" piece of state. */
+@media (max-width: 640px) {
+	.wcb-filter-panel {
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
+	}
+
+	.wcb-filter-panel__header {
+		padding-bottom: 0;
+		border-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	.wcb-filter-panel__toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		cursor: pointer;
+		color: var(--wcb-text-secondary, #6b7280);
+		border-radius: var(--wcb-radius-sm);
+		transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+		margin-inline-start: auto;
+		flex-shrink: 0;
+	}
+
+	.wcb-filter-panel__toggle:hover {
+		background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+		color: var(--wcb-contrast, #0f172a);
+	}
+
+	.wcb-filter-panel__toggle svg {
+		width: 16px;
+		height: 16px;
+		transition: transform 0.2s ease;
+	}
+
+	/* Focus ring on the label when the underlying checkbox is focused. */
+	.wcb-filter-panel__toggle-input:focus-visible + .wcb-filter-panel__header .wcb-filter-panel__toggle,
+	.wcb-filter-panel__toggle-input:focus-visible ~ .wcb-filter-panel__header .wcb-filter-panel__toggle {
+		outline: 2px solid var(--wcb-primary, #2563eb);
+		outline-offset: 2px;
+	}
+
+	/* Open state: rotate chevron, expand groups, restore header divider. */
+	.wcb-filter-panel__toggle-input:checked ~ .wcb-filter-panel__header .wcb-filter-panel__toggle svg {
+		transform: rotate(180deg);
+	}
+
+	.wcb-filter-panel__toggle-input:checked ~ .wcb-filter-panel__header {
+		padding-bottom: var(--wcb-space-md);
+		border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+		margin-bottom: var(--wcb-space-md);
+	}
+
+	/* Collapsed state: hide every sibling group below the header. */
+	.wcb-filter-panel__toggle-input:not(:checked) ~ .wcb-filter-panel__group {
+		display: none;
+	}
+
+	/* Collapsed state also hides the Clear-all button - showing it next
+	 * to "Filters" when no controls are visible is confusing. */
+	.wcb-filter-panel__toggle-input:not(:checked) ~ .wcb-filter-panel__header .wcb-filter-panel__clear {
+		display: none;
+	}
 }
 
 .wcb-archive-results {

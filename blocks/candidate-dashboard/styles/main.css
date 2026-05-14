@@ -48,7 +48,7 @@
 
 @media (max-width: 640px) {
 	.wcb-view-panel.wcb-view-active {
-		padding: var(--wcb-space-lg);
+		padding: var(--wcb-space-md);
 	}
 }
 
@@ -155,8 +155,14 @@
 
 /* ── Responsive: tighten main padding and stack two-col on narrow screens ─ */
 @media (max-width: 640px) {
+	/* Drop horizontal padding on `.wcb-main` so the active view panel
+	 * extends the full content width — matches the nav dropdown above it
+	 * (the dropdown lives in `.wcb-sidebar` which has no horizontal
+	 * padding, so it always spans the full content width). Keeping the
+	 * panel narrower than the dropdown above it looked broken at 390px
+	 * and crushed the stat-tile grid to ~110px columns. */
 	.wcb-main {
-		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+		padding: var(--wcb-space-xl) 0;
 	}
 
 	.wcb-two-col {

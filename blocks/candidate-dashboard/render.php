@@ -733,7 +733,7 @@ wp_interactivity_state(
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></h1>
 				<div class="wcb-resumes-header">
-					<div data-wp-class--wcb-hidden="state.showNewResumeForm">
+					<div class="wcb-resumes-actions" data-wp-class--wcb-hidden="state.showNewResumeForm">
 						<button
 							type="button"
 							class="wcb-cbtn wcb-cbtn--primary"
@@ -851,6 +851,21 @@ wp_interactivity_state(
 			<?php
 			if ( $wcb_resume_embed_id > 0 ) {
 				echo do_blocks( '<!-- wp:wcb/resume-builder /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			} else {
+				/* The Resume Builder block only renders when a specific resume
+				 * is selected (via the ?wcb_resume=N query param wired by the
+				 * Edit button on My Resumes). Without it the panel was an
+				 * empty white card with no signal - this empty state tells
+				 * the customer where to go next. */
+				?>
+				<div class="wcb-page-header">
+					<h1 class="wcb-page-title"><?php esc_html_e( 'Resume Builder', 'wp-career-board' ); ?></h1>
+				</div>
+				<div class="wcb-panel-empty wcb-shown">
+					<p><?php esc_html_e( 'Pick a resume from My Resumes to edit it here, or create a new one to get started.', 'wp-career-board' ); ?></p>
+					<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.switchToResumes"><?php esc_html_e( 'Go to My Resumes', 'wp-career-board' ); ?></button>
+				</div>
+				<?php
 			}
 			?>
 		</div>

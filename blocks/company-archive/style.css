@@ -460,29 +460,46 @@
 		grid-template-columns: 1fr;
 	}
 
+	/* Collapse the 3-col list-view grid into the same 2-col header
+	 * + full-width chips/footer rows that the grid view uses, so the
+	 * "3 open positions" stat and "View Profile" CTA stop colliding
+	 * with the body text at 390px. `flex-wrap` does nothing on a grid
+	 * container - replacing the template is what actually rewraps. */
 	.wcb-ca-container.wcb-list .wcb-ca-card-link {
-		flex-wrap: wrap;
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas:
+			"avatar body"
+			"chips chips"
+			"footer footer";
+		align-items: start;
+		column-gap: var(--wcb-space-md);
+		row-gap: var(--wcb-space-sm);
+		padding-block: var(--wcb-space-lg);
+		padding-inline: var(--wcb-space-lg);
+	}
+
+	.wcb-ca-container.wcb-list .wcb-ca-card-body {
+		align-self: start;
 	}
 
 	.wcb-ca-container.wcb-list .wcb-ca-card-footer {
 		flex-direction: row;
 		align-items: center;
+		justify-content: space-between;
 		border-inline-start: none;
 		border-top: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 		padding-inline-start: 0;
+		padding-inline-end: 0;
 		padding-top: var(--wcb-space-md);
 		width: 100%;
 	}
 
-	/*
-	 * Mobile list view: stack avatar + badge inline (cards already wrap to
-	 * a column at this breakpoint via `.wcb-ca-card-link { flex-wrap: wrap }`
-	 * above). Inline placement keeps the badge inside the avatar column and
-	 * out of the way of the footer row that wraps underneath.
-	 */
+	/* Mobile list view: stack avatar + badge in a tight column inside the
+	 * avatar grid cell instead of stretching horizontally. */
 	.wcb-ca-container.wcb-list .wcb-ca-card-top {
-		flex-direction: row;
-		align-self: flex-start;
+		flex-direction: column;
+		align-self: start;
+		align-items: center;
 	}
 
 }

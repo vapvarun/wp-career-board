@@ -184,6 +184,18 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
+	flex-wrap: wrap;
+}
+
+/* Inner wrapper around the "+ New Resume" + "Upload CV" buttons and the
+ * "N/M resumes" cap label. Without an explicit class the parent was a bare
+ * <div> with `display: block` - the buttons + count then wrapped on inline
+ * width with the count colliding next to the Upload CV pill at 390px. */
+.wcb-resumes-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
 }
 
 .wcb-new-resume-form {
@@ -203,6 +215,22 @@
 .wcb-resume-cap-info {
 	font-size: var(--wcb-text-sm);
 	color: var( --wcb-text-muted );
+}
+
+@media (max-width: 640px) {
+	/* On mobile split the two action buttons 50/50 across the row and
+	 * drop the cap label onto its own row underneath. Reads as one tidy
+	 * pair of equal-weight CTAs instead of staggered inline-flow chaos. */
+	.wcb-resumes-actions .wcb-cbtn,
+	.wcb-resumes-actions .wcb-upload-label {
+		flex: 1 1 calc(50% - var(--wcb-space-sm));
+		justify-content: center;
+		min-width: 0;
+	}
+
+	.wcb-resumes-actions .wcb-resume-cap-info {
+		flex: 1 1 100%;
+	}
 }
 
 /* Resume row inside the `.wcb-panel` outer card. Drop the per-row background
