@@ -337,6 +337,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				yield actions.switchToResumes();
 			}
 
+			// Deep-link prefetch: when the URL hash lands the user directly on
+			// Saved Companies or Saved Resumes, switchToSaved* never fires from
+			// a click and the panel sits empty against a populated sidebar
+			// badge. Pull the data inline so the panel paints correctly on
+			// first navigation.
+			if ( state.tab === 'saved-companies' && state.savedCompanies.length === 0 ) {
+				yield actions.switchToSavedCompanies();
+			}
+			if ( state.tab === 'saved-resumes' && state.savedResumes.length === 0 ) {
+				yield actions.switchToSavedResumes();
+			}
+
 			if ( state.bellEnabled ) {
 				yield actions.fetchBellNotifications();
 			}

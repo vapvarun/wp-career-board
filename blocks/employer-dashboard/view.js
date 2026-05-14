@@ -463,6 +463,21 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				yield actions.loadApplications();
 			}
 
+			// Tab-restoration prefetch: when sessionStorage restores the
+			// user to a Saved-* tab, the corresponding switchToSaved*
+			// action never fires from a click and the panel sits empty
+			// against a populated sidebar badge. Pull the data inline so
+			// the panel paints correctly on first navigation.
+			if ( state.currentView === 'saved-jobs' && state.savedJobs.length === 0 ) {
+				yield actions.switchToSavedJobs();
+			}
+			if ( state.currentView === 'saved-companies' && state.savedCompanies.length === 0 ) {
+				yield actions.switchToSavedCompanies();
+			}
+			if ( state.currentView === 'saved-resumes' && state.savedResumes.length === 0 ) {
+				yield actions.switchToSavedResumes();
+			}
+
 			if ( state.bellEnabled ) {
 				yield actions.fetchBellNotifications();
 			}
