@@ -1066,7 +1066,24 @@ final class Plugin {
 				return true;
 			}
 		}
-		return false;
+
+		/**
+		 * Filter whether the current request needs the shared WCB frontend
+		 * stylesheets (frontend.css, frontend-tokens.css, frontend-components.css).
+		 *
+		 * Contexts that render WCB blocks outside the page's post_content -
+		 * e.g. Pro's BuddyPress profile tabs, which call render_block() inside
+		 * bp_template_content after wp_head has already run - have no block
+		 * markup for the detectors above to match. Without opting in here those
+		 * pages load the per-block style.css but not the shared components
+		 * sheet, so primitives like the load-more wrapper (default display:none),
+		 * empty states, and sort selects fall back to browser defaults.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param bool $needs_assets Whether the shared frontend styles should load.
+		 */
+		return (bool) apply_filters( 'wcb_page_needs_frontend_assets', false );
 	}
 
 	/**
