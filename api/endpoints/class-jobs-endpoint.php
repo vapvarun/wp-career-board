@@ -668,6 +668,12 @@ final class JobsEndpoint extends RestController {
 			wp_set_object_terms( $job_id, (array) $tags, 'wcb_tag' );
 		}
 
+		// Persist filter-injected custom fields (Pro Field Builder + add-ons
+		// hook wcb_job_form_fields). Mirrors the company / resume custom-field
+		// save flow shared via WCB\Core\FormCustomFields — without this the
+		// job form posts custom_fields and the endpoint silently drops them.
+		$this->save_job_custom_fields( $job_id, $request );
+
 		do_action( 'wcb_job_created', $job_id, $request );
 
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
@@ -851,8 +857,49 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Persist filter-injected custom fields — same flow as create_item().
+		// Only touched when the request actually carries custom_fields so a
+		// partial PATCH doesn't wipe values the editor didn't resubmit.
+		$this->save_job_custom_fields( $post->ID, $request );
+
 		do_action( 'wcb_job_updated', $post->ID, $request );
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * Persist custom-field values posted alongside a job create/update.
+	 *
+	 * The job form posts `custom_fields` keyed by sanitized field key. The
+	 * `wcb_job_form_fields` filter resolves field groups per board id, and
+	 * board 0 holds the global groups shown on boardless job-form pages.
+	 * A given form render shows exactly one of those sets, but the endpoint
+	 * can't know which `boardId` the block was rendered with — so we validate
+	 * the submitted values against the union of board 0 and the job's own
+	 * board. WCB\Core\FormCustomFields::save_values() only writes keys that
+	 * appear in the resolved groups, so the union never persists stray keys.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param int              $job_id  Job post ID.
+	 * @param \WP_REST_Request $request Originating REST request.
+	 * @return void
+	 */
+	private function save_job_custom_fields( int $job_id, \WP_REST_Request $request ): void {
+		$custom_fields = $request->get_param( 'custom_fields' );
+		if ( ! is_array( $custom_fields ) || ! class_exists( '\WCB\Core\FormCustomFields' ) ) {
+			return;
+		}
+
+		$board_id = (int) get_post_meta( $job_id, '_wcb_board_id', true );
+		$groups   = (array) apply_filters( 'wcb_job_form_fields', array(), 0 );
+		if ( $board_id > 0 ) {
+			$groups = array_merge(
+				$groups,
+				(array) apply_filters( 'wcb_job_form_fields', array(), $board_id )
+			);
+		}
+
+		\WCB\Core\FormCustomFields::save_values( $groups, $job_id, $custom_fields );
 	}
 
 	/**
