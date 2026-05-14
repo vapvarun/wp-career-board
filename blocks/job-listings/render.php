@@ -289,12 +289,28 @@ $wcb_exp_opts      = array_map(
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
 if ( $wcb_saved_by_attr > 0 ) {
-	// Saved tab now paginates - total reflects the unbounded bookmark
-	// count in usermeta so the Load More gate fires when more pages
-	// remain past the first paint slice.
-	$wcb_total_count = is_countable( $wcb_bookmark_ids ?? null )
-		? count( (array) get_user_meta( $wcb_saved_by_attr, '_wcb_bookmark', false ) )
-		: 0;
+	// Count only valid published wcb_job posts the user has bookmarked.
+	// Counting raw usermeta rows over-reports because stale bookmark IDs
+	// (deleted / unpublished / wrong post type) still live in the table
+	// and would falsely keep the Load More button visible after the last
+	// real bookmark renders. Mirrors the post__in scope used by the
+	// SSR query so totals stay consistent with what gets painted.
+	$wcb_all_bookmark_ids = array_map( 'intval', (array) get_user_meta( $wcb_saved_by_attr, '_wcb_bookmark', false ) );
+	if ( empty( $wcb_all_bookmark_ids ) ) {
+		$wcb_total_count = 0;
+	} else {
+		$wcb_count_query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'publish',
+				'post__in'       => $wcb_all_bookmark_ids,
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => false,
+			)
+		);
+		$wcb_total_count = (int) $wcb_count_query->found_posts;
+	}
 } else {
 	// Mirror $wcb_query_args (author + board + metaFilter + Pro filters) so the
 	// found_posts count matches the filtered listing instead of the site-wide
@@ -431,8 +447,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter jobs', 'wp-career-board' ); ?>">
+			<input type="checkbox" id="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle-input" />
 			<div class="wcb-filter-panel__header">
 				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
+				<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+				</label>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 

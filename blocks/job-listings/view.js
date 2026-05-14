@@ -380,6 +380,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'author', state.authorId );
 			}
 
+			// Forward savedBy so Load More pages stay scoped to that
+			// user's bookmarks. Without this the REST endpoint returns
+			// the full publish list and Load More keeps reappearing
+			// because totals from the unfiltered fetch overwrite the
+			// SSR-scoped total.
+			if ( state.savedBy ) {
+				url.searchParams.set( 'saved_by', state.savedBy );
+			}
+
 			// Sort
 			if ( state.sortBy === 'date_asc' ) {
 				url.searchParams.set( 'orderby', 'date' );

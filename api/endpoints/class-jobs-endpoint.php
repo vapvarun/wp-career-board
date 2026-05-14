@@ -238,6 +238,17 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
+		// Scope to a specific user's bookmarks when the caller passes
+		// `saved_by=<user_id>`. Mirrors the Saved tab SSR scope so Load
+		// More pages keep returning only bookmarked jobs instead of the
+		// site-wide list. An empty bookmark set produces post__in=[0]
+		// so WP_Query returns zero rows (not all rows).
+		$saved_by = (int) $request->get_param( 'saved_by' );
+		if ( $saved_by > 0 ) {
+			$bookmark_ids     = array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) );
+			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
+		}
+
 		// Allowlisted post-meta filters via ?meta_<key>=<value>.
 		// Integrators register their custom meta keys via the
 		// `wcb_jobs_allowed_meta_filters` filter — only allowlisted keys
