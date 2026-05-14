@@ -21,6 +21,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
+		// Banner visibility — true for paid boards AND free boards that have
+		// the free-posting template seeded, so the employer sees a clear
+		// state change when switching to a zero-cost board.
+		get hasCreditBanner() {
+			return state.creditCost > 0 || !! state.creditFreeTemplate;
+		},
+
 		// Dynamic message — numbers come live from state.creditCost /
 		// state.creditBalance (seeded server-side via SDK). Templates
 		// are pre-translated PHP-side and pushed via wp_interactivity_state
@@ -29,7 +36,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				return '';
+				return ( state.creditFreeTemplate || '' ).replace( '%d', balance );
 			}
 			if ( balance < cost ) {
 				return ( state.creditInsufficientTemplate || '' )

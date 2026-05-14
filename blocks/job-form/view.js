@@ -170,6 +170,13 @@ store(
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
 			},
+			// Banner visibility — true for paid boards AND for free boards
+			// that have the free-posting template seeded. Keeps the
+			// employer informed when switching to a zero-cost board.
+			get hasCreditBanner() {
+				const { state } = store( 'wcb-job-form' );
+				return state.creditCost > 0 || !! state.creditFreeTemplate;
+			},
 			get insufficientCredits() {
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0 && state.creditBalance < state.creditCost;
@@ -187,7 +194,7 @@ store(
 				const cost    = state.creditCost;
 				const balance = state.creditBalance;
 				if ( ! cost ) {
-					return '';
+					return ( state.creditFreeTemplate || '' ).replace( '%d', balance );
 				}
 				if ( balance < cost ) {
 					return ( state.creditInsufficientTemplate || '' )

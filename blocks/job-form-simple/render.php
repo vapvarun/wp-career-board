@@ -185,6 +185,8 @@ $wcb_state = apply_filters(
 		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
 		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
 		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
+		/* translators: %d: current credit balance. Shown when the selected board has no credit cost. */
+		'creditFreeTemplate'         => __( 'Free to post on this board. Your balance: %d.', 'wp-career-board' ),
 		/* translators: %d: number of credits (singular). */
 		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
 		/* translators: %d: number of credits (plural). */
@@ -238,7 +240,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<!-- Credit + listing window banners -->
 		<p
 			class="wcb-form-simple__credit"
-			data-wp-class--wcb-shown="state.hasCreditCost"
+			data-wp-class--wcb-shown="state.hasCreditBanner"
 			data-wp-class--wcb-form-simple__credit--warn="state.hasInsufficientCredits"
 			data-wp-text="state.creditMessage"
 		></p>
