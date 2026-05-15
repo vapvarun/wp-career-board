@@ -628,6 +628,7 @@
 
 .wcb-active-filters.wcb-shown {
 	display: flex;
+	margin-bottom: var(--wcb-space-md, 16px);
 }
 
 .wcb-active-chip {

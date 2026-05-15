@@ -83,6 +83,8 @@ abstract class AbstractEmail {
 	/**
 	 * Sends the email and writes a row to wcb_notifications_log.
 	 *
+	 * No-ops when the template is disabled in settings.
+	 *
 	 * @param string               $to      Recipient email address.
 	 * @param array<string, mixed> $vars    Template variables passed to render_template().
 	 * @param int                  $user_id Optional WP user ID for the log row.
@@ -92,7 +94,42 @@ abstract class AbstractEmail {
 		if ( ! $this->is_enabled() ) {
 			return;
 		}
+		$this->dispatch( $to, $vars, $user_id );
+	}
 
+	/**
+	 * Public bridge for the admin "Send Test Email" button.
+	 *
+	 * Bypasses is_enabled() so an admin can preview the rendered template even
+	 * when its toggle is off in settings, and always writes a log row marked
+	 * 'sent_test' / 'failed_test' so the endpoint's row-count delta detects
+	 * the dispatch and reports {sent: true}.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param string               $to      Recipient email address.
+	 * @param array<string, mixed> $vars    Template variables passed to render_template().
+	 * @param int                  $user_id Optional WP user ID for the log row.
+	 * @return bool True when wp_mail() reported a successful handoff.
+	 */
+	public function test_send( string $to, array $vars, int $user_id = 0 ): bool {
+		return $this->dispatch( $to, $vars, $user_id, true );
+	}
+
+	/**
+	 * Subject substitution + body render + wp_mail + log-row insert. Shared
+	 * by send() and test_send().
+	 *
+	 * @param string               $to       Recipient email address.
+	 * @param array<string, mixed> $vars     Template variables.
+	 * @param int                  $user_id  Optional WP user ID for the log row.
+	 * @param bool                 $is_test  True when called via test_send() —
+	 *                                       writes a *_test status so admin
+	 *                                       previews don't pollute production
+	 *                                       delivery metrics.
+	 * @return bool True when wp_mail() reported a successful handoff.
+	 */
+	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false ): bool {
 		// Subject placeholders (both {key} and {{key}} forms) get substituted
 		// from $vars here. The body template already runs through
 		// render_template() which extracts $vars into PHP scope and the
@@ -103,6 +140,11 @@ abstract class AbstractEmail {
 		$subject = self::render_string( $this->get_subject(), $vars );
 		$body    = self::render_template( $this->get_id(), $vars );
 		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
+
+		$status = $sent ? 'sent' : 'failed';
+		if ( $is_test ) {
+			$status .= '_test';
+		}
 
 		global $wpdb;
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -115,13 +157,16 @@ abstract class AbstractEmail {
 					array(
 						'to'      => $to,
 						'subject' => $subject,
+						'is_test' => $is_test,
 					)
 				),
-				'status'     => $sent ? 'sent' : 'failed',
+				'status'     => $status,
 				'sent_at'    => current_time( 'mysql' ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
+
+		return (bool) $sent;
 	}
 
 	/**

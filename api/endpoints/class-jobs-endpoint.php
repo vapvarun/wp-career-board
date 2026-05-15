@@ -249,17 +249,36 @@ final class JobsEndpoint extends RestController {
 			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
 		}
 
-		// Allowlisted post-meta filters via ?meta_<key>=<value>.
-		// Integrators register their custom meta keys via the
-		// `wcb_jobs_allowed_meta_filters` filter — only allowlisted keys
-		// reach meta_query, preventing arbitrary-meta probes.
+		// Post-meta filters via ?meta_<key>=<value>.
+		// Any `_wcb_*` namespaced key is allowed by default (the plugin
+		// owns that namespace, no probe risk). Custom or non-WCB meta
+		// still needs opt-in via the `wcb_jobs_allowed_meta_filters`
+		// filter.
 		$allowed_meta = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
+		$seen_keys    = array();
 		foreach ( $allowed_meta as $meta_key ) {
 			if ( ! is_string( $meta_key ) || '' === $meta_key ) {
 				continue;
 			}
-			$param_name = 'meta_' . $meta_key;
-			$raw        = $request->get_param( $param_name );
+			$raw = $request->get_param( 'meta_' . $meta_key );
+			if ( null === $raw || '' === $raw ) {
+				continue;
+			}
+			$args['meta_query'][]   = array(
+				'key'   => $meta_key,
+				'value' => is_scalar( $raw ) ? sanitize_text_field( (string) $raw ) : '',
+			);
+			$seen_keys[ $meta_key ] = true;
+		}
+		// Scan request params for the _wcb_* namespace default-allow path.
+		foreach ( (array) $request->get_params() as $param_name => $raw ) {
+			if ( ! is_string( $param_name ) || ! str_starts_with( $param_name, 'meta__wcb_' ) ) {
+				continue;
+			}
+			$meta_key = substr( $param_name, 5 );
+			if ( '' === $meta_key || isset( $seen_keys[ $meta_key ] ) ) {
+				continue;
+			}
 			if ( null === $raw || '' === $raw ) {
 				continue;
 			}

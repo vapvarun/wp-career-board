@@ -70,14 +70,18 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 	/**
 	 * Allowlist of meta keys that metaFilter may query.
 	 *
-	 * Empty by default — integrators opt in to specific keys here. Keeps
+	 * Any `_wcb_*` prefixed key is allowed by default — the plugin owns
+	 * that namespace, so admins can drop the block in the editor and use
+	 * any of our job meta as a filter without writing PHP. Custom or
+	 * non-WCB meta still requires opting in via this filter to keep
 	 * arbitrary-meta probes blocked. See docs/HOOKS.md.
 	 *
 	 * @since 1.0.0
 	 * @param array<int,string> $keys Allowlisted meta keys.
 	 */
 	$wcb_meta_filter_allowed = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
-	if ( in_array( $wcb_meta_filter_key, $wcb_meta_filter_allowed, true ) ) {
+	$wcb_is_wcb_meta_key     = str_starts_with( $wcb_meta_filter_key, '_wcb_' );
+	if ( $wcb_is_wcb_meta_key || in_array( $wcb_meta_filter_key, $wcb_meta_filter_allowed, true ) ) {
 		$wcb_query_args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			'key'   => $wcb_meta_filter_key,
 			'value' => $wcb_meta_filter_val,
@@ -87,7 +91,7 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 			'wcb_job_listings',
 			sprintf(
 				/* translators: %s: meta key the integrator tried to filter on. */
-				esc_html__( 'metaFilter key "%s" is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', ... ) to enable filtering.', 'wp-career-board' ),
+				esc_html__( 'metaFilter key "%s" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', ... ) to enable filtering on custom meta keys.', 'wp-career-board' ),
 				esc_html( $wcb_meta_filter_key )
 			),
 			'1.1.0'
@@ -454,7 +458,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			<div class="wcb-filter-panel__header">
 				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
 				<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+					<i data-lucide="chevron-down" aria-hidden="true"></i>
 				</label>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>

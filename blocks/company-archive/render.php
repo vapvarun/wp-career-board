@@ -262,7 +262,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<div class="wcb-filter-panel__header">
 				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
 				<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+					<i data-lucide="chevron-down" aria-hidden="true"></i>
 				</label>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>

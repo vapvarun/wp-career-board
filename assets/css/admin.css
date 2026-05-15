@@ -885,6 +885,15 @@
 
 .wcb-wizard-wrap {
 	max-width: 760px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+@media (max-width: 960px) {
+	.wcb-wizard-wrap {
+		margin-left: 12px;
+		margin-right: 12px;
+	}
 }
 
 .wcb-wizard-step {

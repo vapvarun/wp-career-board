@@ -163,6 +163,7 @@
 .wcb-ca-card-link {
 	display: grid;
 	grid-template-columns: auto 1fr;
+	grid-template-rows: auto 1fr auto;
 	grid-template-areas:
 		"avatar body"
 		"chips chips"
@@ -178,7 +179,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
-.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
