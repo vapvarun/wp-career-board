@@ -147,6 +147,7 @@ abstract class AbstractEmail {
 		}
 
 		global $wpdb;
+		self::ensure_log_table();
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prefix . 'wcb_notifications_log',
 			array(
@@ -167,6 +168,47 @@ abstract class AbstractEmail {
 		);
 
 		return (bool) $sent;
+	}
+
+	/**
+	 * Self-heal wp_wcb_notifications_log when it does not exist.
+	 *
+	 * The activation hook in Install::activate() creates this table via
+	 * dbDelta, but a customer who installed Free pre-1.0.x and upgraded
+	 * past the install routine, or whose host nuked a custom table during
+	 * a migration, can end up missing it. The dispatch path used to insert
+	 * silently and email-activity-log row counts stayed at zero. Re-running
+	 * dbDelta is idempotent and creates the table when needed.
+	 *
+	 * @return void
+	 */
+	private static function ensure_log_table(): void {
+		global $wpdb;
+		static $checked = false;
+		if ( $checked ) {
+			return;
+		}
+		$checked = true;
+		$table   = $wpdb->prefix . 'wcb_notifications_log';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			return;
+		}
+		$charset = $wpdb->get_charset_collate();
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta(
+			"CREATE TABLE {$table} (
+				id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+				user_id      BIGINT UNSIGNED NOT NULL,
+				event_type   VARCHAR(80)     NOT NULL,
+				channel      VARCHAR(20)     NOT NULL DEFAULT 'email',
+				payload      LONGTEXT,
+				status       VARCHAR(20)     NOT NULL DEFAULT 'sent',
+				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY  (id),
+				KEY user_id  (user_id),
+				KEY event_type  (event_type)
+			) ENGINE=InnoDB {$charset};"
+		);
 	}
 
 	/**
