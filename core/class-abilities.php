@@ -212,20 +212,25 @@ final class Abilities {
 			array(
 				'category'            => 'wcb',
 				'label'               => __( 'Access Candidate Dashboard', 'wp-career-board' ),
-				'description'         => __( 'Allows any logged-in member to access the candidate dashboard.', 'wp-career-board' ),
-				// Any logged-in member can view the candidate dashboard.
-				// Viewing alone does not unlock candidate actions (apply,
-				// manage resume, withdraw etc. each check their own
-				// ability), so a permissive view-gate matches the product
-				// intent that "membership of this site = candidate access".
-				// Banned employers stay denied via the same meta key the
-				// shared `gate()` helper enforces.
+				'description'         => __( 'Allows candidates and site admins to access the candidate dashboard.', 'wp-career-board' ),
+				// Candidates only - and site admins for support. The earlier
+				// permissive "any logged-in user" check let employers reach
+				// the candidate dashboard (their job listings showed up in
+				// the candidate apply flow); the dashboard block already
+				// gates content for the role, but the ability check should
+				// match the product intent. Banned employers stay denied.
 				'permission_callback' => static function (): bool {
 					$user = wp_get_current_user();
 					if ( ! $user || 0 === $user->ID ) {
 						return false;
 					}
-					return '1' !== (string) get_user_meta( $user->ID, '_wcb_employer_banned', true );
+					if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) ) {
+						return false;
+					}
+					if ( in_array( 'administrator', (array) $user->roles, true ) ) {
+						return true;
+					}
+					return in_array( 'wcb_candidate', (array) $user->roles, true );
 				},
 				'execute_callback'    => static function (): bool {
 					return true;
