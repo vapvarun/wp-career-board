@@ -101,13 +101,15 @@ sponsors, brands, etc.):
 
 | Hook | Purpose |
 |---|---|
-| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs` |
+| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Any `_wcb_*` namespaced key is allowed by default (since 1.2.0); this filter is for opting in custom or non-WCB meta keys. |
 | `wcb_jobs_query_args` | Modify the WP_Query args used by the listings block on first paint |
 | `wcb_jobs_post_filter` | Post-process the prepared job array before REST response |
 | `wcb_job_response` | Shape an individual job's REST response (legacy alias; prefer `wcb_rest_prepare_job`) |
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
 | `wcb_job_listings_board_options` | Add custom chips to the listings filter bar |
 | `wcb_job_listing_data` | Shape per-card data on the listings block |
+| `wcb_board_options_for_employer` | `(array $options, int $user_id)` — restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. |
+| `wcb_page_needs_frontend_assets` | `(bool $needs)` — opt a request context into the shared `frontend.css` / `frontend-tokens.css` / `frontend-components.css` stylesheets when the post_content-based detector cannot see WCB block markup. Use for BuddyPress profile / group tabs, page-builder lazy renderers, and any surface that calls `render_block()` after `wp_head` has run. Without this, primitives like `.wcb-hidden` do not resolve and Interactivity toggles render both states stacked. |
 
 ## REST response filters (`wcb_rest_prepare_*`)
 
