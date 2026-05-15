@@ -27,6 +27,19 @@ Each notification can be:
 
 Click the email name to expand the editor for that notification.
 
+## Send Test Email
+
+Each template ships with a **Send test** button on the right of the row. Clicking it dispatches a one-shot copy of that email to the admin user's address with sample merge-tag values, so you can preview the rendered template before any real applicant sees it.
+
+![Send test email button in the Sent state](../images/test-email-sent-state.png)
+
+The button works for both enabled and disabled templates — disabled templates are still rendered and dispatched for preview, but their log rows are tagged `sent_test` in the activity log so admin previews stay separate from production delivery metrics. A green check + "Sent" label appears for 2.5 seconds after a successful dispatch, then resets.
+
+If the button shows "Failed", check:
+- An SMTP plugin is configured (the local dev mail handler often fails silently)
+- The admin user has a valid email address on their profile
+- The Email Activity Log row says `sent_test` for the most recent attempt — if the row is missing, see the [self-heal note](#email-activity-log) below
+
 ## Email Placeholders
 
 Use these placeholders in email subjects and bodies — they are replaced with real values when the email sends:
@@ -51,6 +64,12 @@ Go to **WP Career Board → Settings → Notifications** to set:
 ## SMTP / Deliverability
 
 For reliable email delivery, use an SMTP plugin (WP Mail SMTP, FluentSMTP, or similar). WordPress's built-in mail function can land in spam without SMTP configuration.
+
+## Email Activity Log {#email-activity-log}
+
+Every dispatched email writes a row to `wp_wcb_notifications_log` and surfaces on the **Activity Log** tab at the bottom of Settings → Emails. Rows show the event type, channel, recipient, status (`sent` / `failed` / `sent_test` / `failed_test`), and timestamp.
+
+The log table is created on plugin activation. If for any reason the table is missing (e.g. a database migration dropped it, or the plugin was installed pre-1.0.x and skipped the activation routine), the dispatch path self-heals the table on first send rather than failing silently — your previously missing log entries will start populating from the next dispatch onward.
 
 ---
 

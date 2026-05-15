@@ -10,9 +10,23 @@ The **My Applications** tab in the Candidate Dashboard shows every job you have 
 2. The **My Applications** tab is active by default
 3. You will see all your applications listed newest first
 
+## Table format (1.2.0+)
+
+Starting with 1.2.0, the block and its matching shortcode (`[wcbp_my_applications]`) render as a semantic table with column headers, so the data is screen-reader friendly and copy/paste-able into a spreadsheet without losing structure:
+
+![My Applications table - candidate view](../images/my-applications-table-candidate.png)
+
+| Column | What it shows |
+|---|---|
+| **Job** | Job title (linked to the listing) and company name |
+| **Status** | Coloured status badge — see the table below for each badge's meaning |
+| **Submitted** | Application date in your site's date format |
+
+On narrow viewports (under 480px container width) the table collapses to a card layout — each row's cells stack vertically with their column label in-place, so phones get the same data without a horizontal scrollbar.
+
 ## What You See per Application
 
-Each application card shows:
+Each row shows:
 
 - **Job title** and company name
 - **Application date**
