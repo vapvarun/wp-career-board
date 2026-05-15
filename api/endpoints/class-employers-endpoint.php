@@ -181,7 +181,13 @@ final class EmployersEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			$user->add_role( 'wcb_employer' );
+			// Replace existing roles, not stack on top. wp-admin role
+			// assignment uses replace semantics (set_role); frontend
+			// self-registration must match so a logged-in subscriber who
+			// converts to Employer ends up with just wcb_employer, not
+			// subscriber + wcb_employer. BuddyPress member-type sync hangs
+			// off set_role() too.
+			$user->set_role( 'wcb_employer' );
 			$user_id = $user->ID;
 
 			$company_id = wp_insert_post(

@@ -166,7 +166,9 @@ final class CandidatesEndpoint extends RestController {
 					array( 'status' => 409 )
 				);
 			}
-			$user->add_role( 'wcb_candidate' );
+			// Replace existing roles, not stack. See same note in
+			// EmployersEndpoint::register_employer().
+			$user->set_role( 'wcb_candidate' );
 			do_action( 'wcb_candidate_registered', $user->ID );
 
 			$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
