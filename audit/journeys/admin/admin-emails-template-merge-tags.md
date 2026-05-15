@@ -3,8 +3,9 @@ id: admin-emails-template-merge-tags
 priority: medium
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-05-15
 needs: cli
+bug_ref: Basecamp 9895205013
 ---
 
 # Admin views and edits an email template; merge tags resolve in a test send
@@ -19,9 +20,12 @@ needs: cli
 4. Record the current subject: capture the current subject line text
 5. Update the subject to include a merge tag: edit the subject field to `Smoke Test - {{candidate_name}} applied` (or the plugin's documented merge-tag syntax) → save → expect HTTP 200 or 302 (no error flash)
 6. Verify the edit persisted: reload `/wp-admin/admin.php?page=wcb-emails` → navigate back to the same template → expect the subject field shows `Smoke Test - {{candidate_name}} applied`
-7. If a "Test Send" / "Preview" feature exists: click it → expect an email is sent to the admin email address (check Mailpit at `http://localhost:8025` or equivalent local mail catcher) OR the preview renders with `{{candidate_name}}` replaced by a placeholder value (NOT the raw tag syntax)
-8. Restore original subject: update the subject back to the captured value from step 4
-9. tail debug.log diff → expect ZERO new fatal/warning lines
+7. Click "Send Test" → expect `POST /wcb/v1/admin/emails/test` returns HTTP 200 with body `{sent: bool, to: string, logged: int}`.
+8. Assert `sent === true` and `logged` is an integer > 0.
+9. Query the notification log: `wp db query "SELECT status, payload FROM wp_wcb_notifications_log WHERE id = <logged>" --skip-column-names` → expect `status` = `sent_test` (NOT `sent`) and `payload` JSON contains `"is_test":true`.
+10. If Mailpit is available, open the received email → confirm merge tags are resolved (NOT raw `{{candidate_name}}` syntax).
+11. Restore original subject: update the subject back to the captured value from step 4.
+12. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
 
@@ -33,5 +37,5 @@ needs: cli
 ## Notes
 
 - The emails admin page slug is `wcb-emails` per the manifest (admin/class-admin.php:499).
-- Merge-tag syntax may be `{{tag}}` or `{tag}` or `%TAG%` — read the email module implementation to confirm before authoring a more specific assertion.
-- If no test-send feature exists in v1.1.0, step 7 is "expect feature absent — no broken UI shown" and should be marked `skipped: feature_not_shipped`.
+- Merge-tag syntax is `{{tag}}` (double-brace). Single-brace `{job_title}` is inconsistent and may not substitute in all paths; flag if seen.
+- Since 1.2.0, test-send routes through `AbstractEmail::test_send()` and the shared `dispatch()` helper. Log rows use `sent_test` / `failed_test` to isolate admin previews from production delivery metrics.

@@ -3,7 +3,7 @@ id: employer-boards-picker-respects-membership
 priority: critical
 personas: employer.stripe, employer.vercel
 requires: mu:autologin, buddypress:groups, pro:bp-group-boards
-last_verified: 2026-05-12
+last_verified: 2026-05-15
 bug_ref: Basecamp 9877868161
 ---
 
@@ -27,4 +27,4 @@ None required — the journey only reads.
 
 ## Notes
 
-The filter `wcb_board_options_for_employer` (Free, registered at `blocks/job-form/render.php`) is the contract. Pro's `BpGroupBoards::restrict_boards_to_user_groups()` implements it. Future Pro refactors that re-architect group/board mapping must keep the filter's behaviour intact or this journey will catch the regression.
+The filter `wcb_board_options_for_employer( array $options, int $user_id )` (Free, registered at `blocks/job-form/render.php`) is the contract. Pro's `BpGroupBoards::restrict_boards_to_user_groups()` implements it. The filter is now documented in `docs/HOOKS.md` and `audit/manifest.json` (since 1.2.0). Future Pro refactors that re-architect group/board mapping must keep the filter's behaviour intact or this journey will catch the regression.

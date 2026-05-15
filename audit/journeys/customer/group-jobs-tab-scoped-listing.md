@@ -3,8 +3,8 @@ id: group-jobs-tab-scoped-listing
 priority: critical
 personas: wcbp_p5_candidate
 requires: mu:autologin, buddypress:groups, pro:bp-group-boards, seed:jobs
-last_verified: 2026-05-12
-bug_ref: Basecamp 9877872730
+last_verified: 2026-05-15
+bug_ref: Basecamp 9877872730, 9895174032
 ---
 
 # BuddyPress group Jobs tab lists only that group's jobs
@@ -33,3 +33,5 @@ wp post meta update <test-job-b> _wcb_board_id <original-board-or-default>
 ## Notes
 
 The fix was a one-character attribute rename in `wp-career-board-pro/integrations/buddypress/class-bp-group-boards.php` — the journey verifies the contract from the candidate's POV (right jobs in right tab), not the attribute itself, so it survives any refactor of the embed mechanism.
+
+Since 1.2.0 the BuddyPress group Jobs tab also depends on the `wcb_page_needs_frontend_assets` filter (Basecamp 9895174032). If the filter is not wired, `frontend.css` / `frontend-tokens.css` / `frontend-components.css` do not load for the BP group tab context and primitives like `.wcb-hidden` will not resolve, causing both states of any Interactivity API toggle to render stacked. Add a step asserting ZERO stacked `.wcb-hidden` elements are visible in the rendered tab.

@@ -5,7 +5,7 @@ This document tracks what the `wp-plugin-release-qa` skill scaffolded into this 
 ## What's in place
 
 - `docs/qa/PRE_RELEASE_SMOKE.md` — 90-min human walkthrough
-- `docs/qa/AGENT_SMOKE_RUNBOOK.md` — Sonnet + Playwright deterministic runbook (A–F, all 14 Pro modules in E with verified file/hook counts + admin slugs); D contains 7 real regression rows mapped to recent Basecamp tickets (9871740742, 9866553120, 9818132111, 9872024322, T3.5, F-1, abilities-init-hook)
+- `docs/qa/AGENT_SMOKE_RUNBOOK.md` — Sonnet + Playwright deterministic runbook (A–F, all 14 Pro modules in E with verified file/hook counts + admin slugs); D contains 14 real regression rows — 7 original (9871740742, 9866553120, 9818132111, 9872024322, T3.5, F-1, abilities-init-hook) + 6 added in 1.2.0 (9895205013, 9891012864, 9890815047, 9890919239, 9890885030, 9891577445) + D.pwa-icon-404 (936c04a)
 - `docs/qa/UX_AUDIT.md` — per-template surface check
 - `docs/qa/QA_RELEASE_CHECKLIST.md` — release gate (PHPUnit, PHPStan, WPCS, versions, packaging)
 - `bin/seed-qa-fixtures.php` — idempotent reseeder (uses verified v1.1.0 meta keys + Pro table schemas; not normally needed since job-portal.local already has 9 jobs / 35 applications / 9 companies / 7 resumes from prior dev)
@@ -16,7 +16,7 @@ This document tracks what the `wp-plugin-release-qa` skill scaffolded into this 
 
 > The smoke skill itself is **global** (`/wp-plugin-smoke`) — one skill for every plugin in the Wbcom portfolio. There is no per-plugin smoke `SKILL.md` in `.claude/skills/` (the prior `wp-career-board-smoke` skill was retired during the 2026-05-09 consistency cleanup so the dispatch pattern lives in one place).
 
-## Verified facts (v1.1.0 audit)
+## Verified facts (v1.2.0 audit)
 
 - **CPTs (6):** `wcb_job`, `wcb_application`, `wcb_resume`, `wcb_company`, `wcb_board`, `wcb_credit_package`
 - **DB tables (12 total):** 3 Free-owned (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) + 9 Pro-owned (`wcb_notifications`, `wcb_credit_ledger`, `wcb_credit_gateway_log`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`)
@@ -95,7 +95,7 @@ Smoke-walk failure drafts file into the **Bugs** column (`9691964821`). Verified
 
 ### 3. Section D — regression guards
 
-D currently has 7 real rows mapped to Basecamp tickets: 9871740742, 9866553120, 9818132111, 9872024322, plus T3.5, F-1, and the abilities-init-hook bug surfaced during scaffolding. Every customer-visible fix from now on adds a D row in the same PR. After 2 clean releases a row graduates into a numbered C / E step.
+D has 14 real rows. Original 7: 9871740742, 9866553120, 9818132111, 9872024322, T3.5, F-1, abilities-init-hook. Added in 1.2.0 (2026-05-15): D.test-email-bridge (9895205013), D.meta-filter-default-allow (9891012864), D.setup-wizard-centering (9890815047), D.company-cards-alignment (9890919239), D.active-filter-spacing (9890885030), D.public-chevron-lucide (9891577445), D.pwa-icon-404 (936c04a). Every customer-visible fix from now on adds a D row in the same PR. After 2 clean releases a row graduates into a numbered C / E step.
 
 ### 4. `readme.txt`
 

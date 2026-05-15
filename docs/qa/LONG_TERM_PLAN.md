@@ -184,7 +184,7 @@ wp-career-board/docs/qa/
 wp-career-board/audit/
 ├── manifest.json                  (35 REST endpoints, refreshed 2026-05-07)
 ├── qa-coverage.json               (drift baseline)
-├── journeys/                      (42 journeys, 4 areas)
+├── journeys/                      (45 journeys, 4 areas)
 ├── journey-runs/                  (5 batch-N JSONs from this run)
 └── (FEATURE_AUDIT.md, CODE_FLOWS.md, ROLE_MATRIX.md, graph.html — pre-existing)
 

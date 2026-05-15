@@ -1,9 +1,9 @@
 # WP Career Board — Feature Audit Report
 
-**Generated**: 2026-04-29
-**Version**: 1.1.0
+**Generated**: 2026-04-29  **Last updated**: 2026-05-15
+**Version**: 1.2.0
 **Source**: [`audit/manifest.json`](manifest.json)
-**Counts**: 15 blocks · 11 shortcodes · 35 REST endpoints · 9 admin pages · 5 CPTs · 5 taxonomies · 3 custom tables · 3 cron jobs · 4 WP-CLI commands · 11 abilities/capabilities · 9 transactional emails · 0 admin-ajax actions
+**Counts**: 15 blocks · 11 shortcodes · 36 REST endpoints · 9 admin pages · 5 CPTs · 5 taxonomies · 3 custom tables · 3 cron jobs · 4 WP-CLI commands · 12 abilities/capabilities · 9 transactional emails · 0 admin-ajax actions
 
 ---
 
@@ -17,6 +17,7 @@
 - **REST calls**: `GET /wcb/v1/jobs`, `POST /wcb/v1/jobs/{id}/bookmark`
 - **JS module**: `blocks/job-listings/view.js` (Interactivity API store)
 - **Settings toggle**: `wcb_settings.listings.*`, `wcb_default_board_id`
+- **1.2.0**: Filter-panel chevron is now `<i data-lucide="chevron-down">` (replaced hand-rolled inline SVG). `.wcb-active-filters.wcb-shown` has `margin-bottom: var(--wcb-space-md)` so active-filter chip row separates from job cards. `metaFilter` block attribute and `?meta_<key>=<value>` query param auto-allow any `_wcb_*` meta key without a filter opt-in. (Basecamp 9890885030, 9891577445, 9891012864)
 
 ### 1.2 Block: `wp-career-board/job-form` (multi-step)
 - **Render**: `blocks/job-form/render.php`
@@ -65,6 +66,7 @@
 ### 1.11 Block: `wp-career-board/company-profile` / `company-archive`
 - Public profiles for `wcb_company` CPT.
 - **REST**: `GET /companies`, `GET /employers/{id}/jobs`.
+- **1.2.0**: Company-archive filter-panel chevron is now `<i data-lucide="chevron-down">` (replaced hand-rolled inline SVG). `.wcb-ca-card-link` has `grid-template-rows: auto 1fr auto` and chips row has `align-self: start` so meta chips align at the same y-position across cards regardless of tagline length. (Basecamp 9890919239, 9891577445)
 
 ### 1.12 Shortcode bridges
 All 10 user-facing blocks are also exposed as shortcodes via the adapter in
@@ -81,7 +83,7 @@ _None_ — the plugin uses **REST + Interactivity API only**. There are zero plu
 
 ## 3. REST endpoints
 
-Namespace `wcb/v1` (see manifest for full list of 35 endpoints).
+Namespace `wcb/v1` (see manifest for full list of 36 endpoints).
 
 | Group | Endpoints |
 |---|---|
@@ -92,12 +94,17 @@ Namespace `wcb/v1` (see manifest for full list of 35 endpoints).
 | Employers | `/employers/register`, `/employers`, `/employers/{id}`, `/employers/{id}/jobs`, `/employers/{id}/applications`, `/employers/{id}/logo`, `/employers/me/jobs` |
 | Search | `/search` |
 | Settings | `/settings/app-config` |
-| Admin | `/admin/dismiss-banner` |
+| Admin | `/admin/dismiss-banner`, `/admin/emails/test` (since 1.2.0) |
 | Import | `/import/status`, `/import/run` |
 | Setup wizard | `/wizard/create-pages`, `/wizard/sample-data`, `/wizard/complete`, `/wizard/remove-sample-data` |
 | Moderation | `/jobs/{id}/approve`, `/jobs/{id}/reject` |
 
 Permission strategy: `permission_callback` calls either `__return_true` (public read), inline `is_user_logged_in()`, or a class-method that wraps `wp_is_authorized( '<wcb_*>' )`.
+
+### 1.2.0 REST changes
+
+- `POST /wcb/v1/admin/emails/test` — new endpoint. Calls `AbstractEmail::test_send()` public bridge instead of using ReflectionClass. Response shape: `{sent: bool, to: string, logged: int}`. Log row status is `sent_test` / `failed_test` so admin previews do not appear in production delivery metrics.
+- `GET /wcb/v1/jobs` — `?meta_<key>=<value>` query param now auto-allows any `_wcb_*` namespaced key without needing opt-in via `wcb_jobs_allowed_meta_filters`. Custom or non-WCB meta still requires filter opt-in.
 
 ---
 
@@ -191,6 +198,10 @@ Admin: `admin.js`, `wizard.js`, `admin/icons.js`, `admin/toast.js`, `admin/setti
 | `job_expired` | `wcb_job_expired` | Employer expired |
 
 All extend `WCB\Modules\Notifications\AbstractEmail` and are registered via the `wcb_registered_emails` filter.
+
+### 1.2.0 Email changes
+
+`AbstractEmail` gained a public `test_send(string $to, array $vars, int $user_id = 0): bool` method that bypasses `is_enabled()`. Both production and test paths share a new private `dispatch()` helper. Test-fired log rows write `sent_test` / `failed_test` to the `status` column of `wcb_notifications_log`; `payload` JSON carries `is_test: true`.
 
 ---
 

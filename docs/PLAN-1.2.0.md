@@ -1,5 +1,12 @@
 # WP Career Board (Free) — 1.2.0 Plan
 
+> **Status: items below were re-scoped from 1.2.0 to a future release.**
+> 1.2.0 shipped 2026-05-15 as the consolidation of 1.1.0 features + 1.1.1 fix roll-up
+> + the 13-card Basecamp bug-fix batch (cards 9890876511, 9887438481, 9886954687,
+> 9886897707, 9895100276, 9882140939, 9890815047, 9890885030, 9890919239,
+> 9895174032, 9891012864, 9891577445, 9895205013).
+> The plan items below remain valid for the next major release — see CHANGELOG.
+
 This plan captures features intentionally deferred from 1.1.0. They were
 ranked lower than the BuddyPress-funnel and audit-fix work that shipped
 in 1.1.0 — see `CHANGELOG.md` and the `1.1.0` git log for what already

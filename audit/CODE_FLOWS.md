@@ -1,6 +1,6 @@
 # WP Career Board — Code Flow Maps
 
-**Generated**: 2026-04-29
+**Generated**: 2026-04-29  **Last updated**: 2026-05-15 (1.2.0)
 **Source**: [`audit/manifest.json`](manifest.json)
 
 ---
@@ -13,7 +13,7 @@
 1. WordPress renders the page → `blocks/job-listings/render.php` runs (server-side).
 2. `render.php` calls `wp_interactivity_state( 'wp-career-board/job-listings', […] )` to seed the store with current filters/board.
 3. Browser loads `view.js` (Interactivity module). Store dispatches a fetch to `/wp-json/wcb/v1/jobs?…` on hydration and on filter change.
-4. REST: `JobsEndpoint::get_items` → `WP_Query` against `wcb_job` CPT → applies `wcb_jobs_post_filter`, `wcb_jobs_allowed_meta_filters`, `wcb_job_listings_query_args` filters → returns paginated JSON.
+4. REST: `JobsEndpoint::get_items` → `WP_Query` against `wcb_job` CPT → applies `wcb_jobs_post_filter`, `wcb_job_listings_query_args` filters → returns paginated JSON. Meta key filtering: any `_wcb_*` namespaced key is auto-allowed; custom/non-WCB keys require opt-in via `wcb_jobs_allowed_meta_filters`. Same default-allow behavior applies on the server-side first-paint query in `blocks/job-listings/render.php` and is controlled by the `metaFilter` block attribute.
 5. Each job is run through `wcb_rest_prepare_job` and `wcb_job_response` filters before serialization.
 6. Browser updates DOM via `data-wp-*` directives.
 
@@ -174,3 +174,30 @@ The two write hooks `wcb_pre_job_submit` and `wcb_pre_application_submit` are fi
 ## Flow 12 — Migration (WP Job Manager)
 
 `wp wcb migrate wpjm` (and `wpjm-resumes`) walks the WPJM CPT, mapping its taxonomies/meta into the `wcb_*` schema. Idempotent — uses a marker meta to skip already-imported posts.
+
+---
+
+## Flow 13 — Test Email (admin preview) — added 1.2.0
+
+**Entry**: admin clicks "Send test" on the Emails settings page.
+
+### Code path
+1. JS fires `POST /wcb/v1/admin/emails/test` with `{email_id, to, vars}`.
+2. `AdminEndpoint::test_email` resolves the email class from `wcb_registered_emails`, then calls `$email->test_send( $to, $vars, 0 )`.
+3. `AbstractEmail::test_send()` is a new public bridge that bypasses `is_enabled()` — admin preview always fires regardless of whether the email is toggled off.
+4. Both `test_send()` and production `send()` route through the shared private `dispatch()` helper: substitutes merge tags, wraps with brand styling, calls `wp_mail()`.
+5. `dispatch()` writes a log row to `{prefix}wcb_notifications_log`. Status column is `sent_test` (delivery succeeded) or `failed_test` (wp_mail returned false). The `payload` JSON column carries `"is_test": true`.
+6. REST response: `{sent: bool, to: string, logged: int}` where `logged` is the inserted log row ID.
+
+### Why test rows are isolated
+`sent_test` / `failed_test` statuses are distinct from the production `sent` / `failed` values, so delivery-rate metrics and admin log filters can exclude test rows without additional date-range gymnastics.
+
+### Key files
+| File | Role |
+|---|---|
+| `api/endpoints/class-admin-endpoint.php` | REST handler; calls `test_send()`, returns response shape |
+| `modules/notifications/class-abstract-email.php` | `test_send()` + `dispatch()` |
+| `{prefix}wcb_notifications_log` | Audit table; `status` column carries `sent_test` / `failed_test` |
+
+### Basecamp
+9895205013 — Emails Send Test functionality (AbstractEmail::test_send bridge)

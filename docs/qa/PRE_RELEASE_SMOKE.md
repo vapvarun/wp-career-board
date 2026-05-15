@@ -68,12 +68,28 @@
 - [ ] List pages: filter, paginate, bulk actions on jobs / applications / candidates
 - [ ] Moderation queue: approve / spam / trash a flagged job; silenced employers cannot post
 - [ ] User management: change a user's role to candidate / employer; capability check honoured
+- [ ] Emails admin → Send Test → response body shows `sent`/`to`/`logged`; log row has `sent_test` status (not `sent`)
+- [ ] Setup wizard page is horizontally centered at 1440px and has side-margin at tablet width
 
 ## D — Known-regression guards (15 min)
 
-> Fill from the plugin's fixed-bug history as it accumulates. Until 0.1.0+ has shipped, this section starts empty; every customer-visible fix that ships after this document adds a new row here in the same PR.
+See `docs/qa/AGENT_SMOKE_RUNBOOK.md` Section D for the full repro + assertion for each row. Quick human walk:
 
-- [ ] (placeholder) `D.<id>`: <repro> → <expected>
+- [ ] `D.test-email-bridge`: Send test email from Emails admin → response `{sent, to, logged}`, log row has `status = sent_test`, NOT `sent`.
+- [ ] `D.meta-filter-default-allow`: `GET /wcb/v1/jobs?meta__wcb_<any>=<val>` returns matching jobs without a `wcb_jobs_allowed_meta_filters` hook registered.
+- [ ] `D.setup-wizard-centering`: Wizard page centered at 1440px; 12px side-margin at 768px; no horizontal scroll.
+- [ ] `D.company-cards-alignment`: Company archive chip row aligns at the same y-position across cards with different tagline lengths.
+- [ ] `D.active-filter-spacing`: Job listings active-filter chips have bottom margin before job cards.
+- [ ] `D.public-chevron-lucide`: No hydration errors on /jobs/ and company archive; chevrons render correctly.
+- [ ] `D.wcb-closed-status`: Close a job via `PATCH /wcb/v1/jobs/{id}` with `{"status":"closed"}` → job stays visible in employer dashboard with "Closed" label.
+- [ ] `D.apply-email-scraped`: `GET /wcb/v1/jobs/{id}` as anonymous → response has NO `apply_email` field.
+- [ ] `D.resume-required-default`: Fresh install, apply without resume → HTTP 400 `wcb_resume_required`.
+- [ ] `D.company-tagline-missing`: `GET /wcb/v1/companies/{id}` → response has non-empty `tagline`, `industry`, `size_label`, `hq`.
+- [ ] `D.location-dropdown-scope`: Employer company-edit location dropdown shows only HQ-specific + Remote + Other options.
+- [ ] `D.ability-slug-format`: `POST /wcb/v1/jobs` as employer → HTTP 201, zero `wp_get_ability` notices in debug.log.
+- [ ] `D.vector-column-mariadb-11-7`: On MariaDB 11.7+ fresh install → `wp_wcb_ai_vectors` table exists, `wcbp_db_version` matches constant.
+- [ ] `D.pwa-icon-404`: No Site Icon configured + Pro PWA active → `wcb-manifest.json` has no `icons` key, no 404 in network tab.
+- [ ] `D.lucide-hydration-mismatch`: No `Expected a DOM node of type "i" but found` errors on /jobs/, /jobs/<single>/, /employer-dashboard/.
 
 ## E — Pro extensions (if `wp-career-board-pro` active, 15 min)
 
@@ -130,3 +146,13 @@ Expectations: no JS errors, no layout breaks, interactive elements work.
 ## Version-specific additions
 
 Append a section below for every release with the specific regression guards added that cycle. After 2 clean releases of a row → graduate it into the main flow.
+
+### 1.2.0 — 2026-05-15
+
+New checks added this cycle (beyond the D-row additions above):
+
+- [ ] Company archive: chip row aligns across cards with different tagline lengths at 1440px and 390px.
+- [ ] Job listings active-filter chips: bottom margin visible before job cards when at least one filter is active.
+- [ ] Find Jobs and company archive filter chevrons: no hydration console errors; icons display.
+- [ ] `metaFilter` block attribute: add `metaFilter="_wcb_partner_id:acme"` to the shortcode; assert filtered results without registering `wcb_jobs_allowed_meta_filters`.
+- [ ] BuddyPress profile / group tabs: if `wcb_page_needs_frontend_assets` is wired, WCB blocks render without `.wcb-hidden` showing both states. (Basecamp 9895174032)

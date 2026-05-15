@@ -4,13 +4,16 @@
 
 **Stack:** PHP 8.1+ · WP 6.9+ · WordPress Interactivity API · WordPress Abilities API · Gutenberg blocks · REST API (`/wp-json/wcb/v1/`) · wp_mail · WP-Cron
 
-**Status: v1.1.0 — Shipped 2026-04-27 ✅**
+**Status: v1.2.0 — Shipped 2026-05-15 ✅**
 
-> 1.1.0 ships the modular widget registry, single-page job form,
-> declarative custom-field filters, REST list envelope, deadline + featured
-> expiry crons, and the design-token registry that Pro inherits. See
-> [`docs/CHANGELOG.md`](CHANGELOG.md) for the full set of changes and
-> [`docs/PLAN-1.2.0.md`](PLAN-1.2.0.md) for what's next.
+> 1.2.0 is a consolidation release: 1.1.0 features + 1.1.1 fix roll-up + 13-card
+> Basecamp bug-fix batch. Key changes: AbstractEmail::test_send() bridge replaces
+> ReflectionClass in the test-email endpoint; _wcb_* meta keys auto-allowed on
+> jobs REST + metaFilter block attribute; Lucide chevrons replace hand-rolled SVG
+> on filter panels; company-archive card grid alignment fixed; active-filter chip
+> spacing fixed; setup-wizard centered. See [`docs/CHANGELOG.md`](CHANGELOG.md).
+> Prior plan items re-scoped to the next major release — see
+> [`docs/PLAN-1.2.0.md`](PLAN-1.2.0.md) for the updated status.
 
 ---
 

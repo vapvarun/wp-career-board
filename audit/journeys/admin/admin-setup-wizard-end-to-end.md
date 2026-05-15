@@ -3,8 +3,9 @@ id: admin-setup-wizard-end-to-end
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-05-15
 needs: cli
+bug_ref: Basecamp 9890815047
 ---
 
 # Admin walks the setup wizard from start to finish; completion flag is set
@@ -17,7 +18,7 @@ needs: cli
    ```bash
    wp option update wcb_setup_complete 0
    ```
-2. As `varundubey`, navigate to `/wp-admin/admin.php?page=wcb-setup&autologin=1` → expect 200, wizard UI renders; first step "Create Pages" is visible (or the welcome step if Pro adds one)
+2. As `varundubey`, navigate to `/wp-admin/admin.php?page=wcb-setup&autologin=1` → expect 200, wizard UI renders; first step "Create Pages" is visible (or the welcome step if Pro adds one). At 1440px viewport, assert `.wcb-wizard-wrap` is horizontally centered (visible left and right margins). At 768px viewport, assert side-margin is ~12px with no horizontal scroll.
 3. Confirm the wizard JS localization data is present by checking the page source for `wcbWizard` object containing `restUrl` and `steps` keys
 4. Execute Step 1 (Create Pages) via the wizard REST endpoint as admin:
    ```bash

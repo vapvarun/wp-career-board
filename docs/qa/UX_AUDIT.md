@@ -64,7 +64,7 @@ Don't re-audit identical cells across releases — audit the ones that changed o
 
 | Template | Route / Selector | Personas | Audit cells |
 |----------|------------------|----------|-------------|
-| Job board archive | `/jobs/` | Anonymous, Candidate, Employer | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
+| Job board archive | `/jobs/` | Anonymous, Candidate, Employer | Desktop-L, Desktop-D, Mobile-L, Mobile-D | 1.2.0: active-filter chip row has bottom margin; chevron icons are Lucide-rendered (no hydration errors) |
 | Single job | `/jobs/<slug>/` | Anonymous, Candidate, Employer | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
 | Apply form | Apply CTA on single-job | Candidate | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
 | Candidate profile (public) | `/candidate/<slug>/` | Anonymous, Candidate, Employer | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
@@ -75,6 +75,8 @@ Don't re-audit identical cells across releases — audit the ones that changed o
 | Pipeline (Pro) | Per-job pipeline view | Employer | Desktop-L, Desktop-D |
 | Search results | `/jobs/?s=...&filters=...` | Anonymous, Candidate | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
 | Company profile | `/company/<slug>/` | Anonymous, Candidate | Desktop-L, Desktop-D |
+| Company archive | `/companies/` (or configured archive route) | Anonymous, Candidate | Desktop-L, Desktop-D, Mobile-L, Mobile-D | 1.2.0: card chip row aligns at same y-position across cards with different tagline lengths; chevron icons Lucide-rendered |
+| Setup wizard | `wp-admin/admin.php?page=wcb-setup-wizard` | Admin | Desktop-L, Mobile-L | 1.2.0: centered at 1440px; 12px side-margin at 960px and below |
 | Saved jobs | Candidate dashboard tab | Candidate | Desktop-L, Mobile-L |
 
 (Delete or expand rows to match the live plugin once URL slugs are confirmed.)

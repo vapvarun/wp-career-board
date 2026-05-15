@@ -3,7 +3,7 @@
   "plugin": {
     "slug": "wp-career-board",
     "name": "WP Career Board",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "namespace": "WCB\\",
     "main_file": "wp-career-board.php",
     "text_domain": "wp-career-board",
@@ -265,6 +265,16 @@
         "handler": "WCB\\Api\\Endpoints\\AdminEndpoint::dismiss_banner",
         "permission": "admin_check (wcb_manage_settings)",
         "purpose": "Dismiss admin banner / nag"
+      },
+      {
+        "route": "/wcb/v1/admin/emails/test",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\AdminEndpoint::test_email",
+        "permission": "admin_check (wcb_manage_settings)",
+        "purpose": "Send a test email via AbstractEmail::test_send(); response shape: {sent: bool, to: string, logged: int}. Log row status is sent_test or failed_test (never pollutes production delivery metrics).",
+        "since": "1.2.0"
       },
       {
         "route": "/wcb/v1/settings/app-config",
@@ -1424,8 +1434,25 @@
       "name": "wcb_jobs_allowed_meta_filters",
       "type": "filter",
       "args": "(string[])$keys",
-      "where": "jobs endpoint",
-      "consumed_by": null
+      "where": "jobs endpoint + blocks/job-listings/render.php",
+      "consumed_by": null,
+      "note": "Since 1.2.0: any _wcb_* namespaced meta key is allowed by default. This filter is only needed for custom or non-WCB meta keys."
+    },
+    {
+      "name": "wcb_board_options_for_employer",
+      "type": "filter",
+      "args": "(array)$options, (int)$user_id",
+      "where": "blocks/job-form",
+      "consumed_by": "Pro (hides BP group boards the employer is not a member of)",
+      "since": "1.2.0 (documented)"
+    },
+    {
+      "name": "wcb_page_needs_frontend_assets",
+      "type": "filter",
+      "args": "(bool)$needs",
+      "where": "core (frontend asset loader)",
+      "consumed_by": "BuddyPress integration, page-builder lazy renderers, any surface calling render_block() after wp_head",
+      "since": "1.2.0 (documented)"
     },
     {
       "name": "wcb_jobs_post_filter",
