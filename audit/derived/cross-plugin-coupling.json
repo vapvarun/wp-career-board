@@ -1,9 +1,9 @@
 {
   "name": "cross-plugin-coupling",
-  "computed_at": "2026-05-17T08:30:09.373142Z",
+  "computed_at": "2026-05-17T09:06:25.208296Z",
   "input_globs": [
-    "wp-career-board/includes/**/*.php",
-    "wp-career-board-pro/includes/**/*.php"
+    "wp-career-board/**/*.php",
+    "wp-career-board-pro/**/*.php"
   ],
   "result": {
     "i_fire_hooks_consumed_by_partner": {
@@ -95,10 +95,6 @@
         {
           "plugin": "wp-career-board-pro",
           "where": "core/class-pro-plugin.php:84"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:178"
         }
       ],
       "wcb_install_default_settings": [
@@ -123,10 +119,6 @@
         {
           "plugin": "wp-career-board-pro",
           "where": "admin/class-pro-admin.php:44"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:179"
         }
       ],
       "wcb_import_extra_cards": [
@@ -139,34 +131,18 @@
         {
           "plugin": "wp-career-board-pro",
           "where": "integrations/buddypress/class-bp-pro-integration.php:46"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:31"
         }
       ],
       "wcb_application_status_changed": [
         {
           "plugin": "wp-career-board-pro",
           "where": "integrations/buddypress/class-bp-pro-integration.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:48"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:32"
         }
       ],
       "wcb_job_approved": [
         {
           "plugin": "wp-career-board-pro",
           "where": "integrations/buddypress/class-bp-activity.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:33"
         }
       ],
       "wcb_moderate_jobs_ability_check": [
@@ -191,18 +167,6 @@
         {
           "plugin": "wp-career-board-pro",
           "where": "modules/maps/class-maps-module.php:38"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/alerts/class-alerts-module.php:35"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/ai/class-ai-module.php:34"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:34"
         }
       ],
       "wcb_registered_emails": [
@@ -291,12 +255,6 @@
       ]
     },
     "i_listen_to_partner_hooks": {},
-    "dead_listeners_in_me": [
-      {
-        "hook": "wcb_settings_tab_import",
-        "where": "admin/class-admin-settings.php:160",
-        "note": "Hook prefix wcb_ but no firing site in Free or Pro"
-      }
-    ]
+    "dead_listeners_in_me": []
   }
 }

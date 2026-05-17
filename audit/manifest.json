@@ -1067,32 +1067,976 @@
   ],
   "hooks_fired": [
     {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:62",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:179",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:163",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:246",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:518",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_credit_cost",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:743",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:63",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:120",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:135",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:164",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:1251",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_options_for_employer",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:77",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:59",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_options_for_employer",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:180",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:59",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:152",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:222",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:611",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:186",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:257",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:185",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:520",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:761",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:187",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:258",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:353",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:186",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:293",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:200",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:489",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:271",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:281",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:818",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:913",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:917",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_ai_description_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:307",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/ai/class-ai-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_ai_description_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:453",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/ai/class-ai-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_simple_extra_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:479",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_jobs_allowed_meta_filters",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:82",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_jobs_allowed_meta_filters",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:257",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_listings_query_args",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:102",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_listings_query_args",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:327",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_listing_data",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:241",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:34",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_listings_board_options",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:296",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_listings_api_base",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:348",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_resumes_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:162",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:40",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_candidate_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:168",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_candidate_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:172",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_candidate_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:979",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_candidate_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:390",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:205",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:373",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:201",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:351",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "templates/parts/archive-toolbar.php:138",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:307",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:416",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:445",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:874",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:389",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_step1_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:490",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step2_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:672",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step3_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:813",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step4_preview",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:890",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_before",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:397",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_before",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:419",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_after",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:398",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_after",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:426",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_blocks",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:402",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:168",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:172",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:757",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:505",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:187",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:286",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:363",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:399",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_low_threshold",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:191",
+      "consumed_by": []
+    },
+    {
       "name": "wcb_pro_active",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:198",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
       "where": "core/class-install.php:242",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
         }
       ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin.php:290",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin.php:527",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:757",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-import.php:142",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:66",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "the_content",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:471",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields_groups",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:951",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields_groups",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:328",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:1011",
+      "consumed_by": []
     },
     {
       "name": "wcb_install_default_settings",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
+      "args_signature": [],
       "where": "core/class-install.php:422",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-pro-install.php:111"
+          "where": "core/class-pro-install.php:111",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1116,9 +2060,7 @@
       "name": "wcb_industries",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$industries"
-      ],
+      "args_signature": [],
       "where": "core/class-industries.php:66",
       "consumed_by": []
     },
@@ -1126,9 +2068,7 @@
       "name": "wcb_shortcode_attr_aliases",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$camel_aliases"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:414",
       "consumed_by": []
     },
@@ -1136,18 +2076,13 @@
       "name": "wcb_app_page_ids",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$mapped_ids"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:612",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-pro-plugin.php:84"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:178"
+          "where": "core/class-pro-plugin.php:84",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1155,14 +2090,27 @@
       "name": "wcb_search_active_shortcodes",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array( 'wcb_', 'wcbp_' )"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:630",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:46"
+          "where": "core/class-free-coordination.php:46",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_search_active_shortcodes",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:1063",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:46",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1170,10 +2118,7 @@
       "name": "wcb_apply_page_class",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$is_wcb_page",
-        "$post->ID"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:648",
       "consumed_by": []
     },
@@ -1181,34 +2126,15 @@
       "name": "wcb_container_max_width",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$resolved_pixels"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:776",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_search_active_shortcodes",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array( 'wcb_', 'wcbp_' )"
-      ],
-      "where": "core/class-plugin.php:1063",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:46"
-        }
-      ]
     },
     {
       "name": "wcb_page_needs_frontend_assets",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
+      "args_signature": [],
       "where": "core/class-plugin.php:1086",
       "consumed_by": []
     },
@@ -1216,11 +2142,7 @@
       "name": "wcb_save_custom_field",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$sanitised",
-        "$key",
-        "$owner_id"
-      ],
+      "args_signature": [],
       "where": "core/class-form-custom-fields.php:397",
       "consumed_by": []
     },
@@ -1228,51 +2150,32 @@
       "name": "wcb_theme_accent_primary",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$accent",
-        "$template"
-      ],
+      "args_signature": [],
       "where": "core/class-theme-accent-bridge.php:120",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "admin/class-admin.php:290",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "admin/class-admin.php:527",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
     },
     {
       "name": "wcb_pro_upsell_url",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "'https://store.wbcomdesigns.com/wp-career-board-pro/'"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin.php:528",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_upsell_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:758",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_upsell_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-import.php:280",
       "consumed_by": []
     },
     {
@@ -1284,7 +2187,8 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "admin/class-pro-setup-wizard.php:67"
+          "where": "admin/class-pro-setup-wizard.php:67",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1292,9 +2196,7 @@
       "name": "wcb_wizard_complete_redirect",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "admin_url( 'admin.php?page=wp-career-board' )"
-      ],
+      "args_signature": [],
       "where": "admin/class-setup-wizard.php:305",
       "consumed_by": []
     },
@@ -1302,14 +2204,13 @@
       "name": "wcb_wizard_force_render",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$rerun"
-      ],
+      "args_signature": [],
       "where": "admin/class-setup-wizard.php:343",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "admin/class-pro-setup-wizard.php:65"
+          "where": "admin/class-pro-setup-wizard.php:65",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1317,14 +2218,13 @@
       "name": "wcb_currency_catalog",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "self::CURRENCIES"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:129",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:44"
+          "where": "core/class-free-coordination.php:44",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1332,15 +2232,13 @@
       "name": "wcb_settings_sanitize",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$output",
-        "$input"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:256",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:174"
+          "where": "modules/resume/class-resume-module.php:174",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1348,18 +2246,13 @@
       "name": "wcb_settings_tabs",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$tabs"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:394",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "admin/class-pro-admin.php:44"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:179"
+          "where": "admin/class-pro-admin.php:44",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1367,54 +2260,27 @@
       "name": "wcb_pro_settings_saved_notice",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "null"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:660",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:45"
+          "where": "core/class-free-coordination.php:45",
+          "kind": "action_listener"
         }
       ]
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "admin/class-admin-settings.php:757",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_upsell_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "'https://store.wbcomdesigns.com/wp-career-board-pro/'"
-      ],
-      "where": "admin/class-admin-settings.php:758",
-      "consumed_by": []
     },
     {
       "name": "wcb_page_settings",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$wcb_page_settings"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:973",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/resume/class-resume-module.php:173"
+          "where": "modules/resume/class-resume-module.php:173",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1422,9 +2288,7 @@
       "name": "wcb_settings_tab_emails",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$settings"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:1058",
       "consumed_by": []
     },
@@ -1432,36 +2296,8 @@
       "name": "wcb_settings_tab_",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        ". $wcb_slug",
-        "$settings"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-settings.php:1078",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "admin/class-admin-import.php:142",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_upsell_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "'https://store.wbcomdesigns.com/wp-career-board-pro/'"
-      ],
-      "where": "admin/class-admin-import.php:280",
       "consumed_by": []
     },
     {
@@ -1473,7 +2309,8 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "admin/class-pro-admin.php:52"
+          "where": "admin/class-pro-admin.php:52",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1481,14 +2318,13 @@
       "name": "wcb_registered_emails",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
+      "args_signature": [],
       "where": "admin/class-email-settings.php:102",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1496,14 +2332,13 @@
       "name": "wcb_registered_emails",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
+      "args_signature": [],
       "where": "admin/class-email-settings.php:275",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1511,14 +2346,13 @@
       "name": "wcb_registered_emails",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
+      "args_signature": [],
       "where": "admin/class-email-settings.php:355",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1526,14 +2360,41 @@
       "name": "wcb_registered_emails",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
+      "args_signature": [],
       "where": "admin/class-email-settings.php:461",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-admin-endpoint.php:148",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/notifications/class-notifications-module.php:70",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1541,24 +2402,55 @@
       "name": "wcb_application_status_changed",
       "type": "action",
       "args_count": 3,
-      "args_signature": [
-        "$app_id",
-        "$old_status",
-        "$new_status"
-      ],
+      "args_signature": [],
       "where": "admin/class-admin-applications.php:615",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47"
-        },
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "cli/class-application-commands.php:224",
+      "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:48"
-        },
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:439",
+      "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:32"
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/applications/class-application-lifecycle.php:116",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1566,14 +2458,13 @@
       "name": "wcb_cli_abilities",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "self::ABILITIES"
-      ],
+      "args_signature": [],
       "where": "cli/class-cli.php:167",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-pro-plugin.php:82"
+          "where": "core/class-pro-plugin.php:82",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1581,18 +2472,27 @@
       "name": "wcb_job_approved",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$job_id"
-      ],
+      "args_signature": [],
       "where": "cli/class-job-commands.php:181",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:47"
-        },
+          "where": "integrations/buddypress/class-bp-activity.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_approved",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/notifications/emails/class-email-job-approved.php:88",
+      "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:33"
+          "where": "integrations/buddypress/class-bp-activity.php:47",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1600,15 +2500,27 @@
       "name": "wcb_job_rejected",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$job_id",
-        "$reason"
-      ],
+      "args_signature": [],
       "where": "cli/class-job-commands.php:248",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:34"
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_rejected",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:219",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1616,14 +2528,27 @@
       "name": "wcb_job_expired",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$job_id"
-      ],
+      "args_signature": [],
       "where": "cli/class-job-commands.php:311",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:35"
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_expired",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/jobs/class-jobs-expiry.php:123",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "kind": "action_listener"
         }
       ]
     },
@@ -1636,907 +2561,10 @@
       "consumed_by": []
     },
     {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [
-        "$app_id",
-        "$old_status",
-        "$new_status"
-      ],
-      "where": "cli/class-application-commands.php:224",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:48"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "(int) $wcb_b->ID"
-      ],
-      "where": "blocks/job-form-simple/render.php:62",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_board_currency",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "''",
-        "(int) $wcb_b->ID"
-      ],
-      "where": "blocks/job-form-simple/render.php:63",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:43"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_options_for_employer",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$wcb_board_options",
-        "get_current_user_id()"
-      ],
-      "where": "blocks/job-form-simple/render.php:77",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-group-boards.php:59"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_currency",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "''",
-        "$wcb_resolved_board_id"
-      ],
-      "where": "blocks/job-form-simple/render.php:120",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:43"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_default_expiry_days",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$wcb_default_days",
-        "$wcb_preview_request"
-      ],
-      "where": "blocks/job-form-simple/render.php:152",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "$wcb_resolved_board_id"
-      ],
-      "where": "blocks/job-form-simple/render.php:179",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_employer_credit_balance",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "$wcb_user_id"
-      ],
-      "where": "blocks/job-form-simple/render.php:186",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credit_purchase_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
-      "where": "blocks/job-form-simple/render.php:187",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_resolved_board_id"
-      ],
-      "where": "blocks/job-form-simple/render.php:200",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_ai_description_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/job-form-simple/render.php:307",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/ai/class-ai-module.php:35"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_simple_extra_fields",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$attributes"
-      ],
-      "where": "blocks/job-form-simple/render.php:479",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_resolved_board_id"
-      ],
-      "where": "blocks/job-form-simple/render.php:489",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_jobs_allowed_meta_filters",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/job-listings/render.php:82",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_listings_query_args",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "$wcb_query_args"
-      ],
-      "where": "blocks/job-listings/render.php:102",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_listing_data",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$wcb_job_card",
-        "$wcb_job_post"
-      ],
-      "where": "blocks/job-listings/render.php:241",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/boards/class-boards-pro-module.php:34"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_listings_board_options",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/job-listings/render.php:296",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/boards/class-boards-pro-module.php:36"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_listings_query_args",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "$wcb_query_args"
-      ],
-      "where": "blocks/job-listings/render.php:327",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_listings_api_base",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "rest_url( 'wcb/v1/jobs' )"
-      ],
-      "where": "blocks/job-listings/render.php:348",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_pro_resumes_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:162",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:40"
-        }
-      ]
-    },
-    {
-      "name": "wcb_candidate_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_candidate_id"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:168",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:33"
-        }
-      ]
-    },
-    {
-      "name": "wcb_candidate_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_candidate_id"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:172",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:33"
-        }
-      ]
-    },
-    {
-      "name": "wcb_module_renders",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:205",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:42"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_alerts_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:307",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:39"
-        }
-      ]
-    },
-    {
-      "name": "wcb_module_renders",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:373",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:42"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_alerts_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:416",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:39"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_alerts_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:445",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:39"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_alerts_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:874",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:39"
-        }
-      ]
-    },
-    {
-      "name": "wcb_candidate_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_candidate_id"
-      ],
-      "where": "blocks/candidate-dashboard/render.php:979",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:33"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_currency",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "''",
-        "$wcb_board_id"
-      ],
-      "where": "blocks/job-form/render.php:135",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:43"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "(int) $wcb_b->ID"
-      ],
-      "where": "blocks/job-form/render.php:163",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_board_currency",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "''",
-        "(int) $wcb_b->ID"
-      ],
-      "where": "blocks/job-form/render.php:164",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:43"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_options_for_employer",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$wcb_board_options",
-        "get_current_user_id()"
-      ],
-      "where": "blocks/job-form/render.php:180",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-group-boards.php:59"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_default_expiry_days",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$wcb_default_days",
-        "$wcb_preview_request"
-      ],
-      "where": "blocks/job-form/render.php:222",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "$wcb_board_id"
-      ],
-      "where": "blocks/job-form/render.php:246",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_employer_credit_balance",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "get_current_user_id()"
-      ],
-      "where": "blocks/job-form/render.php:257",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credit_purchase_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
-      "where": "blocks/job-form/render.php:258",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "(int) ( $attributes['boardId'] ?? 0 )"
-      ],
-      "where": "blocks/job-form/render.php:271",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "(int) ( $attributes['boardId'] ?? 0 )"
-      ],
-      "where": "blocks/job-form/render.php:281",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_credit_purchase_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
-      "where": "blocks/job-form/render.php:353",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_ai_description_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/job-form/render.php:453",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/ai/class-ai-module.php:35"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_step1_fields",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$attributes"
-      ],
-      "where": "blocks/job-form/render.php:490",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_step2_fields",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$attributes"
-      ],
-      "where": "blocks/job-form/render.php:672",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_step3_fields",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$attributes"
-      ],
-      "where": "blocks/job-form/render.php:813",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "(int) ( $attributes['boardId'] ?? 0 )"
-      ],
-      "where": "blocks/job-form/render.php:818",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_step4_preview",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$attributes"
-      ],
-      "where": "blocks/job-form/render.php:890",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_sidebar_before",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "int $company_id"
-      ],
-      "where": "blocks/company-profile/render.php:397",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_sidebar_after",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "int $company_id"
-      ],
-      "where": "blocks/company-profile/render.php:398",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_sidebar_blocks",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array $blocks",
-        "int $company_id"
-      ],
-      "where": "blocks/company-profile/render.php:402",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_sidebar_before",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "(int) $wcb_company_id"
-      ],
-      "where": "blocks/company-profile/render.php:419",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_sidebar_after",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "(int) $wcb_company_id"
-      ],
-      "where": "blocks/company-profile/render.php:426",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_company_id"
-      ],
-      "where": "blocks/employer-dashboard/render.php:168",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_company_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_company_id"
-      ],
-      "where": "blocks/employer-dashboard/render.php:172",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_employer_credit_balance",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "$wcb_employer_id"
-      ],
-      "where": "blocks/employer-dashboard/render.php:185",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credit_purchase_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
-      "where": "blocks/employer-dashboard/render.php:186",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credits_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/employer-dashboard/render.php:187",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credit_low_threshold",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "0"
-      ],
-      "where": "blocks/employer-dashboard/render.php:191",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_module_renders",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/employer-dashboard/render.php:201",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:42"
-        }
-      ]
-    },
-    {
-      "name": "wcb_credits_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/employer-dashboard/render.php:286",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credit_purchase_url",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
-      "where": "blocks/employer-dashboard/render.php:293",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_module_renders",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "blocks/employer-dashboard/render.php:351",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:42"
-        }
-      ]
-    },
-    {
-      "name": "wcb_credits_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/employer-dashboard/render.php:363",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_credits_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/employer-dashboard/render.php:399",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_company_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_company_id"
-      ],
-      "where": "blocks/employer-dashboard/render.php:757",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/job-single/render.php:198",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
-    },
-    {
-      "name": "wcb_pro_alerts_enabled",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "blocks/job-single/render.php:389",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:39"
-        }
-      ]
-    },
-    {
-      "name": "the_content",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "$wcb_job_desc"
-      ],
-      "where": "blocks/job-single/render.php:471",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_application_form_fields_groups",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$wcb_job_id"
-      ],
-      "where": "blocks/job-single/render.php:951",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_application_form_fields",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$wcb_job_id"
-      ],
-      "where": "blocks/job-single/render.php:1011",
-      "consumed_by": []
-    },
-    {
       "name": "wcb_pre_application_submit",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "null",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:118",
       "consumed_by": []
     },
@@ -2544,69 +2572,21 @@
       "name": "wcb_before_create_application",
       "type": "filter",
       "args_count": 4,
-      "args_signature": [
-        "$wcb_app_data",
-        "$job_id",
-        "$is_guest ? 0 : $candidate_id",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:234",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_application_form_fields_groups",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$job_id"
-      ],
-      "where": "api/endpoints/class-applications-endpoint.php:328",
       "consumed_by": []
     },
     {
       "name": "wcb_application_submitted",
       "type": "action",
       "args_count": 3,
-      "args_signature": [
-        "$app_id",
-        "$job_id",
-        "$is_guest ? 0 : $candidate_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:360",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:46"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [
-        "$post->ID",
-        "$old_status",
-        "$new_status"
-      ],
-      "where": "api/endpoints/class-applications-endpoint.php:439",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:48"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:32"
+          "where": "integrations/buddypress/class-bp-pro-integration.php:46",
+          "kind": "action_listener"
         }
       ]
     },
@@ -2614,27 +2594,37 @@
       "name": "wcb_rest_prepare_application",
       "type": "filter",
       "args_count": 4,
-      "args_signature": [
-        "$row",
-        "$app",
-        "$request",
-        "'candidate'"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:518",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:976",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:781",
       "consumed_by": []
     },
     {
       "name": "wcb_application_deleted",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$app_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:563",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-data-cleanup.php:46"
+          "where": "core/class-data-cleanup.php:46",
+          "kind": "action_listener"
         }
       ]
     },
@@ -2642,34 +2632,15 @@
       "name": "wcb_application_withdrawn",
       "type": "action",
       "args_count": 3,
-      "args_signature": [
-        "$app_id",
-        "$job_id",
-        "$candidate_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-applications-endpoint.php:565",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_rest_prepare_application",
-      "type": "filter",
-      "args_count": 4,
-      "args_signature": [
-        "$data",
-        "$post",
-        "$request",
-        "$viewer_role"
-      ],
-      "where": "api/endpoints/class-applications-endpoint.php:976",
       "consumed_by": []
     },
     {
       "name": "wcb_candidate_registered",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$user->ID"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-candidates-endpoint.php:172",
       "consumed_by": []
     },
@@ -2677,64 +2648,29 @@
       "name": "wcb_candidate_registered",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$user_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-candidates-endpoint.php:272",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_candidate_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "(int) $user_id"
-      ],
-      "where": "api/endpoints/class-candidates-endpoint.php:390",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:33"
-        }
-      ]
     },
     {
       "name": "wcb_rest_prepare_candidate",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$data",
-        "$user",
-        "null"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-candidates-endpoint.php:650",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_jobs_allowed_meta_filters",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:257",
       "consumed_by": []
     },
     {
       "name": "wcb_jobs_post_filter",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$jobs",
-        "$query",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:333",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/maps/class-geo-filter-module.php:33"
+          "where": "modules/maps/class-geo-filter-module.php:33",
+          "kind": "action_listener"
         }
       ]
     },
@@ -2742,43 +2678,15 @@
       "name": "wcb_pre_job_submit",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "null",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:503",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "(int) ( $request->get_param( 'board_id' ) ?? 0 )"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:518",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_employer_credit_balance",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "get_current_user_id()"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:520",
       "consumed_by": []
     },
     {
       "name": "wcb_job_default_status",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$status",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:555",
       "consumed_by": []
     },
@@ -2786,95 +2694,37 @@
       "name": "wcb_before_create_job",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$wcb_post_data",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:579",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_default_expiry_days",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "$expire_days",
-        "$request"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:611",
       "consumed_by": []
     },
     {
       "name": "wcb_job_created",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$job_id",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:696",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/maps/class-maps-module.php:38"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/alerts/class-alerts-module.php:35"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/ai/class-ai-module.php:34"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:34"
+          "where": "modules/maps/class-maps-module.php:38",
+          "kind": "action_listener"
         }
       ]
-    },
-    {
-      "name": "wcb_board_credit_cost",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "$republish_board_id"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:743",
-      "consumed_by": []
     },
     {
       "name": "wcb_job_republish_credit_cost",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$republish_cost",
-        "$post",
-        "$post->post_status"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:758",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_employer_credit_balance",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "0",
-        "get_current_user_id()"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:761",
       "consumed_by": []
     },
     {
       "name": "wcb_before_update_job",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$data",
-        "$post",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:789",
       "consumed_by": []
     },
@@ -2882,10 +2732,7 @@
       "name": "wcb_job_republished",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$post->ID",
-        "$post->post_status"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:812",
       "consumed_by": []
     },
@@ -2893,47 +2740,13 @@
       "name": "wcb_job_updated",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$post->ID",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:884",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:35"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "0"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:913",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "$board_id"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:917",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:31"
+          "where": "modules/fields/class-fields-module.php:35",
+          "kind": "action_listener"
         }
       ]
     },
@@ -2941,11 +2754,7 @@
       "name": "wcb_before_delete_job",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "true",
-        "$post",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:952",
       "consumed_by": []
     },
@@ -2953,14 +2762,13 @@
       "name": "wcb_job_deleted",
       "type": "action",
       "args_count": 1,
-      "args_signature": [
-        "$post->ID"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:959",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-data-cleanup.php:45"
+          "where": "core/class-data-cleanup.php:45",
+          "kind": "action_listener"
         }
       ]
     },
@@ -2968,31 +2776,13 @@
       "name": "wcb_job_board_id",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "(int) get_post_meta( $post->ID, '_wcb_board_id', true )",
-        "$post->ID"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:1206",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/boards/class-boards-pro-module.php:33"
-        }
-      ]
-    },
-    {
-      "name": "wcb_board_currency",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "'USD'",
-        "$board_id"
-      ],
-      "where": "api/endpoints/class-jobs-endpoint.php:1251",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:43"
+          "where": "modules/boards/class-boards-pro-module.php:33",
+          "kind": "action_listener"
         }
       ]
     },
@@ -3000,15 +2790,13 @@
       "name": "wcb_job_response",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$data",
-        "$post"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:1288",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:36"
+          "where": "modules/fields/class-fields-module.php:36",
+          "kind": "action_listener"
         }
       ]
     },
@@ -3016,11 +2804,7 @@
       "name": "wcb_rest_prepare_job",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$data",
-        "$post",
-        "null"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:1302",
       "consumed_by": []
     },
@@ -3028,22 +2812,23 @@
       "name": "wcb_rest_prepare_company",
       "type": "filter",
       "args_count": 3,
-      "args_signature": [
-        "$data",
-        "$post",
-        "null"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-companies-endpoint.php:399",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_company",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:991",
       "consumed_by": []
     },
     {
       "name": "wcb_employer_registered",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$user_id",
-        "$resolved_company_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-employers-endpoint.php:218",
       "consumed_by": []
     },
@@ -3051,107 +2836,29 @@
       "name": "wcb_employer_registered",
       "type": "action",
       "args_count": 2,
-      "args_signature": [
-        "$user_id",
-        "$resolved_company_id"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-employers-endpoint.php:350",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_company_form_fields",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "array()",
-        "(int) $post->ID"
-      ],
-      "where": "api/endpoints/class-employers-endpoint.php:505",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/fields/class-fields-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_rest_prepare_application",
-      "type": "filter",
-      "args_count": 4,
-      "args_signature": [
-        "$prepared",
-        "$application_post",
-        "$request",
-        "'employer'"
-      ],
-      "where": "api/endpoints/class-employers-endpoint.php:781",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_rest_prepare_company",
-      "type": "filter",
-      "args_count": 3,
-      "args_signature": [
-        "$data",
-        "$post",
-        "null"
-      ],
-      "where": "api/endpoints/class-employers-endpoint.php:991",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_registered_emails",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "api/endpoints/class-admin-endpoint.php:148",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
-        }
-      ]
     },
     {
       "name": "wcb_admin_email_log_response",
       "type": "filter",
       "args_count": 2,
-      "args_signature": [
-        "$response",
-        "$request"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-admin-endpoint.php:291",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_pro_active",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
-      "where": "api/endpoints/class-settings-endpoint.php:66",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:36"
-        }
-      ]
     },
     {
       "name": "wcb_pro_version",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "''"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-settings-endpoint.php:73",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:38"
+          "where": "core/class-free-coordination.php:38",
+          "kind": "action_listener"
         }
       ]
     },
@@ -3159,14 +2866,13 @@
       "name": "wcb_pro_licensed",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-settings-endpoint.php:75",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:37"
+          "where": "core/class-free-coordination.php:37",
+          "kind": "action_listener"
         }
       ]
     },
@@ -3174,14 +2880,13 @@
       "name": "wcb_pro_ai_enabled",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "false"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-settings-endpoint.php:87",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:41"
+          "where": "core/class-free-coordination.php:41",
+          "kind": "action_listener"
         }
       ]
     },
@@ -3189,174 +2894,9 @@
       "name": "wcb_rest_app_config",
       "type": "filter",
       "args_count": 1,
-      "args_signature": [
-        "$data"
-      ],
+      "args_signature": [],
       "where": "api/endpoints/class-settings-endpoint.php:105",
       "consumed_by": []
-    },
-    {
-      "name": "wcb_module_renders",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "templates/parts/archive-toolbar.php:138",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "core/class-free-coordination.php:42"
-        }
-      ]
-    },
-    {
-      "name": "wcb_settings_tab_antispam",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$settings"
-      ],
-      "where": "modules/antispam/class-anti-spam-module.php:149",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [
-        "$application_id",
-        "$new_status",
-        "$old_status"
-      ],
-      "where": "modules/applications/class-application-lifecycle.php:116",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:48"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:32"
-        }
-      ]
-    },
-    {
-      "name": "wcb_theme_primary_color",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "$color"
-      ],
-      "where": "modules/theme-integration/class-theme-integration-module.php:54",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_job_expired",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$job->ID"
-      ],
-      "where": "modules/jobs/class-jobs-expiry.php:123",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:35"
-        }
-      ]
-    },
-    {
-      "name": "wcb_featured_expired",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "(int) $job_id"
-      ],
-      "where": "modules/jobs/class-featured-expiry.php:138",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_deadline_reminder",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [
-        "$user_id",
-        "$job_id",
-        "$days_left"
-      ],
-      "where": "modules/jobs/class-deadline-reminders.php:176",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_registered_emails",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [
-        "array()"
-      ],
-      "where": "modules/notifications/class-notifications-module.php:70",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
-        }
-      ]
-    },
-    {
-      "name": "wcb_moderate_jobs_ability_check",
-      "type": "filter",
-      "args_count": 2,
-      "args_signature": [
-        "false",
-        "$job_id"
-      ],
-      "where": "modules/moderation/class-moderation-module.php:121",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-group-boards.php:58"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_rejected",
-      "type": "action",
-      "args_count": 2,
-      "args_signature": [
-        "$job_id",
-        "$reason"
-      ],
-      "where": "modules/moderation/class-moderation-module.php:219",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:34"
-        }
-      ]
-    },
-    {
-      "name": "wcb_job_approved",
-      "type": "action",
-      "args_count": 1,
-      "args_signature": [
-        "$post->ID"
-      ],
-      "where": "modules/notifications/emails/class-email-job-approved.php:88",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-activity.php:47"
-        },
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:33"
-        }
-      ]
     },
     {
       "name": "reign_before_content_section",
@@ -3373,6 +2913,52 @@
       "args_signature": [],
       "where": "modules/employers/templates/archive-wcb-company.php:34",
       "consumed_by": []
+    },
+    {
+      "name": "wcb_settings_tab_antispam",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/antispam/class-anti-spam-module.php:149",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_theme_primary_color",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/theme-integration/class-theme-integration-module.php:54",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_featured_expired",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/jobs/class-featured-expiry.php:138",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_deadline_reminder",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/jobs/class-deadline-reminders.php:176",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_moderate_jobs_ability_check",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:121",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:58",
+          "kind": "action_listener"
+        }
+      ]
     }
   ],
   "buddypress_integration": {
@@ -3721,7 +3307,7 @@
     ]
   },
   "generated": {
-    "at": "2026-05-17T08:52:42.724930Z",
+    "at": "2026-05-17T09:06:25.208786Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
     "scan_scope": "fallback_defaults",
@@ -3799,14 +3385,7 @@
     ]
   },
   "static_analysis": {
-    "dead_listeners": [
-      {
-        "hook": "wcb_settings_tab_import",
-        "listener_at": "admin/class-admin-settings.php:160",
-        "kind": "own",
-        "note": "Hook prefix wcb_ but no firing site in Free or Pro"
-      }
-    ],
+    "dead_listeners": [],
     "wppqa_baseline": {
       "date": "2026-05-17",
       "summary_file": "audit/wppqa-baseline-2026-05-17/SUMMARY.md"

@@ -14,7 +14,7 @@
     "extension_hook_fired": "wcb_settings_tabs"
   },
   "generated": {
-    "at": "2026-05-17T08:52:42.724930Z",
+    "at": "2026-05-17T09:06:25.208786Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
     "scan_scope": "fallback_defaults",
@@ -40,7 +40,7 @@
     "wp_cli": 5
   },
   "static_analysis_counts": {
-    "dead_listeners": 1,
+    "dead_listeners": 0,
     "rest_js_contract_drift": 1,
     "cap_context_mismatches": 0,
     "cap_drift_declared_unenforced": 0,
@@ -51,15 +51,7 @@
     "rest_hang_risks": 68,
     "visual_required_no_enforcement": 0,
     "grid_track_overflow_risks": 51,
-    "layout_owning_blocks": 8,
-    "adapter_undefined_calls": 0,
-    "registry_bypasses": 0,
-    "registry_strategy": 0,
-    "suppressed_baseline_stub_class": 3,
-    "suppressed_baseline_stub_const": 2,
-    "suppressed_baseline_undef_var": 39,
-    "suppressed_baseline_type_debt": 31,
-    "suppressed_baseline_phpcs": 3
+    "layout_owning_blocks": 8
   },
   "category_sources": {
     "rest": [
