@@ -84,12 +84,13 @@ if ( empty( $wcb_companies ) ) {
 		<?php echo esc_html( $wcb_title ); ?>
 	</h3>
 	<ul class="wcb-similar-companies-card__list">
-	<?php foreach ( $wcb_companies as $wcb_company ) :
+	<?php
+	foreach ( $wcb_companies as $wcb_company ) :
 		$wcb_logo    = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
 		$wcb_loc     = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
 		$wcb_perma   = (string) get_permalink( $wcb_company->ID );
 		$wcb_initial = strtoupper( mb_substr( $wcb_company->post_title, 0, 1 ) );
-	?>
+		?>
 		<li class="wcb-similar-companies-card__item">
 			<a class="wcb-similar-companies-card__link" href="<?php echo esc_url( $wcb_perma ); ?>">
 				<?php if ( $wcb_logo ) : ?>

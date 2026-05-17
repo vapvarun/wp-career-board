@@ -5,13 +5,16 @@
  * @package WP_Career_Board
  */
 
-// WordPress core constant.
+// WordPress core constants.
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', '/tmp/wordpress/' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core constant.
 }
+if ( ! defined( 'DB_NAME' ) ) {
+	define( 'DB_NAME', 'wordpress' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core wp-config constant referenced by information_schema queries.
+}
 
 // Plugin constants.
-define( 'WCB_VERSION', '1.0.2' );
+define( 'WCB_VERSION', '1.2.0' );
 define( 'WCB_FILE', __DIR__ . '/wp-career-board.php' );
 define( 'WCB_PLUGIN_FILE', WCB_FILE );
 define( 'WCB_DIR', __DIR__ . '/' );

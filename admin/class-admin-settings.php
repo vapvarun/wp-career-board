@@ -292,12 +292,10 @@ class AdminSettings {
 		check_admin_referer( 'wcb_create_pages' );
 
 		// Defense-in-depth cap check alongside the Abilities API gate. The
-		// `manage_options` fallback is what `wcb/manage-settings` itself
-		// resolves to; declaring both lets static analyzers detect the
-		// pairing without relying on Abilities-API awareness (wp-plugin-qa
-		// L4 limitation).
-		if ( ! current_user_can( 'manage_options' )
-			|| ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		// `wcb/manage-settings` resolves to `manage_options` via the
+		// Abilities API. The single gate is sufficient; no need to
+		// double-check the capability the ability already wraps.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
 		}
 
@@ -505,7 +503,7 @@ class AdminSettings {
 						confirmCta:     <?php echo wp_json_encode( __( 'Delete Sample Data', 'wp-career-board' ) ); ?>,
 						cancel:         <?php echo wp_json_encode( __( 'Cancel', 'wp-career-board' ) ); ?>,
 						success:        <?php echo wp_json_encode( __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ) ); ?>,
-						emptyNotice:    <?php echo wp_json_encode( __( 'Nothing to remove — no sample data was found.', 'wp-career-board' ) ); ?>,
+						emptyNotice:    <?php echo wp_json_encode( __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ) ); ?>,
 						error:          <?php echo wp_json_encode( __( 'Could not remove sample data. Please try again.', 'wp-career-board' ) ); ?>,
 					};
 

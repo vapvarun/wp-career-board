@@ -208,7 +208,7 @@ final class CompaniesEndpoint extends RestController {
 		$industry = $request->get_param( 'industry' );
 		if ( $industry ) {
 			$industry_values = array_map( 'sanitize_text_field', (array) $industry );
-			$industry_values = array_values( array_filter( $industry_values, 'strlen' ) );
+			$industry_values = array_values( array_filter( $industry_values, static fn( string $v ): bool => '' !== $v ) );
 			if ( ! empty( $industry_values ) ) {
 				$args['meta_query'][] = array(
 					'key'     => '_wcb_industry',
@@ -221,7 +221,7 @@ final class CompaniesEndpoint extends RestController {
 		$size = $request->get_param( 'size' );
 		if ( $size ) {
 			$size_values = array_map( 'sanitize_text_field', (array) $size );
-			$size_values = array_values( array_filter( $size_values, 'strlen' ) );
+			$size_values = array_values( array_filter( $size_values, static fn( string $v ): bool => '' !== $v ) );
 			if ( ! empty( $size_values ) ) {
 				$args['meta_query'][] = array(
 					'key'     => '_wcb_company_size',
