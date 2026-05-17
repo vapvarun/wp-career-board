@@ -83,6 +83,8 @@ abstract class AbstractEmail {
 	/**
 	 * Sends the email and writes a row to wcb_notifications_log.
 	 *
+	 * No-ops when the template is disabled in settings.
+	 *
 	 * @param string               $to      Recipient email address.
 	 * @param array<string, mixed> $vars    Template variables passed to render_template().
 	 * @param int                  $user_id Optional WP user ID for the log row.
@@ -92,20 +94,60 @@ abstract class AbstractEmail {
 		if ( ! $this->is_enabled() ) {
 			return;
 		}
+		$this->dispatch( $to, $vars, $user_id );
+	}
 
+	/**
+	 * Public bridge for the admin "Send Test Email" button.
+	 *
+	 * Bypasses is_enabled() so an admin can preview the rendered template even
+	 * when its toggle is off in settings, and always writes a log row marked
+	 * 'sent_test' / 'failed_test' so the endpoint's row-count delta detects
+	 * the dispatch and reports {sent: true}.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param string               $to      Recipient email address.
+	 * @param array<string, mixed> $vars    Template variables passed to render_template().
+	 * @param int                  $user_id Optional WP user ID for the log row.
+	 * @return bool True when wp_mail() reported a successful handoff.
+	 */
+	public function test_send( string $to, array $vars, int $user_id = 0 ): bool {
+		return $this->dispatch( $to, $vars, $user_id, true );
+	}
+
+	/**
+	 * Subject substitution + body render + wp_mail + log-row insert. Shared
+	 * by send() and test_send().
+	 *
+	 * @param string               $to       Recipient email address.
+	 * @param array<string, mixed> $vars     Template variables.
+	 * @param int                  $user_id  Optional WP user ID for the log row.
+	 * @param bool                 $is_test  True when called via test_send() —
+	 *                                       writes a *_test status so admin
+	 *                                       previews don't pollute production
+	 *                                       delivery metrics.
+	 * @return bool True when wp_mail() reported a successful handoff.
+	 */
+	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false ): bool {
 		// Subject placeholders (both {key} and {{key}} forms) get substituted
 		// from $vars here. The body template already runs through
 		// render_template() which extracts $vars into PHP scope and the
 		// template echoes them via $candidate_name etc. — different mechanism,
 		// same result. Without this line, subjects like "Application deadline
-		// approaching for {job_title}" reach recipients verbatim. Closes
-		// Basecamp 9874932735 (production) + 9874928455 (test-send via the
-		// reflection bridge in AdminEndpoint::test_send_email — same code path).
+		// approaching for {job_title}" reach recipients verbatim, both in
+		// production and via AdminEndpoint::test_send_email (same code path).
 		$subject = self::render_string( $this->get_subject(), $vars );
 		$body    = self::render_template( $this->get_id(), $vars );
 		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
 
+		$status = $sent ? 'sent' : 'failed';
+		if ( $is_test ) {
+			$status .= '_test';
+		}
+
 		global $wpdb;
+		self::ensure_log_table();
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prefix . 'wcb_notifications_log',
 			array(
@@ -116,12 +158,56 @@ abstract class AbstractEmail {
 					array(
 						'to'      => $to,
 						'subject' => $subject,
+						'is_test' => $is_test,
 					)
 				),
-				'status'     => $sent ? 'sent' : 'failed',
+				'status'     => $status,
 				'sent_at'    => current_time( 'mysql' ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s' )
+		);
+
+		return (bool) $sent;
+	}
+
+	/**
+	 * Self-heal wp_wcb_notifications_log when it does not exist.
+	 *
+	 * The activation hook in Install::activate() creates this table via
+	 * dbDelta, but a customer who installed Free pre-1.0.x and upgraded
+	 * past the install routine, or whose host nuked a custom table during
+	 * a migration, can end up missing it. The dispatch path used to insert
+	 * silently and email-activity-log row counts stayed at zero. Re-running
+	 * dbDelta is idempotent and creates the table when needed.
+	 *
+	 * @return void
+	 */
+	private static function ensure_log_table(): void {
+		global $wpdb;
+		static $checked = false;
+		if ( $checked ) {
+			return;
+		}
+		$checked = true;
+		$table   = $wpdb->prefix . 'wcb_notifications_log';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			return;
+		}
+		$charset = $wpdb->get_charset_collate();
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta(
+			"CREATE TABLE {$table} (
+				id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+				user_id      BIGINT UNSIGNED NOT NULL,
+				event_type   VARCHAR(80)     NOT NULL,
+				channel      VARCHAR(20)     NOT NULL DEFAULT 'email',
+				payload      LONGTEXT,
+				status       VARCHAR(20)     NOT NULL DEFAULT 'sent',
+				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY  (id),
+				KEY user_id  (user_id),
+				KEY event_type  (event_type)
+			) ENGINE=InnoDB {$charset};"
 		);
 	}
 

@@ -1,19 +1,39 @@
 # REST Meta Filters
 
-The `GET /wcb/v1/jobs` REST endpoint accepts arbitrary postmeta
-filters via `?meta_<key>=<value>` — but only for keys that the site
-admin has explicitly allowlisted via the `wcb_jobs_allowed_meta_filters`
-filter. This prevents anonymous probes against arbitrary postmeta.
+The `GET /wcb/v1/jobs` REST endpoint accepts postmeta filters via
+`?meta_<key>=<value>`. The Job Listings block exposes the same
+surface through its `metaFilter` attribute.
 
-## How it works
+## Default-allow rule (1.2.0+)
 
-By default, no meta keys are filterable. To enable filtering on a
-custom meta key, register it via the filter:
+Any meta key in the `_wcb_*` namespace is allowed by default. The
+plugin owns that prefix, so there is no probe risk for fields like
+`_wcb_visa_sponsorship`, `_wcb_seniority_score`, `_wcb_department`,
+etc. Drop the block in the editor or hit the REST endpoint directly
+without any PHP setup:
+
+```
+GET /wp-json/wcb/v1/jobs?meta__wcb_visa_sponsorship=1
+GET /wp-json/wcb/v1/jobs?meta__wcb_department=engineering
+```
+
+```
+[wcb_job_listings metaFilter="_wcb_visa_sponsorship:1"]
+[wcb_job_listings metaFilter="_wcb_department:engineering"]
+```
+
+## Custom (non-WCB) meta still needs opt-in
+
+Custom or third-party meta keys — anything that doesn't start with
+`_wcb_` — still need to be added to the `wcb_jobs_allowed_meta_filters`
+filter before they can be queried. This prevents anonymous probes
+against arbitrary site-internal postmeta (e.g. a private membership
+flag set by another plugin):
 
 ```php
 add_filter( 'wcb_jobs_allowed_meta_filters', function( $keys ) {
-    $keys[] = '_wcb_visa_sponsorship';   // employer-set custom flag
-    $keys[] = '_wcb_seniority_score';    // numeric meta
+    $keys[] = 'partner_company_id';       // not _wcb_*, must opt in
+    $keys[] = 'crm_sync_state';           // same
     return $keys;
 } );
 ```
@@ -21,31 +41,33 @@ add_filter( 'wcb_jobs_allowed_meta_filters', function( $keys ) {
 Then anonymous callers can hit:
 
 ```
-GET /wp-json/wcb/v1/jobs?meta__wcb_visa_sponsorship=1
-GET /wp-json/wcb/v1/jobs?meta__wcb_seniority_score=8
+GET /wp-json/wcb/v1/jobs?meta_partner_company_id=42
 ```
 
-## Why allowlist?
+## Why this split?
 
-Without an allowlist, any caller could query against any postmeta —
-including private fields the plugin uses for internal bookkeeping
-(e.g. `_wcb_employer_banned`, `_wcb_pending_review_token`). The
-allowlist gates the surface to fields the site has explicitly
-declared safe for public filtering.
+Without any allowlist, any caller could query against any postmeta —
+including private fields the plugin or other plugins use for internal
+bookkeeping (e.g. `_wcb_employer_banned`, `_wcb_pending_review_token`,
+or a membership plugin's `_member_level` field). The pre-1.2.0
+behavior required allowlisting every key, which made the common case
+(filter jobs by a `_wcb_*` field set by the plugin itself) require
+PHP. The 1.2.0 split allows the namespace WCB owns while still gating
+foreign meta.
 
 ## Block + shortcode integration
 
-The Job Listings block exposes a `metaFilter` attribute that uses
-this REST surface:
+The Job Listings block exposes a `metaFilter` attribute on every
+shipped surface — Gutenberg inserter, shortcode wrapper, and
+page-builder embeds:
 
-```
-[wcb_job_listings metaFilter="_wcb_visa_sponsorship:1"]
-```
+![metaFilter attribute in the block inspector](../images/metafilter-block-attr.png)
 
-The block validates that the key is on the allowlist before passing
-it to the query. If you reference a key that's NOT allowlisted, the
-block falls back to showing all jobs (no error, but the filter is
-silently ignored).
+If you reference a key that's NOT in the `_wcb_*` namespace and NOT
+on the explicit allowlist, the block falls back to showing all jobs
+(no error, but the filter is silently ignored) and a
+`_doing_it_wrong` notice fires in `WP_DEBUG` mode telling you which
+filter to register.
 
 ## Common patterns
 

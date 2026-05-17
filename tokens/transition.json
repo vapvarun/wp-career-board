@@ -1,0 +1,11 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "transition": {
+    "$type": "duration",
+    "$description": "Transition durations. Maps to --wcb-transition-* CSS custom properties. Easing is fixed at 'ease' across the system - if we ever expose easing as a separate token, switch to DTCG cubicBezier and emit two CSS vars per name.",
+    "fast":   { "$value": "120ms" },
+    "snappy": { "$value": "150ms" },
+    "normal": { "$value": "200ms" },
+    "slow":   { "$value": "300ms" }
+  }
+}

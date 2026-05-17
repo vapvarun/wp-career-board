@@ -4,8 +4,7 @@
  *
  * Single read path across Free + Pro. The array_key_exists vs ! empty
  * semantic is uniform across get/bool/int/string accessors so the
- * "absent key default" cannot drift between reader sites again
- * (the bug class behind Basecamp 9863100490).
+ * "absent key default" cannot drift between reader sites again.
  *
  * Writers stay on get_option/update_option directly:
  *   - admin/class-admin-settings.php (sanitizer + page renderer)

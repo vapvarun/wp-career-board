@@ -2,7 +2,7 @@
   "product_name": "WP Career Board",
   "product_slug": "wp-career-board",
   "product_type": "plugin",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "tagline": "The community-powered job board for WordPress",
   "categories": [
     {
@@ -13,7 +13,23 @@
         "02-installation.md",
         "03-setup-wizard.md",
         "04-adding-blocks.md",
-        "05-pro-license.md"
+        "04-quickstart-workflow.md",
+        "05-pro-license.md",
+        "06-whats-new.md"
+      ]
+    },
+    {
+      "slug": "tutorials",
+      "label": "Tutorials & Workflows",
+      "docs": [
+        "01-first-day-as-site-owner.md",
+        "02-employer-end-to-end.md",
+        "03-candidate-end-to-end.md",
+        "04-monetizing-your-board.md",
+        "05-community-board-with-buddypress.md",
+        "06-migrating-from-other-plugins.md",
+        "07-multi-language-board.md",
+        "08-privacy-and-gdpr.md"
       ]
     },
     {
@@ -26,7 +42,12 @@
         "04-review-applications.md",
         "05-company-profile.md",
         "06-application-pipeline.md",
-        "07-find-resumes.md"
+        "07-find-resumes.md",
+        "08-quick-job-form.md",
+        "09-csv-export.md",
+        "10-employer-credit-balance.md",
+        "11-page-builder-embeds.md",
+        "12-troubleshooting.md"
       ]
     },
     {
@@ -39,7 +60,10 @@
         "04-my-applications.md",
         "05-saved-jobs.md",
         "06-resume-builder.md",
-        "07-job-alerts.md"
+        "07-job-alerts.md",
+        "08-salary-filter.md",
+        "09-guest-apply.md",
+        "10-troubleshooting.md"
       ]
     },
     {
@@ -51,8 +75,29 @@
         "03-moderation.md",
         "04-gdpr.md",
         "05-field-builder.md",
+        "05-import.md",
         "06-credit-system.md",
-        "07-troubleshooting.md"
+        "07-troubleshooting.md",
+        "08-featured-expiry.md",
+        "09-rss-feed.md",
+        "10-wpml-polylang.md",
+        "11-rest-meta-filters.md",
+        "12-custom-fields.md",
+        "13-application-editor.md",
+        "14-capabilities-and-roles.md",
+        "15-company-profile-sidebar.md"
+      ]
+    },
+    {
+      "slug": "ai-features",
+      "label": "AI Features",
+      "docs": [
+        "01-overview.md",
+        "02-setup-and-providers.md",
+        "03-candidate-ai-features.md",
+        "04-employer-ai-features.md",
+        "05-blocks-shortcodes-and-developers.md",
+        "06-troubleshooting.md"
       ]
     },
     {
@@ -61,7 +106,6 @@
       "docs": [
         "01-job-map.md",
         "02-multi-board.md",
-        "03-ai-features.md",
         "04-analytics.md",
         "05-job-feed.md",
         "06-pwa.md",
@@ -75,6 +119,17 @@
         "buddyx-pro.md",
         "reign-theme.md",
         "buddypress.md"
+      ]
+    },
+    {
+      "slug": "developer-guide",
+      "label": "Developer Guide",
+      "docs": [
+        "01-overview.md",
+        "02-hooks-reference.md",
+        "03-rest-api.md",
+        "04-wp-cli.md",
+        "05-extension-cookbook.md"
       ]
     }
   ]

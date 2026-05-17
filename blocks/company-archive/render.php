@@ -57,30 +57,40 @@ $wcb_company_ids = $wcb_companies_raw
 	)
 	: array();
 
-$wcb_jobs_raw = $wcb_company_ids
-	? get_posts(
-		array(
-			'post_type'     => 'wcb_job',
-			'post_status'   => 'publish',
-			'numberposts'   => -1,
-			'no_found_rows' => true,
-			'orderby'       => 'none',
-			'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					'key'     => '_wcb_company_id',
-					'value'   => $wcb_company_ids,
-					'compare' => 'IN',
-				),
-			),
-		)
-	)
-	: array();
-
+// Open-positions counter — one aggregate SQL keyed on the (meta_key, meta_value)
+// postmeta index instead of materialising every wcb_job into PHP just to count
+// it. At 100k jobs the previous numberposts=-1 path allocated 100k WP_Post
+// objects per archive render; this is an index-only scan grouped in MySQL.
 $wcb_jobs_by_company = array();
-foreach ( $wcb_jobs_raw as $wcb_jpost ) {
-	$wcb_cid                         = (int) get_post_meta( $wcb_jpost->ID, '_wcb_company_id', true );
-	$wcb_jobs_by_company[ $wcb_cid ] = ( $wcb_jobs_by_company[ $wcb_cid ] ?? 0 ) + 1;
+if ( $wcb_company_ids ) {
+	global $wpdb;
+	$wcb_co_ids   = array_map( 'intval', $wcb_company_ids );
+	$placeholders = implode( ',', array_fill( 0, count( $wcb_co_ids ), '%d' ) );
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wcb_rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT pm.meta_value AS company_id, COUNT(*) AS c
+			 FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key = '_wcb_company_id'
+			   AND p.post_type = 'wcb_job'
+			   AND p.post_status = 'publish'
+			   AND pm.meta_value IN ({$placeholders})
+			 GROUP BY pm.meta_value",
+			...$wcb_co_ids
+		)
+	);
+	// phpcs:enable
+	foreach ( (array) $wcb_rows as $wcb_row ) {
+		$wcb_jobs_by_company[ (int) $wcb_row->company_id ] = (int) $wcb_row->c;
+	}
 }
+
+// ── Current user's bookmarked companies (for initial card state). ────────────
+$wcb_current_user_id = get_current_user_id();
+$wcb_bookmarks       = $wcb_current_user_id
+	? array_map( 'intval', (array) get_user_meta( $wcb_current_user_id, '_wcb_company_bookmark', false ) )
+	: array();
 
 // ── Trust level badge map ───────────────────────────────────────────────────
 $wcb_trust_badges = array(
@@ -144,31 +154,34 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'verified'    => null !== $wcb_trust_info,
 		'permalink'   => get_permalink( $wcb_co_id ),
 		'jobs_label'  => $wcb_jobs_label,
+		'bookmarked'  => in_array( $wcb_co_id, $wcb_bookmarks, true ),
 	);
 }
 
-// ── Get distinct industries for the filter dropdown ───────────────────────────
-$wcb_all_co_ids = get_posts(
-	array(
-		'post_type'     => 'wcb_company',
-		'post_status'   => 'publish',
-		'numberposts'   => -1,
-		'fields'        => 'ids',
-		'no_found_rows' => true,
-		'orderby'       => 'none',
-	)
-);
-
-// Build the industry filter from the canonical slug list, restricted to
-// slugs that at least one published company actually uses. Falls back to
-// any legacy free-text values still stored from before the slug enforcement
-// landed, so existing data stays selectable until a migration runs.
-$wcb_used_industries = array();
-foreach ( $wcb_all_co_ids as $wcb_cid ) {
-	$wcb_ind = (string) get_post_meta( $wcb_cid, '_wcb_industry', true );
-	if ( '' !== $wcb_ind ) {
-		$wcb_used_industries[ $wcb_ind ] = true;
+// Distinct-industry lookup for the filter dropdown. One SELECT DISTINCT on
+// the (meta_key) postmeta index, cached for an hour, busted via save_post
+// hook elsewhere when an admin saves a company. Replaces the previous
+// numberposts=-1 + per-row get_post_meta loop that was O(n) on company
+// count even though the answer changes at most a few times per day.
+$wcb_used_industries = wp_cache_get( 'wcb_distinct_industries', 'wcb_companies' );
+if ( false === $wcb_used_industries ) {
+	global $wpdb;
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wcb_industry_rows = $wpdb->get_col(
+		"SELECT DISTINCT pm.meta_value
+		 FROM {$wpdb->postmeta} pm
+		 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+		 WHERE pm.meta_key = '_wcb_industry'
+		   AND p.post_type = 'wcb_company'
+		   AND p.post_status = 'publish'
+		   AND pm.meta_value <> ''"
+	);
+	// phpcs:enable
+	$wcb_used_industries = array();
+	foreach ( (array) $wcb_industry_rows as $wcb_ind ) {
+		$wcb_used_industries[ (string) $wcb_ind ] = true;
 	}
+	wp_cache_set( 'wcb_distinct_industries', $wcb_used_industries, 'wcb_companies', HOUR_IN_SECONDS );
 }
 $wcb_industry_labels = \WCB\Core\Industries::all();
 unset( $wcb_industry_labels[''] );
@@ -185,15 +198,21 @@ foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
 $wcb_state = array(
-	'companies' => $wcb_companies_state,
-	'page'      => 1,
-	'perPage'   => $wcb_per_page,
-	'layout'    => $wcb_layout,
-	'loading'   => false,
-	'hasMore'   => count( $wcb_companies_raw ) < $wcb_companies_total,
-	'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industry'  => '',
-	'size'      => '',
+	'companies'   => $wcb_companies_state,
+	'page'        => 1,
+	'perPage'     => $wcb_per_page,
+	'layout'      => $wcb_layout,
+	'loading'     => false,
+	'hasMore'     => count( $wcb_companies_raw ) < $wcb_companies_total,
+	'apiBase'     => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+	'industries'  => array(),
+	'sizes'       => array(),
+	'searchQuery' => '',
+	// Sort order pinned to the same option set as jobs + resumes
+	// (date_desc | date_asc). View.js piping sets ?orderby=date&order=ASC|DESC
+	// on the REST call so the server-side query matches the UI choice.
+	'sortBy'      => 'date_desc',
+	'restNonce'   => wp_create_nonce( 'wp_rest' ),
 );
 
 $wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
@@ -209,60 +228,106 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
 	<?php endif; ?>
 
-	<?php /* ── Toolbar: results count + filters + layout toggle ── */ ?>
-	<div class="wcb-ca-toolbar">
+	<?php
+	$wcb_toolbar = array(
+		'search_id'            => 'wcb-company-search',
+		'search_sr_label'      => __( 'Search companies', 'wp-career-board' ),
+		'search_placeholder'   => __( 'Search companies…', 'wp-career-board' ),
+		'sort_aria_label'      => __( 'Sort companies', 'wp-career-board' ),
+		'sort_options'         => array(
+			'date_desc' => __( 'Newest first', 'wp-career-board' ),
+			'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
+		),
+		'switcher_aria_label'  => __( 'View layout', 'wp-career-board' ),
+		'switcher_list_label'  => __( 'List view', 'wp-career-board' ),
+		'switcher_grid_label'  => __( 'Grid view', 'wp-career-board' ),
+		'switcher_list_action' => 'actions.setList',
+		'switcher_grid_action' => 'actions.setGrid',
+	);
+	require WCB_DIR . 'templates/parts/archive-toolbar.php';
+	?>
 
-		<p class="wcb-ca-results" data-wp-text="state.resultsLabel" aria-live="polite"></p>
+	<?php
+	/*
+	── 2-col layout: sidebar filter panel + result cards. Replaces the
+			horizontal chip bar pattern that didn't scale once filter counts
+			grew. Shared `.wcb-archive-layout` + `.wcb-filter-panel` styles
+			live in `assets/css/wcb-ui.css` so Find Jobs and Find Candidates
+			inherit the same shell. */
+	?>
+	<div class="wcb-archive-layout">
 
-		<div class="wcb-ca-filter-bar">
+		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter companies', 'wp-career-board' ); ?>">
+			<input type="checkbox" id="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle-input" />
+			<div class="wcb-filter-panel__header">
+				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
+				<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
+					<i data-lucide="chevron-down" aria-hidden="true"></i>
+				</label>
+				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
+			</div>
 
-			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by industry', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterIndustry">
-				<option value=""><?php esc_html_e( 'All Industries', 'wp-career-board' ); ?></option>
-				<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
-					<option value="<?php echo esc_attr( $wcb_ind_val ); ?>"><?php echo esc_html( $wcb_ind_lbl ); ?></option>
-				<?php endforeach; ?>
-			</select>
+			<?php
+			/*
+			Industry + Company Size are multi-select - users can OR
+					across multiple values, same as Find Jobs (type + experience
+					+ board) and Find Candidates (skills + availability). The
+					old single-select radio model meant filtering to "Tech OR
+					Finance" was impossible. */
+			?>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_filter_industries as $wcb_ind_val => $wcb_ind_lbl ) : ?>
+						<li>
+							<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'industrySlug' => $wcb_ind_val ) ) ); ?>">
+								<input type="checkbox" data-wp-on--change="actions.toggleIndustry" data-wp-bind--checked="callbacks.isIndustryActive" />
+								<span><?php echo esc_html( $wcb_ind_lbl ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 
-			<select class="wcb-ca-filter-select" aria-label="<?php esc_attr_e( 'Filter by company size', 'wp-career-board' ); ?>" data-wp-on--change="actions.filterSize">
-				<option value=""><?php esc_html_e( 'All Sizes', 'wp-career-board' ); ?></option>
-				<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
-					<option value="<?php echo esc_attr( $wcb_size_key ); ?>"><?php echo esc_html( $wcb_size_lbl ); ?></option>
-				<?php endforeach; ?>
-			</select>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
+						<li>
+							<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'sizeSlug' => $wcb_size_key ) ) ); ?>">
+								<input type="checkbox" data-wp-on--change="actions.toggleSize" data-wp-bind--checked="callbacks.isSizeActive" />
+								<span><?php echo esc_html( $wcb_size_lbl ); ?></span>
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</aside>
 
-		</div>
+		<main class="wcb-archive-results">
 
-		<div class="wcb-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'View layout', 'wp-career-board' ); ?>">
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				aria-label="<?php esc_attr_e( 'List view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setList"
-				data-wp-class--wcb-active="state.isList"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-			<button
-				type="button"
-				class="wcb-layout-btn"
-				aria-label="<?php esc_attr_e( 'Grid view', 'wp-career-board' ); ?>"
-				data-wp-on--click="actions.setGrid"
-				data-wp-class--wcb-active="state.isGrid"
-			>
-				<?php echo \WCB\Core\Icon::svg( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			</button>
-		</div>
-
-	</div>
-
-	<?php /* ── Company cards container ── */ ?>
-	<div
-		class="wcb-ca-container"
-		data-wp-class--wcb-grid="state.isGrid"
-		data-wp-class--wcb-list="state.isList"
-	>
+		<?php /* ── Company cards container ── */ ?>
+		<div
+			class="wcb-ca-container"
+			data-wp-class--wcb-grid="state.isGrid"
+			data-wp-class--wcb-list="state.isList"
+		>
 		<template data-wp-each--company="state.companies" data-wp-each-key="context.company.id">
 			<article class="wcb-ca-card">
+				<?php
+				/*
+				Bookmark button sits OUTSIDE the card-link anchor so clicks
+						don't bubble into navigation. Absolute-positioned top-right via
+						the shared `.wcb-bookmark-btn` rules in wcb-ui.css so Companies,
+						Find Jobs, and Find Candidates share one save affordance. */
+				?>
+				<?php
+				$wcb_bookmark = array(
+					'aria_label'            => __( 'Save company', 'wp-career-board' ),
+					'bookmarked_class_bind' => 'context.company.bookmarked',
+				);
+				require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
+				?>
 				<a class="wcb-ca-card-link" data-wp-bind--href="context.company.permalink" data-wp-bind--aria-label="context.company.name">
 
 					<div class="wcb-ca-card-top">
@@ -275,58 +340,85 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 								aria-hidden="true"
 							></div>
 						</div>
+					</div>
 
+					<?php
+					/*
+					Trust mark is a small green checkmark inline AFTER the
+							company name. The earlier "✓ Verified" pill rendered below
+							the avatar in list view and broke layout - the word
+							"Verified" was redundant given the icon. `aria-label` +
+							`title` carry the human label for assistive tech. */
+					?>
+					<div class="wcb-ca-card-body">
+						<div class="wcb-ca-name-row">
+							<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
 							<span
-								class="wcb-ca-trust-badge"
-								role="status"
+								class="wcb-ca-trust-tick"
+								role="img"
+								aria-label="<?php esc_attr_e( 'Verified', 'wp-career-board' ); ?>"
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
-							>
-								<span aria-hidden="true" data-wp-text="context.company.trust_icon"></span>
-								<span data-wp-text="context.company.trust_label"></span>
-							</span>
+								data-wp-bind--title="context.company.trust_label"
+							>&#10003;</span>
 						</div>
-
-					<div class="wcb-ca-card-body">
-						<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"
 							data-wp-text="context.company.tagline"></p>
-						<div class="wcb-ca-chips">
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.industry"
-									data-wp-text="context.company.industry"></span>
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.size_label"
-									data-wp-text="context.company.size_label"></span>
-							<span class="wcb-ca-chip"
-									data-wp-class--wcb-shown="context.company.hq"
-									data-wp-text="context.company.hq"></span>
-						</div>
+					</div>
+					<?php
+					/*
+					Chip row is a sibling of `.wcb-ca-card-body` so the grid template can
+							span it full-width below the avatar/name column rather than indenting
+							it under col 2 of the name row. Matches the "name+tagline only beside
+							avatar, everything else flush left" layout the audit requested. */
+					?>
+					<div class="wcb-ca-card-chips">
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.industry"
+								data-wp-text="context.company.industry"></span>
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.size_label"
+								data-wp-text="context.company.size_label"></span>
+						<span class="wcb-ca-chip"
+								data-wp-class--wcb-shown="context.company.hq"
+								data-wp-text="context.company.hq"></span>
 					</div>
 
 					<div class="wcb-ca-card-footer">
 						<span class="wcb-ca-jobs-count" data-wp-text="context.company.jobs_label"></span>
-						<span class="wcb-ca-cta"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
+						<span class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
 					</div>
 
 				</a>
 			</article>
 		</template>
-		<p class="wcb-no-results wcb-notice-error" data-wp-bind--hidden="!state.hasNoCompanies"><?php esc_html_e( 'No companies match your filters.', 'wp-career-board' ); ?></p>
+		<?php
+		/*
+		Empty state mirrors the Find Jobs + Find Candidates card chrome
+		(`.wcb-empty-state` paint declared in `assets/css/wcb-ui.css`)
+		so all 3 archives degrade with the same affordance. The Clear
+		all CTA wipes both filters + the search query. */
+		?>
+<?php
+$wcb_empty = array(
+	'wp_bind_hidden'    => '!state.hasNoCompanies',
+	'title'             => __( 'No companies match your filters', 'wp-career-board' ),
+	'body'              => __( 'Try removing a filter or clearing them all to see more results.', 'wp-career-board' ),
+	'clear_action'      => 'actions.clearFilters',
+	'clear_hidden_bind' => 'callbacks.noActiveFilters',
+	'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+);
+require WCB_DIR . 'templates/parts/archive-empty-state.php';
+?>
 	</div>
 
-	<?php /* ── Load more ── */ ?>
-	<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
-		<button
-			type="button"
-			class="wcb-load-more-btn"
-			data-wp-on--click="actions.loadMore"
-			data-wp-bind--disabled="state.loading"
-		>
-			<span data-wp-class--wcb-hidden="state.loading"><?php esc_html_e( 'Load more companies', 'wp-career-board' ); ?></span>
-			<span class="wcb-loading-label" data-wp-class--wcb-shown="state.loading"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
-		</button>
-	</div>
+		<?php
+		$wcb_load_more = array( 'label' => __( 'Load more companies', 'wp-career-board' ) );
+		require WCB_DIR . 'templates/parts/archive-load-more.php';
+		?>
+
+		</main>
+	</div><!-- /.wcb-archive-layout -->
 
 </div>

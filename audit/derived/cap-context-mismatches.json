@@ -1,0 +1,13 @@
+{
+  "name": "cap-context-mismatches",
+  "computed_at": "2026-05-17T08:52:42.629658Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [],
+  "result_count": 0,
+  "notes": "Detected meta caps: []",
+  "algorithm_version": "v2.2.0"
+}

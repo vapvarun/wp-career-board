@@ -32,8 +32,41 @@ final class EmployersModule {
 		add_filter( 'the_content', array( $this, 'inject_company_profile' ) );
 		add_filter( 'body_class', array( $this, 'add_company_body_class' ) );
 		add_filter( 'template_include', array( $this, 'archive_template' ) );
+		add_filter( 'template_include', array( $this, 'single_company_template' ) );
 		add_filter( 'login_redirect', array( $this, 'employer_login_redirect' ), 10, 3 );
+
+		// Distinct-industry lookup is cached for an hour on the Companies
+		// archive (see blocks/company-archive/render.php). When an admin saves
+		// a company - including industry meta changes through the editor or
+		// REST - bust the cache so the filter dropdown reflects reality on
+		// the next request. Same hook runs whether the post enters via wp-admin,
+		// REST, or wp-cli, so we don't need to scatter cache resets per
+		// surface.
+		add_action(
+			'save_post_wcb_company',
+			static function (): void {
+				wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+			}
+		);
+		add_action(
+			'delete_post',
+			static function ( $post_id ): void {
+				if ( 'wcb_company' === get_post_type( $post_id ) ) {
+					wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+				}
+			}
+		);
 	}
+
+	/* Note: the `wcb-company-sidebar` widget area was retired in 1.2.x.
+	 * The company-profile block now always renders its three default
+	 * sidebar blocks (Similar Companies, Recent Jobs, Job Alert) so the
+	 * sidebar shape stays product-coherent. Site admins frequently
+	 * misassigned generic / footer widgets to the company sidebar, which
+	 * produced white-on-white footer columns inside the company profile.
+	 * If you need the widget-area pattern back, hook `register_sidebar()`
+	 * yourself and call `dynamic_sidebar()` via a filter on the rendered
+	 * block output - this plugin no longer exposes the slot. */
 
 	/**
 	 * Redirect employers to the employer dashboard after login.
@@ -121,6 +154,39 @@ final class EmployersModule {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Serve the plugin-shipped single company template for `/companies/{slug}/`.
+	 *
+	 * Mirrors `Jobs_Module::single_job_template()` and Pro's
+	 * `Resume_Module::single_resume_template()` so single company pages render
+	 * with the same `get_header() + block + get_footer()` chrome as single
+	 * jobs and single resumes — same width, same product family, same font
+	 * (which is the active theme's body font; the plugin contributes zero
+	 * font CSS of its own). Without this filter, `/companies/{slug}/` falls
+	 * back to the theme's default `single.php` which uses different chrome
+	 * (sidebar, narrower content column, theme single-page typography), so
+	 * the archive and single visually drift apart.
+	 *
+	 * Theme integrations that ship their own `single-wcb_company.php` win via
+	 * WP's template hierarchy — we only step in when the theme has not.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $template Template path WP would otherwise load.
+	 * @return string
+	 */
+	public function single_company_template( string $template ): string {
+		if ( ! is_singular( 'wcb_company' ) ) {
+			return $template;
+		}
+		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
+		if ( str_contains( $template, 'wp-career-board' ) ) {
+			return $template;
+		}
+		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';
+		return file_exists( $override ) ? $override : $template;
 	}
 
 	/**

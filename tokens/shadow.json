@@ -1,0 +1,52 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "shadow": {
+    "$type": "shadow",
+    "$description": "Elevation + focus-ring shadows. Maps to --wcb-shadow-* CSS custom properties. DTCG shadow objects compose color + offset + blur.",
+    "xs": {
+      "$value": {
+        "color":   "#0000000a",
+        "offsetX": "0px",
+        "offsetY": "1px",
+        "blur":    "2px",
+        "spread":  "0px"
+      }
+    },
+    "sm": {
+      "$value": {
+        "color":   "#00000014",
+        "offsetX": "0px",
+        "offsetY": "1px",
+        "blur":    "3px",
+        "spread":  "0px"
+      }
+    },
+    "md": {
+      "$value": {
+        "color":   "#00000014",
+        "offsetX": "0px",
+        "offsetY": "4px",
+        "blur":    "12px",
+        "spread":  "0px"
+      }
+    },
+    "lg": {
+      "$value": {
+        "color":   "#0000001f",
+        "offsetX": "0px",
+        "offsetY": "8px",
+        "blur":    "24px",
+        "spread":  "0px"
+      }
+    },
+    "focus": {
+      "$value": {
+        "color":   "#2563eb1f",
+        "offsetX": "0px",
+        "offsetY": "0px",
+        "blur":    "0px",
+        "spread":  "3px"
+      }
+    }
+  }
+}

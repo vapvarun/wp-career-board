@@ -112,6 +112,8 @@ Every ability's permission_callback shrinks to:
 
 ## R4. Email sending has multiple paths — production substitutes merge tags, test-send doesn't
 
+**Status update (1.2.0, 2026-05-15):** The test-send path has been fixed (Basecamp 9895205013). `AdminEndpoint` now calls `AbstractEmail::test_send()` which routes through a shared `dispatch()` helper alongside the production `send()` path. Both paths now perform merge-tag substitution. The broader Mailer chokepoint refactor (single `Mailer::send()` entry point for all sends) is still queued — see below.
+
 **Symptom (Card 9874928455):** admins click "Send test" on an email template and receive an email with literal `{{candidate_name}}` in the subject. Production-path emails resolve the merge tag correctly. The two paths are wired separately:
 
 - Production: `Notifications_Module` → `Mailer::render_template( $template, $context )` → `wp_mail()`

@@ -33,7 +33,44 @@ final class JobsModule {
 		add_filter( 'template_include', array( $this, 'single_job_template' ) );
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
+		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+	}
+
+	/**
+	 * Replace default post content with the job-single block on single wcb_job pages.
+	 *
+	 * Mirrors `Employers_Module::inject_company_profile()` and Pro's
+	 * `Resume_Module::inject_resume_block()`. With this filter in place the
+	 * single-wcb_job template can render via the standard WP loop +
+	 * `the_content()`, which keeps theme typography (`.entry-content` wrappers)
+	 * applied — eliminating the font/size divergence between `/find-jobs/`
+	 * (page, runs `the_content`) and `/jobs/{slug}/` (single, was bypassing
+	 * it when the template emitted `do_blocks( '<!-- wp:... /-->' )` directly).
+	 *
+	 * Guarded to the main loop on the singular wcb_job query so block calls
+	 * elsewhere (REST, search excerpts, oEmbed previews) keep the post body
+	 * verbatim.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $content Original post content.
+	 * @return string Block-rendered output or original content.
+	 */
+	public function inject_job_single( string $content ): string {
+		if ( ! is_singular( 'wcb_job' ) || ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
+
+		return render_block(
+			array(
+				'blockName'    => 'wp-career-board/job-single',
+				'attrs'        => array(),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
 	}
 
 	/**

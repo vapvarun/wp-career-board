@@ -1,0 +1,12 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "avatar": {
+    "$description": "Avatar sizes + default background. Used by company avatars, candidate avatars, employer cards.",
+    "sm":  { "$type": "dimension", "$value": "44px" },
+    "md":  { "$type": "dimension", "$value": "52px" },
+    "lg":  { "$type": "dimension", "$value": "56px" },
+    "xl":  { "$type": "dimension", "$value": "64px" },
+    "2xl": { "$type": "dimension", "$value": "80px" },
+    "bg":  { "$type": "color",     "$value": "#1e293b", "$description": "Default avatar background - overridable per theme via --wcb-avatar-bg." }
+  }
+}

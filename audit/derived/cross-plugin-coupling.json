@@ -1,0 +1,260 @@
+{
+  "name": "cross-plugin-coupling",
+  "computed_at": "2026-05-17T09:06:25.208296Z",
+  "input_globs": [
+    "wp-career-board/**/*.php",
+    "wp-career-board-pro/**/*.php"
+  ],
+  "result": {
+    "i_fire_hooks_consumed_by_partner": {
+      "wcb_pro_active": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36"
+        }
+      ],
+      "wcb_pro_licensed": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:37"
+        }
+      ],
+      "wcb_pro_version": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:38"
+        }
+      ],
+      "wcb_pro_alerts_enabled": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39"
+        }
+      ],
+      "wcb_pro_resumes_enabled": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:40"
+        }
+      ],
+      "wcb_pro_ai_enabled": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:41"
+        }
+      ],
+      "wcb_module_renders": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42"
+        }
+      ],
+      "wcb_board_currency": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43"
+        }
+      ],
+      "wcb_currency_catalog": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:44"
+        }
+      ],
+      "wcb_pro_settings_saved_notice": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:45"
+        }
+      ],
+      "wcb_search_active_shortcodes": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:46"
+        }
+      ],
+      "wcb_job_deleted": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-data-cleanup.php:45"
+        }
+      ],
+      "wcb_application_deleted": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-data-cleanup.php:46"
+        }
+      ],
+      "wcb_cli_abilities": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-plugin.php:82"
+        }
+      ],
+      "wcb_app_page_ids": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-plugin.php:84"
+        }
+      ],
+      "wcb_install_default_settings": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-install.php:111"
+        }
+      ],
+      "wcb_wizard_force_render": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-setup-wizard.php:65"
+        }
+      ],
+      "wcb_wizard_completed": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-setup-wizard.php:67"
+        }
+      ],
+      "wcb_settings_tabs": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-admin.php:44"
+        }
+      ],
+      "wcb_import_extra_cards": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-admin.php:52"
+        }
+      ],
+      "wcb_application_submitted": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:46"
+        }
+      ],
+      "wcb_application_status_changed": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47"
+        }
+      ],
+      "wcb_job_approved": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-activity.php:47"
+        }
+      ],
+      "wcb_moderate_jobs_ability_check": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:58"
+        }
+      ],
+      "wcb_board_options_for_employer": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:59"
+        }
+      ],
+      "wcb_jobs_post_filter": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/maps/class-geo-filter-module.php:33"
+        }
+      ],
+      "wcb_job_created": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/maps/class-maps-module.php:38"
+        }
+      ],
+      "wcb_registered_emails": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31"
+        }
+      ],
+      "wcb_page_settings": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/resume/class-resume-module.php:173"
+        }
+      ],
+      "wcb_settings_sanitize": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/resume/class-resume-module.php:174"
+        }
+      ],
+      "wcb_job_rejected": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:34"
+        }
+      ],
+      "wcb_job_expired": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:35"
+        }
+      ],
+      "wcb_ai_description_enabled": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/ai/class-ai-module.php:35"
+        }
+      ],
+      "wcb_job_board_id": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:33"
+        }
+      ],
+      "wcb_job_listing_data": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:34"
+        }
+      ],
+      "wcb_job_listings_board_options": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:36"
+        }
+      ],
+      "wcb_job_form_fields": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31"
+        }
+      ],
+      "wcb_company_form_fields": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32"
+        }
+      ],
+      "wcb_candidate_form_fields": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33"
+        }
+      ],
+      "wcb_job_updated": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:35"
+        }
+      ],
+      "wcb_job_response": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:36"
+        }
+      ]
+    },
+    "i_listen_to_partner_hooks": {},
+    "dead_listeners_in_me": []
+  }
+}

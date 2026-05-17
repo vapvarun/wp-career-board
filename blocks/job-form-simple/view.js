@@ -21,6 +21,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
+		// Banner visibility — true for paid boards AND free boards that have
+		// the free-posting template seeded, so the employer sees a clear
+		// state change when switching to a zero-cost board.
+		get hasCreditBanner() {
+			return state.creditCost > 0 || !! state.creditFreeTemplate;
+		},
+
 		// Dynamic message — numbers come live from state.creditCost /
 		// state.creditBalance (seeded server-side via SDK). Templates
 		// are pre-translated PHP-side and pushed via wp_interactivity_state
@@ -29,7 +36,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				return '';
+				return ( state.creditFreeTemplate || '' ).replace( '%d', balance );
 			}
 			if ( balance < cost ) {
 				return ( state.creditInsufficientTemplate || '' )
@@ -65,6 +72,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 			return `Listing runs until ${ formatted }. Reopen on the dashboard to extend (counts as a republish).`;
 		},
+
+		get locationIsCustom() {
+			return state.locationSlug === '__custom__';
+		},
 	},
 
 	actions: {
@@ -72,6 +83,55 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
+				// When the employer switches boards, re-derive the credit
+				// cost AND currency from the seeded per-board maps so the
+				// deduction banner and the salary currency dropdown update
+				// without a REST round-trip.
+				if ( key === 'boardId' ) {
+					const costMap = state.boardCreditCosts || {};
+					const curMap  = state.boardCurrencies || {};
+					const boardKey = String( state.boardId || 0 );
+					const cost    = Number( costMap[ boardKey ] );
+					state.creditCost = Number.isFinite( cost ) ? cost : 0;
+					if ( curMap[ boardKey ] ) {
+						state.currencyCode = curMap[ boardKey ];
+					}
+				}
+			}
+		},
+
+		*generateDescription() {
+			if ( state._aiGenerating || ! state.title ) {
+				if ( ! state.title ) {
+					state.error = 'Enter a job title first so AI can generate a description.';
+				}
+				return;
+			}
+			state._aiGenerating = true;
+			state.error = '';
+			try {
+				const response = yield fetch( state.apiBase + '/jobs/ai-description', {
+					method:  'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce':   state.nonce,
+					},
+					body: JSON.stringify( {
+						title:        state.title,
+						company_type: state.companyName || '',
+						location:     state.locationSlug || 'remote',
+					} ),
+				} );
+				const data = yield response.json();
+				if ( data.description ) {
+					state.description = data.description;
+				} else if ( data.message ) {
+					state.error = data.message;
+				}
+			} catch ( _e ) {
+				state.error = 'Failed to generate description. Please try again.';
+			} finally {
+				state._aiGenerating = false;
 			}
 		},
 
@@ -82,7 +142,21 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		updateCustomField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) return;
-			state.customFields = { ...state.customFields, [ key ]: event.target.value };
+			const target = event.target;
+			let value;
+			if ( target.dataset.wcbMulti ) {
+				// multiselect — collect every checked box sharing this field key.
+				value = Array.from(
+					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
+				)
+					.filter( ( el ) => el.checked )
+					.map( ( el ) => el.value );
+			} else if ( target.type === 'checkbox' ) {
+				value = target.checked;
+			} else {
+				value = target.value;
+			}
+			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
 		* submitJob() {
@@ -142,7 +216,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					locations:         state.locationSlug ? [ state.locationSlug ] : [],
 					experience:        state.expSlug ? [ state.expSlug ] : [],
 					tags:              tagSlugs,
-					board_id:          state.boardId || 0,
+					board_id:          state.boardId ? Number( state.boardId ) : 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
 					wcb_captcha_token: captchaToken,

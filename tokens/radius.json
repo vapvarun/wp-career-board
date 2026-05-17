@@ -1,0 +1,13 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "radius": {
+    "$type": "dimension",
+    "$description": "Border-radius scale. Maps to --wcb-radius-* CSS custom properties.",
+    "sm":   { "$value": "6px" },
+    "md":   { "$value": "8px" },
+    "lg":   { "$value": "10px" },
+    "xl":   { "$value": "12px" },
+    "2xl":  { "$value": "16px" },
+    "full": { "$value": "9999px" }
+  }
+}

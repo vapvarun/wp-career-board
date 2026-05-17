@@ -7,14 +7,13 @@
  * new wp_schedule_event() call ANYWHERE in the plugin requires
  * adding the hook name here so the deactivation teardown clears it.
  *
- * Closes Basecamp 9874932439 — the deactivate path previously
- * cleared only `wcb_check_job_expiry`, leaving
- * `wcb_send_deadline_reminders` and `wcb_expire_featured_jobs`
+ * Earlier deactivate paths cleared only `wcb_check_job_expiry`,
+ * leaving `wcb_send_deadline_reminders` and `wcb_expire_featured_jobs`
  * orphaned in WP_Cron after deactivate. With the registry, every
  * scheduler's HOOK constant has a corresponding entry here, and
- * deactivate iterates the list — adding a new cron event in one
- * place forces the developer to update this list, which forces
- * the teardown to stay coherent.
+ * deactivate iterates the list, so adding a new cron event in one
+ * place forces the developer to update this list, which keeps the
+ * teardown coherent.
  *
  * Pro-side cron hooks (wcbp_*) are NOT enumerated here — Pro owns
  * its own teardown via `ProInstall::deactivate()` per the lockstep

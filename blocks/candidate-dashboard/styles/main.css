@@ -26,12 +26,41 @@
 }
 
 /* ── View panels ──────────────────────────────────────────────────────────── */
+
+/* Every dashboard tab content sits inside a consistent card wrapper so the
+ * Overview, My Applications, Saved Jobs, Profile, Settings, etc. all look
+ * the same regardless of what's inside (stat cards, list rows, form fields,
+ * loading / empty states). The .wcb-page-header h1 lives INSIDE this card
+ * as the title bar, and inner .wcb-panel blocks switch to a flush (chrome-
+ * less) modifier so nested cards don't double-frame. */
 .wcb-view-panel {
 	display: none;
 }
 
 .wcb-view-panel.wcb-view-active {
 	display: block;
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
+	padding: var(--wcb-space-xl);
+}
+
+@media (max-width: 640px) {
+	.wcb-view-panel.wcb-view-active {
+		padding: var(--wcb-space-md);
+	}
+}
+
+/* Inner .wcb-panel cards inside an active tab lose their own card chrome
+ * so the outer wrapper doesn't double-frame them. They keep their own
+ * row hairlines for visual separation between list items. */
+.wcb-view-panel.wcb-view-active .wcb-panel {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin-bottom: 0;
 }
 
 /* ── Page header ──────────────────────────────────────────────────────────── */
@@ -51,18 +80,35 @@
 	margin: 0;
 }
 
-/* ── Panel wrapper (matches employer dashboard .wcb-panel) ────────────────── */
+/* ── Panel wrapper — visually matches `.wcb-card` from `wcb-ui.css` so every
+ * tab panel reads as the same card primitive even though it keeps its own
+ * `.wcb-shown` visibility class for the Interactivity API. Inner content
+ * gets its own padding via `.wcb-panel--form` (Profile/Settings) or via
+ * row classes (`.wcb-cd-app-row`, `.wcb-alert-row` etc.) so list rows can
+ * still butt up against the card edge with their own hairline dividers. */
 .wcb-panel {
 	display: none;
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius);
+	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
 	overflow: hidden;
 	margin-bottom: var(--wcb-space-xl);
 }
 
 .wcb-panel.wcb-shown {
 	display: block;
+}
+
+/* Form-shaped panels (Profile, Settings) need internal padding because their
+ * children are form fields, not row primitives. Lists keep the wrapper edge-
+ * flush so per-row padding gives the visual rhythm. */
+.wcb-panel--form {
+	padding: var(--wcb-space-xl);
+}
+
+@media (max-width: 640px) {
+	.wcb-panel--form { padding: var(--wcb-space-lg); }
 }
 
 /* ── Overview: Two-column grid ────────────────────────────────────────────── */
@@ -109,8 +155,14 @@
 
 /* ── Responsive: tighten main padding and stack two-col on narrow screens ─ */
 @media (max-width: 640px) {
+	/* Drop horizontal padding on `.wcb-main` so the active view panel
+	 * extends the full content width — matches the nav dropdown above it
+	 * (the dropdown lives in `.wcb-sidebar` which has no horizontal
+	 * padding, so it always spans the full content width). Keeping the
+	 * panel narrower than the dropdown above it looked broken at 390px
+	 * and crushed the stat-tile grid to ~110px columns. */
 	.wcb-main {
-		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+		padding: var(--wcb-space-xl) 0;
 	}
 
 	.wcb-two-col {

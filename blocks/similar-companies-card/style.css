@@ -1,0 +1,118 @@
+/**
+ * wcb/similar-companies-card - sidebar card.
+ *
+ * Mirrors the main-column .wcb-cp-section card shell so the sidebar
+ * and main columns read as one cohesive layout.
+ */
+
+.wcb-similar-companies-card {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-2xl);
+	padding: var(--wcb-space-2xl) var(--wcb-space-2xl);
+}
+
+.wcb-similar-companies-card .wcb-cp-side-card__title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-size: var(--wcb-text-lg);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-similar-companies-card__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm, 10px);
+}
+
+.wcb-similar-companies-card__item {
+	margin: 0;
+}
+
+.wcb-similar-companies-card__link {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-sm, 6px);
+	color: inherit;
+	text-decoration: none;
+	transition: background 0.15s ease;
+}
+
+.wcb-similar-companies-card__link:hover,
+.wcb-similar-companies-card__link:focus {
+	background: var(--wcb-surface, #f9fafb);
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-similar-companies-card__logo,
+.wcb-similar-companies-card__initial {
+	flex: 0 0 36px;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--wcb-radius-sm, 6px);
+	object-fit: cover;
+}
+
+.wcb-similar-companies-card__initial {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--wcb-accent-bg, #eef2ff);
+	color: var(--wcb-accent-strong, #4338ca);
+	font-weight: 600;
+}
+
+.wcb-similar-companies-card__body {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.wcb-similar-companies-card__name {
+	font-weight: 600;
+	font-size: var(--wcb-text-base);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--wcb-text-strong, var(--wcb-contrast));
+}
+
+.wcb-similar-companies-card__meta {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-muted, #64748b);
+}
+
+.wcb-similar-companies-card__meta [data-lucide] {
+	width: 12px;
+	height: 12px;
+}
+
+.wcb-similar-companies-card--empty .wcb-similar-companies-card__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) 0;
+	color: var(--wcb-text-muted, #64748b);
+	text-align: center;
+}
+
+@media (max-width: 640px) {
+	.wcb-similar-companies-card {
+		padding: var(--wcb-space-xl) var(--wcb-space-xl);
+	}
+}

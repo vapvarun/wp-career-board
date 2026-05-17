@@ -1,8 +1,8 @@
 /* Employer Registration block -- wcb/employer-registration */
 
-.wcb-employer-reg .wcb-hidden {
-	display: none !important;
-}
+/* `.wcb-hidden` is the canonical Interactivity API hide utility,
+ * defined globally in `assets/css/frontend-components.css`. No
+ * per-block override needed. */
 
 .wcb-employer-reg {
 	max-width: 480px;
@@ -140,26 +140,22 @@
 	margin-bottom: var(--wcb-space-xs);
 }
 
-/*
- * `!important` on color / padding / width / height is intentional — Astra
- * (and several other themes) push their primary-button defaults onto every
- * <button> via `.entry-content button` selectors at higher specificity,
- * which gave the back button white text on white background and the
- * theme's primary-button padding (15 px × 30 px). The arrow disappeared
- * and the button became a giant empty rectangle. We own this small
- * back-arrow button deterministically via property-level overrides.
- */
-.wcb-reg-back {
-	display: inline-flex !important;
+/* `[class*="wp-block-..."] button.wcb-reg-back` selector lands at (0,2,2)
+ * which beats Astra's `.entry-content button` cascade (0,2,1) outright.
+ * Property-level `!important` flags are no longer needed - the per-class
+ * rule wins on its own. Both Free and Pro block class roots covered. */
+[class*="wp-block-wp-career-board"] button.wcb-reg-back,
+[class*="wp-block-wcb-"] button.wcb-reg-back {
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: var(--wcb-space-3xl) !important;
-	height: var(--wcb-space-3xl) !important;
-	padding: 0 !important;
-	border: 1px solid var(--wcb-border) !important;
-	border-radius: var(--wcb-radius-sm) !important;
-	background: var(--wcb-base) !important;
-	color: var(--wcb-text-secondary) !important;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
+	padding: 0;
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
+	background: var(--wcb-base);
+	color: var(--wcb-text-secondary);
 	cursor: pointer;
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
@@ -169,9 +165,10 @@
 	transition: border-color var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-reg-back:hover {
-	border-color: var(--wcb-primary) !important;
-	color: var(--wcb-primary) !important;
+[class*="wp-block-wp-career-board"] button.wcb-reg-back:hover,
+[class*="wp-block-wcb-"] button.wcb-reg-back:hover {
+	border-color: var(--wcb-primary);
+	color: var(--wcb-primary);
 }
 
 .wcb-reg-back:focus-visible {

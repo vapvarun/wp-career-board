@@ -46,6 +46,18 @@ final class CompaniesEndpoint extends RestController {
 
 		register_rest_route(
 			$this->namespace,
+			'/companies/(?P<id>\d+)/bookmark',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'toggle_bookmark' ),
+				'permission_callback' => static function (): bool {
+					return is_user_logged_in();
+				},
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/companies/(?P<id>\d+)/trust',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -119,6 +131,39 @@ final class CompaniesEndpoint extends RestController {
 	}
 
 	/**
+	 * Toggle company bookmark using non-unique usermeta (one row per
+	 * bookmarked company). Mirrors the `_wcb_bookmark` pattern Jobs uses
+	 * for saved listings - any logged-in user can save any company.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response {
+		$user_id    = get_current_user_id();
+		$company_id = (int) $request['id'];
+
+		$existing = get_user_meta( $user_id, '_wcb_company_bookmark', false );
+		$existing = array_map( 'intval', (array) $existing );
+
+		if ( in_array( $company_id, $existing, true ) ) {
+			delete_user_meta( $user_id, '_wcb_company_bookmark', $company_id );
+			$bookmarked = false;
+		} else {
+			add_user_meta( $user_id, '_wcb_company_bookmark', $company_id, false );
+			$bookmarked = true;
+		}
+
+		return rest_ensure_response(
+			array(
+				'bookmarked' => $bookmarked,
+				'company_id' => $company_id,
+			)
+		);
+	}
+
+	/**
 	 * List published companies with optional industry / size / search filters.
 	 *
 	 * @since 1.0.0
@@ -127,38 +172,70 @@ final class CompaniesEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_items( $request ): \WP_REST_Response {
+		// Sort parity with /jobs and /resumes - accepts orderby=date and
+		// order=ASC|DESC. Default newest-first to match the SSR first paint.
+		$orderby = sanitize_key( (string) ( $request->get_param( 'orderby' ) ?? 'date' ) );
+		$order   = strtoupper( sanitize_key( (string) ( $request->get_param( 'order' ) ?? 'DESC' ) ) );
+		$orderby = 'date' === $orderby ? 'date' : 'date'; // only `date` allowed for now.
+		$order   = 'ASC' === $order ? 'ASC' : 'DESC';
+
 		$args = array(
 			'post_type'      => 'wcb_company',
 			'post_status'    => 'publish',
 			'posts_per_page' => min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 ),
 			'paged'          => max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 ),
+			'orderby'        => $orderby,
+			'order'          => $order,
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 
 		$search = $request->get_param( 'search' );
 		if ( $search ) {
-			$args['s'] = sanitize_text_field( $search );
+			$search_term = sanitize_text_field( $search );
+			// WP's native `s` parameter LIKEs across post_title +
+			// post_content + post_excerpt which is too wide for companies
+			// (descriptions get noisy) and full-scans wp_posts at 100k.
+			// Route through our own posts_where filter so we (a) scope the
+			// match to post_title, (b) use FULLTEXT when available, (c)
+			// fall back to LIKE otherwise. Same pattern as the jobs search.
+			$args['wcb_company_search_term'] = $search_term;
+			add_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10, 2 );
 		}
 
+		// Industry + size accept either a single slug (legacy) or an array
+		// of slugs (multi-select sidebar). Normalize to an array and use
+		// `compare => IN` so callers can OR across multiple values.
 		$industry = $request->get_param( 'industry' );
 		if ( $industry ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_industry',
-				'value'   => sanitize_text_field( $industry ),
-				'compare' => '=',
-			);
+			$industry_values = array_map( 'sanitize_text_field', (array) $industry );
+			$industry_values = array_values( array_filter( $industry_values, static fn( string $v ): bool => '' !== $v ) );
+			if ( ! empty( $industry_values ) ) {
+				$args['meta_query'][] = array(
+					'key'     => '_wcb_industry',
+					'value'   => $industry_values,
+					'compare' => 'IN',
+				);
+			}
 		}
 
 		$size = $request->get_param( 'size' );
 		if ( $size ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_company_size',
-				'value'   => sanitize_text_field( $size ),
-				'compare' => '=',
-			);
+			$size_values = array_map( 'sanitize_text_field', (array) $size );
+			$size_values = array_values( array_filter( $size_values, static fn( string $v ): bool => '' !== $v ) );
+			if ( ! empty( $size_values ) ) {
+				$args['meta_query'][] = array(
+					'key'     => '_wcb_company_size',
+					'value'   => $size_values,
+					'compare' => 'IN',
+				);
+			}
 		}
 
 		$query = new \WP_Query( $args );
+		// Always unhook the search filter even when no rows were returned,
+		// so subsequent WP_Query calls in the request lifecycle don't pick
+		// up our custom WHERE on unrelated post types.
+		remove_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10 );
 
 		$paged = (int) $args['paged'];
 		$total = (int) $query->found_posts;
@@ -199,6 +276,57 @@ final class CompaniesEndpoint extends RestController {
 	 * @param int                              $paged     Current page.
 	 * @return \WP_REST_Response
 	 */
+	/**
+	 * Restrict company search to post_title with FULLTEXT preferred.
+	 *
+	 * Mirrors the jobs-endpoint posts_where pattern so both archives use
+	 * the same MATCH() AGAINST() path when the wp_posts FULLTEXT index is
+	 * present and falls back to a tighter LIKE on title only otherwise.
+	 * Native WP `s` was too noisy (LIKE'd post_content + post_excerpt).
+	 *
+	 * @since 1.2.6
+	 *
+	 * @param string    $where Existing WHERE clause.
+	 * @param \WP_Query $query Current WP_Query instance.
+	 * @return string
+	 */
+	public function restrict_company_search_to_title( string $where, \WP_Query $query ): string {
+		global $wpdb;
+
+		if ( 'wcb_company' !== $query->get( 'post_type' ) ) {
+			return $where;
+		}
+
+		$search_term = (string) $query->get( 'wcb_company_search_term' );
+		if ( '' === $search_term ) {
+			return $where;
+		}
+
+		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
+		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
+
+		if ( $use_fulltext ) {
+			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
+			$bool_term = trim( (string) $bool_term );
+			if ( '' === $bool_term ) {
+				return $where;
+			}
+			$bool_term .= '*';
+			$where     .= $wpdb->prepare(
+				" AND MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE)",
+				$bool_term
+			);
+			return $where;
+		}
+
+		$like   = '%' . $wpdb->esc_like( $search_term ) . '%';
+		$where .= $wpdb->prepare(
+			" AND {$wpdb->posts}.post_title LIKE %s",
+			$like
+		);
+		return $where;
+	}
+
 	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
 		$response = rest_ensure_response(
 			array(
@@ -315,22 +443,37 @@ final class CompaniesEndpoint extends RestController {
 			return array();
 		}
 
-		$jobs = get_posts(
-			array(
-				'post_type'     => 'wcb_job',
-				'post_status'   => 'publish',
-				'numberposts'   => -1,
-				'author__in'    => $author_ids,
-				'no_found_rows' => true,
-				'orderby'       => 'none',
+		// One aggregate SQL via the (post_author, post_status, post_type) index
+		// instead of materialising every job row into PHP just to count it.
+		// At 100k jobs the previous numberposts=-1 path returned 100k WP_Post
+		// objects per render; this is an index-only scan.
+		global $wpdb;
+		$author_ids   = array_map( 'intval', $author_ids );
+		$placeholders = implode( ',', array_fill( 0, count( $author_ids ), '%d' ) );
+		$cache_key    = 'wcb_job_counts_by_author_' . md5( implode( ',', $author_ids ) );
+		$cached       = wp_cache_get( $cache_key, 'wcb_companies' );
+		if ( false !== $cached && is_array( $cached ) ) {
+			return $cached;
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_author, COUNT(*) AS c FROM {$wpdb->posts}
+					WHERE post_type = 'wcb_job'
+					  AND post_status = 'publish'
+					  AND post_author IN ({$placeholders})
+					GROUP BY post_author",
+				...$author_ids
 			)
 		);
+		// phpcs:enable
 
 		$counts = array();
-		foreach ( $jobs as $job ) {
-			$aid            = (int) $job->post_author;
-			$counts[ $aid ] = ( $counts[ $aid ] ?? 0 ) + 1;
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->post_author ] = (int) $row->c;
 		}
+		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
 		return $counts;
 	}
 
@@ -387,14 +530,19 @@ final class CompaniesEndpoint extends RestController {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			// `industry` + `size` accept an array of slugs so the sidebar's
+			// multi-select checkboxes can OR across values. WP REST coerces
+			// `industry[]=design&industry[]=tech` into an array when the
+			// declared type is `array`; declaring it as `string` (as the
+			// schema previously did) made WP silently flatten the array
+			// to its last value, so only one slug was ever filtered on.
 			'industry' => array(
-				'type'              => 'string',
-				'enum'              => array_merge( array( '' ), \WCB\Core\Industries::slugs() ),
-				'sanitize_callback' => 'sanitize_text_field',
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
 			),
 			'size'     => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
 			),
 			'page'     => array(
 				'type'    => 'integer',

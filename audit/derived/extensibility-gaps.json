@@ -1,0 +1,13 @@
+{
+  "name": "extensibility-gaps",
+  "computed_at": "2026-05-17T08:52:42.665601Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [],
+  "result_count": 0,
+  "notes": "",
+  "algorithm_version": "v2.2.0"
+}

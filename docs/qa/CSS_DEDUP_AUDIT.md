@@ -76,6 +76,10 @@ the recent layout work and didn't need dedup:
 - Theme-link defence + theme-button defence — `8b3100c`, `df2c57b`,
   `8448dba`
 
+## 1.2.0 update — Chevron SVG → Lucide attribute (2026-05-15)
+
+The hand-rolled inline SVG chevrons in `blocks/job-listings/render.php` and `blocks/company-archive/render.php` were replaced with `<i data-lucide="chevron-down">` (commit `e5b7020`). This is not a CSS dedup — it is an HTML markup change — but is noted here because the inline SVG contained embedded CSS stroke/fill values. Moving to Lucide data-attribute rendering eliminates those embedded values and keeps icon styling under the shared Lucide CSS token. No block stylesheet changes were needed. Basecamp 9891577445.
+
 ## Recommended follow-ups (not in this pass)
 
 1. **Audit `.wcb-status-badge` and `.wcb-stat-label`** more carefully —

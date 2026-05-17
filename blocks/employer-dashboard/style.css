@@ -95,7 +95,7 @@
 	display: none;
 	color: var(--wcb-danger);
 	background: var(--wcb-danger-bg);
-	border: 1px solid #fecaca;
+	border: 1px solid var(--wcb-danger-border, #fecaca);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);

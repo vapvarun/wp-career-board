@@ -93,6 +93,21 @@ final class JobsEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_applications' ),
 				'permission_callback' => array( $this, 'view_applications_permissions_check' ),
+				'args'                => array(
+					'page'     => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+					'per_page' => array(
+						'type'              => 'integer',
+						'default'           => 20,
+						'minimum'           => 1,
+						'maximum'           => 100,
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 
@@ -223,17 +238,47 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
-		// Allowlisted post-meta filters via ?meta_<key>=<value>.
-		// Integrators register their custom meta keys via the
-		// `wcb_jobs_allowed_meta_filters` filter — only allowlisted keys
-		// reach meta_query, preventing arbitrary-meta probes.
+		// Scope to a specific user's bookmarks when the caller passes
+		// `saved_by=<user_id>`. Mirrors the Saved tab SSR scope so Load
+		// More pages keep returning only bookmarked jobs instead of the
+		// site-wide list. An empty bookmark set produces post__in=[0]
+		// so WP_Query returns zero rows (not all rows).
+		$saved_by = (int) $request->get_param( 'saved_by' );
+		if ( $saved_by > 0 ) {
+			$bookmark_ids     = array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) );
+			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
+		}
+
+		// Post-meta filters via ?meta_<key>=<value>.
+		// Any `_wcb_*` namespaced key is allowed by default (the plugin
+		// owns that namespace, no probe risk). Custom or non-WCB meta
+		// still needs opt-in via the `wcb_jobs_allowed_meta_filters`
+		// filter.
 		$allowed_meta = (array) apply_filters( 'wcb_jobs_allowed_meta_filters', array() );
+		$seen_keys    = array();
 		foreach ( $allowed_meta as $meta_key ) {
 			if ( ! is_string( $meta_key ) || '' === $meta_key ) {
 				continue;
 			}
-			$param_name = 'meta_' . $meta_key;
-			$raw        = $request->get_param( $param_name );
+			$raw = $request->get_param( 'meta_' . $meta_key );
+			if ( null === $raw || '' === $raw ) {
+				continue;
+			}
+			$args['meta_query'][]   = array(
+				'key'   => $meta_key,
+				'value' => is_scalar( $raw ) ? sanitize_text_field( (string) $raw ) : '',
+			);
+			$seen_keys[ $meta_key ] = true;
+		}
+		// Scan request params for the _wcb_* namespace default-allow path.
+		foreach ( (array) $request->get_params() as $param_name => $raw ) {
+			if ( ! is_string( $param_name ) || ! str_starts_with( $param_name, 'meta__wcb_' ) ) {
+				continue;
+			}
+			$meta_key = substr( $param_name, 5 );
+			if ( '' === $meta_key || isset( $seen_keys[ $meta_key ] ) ) {
+				continue;
+			}
 			if ( null === $raw || '' === $raw ) {
 				continue;
 			}
@@ -349,14 +394,48 @@ final class JobsEndpoint extends RestController {
 			return $where;
 		}
 
-		$search_term = $query->get( 'wcb_search_term' );
-		if ( empty( $search_term ) ) {
+		$search_term = (string) $query->get( 'wcb_search_term' );
+		if ( '' === $search_term ) {
 			return $where;
 		}
 
 		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-		// Add search condition for post_title and company name.
+		// FULLTEXT path - O(log n) when the term clears MySQL's default
+		// `ft_min_word_len = 3`. Below that floor MATCH() returns no rows
+		// even when a LIKE would match, so fall back to LIKE on the title
+		// for 1-2 character terms.
+		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
+		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
+
+		if ( $use_fulltext ) {
+			// IN BOOLEAN MODE so the term doesn't need to clear the 50%
+			// document threshold IN NATURAL LANGUAGE MODE uses, and so we
+			// can opt into prefix matching with a trailing `*`. Escape the
+			// boolean operators a user might type so they can't break the
+			// query.
+			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
+			$bool_term = trim( (string) $bool_term );
+			if ( '' === $bool_term ) {
+				return $where;
+			}
+			$bool_term .= '*';
+			$where     .= $wpdb->prepare(
+				" AND ( MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE) OR EXISTS (
+					SELECT 1 FROM {$wpdb->postmeta} pm
+					WHERE pm.post_id = {$wpdb->posts}.ID
+					  AND pm.meta_key = '_wcb_company_name'
+					  AND pm.meta_value LIKE %s
+				) )",
+				$bool_term,
+				$like
+			);
+			return $where;
+		}
+
+		// Fallback - LIKE on title + company name. Used when FULLTEXT is
+		// unsupported (MyISAM `wp_posts`, replicated read-only, etc.) or
+		// when the term is shorter than ft_min_word_len.
 		$where .= $wpdb->prepare(
 			" AND ( {$wpdb->posts}.post_title LIKE %s OR EXISTS (
 				SELECT 1 FROM {$wpdb->postmeta} pm
@@ -608,6 +687,12 @@ final class JobsEndpoint extends RestController {
 			wp_set_object_terms( $job_id, (array) $tags, 'wcb_tag' );
 		}
 
+		// Persist filter-injected custom fields (Pro Field Builder + add-ons
+		// hook wcb_job_form_fields). Mirrors the company / resume custom-field
+		// save flow shared via WCB\Core\FormCustomFields — without this the
+		// job form posts custom_fields and the endpoint silently drops them.
+		$this->save_job_custom_fields( $job_id, $request );
+
 		do_action( 'wcb_job_created', $job_id, $request );
 
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
@@ -791,8 +876,49 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Persist filter-injected custom fields — same flow as create_item().
+		// Only touched when the request actually carries custom_fields so a
+		// partial PATCH doesn't wipe values the editor didn't resubmit.
+		$this->save_job_custom_fields( $post->ID, $request );
+
 		do_action( 'wcb_job_updated', $post->ID, $request );
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * Persist custom-field values posted alongside a job create/update.
+	 *
+	 * The job form posts `custom_fields` keyed by sanitized field key. The
+	 * `wcb_job_form_fields` filter resolves field groups per board id, and
+	 * board 0 holds the global groups shown on boardless job-form pages.
+	 * A given form render shows exactly one of those sets, but the endpoint
+	 * can't know which `boardId` the block was rendered with — so we validate
+	 * the submitted values against the union of board 0 and the job's own
+	 * board. WCB\Core\FormCustomFields::save_values() only writes keys that
+	 * appear in the resolved groups, so the union never persists stray keys.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param int              $job_id  Job post ID.
+	 * @param \WP_REST_Request $request Originating REST request.
+	 * @return void
+	 */
+	private function save_job_custom_fields( int $job_id, \WP_REST_Request $request ): void {
+		$custom_fields = $request->get_param( 'custom_fields' );
+		if ( ! is_array( $custom_fields ) || ! class_exists( '\WCB\Core\FormCustomFields' ) ) {
+			return;
+		}
+
+		$board_id = (int) get_post_meta( $job_id, '_wcb_board_id', true );
+		$groups   = (array) apply_filters( 'wcb_job_form_fields', array(), 0 );
+		if ( $board_id > 0 ) {
+			$groups = array_merge(
+				$groups,
+				(array) apply_filters( 'wcb_job_form_fields', array(), $board_id )
+			);
+		}
+
+		\WCB\Core\FormCustomFields::save_values( $groups, $job_id, $custom_fields );
 	}
 
 	/**
@@ -882,12 +1008,16 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$job_id = (int) $request['id'];
-		$posts  = get_posts(
+		$job_id   = (int) $request['id'];
+		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
+		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?: 1 ) );
+
+		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_application',
 				'post_status'    => 'any',
-				'posts_per_page' => -1,
+				'posts_per_page' => $per_page,
+				'paged'          => $paged,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_job_id',
@@ -896,6 +1026,12 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
+		$posts = $query->posts;
+		if ( $posts ) {
+			// Prime meta cache once so the prepare loop's get_post_meta calls
+			// don't issue a query each. Mirrors the job-listings render pattern.
+			update_postmeta_cache( wp_list_pluck( $posts, 'ID' ) );
+		}
 
 		$items = array_map(
 			static function ( \WP_Post $p ): array {
@@ -928,15 +1064,16 @@ final class JobsEndpoint extends RestController {
 			$posts
 		);
 
-		// Always returns the full set today; envelope shape kept consistent with
-		// other list endpoints so the frontend always reads response.applications.
-		$count = count( $items );
+		$total    = (int) $query->found_posts;
+		$pages    = (int) $query->max_num_pages;
+		$has_more = ( $paged * $per_page ) < $total;
+
 		return rest_ensure_response(
 			array(
 				'applications' => $items,
-				'total'        => $count,
-				'pages'        => $count > 0 ? 1 : 0,
-				'has_more'     => false,
+				'total'        => $total,
+				'pages'        => $pages,
+				'has_more'     => $has_more,
 			)
 		);
 	}

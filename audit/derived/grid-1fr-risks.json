@@ -1,0 +1,371 @@
+{
+  "name": "grid-1fr-risks",
+  "computed_at": "2026-05-17T08:52:42.715885Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [
+    {
+      "file": "blocks/job-form-simple/style.css:139",
+      "selector": ".wcb-form-simple",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-form-simple/style.css:149",
+      "selector": ".wcb-form-simple__tax-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-form-simple/style.css:156",
+      "selector": ".wcb-form-simple",
+      "track_rule": "1.4fr 1fr 1fr 1fr",
+      "suggestion": "1.4fr minmax(0, 1fr) 1fr 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-form-simple/style.css:167",
+      "selector": ".wcb-form-simple",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-listings/style.css:113",
+      "selector": ".wcb-card-body",
+      "track_rule": "auto 1fr",
+      "suggestion": "auto minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-listings/style.css:422",
+      "selector": ".wcb-jobs-container",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/candidate-dashboard/styles/widgets.css:142",
+      "selector": ".wcb-stats-row",
+      "track_rule": "repeat( 2, 1fr )",
+      "suggestion": "repeat( 2, minmax(0, 1fr) )",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/candidate-dashboard/styles/widgets.css:248",
+      "selector": ".wcb-welcome-card__steps",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/candidate-dashboard/styles/main.css:117",
+      "selector": ".wcb-two-col",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/candidate-dashboard/styles/main.css:169",
+      "selector": ".wcb-two-col",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-form/style.css:208",
+      "selector": ".wcb-salary-row",
+      "track_rule": "1.4fr 1fr 1fr 1fr",
+      "suggestion": "1.4fr minmax(0, 1fr) 1fr 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-form/style.css:622",
+      "selector": ".wcb-form-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-profile/style.css:281",
+      "selector": ".wcb-cp-body",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-profile/style.css:388",
+      "selector": ".wcb-cp-details-grid",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-profile/style.css:609",
+      "selector": ".wcb-cp-details-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-profile/style.css:665",
+      "selector": "?",
+      "track_rule": "1fr 260px`, Astra uses `.ast-container`,\n * etc. Forcing a single-column grid here gives our content the full\n * width that was previously wasted by the reserved-but-empty sidebar\n * slot.\n */\n.wcb-company-page .site-wrapper,\n.wcb-company-page .ast-container,\n.wcb-company-page .container-grid {\n\tgrid-template-columns: 1fr !important",
+      "suggestion": "minmax(0, 1fr) 260px`, Astra uses `.ast-container`,\n * etc. Forcing a single-column grid here gives our content the full\n * width that was previously wasted by the reserved-but-empty sidebar\n * slot.\n */\n.wcb-company-page .site-wrapper,\n.wcb-company-page .ast-container,\n.wcb-company-page .container-grid {\n\tgrid-template-columns: 1fr !important",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/views.css:448",
+      "selector": ".wcb-split-panel",
+      "track_rule": "280px 1fr",
+      "suggestion": "280px minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/views.css:859",
+      "selector": ".wcb-field-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/widgets.css:379",
+      "selector": ".wcb-stats-row",
+      "track_rule": "repeat(2, 1fr)",
+      "suggestion": "repeat(2, minmax(0, 1fr))",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/widgets.css:383",
+      "selector": ".wcb-profile-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/widgets.css:396",
+      "selector": ".wcb-stats-row",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/main.css:92",
+      "selector": ".wcb-two-col",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-dashboard/styles/main.css:154",
+      "selector": ".wcb-two-col",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-single/style.css:80",
+      "selector": ".wcb-job-hero",
+      "track_rule": "1fr auto",
+      "suggestion": "minmax(0, 1fr) auto",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-single/style.css:213",
+      "selector": ".wcb-job-body",
+      "track_rule": "1fr 320px",
+      "suggestion": "minmax(0, 1fr) 320px",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-single/style.css:779",
+      "selector": ".wcb-job-hero",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/job-single/style.css:794",
+      "selector": ".wcb-job-body",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-archive/style.css:165",
+      "selector": ".wcb-ca-card-link",
+      "track_rule": "auto 1fr",
+      "suggestion": "auto minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/company-archive/style.css:461",
+      "selector": ".wcb-ca-container",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/featured-jobs/style.css:88",
+      "selector": ".wcb-featured-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-registration/style.css:37",
+      "selector": ".wcb-reg-row",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-registration/style.css:85",
+      "selector": ".wcb-role-options",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-registration/style.css:181",
+      "selector": ".wcb-reg-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "blocks/employer-registration/style.css:185",
+      "selector": ".wcb-role-options",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/wcb-ui.css:708",
+      "selector": ".wcb-archive-layout",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/wcb-ui.css:1168",
+      "selector": ".wcb-field-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:354",
+      "selector": ".wcb-grid--2col",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:359",
+      "selector": ".wcb-grid",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:360",
+      "selector": ".wcb-grid--compact",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:361",
+      "selector": ".wcb-grid--2col",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:462",
+      "selector": ".wcb-field-row",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:470",
+      "selector": ".wcb-field-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:568",
+      "selector": ".css",
+      "track_rule": "160px 1fr",
+      "suggestion": "160px minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/frontend-components.css:595",
+      "selector": ".wcb-settings-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin.css:181",
+      "selector": ".wcb-dashboard-columns",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin.css:188",
+      "selector": ".wcb-dashboard-columns",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin.css:416",
+      "selector": ".wcb-settings-row",
+      "track_rule": "240px 1fr",
+      "suggestion": "240px minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin.css:544",
+      "selector": ".wcb-settings-row",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin.css:614",
+      "selector": ".wcb-company-meta-grid",
+      "track_rule": "1fr 1fr",
+      "suggestion": "minmax(0, 1fr) 1fr",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin/application-detail.css:121",
+      "selector": ".wcb-app-timeline__item",
+      "track_rule": "160px 1fr 120px",
+      "suggestion": "160px minmax(0, 1fr) 120px",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    },
+    {
+      "file": "assets/css/admin/application-detail.css:165",
+      "selector": ".wcb-app-timeline__item",
+      "track_rule": "1fr",
+      "suggestion": "minmax(0, 1fr)",
+      "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+    }
+  ],
+  "result_count": 51,
+  "notes": "",
+  "algorithm_version": "v2.2.0"
+}

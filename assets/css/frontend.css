@@ -82,9 +82,9 @@ html.dark-mode {
 
 /* ── Page heading — rendered inside listing blocks ───────────────────────── */
 .wcb-page-heading {
-	font-size: 1.75rem;
+	font-size: var(--wcb-text-2xl);
 	font-weight: var( --wcb-font-bold, 700 );
 	color: var( --wcb-contrast, #0f172a );
-	margin: 0 0 1.5rem;
+	margin: 0 0 var(--wcb-space-2xl);
 	line-height: 1.2;
 }

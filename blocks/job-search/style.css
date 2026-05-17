@@ -1,10 +1,12 @@
-/* ── Block wrapper reset — prevent theme double-border ───────────────────── */
+/* Block wrapper reset (0,1,0). Most themes wrap blocks in a low-specificity
+ * ".wp-block { padding: ... }" rule the (0,1,0) selector wins on
+ * source-order, so plain rules suffice. */
 .wp-block-wp-career-board-job-search {
-	border: none !important;
-	box-shadow: none !important;
+	border: none;
+	box-shadow: none;
 	margin: 0 0 var(--wcb-space-lg);
-	padding: 0 !important;
-	background: none !important;
+	padding: 0;
+	background: none;
 }
 
 .wp-block-wp-career-board-job-filters {
@@ -27,12 +29,16 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-.wcb-search-input,
-.wcb-search-input[type=search] {
+/* `[type=search]` attribute selector bumps to (0,2,1) which beats the
+ * Reign/Astra `.entry-content input` (0,2,1) on source-order without
+ * `!important`. The composite `:focus-within` ring on the parent form
+ * is the visible focus indicator. */
+[class*="wp-block-wp-career-board"] .wcb-search-input,
+[class*="wp-block-wp-career-board"] .wcb-search-input[type=search] {
 	flex: 1;
-	border: none !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
+	border: none;
+	box-shadow: none;
+	border-radius: 0;
 	-webkit-appearance: none;
 	appearance: none;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -44,13 +50,11 @@
 	min-height: 50px;
 }
 
-/* Focus-within on the parent handles the visible focus ring.
-   This ensures keyboard users see the composite form highlight. */
-.wcb-search-input:focus {
+[class*="wp-block-wp-career-board"] .wcb-search-input:focus {
 	outline: 2px solid var(--wcb-primary, #2563eb);
 	outline-offset: 2px;
-	border: none !important;
-	box-shadow: none !important;
+	border: none;
+	box-shadow: none;
 }
 
 .wcb-search-input::placeholder {

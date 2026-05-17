@@ -1,0 +1,34 @@
+{
+  "name": "suppressed-baseline-errors",
+  "computed_at": "2026-05-17T08:52:42.717789Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": {
+    "stub_class_missing": {
+      "count": 3,
+      "action": "add stubs to phpstan-bootstrap.php"
+    },
+    "stub_const_missing": {
+      "count": 2,
+      "action": "add defines to phpstan-bootstrap.php"
+    },
+    "undef_var_risk": {
+      "count": 39,
+      "action": "triage individually"
+    },
+    "real_type_debt": {
+      "count": 31,
+      "action": "triage individually"
+    },
+    "phpcs_excludes": {
+      "count": 3,
+      "action": "review per release"
+    }
+  },
+  "result_count": null,
+  "notes": "Parsed 75 baseline messages",
+  "algorithm_version": "v2.2.0"
+}

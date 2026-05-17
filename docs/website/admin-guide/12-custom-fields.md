@@ -141,7 +141,7 @@ specific jobs, branch on `$job_id` inside the callback.
 
 The above filter applies globally. For per-job configuration without
 writing PHP, install Pro and use the
-[Field Builder](../../../wp-career-board-pro/docs/website/field-builder/01-overview.md)
+[Field Builder](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/field-builder/01-overview/)
 admin page — the builder writes the same data structure to the
 `wcb_field_groups` / `wcb_field_definitions` Pro tables and contributes
 to the same filters automatically.

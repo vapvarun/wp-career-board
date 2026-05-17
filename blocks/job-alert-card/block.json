@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wp-career-board/job-alert-card",
+  "version": "1.0.0",
+  "title": "Job Alerts CTA",
+  "category": "widgets",
+  "description": "Sidebar card encouraging candidates to subscribe to email alerts for new jobs.",
+  "keywords": [ "career board", "wcb", "alerts", "cta", "sidebar" ],
+  "editorScript": "file:./index.js",
+  "textdomain": "wp-career-board",
+  "attributes": {
+    "title": { "type": "string", "default": "" },
+    "body":  { "type": "string", "default": "" },
+    "cta":   { "type": "string", "default": "" },
+    "url":   { "type": "string", "default": "" }
+  },
+  "style": "file:./style.css",
+  "render": "file:./render.php",
+  "supports": {
+    "html": false,
+    "align": [ "wide" ]
+  }
+}

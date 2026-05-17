@@ -141,8 +141,8 @@ wp_interactivity_state(
 			</div>
 
 			<form class="wcb-reg-form" data-wp-on--submit="actions.submit">
-				<?php /* Honeypot */ ?>
-				<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" />
+				<?php /* Honeypot - hidden from sighted users and ARIA; bot-only field. */ ?>
+				<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" aria-hidden="true" aria-label="<?php esc_attr_e( 'Leave this field blank', 'wp-career-board' ); ?>" />
 
 				<?php if ( ! $wcb_is_logged_in ) : ?>
 				<div class="wcb-reg-row">

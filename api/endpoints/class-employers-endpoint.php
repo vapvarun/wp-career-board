@@ -181,7 +181,13 @@ final class EmployersEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			$user->add_role( 'wcb_employer' );
+			// Replace existing roles, not stack on top. wp-admin role
+			// assignment uses replace semantics (set_role); frontend
+			// self-registration must match so a logged-in subscriber who
+			// converts to Employer ends up with just wcb_employer, not
+			// subscriber + wcb_employer. BuddyPress member-type sync hangs
+			// off set_role() too.
+			$user->set_role( 'wcb_employer' );
 			$user_id = $user->ID;
 
 			$company_id = wp_insert_post(
@@ -493,6 +499,13 @@ final class EmployersEndpoint extends RestController {
 			\WCB\Core\Locations::sync_company_hq( (int) $post->ID, (string) $hq_value );
 		}
 
+		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
+			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );
+		}
+
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );
 	}
 
@@ -700,41 +713,45 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		// Fetch all jobs for this employer (any status the employer can manage).
-		// Includes wcb_closed and wcb_expired so applications received on a
-		// since-closed job remain visible to the employer dashboard. Without
-		// these statuses, an employer who closed a job they hired from would
-		// silently lose their entire applicant pipeline for that job.
-		$job_ids = get_posts(
-			array(
-				'post_type'      => 'wcb_job',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-						array(
-							'key'     => '_wcb_company_id',
-							'value'   => (int) $company->ID,
-							'compare' => '=',
-							'type'    => 'NUMERIC',
-				),
-				),
-				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' ),
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			)
+		// Previous implementation materialised every job ID for this company
+		// (`posts_per_page = -1`) then `WHERE pm.meta_value IN (...)`. At an
+		// enterprise scale (a company with 5000+ posted jobs) that path
+		// allocated thousands of integers per request just to hand them
+		// straight back into a SQL IN clause. The JOIN below jumps directly
+		// from application -> job -> company via two indexed postmeta lookups
+		// in one query. Statuses kept identical so closed/expired jobs still
+		// surface their applicant pipeline in the employer dashboard.
+		global $wpdb;
+		$company_id = (int) $company->ID;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql  = $wpdb->prepare(
+			"SELECT app.ID, app.post_date
+			 FROM {$wpdb->posts} app
+			 INNER JOIN {$wpdb->postmeta} pm_job
+			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
+			 INNER JOIN {$wpdb->posts} job
+			        ON job.ID = pm_job.meta_value AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ('publish','pending','draft','wcb_closed','wcb_expired')
+			 INNER JOIN {$wpdb->postmeta} pm_co
+			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
+			 WHERE app.post_type   = 'wcb_application'
+			   AND app.post_status = 'publish'
+			   AND pm_co.meta_value = %d
+			 ORDER BY app.post_date DESC
+			 LIMIT 20",
+			$company_id
 		);
+		$rows = $wpdb->get_results( $sql );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		if ( empty( $job_ids ) ) {
+		if ( empty( $rows ) ) {
 			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}
 
-		global $wpdb;
-		$placeholders = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
-     // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		$sql  = $wpdb->prepare(
-			"SELECT p.ID, p.post_date FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_wcb_job_id' WHERE p.post_type = 'wcb_application' AND p.post_status = 'publish' AND pm.meta_value IN ({$placeholders}) ORDER BY p.post_date DESC LIMIT 20",
-			...$job_ids
-		);
-		$rows = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-     // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// Prime meta cache once for the 20 application IDs so the per-row
+		// get_post_meta calls below resolve from cache instead of issuing a
+		// query each. Matches the cache-priming pattern used by job-listings.
+		update_postmeta_cache( array_map( static fn( $r ) => (int) $r->ID, $rows ) );
 
 		$items = array_map(
 			static function ( object $row ) use ( $request ): array {

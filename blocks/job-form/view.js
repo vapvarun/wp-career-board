@@ -170,6 +170,13 @@ store(
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
 			},
+			// Banner visibility — true for paid boards AND for free boards
+			// that have the free-posting template seeded. Keeps the
+			// employer informed when switching to a zero-cost board.
+			get hasCreditBanner() {
+				const { state } = store( 'wcb-job-form' );
+				return state.creditCost > 0 || !! state.creditFreeTemplate;
+			},
 			get insufficientCredits() {
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0 && state.creditBalance < state.creditCost;
@@ -187,7 +194,7 @@ store(
 				const cost    = state.creditCost;
 				const balance = state.creditBalance;
 				if ( ! cost ) {
-					return '';
+					return ( state.creditFreeTemplate || '' ).replace( '%d', balance );
 				}
 				if ( balance < cost ) {
 					return ( state.creditInsufficientTemplate || '' )
@@ -266,7 +273,46 @@ store(
 					if ( field === 'title' && state.validationError ) {
 						state.validationError = '';
 					}
+					// When the employer switches boards, re-derive the
+					// credit cost AND currency from the seeded per-board
+					// maps so the banner ("Posting deducts X credits") and
+					// the salary currency dropdown update without a REST
+					// round-trip. Maps are keyed by stringified ID.
+					if ( field === 'boardId' ) {
+						const costMap = state.boardCreditCosts || {};
+						const curMap  = state.boardCurrencies || {};
+						const key     = String( state.boardId || 0 );
+						const cost    = costMap[ key ];
+						const cur     = curMap[ key ];
+						state.creditCost = Number.isFinite( cost ) ? cost : 0;
+						if ( cur ) {
+							state.currencyCode = cur;
+						}
+					}
 				}
+			},
+
+			updateCustomField( event ) {
+				const { state } = store( 'wcb-job-form' );
+				const key       = event.target.getAttribute( 'data-wcb-field' );
+				if ( ! key ) {
+					return;
+				}
+				const target = event.target;
+				let value;
+				if ( target.dataset.wcbMulti ) {
+					// multiselect — collect every checked box sharing this field key.
+					value = Array.from(
+						document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
+					)
+						.filter( ( el ) => el.checked )
+						.map( ( el ) => el.value );
+				} else if ( target.type === 'checkbox' ) {
+					value = target.checked;
+				} else {
+					value = target.value;
+				}
+				state.customFields = { ...state.customFields, [ key ]: value };
 			},
 
 			toggleRemote() {
@@ -393,6 +439,7 @@ store(
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,
+						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
 						wcb_captcha_token: captchaToken,
 					};

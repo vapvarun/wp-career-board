@@ -275,3 +275,13 @@ For a genuinely emergency patch (security CVE, dataloss bug reaching production)
 ## Version-specific additions
 
 Append a section below for every release with the specific extra checks added that cycle. After 2 clean releases of a row, graduate it into the main checklist above.
+
+### 1.2.0 — 2026-05-15
+
+- [ ] `POST /wcb/v1/admin/emails/test` returns `{sent: bool, to: string, logged: int}` — verify with curl or REST client as admin.
+- [ ] `wp_wcb_notifications_log` test row has `status` = `sent_test` (not `sent`) and `payload` JSON has `"is_test": true`.
+- [ ] `GET /wcb/v1/jobs?meta__wcb_<custom_key>=<val>` returns filtered results without `wcb_jobs_allowed_meta_filters` hook registered.
+- [ ] `WCB_VERSION` constant = `1.2.0` in `wp-career-board.php`; `Stable tag: 1.2.0` in `readme.txt`; `package.json` `version` = `1.2.0`.
+- [ ] languages/wp-career-board.pot `Project-Id-Version` = `1.2.0`; string count ~ 1172.
+- [ ] docs/HOOKS.md lists `wcb_board_options_for_employer` and `wcb_page_needs_frontend_assets` with correct signatures.
+- [ ] docs/HOOKS.md `wcb_jobs_allowed_meta_filters` row notes the `_wcb_*` default-allow behavior.

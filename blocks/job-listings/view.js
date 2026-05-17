@@ -73,7 +73,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 		get isBoardActive() {
 			const ctx = getContext();
-			return !! state.activeFilters[ 'board_' + ctx.boardId ];
+			const key = 'board_' + ctx.boardId;
+			// Treat shortcode-baked boardId scope as "active" too, so the
+			// matching chip in the bar reads as selected even though the
+			// scope is immutable.
+			return !! ( state.activeFilters[ key ] || state.baseFilters?.[ key ] );
 		},
 
 		get isSalaryActive() {
@@ -201,11 +205,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Layout toggle ─────────────────────────────────────────────
 		setGridLayout() {
 			state.layout = 'grid';
-			try { localStorage.setItem( 'wcb_layout', 'grid' ); } catch {}
+			try { localStorage.setItem( 'wcb_archive_layout', 'grid' ); } catch {}
 		},
 		setListLayout() {
 			state.layout = 'list';
-			try { localStorage.setItem( 'wcb_layout', 'list' ); } catch {}
+			try { localStorage.setItem( 'wcb_archive_layout', 'list' ); } catch {}
 		},
 
 		// ── Search ────────────────────────────────────────────────────
@@ -376,6 +380,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'author', state.authorId );
 			}
 
+			// Forward savedBy so Load More pages stay scoped to that
+			// user's bookmarks. Without this the REST endpoint returns
+			// the full publish list and Load More keeps reappearing
+			// because totals from the unfiltered fetch overwrite the
+			// SSR-scoped total.
+			if ( state.savedBy ) {
+				url.searchParams.set( 'saved_by', state.savedBy );
+			}
+
 			// Sort
 			if ( state.sortBy === 'date_asc' ) {
 				url.searchParams.set( 'orderby', 'date' );
@@ -385,9 +398,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'order', 'DESC' );
 			}
 
+			// Merge immutable shortcode/block scope (baseFilters: boardId,
+			// metaFilter) with the user-controlled activeFilters before
+			// forwarding to REST. baseFilters wins on key collision so an
+			// integrator can pin a scope the user can't override from the UI.
+			const merged = { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) };
+
 			// Active filters — handles both in-block chip keys (type_*, exp_*) and
 			// external filter block keys (wcb_category, wcb_location, etc.).
-			for ( const [ key, value ] of Object.entries( state.activeFilters ) ) {
+			for ( const [ key, value ] of Object.entries( merged ) ) {
 				if ( key.startsWith( 'type_' ) ) {
 					url.searchParams.append( 'type', value );
 				} else if ( key.startsWith( 'exp_' ) ) {
@@ -426,9 +445,6 @@ const { state, actions } = store( 'wcb-job-listings', {
 				const total = Array.isArray( data )
 					? parseInt( response.headers.get( 'X-WCB-Total' ) ?? '0', 10 )
 					: ( data?.total ?? jobs.length );
-				const hasMore = Array.isArray( data )
-					? ( ( ( state.page * jobs.length ) || jobs.length ) < total )
-					: !! data?.has_more;
 
 				state.totalCount = total;
 				if ( state.page === 1 ) {
@@ -436,7 +452,16 @@ const { state, actions } = store( 'wcb-job-listings', {
 				} else {
 					state.jobs = [ ...state.jobs, ...jobs ];
 				}
-				state.hasMore = hasMore && state.jobs.length < total;
+
+				// Truth source for the Load More button — recompute from the
+				// final cumulative count instead of trusting the per-response
+				// flag alone. Covers:
+				//   1. envelope says has_more=true but we already have every row
+				//      (totals can race when the cache version bumps between pages),
+				//   2. legacy array shape that doesn't carry has_more,
+				//   3. a fetched page that returned 0 jobs.
+				const apiHasMore = Array.isArray( data ) ? true : !! data?.has_more;
+				state.hasMore    = apiHasMore && jobs.length > 0 && state.jobs.length < total;
 			} finally {
 				state.loading = false;
 			}
@@ -464,7 +489,18 @@ const { state, actions } = store( 'wcb-job-listings', {
 	callbacks: {
 		init() {
 			try {
-				const saved = localStorage.getItem( 'wcb_layout' );
+				// Unified key shared across Jobs, Companies, Find Candidates so
+				// a user's list/grid preference syncs across the 3 archives.
+				// Migration: fall back to the legacy per-archive key for users
+				// who set their preference before 1.2.0.
+				let saved = localStorage.getItem( 'wcb_archive_layout' );
+				if ( saved !== 'grid' && saved !== 'list' ) {
+					const legacy = localStorage.getItem( 'wcb_layout' );
+					if ( legacy === 'grid' || legacy === 'list' ) {
+						saved = legacy;
+						localStorage.setItem( 'wcb_archive_layout', legacy );
+					}
+				}
 				if ( saved === 'grid' || saved === 'list' ) {
 					state.layout = saved;
 				}

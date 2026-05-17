@@ -5,6 +5,7 @@
 
 /* -- Hero -- */
 .wcb-cp-hero {
+	position: relative;
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-2xl);
@@ -12,17 +13,55 @@
 	margin-bottom: var(--wcb-space-xl);
 }
 
+/* Save button anchored top-right of the hero card so it sits in the same
+ * spot as Find Jobs single's "Saved" pill. (0,3,1) wins over the canonical
+ * `.wcb-bookmark-hero-btn` rule that has no positioning. */
+[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
+	position: absolute;
+	top: var(--wcb-space-lg);
+	inset-inline-end: var(--wcb-space-lg);
+	z-index: 1;
+}
+
+/* Reserve right padding inside the hero body so the absolute-positioned
+ * Save button doesn't crash into the meta chip row at narrow widths. */
+.wcb-cp-hero-body {
+	padding-inline-end: var(--wcb-space-5xl, 4rem);
+}
+
+/* On mobile keep the Save button absolutely anchored at the top-right
+ * corner of the hero (same spot as desktop, just snugger). The earlier
+ * `position: static` override pushed the pill into DOM order at the top
+ * of the card where it clipped against the avatar - the avatar now sits
+ * naturally below the header line without needing a negative margin. */
+@media (max-width: 720px) {
+	[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
+		top: var(--wcb-space-md);
+		inset-inline-end: var(--wcb-space-md);
+	}
+
+	.wcb-cp-hero-body {
+		padding-inline-end: var(--wcb-space-4xl);
+	}
+}
+
+/* Cover strip collapsed to zero height so the company hero matches the
+ * job-single and resume-single heroes — none of which carry a cover.
+ * Same-family rule: the visual mark on org pages should be the logo
+ * square + chip row, not a 120px dark band that has no information
+ * payload. Keep the element in the DOM (rendered by the block) for
+ * back-compat; future revision can drop the wrapper entirely. */
 .wcb-cp-cover {
-	height: 120px;
-	background: var(--wcb-avatar-bg, #1e293b);
+	height: 0;
+	background: transparent;
 }
 
 .wcb-cp-hero-body {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-xl);
-	padding: 0 1.75rem 1.75rem;
-	margin-top: -44px;
+	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	margin-top: 0;
 }
 
 /* -- Avatar / Logo -- */
@@ -44,26 +83,30 @@
 
 .wcb-cp-avatar {
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: #ffffff;
+	color: var(--wcb-base, #ffffff);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 1.75rem;
+	font-size: var(--wcb-text-2xl);
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.02em;
 }
 
-/* -- Hero info -- */
+/* -- Hero info --
+ * No `padding-top` offset so the "Name + tagline" group's vertical
+ * center aligns with the logo's vertical center, matching Find Jobs
+ * single hero where the title + company name sit centered against the
+ * avatar. The 52px offset that used to live here was a vestige of an
+ * earlier cover-strip design that has since been collapsed. */
 .wcb-cp-hero-info {
 	flex: 1;
 	min-width: 0;
-	padding-top: 52px;
 }
 
 .wcb-cp-name-row {
 	display: flex;
 	align-items: center;
-	gap: 0.6rem;
+	gap: var(--wcb-space-sm);
 	flex-wrap: wrap;
 }
 
@@ -80,9 +123,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wcb-space-xs);
-	padding: 0.2rem 0.55rem;
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
 	border-radius: var(--wcb-radius-full);
-	font-size: 0.72rem;
+	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.02em;
 	white-space: nowrap;
@@ -107,7 +150,7 @@
 .wcb-cp-tagline {
 	font-size: var(--wcb-text-md);
 	color: var(--wcb-text-secondary);
-	margin: 0.3rem 0 var(--wcb-space-md);
+	margin: var(--wcb-space-xs) 0 var(--wcb-space-md);
 	line-height: var(--wcb-leading-normal);
 }
 
@@ -122,8 +165,8 @@
 .wcb-cp-chip {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.3rem;
-	padding: 0.2rem 0.65rem;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
 	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
@@ -141,8 +184,8 @@
 .wcb-cp-link {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.35rem;
-	padding: 0.35rem 0.875rem;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);
@@ -164,15 +207,79 @@
 }
 
 .wcb-cp-link--twitter:hover {
-	border-color: #000;
-	color: #000;
+	border-color: var(--wcb-contrast, #000);
+	color: var(--wcb-contrast, #000);
 }
 
-/* -- Body -- */
+/* -- Body (2-col grid on desktop: main + sidebar) -- */
 .wcb-cp-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	gap: var(--wcb-space-xl);
+	align-items: start;
+}
+
+.wcb-cp-main {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xl);
+	min-width: 0;
+}
+
+.wcb-cp-sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+	min-width: 0;
+}
+
+/* -- Unified side-card shell --
+ *
+ * Every sidebar block, whether one of our defaults (similar-companies,
+ * recent-jobs, job-alert) or an admin-placed widget rendered with our
+ * registered before_widget wrapper, takes the same card shell as
+ * .wcb-cp-section in the main column. Keeps the page reading as one
+ * cohesive layout instead of a main column + visually-different
+ * sidebar.
+ */
+.wcb-cp-side-card,
+.wcb-cp-sidebar > .wcb-recent-jobs,
+.wcb-cp-sidebar > .wp-block-wp-career-board-recent-jobs {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-2xl);
+	padding: var(--wcb-space-2xl);
+}
+
+.wcb-cp-side-card__title,
+.wcb-cp-sidebar .wcb-widget-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-size: var(--wcb-text-lg);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-cp-sidebar .wcb-widget-header {
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-cp-sidebar .wcb-widget-header .wcb-widget-title {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+@media (max-width: 1024px) {
+	.wcb-cp-body {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* -- Sections -- */
@@ -180,14 +287,14 @@
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-2xl);
-	padding: var(--wcb-space-2xl) 1.75rem;
+	padding: var(--wcb-space-2xl);
 }
 
 .wcb-cp-section-title {
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
-	font-size: 1.0625rem;
+	font-size: var(--wcb-text-lg);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast);
 	margin: 0 0 var(--wcb-space-lg);
@@ -201,7 +308,7 @@
 	justify-content: center;
 	min-width: 22px;
 	height: 22px;
-	padding: 0 0.4rem;
+	padding: 0 var(--wcb-space-xs);
 	background: var(--wcb-primary);
 	color: var(--wcb-base);
 	border-radius: var(--wcb-radius-full);
@@ -236,14 +343,14 @@
 	line-height: 1.35;
 }
 
-.wcb-cp-desc h2 { font-size: 1.25rem; font-weight: var(--wcb-font-bold); }
-.wcb-cp-desc h3 { font-size: 1.0625rem; font-weight: var(--wcb-font-bold); }
-.wcb-cp-desc h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); }
+.wcb-cp-desc h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h4 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-semibold); }
 
 .wcb-cp-desc ul,
 .wcb-cp-desc ol {
 	margin: 0 0 var(--wcb-space-md);
-	padding-inline-start: 1.5rem;
+	padding-inline-start: var(--wcb-space-2xl);
 }
 
 .wcb-cp-desc li {
@@ -256,7 +363,7 @@
 
 .wcb-cp-desc blockquote {
 	margin: var(--wcb-space-md) 0;
-	padding: 0.5rem 0 0.5rem 1rem;
+	padding: var(--wcb-space-sm) 0 var(--wcb-space-sm) var(--wcb-space-lg);
 	border-inline-start: 3px solid var(--wcb-border);
 	color: var(--wcb-text-secondary);
 	font-style: italic;
@@ -286,11 +393,11 @@
 .wcb-cp-detail-item {
 	display: flex;
 	flex-direction: column;
-	gap: 0.15rem;
+	gap: var(--wcb-space-xs);
 }
 
 .wcb-cp-detail-item dt {
-	font-size: 0.78rem;
+	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -393,15 +500,15 @@
 .wcb-cp-job-badges {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.3rem;
+	gap: var(--wcb-space-xs);
 	align-items: center;
 }
 
 .wcb-cjbadge {
 	display: none;
 	align-items: center;
-	gap: 0.2rem;
-	padding: 0.1rem var(--wcb-space-sm);
+	gap: var(--wcb-space-xs);
+	padding: 2px var(--wcb-space-sm);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
@@ -445,30 +552,53 @@
 
 /* -- Responsive -- */
 @media (max-width: 640px) {
+	/* Centered profile-card layout - matches the Single Resume hero
+	 * because the Company single page is also a "profile" surface with
+	 * lots of meta (industry, size, location, website). Big logo on
+	 * top, name + tagline + chip row + website button all centered
+	 * under it. Same visual rhythm a customer gets on /resume/<slug>/. */
 	.wcb-cp-hero-body {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 0;
-		padding: 0 var(--wcb-space-xl) var(--wcb-space-2xl);
+		align-items: center;
+		text-align: center;
+		gap: var(--wcb-space-md);
+		padding: var(--wcb-space-2xl) var(--wcb-space-xl);
 	}
 
 	.wcb-cp-avatar-wrap {
-		margin-top: -40px;
+		margin-top: 0;
 	}
 
 	.wcb-cp-logo,
 	.wcb-cp-avatar {
-		width: 72px;
-		height: 72px;
-		font-size: 1.4rem;
+		width: 88px;
+		height: 88px;
+		font-size: var(--wcb-text-2xl);
 	}
 
 	.wcb-cp-hero-info {
-		padding-top: var(--wcb-space-md);
+		padding-top: 0;
+		width: 100%;
+	}
+
+	.wcb-cp-name-row {
+		justify-content: center;
 	}
 
 	.wcb-cp-name {
 		font-size: var(--wcb-text-xl);
+	}
+
+	.wcb-cp-tagline {
+		margin-inline: auto;
+	}
+
+	.wcb-cp-meta-chips {
+		justify-content: center;
+	}
+
+	.wcb-cp-links {
+		justify-content: center;
 	}
 
 	.wcb-cp-section {
@@ -490,13 +620,58 @@
 	}
 }
 
-/* -- Theme-agnostic sidebar + title suppression -- */
+/* -- Theme-agnostic sidebar + title suppression --
+ *
+ * Many themes (Reign, BuddyX Pro, Astra, Kadence, etc.) reserve a column
+ * slot for their primary sidebar on single posts. Hiding the sidebar
+ * widgets with `display: none` alone leaves the column slot empty,
+ * causing a wide whitespace strip on the right of our content. Below we
+ * hide the sidebar AND expand the content column to fill the freed slot
+ * so our in-block sidebar (rendered inside .wcb-cp-wrap) can use the
+ * space. Selectors target the common content-column patterns found
+ * across modern WP themes.
+ *
+ * `!important` policy: the rules below fight theme rules that themselves
+ * ship `!important` declarations (Astra's container width, BuddyX Pro's
+ * grid-template-columns, Reign's #sidebar display). Specificity alone
+ * cannot beat the theme's own `!important` - this is the legitimate
+ * use case the keyword exists for. Each `!important` in this section
+ * is intentional and load-bearing; do not refactor without testing
+ * against the four target themes.
+ */
 .wcb-company-page #secondary,
 .wcb-company-page .widget-area,
 .wcb-company-page aside.sidebar,
 .wcb-company-page .sidebar-area,
 .wcb-company-page .site-sidebar,
 .wcb-company-page #sidebar { display: none !important; }
+
+.wcb-company-page #primary,
+.wcb-company-page .content-area,
+.wcb-company-page .primary-content,
+.wcb-company-page main.site-main,
+.wcb-company-page .site-main,
+.wcb-company-page .col-md-8,
+.wcb-company-page .col-md-9,
+.wcb-company-page .col-lg-8,
+.wcb-company-page .col-lg-9 {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 0 0 100% !important;
+}
+
+/* Collapse parent grid wrappers that reserve a column slot for the
+ * (now hidden) theme sidebar. BuddyX Pro uses `.site-wrapper` with
+ * `grid-template-columns: 1fr 260px`, Astra uses `.ast-container`,
+ * etc. Forcing a single-column grid here gives our content the full
+ * width that was previously wasted by the reserved-but-empty sidebar
+ * slot.
+ */
+.wcb-company-page .site-wrapper,
+.wcb-company-page .ast-container,
+.wcb-company-page .container-grid {
+	grid-template-columns: 1fr !important;
+}
 
 .wcb-company-page .entry-title,
 .wcb-company-page .page-title,

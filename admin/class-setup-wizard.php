@@ -564,6 +564,7 @@ class SetupWizard extends \WCB\Api\RestController {
 					update_post_meta( $cid, $k, $v );
 				}
 				update_post_meta( $cid, '_wcb_user_id', $author_id );
+				update_post_meta( $cid, '_wcb_sample', 1 );
 				\WCB\Core\Locations::sync_company_hq( (int) $cid, (string) $co['meta']['_wcb_hq_location'] );
 				$company_ids[ $co['slug'] ] = $cid;
 				$created_ids['companies'][] = $cid;
@@ -779,6 +780,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			foreach ( $job['meta'] as $k => $v ) {
 				update_post_meta( $jid, $k, $v );
 			}
+			update_post_meta( $jid, '_wcb_sample', 1 );
 			if ( $cid ) {
 				$co_post = get_post( $cid );
 				update_post_meta( $jid, '_wcb_company_id', $cid );
@@ -808,11 +810,13 @@ class SetupWizard extends \WCB\Api\RestController {
 	/**
 	 * Detect whether wizard sample data still exists on the site.
 	 *
-	 * Considers three signals so the cleanup button never silently
+	 * Considers four signals so the cleanup button never silently
 	 * disappears while demo content is still around:
 	 * 1. The legacy `wcb_sample_data_installed` flag.
 	 * 2. The tracked id map in `wcb_sample_data_ids`.
-	 * 3. Orphan markers — wcb_job slugs prefixed with `wcb-sample-` or
+	 * 3. The `_wcb_sample = 1` post meta marker stamped at install time
+	 *    (covers wcb_job, wcb_company, wcb_candidate).
+	 * 4. Orphan markers — wcb_job slugs prefixed with `wcb-sample-` or
 	 *    wcb_company posts whose `_wcb_website` ends with `example.com`.
 	 *
 	 * @since 1.1.1
@@ -829,6 +833,23 @@ class SetupWizard extends \WCB\Api\RestController {
 		}
 
 		global $wpdb;
+
+		// Meta marker — any CPT explicitly tagged at install time, including
+		// posts an admin added manually then marked with `_wcb_sample = 1`.
+		$tagged = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(p.ID)
+				 FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s AND pm.meta_value = %s
+				 WHERE p.post_type IN ( 'wcb_job', 'wcb_company', 'wcb_candidate' )",
+				'_wcb_sample',
+				'1'
+			)
+		);
+		if ( $tagged > 0 ) {
+			return true;
+		}
+
 		$jobs = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_name LIKE %s",
@@ -855,32 +876,45 @@ class SetupWizard extends \WCB\Api\RestController {
 	/**
 	 * Remove all sample data created by the wizard, plus any wizard-shaped
 	 * orphans (slug prefix `wcb-sample-`, company website containing
-	 * `example.com`) so out-of-sync sites don't get stuck with demo content.
+	 * `example.com`) and any post explicitly tagged with `_wcb_sample = 1`
+	 * (covers manually-added demo jobs, companies, and candidates that an
+	 * admin or import script marked as sample). Idempotent — re-running
+	 * with nothing to remove returns zero counts, never an error.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array{jobs: int, companies: int, terms: int} Counts of removed items.
+	 * @return array{jobs: int, companies: int, candidates: int, terms: int} Counts of removed items.
 	 */
 	public function remove_sample_data(): array {
 		$ids     = (array) get_option( 'wcb_sample_data_ids', array() );
 		$removed = array(
-			'jobs'      => 0,
-			'companies' => 0,
-			'terms'     => 0,
+			'jobs'       => 0,
+			'companies'  => 0,
+			'candidates' => 0,
+			'terms'      => 0,
+		);
+		$deleted = array(
+			'wcb_job'       => array(),
+			'wcb_company'   => array(),
+			'wcb_candidate' => array(),
 		);
 
-		// Jobs.
+		// Jobs — tracked ids.
 		foreach ( $ids['jobs'] ?? array() as $jid ) {
-			if ( get_post( (int) $jid ) ) {
-				wp_delete_post( (int) $jid, true );
+			$jid = (int) $jid;
+			if ( $jid && get_post( $jid ) ) {
+				wp_delete_post( $jid, true );
+				$deleted['wcb_job'][ $jid ] = true;
 				++$removed['jobs'];
 			}
 		}
 
-		// Companies.
+		// Companies — tracked ids.
 		foreach ( $ids['companies'] ?? array() as $cid ) {
-			if ( get_post( (int) $cid ) ) {
-				wp_delete_post( (int) $cid, true );
+			$cid = (int) $cid;
+			if ( $cid && get_post( $cid ) ) {
+				wp_delete_post( $cid, true );
+				$deleted['wcb_company'][ $cid ] = true;
 				++$removed['companies'];
 			}
 		}
@@ -894,43 +928,65 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 		}
 
+		global $wpdb;
+
+		// Meta marker sweep — every CPT post explicitly tagged `_wcb_sample = 1`
+		// (install-time auto-tag plus anything an admin/import script marked
+		// manually). Covers wcb_job, wcb_company, wcb_candidate so candidates
+		// added during a demo are cleaned up alongside jobs and companies.
+		$tagged = (array) $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT p.ID, p.post_type
+				 FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s AND pm.meta_value = %s
+				 WHERE p.post_type IN ( 'wcb_job', 'wcb_company', 'wcb_candidate' )
+				 LIMIT 1000",
+				'_wcb_sample',
+				'1'
+			)
+		);
+		foreach ( $tagged as $row ) {
+			$post_id   = (int) $row->ID;
+			$post_type = (string) $row->post_type;
+			if ( isset( $deleted[ $post_type ][ $post_id ] ) ) {
+				continue;
+			}
+			if ( ! get_post( $post_id ) ) {
+				continue;
+			}
+			wp_delete_post( $post_id, true );
+			$deleted[ $post_type ][ $post_id ] = true;
+			$bucket                            = 'wcb_job' === $post_type ? 'jobs' : ( 'wcb_company' === $post_type ? 'companies' : 'candidates' );
+			++$removed[ $bucket ];
+		}
+
 		// Orphan sweep — sites whose `wcb_sample_data_ids` got out of sync (manual
 		// db edits, partial restores, an older wizard run that didn't track ids)
 		// otherwise leave demo content stranded on the site forever. Match on
 		// the wizard-emitted slug prefix and the *.example.com website signal,
 		// both of which are unique to the seeder. Ignore anything posted by a
 		// real employer.
-		$wcb_orphan_jobs = get_posts(
-			array(
-				'post_type'      => 'wcb_job',
-				'post_status'    => 'any',
-				'posts_per_page' => 200,
-				'fields'         => 'ids',
-				'name__like'     => 'wcb-sample-',
+		$wcb_orphan_jobs = array_map(
+			'intval',
+			(array) $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_name LIKE %s LIMIT 200",
+					'wcb_job',
+					'wcb-sample-%'
+				)
 			)
 		);
-		// `name__like` isn't a real WP_Query arg — fall back to LIKE via where filter.
-		if ( empty( $wcb_orphan_jobs ) ) {
-			global $wpdb;
-			$wcb_orphan_jobs = array_map(
-				'intval',
-				(array) $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_name LIKE %s LIMIT 200",
-						'wcb_job',
-						'wcb-sample-%'
-					)
-				)
-			);
-		}
 		foreach ( $wcb_orphan_jobs as $wcb_orphan_job_id ) {
+			if ( isset( $deleted['wcb_job'][ $wcb_orphan_job_id ] ) ) {
+				continue;
+			}
 			if ( get_post( (int) $wcb_orphan_job_id ) ) {
 				wp_delete_post( (int) $wcb_orphan_job_id, true );
+				$deleted['wcb_job'][ $wcb_orphan_job_id ] = true;
 				++$removed['jobs'];
 			}
 		}
 
-		global $wpdb;
 		$wcb_orphan_companies = (array) $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT p.ID
@@ -944,8 +1000,13 @@ class SetupWizard extends \WCB\Api\RestController {
 			)
 		);
 		foreach ( $wcb_orphan_companies as $wcb_orphan_co_id ) {
-			if ( get_post( (int) $wcb_orphan_co_id ) ) {
-				wp_delete_post( (int) $wcb_orphan_co_id, true );
+			$wcb_orphan_co_id = (int) $wcb_orphan_co_id;
+			if ( isset( $deleted['wcb_company'][ $wcb_orphan_co_id ] ) ) {
+				continue;
+			}
+			if ( get_post( $wcb_orphan_co_id ) ) {
+				wp_delete_post( $wcb_orphan_co_id, true );
+				$deleted['wcb_company'][ $wcb_orphan_co_id ] = true;
 				++$removed['companies'];
 			}
 		}

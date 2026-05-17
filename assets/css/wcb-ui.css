@@ -1,0 +1,1286 @@
+/**
+ * WP Career Board — Same-family UI primitives.
+ *
+ * Single CSS source for the design-system vocabulary every plugin-rendered
+ * customer page uses. Loaded right after `wcb-frontend-tokens` so every rule
+ * resolves against the same variables in both light and dark mode, and so
+ * page-specific stylesheets can rely on the primitives existing.
+ *
+ * Vocabulary:
+ *   .wcb-page              — outer shell. Variants: --list (default), --dashboard, --single, --form.
+ *   .wcb-page-header       — page title row. .wcb-page-title (h1) inside.
+ *   .wcb-page-body         — scrolling content area.
+ *   .wcb-card              — section container. Head + body + foot.
+ *   .wcb-card-head         — title + optional eyebrow + right-aligned actions.
+ *   .wcb-card-title        — section heading inside a card.
+ *   .wcb-card-eyebrow      — uppercase muted label above the title.
+ *   .wcb-card-body         — padded inner content.
+ *   .wcb-card-foot         — action footer with right-aligned buttons.
+ *   .wcb-btn               — button (40px default). Variants primary|secondary|ghost|danger × sm|md|lg.
+ *   .wcb-input             — input/select/textarea (40px default). Variants --sm, --lg.
+ *   .wcb-badge             — pill chip. Variants success|warning|danger|info|neutral|outlined.
+ *   .wcb-empty-state       — centered icon + title + description + optional CTA.
+ *   .wcb-stack             — vertical flow utility, gap presets --xs, --sm, --md, --lg, --xl.
+ *   .wcb-row               — horizontal flex utility with wrap + gap presets.
+ *
+ * Backwards-compatibility shims for the legacy `.wcb-cbtn` ladder sit at the
+ * bottom of this file. They re-use the new rules so the dashboard does not
+ * regress while individual blocks migrate to the canonical names. The shims
+ * drop one release after the migration finishes.
+ *
+ * @package WP_Career_Board
+ * @since 1.2.0
+ */
+
+/* ── Page shell ───────────────────────────────────────────────────────────── */
+
+/* `.wcb-page` is intentionally NOT defined here. Free's `Plugin::body_class()`
+ * adds `wcb-page` to the BODY element on every WCB-controlled page as a
+ * theme-integration marker. Defining a layout rule on `.wcb-page` collided
+ * with the body, overriding the theme's body `font-family` (specificity
+ * 0,1,0 vs 0,0,1) and rendering every dashboard / archive page in the
+ * browser default serif on Astra. Templates use the canonical
+ * `.wcb-archive-shell` wrapper from `frontend-components.css` instead;
+ * no plugin-side body-targeting layout primitive is needed.
+ */
+
+.wcb-page-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin-bottom: var(--wcb-space-xl);
+}
+
+.wcb-page-title {
+	margin: 0;
+	font-size: var(--wcb-text-2xl);
+	line-height: var(--wcb-leading-tight);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-page-subtitle {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-page-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-wrap: wrap;
+}
+
+.wcb-page-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xl);
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+
+.wcb-card {
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	box-shadow: var(--wcb-shadow-sm);
+	overflow: hidden;
+}
+
+.wcb-card--flush      { border: 0; box-shadow: none; background: transparent; }
+.wcb-card--ghost      { background: var(--wcb-bg-subtle, #f8fafc); box-shadow: none; }
+.wcb-card--accent     { border-color: var(--wcb-primary, #2563eb); box-shadow: 0 1px 0 var(--wcb-primary, #2563eb) inset; }
+
+.wcb-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+.wcb-card-head--plain { border-bottom: 0; padding-bottom: 0; }
+
+.wcb-card-eyebrow {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--wcb-text-tertiary, #9ca3af);
+	margin-bottom: var(--wcb-space-xs);
+}
+
+.wcb-card-title {
+	margin: 0;
+	font-size: var(--wcb-text-lg);
+	line-height: var(--wcb-leading-tight);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-card-subtitle {
+	margin: 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-card-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-wrap: wrap;
+}
+
+.wcb-card-body {
+	padding: var(--wcb-space-xl);
+}
+
+.wcb-card-body--snug   { padding: var(--wcb-space-md) var(--wcb-space-lg); }
+.wcb-card-body--roomy  { padding: var(--wcb-space-2xl); }
+
+.wcb-card-foot {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-top: 1px solid var(--wcb-border, #e2e8f0);
+	background: var(--wcb-bg-subtle, #f8fafc);
+}
+
+.wcb-card-foot--split  { justify-content: space-between; }
+.wcb-card-foot--plain  { background: transparent; border-top: 0; padding-top: 0; }
+
+/* ── Button ladder ────────────────────────────────────────────────────────── */
+
+.wcb-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-xs);
+	min-height: 40px;
+	padding: 0 var(--wcb-space-lg);
+	border: 1px solid transparent;
+	border-radius: var(--wcb-radius-md);
+	font-family: inherit;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	line-height: 1;
+	white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
+}
+
+.wcb-btn:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-btn[disabled],
+.wcb-btn:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.wcb-btn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+.wcb-btn--lg { min-height: 48px; padding: 0 var(--wcb-space-xl); font-size: var(--wcb-text-md); }
+.wcb-btn--block { width: 100%; }
+
+.wcb-btn--primary {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+.wcb-btn--primary:hover,
+.wcb-btn--primary:focus-visible {
+	background: var(--wcb-primary-dark, #1d4ed8);
+	border-color: var(--wcb-primary-dark, #1d4ed8);
+	color: var(--wcb-on-primary, #ffffff);
+	text-decoration: none;
+}
+
+.wcb-btn--secondary {
+	background: var(--wcb-base, #ffffff);
+	color: var(--wcb-contrast, #0f172a);
+	border-color: var(--wcb-border, #e2e8f0);
+}
+
+.wcb-btn--secondary:hover,
+.wcb-btn--secondary:focus-visible {
+	background: var(--wcb-bg-hover, #f1f5f9);
+	border-color: var(--wcb-text-tertiary, #9ca3af);
+	color: var(--wcb-contrast, #0f172a);
+	text-decoration: none;
+}
+
+.wcb-btn--ghost {
+	background: transparent;
+	color: var(--wcb-primary, #2563eb);
+	border-color: transparent;
+}
+
+.wcb-btn--ghost:hover,
+.wcb-btn--ghost:focus-visible {
+	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.08));
+	color: var(--wcb-primary-dark, #1d4ed8);
+	text-decoration: none;
+}
+
+.wcb-btn--danger {
+	background: transparent;
+	color: var(--wcb-danger, #dc2626);
+	border-color: var(--wcb-danger-border, #fecaca);
+}
+
+.wcb-btn--danger:hover,
+.wcb-btn--danger:focus-visible {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
+	border-color: var(--wcb-danger, #dc2626);
+	text-decoration: none;
+}
+
+/* ── Input ladder ─────────────────────────────────────────────────────────── */
+
+.wcb-input,
+select.wcb-input,
+textarea.wcb-input {
+	display: block;
+	width: 100%;
+	min-height: 40px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border: 1px solid var(--wcb-border, #cbd5e1);
+	border-radius: var(--wcb-radius-md);
+	font-family: inherit;
+	font-size: var(--wcb-text-md);
+	line-height: var(--wcb-leading-normal);
+	color: var(--wcb-contrast, #0f172a);
+	background: var(--wcb-base, #ffffff);
+	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
+	box-sizing: border-box;
+}
+
+.wcb-input--sm { min-height: 32px; padding: var(--wcb-space-xs) var(--wcb-space-sm); font-size: var(--wcb-text-sm); }
+.wcb-input--lg { min-height: 48px; padding: var(--wcb-space-md) var(--wcb-space-lg); font-size: var(--wcb-text-md); }
+
+textarea.wcb-input {
+	min-height: 120px;
+	resize: vertical;
+}
+
+.wcb-input:hover {
+	border-color: var(--wcb-text-tertiary, #9ca3af);
+}
+
+.wcb-input:focus,
+.wcb-input:focus-visible {
+	outline: 2px solid transparent;
+	border-color: var(--wcb-primary, #2563eb);
+	box-shadow: var(--wcb-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.15));
+}
+
+.wcb-input[readonly],
+.wcb-input[disabled] {
+	background: var(--wcb-bg-subtle, #f8fafc);
+	color: var(--wcb-text-secondary, #6b7280);
+	cursor: default;
+}
+
+.wcb-input[aria-invalid="true"] {
+	border-color: var(--wcb-danger, #dc2626);
+}
+
+.wcb-input[aria-invalid="true"]:focus {
+	box-shadow: 0 0 0 3px var(--wcb-danger-bg, #fee2e2);
+}
+
+.wcb-label {
+	display: block;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast, #0f172a);
+	margin-bottom: var(--wcb-space-xs);
+}
+
+.wcb-label-required::after {
+	content: " *";
+	color: var(--wcb-danger, #dc2626);
+	font-weight: var(--wcb-font-bold);
+}
+
+.wcb-help {
+	display: block;
+	margin-top: var(--wcb-space-xs);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: var(--wcb-leading-normal);
+}
+
+.wcb-field {
+	margin-bottom: var(--wcb-space-lg);
+}
+
+.wcb-field:last-child { margin-bottom: 0; }
+
+.wcb-field-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wcb-space-lg);
+}
+
+/* ── Detail-page section heading — shared across all detail surfaces ──────
+ * Used by `wcb/job-single` (`.wcb-section-heading`),
+ * `wcb/company-profile` (`.wcb-cp-section-title`), Pro resume-form
+ * (`.wcb-rf-section-title`) — display-style heading with optional icon
+ * and hairline divider.
+ *
+ * Reign / Astra apply `.entry-content h2/h3 { margin-bottom: 0 }` at
+ * specificity (0,2,1). The selectors below use `[class*="wp-block-*"]`
+ * (the block wrapper class) + the heading element tag + the heading
+ * class = (0,2,2). They naturally beat theme overrides without
+ * reaching for `!important`. */
+[class*="wp-block-wp-career-board"] h2.wcb-section-heading,
+[class*="wp-block-wp-career-board"] h2.wcb-cp-section-title,
+[class*="wp-block-wp-career-board"] h2.wcb-rf-section-title,
+[class*="wp-block-wcb-"] h2.wcb-section-heading,
+[class*="wp-block-wcb-"] h2.wcb-cp-section-title,
+[class*="wp-block-wcb-"] h2.wcb-rf-section-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-lg);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+}
+
+/* Eyebrow variant — small uppercase tracked label. Used by `wcb/resume-
+ * single` section headings (h2 — ABOUT / WORK EXPERIENCE / EDUCATION)
+ * AND sidebar widget headings (h3 — SKILLS / LANGUAGES / CERTIFICATIONS).
+ * Same specificity pattern, distinct visual style. The h3 sidebar
+ * variant drops the hairline divider since the widget card itself
+ * already has a border. */
+[class*="wp-block-wp-career-board"] h2.wcb-rs-section-heading,
+[class*="wp-block-wcb-"] h2.wcb-rs-section-heading {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+[class*="wp-block-wp-career-board"] h3.wcb-rs-aside-heading,
+[class*="wp-block-wcb-"] h3.wcb-rs-aside-heading {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-family: inherit;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.2;
+	margin: 0 0 var(--wcb-space-lg);
+	padding: 0;
+}
+
+/* Sub-heading variant (sections inside sections). */
+[class*="wp-block-wp-career-board"] h3.wcb-section-heading-sm,
+[class*="wp-block-wcb-"] h3.wcb-section-heading-sm {
+	font-family: inherit;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #334155);
+	line-height: 1.3;
+	margin: 0 0 var(--wcb-space-md);
+}
+
+/* ── Trust tick — shared paint across all archive cards ──────────────────
+ * Small green checkmark rendered INLINE after the company/job name. The
+ * `data-trust` attribute carries the trust level so verified / trusted /
+ * premium can pick up a distinct paint without changing the markup. The
+ * tooltip + aria-label on the host element supply the human label so the
+ * word "Verified" no longer needs to take chip-row space. */
+.wcb-ca-name-row {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	flex-wrap: wrap;
+}
+
+.wcb-ca-trust-tick {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-success, #16a34a);
+	color: var(--wcb-on-primary, #ffffff);
+	font-size: 10px;
+	font-weight: var(--wcb-font-bold);
+	line-height: 1;
+	flex-shrink: 0;
+	cursor: help;
+}
+
+.wcb-ca-trust-tick.wcb-shown {
+	display: inline-flex;
+}
+
+.wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
+.wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
+
+/* ── Archive empty state — shared card chrome across all 3 archives ───────
+ * Renders as a real card (white background, soft border, generous padding)
+ * so the "no results" message has the same visual weight as a card cell
+ * in the grid. Title + body + optional CTA stacked center-aligned. Used
+ * by `.wcb-empty-state` (Find Jobs), `.wcb-ca-empty` (Companies), and
+ * `.wcb-ra-empty` (Find Candidates) so all three archives degrade
+ * identically when filters return zero. */
+.wcb-empty-state,
+.wcb-ca-empty,
+.wcb-ra-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	text-align: center;
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+/* `data-wp-bind--hidden` sets the HTML `hidden` attribute; the user-agent
+ * default `[hidden] { display: none }` loses to our `display: flex` rule
+ * above on specificity. Force `display: none` back when the attribute is
+ * present so the empty state actually hides when there's data. */
+/* (0,2,0) `.foo[hidden]` already beats the (0,1,0) `.foo { display: flex }`
+ * rule above on specificity, so this works without `!important`. */
+.wcb-empty-state[hidden],
+.wcb-ca-empty[hidden],
+.wcb-ra-empty[hidden] {
+	display: none;
+}
+
+.wcb-empty-state__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--wcb-space-4xl);
+	height: var(--wcb-space-4xl);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-surface, #f1f5f9);
+	color: var(--wcb-text-tertiary, #94a3b8);
+}
+
+.wcb-empty-state__icon svg,
+.wcb-empty-state__icon [data-lucide] {
+	width: var(--wcb-icon-lg);
+	height: var(--wcb-icon-lg);
+}
+
+.wcb-empty-state__title {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.3;
+	font-family: inherit;
+}
+
+.wcb-empty-state__body {
+	margin: 0;
+	max-width: 360px;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	line-height: 1.5;
+}
+
+/* Span the full row inside a card grid so the empty state doesn't get
+ * squeezed into a single column track. The Companies block uses the
+ * generic `.wcb-empty-state` class (not the `.wcb-ca-empty` legacy
+ * selector), so include it under both container selectors. */
+.wcb-jobs-container.wcb-grid > .wcb-empty-state,
+.wcb-ca-container.wcb-grid > .wcb-empty-state,
+.wcb-ca-container.wcb-grid > .wcb-ca-empty,
+.wcb-ra-grid > .wcb-ra-empty,
+.wcb-ra-grid > .wcb-empty-state {
+	grid-column: 1 / -1;
+}
+
+/* ── Dashboard "My Saves" list pattern — shared across both dashboards ─────
+ * Used by Saved Jobs / Saved Companies / Saved Resumes views in both the
+ * candidate AND employer dashboards. The classes carry the legacy
+ * `.wcb-cd-*` prefix (candidate-dashboard origin) because the candidate
+ * dashboard already shipped them; moving the rules here lets the employer
+ * dashboard reuse the exact same markup without dragging the entire
+ * candidate-dashboard stylesheet onto an employer page. */
+.wcb-cd-loading {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	font-size: var(--wcb-text-base);
+	padding: var(--wcb-space-md) 0;
+}
+
+.wcb-cd-loading.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--wcb-border, #e5e7eb);
+	border-top-color: var(--wcb-primary, #2563eb);
+	border-radius: 50%;
+	animation: wcb-cd-spin 0.7s linear infinite;
+}
+
+@keyframes wcb-cd-spin {
+	to { transform: rotate(360deg); }
+}
+
+.wcb-cd-error {
+	color: var(--wcb-danger-fg, #b91c1c);
+	font-size: var(--wcb-text-base);
+	margin: 0 0 var(--wcb-space-lg);
+}
+
+.wcb-cd-empty {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
+	text-align: center;
+}
+
+.wcb-cd-empty.wcb-shown {
+	display: flex;
+}
+
+.wcb-cd-empty-msg {
+	font-size: var(--wcb-text-md);
+	color: var(--wcb-text-secondary, #6b7280);
+	margin: 0;
+}
+
+.wcb-cd-bookmark-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+	transition: background var(--wcb-transition-fast);
+}
+
+.wcb-cd-bookmark-row:last-child {
+	border-bottom: none;
+}
+
+.wcb-cd-bookmark-row:hover {
+	background: var(--wcb-bg-subtle, #f8fafc);
+}
+
+.wcb-cd-bookmark-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+/* Prefixed with `[class*="wp-block-..."]` (0,2,1) so it beats the
+ * Reign/Astra `.entry-content h*` typography cascade (0,2,0) without
+ * `!important`. Both Free (`wp-block-wp-career-board-*`) and Pro
+ * (`wp-block-wcb-*`) block class roots are covered. */
+[class*="wp-block-wp-career-board"] .wcb-cd-bookmark-title,
+[class*="wp-block-wcb-"] .wcb-cd-bookmark-title {
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	font-family: inherit;
+	line-height: 1.3;
+	color: var(--wcb-contrast, #0f172a);
+	margin: 0;
+}
+
+.wcb-cd-bookmark-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wcb-cd-bookmark-title a:hover {
+	color: var(--wcb-primary, #2563eb);
+	text-decoration: underline;
+}
+
+.wcb-cd-bookmark-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-cd-bookmark-meta-sep {
+	color: var(--wcb-text-tertiary, #94a3b8);
+}
+
+.wcb-cd-bookmark-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
+}
+
+/* Hidden helper used by `data-wp-class--wcb-hidden` bindings on the
+ * meta-separator dots so they don't render when the value next to them
+ * is empty. */
+.wcb-cd-bookmark-meta .wcb-hidden {
+	display: none;
+}
+
+/* ── Archive card title — shared paint across the 3 archive surfaces ────────
+ * Find Jobs (.wcb-card-title — <h3>), Companies (.wcb-ca-name — <h2>),
+ * Find Candidates (.wcb-ra-card-name — <p>). Each block uses a different
+ * tag for semantic / SEO reasons, but the visual paint must match. The
+ * (0,2,1) parent-prefix selector already beats the Reign / Astra
+ * `.entry-content h*` cascade at (0,2,0) without `!important`. */
+[class*="wp-block-wp-career-board"] .wcb-card-title,
+[class*="wp-block-wp-career-board"] .wcb-ca-name,
+[class*="wp-block-wcb-"] .wcb-ra-card-name {
+	font-family: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	line-height: 1.3;
+	letter-spacing: 0;
+	color: var(--wcb-contrast, #0f172a);
+	margin: 0 0 var(--wcb-space-xs);
+}
+
+/* ── Archive layout — sidebar filter panel + results ──────────────────────── */
+
+/* Two-column layout used by every archive surface (`/find-jobs/`,
+ * `/companies/`, `/find-candidates/`): sticky filter panel on the left,
+ * result cards on the right. Stacks to a single column on mobile so the
+ * filter panel sits above results. Replaces the earlier "chip row above
+ * cards" pattern that broke down once filter counts grew past a single
+ * line. */
+.wcb-archive-layout {
+	display: grid;
+	grid-template-columns: minmax(240px, 280px) 1fr;
+	gap: var(--wcb-space-2xl);
+	align-items: start;
+}
+
+@media (max-width: 900px) {
+	.wcb-archive-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ── Bookmark button (shared across all 3 archive cards) ──────────────────
+ * One canonical paint for the save affordance on Find Jobs, Companies,
+ * and Find Candidates cards. All three position the button absolutely
+ * at the top-right of the card and size the SVG to 16px so the icon
+ * lands at the same pixel offset regardless of the card's internal
+ * markup shape (Jobs nests the button inside the card-header flex row;
+ * Companies + Candidates render it as a direct child of the card).
+ * `.wcb-job-card` already has `position: relative` declared in
+ * blocks/job-listings/style.css; the other two get it here. */
+.wcb-ca-card,
+.wcb-ra-card {
+	position: relative;
+}
+
+/* Selector chain prefixed with `[class*="wp-block-..."]` so the rule
+ * lands at (0,3,1) which beats Reign's `.entry-content button` (0,2,1)
+ * and Astra's equivalent without `!important`. Free uses
+ * `wp-block-wp-career-board-*` block names, Pro uses `wp-block-wcb-*`,
+ * so both prefixes are listed. */
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn {
+	position: absolute;
+	top: var(--wcb-space-md);
+	right: var(--wcb-space-md);
+	z-index: 3;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
+	min-width: 0;
+	min-height: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: var(--wcb-text-tertiary, #94a3b8);
+	cursor: pointer;
+	border-radius: var(--wcb-radius-sm);
+	padding: 0;
+	margin: 0;
+	flex-shrink: 0;
+	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn:hover,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn:hover,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn:hover,
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn.wcb-bookmarked,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked {
+	color: var(--wcb-warning, #d97706);
+	background: var(--wcb-warning-bg-soft, #fffbeb);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn svg,
+[class*="wp-block-wp-career-board"] .wcb-ca-card > .wcb-bookmark-btn svg,
+[class*="wp-block-wcb-"] .wcb-ra-card > .wcb-bookmark-btn svg {
+	width: 16px;
+	height: 16px;
+	fill: none;
+	transition: fill var(--wcb-transition-fast);
+}
+
+/* FILLED icon when bookmarked - the Lucide bookmark SVG ships with
+ * `stroke="currentColor" fill="none"`; toggling `fill: currentColor`
+ * via CSS turns the outline into a solid amber bookmark so users can
+ * tell at a glance which cards they've saved. Hover on unbookmarked
+ * gives a preview fill via the same rule. */
+.wcb-job-card .wcb-bookmark-btn.wcb-bookmarked svg,
+.wcb-ca-card > .wcb-bookmark-btn.wcb-bookmarked svg,
+.wcb-ra-card > .wcb-bookmark-btn.wcb-bookmarked svg {
+	fill: currentColor;
+}
+
+.wcb-filter-panel {
+	position: sticky;
+	top: var(--wcb-space-2xl);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	box-shadow: var(--wcb-shadow-sm);
+	/* Each long list (.wcb-filter-panel__list) caps its own height with its
+	 * own internal scroll, so the panel itself never needs to scroll.
+	 * Previously we stacked panel-wide `max-height + overflow-y: auto` on
+	 * top of the per-list scrollbar, which produced a side-by-side double
+	 * scrollbar on Find Jobs once the Job Board list landed (20+ items). */
+}
+
+@media (max-width: 900px) {
+	.wcb-filter-panel {
+		position: static;
+	}
+}
+
+/* Visually-hidden checkbox that powers the mobile collapse toggle below.
+ * Pure-CSS sibling-selector toggle - no JS needed, no per-archive store
+ * changes. Native checkbox keeps full keyboard + screen reader support;
+ * the `<label>` chevron acts as the trigger. */
+.wcb-filter-panel__toggle-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+	padding: 0;
+	margin: -1px;
+	white-space: nowrap;
+}
+
+.wcb-filter-panel__toggle {
+	display: none;
+}
+
+.wcb-filter-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	padding-bottom: var(--wcb-space-md);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+	margin-bottom: var(--wcb-space-md);
+}
+
+.wcb-filter-panel__heading {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-filter-panel__clear {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-primary, #2563eb);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.wcb-filter-panel__group {
+	padding: var(--wcb-space-md) 0;
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+.wcb-filter-panel__group:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.wcb-filter-panel__group-title {
+	display: block;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-secondary, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: var(--wcb-space-sm);
+}
+
+.wcb-filter-panel__list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.wcb-filter-panel__option {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-xs) var(--wcb-space-xs);
+	border-radius: var(--wcb-radius-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #6b7280);
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+}
+
+.wcb-filter-panel__option:hover {
+	background: var(--wcb-bg-hover, #f1f5f9);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-filter-panel__option--checked {
+	color: var(--wcb-contrast, #0f172a);
+	font-weight: var(--wcb-font-medium);
+}
+
+.wcb-filter-panel__option input[type="checkbox"],
+.wcb-filter-panel__option input[type="radio"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--wcb-primary, #2563eb);
+	cursor: pointer;
+	margin: 0;
+	flex-shrink: 0;
+}
+
+/* ── Mobile collapse for the filter panel ────────────────────────────────
+ * At ≤640px the filter panel costs ~500-700px of viewport above any
+ * result card, forcing every visitor to scroll past the entire filter
+ * UI before seeing a single Job / Company / Resume. Collapsed by default
+ * on mobile - a chevron in the panel header expands it on tap. The
+ * checkbox-as-state pattern keeps this purely CSS so the existing
+ * Interactivity stores on the three archives don't need to learn a new
+ * "filtersOpen" piece of state. */
+@media (max-width: 640px) {
+	.wcb-filter-panel {
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
+	}
+
+	.wcb-filter-panel__header {
+		padding-bottom: 0;
+		border-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	.wcb-filter-panel__toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		cursor: pointer;
+		color: var(--wcb-text-secondary, #6b7280);
+		border-radius: var(--wcb-radius-sm);
+		transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+		margin-inline-start: auto;
+		flex-shrink: 0;
+	}
+
+	.wcb-filter-panel__toggle:hover {
+		background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+		color: var(--wcb-contrast, #0f172a);
+	}
+
+	.wcb-filter-panel__toggle svg {
+		width: 16px;
+		height: 16px;
+		transition: transform 0.2s ease;
+	}
+
+	/* Focus ring on the label when the underlying checkbox is focused. */
+	.wcb-filter-panel__toggle-input:focus-visible + .wcb-filter-panel__header .wcb-filter-panel__toggle,
+	.wcb-filter-panel__toggle-input:focus-visible ~ .wcb-filter-panel__header .wcb-filter-panel__toggle {
+		outline: 2px solid var(--wcb-primary, #2563eb);
+		outline-offset: 2px;
+	}
+
+	/* Open state: rotate chevron, expand groups, restore header divider. */
+	.wcb-filter-panel__toggle-input:checked ~ .wcb-filter-panel__header .wcb-filter-panel__toggle svg {
+		transform: rotate(180deg);
+	}
+
+	.wcb-filter-panel__toggle-input:checked ~ .wcb-filter-panel__header {
+		padding-bottom: var(--wcb-space-md);
+		border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+		margin-bottom: var(--wcb-space-md);
+	}
+
+	/* Collapsed state: hide every sibling group below the header. */
+	.wcb-filter-panel__toggle-input:not(:checked) ~ .wcb-filter-panel__group {
+		display: none;
+	}
+
+	/* Collapsed state also hides the Clear-all button - showing it next
+	 * to "Filters" when no controls are visible is confusing. */
+	.wcb-filter-panel__toggle-input:not(:checked) ~ .wcb-filter-panel__header .wcb-filter-panel__clear {
+		display: none;
+	}
+}
+
+.wcb-archive-results {
+	min-width: 0;
+}
+
+/* ── Chip filter row ──────────────────────────────────────────────────────── */
+
+/* Shared chip primitive used by every archive filter bar. The earlier
+ * `.wcb-chip` / `.wcb-chip-bar` definitions lived inside
+ * `blocks/job-listings/style.css`, which meant the same class behaved
+ * differently on `/companies/` (no rules loaded, falls back to native
+ * button) and `/find-jobs/` (styled chip). Hoisting the rules into the
+ * global ui primitives stylesheet ensures every block — including the
+ * new Companies chip-bar and any future archive block — renders the
+ * same affordance for free. Block-local stylesheets may still override
+ * locally if a block needs a different size, but no block should
+ * redefine the default state of `.wcb-chip` again. */
+
+.wcb-chip-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-chip {
+	display: inline-flex;
+	align-items: center;
+	height: var(--wcb-space-3xl);
+	padding-inline: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-contrast, #0f172a);
+	background: var(--wcb-base, #ffffff);
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
+	white-space: nowrap;
+}
+
+.wcb-chip:hover {
+	border-color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-info-bg, #dbeafe);
+	color: var(--wcb-primary, #2563eb);
+}
+
+.wcb-chip:focus-visible {
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
+}
+
+.wcb-chip.wcb-chip-active {
+	border-color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+}
+
+.wcb-chip.wcb-chip-active:hover {
+	background: var(--wcb-primary-dark, #1d4ed8);
+	border-color: var(--wcb-primary-dark, #1d4ed8);
+	color: var(--wcb-on-primary, #ffffff);
+}
+
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+
+.wcb-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	line-height: 1.4;
+	white-space: nowrap;
+	background: var(--wcb-surface, #f1f5f9);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-badge--success  { background: var(--wcb-success-bg, #dcfce7); color: var(--wcb-success-fg, #166534); }
+.wcb-badge--warning  { background: var(--wcb-warning-bg, #fef3c7); color: var(--wcb-warning-fg, #92400e); }
+.wcb-badge--danger   { background: var(--wcb-danger-bg, #fee2e2);  color: var(--wcb-danger-fg, #991b1b); }
+.wcb-badge--info     { background: var(--wcb-info-bg, #dbeafe);    color: var(--wcb-info-fg, #1d4ed8); }
+.wcb-badge--neutral  { background: var(--wcb-surface, #f1f5f9);    color: var(--wcb-text-secondary, #6b7280); }
+.wcb-badge--outline {
+	background: transparent;
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+
+.wcb-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-3xl) var(--wcb-space-xl);
+	text-align: center;
+	color: var(--wcb-text-secondary, #6b7280);
+}
+
+.wcb-empty-state__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-surface, #f1f5f9);
+	color: var(--wcb-text-tertiary, #9ca3af);
+}
+
+.wcb-empty-state__title {
+	margin: 0;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast, #0f172a);
+}
+
+.wcb-empty-state__msg {
+	margin: 0;
+	max-width: 40ch;
+	font-size: var(--wcb-text-sm);
+	line-height: var(--wcb-leading-normal);
+}
+
+.wcb-empty-state__action { margin-top: var(--wcb-space-sm); }
+
+/* ── Layout utilities ─────────────────────────────────────────────────────── */
+
+.wcb-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-stack--xs { gap: var(--wcb-space-xs); }
+.wcb-stack--sm { gap: var(--wcb-space-sm); }
+.wcb-stack--lg { gap: var(--wcb-space-lg); }
+.wcb-stack--xl { gap: var(--wcb-space-xl); }
+
+.wcb-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-row--between { justify-content: space-between; }
+.wcb-row--end     { justify-content: flex-end; }
+.wcb-row--baseline { align-items: baseline; }
+
+.wcb-divider {
+	height: 1px;
+	background: var(--wcb-border, #e2e8f0);
+	margin: var(--wcb-space-lg) 0;
+	border: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+	.wcb-page { padding-inline: var(--wcb-space-md); }
+	.wcb-page--dashboard { padding-inline: var(--wcb-space-md); }
+}
+
+@media (max-width: 640px) {
+	.wcb-page         { padding: var(--wcb-space-lg) var(--wcb-space-md); }
+	.wcb-page-header  { gap: var(--wcb-space-sm); }
+	.wcb-page-title   { font-size: var(--wcb-text-xl); }
+	.wcb-card-head    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
+	.wcb-card-body    { padding: var(--wcb-space-lg); }
+	.wcb-card-foot    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
+	.wcb-field-row    { grid-template-columns: 1fr; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+/* The only `!important` declaration in this file. Honoring the user's
+ * prefers-reduced-motion preference must win over every other transition
+ * rule on the page, including element-style declarations a theme might
+ * set inline - that's exactly the case `!important` exists for, per
+ * WCAG 2.3.3. Do not refactor away. */
+@media (prefers-reduced-motion: reduce) {
+	.wcb-btn,
+	.wcb-input,
+	.wcb-card {
+		transition: none !important;
+	}
+}
+
+/* ── Legacy class shims — drop one release after migration ──────────────── */
+
+.wcb-cbtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-xs);
+	min-height: 40px;
+	padding: 0 var(--wcb-space-lg);
+	border: 1px solid transparent;
+	border-radius: var(--wcb-radius-md);
+	font-family: inherit;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	line-height: 1;
+	white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
+}
+
+.wcb-cbtn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+
+/* Primary fill. Bumped to (0,2,1) via parent prefix so it beats the
+ * Reign / Astra `.entry-content button` cascade (0,2,1) on source-order
+ * tie-break, no `!important` needed. */
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
+	background: var(--wcb-primary-dark, #1d4ed8);
+	border-color: var(--wcb-primary-dark, #1d4ed8);
+	color: var(--wcb-on-primary, #ffffff);
+	text-decoration: none;
+}
+
+/* Token-driven outlined-pill. Used as the primary card action on every
+ * archive: Find Jobs "View Job", Companies "View Profile", Find
+ * Candidates "View Resume", plus the shared Load more button. The
+ * `[class*="wp-block-..."] a.wcb-cbtn--ghost:link` chain lands at
+ * (0,3,1) which beats the Reign / Astra `.entry-content a` cascade
+ * (0,2,1) outright - no `!important` required. `-webkit-text-fill-color`
+ * is the safety net for builds where the theme uses it to override
+ * `color`. */
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wp-career-board"] span.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] .wcb-cbtn.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wcb-"] span.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
+	background: transparent;
+	color: var(--wcb-primary, #2563eb);
+	-webkit-text-fill-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:focus-visible {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+	text-decoration: none;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger {
+	background: transparent;
+	color: var(--wcb-danger, #dc2626);
+	border-color: var(--wcb-danger-border, #fecaca);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:focus-visible {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
+	border-color: var(--wcb-danger, #dc2626);
+	text-decoration: none;
+}
+
+.wcb-cbtn[disabled],
+.wcb-cbtn:disabled { opacity: 0.55; cursor: not-allowed; }

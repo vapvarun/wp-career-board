@@ -1,6 +1,7 @@
-/* Ensure data-wp-bind--hidden works even when elements have display:flex set below. */
+/* `[hidden]` toggle for data-wp-bind--hidden. (0,2,1) selector beats the
+ * (0,2,0) `display: flex` rules below on specificity. */
 .wp-block-wp-career-board-job-listings [hidden] {
-	display: none !important;
+	display: none;
 }
 
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
@@ -14,27 +15,16 @@
 	margin: 0 0 var(--wcb-space-2xl);
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────────────────── */
-.wcb-listings-toolbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: var(--wcb-space-xl);
-	gap: var(--wcb-space-lg);
-	flex-wrap: wrap;
-}
-
-.wcb-results-count {
-	font-size: var(--wcb-text-sm);
-	color: var( --wcb-muted, var(--wp--preset--color--wcb-muted) );
-	margin: 0;
-}
-
-/* ── Layout toggle ───────────────────────────────────────────────────────── */
+/* Canonical `.wcb-listings-toolbar`, `.wcb-results-count`,
+ * `.wcb-view-switcher`, `.wcb-layout-btn` styles live in
+ * `assets/css/frontend-components.css` so all 3 archives (Jobs,
+ * Companies, Find Candidates) render the same toolbar layout.
+ * The legacy `.wcb-layout-toggle` alias below preserves any
+ * pre-1.2.0 markup. */
 .wcb-layout-toggle {
 	display: flex;
 	gap: 2px;
-	background: var( --wcb-surface, var(--wp--preset--color--wcb-surface) );
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	border-radius: var(--wcb-radius-sm);
 	padding: 2px;
 }
@@ -54,9 +44,11 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-layout-btn svg {
-	display: block !important;
-	visibility: visible !important;
+/* Bumped to (0,3,1) via the block class prefix so Reign's `button svg`
+ * hide rules can't suppress the layout-toggle icons. */
+.wp-block-wp-career-board-job-listings .wcb-layout-btn svg {
+	display: block;
+	visibility: visible;
 	width: var(--wcb-space-lg);
 	height: var(--wcb-space-lg);
 	flex-shrink: 0;
@@ -80,34 +72,79 @@
 	gap: var(--wcb-space-md);
 }
 
+/* Grid sizing aligned with Companies' `.wcb-ca-container.wcb-grid` and Find
+ * Candidates' `.wcb-ra-grid` — 280px card min + `--wcb-space-xl` gap — so
+ * all three archives compute the same column count at identical viewports. */
 .wcb-jobs-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( min(100%, 300px), 1fr ) );
-	gap: var(--wcb-space-lg);
+	/* Force 3 explicit columns at desktop so Find Jobs renders the same 3-up
+	 * grid as Companies and Find Candidates regardless of the parent chain
+	 * padding deltas Astra applies. The auto-fill 280px template collapsed
+	 * to 2-col once we wrapped this in the sidebar layout (.wcb-archive-
+	 * layout takes ~240px out of the row). Falls back to 2-col / 1-col at
+	 * the @media breakpoints below. Mirrors the same fix used in
+	 * `blocks/company-archive/style.css` + `blocks/resume-archive/style.css`. */
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	gap: var(--wcb-space-xl);
 }
 
-/* ── Job Card ────────────────────────────────────────────────────────────── */
+/* Optional 4-up grid — set per block instance via the editor "Grid columns"
+ * control. Reflows to 2-col / 1-col at the same breakpoints as the 3-up
+ * default (see the responsive ladder below). */
+.wcb-jobs-container.wcb-grid.wcb-cols-4 {
+	grid-template-columns: repeat( 4, minmax( 0, 1fr ) );
+}
+
+/* ── Job Card ──────────────────────────────────────────────────────────────
+ * Grid layout: avatar in col 1 row 1, title+bookmark inline in col 2 row 1.
+ * Badges, excerpt, and footer span the full card width on rows 2-4 so they
+ * start flush against the left edge instead of indenting under the avatar.
+ * Matches the same-family pattern adopted by `.wcb-ra-card` (Find Candidates)
+ * and `.wcb-ca-card-link` (Companies) in the v1.2.0 polish pass — same
+ * vertical rhythm across all three archive surfaces.
+ *
+ * `.wcb-card-body` is flattened with `display: contents` so its children
+ * (`.wcb-card-header`, `.wcb-card-badges`, `.wcb-card-excerpt`,
+ * `.wcb-card-footer`) participate directly in the outer grid — no markup
+ * change required.
+ */
 .wcb-job-card {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--wcb-space-lg);
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"avatar header"
+		"badges badges"
+		"excerpt excerpt"
+		"footer footer";
+	column-gap: var(--wcb-space-lg);
+	row-gap: var(--wcb-space-md);
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	padding: var(--wcb-space-xl);
 	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 	position: relative;
 }
+
+.wcb-job-card > .wcb-card-avatar { grid-area: avatar; align-self: center; }
+.wcb-job-card > .wcb-card-body   { display: contents; }
+.wcb-card-body > .wcb-card-header  { grid-area: header; align-self: center; }
+.wcb-card-body > .wcb-card-badges  { grid-area: badges; }
+.wcb-card-body > .wcb-card-excerpt { grid-area: excerpt; }
+.wcb-card-body > .wcb-card-footer  { grid-area: footer; }
 
 .wcb-job-card:hover {
 	border-color: var(--wcb-border);
 	box-shadow: var(--wcb-shadow-md);
 }
 
-.wcb-job-card.wcb-featured {
-	border-color: var( --wcb-featured, #fbbf24 );
-	border-inline-start: 3px solid var( --wcb-featured, var(--wp--preset--color--wcb-featured) );
-}
+/* Featured-card visual treatment carried by the `.wcb-cbadge--featured`
+ * pill inside the card (top-right of the title row) — same affordance
+ * pattern as Find Candidates' skill chips and Companies' industry chips.
+ * The earlier yellow border + 3px corner accent broke same-family uniformity
+ * with the other two archive pages and was the visible diff the audit
+ * flagged. Featured rank is preserved through ORDER (featured jobs sort
+ * first), not through chrome divergence. */
 
 /* Full-card click target via pseudo-element — keeps the DOM link visible to AT */
 .wcb-card-title-link::after {
@@ -117,19 +154,21 @@
 	border-radius: var(--wcb-radius-xl);
 }
 
-/* Grid: stack vertically */
-.wcb-jobs-container.wcb-grid .wcb-job-card {
-	flex-direction: column;
-}
+/* Grid view keeps the row direction set on `.wcb-job-card` (avatar inline
+ * with title/meta), matching Companies + Find Candidates' inline avatar
+ * pattern. The earlier `flex-direction: column` override stacked the
+ * avatar above the title in grid view and broke same-family rhythm with
+ * the other two archive surfaces. List view continues to use the default
+ * row direction so the two card views render with identical anatomy. */
 
 /* ── Card avatar ─────────────────────────────────────────────────────────── */
 .wcb-card-avatar {
-	width: 52px;
-	height: 52px;
+	width: var(--wcb-avatar-lg); /* 56px - matches Companies + Candidates */
+	height: var(--wcb-avatar-lg);
 	flex-shrink: 0;
 	border-radius: var(--wcb-radius-lg);
 	background: var( --wcb-avatar-bg, #1e293b );
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -159,21 +198,12 @@
 	min-width: 0;
 }
 
-.wcb-card-title {
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-bold);
-	line-height: 1.3;
-	margin: 0 0 0.2rem;
-	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
-	/* Two-line clamp + min-height stabilises card row height on themes
-	   that stretch content area wider than 3 columns (Blocksy 4-col)
-	   so adjacent cards align even when titles wrap unevenly. */
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-	min-height: 2.6em;
-}
+/* `.wcb-card-title` typography is declared once in `assets/css/wcb-ui.css`
+ * alongside `.wcb-ca-name` (Companies) and `.wcb-ra-card-name` (Candidates)
+ * so all three archive card titles render with one canonical paint. The
+ * job-listings block uses an `<h3>`; Companies uses `<h2>`; Candidates
+ * uses `<p>`. The shared rule beats the Reign / Astra heading cascade
+ * via a strong selector chain in wcb-ui.css. */
 
 .wcb-card-title a,
 .wcb-card-title a:visited {
@@ -182,7 +212,7 @@
 	position: relative;
 	z-index: 2;
 	display: inline-block;
-	padding: 4px 0;
+	padding: var(--wcb-space-xs) 0;
 }
 
 .wcb-card-title a:hover {
@@ -197,87 +227,35 @@
 	margin: 0;
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
 	flex-wrap: wrap;
 }
 
-/* ── Verified badge ──────────────────────────────────────────────────────── */
-.wcb-verified-sm {
-	display: none;
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-success);
-	font-weight: var(--wcb-font-semibold);
-	background: var(--wcb-success-bg);
-	padding: 0.05rem 0.4rem;
-	border-radius: var(--wcb-space-xs);
-}
+/* Trust mark is now `.wcb-ca-trust-tick` defined in
+ * `assets/css/wcb-ui.css` and shared across all 3 archive cards. The old
+ * `.wcb-verified-sm` pill ("✓ Verified" with text) is retired. */
 
-.wcb-verified-sm.wcb-shown {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-}
-
-.wcb-verified-sm[data-trust="trusted"] {
-	background: var(--wcb-info-bg);
-	color: var(--wcb-info);
-}
-
-.wcb-verified-sm[data-trust="premium"] {
-	background: var(--wcb-warning-bg);
-	color: var(--wcb-warning);
-}
-
-/* ── Bookmark button ─────────────────────────────────────────────────────── */
-
-/*
- * Scoped to block root + !important on reset properties: Reign's nested button
- * rules (e.g. `.entry-content .wc-block-components-button`) have specificity
- * higher than (0,2,0), so !important is required to win without coupling to
- * theme internals.
- */
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn {
-	flex-shrink: 0;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: none !important;
-	border: none !important;
-	box-shadow: none !important;
-	color: #cbd5e1;
-	cursor: pointer;
-	border-radius: var(--wcb-radius-sm);
-	transition: color var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	padding: 0 !important;
-	position: relative;
-	z-index: 2;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn:hover {
-	color: var(--wp--preset--color--wcb-featured);
-	background: var(--wcb-warning-bg) !important;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-bookmark-btn.wcb-bookmarked {
-	color: var(--wp--preset--color--wcb-featured);
-}
+/* Bookmark button styling lives in assets/css/wcb-ui.css under the
+ * shared `[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-bookmark-btn`
+ * rule at (0,3,1) which beats every Reign / Astra button cascade
+ * without `!important`. No per-block override needed here. */
 
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 .wcb-card-badges {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
 	align-items: center;
 }
 
-/* Hidden by default; shown when data-wp-class adds .wcb-shown */
+/* Hidden by default; shown when data-wp-class adds .wcb-shown.
+ * Padding aligned with `.wcb-ca-chip` (Companies) + `.wcb-ra-card-location`
+ * /`.wcb-ra-skill-tag` (Find Candidates): `0.15rem var(--wcb-space-sm)`. */
 .wcb-cbadge {
 	display: none;
 	align-items: center;
-	gap: 0.2rem;
-	padding: 0.15rem 0.55rem;
+	gap: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
@@ -289,10 +267,15 @@
 	display: inline-flex;
 }
 
-/* Tuned for WCAG AA contrast on each background pairing. */
-.wcb-cbadge--featured { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
-.wcb-cbadge--board    { background: var(--wcb-info-bg-soft); color: var(--wcb-info-fg); }
-.wcb-cbadge--remote   { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+/* All meta badges use the neutral Companies chip palette so Find Jobs,
+ * Companies, and Find Candidates cards share one chip style. The earlier
+ * yellow/green/red palette made Jobs cards visually louder than the
+ * other two archives. Featured stays as a subtle warning tint - it IS
+ * a meaningful promotion marker, but the soft variant keeps it from
+ * dominating the card. */
+.wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
+.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
+.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
 .wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
 .wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
 .wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
@@ -303,15 +286,17 @@
 	align-items: center;
 	gap: var(--wcb-space-md);
 	flex-wrap: wrap;
-	margin-top: 0.15rem;
+	margin-top: var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
 }
 
-/* Hidden by default; shown when .wcb-shown is added */
+/* Hidden by default; shown when .wcb-shown is added. Salary uses the
+ * contrast color (not primary red) so it reads as data, not a CTA - the
+ * View Job button is the only red element in the footer. */
 .wcb-card-salary {
 	display: none;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
 }
 
 .wcb-card-salary.wcb-shown {
@@ -320,43 +305,83 @@
 }
 
 .wcb-card-date {
-	font-size: var(--wcb-text-sm);
+	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary);
+}
+
+/* `.wcb-cbtn` base + `.wcb-cbtn--ghost` modifier + `.wcb-cbtn--sm` sizing
+ * all live in `assets/css/wcb-ui.css`. Find Jobs uses
+ * `<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm">View Job</a>` on
+ * its card CTA, same as Companies (View Profile) and Find Candidates
+ * (View Resume). No per-block button styles are needed here. */
+
+/* ── Grid footer — mirrors `.wcb-ca-card-footer` (Companies) for parity:
+ * single row, `justify-content: space-between`, thin top divider,
+ * `margin-top: auto` to push to card bottom. Salary on the left (the
+ * "3 open positions"-equivalent meta), View Job CTA on the right.
+ * Date is hidden in grid view - the recency lives on the single-job
+ * page; the card footer is for the action, not the timestamp. */
+.wcb-jobs-container.wcb-grid .wcb-card-footer {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	margin-top: auto;
+	padding-top: var(--wcb-space-md);
+	border-top: 1px solid var(--wcb-surface, #f1f5f9);
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary {
+	display: inline-flex;
+	align-items: center;
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-date {
+	display: none;
+}
+
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
 	margin-inline-start: auto;
 }
 
-.wcb-cbtn {
-	display: inline-flex;
-	align-items: center;
-	padding: 0.35rem var(--wcb-space-lg);
-	border-radius: var(--wcb-radius-sm);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	text-decoration: none;
-	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
-	white-space: nowrap;
+/* Excerpt is hidden in grid view so Find Jobs cards stay the same height
+ * as Companies + Find Candidates cards. List view keeps the excerpt since
+ * the wider one-per-row format has the space. The teaser belongs on the
+ * single-job detail page anyway. */
+.wcb-jobs-container.wcb-grid .wcb-card-excerpt {
+	display: none;
 }
 
-.wcb-cbtn--apply {
-	background: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var(--wp--preset--color--wcb-base);
-	position: relative;
-	z-index: 2;
+/* Title wraps naturally on grid cards (no line-clamp) - user explicitly
+ * wants the full job title visible on every card. Variable header height
+ * is fine because the footer is bottom-anchored via `margin-top: auto`
+ * further down, so the View Job CTA stays aligned across the row. */
+/* (0,3,1) prefix wins over Reign's nested link padding rules. */
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-card-title-link {
+	padding: 0;
 }
 
-.wcb-cbtn--apply:hover {
-	background: var( --wcb-primary-dark, var(--wp--preset--color--wcb-primary-dark) );
-	color: var(--wp--preset--color--wcb-base);
-	text-decoration: none;
+/* Hide low-priority meta in grid view so all cards show the same chip set:
+ * type, experience, location, remote (if applicable). Board name and
+ * deadline are detail-page material - they were the main source of card-
+ * height drift between Customer Success Manager (no deadline) and Backend
+ * Engineer (has deadline). */
+/* (0,3,1) selector wins over the (0,2,0) `.wcb-cbadge.wcb-shown { display:
+ * inline-flex }` rule above on specificity, no `!important` needed. */
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-cbadge--board,
+.wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-card-deadline {
+	display: none;
 }
 
-/* ── Grid footer overrides ───────────────────────────────────────────────── */
-.wcb-jobs-container.wcb-grid .wcb-card-date {
-	margin-inline-start: 0;
-}
-
+/* Push the footer (salary + date + View Job) to the bottom of the card so
+ * the CTA aligns across the row regardless of how much meta each card
+ * has. `.wcb-card-body` already has `display: flex; flex-direction:
+ * column` so `margin-top: auto` on the footer reserves all leftover
+ * space above it. */
 .wcb-jobs-container.wcb-grid .wcb-card-footer {
-	justify-content: space-between;
+	margin-top: auto;
 }
 
 /* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
@@ -364,7 +389,17 @@
 
 /* ── Utilities ───────────────────────────────────────────────────────────── */
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
+/* ── Responsive ladder ──────────────────────────────────────────────────────
+ * Mirrors Companies + Find Candidates so the 3 archives reflow together.
+ * 3-col default → 2-col at tablet → 1-col at mobile. Filter panel stacks
+ * above at <900px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
+@media ( max-width: 1023px ) {
+	.wcb-jobs-container.wcb-grid,
+	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
 @media ( max-width: 640px ) {
 	.wcb-job-card {
 		padding: var(--wcb-space-lg);
@@ -382,7 +417,8 @@
 		font-size: var(--wcb-text-md);
 	}
 
-	.wcb-jobs-container.wcb-grid {
+	.wcb-jobs-container.wcb-grid,
+	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
 		grid-template-columns: 1fr;
 	}
 
@@ -406,19 +442,76 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-/* Chip bar */
+/* Filter panel - chip stack
+ * Wraps chips inside `.wcb-filter-panel__group` so each filter family
+ * (Job type, Experience, Location, Salary) renders as a flex-wrap row.
+ * Width is constrained by the sidebar (~240px), so chips wrap onto
+ * additional rows automatically. */
+.wcb-filter-panel__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-filter-panel__chips .wcb-chip {
+	width: 100%;
+	justify-content: flex-start;
+}
+
+/* Salary range inside the filter panel - no popover wrapper since the
+ * panel itself is already a persistent surface. Sliders stack with their
+ * value labels for legibility at the narrow sidebar width. */
+.wcb-filter-panel__salary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__slider {
+	width: 100%;
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__label {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__value {
+	color: var(--wcb-contrast);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-filter-panel__salary .wcb-salary-popover__reset {
+	align-self: flex-start;
+	margin-top: var(--wcb-space-xs);
+	background: transparent;
+	border: 0;
+	padding: 0;
+	color: var(--wcb-primary);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	cursor: pointer;
+}
+
+/* Chip bar (legacy - retained for blocks that still embed horizontal
+ * chip rows outside the filter panel, e.g. saved-jobs and author-feed
+ * variants of this block which intentionally skip the sidebar). */
 .wcb-chip-bar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.375rem;
+	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
 }
 
 .wcb-chip {
 	display: inline-flex;
 	align-items: center;
 	height: var(--wcb-space-3xl);
-	padding-inline: 0.875rem;
+	padding-inline: var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
 	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
@@ -471,20 +564,20 @@
 	top: calc(100% + 6px);
 	inset-inline-start: 0;
 	min-width: 260px;
-	padding: 1rem;
+	padding: var(--wcb-space-lg);
 	background: var(--wcb-base, #fff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-lg, 12px);
 	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
 	display: flex;
 	flex-direction: column;
-	gap: 0.65rem;
+	gap: var(--wcb-space-sm); /* 0.65rem ≈ 10px → sm */
 }
 .wcb-salary-popover__label {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	font-size: 0.78rem;
+	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	font-weight: 600;
 	color: var(--wcb-text-secondary, #475569);
 }
@@ -501,9 +594,9 @@
 	background: none;
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	color: var(--wcb-text-secondary, #475569);
-	padding: 0.25rem 0.65rem;
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-sm, 6px);
-	font-size: 0.78rem;
+	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	cursor: pointer;
 }
 .wcb-salary-popover__reset:hover {
@@ -522,7 +615,7 @@
 	width: 1px;
 	height: var(--wcb-space-xl);
 	background: var(--wcb-border);
-	margin-inline: 0.25rem;
+	margin-inline: var(--wcb-space-xs);
 }
 
 /* Active filter pills */
@@ -530,21 +623,22 @@
 	display: none;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.375rem;
+	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
 }
 
 .wcb-active-filters.wcb-shown {
 	display: flex;
+	margin-bottom: var(--wcb-space-md, 16px);
 }
 
 .wcb-active-chip {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.25rem;
-	height: 1.625rem;
-	padding-inline: 0.625rem;
+	gap: var(--wcb-space-xs);
+	height: 1.625rem; /* 26px — component-specific pill height */
+	padding-inline: var(--wcb-space-sm); /* 0.625rem ≈ 10px → sm */
 	background: var(--wcb-info-bg);
-	border: 1px solid #bfdbfe;
+	border: 1px solid var(--wcb-info-border, #bfdbfe);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-info);
@@ -567,13 +661,13 @@
 }
 
 .wcb-active-chip-remove:hover {
-	background: #bfdbfe;
+	background: var(--wcb-info-border, #bfdbfe);
 }
 
 .wcb-active-chip-remove:focus-visible {
 	outline: 2px solid var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 	outline-offset: 2px;
-	background: #bfdbfe;
+	background: var(--wcb-info-border, #bfdbfe);
 }
 
 .wcb-clear-all {
@@ -614,18 +708,14 @@
 	display: -webkit-box;
 }
 
-.wcb-toolbar-start {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-md);
-}
+/* `.wcb-toolbar-start` flex rules live in assets/css/frontend-components.css. */
 
 /* ── Alert me button ───────────────────────────────────────────────────── */
 .wcb-alert-me-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.375rem;
-	padding: 0.375rem 0.875rem;
+	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	color: var(--wp--preset--color--wcb-muted);
@@ -656,6 +746,9 @@
 }
 
 /* ── Screen reader only ───────────────────────────────────────────────────── */
+/* WordPress-core class kept for parity with theme-supplied screen-reader
+ * helpers some search inputs reuse. `wcb-ui.css` ships `.wcb-sr-only`
+ * for new plugin code. */
 .screen-reader-text {
 	clip: rect(1px, 1px, 1px, 1px);
 	clip-path: inset(50%);
@@ -665,14 +758,14 @@
 	overflow: hidden;
 	padding: 0;
 	position: absolute;
-	word-wrap: normal !important;
+	word-wrap: normal;
 }
 
 /* ── Notice + error ───────────────────────────────────────────────────────── */
 .wcb-notice-error {
 	color: var(--wcb-danger);
 	background: var(--wcb-danger-bg);
-	border: 1px solid #fecaca;
+	border: 1px solid var(--wcb-danger-border, #fecaca);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-base);
@@ -682,7 +775,7 @@
 /* ── Notice + Success ──────────────────────────────────────────────────────────────── */
 .wcb-notice-success {
 	background: var(--wcb-success-bg-soft);
-	border: 1px solid #bbf7d0;
+	border: 1px solid var(--wcb-success-border, #bbf7d0);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-base);
@@ -727,7 +820,7 @@
 	align-items: center;
 	justify-content: center;
 	width: var(--wcb-space-3xl);
-	height: 30px;
+	height: 30px; /* component dimension */
 	padding: 0;
 	border: none;
 	background: transparent;

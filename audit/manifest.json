@@ -3,7 +3,7 @@
   "plugin": {
     "slug": "wp-career-board",
     "name": "WP Career Board",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "namespace": "WCB\\",
     "main_file": "wp-career-board.php",
     "text_domain": "wp-career-board",
@@ -267,6 +267,16 @@
         "purpose": "Dismiss admin banner / nag"
       },
       {
+        "route": "/wcb/v1/admin/emails/test",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\AdminEndpoint::test_email",
+        "permission": "admin_check (wcb_manage_settings)",
+        "purpose": "Send a test email via AbstractEmail::test_send(); response shape: {sent: bool, to: string, logged: int}. Log row status is sent_test or failed_test (never pollutes production delivery metrics).",
+        "since": "1.2.0"
+      },
+      {
         "route": "/wcb/v1/settings/app-config",
         "methods": [
           "GET"
@@ -412,7 +422,7 @@
       "group": "wcb_settings_group",
       "type": "array",
       "default": "[]",
-      "controls": "Main plugin settings (listings/pages/notifications tabs) — registered via Settings API in admin/class-admin-settings.php"
+      "controls": "Main plugin settings (listings/pages/notifications tabs) \u2014 registered via Settings API in admin/class-admin-settings.php"
     },
     {
       "key": "wcb_page_settings",
@@ -468,21 +478,21 @@
       "group": "wcb_settings_group",
       "type": "array",
       "default": "[]",
-      "controls": "Per-email enable/from/subject — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_email_settings() helper."
+      "controls": "Per-email enable/from/subject \u2014 consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_email_settings() helper."
     },
     {
       "key": "wcb_settings.captcha.driver",
       "group": "wcb_settings_group",
       "type": "string",
       "default": "(empty)",
-      "controls": "Captcha driver slug — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_captcha_driver() helper."
+      "controls": "Captcha driver slug \u2014 consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_captcha_driver() helper."
     },
     {
       "key": "wcb_settings.resume_archive_enabled",
       "group": "wcb_settings_group",
       "type": "boolean",
       "default": "false",
-      "controls": "Public Resume Archive toggle — Listings tab. Owns wcb_resume CPT visibility (F-3). Filter: wcb_resume_archive_enabled."
+      "controls": "Public Resume Archive toggle \u2014 Listings tab. Owns wcb_resume CPT visibility (F-3). Filter: wcb_resume_archive_enabled."
     }
   ],
   "shortcodes": [
@@ -496,7 +506,7 @@
     },
     {
       "tag": "wcb_job_listings",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-listings)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-listings)",
       "attrs": [
         "boardId",
         "metaFilter",
@@ -506,47 +516,47 @@
     },
     {
       "tag": "wcb_job_search",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-search)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-search)",
       "attrs": []
     },
     {
       "tag": "wcb_job_form",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-form)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-form)",
       "attrs": []
     },
     {
       "tag": "wcb_job_form_simple",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-form-simple)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-form-simple)",
       "attrs": []
     },
     {
       "tag": "wcb_employer_dashboard",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/employer-dashboard)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/employer-dashboard)",
       "attrs": []
     },
     {
       "tag": "wcb_candidate_dashboard",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/candidate-dashboard)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/candidate-dashboard)",
       "attrs": []
     },
     {
       "tag": "wcb_registration",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/employer-registration)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/employer-registration)",
       "attrs": []
     },
     {
       "tag": "wcb_company_archive",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/company-archive)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/company-archive)",
       "attrs": []
     },
     {
       "tag": "wcb_job_stats",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-stats)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-stats)",
       "attrs": []
     },
     {
       "tag": "wcb_recent_jobs",
-      "handler": "core/class-plugin.php (block adapter → wp-career-board/recent-jobs)",
+      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/recent-jobs)",
       "attrs": []
     }
   ],
@@ -685,7 +695,7 @@
       "slug": "wcb_job_type",
       "object_type": "wcb_job",
       "where": "modules/jobs/class-jobs-module.php:205",
-      "purpose": "Employment type (full-time, part-time, …)"
+      "purpose": "Employment type (full-time, part-time, \u2026)"
     },
     {
       "slug": "wcb_tag",
@@ -932,7 +942,7 @@
       "key": "core.pro_coordination",
       "class": "WCB\\Core\\ProCoordination",
       "added": "1.2.0",
-      "purpose": "Documented Free→Pro filter API surface — single source of truth for what Pro is allowed to hook"
+      "purpose": "Documented Free\u2192Pro filter API surface \u2014 single source of truth for what Pro is allowed to hook"
     },
     {
       "key": "core.roles",
@@ -944,7 +954,7 @@
       "key": "core.theme_bridge",
       "class": "WCB\\Core\\ThemeAccentBridge",
       "added": "1.0.0",
-      "purpose": "Map theme accent → wcb-* CSS vars"
+      "purpose": "Map theme accent \u2192 wcb-* CSS vars"
     },
     {
       "key": "core.widgets",
@@ -1057,508 +1067,1898 @@
   ],
   "hooks_fired": [
     {
-      "name": "wcb_application_deleted",
-      "type": "action",
-      "args": "$application_id, $job_id",
-      "where": "modules/applications",
-      "consumed_by": "Notifications + analytics"
-    },
-    {
-      "name": "wcb_application_form_fields",
-      "type": "action",
-      "args": "$ctx",
-      "where": "blocks/job-single, applications",
-      "consumed_by": "Pro field-builder"
-    },
-    {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args": "$application_id, $old, $new",
-      "where": "modules/applications",
-      "consumed_by": "modules/notifications (Email_App_Status)"
-    },
-    {
-      "name": "wcb_application_submitted",
-      "type": "action",
-      "args": "$application_id, $job_id, $user_id",
-      "where": "applications endpoint",
-      "consumed_by": "modules/notifications (Email_App_Confirmation, Email_App_Received, Email_App_Guest)"
-    },
-    {
-      "name": "wcb_application_withdrawn",
-      "type": "action",
-      "args": "$application_id",
-      "where": "applications endpoint",
-      "consumed_by": "Pro pipeline"
-    },
-    {
-      "name": "wcb_candidate_registered",
-      "type": "action",
-      "args": "$user_id, $payload",
-      "where": "candidates endpoint",
-      "consumed_by": "Notifications"
-    },
-    {
-      "name": "wcb_check_job_expiry",
-      "type": "action",
-      "args": "(none)",
-      "where": "modules/jobs/class-jobs-expiry.php",
-      "consumed_by": "JobsExpiry::run (daily cron)"
-    },
-    {
-      "name": "wcb_deadline_reminder",
-      "type": "action",
-      "args": "$job_id",
-      "where": "modules/jobs/class-deadline-reminders.php",
-      "consumed_by": "Email_Deadline_Reminder"
-    },
-    {
-      "name": "wcb_employer_registered",
-      "type": "action",
-      "args": "$user_id, $payload",
-      "where": "employers endpoint",
-      "consumed_by": "Notifications"
-    },
-    {
-      "name": "wcb_featured_expired",
-      "type": "action",
-      "args": "$job_id",
-      "where": "modules/jobs/class-featured-expiry.php",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "wcb_import_extra_cards",
-      "type": "action",
-      "args": "(none)",
-      "where": "admin/class-admin-import.php",
-      "consumed_by": "Pro import providers"
-    },
-    {
-      "name": "wcb_job_approved",
-      "type": "action",
-      "args": "$job_id",
-      "where": "moderation module",
-      "consumed_by": "Email_Job_Approved"
-    },
-    {
-      "name": "wcb_job_created",
-      "type": "action",
-      "args": "$job_id, $payload",
-      "where": "jobs endpoint",
-      "consumed_by": "Email_Job_Pending"
-    },
-    {
-      "name": "wcb_job_deleted",
-      "type": "action",
-      "args": "$job_id",
-      "where": "jobs module",
-      "consumed_by": null
-    },
-    {
-      "name": "wcb_job_expired",
-      "type": "action",
-      "args": "$job_id",
-      "where": "modules/jobs/class-jobs-expiry.php",
-      "consumed_by": "Email_Job_Expired"
-    },
-    {
-      "name": "wcb_job_form_simple_extra_fields",
-      "type": "action",
-      "args": "(none)",
-      "where": "blocks/job-form-simple",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "wcb_job_form_step1_fields",
-      "type": "action",
-      "args": "(none)",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro field-builder"
-    },
-    {
-      "name": "wcb_job_form_step2_fields",
-      "type": "action",
-      "args": "(none)",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro field-builder"
-    },
-    {
-      "name": "wcb_job_form_step3_fields",
-      "type": "action",
-      "args": "(none)",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro field-builder"
-    },
-    {
-      "name": "wcb_job_form_step4_preview",
-      "type": "action",
-      "args": "(none)",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro field-builder"
-    },
-    {
-      "name": "wcb_job_rejected",
-      "type": "action",
-      "args": "$job_id, $reason",
-      "where": "moderation module",
-      "consumed_by": "Email_Job_Rejected"
-    },
-    {
-      "name": "wcb_job_updated",
-      "type": "action",
-      "args": "$job_id, $payload",
-      "where": "jobs endpoint",
-      "consumed_by": null
-    },
-    {
-      "name": "wcb_settings_tab_",
-      "type": "action",
-      "args": "$settings",
-      "where": "admin/class-admin-settings.php (dynamic)",
-      "consumed_by": "Pro tabs"
-    },
-    {
-      "name": "wcb_settings_tab_antispam",
-      "type": "action",
-      "args": "$settings",
-      "where": "admin/class-admin-settings.php",
-      "consumed_by": "modules/antispam"
-    },
-    {
-      "name": "wcb_settings_tab_emails",
-      "type": "action",
-      "args": "$settings",
-      "where": "admin/class-admin-settings.php",
-      "consumed_by": "admin/class-admin-settings.php (render_emails_tab)"
-    },
-    {
-      "name": "wcb_wizard_completed",
-      "type": "action",
-      "args": "(none)",
-      "where": "admin/class-setup-wizard.php",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "reign_before_content_section",
-      "type": "action",
-      "args": "(none)",
-      "where": "integrations/reign/",
-      "consumed_by": "Reign theme (third-party)"
-    },
-    {
-      "name": "reign_after_content_section",
-      "type": "action",
-      "args": "(none)",
-      "where": "integrations/reign/",
-      "consumed_by": "Reign theme (third-party)"
-    },
-    {
-      "name": "the_content",
+      "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "(string)$html",
-      "where": "blocks/* renderers",
-      "consumed_by": "WordPress core (third-party)"
-    },
-    {
-      "name": "wcb_ai_description_enabled",
-      "type": "filter",
-      "args": "(bool)$enabled",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro AI"
-    },
-    {
-      "name": "wcb_app_page_ids",
-      "type": "filter",
-      "args": "(int[])$page_ids",
-      "where": "core/class-plugin.php",
-      "consumed_by": null
-    },
-    {
-      "name": "wcb_application_form_fields_groups",
-      "type": "filter",
-      "args": "$groups",
-      "where": "blocks/job-single",
-      "consumed_by": "self (Free) + Pro"
-    },
-    {
-      "name": "wcb_apply_page_class",
-      "type": "filter",
-      "args": "(string[])$classes",
-      "where": "core/class-plugin.php",
-      "consumed_by": null
-    },
-    {
-      "name": "wcb_before_create_application",
-      "type": "filter",
-      "args": "$payload",
-      "where": "applications endpoint",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "wcb_before_create_job",
-      "type": "filter",
-      "args": "$payload",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "wcb_before_delete_job",
-      "type": "filter",
-      "args": "$ok, $job_id",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro"
-    },
-    {
-      "name": "wcb_before_update_job",
-      "type": "filter",
-      "args": "$payload, $job_id",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:62",
+      "consumed_by": []
     },
     {
       "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "(int)$cost, $context",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro credits"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:179",
+      "consumed_by": []
     },
     {
-      "name": "wcb_candidate_form_fields",
+      "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "$fields",
-      "where": "blocks/employer-registration",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:163",
+      "consumed_by": []
     },
     {
-      "name": "wcb_cli_abilities",
+      "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "$abilities",
-      "where": "cli/class-cli.php",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:246",
+      "consumed_by": []
     },
     {
-      "name": "wcb_company_form_fields",
+      "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "$fields",
-      "where": "blocks/employer-registration",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:518",
+      "consumed_by": []
     },
     {
-      "name": "wcb_credit_purchase_url",
+      "name": "wcb_board_credit_cost",
       "type": "filter",
-      "args": "(string)$url",
-      "where": "blocks/employer-dashboard",
-      "consumed_by": "Pro credits"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:743",
+      "consumed_by": []
     },
     {
-      "name": "wcb_credits_enabled",
+      "name": "wcb_board_currency",
       "type": "filter",
-      "args": "(bool)$enabled",
-      "where": "various",
-      "consumed_by": "Pro credits"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:63",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:120",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:135",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:164",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_currency",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:1251",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:43",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_options_for_employer",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:77",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:59",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_board_options_for_employer",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:180",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:59",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:152",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:222",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_default_expiry_days",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:611",
+      "consumed_by": []
     },
     {
       "name": "wcb_employer_credit_balance",
       "type": "filter",
-      "args": "(int)$balance, $user_id",
-      "where": "employers endpoint",
-      "consumed_by": "Pro credits"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:186",
+      "consumed_by": []
     },
     {
-      "name": "wcb_industries",
+      "name": "wcb_employer_credit_balance",
       "type": "filter",
-      "args": "(string[])$industries",
-      "where": "core/class-industries.php",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:257",
+      "consumed_by": []
     },
     {
-      "name": "wcb_job_board_id",
+      "name": "wcb_employer_credit_balance",
       "type": "filter",
-      "args": "(int)$board_id, $context",
-      "where": "jobs endpoint",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:185",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:520",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_credit_balance",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:761",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:187",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:258",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:353",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:186",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_purchase_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:293",
+      "consumed_by": []
     },
     {
       "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "$fields",
-      "where": "blocks/job-form",
-      "consumed_by": "Pro field-builder"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:200",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_job_listing_data",
+      "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "$data, $job_id",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:489",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_job_listings_api_base",
+      "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "(string)$base",
-      "where": "blocks/job-listings",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:271",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_job_listings_board_options",
+      "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "$options",
-      "where": "blocks/job-listings",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:281",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_job_listings_query_args",
+      "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "$args, $request",
-      "where": "jobs endpoint",
-      "consumed_by": "modules/search"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:818",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_job_response",
+      "name": "wcb_job_form_fields",
       "type": "filter",
-      "args": "$data, $job",
-      "where": "jobs endpoint",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:913",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:917",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_ai_description_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:307",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/ai/class-ai-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_ai_description_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:453",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/ai/class-ai-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_simple_extra_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form-simple/render.php:479",
+      "consumed_by": []
     },
     {
       "name": "wcb_jobs_allowed_meta_filters",
       "type": "filter",
-      "args": "(string[])$keys",
-      "where": "jobs endpoint",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:82",
+      "consumed_by": []
     },
     {
-      "name": "wcb_jobs_post_filter",
+      "name": "wcb_jobs_allowed_meta_filters",
       "type": "filter",
-      "args": "(string[])$post_status",
-      "where": "jobs endpoint",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:257",
+      "consumed_by": []
     },
     {
-      "name": "wcb_moderate_jobs_ability_check",
+      "name": "wcb_job_listings_query_args",
       "type": "filter",
-      "args": "(bool)$can",
-      "where": "moderation module",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:102",
+      "consumed_by": []
     },
     {
-      "name": "wcb_page_settings",
+      "name": "wcb_job_listings_query_args",
       "type": "filter",
-      "args": "$settings",
-      "where": "admin/class-admin-settings",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:327",
+      "consumed_by": []
     },
     {
-      "name": "wcb_pre_application_submit",
+      "name": "wcb_job_listing_data",
       "type": "filter",
-      "args": "(bool)$ok, $payload",
-      "where": "applications endpoint",
-      "consumed_by": "modules/antispam"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:241",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:34",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_pre_job_submit",
+      "name": "wcb_job_listings_board_options",
       "type": "filter",
-      "args": "(bool)$ok, $payload",
-      "where": "jobs endpoint",
-      "consumed_by": "modules/antispam"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:296",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:36",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_registered_emails",
+      "name": "wcb_job_listings_api_base",
       "type": "filter",
-      "args": "AbstractEmail[] $emails",
-      "where": "modules/notifications",
-      "consumed_by": "modules/notifications + Pro"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:348",
+      "consumed_by": []
     },
     {
-      "name": "wcb_rest_app_config",
+      "name": "wcb_pro_resumes_enabled",
       "type": "filter",
-      "args": "$config",
-      "where": "settings endpoint",
-      "consumed_by": "Pro"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:162",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:40",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_rest_prepare_application",
+      "name": "wcb_candidate_form_fields",
       "type": "filter",
-      "args": "$data, $application",
-      "where": "applications endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:168",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_rest_prepare_candidate",
+      "name": "wcb_candidate_form_fields",
       "type": "filter",
-      "args": "$data, $candidate",
-      "where": "candidates endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:172",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_rest_prepare_company",
+      "name": "wcb_candidate_form_fields",
       "type": "filter",
-      "args": "$data, $company",
-      "where": "companies endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:979",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_rest_prepare_job",
+      "name": "wcb_candidate_form_fields",
       "type": "filter",
-      "args": "$data, $job",
-      "where": "jobs endpoint",
-      "consumed_by": "Pro"
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:390",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_settings_sanitize",
+      "name": "wcb_module_renders",
       "type": "filter",
-      "args": "$out, $in",
-      "where": "admin/class-admin-settings",
-      "consumed_by": "Pro"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:205",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_settings_tabs",
+      "name": "wcb_module_renders",
       "type": "filter",
-      "args": "(array)$tabs",
-      "where": "admin/class-admin-settings.php",
-      "consumed_by": "modules/antispam + Pro"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:373",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:201",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:351",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_module_renders",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "templates/parts/archive-toolbar.php:138",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:42",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:307",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:416",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:445",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/candidate-dashboard/render.php:874",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_alerts_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:389",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:39",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_form_step1_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:490",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step2_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:672",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step3_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:813",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_form_step4_preview",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-form/render.php:890",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_before",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:397",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_before",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:419",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_after",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:398",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_after",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:426",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_sidebar_blocks",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/company-profile/render.php:402",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:168",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:172",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:757",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_company_form_fields",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:505",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:32",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:187",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:286",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:363",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credits_enabled",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:399",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_credit_low_threshold",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/employer-dashboard/render.php:191",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:198",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-install.php:242",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin.php:290",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin.php:527",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:757",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-import.php:142",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_active",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:66",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "the_content",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:471",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields_groups",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:951",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields_groups",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:328",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_form_fields",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php:1011",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_install_default_settings",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-install.php:422",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-install.php:111",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_register_extensions",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "core/class-pro-coordination.php:80",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_pre_check",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "core/class-pro-coordination.php:92",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_industries",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-industries.php:66",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_shortcode_attr_aliases",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:414",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_app_page_ids",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:612",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-plugin.php:84",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_search_active_shortcodes",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:630",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:46",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_search_active_shortcodes",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:1063",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:46",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_apply_page_class",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "core/class-plugin.php:648",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_container_max_width",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:776",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_page_needs_frontend_assets",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "core/class-plugin.php:1086",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_save_custom_field",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "core/class-form-custom-fields.php:397",
+      "consumed_by": []
     },
     {
       "name": "wcb_theme_accent_primary",
       "type": "filter",
-      "args": "(string)$color",
-      "where": "core/class-theme-accent-bridge.php",
-      "consumed_by": null
+      "args_count": 2,
+      "args_signature": [],
+      "where": "core/class-theme-accent-bridge.php:120",
+      "consumed_by": []
     },
     {
-      "name": "wcb_theme_primary_color",
+      "name": "wcb_pro_upsell_url",
       "type": "filter",
-      "args": "(string)$color",
-      "where": "core/class-theme-accent-bridge.php",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin.php:528",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_upsell_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:758",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_upsell_url",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-import.php:280",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_wizard_completed",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "admin/class-setup-wizard.php:296",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-setup-wizard.php:67",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
       "name": "wcb_wizard_complete_redirect",
       "type": "filter",
-      "args": "(string)$url",
-      "where": "admin/class-setup-wizard.php",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-setup-wizard.php:305",
+      "consumed_by": []
     },
     {
       "name": "wcb_wizard_force_render",
       "type": "filter",
-      "args": "(bool)$force",
-      "where": "admin/class-setup-wizard.php",
-      "consumed_by": null
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-setup-wizard.php:343",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-setup-wizard.php:65",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
-      "name": "wcb_resume_archive_enabled",
+      "name": "wcb_currency_catalog",
       "type": "filter",
-      "args": "$public",
-      "where": "modules/candidates/class-candidates-module.php (1.2.0)",
-      "consumed_by": "site owners — programmatic override of wcb_settings.resume_archive_enabled"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:129",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:44",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_settings_sanitize",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:256",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/resume/class-resume-module.php:174",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_settings_tabs",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:394",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-admin.php:44",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_settings_saved_notice",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:660",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:45",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_page_settings",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:973",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/resume/class-resume-module.php:173",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_settings_tab_emails",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:1058",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_settings_tab_",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "admin/class-admin-settings.php:1078",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_import_extra_cards",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "admin/class-admin-import.php:303",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "admin/class-pro-admin.php:52",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-email-settings.php:102",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-email-settings.php:275",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-email-settings.php:355",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-email-settings.php:461",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-admin-endpoint.php:148",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_registered_emails",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/notifications/class-notifications-module.php:70",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-pro/class-notifications-pro-module.php:31",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "admin/class-admin-applications.php:615",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "cli/class-application-commands.php:224",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:439",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_status_changed",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/applications/class-application-lifecycle.php:116",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_cli_abilities",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "cli/class-cli.php:167",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-pro-plugin.php:82",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_approved",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "cli/class-job-commands.php:181",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-activity.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_approved",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/notifications/emails/class-email-job-approved.php:88",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-activity.php:47",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_rejected",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "cli/class-job-commands.php:248",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_rejected",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:219",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_expired",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "cli/class-job-commands.php:311",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_expired",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/jobs/class-jobs-expiry.php:123",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_check_job_expiry",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "cli/class-job-commands.php:343",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pre_application_submit",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:118",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_before_create_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:234",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_submitted",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:360",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-pro-integration.php:46",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_rest_prepare_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:518",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:976",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_application",
+      "type": "filter",
+      "args_count": 4,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:781",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_application_deleted",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:563",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-data-cleanup.php:46",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_application_withdrawn",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-applications-endpoint.php:565",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_candidate_registered",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:172",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_candidate_registered",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:272",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_candidate",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:650",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_jobs_post_filter",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:333",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/maps/class-geo-filter-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pre_job_submit",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:503",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_default_status",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:555",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_before_create_job",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:579",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_created",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:696",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/maps/class-maps-module.php:38",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_republish_credit_cost",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:758",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_before_update_job",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:789",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_republished",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:812",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_updated",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:884",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:35",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_before_delete_job",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:952",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_deleted",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:959",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-data-cleanup.php:45",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_board_id",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:1206",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/boards/class-boards-pro-module.php:33",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_response",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:1288",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php:36",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_rest_prepare_job",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php:1302",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_company",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-companies-endpoint.php:399",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_rest_prepare_company",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:991",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_registered",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:218",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_registered",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php:350",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_admin_email_log_response",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-admin-endpoint.php:291",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_pro_version",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:73",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:38",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_pro_licensed",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:75",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:37",
+          "kind": "action_listener"
+        }
+      ]
     },
     {
       "name": "wcb_pro_ai_enabled",
       "type": "filter",
-      "args": "$default",
-      "where": "api/endpoints/class-settings-endpoint.php (1.2.0)",
-      "consumed_by": "Pro FreeCoordination::ai_enabled() — class_exists(AiModule)"
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:87",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "core/class-free-coordination.php:41",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_rest_app_config",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "api/endpoints/class-settings-endpoint.php:105",
+      "consumed_by": []
+    },
+    {
+      "name": "reign_before_content_section",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "modules/employers/templates/archive-wcb-company.php:16",
+      "consumed_by": []
+    },
+    {
+      "name": "reign_after_content_section",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "modules/employers/templates/archive-wcb-company.php:34",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_settings_tab_antispam",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/antispam/class-anti-spam-module.php:149",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_theme_primary_color",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/theme-integration/class-theme-integration-module.php:54",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_featured_expired",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/jobs/class-featured-expiry.php:138",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_deadline_reminder",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/jobs/class-deadline-reminders.php:176",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_moderate_jobs_ability_check",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:121",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "integrations/buddypress/class-bp-group-boards.php:58",
+          "kind": "action_listener"
+        }
+      ]
     }
   ],
   "buddypress_integration": {
@@ -1797,10 +3197,10 @@
     "always_sign_filter": null,
     "rate_limit_middleware": "wcb_pre_job_submit / wcb_pre_application_submit (CAPTCHA gate via AntiSpamModule)",
     "csrf": "All write endpoints rely on REST cookie-nonce auth (X-WP-Nonce); admin-post handlers call wp_verify_nonce",
-    "abilities_api": "All capability checks go via wp_is_authorized() — no current_user_can('manage_options')"
+    "abilities_api": "All capability checks go via wp_is_authorized() \u2014 no current_user_can('manage_options')"
   },
   "ci_guards": {
-    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 — blocks Free→Pro coupling regressions)",
+    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 \u2014 blocks Free\u2192Pro coupling regressions)",
     "url_emission_regex": null,
     "storage_internal_marker": null,
     "phpstan_level": 5,
@@ -1811,14 +3211,14 @@
   "coding_rules": [
     "All globals prefixed wcb_ (functions, options, hooks, meta, CPTs, taxonomies, tables)",
     "Namespace WCB\\ (sub-namespaces map via spl_autoload_register in main file)",
-    "REST namespace wcb/v1 — every controller extends WCB\\Api\\REST_Controller",
-    "Capabilities through Abilities API only — wp_register_ability + wp_is_authorized; never current_user_can('manage_options')",
-    "Frontend = Interactivity API only — zero jQuery, zero admin-ajax",
-    "PHP 8.1+ — declare(strict_types=1) in every file",
+    "REST namespace wcb/v1 \u2014 every controller extends WCB\\Api\\REST_Controller",
+    "Capabilities through Abilities API only \u2014 wp_register_ability + wp_is_authorized; never current_user_can('manage_options')",
+    "Frontend = Interactivity API only \u2014 zero jQuery, zero admin-ajax",
+    "PHP 8.1+ \u2014 declare(strict_types=1) in every file",
     "Pro mirrors Free (WCBPro\\ namespace, identical patterns)"
   ],
   "build_commands": {
-    "release": "npm run build (Gruntfile.js copy:dist) — uses .distignore to drop dev assets",
+    "release": "npm run build (Gruntfile.js copy:dist) \u2014 uses .distignore to drop dev assets",
     "ci_local": "composer test  /  composer phpcs  /  composer phpstan"
   },
   "integrations": [
@@ -1895,25 +3295,1066 @@
     }
   ],
   "notes": {
-    "ajax": "Plugin is Interactivity-API + REST only. There are zero plugin-own admin-ajax actions. The 'ajax' baseline grep returned 0, matching the manifest's empty array — coverage 100% by the rule that 0/0 is exact.",
+    "ajax": "Plugin is Interactivity-API + REST only. There are zero plugin-own admin-ajax actions. The 'ajax' baseline grep returned 0, matching the manifest's empty array \u2014 coverage 100% by the rule that 0/0 is exact.",
     "hooks_fired": "70 unique hook names (28 do_action + 42 apply_filters), exhaustively enumerated via xargs grep. Wrapper-style hooks (e.g., wcb_settings_tab_{slug}) are listed once with the dynamic suffix. Filter call-sites that re-fire the same hook in different files are deduped on hook name.",
     "wp_cli": "Baseline counts WP_CLI::add_command calls (4); manifest groups subcommands under each top-level command, so the four manifest entries map 1:1 to the four registrations.",
     "round-6-1.2.0": [
-      "F-5 (1.2.0): wcb_email_settings + wcb_captcha_driver options consolidated into wcb_settings.emails + wcb_settings.captcha.driver. Legacy options deleted by core/class-install.php migration on db_version 1.0 → 1.2 bump.",
+      "F-5 (1.2.0): wcb_email_settings + wcb_captcha_driver options consolidated into wcb_settings.emails + wcb_settings.captcha.driver. Legacy options deleted by core/class-install.php migration on db_version 1.0 \u2192 1.2 bump.",
       "F-3 (1.2.0): wcb_resume CPT visibility now owned by wcb_settings.resume_archive_enabled (default false). Pro flips it on activation; site-owner override via wcb_resume_archive_enabled filter.",
-      "F-4 (1.2.0): allow_withdraw setting deprecated → wcb_withdraw_application ability. Setting tombstoned for one cycle, removed in 1.3.0.",
+      "F-4 (1.2.0): allow_withdraw setting deprecated \u2192 wcb_withdraw_application ability. Setting tombstoned for one cycle, removed in 1.3.0.",
       "F-6 (1.2.0): bin/check-pro-decoupling.sh wired into .github/workflows/ci.yml as a blocking job. Catches direct WCB\\Pro\\ refs, wcbp_*() calls, WCBP_ constant reads.",
       "F-1 + F-2 (1.2.0): core/class-pro-coordination.php declares 11 documented filters + 2 actions Pro is allowed to hook. 22 callsites migrated; zero direct Pro references remain in Free runtime code."
     ]
   },
   "generated": {
-    "at": "2026-05-11T18:45:20Z",
-    "from": "wp-plugin-onboard skill (refresh mode, targeted patch)",
-    "schema_version": "v1",
-    "scan_scope": "distignore",
+    "at": "2026-05-17T09:06:25.208786Z",
+    "from": "wp-plugin-onboard skill (refresh)",
+    "schema_version": "v2.2",
+    "scan_scope": "fallback_defaults",
     "scan_path": ".",
-    "php_file_count": 148,
-    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) — canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) — ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
-    "note": "Lightweight refresh — timestamp bumped after 1.1.1 release commits. Ground-truth grep reports REST +2, blocks +3, hooks_fired delta requires re-enumeration; queued for next full refresh."
+    "php_file_count": 171,
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) \u2014 canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) \u2014 ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
+    "note": "Lightweight refresh \u2014 timestamp bumped after 1.1.1 release commits. Ground-truth grep reports REST +2, blocks +3, hooks_fired delta requires re-enumeration; queued for next full refresh."
+  },
+  "category_sources": {
+    "rest": [
+      "api/**/*.php",
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "ajax": [
+      "admin/**/*.php",
+      "includes/**/*.php"
+    ],
+    "admin_pages": [
+      "admin/**/*.php"
+    ],
+    "settings": [
+      "admin/**/*.php"
+    ],
+    "shortcodes": [
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "blocks": [
+      "blocks/**/*.{php,json}",
+      "src/blocks/**/*.{php,json}"
+    ],
+    "post_types": [
+      "core/**/*.php"
+    ],
+    "taxonomies": [
+      "core/**/*.php"
+    ],
+    "tables": [
+      "core/**/*.php"
+    ],
+    "capabilities": [
+      "core/**/*.php",
+      "admin/**/*.php",
+      "modules/**/*.php"
+    ],
+    "services": [
+      "core/**/*.php"
+    ],
+    "hooks_fired": [
+      "**/*.php"
+    ],
+    "interactivity": [
+      "src/**/view.{js,ts}",
+      "blocks/**/view.{js,ts}"
+    ],
+    "ui_activation": [
+      "assets/css/**/*.css",
+      "src/**/*.css",
+      "blocks/**/*.css"
+    ],
+    "frontend_assets": [
+      "assets/**/*.{js,css}",
+      "build/**/*.{js,css}"
+    ],
+    "cron": [
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "wp_cli": [
+      "cli/**/*.php"
+    ],
+    "security": [
+      "core/**/*.php"
+    ]
+  },
+  "static_analysis": {
+    "dead_listeners": [],
+    "wppqa_baseline": {
+      "date": "2026-05-17",
+      "summary_file": "audit/wppqa-baseline-2026-05-17/SUMMARY.md"
+    },
+    "rest_js_contract_drift": [
+      {
+        "where": "assets/js/admin.js:183",
+        "route": "/wcb/v1/employers/(?P<id>\\d+)/jobs",
+        "js_reads": "data.reason",
+        "php_returns": [
+          "id",
+          "title",
+          "status",
+          "statusLabel",
+          "permalink",
+          "editUrl",
+          "appCount",
+          "appLabel"
+        ],
+        "php_at": "api/endpoints/class-employers-endpoint.php:102",
+        "severity": "high",
+        "class": "silent_ui_bug",
+        "fix": "Rename PHP key to 'reason' OR update JS to read existing key. Add JSON contract fixture."
+      }
+    ],
+    "cross_plugin_coupling_ref": "audit/derived/cross-plugin-coupling.json",
+    "cap_context_mismatches": [],
+    "cap_drift": {
+      "declared_but_unenforced": [],
+      "enforced_but_undeclared": [],
+      "manage_options_gate_count": 3,
+      "manage_options_gate_note": "Count of bare current_user_can('manage_options') checks in plugin paths. High numbers signal under-delegated permissions.",
+      "manage_options_top10_sites": [
+        "admin/class-admin-settings.php:299",
+        "admin/class-email-settings.php:441",
+        "modules/antispam/class-anti-spam-module.php:282"
+      ]
+    },
+    "extensibility_gaps": [],
+    "js_only_activation": [
+      {
+        "selector": ".wcb-settings-section",
+        "default_hidden_by": "assets/css/admin/settings.css:159",
+        "active_modifier": "is-active",
+        "active_display": "block",
+        "php_fallback": false,
+        "note": "JS-only activation \u2014 if JS fails to attach, the panel is permanently invisible"
+      }
+    ],
+    "rest_hang_risks": [
+      {
+        "where": "blocks/job-form-simple/view.js:113",
+        "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-form-simple/view.js:225",
+        "snippet": "const response = yield fetch( state.apiBase + '/jobs', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-listings/view.js:179",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-listings/view.js:437",
+        "snippet": "const response = yield fetch( url.toString(), {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-listings/view.js:478",
+        "snippet": "const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:283",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:304",
+        "snippet": "const bmResponse = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:318",
+        "snippet": "const alertsRes = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:390",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:431",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:465",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:492",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:522",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:587",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:633",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:662",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:686",
+        "snippet": "yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:724",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:747",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:794",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:830",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:876",
+        "snippet": "const uploadResp = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:901",
+        "snippet": "const createResp = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:941",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:975",
+        "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:994",
+        "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:1006",
+        "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:1032",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/candidate-dashboard/view.js:1094",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-form/view.js:333",
+        "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-form/view.js:448",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/company-profile/view.js:28",
+        "snippet": "const response = yield fetch( url, {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/company-profile/view.js:61",
+        "snippet": "const response = yield fetch( url.toString() );",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:477",
+        "snippet": "const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:479",
+        "snippet": "fetchPromises.push( fetch( appsUrl, { headers } ) );",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:603",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:632",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:661",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:685",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:704",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:723",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:792",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:828",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:868",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:900",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:967",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:1006",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:1063",
+        "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:1082",
+        "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-dashboard/view.js:1094",
+        "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-single/view.js:155",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-single/view.js:248",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/job-single/view.js:293",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/company-archive/view.js:135",
+        "snippet": "const response = yield fetch( url, {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/company-archive/view.js:177",
+        "snippet": "const response = yield fetch( wcbBuildUrl( state.page ) );",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/company-archive/view.js:264",
+        "snippet": "fetch( wcbBuildUrl( 1 ) )",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "blocks/employer-registration/view.js:107",
+        "snippet": "const response = yield fetch(",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin.js:126",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin.js:186",
+        "snippet": "return wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin.js:223",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin.js:332",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin.js:399",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/wizard.js:46",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/wizard.js:106",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/wizard.js:124",
+        "snippet": "wp.apiFetch( {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin/emails.js:38",
+        "snippet": "fetch( cfg.restBase + '/admin/emails/test', {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin/emails.js:189",
+        "snippet": "fetch( url, {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      },
+      {
+        "where": "assets/js/admin/application-detail.js:13",
+        "snippet": "return fetch( endpoint, {",
+        "uses_abort_signal": false,
+        "has_timeout_ms": null,
+        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+      }
+    ],
+    "visual_required_no_enforcement": [],
+    "grid_track_overflow_risks": [
+      {
+        "file": "blocks/job-form-simple/style.css:139",
+        "selector": ".wcb-form-simple",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-form-simple/style.css:149",
+        "selector": ".wcb-form-simple__tax-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-form-simple/style.css:156",
+        "selector": ".wcb-form-simple",
+        "track_rule": "1.4fr 1fr 1fr 1fr",
+        "suggestion": "1.4fr minmax(0, 1fr) 1fr 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-form-simple/style.css:167",
+        "selector": ".wcb-form-simple",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-listings/style.css:113",
+        "selector": ".wcb-card-body",
+        "track_rule": "auto 1fr",
+        "suggestion": "auto minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-listings/style.css:422",
+        "selector": ".wcb-jobs-container",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/candidate-dashboard/styles/widgets.css:142",
+        "selector": ".wcb-stats-row",
+        "track_rule": "repeat( 2, 1fr )",
+        "suggestion": "repeat( 2, minmax(0, 1fr) )",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/candidate-dashboard/styles/widgets.css:248",
+        "selector": ".wcb-welcome-card__steps",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/candidate-dashboard/styles/main.css:117",
+        "selector": ".wcb-two-col",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/candidate-dashboard/styles/main.css:169",
+        "selector": ".wcb-two-col",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-form/style.css:208",
+        "selector": ".wcb-salary-row",
+        "track_rule": "1.4fr 1fr 1fr 1fr",
+        "suggestion": "1.4fr minmax(0, 1fr) 1fr 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-form/style.css:622",
+        "selector": ".wcb-form-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-profile/style.css:281",
+        "selector": ".wcb-cp-body",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-profile/style.css:388",
+        "selector": ".wcb-cp-details-grid",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-profile/style.css:609",
+        "selector": ".wcb-cp-details-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-profile/style.css:665",
+        "selector": "?",
+        "track_rule": "1fr 260px`, Astra uses `.ast-container`,\n * etc. Forcing a single-column grid here gives our content the full\n * width that was previously wasted by the reserved-but-empty sidebar\n * slot.\n */\n.wcb-company-page .site-wrapper,\n.wcb-company-page .ast-container,\n.wcb-company-page .container-grid {\n\tgrid-template-columns: 1fr !important",
+        "suggestion": "minmax(0, 1fr) 260px`, Astra uses `.ast-container`,\n * etc. Forcing a single-column grid here gives our content the full\n * width that was previously wasted by the reserved-but-empty sidebar\n * slot.\n */\n.wcb-company-page .site-wrapper,\n.wcb-company-page .ast-container,\n.wcb-company-page .container-grid {\n\tgrid-template-columns: 1fr !important",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/views.css:448",
+        "selector": ".wcb-split-panel",
+        "track_rule": "280px 1fr",
+        "suggestion": "280px minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/views.css:859",
+        "selector": ".wcb-field-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/widgets.css:379",
+        "selector": ".wcb-stats-row",
+        "track_rule": "repeat(2, 1fr)",
+        "suggestion": "repeat(2, minmax(0, 1fr))",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/widgets.css:383",
+        "selector": ".wcb-profile-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/widgets.css:396",
+        "selector": ".wcb-stats-row",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/main.css:92",
+        "selector": ".wcb-two-col",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-dashboard/styles/main.css:154",
+        "selector": ".wcb-two-col",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-single/style.css:80",
+        "selector": ".wcb-job-hero",
+        "track_rule": "1fr auto",
+        "suggestion": "minmax(0, 1fr) auto",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-single/style.css:213",
+        "selector": ".wcb-job-body",
+        "track_rule": "1fr 320px",
+        "suggestion": "minmax(0, 1fr) 320px",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-single/style.css:779",
+        "selector": ".wcb-job-hero",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/job-single/style.css:794",
+        "selector": ".wcb-job-body",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-archive/style.css:165",
+        "selector": ".wcb-ca-card-link",
+        "track_rule": "auto 1fr",
+        "suggestion": "auto minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/company-archive/style.css:461",
+        "selector": ".wcb-ca-container",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/featured-jobs/style.css:88",
+        "selector": ".wcb-featured-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-registration/style.css:37",
+        "selector": ".wcb-reg-row",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-registration/style.css:85",
+        "selector": ".wcb-role-options",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-registration/style.css:181",
+        "selector": ".wcb-reg-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "blocks/employer-registration/style.css:185",
+        "selector": ".wcb-role-options",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/wcb-ui.css:708",
+        "selector": ".wcb-archive-layout",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/wcb-ui.css:1168",
+        "selector": ".wcb-field-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:354",
+        "selector": ".wcb-grid--2col",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:359",
+        "selector": ".wcb-grid",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:360",
+        "selector": ".wcb-grid--compact",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:361",
+        "selector": ".wcb-grid--2col",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:462",
+        "selector": ".wcb-field-row",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:470",
+        "selector": ".wcb-field-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:568",
+        "selector": ".css",
+        "track_rule": "160px 1fr",
+        "suggestion": "160px minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/frontend-components.css:595",
+        "selector": ".wcb-settings-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin.css:181",
+        "selector": ".wcb-dashboard-columns",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin.css:188",
+        "selector": ".wcb-dashboard-columns",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin.css:416",
+        "selector": ".wcb-settings-row",
+        "track_rule": "240px 1fr",
+        "suggestion": "240px minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin.css:544",
+        "selector": ".wcb-settings-row",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin.css:614",
+        "selector": ".wcb-company-meta-grid",
+        "track_rule": "1fr 1fr",
+        "suggestion": "minmax(0, 1fr) 1fr",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin/application-detail.css:121",
+        "selector": ".wcb-app-timeline__item",
+        "track_rule": "160px 1fr 120px",
+        "suggestion": "160px minmax(0, 1fr) 120px",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      },
+      {
+        "file": "assets/css/admin/application-detail.css:165",
+        "selector": ".wcb-app-timeline__item",
+        "track_rule": "1fr",
+        "suggestion": "minmax(0, 1fr)",
+        "note": "Bare 1fr resolves to minmax(auto, 1fr) and can collapse siblings off-viewport"
+      }
+    ],
+    "layout_owning_blocks": [
+      {
+        "block": "job-form-simple",
+        "render": "blocks/job-form-simple/render.php",
+        "style": "blocks/job-form-simple/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "job-listings",
+        "render": "blocks/job-listings/render.php",
+        "style": "blocks/job-listings/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "job-form",
+        "render": "blocks/job-form/render.php",
+        "style": "blocks/job-form/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "company-profile",
+        "render": "blocks/company-profile/render.php",
+        "style": "blocks/company-profile/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "job-single",
+        "render": "blocks/job-single/render.php",
+        "style": "blocks/job-single/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "company-archive",
+        "render": "blocks/company-archive/render.php",
+        "style": "blocks/company-archive/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "featured-jobs",
+        "render": "blocks/featured-jobs/render.php",
+        "style": "blocks/featured-jobs/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      },
+      {
+        "block": "employer-registration",
+        "render": "blocks/employer-registration/render.php",
+        "style": "blocks/employer-registration/style.css",
+        "layout_owning": true,
+        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+      }
+    ],
+    "suppressed_baseline_inventory": {
+      "stub_class_missing": {
+        "count": 3,
+        "action": "add stubs to phpstan-bootstrap.php"
+      },
+      "stub_const_missing": {
+        "count": 2,
+        "action": "add defines to phpstan-bootstrap.php"
+      },
+      "undef_var_risk": {
+        "count": 39,
+        "action": "triage individually"
+      },
+      "real_type_debt": {
+        "count": 31,
+        "action": "triage individually"
+      },
+      "phpcs_excludes": {
+        "count": 3,
+        "action": "review per release"
+      }
+    },
+    "adapter_undefined_calls": [],
+    "registry_bypasses": [],
+    "registry_strategy": []
   }
 }

@@ -5,6 +5,41 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 
+/**
+ * Views that are eligible to appear in the URL hash. Same shape as the
+ * candidate-dashboard `VALID_TABS` allowlist so deep links / bookmarks /
+ * browser back-forward survive across the 2 dashboards. Anything outside
+ * this list is ignored on read.
+ */
+const VALID_VIEWS = [
+	'overview',
+	'jobs',
+	'post-job',
+	'applications',
+	'company',
+	'saved-jobs',
+	'saved-companies',
+	'saved-resumes',
+	'settings',
+];
+
+function readHashView() {
+	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
+	return VALID_VIEWS.includes( raw ) ? raw : null;
+}
+
+function writeHashView( view ) {
+	if ( ! VALID_VIEWS.includes( view ) ) {
+		return;
+	}
+	const target = '#' + view;
+	if ( window.location.hash === target ) {
+		return;
+	}
+	const url = window.location.pathname + window.location.search + target;
+	window.history.replaceState( null, '', url );
+}
+
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
@@ -48,6 +83,35 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isViewSettings() {
 			return state.currentView === 'settings';
+		},
+		get isViewSavedJobs() {
+			return state.currentView === 'saved-jobs';
+		},
+		get isViewSavedCompanies() {
+			return state.currentView === 'saved-companies';
+		},
+		get isViewSavedResumes() {
+			return state.currentView === 'saved-resumes';
+		},
+
+		// Saved-list count + empty/populated derived getters.
+		get hasSavedJobs() {
+			return ! state.savedJobsLoading && state.savedJobs.length > 0;
+		},
+		get noSavedJobs() {
+			return ! state.savedJobsLoading && ! state.savedJobsError && state.savedJobs.length === 0;
+		},
+		get hasSavedCompanies() {
+			return ! state.savedCompaniesLoading && state.savedCompanies.length > 0;
+		},
+		get noSavedCompanies() {
+			return ! state.savedCompaniesLoading && ! state.savedCompaniesError && state.savedCompanies.length === 0;
+		},
+		get hasSavedResumes() {
+			return ! state.savedResumesLoading && state.savedResumes.length > 0;
+		},
+		get noSavedResumes() {
+			return ! state.savedResumesLoading && ! state.savedResumesError && state.savedResumes.length === 0;
 		},
 
 		// Credits banners — derived state so the markup can stay declarative.
@@ -102,7 +166,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( f === 'live' )         jobs = jobs.filter( ( j ) => j.status === 'publish' );
 			else if ( f === 'draft' )   jobs = jobs.filter( ( j ) => j.status === 'draft' );
 			else if ( f === 'pending' ) jobs = jobs.filter( ( j ) => j.status === 'pending' );
-			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed );
+			// Closed pill surfaces both manually-closed and auto-expired jobs —
+			// employers manage both via the same Reopen flow.
+			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
 			if ( state.jobSearch ) {
 				const q = state.jobSearch.toLowerCase();
 				jobs = jobs.filter( ( j ) => j.title.toLowerCase().includes( q ) );
@@ -154,6 +220,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isSelectedAppsJob() {
 			const ctx = getContext();
 			return ctx.job?.id === state.appsJobId;
+		},
+
+		// Context getter — inside data-wp-each--job loop on My Jobs.
+		// "Inactive" covers both employer-closed and cron-expired jobs so the
+		// row swaps the Close button for Reopen identically in both cases.
+		get isJobInactive() {
+			const ctx = getContext();
+			return Boolean( ctx.job?.isClosed || ctx.job?.isExpired );
 		},
 
 		// Applications.
@@ -355,17 +429,32 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 		*init() {
-			// Restore last active view from sessionStorage (skip if URL already dictates view).
-			if ( state.currentView === 'overview' ) {
+			// Tab restoration priority: URL hash → sessionStorage → server default.
+			// Mirrors candidate-dashboard so deep-linking to #saved-jobs /
+			// #applications / etc lands the user on the right tab regardless
+			// of any prior session activity.
+			const hashView = readHashView();
+			if ( hashView ) {
+				state.currentView = hashView;
+			} else if ( state.currentView === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_employer_view' );
 				if ( saved ) {
 					state.currentView = saved;
 				}
-				const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
-				if ( savedJob > 0 && state.currentView === 'applications' ) {
-					state.appsJobId = savedJob;
-				}
 			}
+			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
+			if ( savedJob > 0 && state.currentView === 'applications' ) {
+				state.appsJobId = savedJob;
+			}
+			writeHashView( state.currentView );
+
+			// Browser back/forward and manual hash edits stay in sync.
+			window.addEventListener( 'hashchange', () => {
+				const next = readHashView();
+				if ( next && next !== state.currentView ) {
+					state.currentView = next;
+				}
+			} );
 
 			state.loading = true;
 			state.error   = '';
@@ -402,11 +491,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.jobs     = jobs.map( ( j ) => ( {
 					...j,
 					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
-					// Only the "closed" status is closed. "pending" is awaiting
-					// moderation, "draft" is unsaved — neither should render
-					// struck-through or dimmed like a finished listing.
-					isClosed: j.status === 'closed',
-					isDraft:  j.status === 'draft',
+					// "closed" = employer-closed, "expired" = past-deadline (cron).
+					// Both render as finished listings and offer the Reopen flow.
+					// "pending" is awaiting moderation, "draft" is unsaved.
+					isClosed:  j.status === 'closed',
+					isExpired: j.status === 'expired',
+					isDraft:   j.status === 'draft',
 				} ) );
 
 				if ( allAppsResp && allAppsResp.ok ) {
@@ -423,6 +513,21 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				yield actions.loadApplications();
 			}
 
+			// Tab-restoration prefetch: when sessionStorage restores the
+			// user to a Saved-* tab, the corresponding switchToSaved*
+			// action never fires from a click and the panel sits empty
+			// against a populated sidebar badge. Pull the data inline so
+			// the panel paints correctly on first navigation.
+			if ( state.currentView === 'saved-jobs' && state.savedJobs.length === 0 ) {
+				yield actions.switchToSavedJobs();
+			}
+			if ( state.currentView === 'saved-companies' && state.savedCompanies.length === 0 ) {
+				yield actions.switchToSavedCompanies();
+			}
+			if ( state.currentView === 'saved-resumes' && state.savedResumes.length === 0 ) {
+				yield actions.switchToSavedResumes();
+			}
+
 			if ( state.bellEnabled ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -436,6 +541,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'overview';
 			state.navOpen     = false;
 			sessionStorage.removeItem( 'wcb_employer_view' );
+			writeHashView( 'overview' );
 		},
 
 		switchToJobs() {
@@ -443,12 +549,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
+			writeHashView( 'jobs' );
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
+			writeHashView( 'applications' );
 		},
 
 		switchToCompany() {
@@ -457,6 +565,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'company' );
+			writeHashView( 'company' );
 		},
 
 		switchToSettings() {
@@ -464,12 +573,163 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
+			writeHashView( 'settings' );
 		},
 
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
+			writeHashView( 'post-job' );
+		},
+
+		/**
+		 * Saved Jobs tab. Lazy-fetches once per session. Mirrors the
+		 * candidate-dashboard `switchToBookmarks` shape but lives on the
+		 * employer dashboard because any logged-in user can bookmark.
+		 */
+		*switchToSavedJobs() {
+			state.currentView       = 'saved-jobs';
+			state.navOpen           = false;
+			state.savedJobsError    = '';
+			sessionStorage.setItem( 'wcb_employer_view', 'saved-jobs' );
+			writeHashView( 'saved-jobs' );
+
+			if ( state.savedJobs.length ) {
+				return;
+			}
+			state.savedJobsLoading = true;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.employerId ) + '/bookmarks',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					state.savedJobsError = 'Could not load saved jobs.';
+					return;
+				}
+				const data = yield response.json();
+				state.savedJobs = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
+			} catch {
+				state.savedJobsError = 'Connection error.';
+			} finally {
+				state.savedJobsLoading = false;
+			}
+		},
+
+		*switchToSavedCompanies() {
+			state.currentView          = 'saved-companies';
+			state.navOpen              = false;
+			state.savedCompaniesError  = '';
+			sessionStorage.setItem( 'wcb_employer_view', 'saved-companies' );
+			writeHashView( 'saved-companies' );
+
+			if ( state.savedCompanies.length ) {
+				return;
+			}
+			state.savedCompaniesLoading = true;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.employerId ) + '/saved-companies',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					state.savedCompaniesError = 'Could not load saved companies.';
+					return;
+				}
+				const data = yield response.json();
+				state.savedCompanies = Array.isArray( data ) ? data : ( data?.items ?? [] );
+			} catch {
+				state.savedCompaniesError = 'Connection error.';
+			} finally {
+				state.savedCompaniesLoading = false;
+			}
+		},
+
+		*switchToSavedResumes() {
+			state.currentView        = 'saved-resumes';
+			state.navOpen            = false;
+			state.savedResumesError  = '';
+			sessionStorage.setItem( 'wcb_employer_view', 'saved-resumes' );
+			writeHashView( 'saved-resumes' );
+
+			if ( state.savedResumes.length ) {
+				return;
+			}
+			state.savedResumesLoading = true;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.employerId ) + '/saved-resumes',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					state.savedResumesError = 'Could not load saved resumes.';
+					return;
+				}
+				const data = yield response.json();
+				state.savedResumes = Array.isArray( data ) ? data : ( data?.items ?? [] );
+			} catch {
+				state.savedResumesError = 'Connection error.';
+			} finally {
+				state.savedResumesLoading = false;
+			}
+		},
+
+		*unbookmarkJob() {
+			const ctx = getContext();
+			if ( ! ctx?.job ) {
+				return;
+			}
+			const jobId = ctx.job.id;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/jobs/' + String( jobId ) + '/bookmark',
+					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
+				);
+				if ( response.ok ) {
+					state.savedJobs = state.savedJobs.filter( function( j ) { return j.id !== jobId; } );
+				}
+			} catch {
+				// Silent fail.
+			}
+		},
+
+		*unbookmarkCompany() {
+			const ctx = getContext();
+			if ( ! ctx?.company ) {
+				return;
+			}
+			const companyId = ctx.company.id;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/companies/' + String( companyId ) + '/bookmark',
+					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
+				);
+				if ( response.ok ) {
+					state.savedCompanies = state.savedCompanies.filter( function( c ) { return c.id !== companyId; } );
+				}
+			} catch {
+				// Silent fail.
+			}
+		},
+
+		*unbookmarkResume() {
+			const ctx = getContext();
+			if ( ! ctx?.resume ) {
+				return;
+			}
+			const resumeId = ctx.resume.id;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/resumes/' + String( resumeId ) + '/bookmark',
+					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
+				);
+				if ( response.ok ) {
+					state.savedResumes = state.savedResumes.filter( function( r ) { return r.id !== resumeId; } );
+				}
+			} catch {
+				// Silent fail.
+			}
 		},
 
 		setJobFilter( event ) {
@@ -622,6 +882,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].status      = 'closed';
 						state.jobs[ idx ].statusLabel = 'Closed';
 						state.jobs[ idx ].isClosed    = true;
+						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
 					}
 				}
@@ -653,6 +914,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].status      = 'publish';
 						state.jobs[ idx ].statusLabel = 'Published';
 						state.jobs[ idx ].isClosed    = false;
+						state.jobs[ idx ].isExpired   = false;
 					}
 				}
 			} catch {
@@ -665,6 +927,28 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( field ) {
 				state[ field ] = event.target.value;
 			}
+		},
+
+		updateCustomField( event ) {
+			const key = event.target.getAttribute( 'data-wcb-field' );
+			if ( ! key ) {
+				return;
+			}
+			const target = event.target;
+			let value;
+			if ( target.dataset.wcbMulti ) {
+				// multiselect — collect every checked box sharing this field key.
+				value = Array.from(
+					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
+				)
+					.filter( ( el ) => el.checked )
+					.map( ( el ) => el.value );
+			} else if ( target.type === 'checkbox' ) {
+				value = target.checked;
+			} else {
+				value = target.value;
+			}
+			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
 		*uploadLogo( event ) {
@@ -728,17 +1012,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify( {
-							name:        state.companyName,
-							description: state.companyDesc,
-							tagline:     state.companyTagline,
-							website:     state.companySite,
-							industry:    state.companyIndustry,
-							size:        state.companySize,
-							hq:          state.companyHq,
-							company_type: state.companyType,
-							founded:     state.companyFounded,
-							linkedin:    state.companyLinkedin,
-							twitter:     state.companyTwitter,
+							name:          state.companyName,
+							description:   state.companyDesc,
+							tagline:       state.companyTagline,
+							website:       state.companySite,
+							industry:      state.companyIndustry,
+							size:          state.companySize,
+							hq:            state.companyHq,
+							company_type:  state.companyType,
+							founded:       state.companyFounded,
+							linkedin:      state.companyLinkedin,
+							twitter:       state.companyTwitter,
+							custom_fields: state.customFields || {},
 						} ),
 					}
 				);

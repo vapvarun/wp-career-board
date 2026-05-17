@@ -291,6 +291,10 @@ class AdminSettings {
 	public function handle_create_pages(): void {
 		check_admin_referer( 'wcb_create_pages' );
 
+		// Defense-in-depth cap check alongside the Abilities API gate. The
+		// `wcb/manage-settings` resolves to `manage_options` via the
+		// Abilities API. The single gate is sufficient; no need to
+		// double-check the capability the ability already wraps.
 		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
 		}
@@ -469,56 +473,115 @@ class AdminSettings {
 		( new AdminImport() )->render();
 
 		// Sample data removal section. Defer detection to the wizard so out-of-sync
-		// sites — flag is false but `wcb-sample-` jobs / `*.example.com` companies
-		// still exist — also see the cleanup button instead of being stranded.
+		// sites — flag is false but `wcb-sample-` jobs / `*.example.com` companies /
+		// `_wcb_sample = 1` tagged posts still exist — also see the cleanup button
+		// instead of being stranded.
 		$wcb_has_sample = SetupWizard::has_sample_data();
 		if ( $wcb_has_sample ) :
+			// Ensure the shared confirm-modal assets are present on the settings
+			// page so wcbConfirm() resolves; wcbToast() ships with wcb-admin.
+			wp_enqueue_style( 'wcb-confirm-modal' );
+			wp_enqueue_script( 'wcb-confirm-modal' );
 			?>
-			<div class="wcb-settings-section__block" style="margin-top: 2rem;">
+			<div class="wcb-settings-section__block" id="wcb-sample-data-block" style="margin-top: 2rem;">
 				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Remove the demo companies, jobs, and taxonomy terms created by the setup wizard.', 'wp-career-board' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
 				<button type="button" id="wcb-remove-sample-data" class="button button-secondary" style="margin-top: 0.5rem;">
-			<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
 				</button>
-				<span id="wcb-remove-sample-status" style="margin-left: 0.5rem;"></span>
+				<span id="wcb-remove-sample-status" class="description" style="margin-left: 0.75rem;"></span>
 				<script>
-				document.getElementById('wcb-remove-sample-data')?.addEventListener('click', function() {
-					var confirmMsg = '<?php echo esc_js( __( 'Permanently delete all demo companies, jobs, and unused taxonomy terms? This cannot be undone.', 'wp-career-board' ) ); ?>';
-					if (!window.confirm(confirmMsg)) { return; }
+				( function () {
+					var btn = document.getElementById( 'wcb-remove-sample-data' );
+					if ( ! btn ) { return; }
 
-					var btn = this;
-					var status = document.getElementById('wcb-remove-sample-status');
-					btn.disabled = true;
-					btn.textContent = '<?php echo esc_js( __( 'Removing…', 'wp-career-board' ) ); ?>';
-					fetch(wcbAdmin.restUrl + '/wizard/remove-sample-data', {
-						method: 'POST',
-						headers: { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' },
-					})
-					.then(function(r) { return r.json(); })
-					.then(function(data) {
-						var jobs = parseInt(data && data.jobs, 10) || 0;
-						var companies = parseInt(data && data.companies, 10) || 0;
-						var terms = parseInt(data && data.terms, 10) || 0;
-						var msg = '<?php echo esc_js( __( 'Removed: %JOBS% jobs, %COMPANIES% companies, %TERMS% terms.', 'wp-career-board' ) ); ?>'
-							.replace('%JOBS%', String(jobs))
-							.replace('%COMPANIES%', String(companies))
-							.replace('%TERMS%', String(terms));
-						status.textContent = msg;
-						if (jobs + companies + terms > 0) {
-							setTimeout(function() {
-								btn.closest('.wcb-settings-section__block').style.display = 'none';
-							}, 2500);
-						} else {
-							btn.disabled = false;
-							btn.textContent = '<?php echo esc_js( __( 'Remove Sample Data', 'wp-career-board' ) ); ?>';
+					var labelDefault  = btn.textContent;
+					var labelRemoving = <?php echo wp_json_encode( __( 'Removing…', 'wp-career-board' ) ); ?>;
+					var i18n = {
+						confirmTitle:   <?php echo wp_json_encode( __( 'Remove Sample Data', 'wp-career-board' ) ); ?>,
+						confirmMessage: <?php echo wp_json_encode( __( 'Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone.', 'wp-career-board' ) ); ?>,
+						confirmCta:     <?php echo wp_json_encode( __( 'Delete Sample Data', 'wp-career-board' ) ); ?>,
+						cancel:         <?php echo wp_json_encode( __( 'Cancel', 'wp-career-board' ) ); ?>,
+						success:        <?php echo wp_json_encode( __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ) ); ?>,
+						emptyNotice:    <?php echo wp_json_encode( __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ) ); ?>,
+						error:          <?php echo wp_json_encode( __( 'Could not remove sample data. Please try again.', 'wp-career-board' ) ); ?>,
+					};
+
+					function toast( message, type ) {
+						if ( 'function' === typeof window.wcbToast ) {
+							window.wcbToast( message, type || 'info' );
 						}
-					})
-					.catch(function() {
-						status.textContent = '<?php echo esc_js( __( 'Error, please try again.', 'wp-career-board' ) ); ?>';
-						btn.disabled = false;
-						btn.textContent = '<?php echo esc_js( __( 'Remove Sample Data', 'wp-career-board' ) ); ?>';
-					});
-				});
+					}
+
+					function openConfirm() {
+						if ( 'function' === typeof window.wcbConfirm ) {
+							return window.wcbConfirm( {
+								title:       i18n.confirmTitle,
+								message:     i18n.confirmMessage,
+								confirmText: i18n.confirmCta,
+								cancelText:  i18n.cancel,
+								destructive: true,
+							} );
+						}
+						// Last-resort fallback — only fires if the modal asset failed to load.
+						return window.confirm( i18n.confirmMessage )
+							? Promise.resolve( true )
+							: Promise.reject();
+					}
+
+					btn.addEventListener( 'click', function () {
+						openConfirm().then( function () {
+							var status = document.getElementById( 'wcb-remove-sample-status' );
+							btn.disabled = true;
+							btn.textContent = labelRemoving;
+							status.textContent = '';
+
+							return fetch( wcbAdmin.restUrl + '/wizard/remove-sample-data', {
+								method:  'POST',
+								headers: {
+									'X-WP-Nonce':   wcbAdmin.restNonce,
+									'Content-Type': 'application/json',
+								},
+							} ).then( function ( r ) {
+								if ( ! r.ok ) { throw new Error( 'http ' + r.status ); }
+								return r.json();
+							} ).then( function ( data ) {
+								var jobs       = parseInt( data && data.jobs, 10 ) || 0;
+								var companies  = parseInt( data && data.companies, 10 ) || 0;
+								var candidates = parseInt( data && data.candidates, 10 ) || 0;
+								var terms      = parseInt( data && data.terms, 10 ) || 0;
+								var total      = jobs + companies + candidates + terms;
+
+								if ( total > 0 ) {
+									var msg = i18n.success
+										.replace( '%JOBS%', String( jobs ) )
+										.replace( '%COMPANIES%', String( companies ) )
+										.replace( '%CANDIDATES%', String( candidates ) )
+										.replace( '%TERMS%', String( terms ) );
+									status.textContent = msg;
+									toast( msg, 'success' );
+									setTimeout( function () {
+										var block = document.getElementById( 'wcb-sample-data-block' );
+										if ( block ) { block.style.display = 'none'; }
+									}, 2500 );
+								} else {
+									status.textContent = i18n.emptyNotice;
+									toast( i18n.emptyNotice, 'info' );
+									btn.disabled = false;
+									btn.textContent = labelDefault;
+								}
+							} );
+						} ).catch( function ( err ) {
+							// User cancelled the modal — `err` is undefined; do nothing.
+							if ( ! err ) { return; }
+							var status = document.getElementById( 'wcb-remove-sample-status' );
+							if ( status ) { status.textContent = i18n.error; }
+							toast( i18n.error, 'error' );
+							btn.disabled = false;
+							btn.textContent = labelDefault;
+						} );
+					} );
+				} )();
 				</script>
 			</div>
 			<?php

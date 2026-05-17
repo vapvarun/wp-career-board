@@ -8,10 +8,18 @@
  * @since   1.1.1
  */
 
-/* ── Test-send button transient states ─────────────────────────────────── */
+/* ── Test-send button transient states ───────────────────────────────────
+ *
+ * WP admin's `.button` rule (`buttons.css` in wp-admin/css/) is loaded
+ * by wp-admin globally and applies its own `background`/`border-color`/
+ * `color` defaults at a relatively high specificity. The transient
+ * success/error states must outrank that, so we use a doubled class
+ * selector (`.wcb-email-test-btn.wcb-email-test-btn--ok`) which lands at
+ * (0,2,0) and beats wp-admin's `.button` (0,1,0) on specificity. No
+ * `!important` needed. */
 .wcb-email-test-btn { gap: 6px; align-items: center; }
-.wcb-email-test-btn--ok { background: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; }
-.wcb-email-test-btn--err { background: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+.wcb-email-test-btn.wcb-email-test-btn--ok { background: #ecfdf5; border-color: #10b981; color: #065f46; }
+.wcb-email-test-btn.wcb-email-test-btn--err { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
 
 /* ── Activity log card ─────────────────────────────────────────────────── */
 #wcb-email-activity-log { margin-top: 24px; }
@@ -108,8 +116,10 @@
 
 .wcb-email-log-table tbody td.wcb-email-log-col-status { text-align: center; }
 
-.wcb-email-log-empty {
-	padding: 32px 12px !important;
+/* (0,2,0) selector via doubling beats the wp-admin table-cell padding
+ * rules (0,1,0) without `!important`. */
+.wcb-email-log-table .wcb-email-log-empty {
+	padding: 32px 12px;
 	text-align: center;
 	color: var(--wcb-muted, #6b7280);
 	font-style: italic;

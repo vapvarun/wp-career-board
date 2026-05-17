@@ -183,7 +183,10 @@ final class AdminEndpoint extends RestController {
 			'is_test'       => true,
 		);
 
-		// Capture log row count before to confirm the send wrote a row.
+		// AbstractEmail::test_send() is the public bridge: it bypasses
+		// is_enabled() so disabled templates still render in the admin
+		// preview, and always writes a log row so the row-delta check
+		// detects the dispatch even when wp_mail() returns false.
 		global $wpdb;
 		$before = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
@@ -192,19 +195,7 @@ final class AdminEndpoint extends RestController {
 			)
 		);
 
-		// Reuse the email's protected send() via a dedicated public bridge — defined on
-		// AbstractEmail::test_send() to avoid exposing send() globally.
-		$reflection = new \ReflectionClass( $target );
-		if ( ! $reflection->hasMethod( 'send' ) ) {
-			return new \WP_Error(
-				'wcb_email_not_dispatchable',
-				__( 'Internal error: email class is missing send().', 'wp-career-board' ),
-				array( 'status' => 500 )
-			);
-		}
-		$send = $reflection->getMethod( 'send' );
-		$send->setAccessible( true );
-		$send->invoke( $target, $user->user_email, $test_vars, $user_id );
+		$delivered = $target->test_send( $user->user_email, $test_vars, $user_id );
 
 		$after = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
@@ -215,7 +206,7 @@ final class AdminEndpoint extends RestController {
 
 		return rest_ensure_response(
 			array(
-				'sent'   => $after > $before,
+				'sent'   => $delivered,
 				'to'     => $user->user_email,
 				'logged' => $after - $before,
 			)

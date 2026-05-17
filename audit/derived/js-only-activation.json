@@ -1,0 +1,22 @@
+{
+  "name": "js-only-activation",
+  "computed_at": "2026-05-17T08:52:42.686765Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [
+    {
+      "selector": ".wcb-settings-section",
+      "default_hidden_by": "assets/css/admin/settings.css:159",
+      "active_modifier": "is-active",
+      "active_display": "block",
+      "php_fallback": false,
+      "note": "JS-only activation \u2014 if JS fails to attach, the panel is permanently invisible"
+    }
+  ],
+  "result_count": 1,
+  "notes": "",
+  "algorithm_version": "v2.2.0"
+}

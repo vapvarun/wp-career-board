@@ -435,6 +435,9 @@ class EmailSettings {
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wcb_email_nonce'] ) ), 'wcb_email_settings_save' ) ) {
 			return;
 		}
+		// Single Abilities gate. `wcb/manage-settings` resolves to
+		// `manage_options` internally; the dual-check was a static-
+		// analyzer compromise that the coding-rules gate now blocks.
 		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return;
 		}

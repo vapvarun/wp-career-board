@@ -17,6 +17,49 @@
 import { store, getContext } from '@wordpress/interactivity';
 
 /**
+ * Tabs that are eligible to appear in the URL hash. Anything outside this
+ * allowlist is ignored on read so a stale `#whatever` never lands the user
+ * in an undefined tab state.
+ */
+const VALID_TABS = [
+	'overview',
+	'applications',
+	'bookmarks',
+	'saved-companies',
+	'saved-resumes',
+	'resumes',
+	'resume-builder',
+	'alerts',
+	'profile',
+	'settings',
+];
+
+/**
+ * Read the active tab slug from the current URL hash, or null if missing/invalid.
+ */
+function readHashTab() {
+	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
+	return VALID_TABS.includes( raw ) ? raw : null;
+}
+
+/**
+ * Sync the URL hash to a given tab slug without pushing a new history entry.
+ * `replaceState` keeps Back/Forward predictable — one entry per real navigation,
+ * not per tab click. Skip the write when the hash already matches.
+ */
+function writeHashTab( tab ) {
+	if ( ! VALID_TABS.includes( tab ) ) {
+		return;
+	}
+	const target = '#' + tab;
+	if ( window.location.hash === target ) {
+		return;
+	}
+	const url = window.location.pathname + window.location.search + target;
+	window.history.replaceState( null, '', url );
+}
+
+/**
  * Convert an alert's filters JSON string/object into readable pill labels.
  */
 function buildFilterPills( filters ) {
@@ -84,6 +127,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get isTabSettings() {
 			return state.tab === 'settings';
 		},
+		get isTabSavedCompanies() {
+			return state.tab === 'saved-companies';
+		},
+		get isTabSavedResumes() {
+			return state.tab === 'saved-resumes';
+		},
 		get alertsCount() {
 			return state.alerts.length;
 		},
@@ -115,6 +164,17 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get bookmarksCount() {
 			return state.bookmarks.length;
 		},
+		// `savedCompaniesCountSeed` + `savedResumesCountSeed` are bootstrapped
+		// from PHP at render time so the sidebar badges show the correct
+		// total BEFORE the user clicks the tab (the lazy fetch only kicks
+		// in on tab open). Once the user has fetched, the live array length
+		// is the source of truth.
+		get savedCompaniesCount() {
+			return state.savedCompanies.length || ( state.savedCompaniesCountSeed || 0 );
+		},
+		get savedResumesCount() {
+			return state.savedResumes.length || ( state.savedResumesCountSeed || 0 );
+		},
 
 		// Empty / populated state per panel.
 		get hasApplications() {
@@ -128,6 +188,24 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get noBookmarks() {
 			return ! state.loading && ! state.error && state.bookmarks.length === 0;
+		},
+		get hasSavedCompanies() {
+			return ! state.savedCompaniesLoading && state.savedCompanies.length > 0;
+		},
+		get noSavedCompanies() {
+			return ! state.savedCompaniesLoading && ! state.savedCompaniesError && state.savedCompanies.length === 0;
+		},
+		get hasSavedResumes() {
+			return ! state.savedResumesLoading && state.savedResumes.length > 0;
+		},
+		get noSavedResumes() {
+			return ! state.savedResumesLoading && ! state.savedResumesError && state.savedResumes.length === 0;
+		},
+		get hasResumes() {
+			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
+		},
+		get noResumes() {
+			return ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
 		// Bell notification getters.
@@ -176,13 +254,27 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 	actions: {
 		*init() {
-			// Restore last active tab from sessionStorage (skip if URL forces resume-builder).
-			if ( state.tab === 'overview' ) {
+			// Tab restoration priority: URL hash → sessionStorage → server default.
+			// Hash wins so deep-links / shared URLs / browser back-forward land on
+			// the intended tab regardless of any prior session activity.
+			const hashTab = readHashTab();
+			if ( hashTab ) {
+				state.tab = hashTab;
+			} else if ( state.tab === 'overview' ) {
 				const saved = sessionStorage.getItem( 'wcb_candidate_tab' );
 				if ( saved ) {
 					state.tab = saved;
 				}
 			}
+			writeHashTab( state.tab );
+
+			// Browser back/forward and manual hash edits stay in sync.
+			window.addEventListener( 'hashchange', () => {
+				const next = readHashTab();
+				if ( next && next !== state.tab ) {
+					state.tab = next;
+				}
+			} );
 
 			state.loading = true;
 			state.error   = '';
@@ -245,6 +337,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				yield actions.switchToResumes();
 			}
 
+			// Deep-link prefetch: when the URL hash lands the user directly on
+			// Saved Companies or Saved Resumes, switchToSaved* never fires from
+			// a click and the panel sits empty against a populated sidebar
+			// badge. Pull the data inline so the panel paints correctly on
+			// first navigation.
+			if ( state.tab === 'saved-companies' && state.savedCompanies.length === 0 ) {
+				yield actions.switchToSavedCompanies();
+			}
+			if ( state.tab === 'saved-resumes' && state.savedResumes.length === 0 ) {
+				yield actions.switchToSavedResumes();
+			}
+
 			if ( state.bellEnabled ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -258,6 +362,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'overview';
 			state.navOpen = false;
 			sessionStorage.removeItem( 'wcb_candidate_tab' );
+			writeHashTab( 'overview' );
 		},
 
 		switchToApplications() {
@@ -265,6 +370,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'applications' );
+			writeHashTab( 'applications' );
 		},
 
 		*switchToBookmarks() {
@@ -272,6 +378,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 			state.navOpen = false;
 			sessionStorage.setItem( 'wcb_candidate_tab', 'bookmarks' );
+			writeHashTab( 'bookmarks' );
 
 			if ( state.bookmarks.length ) {
 				return;
@@ -305,6 +412,133 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
 		},
 
+		/**
+		 * Saved Companies tab. Lazy-fetches once per session, mirroring
+		 * the `switchToBookmarks` shape.
+		 */
+		*switchToSavedCompanies() {
+			state.tab     = 'saved-companies';
+			state.navOpen = false;
+			state.savedCompaniesError = '';
+			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-companies' );
+			writeHashTab( 'saved-companies' );
+
+			if ( state.savedCompanies.length ) {
+				return;
+			}
+			state.savedCompaniesLoading = true;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/saved-companies',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					state.savedCompaniesError = state.strings.errLoadBookmarks || 'Could not load saved companies.';
+					return;
+				}
+				const data = yield response.json();
+				state.savedCompanies = Array.isArray( data ) ? data : ( data?.items ?? [] );
+			} catch {
+				state.savedCompaniesError = state.strings.errConnectionFull || 'Connection error.';
+			} finally {
+				state.savedCompaniesLoading = false;
+			}
+		},
+
+		/**
+		 * Saved Resumes tab. Same shape as Saved Companies; Pro-only data
+		 * source but the endpoint exists in Free and returns an empty list
+		 * when the wcb_resume CPT isn't registered.
+		 */
+		*switchToSavedResumes() {
+			state.tab     = 'saved-resumes';
+			state.navOpen = false;
+			state.savedResumesError = '';
+			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-resumes' );
+			writeHashTab( 'saved-resumes' );
+
+			if ( state.savedResumes.length ) {
+				return;
+			}
+			state.savedResumesLoading = true;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/candidates/' + String( state.candidateId ) + '/saved-resumes',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					state.savedResumesError = state.strings.errLoadBookmarks || 'Could not load saved resumes.';
+					return;
+				}
+				const data = yield response.json();
+				state.savedResumes = Array.isArray( data ) ? data : ( data?.items ?? [] );
+			} catch {
+				state.savedResumesError = state.strings.errConnectionFull || 'Connection error.';
+			} finally {
+				state.savedResumesLoading = false;
+			}
+		},
+
+		/**
+		 * Remove a company bookmark. Mirrors `unbookmark` for jobs.
+		 */
+		*unbookmarkCompany() {
+			const ctx = getContext();
+			if ( ! ctx?.company ) {
+				return;
+			}
+			const companyId = ctx.company.id;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/companies/' + String( companyId ) + '/bookmark',
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+					}
+				);
+				if ( response.ok ) {
+					state.savedCompanies = state.savedCompanies.filter( function( c ) {
+						return c.id !== companyId;
+					} );
+				}
+			} catch {
+				// Silent fail - user can retry.
+			}
+		},
+
+		/**
+		 * Remove a resume bookmark. Mirrors `unbookmark` for jobs.
+		 */
+		*unbookmarkResume() {
+			const ctx = getContext();
+			if ( ! ctx?.resume ) {
+				return;
+			}
+			const resumeId = ctx.resume.id;
+			try {
+				const response = yield fetch(
+					state.apiBase + '/resumes/' + String( resumeId ) + '/bookmark',
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+					}
+				);
+				if ( response.ok ) {
+					state.savedResumes = state.savedResumes.filter( function( r ) {
+						return r.id !== resumeId;
+					} );
+				}
+			} catch {
+				// Silent fail - user can retry.
+			}
+		},
+
 		switchToProfile() {
 			state.tab         = 'profile';
 			state.navOpen     = false;
@@ -323,6 +557,28 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved = false;
 		},
 
+		updateProfilePhone( event ) {
+			state.profilePhone = event.target.value;
+			state.profileSaved = false;
+		},
+
+		updateProfileLocation( event ) {
+			state.profileLocation = event.target.value;
+			state.profileSaved    = false;
+		},
+
+		updateCustomField( event ) {
+			const key = event.target.getAttribute( 'data-wcb-field' );
+			if ( ! key ) {
+				return;
+			}
+			const target = event.target;
+			const value  = ( target.type === 'checkbox' )
+				? target.checked
+				: target.value;
+			state.customFields = { ...state.customFields, [ key ]: value };
+		},
+
 		*saveProfile() {
 			state.profileSaving = true;
 			state.profileSaved  = false;
@@ -336,7 +592,14 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 							'X-WP-Nonce':   state.nonce,
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify( { bio: state.profileBio } ),
+						body: JSON.stringify( {
+						bio:           state.profileBio,
+						resume_data:   {
+							phone:    state.profilePhone || '',
+							location: state.profileLocation || '',
+						},
+						custom_fields: state.customFields || {},
+					} ),
 					}
 				);
 				if ( response.ok ) {

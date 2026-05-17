@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.1.1
+ * Version:     1.2.0
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.1.1' );
+define( 'WCB_VERSION', '1.2.0' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -65,8 +65,8 @@ if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
  * remote call is best-effort and never retries.
  *
  * Earlier behaviour retried the remote on every admin_init when the
- * response was anything other than a valid license — surfacing the
- * remote 403 as a recurring PHP error in admin (Basecamp 9862270651).
+ * response was anything other than a valid license, surfacing the
+ * remote 403 as a recurring PHP error in admin.
  */
 add_action(
 	'admin_init',

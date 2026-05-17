@@ -1,0 +1,70 @@
+{
+  "name": "layout-owning-blocks",
+  "computed_at": "2026-05-17T08:52:42.716960Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [
+    {
+      "block": "job-form-simple",
+      "render": "blocks/job-form-simple/render.php",
+      "style": "blocks/job-form-simple/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "job-listings",
+      "render": "blocks/job-listings/render.php",
+      "style": "blocks/job-listings/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "job-form",
+      "render": "blocks/job-form/render.php",
+      "style": "blocks/job-form/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "company-profile",
+      "render": "blocks/company-profile/render.php",
+      "style": "blocks/company-profile/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "job-single",
+      "render": "blocks/job-single/render.php",
+      "style": "blocks/job-single/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "company-archive",
+      "render": "blocks/company-archive/render.php",
+      "style": "blocks/company-archive/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "featured-jobs",
+      "render": "blocks/featured-jobs/render.php",
+      "style": "blocks/featured-jobs/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    },
+    {
+      "block": "employer-registration",
+      "render": "blocks/employer-registration/render.php",
+      "style": "blocks/employer-registration/style.css",
+      "layout_owning": true,
+      "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+    }
+  ],
+  "result_count": 8,
+  "notes": "",
+  "algorithm_version": "v2.2.0"
+}

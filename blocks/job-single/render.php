@@ -466,7 +466,19 @@ wp_interactivity_state(
 						$wcb_desc_out[] = '</ul>';
 					}
 					$wcb_job_desc = implode( "\n", $wcb_desc_out );
-					echo wp_kses_post( apply_filters( 'the_content', $wcb_job_desc ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					// Render the description through paragraph wrapping +
+					// shortcode expansion + kses sanitization. Earlier this
+					// block called `apply_filters( 'the_content', $wcb_job_desc )`
+					// for the same goal, but that path is unsafe inside a
+					// block render: when the block itself is emitted via
+					// the_content (e.g. by `Jobs_Module::inject_job_single`)
+					// the recursive filter re-fires this render and the
+					// process spins until PHP runs out of memory (observed
+					// crash: 256MB exhausted at `class-wp-tax-query.php`).
+					// The local pipeline produces the same output for
+					// description content without re-entering the global
+					// content filter chain.
+					echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
 					?>
 				</div>
 			</div>
@@ -502,7 +514,10 @@ wp_interactivity_state(
 
 			<?php /* Job Details card */ ?>
 			<div class="wcb-sidebar-card">
-				<h3 class="wcb-card-title"><?php esc_html_e( 'Job Details', 'wp-career-board' ); ?></h3>
+				<h3 class="wcb-card-title">
+					<?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php esc_html_e( 'Job Details', 'wp-career-board' ); ?>
+				</h3>
 				<dl class="wcb-detail-list">
 					<?php if ( $wcb_type ) : ?>
 						<div class="wcb-detail-row">
@@ -615,13 +630,23 @@ wp_interactivity_state(
 				<?php endif; ?>
 			</div>
 
-			<?php /* Share bar */ ?>
+			<?php
+			/*
+			Share bar — wrapped in sidebar-card chrome so it
+			 * matches Job Details + About the Company card density
+			 * instead of floating as an orphan between two cards. */
+			?>
 			<?php
 			$wcb_share_url    = rawurlencode( (string) get_permalink( $wcb_job_id ) );
 			$wcb_share_title  = rawurlencode( $wcb_job->post_title );
 			$wcb_twitter_url  = 'https://x.com/intent/tweet?text=' . $wcb_share_title . '&url=' . $wcb_share_url;
 			$wcb_linkedin_url = 'https://www.linkedin.com/sharing/share-offsite/?url=' . $wcb_share_url;
 			?>
+			<div class="wcb-sidebar-card wcb-share-card">
+				<h3 class="wcb-card-title">
+					<?php echo \WCB\Core\Icon::svg( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php esc_html_e( 'Share', 'wp-career-board' ); ?>
+				</h3>
 			<div class="wcb-share-bar">
 				<span class="wcb-share-label"><?php esc_html_e( 'Share:', 'wp-career-board' ); ?></span>
 				<a
@@ -656,11 +681,15 @@ wp_interactivity_state(
 					</span>
 				</button>
 			</div>
+			</div>
 
 			<?php /* Company card */ ?>
 			<?php if ( $wcb_company_name ) : ?>
 				<div class="wcb-sidebar-card wcb-company-card">
-					<h3 class="wcb-card-title"><?php esc_html_e( 'About the Company', 'wp-career-board' ); ?></h3>
+					<h3 class="wcb-card-title">
+						<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
+					</h3>
 					<div class="wcb-company-card-header">
 						<div class="wcb-company-avatar wcb-company-avatar--sm">
 				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>

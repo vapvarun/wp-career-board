@@ -1,0 +1,490 @@
+{
+  "name": "rest-hang-risks",
+  "computed_at": "2026-05-17T08:52:42.705078Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [
+    {
+      "where": "blocks/job-form-simple/view.js:113",
+      "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-form-simple/view.js:225",
+      "snippet": "const response = yield fetch( state.apiBase + '/jobs', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-listings/view.js:179",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-listings/view.js:437",
+      "snippet": "const response = yield fetch( url.toString(), {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-listings/view.js:478",
+      "snippet": "const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:283",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:304",
+      "snippet": "const bmResponse = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:318",
+      "snippet": "const alertsRes = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:390",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:431",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:465",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:492",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:522",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:587",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:633",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:662",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:686",
+      "snippet": "yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:724",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:747",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:794",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:830",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:876",
+      "snippet": "const uploadResp = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:901",
+      "snippet": "const createResp = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:941",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:975",
+      "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:994",
+      "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:1006",
+      "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:1032",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/candidate-dashboard/view.js:1094",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-form/view.js:333",
+      "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-form/view.js:448",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/company-profile/view.js:28",
+      "snippet": "const response = yield fetch( url, {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/company-profile/view.js:61",
+      "snippet": "const response = yield fetch( url.toString() );",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:477",
+      "snippet": "const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:479",
+      "snippet": "fetchPromises.push( fetch( appsUrl, { headers } ) );",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:603",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:632",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:661",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:685",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:704",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:723",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:792",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:828",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:868",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:900",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:967",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:1006",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:1063",
+      "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:1082",
+      "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-dashboard/view.js:1094",
+      "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-single/view.js:155",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-single/view.js:248",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/job-single/view.js:293",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/company-archive/view.js:135",
+      "snippet": "const response = yield fetch( url, {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/company-archive/view.js:177",
+      "snippet": "const response = yield fetch( wcbBuildUrl( state.page ) );",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/company-archive/view.js:264",
+      "snippet": "fetch( wcbBuildUrl( 1 ) )",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "blocks/employer-registration/view.js:107",
+      "snippet": "const response = yield fetch(",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin.js:126",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin.js:186",
+      "snippet": "return wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin.js:223",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin.js:332",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin.js:399",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/wizard.js:46",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/wizard.js:106",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/wizard.js:124",
+      "snippet": "wp.apiFetch( {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin/emails.js:38",
+      "snippet": "fetch( cfg.restBase + '/admin/emails/test', {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin/emails.js:189",
+      "snippet": "fetch( url, {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    },
+    {
+      "where": "assets/js/admin/application-detail.js:13",
+      "snippet": "return fetch( endpoint, {",
+      "uses_abort_signal": false,
+      "has_timeout_ms": null,
+      "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+    }
+  ],
+  "result_count": 68,
+  "notes": "",
+  "algorithm_version": "v2.2.0"
+}

@@ -48,7 +48,7 @@
 }
 
 .wcb-stat-value {
-	font-size: 1.75rem;
+	font-size: var(--wcb-text-2xl);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast);
 	line-height: 1;
@@ -202,7 +202,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
-	padding: 7px 14px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);

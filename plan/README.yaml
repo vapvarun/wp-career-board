@@ -89,3 +89,17 @@ dated:
     scope: Spreadsheet capture of every current_user_can() call site used to drive U3 ability-API rollout.
     owner: TBD
     format: csv
+
+  - id: SHARED-TEMPLATES
+    path: SHARED-TEMPLATES.md
+    status: shipped
+    scope: Inventory of templates shared between Free, Pro, and Reign/BuddyX themes — what each owns and how the resolution order works.
+    owner: TBD
+    format: markdown
+
+  - id: SCALE-100K
+    path: SCALE-100K.md
+    status: shipped
+    scope: Scale benchmark plan — hot-path query budgets, seed strategy, and bench targets for 100k-row dataset.
+    owner: TBD
+    format: markdown

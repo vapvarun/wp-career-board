@@ -317,7 +317,7 @@ final class ApplicationsEndpoint extends RestController {
 		// as the user types and POSTs them as custom_fields[<key>] = <value>. We
 		// validate every submitted key against the active filter output (so a
 		// hand-crafted POST can't write arbitrary postmeta) and persist per-key
-		// as `_wcb_application_field_<key>`. Closes Basecamp 9874915447.
+		// as `_wcb_application_field_<key>`.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- REST nonce checked by infrastructure (permission_callback runs first).
 		$wcb_custom_input = isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] )
 			? wp_unslash( $_POST['custom_fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- per-key sanitized below.
@@ -742,8 +742,7 @@ final class ApplicationsEndpoint extends RestController {
 	private function resume_required(): bool {
 		// Default to true on installs that have never written the setting:
 		// candidate-side validation is the customer expectation for a job
-		// board (see Basecamp 9818132111). Site owners who explicitly turn
-		// it off keep their saved value.
+		// board. Site owners who explicitly turn it off keep their saved value.
 		return \WCB\Admin\Settings::bool( 'apply_resume_required', true );
 	}
 

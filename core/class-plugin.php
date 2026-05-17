@@ -234,6 +234,8 @@ final class Plugin {
 			'recent-jobs',
 			'job-stats',
 			'job-search-hero',
+			'similar-companies-card',
+			'job-alert-card',
 		);
 
 		// Register tokens stylesheet so blocks can declare it as a dependency.
@@ -247,15 +249,73 @@ final class Plugin {
 			WCB_VERSION
 		);
 
+		// Same-family UI primitives. Every plugin-rendered customer page uses
+		// `.wcb-page`, `.wcb-card`, `.wcb-btn`, `.wcb-input`, `.wcb-badge`,
+		// `.wcb-empty-state` — one shared vocabulary so the dashboard, public
+		// archives, and Pro forms read as one product. Listed as a dependency
+		// when each block's style array is enqueued (see
+		// `enqueue_block_style_array()`) so the primitives load before block
+		// overrides.
+		wp_register_style(
+			'wcb-ui',
+			WCB_URL . 'assets/css/wcb-ui.css',
+			array( 'wcb-frontend-tokens' ),
+			WCB_VERSION
+		);
+
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
-			if ( is_dir( $block_dir ) ) {
-				register_block_type_from_metadata( $block_dir );
-				wp_enqueue_block_style(
-					'wp-career-board/' . $block,
-					array( 'handle' => 'wcb-frontend-tokens' )
-				);
+			if ( ! is_dir( $block_dir ) ) {
+				continue;
 			}
+			register_block_type_from_metadata( $block_dir );
+			wp_enqueue_block_style(
+				'wp-career-board/' . $block,
+				array( 'handle' => 'wcb-frontend-tokens' )
+			);
+			wp_enqueue_block_style(
+				'wp-career-board/' . $block,
+				array( 'handle' => 'wcb-ui' )
+			);
+			$this->enqueue_block_style_array( 'wp-career-board/' . $block, $block_dir, $block );
+		}
+	}
+
+	/**
+	 * Enqueue every entry of a block.json `style[]` array as its own block-style handle.
+	 *
+	 * WP's lazy block-asset loader only auto-enqueues the first entry of a
+	 * multi-file `style[]` array reliably; subsequent entries register but
+	 * never reach the page when the block renders (observed on WP 6.9 with
+	 * the dashboard blocks that ship `style.css` + four `styles/*.css`
+	 * partials). Explicitly registering and attaching each file via
+	 * `wp_enqueue_block_style` makes every declared stylesheet land
+	 * whenever the block appears in a post.
+	 *
+	 * @since 1.2.0
+	 * @param string $block_name Fully-qualified block name (namespace/slug).
+	 * @param string $block_dir  Absolute path to the block directory.
+	 * @param string $block_slug Block slug (used to build deterministic style handles).
+	 * @return void
+	 */
+	private function enqueue_block_style_array( string $block_name, string $block_dir, string $block_slug ): void {
+		$data = wp_json_file_decode( $block_dir . '/block.json', array( 'associative' => true ) );
+		if ( ! is_array( $data ) || empty( $data['style'] ) || ! is_array( $data['style'] ) ) {
+			return;
+		}
+		foreach ( $data['style'] as $index => $entry ) {
+			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', (string) $entry ), '/' );
+			if ( '' === $relative ) {
+				continue;
+			}
+			$handle = 'wcb-' . $block_slug . '-style-' . (int) $index;
+			wp_register_style(
+				$handle,
+				WCB_URL . 'blocks/' . $block_slug . '/' . $relative,
+				array( 'wcb-frontend-tokens', 'wcb-ui' ),
+				WCB_VERSION
+			);
+			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
 		}
 	}
 
@@ -294,6 +354,13 @@ final class Plugin {
 			'wcb_job_stats'           => 'wp-career-board/job-stats',
 			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
 			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
+			'wcb_similar_companies'   => 'wp-career-board/similar-companies-card',
+			'wcb_job_alert_card'      => 'wp-career-board/job-alert-card',
+			// Canonical alias for the existing wcb_registration tag. Matches the
+			// block name (employer-registration) and the docs. wcb_registration
+			// stays registered above as a back-compat tag for sites that already
+			// embedded it.
+			'wcb_employer_registration' => 'wp-career-board/employer-registration',
 		);
 
 		// WordPress's shortcode parser lowercases attribute keys (jobId →
@@ -976,14 +1043,47 @@ final class Plugin {
 			return true;
 		}
 
-		// Pages containing a WCB block.
+		// Page-level detection - block markup OR shortcode form. The shortcode
+		// path matters because page builders, classic editors, Elementor, and
+		// Bricks emit `[wcb_*]` rather than block comments; without it those
+		// pages render without frontend-components.css and the load-more
+		// button, empty states, and sort selects fall back to browser default.
 		global $post;
 		if ( ! $post instanceof \WP_Post ) {
 			return false;
 		}
-		return has_block( 'wp-career-board/', $post )
-			|| str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
-			|| str_contains( $post->post_content, '<!-- wp:wcb/' );
+		$content = (string) $post->post_content;
+		if ( has_block( 'wp-career-board/', $post )
+			|| str_contains( $content, '<!-- wp:wp-career-board/' )
+			|| str_contains( $content, '<!-- wp:wcb/' ) ) {
+			return true;
+		}
+		// Mirrors resolve_page_context() shortcode-prefix path so the two
+		// detectors stay in lockstep. Filter is the documented extension hook.
+		$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
+		foreach ( $shortcode_prefixes as $prefix ) {
+			if ( str_contains( $content, '[' . $prefix ) ) {
+				return true;
+			}
+		}
+
+		/**
+		 * Filter whether the current request needs the shared WCB frontend
+		 * stylesheets (frontend.css, frontend-tokens.css, frontend-components.css).
+		 *
+		 * Contexts that render WCB blocks outside the page's post_content -
+		 * e.g. Pro's BuddyPress profile tabs, which call render_block() inside
+		 * bp_template_content after wp_head has already run - have no block
+		 * markup for the detectors above to match. Without opting in here those
+		 * pages load the per-block style.css but not the shared components
+		 * sheet, so primitives like the load-more wrapper (default display:none),
+		 * empty states, and sort selects fall back to browser defaults.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param bool $needs_assets Whether the shared frontend styles should load.
+		 */
+		return (bool) apply_filters( 'wcb_page_needs_frontend_assets', false );
 	}
 
 	/**

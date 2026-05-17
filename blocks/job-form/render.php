@@ -139,6 +139,13 @@ $wcb_board_currency = $wcb_board_id > 0
 // employer can target the post at a specific board. Single-board sites skip
 // the picker entirely; the REST callback falls back to the default board.
 $wcb_board_options = array();
+// Per-board credit cost + currency maps: { board_id => value }. Seeded at
+// render so the JS layer can update `state.creditCost` / `state.currencyCode`
+// reactively when the employer switches boards in the picker, without a REST
+// round-trip. Pro fulfils the per-board overrides via the
+// `wcb_board_credit_cost` and `wcb_board_currency` filters.
+$wcb_board_credit_costs = array();
+$wcb_board_currencies   = array();
 if ( post_type_exists( 'wcb_board' ) ) {
 	$wcb_board_posts = get_posts(
 		array(
@@ -149,10 +156,12 @@ if ( post_type_exists( 'wcb_board' ) ) {
 		)
 	);
 	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[] = array(
+		$wcb_board_options[]                        = array(
 			'id'    => (int) $wcb_b->ID,
 			'title' => $wcb_b->post_title,
 		);
+		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
+		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
 	}
 
 	/**
@@ -235,6 +244,16 @@ $wcb_initial_state = apply_filters(
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
 		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
+		// Per-board cost lookup so view.js can update creditCost
+		// reactively when the employer switches boards. Object keyed by
+		// stringified board ID for predictable JS access. See the
+		// matching `actions.updateField` board-switch branch.
+		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		// Per-board currency override map: { board_id => 'EUR' }. JS reads
+		// this on board switch so the currency dropdown updates without a
+		// REST round-trip. Empty string means no override - fall back to
+		// the current state.currencyCode.
+		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Translated templates for state.creditMessage. JS interpolates with
@@ -243,6 +262,8 @@ $wcb_initial_state = apply_filters(
 		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
 		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
 		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
+		/* translators: %d: current credit balance. Shown when the selected board has no credit cost. */
+		'creditFreeTemplate'         => __( 'Free to post on this board. Your balance: %d.', 'wp-career-board' ),
 		/* translators: %d: number of credits (singular). */
 		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
 		/* translators: %d: number of credits (plural). */
@@ -254,7 +275,14 @@ $wcb_initial_state = apply_filters(
 		'boardId'                    => $wcb_board_id,
 		'boardOptions'               => $wcb_board_options,
 		'showBoardPicker'            => count( $wcb_board_options ) > 1,
-		'customFields'               => (object) array(),
+		'customFields'               => (object) (
+			$wcb_edit_id > 0
+				? \WCB\Core\FormCustomFields::load_values(
+					(array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+					$wcb_edit_id
+				)
+				: array()
+		),
 		'typeNames'                  => (object) $wcb_type_names,
 		'expNames'                   => (object) $wcb_exp_names,
 		'locationNames'              => (object) $wcb_location_names,
@@ -317,7 +345,7 @@ $wcb_step_labels = array(
 	<!-- ── Credit info banner ────────────────────────────────────────────── -->
 	<div
 		class="wcb-credit-banner"
-		data-wp-class--wcb-credit-banner--show="state.hasCreditCost"
+		data-wp-class--wcb-credit-banner--show="state.hasCreditBanner"
 		data-wp-class--wcb-credit-banner--warn="state.insufficientCredits"
 	>
 		<span class="wcb-credit-banner__text" data-wp-text="state.creditMessage"></span>
@@ -729,6 +757,7 @@ $wcb_step_labels = array(
 						data-wp-bind--value="state.locationCustom"
 						data-wp-on--input="actions.updateField"
 						data-wp-class--wcb-hidden="!state.locationIsCustom"
+						aria-label="<?php esc_attr_e( 'Custom location', 'wp-career-board' ); ?>"
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
@@ -782,6 +811,14 @@ $wcb_step_labels = array(
 			 * @param array $attributes Block attributes.
 			 */
 			do_action( 'wcb_job_form_step3_fields', $attributes );
+
+			// Custom-field groups from wcb_job_form_fields (Pro Field Builder
+			// + any add-on). Rendered at the end of step 3 so they appear
+			// just before the preview / submit step.
+			$wcb_step3_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) );
+			if ( ! empty( $wcb_step3_custom_groups ) ) {
+				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
+			}
 			?>
 
 			<div class="wcb-form-nav">

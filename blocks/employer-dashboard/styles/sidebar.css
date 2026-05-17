@@ -235,7 +235,7 @@
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
-		padding: 13px var(--wcb-space-lg);
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
 		background: var(--wcb-base);
 		border: none;
 		border-bottom: 1px solid var(--wcb-border);
@@ -298,7 +298,7 @@
 
 	.wcb-nav-item {
 		width: 100%;
-		padding: 11px var(--wcb-space-lg);
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
 		border-radius: 0;
 		border-bottom: none;
 		text-align: start;

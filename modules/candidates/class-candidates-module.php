@@ -71,32 +71,25 @@ final class CandidatesModule {
 	/**
 	 * Register the wcb_resume post type.
 	 *
-	 * Public-archive visibility is controlled by the `resume_archive_enabled`
-	 * setting (and its `wcb_resume_archive_enabled` filter). Pro flips the
-	 * setting on activation rather than mutating CPT args at runtime — this
-	 * keeps Free as the single source of truth for the CPT contract so single-
-	 * resume URLs don't 404 silently if Pro is later deactivated and the site
-	 * owner wants the archive to stay up.
+	 * The CPT is always publicly queryable with a `/resume/{slug}/` permalink
+	 * so single-resume URLs always resolve — they are required by the
+	 * resume-archive block, the BuddyPress profile resume tab, the employer
+	 * "view candidate" CTA, and Pro's resume-search hero. Earlier versions
+	 * coupled CPT visibility to `wcb_settings.resume_archive_enabled`, which
+	 * silently 404'd every "View Resume" link as soon as the archive page
+	 * was disabled. That setting (and its `wcb_resume_archive_enabled`
+	 * filter) now gates only the archive listing surface (see the
+	 * resume-archive block render), not the CPT contract itself.
+	 *
+	 * `has_archive` stays false: the public listing is driven by the site
+	 * owner's dedicated archive page (the `resume_archive_page` setting,
+	 * which renders the `wcb/resume-archive` block) rather than WP's
+	 * /resume/ index.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function register_post_type(): void {
-		$public = \WCB\Admin\Settings::bool( 'resume_archive_enabled', false );
-
-		/**
-		 * Filter the public-archive visibility of `wcb_resume`.
-		 *
-		 * Site owners can override the admin setting programmatically — useful
-		 * for staging environments or addon plugins that need to toggle the
-		 * archive based on their own conditions.
-		 *
-		 * @since 1.2.0
-		 *
-		 * @param bool $public Whether the resume archive should be public.
-		 */
-		$public = (bool) apply_filters( 'wcb_resume_archive_enabled', $public );
-
 		register_post_type(
 			'wcb_resume',
 			array(
@@ -108,17 +101,17 @@ final class CandidatesModule {
 					'not_found'          => __( 'No resumes found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No resumes found in Trash.', 'wp-career-board' ),
 				),
-				'public'             => $public,
-				'publicly_queryable' => $public,
+				'public'             => true,
+				'publicly_queryable' => true,
 				'show_ui'            => true,
 				'show_in_rest'       => true,
 				'show_in_menu'       => false,
 				'has_archive'        => false,
 				'show_in_nav_menus'  => false,
-				'rewrite'            => $public ? array(
+				'rewrite'            => array(
 					'slug'       => 'resume',
 					'with_front' => false,
-				) : false,
+				),
 				'supports'           => array( 'title', 'custom-fields' ),
 				'capability_type'    => 'post',
 				'map_meta_cap'       => true,

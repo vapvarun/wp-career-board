@@ -9,7 +9,24 @@
 	margin: 0 0 var(--wcb-space-2xl);
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+/* ── Search row ──────────────────────────────────────────────────────────
+ * Full-width search input above the toolbar - matches the position of the
+ * `.wcb-search-sort-row` in job-listings and the search input in
+ * resume-archive so all three archives share the same vertical rhythm. */
+.wcb-ca-search-row {
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+.wcb-ca-search-row .wcb-search-wrap {
+	max-width: 720px;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────────
+ * Legacy `.wcb-ca-toolbar` markup is no longer emitted by render.php —
+ * the canonical `.wcb-listings-toolbar` rules in assets/css/frontend-
+ * components.css now style the Companies toolbar identically to Find
+ * Jobs and Find Candidates. Kept here for any legacy CPT archive
+ * templates that still emit the old class until those are migrated. */
 .wcb-ca-toolbar {
 	display: flex;
 	align-items: center;
@@ -27,48 +44,28 @@
 	flex: 0 0 auto;
 }
 
-/* -- Filter bar -- */
+/* -- Filter bar (chip rows stacked vertically) --
+ * 1.2.0 — selects replaced with `.wcb-chip-bar` rows defined globally in
+ * `assets/css/wcb-ui.css`. The filter bar is the column that hosts both
+ * chip rows (Industry + Size) and absorbs the remaining horizontal space
+ * so the layout toggle on the right keeps its edge alignment. */
 .wcb-ca-filter-bar {
 	display: flex;
+	flex-direction: column;
 	gap: var(--wcb-space-sm);
-	flex-wrap: wrap;
-	align-items: center;
 	flex: 1 1 auto;
+	min-width: 0;
 }
 
 /*
  * Pushes the layout toggle (.wcb-layout-toggle / .wcb-view-switcher) to the
  * right edge of the toolbar without leaving an awkward gap between the
- * results count and the filter selects on the left. Achieved by giving the
+ * results count and the chip filters on the left. Achieved by giving the
  * filter bar `flex: 1 1 auto` so it absorbs the remaining horizontal space.
  */
 .wcb-ca-toolbar > .wcb-layout-toggle,
 .wcb-ca-toolbar > .wcb-view-switcher {
 	margin-inline-start: auto;
-}
-
-.wcb-ca-filter-select {
-	appearance: none;
-	-webkit-appearance: none;
-	background-color: var(--wcb-base);
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 0.6rem center;
-	padding: var(--wcb-space-xs) var(--wcb-space-3xl) var(--wcb-space-xs) var(--wcb-space-md);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-sm);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-fast);
-	max-width: 200px;
-}
-
-.wcb-ca-filter-select:focus {
-	outline: 2px solid transparent;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
 }
 
 /* -- Layout toggle -- */
@@ -88,7 +85,7 @@
 	align-items: center;
 	justify-content: center;
 	width: var(--wcb-space-3xl);
-	height: 30px;
+	height: 30px; /* component dimension */
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -98,10 +95,12 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
-.wcb-layout-btn svg,
-.wcb-view-btn svg {
-	display: block !important;
-	visibility: visible !important;
+/* (0,3,1) prefix beats Reign's `button svg` hide rules - no
+ * `!important` needed. */
+[class*="wp-block-wp-career-board"] .wcb-layout-btn svg,
+[class*="wp-block-wp-career-board"] .wcb-view-btn svg {
+	display: block;
+	visibility: visible;
 	width: var(--wcb-space-lg);
 	height: var(--wcb-space-lg);
 	flex-shrink: 0;
@@ -129,7 +128,15 @@
 
 .wcb-ca-container.wcb-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+	/* Force 3 explicit columns at desktop so Companies renders the same 3-up
+	 * grid as Find Candidates regardless of the parent chain padding deltas
+	 * Astra applies to `.wcb-page-article` (the wrapper our
+	 * `page-wcb-fullwidth.php` template puts the block in). An auto-fill
+	 * template here collapsed to 2-col because the sidebar filter panel
+	 * eats ~240px of the row, leaving < 3 × 280px. Mirrors the same fix
+	 * used in `blocks/resume-archive/style.css`. Falls back to 2-col / 1-col
+	 * at the narrower breakpoints handled by the @media block below. */
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: var(--wcb-space-xl);
 }
 
@@ -147,32 +154,92 @@
 	box-shadow: var(--wcb-shadow-md);
 }
 
+/* Grid layout: avatar inline with name + tagline (col 1 | col 2 row 1).
+ * Chips + footer flow as siblings BELOW the header row and span the
+ * full card width so they start from the left edge of the card instead
+ * of indenting under col 2. Saves vertical space and avoids the
+ * "wasted gutter" the audit flagged ("rest must start from left side
+ * why leave space"). */
 .wcb-ca-card-link {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto 1fr auto;
+	grid-template-areas:
+		"avatar body"
+		"chips chips"
+		"footer footer";
+	column-gap: var(--wcb-space-lg);
+	row-gap: var(--wcb-space-md);
 	height: 100%;
 	text-decoration: none;
 	color: inherit;
 	padding: var(--wcb-space-xl);
-	gap: var(--wcb-space-md);
 	position: relative;
 }
+
+.wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
+.wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; }
+.wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
 	text-decoration: none;
 	color: inherit;
 }
 
-/* List view: cards are horizontal */
+/* List view: avatar | body (with tagline + chips stacked) | footer.
+ * Body column packs the title + tagline + chip row together so the
+ * tagline gets full horizontal room and renders in full. min-height
+ * brings parity with Find Jobs' card height. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
-	flex-direction: row;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	grid-template-areas:
+		"avatar body footer"
+		"avatar chips footer";
 	align-items: center;
-	gap: var(--wcb-space-xl);
+	column-gap: var(--wcb-space-2xl);
+	row-gap: var(--wcb-space-xs);
+	min-height: 7.5rem; /* ≈ 120px */
+	padding-block: var(--wcb-space-lg);
+	padding-inline: var(--wcb-space-xl);
 	height: auto;
 }
 
 .wcb-ca-container.wcb-list .wcb-ca-card-body {
 	flex: 1;
+	min-width: 0;
+	gap: var(--wcb-space-xs);
+	display: flex;
+	flex-direction: column;
+	align-self: end;
+}
+
+/* Chip row sits directly under the body in the second grid row, scoped
+ * to the body column so it doesn't drift back under the avatar. */
+.wcb-ca-container.wcb-list .wcb-ca-card-chips {
+	grid-area: chips;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	align-self: start;
+}
+
+/* Avatar spans both rows so it stays vertically centered against the
+ * combined title + chip stack. */
+.wcb-ca-container.wcb-list .wcb-ca-card-top {
+	align-self: center;
+}
+
+/* List view: tagline + chips stack INSIDE the body column so the body
+ * has full horizontal space and the tagline can render in full instead
+ * of truncating against the chips column. Keeps all card data visible.
+ * The original 4-column grid (avatar | body | chips | footer) is
+ * collapsed to 3 columns (avatar | body+chips | footer) below. */
+.wcb-ca-container.wcb-list .wcb-ca-tagline {
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
 }
 
 .wcb-ca-container.wcb-list .wcb-ca-card-footer {
@@ -183,8 +250,22 @@
 	border-top: none;
 	border-inline-start: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	padding-inline-start: var(--wcb-space-xl);
+	/* Right-padding clears the absolute-positioned bookmark button (32px
+	 * wide at 12px from card edge) so the "N open positions" text and
+	 * View Profile button can't slide underneath the bookmark icon. */
+	padding-inline-end: var(--wcb-space-4xl);
 	margin-top: 0;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
+}
+
+/* Top-right anchor matches Find Jobs's list-card bookmark placement so
+ * the icon is in the same spot on every archive's card. Earlier the
+ * Companies list bookmark was vertically centered, but visual parity
+ * with the Jobs list (and the bookmark icon a customer expects to find
+ * "in the corner") wins. (0,4,1) beats the shared (0,3,1) wcb-ui rule. */
+[class*="wp-block-wp-career-board"] .wcb-ca-container.wcb-list > .wcb-ca-card > .wcb-bookmark-btn {
+	top: var(--wcb-space-md);
+	transform: none;
 }
 
 /* -- Card top: avatar + trust badge -- */
@@ -194,6 +275,24 @@
 	justify-content: space-between;
 	gap: var(--wcb-space-sm);
 	flex-shrink: 0;
+	position: relative;
+}
+
+/*
+ * List view: collapse the top row into a narrow vertical column so the
+ * avatar and badge stack neatly next to the body content. Without this
+ * override .wcb-ca-card-top inherits `justify-content: space-between` from
+ * the grid layout, stretches across the row, and the absolutely positioned
+ * trust badge anchors against the wrong edge, colliding with the footer
+ * CTA on the right side of the card.
+ */
+.wcb-ca-container.wcb-list .wcb-ca-card-top {
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	flex: 0 0 auto;
+	align-self: stretch;
+	gap: var(--wcb-space-xs);
 }
 
 .wcb-ca-avatar-wrap {
@@ -224,7 +323,7 @@
 
 .wcb-ca-avatar {
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	align-items: center;
 	justify-content: center;
 	font-size: var(--wcb-text-lg);
@@ -238,32 +337,10 @@
 	display: flex;
 }
 
-/* -- Trust badge -- */
-.wcb-ca-trust-badge {
-	display: none;
-	align-items: center;
-	gap: 0.3rem;
-	padding: 0.15rem var(--wcb-space-sm);
-	border-radius: var(--wcb-radius-full);
-	font-size: 0.7rem;
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
-	white-space: nowrap;
-}
-
-.wcb-ca-trust-badge.wcb-shown {
-	display: inline-flex;
-}
-
-.wcb-ca-container.wcb-list .wcb-ca-trust-badge.wcb-shown {
-	position: absolute;
-	right: var(--wcb-space-xl);
-	top: var(--wcb-space-lg);
-}
-
-.wcb-ca-trust-badge[data-trust="verified"] { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-ca-trust-badge[data-trust="trusted"]  { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-ca-trust-badge[data-trust="premium"]  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+/* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -
+ * small green checkmark inline AFTER the company name. The old
+ * `.wcb-ca-trust-badge` pill (`"✓ Verified"` text) was retired because
+ * it broke layout in list view and the word duplicated the icon. */
 
 /* -- Card body -- */
 .wcb-ca-card-body {
@@ -271,7 +348,7 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.35rem;
+	gap: var(--wcb-space-xs);
 }
 
 .wcb-ca-name {
@@ -302,15 +379,15 @@
 .wcb-ca-chips {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
-	margin-top: 0.2rem;
+	gap: var(--wcb-space-xs);
+	margin-top: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
 }
 
 /* Chips: hidden by default; shown when non-empty */
 .wcb-ca-chip {
 	display: none;
 	align-items: center;
-	padding: 0.15rem var(--wcb-space-sm);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
 	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
@@ -340,17 +417,9 @@
 	font-weight: var(--wcb-font-medium);
 }
 
-.wcb-ca-cta {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-primary);
-	white-space: nowrap;
-	flex-shrink: 0;
-}
-
-.wcb-ca-card:hover .wcb-ca-cta {
-	text-decoration: underline;
-}
+/* Company card CTA reuses the shared `.wcb-cbtn .wcb-cbtn--ghost
+ * .wcb-cbtn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
+ * No per-block override here. */
 
 /* -- Empty state -- */
 .wcb-ca-empty {
@@ -368,47 +437,76 @@
 
 /* -- Utilities -- */
 
-/* -- Responsive -- */
-@media (max-width: 768px) {
+/* -- Responsive ladder --
+ * Desktop (≥1024px viewport / ≥720px content): 3-col forced.
+ * Tablet  (768-1023): 2-col so cards stay legible.
+ * Mobile  (<768):     1-col, filter panel stacks above (handled in
+ *                     wcb-ui.css via the .wcb-archive-layout @900px rule).
+ */
+@media (max-width: 1023px) {
 	.wcb-ca-container.wcb-grid {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+}
 
+@media (max-width: 768px) {
 	.wcb-ca-filter-bar {
 		flex: 1 1 100%;
 		order: 3;
 	}
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	.wcb-ca-container.wcb-grid {
 		grid-template-columns: 1fr;
 	}
 
+	/* Collapse the 3-col list-view grid into the same 2-col header
+	 * + full-width chips/footer rows that the grid view uses, so the
+	 * "3 open positions" stat and "View Profile" CTA stop colliding
+	 * with the body text at 390px. `flex-wrap` does nothing on a grid
+	 * container - replacing the template is what actually rewraps. */
 	.wcb-ca-container.wcb-list .wcb-ca-card-link {
-		flex-wrap: wrap;
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas:
+			"avatar body"
+			"chips chips"
+			"footer footer";
+		align-items: start;
+		column-gap: var(--wcb-space-md);
+		row-gap: var(--wcb-space-sm);
+		padding-block: var(--wcb-space-lg);
+		padding-inline: var(--wcb-space-lg);
+	}
+
+	.wcb-ca-container.wcb-list .wcb-ca-card-body {
+		align-self: start;
 	}
 
 	.wcb-ca-container.wcb-list .wcb-ca-card-footer {
 		flex-direction: row;
 		align-items: center;
+		justify-content: space-between;
 		border-inline-start: none;
 		border-top: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 		padding-inline-start: 0;
+		padding-inline-end: 0;
 		padding-top: var(--wcb-space-md);
 		width: 100%;
 	}
 
-	.wcb-ca-container.wcb-list .wcb-ca-trust-badge.wcb-shown {
-		left: var(--wcb-space-lg);
-		right: auto;
-		top: var(--wcb-space-xs);
+	/* Mobile list view: stack avatar + badge in a tight column inside the
+	 * avatar grid cell instead of stretching horizontally. */
+	.wcb-ca-container.wcb-list .wcb-ca-card-top {
+		flex-direction: column;
+		align-self: start;
+		align-items: center;
 	}
+
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.wcb-ca-card,
-	.wcb-ca-filter-select,
 	.wcb-load-more-btn {
 		transition: none;
 	}

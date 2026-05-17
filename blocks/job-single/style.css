@@ -12,8 +12,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.4rem;
-	padding: 0.7rem var(--wcb-space-2xl);
+	gap: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
+	padding: var(--wcb-space-md) var(--wcb-space-2xl); /* 0.7rem ≈ 11px → md */
 	border: none;
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
@@ -45,7 +45,7 @@
 .wcb-badge {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.2rem 0.65rem;
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.2rem ≈ 3px → xs; 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
@@ -59,8 +59,8 @@
 .wcb-badge--exp       { background: var(--wcb-surface, #f1f5f9); color: var(--wcb-text-secondary); }
 .wcb-badge--salary    { background: var(--wcb-surface, #f1f5f9); color: var(--wcb-text-secondary); font-weight: var(--wcb-font-semibold); }
 .wcb-badge--location  { background: var(--wcb-surface, #f1f5f9); color: var(--wcb-text-secondary); }
-.wcb-badge--posted    { background: transparent; color: var(--wcb-text-tertiary); font-size: 0.8rem; padding: 0; }
-.wcb-badge--sm { font-size: var(--wcb-text-xs); padding: 0.1rem 0.5rem; }
+.wcb-badge--posted    { background: transparent; color: var(--wcb-text-tertiary); font-size: var(--wcb-text-sm); padding: 0; }
+.wcb-badge--sm { font-size: var(--wcb-text-xs); padding: 2px var(--wcb-space-sm); }
 
 a.wcb-badge:hover { opacity: 0.8; }
 
@@ -69,9 +69,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 	color: var(--wcb-teal-fg);
 	font-weight: var(--wcb-font-semibold);
 	background: var(--wcb-teal-bg);
-	padding: 0.1rem 0.45rem;
+	padding: 2px var(--wcb-space-sm); /* 0.45rem ≈ 7px → sm */
 	border-radius: var(--wcb-space-xs);
-	margin-inline-start: 0.4rem;
+	margin-inline-start: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
 }
 
 /* ── Hero banner ─────────────────────────────────────────────────────────── */
@@ -85,7 +85,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	background: var(--wcb-base, #fff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-xl);
-	margin-bottom: 1.75rem;
+	margin-bottom: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
 }
 
 .wcb-job-hero-brand {
@@ -102,7 +102,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	height: 64px;
 	flex-shrink: 0;
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: #ffffff;
+	color: var(--wcb-on-primary, #ffffff);
 	border-radius: var(--wcb-radius-xl);
 	display: flex;
 	align-items: center;
@@ -125,15 +125,15 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-job-title {
-	font-size: 1.625rem;
+	font-size: var(--wcb-text-2xl); /* 1.625rem ≈ 26px → 2xl (24px) */
 	font-weight: var(--wcb-font-bold);
 	line-height: var(--wcb-leading-tight);
-	margin: 0 0 0.3rem;
+	margin: 0 0 var(--wcb-space-xs); /* 0.3rem ≈ 5px → xs */
 	color: var(--wcb-contrast, #0f172a);
 }
 
 .wcb-hero-company {
-	font-size: 1rem;
+	font-size: 1rem; /* base body size — no token at 16px */
 	font-weight: var(--wcb-font-medium);
 	color: var(--wcb-text-secondary);
 	margin: 0;
@@ -166,12 +166,12 @@ a.wcb-badge:hover { opacity: 0.8; }
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 0.6rem;
-	padding-top: 0.25rem;
+	gap: var(--wcb-space-sm); /* 0.6rem ≈ 10px → sm */
+	padding-top: var(--wcb-space-xs);
 }
 
 .wcb-hero-cta .wcb-btn {
-	min-width: 9rem;
+	min-width: 9rem; /* component-specific button width */
 }
 
 .wcb-deadline-note {
@@ -181,40 +181,10 @@ a.wcb-badge:hover { opacity: 0.8; }
 	text-align: end;
 }
 
-/* ── Hero bookmark button ─────────────────────────────────────────────────── */
-.wcb-bookmark-hero-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.55rem var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-md);
-	background: var(--wcb-base, #fff);
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	font-family: inherit;
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
-	white-space: nowrap;
-}
-
-.wcb-bookmark-hero-btn:hover {
-	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-info-bg-soft);
-}
-
-.wcb-bookmark-hero-btn.wcb-bookmarked {
-	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-bg-subtle);
-}
-
-.wcb-bookmark-hero-btn:disabled {
-	opacity: 0.7;
-	cursor: not-allowed;
-}
+/* `.wcb-bookmark-hero-btn` styles live in assets/css/frontend-components.css
+ * since Find Jobs, Companies, and Find Candidates single pages all use this
+ * affordance. Removing the local copy here so the canonical rules win
+ * regardless of which block stylesheet is enqueued first. */
 
 .wcb-applied-badge {
 	display: none;
@@ -222,7 +192,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-success);
 	background: var(--wcb-success-bg-soft);
-	border: 1px solid #bbf7d0;
+	border: 1px solid var(--wcb-success-border, #bbf7d0);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
 	margin: 0;
@@ -240,7 +210,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 /* ── Two-column body ─────────────────────────────────────────────────────── */
 .wcb-job-body {
 	display: grid;
-	grid-template-columns: 1fr 320px;
+	grid-template-columns: 1fr 320px; /* component-specific sidebar width */
 	gap: var(--wcb-space-2xl);
 	align-items: start;
 }
@@ -254,7 +224,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	background: var(--wcb-base, #fff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-xl);
-	padding: 1.75rem;
+	padding: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
 	margin-bottom: var(--wcb-space-xl);
 }
 
@@ -302,9 +272,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 	line-height: 1.35;
 }
 
-.wcb-job-description h2 { font-size: 1.25rem; font-weight: var(--wcb-font-bold); }
-.wcb-job-description h3 { font-size: 1.0625rem; font-weight: var(--wcb-font-bold); }
-.wcb-job-description h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); }
+.wcb-job-description h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); } /* 1.25rem */
+.wcb-job-description h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-bold); } /* 1.0625rem ≈ 17px → lg (18px) */
+.wcb-job-description h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); } /* base body size */
 
 .wcb-job-description ul,
 .wcb-job-description ol {
@@ -328,7 +298,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-job-description blockquote {
 	margin: var(--wcb-space-md) 0;
-	padding: 0.5rem 0 0.5rem 1rem;
+	padding: var(--wcb-space-sm) 0 var(--wcb-space-sm) var(--wcb-space-lg);
 	border-inline-start: 3px solid var(--wcb-border, #e2e8f0);
 	color: var(--wcb-text-secondary);
 	font-style: italic;
@@ -351,8 +321,8 @@ a.wcb-badge:hover { opacity: 0.8; }
 .wcb-job-description code {
 	background: var(--wcb-bg-subtle, rgba(0, 0, 0, 0.05));
 	border-radius: var(--wcb-radius-sm, 4px);
-	padding: 0.125em 0.375em;
-	font-size: 0.9em;
+	padding: 0.125em 0.375em; /* em-based inline-code padding */
+	font-size: 0.9em; /* relative to surrounding text */
 	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -364,7 +334,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-tag {
 	display: inline-block;
-	padding: 0.25rem var(--wcb-space-md);
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	background: var(--wcb-bg-subtle);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-full);
@@ -375,7 +345,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 a.wcb-tag:hover {
 	background: var(--wcb-surface, #f1f5f9);
-	border-color: #cbd5e1;
+	border-color: var(--wcb-text-tertiary, #cbd5e1);
 }
 
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
@@ -395,12 +365,22 @@ a.wcb-tag:hover {
 }
 
 .wcb-card-title {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast, #0f172a);
 	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: 0.6rem;
+	padding-bottom: var(--wcb-space-sm);
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+}
+
+.wcb-card-title > svg {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+	color: var(--wcb-primary);
 }
 
 .wcb-detail-list {
@@ -431,9 +411,11 @@ a.wcb-tag:hover {
 	margin: 0;
 }
 
-.wcb-salary-highlight {
+/* Specificity bump to (0,2,1) so it beats theme `.entry-content
+ * strong` typography rules without `!important`. */
+[class*="wp-block-wp-career-board"] .wcb-salary-highlight {
 	color: var(--wcb-primary, #2563eb);
-	font-weight: var(--wcb-font-bold) !important;
+	font-weight: var(--wcb-font-bold);
 }
 
 /* ── Company card ────────────────────────────────────────────────────────── */
@@ -468,7 +450,7 @@ a.wcb-company-card-name:hover {
 .wcb-company-link {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.25rem;
+	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-primary, #2563eb);
 	text-decoration: none;
@@ -494,9 +476,9 @@ a.wcb-company-card-name:hover {
 .wcb-apply-error {
 	display: none;
 	background: var(--wcb-danger-bg-soft);
-	border: 1px solid #fecaca;
-	color: #b91c1c;
-	padding: 0.65rem var(--wcb-space-lg);
+	border: 1px solid var(--wcb-danger-border, #fecaca);
+	color: var(--wcb-danger, #b91c1c);
+	padding: var(--wcb-space-sm) var(--wcb-space-lg); /* 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	margin-bottom: var(--wcb-space-lg);
@@ -527,15 +509,18 @@ a.wcb-company-card-name:hover {
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: min(520px, 100%);
+	width: min(520px, 100%); /* component-specific panel width */
 	background: var(--wcb-base, #fff);
 	z-index: 100001;
 	overflow-y: auto;
 	box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Hide common theme-supplied floating widgets while the apply panel is open
-   so they don't visually overlap form fields (Reign light/dark toggle, etc.). */
+/* Hide common theme-supplied floating widgets while the apply panel is
+ * open so they don't visually overlap form fields. `!important` kept:
+ * Reign / BuddyX dark-mode toggles ship their own `display: !important`
+ * on .rg-dark__scheme-toggle / [class*="scheme-toggle"] - specificity
+ * cannot beat their `!important`. */
 body:has(.wcb-apply-panel.wcb-open) .rg-dark__scheme-toggle,
 body:has(.wcb-apply-panel.wcb-open) [class*="scheme-toggle"],
 body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
@@ -582,17 +567,17 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-panel-title {
-	font-size: 1.375rem;
+	font-size: var(--wcb-text-2xl); /* 1.375rem ≈ 22px → 2xl (24px) */
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast, #0f172a);
-	margin: 0 0 0.25rem;
+	margin: 0 0 var(--wcb-space-xs);
 }
 
 .wcb-panel-subtitle {
-	font-size: 1rem;
+	font-size: 1rem; /* base body size */
 	color: var(--wcb-contrast, #334155);
 	font-weight: var(--wcb-font-semibold);
-	margin: 0 0 0.15rem;
+	margin: 0 0 var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
 }
 
 .wcb-panel-company {
@@ -605,8 +590,8 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
-	color: #374151;
-	margin-bottom: 0.4rem;
+	color: var(--wcb-contrast, #374151);
+	margin-bottom: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
 }
 
 .wcb-field-hint {
@@ -644,7 +629,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	display: block;
 	width: 100%;
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
-	border: 1px solid #d1d5db;
+	border: 1px solid var(--wcb-border, #d1d5db);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
@@ -669,9 +654,9 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 0.25rem;
+	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-xl) var(--wcb-space-lg);
-	border: 2px dashed #d1d5db;
+	border: 2px dashed var(--wcb-border, #d1d5db);
 	border-radius: var(--wcb-radius-md);
 	text-align: center;
 	cursor: pointer;
@@ -685,7 +670,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-upload-zone.wcb-has-file {
-	border-color: #22c55e;
+	border-color: var(--wcb-success, #22c55e);
 	background: var(--wcb-success-bg-soft);
 }
 
@@ -700,13 +685,13 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-upload-zone.wcb-has-file .wcb-upload-icon {
-	color: #22c55e;
+	color: var(--wcb-success, #22c55e);
 }
 
 .wcb-upload-text {
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: #374151;
+	color: var(--wcb-contrast, #374151);
 }
 
 .wcb-upload-hint {
@@ -717,7 +702,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-upload-filename {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
-	color: #22c55e;
+	color: var(--wcb-success, #22c55e);
 }
 
 .wcb-upload-filename:empty {
@@ -729,19 +714,21 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin-top: var(--wcb-space-sm);
 }
 
-.wcb-post-apply-alert.wcb-shown {
-	display: block !important;
+/* `.wcb-shown` toggle - (0,2,1) parent prefix beats the global
+ * `.wcb-shown { display: block }` utility at (0,1,0) on specificity. */
+[class*="wp-block-wp-career-board"] .wcb-post-apply-alert.wcb-shown {
+	display: block;
 }
 
-.wcb-post-apply-alert-done.wcb-shown {
-	display: inline !important;
+[class*="wp-block-wp-career-board"] .wcb-post-apply-alert-done.wcb-shown {
+	display: inline;
 }
 
 .wcb-post-apply-alert-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.375rem;
-	padding: 0.375rem var(--wcb-space-md);
+	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
@@ -765,7 +752,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 .wcb-post-apply-alert-done {
 	font-size: var(--wcb-text-sm);
-	color: #22c55e;
+	color: var(--wcb-success, #22c55e);
 	font-weight: var(--wcb-font-medium);
 }
 
@@ -825,19 +812,19 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-share-label {
-	font-size: 0.78rem;
+	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-text-tertiary);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	margin-inline-end: 0.15rem;
+	margin-inline-end: var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
 }
 
 .wcb-share-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 30px;
+	width: 30px; /* component dimension */
 	height: 30px;
 	border-radius: var(--wcb-radius-sm);
 	border: 1.5px solid var(--wcb-border, #e2e8f0);
@@ -854,7 +841,13 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-contrast, #0f172a);
 }
 
-/* ── Theme-agnostic sidebar + title suppression ─────────────────────────────── */
+/* ── Theme-agnostic sidebar + title suppression ───────────────────────────────
+ *
+ * `!important` kept: target themes (Reign, BuddyX Pro, Astra, Kadence)
+ * ship their `#sidebar` / `.entry-title` rules with their own
+ * `!important` to win over child-theme overrides. Specificity alone
+ * cannot beat a theme's `!important` - we mirror the keyword. Same
+ * pattern as company-profile/style.css and resume-single/style.css. */
 .wcb-job-page #secondary,
 .wcb-job-page .widget-area,
 .wcb-job-page aside.sidebar,
@@ -871,7 +864,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 /* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
-	left: -9999px;
+	left: -9999px; /* off-screen honeypot */
 	overflow: hidden;
 	width: 1px;
 	height: 1px;

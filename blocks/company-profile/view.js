@@ -2,7 +2,10 @@
  * WP Career Board — company-profile block Interactivity API store.
  *
  * Actions:
- *   loadMore — fetch the next page of jobs for this company from /wcb/v1/jobs.
+ *   loadMore       — fetch the next page of jobs for this company.
+ *   toggleBookmark — Save / unsave the company. Mirrors the Find Jobs
+ *                    single hero so the customer's save action carries
+ *                    the same affordance across all 3 single pages.
  *
  * @package WP_Career_Board
  */
@@ -10,6 +13,38 @@ import { store } from '@wordpress/interactivity';
 
 const { state } = store( 'wcb-company-profile', {
 	actions: {
+		*toggleBookmark() {
+			if ( state.bookmarking ) {
+				return;
+			}
+			state.bookmarking = true;
+
+			const wasBookmarked = !! state.bookmarked;
+			state.bookmarked = ! wasBookmarked;
+			state.bookmarkLabel = state.bookmarked ? state.labelSaved : state.labelSave;
+
+			try {
+				const url = state.apiBase + '/' + state.companyId + '/bookmark';
+				const response = yield fetch( url, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce':   state.restNonce,
+					},
+				} );
+				if ( ! response.ok ) {
+					state.bookmarked = wasBookmarked;
+					state.bookmarkLabel = wasBookmarked ? state.labelSaved : state.labelSave;
+				}
+			} catch {
+				state.bookmarked = wasBookmarked;
+				state.bookmarkLabel = wasBookmarked ? state.labelSaved : state.labelSave;
+			} finally {
+				state.bookmarking = false;
+			}
+		},
+
 		*loadMore() {
 			if ( state.loading ) {
 				return;
