@@ -4,7 +4,7 @@ WP Career Board uses WordPress blocks to display everything on the frontend. Eac
 
 ## Available Blocks
 
-WP Career Board includes 14 blocks, all registered in the **WP Career Board** category in the block inserter.
+WP Career Board includes 15 blocks, all registered in the **WP Career Board** category in the block inserter.
 
 | Block | What It Does |
 |---|---|
@@ -15,7 +15,8 @@ WP Career Board includes 14 blocks, all registered in the **WP Career Board** ca
 | **Employer Registration** | Unified registration form for both employers and candidates. Users choose "Find a Job" (candidate) or "Hire Talent" (employer) on the same form. |
 | **Featured Jobs** | Static server-rendered grid of featured (flagged) jobs. Good for homepages. |
 | **Job Filters** | Taxonomy filter dropdowns (category, type, location, experience) for the job listings grid. |
-| **Job Form** | Multi-step form for employers to post new jobs. |
+| **Job Form** | Multi-step (4-step) wizard for employers to post new jobs. Best for the full Post-a-Job experience. |
+| **Job Form (Single-Page)** | Every field on one screen — sidebar, modal, partner page, single-page-site alternative to the wizard. Submits to the same endpoint and honours the same field-builder filters. Posting only; editing routes through the wizard. |
 | **Job Listings** | Reactive job listings grid with load-more and bookmark toggle. Updates on search/filter without page reload. |
 | **Job Search** | Keyword search bar that drives the job listings grid. |
 | **Job Search Hero** | Full-width search form with optional category, location, and job type filter dropdowns. Horizontal or vertical layout. Good for homepages. |
@@ -58,6 +59,11 @@ Some blocks have settings you can adjust in the block sidebar:
 - **Layout** — horizontal (default) or vertical
 - **Show Category Filter**, **Show Location Filter**, **Show Job Type Filter** — toggle each filter dropdown on or off
 
+**Job Form (Single-Page):**
+- **Board** — target a specific board (multi-board sites only). Single-board sites can leave this at 0 and the default board is used.
+- **Show Company Field** — show or hide the company name field (on by default; useful to hide for staff-only embeds where the company is implied)
+- **Compact** — tighter vertical rhythm for sidebars and modals
+
 **Featured Jobs:**
 - **Jobs per page** — how many featured jobs to display (default: 3)
 - **Title** — optional heading above the grid
@@ -93,7 +99,8 @@ If you're using the Classic Editor or a page builder that doesn't support Gutenb
 |---|---|
 | `[wcb_job_listings]` | Job Listings |
 | `[wcb_job_search]` | Job Search |
-| `[wcb_job_form]` | Job Form |
+| `[wcb_job_form]` | Job Form (4-step wizard) |
+| `[wcb_job_form_simple]` | Job Form (Single-Page) |
 | `[wcb_employer_dashboard]` | Employer Dashboard |
 | `[wcb_registration]` | Employer Registration |
 | `[wcb_candidate_dashboard]` | Candidate Dashboard |

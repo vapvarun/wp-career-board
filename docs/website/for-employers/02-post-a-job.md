@@ -57,3 +57,26 @@ You can edit a pending or published job from your **Employer Dashboard → My Jo
 ## Job Expiry
 
 If your admin has set an expiry period (e.g., 30 days), your job will automatically close on that date. You will receive an email notification before it expires, and you can re-open it from your dashboard.
+
+## Single-Page Form — when the 4-step wizard is overkill
+
+The default post-a-job experience is a 4-step wizard. For some embed points the wizard is too tall: sidebars, modal overlays, partner pages, single-page sites, and classic themes with limited vertical real estate. WP Career Board ships a second block, **Job Form (Single-Page)**, that puts every field on one screen.
+
+It submits to the same `/wcb/v1/jobs` endpoint, honours the same `wcb_job_form_fields` filter for custom fields, and respects the same employer-role gate. The only thing it does not support is edit mode — editing a job always routes through the wizard from the Employer Dashboard.
+
+### Block settings
+
+- **Board** — target a specific board (multi-board sites only)
+- **Show Company Field** — toggle the company name field on or off (on by default)
+- **Compact** — tighter vertical rhythm for narrow embed contexts
+
+### Adding the single-page form
+
+In Gutenberg, search for **Job Form (Single-Page)** in the block inserter. In classic editors or page builders, use the shortcode:
+
+```
+[wcb_job_form_simple]
+[wcb_job_form_simple boardId="42" showCompanyField="false" compact="true"]
+```
+
+> When to use which: keep the wizard on your primary "Post a Job" page — the dashboard already places it for you. Reach for the single-page form when you need a job form alongside other content — homepage hero, partner page, sidebar widget, or modal overlay.
