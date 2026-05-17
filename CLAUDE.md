@@ -1,6 +1,6 @@
 # WP Career Board — Claude Code Rules
 
-> **READ FIRST:** [`audit/manifest.json`](audit/manifest.json) is the canonical inventory — 36 REST endpoints, 3 tables, 12 capabilities, 15 blocks, 4 WP-CLI commands, 3 cron hooks, 0 admin-ajax handlers (F-5/F-6), Pro-coordination filter API in `core/class-pro-coordination.php`. Use this before grepping. See also [`audit/FEATURE_AUDIT.md`](audit/FEATURE_AUDIT.md), [`audit/CODE_FLOWS.md`](audit/CODE_FLOWS.md), [`audit/ROLE_MATRIX.md`](audit/ROLE_MATRIX.md). Refresh via `/wp-plugin-onboard --refresh` after non-trivial changes.
+> **READ FIRST:** Read [`audit/manifest.summary.json`](audit/manifest.summary.json) (≤6 KB index) before opening the full [`audit/manifest.json`](audit/manifest.json). Schema v2.2 (refreshed 2026-05-17). Counts: 36 REST endpoints · 173 hook firings (99 unique) · 3 tables · 12 capabilities · 15 blocks · 11 shortcodes · 5 WP-CLI commands · 9 admin pages · 3 cron hooks · 0 AJAX handlers (REST-only). Static-analysis findings: 1 REST↔JS contract drift (high), 1 dead listener — see [`audit/wppqa-baseline-2026-05-17/SUMMARY.md`](audit/wppqa-baseline-2026-05-17/SUMMARY.md). Cross-plugin coupling at [`audit/derived/cross-plugin-coupling.json`](audit/derived/cross-plugin-coupling.json) — Pro consumes 41 Free hooks. See also [`audit/FEATURE_AUDIT.md`](audit/FEATURE_AUDIT.md), [`audit/CODE_FLOWS.md`](audit/CODE_FLOWS.md), [`audit/ROLE_MATRIX.md`](audit/ROLE_MATRIX.md). Refresh via `/wp-plugin-onboard --refresh` after non-trivial changes.
 
 ## QA artifacts — single index (no searching required)
 

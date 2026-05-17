@@ -1,0 +1,13 @@
+{
+  "name": "adapter-undefined-calls",
+  "computed_at": "2026-05-17T08:52:42.723586Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": [],
+  "result_count": 0,
+  "notes": "no Adapter pattern detected, sub-check skipped",
+  "algorithm_version": "v2.2.0"
+}

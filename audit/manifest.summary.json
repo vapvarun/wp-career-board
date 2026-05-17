@@ -1,0 +1,156 @@
+{
+  "$schema": "https://wpmediaverse.com/schemas/wp-plugin-manifest-v1.json",
+  "plugin": {
+    "slug": "wp-career-board",
+    "name": "WP Career Board",
+    "version": "1.2.0",
+    "namespace": "WCB\\",
+    "main_file": "wp-career-board.php",
+    "text_domain": "wp-career-board",
+    "min_wp": "6.9",
+    "min_php": "8.1",
+    "extends": null,
+    "extension_hook_consumed": null,
+    "extension_hook_fired": "wcb_settings_tabs"
+  },
+  "generated": {
+    "at": "2026-05-17T08:52:42.724930Z",
+    "from": "wp-plugin-onboard skill (refresh)",
+    "schema_version": "v2.2",
+    "scan_scope": "fallback_defaults",
+    "scan_path": ".",
+    "php_file_count": 171,
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) \u2014 canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) \u2014 ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
+    "note": "Lightweight refresh \u2014 timestamp bumped after 1.1.1 release commits. Ground-truth grep reports REST +2, blocks +3, hooks_fired delta requires re-enumeration; queued for next full refresh."
+  },
+  "counts": {
+    "rest": 36,
+    "ajax": 0,
+    "admin_pages": 9,
+    "shortcodes": 11,
+    "blocks": 15,
+    "post_types": 5,
+    "taxonomies": 5,
+    "tables": 3,
+    "capabilities": 12,
+    "services": 37,
+    "hooks_fired": 173,
+    "hooks_unique": 99,
+    "cron": 3,
+    "wp_cli": 5
+  },
+  "static_analysis_counts": {
+    "dead_listeners": 1,
+    "rest_js_contract_drift": 1,
+    "cap_context_mismatches": 0,
+    "cap_drift_declared_unenforced": 0,
+    "cap_drift_enforced_undeclared": 0,
+    "manage_options_gate_count": 3,
+    "extensibility_gaps": 0,
+    "js_only_activation": 1,
+    "rest_hang_risks": 68,
+    "visual_required_no_enforcement": 0,
+    "grid_track_overflow_risks": 51,
+    "layout_owning_blocks": 8,
+    "adapter_undefined_calls": 0,
+    "registry_bypasses": 0,
+    "registry_strategy": 0,
+    "suppressed_baseline_stub_class": 3,
+    "suppressed_baseline_stub_const": 2,
+    "suppressed_baseline_undef_var": 39,
+    "suppressed_baseline_type_debt": 31,
+    "suppressed_baseline_phpcs": 3
+  },
+  "category_sources": {
+    "rest": [
+      "api/**/*.php",
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "ajax": [
+      "admin/**/*.php",
+      "includes/**/*.php"
+    ],
+    "admin_pages": [
+      "admin/**/*.php"
+    ],
+    "settings": [
+      "admin/**/*.php"
+    ],
+    "shortcodes": [
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "blocks": [
+      "blocks/**/*.{php,json}",
+      "src/blocks/**/*.{php,json}"
+    ],
+    "post_types": [
+      "core/**/*.php"
+    ],
+    "taxonomies": [
+      "core/**/*.php"
+    ],
+    "tables": [
+      "core/**/*.php"
+    ],
+    "capabilities": [
+      "core/**/*.php",
+      "admin/**/*.php",
+      "modules/**/*.php"
+    ],
+    "services": [
+      "core/**/*.php"
+    ],
+    "hooks_fired": [
+      "**/*.php"
+    ],
+    "interactivity": [
+      "src/**/view.{js,ts}",
+      "blocks/**/view.{js,ts}"
+    ],
+    "ui_activation": [
+      "assets/css/**/*.css",
+      "src/**/*.css",
+      "blocks/**/*.css"
+    ],
+    "frontend_assets": [
+      "assets/**/*.{js,css}",
+      "build/**/*.{js,css}"
+    ],
+    "cron": [
+      "core/**/*.php",
+      "modules/**/*.php"
+    ],
+    "wp_cli": [
+      "cli/**/*.php"
+    ],
+    "security": [
+      "core/**/*.php"
+    ]
+  },
+  "pointers": {
+    "manifest": "audit/manifest.json",
+    "feature_audit": "audit/FEATURE_AUDIT.md",
+    "code_flows": "audit/CODE_FLOWS.md",
+    "role_matrix": "audit/ROLE_MATRIX.md",
+    "graph": "audit/graph.html",
+    "wppqa_baseline": "audit/wppqa-baseline-2026-05-17/SUMMARY.md",
+    "derived_cache": "audit/derived/"
+  },
+  "derived_cache_files": [
+    "adapter-registry-strategy.json",
+    "adapter-undefined-calls.json",
+    "cap-context-mismatches.json",
+    "cap-drift.json",
+    "cross-plugin-coupling.json",
+    "extensibility-gaps.json",
+    "grid-1fr-risks.json",
+    "js-only-activation.json",
+    "layout-owning-blocks.json",
+    "registry-bypasses.json",
+    "rest-hang-risks.json",
+    "suppressed-baseline-errors.json",
+    "visual-required-no-enforcement.json"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "cap-drift",
+  "computed_at": "2026-05-17T08:52:42.659428Z",
+  "input_globs": [
+    "**/*.php",
+    "**/*.js",
+    "**/*.css"
+  ],
+  "result": {
+    "declared_but_unenforced": [],
+    "enforced_but_undeclared": [],
+    "manage_options_gate_count": 3,
+    "manage_options_gate_note": "Count of bare current_user_can('manage_options') checks in plugin paths. High numbers signal under-delegated permissions.",
+    "manage_options_top10_sites": [
+      "admin/class-admin-settings.php:299",
+      "admin/class-email-settings.php:441",
+      "modules/antispam/class-anti-spam-module.php:282"
+    ]
+  },
+  "result_count": null,
+  "notes": "Plugin-own declared=0, enforced=0",
+  "algorithm_version": "v2.2.0"
+}

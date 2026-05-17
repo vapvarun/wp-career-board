@@ -251,3 +251,22 @@ All extend `WCB\Modules\Notifications\AbstractEmail` and are registered via the 
 | `wp wcb job` | `list`, `approve`, `reject`, `expire`, `run-expiry` |
 | `wp wcb application` | `list`, `update` |
 | `wp wcb migrate` | `wpjm`, `wpjm-resumes` |
+
+---
+
+## 14. Known issues surfaced by audit (2026-05-17)
+
+### High severity (1)
+- **REST↔JS contract drift on `/wcb/v1/employers/(?P<id>\d+)/jobs`** — `assets/js/admin.js:183` reads `data.reason`, but `api/endpoints/class-employers-endpoint.php:102` returns keys `[id, title, status, statusLabel, permalink, editUrl, appCount, appLabel]`. Silent UI bug — the rejection-reason UI is dead. Fix path: rename PHP key to `reason` OR update JS to read existing key, then add a JSON contract fixture so this drifts loudly next time. Source: `audit/wppqa-baseline-2026-05-17/SUMMARY.md`.
+
+### Dead listeners (1)
+- `wcb_settings_tab_import` — listener at `admin/class-admin-settings.php:160`, no `do_action('wcb_settings_tab_import')` anywhere in Free or Pro. Either the hook was renamed without updating the listener, or the action was meant to be fired but never wired.
+
+### Cross-plugin coupling (audit/derived/cross-plugin-coupling.json)
+- Pro consumes **41 distinct Free hooks** — proves the extension boundary is wired.
+- No Free→Pro hook consumption (Free is dependency-free of Pro per invariant #1).
+
+### Frontend-responsive debt (medium / low)
+- 8 distinct CSS breakpoints found (600, 640, 768, 782, 900, 960, 1024, 1100). frontend-responsive Rule 1 wants ≤3 (640/1024/1440). Component-local fixes proliferating instead of adjusting the component.
+- 8 buttons under the 40 px tap-target minimum (admin-only contexts, none customer-facing primaries).
+
