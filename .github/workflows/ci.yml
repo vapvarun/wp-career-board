@@ -82,7 +82,13 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run PHPCS (WordPress standard)
-        run: vendor/bin/phpcs --report=checkstyle --runtime-set ignore_warnings_on_exit 1 . | cs2pr
+        # -q suppresses progress markers so cs2pr only sees the checkstyle XML.
+        # --report-file routes XML to disk; cs2pr annotates from the file and
+        # phpcs's exit code gates the job. Untrusted inputs are not used here.
+        run: |
+          vendor/bin/phpcs -q --report=checkstyle --report-file=phpcs-report.xml --runtime-set ignore_warnings_on_exit 1 . || phpcs_exit=$?
+          cs2pr phpcs-report.xml || true
+          exit "${phpcs_exit:-0}"
 
   # ── PHPStan ── static analysis level 5 with baseline (BLOCKING) ─────
   phpstan:
@@ -132,6 +138,17 @@ jobs:
         with:
           build-dir: ./wp-career-board
           severity: 7
+          # Dev-only directories never ship to customers (.distignore excludes
+          # them from the release zip). Scoping PCP to the same surface keeps
+          # the gate aligned with what wordpress.org actually receives.
+          exclude-directories: |
+            bin
+            audit
+            plan
+            docs
+            tests
+            marketing
+            import
           exclude-checks: |
             plugin_readme
             late_escaping

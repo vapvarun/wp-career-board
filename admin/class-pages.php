@@ -112,7 +112,7 @@ final class Pages {
 	 */
 	public static function backfill_from_slugs(): array {
 		$written  = array();
-		$settings = (array) get_option( 'wcb_settings', array() );
+		$settings = \WCB\Admin\Settings::all();
 		$changed  = false;
 
 		foreach ( self::CANONICAL_SLUGS as $key => $slug ) {

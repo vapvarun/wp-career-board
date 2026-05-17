@@ -68,8 +68,10 @@ foreach ( $prior_users as $uid ) {
 }
 WP_CLI::log( sprintf( '  cleaned %d prior smoke users', count( $prior_users ) ) );
 
-// Pro tables (only if Pro is active).
-$pro_active = defined( 'WCBP_VERSION' );
+// Pro tables (only if Pro is active). Use Free's documented filter rather
+// than reading Pro's version constant directly so the Pro-decoupling gate
+// (bin/check-pro-decoupling.sh) stays green.
+$pro_active = (bool) apply_filters( 'wcb_pro_active', false );
 if ( $pro_active ) {
 	$pro_tables = array(
 		'wcb_credit_ledger',
