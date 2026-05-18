@@ -157,7 +157,7 @@ Each step is a contract, not a script. Verify the UI as a user would AND confirm
 **What to verify:** the employer sees applications for their jobs, can open an application detail (resume + answers + attachments), and can change status (review / shortlist / reject / hire). Pipeline drag-to-stage (Pro) persists across reload.
 
 ### C.mod.queue-and-actions
-**What to verify:** a moderator sees the moderation queue, can filter by type and status, and can approve / trash / mark-spam / resolve-flag. Every action updates the record and propagates to every listing. Silenced users cannot perform gated actions.
+**What to verify:** a `wcb_board_moderator` user reaches the WP admin (WooCommerce lockdown lets them through), sees the Career Board → Jobs queue, and can approve or reject pending jobs from both the row actions and the bulk-Approve dropdown. The Trash bulk action and the Edit/Trash/Restore row actions stay hidden for moderators. Every other Career Board admin page (Settings, Companies, Applications, etc.) returns "Sorry, you are not allowed to access this page." Mark-as-spam, resolve-flag, and per-board scoping are not in 1.2 scope — board-level scoping ships as a `wcb_moderate_jobs_ability_check` filter for extensions.
 
 ### C.admin.pages
 **What to verify:** every plugin admin page renders without PHP Notice/Warning/Fatal; every tab loads its content; every AJAX action returns the expected JSON shape.

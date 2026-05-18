@@ -35,6 +35,12 @@ class Admin {
 		add_filter( 'parent_file', array( $this, 'highlight_parent_for_taxonomies' ) );
 		add_filter( 'submenu_file', array( $this, 'highlight_submenu_for_taxonomies' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		// WooCommerce locks down /wp-admin/ for any user that lacks edit_posts,
+		// manage_woocommerce, or view_admin_dashboard. Board Moderators carry
+		// none of those, so on stores running WC they get bounced to
+		// /my-account/ before ever reaching the Jobs queue. Let them through
+		// when they hold the moderation cap.
+		add_filter( 'woocommerce_prevent_admin_access', array( $this, 'allow_moderator_admin_access' ) );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -58,7 +64,7 @@ class Admin {
 		add_menu_page(
 			__( 'WP Career Board', 'wp-career-board' ),
 			__( 'Career Board', 'wp-career-board' ),
-			'wcb_manage_settings',
+			'wcb_access_admin_jobs',
 			'wp-career-board',
 			array( $this, 'render_dashboard' ),
 			'dashicons-portfolio',
@@ -70,7 +76,7 @@ class Admin {
 			'wp-career-board',
 			__( 'Jobs', 'wp-career-board' ),
 			__( 'Jobs', 'wp-career-board' ),
-			'wcb_manage_settings',
+			'wcb_access_admin_jobs',
 			'wcb-jobs',
 			array( $admin_jobs, 'render' )
 		);
@@ -207,6 +213,23 @@ class Admin {
 		);
 	}
 
+	/**
+	 * Filter callback: let Board Moderators through WooCommerce's
+	 * "lock down admin" redirect so they can reach the Jobs queue. Returns
+	 * the upstream value unchanged for everyone else.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param bool $prevent Whether WooCommerce wants to redirect the user.
+	 * @return bool
+	 */
+	public function allow_moderator_admin_access( bool $prevent ): bool {
+		if ( ! $prevent ) {
+			return $prevent;
+		}
+		return current_user_can( 'wcb_moderate_jobs' ) ? false : $prevent;
+	}
+
 
 	/**
 	 * Render the admin dashboard — stats, pending queue, recent applications.
@@ -215,6 +238,17 @@ class Admin {
 	 * @return void
 	 */
 	public function render_dashboard(): void {
+		// Board Moderators reach this page when WordPress sends them to the
+		// top-level Career Board URL after a menu click. They have
+		// wcb_access_admin_jobs but not wcb_manage_settings, so the dashboard
+		// metrics and Pro license nudges below aren't theirs to act on.
+		// Bounce them to the Jobs queue, which is the only Career Board
+		// surface their role contract covers.
+		if ( ! current_user_can( 'wcb_manage_settings' ) && current_user_can( 'wcb_moderate_jobs' ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
+			exit;
+		}
+
 		$jobs_count   = wp_count_posts( 'wcb_job' );
 		$apps_count   = wp_count_posts( 'wcb_application' );
 		$total_jobs   = isset( $jobs_count->publish ) ? (int) $jobs_count->publish : 0;

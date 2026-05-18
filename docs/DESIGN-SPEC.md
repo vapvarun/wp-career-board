@@ -212,7 +212,7 @@ Block (Interactivity API) → REST API v1 → Module → DB
 |------|-------------|
 | `wcb_employer` | Post jobs (costs credits), manage company, view applications, access employer dashboard |
 | `wcb_candidate` | Apply to jobs, build resume, bookmark jobs, set profile visibility |
-| `wcb_board_moderator` | Approve/reject jobs on assigned boards only |
+| `wcb_board_moderator` | Approve/reject jobs from the admin Jobs queue, REST (`/wcb/v1/jobs/{id}/approve`, `/wcb/v1/jobs/{id}/reject`), and WP-CLI. Board-level scoping is opt-in via the `wcb_moderate_jobs_ability_check` filter; out of the box the role sees all pending jobs. Mark-as-spam and resolve-flag actions are not shipped. |
 | `administrator` | Full access to all boards, credits, users, settings |
 
 ### BuddyPress Layer (when active)

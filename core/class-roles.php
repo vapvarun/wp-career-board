@@ -86,8 +86,9 @@ final class Roles {
 			'wcb_board_moderator',
 			__( 'Board Moderator', 'wp-career-board' ),
 			array(
-				'read'              => true,
-				'wcb_moderate_jobs' => true,
+				'read'                  => true,
+				'wcb_moderate_jobs'     => true,
+				'wcb_access_admin_jobs' => true,
 			)
 		);
 	}
@@ -139,6 +140,7 @@ final class Roles {
 			'wcb_bookmark_jobs',
 			'wcb_moderate_jobs',
 			'wcb_manage_settings',
+			'wcb_access_admin_jobs',
 			'wcb_view_analytics',
 			'wcb_access_employer_dashboard',
 			'wcb_access_candidate_dashboard',

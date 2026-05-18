@@ -129,10 +129,16 @@ class AdminJobs extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_bulk_actions(): array {
-		return array(
+		$actions = array(
 			'approve' => __( 'Approve', 'wp-career-board' ),
-			'trash'   => __( 'Move to Trash', 'wp-career-board' ),
 		);
+		// Trash is destructive and only admins should reach it. Board
+		// Moderators see Approve only — their contract is approve/reject,
+		// not deletion.
+		if ( current_user_can( 'wcb_manage_settings' ) ) {
+			$actions['trash'] = __( 'Move to Trash', 'wp-career-board' );
+		}
+		return $actions;
 	}
 
 	// -------------------------------------------------------------------------
@@ -311,22 +317,30 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_title( $item ): string {
-		$edit_link = (string) get_edit_post_link( $item->ID );
+		// Board Moderators can read the queue but can't open the post-edit
+		// screen (no edit_posts cap), so don't surface the Edit affordance
+		// to them — clicking it would land on a "you don't have permission"
+		// screen. Admins keep both the title link and the row action.
+		$can_edit  = current_user_can( 'wcb_manage_settings' ) && current_user_can( 'edit_post', $item->ID );
+		$edit_link = $can_edit ? (string) get_edit_post_link( $item->ID ) : '';
 		$view_link = (string) get_permalink( $item->ID );
 
-		$out = sprintf(
-			'<strong><a class="row-title" href="%s">%s</a></strong>',
-			esc_url( $edit_link ),
-			esc_html( get_the_title( $item ) )
-		);
+		$out = $can_edit
+			? sprintf(
+				'<strong><a class="row-title" href="%s">%s</a></strong>',
+				esc_url( $edit_link ),
+				esc_html( get_the_title( $item ) )
+			)
+			: sprintf( '<strong>%s</strong>', esc_html( get_the_title( $item ) ) );
 
-		$row_actions = array(
-			'edit' => sprintf(
+		$row_actions = array();
+		if ( $can_edit ) {
+			$row_actions['edit'] = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( $edit_link ),
 				esc_html__( 'Edit', 'wp-career-board' )
-			),
-		);
+			);
+		}
 
 		if ( 'publish' === $item->post_status ) {
 			$row_actions['view'] = sprintf(
@@ -349,32 +363,37 @@ class AdminJobs extends \WP_List_Table {
 			);
 		}
 
-		if ( 'trash' !== $item->post_status ) {
-			$trash_link = get_delete_post_link( $item->ID );
-			if ( $trash_link ) {
-				$row_actions['trash'] = sprintf(
-					'<a href="%s" class="submitdelete">%s</a>',
-					esc_url( $trash_link ),
-					esc_html__( 'Trash', 'wp-career-board' )
+		// Trash / restore / delete row actions stay admin-only. A Board
+		// Moderator's contract is approve/reject — they don't get to clear
+		// pending submissions or recover trashed ones.
+		if ( current_user_can( 'wcb_manage_settings' ) ) {
+			if ( 'trash' !== $item->post_status ) {
+				$trash_link = get_delete_post_link( $item->ID );
+				if ( $trash_link ) {
+					$row_actions['trash'] = sprintf(
+						'<a href="%s" class="submitdelete">%s</a>',
+						esc_url( $trash_link ),
+						esc_html__( 'Trash', 'wp-career-board' )
+					);
+				}
+			} else {
+				$restore_link           = wp_nonce_url(
+					admin_url( 'post.php?action=untrash&post=' . $item->ID ),
+					'untrash-post_' . $item->ID
 				);
-			}
-		} else {
-			$restore_link           = wp_nonce_url(
-				admin_url( 'post.php?action=untrash&post=' . $item->ID ),
-				'untrash-post_' . $item->ID
-			);
-			$row_actions['restore'] = sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( $restore_link ),
-				esc_html__( 'Restore', 'wp-career-board' )
-			);
-			$delete_link            = get_delete_post_link( $item->ID, '', true );
-			if ( $delete_link ) {
-				$row_actions['delete'] = sprintf(
-					'<a href="%s" class="submitdelete">%s</a>',
-					esc_url( $delete_link ),
-					esc_html__( 'Delete Permanently', 'wp-career-board' )
+				$row_actions['restore'] = sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( $restore_link ),
+					esc_html__( 'Restore', 'wp-career-board' )
 				);
+				$delete_link            = get_delete_post_link( $item->ID, '', true );
+				if ( $delete_link ) {
+					$row_actions['delete'] = sprintf(
+						'<a href="%s" class="submitdelete">%s</a>',
+						esc_url( $delete_link ),
+						esc_html__( 'Delete Permanently', 'wp-career-board' )
+					);
+				}
 			}
 		}
 
@@ -496,11 +515,16 @@ class AdminJobs extends \WP_List_Table {
 			return;
 		}
 
+		// Approve runs on the wcb/moderate-jobs ability so Board Moderators
+		// (who lack edit_post) can fire it. Trash stays on edit_post +
+		// wcb_manage_settings — only admins clear pending submissions.
+		$can_approve = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+		$can_trash   = current_user_can( 'wcb_manage_settings' );
 		foreach ( $job_ids as $job_id ) {
-			if ( ! current_user_can( 'edit_post', $job_id ) ) {
-				continue;
-			}
 			if ( 'approve' === $action ) {
+				if ( ! $can_approve ) {
+					continue;
+				}
 				// wcb_job_approved fires via EmailJobApproved::on_status_transition()
 				// on the transition_post_status hook triggered by wp_update_post().
 				wp_update_post(
@@ -510,6 +534,9 @@ class AdminJobs extends \WP_List_Table {
 					)
 				);
 			} elseif ( 'trash' === $action ) {
+				if ( ! $can_trash || ! current_user_can( 'edit_post', $job_id ) ) {
+					continue;
+				}
 				wp_trash_post( $job_id );
 			}
 		}
