@@ -79,13 +79,17 @@ class EmailSettings {
 				'restBase' => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'i18n'     => array(
-					'sending' => __( 'Sending…', 'wp-career-board' ),
-					'sent'    => __( 'Sent', 'wp-career-board' ),
-					'failed'  => __( 'Failed', 'wp-career-board' ),
-					'empty'   => __( 'No emails logged for the current filters.', 'wp-career-board' ),
-					'fail'    => __( 'Failed to load activity log.', 'wp-career-board' ),
-					'page'    => __( 'Page', 'wp-career-board' ),
-					'records' => __( 'records', 'wp-career-board' ),
+					'sending'          => __( 'Sending…', 'wp-career-board' ),
+					'sent'             => __( 'Sent', 'wp-career-board' ),
+					'failed'           => __( 'Failed', 'wp-career-board' ),
+					'empty'            => __( 'No emails logged for the current filters.', 'wp-career-board' ),
+					'fail'             => __( 'Failed to load activity log.', 'wp-career-board' ),
+					'page'             => __( 'Page', 'wp-career-board' ),
+					'records'          => __( 'records', 'wp-career-board' ),
+					'statusSent'       => _x( 'Sent', 'email-log status pill', 'wp-career-board' ),
+					'statusFailed'     => _x( 'Failed', 'email-log status pill', 'wp-career-board' ),
+					'statusSentTest'   => _x( 'Sent (test)', 'email-log status pill for admin Send Test rows', 'wp-career-board' ),
+					'statusFailedTest' => _x( 'Failed (test)', 'email-log status pill for admin Send Test rows', 'wp-career-board' ),
 				),
 			)
 		);
@@ -303,6 +307,8 @@ class EmailSettings {
 							<option value=""><?php esc_html_e( 'All statuses', 'wp-career-board' ); ?></option>
 							<option value="sent"><?php esc_html_e( 'Sent', 'wp-career-board' ); ?></option>
 							<option value="failed"><?php esc_html_e( 'Failed', 'wp-career-board' ); ?></option>
+							<option value="sent_test"><?php esc_html_e( 'Sent (test)', 'wp-career-board' ); ?></option>
+							<option value="failed_test"><?php esc_html_e( 'Failed (test)', 'wp-career-board' ); ?></option>
 						</select>
 					</label>
 					<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost" id="wcb-log-refresh">
