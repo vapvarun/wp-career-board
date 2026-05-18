@@ -371,9 +371,11 @@ a.wcb-tag:hover {
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast, #0f172a);
+	/* The job-single sidebar cards already sit inside their own rounded
+	 * outer border, so the heading's old underline read as a second border
+	 * stacked just inside the card edge. Drop the underline + extra
+	 * padding and let the bottom margin do the breathing room instead. */
 	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-sm);
-	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
 .wcb-card-title > svg {
