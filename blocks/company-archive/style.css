@@ -349,6 +349,11 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
+	/* Reserve room for the company name plus a two-line tagline so cards
+	 * without a tagline still occupy the same body height as cards that
+	 * do. Keeps the chip row anchored at the same y-position across every
+	 * card in a row instead of jumping up when the tagline is missing. */
+	min-height: 4.25rem;
 }
 
 .wcb-ca-name {
