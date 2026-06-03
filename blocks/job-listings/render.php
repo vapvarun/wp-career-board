@@ -653,10 +653,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				></p>
 
 				<div class="wcb-card-footer">
+					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 					</div>
 
 				</div>
