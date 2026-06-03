@@ -463,6 +463,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 
+			<?php do_action('wcb_job_listings_filters_top'); ?>
 			<?php if ( $wcb_type_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></span>
@@ -567,6 +568,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						data-wp-on--change="actions.updateSalaryMax"
 						data-wp-on--input="actions.previewSalaryMax"
 					/>
+
+					<?php do_action('wcb_job_listings_filters_bottom'); ?>
 					<button type="button" class="wcb-salary-popover__reset" data-wp-on--click="actions.resetSalary">
 						<?php esc_html_e( 'Reset', 'wp-career-board' ); ?>
 					</button>
