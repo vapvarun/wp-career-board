@@ -42,19 +42,25 @@ final class BoardsModule {
 		register_post_type(
 			'wcb_board',
 			array(
-				'labels'          => array(
+				'labels'                => array(
 					'name'          => __( 'Job Boards', 'wp-career-board' ),
 					'singular_name' => __( 'Job Board', 'wp-career-board' ),
 					'add_new_item'  => __( 'Add New Board', 'wp-career-board' ),
 					'edit_item'     => __( 'Edit Board', 'wp-career-board' ),
 				),
-				'public'          => false,
-				'show_ui'         => true,
-				'show_in_rest'    => true,
-				'show_in_menu'    => false,
-				'supports'        => array( 'title', 'custom-fields' ),
-				'capability_type' => 'post',
-				'map_meta_cap'    => true,
+				'public'                => false,
+				'show_ui'               => true,
+				// In REST so the block editor's board picker can list boards,
+				// but behind a custom controller that gates reads on edit_posts.
+				// Core's default controller exposes any published post to
+				// anonymous visitors regardless of public=false, which leaked
+				// board id/title/slug; boards are admin-only config, not UGC.
+				'show_in_rest'          => true,
+				'rest_controller_class' => BoardRestController::class,
+				'show_in_menu'          => false,
+				'supports'              => array( 'title', 'custom-fields' ),
+				'capability_type'       => 'post',
+				'map_meta_cap'          => true,
 			)
 		);
 	}
