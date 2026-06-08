@@ -114,15 +114,15 @@ $wcb_company_hq       = $wcb_company_id ? (string) get_post_meta( $wcb_company_i
 $wcb_trust_map        = array(
 	'verified' => array(
 		'label' => __( 'Verified', 'wp-career-board' ),
-		'icon'  => '✓',
+		'icon'  => 'check',
 	),
 	'trusted'  => array(
 		'label' => __( 'Trusted', 'wp-career-board' ),
-		'icon'  => '✓',
+		'icon'  => 'check',
 	),
 	'premium'  => array(
 		'label' => __( 'Premium', 'wp-career-board' ),
-		'icon'  => '★',
+		'icon'  => 'star',
 	),
 );
 $wcb_trust_info       = $wcb_trust_map[ $wcb_company_trust ] ?? null;
@@ -314,7 +314,7 @@ wp_interactivity_state(
 						<?php endif; ?>
 					<?php if ( $wcb_trust_info ) : ?>
 							<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
-						<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+						<?php echo \WCB\Core\Icon::svg( $wcb_trust_info['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php echo esc_html( $wcb_trust_info['label'] ); ?>
 							</span>
 					<?php endif; ?>
 					</p>
@@ -395,7 +395,7 @@ wp_interactivity_state(
 					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
 					</button>
 					<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
-					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
 				<?php if ( ! $wcb_apply_external && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
@@ -406,9 +406,9 @@ wp_interactivity_state(
 						data-wp-on--click="actions.createAlertFromJob"
 						data-wp-bind--disabled="state.alertFromJobSaving"
 						data-wp-class--wcb-hidden="state.alertFromJobSaved"
-					>&#128276; <?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
+					><?php echo \WCB\Core\Icon::svg( 'bell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
 					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
-					<?php esc_html_e( '✓ You will be notified about similar jobs', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'You will be notified about similar jobs', 'wp-career-board' ); ?>
 					</span>
 				</div>
 				<?php endif; ?>
@@ -636,7 +636,7 @@ wp_interactivity_state(
 						<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
 						</button>
 						<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
-						<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 						</p>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -717,7 +717,7 @@ wp_interactivity_state(
 							<?php endif; ?>
 				<?php if ( $wcb_trust_info ) : ?>
 								<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
-					<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+					<?php echo \WCB\Core\Icon::svg( $wcb_trust_info['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php echo esc_html( $wcb_trust_info['label'] ); ?>
 								</span>
 				<?php endif; ?>
 						</div>
