@@ -46,6 +46,13 @@ add_action(
 				'version' => WCB_VERSION,
 				'file'    => WCB_FILE,
 				'license' => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
+				// Keyless: Free updates silently via the preset community key, so
+				// the SDK must NOT add the "Manage License" plugins-row button or
+				// hook its modal — that modal enqueued build/js/edd-sl-sdk.js +
+				// css, which 404'd (Basecamp 9919578285). Keyless skips the modal
+				// entirely; auto_updater() still runs. Pro stays non-keyless (it
+				// has a real license tab; its modal assets load from this libs copy).
+				'keyless' => true,
 			)
 		);
 	}

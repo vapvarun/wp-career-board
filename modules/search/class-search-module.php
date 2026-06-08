@@ -56,6 +56,15 @@ final class SearchModule {
 			return;
 		}
 
+		// Keyword search — the landing-page hero + job-search block submit
+		// `wcb_search`. Without this the keyword was dropped on the wcb_job CPT
+		// archive (the hero's fallback target), so "search" returned every job
+		// and read as broken (Basecamp 9966091017). Map it to the core `s` var.
+		$search = isset( $_GET['wcb_search'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_search'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '' !== $search ) {
+			$query->set( 's', $search );
+		}
+
 		$tax_query = array();
 
 		$category = isset( $_GET['wcb_category'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_category'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

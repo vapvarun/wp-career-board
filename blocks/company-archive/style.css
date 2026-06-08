@@ -179,7 +179,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
-.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; display: flex; flex-wrap: wrap; gap: var(--wcb-space-xs); }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
