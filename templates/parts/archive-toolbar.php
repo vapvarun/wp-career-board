@@ -89,9 +89,33 @@ $wcb_toolbar = wp_parse_args(
 		'switcher_grid_active' => 'state.isGrid',
 	)
 );
+
+/*
+ * Sort <select> built once so it can sit in the search row (when a search box
+ * shares the row, e.g. Companies / Find Candidates) or move into the results
+ * toolbar when the page hides the search box (Jobs uses the standalone
+ * wcb/job-search block). Prevents a lone orphaned sort dropdown on its own row.
+ */
+$wcb_sort_html = '';
+if ( (bool) $wcb_toolbar['show_sort'] ) {
+	ob_start();
+	?>
+	<select
+		class="wcb-sort-select"
+		aria-label="<?php echo esc_attr( (string) $wcb_toolbar['sort_aria_label'] ); ?>"
+		data-wp-bind--value="<?php echo esc_attr( (string) $wcb_toolbar['sort_value_bind'] ); ?>"
+		data-wp-on--change="<?php echo esc_attr( (string) $wcb_toolbar['sort_change_action'] ); ?>"
+	>
+		<?php foreach ( (array) $wcb_toolbar['sort_options'] as $wcb_sort_value => $wcb_sort_label ) : ?>
+			<option value="<?php echo esc_attr( (string) $wcb_sort_value ); ?>"><?php echo esc_html( (string) $wcb_sort_label ); ?></option>
+		<?php endforeach; ?>
+	</select>
+	<?php
+	$wcb_sort_html = (string) ob_get_clean();
+}
 ?>
+<?php if ( (bool) $wcb_toolbar['show_search'] ) : ?>
 <div class="wcb-search-sort-row">
-	<?php if ( (bool) $wcb_toolbar['show_search'] ) : ?>
 	<div class="wcb-search-wrap">
 		<span class="wcb-search-icon" aria-hidden="true">
 			<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -108,21 +132,9 @@ $wcb_toolbar = wp_parse_args(
 			data-wp-on--input="<?php echo esc_attr( (string) $wcb_toolbar['search_input_action'] ); ?>"
 		/>
 	</div>
-	<?php endif; ?>
-
-	<?php if ( (bool) $wcb_toolbar['show_sort'] ) : ?>
-	<select
-		class="wcb-sort-select"
-		aria-label="<?php echo esc_attr( (string) $wcb_toolbar['sort_aria_label'] ); ?>"
-		data-wp-bind--value="<?php echo esc_attr( (string) $wcb_toolbar['sort_value_bind'] ); ?>"
-		data-wp-on--change="<?php echo esc_attr( (string) $wcb_toolbar['sort_change_action'] ); ?>"
-	>
-		<?php foreach ( (array) $wcb_toolbar['sort_options'] as $wcb_sort_value => $wcb_sort_label ) : ?>
-			<option value="<?php echo esc_attr( (string) $wcb_sort_value ); ?>"><?php echo esc_html( (string) $wcb_sort_label ); ?></option>
-		<?php endforeach; ?>
-	</select>
-	<?php endif; ?>
+	<?php echo $wcb_sort_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped markup built above. ?>
 </div>
+<?php endif; ?>
 
 <div class="wcb-listings-toolbar">
 	<div class="wcb-toolbar-start">
@@ -144,6 +156,14 @@ $wcb_toolbar = wp_parse_args(
 		?>
 	</div>
 
+	<div class="wcb-toolbar-end">
+		<?php
+		// No search box on this page -> the sort dropdown lives here so the
+		// results count, sort, and layout toggle read as one coherent toolbar.
+		if ( ! (bool) $wcb_toolbar['show_search'] ) {
+			echo $wcb_sort_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped markup built above.
+		}
+		?>
 	<?php if ( (bool) $wcb_toolbar['show_view_switcher'] ) : ?>
 	<div class="wcb-view-switcher" role="group" aria-label="<?php echo esc_attr( (string) $wcb_toolbar['switcher_aria_label'] ); ?>">
 		<button
@@ -166,4 +186,5 @@ $wcb_toolbar = wp_parse_args(
 		</button>
 	</div>
 	<?php endif; ?>
+	</div>
 </div>

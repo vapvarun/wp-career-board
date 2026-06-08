@@ -391,7 +391,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				),
 				'jobs_archive_page'          => array(
 					'title'   => __( 'Find Jobs', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+					'content' => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
 				),
 				'company_archive_page'       => array(
 					'title'   => __( 'Companies', 'wp-career-board' ),

@@ -416,7 +416,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	data-wp-interactive="wcb-job-listings"
 	data-wp-init="callbacks.init"
 >
-	<?php if ( $wcb_page_heading ) : ?>
+	<?php if ( $wcb_page_heading && ( $attributes['showHeading'] ?? false ) ) : ?>
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
 	<?php endif; ?>
 	<?php

@@ -59,5 +59,5 @@ if ( $wcb_rest_param && $wcb_slug ) {
 
 get_header();
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.
-echo do_blocks( '<!-- wp:wp-career-board/job-listings /-->' );
+echo do_blocks( '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' );
 get_footer();

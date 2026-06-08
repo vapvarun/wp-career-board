@@ -76,3 +76,17 @@ All prior blockers and majors are resolved. The remaining open items are:
 7. **REST contract fixture** (N4) — documentation task only.
 
 **Sell verdict:** YES. The plugin is at commercial-plugin standard. The big-site performance wave brings it to enterprise-ready on all previously flagged critical paths.
+
+---
+
+## Usability triage — resume when screenshot tool recovers (2026-06-08)
+
+Owner directive: judge fixes by whether they are **presentable**, not by satisfying px/breakpoint rules; do not break working UX or blind-patch CSS. The autovap follow-up shipped the three correctness items (#1 board-cap annotation, #2 manifest, #3 moderator Add-New gate; commit d365507). The look-and-feel pass was **paused** because the Playwright screenshot tool was timing out this session (confirmed on a trivial page; navigate/snapshot/evaluate worked). No CSS was edited blind.
+
+Measured at desktop 1440px (via evaluate, reliable):
+- **View switcher (list/grid) = 32x30px, bookmark "Save job" = 32x32px** — small even on desktop, not just at 390px. Genuine usability/presentation candidate. FIX when visual verify is available (bump comfortable size + confirm it looks balanced, not just >=40px).
+- **Icon drift (`✓` Unicode)**: NOT on the listings page (0 found there; 21 Lucide SVGs present). Lives on job-single + dashboard surfaces — assess those visually before swapping to `Icon::svg('check')`.
+- **Breakpoint consolidation (#6): SKIP per owner.** Layouts work; rewriting 7 files to a 640/1024 rule risks breaking working UX for no visible gain.
+- **forced-colors focus ring (#7)**: low-impact a11y edge; bundle with the visual pass.
+
+Resume checklist: screenshots back → desktop + iPad (1024) + 390px before/after of (a) listings toolbar controls, (b) job-single report control + trust badges, (c) dashboards. Fix only what reads as unpolished; re-screenshot to prove improvement.
