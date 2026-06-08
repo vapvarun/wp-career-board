@@ -68,18 +68,20 @@ class GdprModule {
 	}
 
 	/**
-	 * Export all WCB personal data for the given email address.
+	 * Export a page of WCB personal data for the given email address.
 	 *
-	 * All data is returned in a single call — pagination is not needed given
-	 * typical application volumes per candidate.
+	 * Implements the WordPress privacy exporter's page-based contract: WP calls
+	 * this repeatedly with an incrementing $page until `done` is true. Paging is
+	 * required — a candidate can have thousands of applications and a single
+	 * unbounded fetch would time out the export.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $email_address The user's email address.
-	 * @param int    $page          Page number (required by WP callback signature).
+	 * @param int    $page          Page number supplied by the privacy tool.
 	 * @return array
 	 */
-	public function export_user_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public function export_user_data( string $email_address, int $page = 1 ): array {
 		$user = get_user_by( 'email', $email_address );
 		if ( ! $user instanceof \WP_User ) {
 			return array(
@@ -88,21 +90,39 @@ class GdprModule {
 			);
 		}
 
-		$data = array();
+		$page     = max( 1, $page );
+		$per_page = 100;
+		$data     = array();
 
 		$apps = get_posts(
 			array(
-				'post_type'     => 'wcb_application',
-				'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- GDPR export requires fetching all applications for the user.
+				'post_type'      => 'wcb_application',
+				'posts_per_page' => $per_page,
+				'paged'          => $page,
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- candidate-scoped lookup; bounded by posts_per_page.
 					array(
 						'key'   => '_wcb_candidate_id',
 						'value' => $user->ID,
 					),
 				),
-				'numberposts'   => -1,
-				'no_found_rows' => true,
 			)
 		);
+
+		// Prime the linked job posts once so the per-row get_the_title() below is
+		// a cache hit instead of one post query per application.
+		$wcb_job_ids = array();
+		foreach ( $apps as $app ) {
+			$wcb_jid = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
+			if ( $wcb_jid > 0 ) {
+				$wcb_job_ids[] = $wcb_jid;
+			}
+		}
+		if ( $wcb_job_ids ) {
+			_prime_post_caches( array_unique( $wcb_job_ids ), false, false );
+		}
 
 		foreach ( $apps as $app ) {
 			$job_id = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
@@ -127,27 +147,34 @@ class GdprModule {
 			);
 		}
 
-		$this->log_action( $user->ID, 'export' );
+		$done = count( $apps ) < $per_page;
+		if ( $done ) {
+			$this->log_action( $user->ID, 'export' );
+		}
 
 		return array(
 			'data' => $data,
-			'done' => true,
+			'done' => $done,
 		);
 	}
 
 	/**
-	 * Erase all WCB personal data for the given email address.
+	 * Erase a batch of WCB personal data for the given email address.
 	 *
-	 * Permanently deletes all application posts and candidate profile meta.
-	 * All data is erased in a single call.
+	 * Implements the WordPress privacy eraser's page-based contract. Because the
+	 * read is destructive (each call deletes the rows it fetches, shrinking the
+	 * set from the front), we always read the first page and report `done` based
+	 * on whether a full batch came back — not on $page. WP re-invokes the
+	 * callback until `done` is true, so a candidate with thousands of
+	 * applications is erased across batches instead of one timeout-prone call.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $email_address The user's email address.
-	 * @param int    $page          Page number (required by WP callback signature).
+	 * @param int    $page          Page number from the privacy tool (unused — destructive read always takes page 1).
 	 * @return array
 	 */
-	public function erase_user_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public function erase_user_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- destructive read always reads page 1; signature fixed by the privacy API.
 		$user = get_user_by( 'email', $email_address );
 		if ( ! $user instanceof \WP_User ) {
 			return array(
@@ -158,40 +185,49 @@ class GdprModule {
 			);
 		}
 
-		$removed = 0;
+		$per_page = 100;
+		$removed  = 0;
 
 		$apps = get_posts(
 			array(
-				'post_type'     => 'wcb_application',
-				'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- GDPR erasure requires fetching all applications for the user.
+				'post_type'      => 'wcb_application',
+				'posts_per_page' => $per_page,
+				'paged'          => 1,
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- candidate-scoped lookup; bounded by posts_per_page.
 					array(
 						'key'   => '_wcb_candidate_id',
 						'value' => $user->ID,
 					),
 				),
-				'numberposts'   => -1,
-				'no_found_rows' => true,
 			)
 		);
 
-		foreach ( $apps as $app ) {
-			wp_delete_post( $app->ID, true );
+		foreach ( $apps as $app_id ) {
+			wp_delete_post( (int) $app_id, true );
 			++$removed;
 		}
 
-		// Erase candidate profile data.
-		delete_user_meta( $user->ID, '_wcb_resume_data' );
+		$done = count( $apps ) < $per_page;
+		if ( $done ) {
+			// Profile-level meta is cleared once, on the final batch, so a
+			// multi-page erase doesn't repeat the work or double-log.
+			delete_user_meta( $user->ID, '_wcb_resume_data' );
 
-		// Delete all bookmark entries — stored as non-unique meta (one row per bookmarked job).
-		delete_user_meta( $user->ID, '_wcb_bookmark' );
+			// Bookmarks are stored as non-unique meta (one row per bookmarked job).
+			delete_user_meta( $user->ID, '_wcb_bookmark' );
 
-		$this->log_action( $user->ID, 'erase' );
+			$this->log_action( $user->ID, 'erase' );
+		}
 
 		return array(
 			'items_removed'  => $removed,
 			'items_retained' => 0,
 			'messages'       => array(),
-			'done'           => true,
+			'done'           => $done,
 		);
 	}
 

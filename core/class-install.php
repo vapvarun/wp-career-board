@@ -431,20 +431,28 @@ final class Install {
 				continue;
 			}
 
-			$jobs = get_posts(
-				array(
-					'post_type'      => 'wcb_job',
-					'post_status'    => 'any',
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-					'meta_key'       => '_wcb_board_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-time upgrade routine.
-					'meta_value'     => $board_id,       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
-				)
-			);
-			foreach ( $jobs as $job_id ) {
-				update_post_meta( (int) $job_id, '_wcb_board_id', $default_id );
-			}
+			// Reassign jobs off the duplicate board in bounded batches — a board
+			// can own thousands of jobs, so a single `-1` fetch + per-row update
+			// could exhaust memory/time during the upgrade request. Each pass
+			// rewrites the meta_value, shrinking the WHERE, so we loop until the
+			// duplicate owns no more jobs. Mirrors the module batch idiom.
+			do {
+				$jobs = get_posts(
+					array(
+						'post_type'      => 'wcb_job',
+						'post_status'    => 'any',
+						// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; loops until empty (one-time 1.2.7 upgrade).
+						'posts_per_page' => 500,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+						'meta_key'       => '_wcb_board_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-time upgrade routine.
+						'meta_value'     => $board_id,       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
+					)
+				);
+				foreach ( $jobs as $job_id ) {
+					update_post_meta( (int) $job_id, '_wcb_board_id', $default_id );
+				}
+			} while ( count( $jobs ) === 500 );
 
 			wp_delete_post( $board_id, true );
 		}

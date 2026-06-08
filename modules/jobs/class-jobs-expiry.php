@@ -96,11 +96,23 @@ final class JobsExpiry {
 			return;
 		}
 
-		$jobs = get_posts(
+		// Bounded batch: each row triggers wp_update_post() (full save cycle) and
+		// a `wcb_job_expired` email, so a `posts_per_page => -1` sweep would blow
+		// memory and time out on a large backlog (e.g. first run over an imported
+		// board). Process a capped batch and re-arm the cron immediately when the
+		// batch is full so the backlog drains across ticks. Mirrors the bounded
+		// batch idiom in class-deadline-reminders.php / class-featured-expiry.php.
+		$batch = 200;
+		$jobs  = get_posts(
 			array(
 				'post_type'      => 'wcb_job',
 				'post_status'    => 'publish',
-				'posts_per_page' => -1,
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded batch; cron re-arms below when full.
+				'posts_per_page' => $batch,
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'     => '_wcb_deadline',
@@ -112,15 +124,22 @@ final class JobsExpiry {
 			)
 		);
 
-		foreach ( $jobs as $job ) {
+		foreach ( $jobs as $job_id ) {
 			wp_update_post(
 				array(
-					'ID'          => $job->ID,
+					'ID'          => (int) $job_id,
 					'post_status' => 'wcb_expired',
 				)
 			);
 
-			do_action( 'wcb_job_expired', $job->ID );
+			do_action( 'wcb_job_expired', (int) $job_id );
+		}
+
+		// Full batch means more past-deadline jobs remain. Each pass flips rows
+		// out of `publish`, so the next run's WHERE naturally returns the next
+		// set — re-fire the same hook shortly to drain without waiting a day.
+		if ( count( $jobs ) === $batch ) {
+			wp_schedule_single_event( time() + MINUTE_IN_SECONDS, 'wcb_check_job_expiry' );
 		}
 	}
 }

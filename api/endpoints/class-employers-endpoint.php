@@ -748,10 +748,35 @@ final class EmployersEndpoint extends RestController {
 			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}
 
-		// Prime meta cache once for the 20 application IDs so the per-row
+		// Prime meta cache once for the application IDs so the per-row
 		// get_post_meta calls below resolve from cache instead of issuing a
 		// query each. Matches the cache-priming pattern used by job-listings.
-		update_postmeta_cache( array_map( static fn( $r ) => (int) $r->ID, $rows ) );
+		$wcb_app_ids = array_map( static fn( $r ) => (int) $r->ID, $rows );
+		update_postmeta_cache( $wcb_app_ids );
+
+		// Batch-prime the related candidate users + job posts + application posts
+		// so the loop's get_user_by() / get_the_title() / get_post() calls are
+		// all cache hits instead of one query per row (N+1). The candidate/job
+		// IDs are already in the meta cache primed above.
+		$wcb_candidate_ids = array();
+		$wcb_job_ids       = array();
+		foreach ( $wcb_app_ids as $wcb_app_id ) {
+			$wcb_cid = (int) get_post_meta( $wcb_app_id, '_wcb_candidate_id', true );
+			$wcb_jid = (int) get_post_meta( $wcb_app_id, '_wcb_job_id', true );
+			if ( $wcb_cid > 0 ) {
+				$wcb_candidate_ids[] = $wcb_cid;
+			}
+			if ( $wcb_jid > 0 ) {
+				$wcb_job_ids[] = $wcb_jid;
+			}
+		}
+		if ( $wcb_candidate_ids ) {
+			cache_users( array_unique( $wcb_candidate_ids ) );
+		}
+		if ( $wcb_job_ids ) {
+			_prime_post_caches( array_unique( $wcb_job_ids ), false, false );
+		}
+		_prime_post_caches( $wcb_app_ids, false, false );
 
 		$items = array_map(
 			static function ( object $row ) use ( $request ): array {

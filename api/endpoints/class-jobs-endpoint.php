@@ -1031,6 +1031,19 @@ final class JobsEndpoint extends RestController {
 			// Prime meta cache once so the prepare loop's get_post_meta calls
 			// don't issue a query each. Mirrors the job-listings render pattern.
 			update_postmeta_cache( wp_list_pluck( $posts, 'ID' ) );
+
+			// Batch-prime the candidate users so the per-row get_user_by() below
+			// is a cache hit instead of one user query per application (N+1).
+			$wcb_candidate_ids = array();
+			foreach ( $posts as $wcb_app ) {
+				$wcb_cid = (int) get_post_meta( $wcb_app->ID, '_wcb_candidate_id', true );
+				if ( $wcb_cid > 0 ) {
+					$wcb_candidate_ids[] = $wcb_cid;
+				}
+			}
+			if ( $wcb_candidate_ids ) {
+				cache_users( array_unique( $wcb_candidate_ids ) );
+			}
 		}
 
 		$items = array_map(
