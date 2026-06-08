@@ -16,6 +16,11 @@
 /* ── Search form ─────────────────────────────────────────────────────────── */
 .wcb-search-form {
 	display: flex;
+	/* stretch so the input and button always share one height. Themes
+	 * (Reign) give the button taller font metrics than the input's
+	 * min-height; stretch lets the shorter child fill the form box so the
+	 * two edges line up (Basecamp 9891481085). */
+	align-items: stretch;
 	gap: 0;
 	border-radius: var(--wcb-radius-lg);
 	border: 1.5px solid var(--wcb-border, #e2e8f0);
@@ -47,6 +52,9 @@
 	color: var(--wcb-contrast, #1e293b);
 	background: transparent;
 	min-width: 0;
+	/* height:auto cancels any theme-set fixed input height so the flex
+	 * `align-items: stretch` on the form can size it to the button. */
+	height: auto;
 	min-height: 50px;
 }
 
@@ -71,7 +79,7 @@
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;
-	min-height: 44px;
+	min-height: 50px;
 	transition: background var(--wcb-transition-snappy);
 }
 

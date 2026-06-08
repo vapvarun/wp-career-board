@@ -349,6 +349,24 @@
         "purpose": "Reject a pending job"
       },
       {
+        "route": "/wcb/v1/jobs/(?P<id>\\d+)/report",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Modules\\Moderation\\ModerationModule::report_job",
+        "permission": "report_permissions_check (any logged-in user)",
+        "purpose": "Report a published job for moderator review (anti-spam flag)"
+      },
+      {
+        "route": "/wcb/v1/jobs/(?P<id>\\d+)/resolve-flag",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Modules\\Moderation\\ModerationModule::resolve_flag",
+        "permission": "moderate_permissions_check (wcb_moderate_jobs)",
+        "purpose": "Resolve report flags on a job (dismiss or unpublish)"
+      },
+      {
         "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-companies",
         "methods": [
           "GET"
@@ -2586,6 +2604,22 @@
           "kind": "action_listener"
         }
       ]
+    },
+    {
+      "name": "wcb_job_reported",
+      "type": "action",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:report_job",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_flag_resolved",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "modules/moderation/class-moderation-module.php:resolve_job_flags",
+      "consumed_by": []
     },
     {
       "name": "wcb_job_expired",

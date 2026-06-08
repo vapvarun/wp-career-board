@@ -55,6 +55,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
+		$this->process_flag_action();
 		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
@@ -103,6 +104,7 @@ class AdminJobs extends \WP_List_Table {
 			'cb'      => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all jobs', 'wp-career-board' ) ),
 			'title'   => __( 'Title', 'wp-career-board' ),
 			'status'  => __( 'Status', 'wp-career-board' ),
+			'flags'   => __( 'Flags', 'wp-career-board' ),
 			'company' => __( 'Company', 'wp-career-board' ),
 			'author'  => __( 'Author', 'wp-career-board' ),
 			'date'    => __( 'Date', 'wp-career-board' ),
@@ -132,6 +134,10 @@ class AdminJobs extends \WP_List_Table {
 		$actions = array(
 			'approve' => __( 'Approve', 'wp-career-board' ),
 		);
+		// Moderators can clear report flags — same approve/reject contract.
+		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			$actions['resolve_flag'] = __( 'Dismiss flags', 'wp-career-board' );
+		}
 		// Trash is destructive and only admins should reach it. Board
 		// Moderators see Approve only — their contract is approve/reject,
 		// not deletion.
@@ -188,6 +194,14 @@ class AdminJobs extends \WP_List_Table {
 			$query_args['s'] = $search;
 		}
 
+		// "Flagged" view — jobs with open report flags, regardless of status.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['wcb_flag'] ) && 'open' === sanitize_key( wp_unslash( $_GET['wcb_flag'] ) ) ) {
+			$query_args['post_status'] = $allowed_statuses;
+			$query_args['meta_key']    = '_wcb_flag_status'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$query_args['meta_value']  = 'open'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		}
+
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
 
@@ -228,13 +242,15 @@ class AdminJobs extends \WP_List_Table {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['post_status'] ) ? sanitize_text_field( wp_unslash( $_GET['post_status'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$flag_active = isset( $_GET['wcb_flag'] ) && 'open' === sanitize_key( wp_unslash( $_GET['wcb_flag'] ) );
 
 		$views = array();
 
 		$views['all'] = sprintf(
 			'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 			esc_url( $base_url ),
-			'' === $current ? ' class="current"' : '',
+			'' === $current && ! $flag_active ? ' class="current"' : '',
 			esc_html__( 'All', 'wp-career-board' ),
 			$all
 		);
@@ -259,6 +275,29 @@ class AdminJobs extends \WP_List_Table {
 				$current === $slug ? ' class="current"' : '',
 				esc_html( $label ),
 				$count
+			);
+		}
+
+		// "Flagged" view — count jobs with an open report flag. Shown only when
+		// there are flagged jobs or the filter is already active.
+		$flagged_query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed' ),
+				'meta_key'       => '_wcb_flag_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => 'open', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+		$flagged_count = (int) $flagged_query->found_posts;
+		if ( $flagged_count > 0 || $flag_active ) {
+			$views['flagged'] = sprintf(
+				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+				esc_url( add_query_arg( 'wcb_flag', 'open', $base_url ) ),
+				$flag_active ? ' class="current"' : '',
+				esc_html__( 'Flagged', 'wp-career-board' ),
+				$flagged_count
 			);
 		}
 
@@ -363,6 +402,46 @@ class AdminJobs extends \WP_List_Table {
 			);
 		}
 
+		// Resolve-flag actions appear on jobs with open report flags, for
+		// users holding the moderation ability. Both reuse
+		// ModerationModule::resolve_job_flags() via process_flag_action().
+		if ( 'open' === (string) get_post_meta( $item->ID, '_wcb_flag_status', true )
+			&& wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			$dismiss_link               = wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'             => 'wcb-jobs',
+						'wcb_resolve_flag' => 'dismiss',
+						'job'              => $item->ID,
+					),
+					admin_url( 'admin.php' )
+				),
+				'wcb_resolve_flag_' . $item->ID
+			);
+			$row_actions['wcb_dismiss'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $dismiss_link ),
+				esc_html__( 'Dismiss flag', 'wp-career-board' )
+			);
+
+			$unpublish_link               = wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'             => 'wcb-jobs',
+						'wcb_resolve_flag' => 'unpublish',
+						'job'              => $item->ID,
+					),
+					admin_url( 'admin.php' )
+				),
+				'wcb_resolve_flag_' . $item->ID
+			);
+			$row_actions['wcb_unpublish'] = sprintf(
+				'<a href="%s" class="submitdelete">%s</a>',
+				esc_url( $unpublish_link ),
+				esc_html__( 'Unpublish', 'wp-career-board' )
+			);
+		}
+
 		// Trash / restore / delete row actions stay admin-only. A Board
 		// Moderator's contract is approve/reject — they don't get to clear
 		// pending submissions or recover trashed ones.
@@ -435,6 +514,39 @@ class AdminJobs extends \WP_List_Table {
 			'<span class="wcb-badge wcb-badge--%s">%s</span>',
 			esc_attr( $badge_var ),
 			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Flags column — open report count with the top reason as a tooltip.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_flags( $item ): string {
+		if ( 'open' !== (string) get_post_meta( $item->ID, '_wcb_flag_status', true ) ) {
+			return '—';
+		}
+
+		$count = (int) get_post_meta( $item->ID, '_wcb_flag_count', true );
+		if ( $count < 1 ) {
+			return '—';
+		}
+
+		$reasons = get_post_meta( $item->ID, '_wcb_flag_reasons', true );
+		$top     = '';
+		if ( is_array( $reasons ) && $reasons ) {
+			arsort( $reasons );
+			$labels = \WCB\Modules\Moderation\ModerationModule::report_reasons();
+			$top    = $labels[ (string) array_key_first( $reasons ) ] ?? '';
+		}
+
+		return sprintf(
+			'<span class="wcb-badge wcb-badge--danger" title="%s">%s</span>',
+			esc_attr( $top ),
+			esc_html( sprintf( /* translators: %d: number of reports */ _n( '%d report', '%d reports', $count, 'wp-career-board' ), $count ) )
 		);
 	}
 
@@ -533,6 +645,11 @@ class AdminJobs extends \WP_List_Table {
 						'post_status' => 'publish',
 					)
 				);
+			} elseif ( 'resolve_flag' === $action ) {
+				if ( ! $can_approve ) {
+					continue;
+				}
+				\WCB\Modules\Moderation\ModerationModule::resolve_job_flags( $job_id, 'dismiss' );
 			} elseif ( 'trash' === $action ) {
 				if ( ! $can_trash || ! current_user_can( 'edit_post', $job_id ) ) {
 					continue;
@@ -542,6 +659,47 @@ class AdminJobs extends \WP_List_Table {
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
+		exit;
+	}
+
+	/**
+	 * Handle single-job resolve-flag row-action links.
+	 *
+	 * Runs before the table renders. Each link carries its own per-job nonce
+	 * and delegates to ModerationModule::resolve_job_flags() so the admin and
+	 * REST surfaces share one implementation.
+	 *
+	 * @since 1.2.1
+	 * @return void
+	 */
+	private function process_flag_action(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$resolve = isset( $_GET['wcb_resolve_flag'] ) ? sanitize_key( wp_unslash( $_GET['wcb_resolve_flag'] ) ) : '';
+		if ( '' === $resolve ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$job_id = isset( $_GET['job'] ) ? (int) $_GET['job'] : 0;
+		if ( ! $job_id ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'wcb_resolve_flag_' . $job_id ) ) {
+			return;
+		}
+
+		if ( ! wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			return;
+		}
+
+		\WCB\Modules\Moderation\ModerationModule::resolve_job_flags(
+			$job_id,
+			'unpublish' === $resolve ? 'unpublish' : 'dismiss'
+		);
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs&wcb_flag=open' ) );
 		exit;
 	}
 }

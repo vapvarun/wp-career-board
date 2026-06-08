@@ -253,9 +253,11 @@ final class Abilities {
 	}
 
 	/**
-	 * Register the board-scoped moderation ability.
+	 * Register the job moderation ability.
 	 *
-	 * When board_id context is provided, checks _wcb_assigned_boards usermeta.
+	 * Gated on the wcb_moderate_jobs cap. Per-job scoping, when needed, is
+	 * applied by extensions via the wcb_moderate_jobs_ability_check filter
+	 * in ModerationModule — not baked into this global ability.
 	 *
 	 * @since 1.0.0
 	 * @return void

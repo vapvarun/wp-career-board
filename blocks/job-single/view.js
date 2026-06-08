@@ -314,5 +314,57 @@ const { state } = store( 'wcb-job-single', {
 				state.bookmarking = false;
 			}
 		},
+
+		toggleReport() {
+			state.reportOpen = ! state.reportOpen;
+			if ( state.reportOpen ) {
+				state.reportError = '';
+			}
+		},
+
+		updateReportReason( event ) {
+			state.reportReason = event.target.value;
+			state.reportError  = '';
+		},
+
+		*submitReport() {
+			if ( state.reportSubmitting ) {
+				return;
+			}
+			if ( ! state.reportReason ) {
+				state.reportError = state.strings.reportReasonRequired;
+				return;
+			}
+
+			state.reportSubmitting = true;
+			state.reportError      = '';
+
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/jobs/' + String( state.jobId ) + '/report',
+					{
+						method:  'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( { reason: state.reportReason } ),
+					}
+				);
+
+				if ( ! response.ok ) {
+					state.reportError = state.strings.reportFailed;
+					return;
+				}
+
+				yield response.json();
+				state.reportDone = true;
+				state.reportOpen = false;
+			} catch {
+				state.reportError = state.strings.connectionError;
+			} finally {
+				state.reportSubmitting = false;
+			}
+		},
 	},
 } );

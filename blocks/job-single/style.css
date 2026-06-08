@@ -863,6 +863,93 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-job-page .post-title,
 .wcb-job-page .wp-block-post-title { display: none !important; }
 
+/* ── Report this job ─────────────────────────────────────────────────────── */
+.wcb-job-report {
+	margin: var(--wcb-space-lg) 0 0;
+	padding-top: var(--wcb-space-md);
+	border-top: 1px solid var(--wcb-border, #e2e8f0);
+	text-align: center;
+}
+
+.wcb-job-report__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	background: none;
+	border: none;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
+	font-family: inherit;
+	cursor: pointer;
+	border-radius: var(--wcb-radius-sm);
+	transition: color var(--wcb-transition-snappy);
+}
+
+.wcb-job-report__trigger:hover,
+.wcb-job-report__trigger:focus-visible {
+	color: var(--wcb-danger, #dc2626);
+}
+
+.wcb-job-report__trigger svg {
+	width: 15px;
+	height: 15px;
+}
+
+.wcb-job-report__form {
+	max-width: 420px;
+	margin: var(--wcb-space-md) auto 0;
+	padding: var(--wcb-space-md);
+	text-align: start;
+	background: var(--wcb-surface, #f8fafc);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+}
+
+.wcb-report-reason {
+	width: 100%;
+	margin-top: var(--wcb-space-xs);
+	padding: var(--wcb-space-sm);
+	font-size: var(--wcb-text-md);
+	font-family: inherit;
+	color: var(--wcb-contrast, #1e293b);
+	background: var(--wcb-base, #fff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-sm);
+}
+
+.wcb-job-report__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
+	margin-top: var(--wcb-space-md);
+}
+
+.wcb-job-report__error {
+	display: none;
+	margin: var(--wcb-space-sm) 0 0;
+	color: var(--wcb-danger, #dc2626);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-job-report__error.wcb-shown {
+	display: block;
+}
+
+.wcb-job-report__done {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	margin: var(--wcb-space-sm) 0 0;
+	color: var(--wcb-success, #16a34a);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-job-report__done svg {
+	width: 15px;
+	height: 15px;
+}
+
 /* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
