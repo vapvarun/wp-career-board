@@ -205,7 +205,7 @@ textarea.wcb-field {
 /* ── 4-col salary row (currency, min, max, period) — matches simple form ─*/
 .wcb-salary-row {
 	display: grid;
-	grid-template-columns: 1.4fr 1fr 1fr 1fr;
+	grid-template-columns: 1.4fr minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
@@ -619,7 +619,7 @@ textarea.wcb-field {
 @media (max-width: 640px) {
 	.wcb-form-grid,
 	.wcb-salary-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-form-nav {

@@ -162,8 +162,8 @@
  * why leave space"). */
 .wcb-ca-card-link {
 	display: grid;
-	grid-template-columns: auto 1fr;
-	grid-template-rows: auto 1fr auto;
+	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-rows: auto minmax(0, 1fr) auto;
 	grid-template-areas:
 		"avatar body"
 		"chips chips"
@@ -463,7 +463,7 @@
 
 @media (max-width: 640px) {
 	.wcb-ca-container.wcb-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	/* Collapse the 3-col list-view grid into the same 2-col header

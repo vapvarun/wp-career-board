@@ -118,7 +118,7 @@
 }
 .wcb-app-timeline__item {
 	display: grid;
-	grid-template-columns: 160px 1fr 120px;
+	grid-template-columns: 160px minmax(0, 1fr) 120px;
 	gap: 8px;
 	padding: 6px 0;
 	font-size: 13px;
@@ -162,7 +162,7 @@
 	.wcb-app-card { flex-direction: column; gap: 12px; }
 	.wcb-app-card__avatar img { width: 48px; height: 48px; }
 	.wcb-app-timeline__item {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 2px;
 	}
 	.wcb-app-timeline__who { text-align: left; }

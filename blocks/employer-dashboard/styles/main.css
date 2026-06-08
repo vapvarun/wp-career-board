@@ -89,7 +89,7 @@
 /* -- Two-column grid -- */
 .wcb-two-col {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-xl);
 }
 
@@ -151,7 +151,7 @@
 
 @media (max-width: 768px) {
 	.wcb-two-col {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-main {

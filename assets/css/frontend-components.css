@@ -340,25 +340,25 @@ select.wcb-field {
 
 .wcb-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), minmax(0, 1fr)));
 	gap: var(--wcb-space-xl);
 }
 
 .wcb-grid--compact {
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), minmax(0, 1fr)));
 	gap: var(--wcb-space-lg);
 }
 
 .wcb-grid--2col {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
 @media (max-width: 640px) {
-	.wcb-grid { grid-template-columns: 1fr; }
-	.wcb-grid--compact { grid-template-columns: 1fr; }
-	.wcb-grid--2col { grid-template-columns: 1fr; }
+	.wcb-grid { grid-template-columns: minmax(0, 1fr); }
+	.wcb-grid--compact { grid-template-columns: minmax(0, 1fr); }
+	.wcb-grid--2col { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── Pagination ──────────────────────────────────────────────────────── */
@@ -459,7 +459,7 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-field-row,
 [class*="wp-block-wcb-"] .wcb-field-row {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
@@ -467,7 +467,7 @@ select.wcb-field {
 
 	[class*="wp-block-wp-career-board"] .wcb-field-row,
 	[class*="wp-block-wcb-"] .wcb-field-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -565,7 +565,7 @@ select.wcb-field {
 
 .wcb-settings-row {
 	display: grid;
-	grid-template-columns: 160px 1fr;
+	grid-template-columns: 160px minmax(0, 1fr);
 	align-items: start;
 	padding: var(--wcb-space-lg) var(--wcb-space-xl);
 	border-bottom: 1px solid var(--wcb-border);
@@ -592,7 +592,7 @@ select.wcb-field {
 
 @media (max-width: 640px) {
 	.wcb-settings-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-sm);
 	}
 }

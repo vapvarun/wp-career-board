@@ -139,7 +139,7 @@
 /* ── Responsive: 2-up stats on narrow screens ────────────────────────────── */
 @media ( max-width: 640px ) {
 	.wcb-stats-row {
-		grid-template-columns: repeat( 2, 1fr );
+		grid-template-columns: repeat( 2, minmax(0, 1fr) );
 	}
 }
 
@@ -245,7 +245,7 @@
 @media ( max-width: 640px ) {
 	.wcb-welcome-card { padding: var( --wcb-space-md, 16px ); }
 	.wcb-welcome-card__title { font-size: var(--wcb-text-xl); }
-	.wcb-welcome-card__steps { grid-template-columns: 1fr; }
+	.wcb-welcome-card__steps { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media ( prefers-reduced-motion: reduce ) {

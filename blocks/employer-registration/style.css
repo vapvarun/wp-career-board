@@ -34,7 +34,7 @@
 
 .wcb-reg-row {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
@@ -82,7 +82,7 @@
 
 .wcb-role-options {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
@@ -178,11 +178,11 @@
 
 @media (max-width: 640px) {
 	.wcb-reg-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-role-options {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -198,7 +198,7 @@
 
 /*
  * Side-by-side fields use the shared `.wcb-field-row` grid defined in
- * `assets/css/frontend-components.css` (1fr 1fr, auto-stacks at <=600px).
+ * `assets/css/frontend-components.css` (minmax(0, 1fr) minmax(0, 1fr), auto-stacks at <=600px).
  * `.wcb-field-half` is retained for backwards-compatibility on existing
  * markup but is now a no-op grid item.
  */

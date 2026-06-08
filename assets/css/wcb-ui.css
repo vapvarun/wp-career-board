@@ -698,14 +698,14 @@ textarea.wcb-input {
  * line. */
 .wcb-archive-layout {
 	display: grid;
-	grid-template-columns: minmax(240px, 280px) 1fr;
+	grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
 	gap: var(--wcb-space-2xl);
 	align-items: start;
 }
 
 @media (max-width: 900px) {
 	.wcb-archive-layout {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -1165,7 +1165,7 @@ textarea.wcb-input {
 	.wcb-card-head    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
 	.wcb-card-body    { padding: var(--wcb-space-lg); }
 	.wcb-card-foot    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
-	.wcb-field-row    { grid-template-columns: 1fr; }
+	.wcb-field-row    { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── Reduced motion ───────────────────────────────────────────────────────── */

@@ -136,7 +136,7 @@
 }
 @media (max-width: 640px) {
 	.wcb-form-simple .wcb-form-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -146,14 +146,14 @@
 	gap: var(--wcb-space-lg);
 }
 @media (max-width: 480px) {
-	.wcb-form-simple__tax-grid { grid-template-columns: 1fr; }
+	.wcb-form-simple__tax-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── Salary range — 4 equal columns at desktop, 2 at tablet, 1 at mobile ─*/
 
 .wcb-form-simple .wcb-salary-row {
 	display: grid;
-	grid-template-columns: 1.4fr 1fr 1fr 1fr;
+	grid-template-columns: 1.4fr minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
@@ -164,7 +164,7 @@
 }
 @media (max-width: 420px) {
 	.wcb-form-simple .wcb-salary-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 

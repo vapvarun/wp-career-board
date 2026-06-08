@@ -110,7 +110,7 @@
  */
 .wcb-job-card {
 	display: grid;
-	grid-template-columns: auto 1fr;
+	grid-template-columns: auto minmax(0, 1fr);
 	grid-template-areas:
 		"avatar header"
 		"badges badges"
@@ -419,7 +419,7 @@
 
 	.wcb-jobs-container.wcb-grid,
 	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-card-date {
