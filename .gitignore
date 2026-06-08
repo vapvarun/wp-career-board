@@ -1,9 +1,8 @@
 # Worktrees
 .worktrees/
 
-# Dependencies — track production SDKs, ignore dev packages
+# Dependencies — dev packages only; bundled runtime SDKs live in /libs (tracked).
 /vendor/*
-!/vendor/edd-sl-sdk/
 node_modules/
 
 # Build output

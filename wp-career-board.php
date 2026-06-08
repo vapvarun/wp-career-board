@@ -50,8 +50,11 @@ add_action(
 		);
 	}
 );
-if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
-	require_once __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php';
+// The EDD SL SDK is bundled (built) in /libs — not /vendor — so it survives
+// release packaging (which strips /vendor) and is the single shared copy that
+// WP Career Board Pro loads too, rather than duplicating the SDK.
+if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
+	require_once __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php';
 }
 
 /*
