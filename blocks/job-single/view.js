@@ -12,6 +12,7 @@
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -152,7 +153,7 @@ const { state } = store( 'wcb-job-single', {
 			}
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/alerts',
 					{
 						method:  'POST',
@@ -245,7 +246,7 @@ const { state } = store( 'wcb-job-single', {
 					}
 				}
 
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( state.jobId ) + '/apply',
 					{
 						method:  'POST',
@@ -290,7 +291,7 @@ const { state } = store( 'wcb-job-single', {
 			state.bookmarking = true;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( state.jobId ) + '/bookmark',
 					{
 						method: 'POST',

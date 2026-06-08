@@ -10,6 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 const { state, actions } = store( 'wcb-job-form-simple', {
 	state: {
@@ -110,7 +111,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			state._aiGenerating = true;
 			state.error = '';
 			try {
-				const response = yield fetch( state.apiBase + '/jobs/ai-description', {
+				const response = yield wcbFetch( state.apiBase + '/jobs/ai-description', {
 					method:  'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -222,7 +223,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					wcb_captcha_token: captchaToken,
 				};
 
-				const response = yield fetch( state.apiBase + '/jobs', {
+				const response = yield wcbFetch( state.apiBase + '/jobs', {
 					method:  'POST',
 					headers: {
 						'X-WP-Nonce':   state.nonce,

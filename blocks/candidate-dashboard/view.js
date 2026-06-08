@@ -15,6 +15,7 @@
  * @package WP_Career_Board
  */
 import { store, getContext } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 /**
  * Tabs that are eligible to appear in the URL hash. Anything outside this
@@ -280,7 +281,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -301,7 +302,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 			// Prefetch bookmarks so the Overview panel can display recent saved jobs.
 			try {
-				const bmResponse = yield fetch(
+				const bmResponse = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/bookmarks',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -315,7 +316,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 			// Prefetch alerts count for Overview stat card and nav badge.
 			try {
-				const alertsRes = yield fetch(
+				const alertsRes = yield wcbFetch(
 					state.apiBase + '/alerts',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -387,7 +388,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.loading = true;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/bookmarks',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -428,7 +429,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			state.savedCompaniesLoading = true;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/saved-companies',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -462,7 +463,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			state.savedResumesLoading = true;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/saved-resumes',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -489,7 +490,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			const companyId = ctx.company.id;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/companies/' + String( companyId ) + '/bookmark',
 					{
 						method:  'POST',
@@ -519,7 +520,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			const resumeId = ctx.resume.id;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/resumes/' + String( resumeId ) + '/bookmark',
 					{
 						method:  'POST',
@@ -584,7 +585,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved  = false;
 			state.error         = '';
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ),
 					{
 						method: 'PUT',
@@ -630,7 +631,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.alertsLoading = true;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/alerts',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -659,7 +660,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const alertId = ctx.alert.id;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/alerts/' + String( alertId ),
 					{
 						method:  'DELETE',
@@ -683,7 +684,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			ctx.alert.frequency = frequency;
 
 			try {
-				yield fetch(
+				yield wcbFetch(
 					state.apiBase + '/alerts/' + String( alertId ),
 					{
 						method:  'PATCH',
@@ -721,7 +722,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.loading = true;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/resumes',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -744,7 +745,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const bookmark = ctx.bookmark;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( bookmark.id ) + '/bookmark',
 					{
 						method: 'POST',
@@ -791,7 +792,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.loading = true;
 			state.error   = '';
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/resumes/' + String( ctx.resume.id ) + '/pdf',
 					{
 						method:  'POST',
@@ -827,7 +828,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.error   = '';
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/resumes',
 					{
 						method: 'POST',
@@ -873,7 +874,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				const formData = new FormData();
 				formData.append( 'resume_file', file );
 
-				const uploadResp = yield fetch(
+				const uploadResp = yield wcbFetch(
 					state.apiBase + '/candidates/resume-upload',
 					{
 						method: 'POST',
@@ -898,7 +899,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				// in the candidate's resume list. Without this step the file
 				// uploads silently and the user has nothing to click on.
 				const title = file.name.replace( /\.[^.]+$/, '' ) || 'Uploaded CV';
-				const createResp = yield fetch(
+				const createResp = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/resumes',
 					{
 						method: 'POST',
@@ -938,7 +939,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const resume = ctx.resume;
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/resumes/' + String( resume.id ),
 					{
 						method: 'DELETE',
@@ -972,7 +973,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*fetchBellNotifications() {
 			state.bellLoading = true;
 			try {
-				const res = yield fetch( state.apiBase + '/notifications?per_page=20', {
+				const res = yield wcbFetch( state.apiBase + '/notifications?per_page=20', {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 				if ( res.ok ) {
@@ -991,7 +992,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			if ( ! id ) {
 				return;
 			}
-			yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {
+			yield wcbFetch( state.apiBase + '/notifications/' + String( id ) + '/read', {
 				method:  'PATCH',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
@@ -1003,7 +1004,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 
 		*markAllRead() {
-			yield fetch( state.apiBase + '/notifications/read-all', {
+			yield wcbFetch( state.apiBase + '/notifications/read-all', {
 				method:  'POST',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
@@ -1029,7 +1030,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/applications/' + String( application.id ),
 					{
 						method:  'DELETE',
@@ -1091,7 +1092,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.privacyError = '';
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/me/privacy/' + String( action ),
 					{
 						method:  'POST',

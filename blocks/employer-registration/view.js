@@ -10,6 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 const { state } = store( 'wcb-employer-registration', {
 	state: {
@@ -104,7 +105,7 @@ const { state } = store( 'wcb-employer-registration', {
 			}
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + endpoint,
 					{
 						method:  'POST',

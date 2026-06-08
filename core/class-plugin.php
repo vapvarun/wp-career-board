@@ -218,6 +218,20 @@ final class Plugin {
 	 * @return void
 	 */
 	public function register_blocks(): void {
+		// Shared fetch helper (AbortController timeout) imported uniformly by
+		// every Free AND Pro block view module via `import { wcbFetch } from
+		// '@wcb/fetch'`. Registered here on init so it joins the script-module
+		// import map; each block declares it in its view.asset.php dependencies.
+		// Pro consumes this same id — Free is always active, so no duplicate.
+		if ( function_exists( 'wp_register_script_module' ) ) {
+			wp_register_script_module(
+				'@wcb/fetch',
+				WCB_URL . 'assets/js/modules/wcb-fetch.js',
+				array(),
+				WCB_VERSION
+			);
+		}
+
 		$blocks = array(
 			'job-listings',
 			'job-search',

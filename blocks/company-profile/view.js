@@ -10,6 +10,7 @@
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 const { state } = store( 'wcb-company-profile', {
 	actions: {
@@ -25,7 +26,7 @@ const { state } = store( 'wcb-company-profile', {
 
 			try {
 				const url = state.apiBase + '/' + state.companyId + '/bookmark';
-				const response = yield fetch( url, {
+				const response = yield wcbFetch( url, {
 					method: 'POST',
 					credentials: 'same-origin',
 					headers: {
@@ -58,7 +59,7 @@ const { state } = store( 'wcb-company-profile', {
 				url.searchParams.set( 'page', String( state.page ) );
 				url.searchParams.set( 'per_page', String( state.perPage ) );
 
-				const response = yield fetch( url.toString() );
+				const response = yield wcbFetch( url.toString() );
 
 				if ( ! response.ok ) {
 					state.page--;

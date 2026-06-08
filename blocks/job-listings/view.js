@@ -6,6 +6,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 let searchDebounceTimer = null;
 
@@ -176,7 +177,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			} );
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase.replace( '/jobs', '/alerts' ),
 					{
 						method:  'POST',
@@ -434,7 +435,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			}
 
 			try {
-				const response = yield fetch( url.toString(), {
+				const response = yield wcbFetch( url.toString(), {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 
@@ -475,7 +476,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 			ctx.job.bookmarked = ! wasBookmarked;
 
-			const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {
+			const response = yield wcbFetch( state.apiBase + '/' + jobId + '/bookmark', {
 				method: 'POST',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
