@@ -548,6 +548,9 @@ class SetupWizard extends \WCB\Api\RestController {
 			$existing = get_page_by_path( $co['slug'], OBJECT, 'wcb_company' );
 			if ( $existing ) {
 				$company_ids[ $co['slug'] ] = (int) $existing->ID;
+				// Re-track on re-run so wcb_sample_data_ids stays complete
+				// instead of being overwritten with an empty map.
+				$created_ids['companies'][] = (int) $existing->ID;
 				continue;
 			}
 			$cid = wp_insert_post(
@@ -563,7 +566,6 @@ class SetupWizard extends \WCB\Api\RestController {
 				foreach ( $co['meta'] as $k => $v ) {
 					update_post_meta( $cid, $k, $v );
 				}
-				update_post_meta( $cid, '_wcb_user_id', $author_id );
 				update_post_meta( $cid, '_wcb_sample', 1 );
 				\WCB\Core\Locations::sync_company_hq( (int) $cid, (string) $co['meta']['_wcb_hq_location'] );
 				$company_ids[ $co['slug'] ] = $cid;
@@ -758,6 +760,8 @@ class SetupWizard extends \WCB\Api\RestController {
 		foreach ( $jobs as $job ) {
 			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
 			if ( $existing ) {
+				// Re-track on re-run so wcb_sample_data_ids stays complete.
+				$created_ids['jobs'][] = (int) $existing->ID;
 				continue;
 			}
 			$cid = $company_ids[ $job['company'] ] ?? 0;

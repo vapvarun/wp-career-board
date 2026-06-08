@@ -63,25 +63,61 @@ final class BoardsModule {
 	 * Ensures a default board exists on first run.
 	 * Free plugin always has exactly one board (multi-board is Pro).
 	 *
+	 * Runs on every `init` as a self-heal, so it must be race-safe: a naive
+	 * get_option-then-insert is a check-then-act race, and two concurrent
+	 * post-activation requests both seeing the option empty would each insert
+	 * a "Main Board" (the duplicate-board bug). `add_option()` is a single
+	 * INSERT guarded by the unique `option_name` key, so exactly one of N
+	 * racing requests wins the lock and creates the board.
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function ensure_default_board(): void {
-		if ( get_option( 'wcb_default_board_id', false ) ) {
+		if ( get_option( 'wcb_default_board_id', 0 ) ) {
 			return;
 		}
 
-		$board_id = wp_insert_post(
+		// Atomic create-once lock — only the request that successfully inserts
+		// this row proceeds; concurrent losers return immediately. Released
+		// below so a failed insert can be retried on a later request.
+		if ( ! add_option( 'wcb_default_board_lock', time(), '', false ) ) {
+			return;
+		}
+
+		// Self-heal: adopt an existing board rather than create a duplicate
+		// (covers sites that already have a board but lost the option row).
+		$existing = get_posts(
 			array(
-				'post_type'   => 'wcb_board',
-				'post_title'  => __( 'Main Board', 'wp-career-board' ),
-				'post_status' => 'publish',
+				'post_type'      => 'wcb_board',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
 			)
 		);
 
-		if ( $board_id && ! is_wp_error( $board_id ) ) {
+		$board_id = (int) ( $existing[0] ?? 0 );
+		if ( ! $board_id ) {
+			$inserted = wp_insert_post(
+				array(
+					'post_type'   => 'wcb_board',
+					'post_title'  => __( 'Main Board', 'wp-career-board' ),
+					'post_status' => 'publish',
+				)
+			);
+			if ( $inserted && ! is_wp_error( $inserted ) ) {
+				$board_id = (int) $inserted;
+			}
+		}
+
+		if ( $board_id ) {
 			update_option( 'wcb_default_board_id', $board_id, false );
 		}
+
+		delete_option( 'wcb_default_board_lock' );
 	}
 
 	/**
