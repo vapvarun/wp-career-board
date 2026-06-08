@@ -45,13 +45,13 @@ class EmailSettings {
 	 * @return void
 	 */
 	public function enqueue_assets( string $hook_suffix ): void {
-		// Only fire on Career Board → Settings → Emails tab.
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab discriminator.
-		$current_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : '';
-		if ( 'emails' !== $current_tab ) {
-			return;
-		}
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Enqueue on the Career Board settings page. The settings UI uses
+		// hash-based client-side tabs (#emails), so the server can't see which
+		// tab is active — a `?tab=emails` gate (the old check) never matched and
+		// left emails.js unloaded, so the Send-test button and the activity log
+		// silently did nothing. All tab panels render in the DOM, so the script
+		// must be present whenever the settings page loads.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page discriminator.
 		$current_page = isset( $_GET['page'] ) ? sanitize_key( (string) wp_unslash( $_GET['page'] ) ) : '';
 		if ( 'wcb-settings' !== $current_page ) {
 			return;
