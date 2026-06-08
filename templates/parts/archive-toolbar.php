@@ -150,7 +150,11 @@ if ( (bool) $wcb_toolbar['show_sort'] ) {
 			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
 			$wcb_slot_html      = (string) ( $wcb_module_renders[ (string) $wcb_toolbar['inject_slot_key'] ] ?? '' );
 			if ( '' !== $wcb_slot_html ) {
-				echo wp_kses_post( $wcb_slot_html );
+				// Module-generated markup (escaped internally — text via esc_html_e,
+				// icons via the pre-escaped Icon::svg helper). Echoed raw like
+				// results_ssr_html above; wp_kses_post would strip the Lucide <svg>
+				// icons (and lowercase the case-sensitive viewBox, breaking them).
+				echo $wcb_slot_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- module-generated, internally-escaped slot markup.
 			}
 		}
 		?>

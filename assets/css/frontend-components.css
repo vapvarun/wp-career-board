@@ -863,6 +863,15 @@ select.wcb-field {
 	flex-wrap: wrap;
 }
 
+/* "Alert me" toolbar button — Pro injects it into the listings toolbar via the
+ * alerts_subscribe slot. Styled with the .wcb-btn ladder above; this aligns the
+ * Lucide icon with the label inside each toggle span. */
+.wcb-alert-me-btn__label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+}
+
 [class*="wp-block-wp-career-board"] .wcb-results-count,
 [class*="wp-block-wcb-"] .wcb-results-count {
 	font-size: var(--wcb-text-sm);
