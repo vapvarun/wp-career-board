@@ -1,6 +1,6 @@
 # WP Career Board — Claude Code Rules
 
-> **READ FIRST:** Read [`audit/manifest.summary.json`](audit/manifest.summary.json) (≤6 KB index) before opening the full [`audit/manifest.json`](audit/manifest.json). Schema v2.2 (refreshed 2026-05-17). Counts: 36 REST endpoints · 173 hook firings (99 unique) · 3 tables · 12 capabilities · 15 blocks · 11 shortcodes · 5 WP-CLI commands · 9 admin pages · 3 cron hooks · 0 AJAX handlers (REST-only). Static-analysis findings: 1 REST↔JS contract drift (high), 1 dead listener — see [`audit/wppqa-baseline-2026-05-17/SUMMARY.md`](audit/wppqa-baseline-2026-05-17/SUMMARY.md). Cross-plugin coupling at [`audit/derived/cross-plugin-coupling.json`](audit/derived/cross-plugin-coupling.json) — Pro consumes 41 Free hooks. See also [`audit/FEATURE_AUDIT.md`](audit/FEATURE_AUDIT.md), [`audit/CODE_FLOWS.md`](audit/CODE_FLOWS.md), [`audit/ROLE_MATRIX.md`](audit/ROLE_MATRIX.md). Refresh via `/wp-plugin-onboard --refresh` after non-trivial changes.
+> **READ FIRST:** Read [`audit/manifest.summary.json`](audit/manifest.summary.json) (≤6 KB index) before opening the full [`audit/manifest.json`](audit/manifest.json). Schema v2.2 (refreshed 2026-06-08, branch 1.2.1, DB_VERSION 1.2.7). Counts: 41 REST endpoints (38 routes) · 173 hook firings (99 unique) · 3 tables · 12 capabilities · 17 blocks · 11 shortcodes · 5 WP-CLI commands · 9 admin pages · 3 cron hooks · 0 AJAX handlers (REST-only). Static-analysis findings: 1 REST↔JS contract drift (high, employers/jobs `data.reason`), 0 dead listeners — see [`audit/wppqa-baseline-2026-05-17/SUMMARY.md`](audit/wppqa-baseline-2026-05-17/SUMMARY.md). Cross-plugin coupling at [`audit/derived/cross-plugin-coupling.json`](audit/derived/cross-plugin-coupling.json) — Pro consumes 41 Free hooks. See also [`audit/FEATURE_AUDIT.md`](audit/FEATURE_AUDIT.md), [`audit/CODE_FLOWS.md`](audit/CODE_FLOWS.md), [`audit/ROLE_MATRIX.md`](audit/ROLE_MATRIX.md). Refresh via `/wp-plugin-onboard --refresh` after non-trivial changes.
 
 ## QA artifacts — single index (no searching required)
 
@@ -198,6 +198,18 @@ fix(wcb): T{N} — {description}
 - **Basecamp project:** `46502739` ("WP Career Board") — Bugs column `9691964821`
 
 ---
+
+## Recent changes
+
+| Date | Area | Change |
+|---|---|---|
+| 2026-06-08 | `modules/boards/class-boards-module.php` | `ensure_default_board()` made race-safe — `add_option()` lock + self-heal adopt replaces the non-atomic check-then-act that could create duplicate "Main Board" posts under concurrent `init` runs. Hooks unchanged (`init` / `init@20`). |
+| 2026-06-08 | `core/class-install.php` | DB_VERSION bumped 1.2.6 → 1.2.7. New private `dedupe_default_boards()` runs from `maybe_upgrade()` under a 1.2.7 gate to collapse duplicate boards left by the pre-fix race. |
+| 2026-06-08 | `admin/class-setup-wizard.php` | Sample-data seeder re-tracks existing sample IDs on re-run (idempotent); removed dead `_wcb_user_id` company-meta write. |
+| 2026-06-08 | `admin/class-email-settings.php` | `enqueue_assets()` now loads the Emails admin JS on the settings page regardless of `?tab` — it was gated on `?tab=emails`, which never matched the hash-based tab UI. |
+| 2026-06-08 | `blocks/job-search-hero/render.php` | Hero search action falls back to `get_post_type_archive_link('wcb_job')` instead of `home_url('/')` when `jobs_archive_page` is unset. |
+| 2026-06-08 | `wp-career-board.php` + `libs/edd-sl-sdk/` | EDD SL SDK relocated `vendor/edd-sl-sdk` → `libs/edd-sl-sdk` (built assets included) so it ships in release zips; loader path updated. Vendored lib — not a tracked manifest category. |
+| 2026-06-08 | `audit/manifest.json` | Refresh: REST re-enumerated 36 → 41 entries (added 5 routes live in code but missing from manifest); blocks 15 → 17 (`job-alert-card`, `similar-companies-card`). All other counts verified stable. |
 
 ## Local CI pipeline (REQUIRED before push)
 

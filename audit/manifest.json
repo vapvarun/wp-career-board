@@ -347,6 +347,51 @@
         "handler": "WCB\\Modules\\Moderation\\ModerationModule::reject_job",
         "permission": "moderate_permissions_check (wcb_moderate_jobs)",
         "purpose": "Reject a pending job"
+      },
+      {
+        "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-companies",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\CandidatesEndpoint::get_saved_companies",
+        "permission": "self_permissions_check",
+        "purpose": "List a candidate's saved/bookmarked companies"
+      },
+      {
+        "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-resumes",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\CandidatesEndpoint::get_saved_resumes",
+        "permission": "self_permissions_check",
+        "purpose": "List a candidate's saved resumes"
+      },
+      {
+        "route": "/wcb/v1/candidates/me/privacy/(?P<action>export|erase)",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\CandidatesEndpoint::request_privacy_action",
+        "permission": "me_logged_in_check",
+        "purpose": "Self-service GDPR export/erase request for the logged-in candidate"
+      },
+      {
+        "route": "/wcb/v1/companies/(?P<id>\\d+)/bookmark",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\CompaniesEndpoint::toggle_bookmark",
+        "permission": "is_user_logged_in",
+        "purpose": "Toggle a company bookmark for the current user"
+      },
+      {
+        "route": "/wcb/v1/admin/emails/log",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\AdminEndpoint::get_email_log",
+        "permission": "admin_check",
+        "purpose": "Paginated, filterable email-event log query"
       }
     ]
   },
@@ -422,7 +467,7 @@
       "group": "wcb_settings_group",
       "type": "array",
       "default": "[]",
-      "controls": "Main plugin settings (listings/pages/notifications tabs) \u2014 registered via Settings API in admin/class-admin-settings.php"
+      "controls": "Main plugin settings (listings/pages/notifications tabs) — registered via Settings API in admin/class-admin-settings.php"
     },
     {
       "key": "wcb_page_settings",
@@ -478,21 +523,21 @@
       "group": "wcb_settings_group",
       "type": "array",
       "default": "[]",
-      "controls": "Per-email enable/from/subject \u2014 consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_email_settings() helper."
+      "controls": "Per-email enable/from/subject — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_email_settings() helper."
     },
     {
       "key": "wcb_settings.captcha.driver",
       "group": "wcb_settings_group",
       "type": "string",
       "default": "(empty)",
-      "controls": "Captcha driver slug \u2014 consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_captcha_driver() helper."
+      "controls": "Captcha driver slug — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_captcha_driver() helper."
     },
     {
       "key": "wcb_settings.resume_archive_enabled",
       "group": "wcb_settings_group",
       "type": "boolean",
       "default": "false",
-      "controls": "Public Resume Archive toggle \u2014 Listings tab. Owns wcb_resume CPT visibility (F-3). Filter: wcb_resume_archive_enabled."
+      "controls": "Public Resume Archive toggle — Listings tab. Owns wcb_resume CPT visibility (F-3). Filter: wcb_resume_archive_enabled."
     }
   ],
   "shortcodes": [
@@ -506,7 +551,7 @@
     },
     {
       "tag": "wcb_job_listings",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-listings)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-listings)",
       "attrs": [
         "boardId",
         "metaFilter",
@@ -516,47 +561,47 @@
     },
     {
       "tag": "wcb_job_search",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-search)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-search)",
       "attrs": []
     },
     {
       "tag": "wcb_job_form",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-form)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-form)",
       "attrs": []
     },
     {
       "tag": "wcb_job_form_simple",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-form-simple)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-form-simple)",
       "attrs": []
     },
     {
       "tag": "wcb_employer_dashboard",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/employer-dashboard)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/employer-dashboard)",
       "attrs": []
     },
     {
       "tag": "wcb_candidate_dashboard",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/candidate-dashboard)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/candidate-dashboard)",
       "attrs": []
     },
     {
       "tag": "wcb_registration",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/employer-registration)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/employer-registration)",
       "attrs": []
     },
     {
       "tag": "wcb_company_archive",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/company-archive)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/company-archive)",
       "attrs": []
     },
     {
       "tag": "wcb_job_stats",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/job-stats)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/job-stats)",
       "attrs": []
     },
     {
       "tag": "wcb_recent_jobs",
-      "handler": "core/class-plugin.php (block adapter \u2192 wp-career-board/recent-jobs)",
+      "handler": "core/class-plugin.php (block adapter → wp-career-board/recent-jobs)",
       "attrs": []
     }
   ],
@@ -650,6 +695,18 @@
       "render": "blocks/company-archive/render.php",
       "interactivity": true,
       "view_module": "blocks/company-archive/view.js"
+    },
+    {
+      "name": "wp-career-board/job-alert-card",
+      "render": "blocks/job-alert-card/render.php",
+      "interactivity": false,
+      "view_module": null
+    },
+    {
+      "name": "wp-career-board/similar-companies-card",
+      "render": "blocks/similar-companies-card/render.php",
+      "interactivity": false,
+      "view_module": null
     }
   ],
   "post_types": [
@@ -695,7 +752,7 @@
       "slug": "wcb_job_type",
       "object_type": "wcb_job",
       "where": "modules/jobs/class-jobs-module.php:205",
-      "purpose": "Employment type (full-time, part-time, \u2026)"
+      "purpose": "Employment type (full-time, part-time, …)"
     },
     {
       "slug": "wcb_tag",
@@ -942,7 +999,7 @@
       "key": "core.pro_coordination",
       "class": "WCB\\Core\\ProCoordination",
       "added": "1.2.0",
-      "purpose": "Documented Free\u2192Pro filter API surface \u2014 single source of truth for what Pro is allowed to hook"
+      "purpose": "Documented Free→Pro filter API surface — single source of truth for what Pro is allowed to hook"
     },
     {
       "key": "core.roles",
@@ -954,7 +1011,7 @@
       "key": "core.theme_bridge",
       "class": "WCB\\Core\\ThemeAccentBridge",
       "added": "1.0.0",
-      "purpose": "Map theme accent \u2192 wcb-* CSS vars"
+      "purpose": "Map theme accent → wcb-* CSS vars"
     },
     {
       "key": "core.widgets",
@@ -3197,10 +3254,10 @@
     "always_sign_filter": null,
     "rate_limit_middleware": "wcb_pre_job_submit / wcb_pre_application_submit (CAPTCHA gate via AntiSpamModule)",
     "csrf": "All write endpoints rely on REST cookie-nonce auth (X-WP-Nonce); admin-post handlers call wp_verify_nonce",
-    "abilities_api": "All capability checks go via wp_is_authorized() \u2014 no current_user_can('manage_options')"
+    "abilities_api": "All capability checks go via wp_is_authorized() — no current_user_can('manage_options')"
   },
   "ci_guards": {
-    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 \u2014 blocks Free\u2192Pro coupling regressions)",
+    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 — blocks Free→Pro coupling regressions)",
     "url_emission_regex": null,
     "storage_internal_marker": null,
     "phpstan_level": 5,
@@ -3211,14 +3268,14 @@
   "coding_rules": [
     "All globals prefixed wcb_ (functions, options, hooks, meta, CPTs, taxonomies, tables)",
     "Namespace WCB\\ (sub-namespaces map via spl_autoload_register in main file)",
-    "REST namespace wcb/v1 \u2014 every controller extends WCB\\Api\\REST_Controller",
-    "Capabilities through Abilities API only \u2014 wp_register_ability + wp_is_authorized; never current_user_can('manage_options')",
-    "Frontend = Interactivity API only \u2014 zero jQuery, zero admin-ajax",
-    "PHP 8.1+ \u2014 declare(strict_types=1) in every file",
+    "REST namespace wcb/v1 — every controller extends WCB\\Api\\REST_Controller",
+    "Capabilities through Abilities API only — wp_register_ability + wp_is_authorized; never current_user_can('manage_options')",
+    "Frontend = Interactivity API only — zero jQuery, zero admin-ajax",
+    "PHP 8.1+ — declare(strict_types=1) in every file",
     "Pro mirrors Free (WCBPro\\ namespace, identical patterns)"
   ],
   "build_commands": {
-    "release": "npm run build (Gruntfile.js copy:dist) \u2014 uses .distignore to drop dev assets",
+    "release": "npm run build (Gruntfile.js copy:dist) — uses .distignore to drop dev assets",
     "ci_local": "composer test  /  composer phpcs  /  composer phpstan"
   },
   "integrations": [
@@ -3295,26 +3352,28 @@
     }
   ],
   "notes": {
-    "ajax": "Plugin is Interactivity-API + REST only. There are zero plugin-own admin-ajax actions. The 'ajax' baseline grep returned 0, matching the manifest's empty array \u2014 coverage 100% by the rule that 0/0 is exact.",
+    "ajax": "Plugin is Interactivity-API + REST only. There are zero plugin-own admin-ajax actions. The 'ajax' baseline grep returned 0, matching the manifest's empty array — coverage 100% by the rule that 0/0 is exact.",
     "hooks_fired": "70 unique hook names (28 do_action + 42 apply_filters), exhaustively enumerated via xargs grep. Wrapper-style hooks (e.g., wcb_settings_tab_{slug}) are listed once with the dynamic suffix. Filter call-sites that re-fire the same hook in different files are deduped on hook name.",
     "wp_cli": "Baseline counts WP_CLI::add_command calls (4); manifest groups subcommands under each top-level command, so the four manifest entries map 1:1 to the four registrations.",
     "round-6-1.2.0": [
-      "F-5 (1.2.0): wcb_email_settings + wcb_captcha_driver options consolidated into wcb_settings.emails + wcb_settings.captcha.driver. Legacy options deleted by core/class-install.php migration on db_version 1.0 \u2192 1.2 bump.",
+      "F-5 (1.2.0): wcb_email_settings + wcb_captcha_driver options consolidated into wcb_settings.emails + wcb_settings.captcha.driver. Legacy options deleted by core/class-install.php migration on db_version 1.0 → 1.2 bump.",
       "F-3 (1.2.0): wcb_resume CPT visibility now owned by wcb_settings.resume_archive_enabled (default false). Pro flips it on activation; site-owner override via wcb_resume_archive_enabled filter.",
-      "F-4 (1.2.0): allow_withdraw setting deprecated \u2192 wcb_withdraw_application ability. Setting tombstoned for one cycle, removed in 1.3.0.",
+      "F-4 (1.2.0): allow_withdraw setting deprecated → wcb_withdraw_application ability. Setting tombstoned for one cycle, removed in 1.3.0.",
       "F-6 (1.2.0): bin/check-pro-decoupling.sh wired into .github/workflows/ci.yml as a blocking job. Catches direct WCB\\Pro\\ refs, wcbp_*() calls, WCBP_ constant reads.",
       "F-1 + F-2 (1.2.0): core/class-pro-coordination.php declares 11 documented filters + 2 actions Pro is allowed to hook. 22 callsites migrated; zero direct Pro references remain in Free runtime code."
     ]
   },
   "generated": {
-    "at": "2026-05-17T09:06:25.208786Z",
+    "at": "2026-06-08T09:35:39Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
-    "scan_scope": "fallback_defaults",
+    "scan_scope": "distignore_distribution_scope",
     "scan_path": ".",
     "php_file_count": 171,
-    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) \u2014 canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) \u2014 ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
-    "note": "Lightweight refresh \u2014 timestamp bumped after 1.1.1 release commits. Ground-truth grep reports REST +2, blocks +3, hooks_fired delta requires re-enumeration; queued for next full refresh."
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) — canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) — ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
+    "note": "2026-06-08 targeted refresh after the 1.2.x bug-fix wave on branch 1.2.1 (commits ef03384..998efee). Ground-truth grep over the .distignore distribution scope (171 plugin-own PHP files, libs/edd-sl-sdk vendored SDK excluded). Resolved the long-standing drift the previous note flagged as 'queued for next full refresh': REST endpoints re-enumerated 36->41 entries covering all 38 register_rest_route() call sites — added 5 routes that were live in code but missing from the manifest (candidates/saved-companies, candidates/saved-resumes, candidates/me/privacy/(export|erase), companies/{id}/bookmark, admin/emails/log); blocks re-enumerated 15->17 to add job-alert-card and similar-companies-card (both static render.php blocks). STABLE this session: ajax 0, wp_cli 5, add_shortcode 1 source registrar, tables (3 schema tables; grep counts 4 CREATE TABLE incl. one non-schema string), cron 3 events. hooks_fired retains its per-call-site enumeration (173 sites = 43 do_action + 130 apply_filters call sites; ground-truth unique names 37 actions + 66 filters = 103) — unchanged this session, no hook sites added/removed. This session's commits added ZERO new REST routes/blocks/shortcodes/tables/cron; all six commits are bug fixes within existing files: BoardsModule::ensure_default_board() made race-safe via an add_option() lock + self-heal adopt; core/class-install.php DB_VERSION 1.2.6->1.2.7 with a new private dedupe_default_boards() run under a 1.2.7 upgrade gate to collapse duplicate Main Board posts left by the pre-fix race; setup-wizard seeder re-tracks existing sample IDs on re-run and drops a dead _wcb_user_id company-meta write; email-settings enqueue_assets() now loads on the settings page regardless of ?tab (was gated on ?tab=emails which never matched the hash-based tabs); job-search-hero render.php falls back to get_post_type_archive_link('wcb_job') when jobs_archive_page is unset; and the EDD SL SDK was relocated vendor/edd-sl-sdk -> libs/edd-sl-sdk (with built assets) so it ships in release zips (vendored lib, not a tracked manifest category). No new dead listeners; static_analysis.dead_listeners remains empty.",
+    "branch": "1.2.1",
+    "db_version": "1.2.7"
   },
   "category_sources": {
     "rest": [
@@ -3432,7 +3491,7 @@
         "active_modifier": "is-active",
         "active_display": "block",
         "php_fallback": false,
-        "note": "JS-only activation \u2014 if JS fails to attach, the panel is permanently invisible"
+        "note": "JS-only activation — if JS fails to attach, the panel is permanently invisible"
       }
     ],
     "rest_hang_risks": [
@@ -3441,476 +3500,476 @@
         "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-form-simple/view.js:225",
         "snippet": "const response = yield fetch( state.apiBase + '/jobs', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-listings/view.js:179",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-listings/view.js:437",
         "snippet": "const response = yield fetch( url.toString(), {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-listings/view.js:478",
         "snippet": "const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:283",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:304",
         "snippet": "const bmResponse = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:318",
         "snippet": "const alertsRes = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:390",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:431",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:465",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:492",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:522",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:587",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:633",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:662",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:686",
         "snippet": "yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:724",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:747",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:794",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:830",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:876",
         "snippet": "const uploadResp = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:901",
         "snippet": "const createResp = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:941",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:975",
         "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:994",
         "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:1006",
         "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:1032",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/candidate-dashboard/view.js:1094",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-form/view.js:333",
         "snippet": "const response = yield fetch( state.apiBase + '/jobs/ai-description', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-form/view.js:448",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/company-profile/view.js:28",
         "snippet": "const response = yield fetch( url, {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/company-profile/view.js:61",
         "snippet": "const response = yield fetch( url.toString() );",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:477",
         "snippet": "const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:479",
         "snippet": "fetchPromises.push( fetch( appsUrl, { headers } ) );",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:603",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:632",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:661",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:685",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:704",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:723",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:792",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:828",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:868",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:900",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:967",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:1006",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:1063",
         "snippet": "const res = yield fetch( state.apiBase + '/notifications?per_page=20', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:1082",
         "snippet": "yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-dashboard/view.js:1094",
         "snippet": "yield fetch( state.apiBase + '/notifications/read-all', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-single/view.js:155",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-single/view.js:248",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/job-single/view.js:293",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/company-archive/view.js:135",
         "snippet": "const response = yield fetch( url, {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/company-archive/view.js:177",
         "snippet": "const response = yield fetch( wcbBuildUrl( state.page ) );",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/company-archive/view.js:264",
         "snippet": "fetch( wcbBuildUrl( 1 ) )",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "blocks/employer-registration/view.js:107",
         "snippet": "const response = yield fetch(",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin.js:126",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin.js:186",
         "snippet": "return wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin.js:223",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin.js:332",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin.js:399",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/wizard.js:46",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/wizard.js:106",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/wizard.js:124",
         "snippet": "wp.apiFetch( {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin/emails.js:38",
         "snippet": "fetch( cfg.restBase + '/admin/emails/test', {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin/emails.js:189",
         "snippet": "fetch( url, {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       },
       {
         "where": "assets/js/admin/application-detail.js:13",
         "snippet": "return fetch( endpoint, {",
         "uses_abort_signal": false,
         "has_timeout_ms": null,
-        "note": "fetch/apiFetch without AbortController \u2014 UI can hang permanently if network never responds"
+        "note": "fetch/apiFetch without AbortController — UI can hang permanently if network never responds"
       }
     ],
     "visual_required_no_enforcement": [],
@@ -4279,56 +4338,56 @@
         "render": "blocks/job-form-simple/render.php",
         "style": "blocks/job-form-simple/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "job-listings",
         "render": "blocks/job-listings/render.php",
         "style": "blocks/job-listings/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "job-form",
         "render": "blocks/job-form/render.php",
         "style": "blocks/job-form/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "company-profile",
         "render": "blocks/company-profile/render.php",
         "style": "blocks/company-profile/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "job-single",
         "render": "blocks/job-single/render.php",
         "style": "blocks/job-single/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "company-archive",
         "render": "blocks/company-archive/render.php",
         "style": "blocks/company-archive/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "featured-jobs",
         "render": "blocks/featured-jobs/render.php",
         "style": "blocks/featured-jobs/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       },
       {
         "block": "employer-registration",
         "render": "blocks/employer-registration/render.php",
         "style": "blocks/employer-registration/style.css",
         "layout_owning": true,
-        "note": "Top-level multi-track grid \u2014 theme should register as align=full"
+        "note": "Top-level multi-track grid — theme should register as align=full"
       }
     ],
     "suppressed_baseline_inventory": {
