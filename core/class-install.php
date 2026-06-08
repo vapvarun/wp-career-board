@@ -537,24 +537,32 @@ final class Install {
 		// the post type isn't registered yet, `get_posts` returns an empty
 		// array and we exit cleanly. The migration re-runs idempotently next
 		// time it boots.
-		$resume_ids = get_posts(
-			array(
-				'post_type'      => 'wcb_resume',
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
-					array(
-						'key'     => '_wcb_resume_public',
-						'compare' => 'NOT EXISTS',
+		// Bounded drain — backfill in batches so a large resume table can't
+		// exhaust memory/time during the upgrade request. Each pass sets the
+		// meta, shrinking the NOT EXISTS set, so we loop until empty. Matches
+		// the bounded-batch idiom used by dedupe_default_boards().
+		do {
+			$resume_ids = get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; loops until empty (one-time migration).
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
+						array(
+							'key'     => '_wcb_resume_public',
+							'compare' => 'NOT EXISTS',
+						),
 					),
-				),
-			)
-		);
+				)
+			);
 
-		foreach ( $resume_ids as $resume_id ) {
-			update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
-		}
+			foreach ( $resume_ids as $resume_id ) {
+				update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
+			}
+		} while ( count( $resume_ids ) === 500 );
 	}
 
 	/**
