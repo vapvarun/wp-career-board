@@ -753,8 +753,8 @@ textarea.wcb-input {
 	top: var(--wcb-space-md);
 	right: var(--wcb-space-md);
 	z-index: 3;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
+	width: 40px;
+	height: 40px;
 	min-width: 0;
 	min-height: 0;
 	display: inline-flex;

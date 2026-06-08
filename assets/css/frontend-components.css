@@ -817,6 +817,15 @@ select.wcb-field {
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* Windows High Contrast / forced-colors ignores box-shadow, so restore a real
+ * outline there — otherwise the focus ring disappears for those users. */
+@media (forced-colors: active) {
+	[class*="wp-block-wp-career-board"] .wcb-listings-search:focus,
+	[class*="wp-block-wcb-"] .wcb-listings-search:focus {
+		outline: 2px solid ButtonText;
+	}
+}
+
 [class*="wp-block-wp-career-board"] .wcb-sort-select,
 [class*="wp-block-wcb-"] .wcb-sort-select {
 	min-height: 44px;
@@ -896,8 +905,8 @@ select.wcb-field {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: var(--wcb-space-3xl);
-	height: 30px;
+	width: 36px;
+	height: 36px;
 	padding: 0;
 	border: none;
 	background: transparent;
