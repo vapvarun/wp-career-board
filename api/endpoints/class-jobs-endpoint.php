@@ -1192,10 +1192,9 @@ final class JobsEndpoint extends RestController {
 		}
 		$trust            = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
 		$trust_info       = $this->trust_badge_info( $trust );
-		$company_tagline  = $company_id ? (string) get_post_meta( $company_id, '_wcb_tagline', true ) : '';
-		$company_industry = $company_id ? (string) get_post_meta( $company_id, '_wcb_industry', true ) : '';
-		$company_size     = $company_id ? (string) get_post_meta( $company_id, '_wcb_company_size', true ) : '';
-		$company_hq       = $company_id ? (string) get_post_meta( $company_id, '_wcb_hq_location', true ) : '';
+		// Shared brand-meta shape (R2) — serialize(0) returns empty strings, so
+		// this is safe when the job has no linked company.
+		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $company_id );
 
 		// Human-readable taxonomy labels for card display.
 		// get_the_terms() honours object_term_cache primed in get_items() before the loop.
@@ -1246,11 +1245,11 @@ final class JobsEndpoint extends RestController {
 			'trust_label'        => $trust_info['label'] ?? '',
 			'trust_icon'         => $trust_info['icon'] ?? '',
 			'verified'           => null !== $trust_info,
-			'company_tagline'    => $company_tagline,
-			'company_industry'   => $company_industry,
-			'company_size'       => $company_size,
-			'company_size_label' => $this->size_label( $company_size ),
-			'company_hq'         => $company_hq,
+			'company_tagline'    => $company_meta['tagline'],
+			'company_industry'   => $company_meta['industry'],
+			'company_size'       => $company_meta['size'],
+			'company_size_label' => $company_meta['size_label'],
+			'company_hq'         => $company_meta['hq'],
 			// Job meta.
 			'deadline'           => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'         => $salary_min,
@@ -1496,28 +1495,4 @@ final class JobsEndpoint extends RestController {
 		);
 	}
 
-	/**
-	 * Format a company size code into a human-readable label.
-	 *
-	 * Mirrors {@see Companies_Endpoint::size_label()} so the jobs endpoint
-	 * can surface the same `company_size_label` string consumers expect on
-	 * the companies endpoint.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param string $size Size code (e.g. '501-1000').
-	 * @return string Localised label, or the raw code when unknown.
-	 */
-	private function size_label( string $size ): string {
-		$labels = array(
-			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-		);
-		return $labels[ $size ] ?? $size;
-	}
 }

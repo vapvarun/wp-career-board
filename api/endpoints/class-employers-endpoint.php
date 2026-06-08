@@ -522,6 +522,22 @@ final class EmployersEndpoint extends RestController {
 	 * @param  \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
+	/**
+	 * Job statuses an employer/admin may see for their own company vs the public.
+	 *
+	 * Single source of truth (R1) — a new lifecycle status is added here, not in
+	 * each query. Previously this allowlist was duplicated across three sites in
+	 * this endpoint, so a new status silently missed some views.
+	 *
+	 * @param bool $is_owner_or_admin Viewer owns the company or is an admin.
+	 * @return string[]
+	 */
+	private function owner_visible_statuses( bool $is_owner_or_admin ): array {
+		return $is_owner_or_admin
+			? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
+			: array( 'publish' );
+	}
+
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
 		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
@@ -542,7 +558,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'post_type'      => 'wcb_job',
 				'author'         => (int) $user_id,
-				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' ),
+				'post_status'    => $this->owner_visible_statuses( true ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 			)
@@ -610,9 +626,7 @@ final class EmployersEndpoint extends RestController {
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
 		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
-		$post_status = ( $is_owner || $is_admin )
-		? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
-		: array( 'publish' );
+		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
 
 		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
 		$paged    = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
@@ -723,6 +737,9 @@ final class EmployersEndpoint extends RestController {
 		// surface their applicant pipeline in the employer dashboard.
 		global $wpdb;
 		$company_id = (int) $company->ID;
+		// Owner viewing their own company's applications — same status allowlist
+		// as the other employer views (R1: single source of truth).
+		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql  = $wpdb->prepare(
 			"SELECT app.ID, app.post_date
@@ -731,7 +748,7 @@ final class EmployersEndpoint extends RestController {
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
 			        ON job.ID = pm_job.meta_value AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ('publish','pending','draft','wcb_closed','wcb_expired')
+			       AND job.post_status IN ({$wcb_status_in})
 			 INNER JOIN {$wpdb->postmeta} pm_co
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
