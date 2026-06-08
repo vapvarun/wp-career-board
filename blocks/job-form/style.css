@@ -550,6 +550,11 @@ textarea.wcb-field {
 	flex-shrink: 0;
 }
 
+.wcb-form-success__icon svg {
+	width: 22px;
+	height: 22px;
+}
+
 .wcb-form-success__title {
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);

@@ -456,6 +456,21 @@ textarea.wcb-input {
 /* Lucide check sized to sit inside the 16px circular tick. */
 .wcb-ca-trust-tick svg { width: 10px; height: 10px; }
 
+/* Inline icon + label utility — aligns a leading Lucide icon with its text
+ * for success confirmations (Saved, Profile saved, Job posted, etc.). The
+ * 1em svg tracks the surrounding font size. */
+.wcb-icon-label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-icon-label svg {
+	width: 1em;
+	height: 1em;
+	flex-shrink: 0;
+}
+
 /* ── Archive empty state — shared card chrome across all 3 archives ───────
  * Renders as a real card (white background, soft border, generous padding)
  * so the "no results" message has the same visual weight as a card cell

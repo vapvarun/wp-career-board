@@ -368,7 +368,7 @@ wp_interactivity_state(
 				banner shows when state.creditBalance dips below the threshold.
 			-->
 			<div class="wcb-credit-success-banner" data-wp-class--wcb-shown="state.justAddedCredits" role="status">
-				<span class="wcb-credit-banner__icon" aria-hidden="true">&#10003;</span>
+				<span class="wcb-credit-banner__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 				<span class="wcb-credit-banner__text" data-wp-text="state.justAddedCreditsMessage"></span>
 				<button type="button" class="wcb-credit-banner__dismiss" data-wp-on--click="actions.dismissCreditSuccess" aria-label="<?php esc_attr_e( 'Dismiss', 'wp-career-board' ); ?>">&times;</button>
 			</div>
@@ -761,7 +761,7 @@ wp_interactivity_state(
 					?>
 
 					<div class="wcb-profile-actions">
-						<p class="wcb-db-save-success" data-wp-class--wcb-shown="state.saved"><?php esc_html_e( '✓ Profile saved successfully.', 'wp-career-board' ); ?></p>
+						<p class="wcb-db-save-success wcb-icon-label" data-wp-class--wcb-shown="state.saved"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Profile saved successfully.', 'wp-career-board' ); ?></p>
 						<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 						<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.saveProfile" data-wp-bind--disabled="state.saving">
 							<span data-wp-class--wcb-hidden="state.saving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>

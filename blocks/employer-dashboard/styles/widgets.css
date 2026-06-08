@@ -346,6 +346,13 @@
 .wcb-credit-banner__icon {
 	font-size: var(--wcb-text-lg);
 	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+}
+
+.wcb-credit-banner__icon svg {
+	width: 18px;
+	height: 18px;
 }
 
 .wcb-credit-banner__text {

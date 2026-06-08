@@ -989,7 +989,7 @@ wp_interactivity_state(
 					<span data-wp-class--wcb-hidden="state.profileSaving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>
 					<span data-wp-class--wcb-hidden="!state.profileSaving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>
 				</button>
-				<span class="wcb-save-confirm" data-wp-class--wcb-shown="state.profileSaved"><?php esc_html_e( '✓ Saved', 'wp-career-board' ); ?></span>
+				<span class="wcb-save-confirm wcb-icon-label" data-wp-class--wcb-shown="state.profileSaved"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Saved', 'wp-career-board' ); ?></span>
 			</div>
 		</div>
 	</div>
@@ -1031,7 +1031,7 @@ wp_interactivity_state(
 						data-wp-on--click="actions.requestExport"
 						data-wp-bind--disabled="state.privacyBusy">
 						<span data-wp-class--wcb-hidden="state.privacyExportRequested"><?php esc_html_e( 'Request data export', 'wp-career-board' ); ?></span>
-						<span class="wcb-hidden" data-wp-class--wcb-hidden="!state.privacyExportRequested"><?php esc_html_e( 'Export requested ✓', 'wp-career-board' ); ?></span>
+						<span class="wcb-hidden wcb-icon-label" data-wp-class--wcb-hidden="!state.privacyExportRequested"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Export requested', 'wp-career-board' ); ?></span>
 					</button>
 				</div>
 			</div>
@@ -1042,7 +1042,7 @@ wp_interactivity_state(
 						data-wp-on--click="actions.requestErase"
 						data-wp-bind--disabled="state.privacyBusy">
 						<span data-wp-class--wcb-hidden="state.privacyEraseRequested"><?php esc_html_e( 'Request account deletion', 'wp-career-board' ); ?></span>
-						<span class="wcb-hidden" data-wp-class--wcb-hidden="!state.privacyEraseRequested"><?php esc_html_e( 'Deletion requested ✓', 'wp-career-board' ); ?></span>
+						<span class="wcb-hidden wcb-icon-label" data-wp-class--wcb-hidden="!state.privacyEraseRequested"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Deletion requested', 'wp-career-board' ); ?></span>
 					</button>
 				</div>
 			</div>
