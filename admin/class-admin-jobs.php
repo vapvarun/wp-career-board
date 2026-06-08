@@ -70,10 +70,12 @@ class AdminJobs extends \WP_List_Table {
 					<p class="wcb-page-header__desc"><?php esc_html_e( 'Manage job listings, approve pending submissions, and track active postings.', 'wp-career-board' ); ?></p>
 				</div>
 				<div class="wcb-page-header__actions">
-					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
-						<i data-lucide="plus" class="wcb-icon--sm"></i>
-						<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
-					</a>
+					<?php if ( wp_is_ability_granted( 'wcb/post-jobs' ) ) : // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php ?>
+						<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
+							<i data-lucide="plus" class="wcb-icon--sm"></i>
+							<?php esc_html_e( 'Add New', 'wp-career-board' ); ?>
+						</a>
+					<?php endif; ?>
 				</div>
 			</div>
 

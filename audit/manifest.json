@@ -1080,6 +1080,12 @@
       "purpose": "wcb_board CPT (multi-board)"
     },
     {
+      "key": "module.boards.rest_controller",
+      "class": "WCB\\Modules\\Boards\\BoardRestController",
+      "added": "1.2.1",
+      "purpose": "Gates /wp/v2/wcb_board reads on edit_posts so boards (admin-only config) are not anonymously enumerable"
+    },
+    {
       "key": "module.candidates",
       "class": "WCB\\Modules\\Candidates\\CandidatesModule",
       "added": "1.0.0",

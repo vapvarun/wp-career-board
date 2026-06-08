@@ -62,7 +62,11 @@ class BoardRestController extends \WP_REST_Posts_Controller {
 	 * @return true|\WP_Error
 	 */
 	private function board_read_gate() {
-		if ( current_user_can( 'edit_posts' ) ) {
+		// edit_posts (not a wcb_* ability) is intentional: the only REST reader
+		// is the block editor's board picker, which is a WP-core content-editing
+		// surface, not a Career Board domain action — so the WP-core capability
+		// is the correct gate. Abilities API does not model WP_REST_Posts_Controller reads.
+		if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- see note above; WP-core editor gate, not a wcb_* ability.
 			return true;
 		}
 		return new \WP_Error(
