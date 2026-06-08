@@ -7,40 +7,10 @@ parameters:
 			path: admin/class-admin-applications.php
 
 		-
-			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/class-admin-applications.php
-
-		-
-			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/class-admin-candidates.php
-
-		-
 			message: '#^Parameter \#1 \$args of function get_users expects array\{blog_id\?\: int, role\?\: array\<string\>\|string, role__in\?\: array\<string\>, role__not_in\?\: array\<string\>, meta_key\?\: array\<string\>\|string, meta_value\?\: array\<string\>\|string, meta_compare\?\: string, meta_compare_key\?\: string, \.\.\.\}, array\{meta_key\: ''_wcb_company_id'', meta_value\: int, number\: 1, fields\: array\{''ID'', ''display_name''\}\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: admin/class-admin-companies.php
-
-		-
-			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/class-admin-companies.php
-
-		-
-			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/class-admin-employers.php
-
-		-
-			message: '#^Parameter \#1 \$args of method WP_List_Table\:\:set_pagination_args\(\) expects array\{total_items\?\: int, total_pages\?\: int, per_page\?\: int\}, array\{total_items\: int, per_page\: 20, total_pages\: float\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: admin/class-admin-jobs.php
 
 		-
 			message: '#^Call to function is_wp_error\(\) with int\<1, max\> will always evaluate to false\.$#'

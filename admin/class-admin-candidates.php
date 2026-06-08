@@ -231,7 +231,7 @@ class AdminCandidates extends \WP_List_Table {
 			array(
 				'total_items' => $query->get_total(),
 				'per_page'    => $per_page,
-				'total_pages' => ceil( $query->get_total() / $per_page ),
+				'total_pages' => (int) ceil( $query->get_total() / $per_page ),
 			)
 		);
 

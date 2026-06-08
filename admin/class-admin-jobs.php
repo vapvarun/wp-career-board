@@ -211,7 +211,7 @@ class AdminJobs extends \WP_List_Table {
 			array(
 				'total_items' => $query->found_posts,
 				'per_page'    => $per_page,
-				'total_pages' => ceil( $query->found_posts / $per_page ),
+				'total_pages' => (int) ceil( $query->found_posts / $per_page ),
 			)
 		);
 
