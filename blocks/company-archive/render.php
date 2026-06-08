@@ -94,18 +94,9 @@ $wcb_bookmarks       = $wcb_current_user_id
 
 // ── Trust level badge map ───────────────────────────────────────────────────
 $wcb_trust_badges = array(
-	'verified' => array(
-		'label' => __( 'Verified', 'wp-career-board' ),
-		'icon'  => '✓',
-	),
-	'trusted'  => array(
-		'label' => __( 'Trusted', 'wp-career-board' ),
-		'icon'  => '✓',
-	),
-	'premium'  => array(
-		'label' => __( 'Premium', 'wp-career-board' ),
-		'icon'  => '★',
-	),
+	'verified' => array( 'label' => __( 'Verified', 'wp-career-board' ) ),
+	'trusted'  => array( 'label' => __( 'Trusted', 'wp-career-board' ) ),
+	'premium'  => array( 'label' => __( 'Premium', 'wp-career-board' ) ),
 );
 
 // ── Build initial state array ─────────────────────────────────────────────────
@@ -150,7 +141,6 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'hq'          => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
 		'trust'       => $wcb_trust,
 		'trust_label' => $wcb_trust_info['label'] ?? '',
-		'trust_icon'  => $wcb_trust_info['icon'] ?? '',
 		'verified'    => null !== $wcb_trust_info,
 		'permalink'   => get_permalink( $wcb_co_id ),
 		'jobs_label'  => $wcb_jobs_label,
@@ -360,7 +350,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
 								data-wp-bind--title="context.company.trust_label"
-							>&#10003;</span>
+							><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 						</div>
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"
