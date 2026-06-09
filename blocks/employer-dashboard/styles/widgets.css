@@ -271,6 +271,7 @@
 .wcb-bell-btn svg {
 	width: 20px;
 	height: 20px;
+	flex-shrink: 0;
 }
 .wcb-bell-btn:hover {
 	color: var(--wcb-primary);
