@@ -21,6 +21,7 @@
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 store(
 	'wcb-job-form',
@@ -330,7 +331,7 @@ store(
 				}
 				state._aiGenerating = true;
 				try {
-					const response = yield fetch( state.apiBase + '/jobs/ai-description', {
+					const response = yield wcbFetch( state.apiBase + '/jobs/ai-description', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -445,7 +446,7 @@ store(
 					};
 
 					const isEdit   = state.editJobId > 0;
-				const response = yield fetch(
+				const response = yield wcbFetch(
 						isEdit
 							? state.apiBase + '/jobs/' + String( state.editJobId )
 							: state.apiBase + '/jobs',
@@ -473,6 +474,16 @@ store(
 					state.jobUrl    = data.permalink || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
+
+					// Signal the embedded employer dashboard (if present) to refresh
+					// its My Jobs list when the user navigates there. try/catch: the
+					// form also runs standalone (shortcode) where that store is absent.
+					try {
+						const dash = store( 'wcb-employer-dashboard' );
+						if ( dash && dash.state ) {
+							dash.state._needsJobsRefresh = true;
+						}
+					} catch {}
 
 					// Auto-reset the success state after 8 seconds so a returning
 					// user sees a fresh form instead of a stuck success banner —

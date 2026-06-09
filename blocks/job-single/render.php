@@ -114,15 +114,15 @@ $wcb_company_hq       = $wcb_company_id ? (string) get_post_meta( $wcb_company_i
 $wcb_trust_map        = array(
 	'verified' => array(
 		'label' => __( 'Verified', 'wp-career-board' ),
-		'icon'  => '✓',
+		'icon'  => 'check',
 	),
 	'trusted'  => array(
 		'label' => __( 'Trusted', 'wp-career-board' ),
-		'icon'  => '✓',
+		'icon'  => 'check',
 	),
 	'premium'  => array(
 		'label' => __( 'Premium', 'wp-career-board' ),
-		'icon'  => '★',
+		'icon'  => 'star',
 	),
 );
 $wcb_trust_info       = $wcb_trust_map[ $wcb_company_trust ] ?? null;
@@ -233,6 +233,11 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 $wcb_resume_required = \WCB\Admin\Settings::bool( 'apply_resume_required', true );
 $wcb_resume_max_mb   = max( 1, min( 20, \WCB\Admin\Settings::int( 'apply_resume_max_mb', 5 ) ) );
 
+// ── Report this job (anti-spam) — logged-in visitors who aren't the owner ─────
+$wcb_can_report       = is_user_logged_in() && ! $wcb_is_job_owner;
+$wcb_flag_reporters   = array_map( 'intval', (array) get_post_meta( $wcb_job_id, '_wcb_flag_reporters', true ) );
+$wcb_already_reported = in_array( $wcb_current_user_id, $wcb_flag_reporters, true );
+
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
@@ -265,14 +270,21 @@ wp_interactivity_state(
 		'jobCategories'        => (array) wp_get_object_terms( $wcb_job_id, 'wcb_category', array( 'fields' => 'slugs' ) ),
 		'jobTypes'             => (array) wp_get_object_terms( $wcb_job_id, 'wcb_job_type', array( 'fields' => 'slugs' ) ),
 		'jobRemote'            => (bool) get_post_meta( $wcb_job_id, '_wcb_remote', true ),
+		'reportOpen'           => false,
+		'reportSubmitting'     => false,
+		'reportReason'         => '',
+		'reportError'          => '',
+		'reportDone'           => $wcb_already_reported,
 		'strings'              => array(
-			'bookmarkSaved'       => __( 'Saved', 'wp-career-board' ),
-			'bookmarkSave'        => __( 'Save Job', 'wp-career-board' ),
-			'guestFieldsRequired' => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
-			'resumeUploadFailed'  => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
-			'resumeRequiredError' => __( 'Please attach your resume to apply.', 'wp-career-board' ),
-			'applicationFailed'   => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
-			'connectionError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
+			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
+			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
+			'resumeUploadFailed'   => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
+			'resumeRequiredError'  => __( 'Please attach your resume to apply.', 'wp-career-board' ),
+			'applicationFailed'    => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
+			'connectionError'      => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'reportReasonRequired' => __( 'Please choose a reason for reporting.', 'wp-career-board' ),
+			'reportFailed'         => __( 'Could not submit your report. Please try again.', 'wp-career-board' ),
 		),
 	)
 );
@@ -302,7 +314,7 @@ wp_interactivity_state(
 						<?php endif; ?>
 					<?php if ( $wcb_trust_info ) : ?>
 							<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
-						<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+						<?php echo \WCB\Core\Icon::svg( $wcb_trust_info['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php echo esc_html( $wcb_trust_info['label'] ); ?>
 							</span>
 					<?php endif; ?>
 					</p>
@@ -383,7 +395,7 @@ wp_interactivity_state(
 					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
 					</button>
 					<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
-					<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
 				<?php if ( ! $wcb_apply_external && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
@@ -394,9 +406,9 @@ wp_interactivity_state(
 						data-wp-on--click="actions.createAlertFromJob"
 						data-wp-bind--disabled="state.alertFromJobSaving"
 						data-wp-class--wcb-hidden="state.alertFromJobSaved"
-					>&#128276; <?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
+					><?php echo \WCB\Core\Icon::svg( 'bell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
 					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
-					<?php esc_html_e( '✓ You will be notified about similar jobs', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'You will be notified about similar jobs', 'wp-career-board' ); ?>
 					</span>
 				</div>
 				<?php endif; ?>
@@ -624,7 +636,7 @@ wp_interactivity_state(
 						<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
 						</button>
 						<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
-						<?php esc_html_e( '✓ Application Submitted', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 						</p>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -632,9 +644,10 @@ wp_interactivity_state(
 
 			<?php
 			/*
-			Share bar — wrapped in sidebar-card chrome so it
+			 * Share bar — wrapped in sidebar-card chrome so it
 			 * matches Job Details + About the Company card density
-			 * instead of floating as an orphan between two cards. */
+			 * instead of floating as an orphan between two cards.
+			 */
 			?>
 			<?php
 			$wcb_share_url    = rawurlencode( (string) get_permalink( $wcb_job_id ) );
@@ -704,7 +717,7 @@ wp_interactivity_state(
 							<?php endif; ?>
 				<?php if ( $wcb_trust_info ) : ?>
 								<span class="wcb-verified-badge" data-trust="<?php echo esc_attr( $wcb_company_trust ); ?>">
-					<?php echo esc_html( $wcb_trust_info['icon'] . ' ' . $wcb_trust_info['label'] ); ?>
+					<?php echo \WCB\Core\Icon::svg( $wcb_trust_info['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php echo esc_html( $wcb_trust_info['label'] ); ?>
 								</span>
 				<?php endif; ?>
 						</div>
@@ -765,6 +778,57 @@ wp_interactivity_state(
 
 		</aside>
 	</div>
+
+	<?php /* ── Report this job (anti-spam flag) ───────────────────────────── */ ?>
+	<?php if ( $wcb_can_report ) : ?>
+		<div class="wcb-job-report">
+			<button
+				type="button"
+				class="wcb-job-report__trigger"
+				data-wp-on--click="actions.toggleReport"
+				data-wp-bind--hidden="state.reportDone"
+				data-wp-bind--aria-expanded="state.reportOpen"
+			>
+				<?php echo \WCB\Core\Icon::svg( 'flag' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				<span><?php esc_html_e( 'Report this job', 'wp-career-board' ); ?></span>
+			</button>
+
+			<div class="wcb-job-report__form" data-wp-bind--hidden="!state.reportOpen">
+				<label class="wcb-field-label" for="wcb-report-reason">
+					<?php esc_html_e( 'Why are you reporting this job?', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-report-reason"
+					class="wcb-report-reason"
+					data-wp-on--change="actions.updateReportReason"
+				>
+					<option value=""><?php esc_html_e( '- Select a reason -', 'wp-career-board' ); ?></option>
+					<?php foreach ( \WCB\Modules\Moderation\ModerationModule::report_reasons() as $wcb_reason_key => $wcb_reason_label ) : ?>
+						<option value="<?php echo esc_attr( $wcb_reason_key ); ?>"><?php echo esc_html( $wcb_reason_label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<p class="wcb-job-report__error" data-wp-class--wcb-shown="state.reportError" data-wp-text="state.reportError"></p>
+				<div class="wcb-job-report__actions">
+					<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.toggleReport">
+						<?php esc_html_e( 'Cancel', 'wp-career-board' ); ?>
+					</button>
+					<button
+						type="button"
+						class="wcb-btn wcb-btn--primary wcb-btn--sm"
+						data-wp-on--click="actions.submitReport"
+						data-wp-bind--disabled="state.reportSubmitting"
+					>
+						<?php esc_html_e( 'Submit report', 'wp-career-board' ); ?>
+					</button>
+				</div>
+			</div>
+
+			<p class="wcb-job-report__done" data-wp-bind--hidden="!state.reportDone">
+				<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				<?php esc_html_e( 'Thanks - this job has been reported for review.', 'wp-career-board' ); ?>
+			</p>
+		</div>
+	<?php endif; ?>
 
 	<?php /* ── Slide-in apply panel ───────────────────────────────────── */ ?>
 	<?php if ( $wcb_show_apply && ! $wcb_apply_external ) : ?>

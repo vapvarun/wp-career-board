@@ -71,6 +71,16 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	display: flex;
 	min-height: 600px;
 	align-items: stretch;
+	/* Sidebar + main panels carry no chrome of their own, so on themes that
+	 * render the page background close to white (Reign, light BuddyX skins),
+	 * the dashboard reads as floating text with no container. Give the shell
+	 * a subtle outer border + shadow so the surface is unambiguous regardless
+	 * of theme background. */
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-xl);
+	overflow: hidden;
+	box-shadow: var(--wcb-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.04));
+	background: var(--wcb-base, #ffffff);
 }
 
 /* ── Shared loading / error ───────────────────────────────────────────────── */

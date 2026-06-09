@@ -25,7 +25,7 @@ get_header();
 	<main class="wcb-archive-main">
 		<article class="wcb-archive-article entry-content">
 			<?php
-			echo do_blocks( '<!-- wp:wp-career-board/job-listings /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render escapes internally.
+			echo do_blocks( '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render escapes internally.
 			?>
 		</article>
 	</main>

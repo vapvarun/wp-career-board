@@ -12,7 +12,9 @@
 }
 
 .wp-block-wp-career-board-job-listings .wcb-page-heading {
-	margin: 0 0 var(--wcb-space-2xl);
+	/* Sit close to its toolbar — the 2xl gap left the heading floating in
+	 * dead space above the (now unified) results toolbar. */
+	margin: 0 0 var(--wcb-space-md);
 }
 
 /* Canonical `.wcb-listings-toolbar`, `.wcb-results-count`,
@@ -110,7 +112,7 @@
  */
 .wcb-job-card {
 	display: grid;
-	grid-template-columns: auto 1fr;
+	grid-template-columns: auto minmax(0, 1fr);
 	grid-template-areas:
 		"avatar header"
 		"badges badges"
@@ -419,7 +421,7 @@
 
 	.wcb-jobs-container.wcb-grid,
 	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-card-date {

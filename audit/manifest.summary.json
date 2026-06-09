@@ -14,28 +14,30 @@
     "extension_hook_fired": "wcb_settings_tabs"
   },
   "generated": {
-    "at": "2026-05-17T09:06:25.208786Z",
+    "at": "2026-06-09T04:43:57Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
-    "scan_scope": "fallback_defaults",
+    "scan_scope": "distignore_distribution_scope",
     "scan_path": ".",
-    "php_file_count": 171,
-    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) \u2014 canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) \u2014 ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
-    "note": "Lightweight refresh \u2014 timestamp bumped after 1.1.1 release commits. Ground-truth grep reports REST +2, blocks +3, hooks_fired delta requires re-enumeration; queued for next full refresh."
+    "php_file_count": 172,
+    "refresh_notes": "1.2.2 stabilization session 2026-05-07 (~24 commits). Architectural deltas: introduced WCB\\Admin\\Settings centralized accessor (admin/class-settings.php) for the wcb_settings option; uniform array_key_exists semantic across get/bool/int/string accessors eliminates the absent-vs-falsy drift bug class. Ability IDs renamed from snake_case (wcb_post_jobs) to namespace/slug (wcb/post-jobs); 12 Free abilities now register cleanly through wp_register_ability against the wcb category (previously 0 due to slug-format rejection). Three Critical privacy fixes: (a) apply_email harvest plug, (b) application audit-trail leak gate, (c) resume-single privacy gate. CSS architecture split for employer- and candidate-dashboard with cascade fix. F2/F9 Pro decoupling completed. F7 wcb_rest_prepare_* response filters added across endpoints. F8 (7.1) `wp wcb scale benchmark` CLI added under tools/cli/. U6 $wpdb prepared-query audit confirmed zero injection risks across 47 prepared call sites. Ability IDs in capabilities[] below have been re-mapped to wcb/* form. Counts spot-checked by ground-truth grep on 2026-05-07 (REST routes 35 = manifest claim, abilities 12 = capabilities length, hooks_fired discrepancy from 2026-04-29 still open: ground-truth grep of unique do_action wcb_* finds 24 sites vs 72 entries enumerated; the 72 number includes apply_filters and may need re-categorization in next full audit-only re-run). A full diff-driven re-scan of every category is pending; this is a targeted patch capturing the architectural state explicitly. 2026-05-07 follow-up patch (post-689f0eb deltas): NEW services WCB\\Admin\\Pages (admin/class-pages.php, 1.2.4) — canonical resolver for the 7 Career Board pages with get_id() reading wcb_settings then falling back to slug match, plus a one-shot backfill_from_slugs() at install/upgrade; and WCB\\Core\\Locations (core/class-locations.php, 1.2.3) — ties wcb_location taxonomy to company HQ data, reserves remote/other slugs, syncs free-text HQ into terms, and scopes employer job-form dropdown to HQ + Remote + Other. Also formalizes the wp_is_ability_granted polyfill (core/abilities-api-polyfill.php, 1.2.0) and the wp wcb scale CLI (cli/class-scale-command.php) with seed/benchmark/teardown subcommands.",
+    "note": "2026-06-08 (11:02Z) REFRESH after the big-site + cleanup wave on branch 1.2.1 (commits cd9fa64, 0c0ed42, 2b8c4a2, 047e6a9, a1b8ded; prior refresh 4894736). Ground-truth grep over the .distignore distribution scope (172 plugin-own PHP files, +1 from new core/class-company-meta-shape.php). CLEARED: grid_track_overflow_risks 51->0 (every bare 1fr grid track wrapped to minmax(0,1fr) across 18 CSS files; ground-truth grep for a bare 1fr outside minmax() in a grid declaration now returns 0); rest_hang_risks 68->11 (all 57 block view.js fetch() sites resolved — 9 data-fetching block view.js now import wcbFetch from the new @wcb/fetch script module, which wraps fetch with a 15000ms AbortController timeout; the 11 remaining are admin-only and out of scope: admin.js 5 wp.apiFetch, wizard.js 3 wp.apiFetch, admin/emails.js 2, admin/application-detail.js 1). NEW class WCB\\Core\\CompanyMetaShape (services 37->38) consumed by companies + jobs endpoints, duplicate private size_label() removed (R1/R2 dedup); employers-endpoint added private owner_visible_statuses(). Perf pass (jobs-expiry bounded batch + cron re-arm, gdpr page-based eraser/exporter, employers/jobs endpoints batch-prime caches, install bounded dedupe drain) all inside existing files. Antispam save_settings() now gates solely on wp_is_ability_granted. STABLE (ground-truth verified): REST 38 routes / 41 endpoint entries, blocks 17, tables 3, wp_cli 5, cron 3, shortcodes 2 sites. hooks_fired held at 173 — diff vs 4894736 shows ZERO net hook call sites changed (the touched do_action('wcb_job_expired') was an in-place arg re-cast). Known pre-existing enumeration drift (raw grep 188 do_action+apply_filters sites vs 173 enumerated) carried unchanged, flagged for next full audit-only re-run. db_version still 1.2.7 (no schema change). dead_listeners still empty.",
+    "branch": "1.2.1",
+    "db_version": "1.2.7"
   },
   "counts": {
-    "rest": 36,
+    "rest": 43,
     "ajax": 0,
     "admin_pages": 9,
     "shortcodes": 11,
-    "blocks": 15,
+    "blocks": 17,
     "post_types": 5,
     "taxonomies": 5,
     "tables": 3,
     "capabilities": 12,
-    "services": 37,
-    "hooks_fired": 173,
-    "hooks_unique": 99,
+    "services": 39,
+    "hooks_fired": 175,
+    "hooks_unique": 101,
     "cron": 3,
     "wp_cli": 5
   },
@@ -48,9 +50,9 @@
     "manage_options_gate_count": 3,
     "extensibility_gaps": 0,
     "js_only_activation": 1,
-    "rest_hang_risks": 68,
+    "rest_hang_risks": 11,
     "visual_required_no_enforcement": 0,
-    "grid_track_overflow_risks": 51,
+    "grid_track_overflow_risks": 0,
     "layout_owning_blocks": 8
   },
   "category_sources": {

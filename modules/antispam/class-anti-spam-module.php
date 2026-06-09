@@ -276,11 +276,12 @@ class AntiSpamModule {
 	public function save_settings(): void {
 		check_admin_referer( 'wcb_save_antispam' );
 
-		// Defense-in-depth cap check alongside the Abilities gate (see
-		// wp-plugin-qa L4 limitation). `manage_options` mirrors what
-		// `wcb/manage-settings` resolves to internally.
-		if ( ! current_user_can( 'manage_options' )
-			|| ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		// Abilities API is the single authorization gate (matches every other
+		// settings save, e.g. AdminSettings::save). The `wcb/manage-settings`
+		// permission_callback already resolves to wcb_manage_settings ||
+		// manage_options, so a separate current_user_can() is redundant and
+		// violated the Abilities-API-only rule.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			wp_die( esc_html__( 'Permission denied.', 'wp-career-board' ) );
 		}
 

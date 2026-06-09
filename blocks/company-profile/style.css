@@ -278,7 +278,7 @@
 
 @media (max-width: 1024px) {
 	.wcb-cp-body {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -385,7 +385,7 @@
 /* -- Details grid -- */
 .wcb-cp-details-grid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg) var(--wcb-space-3xl);
 	margin: 0;
 }
@@ -606,7 +606,7 @@
 	}
 
 	.wcb-cp-details-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-md);
 	}
 
@@ -662,7 +662,7 @@
 
 /* Collapse parent grid wrappers that reserve a column slot for the
  * (now hidden) theme sidebar. BuddyX Pro uses `.site-wrapper` with
- * `grid-template-columns: 1fr 260px`, Astra uses `.ast-container`,
+ * `grid-template-columns: minmax(0, 1fr) 260px`, Astra uses `.ast-container`,
  * etc. Forcing a single-column grid here gives our content the full
  * width that was previously wasted by the reserved-but-empty sidebar
  * slot.
@@ -670,7 +670,7 @@
 .wcb-company-page .site-wrapper,
 .wcb-company-page .ast-container,
 .wcb-company-page .container-grid {
-	grid-template-columns: 1fr !important;
+	grid-template-columns: minmax(0, 1fr) !important;
 }
 
 .wcb-company-page .entry-title,

@@ -172,6 +172,25 @@ if [ -n "$BUILD_VENDOR" ] && [ -d "$BUILD_VENDOR/vendor" ]; then
 	echo "  vendor pruned to runtime-only (committed SDKs preserved)"
 fi
 
+# 9b. Required-files guard — bundled SDK build assets MUST ship in the zip.
+#     Pro is non-keyless: it loads the EDD SL SDK license modal, which enqueues
+#     libs/edd-sl-sdk/assets/build/{js,css}. Those are committed to git (the
+#     generic build/ .gitignore is negated for this path). Same incident as
+#     Jetonomy 1.4.2 (released without edd-sl-sdk.js -> console 404). This guard
+#     fails the build rather than shipping a broken license UI.
+REQUIRED_FILES=(
+	"libs/edd-sl-sdk/edd-sl-sdk.php"
+	"libs/edd-sl-sdk/assets/build/js/edd-sl-sdk.js"
+	"libs/edd-sl-sdk/assets/build/css/style-edd-sl-sdk.css"
+)
+for f in "${REQUIRED_FILES[@]}"; do
+	if [ ! -f "$STAGE/$f" ]; then
+		echo "FAIL: required file missing from staging: $f" >&2
+		exit 40
+	fi
+done
+echo "  required-files guard: ok (EDD SDK build assets present)"
+
 # 10. Zip
 ZIP="$OUTPUT_DIR/$SLUG-$VERSION.zip"
 rm -f "$ZIP"

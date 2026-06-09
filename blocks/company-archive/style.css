@@ -162,8 +162,8 @@
  * why leave space"). */
 .wcb-ca-card-link {
 	display: grid;
-	grid-template-columns: auto 1fr;
-	grid-template-rows: auto 1fr auto;
+	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-rows: auto minmax(0, 1fr) auto;
 	grid-template-areas:
 		"avatar body"
 		"chips chips"
@@ -179,7 +179,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
-.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; display: flex; flex-wrap: wrap; gap: var(--wcb-space-xs); }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
@@ -349,6 +349,11 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
+	/* Reserve room for the company name plus a two-line tagline so cards
+	 * without a tagline still occupy the same body height as cards that
+	 * do. Keeps the chip row anchored at the same y-position across every
+	 * card in a row instead of jumping up when the tagline is missing. */
+	min-height: 4.25rem;
 }
 
 .wcb-ca-name {
@@ -458,7 +463,7 @@
 
 @media (max-width: 640px) {
 	.wcb-ca-container.wcb-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	/* Collapse the 3-col list-view grid into the same 2-col header

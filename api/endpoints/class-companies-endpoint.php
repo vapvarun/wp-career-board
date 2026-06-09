@@ -354,7 +354,7 @@ final class CompaniesEndpoint extends RestController {
 		$logo_url   = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
 		$trust      = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
 		$trust_info = $this->trust_badge_info( $trust );
-		$size       = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
+		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
 		$job_count  = $job_counts[ (int) $post->post_author ] ?? 0;
 		$name       = $post->post_title;
 
@@ -373,11 +373,11 @@ final class CompaniesEndpoint extends RestController {
 			'has_logo'    => '' !== $logo_url,
 			'no_logo'     => '' === $logo_url,
 			'logo'        => $logo_url,
-			'tagline'     => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'industry'    => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'        => $size,
-			'size_label'  => $this->size_label( $size ),
-			'hq'          => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
+			'tagline'     => $company_meta['tagline'],
+			'industry'    => $company_meta['industry'],
+			'size'        => $company_meta['size'],
+			'size_label'  => $company_meta['size_label'],
+			'hq'          => $company_meta['hq'],
 			'trust'       => $trust,
 			'trust_label' => $trust_info['label'] ?? '',
 			'trust_icon'  => $trust_info['icon'] ?? '',
@@ -477,26 +477,6 @@ final class CompaniesEndpoint extends RestController {
 		return $counts;
 	}
 
-	/**
-	 * Human-readable label for a company size code.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $size Size code (e.g. '1-10').
-	 * @return string
-	 */
-	private function size_label( string $size ): string {
-		$labels = array(
-			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-		);
-		return $labels[ $size ] ?? $size;
-	}
 
 	/**
 	 * Plural label for an open positions count.

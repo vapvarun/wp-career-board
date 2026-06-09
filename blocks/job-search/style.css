@@ -16,6 +16,11 @@
 /* ── Search form ─────────────────────────────────────────────────────────── */
 .wcb-search-form {
 	display: flex;
+	/* stretch so the input and button always share one height. Themes
+	 * (Reign) give the button taller font metrics than the input's
+	 * min-height; stretch lets the shorter child fill the form box so the
+	 * two edges line up (Basecamp 9891481085). */
+	align-items: stretch;
 	gap: 0;
 	border-radius: var(--wcb-radius-lg);
 	border: 1.5px solid var(--wcb-border, #e2e8f0);
@@ -47,6 +52,9 @@
 	color: var(--wcb-contrast, #1e293b);
 	background: transparent;
 	min-width: 0;
+	/* height:auto cancels any theme-set fixed input height so the flex
+	 * `align-items: stretch` on the form can size it to the button. */
+	height: auto;
 	min-height: 50px;
 }
 
@@ -62,17 +70,28 @@
 }
 
 .wcb-search-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-md) var(--wcb-space-xl);
 	background: var(--wcb-primary, #2563eb);
 	color: var(--wp--preset--color--wcb-base);
 	border: none;
 	font-size: var(--wcb-text-md);
-	font-weight: var(--wcb-font-semibold);
+	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;
-	min-height: 44px;
+	min-height: 50px;
 	transition: background var(--wcb-transition-snappy);
+}
+
+/* Icon sized to sit level with the label (helper renders a 24px svg). */
+.wcb-search-button svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
 }
 
 .wcb-search-button:hover,
@@ -96,17 +115,29 @@
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
+	/* Stacked: drop the joined-pill chrome (single border + overflow clip)
+	 * so the field and the Search button read as two distinct controls with
+	 * a gap between them, rather than one fused two-tone slab. */
 	.wcb-search-form {
 		flex-direction: column;
+		gap: var(--wcb-space-sm);
+		border: none;
+		background: none;
+		overflow: visible;
+		border-radius: 0;
+	}
+
+	/* Match the base selector's specificity ([attr] .class = 0,2,0) so this
+	 * actually overrides the joined-pill rule that sets border:none / radius:0
+	 * on the input. A bare .wcb-search-input (0,1,0) silently loses. */
+	[class*="wp-block-wp-career-board"] .wcb-search-input,
+	[class*="wp-block-wp-career-board"] .wcb-search-input[type=search] {
+		border: 1.5px solid var(--wcb-border, #e2e8f0);
 		border-radius: var(--wcb-radius-md);
 	}
 
-	.wcb-search-input {
-		border-bottom: 1px solid var(--wp--preset--color--wcb-border);
-	}
-
 	.wcb-search-button {
-		border-radius: 0 0 var(--wcb-radius-md) var(--wcb-radius-md);
+		border-radius: var(--wcb-radius-md);
 		text-align: center;
 	}
 }

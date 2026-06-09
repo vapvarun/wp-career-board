@@ -391,7 +391,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				),
 				'jobs_archive_page'          => array(
 					'title'   => __( 'Find Jobs', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+					'content' => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
 				),
 				'company_archive_page'       => array(
 					'title'   => __( 'Companies', 'wp-career-board' ),
@@ -410,8 +410,13 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 
 			// Re-use an existing published page that already contains this block.
+			// Match the plugin's OWN block, not the first block: some pages (e.g.
+			// Find Jobs) now lead with a wp:heading title block, and keying reuse
+			// off "heading" grabbed any unrelated page that had a heading. Fall
+			// back to the first block only when no wp-career-board block exists.
 			$block_name = '';
-			if ( preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
+			if ( preg_match( '/<!-- wp:(wp-career-board\/[a-z0-9-]+)/', $page_data['content'], $m )
+				|| preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
 				$block_name = $m[1];
 			}
 			if ( $block_name ) {
@@ -548,6 +553,9 @@ class SetupWizard extends \WCB\Api\RestController {
 			$existing = get_page_by_path( $co['slug'], OBJECT, 'wcb_company' );
 			if ( $existing ) {
 				$company_ids[ $co['slug'] ] = (int) $existing->ID;
+				// Re-track on re-run so wcb_sample_data_ids stays complete
+				// instead of being overwritten with an empty map.
+				$created_ids['companies'][] = (int) $existing->ID;
 				continue;
 			}
 			$cid = wp_insert_post(
@@ -563,7 +571,6 @@ class SetupWizard extends \WCB\Api\RestController {
 				foreach ( $co['meta'] as $k => $v ) {
 					update_post_meta( $cid, $k, $v );
 				}
-				update_post_meta( $cid, '_wcb_user_id', $author_id );
 				update_post_meta( $cid, '_wcb_sample', 1 );
 				\WCB\Core\Locations::sync_company_hq( (int) $cid, (string) $co['meta']['_wcb_hq_location'] );
 				$company_ids[ $co['slug'] ] = $cid;
@@ -758,6 +765,8 @@ class SetupWizard extends \WCB\Api\RestController {
 		foreach ( $jobs as $job ) {
 			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
 			if ( $existing ) {
+				// Re-track on re-run so wcb_sample_data_ids stays complete.
+				$created_ids['jobs'][] = (int) $existing->ID;
 				continue;
 			}
 			$cid = $company_ids[ $job['company'] ] ?? 0;

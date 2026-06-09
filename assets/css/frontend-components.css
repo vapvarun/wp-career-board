@@ -340,25 +340,25 @@ select.wcb-field {
 
 .wcb-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), minmax(0, 1fr)));
 	gap: var(--wcb-space-xl);
 }
 
 .wcb-grid--compact {
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), minmax(0, 1fr)));
 	gap: var(--wcb-space-lg);
 }
 
 .wcb-grid--2col {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
 @media (max-width: 640px) {
-	.wcb-grid { grid-template-columns: 1fr; }
-	.wcb-grid--compact { grid-template-columns: 1fr; }
-	.wcb-grid--2col { grid-template-columns: 1fr; }
+	.wcb-grid { grid-template-columns: minmax(0, 1fr); }
+	.wcb-grid--compact { grid-template-columns: minmax(0, 1fr); }
+	.wcb-grid--2col { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── Pagination ──────────────────────────────────────────────────────── */
@@ -459,7 +459,7 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-field-row,
 [class*="wp-block-wcb-"] .wcb-field-row {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-lg);
 }
 
@@ -467,7 +467,7 @@ select.wcb-field {
 
 	[class*="wp-block-wp-career-board"] .wcb-field-row,
 	[class*="wp-block-wcb-"] .wcb-field-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -565,7 +565,7 @@ select.wcb-field {
 
 .wcb-settings-row {
 	display: grid;
-	grid-template-columns: 160px 1fr;
+	grid-template-columns: 160px minmax(0, 1fr);
 	align-items: start;
 	padding: var(--wcb-space-lg) var(--wcb-space-xl);
 	border-bottom: 1px solid var(--wcb-border);
@@ -592,7 +592,7 @@ select.wcb-field {
 
 @media (max-width: 640px) {
 	.wcb-settings-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-sm);
 	}
 }
@@ -817,6 +817,15 @@ select.wcb-field {
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* Windows High Contrast / forced-colors ignores box-shadow, so restore a real
+ * outline there — otherwise the focus ring disappears for those users. */
+@media (forced-colors: active) {
+	[class*="wp-block-wp-career-board"] .wcb-listings-search:focus,
+	[class*="wp-block-wcb-"] .wcb-listings-search:focus {
+		outline: 2px solid ButtonText;
+	}
+}
+
 [class*="wp-block-wp-career-board"] .wcb-sort-select,
 [class*="wp-block-wcb-"] .wcb-sort-select {
 	min-height: 44px;
@@ -853,6 +862,25 @@ select.wcb-field {
 	flex-wrap: wrap;
 }
 
+/* Right-hand toolbar group: sort (when there is no separate search row) +
+ * view switcher, kept together opposite the results count. */
+[class*="wp-block-wp-career-board"] .wcb-toolbar-end,
+[class*="wp-block-wcb-"] .wcb-toolbar-end {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	flex-wrap: wrap;
+}
+
+/* "Alert me" toolbar button — Pro injects it into the listings toolbar via the
+ * alerts_subscribe slot. Styled with the .wcb-btn ladder above; this aligns the
+ * Lucide icon with the label inside each toggle span. */
+.wcb-alert-me-btn__label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+}
+
 [class*="wp-block-wp-career-board"] .wcb-results-count,
 [class*="wp-block-wcb-"] .wcb-results-count {
 	font-size: var(--wcb-text-sm);
@@ -877,8 +905,8 @@ select.wcb-field {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: var(--wcb-space-3xl);
-	height: 30px;
+	width: 36px;
+	height: 36px;
 	padding: 0;
 	border: none;
 	background: transparent;

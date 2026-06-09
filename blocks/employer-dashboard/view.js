@@ -4,6 +4,7 @@
  * @package WP_Career_Board
  */
 import { store, getContext } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -84,6 +85,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isViewSettings() {
 			return state.currentView === 'settings';
 		},
+		get isViewNotifications() {
+			return state.currentView === 'notifications';
+		},
 		get isViewSavedJobs() {
 			return state.currentView === 'saved-jobs';
 		},
@@ -163,12 +167,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get filteredJobs() {
 			let jobs = state.jobs;
 			const f  = state.jobFilter;
-			if ( f === 'live' )         jobs = jobs.filter( ( j ) => j.status === 'publish' );
-			else if ( f === 'draft' )   jobs = jobs.filter( ( j ) => j.status === 'draft' );
-			else if ( f === 'pending' ) jobs = jobs.filter( ( j ) => j.status === 'pending' );
+			if ( f === 'live' )          jobs = jobs.filter( ( j ) => j.status === 'publish' );
+			// Draft excludes rejected jobs (a rejected job is a draft carrying a
+			// rejection reason; it surfaces under its own Rejected pill instead).
+			else if ( f === 'draft' )    jobs = jobs.filter( ( j ) => j.status === 'draft' && ! j.rejected );
+			else if ( f === 'pending' )  jobs = jobs.filter( ( j ) => j.status === 'pending' );
+			else if ( f === 'rejected' ) jobs = jobs.filter( ( j ) => j.rejected );
 			// Closed pill surfaces both manually-closed and auto-expired jobs —
 			// employers manage both via the same Reopen flow.
-			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
+			else if ( f === 'closed' )   jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
 			if ( state.jobSearch ) {
 				const q = state.jobSearch.toLowerCase();
 				jobs = jobs.filter( ( j ) => j.title.toLowerCase().includes( q ) );
@@ -189,6 +196,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isFilterClosed() {
 			return state.jobFilter === 'closed';
+		},
+		get isFilterRejected() {
+			return state.jobFilter === 'rejected';
 		},
 
 		// Jobs with applications (for selector list).
@@ -383,11 +393,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Company helpers.
+		// Sidebar identity falls back to the user's display name when no company
+		// name is set yet, so the sidebar never shows a lone "?" with no label.
+		get sidebarName() {
+			return state.companyName || state.displayName || '';
+		},
 		get companyInitials() {
-			const n = state.companyName;
+			const n = state.companyName || state.displayName;
 			return n
 				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
-				: '';
+				: '?';
 		},
 		get companyDescExcerpt() {
 			// Description is now rich HTML (Editor.js output). For the live preview
@@ -460,48 +475,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error   = '';
 
 			try {
-				// Use /me/jobs when no company yet — employers can post jobs before
-				// creating a company profile, and those jobs must still appear.
-				const jobsBase = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
-					: state.apiBase + '/employers/me/jobs';
-				const jobsUrl = new URL( jobsBase );
-				jobsUrl.searchParams.set( 'per_page', '50' );
+				yield actions.loadJobs();
 
-				const appsUrl = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
-					: null;
-
-				const headers = { 'X-WP-Nonce': state.nonce };
-
-				const fetchPromises = [ fetch( jobsUrl.toString(), { headers } ) ];
-				if ( appsUrl ) {
-					fetchPromises.push( fetch( appsUrl, { headers } ) );
-				}
-
-				const [ jobsResp, allAppsResp ] = yield Promise.all( fetchPromises );
-
-				if ( ! jobsResp.ok ) {
-					state.error = state.strings.errorLoadJobs;
-					return;
-				}
-
-				const jobsData = yield jobsResp.json();
-				const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
-				state.jobs     = jobs.map( ( j ) => ( {
-					...j,
-					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
-					// "closed" = employer-closed, "expired" = past-deadline (cron).
-					// Both render as finished listings and offer the Reopen flow.
-					// "pending" is awaiting moderation, "draft" is unsaved.
-					isClosed:  j.status === 'closed',
-					isExpired: j.status === 'expired',
-					isDraft:   j.status === 'draft',
-				} ) );
-
-				if ( allAppsResp && allAppsResp.ok ) {
-					const appsData = yield allAppsResp.json();
-					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+				// Company applications (the Applications tab's dataset).
+				if ( state.companyId ) {
+					const appsResp = yield wcbFetch(
+						state.apiBase + '/employers/' + String( state.companyId ) + '/applications',
+						{ headers: { 'X-WP-Nonce': state.nonce } }
+					);
+					if ( appsResp.ok ) {
+						const appsData = yield appsResp.json();
+						state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+					}
 				}
 			} catch {
 				state.error = state.strings.errorConnection;
@@ -544,12 +529,48 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			writeHashView( 'overview' );
 		},
 
-		switchToJobs() {
+		// Fetch + normalize the employer's jobs. Shared by init() and the
+		// post-a-job refresh path so My Jobs reflects a just-posted job without
+		// a page reload.
+		*loadJobs() {
+			const jobsBase = state.companyId
+				? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
+				: state.apiBase + '/employers/me/jobs';
+			const jobsUrl = new URL( jobsBase );
+			jobsUrl.searchParams.set( 'per_page', '50' );
+
+			const resp = yield wcbFetch( jobsUrl.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+			if ( ! resp.ok ) {
+				state.error = state.strings.errorLoadJobs;
+				return;
+			}
+			const jobsData = yield resp.json();
+			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
+			// "closed" = employer-closed, "expired" = past-deadline (cron); both
+			// render as finished listings. "pending" = awaiting moderation, "draft" = unsaved.
+			state.jobs = jobs.map( ( j ) => ( {
+				...j,
+				appsUrl:   j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
+				isClosed:  j.status === 'closed',
+				isExpired: j.status === 'expired',
+				isRejected: !! j.rejected,
+				isDraft:   j.status === 'draft' && ! j.rejected,
+			} ) );
+		},
+
+		*switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 			writeHashView( 'jobs' );
+
+			// The embedded Post-a-Job form flags a refresh after a successful
+			// submit; reload the list silently so the new job appears.
+			if ( state._needsJobsRefresh ) {
+				state._needsJobsRefresh = false;
+				yield actions.loadJobs();
+			}
 		},
 
 		switchToApplications() {
@@ -576,6 +597,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			writeHashView( 'settings' );
 		},
 
+		*switchToNotifications() {
+			state.currentView = 'notifications';
+			state.error       = '';
+			state.navOpen     = false;
+			sessionStorage.setItem( 'wcb_employer_view', 'notifications' );
+			writeHashView( 'notifications' );
+			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
+				yield actions.fetchBellNotifications();
+			}
+		},
+
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
@@ -600,7 +632,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			state.savedJobsLoading = true;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.employerId ) + '/bookmarks',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -629,7 +661,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			state.savedCompaniesLoading = true;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.employerId ) + '/saved-companies',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -658,7 +690,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			state.savedResumesLoading = true;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.employerId ) + '/saved-resumes',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -682,7 +714,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const jobId = ctx.job.id;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( jobId ) + '/bookmark',
 					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
 				);
@@ -701,7 +733,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const companyId = ctx.company.id;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/companies/' + String( companyId ) + '/bookmark',
 					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
 				);
@@ -720,7 +752,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const resumeId = ctx.resume.id;
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/resumes/' + String( resumeId ) + '/bookmark',
 					{ method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce } }
 				);
@@ -789,7 +821,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.appsError   = '';
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
@@ -825,7 +857,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/applications/' + String( appId ) + '/status',
 					{
 						method: 'PATCH',
@@ -865,7 +897,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( jobId ),
 					{
 						method: 'PATCH',
@@ -897,7 +929,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/jobs/' + String( jobId ),
 					{
 						method: 'PATCH',
@@ -911,10 +943,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( response.ok ) {
 					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
 					if ( idx !== -1 ) {
-						state.jobs[ idx ].status      = 'publish';
-						state.jobs[ idx ].statusLabel = 'Published';
+						// A rejected listing resubmits to moderation (pending), not
+						// straight live — the server enforces this; mirror it in the
+						// optimistic update so the badge matches what the API stored.
+						const wasRejected = state.jobs[ idx ].isRejected;
+						state.jobs[ idx ].status      = wasRejected ? 'pending' : 'publish';
+						state.jobs[ idx ].statusLabel = wasRejected ? 'Pending' : 'Published';
 						state.jobs[ idx ].isClosed    = false;
 						state.jobs[ idx ].isExpired   = false;
+						state.jobs[ idx ].isRejected  = false;
+						state.jobs[ idx ].isDraft     = false;
 					}
 				}
 			} catch {
@@ -926,6 +964,94 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const field = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
+			}
+		},
+
+		*saveAccount() {
+			state.accountSaving = true;
+			state.accountMsg    = '';
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/account',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							display_name: state.accountName,
+							email:        state.accountEmail,
+						} ),
+					}
+				);
+				const data = yield response.json();
+				if ( response.ok ) {
+					state.accountName    = data.display_name;
+					state.accountEmail   = data.email;
+					state.displayName    = data.display_name;
+					state.employerEmail  = data.email;
+					state.accountMsgType = 'success';
+					state.accountMsg     = 'Account updated.';
+				} else {
+					state.accountMsgType = 'error';
+					state.accountMsg     = data?.message || 'Could not save your account.';
+				}
+			} catch {
+				state.accountMsgType = 'error';
+				state.accountMsg     = 'Connection error. Please try again.';
+			} finally {
+				state.accountSaving = false;
+			}
+		},
+
+		*changePassword() {
+			state.pwMsg = '';
+			if ( ! state.curPassword || ! state.newPassword ) {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'Enter your current and new password.';
+				return;
+			}
+			if ( state.newPassword !== state.confPassword ) {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'New password and confirmation do not match.';
+				return;
+			}
+			state.pwSaving = true;
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/account',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							current_password: state.curPassword,
+							new_password:     state.newPassword,
+						} ),
+					}
+				);
+				const data = yield response.json();
+				if ( response.ok ) {
+					if ( data.nonce ) {
+						state.nonce = data.nonce;
+					}
+					state.curPassword  = '';
+					state.newPassword  = '';
+					state.confPassword = '';
+					state.pwMsgType    = 'success';
+					state.pwMsg        = 'Password updated.';
+				} else {
+					state.pwMsgType = 'error';
+					state.pwMsg     = data?.message || 'Could not update your password.';
+				}
+			} catch {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'Connection error. Please try again.';
+			} finally {
+				state.pwSaving = false;
 			}
 		},
 
@@ -964,7 +1090,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				const fd = new FormData();
 				fd.append( 'logo', file );
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase + '/employers/' + String( state.companyId ) + '/logo',
 					{
 						method:  'POST',
@@ -1003,7 +1129,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				: state.apiBase + '/employers/' + String( state.companyId );
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					url,
 					{
 						method: isNew ? 'POST' : 'PATCH',
@@ -1050,17 +1176,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*toggleBell() {
-			state.bellOpen = ! state.bellOpen;
-			if ( state.bellOpen && state.bellEnabled && state.bellNotifications.length === 0 ) {
-				yield actions.fetchBellNotifications();
-			}
-		},
 
 		*fetchBellNotifications() {
 			state.bellLoading = true;
 			try {
-				const res = yield fetch( state.apiBase + '/notifications?per_page=20', {
+				const res = yield wcbFetch( state.apiBase + '/notifications?per_page=20', {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 				if ( res.ok ) {
@@ -1079,7 +1199,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! id ) {
 				return;
 			}
-			yield fetch( state.apiBase + '/notifications/' + String( id ) + '/read', {
+			yield wcbFetch( state.apiBase + '/notifications/' + String( id ) + '/read', {
 				method:  'PATCH',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
@@ -1091,7 +1211,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		*markAllRead() {
-			yield fetch( state.apiBase + '/notifications/read-all', {
+			yield wcbFetch( state.apiBase + '/notifications/read-all', {
 				method:  'POST',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );

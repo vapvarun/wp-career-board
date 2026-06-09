@@ -13,6 +13,8 @@
 #   4. No hardcoded user-visible JS strings without i18n routing
 #   5. Ability slugs use namespaced format `wcb/post-jobs` (NOT `wcb_post_jobs` snake_case)
 #   6. No raw $wpdb->query without prepare() in src changes
+#   7. Release-integrity: every WCB class autoloads + ships (no autoloader
+#      dir/namespace mismatch, no class whose file .distignore strips)
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -43,7 +45,7 @@ if [ "$MODE" = "staged" ]; then
 else
 	PHP_FILES=$(find . -name '*.php' \
 		-not -path './vendor/*' -not -path './node_modules/*' -not -path './tests/*' \
-		-not -path './build/*' -not -path './dist/*' 2>/dev/null | tr '\n' ' ')
+		-not -path './build/*' -not -path './dist/*' -not -path './libs/*' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(find . -path '*/assets/js/*.js' -o -path '*/blocks/*/view.js' 2>/dev/null \
 		| grep -v '\.min\.js$' | grep -v node_modules | tr '\n' ' ')
 fi
@@ -174,6 +176,18 @@ if [ -n "$PHP_FILES" ] && [ "$MODE" = "staged" ]; then
 	else
 		ok "Rule 6: \$wpdb calls use ->prepare()"
 	fi
+fi
+
+# --- Rule 7: release-integrity — every WCB class autoloads + ships ---
+# Whole-tree structural check (fast): catches autoloader dir/namespace
+# mismatches (a hyphenated module dir the autoloader can't find) and classes
+# whose file .distignore strips from the release zip ("class not found" in
+# production but fine in dev). Runs in every mode.
+if INTEGRITY="$( php "$ROOT/bin/check-class-paths.php" 2>&1 )"; then
+	ok "Rule 7: release-integrity (WCB classes autoload + ship)"
+else
+	echo "$INTEGRITY" | sed 's/^/    /'
+	report "Rule 7: release-integrity — a class won't autoload or is stripped from the release zip"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

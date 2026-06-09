@@ -224,7 +224,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 	<!-- Success state -->
 	<div class="wcb-form-simple__success" data-wp-class--wcb-shown="state.submitted">
-		<h2><?php esc_html_e( '✓ Job posted', 'wp-career-board' ); ?></h2>
+		<h2 class="wcb-icon-label"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Job posted', 'wp-career-board' ); ?></h2>
 		<p
 			class="wcb-form-simple__meta"
 			data-wp-class--wcb-hidden="!state.hasListingWindow"

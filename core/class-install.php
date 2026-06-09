@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.6';
+	const DB_VERSION = '1.2.7';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -366,6 +366,12 @@ final class Install {
 				self::migrate_add_fulltext_post_title();
 			}
 
+			// 1.2.7 — collapse duplicate auto-created "Main Board" posts left by
+			// the pre-1.2.7 check-then-act race in BoardsModule::ensure_default_board.
+			if ( version_compare( (string) $installed, '1.2.7', '<' ) ) {
+				self::dedupe_default_boards();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -376,6 +382,79 @@ final class Install {
 			if ( self::verify_tables_exist() ) {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
+		}
+	}
+
+	/**
+	 * Collapse duplicate auto-created default boards into the canonical one.
+	 *
+	 * The pre-1.2.7 BoardsModule::ensure_default_board() used a non-atomic
+	 * get_option-then-insert guard on a per-request `init` hook, so two
+	 * concurrent post-activation requests could each insert a "Main Board".
+	 * This keeps the board referenced by `wcb_default_board_id`, reassigns any
+	 * jobs pointing at a duplicate to the canonical board, and trashes the
+	 * leftovers. Only boards whose title matches the default board are touched,
+	 * so legitimately-named Pro boards are never removed.
+	 *
+	 * @since 1.2.7
+	 * @return void
+	 */
+	private static function dedupe_default_boards(): void {
+		$default_id = (int) get_option( 'wcb_default_board_id', 0 );
+		if ( ! $default_id ) {
+			return;
+		}
+
+		$boards = get_posts(
+			array(
+				'post_type'      => 'wcb_board',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			)
+		);
+		if ( count( $boards ) < 2 ) {
+			return;
+		}
+
+		$default_title = (string) get_post_field( 'post_title', $default_id );
+
+		foreach ( $boards as $board_id ) {
+			$board_id = (int) $board_id;
+			if ( $board_id === $default_id ) {
+				continue;
+			}
+			// Only collapse exact duplicates of the auto-created default board;
+			// leave distinctly-named (Pro) boards alone.
+			if ( (string) get_post_field( 'post_title', $board_id ) !== $default_title ) {
+				continue;
+			}
+
+			// Reassign jobs off the duplicate board in bounded batches — a board
+			// can own thousands of jobs, so a single `-1` fetch + per-row update
+			// could exhaust memory/time during the upgrade request. Each pass
+			// rewrites the meta_value, shrinking the WHERE, so we loop until the
+			// duplicate owns no more jobs. Mirrors the module batch idiom.
+			do {
+				$jobs = get_posts(
+					array(
+						'post_type'      => 'wcb_job',
+						'post_status'    => 'any',
+						// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; loops until empty (one-time 1.2.7 upgrade).
+						'posts_per_page' => 500,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+						'meta_key'       => '_wcb_board_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-time upgrade routine.
+						'meta_value'     => $board_id,       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
+					)
+				);
+				foreach ( $jobs as $job_id ) {
+					update_post_meta( (int) $job_id, '_wcb_board_id', $default_id );
+				}
+			} while ( count( $jobs ) === 500 );
+
+			wp_delete_post( $board_id, true );
 		}
 	}
 
@@ -458,24 +537,32 @@ final class Install {
 		// the post type isn't registered yet, `get_posts` returns an empty
 		// array and we exit cleanly. The migration re-runs idempotently next
 		// time it boots.
-		$resume_ids = get_posts(
-			array(
-				'post_type'      => 'wcb_resume',
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
-					array(
-						'key'     => '_wcb_resume_public',
-						'compare' => 'NOT EXISTS',
+		// Bounded drain — backfill in batches so a large resume table can't
+		// exhaust memory/time during the upgrade request. Each pass sets the
+		// meta, shrinking the NOT EXISTS set, so we loop until empty. Matches
+		// the bounded-batch idiom used by dedupe_default_boards().
+		do {
+			$resume_ids = get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; loops until empty (one-time migration).
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
+						array(
+							'key'     => '_wcb_resume_public',
+							'compare' => 'NOT EXISTS',
+						),
 					),
-				),
-			)
-		);
+				)
+			);
 
-		foreach ( $resume_ids as $resume_id ) {
-			update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
-		}
+			foreach ( $resume_ids as $resume_id ) {
+				update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
+			}
+		} while ( count( $resume_ids ) === 500 );
 	}
 
 	/**

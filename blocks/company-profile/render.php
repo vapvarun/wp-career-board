@@ -336,7 +336,10 @@ wp_interactivity_state(
 				'loading'   => false,
 				'hasMore'   => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
 				'hasNoJobs' => empty( $wcb_cp_jobs_state ),
-				'apiBase'   => untrailingslashit( rest_url( 'wcb/v1/jobs' ) ),
+				// Distinct key from the companies `apiBase` set above — both calls
+				// merge into the same store, so reusing `apiBase` here clobbered the
+				// bookmark route (company save POSTed to /jobs/{id}/bookmark).
+				'jobsApiBase' => untrailingslashit( rest_url( 'wcb/v1/jobs' ) ),
 			)
 		);
 		?>

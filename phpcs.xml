@@ -82,6 +82,7 @@
 				<element value="wcb_manage_resume"/>
 				<element value="wcb_bookmark_jobs"/>
 				<element value="wcb_moderate_jobs"/>
+				<element value="wcb_access_admin_jobs"/>
 				<element value="wcb_manage_settings"/>
 				<element value="wcb_view_analytics"/>
 				<element value="wcb_access_employer_dashboard"/>

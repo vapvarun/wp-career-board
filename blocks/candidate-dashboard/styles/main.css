@@ -55,12 +55,19 @@
 /* Inner .wcb-panel cards inside an active tab lose their own card chrome
  * so the outer wrapper doesn't double-frame them. They keep their own
  * row hairlines for visual separation between list items. */
-.wcb-view-panel.wcb-view-active .wcb-panel {
+.wcb-view-panel.wcb-view-active .wcb-panel,
+.wcb-view-panel.wcb-view-active .wcb-resume-builder {
 	background: transparent;
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
 	margin-bottom: 0;
+}
+
+/* The resume-builder block also brings its own padding; strip that too so the
+ * outer .wcb-view-panel provides the single padding (.wcb-panel keeps its own). */
+.wcb-view-panel.wcb-view-active .wcb-resume-builder {
+	padding: 0;
 }
 
 /* ── Page header ──────────────────────────────────────────────────────────── */
@@ -114,7 +121,7 @@
 /* ── Overview: Two-column grid ────────────────────────────────────────────── */
 .wcb-two-col {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-xl);
 }
 
@@ -166,6 +173,6 @@
 	}
 
 	.wcb-two-col {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }

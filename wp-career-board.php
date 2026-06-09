@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.2.0
+ * Version:     1.3.0
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.2.0' );
+define( 'WCB_VERSION', '1.3.0' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -46,12 +46,22 @@ add_action(
 				'version' => WCB_VERSION,
 				'file'    => WCB_FILE,
 				'license' => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
+				// Keyless: Free updates silently via the preset community key, so
+				// the SDK must NOT add the "Manage License" plugins-row button or
+				// hook its modal — that modal enqueued build/js/edd-sl-sdk.js +
+				// css, which 404'd (Basecamp 9919578285). Keyless skips the modal
+				// entirely; auto_updater() still runs. Pro stays non-keyless (it
+				// has a real license tab; its modal assets load from this libs copy).
+				'keyless' => true,
 			)
 		);
 	}
 );
-if ( file_exists( __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php' ) ) {
-	require_once __DIR__ . '/vendor/edd-sl-sdk/edd-sl-sdk.php';
+// The EDD SL SDK is bundled (built) in /libs — not /vendor — so it survives
+// release packaging (which strips /vendor) and is the single shared copy that
+// WP Career Board Pro loads too, rather than duplicating the SDK.
+if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
+	require_once __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php';
 }
 
 /*

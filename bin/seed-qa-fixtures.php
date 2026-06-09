@@ -142,6 +142,27 @@ foreach ( array( 'candidate_carol', 'candidate_dan', 'candidate_eve' ) as $login
 }
 WP_CLI::log( sprintf( '  candidates: %s', wp_json_encode( $candidates ) ) );
 
+// Job Moderator persona — exercises the moderation surface as a real
+// wcb_board_moderator (not admin), per the moderator-role contract.
+$moderator_login = 'morgan_moderator';
+$moderator_id    = username_exists( $moderator_login );
+if ( ! $moderator_id ) {
+	$moderator_id = wp_insert_user(
+		array(
+			'user_login' => $moderator_login,
+			'user_pass'  => wp_generate_password( 16 ),
+			'user_email' => $moderator_login . '@example.test',
+			'role'       => 'wcb_board_moderator',
+			'first_name' => 'Morgan',
+		)
+	);
+	if ( is_wp_error( $moderator_id ) ) {
+		WP_CLI::error( "failed to create user {$moderator_login}: " . $moderator_id->get_error_message() );
+	}
+}
+$tag_smoke( $moderator_id, 'moderator' );
+WP_CLI::log( sprintf( '  moderator: %s (id %d, role wcb_board_moderator)', $moderator_login, $moderator_id ) );
+
 // ---------------------------------------------------------------------------
 // 2. Posts (CPTs).
 // ---------------------------------------------------------------------------

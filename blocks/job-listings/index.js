@@ -77,6 +77,14 @@
 								: __( 'Listing only - no search box or filter sidebar.', 'wp-career-board' ),
 							onChange: function ( val ) { setAttr( { showFilters: !! val } ); },
 						} ),
+						el( ToggleControl, {
+							label:    __( 'Show page heading', 'wp-career-board' ),
+							checked:  !! attr.showHeading,
+							help:     attr.showHeading
+								? __( 'The block prints the archive title. Turn off when the page already has a heading.', 'wp-career-board' )
+								: __( 'No title printed - the page or theme provides the heading (recommended).', 'wp-career-board' ),
+							onChange: function ( val ) { setAttr( { showHeading: !! val } ); },
+						} ),
 						el( RangeControl, {
 							label:    __( 'Jobs per page (0 uses the site default)', 'wp-career-board' ),
 							value:    attr.perPage,
@@ -94,6 +102,7 @@
 								? __( 'List', 'wp-career-board' )
 								: __( 'Grid', 'wp-career-board' ) + ' ' + ( attr.columns || 3 ) + __( '-col', 'wp-career-board' ) )
 							+ '  ·  ' + ( attr.showFilters ? __( 'Filters on', 'wp-career-board' ) : __( 'Filters off', 'wp-career-board' ) )
+							+ ( attr.showHeading ? '  ·  ' + __( 'Heading on', 'wp-career-board' ) : '' )
 					)
 				)
 			);

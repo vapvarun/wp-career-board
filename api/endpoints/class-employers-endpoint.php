@@ -423,6 +423,12 @@ final class EmployersEndpoint extends RestController {
 		// Link company to the employer user account.
 		update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
 
+		// Adopt any jobs the employer posted before this company existed — they
+		// never got _wcb_company_id (JobsEndpoint only stamps it when the user
+		// already has a company), so without this they stay invisible in My Jobs
+		// once the dashboard queries by company.
+		$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+
 		return rest_ensure_response( $this->prepare_company( get_post( $company_id ) ) );
 	}
 
@@ -522,6 +528,86 @@ final class EmployersEndpoint extends RestController {
 	 * @param  \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
+	/**
+	 * Job statuses an employer/admin may see for their own company vs the public.
+	 *
+	 * Single source of truth (R1) — a new lifecycle status is added here, not in
+	 * each query. Previously this allowlist was duplicated across three sites in
+	 * this endpoint, so a new status silently missed some views.
+	 *
+	 * @param bool $is_owner_or_admin Viewer owns the company or is an admin.
+	 * @return string[]
+	 */
+	private function owner_visible_statuses( bool $is_owner_or_admin ): array {
+		return $is_owner_or_admin
+			? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
+			: array( 'publish' );
+	}
+
+	/**
+	 * Whether a job is a rejected listing — kept as a draft carrying a
+	 * rejection reason (set by the moderation reject endpoint). Single source
+	 * of truth so both My-Jobs builders label/flag it consistently.
+	 *
+	 * @since 1.2.0
+	 * @param \WP_Post $post Job post.
+	 * @return bool
+	 */
+	public static function is_rejected_job( \WP_Post $post ): bool {
+		return 'draft' === $post->post_status
+			&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+	}
+
+	/**
+	 * Stamp _wcb_company_id onto jobs the user posted before they had a company.
+	 *
+	 * A job created before the company existed never received the postmeta, so it
+	 * stayed invisible once My Jobs switched to querying by company. Idempotent —
+	 * bounded to a single author's own jobs, so the unbounded query is safe here.
+	 *
+	 * @since 1.2.0
+	 * @param int $user_id    Employer user ID.
+	 * @param int $company_id The company just linked to that user.
+	 * @return void
+	 */
+	private function backfill_orphan_jobs( int $user_id, int $company_id ): void {
+		if ( $user_id <= 0 || $company_id <= 0 ) {
+			return;
+		}
+
+		$orphans = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'author'         => $user_id,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
+					'relation' => 'OR',
+					array(
+						'key'     => '_wcb_company_id',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => '_wcb_company_id',
+						'value'   => array( '', '0' ),
+						'compare' => 'IN',
+					),
+				),
+			)
+		);
+
+		if ( ! $orphans ) {
+			return;
+		}
+
+		$company_name = get_the_title( $company_id );
+		foreach ( $orphans as $job_id ) {
+			update_post_meta( $job_id, '_wcb_company_id', $company_id );
+			update_post_meta( $job_id, '_wcb_company_name', $company_name );
+		}
+	}
+
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
 		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
@@ -542,7 +628,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'post_type'      => 'wcb_job',
 				'author'         => (int) $user_id,
-				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' ),
+				'post_status'    => $this->owner_visible_statuses( true ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 			)
@@ -564,6 +650,7 @@ final class EmployersEndpoint extends RestController {
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
 				// JobsEndpoint::get_item().
+				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
 					'wcb_closed'  => 'closed',
 					'wcb_expired' => 'expired',
@@ -572,8 +659,9 @@ final class EmployersEndpoint extends RestController {
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $public_status,
-					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'status'      => $rejected ? 'rejected' : $public_status,
+					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
 					'appCount'    => 0,
@@ -610,9 +698,7 @@ final class EmployersEndpoint extends RestController {
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
 		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
-		$post_status = ( $is_owner || $is_admin )
-		? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
-		: array( 'publish' );
+		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
 
 		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
 		$paged    = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
@@ -667,6 +753,7 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'Expired',
 				);
 
+				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
 					'wcb_closed'  => 'closed',
 					'wcb_expired' => 'expired',
@@ -676,8 +763,9 @@ final class EmployersEndpoint extends RestController {
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $public_status,
-					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'status'      => $rejected ? 'rejected' : $public_status,
+					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
 					'appCount'    => $app_count,
@@ -723,6 +811,9 @@ final class EmployersEndpoint extends RestController {
 		// surface their applicant pipeline in the employer dashboard.
 		global $wpdb;
 		$company_id = (int) $company->ID;
+		// Owner viewing their own company's applications — same status allowlist
+		// as the other employer views (R1: single source of truth).
+		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql  = $wpdb->prepare(
 			"SELECT app.ID, app.post_date
@@ -730,8 +821,8 @@ final class EmployersEndpoint extends RestController {
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
-			        ON job.ID = pm_job.meta_value AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ('publish','pending','draft','wcb_closed','wcb_expired')
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ({$wcb_status_in})
 			 INNER JOIN {$wpdb->postmeta} pm_co
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
@@ -748,10 +839,35 @@ final class EmployersEndpoint extends RestController {
 			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}
 
-		// Prime meta cache once for the 20 application IDs so the per-row
+		// Prime meta cache once for the application IDs so the per-row
 		// get_post_meta calls below resolve from cache instead of issuing a
 		// query each. Matches the cache-priming pattern used by job-listings.
-		update_postmeta_cache( array_map( static fn( $r ) => (int) $r->ID, $rows ) );
+		$wcb_app_ids = array_map( static fn( $r ) => (int) $r->ID, $rows );
+		update_postmeta_cache( $wcb_app_ids );
+
+		// Batch-prime the related candidate users + job posts + application posts
+		// so the loop's get_user_by() / get_the_title() / get_post() calls are
+		// all cache hits instead of one query per row (N+1). The candidate/job
+		// IDs are already in the meta cache primed above.
+		$wcb_candidate_ids = array();
+		$wcb_job_ids       = array();
+		foreach ( $wcb_app_ids as $wcb_app_id ) {
+			$wcb_cid = (int) get_post_meta( $wcb_app_id, '_wcb_candidate_id', true );
+			$wcb_jid = (int) get_post_meta( $wcb_app_id, '_wcb_job_id', true );
+			if ( $wcb_cid > 0 ) {
+				$wcb_candidate_ids[] = $wcb_cid;
+			}
+			if ( $wcb_jid > 0 ) {
+				$wcb_job_ids[] = $wcb_jid;
+			}
+		}
+		if ( $wcb_candidate_ids ) {
+			cache_users( array_unique( $wcb_candidate_ids ) );
+		}
+		if ( $wcb_job_ids ) {
+			_prime_post_caches( array_unique( $wcb_job_ids ), false, false );
+		}
+		_prime_post_caches( $wcb_app_ids, false, false );
 
 		$items = array_map(
 			static function ( object $row ) use ( $request ): array {

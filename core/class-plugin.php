@@ -202,6 +202,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\ImportEndpoint::class,
 			\WCB\Api\Endpoints\AdminEndpoint::class,
 			\WCB\Api\Endpoints\SettingsEndpoint::class,
+			\WCB\Api\Endpoints\AccountEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -218,6 +219,20 @@ final class Plugin {
 	 * @return void
 	 */
 	public function register_blocks(): void {
+		// Shared fetch helper (AbortController timeout) imported uniformly by
+		// every Free AND Pro block view module via `import { wcbFetch } from
+		// '@wcb/fetch'`. Registered here on init so it joins the script-module
+		// import map; each block declares it in its view.asset.php dependencies.
+		// Pro consumes this same id — Free is always active, so no duplicate.
+		if ( function_exists( 'wp_register_script_module' ) ) {
+			wp_register_script_module(
+				'@wcb/fetch',
+				WCB_URL . 'assets/js/modules/wcb-fetch.js',
+				array(),
+				WCB_VERSION
+			);
+		}
+
 		$blocks = array(
 			'job-listings',
 			'job-search',
@@ -474,7 +489,7 @@ final class Plugin {
 				'title'       => __( 'Full Job Board', 'wp-career-board' ),
 				'description' => __( 'Search bar, filters, and job listings grid  -  the complete job board page.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
-				'content'     => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				'content'     => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
 			),
 			array(
 				'name'        => 'wp-career-board/post-a-job',

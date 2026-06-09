@@ -11,7 +11,7 @@
 
 .wcb-featured-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), minmax(0, 1fr)));
 	gap: var(--wcb-space-xl);
 }
 
@@ -85,6 +85,6 @@
 
 @media (max-width: 600px) {
 	.wcb-featured-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }

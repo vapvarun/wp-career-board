@@ -19,7 +19,7 @@
  * `auto-fit` + `minmax` lets the row hold 5 cards on wide containers
  * (so Total Jobs / Live / Applications / New / Credits sit on one line),
  * 3 on medium widths, 2 on tablet, 1 on mobile — without ever leaving an
- * orphan card alone on its own row, which is what `repeat(4, 1fr)` did
+ * orphan card alone on its own row, which is what `repeat(4, minmax(0, 1fr))` did
  * when there were 5 cards. The 140 px min lets all 5 cards fit on a
  * ~780 px main panel (1280 px canonical container minus the 220 px
  * sidebar minus 64 px main padding minus 16 px gaps), which is exactly
@@ -31,7 +31,7 @@
 	/* 125 px min lets all 5 cards fit at 5 * 125 + 4 * 16 gap = 689 px,
 	 * comfortably within the ~748 px row width Storefront / Twenty
 	 * Twenty-Three / certain Astra layouts produce on a 1024 px viewport. */
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), minmax(0, 1fr)));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }
@@ -231,64 +231,26 @@
 	display: block;
 }
 
-/* Notification bell */
-.wcb-bell-wrapper {
-	position: relative;
-	display: inline-block;
-}
-.wcb-bell-btn {
-	position: relative;
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: var(--wcb-space-sm);
-	color: var(--wcb-text-secondary);
-	line-height: 1;
-}
-.wcb-bell-btn:hover { color: var(--wcb-primary); }
-.wcb-bell-badge {
-	position: absolute;
-	top: 0;
-	right: 0;
-	min-width: 18px;
-	height: 18px;
-	padding: 0 var(--wcb-space-xs);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	line-height: 18px;
-	text-align: center;
-	color: var(--wcb-base);
-	background: var(--wcb-danger);
-	border-radius: var(--wcb-radius-full);
-}
-.wcb-bell-dropdown {
-	position: absolute;
-	top: calc(100% + var(--wcb-space-sm));
-	right: 0;
-	width: 320px;
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	box-shadow: var(--wcb-shadow-lg);
-	z-index: 100;
-}
-.wcb-bell-header {
+/* Notifications panel (ACCOUNT > Notifications). The page title comes from
+   .wcb-page-header; this styles the mark-all-read bar, the list, and items. */
+.wcb-notifications__bar {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border-bottom: 1px solid var(--wcb-border);
-	font-weight: var(--wcb-font-semibold);
-	font-size: var(--wcb-text-base);
+	justify-content: flex-end;
+	margin-bottom: var(--wcb-space-md);
 }
 .wcb-bell-read-all {
 	background: none;
 	border: none;
-	font-size: var(--wcb-text-xs);
+	font-size: var(--wcb-text-sm);
 	color: var(--wcb-primary);
 	cursor: pointer;
 }
-.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-list {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	overflow: hidden;
+}
 .wcb-bell-item {
 	display: block;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -296,8 +258,15 @@
 	text-decoration: none;
 	color: inherit;
 }
-.wcb-bell-item:hover { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); }
-.wcb-bell-unread { background: var(--wcb-info-bg); }
+.wcb-bell-item:last-child {
+	border-bottom: none;
+}
+.wcb-bell-item:hover {
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+.wcb-bell-unread {
+	background: var(--wcb-info-bg);
+}
 .wcb-bell-msg {
 	display: block;
 	font-size: var(--wcb-text-sm);
@@ -308,6 +277,12 @@
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-tertiary);
 	margin-top: 2px;
+}
+.wcb-notifications__empty {
+	padding: var(--wcb-space-xl);
+	text-align: center;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
 }
 
 /*
@@ -346,6 +321,13 @@
 .wcb-credit-banner__icon {
 	font-size: var(--wcb-text-lg);
 	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+}
+
+.wcb-credit-banner__icon svg {
+	width: 18px;
+	height: 18px;
 }
 
 .wcb-credit-banner__text {
@@ -374,13 +356,29 @@
 	opacity: 1;
 }
 
+/* Account Settings inline status message (save / password feedback). */
+.wcb-account-msg {
+	margin: 0 0 var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-sm);
+}
+.wcb-account-msg[data-type="success"] {
+	background: var(--wcb-success-bg, #f0fdf4);
+	color: var(--wcb-success-fg, #166534);
+}
+.wcb-account-msg[data-type="error"] {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
 @media (max-width: 768px) {
 	.wcb-stats-row {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.wcb-profile-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -393,7 +391,7 @@
 
 @media (max-width: 480px) {
 	.wcb-stats-row {
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 }
 

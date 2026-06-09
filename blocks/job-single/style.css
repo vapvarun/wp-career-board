@@ -65,6 +65,9 @@
 a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-verified-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-teal-fg);
 	font-weight: var(--wcb-font-semibold);
@@ -74,10 +77,16 @@ a.wcb-badge:hover { opacity: 0.8; }
 	margin-inline-start: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
 }
 
+.wcb-verified-badge svg {
+	width: 13px;
+	height: 13px;
+	flex-shrink: 0;
+}
+
 /* ── Hero banner ─────────────────────────────────────────────────────────── */
 .wcb-job-hero {
 	display: grid;
-	grid-template-columns: 1fr auto;
+	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-rows: auto auto;
 	gap: var(--wcb-space-lg) var(--wcb-space-3xl);
 	align-items: start;
@@ -200,7 +209,16 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-applied-badge.wcb-shown {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-applied-badge svg {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
 }
 
 .wcb-applied-badge--center {
@@ -210,7 +228,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 /* ── Two-column body ─────────────────────────────────────────────────────── */
 .wcb-job-body {
 	display: grid;
-	grid-template-columns: 1fr 320px; /* component-specific sidebar width */
+	grid-template-columns: minmax(0, 1fr) 320px; /* component-specific sidebar width */
 	gap: var(--wcb-space-2xl);
 	align-items: start;
 }
@@ -371,9 +389,13 @@ a.wcb-tag:hover {
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast, #0f172a);
+	/* The job-single sidebar cards already sit inside their own rounded
+	 * outer border, so the heading's old underline read as a second border
+	 * stacked just inside the card edge. Drop the underline + extra
+	 * padding and let the bottom margin do the breathing room instead.
+	 * (Gap value is governed by wcb-ui.css's .wcb-card-title rule, which wins
+	 * specificity over the theme's h3 cascade.) */
 	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-sm);
-	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
 .wcb-card-title > svg {
@@ -751,9 +773,19 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-post-apply-alert-done {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-success, #22c55e);
 	font-weight: var(--wcb-font-medium);
+}
+
+.wcb-post-apply-alert-btn svg,
+.wcb-post-apply-alert-done svg {
+	width: 15px;
+	height: 15px;
+	flex-shrink: 0;
 }
 
 .wcb-apply-no-resume {
@@ -776,7 +808,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
 	.wcb-job-hero {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		grid-template-rows: auto auto auto;
 	}
 
@@ -791,7 +823,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	}
 
 	.wcb-job-body {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	/* On mobile, drop sticky behaviour but keep the natural document order
@@ -860,6 +892,93 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-job-page h1.post-title,
 .wcb-job-page .post-title,
 .wcb-job-page .wp-block-post-title { display: none !important; }
+
+/* ── Report this job ─────────────────────────────────────────────────────── */
+.wcb-job-report {
+	margin: var(--wcb-space-lg) 0 0;
+	padding-top: var(--wcb-space-md);
+	border-top: 1px solid var(--wcb-border, #e2e8f0);
+	text-align: center;
+}
+
+.wcb-job-report__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	background: none;
+	border: none;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
+	font-family: inherit;
+	cursor: pointer;
+	border-radius: var(--wcb-radius-sm);
+	transition: color var(--wcb-transition-snappy);
+}
+
+.wcb-job-report__trigger:hover,
+.wcb-job-report__trigger:focus-visible {
+	color: var(--wcb-danger, #dc2626);
+}
+
+.wcb-job-report__trigger svg {
+	width: 15px;
+	height: 15px;
+}
+
+.wcb-job-report__form {
+	max-width: 420px;
+	margin: var(--wcb-space-md) auto 0;
+	padding: var(--wcb-space-md);
+	text-align: start;
+	background: var(--wcb-surface, #f8fafc);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+}
+
+.wcb-report-reason {
+	width: 100%;
+	margin-top: var(--wcb-space-xs);
+	padding: var(--wcb-space-sm);
+	font-size: var(--wcb-text-md);
+	font-family: inherit;
+	color: var(--wcb-contrast, #1e293b);
+	background: var(--wcb-base, #fff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-sm);
+}
+
+.wcb-job-report__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
+	margin-top: var(--wcb-space-md);
+}
+
+.wcb-job-report__error {
+	display: none;
+	margin: var(--wcb-space-sm) 0 0;
+	color: var(--wcb-danger, #dc2626);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-job-report__error.wcb-shown {
+	display: block;
+}
+
+.wcb-job-report__done {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	margin: var(--wcb-space-sm) 0 0;
+	color: var(--wcb-success, #16a34a);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-job-report__done svg {
+	width: 15px;
+	height: 15px;
+}
 
 /* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
 .wcb-hp-wrap {

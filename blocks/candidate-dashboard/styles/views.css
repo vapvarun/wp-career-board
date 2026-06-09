@@ -45,6 +45,7 @@
 }
 
 .wcb-cd-app-title {
+	display: block;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-text-primary);
@@ -264,6 +265,7 @@
 }
 
 .wcb-resume-card-title {
+	display: block;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-text-primary);
@@ -334,6 +336,7 @@
 }
 
 .wcb-app-name {
+	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-text-primary);

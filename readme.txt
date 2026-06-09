@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,20 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.3.0 - June 2026 =
+
+Account self-service in the dashboard, clearer job moderation, and a batch of My Jobs / applications data fixes.
+
+* New      - Account Settings now lets candidates and employers update their display name and email and change their password directly in the dashboard, instead of being sent off to wp-login.
+* New      - Rejected job listings show as "Rejected" (not "Draft") in the employer dashboard, with a Resubmit action; resubmitting sends the job back for admin approval instead of publishing it directly.
+* Improve  - Resume Builder no longer renders a doubled card frame when embedded in the dashboard, and the remove-entry icon now renders reliably.
+* Improve  - Consistent spacing above the single-job sidebar widget titles.
+* Fix      - Employer "My Applications" no longer surfaced another employer's application when you had none; the job-to-application lookup is now type-safe.
+* Fix      - A job posted before you saved a company profile is now adopted into My Jobs when the company is created, instead of staying invisible.
+* Fix      - A newly posted job now appears in My Jobs immediately, without a manual page reload.
+* Fix      - Saving a company from its profile page now persists across reloads.
+* Compat   - Aligned with WP Career Board Pro 1.3.0. Install both updates together.
 
 = 1.2.0 - May 2026 =
 

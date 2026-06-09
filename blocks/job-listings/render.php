@@ -169,18 +169,9 @@ $wcb_initials = static function ( string $wcb_name ): string {
 };
 
 $wcb_trust_badges = array(
-	'verified' => array(
-		'label' => __( 'Verified', 'wp-career-board' ),
-		'icon'  => '✓',
-	),
-	'trusted'  => array(
-		'label' => __( 'Trusted', 'wp-career-board' ),
-		'icon'  => '✓',
-	),
-	'premium'  => array(
-		'label' => __( 'Premium', 'wp-career-board' ),
-		'icon'  => '★',
-	),
+	'verified' => array( 'label' => __( 'Verified', 'wp-career-board' ) ),
+	'trusted'  => array( 'label' => __( 'Trusted', 'wp-career-board' ) ),
+	'premium'  => array( 'label' => __( 'Premium', 'wp-career-board' ) ),
 );
 
 $wcb_jobs_state = array();
@@ -210,7 +201,6 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'initials'     => $wcb_initials( $wcb_company_name_val ),
 		'trust'        => $wcb_trust,
 		'trust_label'  => $wcb_trust_info['label'] ?? '',
-		'trust_icon'   => $wcb_trust_info['icon'] ?? '',
 		'verified'     => null !== $wcb_trust_info,
 		'location'     => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
 		'type'         => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
@@ -292,6 +282,29 @@ $wcb_exp_opts      = array_map(
 	},
 	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
 );
+
+$wcb_term_opt = static function ( \WP_Term $t ): array {
+	return array(
+		'slug' => $t->slug,
+		'name' => $t->name,
+	);
+};
+
+$wcb_cat_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_category',
+		'hide_empty' => false,
+	)
+);
+$wcb_cat_opts      = array_map( $wcb_term_opt, is_array( $wcb_cat_terms_raw ) ? $wcb_cat_terms_raw : array() );
+
+$wcb_tag_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_tag',
+		'hide_empty' => false,
+	)
+);
+$wcb_tag_opts      = array_map( $wcb_term_opt, is_array( $wcb_tag_terms_raw ) ? $wcb_tag_terms_raw : array() );
 
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
@@ -391,6 +404,8 @@ $wcb_state = array(
 	'filterOptions'  => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+		'categories'  => $wcb_cat_opts,
+		'tags'        => $wcb_tag_opts,
 		'boards'      => $wcb_board_opts,
 	),
 	'strings'        => array(
@@ -416,7 +431,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	data-wp-interactive="wcb-job-listings"
 	data-wp-init="callbacks.init"
 >
-	<?php if ( $wcb_page_heading ) : ?>
+	<?php if ( $wcb_page_heading && ( $attributes['showHeading'] ?? false ) ) : ?>
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
 	<?php endif; ?>
 	<?php
@@ -463,6 +478,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 
+			<?php do_action('wcb_job_listings_filters_top'); ?>
 			<?php if ( $wcb_type_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></span>
@@ -487,6 +503,38 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					<li>
 						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>">
 							<input type="checkbox" data-wp-on--change="actions.toggleExpChip" data-wp-bind--checked="state.isExpActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_cat_opts ) : ?>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_cat_opts as $wcb_opt ) : ?>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'catSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_tag_opts ) : ?>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Tags', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_tag_opts as $wcb_opt ) : ?>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'tagSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleTagChip" data-wp-bind--checked="state.isTagActive" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
 						</label>
 					</li>
@@ -567,6 +615,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						data-wp-on--change="actions.updateSalaryMax"
 						data-wp-on--input="actions.previewSalaryMax"
 					/>
+
+					<?php do_action('wcb_job_listings_filters_bottom'); ?>
 					<button type="button" class="wcb-salary-popover__reset" data-wp-on--click="actions.resetSalary">
 						<?php esc_html_e( 'Reset', 'wp-career-board' ); ?>
 					</button>
@@ -622,7 +672,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 									data-wp-class--wcb-shown="context.job.verified"
 									data-wp-bind--data-trust="context.job.trust"
 									data-wp-bind--title="context.job.trust_label"
-								>&#10003;</span>
+								><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 							</p>
 						</div>
 						<?php
@@ -653,10 +703,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				></p>
 
 				<div class="wcb-card-footer">
+					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 					</div>
 
 				</div>

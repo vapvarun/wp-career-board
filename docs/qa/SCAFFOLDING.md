@@ -8,7 +8,7 @@ This document tracks what the `wp-plugin-release-qa` skill scaffolded into this 
 - `docs/qa/AGENT_SMOKE_RUNBOOK.md` — Sonnet + Playwright deterministic runbook (A–F, all 14 Pro modules in E with verified file/hook counts + admin slugs); D contains 14 real regression rows — 7 original (9871740742, 9866553120, 9818132111, 9872024322, T3.5, F-1, abilities-init-hook) + 6 added in 1.2.0 (9895205013, 9891012864, 9890815047, 9890919239, 9890885030, 9891577445) + D.pwa-icon-404 (936c04a)
 - `docs/qa/UX_AUDIT.md` — per-template surface check
 - `docs/qa/QA_RELEASE_CHECKLIST.md` — release gate (PHPUnit, PHPStan, WPCS, versions, packaging)
-- `bin/seed-qa-fixtures.php` — idempotent reseeder (uses verified v1.1.0 meta keys + Pro table schemas; not normally needed since job-portal.local already has 9 jobs / 35 applications / 9 companies / 7 resumes from prior dev)
+- `bin/seed-qa-fixtures.php` — idempotent reseeder (uses verified v1.1.0 meta keys + Pro table schemas; not normally needed once a dev install has sample jobs / applications / companies / resumes seeded)
 - `docs/qa/qa.config.json` — plugin facts consumed by the global `/wp-plugin-smoke` skill (slug, version constant, site URL, personas, basecamp IDs, fixture-cleanup SQL, debug-log whitelist). Free + Pro each have their own.
 - `wp-career-board-pro/docs/qa/AGENT_SMOKE_RUNBOOK.md` — Pro-only supplement (P1 lockstep, P2 dependency guard, P3 license, P4 module presence with verified admin-surface mapping, P5 updater, P6 Pro DB)
 - `wp-career-board-pro/docs/qa/QA_RELEASE_CHECKLIST.md` — Pro-only release supplement

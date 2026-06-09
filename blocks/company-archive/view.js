@@ -10,6 +10,7 @@
  * @package WP_Career_Board
  */
 import { store, getElement, getContext } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 // Module-scoped debounce timer for the search input. Declared before the
 // store() call so the closure captured by `actions.updateSearch` is bound
@@ -132,7 +133,7 @@ const { state } = store( 'wcb-company-archive', {
 			const url   = state.apiBase + '/' + ctx.company.id + '/bookmark';
 
 			try {
-				const response = yield fetch( url, {
+				const response = yield wcbFetch( url, {
 					method:      'POST',
 					credentials: 'same-origin',
 					headers:     {
@@ -174,7 +175,7 @@ const { state } = store( 'wcb-company-archive', {
 			state.page++;
 
 			try {
-				const response = yield fetch( wcbBuildUrl( state.page ) );
+				const response = yield wcbFetch( wcbBuildUrl( state.page ) );
 
 				if ( ! response.ok ) {
 					state.page--;
@@ -261,7 +262,7 @@ function wcbFetchCompanies() {
 	state.page      = 1;
 	state.companies = [];
 
-	fetch( wcbBuildUrl( 1 ) )
+	wcbFetch( wcbBuildUrl( 1 ) )
 		.then( function( response ) {
 			if ( ! response.ok ) {
 				state.loading = false;

@@ -370,7 +370,7 @@ $wcb_step_labels = array(
 
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
-		<span class="wcb-form-success__icon" aria-hidden="true">✓</span>
+		<span class="wcb-form-success__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 		<div>
 			<p class="wcb-form-success__title" data-wp-class--wcb-form-success__title--pending="state.jobPending">
 				<span data-wp-class--wcb-hidden="state.jobPending">

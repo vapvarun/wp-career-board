@@ -6,6 +6,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
+import { wcbFetch } from '@wcb/fetch';
 
 let searchDebounceTimer = null;
 
@@ -67,6 +68,18 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! state.activeFilters[ 'exp_' + ctx.expSlug ];
 		},
 
+		/** Loop-context getter — valid inside data-wp-each on filterOptions.categories. */
+		get isCatActive() {
+			const ctx = getContext();
+			return !! state.activeFilters[ 'cat_' + ctx.catSlug ];
+		},
+
+		/** Loop-context getter — valid inside data-wp-each on filterOptions.tags. */
+		get isTagActive() {
+			const ctx = getContext();
+			return !! state.activeFilters[ 'tag_' + ctx.tagSlug ];
+		},
+
 		get isRemoteActive() {
 			return !! state.activeFilters.remote;
 		},
@@ -116,6 +129,14 @@ const { state, actions } = store( 'wcb-job-listings', {
 				} else if ( key.startsWith( 'exp_' ) ) {
 					const slug = key.slice( 4 );
 					const match = state.filterOptions.experiences.find( ( e ) => e.slug === slug );
+					label = match ? match.name : slug;
+				} else if ( key.startsWith( 'cat_' ) ) {
+					const slug = key.slice( 4 );
+					const match = ( state.filterOptions.categories || [] ).find( ( c ) => c.slug === slug );
+					label = match ? match.name : slug;
+				} else if ( key.startsWith( 'tag_' ) ) {
+					const slug = key.slice( 4 );
+					const match = ( state.filterOptions.tags || [] ).find( ( t ) => t.slug === slug );
 					label = match ? match.name : slug;
 				} else if ( key.startsWith( 'board_' ) ) {
 					const id = parseInt( key.slice( 6 ), 10 );
@@ -176,7 +197,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			} );
 
 			try {
-				const response = yield fetch(
+				const response = yield wcbFetch(
 					state.apiBase.replace( '/jobs', '/alerts' ),
 					{
 						method:  'POST',
@@ -256,6 +277,40 @@ const { state, actions } = store( 'wcb-job-listings', {
 				state.activeFilters = {
 					...state.activeFilters,
 					[ key ]: ctx.expSlug,
+				};
+			}
+			yield actions.applyFilters();
+		},
+
+		// ── Category chip ─────────────────────────────────────────────
+		* toggleCatChip() {
+			const ctx = getContext();
+			const key = 'cat_' + ctx.catSlug;
+			if ( state.activeFilters[ key ] ) {
+				const next = { ...state.activeFilters };
+				delete next[ key ];
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ key ]: ctx.catSlug,
+				};
+			}
+			yield actions.applyFilters();
+		},
+
+		// ── Tag chip ──────────────────────────────────────────────────
+		* toggleTagChip() {
+			const ctx = getContext();
+			const key = 'tag_' + ctx.tagSlug;
+			if ( state.activeFilters[ key ] ) {
+				const next = { ...state.activeFilters };
+				delete next[ key ];
+				state.activeFilters = next;
+			} else {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ key ]: ctx.tagSlug,
 				};
 			}
 			yield actions.applyFilters();
@@ -411,6 +466,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 					url.searchParams.append( 'type', value );
 				} else if ( key.startsWith( 'exp_' ) ) {
 					url.searchParams.append( 'experience', value );
+				} else if ( key.startsWith( 'cat_' ) ) {
+					url.searchParams.append( 'category', value );
+				} else if ( key.startsWith( 'tag_' ) ) {
+					url.searchParams.append( 'tag', value );
 				} else if ( key === 'remote' || key === 'wcb_remote' ) {
 					url.searchParams.set( 'remote', '1' );
 				} else if ( key === 'wcb_category' ) {
@@ -434,7 +493,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			}
 
 			try {
-				const response = yield fetch( url.toString(), {
+				const response = yield wcbFetch( url.toString(), {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 
@@ -475,7 +534,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 			ctx.job.bookmarked = ! wasBookmarked;
 
-			const response = yield fetch( state.apiBase + '/' + jobId + '/bookmark', {
+			const response = yield wcbFetch( state.apiBase + '/' + jobId + '/bookmark', {
 				method: 'POST',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );

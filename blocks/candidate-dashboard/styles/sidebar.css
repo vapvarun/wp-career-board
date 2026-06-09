@@ -192,6 +192,7 @@
 }
 
 .wcb-sidebar-company {
+	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-text-primary);

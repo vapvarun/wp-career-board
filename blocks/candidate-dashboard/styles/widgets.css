@@ -16,64 +16,26 @@
  * @since   1.2.2
  */
 
-/* Notification bell */
-.wcb-bell-wrapper {
-	position: relative;
-	display: inline-block;
-}
-.wcb-bell-btn {
-	position: relative;
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: var(--wcb-space-sm);
-	color: var( --wcb-text-secondary, var(--wp--preset--color--wcb-muted) );
-	line-height: 1;
-}
-.wcb-bell-btn:hover { color: var(--wp--preset--color--wcb-primary); }
-.wcb-bell-badge {
-	position: absolute;
-	top: 0;
-	right: 0;
-	min-width: 18px;
-	height: 18px;
-	padding: 0 var(--wcb-space-xs);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	line-height: 18px;
-	text-align: center;
-	color: var(--wcb-base, #fff);
-	background: var(--wcb-danger);
-	border-radius: var(--wcb-radius-full);
-}
-.wcb-bell-dropdown {
-	position: absolute;
-	top: calc(100% + var(--wcb-space-sm));
-	right: 0;
-	width: 320px;
-	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
-	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-md);
-	box-shadow: var(--wcb-shadow-lg);
-	z-index: 100;
-}
-.wcb-bell-header {
+/* Notifications panel (ACCOUNT > Notifications). The page title comes from
+   .wcb-page-header; this styles the mark-all-read bar, the list, and items. */
+.wcb-notifications__bar {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
-	font-weight: var(--wcb-font-semibold);
-	font-size: var(--wcb-text-base);
+	justify-content: flex-end;
+	margin-bottom: var(--wcb-space-md);
 }
 .wcb-bell-read-all {
 	background: none;
 	border: none;
-	font-size: var(--wcb-text-xs);
+	font-size: var(--wcb-text-sm);
 	color: var( --wcb-primary, #4f46e5 );
 	cursor: pointer;
 }
-.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-list {
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+	overflow: hidden;
+}
 .wcb-bell-item {
 	display: block;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -81,8 +43,15 @@
 	text-decoration: none;
 	color: inherit;
 }
-.wcb-bell-item:hover { background: var(--wcb-surface, #f1f5f9); }
-.wcb-bell-unread { background: var(--wcb-info-bg-soft); }
+.wcb-bell-item:last-child {
+	border-bottom: none;
+}
+.wcb-bell-item:hover {
+	background: var(--wcb-surface, #f1f5f9);
+}
+.wcb-bell-unread {
+	background: var(--wcb-info-bg-soft);
+}
 .wcb-bell-msg {
 	display: block;
 	font-size: var(--wcb-text-sm);
@@ -93,6 +62,12 @@
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-tertiary);
 	margin-top: 2px;
+}
+.wcb-notifications__empty {
+	padding: var(--wcb-space-xl);
+	text-align: center;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
 }
 
 /* ── Overview: Stats row ──────────────────────────────────────────────────── */
@@ -139,7 +114,7 @@
 /* ── Responsive: 2-up stats on narrow screens ────────────────────────────── */
 @media ( max-width: 640px ) {
 	.wcb-stats-row {
-		grid-template-columns: repeat( 2, 1fr );
+		grid-template-columns: repeat( 2, minmax(0, 1fr) );
 	}
 }
 
@@ -245,7 +220,7 @@
 @media ( max-width: 640px ) {
 	.wcb-welcome-card { padding: var( --wcb-space-md, 16px ); }
 	.wcb-welcome-card__title { font-size: var(--wcb-text-xl); }
-	.wcb-welcome-card__steps { grid-template-columns: 1fr; }
+	.wcb-welcome-card__steps { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media ( prefers-reduced-motion: reduce ) {
@@ -290,4 +265,20 @@
 .wcb-cbtn--danger:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+}
+
+/* Account Settings inline status message (save / password feedback). */
+.wcb-account-msg {
+	margin: 0 0 var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-sm);
+}
+.wcb-account-msg[data-type="success"] {
+	background: var(--wcb-success-bg, #f0fdf4);
+	color: var(--wcb-success-fg, #166534);
+}
+.wcb-account-msg[data-type="error"] {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
 }

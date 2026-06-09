@@ -191,13 +191,22 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		// Read `board_id` to match every other site in this file (schema entry,
-		// CREATE handler at line 540, UPDATE meta_map at line 732). The earlier
-		// param key `board` was inconsistent — every JS caller and the
-		// register_rest_args schema use `board_id`, so the filter never engaged
-		// and `?board_id=N` returned all jobs regardless. Aligns 1 outlier with
-		// the convention.
-		$board_id = $request->get_param( 'board_id' );
+		$tag = $request->get_param( 'tag' ) ?? $request->get_param( 'wcb_tag' );
+		if ( $tag ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'wcb_tag',
+				'terms'    => array_map( 'sanitize_text_field', explode( ',', $tag ) ),
+				'field'    => 'slug',
+			);
+		}
+
+		// Accept BOTH `board` and `board_id`. The listings block's view.js sends
+		// `board` (url.searchParams.set('board', ...)); other callers + the
+		// schema use `board_id`. Reading only one silently dropped the other —
+		// the board chip sent `board` and the API ignored it, so the filter did
+		// nothing (Basecamp 9976414471). Mirrors the `category`/`wcb_category`
+		// dual-read above.
+		$board_id = $request->get_param( 'board_id' ) ?? $request->get_param( 'board' );
 		if ( $board_id ) {
 			$args['meta_query'][] = array(
 				'key'   => '_wcb_board_id',
@@ -732,6 +741,19 @@ final class JobsEndpoint extends RestController {
 			// using the registered custom status under the hood.
 			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
 
+			// A rejected listing is kept as a draft carrying _wcb_rejection_reason.
+			// When the employer resubmits it, it must go back through moderation
+			// (pending) — NOT straight live — otherwise rejection is trivially
+			// bypassed. Override the requested 'publish' and clear the marker.
+			if (
+				'publish' === $status
+				&& 'draft' === $post->post_status
+				&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true )
+			) {
+				$data['post_status'] = 'pending';
+				delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+			}
+
 			// Republish gate — when an employer flips an expired or closed
 			// listing back to publish, treat it as a fresh post for billing
 			// purposes so paid boards re-charge instead of giving free
@@ -1031,6 +1053,19 @@ final class JobsEndpoint extends RestController {
 			// Prime meta cache once so the prepare loop's get_post_meta calls
 			// don't issue a query each. Mirrors the job-listings render pattern.
 			update_postmeta_cache( wp_list_pluck( $posts, 'ID' ) );
+
+			// Batch-prime the candidate users so the per-row get_user_by() below
+			// is a cache hit instead of one user query per application (N+1).
+			$wcb_candidate_ids = array();
+			foreach ( $posts as $wcb_app ) {
+				$wcb_cid = (int) get_post_meta( $wcb_app->ID, '_wcb_candidate_id', true );
+				if ( $wcb_cid > 0 ) {
+					$wcb_candidate_ids[] = $wcb_cid;
+				}
+			}
+			if ( $wcb_candidate_ids ) {
+				cache_users( array_unique( $wcb_candidate_ids ) );
+			}
 		}
 
 		$items = array_map(
@@ -1179,10 +1214,9 @@ final class JobsEndpoint extends RestController {
 		}
 		$trust            = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
 		$trust_info       = $this->trust_badge_info( $trust );
-		$company_tagline  = $company_id ? (string) get_post_meta( $company_id, '_wcb_tagline', true ) : '';
-		$company_industry = $company_id ? (string) get_post_meta( $company_id, '_wcb_industry', true ) : '';
-		$company_size     = $company_id ? (string) get_post_meta( $company_id, '_wcb_company_size', true ) : '';
-		$company_hq       = $company_id ? (string) get_post_meta( $company_id, '_wcb_hq_location', true ) : '';
+		// Shared brand-meta shape (R2) — serialize(0) returns empty strings, so
+		// this is safe when the job has no linked company.
+		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $company_id );
 
 		// Human-readable taxonomy labels for card display.
 		// get_the_terms() honours object_term_cache primed in get_items() before the loop.
@@ -1219,6 +1253,9 @@ final class JobsEndpoint extends RestController {
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).
 			'status'             => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
+			// A rejected job is kept as a draft carrying a rejection reason; expose
+			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
+			'rejected'           => ( 'draft' === $post->post_status && '' !== (string) $rejection_reason ),
 			'author'             => $author_id,
 			'created_at'         => mysql_to_rfc3339( $post->post_date_gmt ),
 			'updated_at'         => mysql_to_rfc3339( $post->post_modified_gmt ),
@@ -1233,11 +1270,11 @@ final class JobsEndpoint extends RestController {
 			'trust_label'        => $trust_info['label'] ?? '',
 			'trust_icon'         => $trust_info['icon'] ?? '',
 			'verified'           => null !== $trust_info,
-			'company_tagline'    => $company_tagline,
-			'company_industry'   => $company_industry,
-			'company_size'       => $company_size,
-			'company_size_label' => $this->size_label( $company_size ),
-			'company_hq'         => $company_hq,
+			'company_tagline'    => $company_meta['tagline'],
+			'company_industry'   => $company_meta['industry'],
+			'company_size'       => $company_meta['size'],
+			'company_size_label' => $company_meta['size_label'],
+			'company_hq'         => $company_meta['hq'],
 			// Job meta.
 			'deadline'           => get_post_meta( $post->ID, '_wcb_deadline', true ),
 			'salary_min'         => $salary_min,
@@ -1382,45 +1419,6 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Describe the shape of a single job item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function get_item_schema(): array {
-		return array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'wcb_job',
-			'type'       => 'object',
-			'properties' => array(
-				'id'          => array(
-					'description' => __( 'Unique identifier for the job.', 'wp-career-board' ),
-					'type'        => 'integer',
-					'readonly'    => true,
-					'context'     => array( 'view', 'embed' ),
-				),
-				'title'       => array(
-					'description' => __( 'Job title.', 'wp-career-board' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'embed' ),
-				),
-				'description' => array(
-					'description' => __( 'Full job description.', 'wp-career-board' ),
-					'type'        => 'string',
-					'context'     => array( 'view' ),
-				),
-				'excerpt'     => array(
-					'description' => __( 'Short excerpt of the job description.', 'wp-career-board' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => array( 'view', 'embed' ),
-				),
-			),
-		);
-	}
-
-	/**
 	 * Define query parameters for the collection endpoint.
 	 *
 	 * @since 1.0.0
@@ -1483,28 +1481,4 @@ final class JobsEndpoint extends RestController {
 		);
 	}
 
-	/**
-	 * Format a company size code into a human-readable label.
-	 *
-	 * Mirrors {@see Companies_Endpoint::size_label()} so the jobs endpoint
-	 * can surface the same `company_size_label` string consumers expect on
-	 * the companies endpoint.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param string $size Size code (e.g. '501-1000').
-	 * @return string Localised label, or the raw code when unknown.
-	 */
-	private function size_label( string $size ): string {
-		$labels = array(
-			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-		);
-		return $labels[ $size ] ?? $size;
-	}
 }

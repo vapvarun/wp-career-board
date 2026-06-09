@@ -110,7 +110,28 @@
 	function makeRow( row ) {
 		var tr     = document.createElement( 'tr' );
 		var status = ( row.status || 'unknown' ).toLowerCase();
-		var pill   = ( [ 'sent', 'failed' ].indexOf( status ) >= 0 ) ? status : 'unknown';
+
+		// Test-fired rows (sent_test / failed_test) share their base status's
+		// pill colour so the outcome reads at a glance, with a translated
+		// label that still flags the row as a test send.
+		var pill;
+		var label;
+		if ( status === 'sent' ) {
+			pill  = 'sent';
+			label = i18n.statusSent || 'sent';
+		} else if ( status === 'failed' ) {
+			pill  = 'failed';
+			label = i18n.statusFailed || 'failed';
+		} else if ( status === 'sent_test' ) {
+			pill  = 'sent';
+			label = i18n.statusSentTest || 'sent (test)';
+		} else if ( status === 'failed_test' ) {
+			pill  = 'failed';
+			label = i18n.statusFailedTest || 'failed (test)';
+		} else {
+			pill  = 'unknown';
+			label = status;
+		}
 
 		var cells = [
 			{ cls: 'wcb-email-log-col-when',      text: formatWhen( row.sent_at ) },
@@ -121,7 +142,7 @@
 				cls:      'wcb-email-log-col-status',
 				inner:    'span',
 				innerCls: 'wcb-log-status-pill wcb-log-status-pill--' + pill,
-				text:     status
+				text:     label
 			}
 		];
 

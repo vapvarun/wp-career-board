@@ -205,7 +205,7 @@ textarea.wcb-field {
 /* ── 4-col salary row (currency, min, max, period) — matches simple form ─*/
 .wcb-salary-row {
 	display: grid;
-	grid-template-columns: 1.4fr 1fr 1fr 1fr;
+	grid-template-columns: 1.4fr minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
@@ -550,6 +550,11 @@ textarea.wcb-field {
 	flex-shrink: 0;
 }
 
+.wcb-form-success__icon svg {
+	width: 22px;
+	height: 22px;
+}
+
 .wcb-form-success__title {
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
@@ -619,7 +624,7 @@ textarea.wcb-field {
 @media (max-width: 640px) {
 	.wcb-form-grid,
 	.wcb-salary-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.wcb-form-nav {
