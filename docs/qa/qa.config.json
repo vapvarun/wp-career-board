@@ -8,8 +8,9 @@
   "table_prefix": "wcb",
   "cron_prefix": "wcb_",
   "rest_namespace": "wcb/v1",
-  "test_site_url": "http://jobboard.local",
-  "test_site_path": "/Users/varundubey/Local Sites/jobboard/app/public",
+  "test_site_url": null,
+  "test_site_path": null,
+  "_site_note": "Site URL/path are environment-specific and intentionally NOT hardcoded — every QA's Local site differs. Derive at run time: test_site_path = the WP root you run wp-cli from (this plugin lives at <root>/wp-content/plugins/wp-career-board, so the root is the current dir when you run wp); test_site_url = `wp --path=<root> option get home`. Set explicit values here only to pin a fixed CI box.",
   "personas": {
     "admin": "varundubey",
     "editor": null,

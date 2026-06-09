@@ -12,9 +12,9 @@ Infrastructure sections (preconditions, output contract, debug-log protocol, fix
 
 ## Global preconditions
 
-- Working directory: `/Users/varundubey/Local Sites/jobboard/app/public`
-- Site URL: `http://jobboard.local`
-- WP-CLI: `wp --path="$WP_PATH" <cmd>` where `WP_PATH=/Users/varundubey/Local Sites/jobboard/app/public`
+- Working directory (`$WP_PATH`): the WP root of **your** Local site — NOT hardcoded (every QA env differs). This plugin lives at `<WP_PATH>/wp-content/plugins/wp-career-board`, so `WP_PATH` is the WP root you run wp-cli from. Export it: `WP_PATH="$(pwd)"` from the WP root, or point it at your site.
+- Site URL (`$SITE_URL`): derive from the install, never hardcode — `SITE_URL="$(wp --path="$WP_PATH" option get home)"`.
+- WP-CLI: `wp --path="$WP_PATH" <cmd>`
 - Admin auto-login: `?autologin=1` on any front-end URL
 - Per-user auto-login: `?autologin=<user_login>`
 - Playwright: one Chromium session throughout; restart with `browser_close` + `browser_navigate` if it dies.
