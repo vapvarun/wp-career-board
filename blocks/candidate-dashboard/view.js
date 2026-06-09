@@ -128,6 +128,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get isTabSettings() {
 			return state.tab === 'settings';
 		},
+		get isTabNotifications() {
+			return state.tab === 'notifications';
+		},
 		get isTabSavedCompanies() {
 			return state.tab === 'saved-companies';
 		},
@@ -553,6 +556,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			sessionStorage.setItem( 'wcb_candidate_tab', 'settings' );
 		},
 
+		*switchToNotifications() {
+			state.tab     = 'notifications';
+			state.navOpen = false;
+			sessionStorage.setItem( 'wcb_candidate_tab', 'notifications' );
+			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
+				yield actions.fetchBellNotifications();
+			}
+		},
+
 		updateProfileBio( event ) {
 			state.profileBio   = event.target.value;
 			state.profileSaved = false;
@@ -963,12 +975,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
-		*toggleBell() {
-			state.bellOpen = ! state.bellOpen;
-			if ( state.bellOpen && state.bellEnabled && state.bellNotifications.length === 0 ) {
-				yield actions.fetchBellNotifications();
-			}
-		},
 
 		*fetchBellNotifications() {
 			state.bellLoading = true;

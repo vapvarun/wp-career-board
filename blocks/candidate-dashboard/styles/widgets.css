@@ -16,93 +16,26 @@
  * @since   1.2.2
  */
 
-/* Notifications bell — floated into the top-right corner of the content area,
-   aligned with the page-title row. Absolute (not an in-flow bar) so it doesn't
-   reserve an empty band above the content; the inset matches .wcb-main padding. */
-.wcb-topbar {
-	position: absolute;
-	top: var(--wcb-space-3xl);
-	right: var(--wcb-space-3xl);
-	z-index: 20;
-}
-
-/* Notification bell */
-.wcb-bell-wrapper {
-	position: relative;
-	display: inline-block;
-}
-.wcb-bell-btn {
-	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	background: none;
-	border: none;
-	border-radius: var(--wcb-radius-full);
-	cursor: pointer;
-	color: var( --wcb-text-secondary, var(--wp--preset--color--wcb-muted) );
-	line-height: 1;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-.wcb-bell-btn svg {
-	width: 20px;
-	height: 20px;
-	flex-shrink: 0;
-}
-.wcb-bell-btn:hover {
-	color: var(--wp--preset--color--wcb-primary);
-	background: var(--wcb-surface-hover, rgba(0, 0, 0, 0.05));
-}
-.wcb-bell-badge {
-	position: absolute;
-	top: 2px;
-	right: 2px;
-	min-width: 18px;
-	height: 18px;
-	padding: 0 var(--wcb-space-xs);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	line-height: 18px;
-	text-align: center;
-	color: var(--wcb-base, #fff);
-	background: var(--wcb-danger);
-	border-radius: var(--wcb-radius-full);
-}
-.wcb-bell-dropdown {
-	position: absolute;
-	top: calc(100% + var(--wcb-space-sm));
-	/* Bell sits at the top-right of the content topbar, so the panel opens
-	   leftward into the content (right:0) and can't reach the sidebar. The
-	   max-width cap keeps it inside the viewport on narrow screens. */
-	right: 0;
-	left: auto;
-	width: 320px;
-	max-width: calc(100vw - 2 * var(--wcb-space-md));
-	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
-	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-md);
-	box-shadow: var(--wcb-shadow-lg);
-	z-index: 100;
-}
-.wcb-bell-header {
+/* Notifications panel (ACCOUNT > Notifications). The page title comes from
+   .wcb-page-header; this styles the mark-all-read bar, the list, and items. */
+.wcb-notifications__bar {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
-	font-weight: var(--wcb-font-semibold);
-	font-size: var(--wcb-text-base);
+	justify-content: flex-end;
+	margin-bottom: var(--wcb-space-md);
 }
 .wcb-bell-read-all {
 	background: none;
 	border: none;
-	font-size: var(--wcb-text-xs);
+	font-size: var(--wcb-text-sm);
 	color: var( --wcb-primary, #4f46e5 );
 	cursor: pointer;
 }
-.wcb-bell-list { max-height: 360px; overflow-y: auto; }
+.wcb-bell-list {
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md);
+	overflow: hidden;
+}
 .wcb-bell-item {
 	display: block;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -110,8 +43,15 @@
 	text-decoration: none;
 	color: inherit;
 }
-.wcb-bell-item:hover { background: var(--wcb-surface, #f1f5f9); }
-.wcb-bell-unread { background: var(--wcb-info-bg-soft); }
+.wcb-bell-item:last-child {
+	border-bottom: none;
+}
+.wcb-bell-item:hover {
+	background: var(--wcb-surface, #f1f5f9);
+}
+.wcb-bell-unread {
+	background: var(--wcb-info-bg-soft);
+}
 .wcb-bell-msg {
 	display: block;
 	font-size: var(--wcb-text-sm);
@@ -122,6 +62,12 @@
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-tertiary);
 	margin-top: 2px;
+}
+.wcb-notifications__empty {
+	padding: var(--wcb-space-xl);
+	text-align: center;
+	color: var(--wcb-text-tertiary);
+	font-size: var(--wcb-text-sm);
 }
 
 /* ── Overview: Stats row ──────────────────────────────────────────────────── */

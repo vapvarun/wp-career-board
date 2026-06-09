@@ -85,6 +85,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isViewSettings() {
 			return state.currentView === 'settings';
 		},
+		get isViewNotifications() {
+			return state.currentView === 'notifications';
+		},
 		get isViewSavedJobs() {
 			return state.currentView === 'saved-jobs';
 		},
@@ -587,6 +590,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			writeHashView( 'settings' );
 		},
 
+		*switchToNotifications() {
+			state.currentView = 'notifications';
+			state.error       = '';
+			state.navOpen     = false;
+			sessionStorage.setItem( 'wcb_employer_view', 'notifications' );
+			writeHashView( 'notifications' );
+			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
+				yield actions.fetchBellNotifications();
+			}
+		},
+
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
@@ -1061,12 +1075,6 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*toggleBell() {
-			state.bellOpen = ! state.bellOpen;
-			if ( state.bellOpen && state.bellEnabled && state.bellNotifications.length === 0 ) {
-				yield actions.fetchBellNotifications();
-			}
-		},
 
 		*fetchBellNotifications() {
 			state.bellLoading = true;

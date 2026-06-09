@@ -45,6 +45,13 @@ $wcb_company_ind     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_size    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
 $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
 $wcb_company_type    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true ) : '';
+
+// Pro signals its notifications module through the wcb_module_renders slot; when
+// present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
+// renders that markup (trusted plugin Interactivity HTML — emitted as-is below,
+// since wp_kses_post would strip the <template>/data-wp-each loop).
+$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+$wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
 $wcb_company_founded = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_founded', true ) : '';
 $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) : '';
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
@@ -200,9 +207,8 @@ wp_interactivity_state(
 		'creditsJustAdded'      => isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0,
 		'bellNotifications'     => array(),
 		'bellUnreadCount'       => 0,
-		'bellOpen'              => false,
 		'bellLoading'           => false,
-		'bellEnabled'           => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
+		'bellEnabled'           => $wcb_bell_enabled,
 		'strings'               => array(
 			'errorLoadJobs'            => __( 'Could not load your jobs.', 'wp-career-board' ),
 			'errorLoadApps'            => __( 'Could not load applications.', 'wp-career-board' ),
@@ -334,6 +340,15 @@ wp_interactivity_state(
 				data-wp-on--click="actions.switchToSettings">
 				<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
 			</button>
+			<?php if ( $wcb_bell_enabled ) : ?>
+			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-notifications"
+				data-wp-bind--aria-selected="state.isViewNotifications"
+				data-wp-class--wcb-nav-active="state.isViewNotifications"
+				data-wp-on--click="actions.switchToNotifications">
+				<?php esc_html_e( 'Notifications', 'wp-career-board' ); ?>
+				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
+			</button>
+			<?php endif; ?>
 		</nav>
 
 		<button type="button" class="wcb-sidebar-cta" data-wp-on--click="actions.switchToPostJob">
@@ -348,25 +363,6 @@ wp_interactivity_state(
 
 	<!-- MAIN CONTENT -->
 	<main class="wcb-main">
-
-		<?php
-		// Pro injects the notifications-bell HTML for the notifications_bell slot.
-		// Filter declared in core/class-pro-coordination.php (F-1). The slot value
-		// is trusted plugin-generated Interactivity markup and is emitted as-is:
-		// wp_kses_post() strips the <template>/data-wp-each loop the bell dropdown
-		// relies on, collapsing it to a single blank row.
-		$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
-		if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
-			?>
-			<div class="wcb-topbar">
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup (see note above).
-				echo $wcb_module_renders['notifications_bell'];
-				?>
-			</div>
-			<?php
-		}
-		?>
 
 		<!-- VIEW: Overview -->
 		<div class="wcb-view-panel" id="wcb-panel-overview" role="tabpanel" aria-labelledby="wcb-tab-overview" data-wp-class--wcb-view-active="state.isViewOverview">
@@ -950,6 +946,20 @@ wp_interactivity_state(
 			</div>
 		</div>
 	</div>
+
+	<?php if ( $wcb_bell_enabled ) : ?>
+	<!-- VIEW: Notifications (Pro) -->
+	<div class="wcb-view-panel" id="wcb-panel-notifications" role="tabpanel" aria-labelledby="wcb-tab-notifications" data-wp-class--wcb-view-active="state.isViewNotifications">
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'Notifications', 'wp-career-board' ); ?></h1>
+		</div>
+		<?php
+		// Pro's notifications-list markup (trusted Interactivity HTML; see note at top).
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup.
+		echo $wcb_module_renders['notifications_bell'];
+		?>
+	</div>
+	<?php endif; ?>
 
 	</main>
 </div>

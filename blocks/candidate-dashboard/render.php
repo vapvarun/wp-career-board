@@ -48,6 +48,13 @@ $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permal
 	? (string) $wcb_jobs_permalink
 	: home_url( '/' );
 
+// Pro signals its notifications module through the wcb_module_renders slot; when
+// present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
+// renders that markup (trusted plugin Interactivity HTML — emitted as-is below,
+// since wp_kses_post would strip the <template>/data-wp-each loop).
+$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+$wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
+
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
 $wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
@@ -200,9 +207,8 @@ wp_interactivity_state(
 			'passwordResetUrl'        => wp_lostpassword_url( $wcb_dashboard_url ),
 			'bellNotifications'       => array(),
 			'bellUnreadCount'         => 0,
-			'bellOpen'                => false,
 			'bellLoading'             => false,
-			'bellEnabled'             => ! empty( apply_filters( 'wcb_module_renders', array() )['notifications_bell'] ?? '' ),
+			'bellEnabled'             => $wcb_bell_enabled,
 			'alerts'                  => array(),
 			'alertsLoading'           => false,
 			// Withdraw is gated by BOTH the site setting and the user ability —
@@ -352,6 +358,15 @@ wp_interactivity_state(
 				data-wp-on--click="actions.switchToSettings">
 				<?php esc_html_e( 'Settings', 'wp-career-board' ); ?>
 			</button>
+			<?php if ( $wcb_bell_enabled ) : ?>
+			<button type="button" class="wcb-nav-item" role="tab" id="wcb-tab-notifications"
+				data-wp-bind--aria-selected="state.isTabNotifications"
+				data-wp-class--wcb-nav-active="state.isTabNotifications"
+				data-wp-on--click="actions.switchToNotifications">
+				<?php esc_html_e( 'Notifications', 'wp-career-board' ); ?>
+				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
+			</button>
+			<?php endif; ?>
 		</nav>
 
 		<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-sidebar-cta">
@@ -366,25 +381,6 @@ wp_interactivity_state(
 
 	<!-- MAIN CONTENT -->
 	<main class="wcb-main">
-
-		<?php
-		// Pro injects the notifications-bell HTML for the notifications_bell slot.
-		// Filter declared in core/class-pro-coordination.php (F-1). The slot value
-		// is trusted plugin-generated Interactivity markup and is emitted as-is:
-		// wp_kses_post() strips the <template>/data-wp-each loop the bell dropdown
-		// relies on, collapsing it to a single blank row.
-		$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
-		if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
-			?>
-			<div class="wcb-topbar">
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup (see note above).
-				echo $wcb_module_renders['notifications_bell'];
-				?>
-			</div>
-			<?php
-		}
-		?>
 
 		<!-- VIEW: Overview -->
 		<div class="wcb-view-panel" role="tabpanel" data-wp-class--wcb-view-active="state.isTabOverview">
@@ -1059,6 +1055,20 @@ wp_interactivity_state(
 			<p class="wcb-privacy-note" data-wp-class--wcb-shown="state.privacyError" data-wp-text="state.privacyError"></p>
 		</div>
 	</div>
+
+		<?php if ( $wcb_bell_enabled ) : ?>
+		<!-- VIEW: Notifications (Pro) -->
+		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-notifications" data-wp-class--wcb-view-active="state.isTabNotifications">
+			<div class="wcb-page-header">
+				<h1 class="wcb-page-title"><?php esc_html_e( 'Notifications', 'wp-career-board' ); ?></h1>
+			</div>
+			<?php
+			// Pro's notifications-list markup (trusted Interactivity HTML; see note at top).
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup.
+			echo $wcb_module_renders['notifications_bell'];
+			?>
+		</div>
+		<?php endif; ?>
 
 	</main>
 
