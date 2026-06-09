@@ -49,7 +49,18 @@ class Path {
 		self::$sdk_dir     = dirname( $file );
 		self::$sdk_version = $version;
 
-		// Calculate the URL based on the file path.
+		// Prefer WordPress's own path-to-URL mapping. It reads the site's real
+		// content URL from siteurl/home, so it stays correct on symlinked installs
+		// (Local by Flywheel), subdirectory installs, and proxied/sandbox hosts
+		// (tastewp) where DOCUMENT_ROOT does not match the public web root. The
+		// DOCUMENT_ROOT string-replace below leaks the filesystem sub-path into the
+		// URL on those setups and 404s the SDK's enqueued JS/CSS.
+		if ( function_exists( 'plugins_url' ) ) {
+			self::$sdk_url = trailingslashit( plugins_url( '', $file ) );
+			return;
+		}
+
+		// Fallback for non-WordPress contexts (direct includes, CLI bootstrapping).
 		$is_https = ( ! empty( $_SERVER['HTTPS'] ) && 'off' !== $_SERVER['HTTPS'] ) ||
 			( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] );
 

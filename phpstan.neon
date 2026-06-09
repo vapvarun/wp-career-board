@@ -17,6 +17,7 @@ parameters:
     excludePaths:
         analyseAndScan:
             - vendor/ (?)
+            - libs/ (?)
             - node_modules/ (?)
     bootstrapFiles:
         - phpstan-bootstrap.php
