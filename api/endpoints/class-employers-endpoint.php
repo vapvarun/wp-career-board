@@ -538,6 +538,20 @@ final class EmployersEndpoint extends RestController {
 			: array( 'publish' );
 	}
 
+	/**
+	 * Whether a job is a rejected listing — kept as a draft carrying a
+	 * rejection reason (set by the moderation reject endpoint). Single source
+	 * of truth so both My-Jobs builders label/flag it consistently.
+	 *
+	 * @since 1.2.0
+	 * @param \WP_Post $post Job post.
+	 * @return bool
+	 */
+	public static function is_rejected_job( \WP_Post $post ): bool {
+		return 'draft' === $post->post_status
+			&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+	}
+
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
 		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
@@ -580,6 +594,7 @@ final class EmployersEndpoint extends RestController {
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
 				// JobsEndpoint::get_item().
+				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
 					'wcb_closed'  => 'closed',
 					'wcb_expired' => 'expired',
@@ -588,8 +603,9 @@ final class EmployersEndpoint extends RestController {
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $public_status,
-					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'status'      => $rejected ? 'rejected' : $public_status,
+					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
 					'appCount'    => 0,
@@ -681,6 +697,7 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'Expired',
 				);
 
+				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
 					'wcb_closed'  => 'closed',
 					'wcb_expired' => 'expired',
@@ -690,8 +707,9 @@ final class EmployersEndpoint extends RestController {
 				return array(
 					'id'          => $p->ID,
 					'title'       => $p->post_title,
-					'status'      => $public_status,
-					'statusLabel' => $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ),
+					'status'      => $rejected ? 'rejected' : $public_status,
+					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
 					'appCount'    => $app_count,

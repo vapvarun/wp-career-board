@@ -741,6 +741,19 @@ final class JobsEndpoint extends RestController {
 			// using the registered custom status under the hood.
 			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
 
+			// A rejected listing is kept as a draft carrying _wcb_rejection_reason.
+			// When the employer resubmits it, it must go back through moderation
+			// (pending) — NOT straight live — otherwise rejection is trivially
+			// bypassed. Override the requested 'publish' and clear the marker.
+			if (
+				'publish' === $status
+				&& 'draft' === $post->post_status
+				&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true )
+			) {
+				$data['post_status'] = 'pending';
+				delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+			}
+
 			// Republish gate — when an employer flips an expired or closed
 			// listing back to publish, treat it as a fresh post for billing
 			// purposes so paid boards re-charge instead of giving free
@@ -1240,6 +1253,9 @@ final class JobsEndpoint extends RestController {
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).
 			'status'             => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
+			// A rejected job is kept as a draft carrying a rejection reason; expose
+			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
+			'rejected'           => ( 'draft' === $post->post_status && '' !== (string) $rejection_reason ),
 			'author'             => $author_id,
 			'created_at'         => mysql_to_rfc3339( $post->post_date_gmt ),
 			'updated_at'         => mysql_to_rfc3339( $post->post_modified_gmt ),

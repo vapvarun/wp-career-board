@@ -167,12 +167,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get filteredJobs() {
 			let jobs = state.jobs;
 			const f  = state.jobFilter;
-			if ( f === 'live' )         jobs = jobs.filter( ( j ) => j.status === 'publish' );
-			else if ( f === 'draft' )   jobs = jobs.filter( ( j ) => j.status === 'draft' );
-			else if ( f === 'pending' ) jobs = jobs.filter( ( j ) => j.status === 'pending' );
+			if ( f === 'live' )          jobs = jobs.filter( ( j ) => j.status === 'publish' );
+			// Draft excludes rejected jobs (a rejected job is a draft carrying a
+			// rejection reason; it surfaces under its own Rejected pill instead).
+			else if ( f === 'draft' )    jobs = jobs.filter( ( j ) => j.status === 'draft' && ! j.rejected );
+			else if ( f === 'pending' )  jobs = jobs.filter( ( j ) => j.status === 'pending' );
+			else if ( f === 'rejected' ) jobs = jobs.filter( ( j ) => j.rejected );
 			// Closed pill surfaces both manually-closed and auto-expired jobs —
 			// employers manage both via the same Reopen flow.
-			else if ( f === 'closed' )  jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
+			else if ( f === 'closed' )   jobs = jobs.filter( ( j ) => j.isClosed || j.isExpired );
 			if ( state.jobSearch ) {
 				const q = state.jobSearch.toLowerCase();
 				jobs = jobs.filter( ( j ) => j.title.toLowerCase().includes( q ) );
@@ -193,6 +196,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isFilterClosed() {
 			return state.jobFilter === 'closed';
+		},
+		get isFilterRejected() {
+			return state.jobFilter === 'rejected';
 		},
 
 		// Jobs with applications (for selector list).
@@ -547,7 +553,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				appsUrl:   j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
 				isClosed:  j.status === 'closed',
 				isExpired: j.status === 'expired',
-				isDraft:   j.status === 'draft',
+				isRejected: !! j.rejected,
+				isDraft:   j.status === 'draft' && ! j.rejected,
 			} ) );
 		},
 
@@ -936,10 +943,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( response.ok ) {
 					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
 					if ( idx !== -1 ) {
-						state.jobs[ idx ].status      = 'publish';
-						state.jobs[ idx ].statusLabel = 'Published';
+						// A rejected listing resubmits to moderation (pending), not
+						// straight live — the server enforces this; mirror it in the
+						// optimistic update so the badge matches what the API stored.
+						const wasRejected = state.jobs[ idx ].isRejected;
+						state.jobs[ idx ].status      = wasRejected ? 'pending' : 'publish';
+						state.jobs[ idx ].statusLabel = wasRejected ? 'Pending' : 'Published';
 						state.jobs[ idx ].isClosed    = false;
 						state.jobs[ idx ].isExpired   = false;
+						state.jobs[ idx ].isRejected  = false;
+						state.jobs[ idx ].isDraft     = false;
 					}
 				}
 			} catch {
