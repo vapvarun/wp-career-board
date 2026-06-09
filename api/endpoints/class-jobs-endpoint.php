@@ -191,6 +191,15 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		$tag = $request->get_param( 'tag' ) ?? $request->get_param( 'wcb_tag' );
+		if ( $tag ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'wcb_tag',
+				'terms'    => array_map( 'sanitize_text_field', explode( ',', $tag ) ),
+				'field'    => 'slug',
+			);
+		}
+
 		// Accept BOTH `board` and `board_id`. The listings block's view.js sends
 		// `board` (url.searchParams.set('board', ...)); other callers + the
 		// schema use `board_id`. Reading only one silently dropped the other —

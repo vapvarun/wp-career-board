@@ -283,6 +283,29 @@ $wcb_exp_opts      = array_map(
 	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
 );
 
+$wcb_term_opt = static function ( \WP_Term $t ): array {
+	return array(
+		'slug' => $t->slug,
+		'name' => $t->name,
+	);
+};
+
+$wcb_cat_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_category',
+		'hide_empty' => false,
+	)
+);
+$wcb_cat_opts      = array_map( $wcb_term_opt, is_array( $wcb_cat_terms_raw ) ? $wcb_cat_terms_raw : array() );
+
+$wcb_tag_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_tag',
+		'hide_empty' => false,
+	)
+);
+$wcb_tag_opts      = array_map( $wcb_term_opt, is_array( $wcb_tag_terms_raw ) ? $wcb_tag_terms_raw : array() );
+
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
 if ( $wcb_saved_by_attr > 0 ) {
@@ -381,6 +404,8 @@ $wcb_state = array(
 	'filterOptions'  => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
+		'categories'  => $wcb_cat_opts,
+		'tags'        => $wcb_tag_opts,
 		'boards'      => $wcb_board_opts,
 	),
 	'strings'        => array(
@@ -478,6 +503,38 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					<li>
 						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'expSlug' => $wcb_opt['slug'] ) ) ); ?>">
 							<input type="checkbox" data-wp-on--change="actions.toggleExpChip" data-wp-bind--checked="state.isExpActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_cat_opts ) : ?>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_cat_opts as $wcb_opt ) : ?>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'catSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" />
+							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+						</label>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_tag_opts ) : ?>
+			<div class="wcb-filter-panel__group">
+				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Tags', 'wp-career-board' ); ?></span>
+				<ul class="wcb-filter-panel__list">
+					<?php foreach ( $wcb_tag_opts as $wcb_opt ) : ?>
+					<li>
+						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'tagSlug' => $wcb_opt['slug'] ) ) ); ?>">
+							<input type="checkbox" data-wp-on--change="actions.toggleTagChip" data-wp-bind--checked="state.isTagActive" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
 						</label>
 					</li>
