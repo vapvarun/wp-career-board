@@ -1,6 +1,6 @@
 # REST API Reference
 
-WP Career Board exposes **37 REST endpoints** under the `wcb/v1`
+WP Career Board exposes **43 REST endpoints** under the `wcb/v1`
 namespace. Every endpoint extends `WCB\Api\REST_Controller`, which
 owns the shared response envelope, permission helper, and
 rate-limit middleware.

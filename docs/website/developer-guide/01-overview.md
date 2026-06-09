@@ -1,7 +1,7 @@
 # Developer Guide - Overview
 
 WP Career Board is built to be extended. The plugin exposes ~92
-hooks, 37 REST endpoints, 5 WP-CLI commands, and a JSON manifest
+hooks, 43 REST endpoints, 5 WP-CLI commands, and a JSON manifest
 that lets your code (or another plugin) reach into every part of
 the job-board flow without forking the source.
 

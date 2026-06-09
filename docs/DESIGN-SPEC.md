@@ -212,7 +212,7 @@ Block (Interactivity API) → REST API v1 → Module → DB
 |------|-------------|
 | `wcb_employer` | Post jobs (costs credits), manage company, view applications, access employer dashboard |
 | `wcb_candidate` | Apply to jobs, build resume, bookmark jobs, set profile visibility |
-| `wcb_board_moderator` | Approve/reject jobs from the admin Jobs queue, REST (`/wcb/v1/jobs/{id}/approve`, `/wcb/v1/jobs/{id}/reject`), and WP-CLI. Board-level scoping is opt-in via the `wcb_moderate_jobs_ability_check` filter; out of the box the role sees all pending jobs. Mark-as-spam and resolve-flag actions are not shipped. |
+| `wcb_board_moderator` (display label "Job Moderator") | Approve/reject jobs from the admin Jobs queue, REST (`/wcb/v1/jobs/{id}/approve`, `/wcb/v1/jobs/{id}/reject`), and WP-CLI. Reviews user-reported jobs in the admin Flagged view and clears them via `POST /wcb/v1/jobs/{id}/resolve-flag` (dismiss or unpublish). Board-level scoping is opt-in via the `wcb_moderate_jobs_ability_check` filter; out of the box the role sees all pending + flagged jobs. A standalone mark-as-spam action is not shipped — reporting (any logged-in user → `POST /wcb/v1/jobs/{id}/report`) is the user-facing flag mechanism. |
 | `administrator` | Full access to all boards, credits, users, settings |
 
 ### BuddyPress Layer (when active)
@@ -326,6 +326,8 @@ Per-user channel preferences. Per-board notification defaults. Full notification
 Per-board setting: auto-publish or approval-required. Per-employer override based on trust level.
 
 **Admin moderation queue:** pending jobs list with preview, approve/reject with reason. Rejection triggers employer notification. Moderation history log per job.
+
+**Report a Job (1.2.1):** any logged-in user can flag a published listing via `POST /wcb/v1/jobs/{id}/report` (reason enum: scam/spam/expired/inaccurate/offensive), deduped one report per user per job; flags are stored as `_wcb_flag_*` post-meta and fire `wcb_job_reported`. Moderators see a **Flagged** view in the admin Jobs queue (count + top reason column) and clear flags via `POST /wcb/v1/jobs/{id}/resolve-flag` — `dismiss` (clear, status resolved) or `unpublish` (set the job to pending) — which fires `wcb_job_flag_resolved`. Standalone, no BuddyPress dependency.
 
 **Credit handling:** Auto-publish deducts on submit. Approval-required holds credits, deducts on approval, returns on rejection.
 
