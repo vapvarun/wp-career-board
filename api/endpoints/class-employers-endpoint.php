@@ -747,7 +747,7 @@ final class EmployersEndpoint extends RestController {
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
-			        ON job.ID = pm_job.meta_value AND job.post_type = 'wcb_job'
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
 			       AND job.post_status IN ({$wcb_status_in})
 			 INNER JOIN {$wpdb->postmeta} pm_co
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
