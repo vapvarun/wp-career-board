@@ -202,6 +202,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\ImportEndpoint::class,
 			\WCB\Api\Endpoints\AdminEndpoint::class,
 			\WCB\Api\Endpoints\SettingsEndpoint::class,
+			\WCB\Api\Endpoints\AccountEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
