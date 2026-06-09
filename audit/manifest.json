@@ -2592,7 +2592,7 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:34",
           "kind": "action_listener"
         }
       ]
@@ -2606,7 +2606,7 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:34",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:34",
           "kind": "action_listener"
         }
       ]
@@ -2636,7 +2636,7 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:35",
           "kind": "action_listener"
         }
       ]
@@ -2650,7 +2650,7 @@
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "modules/notifications-bell/class-notifications-bell-module.php:35",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:35",
           "kind": "action_listener"
         }
       ]
@@ -3410,7 +3410,7 @@
     ]
   },
   "generated": {
-    "at": "2026-06-08T11:02:36Z",
+    "at": "2026-06-09T04:43:57Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
     "scan_scope": "distignore_distribution_scope",
