@@ -69,22 +69,98 @@
 		return html;
 	};
 
-	// First-edit migration of legacy HTML-only descriptions: drop the value as
-	// a single paragraph block so Editor.js has something coherent to render.
-	// Re-formatting on save produces a clean blocks structure on subsequent edits.
+	// Parse a stored description into Editor.js blocks. Accepts the editor's own
+	// saved HTML, AI-generated HTML, or AI-generated markdown / plain text, and
+	// preserves headings, paragraphs, and lists — so an AI description never
+	// collapses into one wall-of-text paragraph. Falls back to a paragraph when
+	// the Header / List tools aren't loaded so render never throws.
 	const htmlToBlocks = ( html ) => {
 		const trimmed = String( html || '' ).trim();
 		if ( ! trimmed ) {
 			return { blocks: [] };
 		}
-		return {
-			blocks: [
-				{
-					type: 'paragraph',
-					data: { text: trimmed.replace( /<\/?(p|div)[^>]*>/gi, '' ) },
-				},
-			],
-		};
+
+		const hasHeader = typeof window.Header !== 'undefined';
+		const hasList   = typeof window.List !== 'undefined';
+		const inline    = ( s ) =>
+			s.replace( /\*\*([^*]+)\*\*/g, '<b>$1</b>' ).replace( /(^|\s)\*([^*\n]+)\*/g, '$1<i>$2</i>' );
+
+		const container = document.createElement( 'div' );
+		if ( /<(p|h[1-6]|ul|ol|li|br)\b/i.test( trimmed ) ) {
+			container.innerHTML = trimmed;
+		} else {
+			// Blank lines separate blocks; "# " => heading, "- "/"* "/"• " => list.
+			container.innerHTML = trimmed
+				.split( /\n{2,}/ )
+				.map( ( block ) => {
+					const lines = block.split( /\n/ ).map( ( l ) => l.trim() ).filter( Boolean );
+					if ( ! lines.length ) {
+						return '';
+					}
+					if ( lines.length === 1 && /^#{1,6}\s+/.test( lines[ 0 ] ) ) {
+						return '<h3>' + inline( lines[ 0 ].replace( /^#{1,6}\s+/, '' ) ) + '</h3>';
+					}
+					if ( lines.every( ( l ) => /^[-*•]\s+/.test( l ) ) ) {
+						return (
+							'<ul>' +
+							lines.map( ( l ) => '<li>' + inline( l.replace( /^[-*•]\s+/, '' ) ) + '</li>' ).join( '' ) +
+							'</ul>'
+						);
+					}
+					return '<p>' + inline( lines.join( ' ' ) ) + '</p>';
+				} )
+				.filter( Boolean )
+				.join( '' );
+		}
+
+		const blocks = [];
+		container.childNodes.forEach( ( node ) => {
+			if ( node.nodeType === 3 ) {
+				const text = ( node.textContent || '' ).trim();
+				if ( text ) {
+					blocks.push( { type: 'paragraph', data: { text } } );
+				}
+				return;
+			}
+			if ( node.nodeType !== 1 ) {
+				return;
+			}
+			const tag = node.tagName.toLowerCase();
+			if ( /^h[1-6]$/.test( tag ) ) {
+				const text = node.textContent.trim();
+				if ( ! text ) {
+					return;
+				}
+				if ( hasHeader ) {
+					const level = Math.min( 4, Math.max( 2, parseInt( tag.charAt( 1 ), 10 ) ) );
+					blocks.push( { type: 'header', data: { text, level } } );
+				} else {
+					blocks.push( { type: 'paragraph', data: { text: '<b>' + text + '</b>' } } );
+				}
+			} else if ( 'ul' === tag || 'ol' === tag ) {
+				const items = Array.from( node.querySelectorAll( 'li' ) )
+					.map( ( li ) => li.innerHTML.trim() )
+					.filter( Boolean );
+				if ( ! items.length ) {
+					return;
+				}
+				if ( hasList ) {
+					blocks.push( { type: 'list', data: { style: 'ol' === tag ? 'ordered' : 'unordered', items } } );
+				} else {
+					blocks.push( { type: 'paragraph', data: { text: items.map( ( i ) => '• ' + i ).join( '<br>' ) } } );
+				}
+			} else {
+				const text = node.innerHTML.trim();
+				if ( text ) {
+					blocks.push( { type: 'paragraph', data: { text } } );
+				}
+			}
+		} );
+
+		if ( ! blocks.length ) {
+			blocks.push( { type: 'paragraph', data: { text: trimmed.replace( /<\/?[^>]+>/g, '' ) } } );
+		}
+		return { blocks };
 	};
 
 	const buildTools = () => {

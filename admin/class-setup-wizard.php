@@ -806,7 +806,7 @@ class SetupWizard extends \WCB\Api\RestController {
 					'post_type'    => 'wcb_job',
 					'post_title'   => $job['title'],
 					'post_name'    => $job['slug'],
-					'post_content' => $job['content'],
+					'post_content' => self::sample_content_to_html( $job['content'] ),
 					'post_status'  => 'publish',
 					'post_author'  => $author_id,
 				)
@@ -844,6 +844,51 @@ class SetupWizard extends \WCB\Api\RestController {
 		// -----------------------------------------------------------------
 		update_option( 'wcb_sample_data_ids', $created_ids );
 		update_option( 'wcb_sample_data_installed', true );
+	}
+
+	/**
+	 * Convert the lightweight markdown used in sample job content (blank-line
+	 * paragraphs, `**Heading:**` lines, `- ` bullets) into clean HTML, so the
+	 * demo jobs render as structured content - headings, paragraphs, and lists -
+	 * on the frontend and in the editor, instead of raw markdown.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $content Markdown-ish sample content.
+	 * @return string HTML.
+	 */
+	private static function sample_content_to_html( string $content ): string {
+		$html = '';
+		$list = array();
+
+		foreach ( explode( "\n", trim( $content ) ) as $raw ) {
+			$line = trim( $raw );
+			if ( '' === $line ) {
+				continue;
+			}
+
+			if ( preg_match( '/^[-*]\s+(.+)/', $line, $m ) ) {
+				$list[] = $m[1];
+				continue;
+			}
+
+			if ( $list ) {
+				$html .= '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $list ) ) . '</li></ul>';
+				$list  = array();
+			}
+
+			if ( preg_match( '/^\*\*(.+?):?\*\*$/', $line, $m ) ) {
+				$html .= '<h3>' . esc_html( $m[1] ) . '</h3>';
+			} else {
+				$html .= '<p>' . esc_html( $line ) . '</p>';
+			}
+		}
+
+		if ( $list ) {
+			$html .= '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $list ) ) . '</li></ul>';
+		}
+
+		return $html;
 	}
 
 	/**
