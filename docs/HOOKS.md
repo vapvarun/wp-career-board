@@ -102,7 +102,6 @@ sponsors, brands, etc.):
 | Hook | Purpose |
 |---|---|
 | `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Any `_wcb_*` namespaced key is allowed by default (since 1.2.0); this filter is for opting in custom or non-WCB meta keys. |
-| `wcb_jobs_query_args` | Modify the WP_Query args used by the listings block on first paint |
 | `wcb_jobs_post_filter` | Post-process the prepared job array before REST response |
 | `wcb_job_response` | Shape an individual job's REST response (legacy alias; prefer `wcb_rest_prepare_job`) |
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
