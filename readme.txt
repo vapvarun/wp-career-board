@@ -64,8 +64,10 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 = 1.3.1 - June 2026 =
 
-Manage your dashboard notifications, plus a cache-busting fix.
+Any logged-in member can apply, manageable dashboard notifications, plus a cache-busting fix.
 
+* New      - Any logged-in member can apply to jobs, save jobs, build a resume, and use the candidate dashboard without a dedicated Candidate role - ideal when the job board is part of a community site.
+* New      - "Require Candidate Role" setting (and the wcb_candidate_requires_role filter) to reserve the candidate experience for the Candidate role when you want stricter separation.
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
 * Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.

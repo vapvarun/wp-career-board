@@ -191,7 +191,7 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled', 'max_resumes' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled', 'max_resumes', 'candidate_requires_role' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -204,6 +204,7 @@ class AdminSettings {
 			'deadline_auto_close'        => ! empty( $input['deadline_auto_close'] ),
 			'allow_withdraw'             => ! empty( $input['allow_withdraw'] ),
 			'apply_resume_required'      => ! empty( $input['apply_resume_required'] ),
+			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
 			'resume_archive_enabled'     => ! empty( $input['resume_archive_enabled'] ),
@@ -872,6 +873,19 @@ class AdminSettings {
 												<?php esc_html_e( 'Require applicants to attach a resume', 'wp-career-board' ); ?>
 											</label>
 											<span class="description"><?php esc_html_e( 'On by default. Turn off only for boards where applicants can apply with a cover letter alone (e.g. internal job boards, walk-in roles).', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'Require Candidate Role', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control">
+											<label class="wcb-toggle-label">
+												<span class="wcb-toggle">
+													<input type="checkbox" name="wcb_settings[candidate_requires_role]" value="1" <?php checked( ! empty( $settings['candidate_requires_role'] ) ); ?>>
+													<span class="wcb-toggle-slider"></span>
+												</span>
+												<?php esc_html_e( 'Only the Candidate role can apply, bookmark, and use the candidate dashboard', 'wp-career-board' ); ?>
+											</label>
+											<span class="description"><?php esc_html_e( 'Off by default: any logged-in member can apply and manage a resume (ideal when the job board is part of a community site). Turn on to reserve the candidate experience for users with the Candidate role.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
