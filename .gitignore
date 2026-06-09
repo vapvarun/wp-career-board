@@ -10,6 +10,11 @@ build/
 assets/js/build/
 assets/css/build/
 
+# Bundled SDK build assets MUST ship (the generic build/ above would hide them).
+# Same incident as Jetonomy 1.4.2: a release shipped without edd-sl-sdk.js.
+!libs/edd-sl-sdk/assets/build/
+!libs/edd-sl-sdk/assets/build/**
+
 # dist/ holds only release zips — never the source mirror that grunt dist generates.
 dist/*
 !dist/*.zip
