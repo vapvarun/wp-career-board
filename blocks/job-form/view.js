@@ -475,6 +475,16 @@ store(
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
 
+					// Signal the embedded employer dashboard (if present) to refresh
+					// its My Jobs list when the user navigates there. try/catch: the
+					// form also runs standalone (shortcode) where that store is absent.
+					try {
+						const dash = store( 'wcb-employer-dashboard' );
+						if ( dash && dash.state ) {
+							dash.state._needsJobsRefresh = true;
+						}
+					} catch {}
+
 					// Auto-reset the success state after 8 seconds so a returning
 					// user sees a fresh form instead of a stuck success banner —
 					// matches the spec on Basecamp card 9817915492.

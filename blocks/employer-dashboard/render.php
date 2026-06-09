@@ -182,6 +182,9 @@ wp_interactivity_state(
 		'appsError'             => '',
 		'employerEmail'         => wp_get_current_user()->user_email,
 		'displayName'           => wp_get_current_user()->display_name,
+		// Set true by the embedded Post-a-Job form (wcb-job-form) after a
+		// successful submit, so switchToJobs() refreshes the stale My Jobs list.
+		'_needsJobsRefresh'     => false,
 		'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 		'creditBalance'         => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id ),
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),

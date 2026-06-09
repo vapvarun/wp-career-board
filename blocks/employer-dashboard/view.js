@@ -466,48 +466,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error   = '';
 
 			try {
-				// Use /me/jobs when no company yet — employers can post jobs before
-				// creating a company profile, and those jobs must still appear.
-				const jobsBase = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
-					: state.apiBase + '/employers/me/jobs';
-				const jobsUrl = new URL( jobsBase );
-				jobsUrl.searchParams.set( 'per_page', '50' );
+				yield actions.loadJobs();
 
-				const appsUrl = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
-					: null;
-
-				const headers = { 'X-WP-Nonce': state.nonce };
-
-				const fetchPromises = [ wcbFetch( jobsUrl.toString(), { headers } ) ];
-				if ( appsUrl ) {
-					fetchPromises.push( wcbFetch( appsUrl, { headers } ) );
-				}
-
-				const [ jobsResp, allAppsResp ] = yield Promise.all( fetchPromises );
-
-				if ( ! jobsResp.ok ) {
-					state.error = state.strings.errorLoadJobs;
-					return;
-				}
-
-				const jobsData = yield jobsResp.json();
-				const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
-				state.jobs     = jobs.map( ( j ) => ( {
-					...j,
-					appsUrl:  j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
-					// "closed" = employer-closed, "expired" = past-deadline (cron).
-					// Both render as finished listings and offer the Reopen flow.
-					// "pending" is awaiting moderation, "draft" is unsaved.
-					isClosed:  j.status === 'closed',
-					isExpired: j.status === 'expired',
-					isDraft:   j.status === 'draft',
-				} ) );
-
-				if ( allAppsResp && allAppsResp.ok ) {
-					const appsData = yield allAppsResp.json();
-					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+				// Company applications (the Applications tab's dataset).
+				if ( state.companyId ) {
+					const appsResp = yield wcbFetch(
+						state.apiBase + '/employers/' + String( state.companyId ) + '/applications',
+						{ headers: { 'X-WP-Nonce': state.nonce } }
+					);
+					if ( appsResp.ok ) {
+						const appsData = yield appsResp.json();
+						state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+					}
 				}
 			} catch {
 				state.error = state.strings.errorConnection;
@@ -550,12 +520,47 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			writeHashView( 'overview' );
 		},
 
-		switchToJobs() {
+		// Fetch + normalize the employer's jobs. Shared by init() and the
+		// post-a-job refresh path so My Jobs reflects a just-posted job without
+		// a page reload.
+		*loadJobs() {
+			const jobsBase = state.companyId
+				? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
+				: state.apiBase + '/employers/me/jobs';
+			const jobsUrl = new URL( jobsBase );
+			jobsUrl.searchParams.set( 'per_page', '50' );
+
+			const resp = yield wcbFetch( jobsUrl.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+			if ( ! resp.ok ) {
+				state.error = state.strings.errorLoadJobs;
+				return;
+			}
+			const jobsData = yield resp.json();
+			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
+			// "closed" = employer-closed, "expired" = past-deadline (cron); both
+			// render as finished listings. "pending" = awaiting moderation, "draft" = unsaved.
+			state.jobs = jobs.map( ( j ) => ( {
+				...j,
+				appsUrl:   j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
+				isClosed:  j.status === 'closed',
+				isExpired: j.status === 'expired',
+				isDraft:   j.status === 'draft',
+			} ) );
+		},
+
+		*switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 			writeHashView( 'jobs' );
+
+			// The embedded Post-a-Job form flags a refresh after a successful
+			// submit; reload the list silently so the new job appears.
+			if ( state._needsJobsRefresh ) {
+				state._needsJobsRefresh = false;
+				yield actions.loadJobs();
+			}
 		},
 
 		switchToApplications() {
