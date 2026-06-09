@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,16 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.3.1 - June 2026 =
+
+Manage your dashboard notifications, plus a cache-busting fix.
+
+* New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
+* Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
+* Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.
+* Fix      - Dashboard block scripts and styles now cache-bust on each release, so updates reach browsers that cached an earlier version.
+* Compat   - Aligned with WP Career Board Pro 1.3.1. Install both updates together.
 
 = 1.3.0 - June 2026 =
 

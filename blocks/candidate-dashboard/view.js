@@ -1114,6 +1114,39 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.bellUnreadCount = 0;
 		},
 
+		*deleteBellNotification() {
+			const ctx = getContext();
+			const id  = ctx.notif?.id;
+			if ( ! id ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications/' + String( id ), {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = state.bellNotifications.filter( ( n ) => n.id !== id );
+			state.bellUnreadCount   = state.bellNotifications.filter( ( n ) => ! n.is_read ).length;
+		},
+
+		*clearBellNotifications() {
+			try {
+				yield window.wcbConfirm( {
+					title:       state.strings.confirmClearAllTitle,
+					message:     state.strings.confirmClearAllMsg,
+					confirmText: state.strings.clearAll,
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications', {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = [];
+			state.bellUnreadCount   = 0;
+		},
+
 		*withdrawApplication() {
 			const ctx         = getContext();
 			const application = ctx.application;
