@@ -68,6 +68,7 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 
 * New      - Any logged-in member can apply to jobs, save jobs, build a resume, and use the candidate dashboard without a dedicated Candidate role - ideal when the job board is part of a community site.
 * New      - "Require Candidate Role" setting (and the wcb_candidate_requires_role filter) to reserve the candidate experience for the Candidate role when you want stricter separation.
+* Improve  - Apply with a saved resume in one tap: your most recent resume is pre-selected, and resumes built in the Resume Builder no longer have to be exported to PDF first - the PDF is generated and attached automatically on apply (Pro).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
 * Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.

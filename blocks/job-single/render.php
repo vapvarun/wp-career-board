@@ -252,7 +252,10 @@ wp_interactivity_state(
 		'coverLetter'          => '',
 		'error'                => '',
 		'userResumes'          => $wcb_user_resumes,
-		'selectedResumeId'     => 0,
+		// Pre-select the newest resume so applying is one tap; the candidate can
+		// still switch or upload a different file. PDF-less builder resumes are
+		// generated on submit (wcb_resume_pdf_attachment_id), so all are eligible.
+		'selectedResumeId'     => ! empty( $wcb_user_resumes ) ? (int) $wcb_user_resumes[0]['id'] : 0,
 		'resumePageUrl'        => $wcb_resume_page_url,
 		'proActive'            => post_type_exists( 'wcb_resume' ),
 		'careerBoardProActive' => $wcb_career_board_pro_active,
@@ -904,18 +907,18 @@ wp_interactivity_state(
 								class="wcb-apply-resume-select"
 								data-wp-on--change="actions.selectResume"
 							>
-								<option value="0"><?php esc_html_e( ' -  Select a resume  - ', 'wp-career-board' ); ?></option>
-				<?php foreach ( $wcb_user_resumes as $wcb_r ) : ?>
-									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo empty( $wcb_r['hasPdf'] ) ? ' disabled' : ''; ?>>
-					<?php
-					echo esc_html( $wcb_r['title'] );
-					if ( empty( $wcb_r['hasPdf'] ) ) {
-						/* translators: shown next to a resume that has no PDF attachment yet. */
-						echo ' ' . esc_html__( '(no PDF  -  open in builder and download to attach)', 'wp-career-board' );
-					}
+				<?php
+				$wcb_first_resume = true;
+				foreach ( $wcb_user_resumes as $wcb_r ) :
 					?>
+									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo $wcb_first_resume ? ' selected' : ''; ?>>
+										<?php echo esc_html( $wcb_r['title'] ); ?>
 									</option>
-				<?php endforeach; ?>
+									<?php
+									$wcb_first_resume = false;
+				endforeach;
+				?>
+								<option value="0"><?php esc_html_e( 'Upload a different file instead', 'wp-career-board' ); ?></option>
 							</select>
 						<?php else : ?>
 							<p class="wcb-apply-no-resume">
