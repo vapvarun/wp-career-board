@@ -54,7 +54,7 @@ const { state } = store( 'wcb-company-profile', {
 			state.page++;
 
 			try {
-				const url = new URL( state.apiBase );
+				const url = new URL( state.jobsApiBase );
 				url.searchParams.set( 'author', String( state.author ) );
 				url.searchParams.set( 'page', String( state.page ) );
 				url.searchParams.set( 'per_page', String( state.perPage ) );
