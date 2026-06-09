@@ -423,6 +423,12 @@ final class EmployersEndpoint extends RestController {
 		// Link company to the employer user account.
 		update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
 
+		// Adopt any jobs the employer posted before this company existed — they
+		// never got _wcb_company_id (JobsEndpoint only stamps it when the user
+		// already has a company), so without this they stay invisible in My Jobs
+		// once the dashboard queries by company.
+		$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+
 		return rest_ensure_response( $this->prepare_company( get_post( $company_id ) ) );
 	}
 
@@ -550,6 +556,56 @@ final class EmployersEndpoint extends RestController {
 	public static function is_rejected_job( \WP_Post $post ): bool {
 		return 'draft' === $post->post_status
 			&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+	}
+
+	/**
+	 * Stamp _wcb_company_id onto jobs the user posted before they had a company.
+	 *
+	 * A job created before the company existed never received the postmeta, so it
+	 * stayed invisible once My Jobs switched to querying by company. Idempotent —
+	 * bounded to a single author's own jobs, so the unbounded query is safe here.
+	 *
+	 * @since 1.2.0
+	 * @param int $user_id    Employer user ID.
+	 * @param int $company_id The company just linked to that user.
+	 * @return void
+	 */
+	private function backfill_orphan_jobs( int $user_id, int $company_id ): void {
+		if ( $user_id <= 0 || $company_id <= 0 ) {
+			return;
+		}
+
+		$orphans = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'author'         => $user_id,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
+					'relation' => 'OR',
+					array(
+						'key'     => '_wcb_company_id',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => '_wcb_company_id',
+						'value'   => array( '', '0' ),
+						'compare' => 'IN',
+					),
+				),
+			)
+		);
+
+		if ( ! $orphans ) {
+			return;
+		}
+
+		$company_name = get_the_title( $company_id );
+		foreach ( $orphans as $job_id ) {
+			update_post_meta( $job_id, '_wcb_company_id', $company_id );
+			update_post_meta( $job_id, '_wcb_company_name', $company_name );
+		}
 	}
 
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
