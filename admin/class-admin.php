@@ -227,7 +227,7 @@ class Admin {
 		if ( ! $prevent ) {
 			return $prevent;
 		}
-		return current_user_can( 'wcb_moderate_jobs' ) ? false : $prevent;
+		return wp_is_ability_granted( 'wcb/moderate-jobs' ) ? false : $prevent; // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 	}
 
 
@@ -244,7 +244,7 @@ class Admin {
 		// metrics and Pro license nudges below aren't theirs to act on.
 		// Bounce them to the Jobs queue, which is the only Career Board
 		// surface their role contract covers.
-		if ( ! current_user_can( 'wcb_manage_settings' ) && current_user_can( 'wcb_moderate_jobs' ) ) {
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) && wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 			wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
 			exit;
 		}

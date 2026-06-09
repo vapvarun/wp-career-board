@@ -143,7 +143,7 @@ class AdminJobs extends \WP_List_Table {
 		// Trash is destructive and only admins should reach it. Board
 		// Moderators see Approve only — their contract is approve/reject,
 		// not deletion.
-		if ( current_user_can( 'wcb_manage_settings' ) ) {
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 			$actions['trash'] = __( 'Move to Trash', 'wp-career-board' );
 		}
 		return $actions;
@@ -447,7 +447,7 @@ class AdminJobs extends \WP_List_Table {
 		// Trash / restore / delete row actions stay admin-only. A Board
 		// Moderator's contract is approve/reject — they don't get to clear
 		// pending submissions or recover trashed ones.
-		if ( current_user_can( 'wcb_manage_settings' ) ) {
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 			if ( 'trash' !== $item->post_status ) {
 				$trash_link = get_delete_post_link( $item->ID );
 				if ( $trash_link ) {
@@ -633,7 +633,7 @@ class AdminJobs extends \WP_List_Table {
 		// (who lack edit_post) can fire it. Trash stays on edit_post +
 		// wcb_manage_settings — only admins clear pending submissions.
 		$can_approve = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
-		$can_trash   = current_user_can( 'wcb_manage_settings' );
+		$can_trash   = wp_is_ability_granted( 'wcb/manage-settings' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 		foreach ( $job_ids as $job_id ) {
 			if ( 'approve' === $action ) {
 				if ( ! $can_approve ) {
