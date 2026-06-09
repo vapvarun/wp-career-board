@@ -410,8 +410,13 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 
 			// Re-use an existing published page that already contains this block.
+			// Match the plugin's OWN block, not the first block: some pages (e.g.
+			// Find Jobs) now lead with a wp:heading title block, and keying reuse
+			// off "heading" grabbed any unrelated page that had a heading. Fall
+			// back to the first block only when no wp-career-board block exists.
 			$block_name = '';
-			if ( preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
+			if ( preg_match( '/<!-- wp:(wp-career-board\/[a-z0-9-]+)/', $page_data['content'], $m )
+				|| preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
 				$block_name = $m[1];
 			}
 			if ( $block_name ) {
