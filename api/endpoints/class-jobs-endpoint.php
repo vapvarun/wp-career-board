@@ -191,13 +191,13 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		// Read `board_id` to match every other site in this file (schema entry,
-		// CREATE handler at line 540, UPDATE meta_map at line 732). The earlier
-		// param key `board` was inconsistent — every JS caller and the
-		// register_rest_args schema use `board_id`, so the filter never engaged
-		// and `?board_id=N` returned all jobs regardless. Aligns 1 outlier with
-		// the convention.
-		$board_id = $request->get_param( 'board_id' );
+		// Accept BOTH `board` and `board_id`. The listings block's view.js sends
+		// `board` (url.searchParams.set('board', ...)); other callers + the
+		// schema use `board_id`. Reading only one silently dropped the other —
+		// the board chip sent `board` and the API ignored it, so the filter did
+		// nothing (Basecamp 9976414471). Mirrors the `category`/`wcb_category`
+		// dual-read above.
+		$board_id = $request->get_param( 'board_id' ) ?? $request->get_param( 'board' );
 		if ( $board_id ) {
 			$args['meta_query'][] = array(
 				'key'   => '_wcb_board_id',
