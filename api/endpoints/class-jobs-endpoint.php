@@ -1394,45 +1394,6 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Describe the shape of a single job item.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function get_item_schema(): array {
-		return array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'wcb_job',
-			'type'       => 'object',
-			'properties' => array(
-				'id'          => array(
-					'description' => __( 'Unique identifier for the job.', 'wp-career-board' ),
-					'type'        => 'integer',
-					'readonly'    => true,
-					'context'     => array( 'view', 'embed' ),
-				),
-				'title'       => array(
-					'description' => __( 'Job title.', 'wp-career-board' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'embed' ),
-				),
-				'description' => array(
-					'description' => __( 'Full job description.', 'wp-career-board' ),
-					'type'        => 'string',
-					'context'     => array( 'view' ),
-				),
-				'excerpt'     => array(
-					'description' => __( 'Short excerpt of the job description.', 'wp-career-board' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => array( 'view', 'embed' ),
-				),
-			),
-		);
-	}
-
-	/**
 	 * Define query parameters for the collection endpoint.
 	 *
 	 * @since 1.0.0
