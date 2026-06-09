@@ -9,7 +9,7 @@ needs: cli
 
 # Logged-in user reports a job; moderator resolves the flag
 
-**Why this journey exists:** the Report-a-Job feature (1.2.1) is the standalone moderation surface that lets any authenticated visitor flag a listing for review. It must (1) record exactly one flag per user per job (dedupe), (2) fire `wcb_job_reported` so consumers can react, and (3) let a moderator clear the flag via `resolve-flag`. A report that double-counts the same reporter, or a flag a moderator can't clear, silently corrupts the flagged-jobs queue. Guards the standalone report contract (no BuddyPress dependency).
+**Why this journey exists:** the Report-a-Job feature (1.2.0) is the standalone moderation surface that lets any authenticated visitor flag a listing for review. It must (1) record exactly one flag per user per job (dedupe), (2) fire `wcb_job_reported` so consumers can react, and (3) let a moderator clear the flag via `resolve-flag`. A report that double-counts the same reporter, or a flag a moderator can't clear, silently corrupts the flagged-jobs queue. Guards the standalone report contract (no BuddyPress dependency).
 
 ## Steps
 

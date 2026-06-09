@@ -327,7 +327,7 @@ Per-board setting: auto-publish or approval-required. Per-employer override base
 
 **Admin moderation queue:** pending jobs list with preview, approve/reject with reason. Rejection triggers employer notification. Moderation history log per job.
 
-**Report a Job (1.2.1):** any logged-in user can flag a published listing via `POST /wcb/v1/jobs/{id}/report` (reason enum: scam/spam/expired/inaccurate/offensive), deduped one report per user per job; flags are stored as `_wcb_flag_*` post-meta and fire `wcb_job_reported`. Moderators see a **Flagged** view in the admin Jobs queue (count + top reason column) and clear flags via `POST /wcb/v1/jobs/{id}/resolve-flag` — `dismiss` (clear, status resolved) or `unpublish` (set the job to pending) — which fires `wcb_job_flag_resolved`. Standalone, no BuddyPress dependency.
+**Report a Job (1.2.0):** any logged-in user can flag a published listing via `POST /wcb/v1/jobs/{id}/report` (reason enum: scam/spam/expired/inaccurate/offensive), deduped one report per user per job; flags are stored as `_wcb_flag_*` post-meta and fire `wcb_job_reported`. Moderators see a **Flagged** view in the admin Jobs queue (count + top reason column) and clear flags via `POST /wcb/v1/jobs/{id}/resolve-flag` — `dismiss` (clear, status resolved) or `unpublish` (set the job to pending) — which fires `wcb_job_flag_resolved`. Standalone, no BuddyPress dependency.
 
 **Credit handling:** Auto-publish deducts on submit. Approval-required holds credits, deducts on approval, returns on rejection.
 

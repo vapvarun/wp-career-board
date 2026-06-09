@@ -16,7 +16,7 @@
 - A second clean Local site for the fresh-install test
 - Access to `wp-content/debug.log` and DevTools Network tab
 - Mailpit / Mailhog open for email rows
-- Reference combo install: `job-portal.local` (both `wp-career-board` + `wp-career-board-pro` active)
+- Reference combo install: `jobboard.local` (both `wp-career-board` + `wp-career-board-pro` active)
 
 ---
 

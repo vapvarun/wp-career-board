@@ -12,9 +12,9 @@ Infrastructure sections (preconditions, output contract, debug-log protocol, fix
 
 ## Global preconditions
 
-- Working directory: `/Users/varundubey/Local Sites/job-portal/app/public`
-- Site URL: `http://job-portal.local`
-- WP-CLI: `wp --path="$WP_PATH" <cmd>` where `WP_PATH=/Users/varundubey/Local Sites/job-portal/app/public`
+- Working directory: `/Users/varundubey/Local Sites/jobboard/app/public`
+- Site URL: `http://jobboard.local`
+- WP-CLI: `wp --path="$WP_PATH" <cmd>` where `WP_PATH=/Users/varundubey/Local Sites/jobboard/app/public`
 - Admin auto-login: `?autologin=1` on any front-end URL
 - Per-user auto-login: `?autologin=<user_login>`
 - Playwright: one Chromium session throughout; restart with `browser_close` + `browser_navigate` if it dies.
@@ -157,7 +157,7 @@ Each step is a contract, not a script. Verify the UI as a user would AND confirm
 **What to verify:** the employer sees applications for their jobs, can open an application detail (resume + answers + attachments), and can change status (review / shortlist / reject / hire). Pipeline drag-to-stage (Pro) persists across reload.
 
 ### C.mod.queue-and-actions
-**What to verify:** a `wcb_board_moderator` user reaches the WP admin (WooCommerce lockdown lets them through), sees the Career Board → Jobs queue, and can approve or reject pending jobs from both the row actions and the bulk-Approve dropdown. The Trash bulk action and the Edit/Trash/Restore row actions stay hidden for moderators. Every other Career Board admin page (Settings, Companies, Applications, etc.) returns "Sorry, you are not allowed to access this page." Resolve-flag IS shipped in 1.2.1: moderators see a Flagged view in the Jobs queue and clear user-reported jobs via `POST /wcb/v1/jobs/{id}/resolve-flag` (dismiss/unpublish) — covered by the `report-a-job` journey. A standalone mark-as-spam action and per-board scoping are not in scope — board-level scoping ships as a `wcb_moderate_jobs_ability_check` filter for extensions.
+**What to verify:** a `wcb_board_moderator` user reaches the WP admin (WooCommerce lockdown lets them through), sees the Career Board → Jobs queue, and can approve or reject pending jobs from both the row actions and the bulk-Approve dropdown. The Trash bulk action and the Edit/Trash/Restore row actions stay hidden for moderators. Every other Career Board admin page (Settings, Companies, Applications, etc.) returns "Sorry, you are not allowed to access this page." Resolve-flag IS shipped in 1.2.0: moderators see a Flagged view in the Jobs queue and clear user-reported jobs via `POST /wcb/v1/jobs/{id}/resolve-flag` (dismiss/unpublish) — covered by the `report-a-job` journey. A standalone mark-as-spam action and per-board scoping are not in scope — board-level scoping ships as a `wcb_moderate_jobs_ability_check` filter for extensions.
 
 ### C.admin.pages
 **What to verify:** every plugin admin page renders without PHP Notice/Warning/Fatal; every tab loads its content; every AJAX action returns the expected JSON shape.

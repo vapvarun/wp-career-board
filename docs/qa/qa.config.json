@@ -8,8 +8,8 @@
   "table_prefix": "wcb",
   "cron_prefix": "wcb_",
   "rest_namespace": "wcb/v1",
-  "test_site_url": "http://job-portal.local",
-  "test_site_path": "/Users/varundubey/Local Sites/job-portal/app/public",
+  "test_site_url": "http://jobboard.local",
+  "test_site_path": "/Users/varundubey/Local Sites/jobboard/app/public",
   "personas": {
     "admin": "varundubey",
     "editor": null,
