@@ -50,8 +50,8 @@ $wcb_company_type    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 // present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
 // renders that markup (trusted plugin Interactivity HTML — emitted as-is below,
 // since wp_kses_post would strip the <template>/data-wp-each loop).
-$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
-$wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
+$wcb_module_renders  = (array) apply_filters( 'wcb_module_renders', array() );
+$wcb_bell_enabled    = ! empty( $wcb_module_renders['notifications_bell'] );
 $wcb_company_founded = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_founded', true ) : '';
 $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) : '';
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
@@ -633,9 +633,12 @@ wp_interactivity_state(
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>
 							<div class="wcb-cover-letter" data-wp-text="state.selectedAppCoverLetter"></div>
 						</div>
-						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppResumeUrl">
+						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasResume">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Resume', 'wp-career-board' ); ?></h4>
-							<a class="wcb-resume-chip" data-wp-bind--href="state.selectedAppResumeUrl" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Download Resume', 'wp-career-board' ); ?></a>
+							<div class="wcb-resume-actions">
+								<a class="wcb-resume-chip" data-wp-bind--href="state.selectedAppResumePermalink" data-wp-class--wcb-hidden="!state.selectedAppResumePermalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View Resume', 'wp-career-board' ); ?></a>
+								<a class="wcb-resume-chip wcb-resume-chip--download" data-wp-bind--href="state.selectedAppResumeUrl" data-wp-class--wcb-hidden="!state.selectedAppResumeUrl" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Download Resume', 'wp-career-board' ); ?></a>
+							</div>
 						</div>
 					</div>
 				</div>

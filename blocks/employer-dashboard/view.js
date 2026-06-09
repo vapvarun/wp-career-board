@@ -333,6 +333,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppResumeUrl() {
 			return state.selectedApp?.resume_url ?? null;
 		},
+		get selectedAppResumePermalink() {
+			return state.selectedApp?.resume_permalink ?? null;
+		},
+		get selectedAppHasResume() {
+			return !! ( state.selectedApp?.resume_permalink || state.selectedApp?.resume_url );
+		},
 		get selectedAppInitials() {
 			const n = state.selectedAppName;
 			return n

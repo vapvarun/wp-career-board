@@ -606,6 +606,12 @@
 	white-space: pre-wrap;
 }
 
+.wcb-resume-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
+}
+
 .wcb-resume-chip {
 	display: inline-flex;
 	align-items: center;

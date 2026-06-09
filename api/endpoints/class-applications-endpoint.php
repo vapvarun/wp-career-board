@@ -993,15 +993,29 @@ final class ApplicationsEndpoint extends RestController {
 	private function prepare_for_candidate( \WP_Post $post ): array {
 		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+		$resume_id            = (int) get_post_meta( $post->ID, '_wcb_resume_id', true );
+
+		// Public on-site resume profile — lets the employer review the candidate's
+		// full resume (experience, education, skills) on the site instead of relying
+		// only on a downloaded file, which may not exist for builder/imported resumes.
+		$resume_permalink = '';
+		if ( $resume_id > 0 && '1' === (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+			$resume_post = get_post( $resume_id );
+			if ( $resume_post instanceof \WP_Post && 'wcb_resume' === $resume_post->post_type ) {
+				$resume_permalink = (string) get_permalink( $resume_id );
+			}
+		}
+
 		return array(
-			'id'           => $post->ID,
-			'job_id'       => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
-			'candidate_id' => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
-			'cover_letter' => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-			'resume_id'    => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
-			'resume_url'   => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
-			'status'       => '' !== $status ? $status : 'submitted',
-			'submitted_at' => $post->post_date,
+			'id'               => $post->ID,
+			'job_id'           => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'candidate_id'     => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
+			'cover_letter'     => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			'resume_id'        => $resume_id,
+			'resume_url'       => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'resume_permalink' => $resume_permalink,
+			'status'           => '' !== $status ? $status : 'submitted',
+			'submitted_at'     => $post->post_date,
 			// status_history intentionally omitted — internal employer audit
 			// trail. F-3 in plan/role-data-baseline-2026-05-07.md.
 		);
