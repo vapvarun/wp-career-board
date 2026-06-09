@@ -802,7 +802,7 @@ wp_interactivity_state(
 					class="wcb-report-reason"
 					data-wp-on--change="actions.updateReportReason"
 				>
-					<option value=""><?php esc_html_e( '— Select a reason —', 'wp-career-board' ); ?></option>
+					<option value=""><?php esc_html_e( '- Select a reason -', 'wp-career-board' ); ?></option>
 					<?php foreach ( \WCB\Modules\Moderation\ModerationModule::report_reasons() as $wcb_reason_key => $wcb_reason_label ) : ?>
 						<option value="<?php echo esc_attr( $wcb_reason_key ); ?>"><?php echo esc_html( $wcb_reason_label ); ?></option>
 					<?php endforeach; ?>
@@ -825,7 +825,7 @@ wp_interactivity_state(
 
 			<p class="wcb-job-report__done" data-wp-bind--hidden="!state.reportDone">
 				<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<?php esc_html_e( 'Thanks — this job has been reported for review.', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Thanks - this job has been reported for review.', 'wp-career-board' ); ?>
 			</p>
 		</div>
 	<?php endif; ?>

@@ -45,7 +45,7 @@ if [ "$MODE" = "staged" ]; then
 else
 	PHP_FILES=$(find . -name '*.php' \
 		-not -path './vendor/*' -not -path './node_modules/*' -not -path './tests/*' \
-		-not -path './build/*' -not -path './dist/*' 2>/dev/null | tr '\n' ' ')
+		-not -path './build/*' -not -path './dist/*' -not -path './libs/*' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(find . -path '*/assets/js/*.js' -o -path '*/blocks/*/view.js' 2>/dev/null \
 		| grep -v '\.min\.js$' | grep -v node_modules | tr '\n' ' ')
 fi
