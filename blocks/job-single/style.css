@@ -392,7 +392,9 @@ a.wcb-tag:hover {
 	/* The job-single sidebar cards already sit inside their own rounded
 	 * outer border, so the heading's old underline read as a second border
 	 * stacked just inside the card edge. Drop the underline + extra
-	 * padding and let the bottom margin do the breathing room instead. */
+	 * padding and let the bottom margin do the breathing room instead.
+	 * (Gap value is governed by wcb-ui.css's .wcb-card-title rule, which wins
+	 * specificity over the theme's h3 cascade.) */
 	margin: 0 0 var(--wcb-space-lg);
 }
 

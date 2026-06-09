@@ -706,6 +706,18 @@ textarea.wcb-input {
 	margin: 0 0 var(--wcb-space-xs);
 }
 
+/* Section card titles (.wcb-card-title) need more breathing room than the
+ * compact archive item names above. The shared reset pins all three to
+ * --wcb-space-xs (4px), which left section headings like "Job Details" / "About
+ * the Company" sitting too close to the card body, and inconsistent with the
+ * Share card. Lift only .wcb-card-title to a consistent --wcb-space-lg gap
+ * (same 0,2,0 specificity, later in source order, so it wins for titles while
+ * the archive names keep the tight 4px). */
+[class*="wp-block-wp-career-board"] .wcb-card-title,
+[class*="wp-block-wcb-"] .wcb-card-title {
+	margin-bottom: var(--wcb-space-lg);
+}
+
 /* ── Archive layout — sidebar filter panel + results ──────────────────────── */
 
 /* Two-column layout used by every archive surface (`/find-jobs/`,
