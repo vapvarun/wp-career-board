@@ -80,6 +80,7 @@
 }
 
 .wcb-similar-companies-card__name {
+	display: block;
 	font-weight: 600;
 	font-size: var(--wcb-text-base);
 	white-space: nowrap;

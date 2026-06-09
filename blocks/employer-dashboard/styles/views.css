@@ -74,6 +74,7 @@
 }
 
 .wcb-app-name {
+	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
@@ -144,6 +145,7 @@
 }
 
 .wcb-job-title {
+	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);

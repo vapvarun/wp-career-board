@@ -388,7 +388,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const n = state.companyName;
 			return n
 				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
-				: '';
+				: '?';
 		},
 		get companyDescExcerpt() {
 			// Description is now rich HTML (Editor.js output). For the live preview

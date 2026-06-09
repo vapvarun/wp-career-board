@@ -49,8 +49,13 @@
 .wcb-bell-dropdown {
 	position: absolute;
 	top: calc(100% + var(--wcb-space-sm));
-	right: 0;
+	/* Open into the content area, not leftward into the sidebar. The bell sits
+	   at the sidebar/content edge; right:0 spilled the 320px panel over the
+	   sidebar. Anchor left + cap width to the viewport so it never overflows. */
+	left: 0;
+	right: auto;
 	width: 320px;
+	max-width: calc(100vw - 2 * var(--wcb-space-md));
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-md);
