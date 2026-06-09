@@ -488,14 +488,18 @@ class AdminSettings {
 		// created straight from Settings (the setup wizard remains available too).
 		if ( ! $wcb_has_sample ) :
 			?>
-			<div class="wcb-settings-section__block" id="wcb-install-sample-block" style="margin-top: 2rem;">
-				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 0.5rem;">
-					<input type="hidden" name="action" value="wcb_install_demo" />
+			<div class="wcb-settings-card" id="wcb-install-sample-block">
+				<div class="wcb-settings-card-header">
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+				</div>
+				<div class="wcb-settings-row" style="display: block;">
+					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="wcb_install_demo" />
 			<?php wp_nonce_field( 'wcb_install_demo' ); ?>
-					<button type="submit" class="button button-secondary"><?php esc_html_e( 'Install Sample Data', 'wp-career-board' ); ?></button>
-				</form>
+						<button type="submit" class="button button-secondary"><?php esc_html_e( 'Install Sample Data', 'wp-career-board' ); ?></button>
+					</form>
+				</div>
 			</div>
 			<?php
 		endif;
@@ -506,10 +510,13 @@ class AdminSettings {
 			wp_enqueue_style( 'wcb-confirm-modal' );
 			wp_enqueue_script( 'wcb-confirm-modal' );
 			?>
-			<div class="wcb-settings-section__block" id="wcb-sample-data-block" style="margin-top: 2rem;">
-				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
-				<button type="button" id="wcb-remove-sample-data" class="button button-secondary" style="margin-top: 0.5rem;">
+			<div class="wcb-settings-card" id="wcb-sample-data-block">
+				<div class="wcb-settings-card-header">
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+				</div>
+				<div class="wcb-settings-row" style="display: block;">
+					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
+					<button type="button" id="wcb-remove-sample-data" class="button button-secondary">
 				<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
 				</button>
 				<span id="wcb-remove-sample-status" class="description" style="margin-left: 0.75rem;"></span>
@@ -606,6 +613,7 @@ class AdminSettings {
 					} );
 				} )();
 				</script>
+				</div>
 			</div>
 			<?php
 		endif;
