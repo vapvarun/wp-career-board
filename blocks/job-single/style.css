@@ -636,6 +636,13 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	box-sizing: border-box;
 }
 
+/* The cover letter now renders as the rich .wcb-editor (the plain
+   .wcb-cover-letter textarea above is the legacy fallback). Give the editor the
+   same bottom gap so it never touches the Submit button when it's the last field. */
+.wcb-apply-panel .wcb-editor {
+	margin-bottom: var(--wcb-space-lg);
+}
+
 .wcb-cover-letter:focus {
 	outline: 2px solid transparent;
 	border-color: var(--wcb-primary, #2563eb);

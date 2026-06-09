@@ -478,6 +478,28 @@ class AdminSettings {
 		// `_wcb_sample = 1` tagged posts still exist — also see the cleanup button
 		// instead of being stranded.
 		$wcb_has_sample = SetupWizard::has_sample_data();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only post-redirect flag.
+		if ( isset( $_GET['wcb_demo'] ) && 'installed' === sanitize_key( wp_unslash( $_GET['wcb_demo'] ) ) ) {
+			echo '<div class="notice notice-success wcb-notice is-dismissible"><p>' . esc_html__( 'Sample data installed.', 'wp-career-board' ) . '</p></div>';
+		}
+
+		// Install option - shown when no sample data exists, so demo content can be
+		// created straight from Settings (the setup wizard remains available too).
+		if ( ! $wcb_has_sample ) :
+			?>
+			<div class="wcb-settings-section__block" id="wcb-install-sample-block" style="margin-top: 2rem;">
+				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 0.5rem;">
+					<input type="hidden" name="action" value="wcb_install_demo" />
+			<?php wp_nonce_field( 'wcb_install_demo' ); ?>
+					<button type="submit" class="button button-secondary"><?php esc_html_e( 'Install Sample Data', 'wp-career-board' ); ?></button>
+				</form>
+			</div>
+			<?php
+		endif;
+
 		if ( $wcb_has_sample ) :
 			// Ensure the shared confirm-modal assets are present on the settings
 			// page so wcbConfirm() resolves; wcbToast() ships with wcb-admin.

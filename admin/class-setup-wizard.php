@@ -67,6 +67,36 @@ class SetupWizard extends \WCB\Api\RestController {
 		add_action( 'admin_menu', array( $this, 'register_page' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wizard_assets' ) );
+		add_action( 'admin_post_wcb_install_demo', array( $this, 'handle_install_demo' ) );
+	}
+
+	/**
+	 * Install sample data from the Settings page (server-side form action), so
+	 * the demo content can be created without re-running the setup wizard.
+	 *
+	 * @since 1.3.1
+	 * @return void
+	 */
+	public function handle_install_demo(): void {
+		check_admin_referer( 'wcb_install_demo' );
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
+		}
+
+		$this->install_sample_data();
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'     => 'wcb-settings',
+					'tab'      => 'listings',
+					'wcb_demo' => 'installed',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	/**

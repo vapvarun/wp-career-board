@@ -71,6 +71,8 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 * Improve  - Apply with a saved resume in one tap: your most recent resume is pre-selected, and resumes built in the Resume Builder no longer have to be exported to PDF first - the PDF is generated and attached automatically on apply (Pro).
 * Improve  - Employers can review an applicant's full resume on the site: the application view adds a "View Resume" link to the candidate's public profile alongside the download.
 * Fix      - Resumes imported from WP Job Manager Resumes no longer appear blank - their experience and education now render on the public profile, in the PDF, and in the employer's application view.
+* New      - Install or remove the demo/sample data straight from Career Board > Settings, without re-running the setup wizard.
+* Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
 * Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.
