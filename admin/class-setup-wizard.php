@@ -844,6 +844,16 @@ class SetupWizard extends \WCB\Api\RestController {
 		// -----------------------------------------------------------------
 		update_option( 'wcb_sample_data_ids', $created_ids );
 		update_option( 'wcb_sample_data_installed', true );
+
+		/**
+		 * Fires after sample/demo data is installed. Pro hooks this to seed
+		 * demo resumes (and other Pro-owned content) tied to the sample set.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param array{companies: int[], jobs: int[], terms: int[]} $created_ids Created sample IDs.
+		 */
+		do_action( 'wcb_sample_data_installed', $created_ids );
 	}
 
 	/**
@@ -1103,6 +1113,14 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		delete_option( 'wcb_sample_data_ids' );
 		delete_option( 'wcb_sample_data_installed' );
+
+		/**
+		 * Fires after sample/demo data is removed. Pro hooks this to delete the
+		 * demo resumes (and candidate users) it seeded.
+		 *
+		 * @since 1.3.1
+		 */
+		do_action( 'wcb_sample_data_removed' );
 
 		return $removed;
 	}
