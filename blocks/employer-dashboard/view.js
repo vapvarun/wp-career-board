@@ -384,8 +384,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Company helpers.
+		// Sidebar identity falls back to the user's display name when no company
+		// name is set yet, so the sidebar never shows a lone "?" with no label.
+		get sidebarName() {
+			return state.companyName || state.displayName || '';
+		},
 		get companyInitials() {
-			const n = state.companyName;
+			const n = state.companyName || state.displayName;
 			return n
 				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
 				: '?';

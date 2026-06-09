@@ -181,6 +181,7 @@ wp_interactivity_state(
 		'appsLoading'           => false,
 		'appsError'             => '',
 		'employerEmail'         => wp_get_current_user()->user_email,
+		'displayName'           => wp_get_current_user()->display_name,
 		'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 		'creditBalance'         => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id ),
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
@@ -338,7 +339,7 @@ wp_interactivity_state(
 
 		<div class="wcb-sidebar-user">
 			<div class="wcb-sidebar-avatar" data-wp-text="state.companyInitials" aria-hidden="true"></div>
-			<span class="wcb-sidebar-company" data-wp-text="state.companyName"></span>
+			<span class="wcb-sidebar-company" data-wp-text="state.sidebarName"></span>
 		</div>
 	</aside>
 
@@ -347,10 +348,20 @@ wp_interactivity_state(
 
 		<?php
 		// Pro injects the notifications-bell HTML for the notifications_bell slot.
-		// Filter declared in core/class-pro-coordination.php (F-1).
+		// Filter declared in core/class-pro-coordination.php (F-1). The slot value
+		// is trusted plugin-generated Interactivity markup and is emitted as-is:
+		// wp_kses_post() strips the <template>/data-wp-each loop the bell dropdown
+		// relies on, collapsing it to a single blank row.
 		$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
 		if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
-			echo wp_kses_post( $wcb_module_renders['notifications_bell'] );
+			?>
+			<div class="wcb-topbar">
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup (see note above).
+				echo $wcb_module_renders['notifications_bell'];
+				?>
+			</div>
+			<?php
 		}
 		?>
 

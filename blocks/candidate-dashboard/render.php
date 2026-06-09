@@ -369,10 +369,20 @@ wp_interactivity_state(
 
 		<?php
 		// Pro injects the notifications-bell HTML for the notifications_bell slot.
-		// Filter declared in core/class-pro-coordination.php (F-1).
+		// Filter declared in core/class-pro-coordination.php (F-1). The slot value
+		// is trusted plugin-generated Interactivity markup and is emitted as-is:
+		// wp_kses_post() strips the <template>/data-wp-each loop the bell dropdown
+		// relies on, collapsing it to a single blank row.
 		$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
 		if ( ! empty( $wcb_module_renders['notifications_bell'] ) ) {
-			echo wp_kses_post( $wcb_module_renders['notifications_bell'] );
+			?>
+			<div class="wcb-topbar">
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup (see note above).
+				echo $wcb_module_renders['notifications_bell'];
+				?>
+			</div>
+			<?php
 		}
 		?>
 

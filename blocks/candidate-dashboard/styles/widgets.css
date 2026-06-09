@@ -16,6 +16,23 @@
  * @since   1.2.2
  */
 
+/* Dashboard topbar — persistent bar at the top of the content area; holds the
+   notifications bell, right-aligned. Sticky so the bell stays reachable on scroll. */
+.wcb-topbar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
+	min-height: 48px;
+	margin-bottom: var(--wcb-space-lg);
+	padding-bottom: var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	background: var(--wcb-base, var(--wp--preset--color--wcb-base, #fff));
+}
+
 /* Notification bell */
 .wcb-bell-wrapper {
 	position: relative;
@@ -23,18 +40,31 @@
 }
 .wcb-bell-btn {
 	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
 	background: none;
 	border: none;
+	border-radius: var(--wcb-radius-full);
 	cursor: pointer;
-	padding: var(--wcb-space-sm);
 	color: var( --wcb-text-secondary, var(--wp--preset--color--wcb-muted) );
 	line-height: 1;
+	transition: background-color 0.15s ease, color 0.15s ease;
 }
-.wcb-bell-btn:hover { color: var(--wp--preset--color--wcb-primary); }
+.wcb-bell-btn svg {
+	width: 20px;
+	height: 20px;
+}
+.wcb-bell-btn:hover {
+	color: var(--wp--preset--color--wcb-primary);
+	background: var(--wcb-surface-hover, rgba(0, 0, 0, 0.05));
+}
 .wcb-bell-badge {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 2px;
+	right: 2px;
 	min-width: 18px;
 	height: 18px;
 	padding: 0 var(--wcb-space-xs);
@@ -49,11 +79,11 @@
 .wcb-bell-dropdown {
 	position: absolute;
 	top: calc(100% + var(--wcb-space-sm));
-	/* Open into the content area, not leftward into the sidebar. The bell sits
-	   at the sidebar/content edge; right:0 spilled the 320px panel over the
-	   sidebar. Anchor left + cap width to the viewport so it never overflows. */
-	left: 0;
-	right: auto;
+	/* Bell sits at the top-right of the content topbar, so the panel opens
+	   leftward into the content (right:0) and can't reach the sidebar. The
+	   max-width cap keeps it inside the viewport on narrow screens. */
+	right: 0;
+	left: auto;
 	width: 320px;
 	max-width: calc(100vw - 2 * var(--wcb-space-md));
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
