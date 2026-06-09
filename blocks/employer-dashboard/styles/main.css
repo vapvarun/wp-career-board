@@ -12,6 +12,7 @@
 
 /* -- Main content area -- */
 .wcb-main {
+	position: relative;
 	flex: 1;
 	background: var(--wcb-bg-subtle);
 	padding: var(--wcb-space-3xl);

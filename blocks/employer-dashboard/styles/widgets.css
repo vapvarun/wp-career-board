@@ -231,21 +231,14 @@
 	display: block;
 }
 
-/* Dashboard topbar — persistent bar at the top of the content area; holds the
-   notifications bell, right-aligned. Sticky so the bell stays reachable on scroll. */
+/* Notifications bell — floated into the top-right corner of the content area,
+   aligned with the page-title row. Absolute (not an in-flow bar) so it doesn't
+   reserve an empty band above the content; the inset matches .wcb-main padding. */
 .wcb-topbar {
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: var(--wcb-space-sm);
-	min-height: 48px;
-	margin-bottom: var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-sm);
-	border-bottom: 1px solid var(--wcb-border);
-	position: sticky;
-	top: 0;
+	position: absolute;
+	top: var(--wcb-space-3xl);
+	right: var(--wcb-space-3xl);
 	z-index: 20;
-	background: var(--wcb-base);
 }
 
 /* Notification bell */
