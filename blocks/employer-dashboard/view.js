@@ -967,6 +967,94 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
+		*saveAccount() {
+			state.accountSaving = true;
+			state.accountMsg    = '';
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/account',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							display_name: state.accountName,
+							email:        state.accountEmail,
+						} ),
+					}
+				);
+				const data = yield response.json();
+				if ( response.ok ) {
+					state.accountName    = data.display_name;
+					state.accountEmail   = data.email;
+					state.displayName    = data.display_name;
+					state.employerEmail  = data.email;
+					state.accountMsgType = 'success';
+					state.accountMsg     = 'Account updated.';
+				} else {
+					state.accountMsgType = 'error';
+					state.accountMsg     = data?.message || 'Could not save your account.';
+				}
+			} catch {
+				state.accountMsgType = 'error';
+				state.accountMsg     = 'Connection error. Please try again.';
+			} finally {
+				state.accountSaving = false;
+			}
+		},
+
+		*changePassword() {
+			state.pwMsg = '';
+			if ( ! state.curPassword || ! state.newPassword ) {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'Enter your current and new password.';
+				return;
+			}
+			if ( state.newPassword !== state.confPassword ) {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'New password and confirmation do not match.';
+				return;
+			}
+			state.pwSaving = true;
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/account',
+					{
+						method: 'POST',
+						headers: {
+							'X-WP-Nonce':   state.nonce,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							current_password: state.curPassword,
+							new_password:     state.newPassword,
+						} ),
+					}
+				);
+				const data = yield response.json();
+				if ( response.ok ) {
+					if ( data.nonce ) {
+						state.nonce = data.nonce;
+					}
+					state.curPassword  = '';
+					state.newPassword  = '';
+					state.confPassword = '';
+					state.pwMsgType    = 'success';
+					state.pwMsg        = 'Password updated.';
+				} else {
+					state.pwMsgType = 'error';
+					state.pwMsg     = data?.message || 'Could not update your password.';
+				}
+			} catch {
+				state.pwMsgType = 'error';
+				state.pwMsg     = 'Connection error. Please try again.';
+			} finally {
+				state.pwSaving = false;
+			}
+		},
+
 		updateCustomField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) {

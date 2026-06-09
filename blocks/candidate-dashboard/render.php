@@ -184,6 +184,18 @@ wp_interactivity_state(
 			),
 			'profileBio'              => get_the_author_meta( 'description', $wcb_candidate_id ),
 			'profileEmail'            => $wcb_current_user->user_email,
+			// Account Settings panel — editable display name + email + password.
+			'accountName'             => $wcb_current_user->display_name,
+			'accountEmail'            => $wcb_current_user->user_email,
+			'curPassword'             => '',
+			'newPassword'             => '',
+			'confPassword'            => '',
+			'accountMsg'              => '',
+			'accountMsgType'          => '',
+			'accountSaving'           => false,
+			'pwMsg'                   => '',
+			'pwMsgType'               => '',
+			'pwSaving'                => false,
 			// Phone + Location surfaced from the structured `_wcb_resume_data`
 			// user meta so the candidate profile UI matches the contact info
 			// rendered in resume-single + Pro's resume PDF download.
@@ -1006,19 +1018,39 @@ wp_interactivity_state(
 			<h1 class="wcb-page-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></h1>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown">
-			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
-				<div class="wcb-settings-row-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></div>
-				<div class="wcb-settings-row-control">
-					<span data-wp-text="state.profileEmail"></span>
-				</div>
+			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.accountMsg" data-wp-bind--data-type="state.accountMsgType" data-wp-text="state.accountMsg"></p>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-account-name"><?php esc_html_e( 'Display Name', 'wp-career-board' ); ?></label>
+				<input type="text" id="wcb-account-name" class="wcb-input" autocomplete="name" data-wp-bind--value="state.accountName" data-wp-on--input="actions.updateField" data-wcb-field="accountName" />
 			</div>
-			<div class="wcb-settings-row" style="margin-bottom:var(--wcb-space-xl)">
-				<div class="wcb-settings-row-label"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></div>
-				<div class="wcb-settings-row-control">
-					<a class="wcb-cbtn wcb-cbtn--ghost" data-wp-bind--href="state.passwordResetUrl">
-						<?php esc_html_e( 'Reset Password', 'wp-career-board' ); ?> &#8599;
-					</a>
-				</div>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-account-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
+				<input type="email" id="wcb-account-email" class="wcb-input" autocomplete="email" data-wp-bind--value="state.accountEmail" data-wp-on--input="actions.updateField" data-wcb-field="accountEmail" />
+			</div>
+			<div class="wcb-form-field">
+				<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.saveAccount" data-wp-bind--disabled="state.accountSaving"><?php esc_html_e( 'Save changes', 'wp-career-board' ); ?></button>
+			</div>
+		</div>
+
+		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
+			<h2 class="wcb-page-title"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
+		</div>
+		<div class="wcb-panel wcb-panel--form wcb-shown">
+			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.pwMsg" data-wp-bind--data-type="state.pwMsgType" data-wp-text="state.pwMsg"></p>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-account-curpw"><?php esc_html_e( 'Current Password', 'wp-career-board' ); ?></label>
+				<input type="password" id="wcb-account-curpw" class="wcb-input" autocomplete="current-password" data-wp-bind--value="state.curPassword" data-wp-on--input="actions.updateField" data-wcb-field="curPassword" />
+			</div>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-account-newpw"><?php esc_html_e( 'New Password', 'wp-career-board' ); ?></label>
+				<input type="password" id="wcb-account-newpw" class="wcb-input" autocomplete="new-password" data-wp-bind--value="state.newPassword" data-wp-on--input="actions.updateField" data-wcb-field="newPassword" />
+			</div>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-account-confpw"><?php esc_html_e( 'Confirm New Password', 'wp-career-board' ); ?></label>
+				<input type="password" id="wcb-account-confpw" class="wcb-input" autocomplete="new-password" data-wp-bind--value="state.confPassword" data-wp-on--input="actions.updateField" data-wcb-field="confPassword" />
+			</div>
+			<div class="wcb-form-field">
+				<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.changePassword" data-wp-bind--disabled="state.pwSaving"><?php esc_html_e( 'Update password', 'wp-career-board' ); ?></button>
 			</div>
 		</div>
 

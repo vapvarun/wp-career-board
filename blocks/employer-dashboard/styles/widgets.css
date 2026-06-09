@@ -356,6 +356,22 @@
 	opacity: 1;
 }
 
+/* Account Settings inline status message (save / password feedback). */
+.wcb-account-msg {
+	margin: 0 0 var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-sm);
+}
+.wcb-account-msg[data-type="success"] {
+	background: var(--wcb-success-bg, #f0fdf4);
+	color: var(--wcb-success-fg, #166534);
+}
+.wcb-account-msg[data-type="error"] {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
 @media (max-width: 768px) {
 	.wcb-stats-row {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
