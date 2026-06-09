@@ -41,6 +41,10 @@ class Admin {
 		// /my-account/ before ever reaching the Jobs queue. Let them through
 		// when they hold the moderation cap.
 		add_filter( 'woocommerce_prevent_admin_access', array( $this, 'allow_moderator_admin_access' ) );
+		// Send Job Moderators to the Jobs queue on admin_init (before any output)
+		// so the redirect is silent — the old in-render redirect fired after
+		// output had begun and threw "headers already sent".
+		add_action( 'admin_init', array( $this, 'redirect_moderator_to_queue' ) );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -232,23 +236,48 @@ class Admin {
 
 
 	/**
+	 * Send Job Moderators straight to the Jobs queue.
+	 *
+	 * Moderators (wcb/moderate-jobs, not wcb/manage-settings) have no use for
+	 * the WP Dashboard or the Career Board dashboard — its stats and the Pro
+	 * license/credit nudges aren't theirs to act on. Runs on admin_init, BEFORE
+	 * any output, so the redirect is silent. Covers both /wp-admin/
+	 * (pagenow=index.php) and the Career Board dashboard (page=wp-career-board).
+	 * Admins are never redirected.
+	 *
+	 * @since  1.2.0
+	 * @return void
+	 */
+	public function redirect_moderator_to_queue(): void {
+		if ( wp_doing_ajax() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+			return;
+		}
+		// Only Job Moderators (moderate-jobs without manage-settings) are bounced.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) || ! wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			return;
+		}
+		$pagenow = isset( $GLOBALS['pagenow'] ) ? (string) $GLOBALS['pagenow'] : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		$on_wp_dashboard  = ( 'index.php' === $pagenow && '' === $page );
+		$on_wcb_dashboard = ( 'admin.php' === $pagenow && 'wp-career-board' === $page );
+
+		if ( $on_wp_dashboard || $on_wcb_dashboard ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Render the admin dashboard — stats, pending queue, recent applications.
 	 *
 	 * @since  1.0.0
 	 * @return void
 	 */
 	public function render_dashboard(): void {
-		// Board Moderators reach this page when WordPress sends them to the
-		// top-level Career Board URL after a menu click. They have
-		// wcb_access_admin_jobs but not wcb_manage_settings, so the dashboard
-		// metrics and Pro license nudges below aren't theirs to act on.
-		// Bounce them to the Jobs queue, which is the only Career Board
-		// surface their role contract covers.
-		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) && wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
-			wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
-			exit;
-		}
-
+		// Moderators never reach here — redirect_moderator_to_queue() bounces
+		// them to the Jobs queue on admin_init (before this render callback).
 		$jobs_count   = wp_count_posts( 'wcb_job' );
 		$apps_count   = wp_count_posts( 'wcb_application' );
 		$total_jobs   = isset( $jobs_count->publish ) ? (int) $jobs_count->publish : 0;
