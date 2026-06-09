@@ -3030,7 +3030,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "modules/theme-integration/class-theme-integration-module.php:54",
+      "where": "modules/themeintegration/class-theme-integration-module.php:54",
       "consumed_by": []
     },
     {
