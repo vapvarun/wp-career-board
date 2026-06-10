@@ -75,6 +75,8 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 * Fix      - "Generate with AI" on the job form now completes and fills the description editor - the request no longer aborts mid-generation, and the generated text is pushed into the rich editor.
 * Fix      - Job descriptions (AI-generated and demo) now render as structured content - headings, paragraphs, and bullet lists - instead of one wall of text. The editor parses the structure and the sample data ships as clean HTML.
 * Dev      - Sample-data install/remove now fire `wcb_sample_data_installed` / `wcb_sample_data_removed` so add-ons (Pro) can seed and clean up their own demo content alongside the sample set.
+* Improve  - Applying without a saved resume now shows a clear "Build a resume" link (to your dashboard) instead of a dead-end "No resume found" message - the file-upload option stays available.
+* Improve  - Candidate dashboard empty states ("No applications yet", "No saved jobs yet") now link to "Browse jobs" so there is always an obvious next step.
 * Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).

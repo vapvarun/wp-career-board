@@ -488,7 +488,7 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
 				</div>
 
 				<div class="wcb-panel wcb-shown">
@@ -507,7 +507,7 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?></p>
+					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
 				</div>
 			</div>
 		</div>

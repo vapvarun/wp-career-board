@@ -226,6 +226,17 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	if ( $wcb_rb_pages ) {
 		$wcb_resume_page_url = get_permalink( $wcb_rb_pages[0]->ID );
 	}
+
+	// Fallback: when no dedicated resume-builder page exists, send the candidate
+	// to their dashboard's resume tab so a no-resume applicant always has a place
+	// to add one instead of a dead-end message.
+	if ( '' === $wcb_resume_page_url ) {
+		$wcb_settings_opt   = (array) get_option( 'wcb_settings', array() );
+		$wcb_cand_dash_page = (int) ( $wcb_settings_opt['candidate_dashboard_page'] ?? 0 );
+		if ( $wcb_cand_dash_page > 0 ) {
+			$wcb_resume_page_url = get_permalink( $wcb_cand_dash_page ) . '#resumes';
+		}
+	}
 }
 
 // Mirror the server-side default in ApplicationsEndpoint::resume_required():
@@ -923,11 +934,11 @@ wp_interactivity_state(
 						<?php else : ?>
 							<p class="wcb-apply-no-resume">
 								<span data-wp-class--wcb-hidden="state.resumeFileName">
-							<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
+							<?php esc_html_e( 'No saved resume yet.', 'wp-career-board' ); ?>
 								</span>
 							<?php if ( $wcb_resume_page_url && $wcb_career_board_pro_active ) : ?>
 									<a href="<?php echo esc_url( $wcb_resume_page_url ); ?>">
-								<?php esc_html_e( 'Create your resume →', 'wp-career-board' ); ?>
+								<?php esc_html_e( 'Build a resume →', 'wp-career-board' ); ?>
 									</a>
 							<?php endif; ?>
 							</p>
