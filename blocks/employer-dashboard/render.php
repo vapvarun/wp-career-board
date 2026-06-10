@@ -88,31 +88,31 @@ $wcb_edit_job_id = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
 
 // Pre-compute lightweight stats for instant render (avoids zero-flash before JS hydrates).
 $wcb_job_counts = (array) wp_count_posts( 'wcb_job' );
-if ( $wcb_company_id ) {
+if ( $wcb_employer_id ) {
+	// Stats count the employer's OWN jobs (by author) so the cards match the
+	// jobs/applications lists below, which also load by author.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- lightweight count for initial render only.
 	$wcb_total_employer_jobs = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} p
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_wcb_company_id'
-			 WHERE p.post_type = 'wcb_job' AND p.post_status IN ('publish','pending','draft') AND pm.meta_value = %s",
-			(string) $wcb_company_id
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts}
+			 WHERE post_type = 'wcb_job' AND post_status IN ('publish','pending','draft') AND post_author = %d",
+			$wcb_employer_id
 		)
 	);
 	$wcb_live_employer_jobs  = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} p
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_wcb_company_id'
-			 WHERE p.post_type = 'wcb_job' AND p.post_status = 'publish' AND pm.meta_value = %s",
-			(string) $wcb_company_id
+			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts}
+			 WHERE post_type = 'wcb_job' AND post_status = 'publish' AND post_author = %d",
+			$wcb_employer_id
 		)
 	);
 	$wcb_total_apps          = (int) $GLOBALS['wpdb']->get_var(
 		$GLOBALS['wpdb']->prepare(
 			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
 			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} jc ON aj.meta_value = jc.post_id AND jc.meta_key = '_wcb_company_id'
-			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND jc.meta_value = %s",
-			(string) $wcb_company_id
+			 INNER JOIN {$GLOBALS['wpdb']->posts} j ON aj.meta_value = j.ID
+			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND j.post_author = %d",
+			$wcb_employer_id
 		)
 	);
 	$wcb_week_ago            = gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS );
@@ -120,9 +120,9 @@ if ( $wcb_company_id ) {
 		$GLOBALS['wpdb']->prepare(
 			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
 			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} jc ON aj.meta_value = jc.post_id AND jc.meta_key = '_wcb_company_id'
-			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND jc.meta_value = %s AND a.post_date >= %s",
-			(string) $wcb_company_id,
+			 INNER JOIN {$GLOBALS['wpdb']->posts} j ON aj.meta_value = j.ID
+			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND j.post_author = %d AND a.post_date >= %s",
+			$wcb_employer_id,
 			$wcb_week_ago
 		)
 	);
@@ -404,6 +404,22 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" id="wcb-panel-overview" role="tabpanel" aria-labelledby="wcb-tab-overview" data-wp-class--wcb-view-active="state.isViewOverview">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Overview', 'wp-career-board' ); ?></h1>
+			</div>
+
+			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.noCompany">
+				<div class="wcb-db-onboard__text">
+					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Welcome! Let\'s get you set up.', 'wp-career-board' ); ?></p>
+					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Create your company profile to start posting jobs and receiving applications.', 'wp-career-board' ); ?></p>
+				</div>
+				<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
+			</div>
+
+			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.noJobs">
+				<div class="wcb-db-onboard__text">
+					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Your company is ready.', 'wp-career-board' ); ?></p>
+					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Post your first job to start receiving applications.', 'wp-career-board' ); ?></p>
+				</div>
+				<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
 			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>

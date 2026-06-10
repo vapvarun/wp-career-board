@@ -91,6 +91,43 @@
 	font-size: var(--wcb-text-md);
 }
 
+/* -- Onboarding banner (overview) -- */
+.wcb-db-onboard {
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-lg);
+	flex-wrap: wrap;
+	padding: var(--wcb-space-lg) 1.5rem;
+	margin-bottom: var(--wcb-space-lg);
+	background: var(--wcb-primary-bg, #eff6ff);
+	border: 1px solid var(--wcb-primary-border, #bfdbfe);
+	border-radius: var(--wcb-radius-lg);
+}
+
+.wcb-db-onboard.wcb-shown {
+	display: flex;
+}
+
+.wcb-db-onboard__title {
+	margin: 0;
+	font-weight: 600;
+	color: var(--wcb-text-primary);
+}
+
+.wcb-db-onboard__msg {
+	margin: 0.25rem 0 0;
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-md);
+}
+
+@media (max-width: 640px) {
+	.wcb-db-onboard {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
 .wcb-db-error {
 	display: none;
 	color: var(--wcb-danger);
