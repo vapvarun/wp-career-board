@@ -25,7 +25,24 @@ if ( ! is_user_logged_in() ) {
 }
 
 if ( ! $wcb_can_manage ) {
-	echo '<p>' . esc_html__( 'You do not have permission to view this dashboard.', 'wp-career-board' ) . '</p>';
+	$wcb_settings_opt   = (array) get_option( 'wcb_settings', array() );
+	$wcb_emp_reg_page   = (int) ( $wcb_settings_opt['employer_registration_page'] ?? 0 );
+	$wcb_cand_dash_page = (int) ( $wcb_settings_opt['candidate_dashboard_page'] ?? 0 );
+	?>
+	<div class="wcb-db-gate">
+		<p><?php esc_html_e( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ); ?></p>
+	<?php if ( $wcb_emp_reg_page > 0 ) : ?>
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-db-btn wcb-db-btn--primary">
+		<?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?>
+		</a>
+	<?php endif; ?>
+	<?php if ( $wcb_cand_dash_page > 0 ) : ?>
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_cand_dash_page ) ); ?>" class="wcb-db-btn">
+		<?php esc_html_e( 'Go to Candidate Dashboard', 'wp-career-board' ); ?>
+		</a>
+	<?php endif; ?>
+	</div>
+	<?php
 	return;
 }
 

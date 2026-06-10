@@ -26,7 +26,21 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	echo '<p class="wcb-form-simple__gate">' . esc_html__( 'You must be logged in as an employer to post a job.', 'wp-career-board' ) . '</p>';
+	$wcb_settings_opt = (array) get_option( 'wcb_settings', array() );
+	$wcb_emp_reg_page = (int) ( $wcb_settings_opt['employer_registration_page'] ?? 0 );
+	echo '<p class="wcb-form-simple__gate">';
+	if ( ! is_user_logged_in() ) {
+		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );
+	} elseif ( $wcb_emp_reg_page > 0 ) {
+		printf(
+			/* translators: %s: employer registration link. */
+			esc_html__( 'Posting a job is for employers. %s to start hiring.', 'wp-career-board' ),
+			'<a href="' . esc_url( (string) get_permalink( $wcb_emp_reg_page ) ) . '">' . esc_html__( 'Register as an employer', 'wp-career-board' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		);
+	} else {
+		echo esc_html__( 'Posting a job is for employers.', 'wp-career-board' );
+	}
+	echo '</p>';
 	return;
 }
 
