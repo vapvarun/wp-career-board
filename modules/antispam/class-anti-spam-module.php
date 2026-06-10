@@ -175,95 +175,99 @@ class AntiSpamModule {
 			<input type="hidden" name="action" value="wcb_save_antispam">
 			<?php wp_nonce_field( 'wcb_save_antispam' ); ?>
 
-			<div class="wcb-settings-card">
-				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Anti-Spam', 'wp-career-board' ); ?></h2>
+			<div class="wcb-card">
+				<div class="wcb-card__head">
+					<p class="wcb-card__title"><?php esc_html_e( 'Anti-Spam', 'wp-career-board' ); ?></p>
+					<p class="wcb-card__desc"><?php esc_html_e( 'A honeypot field is always active on all submission forms at zero performance cost. Add a CAPTCHA provider as a second layer for high-traffic sites.', 'wp-career-board' ); ?></p>
 				</div>
-				<div class="wcb-settings-row" style="display: block;">
-					<p class="description" style="margin: 0;"><?php esc_html_e( 'A honeypot field is always active on all submission forms at zero performance cost. Add a CAPTCHA provider as a second layer for high-traffic sites.', 'wp-career-board' ); ?></p>
-				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-captcha-provider"><?php esc_html_e( 'CAPTCHA Provider', 'wp-career-board' ); ?></label>
-					</div>
-					<div class="wcb-settings-row-control">
-						<select id="wcb-captcha-provider" name="captcha_provider">
-							<option value="none" <?php selected( $wcb_provider, 'none' ); ?>><?php esc_html_e( 'None (Honeypot only)', 'wp-career-board' ); ?></option>
-							<option value="turnstile" <?php selected( $wcb_provider, 'turnstile' ); ?>>Cloudflare Turnstile</option>
-							<option value="recaptcha" <?php selected( $wcb_provider, 'recaptcha' ); ?>>Google reCAPTCHA v3</option>
-						</select>
-						<p class="description"><?php esc_html_e( 'Cloudflare Turnstile is recommended - fast, privacy-friendly, and free.', 'wp-career-board' ); ?></p>
-					</div>
-				</div>
-			</div>
-
-			<div class="wcb-settings-card">
-				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Cloudflare Turnstile', 'wp-career-board' ); ?></h2>
-				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-turnstile-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
-					</div>
-					<div class="wcb-settings-row-control">
-						<input type="text" id="wcb-turnstile-site-key" name="turnstile_site_key" value="<?php echo esc_attr( $wcb_ts_site ); ?>" class="regular-text">
-						<p class="description">
-							<?php
-							printf(
-								/* translators: %s: URL to Cloudflare dashboard */
-								esc_html__( 'Get your keys at %s for Turnstile.', 'wp-career-board' ),
-								'<a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer">dash.cloudflare.com</a>'
-							);
-							?>
-						</p>
-					</div>
-				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-turnstile-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
-					</div>
-					<div class="wcb-settings-row-control">
-						<input type="password" id="wcb-turnstile-secret-key" name="turnstile_secret_key" value="<?php echo esc_attr( $wcb_ts_secret ); ?>" class="regular-text" autocomplete="off">
+				<div class="wcb-card__body">
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-captcha-provider"><?php esc_html_e( 'CAPTCHA Provider', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<select id="wcb-captcha-provider" name="captcha_provider">
+								<option value="none" <?php selected( $wcb_provider, 'none' ); ?>><?php esc_html_e( 'None (Honeypot only)', 'wp-career-board' ); ?></option>
+								<option value="turnstile" <?php selected( $wcb_provider, 'turnstile' ); ?>>Cloudflare Turnstile</option>
+								<option value="recaptcha" <?php selected( $wcb_provider, 'recaptcha' ); ?>>Google reCAPTCHA v3</option>
+							</select>
+							<p class="description"><?php esc_html_e( 'Cloudflare Turnstile is recommended - fast, privacy-friendly, and free.', 'wp-career-board' ); ?></p>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="wcb-settings-card">
-				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Google reCAPTCHA v3', 'wp-career-board' ); ?></h2>
+			<div class="wcb-card">
+				<div class="wcb-card__head">
+					<p class="wcb-card__title"><?php esc_html_e( 'Cloudflare Turnstile', 'wp-career-board' ); ?></p>
 				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-recaptcha-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+				<div class="wcb-card__body">
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-turnstile-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="text" id="wcb-turnstile-site-key" name="turnstile_site_key" value="<?php echo esc_attr( $wcb_ts_site ); ?>" class="regular-text">
+							<p class="description">
+								<?php
+								printf(
+									/* translators: %s: URL to Cloudflare dashboard */
+									esc_html__( 'Get your keys at %s for Turnstile.', 'wp-career-board' ),
+									'<a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer">dash.cloudflare.com</a>'
+								);
+								?>
+							</p>
+						</div>
 					</div>
-					<div class="wcb-settings-row-control">
-						<input type="text" id="wcb-recaptcha-site-key" name="recaptcha_site_key" value="<?php echo esc_attr( $wcb_rc_site ); ?>" class="regular-text">
-						<p class="description">
-							<?php
-							printf(
-								/* translators: %s: URL to the Google reCAPTCHA admin console. */
-								esc_html__( 'Get your keys at %s.', 'wp-career-board' ),
-								'<a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">google.com/recaptcha/admin</a>'
-							);
-							?>
-						</p>
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-turnstile-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="password" id="wcb-turnstile-secret-key" name="turnstile_secret_key" value="<?php echo esc_attr( $wcb_ts_secret ); ?>" class="regular-text" autocomplete="off">
+						</div>
 					</div>
 				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-recaptcha-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
-					</div>
-					<div class="wcb-settings-row-control">
-						<input type="password" id="wcb-recaptcha-secret-key" name="recaptcha_secret_key" value="<?php echo esc_attr( $wcb_rc_secret ); ?>" class="regular-text" autocomplete="off">
-					</div>
+			</div>
+
+			<div class="wcb-card">
+				<div class="wcb-card__head">
+					<p class="wcb-card__title"><?php esc_html_e( 'Google reCAPTCHA v3', 'wp-career-board' ); ?></p>
 				</div>
-				<div class="wcb-settings-row">
-					<div class="wcb-settings-row-label">
-						<label for="wcb-recaptcha-threshold"><?php esc_html_e( 'Score Threshold', 'wp-career-board' ); ?></label>
+				<div class="wcb-card__body">
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-recaptcha-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="text" id="wcb-recaptcha-site-key" name="recaptcha_site_key" value="<?php echo esc_attr( $wcb_rc_site ); ?>" class="regular-text">
+							<p class="description">
+								<?php
+								printf(
+									/* translators: %s: URL to the Google reCAPTCHA admin console. */
+									esc_html__( 'Get your keys at %s.', 'wp-career-board' ),
+									'<a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">google.com/recaptcha/admin</a>'
+								);
+								?>
+							</p>
+						</div>
 					</div>
-					<div class="wcb-settings-row-control">
-						<input type="number" id="wcb-recaptcha-threshold" name="recaptcha_threshold" value="<?php echo esc_attr( (string) $wcb_rc_thresh ); ?>" min="0" max="1" step="0.1" class="small-text">
-						<p class="description"><?php esc_html_e( 'Requests scoring below this are rejected as bots (0.0-1.0). Default: 0.5.', 'wp-career-board' ); ?></p>
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-recaptcha-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="password" id="wcb-recaptcha-secret-key" name="recaptcha_secret_key" value="<?php echo esc_attr( $wcb_rc_secret ); ?>" class="regular-text" autocomplete="off">
+						</div>
+					</div>
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-recaptcha-threshold"><?php esc_html_e( 'Score Threshold', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="number" id="wcb-recaptcha-threshold" name="recaptcha_threshold" value="<?php echo esc_attr( (string) $wcb_rc_thresh ); ?>" min="0" max="1" step="0.1" class="small-text">
+							<p class="description"><?php esc_html_e( 'Requests scoring below this are rejected as bots (0.0-1.0). Default: 0.5.', 'wp-career-board' ); ?></p>
+						</div>
 					</div>
 				</div>
 			</div>
