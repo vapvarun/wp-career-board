@@ -201,6 +201,10 @@ wp_interactivity_state(
 		'appsJobId'             => $wcb_apps_job_id,
 		'appsJobTitle'          => '',
 		'appsJobSearch'         => '',
+		// Applications tab layout — list (split panel) vs board (Kanban by
+		// status). draggingAppId holds the app id mid drag-and-drop.
+		'appsLayout'            => 'list',
+		'draggingAppId'         => 0,
 		'applications'          => array(),
 		'appsLoading'           => false,
 		'appsError'             => '',
@@ -283,6 +287,13 @@ wp_interactivity_state(
 			'lowBalanceSingular'       => __( 'Low balance: 1 credit left.', 'wp-career-board' ),
 			'aiRankButton'             => __( 'Rank by AI fit', 'wp-career-board' ),
 			'aiRankingLabel'           => __( 'Ranking…', 'wp-career-board' ),
+			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),
+			'statusReviewing'          => __( 'Reviewing', 'wp-career-board' ),
+			'statusShortlisted'        => __( 'Shortlisted', 'wp-career-board' ),
+			'statusHired'              => __( 'Hired', 'wp-career-board' ),
+			'statusRejected'           => __( 'Rejected', 'wp-career-board' ),
+			'viewList'                 => __( 'List', 'wp-career-board' ),
+			'viewBoard'                => __( 'Board', 'wp-career-board' ),
 		),
 	)
 );
@@ -601,7 +612,12 @@ wp_interactivity_state(
 				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
 			</div>
 
-			<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-apps-layout-toggle" role="tablist" data-wp-class--wcb-shown="state.hasApplications">
+					<button type="button" class="wcb-layout-btn" data-layout="list" data-wp-class--wcb-layout-active="state.isAppsListLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'List', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-layout-btn" data-layout="board" data-wp-class--wcb-layout-active="state.isAppsBoardLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'Board', 'wp-career-board' ); ?></button>
+				</div>
+
+				<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'All', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountAll"></span>
@@ -639,7 +655,7 @@ wp_interactivity_state(
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'No applications yet for this job.', 'wp-career-board' ); ?></p>
 			</div>
 
-			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications" data-wp-class--wcb-hidden="!state.isAppsListLayout">
 				<div class="wcb-applicant-list" aria-live="polite">
 					<button type="button" class="wcb-btn wcb-btn--ghost wcb-ai-rank-btn" data-wp-class--wcb-hidden="!state.showAiRankButton" data-wp-bind--disabled="state.aiRankLoading" data-wp-on--click="actions.rankByAi" data-wp-text="state.aiRankBtnLabel"></button>
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
@@ -695,6 +711,23 @@ wp_interactivity_state(
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<!-- Board (Kanban) layout — columns by status; drag a card to re-status. -->
+			<div class="wcb-apps-board" data-wp-class--wcb-shown="state.isAppsBoardLayout">
+				<template data-wp-each--column="state.appsBoardColumns" data-wp-each-key="context.column.key">
+					<div class="wcb-board-col" data-wp-bind--data-status="context.column.key" data-wp-on--dragover="actions.onColumnDragOver" data-wp-on--drop="actions.onColumnDrop">
+						<div class="wcb-board-col-head"><span data-wp-text="context.column.label"></span> <span class="wcb-pill-count" data-wp-text="context.column.count"></span></div>
+						<div class="wcb-board-col-cards">
+							<template data-wp-each--app="context.column.apps" data-wp-each-key="context.app.id">
+								<div class="wcb-board-card" draggable="true" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.selectApplicant">
+									<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
+									<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
+								</div>
+							</template>
+						</div>
+					</div>
+				</template>
 			</div>
 		</div>
 

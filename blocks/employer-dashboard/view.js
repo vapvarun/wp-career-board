@@ -44,6 +44,11 @@ function writeHashView( view ) {
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
+		// Applications tab layout — 'list' (split panel) or 'board' (Kanban by
+		// status). draggingAppId holds the application id mid-drag so the drop
+		// target knows which card to re-status.
+		appsLayout: 'list',
+		draggingAppId: null,
 		// Resolves the stored industry slug to its translated label using the
 		// industryLabels map seeded from PHP. Falls back to the raw value so
 		// legacy free-text entries still display until migrated.
@@ -295,6 +300,32 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isAppsFilterHired() {
 			return state.appsFilter === 'hired';
+		},
+
+		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get isAppsBoardLayout() {
+			return state.appsLayout === 'board';
+		},
+		get isAppsListLayout() {
+			return state.appsLayout !== 'board';
+		},
+		// Board columns — one per status, each carrying its filtered (and
+		// optionally AI-ranked) applications. Same source of truth as the list.
+		get appsBoardColumns() {
+			const defs = [
+				{ key: 'submitted',   label: state.strings.statusSubmitted },
+				{ key: 'reviewing',   label: state.strings.statusReviewing },
+				{ key: 'shortlisted', label: state.strings.statusShortlisted },
+				{ key: 'hired',       label: state.strings.statusHired },
+				{ key: 'rejected',    label: state.strings.statusRejected },
+			];
+			return defs.map( ( d ) => {
+				let apps = state.applications.filter( ( a ) => a.status === d.key );
+				if ( state.aiRanked ) {
+					apps = [ ...apps ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
+				}
+				return { key: d.key, label: d.label, count: apps.length, apps };
+			} );
 		},
 
 		// Per-status counts — computed from already-loaded applications, no extra REST calls.
@@ -924,9 +955,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*updateAppStatus( event ) {
-			const appId     = Number( event.target.dataset.wcbAppId );
-			const newStatus = event.target.value;
+		// Shared status PATCH — the single source of truth for changing an
+		// application's status. Both the detail-panel <select> (updateAppStatus)
+		// and the Board drag-and-drop (onColumnDrop) route through here so the
+		// same endpoint, local update, and confirmation message apply.
+		*applyStatusChange( appId, newStatus ) {
 			if ( ! appId || ! newStatus ) {
 				return;
 			}
@@ -953,6 +986,38 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				}
 			} catch {
 				state.statusMsg = state.i18nStatusError;
+			}
+		},
+
+		*updateAppStatus( event ) {
+			const appId     = Number( event.target.dataset.wcbAppId );
+			const newStatus = event.target.value;
+			yield actions.applyStatusChange( appId, newStatus );
+		},
+
+		setAppsLayout( event ) {
+			state.appsLayout = event.target.dataset.layout === 'board' ? 'board' : 'list';
+		},
+
+		onCardDragStart( event ) {
+			state.draggingAppId = Number( getContext().app.id );
+			event.dataTransfer.effectAllowed = 'move';
+		},
+
+		onColumnDragOver( event ) {
+			event.preventDefault();
+		},
+
+		*onColumnDrop( event ) {
+			event.preventDefault();
+			const status = getContext().column.key;
+			const appId  = state.draggingAppId;
+			state.draggingAppId = null;
+			if ( appId && status ) {
+				const app = state.applications.find( ( a ) => a.id === appId );
+				if ( app && app.status !== status ) {
+					yield actions.applyStatusChange( appId, status );
+				}
 			}
 		},
 
