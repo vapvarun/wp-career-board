@@ -85,6 +85,8 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 * Fix      - Employer Dashboard overview stat cards now count the employer's own jobs and applications, matching the lists below; they previously counted by company and could under-report when a job was not yet linked to the company.
 * New      - Employer Dashboard: rank a job's applicants by AI fit (requires Pro and an AI provider). Each applicant shows a fit-score badge, the list sorts best-first, and the applicant detail shows the reasoning.
 * New      - Candidate Dashboard: a "Recommended for you" set of AI-matched jobs on the overview (requires Pro and an embedding provider).
+* New      - Employer Dashboard shows each applicant's AI fit score and a one-line TL;DR summary on load once scored, sorted best-first (requires Pro and an AI provider).
+* New      - Apply panel: a "Write with AI" button drafts a cover letter from the candidate's resume and the job, ready to edit before applying (requires Pro and an AI provider).
 * Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).

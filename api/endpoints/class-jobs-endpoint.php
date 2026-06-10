@@ -1084,6 +1084,9 @@ final class JobsEndpoint extends RestController {
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
 					'cover_letter'     => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					'ai_score'         => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+					'ai_reason'        => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+					'ai_summary'       => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
 					'status'           => '' !== $status_raw ? $status_raw : 'submitted',
 					'submitted_at'     => get_the_date( 'M j, Y', $p ),
 					'resume_url'       => ( static function () use ( $p ): ?string {

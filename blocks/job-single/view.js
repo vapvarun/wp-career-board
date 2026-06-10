@@ -34,6 +34,9 @@ const { state } = store( 'wcb-job-single', {
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;
 		},
+		get aiCoverBtnLabel() {
+			return state.coverLoading ? state.strings.aiCoverBusy : state.strings.aiCoverBtn;
+		},
 	},
 
 	actions: {
@@ -115,6 +118,50 @@ const { state } = store( 'wcb-job-single', {
 
 		updateCoverLetter( event ) {
 			state.coverLetter = event.target.value;
+		},
+
+		// Pro-only: generate a cover letter from the candidate's resume + this
+		// job via POST /jobs/{id}/ai-cover-letter, then push the text into the
+		// Editor.js-backed cover-letter field. The endpoint and the
+		// wcb_ai_completion_available gate are answered by the Pro plugin;
+		// in Free the gate is false so the button never renders.
+		*generateCoverLetter() {
+			if ( state.coverLoading || ! state.aiCoverEnabled ) {
+				return;
+			}
+			state.coverLoading = true;
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/jobs/' + String( state.jobId ) + '/ai-cover-letter',
+					{
+						method:  'POST',
+						headers: { 'X-WP-Nonce': state.nonce },
+						timeout: 60000,
+					}
+				);
+				if ( ! response.ok ) {
+					return;
+				}
+				const data = yield response.json();
+				if ( data && data.cover_letter ) {
+					state.coverLetter = String( data.cover_letter );
+					// Mirror into the hidden Editor.js source textarea and force
+					// the rich editor to re-render (see assets/js/wcb-editor.js —
+					// it listens for `wcb:editor:hydrate` after a value push).
+					const ta = document.querySelector(
+						'.wcb-apply-panel textarea.wcb-editor-source'
+					);
+					if ( ta ) {
+						ta.value = state.coverLetter;
+						ta.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+						ta.dispatchEvent( new Event( 'wcb:editor:hydrate' ) );
+					}
+				}
+			} catch {
+				// Silent — the candidate can still write the letter manually.
+			} finally {
+				state.coverLoading = false;
+			}
 		},
 
 		updateGuestName( event ) {

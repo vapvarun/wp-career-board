@@ -643,6 +643,19 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin-bottom: var(--wcb-space-lg);
 }
 
+/* Cover-letter label row — label on the left, "Write with AI" (Pro) on the right. */
+.wcb-cover-letter-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	flex-wrap: wrap;
+}
+
+.wcb-ai-cover-btn {
+	margin-top: 6px;
+}
+
 .wcb-cover-letter:focus {
 	outline: 2px solid transparent;
 	border-color: var(--wcb-primary, #2563eb);

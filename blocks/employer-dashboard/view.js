@@ -365,6 +365,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppAiReason() {
 			return state.selectedApp?.aiReason ?? '';
 		},
+		get selectedAppAiSummary() {
+			return state.selectedApp?.aiSummary ?? '';
+		},
 
 		// Context getters — inside data-wp-each--app loop.
 		get isSelectedApp() {
@@ -864,7 +867,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					initials: a.applicant_name
 						? a.applicant_name.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
 						: '?',
+					...( typeof a.ai_score === 'number'
+						? {
+							aiScore: a.ai_score,
+							aiScoreLabel: String( a.ai_score ) + '%',
+							aiReason: a.ai_reason || '',
+							aiSummary: a.ai_summary || '',
+						}
+						: {} ),
 				} ) );
+				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
+					state.aiRanked = true;
+				}
 				const match = state.jobs.find( ( j ) => j.id === state.appsJobId );
 				if ( match ) {
 					state.appsJobTitle = match.title;
@@ -899,7 +913,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.applications = state.applications.map( ( a ) => {
 					const r = byId[ a.id ];
 					return r
-						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiScoreLabel: String( Number( r.score ) ) + '%' }
+						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: String( Number( r.score ) ) + '%' }
 						: a;
 				} );
 				state.aiRanked = true;

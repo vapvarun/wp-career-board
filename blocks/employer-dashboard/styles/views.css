@@ -530,6 +530,25 @@
 	color: var(--wcb-text-secondary);
 }
 
+/* AI TL;DR summary — applicant row (2-line clamp) + detail panel */
+.wcb-ai-summary {
+	display: -webkit-box;
+	margin-top: 2px;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-tertiary);
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.wcb-ai-summary-detail {
+	margin: var(--wcb-space-sm) 0 0;
+	font-size: var(--wcb-text-base);
+	font-style: italic;
+	color: var(--wcb-text-secondary);
+}
+
 /* Avatar (generic) */
 .wcb-avatar,
 .wcb-detail-avatar {

@@ -647,6 +647,7 @@ wp_interactivity_state(
 							<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
 							<div class="wcb-app-info">
 								<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
+								<span class="wcb-ai-summary" data-wp-class--wcb-hidden="!context.app.aiSummary" data-wp-text="context.app.aiSummary"></span>
 								<span class="wcb-app-date" data-wp-text="context.app.submitted_at"></span>
 							</div>
 							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
@@ -678,6 +679,7 @@ wp_interactivity_state(
 						</div>
 						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>
+							<p class="wcb-ai-summary-detail" data-wp-class--wcb-hidden="!state.selectedAppAiSummary" data-wp-text="state.selectedAppAiSummary"></p>
 							<p class="wcb-ai-reason" data-wp-text="state.selectedAppAiReason"></p>
 						</div>
 						<div class="wcb-detail-section">

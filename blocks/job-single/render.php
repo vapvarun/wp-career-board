@@ -261,6 +261,8 @@ wp_interactivity_state(
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
 		'coverLetter'          => '',
+		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		'coverLoading'         => false,
 		'error'                => '',
 		'userResumes'          => $wcb_user_resumes,
 		// Pre-select the newest resume so applying is one tap; the candidate can
@@ -299,6 +301,8 @@ wp_interactivity_state(
 			'connectionError'      => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'reportReasonRequired' => __( 'Please choose a reason for reporting.', 'wp-career-board' ),
 			'reportFailed'         => __( 'Could not submit your report. Please try again.', 'wp-career-board' ),
+			'aiCoverBtn'           => __( 'Write with AI', 'wp-career-board' ),
+			'aiCoverBusy'          => __( 'Writing…', 'wp-career-board' ),
 		),
 	)
 );
@@ -977,10 +981,20 @@ wp_interactivity_state(
 					</label>
 				</div>
 
-				<label class="wcb-field-label" for="wcb-cover-letter">
+				<div class="wcb-cover-letter-head">
+					<label class="wcb-field-label" for="wcb-cover-letter">
 		<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>
-					<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
-				</label>
+						<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
+					</label>
+					<button
+						type="button"
+						class="wcb-btn wcb-btn--ghost wcb-ai-cover-btn"
+						data-wp-class--wcb-hidden="!state.aiCoverEnabled"
+						data-wp-bind--disabled="state.coverLoading"
+						data-wp-on--click="actions.generateCoverLetter"
+						data-wp-text="state.aiCoverBtnLabel"
+					></button>
+				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-cover-letter"></div>
 					<textarea
