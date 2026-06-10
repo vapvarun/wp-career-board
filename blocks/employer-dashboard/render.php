@@ -721,7 +721,10 @@ wp_interactivity_state(
 						<div class="wcb-board-col-cards">
 							<template data-wp-each--app="context.column.apps" data-wp-each-key="context.app.id">
 								<div class="wcb-board-card" draggable="true" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.selectApplicant">
-									<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
+									<div class="wcb-board-card-head">
+										<span class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></span>
+										<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
+									</div>
 									<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 								</div>
 							</template>

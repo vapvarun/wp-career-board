@@ -614,22 +614,40 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: var(--wcb-space-xs, 4px);
+	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-md);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 	cursor: grab;
-	transition: border-color 0.1s, box-shadow 0.1s;
+	transition: border-color 0.12s, box-shadow 0.12s, transform 0.12s;
 }
 
 .wcb-board-card:hover {
 	border-color: var(--wcb-primary);
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	transform: translateY(-1px);
 }
 
 .wcb-board-card:active {
 	cursor: grabbing;
+	transform: none;
+}
+
+.wcb-board-card-head {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+}
+
+.wcb-board-card .wcb-app-avatar {
+	width: 26px;
+	height: 26px;
+	font-size: 11px;
+	background: var(--wcb-primary-bg, #eef2ff);
+	color: var(--wcb-primary);
 }
 
 .wcb-board-card .wcb-app-name {
@@ -640,6 +658,21 @@
 	overflow-wrap: anywhere;
 	line-height: 1.3;
 }
+
+/* Premium status accent — a coloured dot per column header. */
+.wcb-board-col-head::before {
+	content: "";
+	flex-shrink: 0;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--wcb-text-tertiary);
+}
+
+.wcb-board-col[data-status="reviewing"]   .wcb-board-col-head::before { background: var(--wcb-primary); }
+.wcb-board-col[data-status="shortlisted"] .wcb-board-col-head::before { background: var(--wcb-warning); }
+.wcb-board-col[data-status="hired"]       .wcb-board-col-head::before { background: var(--wcb-success); }
+.wcb-board-col[data-status="rejected"]    .wcb-board-col-head::before { background: var(--wcb-danger); }
 
 .wcb-ai-fit .wcb-ai-reason {
 	margin: var(--wcb-space-sm) 0 0;
