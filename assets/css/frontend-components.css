@@ -340,12 +340,12 @@ select.wcb-field {
 
 .wcb-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), minmax(0, 1fr)));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 	gap: var(--wcb-space-xl);
 }
 
 .wcb-grid--compact {
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), minmax(0, 1fr)));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
 	gap: var(--wcb-space-lg);
 }
 

@@ -31,7 +31,7 @@
 	/* 125 px min lets all 5 cards fit at 5 * 125 + 4 * 16 gap = 689 px,
 	 * comfortably within the ~748 px row width Storefront / Twenty
 	 * Twenty-Three / certain Astra layouts produce on a 1024 px viewport. */
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), minmax(0, 1fr)));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }

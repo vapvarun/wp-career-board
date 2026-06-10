@@ -571,18 +571,18 @@
 /* -- Board (Kanban) layout -- */
 .wcb-apps-board {
 	display: none;
-	gap: var(--wcb-space-lg);
-	overflow-x: auto;
+	gap: var(--wcb-space-md);
 	padding-bottom: var(--wcb-space-md);
 }
 
+/* Desktop + tablet: all five status columns fit the width, no horizontal scroll. */
 .wcb-apps-board.wcb-shown {
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .wcb-board-col {
-	flex: 0 0 240px;
-	min-width: 240px;
+	min-width: 0;
 	background: var(--wcb-bg-subtle);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-lg);
@@ -612,9 +612,9 @@
 
 .wcb-board-card {
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--wcb-space-sm);
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wcb-space-xs, 4px);
 	padding: var(--wcb-space-md);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
@@ -636,9 +636,9 @@
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	line-height: 1.3;
 }
 
 .wcb-ai-fit .wcb-ai-reason {
@@ -1059,10 +1059,15 @@
 		width: calc(100% - (2 * var(--wcb-space-lg)));
 	}
 
-	/* Board columns stay side-by-side and scroll horizontally on mobile */
+	/* On phones the five columns can't fit, so switch to a horizontal scroll. */
+	.wcb-apps-board.wcb-shown {
+		display: flex;
+		overflow-x: auto;
+	}
+
 	.wcb-board-col {
-		flex: 0 0 78vw;
-		min-width: 78vw;
+		flex: 0 0 80vw;
+		min-width: 80vw;
 	}
 }
 
