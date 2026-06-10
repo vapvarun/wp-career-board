@@ -198,6 +198,10 @@ wp_interactivity_state(
 		'accountMsg'            => '',
 		'accountMsgType'        => '',
 		'accountSaving'         => false,
+		// Inline confirmation shown after changing an applicant's status.
+		'statusMsg'             => '',
+		'i18nStatusSaved'       => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
+		'i18nStatusError'       => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
 		'pwMsg'                 => '',
 		'pwMsgType'             => '',
 		'pwSaving'              => false,
@@ -628,6 +632,7 @@ wp_interactivity_state(
 								<option value="rejected"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></option>
 								<option value="hired"><?php esc_html_e( 'Hired', 'wp-career-board' ); ?></option>
 							</select>
+							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusMsg" data-wp-text="state.statusMsg"></p>
 						</div>
 						<div class="wcb-detail-section">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>

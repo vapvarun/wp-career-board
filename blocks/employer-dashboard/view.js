@@ -879,9 +879,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					if ( idx !== -1 ) {
 						state.applications[ idx ].status = newStatus;
 					}
+					state.statusMsg = state.i18nStatusSaved;
+				} else {
+					state.statusMsg = state.i18nStatusError;
 				}
 			} catch {
-				// Network error — select will show stale value until next load.
+				state.statusMsg = state.i18nStatusError;
 			}
 		},
 
