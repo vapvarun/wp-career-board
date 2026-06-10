@@ -141,6 +141,8 @@ wp_interactivity_state(
 				'confirmEraseMsg'      => __( 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board' ),
 				'confirmEraseConfirm'  => __( 'Send confirmation email', 'wp-career-board' ),
 				'errPrivacy'           => __( 'Could not submit your privacy request. Please try again or contact support.', 'wp-career-board' ),
+				'recommendedTitle'     => __( 'Recommended for you', 'wp-career-board' ),
+				'recommendedHint'      => __( 'AI-matched to your resume', 'wp-career-board' ),
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
 			'savedJobsCount'          => $wcb_saved_jobs_count,
@@ -163,6 +165,10 @@ wp_interactivity_state(
 			'nonce'                   => wp_create_nonce( 'wp_rest' ),
 			'candidateId'             => $wcb_candidate_id,
 			'candidateName'           => $wcb_display_name,
+			'currentUserId'           => get_current_user_id(),
+			'aiMatching'              => (bool) apply_filters( 'wcb_ai_matching_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			'recommendations'         => array(),
+			'recsLoading'             => false,
 			// `resumesEnabled` is true when Pro's Resumes module is loaded
 			// (regardless of whether the customer has dropped a wcb/resume-builder
 			// block). On Free-only installs, the My Resumes tab and the
@@ -510,6 +516,20 @@ wp_interactivity_state(
 					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
 				</div>
 			</div>
+
+			<section class="wcb-recommends" data-wp-class--wcb-shown="state.showRecommendations">
+				<h2 class="wcb-section-title"><?php esc_html_e( 'Recommended for you', 'wp-career-board' ); ?></h2>
+				<div class="wcb-recommends-grid">
+					<template data-wp-each--rec="state.recommendations" data-wp-each-key="context.rec.job_id">
+						<a class="wcb-rec-card" data-wp-bind--href="context.rec.url">
+							<span class="wcb-rec-score" data-wp-text="context.rec.score_label"></span>
+							<span class="wcb-rec-title" data-wp-text="context.rec.title"></span>
+							<span class="wcb-rec-company" data-wp-text="context.rec.company"></span>
+							<span class="wcb-rec-location" data-wp-text="context.rec.location"></span>
+						</a>
+					</template>
+				</div>
+			</section>
 		</div>
 
 		<!-- VIEW: My Applications -->

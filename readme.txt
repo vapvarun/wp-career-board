@@ -83,6 +83,8 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 * Improve  - Resume options no longer look split between free and pro: the "Public Resume Archive" toggle moved to Settings > Resumes (Pro) with the other resume options, and the upload-size field was relabeled "Application Resume File Size" to make clear it controls the file attached to a job application (a free feature).
 * Improve  - The Employer Dashboard overview now guides a new employer from the landing screen: "Set Up Company Profile" before a company exists, then "Post Your First Job" once it is ready (these calls to action were previously only on the My Jobs tab).
 * Fix      - Employer Dashboard overview stat cards now count the employer's own jobs and applications, matching the lists below; they previously counted by company and could under-report when a job was not yet linked to the company.
+* New      - Employer Dashboard: rank a job's applicants by AI fit (requires Pro and an AI provider). Each applicant shows a fit-score badge, the list sorts best-first, and the applicant detail shows the reasoning.
+* New      - Candidate Dashboard: a "Recommended for you" set of AI-matched jobs on the overview (requires Pro and an embedding provider).
 * Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).

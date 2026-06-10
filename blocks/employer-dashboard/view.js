@@ -263,9 +263,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Application filter.
 		get filteredApps() {
 			const f = state.appsFilter;
-			return f === 'all'
+			const list = f === 'all'
 				? state.applications
 				: state.applications.filter( ( a ) => a.status === f );
+			if ( state.aiRanked ) {
+				return [ ...list ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
+			}
+			return list;
+		},
+		// AI ranking controls (Pro — only shown when wcb_ai_ranking_available).
+		get showAiRankButton() {
+			return state.aiRanking && state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
+		},
+		get aiRankBtnLabel() {
+			return state.aiRankLoading ? state.strings.aiRankingLabel : state.strings.aiRankButton;
 		},
 		get isAppsFilterAll() {
 			return state.appsFilter === 'all';
@@ -344,6 +355,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return n
 				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
 				: '?';
+		},
+		get selectedAppHasAiScore() {
+			return typeof state.selectedApp?.aiScore === 'number';
+		},
+		get selectedAppAiScoreLabel() {
+			return state.selectedApp?.aiScoreLabel ?? '';
+		},
+		get selectedAppAiReason() {
+			return state.selectedApp?.aiReason ?? '';
 		},
 
 		// Context getters — inside data-wp-each--app loop.
@@ -853,6 +873,40 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.appsError = state.strings.errorConnectionApps;
 			} finally {
 				state.appsLoading = false;
+			}
+		},
+
+		// Rank the loaded applications by AI fit score (Pro /ai/ranked-applications).
+		*rankByAi() {
+			if ( ! state.appsJobId || state.aiRankLoading ) {
+				return;
+			}
+			state.aiRankLoading = true;
+			state.appsError     = '';
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/ai/ranked-applications/' + String( state.appsJobId ),
+					{ headers: { 'X-WP-Nonce': state.nonce }, timeout: 120000 }
+				);
+				if ( ! response.ok ) {
+					throw new Error( 'rank failed' );
+				}
+				const ranked = yield response.json();
+				const byId   = {};
+				( Array.isArray( ranked ) ? ranked : [] ).forEach( ( r ) => {
+					byId[ Number( r.application_id ) ] = r;
+				} );
+				state.applications = state.applications.map( ( a ) => {
+					const r = byId[ a.id ];
+					return r
+						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiScoreLabel: String( Number( r.score ) ) + '%' }
+						: a;
+				} );
+				state.aiRanked = true;
+			} catch {
+				state.appsError = state.strings.errorConnectionApps;
+			} finally {
+				state.aiRankLoading = false;
 			}
 		},
 

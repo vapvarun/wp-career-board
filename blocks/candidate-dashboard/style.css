@@ -148,12 +148,83 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	cursor: not-allowed;
 }
 
+/* ── Recommended for you (AI matches, Overview view) ─────────────────────────
+ * Hidden by default; shown only when Pro's matching gate is on AND the
+ * /matches endpoint returns at least one row (state.showRecommendations). */
+.wcb-recommends {
+	display: none;
+	margin-top: var(--wcb-space-2xl);
+}
+
+.wcb-recommends.wcb-shown {
+	display: block;
+}
+
+.wcb-section-title {
+	margin: 0 0 var(--wcb-space-lg);
+	font-size: var(--wcb-text-xl);
+	font-weight: 600;
+	color: var(--wcb-text-primary);
+}
+
+.wcb-recommends-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+	gap: var(--wcb-space-md);
+}
+
+.wcb-rec-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-lg);
+	background: var(--wcb-base, #ffffff);
+	text-decoration: none;
+	transition: transform var(--wcb-transition-fast, 150ms ease), box-shadow var(--wcb-transition-fast, 150ms ease);
+}
+
+.wcb-rec-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--wcb-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.04));
+}
+
+.wcb-rec-score {
+	align-self: flex-start;
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.12));
+	color: var(--wcb-primary, var(--wp--preset--color--wcb-primary));
+	font-size: var(--wcb-text-xs);
+	font-weight: 600;
+}
+
+.wcb-rec-title {
+	font-size: var(--wcb-text-md);
+	font-weight: 600;
+	color: var(--wcb-text-primary);
+}
+
+.wcb-rec-company,
+.wcb-rec-location {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 640px) {
+	.wcb-recommends-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* ── Reduced motion — disable transitions/animations across this block ──── */
 @media (prefers-reduced-motion: reduce) {
 	.wcb-nav-item,
 	.wcb-cd-app-row,
 	.wcb-cd-bookmark-row,
 	.wcb-resume-card,
+	.wcb-rec-card,
 	.wcb-sidebar-cta,
 	.wcb-cbtn,
 	.wcb-nav-toggle-icon::after,

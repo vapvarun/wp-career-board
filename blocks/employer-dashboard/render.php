@@ -242,6 +242,11 @@ wp_interactivity_state(
 		'bellUnreadCount'       => 0,
 		'bellLoading'           => false,
 		'bellEnabled'           => $wcb_bell_enabled,
+		// AI applicant ranking — Pro answers wcb_ai_ranking_available and serves
+		// the /ai/ranked-applications/{id} route; Free only surfaces the button.
+		'aiRanking'             => (bool) apply_filters( 'wcb_ai_ranking_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		'aiRanked'              => false,
+		'aiRankLoading'         => false,
 		'strings'               => array(
 			'errorLoadJobs'            => __( 'Could not load your jobs.', 'wp-career-board' ),
 			'errorLoadApps'            => __( 'Could not load applications.', 'wp-career-board' ),
@@ -276,6 +281,8 @@ wp_interactivity_state(
 			/* translators: %d is the current low-credit balance. */
 			'lowBalance'               => __( 'Low balance: %d credits left.', 'wp-career-board' ),
 			'lowBalanceSingular'       => __( 'Low balance: 1 credit left.', 'wp-career-board' ),
+			'aiRankButton'             => __( 'Rank by AI fit', 'wp-career-board' ),
+			'aiRankingLabel'           => __( 'Ranking…', 'wp-career-board' ),
 		),
 	)
 );
@@ -634,6 +641,7 @@ wp_interactivity_state(
 
 			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications">
 				<div class="wcb-applicant-list" aria-live="polite">
+					<button type="button" class="wcb-btn wcb-btn--ghost wcb-ai-rank-btn" data-wp-class--wcb-hidden="!state.showAiRankButton" data-wp-bind--disabled="state.aiRankLoading" data-wp-on--click="actions.rankByAi" data-wp-text="state.aiRankBtnLabel"></button>
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
 						<div class="wcb-applicant-row" role="button" tabindex="0" data-wp-class--wcb-selected="state.isSelectedApp" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-bind--aria-label="state.applicantRowLabel" data-wp-on--click="actions.selectApplicant" data-wp-on--keydown="actions.handleRowKeydown">
 							<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
@@ -641,6 +649,7 @@ wp_interactivity_state(
 								<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 								<span class="wcb-app-date" data-wp-text="context.app.submitted_at"></span>
 							</div>
+							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 							<span class="wcb-unread-dot" data-wp-class--wcb-shown="state.isUnread"></span>
 						</div>
 					</template>
@@ -666,6 +675,10 @@ wp_interactivity_state(
 								<option value="hired"><?php esc_html_e( 'Hired', 'wp-career-board' ); ?></option>
 							</select>
 							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusMsg" data-wp-text="state.statusMsg"></p>
+						</div>
+						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">
+							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>
+							<p class="wcb-ai-reason" data-wp-text="state.selectedAppAiReason"></p>
 						</div>
 						<div class="wcb-detail-section">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>

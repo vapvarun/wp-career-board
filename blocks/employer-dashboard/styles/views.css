@@ -500,6 +500,36 @@
 	display: block;
 }
 
+/* AI applicant ranking */
+.wcb-ai-rank-btn {
+	display: inline-flex;
+	margin: var(--wcb-space-md) var(--wcb-space-lg);
+}
+
+.wcb-ai-score {
+	flex-shrink: 0;
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-teal-bg);
+	color: var(--wcb-teal-fg);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	line-height: 1.5;
+	white-space: nowrap;
+}
+
+.wcb-detail-section-label .wcb-ai-score {
+	margin-inline-start: var(--wcb-space-sm);
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+.wcb-ai-fit .wcb-ai-reason {
+	margin: var(--wcb-space-sm) 0 0;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
 /* Avatar (generic) */
 .wcb-avatar,
 .wcb-detail-avatar {
@@ -885,6 +915,12 @@
 
 	.wcb-job-actions {
 		width: 100%;
+	}
+
+	/* AI rank button spans the list width when the split panel stacks */
+	.wcb-ai-rank-btn {
+		justify-content: center;
+		width: calc(100% - (2 * var(--wcb-space-lg)));
 	}
 }
 
