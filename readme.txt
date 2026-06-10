@@ -80,6 +80,7 @@ Any logged-in member can apply, manageable dashboard notifications, plus a cache
 * Improve  - Changing an applicant's status now confirms it saved ("Status updated. The candidate has been notified.") instead of silently updating the dropdown.
 * Improve  - The Anti-Spam settings tab now uses the same card layout as the rest of Settings (it was rendering as bare headings and fields), and the reCAPTCHA fields link to where to get the keys.
 * Improve  - Non-employers who open the Employer Dashboard or Post a Job now get a helpful message with a "Register as an employer" link (and a route back to the candidate dashboard) instead of a dead-end "no permission" message.
+* Improve  - Resume options no longer look split between free and pro: the "Public Resume Archive" toggle moved to Settings > Resumes (Pro) with the other resume options, and the upload-size field was relabeled "Application Resume File Size" to make clear it controls the file attached to a job application (a free feature).
 * Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
 * New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).

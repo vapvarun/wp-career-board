@@ -191,7 +191,7 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled', 'max_resumes', 'candidate_requires_role' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -207,7 +207,6 @@ class AdminSettings {
 			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
-			'resume_archive_enabled'     => ! empty( $input['resume_archive_enabled'] ),
 			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
@@ -218,7 +217,6 @@ class AdminSettings {
 			'notification_email'         => isset( $input['notification_email'] ) ? sanitize_email( $input['notification_email'] ) : '',
 			'from_name'                  => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
 			'from_email'                 => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
-			'max_resumes'                => isset( $input['max_resumes'] ) ? max( 1, min( 20, (int) $input['max_resumes'] ) ) : 2,
 			'resume_archive_page'        => isset( $input['resume_archive_page'] ) ? (int) $input['resume_archive_page'] : 0,
 		);
 
@@ -919,20 +917,7 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><?php esc_html_e( 'Public Resume Archive', 'wp-career-board' ); ?></div>
-										<div class="wcb-settings-row-control">
-											<label class="wcb-toggle-label">
-												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[resume_archive_enabled]" value="1" <?php checked( ! empty( $settings['resume_archive_enabled'] ) ); ?>>
-													<span class="wcb-toggle-slider"></span>
-												</span>
-												<?php esc_html_e( 'Make resume profiles publicly viewable at /resume/{slug}', 'wp-career-board' ); ?>
-											</label>
-											<span class="description"><?php esc_html_e( 'Enable this only when you intend to publish candidate profiles to the open web. Toggling refreshes the URL rewrite rules automatically.', 'wp-career-board' ); ?></span>
-										</div>
-									</div>
-									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><label for="wcb-resume-max-mb"><?php esc_html_e( 'Resume Max Size (MB)', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-label"><label for="wcb-resume-max-mb"><?php esc_html_e( 'Application Resume File Size (MB)', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input
 												id="wcb-resume-max-mb"
@@ -943,7 +928,7 @@ class AdminSettings {
 												max="20"
 												step="1"
 											>
-											<span class="description"><?php esc_html_e( 'Maximum file size for uploaded resumes (1-20 MB). Accepted formats: PDF, DOC, DOCX.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Maximum size of a resume file a candidate uploads when applying to a job (1-20 MB). Accepted formats: PDF, DOC, DOCX. The resume profile builder lives under Settings > Resumes.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
