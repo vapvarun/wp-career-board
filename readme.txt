@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -62,9 +62,9 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 == Changelog ==
 
-= 1.3.1 - June 2026 =
+= 1.4.0 - June 2026 =
 
-Any logged-in member can apply, manageable dashboard notifications, plus a cache-busting fix.
+AI-assisted hiring on the dashboard (applicant ranking, TL;DR summaries, AI cover letters), a List/Board Kanban for applications, any logged-in member can apply, plus onboarding, layout, and email fixes.
 
 * New      - Any logged-in member can apply to jobs, save jobs, build a resume, and use the candidate dashboard without a dedicated Candidate role - ideal when the job board is part of a community site.
 * New      - "Require Candidate Role" setting (and the wcb_candidate_requires_role filter) to reserve the candidate experience for the Candidate role when you want stricter separation.
