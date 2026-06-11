@@ -75,6 +75,7 @@ AI-assisted hiring on the dashboard (applicant ranking, TL;DR summaries, AI cove
 * Fix      - "Generate with AI" on the job form now completes and fills the description editor - the request no longer aborts mid-generation, and the generated text is pushed into the rich editor.
 * Fix      - Job descriptions (AI-generated and demo) now render as structured content - headings, paragraphs, and bullet lists - instead of one wall of text. The editor parses the structure and the sample data ships as clean HTML.
 * Dev      - Sample-data install/remove now fire `wcb_sample_data_installed` / `wcb_sample_data_removed` so add-ons (Pro) can seed and clean up their own demo content alongside the sample set.
+* Dev      - POST /wcb/v1/jobs now returns HTTP 201 on successful job creation, matching the resume endpoint and standard REST conventions.
 * Improve  - Applying without a saved resume now shows a clear "Build a resume" link (to your dashboard) instead of a dead-end "No resume found" message - the file-upload option stays available.
 * Improve  - Candidate dashboard empty states ("No applications yet", "No saved jobs yet") now link to "Browse jobs" so there is always an obvious next step.
 * Improve  - Changing an applicant's status now confirms it saved ("Status updated. The candidate has been notified.") instead of silently updating the dropdown.

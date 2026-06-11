@@ -704,7 +704,9 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_created', $job_id, $request );
 
-		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
+		$wcb_response = rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
+		$wcb_response->set_status( 201 );
+		return $wcb_response;
 	}
 
 	/**
