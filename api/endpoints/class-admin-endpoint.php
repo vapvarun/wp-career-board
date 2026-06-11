@@ -171,16 +171,17 @@ final class AdminEndpoint extends RestController {
 		}
 
 		$test_vars = array(
-			'job_title'     => __( 'Sample Job Title (test send)', 'wp-career-board' ),
-			'company_name'  => get_bloginfo( 'name' ),
-			'candidate'     => $user->display_name,
-			'employer'      => $user->display_name,
-			'status_label'  => __( 'Shortlisted', 'wp-career-board' ),
-			'days_left'     => 3,
-			'deadline_iso'  => gmdate( 'Y-m-d', time() + 3 * DAY_IN_SECONDS ),
-			'job_url'       => home_url( '/' ),
-			'dashboard_url' => home_url( '/' ),
-			'is_test'       => true,
+			'job_title'      => __( 'Sample Job Title (test send)', 'wp-career-board' ),
+			'company_name'   => get_bloginfo( 'name' ),
+			'candidate'      => $user->display_name,
+			'candidate_name' => $user->display_name,
+			'employer'       => $user->display_name,
+			'status_label'   => __( 'Shortlisted', 'wp-career-board' ),
+			'days_left'      => 3,
+			'deadline_iso'   => gmdate( 'Y-m-d', time() + 3 * DAY_IN_SECONDS ),
+			'job_url'        => home_url( '/' ),
+			'dashboard_url'  => home_url( '/' ),
+			'is_test'        => true,
 		);
 
 		// AbstractEmail::test_send() is the public bridge: it bypasses

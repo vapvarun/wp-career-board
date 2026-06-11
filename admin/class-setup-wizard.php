@@ -67,6 +67,36 @@ class SetupWizard extends \WCB\Api\RestController {
 		add_action( 'admin_menu', array( $this, 'register_page' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wizard_assets' ) );
+		add_action( 'admin_post_wcb_install_demo', array( $this, 'handle_install_demo' ) );
+	}
+
+	/**
+	 * Install sample data from the Settings page (server-side form action), so
+	 * the demo content can be created without re-running the setup wizard.
+	 *
+	 * @since 1.3.1
+	 * @return void
+	 */
+	public function handle_install_demo(): void {
+		check_admin_referer( 'wcb_install_demo' );
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-career-board' ) );
+		}
+
+		$this->install_sample_data();
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'     => 'wcb-settings',
+					'tab'      => 'listings',
+					'wcb_demo' => 'installed',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	/**
@@ -776,7 +806,7 @@ class SetupWizard extends \WCB\Api\RestController {
 					'post_type'    => 'wcb_job',
 					'post_title'   => $job['title'],
 					'post_name'    => $job['slug'],
-					'post_content' => $job['content'],
+					'post_content' => self::sample_content_to_html( $job['content'] ),
 					'post_status'  => 'publish',
 					'post_author'  => $author_id,
 				)
@@ -814,6 +844,61 @@ class SetupWizard extends \WCB\Api\RestController {
 		// -----------------------------------------------------------------
 		update_option( 'wcb_sample_data_ids', $created_ids );
 		update_option( 'wcb_sample_data_installed', true );
+
+		/**
+		 * Fires after sample/demo data is installed. Pro hooks this to seed
+		 * demo resumes (and other Pro-owned content) tied to the sample set.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param array{companies: int[], jobs: int[], terms: int[]} $created_ids Created sample IDs.
+		 */
+		do_action( 'wcb_sample_data_installed', $created_ids );
+	}
+
+	/**
+	 * Convert the lightweight markdown used in sample job content (blank-line
+	 * paragraphs, `**Heading:**` lines, `- ` bullets) into clean HTML, so the
+	 * demo jobs render as structured content - headings, paragraphs, and lists -
+	 * on the frontend and in the editor, instead of raw markdown.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $content Markdown-ish sample content.
+	 * @return string HTML.
+	 */
+	private static function sample_content_to_html( string $content ): string {
+		$html = '';
+		$list = array();
+
+		foreach ( explode( "\n", trim( $content ) ) as $raw ) {
+			$line = trim( $raw );
+			if ( '' === $line ) {
+				continue;
+			}
+
+			if ( preg_match( '/^[-*]\s+(.+)/', $line, $m ) ) {
+				$list[] = $m[1];
+				continue;
+			}
+
+			if ( $list ) {
+				$html .= '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $list ) ) . '</li></ul>';
+				$list  = array();
+			}
+
+			if ( preg_match( '/^\*\*(.+?):?\*\*$/', $line, $m ) ) {
+				$html .= '<h3>' . esc_html( $m[1] ) . '</h3>';
+			} else {
+				$html .= '<p>' . esc_html( $line ) . '</p>';
+			}
+		}
+
+		if ( $list ) {
+			$html .= '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $list ) ) . '</li></ul>';
+		}
+
+		return $html;
 	}
 
 	/**
@@ -1028,6 +1113,14 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		delete_option( 'wcb_sample_data_ids' );
 		delete_option( 'wcb_sample_data_installed' );
+
+		/**
+		 * Fires after sample/demo data is removed. Pro hooks this to delete the
+		 * demo resumes (and candidate users) it seeded.
+		 *
+		 * @since 1.3.1
+		 */
+		do_action( 'wcb_sample_data_removed' );
 
 		return $removed;
 	}

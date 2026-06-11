@@ -1,16 +1,35 @@
 {
-  "plugin_slug": "wp-career-board",
-  "plugin_name": "WP Career Board",
-  "main_file": "wp-career-board.php",
+  "$schema": "https://wpmediaverse.com/schemas/wp-plugin-qa-config-v1.json",
+  "slug": "wp-career-board",
+  "name": "WP Career Board",
   "version_constant": "WCB_VERSION",
+  "main_file": "wp-career-board.php",
+  "base_url": "http://jobboard.local",
+  "wp_path": "/Users/varundubey/Local Sites/jobboard/app/public",
+  "_site_note": "base_url/wp_path pin THIS machine's Local site. On a different QA box, override at run time: wp_path = the WP root you run wp-cli from; base_url = `wp --path=<root> option get home`.",
+  "autologin_param": "autologin",
+  "rest_namespace": "wcb/v1",
+  "front_routes": [],
+  "pair": {
+    "pro_slug": "wp-career-board-pro",
+    "pro_version_constant": "WCBP_VERSION",
+    "pro_main_file": "wp-career-board-pro.php",
+    "lockstep": true
+  },
+  "basecamp": {
+    "project_id": 46502739,
+    "bugs_column_id": 9691964821,
+    "ready_for_testing_column_id": 9681375659,
+    "in_testing_column_id": 9681375773,
+    "done_column_id": 9681375111
+  },
+  "modes": ["free", "combo"],
+  "report_path": "docs/qa/.last-smoke-pass.json",
+  "supplements_path": null,
   "db_version_option": "wcb_db_version",
   "text_domain": "wp-career-board",
   "table_prefix": "wcb",
   "cron_prefix": "wcb_",
-  "rest_namespace": "wcb/v1",
-  "test_site_url": null,
-  "test_site_path": null,
-  "_site_note": "Site URL/path are environment-specific and intentionally NOT hardcoded — every QA's Local site differs. Derive at run time: test_site_path = the WP root you run wp-cli from (this plugin lives at <root>/wp-content/plugins/wp-career-board, so the root is the current dir when you run wp); test_site_url = `wp --path=<root> option get home`. Set explicit values here only to pin a fixed CI box.",
   "personas": {
     "admin": "varundubey",
     "editor": null,
@@ -19,18 +38,7 @@
     "candidate": "sarah.chen",
     "subscriber": "siobhan"
   },
-  "integrations": [
-    "buddypress"
-  ],
-  "basecamp": {
-    "project_id": "46502739",
-    "bugs_column_id": "9691964821",
-    "ready_for_testing_column_id": "9681375659",
-    "in_testing_column_id": "9681375773",
-    "done_column_id": "9681375111"
-  },
-  "pro_slug": "wp-career-board-pro",
-  "pro_version_constant": "WCBP_VERSION",
+  "integrations": ["buddypress"],
   "fixture_cleanup_sql": [
     "DELETE FROM {prefix}posts WHERE post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board','wcb_credit_package') AND (post_title LIKE 'Smoke %' OR post_title LIKE 'Smoke-Batch%' OR post_title LIKE 'E2E %')",
     "DELETE FROM {prefix}postmeta WHERE meta_key = '_wcb_qa_smoke'",
@@ -42,7 +50,6 @@
     "PHP Notice.*BuddyPress.*"
   ],
   "outputs": {
-    "smoke_report": "docs/qa/.last-smoke-pass.json",
     "journey_runs_dir": "audit/journey-runs",
     "screenshots_dir": "audit/journey-runs/{run_id}/screenshots",
     "debug_log_archive": "docs/qa/.debug-log-{version}-{ran_at}.txt"

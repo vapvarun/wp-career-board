@@ -290,18 +290,24 @@ final class ApplicationsEndpoint extends RestController {
 		}
 		if ( $attachment_id > 0 ) {
 			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
-		} elseif ( $resume_id > 0 && $this->resume_required() ) {
-			// Candidate picked a saved resume but it has no PDF attached yet —
-			// happens when the resume was created in the manual builder but
-			// never exported. Tell the candidate exactly what to do next
-			// instead of letting the application land with a blank file.
-			wp_delete_post( $app_id, true );
-			return new \WP_Error(
-				'wcb_resume_no_pdf',
-				__( "This resume doesn't have a PDF attached yet. Open it in the resume builder and use 'Download as PDF' (or upload a file below) before applying.", 'wp-career-board' ),
-				array( 'status' => 400 )
-			);
-		} elseif ( $this->resume_required() && $resume_id <= 0 ) {
+		} elseif ( $resume_id > 0 ) {
+			// Candidate picked a saved resume with no uploaded PDF — common when
+			// the resume was built in the manual builder. Auto-generate the PDF so
+			// applying stays one tap: Pro renders the structured resume to a PDF and
+			// caches it on the resume. Falls back to the upload/export error only
+			// when generation isn't available (e.g. Pro inactive).
+			$generated_id = (int) apply_filters( 'wcb_resume_pdf_attachment_id', 0, $resume_id, $candidate_id );
+			if ( $generated_id > 0 ) {
+				update_post_meta( $app_id, '_wcb_resume_attachment_id', $generated_id );
+			} elseif ( $this->resume_required() ) {
+				wp_delete_post( $app_id, true );
+				return new \WP_Error(
+					'wcb_resume_no_pdf',
+					__( "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying.", 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+		} elseif ( $this->resume_required() ) {
 			wp_delete_post( $app_id, true );
 			return new \WP_Error(
 				'wcb_resume_required',
@@ -987,15 +993,29 @@ final class ApplicationsEndpoint extends RestController {
 	private function prepare_for_candidate( \WP_Post $post ): array {
 		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
+		$resume_id            = (int) get_post_meta( $post->ID, '_wcb_resume_id', true );
+
+		// Public on-site resume profile — lets the employer review the candidate's
+		// full resume (experience, education, skills) on the site instead of relying
+		// only on a downloaded file, which may not exist for builder/imported resumes.
+		$resume_permalink = '';
+		if ( $resume_id > 0 && '1' === (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+			$resume_post = get_post( $resume_id );
+			if ( $resume_post instanceof \WP_Post && 'wcb_resume' === $resume_post->post_type ) {
+				$resume_permalink = (string) get_permalink( $resume_id );
+			}
+		}
+
 		return array(
-			'id'           => $post->ID,
-			'job_id'       => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
-			'candidate_id' => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
-			'cover_letter' => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-			'resume_id'    => (int) get_post_meta( $post->ID, '_wcb_resume_id', true ),
-			'resume_url'   => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
-			'status'       => '' !== $status ? $status : 'submitted',
-			'submitted_at' => $post->post_date,
+			'id'               => $post->ID,
+			'job_id'           => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'candidate_id'     => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
+			'cover_letter'     => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			'resume_id'        => $resume_id,
+			'resume_url'       => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'resume_permalink' => $resume_permalink,
+			'status'           => '' !== $status ? $status : 'submitted',
+			'submitted_at'     => $post->post_date,
 			// status_history intentionally omitted — internal employer audit
 			// trail. F-3 in plan/role-data-baseline-2026-05-07.md.
 		);

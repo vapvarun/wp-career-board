@@ -500,6 +500,205 @@
 	display: block;
 }
 
+/* AI applicant ranking */
+.wcb-ai-rank-btn {
+	display: inline-flex;
+	margin: var(--wcb-space-md) var(--wcb-space-lg);
+}
+
+.wcb-ai-score {
+	flex-shrink: 0;
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-teal-bg);
+	color: var(--wcb-teal-fg);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	line-height: 1.5;
+	white-space: nowrap;
+}
+
+.wcb-detail-section-label .wcb-ai-score {
+	margin-inline-start: var(--wcb-space-sm);
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+/* -- Applications layout toggle (List / Board) -- */
+.wcb-apps-layout-toggle {
+	display: none;
+	margin-bottom: var(--wcb-space-lg);
+	padding: 3px;
+	gap: 2px;
+	background: var(--wcb-bg-subtle);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	width: fit-content;
+}
+
+.wcb-apps-layout-toggle.wcb-shown {
+	display: inline-flex;
+}
+
+.wcb-layout-btn {
+	appearance: none;
+	border: none;
+	background: transparent;
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-secondary);
+	border-radius: var(--wcb-radius-sm);
+	cursor: pointer;
+	transition: background 0.1s, color 0.1s;
+}
+
+.wcb-layout-btn:hover {
+	color: var(--wcb-contrast);
+}
+
+.wcb-layout-btn:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-layout-btn.wcb-layout-active {
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* -- Board (Kanban) layout -- */
+.wcb-apps-board {
+	display: none;
+	gap: var(--wcb-space-md);
+	padding-bottom: var(--wcb-space-md);
+}
+
+/* Desktop + tablet: all five status columns fit the width, no horizontal scroll. */
+.wcb-apps-board.wcb-shown {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.wcb-board-col {
+	min-width: 0;
+	background: var(--wcb-bg-subtle);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+	display: flex;
+	flex-direction: column;
+}
+
+.wcb-board-col-head {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-board-col-cards {
+	flex: 1 1 auto;
+	min-height: 80px;
+	padding: var(--wcb-space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-board-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-md);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	cursor: grab;
+	transition: border-color 0.12s, box-shadow 0.12s, transform 0.12s;
+}
+
+.wcb-board-card:hover {
+	border-color: var(--wcb-primary);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	transform: translateY(-1px);
+}
+
+.wcb-board-card:active {
+	cursor: grabbing;
+	transform: none;
+}
+
+.wcb-board-card-head {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+}
+
+.wcb-board-card .wcb-app-avatar {
+	width: 26px;
+	height: 26px;
+	font-size: 11px;
+	background: var(--wcb-primary-bg, #eef2ff);
+	color: var(--wcb-primary);
+}
+
+.wcb-board-card .wcb-app-name {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	white-space: normal;
+	overflow-wrap: anywhere;
+	line-height: 1.3;
+}
+
+/* Premium status accent — a coloured dot per column header. */
+.wcb-board-col-head::before {
+	content: "";
+	flex-shrink: 0;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--wcb-text-tertiary);
+}
+
+.wcb-board-col[data-status="reviewing"]   .wcb-board-col-head::before { background: var(--wcb-primary); }
+.wcb-board-col[data-status="shortlisted"] .wcb-board-col-head::before { background: var(--wcb-warning); }
+.wcb-board-col[data-status="hired"]       .wcb-board-col-head::before { background: var(--wcb-success); }
+.wcb-board-col[data-status="rejected"]    .wcb-board-col-head::before { background: var(--wcb-danger); }
+
+.wcb-ai-fit .wcb-ai-reason {
+	margin: var(--wcb-space-sm) 0 0;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
+/* AI TL;DR summary — applicant row (2-line clamp) + detail panel */
+.wcb-ai-summary {
+	display: -webkit-box;
+	margin-top: 2px;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-tertiary);
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.wcb-ai-summary-detail {
+	margin: var(--wcb-space-sm) 0 0;
+	font-size: var(--wcb-text-base);
+	font-style: italic;
+	color: var(--wcb-text-secondary);
+}
+
 /* Avatar (generic) */
 .wcb-avatar,
 .wcb-detail-avatar {
@@ -604,6 +803,12 @@
 	color: var(--wcb-contrast);
 	margin-top: var(--wcb-space-sm);
 	white-space: pre-wrap;
+}
+
+.wcb-resume-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
 }
 
 .wcb-resume-chip {
@@ -879,6 +1084,23 @@
 
 	.wcb-job-actions {
 		width: 100%;
+	}
+
+	/* AI rank button spans the list width when the split panel stacks */
+	.wcb-ai-rank-btn {
+		justify-content: center;
+		width: calc(100% - (2 * var(--wcb-space-lg)));
+	}
+
+	/* On phones the five columns can't fit, so switch to a horizontal scroll. */
+	.wcb-apps-board.wcb-shown {
+		display: flex;
+		overflow-x: auto;
+	}
+
+	.wcb-board-col {
+		flex: 0 0 80vw;
+		min-width: 80vw;
 	}
 }
 

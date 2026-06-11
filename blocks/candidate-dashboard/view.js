@@ -254,6 +254,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noRecentSavedJobs() {
 			return state.overviewRecentSavedJobs.length === 0;
 		},
+		get showRecommendations() {
+			return state.aiMatching && state.recommendations.length > 0;
+		},
 	},
 
 	actions: {
@@ -355,6 +358,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 			if ( state.bellEnabled ) {
 				yield actions.fetchBellNotifications();
+			}
+
+			if ( state.aiMatching ) {
+				yield actions.loadRecommendations();
 			}
 		},
 
@@ -480,6 +487,31 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.savedResumesError = state.strings.errConnectionFull || 'Connection error.';
 			} finally {
 				state.savedResumesLoading = false;
+			}
+		},
+
+		*loadRecommendations() {
+			if ( ! state.aiMatching || ! state.currentUserId ) {
+				return;
+			}
+			state.recsLoading = true;
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/candidates/' + String( state.currentUserId ) + '/matches',
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( ! response.ok ) {
+					return;
+				}
+				const data = yield response.json();
+				state.recommendations = ( Array.isArray( data ) ? data : [] ).map( ( r ) => ( {
+					...r,
+					score_label: String( r.score_pct ?? '' ) + '%',
+				} ) );
+			} catch {
+				// Silent — recommendations are non-critical.
+			} finally {
+				state.recsLoading = false;
 			}
 		},
 
@@ -1112,6 +1144,39 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				n.is_read = true;
 			} );
 			state.bellUnreadCount = 0;
+		},
+
+		*deleteBellNotification() {
+			const ctx = getContext();
+			const id  = ctx.notif?.id;
+			if ( ! id ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications/' + String( id ), {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = state.bellNotifications.filter( ( n ) => n.id !== id );
+			state.bellUnreadCount   = state.bellNotifications.filter( ( n ) => ! n.is_read ).length;
+		},
+
+		*clearBellNotifications() {
+			try {
+				yield window.wcbConfirm( {
+					title:       state.strings.confirmClearAllTitle,
+					message:     state.strings.confirmClearAllMsg,
+					confirmText: state.strings.clearAll,
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications', {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = [];
+			state.bellUnreadCount   = 0;
 		},
 
 		*withdrawApplication() {

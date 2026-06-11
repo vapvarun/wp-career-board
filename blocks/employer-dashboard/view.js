@@ -44,6 +44,11 @@ function writeHashView( view ) {
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
+		// Applications tab layout — 'list' (split panel) or 'board' (Kanban by
+		// status). draggingAppId holds the application id mid-drag so the drop
+		// target knows which card to re-status.
+		appsLayout: 'list',
+		draggingAppId: null,
 		// Resolves the stored industry slug to its translated label using the
 		// industryLabels map seeded from PHP. Falls back to the raw value so
 		// legacy free-text entries still display until migrated.
@@ -263,9 +268,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Application filter.
 		get filteredApps() {
 			const f = state.appsFilter;
-			return f === 'all'
+			const list = f === 'all'
 				? state.applications
 				: state.applications.filter( ( a ) => a.status === f );
+			if ( state.aiRanked ) {
+				return [ ...list ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
+			}
+			return list;
+		},
+		// AI ranking controls (Pro — only shown when wcb_ai_ranking_available).
+		get showAiRankButton() {
+			return state.aiRanking && state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
+		},
+		get aiRankBtnLabel() {
+			return state.aiRankLoading ? state.strings.aiRankingLabel : state.strings.aiRankButton;
 		},
 		get isAppsFilterAll() {
 			return state.appsFilter === 'all';
@@ -284,6 +300,32 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isAppsFilterHired() {
 			return state.appsFilter === 'hired';
+		},
+
+		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get isAppsBoardLayout() {
+			return state.appsLayout === 'board';
+		},
+		get isAppsListLayout() {
+			return state.appsLayout !== 'board';
+		},
+		// Board columns — one per status, each carrying its filtered (and
+		// optionally AI-ranked) applications. Same source of truth as the list.
+		get appsBoardColumns() {
+			const defs = [
+				{ key: 'submitted',   label: state.strings.statusSubmitted },
+				{ key: 'reviewing',   label: state.strings.statusReviewing },
+				{ key: 'shortlisted', label: state.strings.statusShortlisted },
+				{ key: 'hired',       label: state.strings.statusHired },
+				{ key: 'rejected',    label: state.strings.statusRejected },
+			];
+			return defs.map( ( d ) => {
+				let apps = state.applications.filter( ( a ) => a.status === d.key );
+				if ( state.aiRanked ) {
+					apps = [ ...apps ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
+				}
+				return { key: d.key, label: d.label, count: apps.length, apps };
+			} );
 		},
 
 		// Per-status counts — computed from already-loaded applications, no extra REST calls.
@@ -333,11 +375,29 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppResumeUrl() {
 			return state.selectedApp?.resume_url ?? null;
 		},
+		get selectedAppResumePermalink() {
+			return state.selectedApp?.resume_permalink ?? null;
+		},
+		get selectedAppHasResume() {
+			return !! ( state.selectedApp?.resume_permalink || state.selectedApp?.resume_url );
+		},
 		get selectedAppInitials() {
 			const n = state.selectedAppName;
 			return n
 				? n.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
 				: '?';
+		},
+		get selectedAppHasAiScore() {
+			return typeof state.selectedApp?.aiScore === 'number';
+		},
+		get selectedAppAiScoreLabel() {
+			return state.selectedApp?.aiScoreLabel ?? '';
+		},
+		get selectedAppAiReason() {
+			return state.selectedApp?.aiReason ?? '';
+		},
+		get selectedAppAiSummary() {
+			return state.selectedApp?.aiSummary ?? '';
 		},
 
 		// Context getters — inside data-wp-each--app loop.
@@ -838,7 +898,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					initials: a.applicant_name
 						? a.applicant_name.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
 						: '?',
+					...( typeof a.ai_score === 'number'
+						? {
+							aiScore: a.ai_score,
+							aiScoreLabel: String( a.ai_score ) + '%',
+							aiReason: a.ai_reason || '',
+							aiSummary: a.ai_summary || '',
+						}
+						: {} ),
 				} ) );
+				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
+					state.aiRanked = true;
+				}
 				const match = state.jobs.find( ( j ) => j.id === state.appsJobId );
 				if ( match ) {
 					state.appsJobTitle = match.title;
@@ -850,9 +921,45 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*updateAppStatus( event ) {
-			const appId     = Number( event.target.dataset.wcbAppId );
-			const newStatus = event.target.value;
+		// Rank the loaded applications by AI fit score (Pro /ai/ranked-applications).
+		*rankByAi() {
+			if ( ! state.appsJobId || state.aiRankLoading ) {
+				return;
+			}
+			state.aiRankLoading = true;
+			state.appsError     = '';
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/ai/ranked-applications/' + String( state.appsJobId ),
+					{ headers: { 'X-WP-Nonce': state.nonce }, timeout: 120000 }
+				);
+				if ( ! response.ok ) {
+					throw new Error( 'rank failed' );
+				}
+				const ranked = yield response.json();
+				const byId   = {};
+				( Array.isArray( ranked ) ? ranked : [] ).forEach( ( r ) => {
+					byId[ Number( r.application_id ) ] = r;
+				} );
+				state.applications = state.applications.map( ( a ) => {
+					const r = byId[ a.id ];
+					return r
+						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: String( Number( r.score ) ) + '%' }
+						: a;
+				} );
+				state.aiRanked = true;
+			} catch {
+				state.appsError = state.strings.errorConnectionApps;
+			} finally {
+				state.aiRankLoading = false;
+			}
+		},
+
+		// Shared status PATCH — the single source of truth for changing an
+		// application's status. Both the detail-panel <select> (updateAppStatus)
+		// and the Board drag-and-drop (onColumnDrop) route through here so the
+		// same endpoint, local update, and confirmation message apply.
+		*applyStatusChange( appId, newStatus ) {
 			if ( ! appId || ! newStatus ) {
 				return;
 			}
@@ -873,9 +980,44 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					if ( idx !== -1 ) {
 						state.applications[ idx ].status = newStatus;
 					}
+					state.statusMsg = state.i18nStatusSaved;
+				} else {
+					state.statusMsg = state.i18nStatusError;
 				}
 			} catch {
-				// Network error — select will show stale value until next load.
+				state.statusMsg = state.i18nStatusError;
+			}
+		},
+
+		*updateAppStatus( event ) {
+			const appId     = Number( event.target.dataset.wcbAppId );
+			const newStatus = event.target.value;
+			yield actions.applyStatusChange( appId, newStatus );
+		},
+
+		setAppsLayout( event ) {
+			state.appsLayout = event.target.dataset.layout === 'board' ? 'board' : 'list';
+		},
+
+		onCardDragStart( event ) {
+			state.draggingAppId = Number( getContext().app.id );
+			event.dataTransfer.effectAllowed = 'move';
+		},
+
+		onColumnDragOver( event ) {
+			event.preventDefault();
+		},
+
+		*onColumnDrop( event ) {
+			event.preventDefault();
+			const status = getContext().column.key;
+			const appId  = state.draggingAppId;
+			state.draggingAppId = null;
+			if ( appId && status ) {
+				const app = state.applications.find( ( a ) => a.id === appId );
+				if ( app && app.status !== status ) {
+					yield actions.applyStatusChange( appId, status );
+				}
 			}
 		},
 
@@ -1219,6 +1361,39 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				n.is_read = true;
 			} );
 			state.bellUnreadCount = 0;
+		},
+
+		*deleteBellNotification() {
+			const ctx = getContext();
+			const id  = ctx.notif?.id;
+			if ( ! id ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications/' + String( id ), {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = state.bellNotifications.filter( ( n ) => n.id !== id );
+			state.bellUnreadCount   = state.bellNotifications.filter( ( n ) => ! n.is_read ).length;
+		},
+
+		*clearBellNotifications() {
+			try {
+				yield window.wcbConfirm( {
+					title:       state.strings.confirmClearAllTitle,
+					message:     state.strings.confirmClearAllMsg,
+					confirmText: state.strings.clearAll,
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			yield wcbFetch( state.apiBase + '/notifications', {
+				method:  'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			state.bellNotifications = [];
+			state.bellUnreadCount   = 0;
 		},
 	},
 } );

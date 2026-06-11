@@ -31,7 +31,7 @@
 	/* 125 px min lets all 5 cards fit at 5 * 125 + 4 * 16 gap = 689 px,
 	 * comfortably within the ~748 px row width Storefront / Twenty
 	 * Twenty-Three / certain Astra layouts produce on a 1024 px viewport. */
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), minmax(0, 1fr)));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr));
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-2xl);
 }
@@ -236,14 +236,30 @@
 .wcb-notifications__bar {
 	display: flex;
 	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
 	margin-bottom: var(--wcb-space-md);
 }
-.wcb-bell-read-all {
+.wcb-bell-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 	background: none;
 	border: none;
+	padding: 6px 8px;
+	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-primary);
 	cursor: pointer;
+}
+.wcb-bell-action:hover {
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+.wcb-bell-action svg {
+	width: 15px;
+	height: 15px;
+}
+.wcb-bell-clear-all {
+	color: var(--wcb-danger);
 }
 .wcb-bell-list {
 	background: var(--wcb-base);
@@ -252,11 +268,10 @@
 	overflow: hidden;
 }
 .wcb-bell-item {
-	display: block;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
 	border-bottom: 1px solid var(--wcb-bg-subtle);
-	text-decoration: none;
-	color: inherit;
 }
 .wcb-bell-item:last-child {
 	border-bottom: none;
@@ -266,6 +281,39 @@
 }
 .wcb-bell-unread {
 	background: var(--wcb-info-bg);
+}
+.wcb-bell-item__link {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: block;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	text-decoration: none;
+	color: inherit;
+}
+.wcb-bell-item__delete {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	margin-right: var(--wcb-space-sm);
+	background: none;
+	border: none;
+	border-radius: var(--wcb-radius-sm);
+	color: var(--wcb-text-tertiary);
+	cursor: pointer;
+	transition: color 0.15s ease, background 0.15s ease;
+}
+.wcb-bell-item__delete:hover,
+.wcb-bell-item__delete:focus-visible {
+	color: var(--wcb-danger);
+	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+.wcb-bell-item__delete svg {
+	flex: 0 0 auto;
+	width: 16px;
+	height: 16px;
 }
 .wcb-bell-msg {
 	display: block;

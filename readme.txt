@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,41 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.0 - June 2026 =
+
+AI-assisted hiring on the dashboard (applicant ranking, TL;DR summaries, AI cover letters), a List/Board Kanban for applications, any logged-in member can apply, plus onboarding, layout, and email fixes.
+
+* New      - Any logged-in member can apply to jobs, save jobs, build a resume, and use the candidate dashboard without a dedicated Candidate role - ideal when the job board is part of a community site.
+* New      - "Require Candidate Role" setting (and the wcb_candidate_requires_role filter) to reserve the candidate experience for the Candidate role when you want stricter separation.
+* Improve  - Apply with a saved resume in one tap: your most recent resume is pre-selected, and resumes built in the Resume Builder no longer have to be exported to PDF first - the PDF is generated and attached automatically on apply (Pro).
+* Improve  - Employers can review an applicant's full resume on the site: the application view adds a "View Resume" link to the candidate's public profile alongside the download.
+* Fix      - Resumes imported from WP Job Manager Resumes no longer appear blank - their experience and education now render on the public profile, in the PDF, and in the employer's application view.
+* New      - Install or remove the demo/sample data straight from Career Board > Settings, without re-running the setup wizard.
+* Fix      - "Generate with AI" on the job form now completes and fills the description editor - the request no longer aborts mid-generation, and the generated text is pushed into the rich editor.
+* Fix      - Job descriptions (AI-generated and demo) now render as structured content - headings, paragraphs, and bullet lists - instead of one wall of text. The editor parses the structure and the sample data ships as clean HTML.
+* Dev      - Sample-data install/remove now fire `wcb_sample_data_installed` / `wcb_sample_data_removed` so add-ons (Pro) can seed and clean up their own demo content alongside the sample set.
+* Dev      - POST /wcb/v1/jobs now returns HTTP 201 on successful job creation, matching the resume endpoint and standard REST conventions.
+* Improve  - Applying without a saved resume now shows a clear "Build a resume" link (to your dashboard) instead of a dead-end "No resume found" message - the file-upload option stays available.
+* Improve  - Candidate dashboard empty states ("No applications yet", "No saved jobs yet") now link to "Browse jobs" so there is always an obvious next step.
+* Improve  - Changing an applicant's status now confirms it saved ("Status updated. The candidate has been notified.") instead of silently updating the dropdown.
+* Improve  - The Anti-Spam settings tab now uses the same card layout as the rest of Settings (it was rendering as bare headings and fields), and the reCAPTCHA fields link to where to get the keys.
+* Improve  - Non-employers who open the Employer Dashboard or Post a Job now get a helpful message with a "Register as an employer" link (and a route back to the candidate dashboard) instead of a dead-end "no permission" message.
+* Improve  - Resume options no longer look split between free and pro: the "Public Resume Archive" toggle moved to Settings > Resumes (Pro) with the other resume options, and the upload-size field was relabeled "Application Resume File Size" to make clear it controls the file attached to a job application (a free feature).
+* Improve  - The Employer Dashboard overview now guides a new employer from the landing screen: "Set Up Company Profile" before a company exists, then "Post Your First Job" once it is ready (these calls to action were previously only on the My Jobs tab).
+* Fix      - Employer Dashboard overview stat cards now count the employer's own jobs and applications, matching the lists below; they previously counted by company and could under-report when a job was not yet linked to the company.
+* New      - Employer Dashboard: rank a job's applicants by AI fit (requires Pro and an AI provider). Each applicant shows a fit-score badge, the list sorts best-first, and the applicant detail shows the reasoning.
+* New      - Candidate Dashboard: a "Recommended for you" set of AI-matched jobs on the overview (requires Pro and an embedding provider).
+* New      - Employer Dashboard shows each applicant's AI fit score and a one-line TL;DR summary on load once scored, sorted best-first (requires Pro and an AI provider).
+* New      - Apply panel: a "Write with AI" button drafts a cover letter from the candidate's resume and the job, ready to edit before applying (requires Pro and an AI provider).
+* New      - Employer Dashboard Applications now has a List / Board toggle. The Board groups applicants into status columns (Submitted, Reviewing, Shortlisted, Hired, Rejected); drag a card to change an applicant's status, and the board, list, status emails, and AI ranking all stay in sync.
+* Fix      - The admin email "Test Send" no longer logs a PHP warning when previewing the application-received template (a candidate_name preview variable was missing). Real notification sends were unaffected.
+* Fix      - Apply drawer: the cover letter no longer touches the Submit button (restored the spacing the rich editor had dropped).
+* New      - Delete a single notification or clear all of them from the dashboard Notifications panel.
+* Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
+* Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.
+* Fix      - Dashboard block scripts and styles now cache-bust on each release, so updates reach browsers that cached an earlier version.
+* Compat   - Aligned with WP Career Board Pro 1.4.0. Install both updates together.
 
 = 1.3.0 - June 2026 =
 

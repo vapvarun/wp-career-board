@@ -26,7 +26,21 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	echo '<p>' . esc_html__( 'You must be logged in as an employer to post a job.', 'wp-career-board' ) . '</p>';
+	$wcb_settings_opt = (array) get_option( 'wcb_settings', array() );
+	$wcb_emp_reg_page = (int) ( $wcb_settings_opt['employer_registration_page'] ?? 0 );
+	?>
+	<div class="wcb-job-form-gate">
+	<?php if ( ! is_user_logged_in() ) : ?>
+		<p><?php esc_html_e( 'Please sign in as an employer to post a job.', 'wp-career-board' ); ?></p>
+		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Sign In', 'wp-career-board' ); ?></a>
+	<?php else : ?>
+		<p><?php esc_html_e( 'Posting a job is for employers. Register as an employer to start hiring - it only takes a minute.', 'wp-career-board' ); ?></p>
+		<?php if ( $wcb_emp_reg_page > 0 ) : ?>
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?></a>
+		<?php endif; ?>
+	<?php endif; ?>
+	</div>
+	<?php
 	return;
 }
 

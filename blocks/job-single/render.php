@@ -226,6 +226,17 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	if ( $wcb_rb_pages ) {
 		$wcb_resume_page_url = get_permalink( $wcb_rb_pages[0]->ID );
 	}
+
+	// Fallback: when no dedicated resume-builder page exists, send the candidate
+	// to their dashboard's resume tab so a no-resume applicant always has a place
+	// to add one instead of a dead-end message.
+	if ( '' === $wcb_resume_page_url ) {
+		$wcb_settings_opt   = (array) get_option( 'wcb_settings', array() );
+		$wcb_cand_dash_page = (int) ( $wcb_settings_opt['candidate_dashboard_page'] ?? 0 );
+		if ( $wcb_cand_dash_page > 0 ) {
+			$wcb_resume_page_url = get_permalink( $wcb_cand_dash_page ) . '#resumes';
+		}
+	}
 }
 
 // Mirror the server-side default in ApplicationsEndpoint::resume_required():
@@ -250,9 +261,14 @@ wp_interactivity_state(
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
 		'coverLetter'          => '',
+		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		'coverLoading'         => false,
 		'error'                => '',
 		'userResumes'          => $wcb_user_resumes,
-		'selectedResumeId'     => 0,
+		// Pre-select the newest resume so applying is one tap; the candidate can
+		// still switch or upload a different file. PDF-less builder resumes are
+		// generated on submit (wcb_resume_pdf_attachment_id), so all are eligible.
+		'selectedResumeId'     => ! empty( $wcb_user_resumes ) ? (int) $wcb_user_resumes[0]['id'] : 0,
 		'resumePageUrl'        => $wcb_resume_page_url,
 		'proActive'            => post_type_exists( 'wcb_resume' ),
 		'careerBoardProActive' => $wcb_career_board_pro_active,
@@ -285,6 +301,8 @@ wp_interactivity_state(
 			'connectionError'      => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'reportReasonRequired' => __( 'Please choose a reason for reporting.', 'wp-career-board' ),
 			'reportFailed'         => __( 'Could not submit your report. Please try again.', 'wp-career-board' ),
+			'aiCoverBtn'           => __( 'Write with AI', 'wp-career-board' ),
+			'aiCoverBusy'          => __( 'Writing…', 'wp-career-board' ),
 		),
 	)
 );
@@ -904,27 +922,27 @@ wp_interactivity_state(
 								class="wcb-apply-resume-select"
 								data-wp-on--change="actions.selectResume"
 							>
-								<option value="0"><?php esc_html_e( ' -  Select a resume  - ', 'wp-career-board' ); ?></option>
-				<?php foreach ( $wcb_user_resumes as $wcb_r ) : ?>
-									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo empty( $wcb_r['hasPdf'] ) ? ' disabled' : ''; ?>>
-					<?php
-					echo esc_html( $wcb_r['title'] );
-					if ( empty( $wcb_r['hasPdf'] ) ) {
-						/* translators: shown next to a resume that has no PDF attachment yet. */
-						echo ' ' . esc_html__( '(no PDF  -  open in builder and download to attach)', 'wp-career-board' );
-					}
+				<?php
+				$wcb_first_resume = true;
+				foreach ( $wcb_user_resumes as $wcb_r ) :
 					?>
+									<option value="<?php echo (int) $wcb_r['id']; ?>"<?php echo $wcb_first_resume ? ' selected' : ''; ?>>
+										<?php echo esc_html( $wcb_r['title'] ); ?>
 									</option>
-				<?php endforeach; ?>
+									<?php
+									$wcb_first_resume = false;
+				endforeach;
+				?>
+								<option value="0"><?php esc_html_e( 'Upload a different file instead', 'wp-career-board' ); ?></option>
 							</select>
 						<?php else : ?>
 							<p class="wcb-apply-no-resume">
 								<span data-wp-class--wcb-hidden="state.resumeFileName">
-							<?php esc_html_e( 'No resume found.', 'wp-career-board' ); ?>
+							<?php esc_html_e( 'No saved resume yet.', 'wp-career-board' ); ?>
 								</span>
 							<?php if ( $wcb_resume_page_url && $wcb_career_board_pro_active ) : ?>
 									<a href="<?php echo esc_url( $wcb_resume_page_url ); ?>">
-								<?php esc_html_e( 'Create your resume →', 'wp-career-board' ); ?>
+								<?php esc_html_e( 'Build a resume →', 'wp-career-board' ); ?>
 									</a>
 							<?php endif; ?>
 							</p>
@@ -963,10 +981,20 @@ wp_interactivity_state(
 					</label>
 				</div>
 
-				<label class="wcb-field-label" for="wcb-cover-letter">
+				<div class="wcb-cover-letter-head">
+					<label class="wcb-field-label" for="wcb-cover-letter">
 		<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>
-					<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
-				</label>
+						<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
+					</label>
+					<button
+						type="button"
+						class="wcb-btn wcb-btn--ghost wcb-ai-cover-btn"
+						data-wp-class--wcb-hidden="!state.aiCoverEnabled"
+						data-wp-bind--disabled="state.coverLoading"
+						data-wp-on--click="actions.generateCoverLetter"
+						data-wp-text="state.aiCoverBtnLabel"
+					></button>
+				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-cover-letter"></div>
 					<textarea

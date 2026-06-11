@@ -191,7 +191,7 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'resume_archive_enabled', 'max_resumes' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -204,9 +204,9 @@ class AdminSettings {
 			'deadline_auto_close'        => ! empty( $input['deadline_auto_close'] ),
 			'allow_withdraw'             => ! empty( $input['allow_withdraw'] ),
 			'apply_resume_required'      => ! empty( $input['apply_resume_required'] ),
+			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
-			'resume_archive_enabled'     => ! empty( $input['resume_archive_enabled'] ),
 			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
@@ -217,7 +217,6 @@ class AdminSettings {
 			'notification_email'         => isset( $input['notification_email'] ) ? sanitize_email( $input['notification_email'] ) : '',
 			'from_name'                  => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
 			'from_email'                 => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
-			'max_resumes'                => isset( $input['max_resumes'] ) ? max( 1, min( 20, (int) $input['max_resumes'] ) ) : 2,
 			'resume_archive_page'        => isset( $input['resume_archive_page'] ) ? (int) $input['resume_archive_page'] : 0,
 		);
 
@@ -477,16 +476,45 @@ class AdminSettings {
 		// `_wcb_sample = 1` tagged posts still exist — also see the cleanup button
 		// instead of being stranded.
 		$wcb_has_sample = SetupWizard::has_sample_data();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only post-redirect flag.
+		if ( isset( $_GET['wcb_demo'] ) && 'installed' === sanitize_key( wp_unslash( $_GET['wcb_demo'] ) ) ) {
+			echo '<div class="notice notice-success wcb-notice is-dismissible"><p>' . esc_html__( 'Sample data installed.', 'wp-career-board' ) . '</p></div>';
+		}
+
+		// Install option - shown when no sample data exists, so demo content can be
+		// created straight from Settings (the setup wizard remains available too).
+		if ( ! $wcb_has_sample ) :
+			?>
+			<div class="wcb-settings-card" id="wcb-install-sample-block">
+				<div class="wcb-settings-card-header">
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+				</div>
+				<div class="wcb-settings-row" style="display: block;">
+					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="wcb_install_demo" />
+			<?php wp_nonce_field( 'wcb_install_demo' ); ?>
+						<button type="submit" class="button button-secondary"><?php esc_html_e( 'Install Sample Data', 'wp-career-board' ); ?></button>
+					</form>
+				</div>
+			</div>
+			<?php
+		endif;
+
 		if ( $wcb_has_sample ) :
 			// Ensure the shared confirm-modal assets are present on the settings
 			// page so wcbConfirm() resolves; wcbToast() ships with wcb-admin.
 			wp_enqueue_style( 'wcb-confirm-modal' );
 			wp_enqueue_script( 'wcb-confirm-modal' );
 			?>
-			<div class="wcb-settings-section__block" id="wcb-sample-data-block" style="margin-top: 2rem;">
-				<h3><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
-				<button type="button" id="wcb-remove-sample-data" class="button button-secondary" style="margin-top: 0.5rem;">
+			<div class="wcb-settings-card" id="wcb-sample-data-block">
+				<div class="wcb-settings-card-header">
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+				</div>
+				<div class="wcb-settings-row" style="display: block;">
+					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
+					<button type="button" id="wcb-remove-sample-data" class="button button-secondary">
 				<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
 				</button>
 				<span id="wcb-remove-sample-status" class="description" style="margin-left: 0.75rem;"></span>
@@ -583,6 +611,7 @@ class AdminSettings {
 					} );
 				} )();
 				</script>
+				</div>
 			</div>
 			<?php
 		endif;
@@ -875,20 +904,20 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><?php esc_html_e( 'Public Resume Archive', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'Require Candidate Role', 'wp-career-board' ); ?></div>
 										<div class="wcb-settings-row-control">
 											<label class="wcb-toggle-label">
 												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[resume_archive_enabled]" value="1" <?php checked( ! empty( $settings['resume_archive_enabled'] ) ); ?>>
+													<input type="checkbox" name="wcb_settings[candidate_requires_role]" value="1" <?php checked( ! empty( $settings['candidate_requires_role'] ) ); ?>>
 													<span class="wcb-toggle-slider"></span>
 												</span>
-												<?php esc_html_e( 'Make resume profiles publicly viewable at /resume/{slug}', 'wp-career-board' ); ?>
+												<?php esc_html_e( 'Only the Candidate role can apply, bookmark, and use the candidate dashboard', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Enable this only when you intend to publish candidate profiles to the open web. Toggling refreshes the URL rewrite rules automatically.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Off by default: any logged-in member can apply and manage a resume (ideal when the job board is part of a community site). Turn on to reserve the candidate experience for users with the Candidate role.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><label for="wcb-resume-max-mb"><?php esc_html_e( 'Resume Max Size (MB)', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-label"><label for="wcb-resume-max-mb"><?php esc_html_e( 'Application Resume File Size (MB)', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input
 												id="wcb-resume-max-mb"
@@ -899,7 +928,7 @@ class AdminSettings {
 												max="20"
 												step="1"
 											>
-											<span class="description"><?php esc_html_e( 'Maximum file size for uploaded resumes (1-20 MB). Accepted formats: PDF, DOC, DOCX.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Maximum size of a resume file a candidate uploads when applying to a job (1-20 MB). Accepted formats: PDF, DOC, DOCX. The resume profile builder lives under Settings > Resumes.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

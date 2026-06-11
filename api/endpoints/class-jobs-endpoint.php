@@ -704,7 +704,9 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_created', $job_id, $request );
 
-		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
+		$wcb_response = rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
+		$wcb_response->set_status( 201 );
+		return $wcb_response;
 	}
 
 	/**
@@ -1075,24 +1077,39 @@ final class JobsEndpoint extends RestController {
 				$status_raw     = (string) get_post_meta( $p->ID, '_wcb_status', true );
 
 				return array(
-					'id'              => $p->ID,
-					'candidate_id'    => $candidate_id,
-					'applicant_name'  => $candidate_user
+					'id'               => $p->ID,
+					'candidate_id'     => $candidate_id,
+					'applicant_name'   => $candidate_user
 						? $candidate_user->display_name
 						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
-					'applicant_email' => $candidate_user
+					'applicant_email'  => $candidate_user
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
-					'cover_letter'    => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
-					'submitted_at'    => get_the_date( 'M j, Y', $p ),
-					'resume_url'      => ( static function () use ( $p ): ?string {
+					'cover_letter'     => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					'ai_score'         => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+					'ai_reason'        => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+					'ai_summary'       => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
+					'status'           => '' !== $status_raw ? $status_raw : 'submitted',
+					'submitted_at'     => get_the_date( 'M j, Y', $p ),
+					'resume_url'       => ( static function () use ( $p ): ?string {
 						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 						if ( $att_id <= 0 ) {
 							return null;
 						}
 						$url = wp_get_attachment_url( $att_id );
 						return false !== $url ? $url : null;
+					} )(),
+					'resume_permalink' => ( static function () use ( $p ): ?string {
+						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
+						if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+							return null;
+						}
+						$resume_post = get_post( $resume_id );
+						if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
+							return null;
+						}
+						$url = get_permalink( $resume_id );
+						return false !== $url ? (string) $url : null;
 					} )(),
 				);
 			},
@@ -1212,8 +1229,8 @@ final class JobsEndpoint extends RestController {
 		if ( ! $company_id ) {
 			$company_id = (int) get_user_meta( $author_id, '_wcb_company_id', true );
 		}
-		$trust            = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
-		$trust_info       = $this->trust_badge_info( $trust );
+		$trust      = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
+		$trust_info = $this->trust_badge_info( $trust );
 		// Shared brand-meta shape (R2) — serialize(0) returns empty strings, so
 		// this is safe when the job has no linked company.
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $company_id );
@@ -1480,5 +1497,4 @@ final class JobsEndpoint extends RestController {
 			)
 		);
 	}
-
 }

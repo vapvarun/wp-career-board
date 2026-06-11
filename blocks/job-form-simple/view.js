@@ -113,6 +113,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			try {
 				const response = yield wcbFetch( state.apiBase + '/jobs/ai-description', {
 					method:  'POST',
+					// LLM generation takes 10-30s; the 15s wcbFetch default aborts mid-generation.
+					timeout: 60000,
 					headers: {
 						'Content-Type': 'application/json',
 						'X-WP-Nonce':   state.nonce,
@@ -126,6 +128,16 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				const data = yield response.json();
 				if ( data.description ) {
 					state.description = data.description;
+					// Force the rich editor to repaint from its source textarea.
+					const source = document.querySelector(
+						'.wcb-editor textarea.wcb-editor-source'
+					);
+					if ( source ) {
+						source.value = data.description;
+						source.dispatchEvent(
+							new Event( 'wcb:editor:hydrate', { bubbles: true } )
+						);
+					}
 				} else if ( data.message ) {
 					state.error = data.message;
 				}

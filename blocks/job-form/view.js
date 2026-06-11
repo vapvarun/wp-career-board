@@ -333,6 +333,9 @@ store(
 				try {
 					const response = yield wcbFetch( state.apiBase + '/jobs/ai-description', {
 						method: 'POST',
+						// LLM generation legitimately takes 10-30s; the 15s wcbFetch
+						// default (meant for quick REST calls) aborts mid-generation.
+						timeout: 60000,
 						headers: {
 							'Content-Type': 'application/json',
 							'X-WP-Nonce': state.nonce,
@@ -346,6 +349,19 @@ store(
 					const data = yield response.json();
 					if ( data.description ) {
 						state.description = data.description;
+						// The rich editor only re-reads its source textarea on the
+						// wcb:editor:hydrate event (see assets/js/wcb-editor.js). The
+						// data-wp-bind--value update alone won't repaint the visible
+						// editor, so push the value and fire the hydrate event.
+						const source = document.querySelector(
+							'.wcb-editor textarea.wcb-editor-source'
+						);
+						if ( source ) {
+							source.value = data.description;
+							source.dispatchEvent(
+								new Event( 'wcb:editor:hydrate', { bubbles: true } )
+							);
+						}
 					} else if ( data.message ) {
 						state.error = data.message;
 					}
