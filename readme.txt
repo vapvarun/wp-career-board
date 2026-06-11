@@ -94,7 +94,7 @@ AI-assisted hiring on the dashboard (applicant ranking, TL;DR summaries, AI cove
 * Improve  - Notifications panel redesign with clearer read and unread states, Mark all read and Clear all controls, and an always-visible per-row delete button (40px tap target on mobile).
 * Fix      - Notifications that pointed at the homepage now render non-clickable instead of bouncing to the home page.
 * Fix      - Dashboard block scripts and styles now cache-bust on each release, so updates reach browsers that cached an earlier version.
-* Compat   - Aligned with WP Career Board Pro 1.3.1. Install both updates together.
+* Compat   - Aligned with WP Career Board Pro 1.4.0. Install both updates together.
 
 = 1.3.0 - June 2026 =
 
