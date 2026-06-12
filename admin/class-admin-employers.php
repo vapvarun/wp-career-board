@@ -111,6 +111,7 @@ class AdminEmployers extends \WP_List_Table {
 			'company'    => __( 'Company', 'wp-career-board' ),
 			'website'    => __( 'Website', 'wp-career-board' ),
 			'jobs'       => __( 'Active Jobs', 'wp-career-board' ),
+			'status'     => __( 'Status', 'wp-career-board' ),
 			'registered' => __( 'Registered', 'wp-career-board' ),
 		);
 	}
@@ -136,7 +137,76 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	protected function get_bulk_actions(): array {
 		return array(
-			'delete' => __( 'Delete', 'wp-career-board' ),
+			'ban'   => __( 'Ban', 'wp-career-board' ),
+			'unban' => __( 'Unban', 'wp-career-board' ),
+		);
+	}
+
+	/**
+	 * Process ban / unban bulk + row actions.
+	 *
+	 * Wired to `load-{employers page}` in class-admin.php. Writes the
+	 * `_wcb_employer_banned` user-meta that core/class-abilities.php reads to
+	 * strip every WCB ability from a banned employer — the write side that was
+	 * missing (the gate read a flag no admin action ever set).
+	 *
+	 * @since 1.4.2
+	 * @return void
+	 */
+	public function process_bulk_action(): void {
+		$action = $this->current_action();
+		if ( 'ban' !== $action && 'unban' !== $action ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'bulk-employers' ) ) {
+			return;
+		}
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_ids = isset( $_GET['user'] ) ? array_map( 'intval', (array) $_GET['user'] ) : array();
+		$current  = get_current_user_id();
+
+		foreach ( $user_ids as $user_id ) {
+			if ( $user_id <= 0 || $user_id === $current ) {
+				continue; // Never let an admin ban themselves.
+			}
+			if ( 'ban' === $action ) {
+				update_user_meta( $user_id, '_wcb_employer_banned', '1' );
+				do_action( 'wcb_employer_banned', $user_id );
+			} else {
+				delete_user_meta( $user_id, '_wcb_employer_banned' );
+				do_action( 'wcb_employer_unbanned', $user_id );
+			}
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-employers' ) );
+		exit;
+	}
+
+	/**
+	 * Status column — flags a banned employer.
+	 *
+	 * @since 1.4.2
+	 *
+	 * @param \WP_User $item Current row user object.
+	 * @return string
+	 */
+	protected function column_status( $item ): string {
+		if ( '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true ) ) {
+			return sprintf(
+				'<span class="wcb-badge wcb-badge--danger">%s</span>',
+				esc_html__( 'Banned', 'wp-career-board' )
+			);
+		}
+		return sprintf(
+			'<span class="wcb-badge wcb-badge--success">%s</span>',
+			esc_html__( 'Active', 'wp-career-board' )
 		);
 	}
 
@@ -368,6 +438,28 @@ class AdminEmployers extends \WP_List_Table {
 				esc_html__( 'View', 'wp-career-board' )
 			),
 		);
+
+		if ( $item->ID !== get_current_user_id() ) {
+			$is_banned              = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
+			$toggle                 = $is_banned ? 'unban' : 'ban';
+			$toggle_link            = wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'   => 'wcb-employers',
+						'action' => $toggle,
+						'user'   => array( $item->ID ),
+					),
+					admin_url( 'admin.php' )
+				),
+				'bulk-employers'
+			);
+			$row_actions[ $toggle ] = sprintf(
+				'<a href="%s"%s>%s</a>',
+				esc_url( $toggle_link ),
+				$is_banned ? '' : ' class="wcb-row-action--danger"',
+				$is_banned ? esc_html__( 'Unban', 'wp-career-board' ) : esc_html__( 'Ban', 'wp-career-board' )
+			);
+		}
 
 		$out .= $this->row_actions( $row_actions );
 		return $out;

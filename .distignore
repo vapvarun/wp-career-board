@@ -49,6 +49,7 @@
 /phpstan.neon
 /phpstan-baseline.neon
 /phpstan-bootstrap.php
+/.contract-audit-baseline.json
 
 # ── Cruft inside any bundled library (stripped at any depth) ─────────────
 tests/

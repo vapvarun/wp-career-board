@@ -115,14 +115,16 @@ class Admin {
 			array( new AdminCompanies(), 'render' )
 		);
 
-		add_submenu_page(
+		$admin_employers = new AdminEmployers();
+		$employers_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Employers', 'wp-career-board' ),
 			__( 'Employers', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-employers',
-			array( new AdminEmployers(), 'render' )
+			array( $admin_employers, 'render' )
 		);
+		add_action( 'load-' . $employers_hook, array( $admin_employers, 'process_bulk_action' ) );
 
 		// Taxonomy submenu items — point at the stock WP edit-tags screens so
 		// admins can create/edit job categories, types, locations, etc. without
