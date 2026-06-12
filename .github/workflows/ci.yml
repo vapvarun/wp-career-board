@@ -123,6 +123,12 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=2G
 
   # ── Plugin Check (PCP) ── wordpress.org guideline scan (BLOCKING) ───
+  # Run inline instead of wordpress/plugin-check-action@v1: that action
+  # generates a .wp-env.json WITHOUT "testsEnvironment": false (and overwrites
+  # any committed one), so @wordpress/env >= 11 no-ops `wp-env start` under the
+  # dual dev+tests env deprecation and the check then errors "Environment not
+  # initialized". We own the config here and set the flag, which is the fix the
+  # action's own warning recommends.
   plugin-check:
     name: Plugin Check (PCP)
     runs-on: ubuntu-latest
@@ -133,27 +139,38 @@ jobs:
         with:
           path: wp-career-board
 
-      - name: Run Plugin Check
-        uses: wordpress/plugin-check-action@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          build-dir: ./wp-career-board
-          severity: 7
-          # Dev-only directories never ship to customers (.distignore excludes
-          # them from the release zip). Scoping PCP to the same surface keeps
-          # the gate aligned with what wordpress.org actually receives.
-          exclude-directories: |
-            bin
-            audit
-            plan
-            docs
-            tests
-            marketing
-            import
-          exclude-checks: |
-            plugin_readme
-            late_escaping
-            file_type
-            i18n_usage
+          node-version: '20'
+
+      - name: Configure and start wp-env
+        run: |
+          cat > .wp-env.json <<'JSON'
+          {
+            "core": null,
+            "plugins": [ "https://downloads.wordpress.org/plugin/plugin-check.zip" ],
+            "mappings": { "wp-content/plugins/wp-career-board": "./wp-career-board" },
+            "testsEnvironment": false
+          }
+          JSON
+          npm -g --no-fund install @wordpress/env
+          wp-env start --update
+
+      - name: Run Plugin Check
+        # Dev-only directories never ship to customers (.distignore excludes them
+        # from the release zip). Scoping PCP to the same surface keeps the gate
+        # aligned with what wordpress.org actually receives.
+        run: |
+          wp-env run cli wp plugin check wp-career-board \
+            --severity=7 \
+            --exclude-checks=plugin_readme,late_escaping,file_type,i18n_usage \
+            --exclude-directories=bin,audit,plan,docs,tests,marketing,import \
+            --require=./wp-content/plugins/plugin-check/cli.php
+
+      - name: Stop wp-env
+        if: always()
+        run: wp-env stop || true
 
   # ── size-limit ── enforce frontend asset budgets (BLOCKING) ─────────
   size-limit:
