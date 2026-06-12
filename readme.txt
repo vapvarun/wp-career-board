@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,12 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.1 - June 2026 =
+
+Maintenance release. Build and packaging hardening only, no functional changes.
+
+* Dev      - Release packaging unified onto a single .distignore contract used for both development and release builds, with a completeness gate that verifies every required template, library, and config file is present in the package.
 
 = 1.4.0 - June 2026 =
 
