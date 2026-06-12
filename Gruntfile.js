@@ -72,6 +72,7 @@ module.exports = function ( grunt ) {
 					'integrations/**',
 					'languages/**',
 					'modules/**',
+					'templates/**',
 					'libs/edd-sl-sdk/**',
 				'!libs/**/*.md',
 				'!libs/**/package.json',
