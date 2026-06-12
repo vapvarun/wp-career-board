@@ -449,10 +449,11 @@ final class Install {
 						'meta_value'     => (string) $board_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
 					)
 				);
+				$wcb_batch_size = count( $jobs );
 				foreach ( $jobs as $job_id ) {
 					update_post_meta( (int) $job_id, '_wcb_board_id', $default_id );
 				}
-			} while ( count( $jobs ) === 500 );
+			} while ( 500 === $wcb_batch_size );
 
 			wp_delete_post( $board_id, true );
 		}
@@ -559,10 +560,11 @@ final class Install {
 				)
 			);
 
+			$wcb_batch_size = count( $resume_ids );
 			foreach ( $resume_ids as $resume_id ) {
 				update_post_meta( (int) $resume_id, '_wcb_resume_public', '0' );
 			}
-		} while ( count( $resume_ids ) === 500 );
+		} while ( 500 === $wcb_batch_size );
 	}
 
 	/**
