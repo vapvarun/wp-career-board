@@ -1,0 +1,21 @@
+{
+  "generated": "2026-06-12T14:33:04Z",
+  "suppressions": [
+    {
+      "id": "ajax-action-no-handler:wcb_submit",
+      "reason": "Not an AJAX action. assets/js/wcb-recaptcha.js:33 passes 'wcb_submit' as the reCAPTCHA v3 action token to grecaptcha.execute(siteKey, {action:'wcb_submit'}) - an analytics label, not a wp_ajax_* handler. The plugin is REST-only (0 AJAX handlers)."
+    },
+    {
+      "id": "post_meta-read-never-written:_wcb_attachment_id",
+      "reason": "Defensive fallback. The real resume-file key is _wcb_resume_attachment_id (written in class-applications-endpoint.php:292/301, class-resume-endpoint.php:316/702); resume-preview.php reads that correct key at :72, and :76's _wcb_attachment_id is a guarded fallback for a path nothing writes. Harmless dead fallback."
+    },
+    {
+      "id": "user_meta-read-never-written:_wcb_job_title",
+      "reason": "Dead headline fallback in Pro resume-single/render.php:89, reached only after _wcb_resume_headline post-meta and _wcb_resume_data['headline'] are both empty. The apps endpoint writes the distinct key _wcb_job_title_snapshot. Permanently empty but harmless (no fatal, just an unused final fallback)."
+    },
+    {
+      "id": "user_meta-read-never-written:wcb_pro_banner_dismissed",
+      "reason": "Written via a concatenated key the static scanner cannot trace: api/endpoints/class-admin-endpoint.php:127 builds $meta_key = 'wcb_' . $banner . '_dismissed' then update_user_meta(); admin.js:402 POSTs {banner:'pro_banner'} to /wcb/v1/admin/dismiss-banner, yielding exactly wcb_pro_banner_dismissed."
+    }
+  ]
+}
