@@ -8,12 +8,9 @@
 #   3. Working-tree-clean check (skipable with --allow-dirty)
 #   4. composer ci pipeline (skipable with --skip-ci, NOT for customer releases)
 #   5. Smoke-report gate (skipable with --skip-browser-smoke, NOT for customer releases)
-#   6. Build clean staging dir
-#   7. composer install --no-dev (for runtime-only vendor when require exists)
-#   8. rsync source applying .distignore
-#   9. Replace vendor/ with the no-dev install
-#  10. Zip
-#  11. Zip-content gate (bin/verify-zip.sh)
+#   6. Package via bin/package-dist.sh (the single packaging routine, also
+#      used by `grunt dist`): rsync + .distignore + no-dev vendor + verify-zip
+#      gate. Dev build and customer release are byte-for-byte identical.
 #
 # Exit codes:
 #    0  built ok
@@ -117,90 +114,8 @@ else
 	echo "  smoke report OK ($REPORT_VERSION, no failures, no debug_log_issues)"
 fi
 
-# 6. Clean staging dir
-mkdir -p "$OUTPUT_DIR"
-STAGE="$OUTPUT_DIR/$SLUG"
-rm -rf "$STAGE"
-mkdir -p "$STAGE"
-
-# 7. composer install --no-dev (only when require has runtime deps)
-BUILD_VENDOR=""
-if [ -f "$ROOT/composer.json" ] && python3 -c "import json,sys; d=json.load(open('$ROOT/composer.json')); sys.exit(0 if d.get('require') else 1)" 2>/dev/null; then
-	echo "  installing runtime-only vendor (composer install --no-dev)"
-	BUILD_VENDOR="$(mktemp -d -t "${SLUG}-vendor-XXXXXX")"
-	cp "$ROOT/composer.json" "$BUILD_VENDOR/"
-	[ -f "$ROOT/composer.lock" ] && cp "$ROOT/composer.lock" "$BUILD_VENDOR/"
-	(cd "$BUILD_VENDOR" && composer install --no-dev --optimize-autoloader --quiet --no-interaction --no-scripts)
-fi
-
-# 8. rsync source with .distignore exclusions
-RSYNC_EXCLUDES=()
-if [ -f "$ROOT/.distignore" ]; then
-	while IFS= read -r line; do
-		line="${line%$'\r'}"
-		[ -z "$line" ] && continue
-		case "$line" in '#'*) continue ;; esac
-		RSYNC_EXCLUDES+=("--exclude=$line")
-	done < "$ROOT/.distignore"
-fi
-
-rsync -a "${RSYNC_EXCLUDES[@]}" "$ROOT/" "$STAGE/"
-
-# 9. Replace vendor/ with the no-dev install, preserving committed SDKs
-#    Some runtime SDKs (wbcom-credits-sdk, edd-sl-sdk) are committed to
-#    vendor/ directly rather than declared in composer.json — composer
-#    install --no-dev would not include them. Snapshot them before swap
-#    and restore after.
-if [ -n "$BUILD_VENDOR" ] && [ -d "$BUILD_VENDOR/vendor" ]; then
-	# Snapshot any committed SDK dirs that are NOT in composer.json
-	COMMITTED_VENDOR_TMP="$(mktemp -d -t "${SLUG}-committed-vendor-XXXXXX")"
-	for sdk in wbcom-credits-sdk edd-sl-sdk; do
-		if [ -d "$STAGE/vendor/$sdk" ]; then
-			cp -R "$STAGE/vendor/$sdk" "$COMMITTED_VENDOR_TMP/"
-			echo "  preserving committed SDK: vendor/$sdk"
-		fi
-	done
-
-	rm -rf "$STAGE/vendor"
-	cp -R "$BUILD_VENDOR/vendor" "$STAGE/vendor"
-
-	# Restore committed SDKs
-	for sdk_path in "$COMMITTED_VENDOR_TMP"/*; do
-		[ -d "$sdk_path" ] || continue
-		cp -R "$sdk_path" "$STAGE/vendor/"
-	done
-	rm -rf "$COMMITTED_VENDOR_TMP"
-	rm -rf "$BUILD_VENDOR"
-	echo "  vendor pruned to runtime-only (committed SDKs preserved)"
-fi
-
-# 9b. Required-files guard — bundled SDK build assets MUST ship in the zip.
-#     Pro is non-keyless: it loads the EDD SL SDK license modal, which enqueues
-#     libs/edd-sl-sdk/assets/build/{js,css}. Those are committed to git (the
-#     generic build/ .gitignore is negated for this path). Same incident as
-#     Jetonomy 1.4.2 (released without edd-sl-sdk.js -> console 404). This guard
-#     fails the build rather than shipping a broken license UI.
-REQUIRED_FILES=(
-	"libs/edd-sl-sdk/edd-sl-sdk.php"
-	"libs/edd-sl-sdk/assets/build/js/edd-sl-sdk.js"
-	"libs/edd-sl-sdk/assets/build/css/style-edd-sl-sdk.css"
-)
-for f in "${REQUIRED_FILES[@]}"; do
-	if [ ! -f "$STAGE/$f" ]; then
-		echo "FAIL: required file missing from staging: $f" >&2
-		exit 40
-	fi
-done
-echo "  required-files guard: ok (EDD SDK build assets present)"
-
-# 10. Zip
-ZIP="$OUTPUT_DIR/$SLUG-$VERSION.zip"
-rm -f "$ZIP"
-(cd "$OUTPUT_DIR" && zip -rq "$ZIP" "$SLUG")
-
-# 11. Zip-content gate — required runtime payloads present, dev junk absent.
-bash "$ROOT/bin/verify-zip.sh" "$ZIP" || { echo "FAIL: zip content verification failed" >&2; exit 40; }
-
+# 6. Package via the single packaging routine — rsync + .distignore + no-dev
+#    vendor + verify-zip gate. The SAME script `grunt dist` runs, so the dev
+#    build and this customer release are byte-for-byte identical.
 echo
-echo "  ✓ Built: $ZIP ($(du -h "$ZIP" | cut -f1))"
-echo "  Source: $STAGE"
+bash "$ROOT/bin/package-dist.sh" --output "$OUTPUT_DIR"

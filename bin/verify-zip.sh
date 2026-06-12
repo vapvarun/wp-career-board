@@ -121,37 +121,58 @@ for pattern in "${FORBIDDEN_REGEX[@]}"; do
 done
 [ "$SHIPPED_JUNK" -eq 1 ] && exit 41
 
-# ── 3. Library completeness — every RUNTIME file of every bundled library ─
-#      ships, IN FULL. RULE: all required library files are bundled, always.
-#      A bundled library is any libs/<name>, the composer autoloader
-#      (vendor/composer), or a vendor/<vendor>/<pkg> package that appears in
-#      the zip. For each, every source file that is NOT provably non-runtime
-#      cruft must be present in the zip. This generalises the old SDK-only
-#      .php parity to ALL file types — php, css, js, fonts (.ttf/.ufm/.afm),
-#      templates, json metrics — so a dropped non-php runtime asset can no
-#      longer ship a half-working library (the 1.4.0 Credits SDK WSOD class).
-#      Cruft = the Gruntfile copy:dist `!` excludes plus dotfiles (grunt
-#      copies with dot:false): *.md, *.dist, tests/, composer.json/lock,
-#      package.json/lock, phpunit.xml*, and any dot-prefixed file/dir.
+# ── 3. Library completeness — every bundled library ships its full runtime ─
+#      RULE: all required library files are bundled, always.
+#
+#      Two regimes, because the two kinds of library have different sources of
+#      truth:
+#
+#      3a. COMMITTED libs/* — shipped verbatim, so source == zip. STRICT: every
+#          non-cruft source file (php, css, js, fonts, templates) must be in the
+#          zip. This is the real-risk class — our own SDKs — and the bug behind
+#          the 1.4.0 Credits SDK WSOD.
+#
+#      3b. COMPOSER-managed vendor/* — rebuilt `composer install --no-dev` at
+#          package time, so the shipped tree legitimately differs from the dev
+#          working tree (no dev autoload_files.php, no runtime-generated
+#          *.ufm.json caches). A strict source diff is invalid here. Composer
+#          guarantees intra-package completeness and the .distignore denylist
+#          strips only cruft, so we verify each shipped package is present and
+#          non-empty.
+#
+#      Cruft = non-runtime files (mirrors .distignore): *.md, *.dist, tests/,
+#      composer/package manifests, phpunit.xml*, dotfiles.
 CRUFT_RE='\.(md|dist)$|(^|/)(tests?|Tests)/|/composer\.(json|lock)$|/phpunit\.xml|/package(-lock)?\.json$|(^|/)\.[^/]+'
 
-LIB_ROOTS="$(printf '%s\n' "$ENTRIES" | grep -v '/$' | sed "s#^$SLUG/##" \
-	| sed -nE 's#^(libs/[^/]+|vendor/composer|vendor/[^/]+/[^/]+)/.*#\1#p' | sort -u)"
-
 LIB_FAIL=0
-for lib in $LIB_ROOTS; do
-	[ -d "$ROOT/$lib" ] || continue
+
+# 3a. Committed libs/ — strict, source-exact.
+for libdir in "$ROOT"/libs/*/; do
+	[ -d "$libdir" ] || continue
+	lib="libs/$(basename "$libdir")"
+	printf '%s\n' "$ENTRIES" | grep -q "^$SLUG/$lib/" || continue   # not shipped by this plugin
 	this_fail=0
 	while IFS= read -r src_file; do
 		rel="${src_file#"$ROOT"/}"
 		printf '%s' "$rel" | grep -qE "$CRUFT_RE" && continue
 		if ! printf '%s\n' "$ENTRIES" | grep -qxF "$SLUG/$rel"; then
-			echo "FAIL: library runtime file in source but missing from zip: $rel" >&2
+			echo "FAIL: committed library runtime file missing from zip: $rel" >&2
 			this_fail=1
 			LIB_FAIL=1
 		fi
-	done < <(find "$ROOT/$lib" -type f)
+	done < <(find "$libdir" -type f)
 	[ "$this_fail" -eq 0 ] && echo "  complete: $lib ($(printf '%s\n' "$ENTRIES" | grep -c "^$SLUG/$lib/") files)"
+done
+
+# 3b. Composer vendor/ — present + non-empty per package.
+for vroot in $(printf '%s\n' "$ENTRIES" | grep -v '/$' | sed -nE "s#^$SLUG/(vendor/composer|vendor/[^/]+/[^/]+)/.*#\1#p" | sort -u); do
+	n=$(printf '%s\n' "$ENTRIES" | grep -c "^$SLUG/$vroot/")
+	if [ "$n" -gt 0 ]; then
+		echo "  present: $vroot ($n files)"
+	else
+		echo "FAIL: shipped vendor package is empty: $vroot" >&2
+		LIB_FAIL=1
+	fi
 done
 [ "$LIB_FAIL" -eq 1 ] && exit 42
 

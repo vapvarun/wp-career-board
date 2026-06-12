@@ -56,52 +56,12 @@ module.exports = function ( grunt ) {
 			},
 		},
 
-		// ── Copy release files ───────────────────────────────────────────────
-		copy: {
-			dist: {
-				expand: true,
-				src: [
-					'admin/**',
-					'api/**',
-					'assets/**',
-					'blocks/**',
-					'build/**',
-					'cli/**',
-					'core/**',
-					'import/**',
-					'integrations/**',
-					'languages/**',
-					'modules/**',
-					'templates/**',
-					'libs/edd-sl-sdk/**',
-				'!libs/**/*.md',
-				'!libs/**/package.json',
-				'!libs/**/package-lock.json',
-					'readme.txt',
-					'theme.json',
-					'uninstall.php',
-					slug + '.php',
-				],
-				dest: 'dist/' + slug + '/',
-			},
-		},
-
-		// ── Compress to zip ──────────────────────────────────────────────────
-		compress: {
-			dist: {
-				options: {
-					archive: 'dist/' + slug + '-' + ver + '.zip',
-					mode:    'zip',
-				},
-				files: [
-					{
-						expand: true,
-						cwd:    'dist/',
-						src:    [ slug + '/**' ],
-					},
-				],
-			},
-		},
+		// Packaging (which files ship) is owned entirely by .distignore +
+		// bin/package-dist.sh — see the `packagedist` shell task below. No
+		// copy/compress allowlist here: an allowlist drifts from reality and
+		// silently drops new folders (the templates/ missing-file bug) or ships
+		// dead globs (build/** matched nothing). The denylist + verify-zip
+		// gate cannot.
 
 		// ── RTL CSS ──────────────────────────────────────────────────────────
 		rtlcss: {
@@ -122,10 +82,13 @@ module.exports = function ( grunt ) {
 			build: {
 				command: 'npm run build',
 			},
-			// Zip-content release gate — fails the dist task if the zip is
-			// missing required runtime payloads (e.g. libs/edd-sl-sdk).
-			verifyzip: {
-				command: 'bash bin/verify-zip.sh "dist/' + slug + '-' + ver + '.zip"',
+			// Build the release zip via the single packaging routine
+			// (rsync + .distignore + verify-zip gate). Same script
+			// bin/build-release.sh calls, so dev and release zips are
+			// identical. Replaces the old copy:dist allowlist whose drift
+			// caused the templates/ missing-file bug.
+			packagedist: {
+				command: 'bash bin/package-dist.sh',
 			},
 			start: {
 				command: 'npm run start',
@@ -154,9 +117,6 @@ module.exports = function ( grunt ) {
 
 	// ── Load tasks ──────────────────────────────────────────────────────────
 	grunt.loadNpmTasks( 'grunt-rtlcss' );
-	grunt.loadNpmTasks( 'grunt-contrib-clean' );
-	grunt.loadNpmTasks( 'grunt-contrib-compress' );
-	grunt.loadNpmTasks( 'grunt-contrib-copy' );
 	grunt.loadNpmTasks( 'grunt-checktextdomain' );
 	grunt.loadNpmTasks( 'grunt-shell' );
 
@@ -167,7 +127,7 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'textdomain', [ 'checktextdomain' ] );
 	grunt.registerTask( 'i18n',       [ 'pot', 'checktextdomain' ] );
 	grunt.registerTask( 'rtl',        [ 'rtlcss:dist' ] );
-	grunt.registerTask( 'dist',       [ 'clean:dist', 'copy:dist', 'compress:dist', 'shell:verifyzip' ] );
+	grunt.registerTask( 'dist',       [ 'shell:packagedist' ] );
 	grunt.registerTask( 'version',    [ 'shell:version' ] );
 	grunt.registerTask( 'release',    [ 'build', 'i18n', 'rtl', 'dist' ] );
 };

@@ -1,44 +1,67 @@
-# Patterns are matched by rsync; leading `/` anchors to the plugin root so we
-# don't accidentally strip nested src/ or tests/ inside vendor/ packages.
+# Single packaging contract — the ONLY list that decides what ships.
+#
+# rsync-matched and applied to the whole staged tree by bin/package-dist.sh,
+# which both `grunt dist` and bin/build-release.sh call. Ship-everything-except
+# -this, so a new folder ships automatically (no build-config edit) unless
+# listed here.
+#
+# Leading `/` anchors a pattern to the plugin root (dev-only top-level dirs).
+# Unanchored patterns (tests/, *.md, composer.json …) strip cruft wherever it
+# nests inside a bundled library. Runtime code (src/, fonts, css, js) never
+# matches these, and verify-zip.sh fails the build if a runtime file is missed.
+#
+# Free ships NO vendor/ — it has no runtime composer dependencies (the EDD SL
+# SDK lives in libs/edd-sl-sdk and ships as a committed library).
+
+# ── VCS / editor / local ─────────────────────────────────────────────────
 /.git
 /.github
 /.githooks
-/.gitignore
-/.gitattributes
-/.phpcs.xml.dist
-/phpcs.xml
-/phpstan.neon
-/phpstan-baseline.neon
-/phpstan-bootstrap.php
 /.eslintrc*
 /.stylelintrc*
-/.editorconfig
 /.wp-env.json
 /.distignore
+/.lighthouserc*
 /.claude
 /.playwright-mcp
 /.last-smoke-pass.json
 /.last-smoke-pass-pro.json
+.DS_Store
+*.log
+
+# ── Dev / build / QA tooling (plugin root) ───────────────────────────────
 /node_modules
 /vendor
-/tests
 /dist
 /build
 /src
-/package.json
-/package-lock.json
-/composer.json
-/composer.lock
-/phpunit.xml.dist
-/webpack.config.js
-/Gruntfile.js
-/Makefile
+/tokens
 /audit
 /bin
 /docs
 /plan
 /marketing
+/webpack.config.js
+/Gruntfile.js
+/Makefile
+/phpcs.xml
+/.phpcs.xml.dist
+/phpstan.neon
+/phpstan-baseline.neon
+/phpstan-bootstrap.php
+
+# ── Cruft inside any bundled library (stripped at any depth) ─────────────
+tests/
+test/
+Tests/
+.gitignore
+.gitkeep
+.gitattributes
+.editorconfig
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpunit.xml*
 *.md
 !readme.txt
-.DS_Store
-*.log
