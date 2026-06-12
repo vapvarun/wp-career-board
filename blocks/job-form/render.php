@@ -26,8 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_settings_opt = (array) get_option( 'wcb_settings', array() );
-	$wcb_emp_reg_page = (int) ( $wcb_settings_opt['employer_registration_page'] ?? 0 );
+	$wcb_emp_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
 	?>
 	<div class="wcb-job-form-gate">
 	<?php if ( ! is_user_logged_in() ) : ?>

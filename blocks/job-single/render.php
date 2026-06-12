@@ -231,8 +231,7 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	// to their dashboard's resume tab so a no-resume applicant always has a place
 	// to add one instead of a dead-end message.
 	if ( '' === $wcb_resume_page_url ) {
-		$wcb_settings_opt   = (array) get_option( 'wcb_settings', array() );
-		$wcb_cand_dash_page = (int) ( $wcb_settings_opt['candidate_dashboard_page'] ?? 0 );
+		$wcb_cand_dash_page = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
 		if ( $wcb_cand_dash_page > 0 ) {
 			$wcb_resume_page_url = get_permalink( $wcb_cand_dash_page ) . '#resumes';
 		}

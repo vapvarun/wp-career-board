@@ -249,7 +249,7 @@ class Admin {
 	 * @return void
 	 */
 	public function redirect_moderator_to_queue(): void {
-		if ( wp_doing_ajax() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		if ( wp_doing_ajax() || wp_doing_cron() ) {
 			return;
 		}
 		// Only Job Moderators (moderate-jobs without manage-settings) are bounced.

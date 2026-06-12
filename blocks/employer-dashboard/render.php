@@ -25,9 +25,8 @@ if ( ! is_user_logged_in() ) {
 }
 
 if ( ! $wcb_can_manage ) {
-	$wcb_settings_opt   = (array) get_option( 'wcb_settings', array() );
-	$wcb_emp_reg_page   = (int) ( $wcb_settings_opt['employer_registration_page'] ?? 0 );
-	$wcb_cand_dash_page = (int) ( $wcb_settings_opt['candidate_dashboard_page'] ?? 0 );
+	$wcb_emp_reg_page   = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
+	$wcb_cand_dash_page = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ); ?></p>

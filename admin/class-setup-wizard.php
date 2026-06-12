@@ -851,7 +851,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		 *
 		 * @since 1.3.1
 		 *
-		 * @param array{companies: int[], jobs: int[], terms: int[]} $created_ids Created sample IDs.
+		 * @param array{companies: int[], jobs: int[], terms: list<array{term_id: int, taxonomy: string}>} $created_ids Created sample IDs.
 		 */
 		do_action( 'wcb_sample_data_installed', $created_ids );
 	}

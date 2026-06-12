@@ -5,6 +5,8 @@
 # Free must be Pro-blind in its actual code paths. Pro identifiers are only
 # allowed in:
 #   - documentation files (audit/, plan/, docs/) — they describe the contract
+#   - dev tooling (bin/) — never ships; e.g. check-class-paths.php reads the
+#     'WCB\Pro\' prefix to detect which plugin it is analysing
 #   - comments — they describe what Pro does
 #   - hardcoded default URLs to the marketing/store page (filterable)
 #
@@ -28,7 +30,7 @@ violations=$(grep -rEn "$hard_patterns" \
     --exclude-dir=vendor --exclude-dir=node_modules \
     --exclude-dir=dist --exclude-dir=build \
     --exclude-dir=audit --exclude-dir=plan --exclude-dir=docs \
-    --exclude-dir=tests \
+    --exclude-dir=tests --exclude-dir=bin \
     . 2>/dev/null \
     | grep -vE '^[^:]+:[0-9]+:\s*(\*|//|#)' \
     | grep -vE 'core/class-pro-coordination\.php' \
@@ -66,7 +68,7 @@ u9_hits=$(grep -rEn "get_option\s*\(\s*['\"]wcb_settings['\"]" \
     --exclude-dir=vendor --exclude-dir=node_modules \
     --exclude-dir=dist --exclude-dir=build \
     --exclude-dir=audit --exclude-dir=plan --exclude-dir=docs \
-    --exclude-dir=tests \
+    --exclude-dir=tests --exclude-dir=bin \
     . 2>/dev/null \
     | grep -vE '^[^:]+:[0-9]+:\s*(\*|//|#)' \
     | grep -vE '(^|/)admin/class-settings\.php:' \

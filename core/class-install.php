@@ -446,7 +446,7 @@ final class Install {
 						'fields'         => 'ids',
 						'no_found_rows'  => true,
 						'meta_key'       => '_wcb_board_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-time upgrade routine.
-						'meta_value'     => $board_id,       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
+						'meta_value'     => (string) $board_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- one-time upgrade routine.
 					)
 				);
 				foreach ( $jobs as $job_id ) {
