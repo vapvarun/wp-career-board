@@ -14,8 +14,12 @@
 #   1. REQUIRED ENTRIES — slug-specific anchor files that must exist in the
 #      zip (main file, SDK loaders, the exact class that fatal'd, etc.)
 #   2. FORBIDDEN ENTRIES — dev-only trees that must never ship
-#   3. SDK PARITY — every committed SDK .php file in /libs (tests excluded)
-#      must appear in the zip, so the gate auto-adapts as the SDK grows
+#   3. LIBRARY COMPLETENESS — every bundled library (libs/*, vendor/composer,
+#      and each shipped vendor/<vendor>/<pkg>) ships IN FULL: every runtime
+#      file (php, css, js, fonts, templates, json) must be in the zip; only
+#      provably non-runtime cruft (*.md, tests/, composer/package manifests,
+#      dotfiles) may be absent. RULE: all required library files are bundled,
+#      always — auto-discovered from the zip, so it adapts as libraries grow.
 #   4. REQUIRED-FILE PARITY — every require/include of an own-plugin file
 #      (OWN_CONST . '...', __DIR__ . '...', plugin_dir_path() . '...') must
 #      exist as an entry in the zip. Auto-derived from the source, so it
@@ -40,7 +44,7 @@
 #   10  cannot resolve zip / version
 #   40  required entry missing
 #   41  forbidden entry shipped
-#   42  SDK file missing from zip (parity check)
+#   42  library runtime file missing from zip (completeness check)
 #   43  require/include target missing from zip (required-file parity)
 
 set -euo pipefail
@@ -117,23 +121,39 @@ for pattern in "${FORBIDDEN_REGEX[@]}"; do
 done
 [ "$SHIPPED_JUNK" -eq 1 ] && exit 41
 
-# ── 3. SDK parity — every committed libs/ SDK .php must ship ─────────────
-PARITY_FAIL=0
-for sdk_dir in "$ROOT"/libs/*/; do
-	[ -d "$sdk_dir" ] || continue
-	sdk_name="$(basename "$sdk_dir")"
-	SDK_FAIL=0
+# ── 3. Library completeness — every RUNTIME file of every bundled library ─
+#      ships, IN FULL. RULE: all required library files are bundled, always.
+#      A bundled library is any libs/<name>, the composer autoloader
+#      (vendor/composer), or a vendor/<vendor>/<pkg> package that appears in
+#      the zip. For each, every source file that is NOT provably non-runtime
+#      cruft must be present in the zip. This generalises the old SDK-only
+#      .php parity to ALL file types — php, css, js, fonts (.ttf/.ufm/.afm),
+#      templates, json metrics — so a dropped non-php runtime asset can no
+#      longer ship a half-working library (the 1.4.0 Credits SDK WSOD class).
+#      Cruft = the Gruntfile copy:dist `!` excludes plus dotfiles (grunt
+#      copies with dot:false): *.md, *.dist, tests/, composer.json/lock,
+#      package.json/lock, phpunit.xml*, and any dot-prefixed file/dir.
+CRUFT_RE='\.(md|dist)$|(^|/)(tests?|Tests)/|/composer\.(json|lock)$|/phpunit\.xml|/package(-lock)?\.json$|(^|/)\.[^/]+'
+
+LIB_ROOTS="$(printf '%s\n' "$ENTRIES" | grep -v '/$' | sed "s#^$SLUG/##" \
+	| sed -nE 's#^(libs/[^/]+|vendor/composer|vendor/[^/]+/[^/]+)/.*#\1#p' | sort -u)"
+
+LIB_FAIL=0
+for lib in $LIB_ROOTS; do
+	[ -d "$ROOT/$lib" ] || continue
+	this_fail=0
 	while IFS= read -r src_file; do
 		rel="${src_file#"$ROOT"/}"
+		printf '%s' "$rel" | grep -qE "$CRUFT_RE" && continue
 		if ! printf '%s\n' "$ENTRIES" | grep -qxF "$SLUG/$rel"; then
-			echo "FAIL: SDK file in source but missing from zip: $rel" >&2
-			SDK_FAIL=1
-			PARITY_FAIL=1
+			echo "FAIL: library runtime file in source but missing from zip: $rel" >&2
+			this_fail=1
+			LIB_FAIL=1
 		fi
-	done < <(find "$sdk_dir" -name '*.php' -not -path '*/tests/*')
-	[ "$SDK_FAIL" -eq 0 ] && echo "  parity OK: libs/$sdk_name"
+	done < <(find "$ROOT/$lib" -type f)
+	[ "$this_fail" -eq 0 ] && echo "  complete: $lib ($(printf '%s\n' "$ENTRIES" | grep -c "^$SLUG/$lib/") files)"
 done
-[ "$PARITY_FAIL" -eq 1 ] && exit 42
+[ "$LIB_FAIL" -eq 1 ] && exit 42
 
 # ── 4. Required-file parity — every own-plugin require/include must ship ──
 # OWN_CONST is this plugin's own dir constant; a require off the sibling's
