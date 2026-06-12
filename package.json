@@ -1,6 +1,6 @@
 {
   "name": "wp-career-board",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "WP Career Board — Gutenberg blocks and Interactivity API frontend",
   "scripts": {
     "build": "wp-scripts build",

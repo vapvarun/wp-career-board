@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,12 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.2 - June 2026 =
+
+Fix for the employer ban control.
+
+* Fix      - Banning an employer now takes effect. The Employers admin screen gains Ban and Unban actions (row and bulk) plus a Status column; banning sets the flag the permission layer already enforced, so a banned employer immediately loses every Career Board ability. Previously the gate read a ban flag that no admin action ever set.
 
 = 1.4.1 - June 2026 =
 
