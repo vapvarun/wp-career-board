@@ -13,6 +13,7 @@
 #   8. rsync source applying .distignore
 #   9. Replace vendor/ with the no-dev install
 #  10. Zip
+#  11. Zip-content gate (bin/verify-zip.sh)
 #
 # Exit codes:
 #    0  built ok
@@ -21,6 +22,7 @@
 #   12  uncommitted changes
 #   13  composer ci failed
 #   30  smoke gate failed
+#   40  zip content verification failed
 #    2  unknown flag
 
 set -euo pipefail
@@ -195,6 +197,9 @@ echo "  required-files guard: ok (EDD SDK build assets present)"
 ZIP="$OUTPUT_DIR/$SLUG-$VERSION.zip"
 rm -f "$ZIP"
 (cd "$OUTPUT_DIR" && zip -rq "$ZIP" "$SLUG")
+
+# 11. Zip-content gate — required runtime payloads present, dev junk absent.
+bash "$ROOT/bin/verify-zip.sh" "$ZIP" || { echo "FAIL: zip content verification failed" >&2; exit 40; }
 
 echo
 echo "  ✓ Built: $ZIP ($(du -h "$ZIP" | cut -f1))"

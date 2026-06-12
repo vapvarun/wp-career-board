@@ -121,6 +121,11 @@ module.exports = function ( grunt ) {
 			build: {
 				command: 'npm run build',
 			},
+			// Zip-content release gate — fails the dist task if the zip is
+			// missing required runtime payloads (e.g. libs/edd-sl-sdk).
+			verifyzip: {
+				command: 'bash bin/verify-zip.sh "dist/' + slug + '-' + ver + '.zip"',
+			},
 			start: {
 				command: 'npm run start',
 			},
@@ -161,7 +166,7 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'textdomain', [ 'checktextdomain' ] );
 	grunt.registerTask( 'i18n',       [ 'pot', 'checktextdomain' ] );
 	grunt.registerTask( 'rtl',        [ 'rtlcss:dist' ] );
-	grunt.registerTask( 'dist',       [ 'clean:dist', 'copy:dist', 'compress:dist' ] );
+	grunt.registerTask( 'dist',       [ 'clean:dist', 'copy:dist', 'compress:dist', 'shell:verifyzip' ] );
 	grunt.registerTask( 'version',    [ 'shell:version' ] );
 	grunt.registerTask( 'release',    [ 'build', 'i18n', 'rtl', 'dist' ] );
 };
