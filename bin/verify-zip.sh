@@ -16,6 +16,17 @@
 #   2. FORBIDDEN ENTRIES — dev-only trees that must never ship
 #   3. SDK PARITY — every committed SDK .php file in /libs (tests excluded)
 #      must appear in the zip, so the gate auto-adapts as the SDK grows
+#   4. REQUIRED-FILE PARITY — every require/include of an own-plugin file
+#      (OWN_CONST . '...', __DIR__ . '...', plugin_dir_path() . '...') must
+#      exist as an entry in the zip. Auto-derived from the source, so it
+#      adapts as new templates/partials are added — no hardcoded list to
+#      keep in sync. Catches the bug that shipped 1.4.0 without templates/
+#      (Basecamp 9990627782): three blocks require'd
+#      templates/parts/archive-toolbar.php but copy:dist never listed
+#      templates/**, so render fatal'd on a fresh install. A sibling
+#      plugin's dir constant (Pro requiring Free's WCB_DIR) resolves to the
+#      OTHER plugin and is intentionally skipped — external dependency, not
+#      this zip's payload.
 #
 # Usage: bin/verify-zip.sh [path/to/zip]
 #        (defaults to dist/<slug>-<version>.zip, version read like
@@ -30,6 +41,7 @@
 #   40  required entry missing
 #   41  forbidden entry shipped
 #   42  SDK file missing from zip (parity check)
+#   43  require/include target missing from zip (required-file parity)
 
 set -euo pipefail
 
@@ -122,5 +134,49 @@ for sdk_dir in "$ROOT"/libs/*/; do
 	[ "$SDK_FAIL" -eq 0 ] && echo "  parity OK: libs/$sdk_name"
 done
 [ "$PARITY_FAIL" -eq 1 ] && exit 42
+
+# ── 4. Required-file parity — every own-plugin require/include must ship ──
+# OWN_CONST is this plugin's own dir constant; a require off the sibling's
+# constant points at the OTHER plugin and is skipped (external dependency).
+case "$SLUG" in
+	wp-career-board)     OWN_CONST=WCB_DIR ;;
+	wp-career-board-pro) OWN_CONST=WCBP_DIR ;;
+esac
+
+REQFILE_FAIL=0
+REQFILE_CHECKED=0
+while IFS= read -r match; do
+	src="${match%%:*}"          # path/to/file.php
+	code="${match#*:*:}"        # the require/include line
+
+	if printf '%s' "$code" | grep -qE "[^A-Z_]${OWN_CONST}[[:space:]]*\."; then
+		# OWN_CONST . 'relpath'  → SLUG/relpath
+		rel="$(printf '%s' "$code" | sed -nE "s/.*${OWN_CONST}[[:space:]]*\.[[:space:]]*'([^']+)'.*/\1/p")"
+		[ -n "$rel" ] && target="$SLUG/${rel#/}"
+	elif printf '%s' "$code" | grep -qE "__DIR__|plugin_dir_path"; then
+		# __DIR__ / plugin_dir_path(__FILE__) . 'relpath'  → SLUG/<file's dir>/relpath
+		rel="$(printf '%s' "$code" | sed -nE "s/.*(__DIR__|plugin_dir_path\([^)]*\))[[:space:]]*\.[[:space:]]*'([^']+)'.*/\2/p")"
+		[ -z "$rel" ] && continue
+		combined="$(dirname "$src")/${rel#/}"
+		target="$SLUG/${combined#./}"
+	else
+		continue   # sibling/external dir constant — not this zip's payload
+	fi
+
+	[ -z "${target:-}" ] && continue
+	REQFILE_CHECKED=$((REQFILE_CHECKED + 1))
+	if ! printf '%s\n' "$ENTRIES" | grep -qxF "$target"; then
+		echo "FAIL: require/include target missing from zip: $target" >&2
+		echo "      referenced at: $src" >&2
+		REQFILE_FAIL=1
+	fi
+	unset target
+done < <(cd "$ROOT" && grep -rnE "(require|include)(_once)?[[:space:]]+(${OWN_CONST}|WCB_DIR|WCBP_DIR|__DIR__|plugin_dir_path)" . --include='*.php' \
+	| sed -E 's#^\./##' \
+	| grep -vE "^(vendor|node_modules|dist|build)/" \
+	| grep -vE "(^|/)(tests|test|Tests)/")
+
+[ "$REQFILE_FAIL" -eq 1 ] && exit 43
+echo "  parity OK: $REQFILE_CHECKED own-plugin require/include targets"
 
 echo "  ✓ zip contents verified"
