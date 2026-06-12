@@ -644,6 +644,16 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		data-wp-class--wcb-grid="state.isGrid"
 		data-wp-class--wcb-list="state.isList"
 	>
+		<?php
+		// The card markup below is a client-side Interactivity prototype
+		// (data-wp-each clones it per job in the browser), so there is no
+		// per-job PHP scope here. The card-footer extension hooks still fire
+		// once on the prototype to let add-ons inject static per-card markup;
+		// pass null-safe defaults rather than leaking the last $wcb_job_post
+		// from the state-building loop above.
+		$wcb_job_card = array();
+		$wcb_job_post = null;
+		?>
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 

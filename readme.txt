@@ -64,8 +64,7 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 = 1.4.3 - June 2026 =
 
-Maintenance release in lockstep with WP Career Board Pro 1.4.3.
-
+* Fix      - The job listings block no longer emits PHP warnings when it renders with no matching jobs. The empty-state markup referenced job-loop variables that were out of scope.
 * Compat   - Aligned with WP Career Board Pro 1.4.3. Install both updates together.
 
 = 1.4.2 - June 2026 =
