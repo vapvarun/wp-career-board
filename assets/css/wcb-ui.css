@@ -1276,7 +1276,12 @@ textarea.wcb-input {
 [class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
 	background: transparent;
 	color: var(--wcb-primary, #2563eb);
-	-webkit-text-fill-color: var(--wcb-primary, #2563eb);
+	/* Follow the resolved `color` so the label stays legible even when an
+	 * aggressive theme (e.g. BuddyX) wins the `color`/`background` cascade on a
+	 * <button> and would otherwise leave our fixed fill colour stranded on a
+	 * same-colour background (red-on-red). currentColor tracks whatever colour
+	 * actually paints. */
+	-webkit-text-fill-color: currentColor;
 	border-color: var(--wcb-primary, #2563eb);
 }
 
