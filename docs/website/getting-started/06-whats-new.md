@@ -7,8 +7,19 @@ full line-by-line history, see the changelog in `readme.txt`.
 
 ## 1.4.3
 
+* New - The Job Listings block filter sidebar is now customizable. In the
+  block settings you can reorder the filter groups (Job type, Experience,
+  Category, Tags, Location, Job board, Salary) and hide any you do not need.
+  Settings are per block, so each Job Listings placement can differ.
+* Improve - WP Career Board now adapts to BuddyX and BuddyX Pro 5.1 light
+  and dark color modes. Card avatars, dashboards, buttons, and widgets
+  re-color correctly in dark mode (previously only Reign's dark mode was
+  handled).
 * Fix - The Job Listings block no longer emits PHP warnings when it
   renders with no matching jobs.
+* Dev - New `wcb_notification_created` action fires whenever a notification
+  is created, so a central notification center (such as BuddyNext) can
+  mirror Career Board notifications.
 
 ## 1.4.2
 

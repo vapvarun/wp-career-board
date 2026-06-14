@@ -64,7 +64,10 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 = 1.4.3 - June 2026 =
 
+* New      - Customizable Job Listings filter sidebar. Reorder the filter groups (Job type, Experience, Category, Tags, Location, Job board, Salary) and hide any you do not need, per block, from the block settings.
+* Improve  - WP Career Board now adapts to BuddyX and BuddyX Pro 5.1 light and dark color modes. Card avatars, dashboards, buttons, and widgets re-color correctly in dark mode; previously only Reign's dark mode was handled.
 * Fix      - The job listings block no longer emits PHP warnings when it renders with no matching jobs. The empty-state markup referenced job-loop variables that were out of scope.
+* Dev      - New wcb_notification_created action fires whenever a notification is created so a central notification center (BuddyNext) can mirror Career Board notifications.
 * Compat   - Aligned with WP Career Board Pro 1.4.3. Install both updates together.
 
 = 1.4.2 - June 2026 =
