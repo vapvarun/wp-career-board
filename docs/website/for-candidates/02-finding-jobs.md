@@ -1,6 +1,6 @@
 # Finding Jobs
 
-The job board gives candidates a fast, reactive way to browse and narrow down listings — no page reloads, no waiting.
+The job board gives candidates a fast, reactive way to browse and narrow down listings - no page reloads, no waiting.
 
 ![Job Listings Page](../images/job-listings-page.png)
 
@@ -33,6 +33,7 @@ Use the **Filter** dropdowns to narrow results by:
 | **Job Type** | Full-time, Part-time, Contract, Freelance, Internship |
 | **Location** | Country, state, or city |
 | **Experience Level** | Entry, Mid, Senior, Lead, Executive |
+| **Salary Range** | A dual-handle slider to set a minimum and maximum pay. See [Salary Range Filter](./08-salary-filter.md). |
 
 You can combine multiple filters. Results update instantly after each selection.
 
@@ -55,8 +56,12 @@ Click any job card to open the full detail page. You will see:
 
 ![Job Single Page](../images/job-single-page.png)
 
+## Recommended for You (Pro)
+
+When the site runs WP Career Board Pro with AI matching enabled, your **Candidate Dashboard → Overview** shows a **Recommended for you** list - jobs matched to the resume on your profile, labelled "AI-matched to your resume". This is in addition to browsing and searching the full board. The recommendations are hidden on Free-only installs and when AI matching is not configured.
+
 ## Saving a Job for Later
 
-Click the **bookmark icon** on any job card or job detail page to save it. Saved jobs appear in your **Candidate Dashboard → Saved Jobs** tab.
+Click the **bookmark icon** on any job card or job detail page to save it. Saved jobs appear in your **Candidate Dashboard → Saved Jobs** tab. Bookmarking works for any logged-in user (a dedicated Candidate role is not required).
 
-You can remove a saved job at any time from the dashboard.
+You can remove a saved job at any time from the dashboard. You can also bookmark companies - those appear under **Candidate Dashboard → Saved Companies**.

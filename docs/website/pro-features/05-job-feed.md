@@ -1,8 +1,8 @@
 # Job Feed / XML Syndication (Pro)
 
-The Job Feed publishes all your live jobs as an XML feed at a fixed URL. Submit this URL to Indeed, LinkedIn, and other job aggregators to automatically syndicate your listings.
+The Job Feed publishes all your live jobs as an XML feed at a fixed URL. Submit this URL to Indeed, Glassdoor, LinkedIn, and other job aggregators to automatically syndicate your listings.
 
-> **Requires WP Career Board Pro** with a valid license key.
+> **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
 
 ## Feed URL
 
@@ -14,21 +14,26 @@ The feed is disabled by default. Enable it in **Career Board -> Settings -> Job 
 
 ## Feed Format
 
-The feed uses the Indeed XML format, which is also accepted by Glassdoor, LinkedIn, and most other major job aggregators. Each `<job>` entry contains:
+The feed uses the Indeed XML format, which is also accepted by Glassdoor, LinkedIn, and most other major job aggregators. The document opens with a `<source>` element carrying `<publisher>` (your site name) and `<publisherurl>` (your site URL), followed by one `<job>` entry per listing.
+
+Each `<job>` entry contains:
 
 | Field | Source |
 |-------|--------|
 | `<title>` | Job post title |
-| `<date>` | Publication date |
+| `<date>` | Publication date (RFC-822 GMT) |
 | `<referencenumber>` | WordPress post ID |
 | `<url>` | Public permalink |
-| `<company>` | Company name meta field |
-| `<city>` | First term from `wcb_location` taxonomy |
-| `<description>` | Job description (HTML stripped) |
+| `<company>` | `_wcb_company_name` meta |
+| `<city>` | First term from the `wcb_location` taxonomy |
+| `<country>` | Currently emitted empty |
+| `<description>` | Job description (HTML stripped, wrapped in CDATA) |
 | `<salary>` | Formatted min-max range, e.g. `$80,000 - $120,000 / yearly` |
-| `<jobtype>` | First term from `wcb_job_type` taxonomy |
+| `<jobtype>` | First term from the `wcb_job_type` taxonomy |
 | `<email>` | Contact email from feed settings |
-| `<expirationdate>` | Deadline meta field |
+| `<expirationdate>` | `_wcb_deadline` meta |
+
+The salary uses the job's own currency symbol from the plugin currency catalog (USD, EUR, GBP, CAD, AUD, INR, SGD), so a EUR or INR job is not exported with a hardcoded dollar sign.
 
 ## Setup
 
@@ -51,7 +56,7 @@ Enter the email address to include in the `<email>` field of every job entry. Th
 
 ## Pagination
 
-The feed returns up to **200 jobs per page** (the maximum Indeed recommends). If you have more than 200 published jobs, append a `start` parameter to retrieve additional pages:
+The feed returns up to **200 jobs per page**. If you have more than 200 published jobs, append a `start` parameter to retrieve additional pages:
 
 ```
 https://yoursite.com/wcb-jobs.xml?start=0    <- jobs 1-200
@@ -61,7 +66,7 @@ https://yoursite.com/wcb-jobs.xml?start=400  <- jobs 401-600
 
 ## Caching
 
-The feed is cached for one hour using WordPress transients. When any job is saved or updated, the cache is immediately invalidated -- the next request builds a fresh feed.
+Each feed page is cached for one hour using WordPress transients. The cache key includes a version number stored in the `wcbp_feed_version` option, and that version is bumped every time a job is saved. The next request after a save therefore reads a fresh feed (its key no longer matches the old cached copy), and stale per-page caches expire naturally within the hour. The feed also sends a `Cache-Control: public, max-age=3600` header for CDN edge caching.
 
 ## Disabling the Feed
 

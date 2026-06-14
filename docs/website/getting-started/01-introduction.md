@@ -1,8 +1,8 @@
 # Introduction to WP Career Board
 
-WP Career Board is a complete job board plugin for WordPress built natively on the **WordPress Interactivity API**. It lets you launch a full-featured job marketplace on any WordPress site — no shortcodes, no page reloads, no jQuery.
+WP Career Board is a complete job board plugin for WordPress built natively on the **WordPress Interactivity API**. It lets you launch a full-featured job marketplace on any WordPress site - no shortcodes, no page reloads, no jQuery.
 
-![WP Career Board — Job Board Overview](../images/intro-overview.png)
+![WP Career Board - Job Board Overview](../images/intro-overview.png)
 
 ## What You Get
 
@@ -20,7 +20,8 @@ WP Career Board is a complete job board plugin for WordPress built natively on t
 **For candidates:**
 - Candidate dashboard to track all applications in one place
 - Saved jobs list (bookmarks)
-- Resume management (with WP Career Board Pro)
+- Apply as any logged-in member - no dedicated Candidate role required (set "Require Candidate Role" in Settings if you want stricter separation)
+- Resume builder and resume management (with WP Career Board Pro)
 
 **For admins:**
 - Full admin control over jobs, applications, employers, and candidates
@@ -50,11 +51,12 @@ WP Career Board is free and fully functional as a standalone job board. **WP Car
 
 - Resume builder with structured sections
 - Custom field builder for jobs, companies, and candidates
-- Application pipeline (ATS-style Kanban stage tracking)
-- Credit system with WooCommerce, PMPro, and MemberPress integration
+- Application pipeline with custom hiring stages on top of the built-in Kanban board
+- Credit system to sell job-posting credits to employers
 - Multi-board engine
 - Job alerts (saved searches sent by email)
-- AI job descriptions (auto-generate with AI)
+- AI job descriptions (auto-generate job posts with AI)
+- AI hiring tools: applicant ranking, fit-score and TL;DR summaries, candidate "Recommended for you" matches, and "Write with AI" cover letters (each requires an AI provider configured in Pro)
 - Job map (interactive map with geocoded pins)
 - Job feed (RSS/XML for aggregators)
 - Priority support from the Wbcom Designs team

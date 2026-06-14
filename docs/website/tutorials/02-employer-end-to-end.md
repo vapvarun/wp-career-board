@@ -70,25 +70,25 @@ back and fix.
 
 **If posting is free on this board,** skip this step.
 
-**If the board uses credits:**
+**Credit-based posting requires WP Career Board Pro.** Free posts are
+always free; the credit balance, ledger, and checkout flow ship in Pro
+(powered by the Wbcom Credits SDK). If the board uses credits:
 
-1. **Employer Dashboard → Credits.** Your current balance shows at
-   the top.
-2. Click **Buy Credits.**
-3. Pick a package (1, 5, 10, 20 credits - depends on what the admin
-   configured).
-4. Complete the checkout. WooCommerce / PMPro / MemberPress flows
-   depend on what the site uses.
-5. After the order completes, your balance updates within 1-2 minutes
-   (sometimes faster).
+1. **Employer Dashboard.** Your current credit balance shows on the
+   overview stat cards.
+2. When a board has a per-post credit cost and your balance is too low,
+   the job form shows a **Buy Credits** link. (The link only appears
+   when the site owner has configured a purchase URL via the
+   `wcb_credit_purchase_url` filter / Pro settings.)
+3. Complete the checkout your site owner set up.
+4. After payment, your balance updates and the post deducts the
+   required credits.
 
 If your balance doesn't update:
 
 - Refresh the dashboard.
-- Check your order is marked "Completed" (not "Processing" or
-  "Pending Payment").
-- Contact the site admin with your order number if it still doesn't
-  show.
+- Confirm the payment completed on whatever checkout your site uses.
+- Contact the site admin if it still doesn't show.
 
 ## Step 4 - Draft and post your first job
 
@@ -135,24 +135,21 @@ A few principles:
 
 ### Application settings
 
-- **Apply through this site** - applications come into the Employer
-  Dashboard. Standard flow.
-- **Apply on company site** - an external URL. Candidates click out to
-  your applicant tracking system (Greenhouse, Lever, Workable, etc.).
-  The URL must start with `http://` or `https://`.
-- **Apply by email** - applicants send straight to an email address.
-  Use this only if you don't want to use the dashboard at all.
+The job form has two optional apply-routing fields. Leave both blank to
+use the on-site flow:
 
-If you're new to the board, use **Apply through this site.** It's
-the only way Career Board's email + status tracking + AI scoring
+- **On-site (default)** - leave the Apply URL and Apply Email fields
+  blank. Applications come into the Employer Dashboard and run through
+  Career Board's email + status tracking.
+- **Apply URL** - an external URL. Candidates click out to your
+  applicant tracking system (Greenhouse, Lever, Workable, etc.). When
+  set, the single-job page routes Apply Now to this URL.
+- **Apply Email** - applicants send straight to this address. When set,
+  the single-job page surfaces the apply email.
+
+If you're new to the board, leave both blank and use the on-site flow.
+It's the only way Career Board's email + status tracking + AI scoring
 (Pro) all work together.
-
-### Other settings
-
-- **Featured listing** - costs extra credits / fee depending on board
-  config. Promotes the job to the top of the listing.
-- **Anonymous posting** - hide the company name (useful for sensitive
-  hires or stealth-mode startups). Candidates see "Confidential."
 
 Click **Submit Job.**
 
@@ -181,8 +178,10 @@ Promotion gets you the other 95%.
   notified automatically - if the board has alerts enabled,
   candidates do this on their side.
 - **Cross-post to one or two niche boards.** Hacker News Who's Hiring,
-  WeWorkRemotely, a Slack jobs channel, etc. Career Board has an RSS
-  feed (`/feed/jobs/`) that some aggregators consume automatically.
+  WeWorkRemotely, a Slack jobs channel, etc. Career Board exposes an
+  enriched RSS feed at `/jobs/feed/` that some aggregators consume
+  automatically (it carries company, salary, location, type, category,
+  tags, experience, deadline, and apply URL).
 
 ## Step 7 - Watch applications come in
 
@@ -219,10 +218,10 @@ A simple triage pass:
    right-to-work, etc.).
 5. **Move to "Shortlisted"** if it's an obvious "yes, let's interview."
 
-Each status move fires an email to the candidate (good - keeps them
-informed). "Rejected" sends a courtesy email; you can customise the
-template in **WP Admin → Career Board → Settings → Notifications →
-Email templates** (admin-only).
+Each status move fires the "application status changed" email to the
+candidate (good - keeps them informed). You can edit that template
+(and every other email) in **WP Admin → Career Board → Settings →
+Emails** (admin-only).
 
 > **Pro tip:** if AI Fit Score is enabled, sort by it. Read top 10
 > first. Don't auto-reject by score - see
@@ -233,14 +232,16 @@ Email templates** (admin-only).
 The board doesn't run interviews - you do that externally. The board
 helps you stay organised:
 
-- **Add notes** to each application (private to your account). Use
-  these for "interview Tuesday, follow up Friday" or interview
-  feedback.
-- **(Pro)** Move applications through the **Application Pipeline** -
-  a Kanban board with custom stages (Phone screen → Tech interview
-  → Final → Offer → Hired).
-- **Tag** applications with custom tags if you've enabled the field
-  builder (Pro).
+- **Move applications through the five statuses** (Submitted,
+  Reviewing, Shortlisted, Hired, Rejected) to track where each
+  candidate is.
+- **(Pro)** Use the **List / Board** toggle on the Applications view.
+  The Board is a Kanban that groups applicants into status columns
+  (Submitted, Reviewing, Shortlisted, Hired, Rejected); drag a card to
+  change status, and the list, board, status emails, and AI ranking
+  stay in sync.
+- **(Pro)** Use the **Application Pipeline** module and the **Field
+  Builder** to add custom application fields and tags.
 
 ## Step 10 - Make a decision
 
@@ -258,14 +259,19 @@ When you've picked your candidate:
 
 Once filled:
 
-1. **Edit the job → Status → "Filled" (or close it).** This hides it
-   from the public listing. Existing applications stay visible to
-   you.
-2. **(Optional)** Export the applications list to CSV from
-   **Employer Dashboard → Applications → Export** for your records.
+1. **Close the job** from **Employer Dashboard → My Jobs** (the Close
+   action). This takes it out of the public listing while your existing
+   applications stay visible to you. (There is no separate "Filled"
+   status; closing or letting the deadline pass removes it from the
+   board.)
+2. **(Optional)** Export applications to CSV. The bulk CSV export lives
+   on the admin side: **WP Admin → Career Board → Applications**, select
+   the rows, and use the export action. The spreadsheet includes
+   applicant name, email, job, status, applied date, cover letter, and
+   resume URL.
 3. **(Optional)** Update your company profile with the new hire's
    role / team if you list staff.
-4. **Refresh credits** - buy more if you have another role coming up.
+4. **Refresh credits (Pro)** - top up if you have another role coming up.
 
 ## Step 12 - Build a candidate bench (Pro)
 

@@ -1,37 +1,38 @@
 # AI Features for Employers
 
 > **Pro feature surface.** Employers on Free still get the full
-> job-posting form, the full applications screen, and standard
-> candidate review. The AI-assisted shortcuts below only appear when
-> the site has Pro installed, licensed, and a provider configured.
+> job-posting form, the full applications screen, and standard candidate
+> review. The AI-assisted shortcuts below appear when the site has Pro
+> active and the relevant provider configured.
 
-This page covers what employers can do with AI in 1.1.1: the
-**Job Description Writer** during posting, and the **AI ranking REST
-data** for application triage.
+This page covers what employers can do with AI in 1.4.3: the **Job
+Description Writer** during posting, and **AI applicant ranking** with
+fit scores, reasons, and TL;DR summaries on the Employer Dashboard.
 
 ## AI Job Description Writer
 
-A button on the post-a-job form that turns a few form fields into a
-job description draft. Employers always review and edit the output
-before publishing - nothing is auto-posted.
+A button on the post-a-job form that turns a few form fields into a job
+description draft. Employers always review and edit the output before
+publishing - nothing is auto-posted.
 
 ### Where it lives
 
-On the **Post a Job** form (Employer Dashboard or `/post-a-job/`),
-above the description editor:
+On the **Post a Job** form (Employer Dashboard or `/post-a-job/`), above
+the description editor:
 
-- A "Generate with AI" button (icon + label).
+- A "Generate with AI" button (icon + label). Present on both the full
+  job form and the simple job form.
 - Visible only when:
   - Pro is active.
   - The `wcb_ai_description_enabled` filter resolves to true (Pro's
-    `AiModule::is_enabled()` returns true when a provider + API key
-    are configured).
+    `AiModule::is_enabled()` returns true when an analysis or embedding
+    provider is configured).
   - The employer's role has `wcb_post_jobs`.
 
 ### What gets sent to the AI
 
 The writer endpoint (`POST /wcb/v1/jobs/ai-description`) accepts three
-fields in 1.1.1:
+fields:
 
 | Field | Source on the form |
 |---|---|
@@ -39,23 +40,17 @@ fields in 1.1.1:
 | `company_type` | Company type / industry input |
 | `location` | Job location input |
 
-These three are concatenated into a prompt asking the model to write
-a compelling job description with responsibilities and requirements,
-in plain text.
-
-> **Note:** 1.1.1 does NOT accept "key bullets" as input. If you want
-> to inject role-specific bullets, edit the prompt template by
-> filtering at the network level (e.g. a custom `pre_http_request`
-> filter), or wait for a later release that adds a `details` field.
+These are composed into a prompt asking the model to write a compelling
+job description (role overview, responsibilities, requirements) and to
+return clean semantic HTML (`<h3>`, `<p>`, `<ul><li>`), no markdown or
+code fences.
 
 ### The flow
 
 1. **Fill in the basics:** job title, company, location, type.
 2. **Click "Generate with AI."** Spinner appears for 5-15 seconds
-   (depends on provider - Claude is fastest, Ollama on CPU is
-   slowest).
-3. **A drafted description appears** in the editor (replacing the
-   editor contents).
+   (depends on provider).
+3. **A structured-HTML draft appears** in the editor.
 4. **Edit it.** Add company-specific details, tone, anything the AI
    missed. The output is a starting point.
 5. **Submit the job** as normal.
@@ -70,57 +65,56 @@ in plain text.
 - **Run it through your own eye before publishing.** First-pass drafts
   often miss specific perks, your diversity statement, or HR legal
   language. Treat it like a junior intern's first draft.
-- **Each generation costs API credits** (~$0.003 on OpenAI's pricing
-  per generation). Regenerating 5 times to get the tone right is still
-  under $0.02.
+- **Each generation costs API credits** (~$0.003 on OpenAI's pricing per
+  generation). Regenerating to get the tone right is still cheap.
 
 ### Limits
 
 - **Output is provider-determined** - no per-request token cap in the
   plugin code.
-- **Provider quality matters.** Claude writes more naturally; OpenAI is
-  a bit more formal; Ollama / llama3 is the weakest writer.
+- **Provider quality matters.** Claude (Sonnet) writes more naturally;
+  OpenAI is a bit more formal; Ollama / llama3 is the weakest writer.
 - **Rate limit:** 30 AI calls per user per hour, shared across all AI
   features.
-- **Returns plain text** - the editor inserts whatever the provider
-  returned, including any newline handling quirks.
 
-## AI Application Ranking (REST data only in 1.1.1)
+## AI applicant ranking
 
-Pro can score each application against the job description (0-100 +
-one-line reason) via REST. The score column is **not rendered in the
-admin applications screen** in 1.1.1 - the data is available, but a
-visible UI surface is queued for a later release.
+Pro scores each application against its job (0-100 fit + a one-line
+reason + a neutral TL;DR summary) and surfaces it right on the Employer
+Dashboard - no custom code required.
 
-### How to fetch it
+### Where it lives
 
-```http
-GET /wp-json/wcb/v1/ai/ranked-applications/{job_id}
-Authorization: <session cookie, user with wcb_view_applications>
-```
+On the **Employer Dashboard** applications view, when an analysis
+provider is configured (the `wcb_ai_ranking_available` filter is true):
 
-Returns:
+- A **"Rank by AI fit"** control sorts the loaded applications best-first.
+- Each applicant row shows an **AI fit score** (e.g. "87%"), the
+  **reason**, and a **TL;DR summary** of the candidate's background.
+- The detail view shows the same fit, reason, and summary.
 
-```json
-[
-  { "application_id": 41, "score": 87, "reason": "Strong React + TypeScript, mid-senior fit" },
-  { "application_id": 42, "score": 65, "reason": "Generalist background; some required skills missing" },
-  ...
-]
-```
+Under the hood the dashboard calls
+`GET /wcb/v1/ai/ranked-applications/{job_id}`, which returns each
+application's `{application_id, score, reason, summary}` sorted by score.
 
-### Where this is useful today
+### Caching - you are not re-billed
 
-Even without a built-in admin column, the data is useful in three
-common patterns:
+Fit score, reason, and summary are cached per application in post meta
+(`_wcbp_ai_fit_score`, `_wcbp_ai_fit_reason`, `_wcbp_ai_summary`,
+`_wcbp_ai_scored_at`). Re-opening the dashboard reuses cached values;
+ranking only computes applications that have never been scored. A force
+re-score is available via `AiModule::score_application( $id, true )` from
+a custom integration.
 
-- **Custom dashboard widget** - hook `dashboard_setup`, fetch the
-  endpoint for jobs the current user owns, display top 5 scored
-  applicants per job.
-- **CSV export augmentation** - extend the applications CSV exporter
-  (Pro feature) to add an AI Score column.
-- **Slack / email digest** - schedule a cron that fetches ranking and
-  posts the top-3 per active role to a channel.
+### Auto-score on submit (optional)
+
+Under **Settings -> AI Settings**, enable **"Auto-score applicants on
+submit"** (`wcbp_ai_auto_rank`). When on, Pro hooks
+`wcb_application_submitted` and schedules a background
+`wcbp_ai_score_application` cron event ~30 seconds after each new
+application, so the dashboard shows AI fit instantly without anyone
+clicking "Rank by AI fit." It's skipped when no analysis provider is
+configured.
 
 ### What the score means
 
@@ -128,71 +122,61 @@ common patterns:
   job. Worth interviewing.
 - **60-79** - partial match. Some required skills present, others
   missing. Read in full before deciding.
-- **40-59** - weak match. Limited overlap. Useful as triage signal,
-  not as a filter.
+- **40-59** - weak match. Limited overlap. Useful as triage signal, not
+  as a filter.
 - **Below 40** - minimal match. Most fields aren't aligned.
 
-The score is one signal, not the answer. Other things to weigh -
-culture fit, location, salary expectations, soft skills - are not
-captured.
+The score is one signal, not the answer. Culture fit, location, salary
+expectations, and soft skills are not captured.
 
 ### How it's computed
 
-Pro sends the **job title** and the **candidate's resume data**
-(as supplied by an add-on hooking `wcbp_candidate_resume_data`) to
-the configured completions provider with a structured prompt asking
-for `{score, reason}`. The result is returned in the REST response;
-there's no built-in cache layer in 1.1.1 - every call re-scores.
+Pro sends the **job title** and the **candidate's resume text** to the
+analysis provider with a JSON prompt asking for
+`{score, reason, summary}`. The candidate's resume text comes from the
+Pro Resume module via the `wcbp_candidate_resume_data` filter (wired in
+Pro core - no add-on required). The model reply is parsed even when it's
+wrapped in code fences, so scores are real rather than always zero.
 
 ### Important caveats
 
-- **No `wcbp_candidate_resume_data` filter implementation in Pro core.**
-  Without an add-on that hooks this filter and returns the candidate's
-  data, the ranking endpoint returns empty strings to the AI -
-  resulting in low scores across the board. Wire up the filter (or
-  install an add-on that does) before relying on the rankings.
 - **Don't auto-reject by score.** AI bias is real; a low score on a
-  great candidate (e.g. a career-changer) shouldn't short-circuit
-  human review.
-- **Recomputation is manual.** No background refresh - call the
-  endpoint when you want fresh scores.
+  great candidate (e.g. a career-changer) shouldn't short-circuit human
+  review. Pro never auto-rejects.
+- **Sparse resumes score low.** A candidate who hasn't filled in the
+  Resume Builder gives the AI little to work with.
+- **Re-score is on demand.** Cached scores stay until you force a
+  recompute or auto-score handles a brand-new application.
 
 ### Privacy considerations
 
-This is the most data-heavy AI feature - every applicant's resume
-data is sent to the LLM provider on each scoring event. If your
-hiring policy doesn't allow that, **switch to Ollama** to keep
-everything on your server.
-
-## Combined workflow tip
-
-Today's practical combo:
-
-1. Use **Description Writer** to draft a focused job posting (good
-   descriptions produce better embeddings and downstream scoring).
-2. As applicants arrive, periodically query
-   `/ai/ranked-applications/{job_id}` from a custom dashboard or
-   tooling to prioritise who to review first.
-3. Wait for a future release for the in-admin column + sort.
+Ranking is the most data-heavy AI feature - each applicant's resume text
+is sent to the analysis provider on first scoring (then cached). If your
+hiring policy doesn't allow that, **set the analysis provider to
+Ollama** to keep everything on your server.
 
 ## What employers get without Pro
 
-| Capability | Free | Pro 1.1.1 |
+| Capability | Free | Pro 1.4.3 |
 |---|---|---|
 | Post a job | Yes | Yes |
 | Manual job description editor | Yes | Yes |
 | AI Description Writer button | No | Yes |
 | Review applicants | Yes | Yes |
 | Sort by date, status | Yes | Yes |
-| AI fit-score column in admin | No | No (queued; REST data is available) |
+| AI fit score + reason on the dashboard | No | Yes |
+| AI TL;DR applicant summaries | No | Yes |
+| One-click "Rank by AI fit" | No | Yes |
+| Auto-score applicants on submit | No | Yes |
 | Application pipeline (Kanban) | No | Yes |
 | Bulk actions on applications | Yes | Yes |
 
 ## Where to go next
 
-- [03-candidate-ai-features.md](03-candidate-ai-features.md) - the
-  other side of the table.
+- [03-candidate-ai-features.md](03-candidate-ai-features.md) - the other
+  side of the table.
 - [05-blocks-shortcodes-and-developers.md](05-blocks-shortcodes-and-developers.md) -
-  the REST + filter surface and how to build the missing admin column.
+  the block, REST, and filter surface.
 - [06-troubleshooting.md](06-troubleshooting.md) - when something
   misbehaves.
+</content>

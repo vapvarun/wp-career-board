@@ -55,7 +55,7 @@ add_action( 'wcb_job_created', function ( $job_id, $request ) {
     $title = get_the_title( $job_id );
     wp_remote_post( SLACK_WEBHOOK_URL, array(
         'body' => wp_json_encode( array(
-            'text' => sprintf( '🆕 New job posted: *%s*', $title ),
+            'text' => sprintf( 'New job posted: *%s*', $title ),
         ) ),
         'headers' => array( 'Content-Type' => 'application/json' ),
         'blocking' => false,
@@ -115,10 +115,10 @@ add_action( 'wcb_job_form_step3_fields', function () {
 ## Add a column to the REST jobs response
 
 ```php
-add_filter( 'wcb_rest_prepare_job', function ( $row, $post, $request, $context ) {
+add_filter( 'wcb_rest_prepare_job', function ( $row, $post ) {
     $row['my_remote_friendly'] = (bool) get_post_meta( $post->ID, '_remote_friendly', true );
     return $row;
-}, 10, 4 );
+}, 10, 2 );
 ```
 
 This propagates everywhere the jobs API is consumed - the listings
@@ -169,21 +169,60 @@ whose linked BuddyPress group the user is not a member of.)
 
 ## Add a custom transactional email
 
+The email registry holds **email objects**, not config arrays.
+Each one extends `WCB\Modules\Notifications\AbstractEmail`,
+declares its identity, and wires its own trigger hook in `boot()`.
+Register the object through the `wcb_registered_emails` filter and
+it appears automatically in Settings -> Emails (subject override,
+enable/disable toggle, and the send log all come for free).
+
 ```php
-add_filter( 'wcb_registered_emails', function ( $emails ) {
-    $emails['my_addon_welcome'] = array(
-        'subject' => __( 'Welcome to the board', 'my-addon' ),
-        'body'    => __( 'Hi {{name}}, welcome to our job board!', 'my-addon' ),
-        'context' => 'candidate',
-    );
+use WCB\Modules\Notifications\AbstractEmail;
+
+class My_Welcome_Email extends AbstractEmail {
+
+    public function get_id(): string {
+        return 'my_addon_welcome';
+    }
+
+    public function get_title(): string {
+        return __( 'Welcome to the board', 'my-addon' );
+    }
+
+    public function get_recipient(): string {
+        return __( 'New candidates', 'my-addon' );
+    }
+
+    public function get_default_subject(): string {
+        return __( 'Welcome to our job board', 'my-addon' );
+    }
+
+    public function boot(): void {
+        // Trigger off any Career Board action hook.
+        add_action( 'wcb_candidate_registered', array( $this, 'handle' ), 10, 2 );
+    }
+
+    public function handle( int $user_id, $request ): void {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) {
+            return;
+        }
+        // send() respects the per-template enable toggle and writes the log row.
+        $this->send( $user->user_email, array( 'name' => $user->display_name ), $user_id );
+    }
+}
+
+add_filter( 'wcb_registered_emails', function ( array $emails ): array {
+    $emails[] = new My_Welcome_Email();
     return $emails;
 });
-
-// Fire it from your code:
-do_action( 'wcb_send_email', 'my_addon_welcome', $candidate_id, array(
-    'name' => $candidate_name,
-));
 ```
+
+The base class gives you `is_enabled()`, `get_subject()` (with the
+admin override), and the protected `send( $to, $vars, $user_id )`
+helper that dispatches and logs. Read
+`modules/notifications/emails/class-email-job-approved.php` for a
+complete working example.
 
 ## Where to find the rest
 

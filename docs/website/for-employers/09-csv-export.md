@@ -1,41 +1,40 @@
 # Bulk Applicant CSV Export
 
 Export selected applications from the admin list table to a UTF-8 CSV
-spreadsheet — one row per applicant, ready to drop into Google Sheets,
+spreadsheet - one row per applicant, ready to drop into Google Sheets,
 Excel, or your ATS.
 
 ## Where to find it
 
 In `wp-admin`, navigate to **Career Board → Applications**. The list
-table now ships a **Bulk actions** dropdown with an **Export selected
-to CSV** option.
+table ships a **Bulk actions** dropdown with an **Export to CSV**
+option.
 
 ## How to use it
 
 1. Filter / search the list down to the applications you want
-   (status filters, job filters, date ranges all work).
+   (the status and job filters on the list table all work).
 2. Tick the row checkboxes (or the column-header checkbox to select
-   the whole filtered set).
-3. Open the **Bulk actions** dropdown, choose **Export selected to
-   CSV**, click **Apply**.
-4. The browser downloads `wcb-applications-YYYY-MM-DD.csv`.
+   the whole visible set).
+3. Open the **Bulk actions** dropdown, choose **Export to CSV**,
+   click **Apply**.
+4. The browser downloads `wcb-applications-YYYY-MM-DD-HHMMSS.csv`.
 
 ## Columns in the export
 
+The CSV has these columns, in this order:
+
 | Column | Source |
 |---|---|
-| `applicant_name` | Application post title |
-| `applicant_email` | Application meta (or candidate user email) |
-| `job_title` | Linked `wcb_job` post title |
-| `job_id` | Numeric ID for joining back to the jobs table |
-| `status` | Application status slug (`submitted`, `reviewing`, `shortlisted`, `rejected`, `wcb_closed`, `wcb_expired`) |
-| `applied_at` | ISO 8601 timestamp |
-| `cover_letter` | Plain-text version of the cover letter (multi-line preserved with `\n`) |
-| `resume_url` | Direct link to the uploaded resume file |
-
-If you've added custom application fields via the
-[`wcb_application_form_fields_groups`](../admin-guide/12-custom-fields.md)
-filter, those fields automatically appear as additional columns.
+| `ID` | Application post ID |
+| `Job ID` | Numeric ID of the linked job, for joining back to the jobs table |
+| `Job Title` | Linked `wcb_job` post title |
+| `Applicant Name` | Candidate display name, or the guest name for guest applications |
+| `Applicant Email` | Candidate user email, or the guest email |
+| `Status` | Application status slug (`submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`) |
+| `Submitted` | Application post date |
+| `Cover Letter` | The cover letter text (multi-line preserved using CSV quoted-string semantics) |
+| `Resume URL` | Direct link to the uploaded resume file, when one was attached |
 
 ## Encoding
 
@@ -45,6 +44,8 @@ newlines using standard CSV quoted-string semantics.
 
 ## Permissions
 
-Only users with the `wcb_manage_applications` ability can export.
-Site admins always have it; employers can be granted via the
-Abilities API.
+The export is available on the admin Applications screen, and each row
+is included only for applications the current user can edit (the
+standard `edit_post` capability check per application). Site admins can
+export all; an employer reaching the screen exports only their own
+applications.

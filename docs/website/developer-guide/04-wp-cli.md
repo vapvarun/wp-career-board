@@ -1,7 +1,7 @@
 # WP-CLI Reference
 
-WP Career Board ships **5 WP-CLI top-level commands** for
-automation, migration, and scale testing.
+WP Career Board ships **5 WP-CLI command groups** for automation,
+migration, and scale testing.
 
 ```bash
 wp wcb <command> <subcommand> [options]
@@ -13,12 +13,11 @@ Operate on `wcb_job` posts.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb job list` | List published jobs with filters |
+| `wp wcb job list` | List jobs, with filters such as `--status=pending` |
 | `wp wcb job approve <id>` | Approve a pending job |
 | `wp wcb job reject <id> --reason="..."` | Reject a job with a reason |
-| `wp wcb job republish <id>` | Bring an expired job back live |
-| `wp wcb job expire` | Run the expiry sweep manually (same as the daily cron) |
-| `wp wcb job feature <id> --days=30` | Promote to featured for N days |
+| `wp wcb job expire [<id>]` | Run the expiry sweep manually (same as the daily cron); pass an ID to expire one job |
+| `wp wcb job run-expiry` | Run the scheduled expiry cron callback directly |
 
 **Example - bulk reject:**
 
@@ -33,21 +32,17 @@ Operate on applications.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb application list --candidate_id=<id>` | List a candidate's applications |
-| `wp wcb application list --job_id=<id>` | List applications for a specific job |
-| `wp wcb application status <id> --to=<status>` | Update an application's status |
-| `wp wcb application withdraw <id>` | Withdraw an application (candidate or admin) |
-| `wp wcb application export --job_id=<id>` | CSV-export applications for a job |
+| `wp wcb application list` | List applications (filter with `--candidate_id=<id>` or `--job_id=<id>`) |
+| `wp wcb application update <id> --to=<status>` | Update an application's status (fires `wcb_application_status_changed`) |
 
 ## `wp wcb migrate`
 
-Move content in or out of Career Board.
+Import legacy job-board content into Career Board.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb migrate wpjm` | Import from WP Job Manager (Pro adds Job Manager Resume Manager import) |
-| `wp wcb migrate csv --file=<path>` | Bulk-import jobs from CSV |
-| `wp wcb migrate export --type=jobs` | Bulk-export to CSV or JSON |
+| `wp wcb migrate wpjm` | Import jobs from WP Job Manager |
+| `wp wcb migrate wpjm-resumes` | Import resumes from WP Job Manager Resume Manager (Pro features consume the imported resumes) |
 
 ## `wp wcb scale`
 
@@ -57,12 +52,14 @@ production-shape dataset.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb scale seed` | Generate 10k users × 10 rows = 100k-row synthetic dataset |
-| `wp wcb scale benchmark` | Time the hot-path queries; exit 1 if any query exceeds its budget |
-| `wp wcb scale teardown` | Drop the synthetic rows |
+| `wp wcb scale seed` | Generate a production-shape synthetic dataset (defaults: 10,000 candidates, 1,000 employers, 500 companies, 5,000 jobs; override per type with `--candidates`, `--employers`, etc.) |
+| `wp wcb scale benchmark` | Time the named hot-path queries; exit 1 if any exceeds its budget |
+| `wp wcb scale teardown` | Drop the synthetic rows (idempotent - flagged via usermeta, never touches genuine content) |
 
-Budgets are defined in `cli/class-scale-command.php` per query.
-PK lookups ≤5ms, indexed scans ≤30ms, snapshot reads ≤20ms.
+Per-query budgets are defined in `cli/class-scale-command.php`
+(`BUDGETS_MS`). For 1.4.3 they are: single-job read 5ms,
+applications-for-a-job 50ms, companies/candidates list-50 50ms,
+jobs list-50 100ms, location filter 150ms, keyword search 200ms.
 
 **Example - full benchmark cycle:**
 
@@ -76,45 +73,63 @@ DB sized to your actual customer load.
 
 ## `wp wcb` (top-level)
 
-A few utility commands without a subcommand namespace:
+Utility subcommands on the root `wcb` command:
 
 | Command | Purpose |
 |---|---|
-| `wp wcb version` | Print the installed version (handy in CI scripts) |
-| `wp wcb doctor` | Run a health check (page mappings, capabilities, cron schedule, debug-log diff) |
+| `wp wcb status` | Print a health summary (page mappings, capabilities, cron schedule, version) |
+| `wp wcb abilities` | List the registered Career Board abilities and whether a user is granted each (`--user-id=<id>`) |
 
 ## Ability gating
 
-WP-CLI runs as the system user (no `current_user_can` context).
-By default, commands skip the ability checks; for production
-sites you can map specific commands to abilities via the
-`wcb_cli_abilities` filter:
+WP-CLI runs as the system user (no current-user context). The
+`wp wcb abilities` command resolves a list of Career Board
+capabilities against a target user (`--user-id=<id>`) so you can
+audit what a role can do. The `wcb_cli_abilities` filter extends
+the capability-to-label map that command reports on - it does not
+auto-gate other subcommands:
 
 ```php
 add_filter( 'wcb_cli_abilities', function ( $map ) {
-    $map['wcb_job_reject'] = 'wcb/moderate-jobs';
+    // Add your add-on's custom capability to the audit table.
+    $map['my_addon_manage_things'] = 'Manage My Addon Things';
     return $map;
 });
 ```
 
-When set, the CLI handler calls `wp_is_ability_granted()` against
-the configured user (`--user=<login>` or the system root) before
-proceeding.
+If your own subcommand needs to enforce a capability, call the
+base class helper inside the method:
+
+```php
+$this->require_ability( 'wcb/moderate-jobs' );
+```
 
 ## Adding your own command
 
-Use the same base class the plugin uses:
+Use the same base class the plugin uses,
+`WCB\Cli\AbstractCliCommand`. Each public method becomes a
+subcommand (the standard WP-CLI convention):
 
 ```php
 namespace MyAddon;
 
-use WCB\Cli\Abstract_Cli_Command;
+use WCB\Cli\AbstractCliCommand;
 
-class My_Command extends Abstract_Cli_Command {
-    protected $name = 'wcb my-thing';
+class My_Command extends AbstractCliCommand {
 
-    public function handle_run( $args, $assoc_args ) {
-        \WP_CLI::log( "Hello from my command" );
+    /**
+     * ## EXAMPLES
+     *
+     *   wp wcb my-thing greet
+     *
+     * @param array<int,string>    $args       Positional args.
+     * @param array<string,string> $assoc_args Flags.
+     */
+    public function greet( array $args, array $assoc_args ): void {
+        // Optional ability gate (no-op when no user context is set).
+        $this->require_ability( 'wcb/post-jobs' );
+
+        \WP_CLI::success( 'Hello from my command' );
     }
 }
 
@@ -123,6 +138,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 ```
 
-The base class gives you `--dry-run`, `--verbose`, structured
-output (`--format=json|table|csv`), and the abilities-aware
-permission helper.
+The base class extends `\WP_CLI_Command` and adds two
+abilities-aware helpers: `check_ability( $ability )` (returns a
+bool) and `require_ability( $ability )` (halts the command if the
+ability is not granted). See the `wcb_cli_abilities` filter below
+to map subcommands to abilities.

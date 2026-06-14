@@ -16,7 +16,7 @@ To toggle moderation: **WP Career Board → Settings → Job Listings → Auto-P
 2. Click the **Pending** filter at the top of the list
 3. Click any job title to open the full edit screen and review the content
 
-![Admin Jobs — Pending Filter](../images/admin-jobs-pending.png)
+![Admin Jobs - Pending Filter](../images/admin-jobs-pending.png)
 
 ## Approving a Job
 
@@ -45,6 +45,27 @@ Admins have full control over all jobs from **WP Career Board → Jobs**:
 - **Edit** any job (correct errors, add missing info)
 - **Close** a job that is running too long
 - **Delete** spam or low-quality listings
+
+## Reported Jobs (Flagged)
+
+Any logged-in user can report a published job from its single page
+("Report this job", with a reason). Reports are stored on the job and
+deduplicated per user, so one person reporting the same job repeatedly
+counts once.
+
+Moderators and admins review reports from **WP Career Board → Jobs**:
+
+1. Click the **Flagged** view at the top of the list (it appears, with
+   a count, only when one or more jobs have open report flags).
+2. The **Flags** column shows how many open reports each job has.
+3. Resolve a flagged job with the row or bulk actions (the row action
+   is **Dismiss flag**; the bulk action is **Dismiss flags**):
+   - **Dismiss flag(s)** - clears the open reports and leaves the job
+     published (the report was not actionable).
+   - **Unpublish** - takes the job down and clears its reports.
+
+Resolving flags requires the **Moderate Jobs** capability
+(`wcb_moderate_jobs`), the same gate as approving and rejecting jobs.
 
 ## Admin Notifications
 

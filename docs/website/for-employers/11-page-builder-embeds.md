@@ -29,10 +29,12 @@ the classic editor, or anywhere a shortcode is accepted.
 | Candidate Dashboard | `[wcb_candidate_dashboard]` |
 | Employer Dashboard | `[wcb_employer_dashboard]` |
 | Employer Registration | `[wcb_employer_registration]` |
+| Similar Companies | `[wcb_similar_companies]` |
+| Job Alert Card | `[wcb_job_alert_card]` |
 | Modular Widgets | `[wcb_widget id="..."]` |
 
 > **Back-compat alias:** `[wcb_registration]` still works as a synonym
-> for `[wcb_employer_registration]` — sites that already embedded the
+> for `[wcb_employer_registration]` - sites that already embedded the
 > short form keep rendering. New pages should use the canonical tag.
 
 ## Attribute passthrough
@@ -71,11 +73,12 @@ filter, you can scope a listing by that meta:
 ### Embed a form on a marketing page
 
 ```
-[wcb_job_form_simple redirectUrl="/thanks/"]
+[wcb_job_form_simple showCompanyField="false" compact="true"]
 ```
 
-After successful submission, the employer is redirected to `/thanks/`
-instead of the new job's permalink.
+A compact single-page job form with the company-name field hidden -
+handy in a narrow column or modal. See [Quick Job Form](08-quick-job-form.md)
+for the full attribute list.
 
 ### Render a single widget from the application screen
 
@@ -89,15 +92,15 @@ applicant card on a partner profile page:
 
 ## Tips for page-builder users
 
-- **Elementor** — use the **Shortcode** widget, not "HTML". The HTML
+- **Elementor** - use the **Shortcode** widget, not "HTML". The HTML
   widget escapes shortcodes.
-- **Divi** — drop a **Code** module and paste the shortcode. The
+- **Divi** - drop a **Code** module and paste the shortcode. The
   Visual Builder renders the live block.
-- **Bricks** — use the **Shortcode** element under Basic.
-- **Beaver Builder** — use the **HTML** module; Beaver Builder runs
+- **Bricks** - use the **Shortcode** element under Basic.
+- **Beaver Builder** - use the **HTML** module; Beaver Builder runs
   shortcodes through `do_shortcode()` automatically.
-- **Classic editor** — paste the shortcode anywhere. Works in posts,
+- **Classic editor** - paste the shortcode anywhere. Works in posts,
   pages, custom post types, widgets.
 
-All blocks render identically across these surfaces — same CSS,
+All blocks render identically across these surfaces - same CSS,
 same Interactivity API behavior, same REST data flow.

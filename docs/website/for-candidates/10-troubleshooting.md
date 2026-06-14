@@ -27,13 +27,19 @@ didn't submit successfully - try again.
 
 ## "The Apply button is missing from a job"
 
-Two reasons this happens:
+A few reasons this happens:
 
-1. **You need to log in.** Many sites require a candidate account
-   to apply. Register from the Candidate Dashboard if you don't
-   have one.
-2. **The job's deadline has passed.** Expired jobs hide the apply
+1. **The job's deadline has passed.** Expired jobs hide the apply
    button. Look for the deadline date on the job page.
+2. **The job was filled or unpublished.** If the employer closed
+   the posting, the apply button is removed.
+3. **The site requires the Candidate role.** Most sites let any
+   logged-in member apply, but some turn on "Require Candidate
+   Role" - on those, register or sign in with a candidate account
+   first.
+
+You usually do not need an account at all: most sites also allow
+guest applications. See [Apply as a Guest](09-guest-apply.md).
 
 ## "I can't apply - it says 'You have already applied'"
 
@@ -49,11 +55,12 @@ You already submitted to this job. Two ways this happens:
 
 ## "My resume upload failed"
 
-- **File too large.** Default limit is 5 MB. Re-export your PDF
-  with smaller image embeds.
-- **Wrong format.** PDF works on every site. Word docs (.docx)
-  may or may not, depending on site config - convert to PDF if in
-  doubt.
+- **File too large.** The default limit is 5 MB. The site admin
+  can raise it up to 20 MB, but if your file is over the limit
+  you'll see "File must be under X MB." Re-export your PDF with
+  smaller image embeds.
+- **Wrong format.** Only PDF, DOC, and DOCX are accepted. ODT,
+  RTF, TXT, and images are rejected - convert to PDF first.
 - **Network blip.** Re-try the upload. Don't hit "Apply" again
   until the upload completes.
 
@@ -103,44 +110,59 @@ channel.
 ## "I'm getting too many job alerts (or too few)"
 
 - **Manage your alerts** at **Candidate Dashboard → Job Alerts**.
-  Each alert has a keyword, location, and frequency you can edit
+  Each alert has saved search filters and a frequency you can edit
   or delete.
-- **Email frequency** is per-alert: daily or weekly. If you set up
-  multiple alerts overlapping in keywords, you'll get multiple
-  emails - consolidate them.
+- **Email frequency** is per-alert: Instant, Daily, or Weekly. If
+  you set up multiple alerts with overlapping filters, you'll get
+  multiple emails - consolidate them or lower the frequency.
 
-## "My profile says I'm 'Open to Work' but I'm not getting contacted"
+## "Employers aren't finding my profile"
 
-The "Open to Work" flag makes you discoverable to employers
-searching candidates. To improve visibility:
+Employers browse candidates through the Find Candidates archive.
+Your profile is **Public by default**, so it appears there as soon
+as you have an account. (Profiles can be made Private, in which case
+only you and admins can see them - that switch is API-driven and is
+exposed in WP Career Board Pro.) To improve your discoverability:
 
-- **Complete your profile** - add a job title, location, skills,
-  and a real resume. Empty profiles rank low in searches.
-- **Update the skills section.** Employers search by skill tags,
-  and "JavaScript" matches more searches than "JS" or
-  "Frontend".
-- **Add a clear resume PDF.** Employers ignore profiles without
-  an attached resume.
+- **Complete your profile.** Open **Candidate Dashboard -> Profile**
+  and add a bio, phone, and location. Empty profiles are easy to
+  skip past.
+- **Keep your account details current** under **Candidate Dashboard
+  -> Account Settings** (display name and email).
+- **Build a resume.** With WP Career Board Pro, use the Resume
+  Builder so employers see your structured experience and
+  education, and can download a PDF.
+
+> Some themes (for example BuddyX Pro) also show an "#OpenToWork"
+> badge on member profiles. That badge is a theme integration and
+> is separate from the Find Candidates archive.
 
 ## "I forgot my password"
 
 Use the standard WordPress "Lost password" link on the login page.
 You'll get a reset email at the address you registered with.
 
+If you are already signed in and just want to change your password,
+use **Candidate Dashboard → Account Settings → Change Password**
+instead.
+
 ## "I want to delete my account"
 
-**Candidate Dashboard → Profile → Delete my account.** This
-triggers a confirmation email; click the link to permanently
-delete:
+Go to **Candidate Dashboard → Account Settings → Privacy & My
+Data** and click **Request account deletion**. This sends a
+confirmation email to your registered address. After you click the
+link in that email, the site administrator processes the erasure,
+which permanently removes:
 
 - Your account
-- All your applications (the employers see "Anonymous candidate"
-  on archived applications, not your details)
+- All your applications (employers see "Anonymous candidate" on
+  archived applications, not your details)
 - Your resume(s)
-- Your saved jobs and alerts
+- Your saved jobs, saved companies, and alerts
 
-This is a GDPR / privacy compliant erasure - it cannot be undone
-once the confirmation link is clicked.
+This is a GDPR / privacy compliant erasure and cannot be undone.
+The same panel also has **Request data export** if you just want a
+copy of your data.
 
 ## I'm stuck - who do I contact?
 
@@ -163,3 +185,5 @@ data - just descriptive details.
 - [04-my-applications.md](04-my-applications.md) - Tracking
   applications
 - [07-job-alerts.md](07-job-alerts.md) - Managing alerts (Pro)
+- [11-profile-and-account.md](11-profile-and-account.md) - Profile,
+  account settings, privacy, and notifications

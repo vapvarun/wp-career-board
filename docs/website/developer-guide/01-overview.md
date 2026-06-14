@@ -1,9 +1,15 @@
 # Developer Guide - Overview
 
-WP Career Board is built to be extended. The plugin exposes ~92
-hooks, 43 REST endpoints, 5 WP-CLI commands, and a JSON manifest
-that lets your code (or another plugin) reach into every part of
-the job-board flow without forking the source.
+WP Career Board is built to be extended. The plugin fires 108
+unique hooks (actions and filters), registers 41 REST routes,
+5 WP-CLI command groups, and ships a JSON manifest that lets your
+code (or another plugin) reach into every part of the job-board
+flow without forking the source.
+
+> Version note: this guide tracks WP Career Board 1.4.3. Exact
+> counts are re-enumerated on every release in
+> `audit/manifest.summary.json` - treat that file as the canonical
+> number if it ever disagrees with this prose.
 
 **Use this guide when:**
 
@@ -22,17 +28,17 @@ assumes you read code.
 | Layer | Where | Purpose |
 |---|---|---|
 | **Blocks** | `blocks/<name>/render.php` + `view.js` | Customer-facing UI - server-rendered, hydrated by the Interactivity API |
-| **Shortcodes** | `core/class-plugin.php::register_shortcodes()` | 1:1 wrappers around every block (page builders, classic editor) |
-| **REST API** | `api/endpoints/class-*-endpoint.php` | 37 endpoints under `wcb/v1/*` - all extending `WCB\Api\REST_Controller` |
-| **Modules** | `modules/<area>/` | Feature modules: jobs, applications, candidates, employers, boards, antispam, gdpr, moderation, notifications, seo |
-| **Core services** | `core/class-*.php` | Cross-cutting: Settings, Abilities, Locations, Pro coordination, Theme bridge |
-| **CLI** | `cli/class-*-command.php` | `wp wcb *` commands - jobs, applications, migration, scale benchmark |
+| **Shortcodes** | `core/class-plugin.php::register_shortcodes()` | 18 shortcode tags wrapping the frontend blocks (page builders, classic editor) |
+| **REST API** | `api/endpoints/class-*-endpoint.php` | 41 routes under `wcb/v1/*` - all extending `WCB\Api\RestController` |
+| **Modules** | `modules/<area>/` | Feature modules: jobs, applications, candidates, employers, boards, antispam, gdpr, moderation, notifications, themeintegration |
+| **Core services** | `core/class-*.php` | Cross-cutting: Settings, Abilities, Locations, Pro coordination, Theme accent bridge |
+| **CLI** | `cli/class-*.php` | `wp wcb *` command groups - jobs, applications, migrate, scale benchmark |
 
 Every layer follows the same conventions:
 
 - All globals prefixed `wcb_`.
 - All abilities use `wcb/<slug>` (kebab-case, namespaced).
-- All REST routes register through `WCB\Api\REST_Controller`.
+- All REST routes register through `WCB\Api\RestController`.
 - All DB writes go through `$wpdb->prepare()`.
 
 ## Contents

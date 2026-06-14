@@ -1,14 +1,14 @@
-# Migration and CSV Import (Pro)
+# CSV Import (Pro)
 
-The Migration module lets you bulk-import jobs from a CSV file and migrate existing listings from WP Job Manager. All imports land as **Pending** posts for editorial review before going live.
+The CSV importer lets you bulk-import jobs from a CSV file. Imported jobs default to **Pending** status for editorial review, though you can set a different status per row.
 
-> **Requires WP Career Board Pro** with a valid license key.
+> **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
 
 ## CSV Import
 
 ### Finding the Import Screen
 
-Go to **Career Board -> Import** and look for the **CSV -> Jobs** card (marked Pro).
+Go to **Career Board -> Import** and look for the **CSV → Jobs** card (marked Pro). The card is added to the free plugin's Import page by Pro.
 
 ### Download the Sample File
 
@@ -27,7 +27,7 @@ Click **Download Sample CSV** to get a correctly structured template with two ex
 | Column | Description |
 |--------|-------------|
 | `description` | Full job description (HTML allowed) |
-| `status` | `pending` (default), `publish`, or `draft` |
+| `status` | `pending` (default), `publish`, or `draft`. Any other value falls back to `pending`. |
 | `deadline` | Application deadline -- any parseable date format, stored as `YYYY-MM-DD` |
 
 #### Salary
@@ -84,7 +84,7 @@ Separate multiple values with commas or pipes. Terms are created automatically i
 
 #### Custom Fields
 
-Add any field key from the **Field Builder** as a column header. Values are mapped to the corresponding custom field on each imported job.
+Add any field key from the **Field Builder** as a column header. The importer matches each non-standard column against the custom field keys defined in the Field Builder (the `wcb_field_definitions` table); recognized keys are stored on the imported job. Columns that do not match a known field key are ignored.
 
 ### Running the Import
 
@@ -104,27 +104,8 @@ Add any field key from the **Field Builder** as a column header. Values are mapp
 | Invalid currency or salary type | Field skipped for that row |
 | Invalid date | Field skipped for that row |
 
-## WP Job Manager Migration
+## Migrating from WP Job Manager
 
-If you are switching from WP Job Manager, the WPJM importer copies all `job_listing` posts to `wcb_job` posts, preserving title, content, author, and publish date.
+The recommended path for moving listings from WP Job Manager into WP Career Board is the **CSV import** described above: export your WPJM listings to CSV, map the columns to the WCB column names in this reference, and import.
 
-### What Gets Migrated
-
-| WPJM Field | WCB Field |
-|-----------|-----------|
-| `_job_location` | Location text |
-| `_job_salary` | Salary text |
-| `_company_name` | Company name |
-| `_job_expires` | Deadline |
-| `_remote_position` | Remote flag |
-| `job_listing_type` terms | `wcb_job_type` taxonomy |
-
-### How to Run the WPJM Import
-
-The WPJM importer is triggered via the REST API. Go to **Career Board -> Import** and use the **WP Job Manager** card, or call the endpoint directly:
-
-```
-POST /wp-json/wcb/v1/import/wpjm
-```
-
-The importer is safe to run multiple times. Jobs already migrated are marked with `_wcb_imported_from_wpjm` meta and are skipped on subsequent runs.
+> Note: a code-level WP Job Manager importer class exists in the plugin but is not currently exposed through any admin screen, REST route, or WP-CLI command, so it is not a self-service feature in this release. Use the CSV import for WPJM data.

@@ -2,7 +2,7 @@
 
 Save any job listing to your personal list so you can come back to apply when ready.
 
-![Candidate Dashboard — Saved Jobs Tab](../images/candidate-dashboard-saved-jobs.png)
+![Candidate Dashboard - Saved Jobs Tab](../images/candidate-dashboard-saved-jobs.png)
 
 ## Saving a Job
 
@@ -14,7 +14,7 @@ You can bookmark a job from two places:
 **From the job detail page:**
 - Click the **Save Job** button on the listing page
 
-Both require you to be logged in as a candidate. If you are not logged in, clicking the bookmark will prompt you to register or log in.
+Both require you to be logged in. Any logged-in user can save jobs - a dedicated Candidate role is not required. If you are not logged in, clicking the bookmark will prompt you to register or log in.
 
 ## Viewing Your Saved Jobs
 
@@ -37,6 +37,16 @@ Saved jobs include a direct **Apply Now** link so you can apply without going ba
 
 > **Tip:** Use Saved Jobs as your personal shortlist. Browse the board first, bookmark the ones that interest you, then review your list and apply to the best matches.
 
+## Saved Companies and Saved Resumes
+
+The dashboard groups all your bookmarks under a **MY SAVES** section in the sidebar:
+
+- **Saved Jobs** - jobs you bookmarked (covered above).
+- **Saved Companies** - bookmark a company from its profile to follow it. They appear under **Candidate Dashboard → Saved Companies**.
+- **Saved Resumes** - when WP Career Board Pro is active and public resumes exist, you can bookmark other candidates' resumes. This tab is hidden on Free-only sites.
+
+All three lists are available to any logged-in user.
+
 ## Limit
 
-There is no limit to how many jobs you can save.
+There is no limit to how many jobs, companies, or resumes you can save.

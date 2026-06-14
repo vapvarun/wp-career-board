@@ -51,12 +51,14 @@ Employer Dashboard → Credits panel.
 
 ## "My company profile changes aren't saving"
 
-- **Make sure you're logged in as the company owner.** Only the
-  user attached to the company can edit it. Site admins can also
-  edit any company.
-- **Required fields.** Some fields (company name, contact email)
-  are required. If left blank, the save silently fails. Look for
-  red asterisks on the form.
+- **Edit from the dashboard.** The company profile is edited from
+  **Employer Dashboard - Profile** (then **Save Profile**), not from
+  the public company page.
+- **Company name is required.** It's the only required field. If you
+  clear it, the save is blocked with "Company name is required." All
+  other fields are optional.
+- **Save the profile before uploading a logo.** Logo upload only
+  becomes available after the profile has been saved once.
 - **Special characters.** If you pasted text with emoji or
   unusual characters and the save fails, copy the text into a
   plain editor first and re-paste.
@@ -65,12 +67,13 @@ Employer Dashboard → Credits panel.
 
 - **Check your spam folder.** Most "missing email" complaints are
   spam-filter issues.
+- **Confirm the email on your account is correct.** Open
+  **Employer Dashboard - Settings** (Account Settings) and check the
+  Email field. New-application emails go to that address.
 - **The site's email might not be configured properly.** Contact
   the site admin and ask them to verify SMTP / email sending is
-  working.
-- **The notification might be disabled in your account.** Go to
-  **Employer Dashboard → Settings → Notifications** (if available)
-  and confirm "New application" is turned on.
+  working, and that the "new application" notification template is
+  enabled in Career Board - Settings - Emails.
 
 ## "The 'Apply on Company Site' button is missing from my job"
 

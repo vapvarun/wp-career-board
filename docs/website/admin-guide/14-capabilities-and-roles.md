@@ -1,6 +1,6 @@
 # Capabilities & Roles
 
-WP Career Board ships with **3 custom roles** and **12 custom
+WP Career Board ships with **3 custom roles** and **13 custom
 capabilities**. Site administrators have every Career Board cap by
 default; the custom roles get a focused subset. Use this page to
 decide what to grant team members.
@@ -9,16 +9,22 @@ decide what to grant team members.
 
 | Role | Slug | Purpose |
 |---|---|---|
+| **Employer** | `wcb_employer` | Posts jobs, manages a company profile, and reviews applications |
 | **Candidate** | `wcb_candidate` | Anyone who applies to jobs and manages a resume |
-| **Board Moderator** | `wcb_board_moderator` | Reviews pending jobs and approves/rejects |
-| **Banned Employer** | `wcb_employer_banned` | Suspended account - can still log in but cannot post |
+| **Job Moderator** | `wcb_board_moderator` | Reviews pending jobs and approves/rejects |
 
-**Note:** "Employer" is not a separate role in Career Board. Anyone
-who has the `wcb_post_jobs` capability is an employer for our
-purposes. Many sites assign that cap to the **Editor** role, or
-create their own custom role and add it.
+**Note on the Job Moderator slug:** the role slug stays
+`wcb_board_moderator` for back-compatibility with existing
+assignments, but the display label is **Job Moderator** (renamed in
+1.4.x because the role moderates jobs - boards are admin-only config
+and carry nothing to moderate).
 
-## The 12 capabilities
+**Banning is not a role.** There is no `wcb_employer_banned` role.
+Suspending an employer is a per-user flag (`_wcb_employer_banned`
+user-meta) set from the admin Employers screen. See [Banning an
+employer](#banning-an-employer) below.
+
+## The 13 capabilities
 
 | Capability | What it lets the user do |
 |---|---|
@@ -30,6 +36,7 @@ create their own custom role and add it.
 | `wcb_bookmark_jobs` | Save jobs to "My Saved Jobs" |
 | `wcb_withdraw_application` | Withdraw an application after submitting |
 | `wcb_moderate_jobs` | Approve or reject pending jobs |
+| `wcb_access_admin_jobs` | Reach the admin Jobs queue (granted to moderators + admins) |
 | `wcb_view_analytics` | See the analytics dashboard (Pro) |
 | `wcb_manage_settings` | Configure Career Board settings, emails, integrations |
 | `wcb_access_employer_dashboard` | See the Employer Dashboard page |
@@ -39,12 +46,15 @@ create their own custom role and add it.
 
 | Role | Capabilities granted |
 |---|---|
-| **Administrator** | All 12 |
-| **Editor** | None by default - usually granted `wcb_post_jobs` + `wcb_view_applications` + `wcb_access_employer_dashboard` for editorial sites |
-| **Author** | None by default |
+| **Administrator** | All 13 |
+| **Employer** (`wcb_employer`) | `read`, `wcb_post_jobs`, `wcb_manage_company`, `wcb_view_applications`, `wcb_access_employer_dashboard` |
 | **Candidate** (`wcb_candidate`) | `read`, `wcb_apply_jobs`, `wcb_manage_resume`, `wcb_bookmark_jobs`, `wcb_access_candidate_dashboard`, `wcb_withdraw_application` |
-| **Board Moderator** (`wcb_board_moderator`) | `read`, `wcb_moderate_jobs` |
-| **Banned Employer** (`wcb_employer_banned`) | None of the Career Board caps. Still has `read` so they can log in and see the suspension message. |
+| **Job Moderator** (`wcb_board_moderator`) | `read`, `wcb_moderate_jobs`, `wcb_access_admin_jobs` |
+| **Editor / Author** | None by default - grant `wcb_post_jobs` (and related caps) only if you want editorial staff to act as employers |
+
+The roles and admin caps are kept in sync on every load, so cap and
+label changes shipped in a plugin update reach existing installs
+without re-activation.
 
 ## Granting capabilities to other roles
 
@@ -56,7 +66,7 @@ Members, etc.):
 3. Tick the Career Board capabilities you want to grant.
 4. Save.
 
-**For "Editor as Employer" - the most common scenario:**
+**For "Editor as Employer" - a common editorial scenario:**
 
 Grant the Editor role:
 - `wcb_post_jobs`
@@ -71,39 +81,43 @@ the broader site-admin access.
 
 The plugin's registration flow creates accounts with these roles:
 
-- **Employer registration** (`/employer-registration/`) creates a
-  user with the `wcb_post_jobs` cap added to whatever role you set
-  in **Settings → Registration → Default employer role**. Default
-  is "Editor."
-- **Candidate registration** (Candidate Dashboard → Register tab)
-  creates a user with the `wcb_candidate` role.
+- **Employer registration** - the Employer Registration block (placed
+  on the "Employer Registration" page by the Setup Wizard) creates a
+  user with the **Employer** (`wcb_employer`) role, which already
+  carries `wcb_post_jobs`, `wcb_manage_company`,
+  `wcb_view_applications`, and `wcb_access_employer_dashboard`.
+- **Candidate registration** - the Candidate Dashboard register tab
+  creates a user with the **Candidate** (`wcb_candidate`) role.
 
-You can override the default roles via the
-`wcb_employer_default_role` and `wcb_candidate_default_role`
-settings (Settings → Registration).
+By default any logged-in member can apply to jobs and manage a resume
+even without the Candidate role - jobs and resumes are commonly a
+side-feature of a community site. Turn on **Settings → Job Listings →
+Require Candidate Role** (or filter `wcb_candidate_requires_role`) to
+reserve the candidate experience for users who hold the candidate cap.
 
-## Banning an employer
+## Banning an employer {#banning-an-employer}
 
-Set the user's role to **Banned Employer**
-(`wcb_employer_banned`):
+Banning is done from the admin Employers list, not by changing the
+user's role:
 
-```bash
-wp user set-role <login> wcb_employer_banned
-```
+1. Go to **WP Career Board → Employers**.
+2. Use the **Ban** row action on a single employer, or tick several
+   rows and choose **Ban** from the bulk-action menu.
 
-Or via WP Admin → Users → edit → Role dropdown.
+This sets the `_wcb_employer_banned` user-meta flag, which the
+Abilities layer reads to strip **every** WCB ability from that user
+regardless of which caps their role carries.
 
 Effects:
 
-- They lose `wcb_post_jobs` - cannot create new jobs.
-- Existing published jobs stay live (use this carefully - if you
-  want them down, change the job's status to `pending` or `draft`
-  separately).
-- They can still log in, but the dashboard shows a suspension
-  message instead of the post-job form.
+- They lose every WCB ability - cannot post jobs, apply, manage a
+  resume, or reach the dashboards.
+- Existing published jobs stay live. If you want them down, change the
+  job's status to pending or draft separately.
+- They can still log in (they keep `read`).
 
-To unban, set the role back to whatever they had before
-(typically Editor).
+To unban, use the **Unban** row or bulk action on the same screen,
+which deletes the meta flag.
 
 ## How the plugin actually checks permissions
 
@@ -123,12 +137,19 @@ namespaced ability slug:
 | `wcb/withdraw-application` | `wcb_withdraw_application` |
 | `wcb/manage-company` | `wcb_manage_company` |
 | `wcb/view-applications` | `wcb_view_applications` |
-| `wcb/view-analytics` | `wcb_view_analytics` |
+| `wcb/access-employer-dashboard` | `wcb_access_employer_dashboard` |
+| `wcb/access-candidate-dashboard` | `wcb_access_candidate_dashboard` |
+| `wcb/view-analytics` | `manage_options` (admin-only; reserved for Pro analytics) |
 
 You only need to grant the underlying capability - the Abilities
-layer reads it. Both forms work for `current_user_can()` checks
-in your own theme/plugin code, though `wp_is_ability_granted()`
+layer reads it. The `wcb/manage-settings` and `wcb/view-analytics`
+abilities are admin-gated and check `manage_options` directly rather
+than a dedicated cap. Both the cap form and `wp_is_ability_granted()`
+work in your own theme/plugin code, though `wp_is_ability_granted()`
 is the canonical call.
+
+Note: a banned employer (the `_wcb_employer_banned` flag) is denied
+every WCB ability regardless of the caps their role holds.
 
 ## Adding your own role
 
@@ -166,9 +187,9 @@ wp user list-caps <login> | grep wcb_
 
 **"You don't have permission" when admin tries to change settings.**
 
-The setting check is `wcb_manage_settings`, which Administrator
-has by default. If you're an Editor temporarily acting as admin,
-you don't have it.
+The settings screen is gated on `manage_options` (the
+`wcb/manage-settings` ability), which Administrator has by default.
+An Editor temporarily acting as admin does not have it.
 
 **Candidate registered but can't apply.**
 

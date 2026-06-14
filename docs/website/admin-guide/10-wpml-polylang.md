@@ -8,15 +8,15 @@ taxonomies, and key strings without manual setup.
 
 | Object | WPML | Polylang |
 |---|---|---|
-| `wcb_job` (Jobs) | ✅ | ✅ |
-| `wcb_application` (Applications) | ✅ — but typically copied per-language to keep the original applicant context | ✅ |
-| `wcb_resume` (Resumes) | ✅ | ✅ |
-| `wcb_company` (Companies) | ✅ | ✅ |
-| `wcb_board` (Boards) | ✅ | ✅ |
-| `wcb_credit_package` | ✅ | ✅ |
-| Taxonomies (`wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience`, `wcb_tag`) | ✅ | ✅ |
-| Plugin admin strings | ✅ via `.po` / `.mo` | ✅ via `.po` / `.mo` |
-| Block attributes (e.g. heading text on Job Listings block) | ✅ | ✅ |
+| `wcb_job` (Jobs) | Yes | Yes |
+| `wcb_application` (Applications) | Yes - but typically copied per-language to keep the original applicant context | Yes |
+| `wcb_resume` (Resumes) | Yes | Yes |
+| `wcb_company` (Companies) | Yes | Yes |
+| `wcb_board` (Boards) | Yes | Yes |
+| `wcb_credit_package` (Pro only) | Yes | Yes |
+| Taxonomies (`wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience`, `wcb_tag`) | Yes | Yes |
+| Plugin admin strings | Yes, via `.po` / `.mo` | Yes, via `.po` / `.mo` |
+| Block attributes (e.g. heading text on Job Listings block) | Yes | Yes |
 
 ## WPML setup
 
@@ -26,11 +26,11 @@ up the config automatically.
 
 To verify:
 
-1. **WPML → Translation Management** — Jobs, Applications, Resumes,
+1. **WPML → Translation Management** - Jobs, Applications, Resumes,
    Companies, and Boards should all appear in the post-type selector.
-2. **WPML → Settings → Custom Posts** — each WCB post type should be
-   set to "Translatable — only show translated items".
-3. **WPML → Taxonomy Translation** — all 5 WCB taxonomies should be
+2. **WPML → Settings → Custom Posts** - each WCB post type should be
+   set to "Translatable - only show translated items".
+3. **WPML → Taxonomy Translation** - all 5 WCB taxonomies should be
    listed and translatable.
 
 ## Polylang setup
@@ -40,8 +40,7 @@ shared between the two plugins for cross-compatibility).
 
 To verify:
 
-1. **Languages → Settings → Custom post types and Taxonomies** —
-   tick the WCB post types and taxonomies under "Activate languages
+1. **Languages → Settings → Custom post types and Taxonomies** -    tick the WCB post types and taxonomies under "Activate languages
    and translations management for".
 2. Save.
 
@@ -58,8 +57,10 @@ current request language:
   Polylang settings).
 - The Apply form labels, validation messages, and confirmation
   message render in the request language.
-- REST API endpoints (`GET /wcb/v1/jobs`) accept a `lang` query
-  parameter to filter by language.
+- REST API endpoints such as `GET /wcb/v1/jobs` return language-scoped
+  results automatically, because WPML and Polylang filter the
+  underlying `WP_Query` for the active request language - there is no
+  separate `lang` query parameter to pass.
 
 ## Translating plugin strings
 
@@ -85,12 +86,12 @@ per language.
 
 ## Known limitations
 
-- **Custom field schema** — fields registered via
+- **Custom field schema** - fields registered via
   `wcb_job_form_fields` are translatable using WPML's String
   Translation, but Polylang requires manual translation entries.
-- **Email templates** — the email body is sent in the recipient's
+- **Email templates** - the email body is sent in the recipient's
   user-locale (set on each user's profile). Sites without per-user
   locales fall back to the site default.
-- **AI features (Pro)** — embeddings + AI matching work
+- **AI features (Pro)** - embeddings + AI matching work
   language-agnostically, but the UI strings respect the request
   language.

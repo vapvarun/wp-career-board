@@ -1,132 +1,118 @@
-# What's New in 1.2.0
+# What's New in 1.4.3
 
-Released May 2026. WP Career Board 1.2.0 is the first public release
-since 1.0.x. It rolls up everything the 1.1.0 dev cycle produced
-(single-page job form, bulk applicant CSV export, salary range slider,
-deadline reminders, guest resume uploads, page-builder shortcode
-compatibility, rebuilt admin Edit Application screen, BuddyPress
-group-scoped boards, tiered credit pricing, and more) plus the QA
-roll-up that closed every Basecamp bug card from the 1.1.x cycle.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.4.3.
+Install both updates together. This page highlights the
+customer-facing changes across the 1.3.0 and 1.4.x cycles. For the
+full line-by-line history, see the changelog in `readme.txt`.
 
-Free and Pro ship in lockstep at 1.2.0. Install both updates together.
+## 1.4.3
 
-## What customers see right away
+* Fix - The Job Listings block no longer emits PHP warnings when it
+  renders with no matching jobs.
 
-### A centered setup wizard
+## 1.4.2
 
-The first-run wizard now sits centered on wide screens instead of
-left-aligned. Same content, less cognitive friction.
+* Fix - Banning an employer now takes effect. The Employers admin
+  screen (Career Board -> Employers) gains Ban and Unban actions
+  (per-row and bulk) plus a Status column. Banning an employer
+  immediately removes every Career Board ability from that account.
 
-![Setup wizard centered](../images/setup-wizard-centered.png)
+## 1.4.0 - AI-assisted hiring and a Kanban board
 
-### A working Find Jobs filter row
+This is the largest release of the cycle. The headline is AI-assisted
+hiring on the dashboards, a List / Board (Kanban) view for
+applications, and the change that lets any logged-in member apply
+without a dedicated Candidate role.
 
-Apply any filter on the Find Jobs page and the active-filter chip row
-now has comfortable spacing above the job cards. The filter-panel
-toggle chevron now renders through the unified Lucide icon system, so
-it matches every other icon on the site.
+### Any logged-in member can apply
 
-![Find Jobs with active filter chip](../images/find-jobs-active-filter.png)
+Any logged-in member can now apply to jobs, save jobs, build a resume
+(Pro), and use the candidate dashboard without being given a separate
+Candidate role - ideal when the job board is part of a community site.
+If you want stricter separation, turn on **Require Candidate Role**
+under **Career Board -> Settings -> Job Listings** (or use the
+`wcb_candidate_requires_role` filter) to reserve the candidate
+experience for the Candidate role.
 
-### Companies archive that aligns properly
+### List / Board toggle on the employer dashboard
 
-The Companies grid now keeps meta chips at the same vertical position
-across every card, regardless of how long each tagline is. Footer
-("View Profile") pins to the bottom of every card so the grid reads
-as a clean row.
+The Employer Dashboard Applications tab now has a **List / Board**
+toggle. The Board groups applicants into status columns - Submitted,
+Reviewing, Shortlisted, Hired, and Rejected. Drag a card to change an
+applicant's status, and the board, list, status emails, and AI
+ranking all stay in sync. (Pro adds custom hiring stages on top of
+this built-in board.)
 
-![Companies archive grid](../images/companies-archive.png)
+![Employer dashboard applications](../images/employer-dashboard-applications.png)
 
-### My Applications as a proper table
+### AI hiring tools (require Pro and an AI provider)
 
-The `[wcbp_my_applications]` shortcode and matching block now render
-as a semantic table with Job / Status / Submitted column headers.
-Candidate view shows just the candidate's own applications; employer
-view (when used with the `employerId` attribute) prepends an
-Applicant column.
+WP Career Board exposes AI hooks that Pro answers when an AI provider
+is configured:
 
-![My Applications candidate view](../images/my-applications-table-candidate.png)
+* **Applicant ranking** - rank a job's applicants by AI fit. Each
+  applicant shows a fit-score badge, the list sorts best-first, and
+  the applicant detail shows the reasoning.
+* **TL;DR summaries** - each applicant shows a one-line summary on
+  load once scored.
+* **Recommended for you** - the Candidate Dashboard overview shows a
+  set of AI-matched jobs.
+* **Write with AI** - the apply panel can draft a cover letter from
+  the candidate's resume and the job, ready to edit before applying.
+* **Generate with AI** - the job form can auto-generate a structured
+  job description (headings, paragraphs, and bullet lists).
 
-On narrow viewports the table collapses to a card layout with each
-row's data labeled in-place, so phones see the same data structure
-without a horizontal scrollbar.
+### Sample data without re-running the wizard
 
-## What Pro customers see
+You can install or remove the demo/sample data straight from
+**Career Board -> Settings**, without re-running the setup wizard.
 
-### Open to Work widget with real candidate info
+### Notifications panel redesign
 
-The Open to Work sidebar widget now reads the resume form's uploaded
-photo (not the BuddyPress / Gravatar avatar), shows the candidate's
-location, displays years of experience, and lists their top three
-skills. When the resume form has not been completed yet, the widget
-falls back to an initial-letter chip in the brand color.
+The dashboard Notifications panel was redesigned with clearer read
+and unread states, **Mark all read** and **Clear all** controls, and
+an always-visible per-row delete button (40px tap target on mobile).
+Notifications that pointed at the homepage now render non-clickable
+instead of bouncing to the home page.
 
-![Open to Work block](../images/open-to-work-block.png)
+## 1.3.0 - Account self-service and clearer moderation
 
-### Featured Candidates with reliable skill display
+### Account Settings in the dashboard
 
-The Featured Candidates block now falls back to skill data stored in
-resume meta when the taxonomy is empty, so candidates whose
-skills-sync hook did not fire still display correctly.
+Candidates and employers can update their display name and email and
+change their password directly in the dashboard, instead of being
+sent off to wp-login.
 
-![Featured Candidates block](../images/featured-candidates-block.png)
+![Candidate dashboard overview](../images/candidate-dashboard-overview.png)
 
-### Credits admin notice when setup is incomplete
+### Rejected jobs and Resubmit
 
-A new yellow banner appears on Settings → Credits when a Purchase URL
-is set but no product is mapped to a positive credit amount. Without a
-mapping, an employer who completes the order would receive zero
-credits. The Buy Credits button on the credit-balance block stays
-hidden until the mapping is added.
+Rejected job listings now show as "Rejected" (not "Draft") in the
+employer dashboard, with a **Resubmit** action. Resubmitting sends
+the job back for admin approval instead of publishing it directly.
 
-![Credits admin warning](../images/credits-admin-warning.png)
+### My Jobs and applications fixes
 
-## What admins see in workflows
+* A newly posted job appears in My Jobs immediately, without a manual
+  page reload.
+* A job posted before you saved a company profile is adopted into My
+  Jobs when the company is created.
+* Saving a company from its profile page persists across reloads.
 
-### Test Email button now works regardless of template status
+## Email and notification quality
 
-Previously, clicking Send test on an email template that was toggled
-off in settings would silently fail (the early-return in `send()`
-skipped both `wp_mail()` and the log row). The endpoint reported
-`sent: false` and the JS button painted "Failed".
+The **Test Send** button on the Emails settings tab
+(**Career Board -> Settings -> Emails**) succeeds even when a template
+is toggled off, so admin previews no longer report a false "Failed".
+Test sends are logged separately so they do not pollute production
+delivery metrics.
 
-1.2.0 adds a public `AbstractEmail::test_send()` bridge that bypasses
-the enabled gate, dispatches the email, and writes a `sent_test`
-status row to the notifications log so admin previews stay separate
-from production delivery metrics in the activity log.
-
-![Test Email Sent state](../images/test-email-sent-state.png)
-
-### Direct metaFilter on the Job Listings block
-
-The Job Listings block has a `metaFilter` attribute (and the matching
-`?meta_<key>=<value>` REST query param) that filters jobs by post-meta.
-Pre-1.2.0 this required registering each meta key through the
-`wcb_jobs_allowed_meta_filters` PHP filter first.
-
-1.2.0 auto-allows any `_wcb_*` namespaced meta key. The plugin owns
-that prefix, so there is no probe risk; customers can drop the block
-in the editor and use any of our job meta as a filter without writing
-PHP. Custom or non-WCB meta still requires the existing opt-in filter.
-
-![metaFilter block attribute](../images/metafilter-block-attr.png)
-
-## Pair release
-
-Pro 1.2.0 ships in lockstep. Both plugins must be at the same version
-at runtime. See Pro's What's New for the Pro-side feature list
-(single-page resume form, BuddyPress group-scoped boards, tiered
-credit pricing, BP activity stream integration, member directory
-filters, group-scoped moderation, the rebuilt admin Boards tab with
-pagination + search, and more).
+![Emails settings tab](../images/settings-emails.png)
 
 ## Upgrade notes
 
-* Lockstep: install Free 1.2.0 and Pro 1.2.0 together. The Pro
+* Lockstep: install Free 1.4.3 and Pro 1.4.3 together. The Pro
   dependency check refuses to load against an older Free.
-* Versions: the WCB_VERSION and WCBP_VERSION constants both move to
-  `1.2.0`. Stable tag in readme.txt matches.
-* Translations: the .pot files have been regenerated and now cover
-  every string in the codebase as of 1.2.0 (1172 Free strings, 696
-  Pro strings).
-* No data migration required.
+* Versions: the `WCB_VERSION` and `WCBP_VERSION` constants both move
+  to `1.4.3`. The stable tag in `readme.txt` matches.
+* No data migration is required for the 1.4.x updates.

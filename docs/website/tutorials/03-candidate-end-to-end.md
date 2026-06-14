@@ -22,8 +22,8 @@ Free flow throughout. Pro-only features are flagged inline.
 Don't register first. Look around.
 
 1. Open `/find-jobs/` on the board.
-2. Use the filters: category, location, type, remote-friendly,
-   salary range (if Pro's salary filter is on).
+2. Use the filters: category, location, type, remote-friendly, and the
+   salary range slider (a Free feature on the Find Jobs page).
 3. Read 3-5 listings that look interesting. You're calibrating: what
    roles does this board actually have? Are they your level? Right
    industry?
@@ -36,16 +36,14 @@ you - better to know now than after building a profile.
 
 When you've found roles worth applying to:
 
-1. Click **Register** or **Sign Up** from the candidate dashboard, or
-   directly from the apply button on a job (most boards have an
-   inline registration step on the apply form for guests).
-2. Fill in:
-   - Name and email.
-   - Password (or use a magic-link if the site uses that).
-   - Optional: your current role / headline (set this - it shows on
-     your public profile).
-3. Confirm your email if the site requires it.
-4. Log in.
+1. Open the Candidate Dashboard while logged out and click **Log in** -
+   it links to the site's standard WordPress login/registration screen.
+   (There is no separate candidate-registration page.) You can also
+   apply as a guest from a job's apply form without an account at all.
+2. Register a normal account (name, email, password).
+3. Log in. On most boards any logged-in member can use the candidate
+   experience straight away. If the site owner enabled "Require
+   Candidate Role," they assign you the Candidate role first.
 
 ## Step 3 - Build your candidate profile
 
@@ -54,59 +52,54 @@ When you've found roles worth applying to:
 Don't skip this - applications that come from a fully-built profile
 look more credible than ones from a blank account.
 
-### Core fields
+### Free profile fields
 
-- **Photo** - optional but builds trust. Square, professional-ish.
-- **Full name** - match your resume.
-- **Headline** - one line describing what you do.
-  "Senior Backend Engineer · 8 years · Go + Python" is better than
-  "Looking for work."
+The Free candidate profile is intentionally lightweight:
+
+- **Email** - your contact address.
+- **Phone** - optional contact number.
 - **Location** - city and country. If you're open to relocating, say
   so in the bio.
-- **About / Bio** - two or three paragraphs. What you've built, what
-  you're looking for, what you're not looking for. Be specific.
-- **Skills** - tag list. Add at least 8-10. Skills are what employers
-  search by and how AI matching (Pro) finds you. "JavaScript" matters
-  more than vague stuff like "team player."
-- **Experience** - at least your last two roles. Company, title,
-  dates, 2-3 bullets per role.
-- **Education** - your highest degree minimum. Add coding bootcamps,
-  certifications.
-- **Languages** - only relevant if you work in regions where
-  multi-language matters.
-- **Links** - GitHub, LinkedIn, personal site, Dribbble, etc.
-  At least one.
+- **Bio / About Me** - a rich-text editor. Two or three paragraphs:
+  what you've built, what you're looking for, what you're not looking
+  for. Be specific.
 
-### Visibility settings
+Your display name, email, and password are edited under **Candidate
+Dashboard → Settings** (Account Settings).
 
-- **"Open to Work"** - flag that makes you discoverable in employer
-  candidate searches (Pro). Turn this on if you want inbound outreach.
-  Turn it off if you're employed and don't want your current employer
-  finding your profile.
-- **Public profile** - controls whether your profile is viewable at
-  `/candidate/your-slug/`. Defaults to off (visible only to employers
-  you've applied to). Turn on if you want a shareable URL.
+### Richer profile and resume fields (Pro)
 
-## Step 4 - Upload your resume
+A structured profile - headline, skills, work experience, education,
+languages, links, a profile photo, an "Open to Work" flag, and a public
+candidate profile URL discoverable in the employer candidate directory -
+ships with WP Career Board Pro (the resume builder and candidate
+directory). If the board runs Pro, fill those in too; in Free your
+applications carry your bio plus your uploaded resume.
 
-**Candidate Dashboard → Resume.**
+## Step 4 - Your resume
 
-- **PDF preferred.** Word docs work but PDFs render universally.
-- **Max 5 MB.** Smaller is better - most resumes are under 500 KB.
-- **Recent date.** Even if the content is unchanged, an old "last
-  modified" date is a red flag for some employers.
-- **One resume,** unless you're targeting two very different role
-  types (e.g. backend vs. data) - then upload two and pick the right
-  one per application.
+In Free, you attach a resume **file** to each application from the
+apply panel - there is no resume stored on the dashboard. The site
+owner sets whether the resume is required and the maximum file size
+(**Settings → Job Listings → Application Resume File Size**, default
+5 MB, range 1-20 MB).
 
-> **Pro tip:** if the site has Pro AI enabled, click **Auto-fill from
-> resume** to pre-populate your profile from the resume. Always
-> review the parsed fields before applying. See
+- **PDF preferred.** Word docs work too. Accepted formats: PDF, DOC,
+  DOCX.
+- **Keep it small.** Most resumes are well under the default 5 MB cap.
+
+> **Pro:** the **My Resumes** tab and the **Resume Builder** (the
+> "Edit Resume" view) are Pro features. With Pro you build a resume on
+> the dashboard, pick a saved resume in one tap when applying (the PDF
+> is generated and attached automatically), and - with an AI provider -
+> auto-fill the builder from an uploaded resume. See
 > [../ai-features/03-candidate-ai-features.md](../ai-features/03-candidate-ai-features.md).
 
-## Step 5 - Set up job alerts
+## Step 5 - Set up job alerts (Pro)
 
-You don't want to check the board manually every day. Set up alerts:
+Job alerts require WP Career Board Pro. In Free you check the board
+yourself (or bookmark roles, Step 6). When Pro is installed, the
+**Job Alerts** tab in the Candidate Dashboard becomes active:
 
 1. **Candidate Dashboard → Job Alerts → New Alert.**
 2. Keywords: "senior frontend" or "data engineer" - be specific.
@@ -120,13 +113,13 @@ covering your search variations.
 
 > **Pro features:** semantic matching widens alerts beyond exact
 > keyword match (a "backend" alert will surface "server-side"
-> postings). No setup needed - it just happens.
+> postings) when an embedding provider is configured.
 
 ## Step 6 - Search and shortlist
 
-Once your profile is good and alerts are running, the rhythm is:
+Once your profile is good, the rhythm is:
 
-1. **Check alerts** daily / weekly.
+1. **Check the board** daily / weekly (or your Pro alerts if Pro is on).
 2. **Read the listings** that match. Don't apply yet.
 3. **Bookmark the interesting ones** - click the bookmark icon. They
    land in **Candidate Dashboard → Saved Jobs.**
@@ -143,16 +136,35 @@ Once your profile is good and alerts are running, the rhythm is:
 > The results rank by relevance, not by date. Helpful when keyword
 > search isn't finding the right roles.
 
+### Spot a bad listing? Report it
+
+If a listing looks like a scam, spam, an expired/already-filled role, or
+is misleading or offensive, you can flag it for the site's moderators.
+
+1. Open the job page while logged in (you can't report your own listing).
+2. Click **Report this job**.
+3. Pick a reason: Scam or fraudulent, Spam or advertisement, Expired or
+   already filled, Inaccurate or misleading, or Offensive or
+   inappropriate.
+4. Submit. You'll see a short confirmation.
+
+Reporting is one click per person per job - if you report the same job
+again nothing changes. A moderator reviews flagged jobs and either
+dismisses the flag (the listing was fine) or unpublishes the job (the
+listing was bad). You won't get a personal reply, but you've done your
+part to keep the board clean.
+
 ## Step 7 - Apply
 
 For each shortlisted job:
 
 1. Click **Apply** on the job page.
-2. The form pre-fills from your profile + resume. Verify it's right.
-3. **Cover letter / answers** - fill in any questions the employer
-   added. Don't paste a generic letter. 4-6 sentences specific to
-   this role beats a long generic one.
-4. **Resume** - use the default or upload a tailored version.
+2. The form pre-fills your contact details from your account. Verify
+   it's right.
+3. **Cover letter** - write 4-6 sentences specific to this role. Don't
+   paste a generic letter.
+4. **Resume** - upload a resume file (or, with Pro, pick a saved
+   resume; your most recent one is pre-selected).
 5. **Submit.**
 
 You'll get a confirmation email. The application is now visible in
@@ -230,23 +242,27 @@ Your search will shift. Update accordingly:
 
 - **Saved Jobs** - periodically clear out ones that expired or
   you no longer want.
-- **Job Alerts** - adjust keywords if your alerts are too noisy or
-  too quiet.
-- **"Open to Work" flag** - turn off once you accept an offer (or
-  any time you don't want inbound outreach).
+- **Job Alerts (Pro)** - if Pro is installed, adjust keywords when your
+  alerts get too noisy or too quiet.
+- **"Open to Work" flag (Pro)** - the candidate directory and the
+  Open-to-Work flag are Pro features. If the board runs Pro, turn the
+  flag off once you accept an offer.
 
 ## Step 11 - Delete your account when you're done
 
 If you've landed a job and don't want lingering data:
 
-1. **Candidate Dashboard → Profile → Delete my account.**
-2. Click the confirmation link in the email.
-3. Your account, applications, resumes, saved jobs, and alerts are
-   permanently deleted. Employers see "Anonymous candidate" on
-   historical applications instead of your details.
+1. **Candidate Dashboard → Settings.** Use **Export my data** to request
+   a copy, or **Delete my account** to request erasure.
+2. Both actions send a confirmation email to your registered address.
+   Click the link in the email to confirm.
+3. The request enters WordPress's standard privacy queue and is
+   processed by the site administrator. On erasure your applications and
+   resumes are deleted and your account is removed.
 
-This is a GDPR / privacy compliant erasure. It's irreversible - make
-sure you've kept any data you wanted before clicking through.
+This runs through WordPress's built-in privacy request flow, so it is
+GDPR / privacy compliant. Erasure is irreversible - keep any data you
+want before confirming.
 
 ## Common candidate mistakes
 
@@ -260,9 +276,9 @@ sure you've kept any data you wanted before clicking through.
 - **Ignoring rejection emails.** Read them - sometimes employers
   include genuinely useful feedback or invite you to apply for a
   future role.
-- **Forgetting to turn off "Open to Work" after landing a job.** Your
-  new employer's HR might be browsing the candidate directory and
-  notice.
+- **Forgetting to turn off "Open to Work" after landing a job (Pro).**
+  On Pro boards your new employer's HR might be browsing the candidate
+  directory and notice.
 
 ## Where to go next
 

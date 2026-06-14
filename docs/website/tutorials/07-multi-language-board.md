@@ -49,7 +49,7 @@ Either strategy, these elements work differently:
 | **Company profiles** | Per profile; if a company hires in multiple languages, they translate the profile once. |
 | **Candidate profiles** | Per candidate; the candidate writes their bio in their language of choice. |
 | **Email notifications** | Per language; the candidate / employer's user preference determines which template is sent. |
-| **UI strings (block labels, buttons)** | Career Board ships with WPML / Polylang-compatible `__()` calls; the plugin shipped translation files handle UI. |
+| **UI strings (block labels, buttons)** | Career Board wraps strings in WPML / Polylang-compatible `__()` calls and ships a POT template (`languages/wp-career-board.pot`); generate your own PO/MO, or translate inline in WPML / Polylang String Translation. |
 | **Application form custom fields** | Per language (Pro: Field Builder). |
 
 ## Setup with WPML
@@ -60,20 +60,30 @@ Either strategy, these elements work differently:
 - Languages configured in WPML.
 - WP Career Board Free or Pro.
 
+Career Board ships a `wpml-config.xml` manifest that WPML and Polylang
+both read, so the CPTs, taxonomies, and meta keys below are already
+declared with sensible defaults. The steps here mostly confirm those
+defaults.
+
 ### Step 1 - Enable Career Board CPTs in WPML
 
+Career Board's CPTs are `wcb_job`, `wcb_company`, `wcb_resume`,
+`wcb_application`, and the admin-only `wcb_board`. There is no
+`wcb_candidate` CPT - candidates are WordPress users and their resumes
+are the `wcb_resume` CPT (Pro).
+
 1. **WPML → Settings → Post Types Translation.**
-2. For each Career Board CPT, set translatable:
-   - `wcb_job` - **Translatable - use translation if available, fallback to default language.**
-   - `wcb_company` - same setting.
-   - `wcb_candidate` - same setting if you want candidate profiles
-     translatable; usually No (candidates write in their own
-     language).
-   - `wcb_application` - **Not translatable** (applications are
-     written by the candidate in their language and shouldn't be
+2. The shipped manifest already sets:
+   - `wcb_job` - **Translatable.**
+   - `wcb_company` - **Translatable.**
+   - `wcb_resume` - **Translatable** (usually left as-is; candidates
+     write in their own language).
+   - `wcb_application` - **Not translatable** (applications shouldn't be
      duplicated).
-3. **WPML → Settings → Taxonomies Translation:** enable for
-   `wcb_job_category`, `wcb_job_type`, `wcb_job_region`.
+   - `wcb_board` - **Not translatable.**
+3. **WPML → Settings → Taxonomies Translation:** the manifest enables
+   translation for `wcb_category`, `wcb_job_type`, `wcb_tag`,
+   `wcb_location`, and `wcb_experience`.
 
 ### Step 2 - Configure custom field translation
 
@@ -81,14 +91,16 @@ Career Board stores job details in post meta. For each meta key WPML
 should sync or translate:
 
 1. **WPML → Settings → Custom Field Translation.**
-2. Recommended:
-   - `_wcb_job_salary_min`, `_wcb_job_salary_max` - **Copy** (numbers
-     are the same across languages).
-   - `_wcb_job_external_url` - **Copy**.
-   - `_wcb_job_deadline` - **Copy**.
-   - `_wcb_company_id` - **Copy**.
-   - `_wcb_job_description_bullets` (if you use them) -
-     **Translate**.
+2. The shipped manifest already declares these (you rarely change them):
+   - `_wcb_salary_min`, `_wcb_salary_max`, `_wcb_salary_currency`,
+     `_wcb_salary_type` - **Copy** (numbers/codes are the same across
+     languages).
+   - `_wcb_apply_url`, `_wcb_apply_email` - **Copy**.
+   - `_wcb_deadline` - **Copy**.
+   - `_wcb_remote`, `_wcb_featured`, `_wcb_company_id`,
+     `_wcb_board_id` - **Copy**.
+   - `_wcb_company_name`, `_wcb_tagline` - **Translate** (these are the
+     two public strings that are language-specific).
 
 If you've added custom fields via Pro's Field Builder, decide
 case-by-case based on whether the data is language-specific.
@@ -98,9 +110,10 @@ case-by-case based on whether the data is language-specific.
 1. **WPML → String Translation.**
 2. Filter by domain `wp-career-board` (Free) and
    `wp-career-board-pro` (Pro).
-3. Career Board ships PO/MO files for several languages; if your
-   language is one of them, the UI strings are pre-translated. Sync
-   them in WPML String Translation to import.
+3. Career Board ships a translation **template** (`languages/
+   wp-career-board.pot`) but no pre-translated PO/MO files. Generate
+   your own translations from the POT (or translate inline in WPML),
+   then save.
 4. For untranslated strings, edit inline in WPML and save.
 
 ### Step 4 - Run a sample translation
@@ -125,10 +138,12 @@ case-by-case based on whether the data is language-specific.
 ### Step 1 - Enable CPTs for translation
 
 1. **Languages → Settings → Custom post types and Taxonomies.**
-2. Check:
-   - `wcb_job`, `wcb_company`, `wcb_application` (uncheck applications
-     if you don't want them duplicated).
-   - `wcb_job_category`, `wcb_job_type`, `wcb_job_region`.
+2. Check (Polylang reads the same `wpml-config.xml`, so these match the
+   shipped defaults):
+   - `wcb_job`, `wcb_company`, `wcb_resume`. Leave `wcb_application`
+     and `wcb_board` unchecked.
+   - `wcb_category`, `wcb_job_type`, `wcb_tag`, `wcb_location`,
+     `wcb_experience`.
 3. Save.
 
 ### Step 2 - Set fallback behavior
@@ -178,9 +193,11 @@ things to know:
 ### Different application form submissions per language
 
 The application form on a French job submits to the same REST endpoint
-as the English version. The candidate's user account is the same.
-Filter by `_wcb_application_lang` meta on the admin side if you need
-language-specific reporting.
+as the English version, and the candidate's user account is the same.
+Career Board doesn't store a per-application language flag, so if you
+need language-specific reporting, derive it from the job's language (via
+WPML / Polylang) or store your own meta key on the
+`wcb_application_submitted` action.
 
 ### Email templates per language
 
@@ -189,9 +206,9 @@ candidate registered with French as their UI language, they receive
 French notifications regardless of which language the job was posted
 in.
 
-To verify: in **Settings → Notifications → Email templates**, each
-template should be translatable via WPML / Polylang. If not, the
-default language template is used as fallback.
+To verify: in **Settings → Emails**, each template's strings should be
+translatable via WPML / Polylang String Translation. If a translation
+is missing, the default-language template is used as fallback.
 
 ### Search engine considerations
 
@@ -221,9 +238,11 @@ auto-convert. Your options:
 
 - **Show source-currency.** Display "$80k-$100k USD" regardless of UI
   language. Simplest, but UX-suboptimal for non-USD candidates.
-- **Convert at display time.** Add a custom filter (`wcb_job_salary_display`)
-  that converts to the candidate's preferred currency using a
-  third-party rate API. More work, better UX.
+- **Convert at display time.** Filter the rendered salary output in your
+  theme/child plugin and convert to the candidate's preferred currency
+  using a third-party rate API. More work, better UX. (The salary value
+  and currency are stored in the `_wcb_salary_min` / `_wcb_salary_max` /
+  `_wcb_salary_currency` meta keys.)
 
 ### Slugs and URLs
 

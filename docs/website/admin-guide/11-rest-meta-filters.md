@@ -24,8 +24,8 @@ GET /wp-json/wcb/v1/jobs?meta__wcb_department=engineering
 
 ## Custom (non-WCB) meta still needs opt-in
 
-Custom or third-party meta keys — anything that doesn't start with
-`_wcb_` — still need to be added to the `wcb_jobs_allowed_meta_filters`
+Custom or third-party meta keys - anything that doesn't start with
+`_wcb_` - still need to be added to the `wcb_jobs_allowed_meta_filters`
 filter before they can be queried. This prevents anonymous probes
 against arbitrary site-internal postmeta (e.g. a private membership
 flag set by another plugin):
@@ -46,8 +46,7 @@ GET /wp-json/wcb/v1/jobs?meta_partner_company_id=42
 
 ## Why this split?
 
-Without any allowlist, any caller could query against any postmeta —
-including private fields the plugin or other plugins use for internal
+Without any allowlist, any caller could query against any postmeta - including private fields the plugin or other plugins use for internal
 bookkeeping (e.g. `_wcb_employer_banned`, `_wcb_pending_review_token`,
 or a membership plugin's `_member_level` field). The pre-1.2.0
 behavior required allowlisting every key, which made the common case
@@ -58,7 +57,7 @@ foreign meta.
 ## Block + shortcode integration
 
 The Job Listings block exposes a `metaFilter` attribute on every
-shipped surface — Gutenberg inserter, shortcode wrapper, and
+shipped surface - Gutenberg inserter, shortcode wrapper, and
 page-builder embeds:
 
 ![metaFilter attribute in the block inspector](../images/metafilter-block-attr.png)
@@ -68,6 +67,15 @@ on the explicit allowlist, the block falls back to showing all jobs
 (no error, but the filter is silently ignored) and a
 `_doing_it_wrong` notice fires in `WP_DEBUG` mode telling you which
 filter to register.
+
+## Matching behavior
+
+Each `meta_<key>=<value>` filter adds one exact-match `meta_query`
+clause (`key` + `value`). There is no special `_min` / `_max` suffix
+or comma-list expansion - the value you pass is matched verbatim
+against the stored postmeta. The dedicated salary range is handled by
+the separate `?salary_min=` / `?salary_max=` query parameters, not by
+the meta-filter surface.
 
 ## Common patterns
 
@@ -79,59 +87,42 @@ $keys[] = '_wcb_relocation_offered';
 $keys[] = '_wcb_remote_friendly';
 ```
 
-Then on the front end:
+These three are already in the `_wcb_*` namespace, so they work
+without any allowlist registration. On the front end:
 
 ```
 ?meta__wcb_visa_sponsorship=1
 ?meta__wcb_relocation_offered=1
 ```
 
-### Range meta (numeric)
+Register a key with `wcb_jobs_allowed_meta_filters` only when it is
+NOT in the `_wcb_*` namespace (a third-party key like
+`partner_company_id`).
 
-For range queries, register both bounds:
-
-```php
-$keys[] = '_wcb_team_size';
-```
-
-Then use comparison operators in the URL (the endpoint accepts
-`_min` / `_max` suffix conventions for any allowlisted numeric key):
+### Single-value meta
 
 ```
-?meta__wcb_team_size_min=10
-?meta__wcb_team_size_max=50
+?meta__wcb_department=engineering
 ```
 
-### Slug-list meta
-
-For meta storing serialized arrays of slugs:
-
-```php
-$keys[] = '_wcb_skills_required';
-```
-
-```
-?meta__wcb_skills_required=python,docker
-```
-
-The endpoint matches if any of the comma-separated values appear in
-the meta array.
+Returns jobs whose `_wcb_department` postmeta equals `engineering`
+exactly.
 
 ## Performance notes
 
-- All allowlisted meta filters are added to the WP_Query `meta_query`
+- All meta filters are added to the WP_Query `meta_query`
   array. WordPress core handles indexing.
 - For high-traffic boards, add an index on the relevant rows in
   `wp_postmeta`:
   ```sql
   ALTER TABLE wp_postmeta ADD INDEX wcb_meta_visa (meta_key, meta_value(20));
   ```
-- The REST endpoint caches per-user-locale + per-query-hash for 5
-  minutes by default; use `wcb_cache_ttl` filter to change.
+- The jobs REST endpoint caches each query result (keyed by the
+  query arguments) in a transient for 5 minutes. The TTL is fixed and
+  the cache is cleared automatically when a job is saved.
 
 ## See also
 
-- [Custom fields filter API](12-custom-fields.md) — declare custom
+- [Custom fields filter API](12-custom-fields.md) - declare custom
   fields on the job form so employers can fill them when posting.
-- [Page-builder embeds](../for-employers/11-page-builder-embeds.md) —
-  scope listings via `metaFilter` shortcode attribute.
+- [Page-builder embeds](../for-employers/11-page-builder-embeds.md) -   scope listings via `metaFilter` shortcode attribute.

@@ -26,14 +26,26 @@ works fine standalone.
 
 ## Prerequisites
 
-- WordPress 6.5+, PHP 8.1+.
-- **BuddyPress 13+** (or BuddyBoss equivalent).
-- WP Career Board **Free or Pro** - most community features work in
-  Free; Pro adds the Multi-Board feature that maps boards to BP
-  groups.
+- WordPress 6.9+, PHP 8.1+.
+- **BuddyPress** (or BuddyBoss equivalent).
+- WP Career Board **Free or Pro**. Free's BuddyPress integration is
+  deliberately thin (see below); the community features in this guide -
+  per-group boards, the group Jobs tab, member filters, activity
+  broadcasts, and the BuddyPress notification bell - are Pro.
 - Groups component enabled in **WP Admin → BuddyPress → Components.**
 - Activity Streams component enabled if you want activity broadcasts.
-- Member Types if you want member-type-specific visibility (Pro).
+
+### What Free's BuddyPress integration actually does
+
+Free's integration is limited to two things:
+
+- It registers `employer` and `candidate` BuddyPress **member types**
+  and keeps them in sync with the Career Board roles.
+- It posts a single **activity entry** to the stream when a job is
+  published ("[Member] posted a new job: [Title]"). This fires
+  automatically and has no on/off setting in Free.
+
+Everything else described below requires Pro.
 
 ## Architecture: how Career Board and BuddyPress fit together
 
@@ -68,9 +80,11 @@ Members of the "Frontend Engineers" BP group see and can post to the
    first, then Career Board.
 2. **BuddyPress → Components** - confirm "Groups" and "Activity
    Streams" are enabled.
-3. **Career Board → Settings → Integrations** - the BuddyPress
-   integration should show as "Active" with a green checkmark. If
-   not, deactivate-reactivate Career Board after BP is on.
+3. The integration boots automatically when BuddyPress is active -
+   there is no "Settings → Integrations" tab in Free to toggle. If the
+   member types or activity entries don't appear, confirm BuddyPress
+   loaded before Career Board (deactivate-reactivate Career Board after
+   BP is on).
 
 ## Step 2 - Map a BP group to a Career Board board (Pro)
 
@@ -104,72 +118,52 @@ group automatically. To customise:
 To rename the tab (e.g. "Hiring" instead of "Jobs"), edit the BP
 group nav label or use the `wcbp_group_jobs_nav_label` filter.
 
-## Step 4 - Member profile job-history field
+## Step 4 - Member profile and candidate directory (Pro)
 
-Career Board adds a "Current role" + "Open to Work" pair to BP member
-profiles automatically when the integration is on. Each candidate's
-profile shows:
+The candidate directory, the public candidate profile, and the
+"Open to Work" flag are Pro features (Pro's BuddyPress member filters
+module surfaces candidates by their Career Board profile). Free
+registers the `employer` / `candidate` member types but does not add a
+"Current role" / "Open to Work" pair to BP profiles by itself.
 
-- Their current role and headline.
-- Their "Open to Work" flag (publicly visible if they set it).
-- A link to their public candidate profile (`/candidate/slug/`).
-
-To extend with custom fields:
-
-1. **BuddyPress → Profile Fields** - add new fields (e.g. "Years of
-   experience," "Preferred work mode").
-2. These fields are stored as standard BP XProfile data. Career Board
-   reads them via the `wcb_candidate_profile_fields` filter to
-   include in candidate searches.
+In Free you can still use standard BuddyPress XProfile fields for extra
+candidate data; Pro's member filters read them when building the
+candidate directory.
 
 ## Step 5 - Activity broadcasts
 
-When a member posts a job or applies for a job, Career Board can
-broadcast that to the activity stream. Each event is configurable:
+In Free, exactly one activity event fires - a "[Member] posted a new
+job: [Title]" entry when a job is published. It is always on and has no
+setting.
 
-**Career Board → Settings → Integrations → BuddyPress → Activity.**
+**Pro** adds the configurable broadcast set (job posted, application
+sent, hired, etc.) through its BuddyPress activity module. Application-
+and hire-side activity should stay off unless your privacy policy
+covers it - most job searches are private.
 
-| Event | Default | What it broadcasts |
-|---|---|---|
-| Job posted | Off | "[Member] posted a new job: [Title] at [Company]." |
-| Application sent | Off (privacy) | "[Member] applied for [Job Title]." |
-| Hired | Off (privacy) | "[Member] was hired for [Job Title]." |
-| New company joined | On | "[Member] added a company: [Company Name]." |
+## Step 6 - Notifications via BP (Pro)
 
-Application-side activity is off by default - most job searches are
-private. Turn on at your discretion. If you do enable, double-check
-your privacy policy reflects it.
+The BuddyPress notification **bell** integration is a Pro module
+(`notificationsbell`). Once Pro is active it surfaces Career Board
+events - new application on your job, application status changed, new
+job in your group - in the BP bell **in addition to** the standard
+email. Free sends the emails but does not write BP bell notifications.
 
-## Step 6 - Notifications via BP
+There is no "Settings → Notifications → Channels" toggle; the bell is
+driven by the Pro module rather than a per-channel setting.
 
-Career Board integrates with BuddyPress's bell notifications. By
-default, these fire as BP notifications **in addition to** standard
-email:
+## Step 7 - Member directory filters (Pro)
 
-- New application on your job → bell notification.
-- Application status changed → bell notification.
-- New job posted in your group → bell notification (if member of the
-  group's board).
+Pro's BuddyPress member filters add **Open to work** and **Hiring**
+filter chips to the BuddyPress members directory (`/members/`), scoping
+it to candidates who set themselves open to work or to employers. This
+is a directory filter, not a permission gate.
 
-To toggle individual events: **Career Board → Settings →
-Notifications → Channels** - pick "BP notifications" alongside email.
-
-## Step 7 - Member types and gating (Pro)
-
-If your BP install uses Member Types (e.g. "employer," "candidate,"
-"student," "alumni"), Career Board can gate posting capability and
-board visibility by member type.
-
-**Career Board → Settings → Permissions → Member Type Gating.**
-
-Example mapping:
-
-- **Member type "Verified employer"** - can post jobs to any board.
-- **Member type "Student"** - can apply to jobs marked "Open to students."
-- **Member type "Alumni"** - can post AND apply, full access.
-- **Default** - applies to anyone not in a member type.
-
-This requires Pro and a one-time custom mapping configuration.
+There is no "Member Type Gating" settings screen. To restrict who can
+post or what a board shows, use the capability system (the Career Board
+roles) and the board/permission filters (for example
+`wcb_board_options_for_employer`). Member-type-specific logic is wired
+through code/filters rather than an admin mapping UI.
 
 ## Step 8 - Test the integration end-to-end
 
@@ -225,12 +219,13 @@ group with its own job board.
 
 ### Jobs tab missing from BP group
 
-1. Career Board is active AND Pro is active AND license is valid.
+1. Career Board is active AND Pro is active. (Pro's license drives
+   updates only - it never gates whether the Jobs tab appears.)
 2. The group is mapped to a board in **Group Manage → Career Board.**
 3. The current user has permission to see the tab (member of the
    group OR the board is set to "Site Members" / "Public").
-4. The integration is enabled in **Settings → Integrations →
-   BuddyPress.**
+4. BuddyPress loaded before Career Board so the integration booted (the
+   integration is automatic - there is no enable toggle).
 
 ### Member sees jobs they shouldn't
 
@@ -241,23 +236,25 @@ Board visibility is set too permissively. Check:
 - Members listed in the group - make sure the user isn't in the
   group when they shouldn't be.
 
-### BP notification not firing on application
+### BP bell notification not firing on application (Pro)
 
-1. **Settings → Notifications → Channels** has "BP notifications" on.
+1. Pro is active (the notification bell is the Pro `notificationsbell`
+   module; Free sends email only).
 2. The receiving user has BP notifications enabled in their account
    settings.
-3. The BP notification component is active.
-4. Test with `wp cron event list` - Career Board fires notifications
-   through standard hooks, BP picks them up immediately.
+3. The BP Notifications component is active.
+4. The custom component is registered with BuddyPress (Career Board
+   notifications only show in the theme bell when registered via the
+   `bp_notifications_get_registered_components` filter).
 
 ### Activity stream missing the job-posted event
 
-1. Activity broadcasts for "Job posted" is on in
-   **Settings → Integrations → BuddyPress → Activity.**
-2. The Activity Streams component is enabled in BP.
-3. The job was posted from within a BP group (not from the global
-   Post a Job page) - the activity event only fires when the post
-   originates from a group context.
+1. The Activity Streams component is enabled in BP.
+2. The job actually reached **Published** status - Free's activity entry
+   fires on publish (`wcb_job_created` for a published job). A job stuck
+   at Pending Review won't post an activity entry yet.
+3. For the broader configurable broadcast set (applications, hires),
+   confirm Pro is active - those are Pro's activity module, not Free.
 
 ## Where to go next
 

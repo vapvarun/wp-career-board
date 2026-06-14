@@ -19,29 +19,29 @@ Make sure your site meets these requirements:
 
 ![Plugin Upload Screen](../images/install-upload.png)
 
-After activation, you will see the **WP Career Board** menu item in your admin sidebar.
+After activation, you will see the **Career Board** menu item in your admin sidebar.
 
 ## What Gets Created on Activation
 
 When you activate the plugin for the first time, WP Career Board automatically:
 
-- Creates three custom post types: **Jobs**, **Companies**, and **Applications**
-- Registers job taxonomies: Category, Job Type, Location, Experience Level, and Tag
-- Creates two user roles: **Employer** and **Candidate**
-- Adds the **WP Career Board** top-level menu to wp-admin
+- Creates five custom post types: **Jobs**, **Companies**, **Applications**, **Resumes**, and **Boards**
+- Registers five job taxonomies: Category, Job Type, Location, Experience Level, and Tag
+- Creates three user roles: **Employer**, **Candidate**, and **Job Moderator**
+- Adds the **Career Board** top-level menu to wp-admin (with Jobs, Applications, Candidates, Companies, Employers, and Settings)
 - Launches the **Setup Wizard** to help you create your pages
 
 ## After Activation
 
 You will be redirected to the Setup Wizard. The wizard creates all required pages with the correct blocks in about 30 seconds. See [Setup Wizard](./03-setup-wizard.md) for the full walkthrough.
 
-If you dismiss the wizard, you can run it again any time from **WP Career Board → Settings → Run Setup Wizard** (the button in the page header).
+If you dismiss the wizard, you can run it again any time from **Career Board → Settings → Run Setup Wizard** (the button in the page header).
 
 ## Updating the Plugin
 
 1. Download the latest version from your account at wbcomdesigns.com
 2. Go to **Plugins → Add New → Upload Plugin**
-3. Upload the new zip — WordPress will ask if you want to replace the current version
+3. Upload the new zip - WordPress will ask if you want to replace the current version
 4. Click **Replace current with uploaded**
 
 > **Note:** Your settings, jobs, applications, and user data are preserved on updates.

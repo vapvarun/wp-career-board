@@ -10,11 +10,11 @@ Common issues and how to resolve them.
 
 The wizard calls the WordPress REST API to create pages. This can fail when:
 
-- **Pretty permalinks are off** — go to **Settings → Permalinks**, select any option other than Plain, and save.
-- **REST API is blocked** — a security plugin, firewall, or hosting rule is blocking `/wp-json/`. Temporarily deactivate security plugins and try again.
-- **Auth cookie not sent** — if your site uses basic HTTP auth (common on staging), the REST request won't carry your session. Disable basic auth temporarily or add an exception for `/wp-json/`.
+- **Pretty permalinks are off** - go to **Settings → Permalinks**, select any option other than Plain, and save.
+- **REST API is blocked** - a security plugin, firewall, or hosting rule is blocking `/wp-json/`. Temporarily deactivate security plugins and try again.
+- **Auth cookie not sent** - if your site uses basic HTTP auth (common on staging), the REST request won't carry your session. Disable basic auth temporarily or add an exception for `/wp-json/`.
 
-After fixing the underlying issue, go to **WP Career Board → Settings → Run Setup Wizard** to run the wizard again.
+After fixing the underlying issue, go to **WP Career Board → Setup Wizard** to run the wizard again.
 
 ---
 
@@ -38,9 +38,9 @@ Then go to **Settings → Permalinks** and click **Save Changes** to flush rewri
 
 ### The Job Listings block shows "No jobs found"
 
-1. Confirm you have published jobs — go to **WP Career Board → Jobs** and check the status column.
+1. Confirm you have published jobs - go to **WP Career Board → Jobs** and check the status column.
 2. If jobs are pending review, go to **WP Career Board → Settings → Job Listings** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
-3. Check your active filters in the block — the **Job Type**, **Category**, or **Location** filters may be set to a value that returns no results.
+3. Check your active filters in the block - the **Job Type**, **Category**, or **Location** filters may be set to a value that returns no results.
 4. Go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
 ### Jobs appear in wp-admin but not on the frontend
@@ -53,9 +53,9 @@ This is almost always a permalink flush issue. Go to **Settings → Permalinks**
 
 ### The "Apply" button does nothing / the application form doesn't open
 
-- Guest applications are supported by default — no setting needs to be enabled. If the form still doesn't open, check that the user's browser is not blocking JavaScript.
+- Guest applications are supported by default - no setting needs to be enabled. If the form still doesn't open, check that the user's browser is not blocking JavaScript.
 - If using a page caching plugin (WP Rocket, W3 Total Cache), purge the cache after activating WP Career Board.
-- Check the browser console for JavaScript errors — a JavaScript conflict with another plugin can prevent the form from loading.
+- Check the browser console for JavaScript errors - a JavaScript conflict with another plugin can prevent the form from loading.
 
 ### Candidates can't submit the application form
 
@@ -71,10 +71,10 @@ This is almost always a permalink flush issue. Go to **Settings → Permalinks**
 
 WP Career Board uses `wp_mail()` to send emails. If emails aren't arriving:
 
-1. **Check spam** — the notification emails from a local WordPress install often land in spam.
-2. **Install an SMTP plugin** — the default `wp_mail()` uses PHP's `mail()` function, which most shared hosts reject. Install an SMTP plugin (e.g. WP Mail SMTP, FluentSMTP) and connect it to a transactional email service (Mailgun, SendGrid, Postmark).
-3. **Verify the sender address** — go to **WP Career Board → Settings → Notifications** and confirm the From email matches your domain. Some hosts reject mail from mismatched domains.
-4. **Check notification toggles** — each notification type can be toggled off in **Settings → Notifications**. Confirm the relevant notification is enabled.
+1. **Check spam** - the notification emails from a local WordPress install often land in spam.
+2. **Install an SMTP plugin** - the default `wp_mail()` uses PHP's `mail()` function, which most shared hosts reject. Install an SMTP plugin (e.g. WP Mail SMTP, FluentSMTP) and connect it to a transactional email service (Mailgun, SendGrid, Postmark).
+3. **Verify the sender address** - go to **WP Career Board → Settings → Notifications** and confirm the From email matches your domain. Some hosts reject mail from mismatched domains.
+4. **Check notification toggles** - each notification type can be enabled or disabled on the **Settings → Emails** tab. Confirm the relevant notification is enabled.
 
 ### The wrong email address is receiving notifications
 
@@ -86,16 +86,16 @@ Admin notification emails go to the address set in **Settings → Notifications 
 
 ### A user registered but isn't showing up as an Employer or Candidate
 
-The role is assigned at registration based on which registration form the user used:
+The role is assigned at registration based on which form the user used:
 
-- Employers register via the **Registration** page (which contains the unified Registration block).
-- Candidates register via the **Registration** page (which contains the unified Registration block).
+- Employers register via the **Employer Registration** page (which contains the **Employer Registration** block) and get the **Employer** (`wcb_employer`) role.
+- Candidates register via the **register** tab on the **Candidate Dashboard** page and get the **Candidate** (`wcb_candidate`) role.
 
-If a user registered via the standard WordPress login page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and manually assign the user.
+If a user registered via the standard WordPress registration page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and assign the user, or assign the relevant capabilities with a role manager (see [Capabilities & Roles](./14-capabilities-and-roles.md)).
 
 ### An employer can't post jobs
 
-1. Check the employer's account in **WP Career Board → Employers** — confirm they have the Employer role.
+1. Check the employer's account in **WP Career Board → Employers** - confirm they have the Employer role.
 2. If the Credit System is active (Pro), confirm the employer has available credits. A zero balance blocks job posting.
 3. Confirm the employer can access the **Employer Dashboard**, where job posting is done.
 
@@ -107,11 +107,11 @@ If a user registered via the standard WordPress login page, they won't have a jo
 
 Credits are added when the WooCommerce order status changes to "completed" (or the equivalent event for PMPro/MemberPress). If credits are missing after a purchase:
 
-1. **Check order status** — go to **WooCommerce → Orders** and confirm the order is marked "Completed", not "Processing" or "On Hold". Some payment gateways (e.g., bank transfer) leave orders in a non-completed state until manually updated.
-2. **Check the credit mapping** — go to **WP Career Board → Settings → Credits → Credit Mappings** and confirm the purchased product is mapped to a credit amount. If the product is not mapped, no credits are granted.
-3. **Check Detected Providers** — at the bottom of the Credits tab, confirm your payment plugin (WooCommerce, PMPro, or MemberPress) is listed as detected. If it is not shown, activate the plugin and refresh.
-4. **Check the debug log** — enable `WP_DEBUG_LOG` in `wp-config.php` and look for `wcb_credits` entries in `wp-content/debug.log`. The Wbcom Credits SDK logs all credit operations.
-5. **Manual fix** — go to **WP Career Board → Employers**, click the employer's name, and use **Admin Credit Adjustment** to manually add the missing credits with a note explaining the reason.
+1. **Check order status** - go to **WooCommerce → Orders** and confirm the order is marked "Completed", not "Processing" or "On Hold". Some payment gateways (e.g., bank transfer) leave orders in a non-completed state until manually updated.
+2. **Check the credit mapping** - go to **WP Career Board → Settings → Credits → Credit Mappings** and confirm the purchased product is mapped to a credit amount. If the product is not mapped, no credits are granted.
+3. **Check Detected Providers** - at the bottom of the Credits tab, confirm your payment plugin (WooCommerce, PMPro, or MemberPress) is listed as detected. If it is not shown, activate the plugin and refresh.
+4. **Check the debug log** - enable `WP_DEBUG_LOG` in `wp-config.php` and look for `wcb_credits` entries in `wp-content/debug.log`. The Wbcom Credits SDK logs all credit operations.
+5. **Manual fix** - go to **WP Career Board → Employers**, click the employer's name, and use **Admin Credit Adjustment** to manually add the missing credits with a note explaining the reason.
 
 ### Employer says "Insufficient credits" but they just purchased
 
@@ -123,7 +123,7 @@ The employer's browser may be showing a cached page. Ask them to refresh the Emp
 
 ### The block editor shows "Your block contains unexpected or invalid content"
 
-This usually means the block's HTML was hand-edited or copied incorrectly. Click **Attempt Block Recovery** when prompted — this will restore the block from its saved attributes.
+This usually means the block's HTML was hand-edited or copied incorrectly. Click **Attempt Block Recovery** when prompted - this will restore the block from its saved attributes.
 
 ### The block renders but looks completely unstyled
 
@@ -135,7 +135,7 @@ WP Career Board enqueues its CSS only on pages that contain its blocks. If you a
 
 ### The jobs page is slow
 
-- Enable **object caching** on your server (Redis or Memcached) — WP Career Board caches job queries.
+- Enable **object caching** on your server (Redis or Memcached) - WP Career Board caches job queries.
 - If using a page caching plugin, configure it to **exclude** the Candidate Dashboard and Employer Dashboard pages (they are user-specific and must not be served from cache).
 - The job search uses a live REST API call on every keystroke (with debounce). If the REST API is slow, check for slow database queries using **Query Monitor**.
 

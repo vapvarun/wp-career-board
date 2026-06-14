@@ -3,10 +3,10 @@
 The Quick Job Form is a **one-screen** alternative to the multi-step
 job-form wizard. Drop it into any sidebar, modal, partner page, or
 page builder. Captures the core fields an employer needs to publish
-in one submit — no tab switching, no wizard navigation.
+in one submit - no tab switching, no wizard navigation.
 
 Sibling of the full [Post a Job](02-post-a-job.md) form (the 4-step
-wizard) — both share the same custom-field hook and persistence
+wizard) - both share the same custom-field hook and persistence
 layer, so anything you add via `wcb_job_form_fields` appears on
 both surfaces.
 
@@ -16,11 +16,13 @@ both surfaces.
   page on your site without navigating to the dashboard.
 - **Drop into a modal** triggered from a "Post a job" CTA on a
   marketing page.
-- **Embed on a partner / co-marketing site** — the Block + shortcode
-  both forward the REST namespace, so cross-site posts work as long
-  as the partner has a logged-in employer session.
+- **Embed on a partner page** on your own site so a logged-in
+  employer can post without first navigating to the dashboard.
 - **Onboarding flows** where you want to capture the first job inline
   during account creation, not after.
+
+The submitter must be logged in as a user with the **Employer** role
+(the same gate as the dashboard wizard).
 
 ## How to add it
 
@@ -31,9 +33,9 @@ Available attributes:
 
 | Attribute | Type | Default | What it does |
 |---|---|---|---|
-| `redirectUrl` | URL | `''` | Where to send the employer after a successful post (defaults to the new job's permalink) |
-| `boardId` | int | `0` | Lock the form to a specific board (useful for multi-board sites) |
-| `categoryDefault` | string slug | `''` | Pre-select a job category |
+| `boardId` | integer | `0` | Lock the form to a specific board (useful for multi-board sites) |
+| `showCompanyField` | boolean | `true` | Show or hide the company-name field |
+| `compact` | boolean | `false` | Tighter vertical rhythm for narrow embed contexts (sidebars, modals) |
 
 ### As a shortcode
 
@@ -42,7 +44,7 @@ For page builders or classic editor:
 ```
 [wcb_job_form_simple]
 [wcb_job_form_simple boardId="42"]
-[wcb_job_form_simple redirectUrl="/thanks/"]
+[wcb_job_form_simple showCompanyField="false" compact="true"]
 ```
 
 Every Block attribute forwards to the shortcode using the same name.
@@ -59,16 +61,23 @@ attribute reference shared by every shortcode.
 
 | Field | Required | Note |
 |---|---|---|
+| Board | No | Shown only on multi-board sites (or hidden when `boardId` locks the form) |
+| Company | No | Toggle with `showCompanyField` |
 | Job Title | Yes | |
-| Job Description | Yes | Block editor / rich text |
-| Location | No | Free text or taxonomy term |
+| Job Description | Yes | Rich text |
+| Category | No | Job category select |
 | Job Type | No | Full-time / Part-time / Contract / Freelance / Internship |
+| Location | No | Free text |
+| Experience | No | Entry / Mid / Senior / Lead / Executive |
+| Skills / Tags | No | Comma-separated tags |
 | Salary range | No | min + max, currency, period (yearly / monthly / hourly) |
 | Application deadline | No | Date picker |
+| Apply URL | No | External apply link (must start with `http://` or `https://`) |
+| Apply Email | No | Address candidates can email to apply |
 | Custom fields | Optional | Whatever your `wcb_job_form_fields` filter contributes |
 
 Fields specific to your industry can be added via the
-[Custom fields filter](../admin-guide/12-custom-fields.md) — they'll
+[Custom fields filter](../admin-guide/12-custom-fields.md) - they'll
 appear on this form AND the multi-step form automatically.
 
 ## What happens on submit
@@ -89,4 +98,4 @@ The form posts to the same REST endpoint as the multi-step form
 - Single-screen UX means there's no preview step before publish.
   Employers can still edit immediately afterward via the dashboard.
 - Multi-image uploads (company logos, banner art) are not part of
-  this form — those still happen via the company profile editor.
+  this form - those still happen via the company profile editor.

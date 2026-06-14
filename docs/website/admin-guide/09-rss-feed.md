@@ -15,58 +15,66 @@ to `jobs`). If you've changed the slug, the feed URL changes with it.
 
 ## Item schema
 
-Each `<item>` in the feed contains:
+WP Career Board enriches WordPress core's standard job feed: the core
+template provides `<title>`, `<link>`, `<description>`, `<pubDate>`,
+and `<guid>`, and the plugin injects the `wcb:`-namespaced fields
+below into each `<item>`. The plain-text `<description>` is also
+prefixed with a one-line "company - location - salary" summary so
+readers that ignore custom namespaces still get useful context.
 
 | Field | Source |
 |---|---|
-| `<title>` | Job title |
-| `<link>` | Job permalink |
-| `<description>` | Full job description (HTML stripped to plain text + 500-char excerpt) |
-| `<pubDate>` | Job publish date |
-| `<guid>` | Job permalink (stable, isPermaLink="true") |
 | `<wcb:company>` | Company name |
-| `<wcb:salary_min>` | Minimum salary (numeric, no formatting) |
-| `<wcb:salary_max>` | Maximum salary |
-| `<wcb:salary_currency>` | ISO 4217 code (USD, EUR, GBP, etc.) |
-| `<wcb:salary_period>` | `yearly` / `monthly` / `hourly` |
-| `<wcb:location>` | Job location string |
-| `<wcb:job_type>` | Full-time / Part-time / Contract / etc. |
-| `<wcb:experience>` | Entry / Mid / Senior / Lead / Executive |
-| `<wcb:category>` | Category slug + display name |
-| `<wcb:tags>` | Comma-separated tag slugs |
-| `<wcb:deadline>` | Application deadline (ISO 8601) — if set |
-| `<wcb:apply_url>` | Direct apply URL (uses external URL if employer set one, otherwise the job permalink) |
-| `<wcb:remote>` | `1` or `0` |
+| `<wcb:salary currency="..." period="...">` | Salary wrapper; carries `currency` and `period` attributes and `<wcb:min>` / `<wcb:max>` children |
+| `<wcb:min>` | Minimum salary (numeric, no formatting), inside `<wcb:salary>` |
+| `<wcb:max>` | Maximum salary (numeric, no formatting), inside `<wcb:salary>` |
+| `<wcb:location>` | Job location term(s) |
+| `<wcb:type>` | Job type term(s) - Full-time, Part-time, Contract, etc. |
+| `<wcb:category>` | Job category term(s) |
+| `<wcb:tag>` | Job tag term(s) |
+| `<wcb:experience>` | Experience-level term(s) |
+| `<wcb:deadline>` | Application deadline - if set |
+| `<wcb:apply_url>` | Direct apply URL, if the employer set an external one |
+| `<wcb:apply_email>` | Direct apply email, if set |
+| `<wcb:remote>` | `true` or `false` |
 
-The `wcb:` namespace is declared on the `<rss>` root so RSS readers
-that support custom namespaces (most modern ones) can surface these
-fields.
+Multi-value fields (location, type, category, tag, experience) emit
+one element per term rather than a comma-joined string.
+
+The `wcb:` namespace (`https://wbcomdesigns.com/xmlns/wcb/1.0/`) is
+declared on the `<rss>` root so RSS readers that support custom
+namespaces (most modern ones) can surface these fields.
 
 ## Filtering the feed
 
-Feed URL accepts query string parameters that mirror the REST API:
+The `/jobs/feed/` route is the standard WordPress CPT feed enriched
+with the `wcb:` fields above; it does not add custom filter
+parameters of its own. For a filtered feed, use a taxonomy archive
+feed, which WordPress generates automatically from the registered
+WCB taxonomy query vars:
 
 ```
-/jobs/feed/?board_id=42                 # only board 42's jobs
-/jobs/feed/?category=engineering        # category slug
-/jobs/feed/?type=full-time              # job type slug
-/jobs/feed/?remote=1                    # remote-only
-/jobs/feed/?salary_min=80000            # $80k+ minimum
+/jobs/feed/?wcb_category=engineering    # one category
+/jobs/feed/?wcb_job_type=full-time      # one job type
+/jobs/feed/?wcb_location=remote         # one location term
 ```
 
-Combine multiple filters with `&`.
+For richer filtering (salary range, remote flag, board, combined
+filters), use the REST endpoint described under
+[Cache + performance](#cache--performance) below, which accepts the
+full job-query surface.
 
 ## Use cases
 
 - **Cross-post to a Slack channel** via Zapier or RSS-to-Slack
   integration when new jobs are published.
-- **Job aggregator listings** — many aggregators accept RSS as their
+- **Job aggregator listings** - many aggregators accept RSS as their
   ingestion format (Indeed, ZipRecruiter, Google Jobs feeds).
-- **Email digest** — feed an RSS-to-email tool (Mailchimp,
+- **Email digest** - feed an RSS-to-email tool (Mailchimp,
   ConvertKit) to send weekly digests.
-- **Static site builder** — feed Astro / Next.js / Hugo with the
+- **Static site builder** - feed Astro / Next.js / Hugo with the
   feed during build to render a careers page on a marketing site.
-- **IFTTT / make.com** — trigger downstream automations on new jobs.
+- **IFTTT / make.com** - trigger downstream automations on new jobs.
 
 ## Cache + performance
 

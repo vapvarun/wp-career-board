@@ -22,8 +22,8 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 Go to **WP Career Board → Settings → Emails**.
 
 Each notification can be:
-- **Enabled or disabled** — toggle the switch to turn it on or off
-- **Customized** — edit the email subject and body text
+- **Enabled or disabled** - toggle the switch to turn it on or off
+- **Customized** - edit the email subject and body text
 
 Click the email name to expand the editor for that notification.
 
@@ -33,16 +33,16 @@ Each template ships with a **Send test** button on the right of the row. Clickin
 
 ![Send test email button in the Sent state](../images/test-email-sent-state.png)
 
-The button works for both enabled and disabled templates — disabled templates are still rendered and dispatched for preview, but their log rows are tagged `sent_test` in the activity log so admin previews stay separate from production delivery metrics. A green check + "Sent" label appears for 2.5 seconds after a successful dispatch, then resets.
+The button works for both enabled and disabled templates - disabled templates are still rendered and dispatched for preview, but their log rows are tagged `sent_test` in the activity log so admin previews stay separate from production delivery metrics. A green check + "Sent" label appears for 2.5 seconds after a successful dispatch, then resets.
 
 If the button shows "Failed", check:
 - An SMTP plugin is configured (the local dev mail handler often fails silently)
 - The admin user has a valid email address on their profile
-- The Email Activity Log row says `sent_test` for the most recent attempt — if the row is missing, see the [self-heal note](#email-activity-log) below
+- The Email Activity Log row says `sent_test` for the most recent attempt - if the row is missing, see the [self-heal note](#email-activity-log) below
 
 ## Email Placeholders
 
-Use these placeholders in email subjects and bodies — they are replaced with real values when the email sends:
+Use these placeholders in email subjects and bodies - they are replaced with real values when the email sends:
 
 | Placeholder | Value |
 |---|---|
@@ -57,9 +57,9 @@ Use these placeholders in email subjects and bodies — they are replaced with r
 ## Email From Name and Address
 
 Go to **WP Career Board → Settings → Notifications** to set:
-- **From Name** — the sender name shown in inboxes (e.g. "Career Board")
-- **From Email** — the reply-to address for all WCB emails
-- **Admin Notification Email** — where admin alerts (e.g. new job pending review) are sent
+- **From Name** - the sender name shown in inboxes (e.g. "Career Board")
+- **From Email** - the reply-to address for all WCB emails
+- **Admin Notification Email** - where admin alerts (e.g. new job pending review) are sent
 
 ## SMTP / Deliverability
 
@@ -69,7 +69,7 @@ For reliable email delivery, use an SMTP plugin (WP Mail SMTP, FluentSMTP, or si
 
 Every dispatched email writes a row to `wp_wcb_notifications_log` and surfaces on the **Activity Log** tab at the bottom of Settings → Emails. Rows show the event type, channel, recipient, status (`sent` / `failed` / `sent_test` / `failed_test`), and timestamp.
 
-The log table is created on plugin activation. If for any reason the table is missing (e.g. a database migration dropped it, or the plugin was installed pre-1.0.x and skipped the activation routine), the dispatch path self-heals the table on first send rather than failing silently — your previously missing log entries will start populating from the next dispatch onward.
+The log table is created on plugin activation. If for any reason the table is missing (e.g. a database migration dropped it, or the plugin was installed pre-1.0.x and skipped the activation routine), the dispatch path self-heals the table on first send rather than failing silently - your previously missing log entries will start populating from the next dispatch onward.
 
 ---
 
@@ -97,7 +97,7 @@ WP Career Board Pro extends the email system with three additional transactional
 
 ### Email Template Customisation
 
-All Pro emails use the same templating system as Free emails. To override a template, copy the relevant file from `modules/notifications-pro/templates/emails/` into your theme's `woocommerce/` folder or use the `wcb_email_template_dirs` filter to add a custom template directory.
+All Pro emails use the same templating system as Free emails. To override a template, copy the relevant file into your theme's `wp-career-board/emails/` folder (the same override location Free uses), or register a custom template directory with the `wcb_email_template_dirs` filter.
 
 ## In-App Notification Bell (Pro)
 
@@ -118,7 +118,7 @@ All notifications are stored in the `wcb_notifications` database table. The `is_
 
 ## Deadline reminders {#deadline-reminders}
 
-New in 1.1.0 — candidates who saved a job but haven't applied get
+New in 1.1.0 - candidates who saved a job but haven't applied get
 automated reminders before the application deadline closes.
 
 ### Reminder schedule
@@ -139,7 +139,7 @@ Both reminders are skipped if:
 Registered as `wcb_send_deadline_reminders`, runs daily.
 
 WordPress's wp-cron triggers it on the next page load after the
-scheduled time — for low-traffic sites, install a real cron job that
+scheduled time - for low-traffic sites, install a real cron job that
 hits `wp-cron.php` to keep timing accurate.
 
 To trigger manually:
@@ -150,18 +150,32 @@ wp cron event run wcb_send_deadline_reminders
 
 ### Disabling deadline reminders
 
-Navigate to **Career Board → Settings → Email** and uncheck **Send
-application deadline reminders**. The cron stays scheduled (so
-re-enabling is one click) but skips the dispatch loop.
+The deadline reminder is one of the email templates on the **Career
+Board → Settings → Emails** tab. Toggle its **Enabled** switch off to
+stop the reminders. The cron stays scheduled (so re-enabling is one
+click) but the disabled template is not dispatched.
 
-To disable the cron entirely (for example, on staging environments):
+Toggling the template off is the supported way to stop the reminders and
+is all most sites need.
+
+To stop the cron entirely as well (for example, on a staging environment),
+unschedule the event with WP-CLI:
+
+```bash
+wp cron event delete wcb_send_deadline_reminders
+```
+
+Or unschedule it in code:
 
 ```php
-add_filter( 'wcb_cron_disabled_hooks', function( $hooks ) {
-    $hooks[] = 'wcb_send_deadline_reminders';
-    return $hooks;
-} );
+$timestamp = wp_next_scheduled( 'wcb_send_deadline_reminders' );
+if ( $timestamp ) {
+    wp_unschedule_event( $timestamp, 'wcb_send_deadline_reminders' );
+}
 ```
+
+The plugin re-schedules the event on the next page load, so deleting it is
+mainly useful when the plugin is also being deactivated.
 
 ### Email template
 

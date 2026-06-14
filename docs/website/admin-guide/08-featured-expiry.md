@@ -1,8 +1,7 @@
 # Featured Listing Expiry
 
 Featured listings now expire automatically after a configurable
-duration. The previous behavior — "once Featured, always Featured" —
-made it hard to sell Featured as a paid SKU. Auto-expiry sets up
+duration. The previous behavior - "once Featured, always Featured" - made it hard to sell Featured as a paid SKU. Auto-expiry sets up
 Featured as a real time-bound boost.
 
 ## How it works
@@ -13,26 +12,25 @@ in Pro), the plugin records the expiry timestamp on the job.
 
 A daily cron event (`wcb_expire_featured_jobs`) runs every 24 hours,
 finds jobs whose featured-expiry timestamp is in the past, and
-clears the `_wcb_featured` flag on each. The job stays published —
-only its Featured boost ends.
+clears the `_wcb_featured` flag on each. The job stays published - only its Featured boost ends.
 
 ## Configuration
 
-Navigate to **Career Board → Settings → General**, find the
-**Featured listing duration** field. Set the number of days a
+Navigate to **Career Board → Settings → Job Listings**, find the
+**Featured Duration (days)** field. Set the number of days a
 Featured boost lasts after activation.
 
-Default: **30 days**.
-
-If you want Featured to be permanent (the pre-1.1.0 behavior), set
-this to `0`. The cron is still scheduled but skips expiry on the `0`
-value.
+Default: **30 days**. The value is clamped to the 1-365 range, so the
+minimum boost is one day - there is no `0` setting for permanent
+Featured status. If you need a Featured listing to persist longer,
+set a larger value (up to 365) or re-feature the job after it
+expires.
 
 ## Cron schedule
 
 The cleanup cron runs daily, registered as `wcb_expire_featured_jobs`.
 WordPress's wp-cron triggers it on the next page load after the
-scheduled time — for low-traffic sites, install a real cron job that
+scheduled time - for low-traffic sites, install a real cron job that
 hits `wp-cron.php` to keep timing accurate.
 
 If you ever need to manually trigger expiry:
@@ -60,7 +58,7 @@ re-feature.
   `now + 30 days` (or whatever the site default is at upgrade
   time). They're not back-dated.
 - The `wcb_featured` taxonomy / query parameter still works
-  identically — only the `_wcb_featured` postmeta gets cleared on
+  identically - only the `_wcb_featured` postmeta gets cleared on
   expiry.
 - Templates that filter on Featured (`is_featured` block attribute,
   REST `?featured=true`) automatically respect expired status with

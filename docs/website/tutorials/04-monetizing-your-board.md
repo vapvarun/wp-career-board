@@ -4,6 +4,17 @@ How to make money from your job board. Covers the four models WP
 Career Board supports, when each one is the right call, and the
 mechanics of setting each up.
 
+> **Free vs Pro.** WP Career Board **Free** supports one monetization
+> model: free postings. Every paid model below - pay-per-post, credit
+> packages, and subscriptions - requires **WP Career Board Pro**. Pro
+> ships the credit ledger (the `wcb_credit_ledger` table) and the Wbcom
+> Credits SDK, which provides the WooCommerce, WooCommerce
+> Subscriptions, WooCommerce Memberships, Paid Memberships Pro, and
+> MemberPress adapters. The credit fields you see in Free's job form
+> (cost, balance, Buy Credits link) are filter-driven stubs that
+> default to free/zero until Pro fills them in. The admin screens this
+> page mentions for credits, mappings, and the ledger are Pro screens.
+
 ## The four models
 
 | Model | What employers pay for | When it fits | Setup complexity |
@@ -31,12 +42,14 @@ fund the board through:
 
 ### Setup
 
-1. **WP Admin → Career Board → Settings → Job Posting.**
-2. **Posting cost:** set to **0** (or leave the default "Free" if
-   that's already wired).
-3. **Moderation:** decide whether postings need admin approval or
-   auto-publish. For free models, moderation is more important -
-   spammers love free boards.
+1. **WP Admin → Career Board → Settings → Job Listings.**
+2. **Posting cost:** Free is the default - there is no per-post cost in
+   the Free plugin, so there is nothing to set. (Per-post credit cost
+   is a Pro feature.)
+3. **Moderation:** the **Auto-Publish Jobs** toggle controls this. It
+   is OFF by default, so new postings sit at Pending Review until an
+   admin approves them. For free boards keep it off - spammers love
+   free boards. Turn it on only if you trust your posters.
 
 ### When this is right
 
@@ -50,29 +63,34 @@ fund the board through:
 - You need cash flow from the board.
 - You don't have time to moderate a high-volume free queue.
 
-## Model 2 - Pay-per-post (WooCommerce-backed)
+## Model 2 - Pay-per-post (Pro, WooCommerce-backed)
 
-Each new job posting requires payment. Most boards in this category
-use WooCommerce as the checkout layer.
+Each new job posting requires payment. This requires Pro and a
+checkout layer; WooCommerce is the most common choice.
 
 ### Setup
 
 1. **Install WooCommerce.** Run its setup wizard. Configure payment
    gateways (Stripe / PayPal / etc.).
-2. **Install Pro + activate license.** Pay-per-post needs the credit
-   ledger from Pro.
+2. **Install Pro.** Pay-per-post needs Pro's credit ledger and the
+   Wbcom Credits SDK. (The license drives updates only; the credit
+   feature works once Pro is installed.)
 3. **Create a "Job Posting" WooCommerce product.**
    - Type: Simple product.
    - Price: $29, $49, $99 - whatever your market bears.
    - Title: "Single Job Posting (30 days)."
-4. **Map the product to a credit grant** in
-   **WP Admin → Career Board → Credits → Mappings.**
+4. **Map the product to a credit grant** in the Pro Credits admin tab
+   (**WP Admin → Career Board → Settings → Credits → Credit
+   Mappings**).
    - Adapter: WooCommerce.
    - Product: the one you just created.
    - Credits granted: 1.
-5. **Set per-post cost.**
-   - **Career Board → Settings → Credits → Default cost per job:** 1.
-   - Employers now need 1 credit to post a job.
+5. **Set a Credits Purchase URL** in the same Credits tab, pointing at
+   the WooCommerce product. The Buy Credits button only appears once
+   both the mapping and the purchase URL are set.
+6. **Set the per-board posting cost.** Credit cost is configured
+   per board (opt-in since Pro 1.3.0). Give the board employers post to
+   a cost of 1 credit. Employers now need 1 credit to post a job there.
 
 ### Flow from the employer's perspective
 
@@ -97,29 +115,29 @@ use WooCommerce as the checkout layer.
   executive postings cost more than entry-level. Map each to a
   different category at the credit-mapping level.
 
-## Model 3 - Credit packages
+## Model 3 - Credit packages (Pro)
 
 Bulk pricing: employers buy 5 or 10 postings upfront at a discount.
 
 ### Setup
 
-1. WooCommerce + Pro license (same as Model 2).
+1. WooCommerce + Pro (same as Model 2).
 2. Create multiple WooCommerce products:
    - "1 Job Posting" - $49 - grants 1 credit.
    - "5 Job Postings" - $199 ($40/each) - grants 5 credits.
    - "10 Job Postings" - $349 ($35/each) - grants 10 credits.
-3. Map each to the credit grant in **Credits → Mappings.**
-4. (Optional) Add **expiry** - credits expire 12 months after
-   purchase (Pro has this on the credit-mapping screen). Encourages
-   employers to use them up.
+3. Map each to its credit grant in **Settings → Credits → Credit
+   Mappings**.
 
 ### Flow from the employer's perspective
 
-1. **Employer Dashboard → Credits → Buy Credits.**
-2. They see the three packages with per-post pricing visible.
+1. The employer sees their credit balance on the dashboard overview
+   (and the Pro Credit Balance block) and clicks **Buy Credits** on the
+   job form when their balance is too low.
+2. They see the packages you mapped.
 3. Pick a package, check out via WooCommerce.
-4. Credits land on their account. They post normally; each post
-   deducts 1 credit.
+4. Credits land on their account. They post normally; each post on a
+   paid board holds, then deducts, the board's credit cost.
 
 ### When this is right
 
@@ -128,20 +146,25 @@ Bulk pricing: employers buy 5 or 10 postings upfront at a discount.
 - You want a stable balance sheet - money upfront, postings spread
   over months.
 
-## Model 4 - Subscriptions
+## Model 4 - Subscriptions (Pro)
 
 Employers pay monthly or annually for unlimited (or capped) postings.
 
 ### Setup options
 
-WP Career Board supports four membership / subscription back-ends:
+The Wbcom Credits SDK bundled in Pro ships adapters for these
+membership / subscription back-ends:
 
 | Plugin | Best for | Setup |
 |---|---|---|
-| **WooCommerce Subscriptions** | Mature ecosystem, lots of payment-gateway support | Pro + WooSubs adapter |
+| **WooCommerce** | One-off product purchases | Pro + WooCommerce adapter |
+| **WooCommerce Subscriptions** | Mature ecosystem, lots of payment-gateway support | Pro + WooCommerce Subscriptions adapter |
+| **WooCommerce Memberships** | Membership tiers on top of WooCommerce | Pro + WooCommerce Memberships adapter |
 | **Paid Memberships Pro** | Community + content-gating + jobs in one plan | Pro + PMPro adapter |
 | **MemberPress** | More polished membership UX, but per-feature pricing adds up | Pro + MemberPress adapter |
-| **Restrict Content Pro** | Lightweight | Custom adapter (Career Board exposes the API; not shipped) |
+
+(There is no Restrict Content Pro adapter; pick one of the back-ends
+above.)
 
 ### Setup (PMPro example)
 
@@ -151,12 +174,11 @@ WP Career Board supports four membership / subscription back-ends:
    - **Pro** - $199/month - unlimited postings.
    - **Annual Pro** - $1,990/year - unlimited postings (10-month
      pricing).
-3. In **Career Board → Settings → Credits → PMPro mappings**, set:
+3. In **Settings → Credits → Credit Mappings**, map each PMPro level to
+   a credit grant:
    - Starter level → 3 credits per billing cycle.
    - Pro level → 999 credits per billing cycle (effectively unlimited).
 4. Credits auto-grant on subscription payment (via the PMPro adapter).
-5. (Optional) Pair with **Annual upfront discount** - same model as
-   Starter / Pro but annual pricing.
 
 ### Flow from the employer's perspective
 
@@ -205,36 +227,37 @@ subscriptions** typically price at 10× monthly (give 2 months free).
 Start with the low end of the range. You can always raise later;
 lowering looks bad.
 
-## How the credit ledger handles refunds and disputes
+## How the credit ledger handles refunds and disputes (Pro)
 
-Career Board's credit system is **append-only**. Every credit
-movement writes a row - topup, hold, deduct, refund. Nothing is
-edited in place.
+Pro's credit ledger is **append-only**. Every credit movement writes a
+row - top-up, hold, deduct, refund. Rows are never edited or deleted.
 
 Refund flow:
 
 1. **WooCommerce / PMPro / MemberPress** issues the refund through
    its own checkout flow.
-2. Career Board's adapter detects the refund event (via the
-   `*_refunded` hooks) and writes a **refund** ledger row.
+2. The adapter detects the refund event and writes a **refund** ledger
+   row.
 3. The employer's credit balance reduces by the refunded amount.
 4. If the employer already posted jobs against those refunded
-   credits, the **job posts stay live** - the ledger just goes
-   negative until they buy more. (Or you can configure
-   "rollback posts on refund" - admin setting.)
-5. For disputes that don't go through WooCommerce / PMPro (e.g. a
-   bank chargeback handled externally), use **Manual credit
-   adjustment** in the admin UI to write an offsetting row.
+   credits, the job posts stay live; the balance just reflects the
+   refund.
+5. For disputes that don't go through the checkout (e.g. a bank
+   chargeback handled externally), use the **manual adjustment** card at
+   the bottom of **Settings → Credits** to write an offsetting row.
+   There is no per-employer "Adjust" button and no separate ledger
+   report screen - adjustments all happen from that one card.
 
 ## Tracking revenue and renewals
 
 - **WooCommerce → Reports** for order revenue.
 - **PMPro → Reports** for subscription metrics (MRR, churn).
-- **Career Board → Credits → Ledger** for the credit ledger view -
-  filterable by employer, date, source.
-- For deeper analytics, export the ledger to CSV and analyse in your
-  tool of choice - Career Board doesn't ship a built-in dashboard
-  beyond the basic view.
+- **Career Board → Settings → Credits (Pro)** shows the manual
+  adjustment card with a user's current balance; the ledger itself is
+  the append-only record behind the balance.
+- For deeper analytics, query the credit ledger table or your checkout
+  plugin's reports - Career Board does not ship a built-in revenue
+  dashboard.
 
 ## Common monetization mistakes
 
@@ -256,9 +279,7 @@ Refund flow:
 
 ## Where to go next
 
-- [../admin-guide/06-credit-system.md](../admin-guide/06-credit-system.md) -
-  full credit system reference.
+- Pro's credit-system docs (`credit-system/01-overview.md` in the Pro
+  docs) - full credit system, mappings, and refund reference.
 - [02-employer-end-to-end.md](02-employer-end-to-end.md) - the employer
   flow you're enabling.
-- [../integrations/](../integrations/) - payment-gateway-adjacent
-  integration notes.
