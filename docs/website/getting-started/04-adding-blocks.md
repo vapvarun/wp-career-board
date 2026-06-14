@@ -54,8 +54,12 @@ All three blocks are connected - they automatically coordinate with each other o
 Some blocks have settings you can adjust in the block sidebar:
 
 **Job Listings:**
+- **Job board** - show only jobs assigned to a specific board (multi-board sites); "All boards" shows everything
+- **Layout** - grid (default) or list view; grid offers a 3 or 4 column choice
 - **Jobs per page** - how many jobs to show before the "Load more" button
-- **Layout** - grid (default) or list view
+- **Show filter sidebar** - turn the search box and filter sidebar on or off
+- **Show page heading** - print the archive title from the block (off by default; leave off when the page already has a heading)
+- **Filter sidebar** - when the sidebar is on, reorder the filter groups (Job type, Experience, Category, Tags, Location, Job board, Salary) with the up/down arrows, and hide any you do not need with the eye toggle. Settings are per-block, so each Job Listings placement can have its own filter order.
 
 **Job Search Hero:**
 - **Layout** - horizontal (default) or vertical

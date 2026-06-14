@@ -207,6 +207,7 @@ enabled. In Free they default to `false`.
 | `wcb_rest_app_config` | Filter | Frontend boot config shipped to the Interactivity API. |
 | `wcb_sample_data_installed` | Action | After the setup wizard seeds sample content. |
 | `wcb_sample_data_removed` | Action | After sample content is removed (wizard or uninstall). |
+| `wcb_notification_created` | Action | Fires after a notification is created so a centralised notification center (e.g. BuddyNext) can mirror it without re-deriving the message. Free has no in-app bell, so it fires once per real email send (admin test sends are skipped). Single arg: an array `{ user_id, event_type, message, link, id }` - `message` is the rendered email subject, `link` is a best-effort deep link, `id` is `0` on Free. Pro fires the same hook from its notification bell with the inserted row id. |
 
 ## Listening pattern (example)
 
