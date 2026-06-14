@@ -24,8 +24,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 39,
-    "hooks_fired": 189,
-    "hooks_unique": 108,
+    "hooks_fired": 190,
+    "hooks_unique": 109,
     "cron": 4,
     "wp_cli": 5
   },
@@ -1169,6 +1169,14 @@
     }
   ],
   "hooks_fired": [
+    {
+      "name": "wcb_notification_created",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/notifications/class-abstract-email.php (AbstractEmail::dispatch, real sends only)",
+      "consumed_by": [ "BuddyNext (centralised notification center)" ]
+    },
     {
       "name": "wcb_board_credit_cost",
       "type": "filter",
