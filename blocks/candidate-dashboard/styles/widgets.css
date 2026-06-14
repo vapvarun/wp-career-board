@@ -170,7 +170,7 @@
 
 .wcb-welcome-card {
 	display: none;
-	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, #ffffff 100% );
+	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, var( --wcb-surface, #ffffff ) 100% );
 	border: 1px solid var( --wcb-primary, #4f46e5 );
 	border-radius: var( --wcb-radius-lg, 12px );
 	padding: var( --wcb-space-lg, 24px );
@@ -204,17 +204,26 @@
 	gap: var( --wcb-space-md, 16px );
 }
 
-.wcb-welcome-step {
+/*
+ * Steps 1 = <a>, steps 2/3 = <button>. The extra specificity, appearance reset,
+ * and !important stop the active theme's default button styling from overriding
+ * the step surface in either mode. BuddyX paints buttons with the theme primary
+ * using `!important`, so the override must match it - otherwise steps 2/3 render
+ * as solid coral with low-contrast text.
+ */
+.wcb-welcome-card__steps .wcb-welcome-step {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-md);
 	padding: var( --wcb-space-md, 16px );
-	background: var(--wcb-base, #ffffff);
-	border: 1px solid var( --wcb-border, #e2e8f0 );
+	background: var(--wcb-base, #ffffff) !important;
+	border: 1px solid var( --wcb-border, #e2e8f0 ) !important;
 	border-radius: var( --wcb-radius-md, 8px );
 	text-decoration: none;
 	color: inherit;
 	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
 	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy), transform var(--wcb-transition-snappy);
 	text-align: left;
 	font: inherit;

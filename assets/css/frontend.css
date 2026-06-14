@@ -32,15 +32,21 @@
 }
 
 /*
- * Dark-mode overrides. Reign adds `dark-mode` to <html>; any block theme that
- * follows the same convention, or a user-agent preference, flips the tokens
- * so every WCB component using `var(--wcb-*)` re-colors automatically.
+ * Dark-mode overrides. The same dark token values apply under every dark-mode
+ * convention we support, so every WCB component using `var(--wcb-*)` re-colors
+ * automatically:
+ *   - Reign / generic block themes that add `dark-mode` to <html>.
+ *   - BuddyX / BuddyX Pro 5.1+ color modes, which set `data-bx-mode` on <html>:
+ *       explicit dark -> html[data-bx-mode="dark"]
+ *       "auto" (follow system) -> prefers-color-scheme inside [data-bx-mode="auto"]
  *
- * Keep every override in this single block so dark-mode config lives in one
- * place across the core palette (from frontend.css) and the semantic palette
- * (from frontend-tokens.css).
+ * The two declaration lists below are intentionally identical and MUST stay in
+ * sync (the auto block lives in a media query, so it cannot share the selector).
+ * Keep all dark-mode config here so it spans the core palette (frontend.css) and
+ * the semantic palette (frontend-tokens.css) in one place.
  */
-html.dark-mode {
+html.dark-mode,
+html[data-bx-mode="dark"] {
 	/* Core palette. */
 	--wcb-base:            #1e1f24;
 	--wcb-contrast:        #f1f5f9;
@@ -60,6 +66,36 @@ html.dark-mode {
 	--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
 	--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
 	--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+}
+
+/*
+ * BuddyX "auto" color mode follows the OS preference. Scoped strictly to
+ * html[data-bx-mode="auto"] so themes without that attribute (Reign, classic
+ * themes, the block editor) are never recolored by the visitor's OS setting.
+ * Mirror of the dark token list above - keep both in sync.
+ */
+@media ( prefers-color-scheme: dark ) {
+	html[data-bx-mode="auto"] {
+		/* Core palette. */
+		--wcb-base:            #1e1f24;
+		--wcb-contrast:        #f1f5f9;
+		--wcb-muted:           #94a3b8;
+		--wcb-surface:         #2a2d36;
+		--wcb-border:          #3a3d46;
+		--wcb-avatar-bg:       #0f172a;
+
+		/* Semantic palette (frontend-tokens.css). */
+		--wcb-bg-subtle:       #16181d;
+		--wcb-bg-hover:        #2a2d36;
+		--wcb-text-secondary:  #cbd5e1;
+		--wcb-text-tertiary:   #94a3b8;
+
+		/* Status tint backgrounds — keep readable against a dark card. */
+		--wcb-success-bg:      rgba( 22, 163, 74, 0.22 );
+		--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
+		--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
+		--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+	}
 }
 
 /* Suppress the theme's page title on WCB app / archive pages. */

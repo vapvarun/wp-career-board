@@ -120,23 +120,27 @@
 	border: none;
 }
 
-/* Prevent theme button overrides */
+/* Prevent theme button overrides. Nav items are <button role="tab">; BuddyX
+ * paints buttons with the theme primary using !important, so these resets must
+ * use !important too or the whole sidebar renders solid coral. */
 .wcb-dashboard .wcb-nav-item {
-	background: none;
+	background: none !important;
 	box-shadow: none;
+	-webkit-appearance: none;
+	appearance: none;
 }
 
 .wcb-dashboard .wcb-nav-toggle {
-	background: var(--wcb-base);
+	background: var(--wcb-base) !important;
 	color: var(--wcb-contrast);
 	box-shadow: none;
 }
 .wcb-dashboard .wcb-nav-item:hover {
-	background: var(--wcb-bg-subtle);
+	background: var(--wcb-bg-subtle) !important;
 }
 .wcb-dashboard .wcb-nav-item.wcb-nav-active,
 .wcb-dashboard .wcb-nav-item.wcb-view-active {
-	background: var(--wcb-bg-hover);
+	background: var(--wcb-bg-hover) !important;
 }
 .wcb-sidebar .wcb-nav-item:focus-visible {
 	outline: 2px solid var(--wcb-primary);

@@ -101,17 +101,23 @@
 	text-decoration: none;
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 	box-sizing: border-box;
+	/* Nav items are <button role="tab">; BuddyX paints buttons with the theme
+	 * primary using !important, so the transparent/hover/active surfaces below
+	 * must use !important too or the whole sidebar renders solid coral. */
+	background: none !important;
+	-webkit-appearance: none;
+	appearance: none;
 }
 
 .wcb-nav-item:hover {
-	background: var(--wcb-bg-subtle);
+	background: var(--wcb-bg-subtle) !important;
 	color: var(--wcb-text-primary);
 	border: none;
 	text-decoration: none;
 }
 
 .wcb-nav-item.wcb-nav-active {
-	background: var(--wcb-bg-hover);
+	background: var(--wcb-bg-hover) !important;
 	color: var(--wcb-text-primary);
 	font-weight: var(--wcb-font-semibold);
 	border: none;
