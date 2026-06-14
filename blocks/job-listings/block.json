@@ -49,6 +49,14 @@
     "metaFilter": {
       "type": "string",
       "default": ""
+    },
+    "filterOrder": {
+      "type": "array",
+      "default": []
+    },
+    "hiddenFilters": {
+      "type": "array",
+      "default": []
     }
   },
   "viewScriptModule": "file:./view.js",

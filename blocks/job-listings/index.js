@@ -8,7 +8,23 @@
 	var SelectControl     = wp.components.SelectControl;
 	var RangeControl      = wp.components.RangeControl;
 	var ToggleControl     = wp.components.ToggleControl;
+	var Button            = wp.components.Button;
 	var useSelect         = wp.data.useSelect;
+
+	// Filter sidebar groups, in default order. Keys must match the buffered
+	// groups in render.php ($wcb_default_filter_order).
+	var DEFAULT_FILTERS = [
+		{ key: 'type',       label: __( 'Job type', 'wp-career-board' ) },
+		{ key: 'experience', label: __( 'Experience', 'wp-career-board' ) },
+		{ key: 'category',   label: __( 'Category', 'wp-career-board' ) },
+		{ key: 'tags',       label: __( 'Tags', 'wp-career-board' ) },
+		{ key: 'location',   label: __( 'Location', 'wp-career-board' ) },
+		{ key: 'board',      label: __( 'Job board', 'wp-career-board' ) },
+		{ key: 'salary',     label: __( 'Salary', 'wp-career-board' ) },
+	];
+	var DEFAULT_FILTER_KEYS = DEFAULT_FILTERS.map( function ( f ) { return f.key; } );
+	var FILTER_LABELS = {};
+	DEFAULT_FILTERS.forEach( function ( f ) { FILTER_LABELS[ f.key ] = f.label; } );
 
 	wp.blocks.registerBlockType( 'wp-career-board/job-listings', {
 		edit: function ( props ) {
@@ -40,6 +56,28 @@
 					selectedBoardLabel = opt.label;
 				}
 			} );
+
+			// Effective filter order: saved order first, then any default key the
+			// saved order is missing (mirrors render.php so editor matches front end).
+			var wcbSavedOrder  = ( attr.filterOrder || [] ).filter( function ( k ) { return DEFAULT_FILTER_KEYS.indexOf( k ) !== -1; } );
+			var wcbOrderedKeys = wcbSavedOrder.concat( DEFAULT_FILTER_KEYS.filter( function ( k ) { return wcbSavedOrder.indexOf( k ) === -1; } ) );
+			var wcbHidden      = attr.hiddenFilters || [];
+
+			function wcbMoveFilter( index, delta ) {
+				var next = index + delta;
+				if ( next < 0 || next >= wcbOrderedKeys.length ) { return; }
+				var arr = wcbOrderedKeys.slice();
+				var tmp = arr[ index ];
+				arr[ index ] = arr[ next ];
+				arr[ next ] = tmp;
+				setAttr( { filterOrder: arr } );
+			}
+			function wcbToggleHidden( key ) {
+				var arr = wcbHidden.slice();
+				var i = arr.indexOf( key );
+				if ( -1 === i ) { arr.push( key ); } else { arr.splice( i, 1 ); }
+				setAttr( { hiddenFilters: arr } );
+			}
 
 			return el( Fragment, {},
 				el( InspectorControls, {},
@@ -91,6 +129,20 @@
 							min:      0,
 							max:      48,
 							onChange: function ( val ) { setAttr( { perPage: val || 0 } ); },
+						} )
+					),
+					attr.showFilters && el( PanelBody, { title: __( 'Filter sidebar', 'wp-career-board' ), initialOpen: false },
+						el( 'p', { style: { color: '#64748b', fontSize: '12px', margin: '0 0 8px' } },
+							__( 'Reorder filters with the arrows, or hide ones you do not need.', 'wp-career-board' )
+						),
+						wcbOrderedKeys.map( function ( fkey, index ) {
+							var isHidden = wcbHidden.indexOf( fkey ) !== -1;
+							return el( 'div', { key: fkey, style: { display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 0' } },
+								el( Button, { icon: 'arrow-up-alt2', label: __( 'Move up', 'wp-career-board' ), disabled: 0 === index, size: 'small', onClick: function () { wcbMoveFilter( index, -1 ); } } ),
+								el( Button, { icon: 'arrow-down-alt2', label: __( 'Move down', 'wp-career-board' ), disabled: index === wcbOrderedKeys.length - 1, size: 'small', onClick: function () { wcbMoveFilter( index, 1 ); } } ),
+								el( 'span', { style: { flex: '1 1 auto', fontSize: '13px', textDecoration: isHidden ? 'line-through' : 'none', color: isHidden ? '#94a3b8' : 'inherit' } }, FILTER_LABELS[ fkey ] ),
+								el( Button, { icon: isHidden ? 'hidden' : 'visibility', label: isHidden ? __( 'Show filter', 'wp-career-board' ) : __( 'Hide filter', 'wp-career-board' ), isPressed: isHidden, size: 'small', onClick: function () { wcbToggleHidden( fkey ); } } )
+							);
 						} )
 					)
 				),

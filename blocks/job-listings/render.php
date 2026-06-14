@@ -37,6 +37,16 @@ if ( '' !== $wcb_meta_filter_attr && false !== strpos( $wcb_meta_filter_attr, ':
 	[ $wcb_meta_filter_key, $wcb_meta_filter_val ] = array_map( 'trim', explode( ':', $wcb_meta_filter_attr, 2 ) );
 }
 
+// Site-owner filter-sidebar customization (block attributes): order + visibility.
+// Keys must match the buffered groups rendered in the filter panel below.
+$wcb_default_filter_order = array( 'type', 'experience', 'category', 'tags', 'location', 'board', 'salary' );
+$wcb_saved_filter_order   = array_values( array_intersect( (array) ( $attributes['filterOrder'] ?? array() ), $wcb_default_filter_order ) );
+// Saved order first, then any default key the saved order is missing, so a new
+// filter shipped in a later version always appears even on older saved blocks.
+$wcb_filter_order   = array_merge( $wcb_saved_filter_order, array_values( array_diff( $wcb_default_filter_order, $wcb_saved_filter_order ) ) );
+$wcb_hidden_filters = array_values( array_intersect( (array) ( $attributes['hiddenFilters'] ?? array() ), $wcb_default_filter_order ) );
+$wcb_filter_order   = array_values( array_diff( $wcb_filter_order, $wcb_hidden_filters ) );
+
 $wcb_query_args = array(
 	'post_type'   => 'wcb_job',
 	'post_status' => 'publish',
@@ -479,6 +489,16 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			</div>
 
 			<?php do_action( 'wcb_job_listings_filters_top' ); ?>
+			<?php
+			/*
+			 * Each filter renders into a keyed buffer so the block can print them in
+			 * the site-owner order ($wcb_filter_order) and skip hidden ones. Empty
+			 * buffers (a taxonomy with no terms) are skipped. Markup in each buffer
+			 * is already escaped where it is built.
+			 */
+			$wcb_filter_groups = array();
+			ob_start();
+			?>
 			<?php if ( $wcb_type_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></span>
@@ -494,6 +514,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</ul>
 			</div>
 			<?php endif; ?>
+			<?php
+			$wcb_filter_groups['type'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<?php if ( $wcb_exp_opts ) : ?>
 			<div class="wcb-filter-panel__group">
@@ -510,6 +534,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</ul>
 			</div>
 			<?php endif; ?>
+			<?php
+			$wcb_filter_groups['experience'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<?php if ( $wcb_cat_opts ) : ?>
 			<div class="wcb-filter-panel__group">
@@ -526,6 +554,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</ul>
 			</div>
 			<?php endif; ?>
+			<?php
+			$wcb_filter_groups['category'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<?php if ( $wcb_tag_opts ) : ?>
 			<div class="wcb-filter-panel__group">
@@ -542,6 +574,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</ul>
 			</div>
 			<?php endif; ?>
+			<?php
+			$wcb_filter_groups['tags'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Location', 'wp-career-board' ); ?></span>
@@ -554,6 +590,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 				</ul>
 			</div>
+			<?php
+			$wcb_filter_groups['location'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<?php if ( $wcb_board_opts ) : ?>
 			<div class="wcb-filter-panel__group">
@@ -581,6 +621,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				</ul>
 			</div>
 			<?php endif; ?>
+			<?php
+			$wcb_filter_groups['board'] = ob_get_clean();
+			ob_start();
+			?>
 
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Salary', 'wp-career-board' ); ?></span>
@@ -616,12 +660,24 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						data-wp-on--input="actions.previewSalaryMax"
 					/>
 
-					<?php do_action( 'wcb_job_listings_filters_bottom' ); ?>
 					<button type="button" class="wcb-salary-popover__reset" data-wp-on--click="actions.resetSalary">
 						<?php esc_html_e( 'Reset', 'wp-career-board' ); ?>
 					</button>
 				</div>
 			</div>
+			<?php
+			$wcb_filter_groups['salary'] = ob_get_clean();
+
+			foreach ( $wcb_filter_order as $wcb_filter_key ) {
+				if ( ! empty( $wcb_filter_groups[ $wcb_filter_key ] ) ) {
+					echo $wcb_filter_groups[ $wcb_filter_key ]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- buffered filter markup is escaped where each value is built above.
+				}
+			}
+
+			// Panel-bottom extension point. Moved out of the Salary group so it
+			// always fires regardless of filter order/visibility.
+			do_action( 'wcb_job_listings_filters_bottom' );
+			?>
 		</aside>
 
 		<main class="wcb-archive-results">
