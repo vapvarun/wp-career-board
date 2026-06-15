@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,11 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.4 - June 2026 =
+
+* Fix      - The empty-state "Clear filters" button label stays legible under themes that force a button text color (such as BuddyX). The label now tracks the painted color instead of rendering blank.
+* Compat   - Aligned with WP Career Board Pro 1.4.4. Install both updates together.
 
 = 1.4.3 - June 2026 =
 

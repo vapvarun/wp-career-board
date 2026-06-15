@@ -2,12 +2,12 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.2.0"
+        "version": "1.4.0"
     },
     "generated": {
-        "at": "2026-06-09T05:09:26+00:00",
-        "manifest_at": "2026-06-09T04:43:57Z",
-        "manifest_branch": "1.2.1"
+        "at": "2026-06-15T10:32:48+00:00",
+        "manifest_at": "2026-06-10T00:00:00Z",
+        "manifest_branch": "1.4.0"
     },
     "categories": {
         "rest": {
@@ -276,12 +276,17 @@
             "skipped": 0
         },
         "hooks_fired": {
-            "total": 85,
+            "total": 86,
             "covered": 0,
-            "uncovered": 85,
+            "uncovered": 86,
             "skipped": 90,
             "covered_items": [],
             "uncovered_items": [
+                {
+                    "name": "wcb_notification_created",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_notification_created"
+                },
                 {
                     "name": "wcb_board_currency",
                     "consumer_count": 1,
@@ -763,15 +768,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 143,
+        "items_total": 144,
         "items_covered": 0,
-        "items_uncovered": 143,
+        "items_uncovered": 144,
         "items_skipped": 90,
         "coverage_percent": 0
     },
     "drift": {
-        "previous_uncovered": 136,
-        "current_uncovered": 143,
-        "delta": 7
+        "previous_uncovered": 143,
+        "current_uncovered": 144,
+        "delta": 1
     }
 }

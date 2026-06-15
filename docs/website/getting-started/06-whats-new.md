@@ -1,9 +1,16 @@
-# What's New in 1.4.3
+# What's New in 1.4.4
 
-WP Career Board and WP Career Board Pro ship in lockstep at 1.4.3.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.4.4.
 Install both updates together. This page highlights the
 customer-facing changes across the 1.3.0 and 1.4.x cycles. For the
 full line-by-line history, see the changelog in `readme.txt`.
+
+## 1.4.4
+
+* Fix - The empty-state "Clear filters" button label stays legible under
+  themes that force a button text color (such as BuddyX). It previously
+  rendered blank where the theme painted the label the same color as the
+  button background.
 
 ## 1.4.3
 
