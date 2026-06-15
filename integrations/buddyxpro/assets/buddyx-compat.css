@@ -23,12 +23,15 @@
  * favor of the bridge so BuddyX's palette beats the WCB defaults.
  */
 :root,
+:root[data-bx-mode="dark"],
+body.buddyx-dark-theme,
+body.buddyx-dark-style-variation,
 html.dark-mode {
-	/* Brand — BuddyX Pro's Customizer "Primary Color" flows into
-	   `--bbg-primary` (and the legacy `--buddyx-primary-color`).
-	   `--button-background-color` is a fallback for older BuddyX builds. */
-	--wcb-primary: var( --bbg-primary, var( --buddyx-primary-color, var( --button-background-color, #2563eb ) ) );
-	--wcb-primary-dark: var( --button-background-hover-color, var( --bbg-primary-hover, #1d4ed8 ) );
+	/* Brand — BuddyX 5.1 exposes `--bx-color-primary` / `--bx-color-accent`.
+	   Legacy BuddyX Pro used `--bbg-primary` / `--buddyx-primary-color`; kept as
+	   fallbacks so older theme builds still bridge. */
+	--wcb-primary: var( --bx-color-primary, var( --bx-color-accent, var( --bbg-primary, var( --buddyx-primary-color, #2563eb ) ) ) );
+	--wcb-primary-dark: var( --bx-color-accent-hover, var( --button-background-hover-color, var( --bbg-primary-hover, #1d4ed8 ) ) );
 
 	/* Theme-aware primary tints — older browsers fall back to the static
 	   rgba on the first declaration; modern browsers use color-mix below. */
@@ -37,32 +40,37 @@ html.dark-mode {
 	--wcb-primary-soft: color-mix( in srgb, var( --wcb-primary ) 8%, transparent );
 	--wcb-primary-ring: color-mix( in srgb, var( --wcb-primary ) 16%, transparent );
 
-	/* Text — `--bbg-headings-color` for strong titles, `--global-font-color`
-	   for body copy, with a tertiary derived via color-mix for muted labels. */
-	--wcb-contrast:       var( --bbg-headings-color, var( --color-site-title, #0f172a ) );
-	--wcb-text-secondary: var( --global-font-color, #475569 );
-	--wcb-text-tertiary:  color-mix( in srgb, var( --global-font-color, #475569 ) 65%, transparent );
+	/* Text — 5.1: `--bx-color-text-primary`/`--bx-color-fg` for strong titles,
+	   `--bx-color-text`/`--bx-color-fg` for body, `--bx-color-text-muted`/
+	   `--bx-color-fg-muted` for secondary/muted. These flip automatically under
+	   BuddyX's `:root[data-bx-mode="dark"]`, so WCB re-colors in dark mode free. */
+	--wcb-contrast:       var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #0f172a ) ) );
+	--wcb-text-primary:   var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #111111 ) ) );
+	--wcb-text-secondary: var( --bx-color-text, var( --bx-color-fg-muted, var( --global-font-color, #475569 ) ) );
+	--wcb-text-muted:     var( --bx-color-text-muted, var( --bx-color-fg-subtle, #6b7280 ) );
+	--wcb-text-tertiary:  var( --bx-color-fg-subtle, var( --bx-color-text-muted, #9ca3af ) );
 
-	/* Surfaces — `--color-theme-white-box` is the card/panel surface,
-	   `--global-body-lightcolor` is BuddyX's subtle band, and the body
-	   color sits behind everything. */
-	--wcb-base:      var( --color-theme-white-box, #ffffff );
-	--wcb-surface:   var( --global-body-lightcolor, #f1f5f9 );
-	--wcb-bg-subtle: var( --color-theme-body, #f8fafc );
+	/* Surfaces — 5.1: `--bx-color-bg-elevated` is the card/panel surface,
+	   `--bx-color-bg-subtle`/`--bx-color-bg-muted` are the subtle bands. */
+	--wcb-base:      var( --bx-color-bg-elevated, var( --color-theme-white-box, #ffffff ) );
+	--wcb-surface:   var( --bx-color-bg-subtle, var( --global-body-lightcolor, #f1f5f9 ) );
+	--wcb-bg-subtle: var( --bx-color-bg-muted, var( --bx-color-bg-subtle, var( --color-theme-body, #f8fafc ) ) );
 	--wcb-bg-hover:  color-mix( in srgb, var( --wcb-primary ) 6%, var( --wcb-base, #ffffff ) );
 
-	/* Borders — `--global-border-color` is BuddyX's universal border. */
-	--wcb-border: var( --global-border-color, #e2e8f0 );
+	/* Borders — 5.1: `--bx-color-border`. */
+	--wcb-border: var( --bx-color-border, var( --global-border-color, #e2e8f0 ) );
 
-	/* Status — BuddyX Pro doesn't expose dedicated semantic vars, so we
-	   keep our defaults but allow override via opt-in `--bbg-*` tokens. */
+	/* Status — keep WCB's accessible defaults rather than bridging to BuddyX's
+	   semantic tokens: `--bx-color-warning` (#eab308) and friends are tuned for
+	   chips/icons, not text-on-white, and fail contrast for stat values. Legacy
+	   `--bbg-*` overrides still win when a site explicitly sets them. */
 	--wcb-success: var( --bbg-success-color, #16a34a );
 	--wcb-warning: var( --bbg-warning-color, #d97706 );
 	--wcb-danger:  var( --bbg-danger-color, #dc2626 );
-	--wcb-info:    var( --bbg-info-color, var( --wcb-primary ) );
+	--wcb-info:    var( --wcb-primary );
 
-	/* Avatar background — uses heading color so initials inherit theme tone. */
-	--wcb-avatar-bg: var( --bbg-headings-color, var( --color-site-title, #1e293b ) );
+	/* Avatar background — heading tone so initials read against theme contrast. */
+	--wcb-avatar-bg: var( --bx-color-text-primary, var( --bbg-headings-color, #1e293b ) );
 }
 
 /*
@@ -95,8 +103,50 @@ html.dark-mode {
 .wcb-btn-primary,
 .wcb-apply-btn,
 .wcb-save-btn {
-	color: var( --bbg-button-text-color, #ffffff ) !important;
+	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
 	transition: filter var( --wcb-transition-snappy, 0.15s ease );
+}
+
+/*
+ * Text / ghost buttons rendered as links.
+ *
+ * The token bridge above maps WCB colors to BuddyX's palette, but BuddyX 5.1
+ * ALSO sets `color` directly on every non-wp <button>
+ * (`button:not([class*="wp-"]){ color: var(--bx-color-button-fg) }`, specificity
+ * ~0,5,1) and gives panel-link buttons the full primary fill. A token remap
+ * cannot undo a direct `color`/`background` declaration, so these WCB buttons —
+ * the dashboard nav tabs and the "View all" panel links, which are <button>s
+ * styled as text/ghost links on light surfaces — must re-assert the bridged
+ * token here or they render white-on-white / as solid coral pills. This is the
+ * same override pattern as the primary-button rule above; it lives in the theme
+ * compat layer (not block CSS) and uses the bridged WCB tokens, so it follows
+ * the BuddyX palette and dark mode automatically. `-webkit-text-fill-color`
+ * tracks `currentColor` because the theme's fill would otherwise still win.
+ */
+.wcb-dashboard .wcb-nav-item {
+	color: var( --wcb-text-secondary ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+.wcb-dashboard .wcb-nav-item:hover,
+.wcb-dashboard .wcb-nav-item.wcb-nav-active,
+.wcb-dashboard .wcb-nav-item.wcb-view-active {
+	color: var( --wcb-contrast ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+.wcb-dashboard .wcb-panel-link {
+	background: none !important;
+	color: var( --wcb-blue, var( --wcb-primary, #2563eb ) ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* Dark pill CTAs ("Browse Jobs" / "Post a Job") — <a> styled as a solid button;
+ * BuddyX paints links with its body color, washing the white label into the
+ * dark pill. Force the bridged light surface token for the label. */
+.wcb-dashboard .wcb-sidebar-cta {
+	color: var( --wcb-base, #ffffff ) !important;
+	-webkit-text-fill-color: var( --wcb-base, #ffffff ) !important;
 }
 
 /* #OpenToWork badge shown on BuddyX Pro member profiles — uses the WCB

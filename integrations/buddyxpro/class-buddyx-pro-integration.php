@@ -113,10 +113,13 @@ class BuddyxProIntegration {
 		if ( ! is_singular( $wcb_cpts ) && ! is_post_type_archive( $wcb_cpts ) && ! $wcb_is_tax && ! $wcb_has_block ) {
 			return;
 		}
+		// Depend on the WCB token stylesheet so the compat token bridge loads
+		// AFTER the plugin defaults; equal-specificity :root rules then resolve
+		// in the bridge's favor (BuddyX palette wins over the WCB fallbacks).
 		wp_enqueue_style(
 			'wcb-buddyx-compat',
 			WCB_URL . 'integrations/buddyxpro/assets/buddyx-compat.css',
-			array(),
+			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
 	}
