@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,12 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.5 - June 2026 =
+
+* Fix      - BuddyX 5.1 theme compatibility. The plugin now maps its colors to BuddyX 5.1's token system (and dark mode), so dashboard navigation labels, "View all" links and sidebar buttons render legibly instead of white-on-white or as solid coral pills.
+* Fix      - Custom fields added with the Pro Field Builder now render and save correctly on forms for every field type - dropdown, multi-select, date range, salary range, video URL, file link, location and repeater. Several previously rendered as a plain text box and some did not save.
+* Compat   - Aligned with WP Career Board Pro 1.4.5. Install both updates together.
 
 = 1.4.4 - June 2026 =
 

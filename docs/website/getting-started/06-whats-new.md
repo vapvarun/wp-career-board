@@ -1,9 +1,20 @@
-# What's New in 1.4.4
+# What's New in 1.4.5
 
-WP Career Board and WP Career Board Pro ship in lockstep at 1.4.4.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.4.5.
 Install both updates together. This page highlights the
 customer-facing changes across the 1.3.0 and 1.4.x cycles. For the
 full line-by-line history, see the changelog in `readme.txt`.
+
+## 1.4.5
+
+* Fix - BuddyX 5.1 theme compatibility. WP Career Board now maps its colors to
+  BuddyX 5.1's token system (and dark mode), so dashboard navigation labels,
+  "View all" links and sidebar buttons render legibly instead of white-on-white
+  or as solid coral pills.
+* Fix - Custom fields added with the Pro Field Builder now render and save
+  correctly on forms for every field type - dropdown, multi-select, date range,
+  salary range, video URL, file link, location and repeater. Several previously
+  rendered as a plain text box and some did not save.
 
 ## 1.4.4
 
