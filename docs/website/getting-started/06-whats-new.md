@@ -1,9 +1,15 @@
-# What's New in 1.4.5
+# What's New in 1.4.6
 
-WP Career Board and WP Career Board Pro ship in lockstep at 1.4.5.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.4.6.
 Install both updates together. This page highlights the
 customer-facing changes across the 1.3.0 and 1.4.x cycles. For the
 full line-by-line history, see the changelog in `readme.txt`.
+
+## 1.4.6
+
+* Compat - Aligned with WP Career Board Pro 1.4.6, which reworks the Field
+  Builder so custom fields are defined once and applied to every board. The
+  free plugin has no functional changes in this release.
 
 ## 1.4.5
 

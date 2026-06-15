@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,10 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.4.6 - June 2026 =
+
+* Compat   - Aligned with WP Career Board Pro 1.4.6 (Field Builder: define custom fields once and hide them per board). No functional changes in the free plugin. Install both updates together.
 
 = 1.4.5 - June 2026 =
 
