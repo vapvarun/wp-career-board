@@ -96,7 +96,7 @@ final class FormCustomFields {
 				continue;
 			}
 			foreach ( $group['fields'] as $field ) {
-				$field_type = is_array( $field ) ? (string) ( $field['type'] ?? $field['field_type'] ?? '' ) : '';
+				$field_type = is_array( $field ) ? self::normalise_type( (string) ( $field['type'] ?? $field['field_type'] ?? '' ) ) : '';
 				if ( 'radio' === $field_type || 'multiselect' === $field_type ) {
 					$needs_prefill = true;
 					break 2;
@@ -157,15 +157,41 @@ final class FormCustomFields {
 			$raw_options = array();
 		}
 
+		// The Pro Field Builder stores options as a flat list (['Alpha','Beta']),
+		// while the filter contract uses a value => label map. Convert a flat
+		// list to value => value so the rendered <option value> is the choice
+		// itself, not its numeric array index.
+		if ( array_is_list( $raw_options ) && array() !== $raw_options ) {
+			$flat        = array_map( 'strval', $raw_options );
+			$raw_options = array_combine( $flat, $flat );
+		}
+
 		return array(
 			'key'         => sanitize_key( $key ),
-			'type'        => $type,
+			'type'        => self::normalise_type( $type ),
 			'label'       => (string) ( $field['label'] ?? '' ),
 			'required'    => ! empty( $field['required'] ),
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
 			'options'     => array_map( 'strval', $raw_options ),
 		);
+	}
+
+	/**
+	 * Map Pro Field Builder type slugs to the renderer's canonical vocabulary.
+	 *
+	 * The Field Builder DB stores `multi_select` (underscore); the renderer's
+	 * historical contract uses `multiselect`. Other Field Builder types
+	 * (date_range, salary_range, video_url, file, location, repeater,
+	 * conditional) pass through unchanged and are handled by render_field().
+	 *
+	 * @since 1.4.5
+	 *
+	 * @param string $type Raw field type.
+	 * @return string Canonical type.
+	 */
+	private static function normalise_type( string $type ): string {
+		return 'multi_select' === $type ? 'multiselect' : $type;
 	}
 
 	/**
@@ -314,14 +340,67 @@ final class FormCustomFields {
 				++$ms_index;
 			}
 			echo '</div>';
+		} elseif ( 'date_range' === $type || 'salary_range' === $type ) {
+			// Composite two-part field. Each part is a normal scalar input bound
+			// to a sub-key (key__from/key__to or key__min/key__max) so the
+			// generic updateCustomField action handles it with no per-form JS.
+			// save_values() recombines the parts into one JSON meta value and
+			// load_values() splits them back out for pre-fill.
+			$parts     = 'date_range' === $type
+				? array(
+					'from' => __( 'From', 'wp-career-board' ),
+					'to'   => __( 'To', 'wp-career-board' ),
+				)
+				: array(
+					'min' => __( 'Min', 'wp-career-board' ),
+					'max' => __( 'Max', 'wp-career-board' ),
+				);
+			$part_type = 'date_range' === $type ? 'date' : 'number';
+			echo '<div class="wcb-field-range wcb-field-range--' . esc_attr( $type ) . '">';
+			$range_first = true;
+			foreach ( $parts as $part => $part_label ) {
+				$sub = $key . '__' . $part;
+				echo '<label class="wcb-field-range__part">';
+				echo '<span class="wcb-field-range__label">' . esc_html( (string) $part_label ) . '</span>';
+				echo '<input type="' . esc_attr( $part_type ) . '" id="' . esc_attr( $dom_id . '-' . $part ) . '" class="wcb-field"'
+					. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
+					. ' data-wcb-field="' . esc_attr( $sub ) . '"'
+					. ' data-wp-bind--value="state.customFields.' . esc_attr( $sub ) . '"'
+					. ( $range_first ? $required_attr : '' ) . ' />';
+				echo '</label>';
+				$range_first = false;
+			}
+			echo '</div>';
+		} elseif ( 'repeater' === $type ) {
+			// Repeater-lite: one entry per line. save_values() converts the lines
+			// to a JSON array and load_values() joins them back, so the value is a
+			// real multi-row array without needing a per-form dynamic-row script.
+			echo '<textarea id="' . esc_attr( $dom_id ) . '" class="wcb-field" rows="4"'
+				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
+				. ' data-wcb-field="' . esc_attr( $key ) . '"'
+				. ' ' . $value_bind
+				. $placeholder_attr . $required_attr . '></textarea>';
+			echo '<span class="wcb-field-hint">' . esc_html__( 'Enter one entry per line.', 'wp-career-board' ) . '</span>';
 		} else {
+			// Scalar inputs. video_url/file map to a URL control; location is a
+			// free-text place field; tel/number/date/email use their native type;
+			// everything else (incl. conditional) falls back to text.
+			$type_map   = array(
+				'video_url' => 'url',
+				'file'      => 'url',
+				'location'  => 'text',
+			);
+			$resolved   = $type_map[ $type ] ?? $type;
 			$allowed    = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
-			$input_type = in_array( $type, $allowed, true ) ? $type : 'text';
+			$input_type = in_array( $resolved, $allowed, true ) ? $resolved : 'text';
 			echo '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
 				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
 				. ' ' . $value_bind
 				. $placeholder_attr . $required_attr . ' />';
+			if ( 'file' === $type ) {
+				echo '<span class="wcb-field-hint">' . esc_html__( 'Paste a link to your file.', 'wp-career-board' ) . '</span>';
+			}
 		}
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -407,6 +486,41 @@ final class FormCustomFields {
 			++$count;
 		}
 
+		// Composite range fields are submitted as two sub-keys
+		// (key__from/key__to or key__min/key__max) the loop above skips because
+		// the bare key never appears in $values. Recombine each into one JSON
+		// meta value. load_values() splits it back for pre-fill.
+		foreach ( $allowed_keys as $range_key => $range_type ) {
+			if ( 'date_range' !== $range_type && 'salary_range' !== $range_type ) {
+				continue;
+			}
+			$parts = 'date_range' === $range_type ? array( 'from', 'to' ) : array( 'min', 'max' );
+			$a     = $values[ $range_key . '__' . $parts[0] ] ?? null;
+			$b     = $values[ $range_key . '__' . $parts[1] ] ?? null;
+			if ( null === $a && null === $b ) {
+				continue;
+			}
+			$combined = (string) wp_json_encode(
+				array(
+					$parts[0] => sanitize_text_field( (string) ( $a ?? '' ) ),
+					$parts[1] => sanitize_text_field( (string) ( $b ?? '' ) ),
+				)
+			);
+
+			/** This filter is documented above. */
+			$combined = apply_filters( 'wcb_save_custom_field', $combined, $range_key, $owner_id );
+			if ( null === $combined ) {
+				continue;
+			}
+
+			if ( 'user_meta' === $writer ) {
+				update_user_meta( $owner_id, $range_key, $combined );
+			} else {
+				update_post_meta( $owner_id, $range_key, $combined );
+			}
+			++$count;
+		}
+
 		return $count;
 	}
 
@@ -448,18 +562,38 @@ final class FormCustomFields {
 			return implode( ',', array_values( $items ) );
 		}
 
+		// Repeater-lite: one entry per line in a textarea, stored as a JSON
+		// array so the value is a real multi-row list. An untouched field can
+		// re-submit the JSON it was seeded with; decode that back to lines first.
+		if ( 'repeater' === $type ) {
+			$str   = is_scalar( $raw_value ) ? (string) $raw_value : '';
+			$lines = '' !== $str && '[' === $str[0]
+				? (array) ( json_decode( $str, true ) ?: array() )
+				: preg_split( '/\r\n|\r|\n/', $str );
+			$lines = array_values(
+				array_filter(
+					array_map(
+						static fn ( $l ): string => sanitize_text_field( (string) $l ),
+						(array) $lines
+					),
+					static fn ( string $l ): bool => '' !== $l
+				)
+			);
+			return (string) wp_json_encode( $lines );
+		}
+
 		if ( is_bool( $raw_value ) ) {
 			return $raw_value ? '1' : '0';
 		}
 		$str = is_scalar( $raw_value ) ? (string) $raw_value : '';
 
 		return match ( $type ) {
-			'textarea' => sanitize_textarea_field( $str ),
-			'email'    => sanitize_email( $str ),
-			'url'      => esc_url_raw( $str ),
-			'number'   => is_numeric( $str ) ? (string) (float) $str : '',
-			'date'     => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
-			default    => sanitize_text_field( $str ),
+			'textarea'             => sanitize_textarea_field( $str ),
+			'email'                => sanitize_email( $str ),
+			'url', 'video_url', 'file' => esc_url_raw( $str ),
+			'number'               => is_numeric( $str ) ? (string) (float) $str : '',
+			'date'                 => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
+			default                => sanitize_text_field( $str ),
 		};
 	}
 
@@ -493,6 +627,7 @@ final class FormCustomFields {
 				}
 				$normalised = self::normalise_field( $field );
 				$key        = $normalised['key'];
+				$type       = $normalised['type'];
 				if ( '' === $key ) {
 					continue;
 				}
@@ -501,7 +636,21 @@ final class FormCustomFields {
 					? get_user_meta( $owner_id, $key, true )
 					: get_post_meta( $owner_id, $key, true );
 
-				$values[ $key ] = is_scalar( $value ) ? (string) $value : '';
+				if ( 'date_range' === $type || 'salary_range' === $type ) {
+					// Split the stored JSON back into the two sub-keys the render
+					// inputs bind to, so a saved range pre-fills on re-edit.
+					$decoded                           = is_string( $value ) && '' !== $value ? json_decode( $value, true ) : array();
+					$decoded                           = is_array( $decoded ) ? $decoded : array();
+					$parts                             = 'date_range' === $type ? array( 'from', 'to' ) : array( 'min', 'max' );
+					$values[ $key . '__' . $parts[0] ] = (string) ( $decoded[ $parts[0] ] ?? '' );
+					$values[ $key . '__' . $parts[1] ] = (string) ( $decoded[ $parts[1] ] ?? '' );
+				} elseif ( 'repeater' === $type ) {
+					// Join the stored JSON array back to one-per-line for the textarea.
+					$decoded        = is_string( $value ) && '' !== $value ? json_decode( $value, true ) : array();
+					$values[ $key ] = is_array( $decoded ) ? implode( "\n", array_map( 'strval', $decoded ) ) : ( is_scalar( $value ) ? (string) $value : '' );
+				} else {
+					$values[ $key ] = is_scalar( $value ) ? (string) $value : '';
+				}
 			}
 		}
 
