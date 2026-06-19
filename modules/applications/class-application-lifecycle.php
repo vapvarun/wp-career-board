@@ -112,8 +112,12 @@ final class ApplicationLifecycle {
 		);
 		update_post_meta( $application_id, '_wcb_status_log', $log );
 
-		/** This action is documented in api/endpoints/class-applications-endpoint.php */
-		do_action( 'wcb_application_status_changed', $application_id, $new_status, $old_status );
+		/**
+		 * This action is documented in api/endpoints/class-applications-endpoint.php.
+		 * Arg order is ($id, $old_status, $new_status) — matching every other call site
+		 * so consumers (e.g. gamification "hired" rewards) read $new_status reliably.
+		 */
+		do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status );
 
 		return true;
 	}
