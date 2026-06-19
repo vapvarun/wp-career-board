@@ -158,6 +158,7 @@ class AdminSettings {
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
+		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
 
 	/**
@@ -374,6 +375,7 @@ class AdminSettings {
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
 			'emails'        => __( 'Emails', 'wp-career-board' ),
 			'import'        => __( 'Import', 'wp-career-board' ),
+			'integrations'  => __( 'Integrations', 'wp-career-board' ),
 		);
 
 		/**
@@ -432,6 +434,7 @@ class AdminSettings {
 			'emails'        => 'general',
 			'import'        => 'general',
 			'antispam'      => 'general',
+			'integrations'  => 'general',
 		);
 	}
 
@@ -460,6 +463,16 @@ class AdminSettings {
 	 */
 	public function render_emails_tab(): void {
 		( new EmailSettings() )->render_form();
+	}
+
+	/**
+	 * Render the Integrations tab — companion plugin cards.
+	 *
+	 * @since  1.4.6
+	 * @return void
+	 */
+	public function render_integrations_tab(): void {
+		require_once WCB_DIR . 'admin/views/integrations.php';
 	}
 
 	/**

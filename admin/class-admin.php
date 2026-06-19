@@ -50,6 +50,9 @@ class Admin {
 		// Boot settings so its admin_init hook fires.
 		( new AdminSettings() )->boot();
 
+		// Companion plugin registry + one-click installer (Integrations tab).
+		( new \WCB\Integrations\Companions\CompanionInstaller() )->boot();
+
 		// Boot meta boxes for the wcb_job CPT.
 		( new AdminMetaBoxes() )->boot();
 
