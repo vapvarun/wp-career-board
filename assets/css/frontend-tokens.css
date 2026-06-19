@@ -41,11 +41,13 @@
 	--wcb-radius-2xl:  16px;
 	--wcb-radius-full: 9999px;
 
-	/* ── Shadows ──────────────────────────────────────────────────────── */
-	--wcb-shadow-xs:    0 1px 2px rgba(0, 0, 0, 0.04);
-	--wcb-shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.08);
-	--wcb-shadow-md:    0 4px 12px rgba(0, 0, 0, 0.08);
-	--wcb-shadow-lg:    0 8px 24px rgba(0, 0, 0, 0.12);
+	/* ── Shadows ──────────────────────────────────────────────────────────
+	   Community-OS alignment: read BuddyNext's soft layered --bn-shadow-* first,
+	   with a matching standalone fallback, so card elevation is uniform suite-wide. */
+	--wcb-shadow-xs:    var(--bn-shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.04));
+	--wcb-shadow-sm:    var(--bn-shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.04), 0 2px 4px rgba(16, 24, 40, 0.04));
+	--wcb-shadow-md:    var(--bn-shadow-md, 0 2px 4px rgba(16, 24, 40, 0.04), 0 8px 16px rgba(16, 24, 40, 0.06));
+	--wcb-shadow-lg:    var(--bn-shadow-lg, 0 8px 16px rgba(16, 24, 40, 0.06), 0 24px 48px rgba(16, 24, 40, 0.08));
 	--wcb-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
 
 	/* ── Primary tints (theme-aware via color-mix) ──────────────────────

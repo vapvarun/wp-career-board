@@ -20,14 +20,17 @@
  * Classic theme override: set --wcb-primary directly in :root.
  */
 :root {
-	--wcb-primary:      var( --wp--preset--color--wcb-primary,      #2563eb );
-	--wcb-primary-dark: var( --wp--preset--color--wcb-primary-dark, #1d4ed8 );
+	/* Community-OS alignment: read BuddyNext's tokens first (so colours match
+	   exactly when running on BuddyNext), then WP theme.json presets, then the
+	   hardcoded fallback (premium standalone). */
+	--wcb-primary:      var( --brand,   var( --wp--preset--color--wcb-primary,      #2563eb ) );
+	--wcb-primary-dark: var( --brand-hover, var( --wp--preset--color--wcb-primary-dark, #1d4ed8 ) );
 	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
-	--wcb-base:         var( --wp--preset--color--wcb-base,         #ffffff );
-	--wcb-contrast:     var( --wp--preset--color--wcb-contrast,     #0f172a );
-	--wcb-muted:        var( --wp--preset--color--wcb-muted,        #6b7280 );
-	--wcb-surface:      var( --wp--preset--color--wcb-surface,      #f1f5f9 );
-	--wcb-border:       var( --wp--preset--color--wcb-border,       #e2e8f0 );
+	--wcb-base:         var( --surface, var( --bg, var( --wp--preset--color--wcb-base, #ffffff ) ) );
+	--wcb-contrast:     var( --text-1,  var( --wp--preset--color--wcb-contrast,     #0f172a ) );
+	--wcb-muted:        var( --text-2,  var( --wp--preset--color--wcb-muted,        #6b7280 ) );
+	--wcb-surface:      var( --canvas,  var( --wp--preset--color--wcb-surface,      #f1f5f9 ) );
+	--wcb-border:       var( --line,    var( --wp--preset--color--wcb-border,       #e2e8f0 ) );
 	--wcb-featured:     var( --wp--preset--color--wcb-featured,     #f59e0b );
 }
 
@@ -46,7 +49,9 @@
  * the semantic palette (frontend-tokens.css) in one place.
  */
 html.dark-mode,
-html[data-bx-mode="dark"] {
+html[data-bx-mode="dark"],
+html[data-bn-theme="dark"],
+[data-theme="dark"] {
 	/* Core palette. */
 	--wcb-base:            #1e1f24;
 	--wcb-contrast:        #f1f5f9;
