@@ -4,7 +4,7 @@
  *
  * A single declarative, filterable catalog of the Wbcom plugins WP Career Board
  * integrates with (BuddyNext, Jetonomy, WB Gamification, Learnomy). Each entry
- * is DATA, not code — Pro and third parties extend the list via the
+ * is DATA, not code - Pro and third parties extend the list via the
  * `wcb_companions` filter. Every UI + integration decision keys off
  * `status()` / `is_active()` (a runtime capability probe), never a hardcoded
  * plugin path, so "works standalone" and "no duplication" both hold:
@@ -52,7 +52,7 @@ final class CompanionRegistry {
 			array(
 				'buddynext'       => array(
 					'label'     => __( 'BuddyNext', 'wp-career-board' ),
-					'why'       => __( 'Community engine — profiles, activity feeds, and member spaces.', 'wp-career-board' ),
+					'why'       => __( 'Community engine - profiles, activity feeds, and member spaces.', 'wp-career-board' ),
 					'detect'    => static fn() => defined( 'BUDDYNEXT_VERSION' ),
 					'free'      => array(
 						'item_id'  => 1664401,
@@ -157,7 +157,7 @@ final class CompanionRegistry {
 			return 'active';
 		}
 
-		// Capability absent — is the free plugin at least on disk (so we offer
+		// Capability absent - is the free plugin at least on disk (so we offer
 		// "Activate" instead of "Install")?
 		$basename = (string) ( $entry['free']['basename'] ?? '' );
 		if ( '' !== $basename && self::plugin_file_exists( $basename ) ) {
