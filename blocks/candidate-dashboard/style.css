@@ -172,7 +172,10 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 
 .wcb-recommends-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+	/* auto-fill needs a real minimum track size; minmax(0,1fr) collapses every
+	   column to zero width so cards overlap. Use a 220px floor (cards wrap to a
+	   single column on the mobile override below). */
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 	gap: var(--wcb-space-md);
 }
 

@@ -279,17 +279,17 @@
 	text-transform: capitalize;
 }
 
-.wcb-status-submitted  { background: #dff0fa; color: #007cba; }
-.wcb-status-reviewing  { background: #fff3cd; color: #996800; }
-.wcb-status-shortlisted { background: #d7f7c2; color: #1a7a0a; }
-.wcb-status-rejected   { background: #f8d7da; color: #8a1c1c; }
-.wcb-status-hired      { background: #c3e6cb; color: #155724; }
+.wcb-status-submitted  { background: var(--wcb-info-bg); color: var(--wcb-info-fg); }
+.wcb-status-reviewing  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+.wcb-status-shortlisted { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+.wcb-status-rejected   { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
+.wcb-status-hired      { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 
 /* Job status badges */
-.wcb-job-status-publish  { background: #d7f7c2; color: #1a7a0a; }
-.wcb-job-status-pending  { background: #fff3cd; color: #996800; }
-.wcb-job-status-draft    { background: #f0f0f1; color: #50575e; }
-.wcb-job-status-trash    { background: #f8d7da; color: #8a1c1c; }
+.wcb-job-status-publish  { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+.wcb-job-status-pending  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+.wcb-job-status-draft    { background: var(--wcb-surface); color: var(--wcb-muted); }
+.wcb-job-status-trash    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 
 /* Status selector — inherits 13px from WP admin */
 
@@ -315,7 +315,7 @@
 }
 
 .wcb-settings-header-icon {
-	background: #f0f6fc;
+	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.08));
 	border-radius: var(--wcb-radius-lg, 8px);
 	padding: 10px;
 	display: flex;
@@ -377,7 +377,7 @@
 
 .wcb-settings-tabs-nav a:hover {
 	color: var(--wcb-accent, #2563eb);
-	border-bottom-color: var(--wcb-border, #e2e8f0);
+	border-bottom-color: var(--wcb-text-tertiary, #94a3b8);
 }
 
 .wcb-settings-tabs-nav a.wcb-tab-active {
@@ -402,7 +402,7 @@
 }
 
 .wcb-settings-card-title {
-	font-size: 13px;
+	font-size: var(--wcb-text-sm, 0.8125rem);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -477,11 +477,11 @@
 	position: absolute;
 	height: 18px;
 	width: 18px;
-	left: 3px;
+	inset-inline-start: 3px;
 	bottom: 3px;
 	background: #fff;
 	border-radius: 50%;
-	transition: transform 0.2s;
+	transition: inset-inline-start 0.2s;
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.2 );
 }
 
@@ -490,7 +490,17 @@
 }
 
 .wcb-toggle input:checked + .wcb-toggle-slider::before {
-	transform: translateX( 20px );
+	/* Move the knob to the inline-end side. Logical position flips correctly in
+	   RTL with no separate admin-rtl override and no transform-direction battle. */
+	inset-inline-start: calc( 100% - 21px );
+}
+
+/* Robust focus ring on the whole control (UI-019); the adjacent-sibling rule
+   below stays as a fallback for browsers without :focus-within support. */
+.wcb-toggle:focus-within {
+	outline: 2px solid var(--wcb-accent, #2563eb);
+	outline-offset: 2px;
+	border-radius: 4px;
 }
 
 .wcb-toggle input:focus-visible + .wcb-toggle-slider {
@@ -862,7 +872,7 @@
 }
 
 .wcb-action-item:hover {
-	background: #f0f6fc;
+	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.08));
 	border-color: var(--wcb-accent, #2563eb);
 	color: var(--wcb-accent, #2563eb);
 }
@@ -885,14 +895,12 @@
 
 .wcb-wizard-wrap {
 	max-width: 760px;
-	margin-left: auto;
-	margin-right: auto;
+	margin-inline: auto;
 }
 
 @media (max-width: 960px) {
 	.wcb-wizard-wrap {
-		margin-left: 12px;
-		margin-right: 12px;
+		margin-inline: 12px;
 	}
 }
 

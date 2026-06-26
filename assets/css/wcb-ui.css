@@ -814,6 +814,15 @@ textarea.wcb-input {
 	fill: currentColor;
 }
 
+/* UI-010: keyboard focus ring on toolbar icon buttons (bookmark + view
+   switcher). `.wcb-chip` already had one; these were missing (WCAG 2.4.7). */
+.wcb-bookmark-btn:focus-visible,
+.wcb-layout-btn:focus-visible,
+.wcb-view-btn:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
 .wcb-filter-panel {
 	position: sticky;
 	top: var(--wcb-space-2xl);

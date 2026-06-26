@@ -464,25 +464,11 @@
 	transition: background 0.2s;
 }
 
-.wcb-toggle-slider::before {
-	content: '';
-	position: absolute;
-	height: 18px;
-	width: 18px;
-	right: 3px;
-	bottom: 3px;
-	background: #fff;
-	border-radius: 50%;
-	transition: transform 0.2s;
-	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.2 );
-}
+/* Toggle knob position is handled by logical properties (inset-inline-start)
+   in admin.css, which already flip for RTL — no physical override needed here. */
 
 .wcb-toggle input:checked + .wcb-toggle-slider {
 	background: #2271b1;
-}
-
-.wcb-toggle input:checked + .wcb-toggle-slider::before {
-	transform: translateX( -20px );
 }
 
 .wcb-toggle input:focus-visible + .wcb-toggle-slider {
