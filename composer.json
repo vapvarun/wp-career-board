@@ -39,6 +39,7 @@
       "@qa-coverage"
     ],
     "journeys": "bin/run-journeys.sh --priority=critical",
+    "journeys:routes": "wp eval-file bin/check-journey-routes.php",
     "journeys:dry-run": "bin/run-journeys.sh --dry-run",
     "journeys:list": "bin/run-journeys.sh --list",
     "journeys:stale": "bin/run-journeys.sh --audit-stale",

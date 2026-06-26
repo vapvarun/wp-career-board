@@ -12,6 +12,12 @@ sentinels) and `docs/qa/AGENT_SMOKE_RUNBOOK.md` (the release smoke).
 in the same PR.** A feature with no journey is not done. (The drift gate in
 `audit/qa-coverage.json` flags manifest entries with no coverage.)
 
+**Route gate:** every `/wcb/v1/...` path a journey references must resolve to a
+route the plugin actually registers — enforced by `bin/check-journey-routes.php`
+(`composer journeys:routes`), which also runs as a pre-flight in
+`bin/run-journeys.sh` before any journey executes. A journey naming a
+renamed/removed route fails the run, so journeys can't silently drift from the API.
+
 ## Per-feature journey template
 
 ```markdown
