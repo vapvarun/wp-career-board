@@ -259,7 +259,7 @@ final class CompanionInstaller {
 
 		// Resolve the filesystem method; surface a clear error rather than
 		// blocking on a credentials prompt we can't render in this context.
-		$creds = request_filesystem_credentials( '', '', false, false, null );
+		$creds = request_filesystem_credentials( '', '', false, '', null );
 		if ( false === $creds || ! WP_Filesystem( $creds ) ) {
 			return new WP_Error( 'wcb_fs', __( 'WordPress needs filesystem access to install plugins. Configure direct file access or install from the Plugins screen.', 'wp-career-board' ) );
 		}
