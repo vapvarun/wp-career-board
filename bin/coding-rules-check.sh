@@ -15,6 +15,8 @@
 #   6. No raw $wpdb->query without prepare() in src changes
 #   7. Release-integrity: every WCB class autoloads + ships (no autoloader
 #      dir/namespace mismatch, no class whose file .distignore strips)
+#   8. Design-system contracts: (a) single canonical token namespace, no legacy
+#      --wcb-accent/text/bg/warn aliases; (b) dual-context CSS keeps hex fallbacks
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -42,12 +44,15 @@ done
 if [ "$MODE" = "staged" ]; then
 	PHP_FILES=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(git diff --cached --name-only --diff-filter=ACMR -- 'assets/js/*.js' 'blocks/*/view.js' 2>/dev/null | grep -v '\.min\.js$' | tr '\n' ' ')
+	CSS_FILES=$(git diff --cached --name-only --diff-filter=ACMR -- 'assets/css/*.css' 'assets/css/**/*.css' 'blocks/*/style.css' 'blocks/*/styles/*.css' 2>/dev/null | tr '\n' ' ')
 else
 	PHP_FILES=$(find . -name '*.php' \
 		-not -path './vendor/*' -not -path './node_modules/*' -not -path './tests/*' \
 		-not -path './build/*' -not -path './dist/*' -not -path './libs/*' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(find . -path '*/assets/js/*.js' -o -path '*/blocks/*/view.js' 2>/dev/null \
 		| grep -v '\.min\.js$' | grep -v node_modules | tr '\n' ' ')
+	CSS_FILES=$(find . \( -path '*/assets/css/*.css' -o -path '*/blocks/*/style.css' -o -path '*/blocks/*/styles/*.css' \) \
+		-not -path './node_modules/*' -not -path './vendor/*' 2>/dev/null | tr '\n' ' ')
 fi
 
 FAILED=0
@@ -188,6 +193,43 @@ if INTEGRITY="$( php "$ROOT/bin/check-class-paths.php" 2>&1 )"; then
 else
 	echo "$INTEGRITY" | sed 's/^/    /'
 	report "Rule 7: release-integrity — a class won't autoload or is stripped from the release zip"
+fi
+
+# --- Rule 8: design-system contracts (token namespace + dual-context fallbacks) ---
+# Catches the two CSS classes of bug that shipped in 1.5.0 and that WPCS/PHPStan
+# cannot see:
+#   (a) parallel token namespace — the admin CSS must use the canonical
+#       --wcb-primary/--wcb-contrast/--wcb-base/--wcb-warning (+ --wcb-bg-subtle/
+#       --wcb-surface), never the legacy --wcb-accent/--wcb-text/--wcb-bg/--wcb-warn
+#       aliases (UI-001).
+#   (b) dual-context CSS — files that render OUTSIDE the .wcb-admin / :root token
+#       scope (e.g. application-detail widgets in post.php meta boxes) must keep a
+#       hex fallback on every token, or the colours collapse (application-detail).
+if [ -n "${CSS_FILES:-}" ]; then
+	# Match real syntax only — token immediately followed by ) , : or ; (a
+	# var() use or a custom-property definition). A space/slash after the name is
+	# prose (e.g. a comment documenting the migration) and must not trip the rule.
+	LEGACY=$(grep -nE -- '--wcb-(accent|text|bg|warn|bg-secondary|bg-tertiary|accent-hover|accent-light)[),:;]' $CSS_FILES 2>/dev/null || true)
+	if [ -n "$LEGACY" ]; then
+		echo "$LEGACY" | sed 's/^/    /'
+		report "Rule 8a: legacy parallel token name — use canonical --wcb-primary/--wcb-contrast/--wcb-base/--wcb-warning (+ --wcb-bg-subtle/--wcb-surface)"
+	else
+		ok "Rule 8a: single canonical token namespace"
+	fi
+
+	# Dual-context files: render where the token vars may be undefined, so a bare
+	# var(--wcb-*) (no fallback) is a bug. Add files to this pattern as new
+	# meta-box / shortcode-reused widgets appear.
+	DUAL=$(printf '%s\n' $CSS_FILES | grep -E 'admin/application-detail\.css$' || true)
+	if [ -n "$DUAL" ]; then
+		NOFB=$(grep -nE 'var\(\s*--wcb-[a-z0-9-]+\s*\)' $DUAL 2>/dev/null || true)
+		if [ -n "$NOFB" ]; then
+			echo "$NOFB" | sed 's/^/    /'
+			report "Rule 8b: dual-context CSS has a bare var(--wcb-*) — it renders outside the token scope, add a hex fallback: var(--token, #hex)"
+		else
+			ok "Rule 8b: dual-context CSS keeps hex fallbacks"
+		fi
+	fi
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
