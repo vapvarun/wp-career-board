@@ -94,6 +94,23 @@ html[data-bn-theme="dark"],
 	--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
 	--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
 	--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+
+	/* Soft tints + the primary banner tint — translucent so tinted callouts
+	   (onboarding banner, form-success notice) read as a dark surface, not a
+	   light patch stuck in light mode. */
+	--wcb-success-bg-soft: rgba( 22, 163, 74, 0.15 );
+	--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
+	--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
+	--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+	--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
+	--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+
+	/* Status foreground — lightened so text on the translucent tints stays
+	   legible (was dark-on-dark / invisible before). */
+	--wcb-success-fg:      #4ade80;
+	--wcb-warning-fg:      #fbbf24;
+	--wcb-danger-fg:       #f87171;
+	--wcb-info-fg:         #93c5fd;
 }
 
 /*
@@ -123,6 +140,20 @@ html[data-bn-theme="dark"],
 		--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
 		--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
 		--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+
+		/* Soft tints + primary banner tint (mirror of the explicit-dark block). */
+		--wcb-success-bg-soft: rgba( 22, 163, 74, 0.15 );
+		--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
+		--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
+		--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+		--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
+		--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+
+		/* Status foreground — lightened for legibility on the translucent tints. */
+		--wcb-success-fg:      #4ade80;
+		--wcb-warning-fg:      #fbbf24;
+		--wcb-danger-fg:       #f87171;
+		--wcb-info-fg:         #93c5fd;
 	}
 }
 

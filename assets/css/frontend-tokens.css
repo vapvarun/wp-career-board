@@ -63,6 +63,12 @@
 	--wcb-primary-soft: color-mix(in srgb, var(--wcb-primary, #2563eb) 8%, transparent);
 	--wcb-primary-ring: color-mix(in srgb, var(--wcb-primary, #2563eb) 16%, transparent);
 
+	/* Primary tinted banner (info-style callouts, onboarding banner). Defined
+	   here so consumers stop falling back to a hardcoded light blue that never
+	   flips in dark mode; the dark override lives in frontend.css. */
+	--wcb-primary-bg:     #eff6ff;
+	--wcb-primary-border: #bfdbfe;
+
 	/* ── Semantic Colors (supplementary — core palette is in frontend.css) ── */
 	--wcb-text-secondary: #6b7280;
 	--wcb-text-tertiary:  #9ca3af;
