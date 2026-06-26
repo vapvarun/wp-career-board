@@ -33,13 +33,17 @@
 	--wcb-leading-normal:  1.5;
 	--wcb-leading-relaxed: 1.625;
 
-	/* ── Border Radius ────────────────────────────────────────────────── */
-	--wcb-radius-sm:   6px;
-	--wcb-radius-md:   8px;
+	/* ── Border Radius ──────────────────────────────────────────────────
+	   Host-theme adoption: read the active in-house theme's radius token
+	   first (BuddyX / BuddyX Pro --bx-radius-*, Reign --reign-global-*-radius),
+	   then a uniform px fallback so the plugin matches the theme's corner style
+	   where the theme defines one and stays consistent everywhere else. */
+	--wcb-radius-sm:   var( --bx-radius-button, var( --reign-global-button-radius, 6px ) );
+	--wcb-radius-md:   var( --bx-radius-global, var( --reign-global-border-radius, var( --r-md, 8px ) ) );
 	--wcb-radius-lg:   10px;
-	--wcb-radius-xl:   12px;
+	--wcb-radius-xl:   var( --bx-radius-card,   12px );
 	--wcb-radius-2xl:  16px;
-	--wcb-radius-full: 9999px;
+	--wcb-radius-full: var( --bx-radius-pill,   9999px );
 
 	/* ── Shadows ──────────────────────────────────────────────────────────
 	   Community-OS alignment: read BuddyNext's soft layered --bn-shadow-* first,

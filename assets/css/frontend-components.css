@@ -1158,3 +1158,32 @@ select.wcb-field {
 		transition-duration: 0.01ms !important;
 	}
 }
+
+/* ── Dashboard / access gate (shared) ────────────────────────────────────
+   The logged-out / wrong-role gate shown by every dashboard block. Lives here
+   (globally enqueued) so the employer and candidate dashboards render an
+   identical, centred, premium sign-in prompt — buttons use the canonical
+   .wcb-btn ladder, never a per-block button. */
+.wcb-db-gate {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wcb-space-lg);
+	max-width: 32rem;
+	margin-inline: auto;
+	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
+	text-align: center;
+}
+
+.wcb-db-gate p {
+	margin: 0;
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-md);
+	line-height: var(--wcb-leading-relaxed);
+}
+
+.wcb-db-gate__actions,
+.wcb-db-gate .wcb-btn + .wcb-btn {
+	margin-inline-start: var(--wcb-space-sm);
+}

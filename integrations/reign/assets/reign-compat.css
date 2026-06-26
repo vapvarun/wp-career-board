@@ -1,27 +1,29 @@
 /* WP Career Board — Reign Theme Compatibility
  *
- * Adjustments so WCB blocks sit correctly inside Reign's content canvas.
- * Bridges WCB design tokens to Reign's BuddyBoss-derived `--bb-*` palette.
- * The `--wcb-reign-primary` Customizer setting (wcb_reign_primary_color)
- * still wins for explicit brand overrides; everything else inherits Reign.
+ * Adjustments so WCB blocks sit correctly inside Reign's content canvas, plus
+ * a token bridge that re-maps WCB's palette onto Reign 8.0+'s own `--reign-*`
+ * CSS variables. Reading Reign's live variables means WCB follows the active
+ * Color Palette / Site Skin — including custom schemes the owner builds — and
+ * Reign's dark mode automatically, with no PHP colour snapshot to go stale.
+ *
+ * Reign 8.0 removed Kirki; the accent lives in `--reign-colors-theme` (driven
+ * by the chosen scheme via reign_color_scheme_set()), NOT a theme_mod. The old
+ * BuddyBoss `--bb-*` mapping never resolved on Reign 8.x and is replaced here.
  *
  * Loaded on any page rendering a WCB block or CPT.
  */
 
 /*
- * Token bridge — re-map WCB tokens to Reign's `--bb-*` variables. Reign
- * flips its palette under `body.dark-mode` / `html.dark-mode` automatically,
- * so the WCB UI re-colors for free in both modes. Hex literals in the
- * fallback slot mirror our default token values, used only when Reign
- * isn't loaded (e.g. WCB block in a non-Reign theme on the same site).
+ * Token bridge — WCB tokens read Reign's `--reign-*` variables first, then a
+ * hex fallback (used only when Reign isn't the active theme). Reign flips its
+ * `--reign-*` tokens under `[data-bx-mode="dark"]`, so the bridge re-colours in
+ * dark mode for free.
  */
 :root,
-body.dark-mode,
-html.dark-mode {
-	/* Brand — WCB primary follows Reign's Customizer "Primary Color".
-	   `--wcb-reign-primary` is set inline by the integration when the
-	   site owner picks a custom color; otherwise we inherit `--bb-primary-color`. */
-	--wcb-primary: var( --wcb-reign-primary, var( --bb-primary-color, var( --bb-primary-button-background, #2563eb ) ) );
+:root[data-bx-mode="dark"] {
+	/* Brand — the scheme-driven accent. `--wcb-reign-primary` (WCB's own
+	   optional override) wins first; otherwise adopt Reign's live accent. */
+	--wcb-primary: var( --wcb-reign-primary, var( --reign-colors-theme, #2563eb ) );
 
 	/* Theme-aware primary tints — older browsers fall back to the static
 	   rgba on the first declaration; modern browsers use color-mix below. */
@@ -30,32 +32,36 @@ html.dark-mode {
 	--wcb-primary-soft: color-mix( in srgb, var( --wcb-primary ) 8%, transparent );
 	--wcb-primary-ring: color-mix( in srgb, var( --wcb-primary ) 16%, transparent );
 
-	/* Text — `--bb-headings-color` for strong contrast titles, `--bb-body-text-color`
-	   (sometimes `--bb-content-color`) for body copy, lighter alt-text for tertiary. */
-	--wcb-contrast:       var( --bb-headings-color, #0f172a );
-	--wcb-text-secondary: var( --bb-body-text-color, var( --bb-content-color, #475569 ) );
-	--wcb-text-tertiary:  var( --bb-content-alternate-text-color, #9ca3af );
+	/* Darker shade for hover/active — tracks whatever accent resolved. */
+	--wcb-primary-dark: #1d4ed8;
+	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
 
-	/* Surfaces — Reign uses `--bb-content-background-color` for the main
-	   canvas and `--bb-content-alternate-background-color` for subtle bands. */
-	--wcb-base:      var( --bb-content-background-color, #ffffff );
-	--wcb-surface:   var( --bb-content-alternate-background-color, #f8fafc );
-	--wcb-bg-subtle: var( --bb-content-alternate-background-color, #f8fafc );
+	/* Text — Reign's heading colour for strong titles, body colour for copy,
+	   the lighter alternate colour for tertiary/meta. */
+	--wcb-contrast:       var( --reign-site-headings-color, #0f172a );
+	--wcb-text-secondary: var( --reign-site-body-text-color, #475569 );
+	--wcb-text-tertiary:  var( --reign-site-alternate-text-color, #9ca3af );
+
+	/* Surfaces — sections (cards) sit on the body canvas; secondary bands are
+	   the subtle tint. */
+	--wcb-base:      var( --reign-site-sections-bg-color, #ffffff );
+	--wcb-surface:   var( --reign-site-body-bg-color, #f8fafc );
+	--wcb-bg-subtle: var( --reign-site-secondary-bg-color, #f8fafc );
 	--wcb-bg-hover:  color-mix( in srgb, var( --wcb-primary ) 6%, var( --wcb-base, #ffffff ) );
 
-	/* Borders — `--bb-content-border-color` is used for cards/widgets;
-	   falls back to the generic content border. */
-	--wcb-border: var( --bb-content-border-color, var( --bb-body-border-color, #e2e8f0 ) );
+	/* Borders — Reign's content border colour. */
+	--wcb-border: var( --reign-site-border-color, #e2e8f0 );
 
-	/* Status — Reign exposes semantic colors that map cleanly to ours. */
-	--wcb-success: var( --bb-success-color, #16a34a );
-	--wcb-warning: var( --bb-warning-color, #d97706 );
-	--wcb-danger:  var( --bb-danger-color, #dc2626 );
-	--wcb-info:    var( --bb-info-color, var( --bb-primary-color, #2563eb ) );
+	/* Status — Reign exposes semantic colours that map cleanly to ours
+	   (it has no dedicated warning token, so that keeps WCB's amber). */
+	--wcb-success: var( --reign-color-success, #16a34a );
+	--wcb-warning: #d97706;
+	--wcb-danger:  var( --reign-color-error, #dc2626 );
+	--wcb-info:    var( --reign-color-info, #2563eb );
 
-	/* Avatar background — uses Reign's heading color so initials read
+	/* Avatar background — uses Reign's heading colour so initials read
 	   correctly against the theme's preferred contrast tone. */
-	--wcb-avatar-bg: var( --bb-headings-color, #1e293b );
+	--wcb-avatar-bg: var( --reign-site-headings-color, #1e293b );
 }
 
 /* Honour the Customizer primary colour on WCB interactive elements */
@@ -97,7 +103,7 @@ html.dark-mode {
 .wcb-chip.wcb-chip-active {
 	border-color: var( --wcb-primary );
 	background: var( --wcb-primary );
-	color: var( --bb-primary-button-text, #ffffff );
+	color: var( --reign-site-button-text-color, #ffffff );
 }
 
 .wcb-clear-all:hover {

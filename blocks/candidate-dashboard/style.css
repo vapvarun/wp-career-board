@@ -50,12 +50,15 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
  */
 .wcb-dashboard {
 	--wcb-text-primary: var(--wcb-contrast, var(--wp--preset--color--wcb-contrast));
-	--wcb-text-muted:   var(--wcb-text-tertiary, #9ca3af);
+	--wcb-text-muted:   var(--wcb-text-tertiary);
 	--wcb-blue:         var(--wcb-primary, var(--wp--preset--color--wcb-primary));
 	--wcb-green:        #059669;
 	--wcb-radius:       var(--wcb-radius-md);
 	font-family: inherit;
-	font-size: 1rem;
+	/* Match the shared block base (var(--wcb-text-base)) used by every other WCB
+	   block, incl. the employer dashboard, so the two dashboards are pixel-for-pixel
+	   uniform. Was `1rem`, which overrode the global base and caused a font-size jump. */
+	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-primary);
 }
 
@@ -76,11 +79,11 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	 * the dashboard reads as floating text with no container. Give the shell
 	 * a subtle outer border + shadow so the surface is unambiguous regardless
 	 * of theme background. */
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-xl);
 	overflow: hidden;
 	box-shadow: var(--wcb-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.04));
-	background: var(--wcb-base, #ffffff);
+	background: var(--wcb-base);
 }
 
 /* ── Shared loading / error ───────────────────────────────────────────────── */
@@ -178,9 +181,9 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-lg);
-	background: var(--wcb-base, #ffffff);
+	background: var(--wcb-base);
 	text-decoration: none;
 	transition: transform var(--wcb-transition-fast, 150ms ease), box-shadow var(--wcb-transition-fast, 150ms ease);
 }

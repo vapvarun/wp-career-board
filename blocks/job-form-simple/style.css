@@ -13,7 +13,7 @@
 .wcb-form-simple {
 	max-width: 760px;
 	margin: 0 auto;
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 }
 
 .wcb-form-simple--compact { max-width: 520px; }
@@ -31,7 +31,7 @@
 	flex-direction: column;
 	gap: var(--wcb-space-lg);
 	padding-bottom: var(--wcb-space-3xl);
-	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+	border-bottom: 1px solid var(--wcb-border);
 }
 .wcb-form-simple__section:last-of-type { border-bottom: 0; padding-bottom: 0; }
 
@@ -40,7 +40,7 @@
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-tertiary);
 	margin: 0 0 var(--wcb-space-xs);
 }
 
@@ -56,7 +56,7 @@
 .wcb-form-simple .wcb-form-label {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-xs);
@@ -64,7 +64,7 @@
 
 .wcb-form-simple .wcb-form-hint {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-tertiary);
 }
 
 .wcb-form-simple .wcb-required {
@@ -78,9 +78,9 @@
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-base);
 	line-height: var(--wcb-leading-tight);
-	color: var(--wcb-contrast, #0f172a);
-	background: var(--wcb-base, #ffffff);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	color: var(--wcb-contrast);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
 	box-sizing: border-box;
@@ -102,7 +102,7 @@
 }
 
 .wcb-form-simple .wcb-field:hover {
-	border-color: var(--wcb-text-tertiary, #94a3b8);
+	border-color: var(--wcb-text-tertiary);
 }
 
 /* No `outline: none` on plain `:focus` - browsers omit the ring on
@@ -110,19 +110,19 @@
  * keyboard-only outline. Older browsers keep the default outline as
  * a graceful fallback. */
 .wcb-form-simple .wcb-field:focus {
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-form-simple .wcb-field:focus-visible {
-	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-form-simple .wcb-field::placeholder {
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-tertiary);
 	opacity: 0.7;
 }
 
@@ -176,14 +176,14 @@
 	gap: var(--wcb-space-sm);
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 	cursor: pointer;
 	user-select: none;
 }
 .wcb-form-simple .wcb-checkbox-label input[type="checkbox"] {
 	width: var(--wcb-icon-md);
 	height: var(--wcb-icon-md);
-	accent-color: var(--wcb-primary, #2563eb);
+	accent-color: var(--wcb-primary);
 	margin: 0;
 }
 
@@ -256,7 +256,7 @@
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-tertiary);
 	margin: var(--wcb-space-sm) 0 0;
 	padding: 0;
 }
@@ -309,8 +309,8 @@
 }
 
 .wcb-form-simple .wcb-btn--primary {
-	background: var(--wcb-primary, #2563eb);
-	color: var(--wcb-on-primary, #fff);
+	background: var(--wcb-primary);
+	color: var(--wcb-on-primary);
 	box-shadow: var(--wcb-shadow-sm);
 }
 .wcb-form-simple .wcb-btn--primary:hover:not(:disabled) {
@@ -335,7 +335,7 @@
 .wcb-form-simple__gate {
 	padding: var(--wcb-space-3xl) var(--wcb-space-2xl);
 	background: var(--wcb-bg-subtle);
-	border: 1px dashed var(--wcb-border, #e2e8f0);
+	border: 1px dashed var(--wcb-border);
 	border-radius: var(--wcb-radius-xl);
 	text-align: center;
 	color: var(--wcb-text-secondary);

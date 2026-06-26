@@ -39,7 +39,7 @@
 
 .wcb-view-panel.wcb-view-active {
 	display: block;
-	background: var(--wcb-base, #ffffff);
+	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-lg);
 	box-shadow: var(--wcb-shadow-sm);

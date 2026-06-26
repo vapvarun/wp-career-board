@@ -50,7 +50,7 @@
 
 .wcb-similar-companies-card__link:hover,
 .wcb-similar-companies-card__link:focus {
-	background: var(--wcb-surface, #f9fafb);
+	background: var(--wcb-surface);
 	color: inherit;
 	text-decoration: none;
 }
@@ -94,7 +94,7 @@
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-muted, #64748b);
+	color: var(--wcb-muted);
 }
 
 .wcb-similar-companies-card__meta [data-lucide] {
@@ -108,7 +108,7 @@
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-lg) 0;
-	color: var(--wcb-text-muted, #64748b);
+	color: var(--wcb-muted);
 	text-align: center;
 }
 

@@ -27,8 +27,8 @@
 
 .wcb-job-alert-card__body {
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-text, #1f2937);
-	margin: 0 0 var(--wcb-space-md, 14px);
+	color: var(--wcb-text-secondary);
+	margin: 0 0 var(--wcb-space-md);
 	line-height: 1.55;
 }
 
@@ -39,7 +39,7 @@
 	min-height: 40px;
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
 	background: var(--wcb-primary);
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 	font-weight: 600;
 	font-size: var(--wcb-text-base);
 	text-align: center;
@@ -53,7 +53,7 @@
 .wcb-job-alert-card__btn:hover,
 .wcb-job-alert-card__btn:focus {
 	background: var(--wcb-primary-hover, var(--wcb-primary));
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 	text-decoration: none;
 	filter: brightness(0.95);
 }
