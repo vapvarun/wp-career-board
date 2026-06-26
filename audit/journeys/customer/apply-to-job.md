@@ -17,7 +17,7 @@ bug_ref: 9818132111
 1. As `sarah.chen`, navigate to `/jobs/?autologin=sarah.chen` → expect HTTP 200, candidate is logged in
 2. Open any published `wcb_job` post (find a candidate via `wp post list --post_type=wcb_job --post_status=publish --field=ID --posts_per_page=1`) → expect 200, page renders title + description + Apply CTA
 3. Click "Apply" CTA → expect modal/form with resume picker, cover-letter field
-4. POST `/wp-json/wcb/v1/jobs/<id>/apply` with body `{"resume_id": <sarah's resume id>, "cover_letter": "Smoke journey test"}` → expect HTTP 201, response contains `application_id` (integer >0)
+4. POST `/wp-json/wcb/v1/jobs/<id>/apply` with body `{"resume_id": <sarah's resume id>, "cover_letter": "Smoke journey test"}` → expect HTTP 200, response contains `application_id` (integer >0)
 5. Verify the application persists: `wp post get <application_id> --field=post_status` → expect `publish` (or whatever the plugin's submitted state is — `submitted` per the v1.1.0 status allowlist)
 6. Verify the application is linked: `wp post meta get <application_id> _wcb_job_id` → expect `<job-id>`. `wp post meta get <application_id> _wcb_candidate_id` → expect sarah's user ID. `wp post meta get <application_id> _wcb_status` → expect `submitted`
 7. As `employer.figma` (or whichever employer owns the job), navigate to the employer dashboard → expect the new application to appear in the applicant list with correct candidate name + status

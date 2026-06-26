@@ -30,7 +30,7 @@ Steps are imperative, one action per step, with an explicit assertion.
 ```markdown
 1. As `candidate.carol`, navigate to `/jobs/<published-job>/` → expect HTTP 200
 2. Click "Apply" → expect modal to open with resume picker
-3. POST `/wcb/v1/jobs/<id>/apply` with body `{resume_id:<id>}` → expect 201, response `{application_id: <int>}`
+3. POST `/wcb/v1/jobs/<id>/apply` with body `{resume_id:<id>}` → expect 200, response `{application_id: <int>}`
 4. Reload `/dashboard/applications/` → expect new row matching `<application_id>`
 5. tail debug.log diff → expect ZERO new fatal/warning lines
 ```

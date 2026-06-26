@@ -20,7 +20,7 @@ bug_ref: 9871740742
 4. Verify the job persists: `wp post get <job-id> --field=post_status` → expect `publish` (or `pending` if plugin is in moderation mode — record which)
 5. Verify meta keys are in v1.1.0 shape: `wp post meta list <job-id>` → expect `_wcb_company_id`, `_wcb_deadline`, `_wcb_salary_min`, `_wcb_salary_max`, `_wcb_salary_currency`, `_wcb_remote`, `_wcb_company_name` all populated. NO `_wcb_job_company` (the v0.1.0 key) should be present
 6. As anonymous, GET `/jobs/<job-slug>/` → expect HTTP 200, page renders title + description + company name + tagline + industry + size + HQ (all four company-meta fields must be visible per Basecamp 9871740742 contract)
-7. As anonymous, GET `/wp-json/wcb/v1/jobs/<id>` → expect response body contains `tagline`, `industry`, `size_label`, `hq` keys with non-empty values. Response MUST NOT contain `apply_email` (per security journey `anonymous-job-no-email-leak`)
+7. As anonymous, GET `/wp-json/wcb/v1/jobs/<id>` → expect response body contains `company_tagline`, `company_industry`, `company_size_label`, `company_hq` keys with non-empty values (the jobs endpoint prefixes company fields with `company_`). Response MUST NOT contain `apply_email` (per security journey `anonymous-job-no-email-leak`)
 8. tail debug.log diff → expect ZERO new fatal / warning lines
 
 ## Teardown
