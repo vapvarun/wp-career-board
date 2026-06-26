@@ -4,9 +4,9 @@
  * Single canonical token namespace shared with the frontend (frontend-tokens.css):
  * admin CSS uses the same `--wcb-primary / --wcb-contrast / --wcb-base / --wcb-warning`
  * names and the same radius + semantic-status scale, so a value defined once means
- * the same thing on every surface. The legacy admin names (`--wcb-accent / --wcb-text
- * / --wcb-bg / --wcb-warn`) are kept as thin aliases so existing admin CSS keeps
- * working while it migrates to the canonical names.
+ * the same thing on every surface. The former parallel admin names
+ * (`--wcb-accent / --wcb-text / --wcb-bg / --wcb-warn`) have been fully migrated to
+ * the canonical names across all admin (and Pro) CSS — no aliases remain.
  *
  * Scoped to `.wcb-admin` (the wrapper on every plugin admin page).
  *
@@ -75,14 +75,4 @@
     --wcb-text-base: 0.875rem;
     --wcb-text-md: 0.9375rem;
     --wcb-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-    /* ── Legacy aliases — keep existing admin CSS working during migration ─ */
-    --wcb-accent: var(--wcb-primary);
-    --wcb-accent-hover: var(--wcb-primary-dark);
-    --wcb-accent-light: var(--wcb-info-bg-soft);
-    --wcb-bg: var(--wcb-base);
-    --wcb-bg-secondary: var(--wcb-bg-subtle);
-    --wcb-bg-tertiary: var(--wcb-surface);
-    --wcb-text: var(--wcb-contrast);
-    --wcb-warn: var(--wcb-warning);
 }

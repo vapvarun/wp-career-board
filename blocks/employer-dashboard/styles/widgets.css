@@ -362,7 +362,7 @@
 
 .wcb-credit-low-banner {
 	background: var(--wcb-warn-bg, #fff7ed);
-	border-color: var(--wcb-warn, #fb923c);
+	border-color: var(--wcb-warning, #fb923c);
 	color: var(--wcb-text-primary, var(--wcb-contrast));
 }
 
