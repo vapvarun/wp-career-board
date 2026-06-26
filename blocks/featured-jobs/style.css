@@ -83,7 +83,7 @@
 	text-align: center;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
 	.wcb-featured-grid {
 		grid-template-columns: minmax(0, 1fr);
 	}

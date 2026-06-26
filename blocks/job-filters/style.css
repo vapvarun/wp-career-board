@@ -32,7 +32,7 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
 	.wcb-filters-row {
 		flex-direction: column;
 	}
@@ -88,7 +88,7 @@
 	accent-color: var(--wcb-primary);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
 	.wcb-filter-salary {
 		width: 100%;
 	}

@@ -1150,12 +1150,8 @@ textarea.wcb-input {
 	color: var(--wcb-contrast, #0f172a);
 }
 
-.wcb-empty-state__msg {
-	margin: 0;
-	max-width: 40ch;
-	font-size: var(--wcb-text-sm);
-	line-height: var(--wcb-leading-normal);
-}
+/* Removed dead .wcb-empty-state__msg rule — no markup uses __msg (templates use
+   __desc + __body). Kept to avoid a third unused empty-state child class. */
 
 .wcb-empty-state__action { margin-top: var(--wcb-space-sm); }
 

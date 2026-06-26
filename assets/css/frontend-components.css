@@ -463,7 +463,7 @@ select.wcb-field {
 	gap: var(--wcb-space-lg);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
 
 	[class*="wp-block-wp-career-board"] .wcb-field-row,
 	[class*="wp-block-wcb-"] .wcb-field-row {
