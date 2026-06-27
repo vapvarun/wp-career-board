@@ -74,6 +74,7 @@ Admin design-system pass and dark-mode polish for the in-house themes.
 * Fix      - The settings toggle knob and setup-wizard controls now position correctly under right-to-left languages.
 * Fix      - The application detail labels and borders no longer fall back to the wrong colour on the post edit screen.
 * Dev      - Consolidated the responsive breakpoints to a single 640px boundary and removed duplicated and dead CSS rules.
+* Dev      - Refreshed the documentation dashboard screenshots (candidate and employer) to the new 1.5.0 UI.
 * Compat   - Aligned with WP Career Board Pro 1.5.0. Install both updates together.
 
 = 1.4.6 - June 2026 =
