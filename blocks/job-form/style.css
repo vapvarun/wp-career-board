@@ -51,14 +51,14 @@
 }
 
 .wcb-step--active {
-	background: var(--wcb-primary, #2563eb);
-	color: var(--wcb-on-primary, #fff);
+	background: var(--wcb-primary);
+	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 }
 
 .wcb-step--active .wcb-step__num {
 	background: rgba(255, 255, 255, 0.2);
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 }
 
 .wcb-step--done {
@@ -68,7 +68,7 @@
 
 .wcb-step--done .wcb-step__num {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 	font-size: 0;
 }
 
@@ -81,7 +81,7 @@
 	flex: 1;
 	min-width: var(--wcb-space-sm);
 	height: 1px;
-	background: var(--wcb-border, #e2e8f0);
+	background: var(--wcb-border);
 }
 
 /* ── Form step panel — transparent, no card chrome ───────────────────── */
@@ -111,7 +111,7 @@
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-tertiary);
 	margin: 0 0 var(--wcb-space-xs);
 	padding: 0;
 	border: 0;
@@ -128,7 +128,7 @@
 .wcb-form-label {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-xs);
@@ -148,13 +148,13 @@
 .wcb-field {
 	width: 100%;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	line-height: var(--wcb-leading-tight);
 	font-family: inherit;
-	color: var(--wcb-contrast, #0f172a);
-	background: var(--wcb-base, #fff);
+	color: var(--wcb-contrast);
+	background: var(--wcb-base);
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
 	-webkit-appearance: none;
 	appearance: none;
@@ -163,7 +163,7 @@
 }
 
 .wcb-field:hover {
-	border-color: var(--wcb-text-tertiary, #94a3b8);
+	border-color: var(--wcb-text-tertiary);
 }
 
 /* No `outline: none` on plain `:focus` - modern browsers default to no
@@ -172,14 +172,14 @@
  * `:focus-visible` keep the browser-default outline, which is the
  * correct fallback. */
 .wcb-field:focus {
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-field:focus-visible {
-	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
@@ -237,7 +237,7 @@ textarea.wcb-field {
 	cursor: pointer;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 	user-select: none;
 }
 
@@ -246,7 +246,7 @@ textarea.wcb-field {
 	height: var(--wcb-icon-md);
 	cursor: pointer;
 	flex-shrink: 0;
-	accent-color: var(--wcb-primary, #2563eb);
+	accent-color: var(--wcb-primary);
 	margin: 0;
 }
 
@@ -263,58 +263,17 @@ textarea.wcb-field {
 	justify-content: flex-end;
 }
 
-/* ── Buttons ─────────────────────────────────────────────────────────── */
-.wcb-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wcb-space-xs);
-	min-width: 160px; /* component-specific button width */
-	padding: var(--wcb-space-md) var(--wcb-space-2xl);
-	border: 0;
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-md);
-	font-weight: var(--wcb-font-semibold);
-	font-family: inherit;
-	letter-spacing: 0.01em;
-	cursor: pointer;
-	transition: transform var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	white-space: nowrap;
-	box-sizing: border-box;
-	text-decoration: none;
+/* ── Buttons ───────────────────────────────────────────────────────────
+   Button visuals come from the canonical .wcb-btn ladder (assets/css/wcb-ui.css)
+   so they match every other page. Only the multi-step form's nav layout is
+   component-specific and kept here (scoped to .wcb-form-nav so the gate's
+   buttons are unaffected). */
+.wcb-form-nav .wcb-btn {
+	min-width: 160px;
 }
 
-.wcb-btn--primary {
-	background: var(--wcb-primary, #2563eb);
-	color: var(--wcb-on-primary, #fff);
-	box-shadow: var(--wcb-shadow-sm);
+.wcb-form-nav .wcb-btn--primary {
 	margin-inline-start: auto;
-}
-
-.wcb-btn--primary:hover:not(:disabled) {
-	transform: translateY(-1px);
-	box-shadow: var(--wcb-shadow-md);
-}
-
-.wcb-btn--primary:active:not(:disabled) {
-	transform: translateY(0);
-}
-
-.wcb-btn--ghost {
-	background: transparent;
-	color: var(--wcb-text-secondary);
-	box-shadow: none;
-	border: 1px solid var(--wcb-border, #e2e8f0);
-}
-
-.wcb-btn--ghost:hover:not(:disabled) {
-	background: var(--wcb-bg-subtle);
-	color: var(--wcb-contrast, #0f172a);
-}
-
-.wcb-btn:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
 }
 
 /* ── Spinner ─────────────────────────────────────────────────────────── */
@@ -353,7 +312,7 @@ textarea.wcb-field {
 	flex-direction: column;
 	gap: var(--wcb-space-lg);
 	padding: var(--wcb-space-2xl);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-xl);
 	background: var(--wcb-bg-subtle);
 }
@@ -373,7 +332,7 @@ textarea.wcb-field {
 .wcb-preview-card__title {
 	font-size: var(--wcb-text-lg);
 	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 	margin: 0 0 var(--wcb-space-xs);
 }
 
@@ -388,7 +347,7 @@ textarea.wcb-field {
 	flex-wrap: wrap;
 	gap: var(--wcb-space-md) var(--wcb-space-2xl);
 	padding-top: var(--wcb-space-md);
-	border-top: 1px solid var(--wcb-border, #e2e8f0);
+	border-top: 1px solid var(--wcb-border);
 }
 
 .wcb-preview-card .wcb-cbadge {
@@ -434,7 +393,7 @@ textarea.wcb-field {
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-secondary);
 	background: var(--wcb-bg-subtle);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	margin: 0;
@@ -471,7 +430,7 @@ textarea.wcb-field {
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary);
 	background: var(--wcb-primary-soft);
 	border: 1px solid var(--wcb-info-border);
 	border-radius: var(--wcb-radius-full);
@@ -544,7 +503,7 @@ textarea.wcb-field {
 	height: var(--wcb-space-3xl);
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	flex-shrink: 0;
@@ -588,13 +547,13 @@ textarea.wcb-field {
 
 .wcb-form-success__reset:hover {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary, #fff);
+	color: var(--wcb-on-primary);
 }
 
 .wcb-form-success__reset:focus-visible {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary, #fff);
-	outline: 2px solid var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary);
+	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 }
 

@@ -18,7 +18,7 @@ last_verified: 2026-05-12
 4. Confirm `document.querySelector('.wcb-job-listings')` exists and `document.querySelector('[data-wp-interactive="wcb-job-listings"]')` exists → block render path ran.
 5. Confirm at least one `.wcb-job-card` exists → REST query against `wcb_job` succeeded.
 6. Confirm the block's stylesheet auto-enqueued → `document.querySelector('style#wp-career-board-job-listings-style-inline-css')` exists.
-7. Confirm `getComputedStyle(card).display` is `flex` and `padding` is non-zero → block CSS applied, not just rendered DOM.
+7. Confirm `getComputedStyle(card).display` is a layout value (`grid` — the card uses a grid layout; `flex` also acceptable) and `padding` is non-zero → block CSS applied, not just rendered DOM.
 8. Repeat steps 1-7 with `[wcbp_resume_archive]` (Pro) on a separate Page.
 9. tail debug.log diff → expect ZERO new fatal/warning lines.
 

@@ -25,7 +25,7 @@ bug_ref: 9871740742
    ```
    → each command should return success (no error output)
 4. Verify all four meta keys persisted: `wp post meta list <company-id> --keys=_wcb_tagline,_wcb_industry,_wcb_company_size,_wcb_hq_location` → expect all four rows present with the values set in step 3
-5. GET `/wp-json/wcb/v1/companies/<company-id>` as anonymous → expect HTTP 200, response body contains `tagline: "Admin Smoke Tagline"`, `industry: "Finance"`, `size_label` with "51-200" in it, and `hq: "New York, NY"`
+5. There is no public single-company REST route. Verify the saved meta reaches the public API via a linked job: find a published job for this company (`wp post list --post_type=wcb_job --meta_key=_wcb_company_id --meta_value=<company-id> --post_status=publish --field=ID --posts_per_page=1`), then GET `/wp-json/wcb/v1/jobs/<job-id>` as anonymous → expect HTTP 200, response body contains `company_tagline: "Admin Smoke Tagline"`, `company_industry: "Finance"`, `company_size_label` with "51-200" in it, and `company_hq: "New York, NY"` (the jobs endpoint prefixes company fields with `company_`)
 6. Navigate to the company's public URL: `wp post get <company-id> --field=guid` → GET that URL → expect HTTP 200, tagline "Admin Smoke Tagline" is visible on the page
 7. Find a published job linked to this company: `wp post list --post_type=wcb_job --meta_key=_wcb_company_id --meta_value=<company-id> --post_status=publish --field=ID --posts_per_page=1` → navigate to that job's single-job URL → expect company section shows "Admin Smoke Tagline"
 8. tail debug.log diff → expect ZERO new fatal/warning lines

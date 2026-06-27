@@ -33,19 +33,25 @@
 	--wcb-leading-normal:  1.5;
 	--wcb-leading-relaxed: 1.625;
 
-	/* ── Border Radius ────────────────────────────────────────────────── */
-	--wcb-radius-sm:   6px;
-	--wcb-radius-md:   8px;
+	/* ── Border Radius ──────────────────────────────────────────────────
+	   Host-theme adoption: read the active in-house theme's radius token
+	   first (BuddyX / BuddyX Pro --bx-radius-*, Reign --reign-global-*-radius),
+	   then a uniform px fallback so the plugin matches the theme's corner style
+	   where the theme defines one and stays consistent everywhere else. */
+	--wcb-radius-sm:   var( --bx-radius-button, var( --reign-global-button-radius, 6px ) );
+	--wcb-radius-md:   var( --bx-radius-global, var( --reign-global-border-radius, var( --r-md, 8px ) ) );
 	--wcb-radius-lg:   10px;
-	--wcb-radius-xl:   12px;
+	--wcb-radius-xl:   var( --bx-radius-card,   12px );
 	--wcb-radius-2xl:  16px;
-	--wcb-radius-full: 9999px;
+	--wcb-radius-full: var( --bx-radius-pill,   9999px );
 
-	/* ── Shadows ──────────────────────────────────────────────────────── */
-	--wcb-shadow-xs:    0 1px 2px rgba(0, 0, 0, 0.04);
-	--wcb-shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.08);
-	--wcb-shadow-md:    0 4px 12px rgba(0, 0, 0, 0.08);
-	--wcb-shadow-lg:    0 8px 24px rgba(0, 0, 0, 0.12);
+	/* ── Shadows ──────────────────────────────────────────────────────────
+	   Community-OS alignment: read BuddyNext's soft layered --bn-shadow-* first,
+	   with a matching standalone fallback, so card elevation is uniform suite-wide. */
+	--wcb-shadow-xs:    var(--bn-shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.04));
+	--wcb-shadow-sm:    var(--bn-shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.04), 0 2px 4px rgba(16, 24, 40, 0.04));
+	--wcb-shadow-md:    var(--bn-shadow-md, 0 2px 4px rgba(16, 24, 40, 0.04), 0 8px 16px rgba(16, 24, 40, 0.06));
+	--wcb-shadow-lg:    var(--bn-shadow-lg, 0 8px 16px rgba(16, 24, 40, 0.06), 0 24px 48px rgba(16, 24, 40, 0.08));
 	--wcb-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
 
 	/* ── Primary tints (theme-aware via color-mix) ──────────────────────
@@ -56,6 +62,12 @@
 	--wcb-primary-ring: rgba(37, 99, 235, 0.16);
 	--wcb-primary-soft: color-mix(in srgb, var(--wcb-primary, #2563eb) 8%, transparent);
 	--wcb-primary-ring: color-mix(in srgb, var(--wcb-primary, #2563eb) 16%, transparent);
+
+	/* Primary tinted banner (info-style callouts, onboarding banner). Defined
+	   here so consumers stop falling back to a hardcoded light blue that never
+	   flips in dark mode; the dark override lives in frontend.css. */
+	--wcb-primary-bg:     #eff6ff;
+	--wcb-primary-border: #bfdbfe;
 
 	/* ── Semantic Colors (supplementary — core palette is in frontend.css) ── */
 	--wcb-text-secondary: #6b7280;

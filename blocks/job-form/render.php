@@ -686,7 +686,7 @@ $wcb_step_labels = array(
 			?>
 
 			<div class="wcb-form-nav">
-				<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.prevStep">
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.prevStep">
 					<?php esc_html_e( '← Back', 'wp-career-board' ); ?>
 				</button>
 				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.nextStep">
@@ -835,7 +835,7 @@ $wcb_step_labels = array(
 			?>
 
 			<div class="wcb-form-nav">
-				<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.prevStep">
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.prevStep">
 					<?php esc_html_e( '← Back', 'wp-career-board' ); ?>
 				</button>
 				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.nextStep">
@@ -913,7 +913,7 @@ $wcb_step_labels = array(
 			<div class="wcb-form-nav">
 				<button
 					type="button"
-					class="wcb-btn wcb-btn--ghost"
+					class="wcb-btn wcb-btn--secondary"
 					data-wp-on--click="actions.prevStep"
 					data-wp-bind--disabled="state.submitting"
 				>

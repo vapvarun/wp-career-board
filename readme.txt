@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.4.6
+Stable tag: 1.5.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,20 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.5.0 - June 2026 =
+
+Admin design-system pass and dark-mode polish for the in-house themes.
+
+* Improve  - Unified the admin colour tokens onto the same canonical namespace as the frontend, so admin and frontend theme consistently from one source.
+* Improve  - Admin buttons now meet the 40px minimum tap target, and the bookmark, layout, view-switch and settings-toggle controls show a keyboard focus ring.
+* Improve  - Admin status badges and the application detail screen now use the semantic colour tokens.
+* Fix      - Tinted banners (onboarding notice, form success message, status badges) are now readable in BuddyX and BuddyX Pro dark mode instead of showing light text on a light background.
+* Fix      - The recommended jobs grid no longer collapses its columns to zero width.
+* Fix      - The settings toggle knob and setup-wizard controls now position correctly under right-to-left languages.
+* Fix      - The application detail labels and borders no longer fall back to the wrong colour on the post edit screen.
+* Dev      - Consolidated the responsive breakpoints to a single 640px boundary and removed duplicated and dead CSS rules.
+* Compat   - Aligned with WP Career Board Pro 1.5.0. Install both updates together.
 
 = 1.4.6 - June 2026 =
 

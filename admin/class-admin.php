@@ -50,6 +50,9 @@ class Admin {
 		// Boot settings so its admin_init hook fires.
 		( new AdminSettings() )->boot();
 
+		// Companion plugin registry + one-click installer (Integrations tab).
+		( new \WCB\Integrations\Companions\CompanionInstaller() )->boot();
+
 		// Boot meta boxes for the wcb_job CPT.
 		( new AdminMetaBoxes() )->boot();
 
@@ -719,6 +722,7 @@ class Admin {
 		// Settings page — sidebar layout CSS + hash-router JS.
 		if ( str_contains( $hook, 'wcb-settings' ) ) {
 			wp_enqueue_style( 'wcb-settings-css', WCB_URL . 'assets/css/admin/settings.css', array( 'wcb-tokens' ), WCB_VERSION );
+			wp_enqueue_style( 'wcb-integrations-css', WCB_URL . 'assets/css/admin/integrations.css', array( 'wcb-tokens', 'wcb-settings-css' ), WCB_VERSION );
 			wp_enqueue_script( 'wcb-settings-nav', WCB_URL . 'assets/js/admin/settings-nav.js', array( 'lucide' ), WCB_VERSION, true );
 		}
 

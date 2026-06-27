@@ -170,7 +170,7 @@
 	flex-shrink: 0;
 	border-radius: var(--wcb-radius-lg);
 	background: var( --wcb-avatar-bg, #1e293b );
-	color: var(--wcb-on-primary, #ffffff);
+	color: var(--wcb-on-primary);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -276,11 +276,11 @@
  * a meaningful promotion marker, but the soft variant keeps it from
  * dominating the card. */
 .wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
-.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
-.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
-.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
-.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
-.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary, #475569); }
+.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 
 /* ── Card footer ─────────────────────────────────────────────────────────── */
 .wcb-card-footer {
@@ -332,7 +332,7 @@
 	gap: var(--wcb-space-sm);
 	margin-top: auto;
 	padding-top: var(--wcb-space-md);
-	border-top: 1px solid var(--wcb-surface, #f1f5f9);
+	border-top: 1px solid var(--wcb-surface);
 }
 
 .wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-card-salary {
@@ -567,8 +567,8 @@
 	inset-inline-start: 0;
 	min-width: 260px;
 	padding: var(--wcb-space-lg);
-	background: var(--wcb-base, #fff);
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-lg, 12px);
 	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
 	display: flex;
@@ -581,29 +581,29 @@
 	align-items: center;
 	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	font-weight: 600;
-	color: var(--wcb-text-secondary, #475569);
+	color: var(--wcb-text-secondary);
 }
 .wcb-salary-popover__value {
 	font-variant-numeric: tabular-nums;
-	color: var(--wcb-contrast, #0f172a);
+	color: var(--wcb-contrast);
 }
 .wcb-salary-popover__slider {
 	width: 100%;
-	accent-color: var(--wcb-primary, #2563eb);
+	accent-color: var(--wcb-primary);
 }
 .wcb-salary-popover__reset {
 	align-self: flex-end;
 	background: none;
-	border: 1px solid var(--wcb-border, #e2e8f0);
-	color: var(--wcb-text-secondary, #475569);
+	border: 1px solid var(--wcb-border);
+	color: var(--wcb-text-secondary);
 	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-sm, 6px);
 	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	cursor: pointer;
 }
 .wcb-salary-popover__reset:hover {
-	color: var(--wcb-contrast, #0f172a);
-	border-color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-contrast);
+	border-color: var(--wcb-text-tertiary);
 }
 @media (max-width: 640px) {
 	.wcb-salary-popover__body {

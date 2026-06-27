@@ -37,7 +37,7 @@
 	cursor: pointer;
 }
 .wcb-bell-action:hover {
-	background: var(--wcb-surface, #f1f5f9);
+	background: var(--wcb-surface);
 }
 .wcb-bell-action svg {
 	width: 15px;
@@ -48,7 +48,7 @@
 }
 .wcb-bell-list {
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
-	border: 1px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	overflow: hidden;
 }
@@ -56,13 +56,13 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
-	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
+	border-bottom: 1px solid var(--wcb-surface);
 }
 .wcb-bell-item:last-child {
 	border-bottom: none;
 }
 .wcb-bell-item:hover {
-	background: var(--wcb-surface, #f1f5f9);
+	background: var(--wcb-surface);
 }
 .wcb-bell-unread {
 	background: var(--wcb-info-bg-soft);
@@ -93,7 +93,7 @@
 .wcb-bell-item__delete:hover,
 .wcb-bell-item__delete:focus-visible {
 	color: var(--wcb-danger, #dc2626);
-	background: var(--wcb-surface, #f1f5f9);
+	background: var(--wcb-surface);
 }
 .wcb-bell-item__delete svg {
 	flex: 0 0 auto;
@@ -103,7 +103,7 @@
 .wcb-bell-msg {
 	display: block;
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-contrast, #111827);
+	color: var(--wcb-contrast);
 }
 .wcb-bell-time {
 	display: block;
@@ -189,12 +189,12 @@
 	font-size: var(--wcb-text-2xl);
 	font-weight: var(--wcb-font-semibold);
 	margin: 0 0 var(--wcb-space-xs) 0;
-	color: var( --wcb-text, #111827 );
+	color: var( --wcb-contrast );
 }
 
 .wcb-welcome-card__subtitle {
 	margin: 0;
-	color: var( --wcb-muted, #6b7280 );
+	color: var( --wcb-muted );
 	font-size: var(--wcb-text-md);
 }
 
@@ -216,8 +216,8 @@
 	align-items: flex-start;
 	gap: var(--wcb-space-md);
 	padding: var( --wcb-space-md, 16px );
-	background: var(--wcb-base, #ffffff) !important;
-	border: 1px solid var( --wcb-border, #e2e8f0 ) !important;
+	background: var(--wcb-base) !important;
+	border: 1px solid var( --wcb-border ) !important;
 	border-radius: var( --wcb-radius-md, 8px );
 	text-decoration: none;
 	color: inherit;
@@ -250,7 +250,7 @@
 	justify-content: center;
 	border-radius: 50%;
 	background: var( --wcb-primary, #4f46e5 );
-	color: var(--wcb-base, #ffffff);
+	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 	font-size: var(--wcb-text-md);
 }
@@ -265,12 +265,12 @@
 
 .wcb-welcome-step__title {
 	font-weight: var(--wcb-font-semibold);
-	color: var( --wcb-text, #111827 );
+	color: var( --wcb-contrast );
 }
 
 .wcb-welcome-step__desc {
 	font-size: var(--wcb-text-base);
-	color: var( --wcb-muted, #6b7280 );
+	color: var( --wcb-muted );
 	line-height: 1.4;
 }
 
@@ -291,7 +291,7 @@
 .wcb-privacy-panel { margin-top: var( --wcb-space-md, 16px ); }
 
 .wcb-privacy-desc {
-	color: var( --wcb-muted, #6b7280 );
+	color: var( --wcb-muted );
 	font-size: var(--wcb-text-base);
 	line-height: 1.5;
 	margin: 0 0 var( --wcb-space-md, 16px ) 0;
@@ -309,7 +309,7 @@
 .wcb-cbtn--danger {
 	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger-border, #fecaca);
-	background: var(--wcb-base, #ffffff);
+	background: var(--wcb-base);
 }
 
 .wcb-cbtn--danger:hover,

@@ -138,6 +138,20 @@ if [ "$MODE" = "dry-run" ]; then
 	exit 0
 fi
 
+# --- pre-flight: every journey REST route must resolve to a registered route ---
+# Drift gate (bin/check-journey-routes.php). Needs the live REST server, so it
+# runs only when wp-cli is available; skipped with a warning otherwise so offline
+# listing still works.
+if command -v wp >/dev/null 2>&1; then
+	echo "Pre-flight: validating journey REST routes against registered routes…"
+	if ! wp eval-file "$ROOT/bin/check-journey-routes.php"; then
+		echo "FAIL: a journey references a route the plugin does not register (see above)." >&2
+		exit 1
+	fi
+else
+	echo "WARN: wp-cli not found — skipping journey REST-route validation." >&2
+fi
+
 # --- actual execution ---
 # A journey runner is a Sonnet sub-agent dispatch. The framework here
 # prints the prompt template; the calling Claude Code session wraps the

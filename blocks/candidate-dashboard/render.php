@@ -19,7 +19,7 @@ if ( ! is_user_logged_in() ) {
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ); ?></p>
-		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-db-btn wcb-db-btn--primary">
+		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
 	<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
 		</a>
 	</div>

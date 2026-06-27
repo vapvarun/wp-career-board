@@ -16,7 +16,7 @@ if ( ! is_user_logged_in() ) {
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'Please sign in to access your dashboard.', 'wp-career-board' ); ?></p>
-		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-db-btn wcb-db-btn--primary">
+		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
 	<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
 		</a>
 	</div>
@@ -31,12 +31,12 @@ if ( ! $wcb_can_manage ) {
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ); ?></p>
 	<?php if ( $wcb_emp_reg_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-db-btn wcb-db-btn--primary">
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-btn wcb-btn--primary">
 		<?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?>
 		</a>
 	<?php endif; ?>
 	<?php if ( $wcb_cand_dash_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_cand_dash_page ) ); ?>" class="wcb-db-btn">
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_cand_dash_page ) ); ?>" class="wcb-btn wcb-btn--secondary">
 		<?php esc_html_e( 'Go to Candidate Dashboard', 'wp-career-board' ); ?>
 		</a>
 	<?php endif; ?>
@@ -428,7 +428,7 @@ wp_interactivity_state(
 					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Welcome! Let\'s get you set up.', 'wp-career-board' ); ?></p>
 					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Create your company profile to start posting jobs and receiving applications.', 'wp-career-board' ); ?></p>
 				</div>
-				<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.noJobs">
@@ -436,7 +436,7 @@ wp_interactivity_state(
 					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Your company is ready.', 'wp-career-board' ); ?></p>
 					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Post your first job to start receiving applications.', 'wp-career-board' ); ?></p>
 				</div>
-				<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
 			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
@@ -550,14 +550,14 @@ wp_interactivity_state(
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noCompany">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'Set up your company profile first before posting jobs.', 'wp-career-board' ); ?></p>
-				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
 			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobs">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'No jobs posted yet.', 'wp-career-board' ); ?></p>
-				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs">
@@ -608,7 +608,7 @@ wp_interactivity_state(
 
 			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobSelected">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'Select a job above to view its applications.', 'wp-career-board' ); ?></p>
-				<button type="button" class="wcb-db-btn wcb-db-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-apps-layout-toggle" role="tablist" data-wp-class--wcb-shown="state.hasApplications">
@@ -881,7 +881,7 @@ wp_interactivity_state(
 					<div class="wcb-profile-actions">
 						<p class="wcb-db-save-success wcb-icon-label" data-wp-class--wcb-shown="state.saved"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Profile saved successfully.', 'wp-career-board' ); ?></p>
 						<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
-						<button type="button" class="wcb-db-btn wcb-db-btn--primary" data-wp-on--click="actions.saveProfile" data-wp-bind--disabled="state.saving">
+						<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.saveProfile" data-wp-bind--disabled="state.saving">
 							<span data-wp-class--wcb-hidden="state.saving"><?php esc_html_e( 'Save Profile', 'wp-career-board' ); ?></span>
 							<span class="wcb-saving-label" data-wp-class--wcb-shown="state.saving"><?php esc_html_e( 'Saving…', 'wp-career-board' ); ?></span>
 						</button>

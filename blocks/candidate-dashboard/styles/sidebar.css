@@ -24,7 +24,7 @@
 	flex-direction: column;
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border-inline-end: 1px solid var(--wcb-border);
-	padding: var(--wcb-space-xl) 0;
+	padding: var(--wcb-space-3xl) 0;
 }
 
 /* Logo row — also doubles as Overview link when rendered as <button> */
@@ -33,7 +33,7 @@
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-lg) var(--wcb-space-lg);
-	font-size: var(--wcb-text-md);
+	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-text-primary);
 	width: 100%;
@@ -52,7 +52,7 @@
 
 .wcb-sidebar-logo.wcb-nav-active {
 	background: var(--wcb-bg-hover);
-	color: var(--wcb-primary, var(--wp--preset--color--wcb-primary));
+	color: var(--wcb-contrast);
 	border: none;
 }
 

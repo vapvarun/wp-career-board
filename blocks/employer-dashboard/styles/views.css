@@ -828,50 +828,9 @@
 	background: var(--wcb-bg-hover);
 }
 
-/* -- Shared buttons -- */
-.wcb-db-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wcb-space-xs);
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border: none;
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-md);
-	font-weight: var(--wcb-font-semibold);
-	cursor: pointer;
-	text-decoration: none;
-	transition: background var(--wcb-transition-fast);
-	white-space: nowrap;
-}
-
-.wcb-db-btn--primary {
-	background: var(--wcb-primary);
-	color: var(--wcb-base);
-}
-
-.wcb-db-btn--primary:hover {
-	background: var(--wcb-primary-dark);
-	color: var(--wcb-base);
-	border: none;
-	text-decoration: none;
-}
-
-.wcb-db-btn--secondary {
-	background: var(--wcb-bg-hover);
-	color: var(--wcb-contrast);
-}
-
-.wcb-db-btn--secondary:hover {
-	background: var(--wcb-border);
-	color: var(--wcb-contrast);
-	border: none;
-}
-
-.wcb-db-btn:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-}
+/* Dashboard buttons use the canonical .wcb-btn ladder (assets/css/wcb-ui.css).
+   The former per-block .wcb-db-btn duplicate was removed in the design-system
+   consolidation so buttons render identically across every block/page. */
 
 /* -- Job action link buttons -- */
 .wcb-db-link-btn {
@@ -1107,7 +1066,6 @@
 @media (prefers-reduced-motion: reduce) {
 	.wcb-filter-pill,
 	.wcb-job-row,
-	.wcb-db-btn,
 	.wcb-db-link-btn,
 	.wcb-job-search,
 	.wcb-apps-job-search,

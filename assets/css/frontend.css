@@ -20,14 +20,40 @@
  * Classic theme override: set --wcb-primary directly in :root.
  */
 :root {
-	--wcb-primary:      var( --wp--preset--color--wcb-primary,      #2563eb );
-	--wcb-primary-dark: var( --wp--preset--color--wcb-primary-dark, #1d4ed8 );
+	/* Host-theme token adoption (Wbcom standard — see jetonomy
+	   docs/standards/host-theme-color-adoption.md). The accent adopts the
+	   ACTIVE theme's own brand token first so the plugin reads as native and
+	   follows the theme's dark mode for free, then WP theme.json presets, then
+	   the popular page-builder themes, then the plugin's hardcoded brand. Tokens
+	   are mutually exclusive per active theme, so order only sets precedence:
+	     BuddyX / BuddyX Pro 5.1+ -> --bx-color-accent
+	     Reign 8.0+               -> --reign-colors-theme
+	     BuddyNext                -> --brand
+	     "primary"-slug themes    -> --wp--preset--color--primary (TT3, classic)
+	     Astra                    -> --ast-global-color-0
+	     Kadence                  -> --global-palette1
+	     Blocksy                  -> --theme-palette-color-1
+	     GeneratePress / "accent" -> --wp--preset--color--accent */
+	--wcb-primary:      var( --bx-color-accent, var( --reign-colors-theme, var( --brand, var( --wp--preset--color--wcb-primary, var( --wp--preset--color--primary, var( --ast-global-color-0, var( --global-palette1, var( --theme-palette-color-1, var( --wp--preset--color--accent, #2563eb ) ) ) ) ) ) ) ) );
+
+	/* Darker shade for hover/active. Derived from whatever --wcb-primary
+	   resolves to so the hover state always tracks the adopted accent (a
+	   BuddyX red primary must not get a blue hover). Hex fallback first for
+	   browsers without color-mix(). */
+	--wcb-primary-dark: #1d4ed8;
+	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
+
 	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
-	--wcb-base:         var( --wp--preset--color--wcb-base,         #ffffff );
-	--wcb-contrast:     var( --wp--preset--color--wcb-contrast,     #0f172a );
-	--wcb-muted:        var( --wp--preset--color--wcb-muted,        #6b7280 );
-	--wcb-surface:      var( --wp--preset--color--wcb-surface,      #f1f5f9 );
-	--wcb-border:       var( --wp--preset--color--wcb-border,       #e2e8f0 );
+
+	/* Surfaces + text — adopt BuddyX / BuddyX Pro's clean --bx-color-* and
+	   BuddyNext, then WP base/contrast presets, then a neutral default. Per the
+	   standard, non --bx- theme-specific surface/text tokens are NOT auto-adopted
+	   (too varied; risk of clashing with the plugin's card UI). */
+	--wcb-base:         var( --bx-color-bg-elevated, var( --surface, var( --bg, var( --wp--preset--color--wcb-base, var( --wp--preset--color--base, #ffffff ) ) ) ) );
+	--wcb-contrast:     var( --bx-color-fg, var( --text-1,  var( --wp--preset--color--wcb-contrast, var( --wp--preset--color--contrast, #0f172a ) ) ) );
+	--wcb-muted:        var( --bx-color-fg-muted, var( --text-2,  var( --wp--preset--color--wcb-muted,        #6b7280 ) ) );
+	--wcb-surface:      var( --bx-color-bg, var( --canvas,  var( --wp--preset--color--wcb-surface,      #f1f5f9 ) ) );
+	--wcb-border:       var( --bx-color-border, var( --line,    var( --wp--preset--color--wcb-border,       #e2e8f0 ) ) );
 	--wcb-featured:     var( --wp--preset--color--wcb-featured,     #f59e0b );
 }
 
@@ -46,7 +72,9 @@
  * the semantic palette (frontend-tokens.css) in one place.
  */
 html.dark-mode,
-html[data-bx-mode="dark"] {
+html[data-bx-mode="dark"],
+html[data-bn-theme="dark"],
+[data-theme="dark"] {
 	/* Core palette. */
 	--wcb-base:            #1e1f24;
 	--wcb-contrast:        #f1f5f9;
@@ -66,6 +94,23 @@ html[data-bx-mode="dark"] {
 	--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
 	--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
 	--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+
+	/* Soft tints + the primary banner tint — translucent so tinted callouts
+	   (onboarding banner, form-success notice) read as a dark surface, not a
+	   light patch stuck in light mode. */
+	--wcb-success-bg-soft: rgba( 22, 163, 74, 0.15 );
+	--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
+	--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
+	--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+	--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
+	--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+
+	/* Status foreground — lightened so text on the translucent tints stays
+	   legible (was dark-on-dark / invisible before). */
+	--wcb-success-fg:      #4ade80;
+	--wcb-warning-fg:      #fbbf24;
+	--wcb-danger-fg:       #f87171;
+	--wcb-info-fg:         #93c5fd;
 }
 
 /*
@@ -95,6 +140,20 @@ html[data-bx-mode="dark"] {
 		--wcb-warning-bg:      rgba( 217, 119, 6, 0.22 );
 		--wcb-danger-bg:       rgba( 220, 38, 38, 0.22 );
 		--wcb-info-bg:         rgba( 37, 99, 235, 0.22 );
+
+		/* Soft tints + primary banner tint (mirror of the explicit-dark block). */
+		--wcb-success-bg-soft: rgba( 22, 163, 74, 0.15 );
+		--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
+		--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
+		--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+		--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
+		--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+
+		/* Status foreground — lightened for legibility on the translucent tints. */
+		--wcb-success-fg:      #4ade80;
+		--wcb-warning-fg:      #fbbf24;
+		--wcb-danger-fg:       #f87171;
+		--wcb-info-fg:         #93c5fd;
 	}
 }
 

@@ -3,7 +3,7 @@ id: group-jobs-tab-scoped-listing
 priority: critical
 personas: wcbp_p5_candidate
 requires: mu:autologin, buddypress:groups, pro:bp-group-boards, seed:jobs
-last_verified: 2026-05-15
+last_verified: 2026-06-27
 bug_ref: Basecamp 9877872730, 9895174032
 ---
 
@@ -18,7 +18,7 @@ bug_ref: Basecamp 9877872730, 9895174032
 3. As `wcbp_p5_candidate`, navigate to `/groups/<group-a-slug>/jobs/?autologin=wcbp_p5_candidate` → expect HTTP 200.
 4. Confirm exactly ONE job card renders → `document.querySelectorAll('.wcb-job-card').length === 1` AND its title matches Group A's seeded job.
 5. Confirm the active-filter chip reads Group A's name → `document.querySelector('.wcb-active-filter-tag')?.textContent` includes Group A's title.
-6. Confirm the results count text reads "1 of N jobs" where N is the total published count site-wide → `document.body.innerText` contains `1 of` (proves the filter is active, not a result of having only 1 job in the system).
+6. Confirm the results count reflects the scoped result → `document.body.innerText` contains `1 job` (verified 2026-06-27). The proof that the filter is active — not just one job site-wide — is step 4: only Group A's job renders while other published jobs (e.g. Group B's) are excluded.
 7. Navigate to `/groups/<group-b-slug>/jobs/` → repeat the single-card assertion for Group B's job.
 8. tail debug.log diff → expect ZERO new fatal/warning lines.
 

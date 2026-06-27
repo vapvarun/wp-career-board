@@ -3,7 +3,7 @@ id: employer-boards-picker-respects-membership
 priority: critical
 personas: employer.stripe, employer.vercel
 requires: mu:autologin, buddypress:groups, pro:bp-group-boards
-last_verified: 2026-05-15
+last_verified: 2026-06-27
 bug_ref: Basecamp 9877868161
 ---
 
@@ -15,7 +15,7 @@ bug_ref: Basecamp 9877868161
 
 1. Confirm `employer.stripe` is the creator (auto-member) of at least one group ("Acme Engineering") and NOT a member of at least one other group ("Globex Hiring").
 2. As `employer.stripe`, navigate to `/post-a-job/?autologin=employer.stripe` → expect HTTP 200 and the multi-step job form to render.
-3. Inspect the Boards dropdown → `document.querySelectorAll('#wcb-board-picker option')` (or the `[data-wcb-field="boardId"] option` equivalent) returns options whose names INCLUDE every group `employer.stripe` belongs to plus every non-group admin board.
+3. Inspect the Boards dropdown → `document.querySelectorAll('#wcb-board-id option')` (verified selector 2026-06-27) returns options whose names INCLUDE every group `employer.stripe` belongs to plus every non-group admin board (e.g. "Main Board").
 4. Confirm the dropdown does NOT include any group's name that `employer.stripe` is not a member, mod, or admin of → e.g. "Globex Hiring" must be absent.
 5. Repeat steps 2-4 as `employer.vercel` → expect the mirror result: their groups appear, `employer.stripe`'s groups do not.
 6. As any user with `manage_options` (site admin), open the same page → confirm EVERY published board appears in the dropdown (site admin bypass is intentional).

@@ -10,7 +10,7 @@
 	display: flex;
 	gap: 0;
 	min-height: 600px;
-	background: var(--wcb-bg-secondary, #f7f7f5);
+	background: var(--wcb-bg-subtle, #f7f7f5);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-lg, 8px);
 	overflow: hidden;
@@ -21,7 +21,7 @@
 .wcb-settings-sidebar {
 	width: 240px;
 	flex-shrink: 0;
-	background: var(--wcb-bg, #fff);
+	background: var(--wcb-base, #fff);
 	border-right: 1px solid var(--wcb-border, #e2e8f0);
 	padding: 0;
 	overflow-y: auto;
@@ -42,7 +42,7 @@
 	justify-content: center;
 	width: 36px;
 	height: 36px;
-	background: var(--wcb-accent, #2563eb);
+	background: var(--wcb-primary, #2563eb);
 	color: #fff;
 	border-radius: var(--wcb-radius-md, 6px);
 	flex-shrink: 0;
@@ -57,7 +57,7 @@
 	display: block;
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--wcb-text, #1e1e1e);
+	color: var(--wcb-contrast, #1e1e1e);
 	line-height: 1.2;
 }
 
@@ -101,27 +101,27 @@
 }
 
 .wcb-settings-nav-item:hover {
-	color: var(--wcb-text, #1e293b);
-	background: var(--wcb-bg-secondary, #f8fafc);
+	color: var(--wcb-contrast, #1e293b);
+	background: var(--wcb-bg-subtle, #f8fafc);
 	text-decoration: none;
 }
 
 .wcb-settings-nav-item:focus {
 	text-decoration: none;
 	box-shadow: none;
-	outline: 2px solid var(--wcb-accent, #2563eb);
+	outline: 2px solid var(--wcb-primary, #2563eb);
 	outline-offset: -2px;
 }
 
 .wcb-settings-nav-item.is-active {
-	color: var(--wcb-accent, #2563eb);
-	background: var(--wcb-accent-light, #eff6ff);
+	color: var(--wcb-primary, #2563eb);
+	background: var(--wcb-info-bg-soft, #eff6ff);
 	font-weight: 600;
 }
 
 .wcb-settings-nav-item.is-active:hover {
-	background: var(--wcb-accent-light, #eff6ff);
-	color: var(--wcb-accent, #2563eb);
+	background: var(--wcb-info-bg-soft, #eff6ff);
+	color: var(--wcb-primary, #2563eb);
 }
 
 .wcb-settings-nav-item [data-lucide] {
@@ -137,7 +137,7 @@
 }
 
 .wcb-settings-nav-item.is-active [data-lucide] {
-	color: var(--wcb-accent, #2563eb);
+	color: var(--wcb-primary, #2563eb);
 }
 
 .wcb-settings-nav-item .wcb-pro-badge {
@@ -152,7 +152,7 @@
 	flex: 1;
 	min-width: 0;
 	padding: 24px;
-	background: var(--wcb-bg-secondary, #f7f7f5);
+	background: var(--wcb-bg-subtle, #f7f7f5);
 }
 
 /* Sections — only active one visible */

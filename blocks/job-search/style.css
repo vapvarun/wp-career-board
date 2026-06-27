@@ -23,14 +23,14 @@
 	align-items: stretch;
 	gap: 0;
 	border-radius: var(--wcb-radius-lg);
-	border: 1.5px solid var(--wcb-border, #e2e8f0);
+	border: 1.5px solid var(--wcb-border);
 	overflow: hidden;
-	background: var(--wcb-base, #fff);
+	background: var(--wcb-base);
 	transition: border-color var(--wcb-transition-snappy), box-shadow var(--wcb-transition-snappy);
 }
 
 .wcb-search-form:focus-within {
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
@@ -49,7 +49,7 @@
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
-	color: var(--wcb-contrast, #1e293b);
+	color: var(--wcb-contrast);
 	background: transparent;
 	min-width: 0;
 	/* height:auto cancels any theme-set fixed input height so the flex
@@ -59,7 +59,7 @@
 }
 
 [class*="wp-block-wp-career-board"] .wcb-search-input:focus {
-	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 	border: none;
 	box-shadow: none;
@@ -75,7 +75,7 @@
 	justify-content: center;
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-md) var(--wcb-space-xl);
-	background: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary);
 	color: var(--wp--preset--color--wcb-base);
 	border: none;
 	font-size: var(--wcb-text-md);
@@ -96,13 +96,13 @@
 
 .wcb-search-button:hover,
 .wcb-search-button:focus {
-	background: var(--wcb-primary-dark, #1d4ed8);
+	background: var(--wcb-primary-dark);
 	color: var(--wp--preset--color--wcb-base);
 	border: none;
 }
 
 .wcb-search-button:focus-visible {
-	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 }
 
@@ -132,7 +132,7 @@
 	 * on the input. A bare .wcb-search-input (0,1,0) silently loses. */
 	[class*="wp-block-wp-career-board"] .wcb-search-input,
 	[class*="wp-block-wp-career-board"] .wcb-search-input[type=search] {
-		border: 1.5px solid var(--wcb-border, #e2e8f0);
+		border: 1.5px solid var(--wcb-border);
 		border-radius: var(--wcb-radius-md);
 	}
 
