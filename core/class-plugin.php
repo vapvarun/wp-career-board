@@ -57,7 +57,10 @@ final class Plugin {
 	 * @return void
 	 */
 	private function init(): void {
-		load_plugin_textdomain( 'wp-career-board', false, dirname( WCB_BASENAME ) . '/languages' );
+		// Load translations on `init`, not here on `plugins_loaded`. WP 6.7+
+		// emits a _doing_it_wrong notice when a textdomain is loaded before the
+		// init action; hooking at priority 1 keeps us first without tripping it.
+		add_action( 'init', array( $this, 'load_textdomain' ), 1 );
 
 		// WCB\Admin\Settings cache invalidation (U9). The class is resolved by
 		// the autoloader (admin/class-settings.php matches the WCB\Admin\*
@@ -209,6 +212,19 @@ final class Plugin {
 				( new $class() )->register_routes();
 			}
 		}
+	}
+
+	/**
+	 * Load the plugin text domain.
+	 *
+	 * Hooked on `init` (priority 1) rather than called on `plugins_loaded` so
+	 * WP 6.7+ does not flag early translation loading.
+	 *
+	 * @since 1.5.1
+	 * @return void
+	 */
+	public function load_textdomain(): void {
+		load_plugin_textdomain( 'wp-career-board', false, dirname( WCB_BASENAME ) . '/languages' );
 	}
 
 	/**
