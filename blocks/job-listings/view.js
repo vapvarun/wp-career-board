@@ -521,6 +521,21 @@ const { state, actions } = store( 'wcb-job-listings', {
 				//   3. a fetched page that returned 0 jobs.
 				const apiHasMore = Array.isArray( data ) ? true : !! data?.has_more;
 				state.hasMore    = apiHasMore && jobs.length > 0 && state.jobs.length < total;
+
+				// Broadcast the resolved result set so listeners (e.g. the Pro
+				// job-map block) can sync to the actually-visible jobs. The
+				// `wcb:search` event only carries the query/filters — not which
+				// jobs matched — so the map could never narrow its pins from it.
+				document.dispatchEvent(
+					new CustomEvent( 'wcb:results', {
+						detail: {
+							jobIds: state.jobs
+								.map( ( job ) => job.id )
+								.filter( ( id ) => id != null ),
+							total: state.totalCount,
+						},
+					} )
+				);
 			} finally {
 				state.loading = false;
 			}
