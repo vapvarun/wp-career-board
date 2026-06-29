@@ -1,0 +1,6233 @@
+# Copyright (C) 2026 Wbcom Designs
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Career Board 1.5.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-career-board\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-28T17:07:26+00:00\n"
+"PO-Revision-Date: 2026-06-28T17:07:26+00:00\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-career-board\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: wp-career-board.php admin/class-admin-settings.php:756
+#: admin/class-admin.php:72 admin/class-admin.php:350 admin/class-admin.php:356
+#: admin/views/setup-wizard-complete.php:21 admin/views/setup-wizard.php:24
+#: core/class-abilities.php:128 core/class-plugin.php:498
+#: integrations/reign/class-reign-integration.php:79
+#: modules/gdpr/class-gdpr-module.php:48 modules/gdpr/class-gdpr-module.php:64
+#. Plugin Name of the plugin
+msgid "WP Career Board"
+msgstr "WP Career Board"
+
+#: wp-career-board.php
+#. Plugin URI of the plugin
+msgid "https://store.wbcomdesigns.com/wp-career-board/"
+msgstr "https://store.wbcomdesigns.com/wp-career-board/"
+
+#: wp-career-board.php
+#. Description of the plugin
+msgid "The community-powered job board for WordPress."
+msgstr "Das von der Gemeinschaft betriebene Jobboard für WordPress."
+
+#: wp-career-board.php
+#. Author of the plugin
+msgid "Wbcom Designs"
+msgstr "Wbcom Designs"
+
+#: wp-career-board.php
+#. Author URI of the plugin
+msgid "https://wbcomdesigns.com"
+msgstr "https://wbcomdesigns.com"
+
+#: admin/class-admin-applications.php:46
+msgid "application"
+msgstr "Bewerbung"
+
+#: admin/class-admin-applications.php:47
+msgid "applications"
+msgstr "Bewerbungen"
+
+#: admin/class-admin-applications.php:69 admin/class-admin-applications.php:74
+#: admin/class-admin-candidates.php:112 admin/class-admin.php:95
+#: admin/class-admin.php:96 admin/class-admin.php:435
+#: blocks/candidate-dashboard/render.php:458
+#: blocks/employer-dashboard/render.php:266
+#: blocks/employer-dashboard/render.php:279
+#: blocks/employer-dashboard/render.php:337
+#: blocks/employer-dashboard/render.php:590
+#: modules/applications/class-applications-module.php:66
+msgid "Applications"
+msgstr "Bewerbungen"
+
+#: admin/class-admin-applications.php:76
+msgid ""
+"Review candidate applications, update statuses, and manage your hiring "
+"pipeline."
+msgstr ""
+"Überprüfe Bewerbungen von Kandidaten, aktualisiere Status und verwalte "
+"deine Einstellungspipeline."
+
+#: admin/class-admin-applications.php:90 admin/class-admin-applications.php:94
+msgid "Search Applications"
+msgstr "Bewerbungen durchsuchen"
+
+#: admin/class-admin-applications.php:92
+msgid "Search applications"
+msgstr "Bewerbungen durchsuchen"
+
+#: admin/class-admin-applications.php:93
+msgid "Job title or candidate name…"
+msgstr "Jobtitel oder Kandidatenname…"
+
+#: admin/class-admin-applications.php:114
+msgid "Select all applications"
+msgstr "Alle Bewerbungen auswählen"
+
+#: admin/class-admin-applications.php:115 core/class-roles.php:66
+#: integrations/buddypress/class-bp-integration.php:63
+msgid "Candidate"
+msgstr "Kandidat"
+
+#: admin/class-admin-applications.php:116
+#: modules/applications/widgets/class-applicant-card.php:112
+#: modules/gdpr/class-gdpr-module.php:135
+#: modules/jobs/class-jobs-module.php:198
+msgid "Job"
+msgstr "Job"
+
+#: admin/class-admin-applications.php:117
+#: admin/class-admin-applications.php:652 admin/class-admin-companies.php:116
+#: admin/class-admin-employers.php:114 admin/class-admin-jobs.php:108
+#: admin/class-admin-meta-boxes.php:136 admin/class-email-settings.php:305
+#: admin/class-email-settings.php:327 admin/views/setup-wizard-complete.php:32
+#: modules/applications/widgets/class-status-changer.php:98
+#: modules/applications/widgets/class-status-timeline.php:82
+#: modules/gdpr/class-gdpr-module.php:139
+msgid "Status"
+msgstr "Status"
+
+#: admin/class-admin-applications.php:118
+#: modules/applications/widgets/class-status-changer.php:43
+msgid "Change Status"
+msgstr "Status ändern"
+
+#: admin/class-admin-applications.php:119 admin/class-admin-companies.php:117
+#: admin/class-admin-jobs.php:112 admin/views/jobs-list.php:30
+#: admin/views/jobs-list.php:76
+msgid "Date"
+msgstr "Datum"
+
+#: admin/class-admin-applications.php:143
+msgid "Mark as Reviewing"
+msgstr "Zur Überprüfung markieren"
+
+#: admin/class-admin-applications.php:144
+msgid "Mark as Shortlisted"
+msgstr "Zur Shortlist hinzufügen"
+
+#: admin/class-admin-applications.php:145
+msgid "Mark as Rejected"
+msgstr "Als abgelehnt markieren"
+
+#: admin/class-admin-applications.php:146
+msgid "Mark as Hired"
+msgstr "Als eingestellt markieren"
+
+#: admin/class-admin-applications.php:147
+msgid "Export to CSV"
+msgstr "In CSV exportieren"
+
+#: admin/class-admin-applications.php:148 admin/class-admin-companies.php:142
+#: admin/class-admin-jobs.php:147
+msgid "Move to Trash"
+msgstr "In den Papierkorb verschieben"
+
+#: admin/class-admin-applications.php:301 admin/class-admin-candidates.php:186
+#: admin/class-admin-companies.php:233 admin/class-admin-employers.php:259
+#: admin/class-admin-jobs.php:256 blocks/employer-dashboard/render.php:537
+#: blocks/employer-dashboard/render.php:621
+msgid "All"
+msgstr "Alle"
+
+#: admin/class-admin-applications.php:351
+msgid "No applications found"
+msgstr "Keine Bewerbungen gefunden"
+
+#: admin/class-admin-applications.php:352
+msgid ""
+"Applications appear here once candidates apply to your jobs. Try adjusting "
+"the search or status filter above."
+msgstr ""
+"Bewerbungen erscheinen hier, sobald Kandidaten sich auf deine Jobs "
+"bewerben. Versuche, die Suche oder den Statusfilter oben anzupassen."
+
+#: admin/class-admin-applications.php:373
+msgid "Select application"
+msgstr "Bewerbung auswählen"
+
+#: admin/class-admin-applications.php:393 admin/class-admin-candidates.php:291
+#: admin/class-admin-companies.php:333 admin/class-admin-employers.php:438
+#: admin/class-admin-jobs.php:390 admin/views/jobs-list.php:44
+#: admin/views/jobs-list.php:89 blocks/candidate-dashboard/render.php:839
+msgid "View"
+msgstr "Ansicht"
+
+#: admin/class-admin-applications.php:401
+msgid "(unknown)"
+msgstr "(unbekannt)"
+
+#: admin/class-admin-applications.php:402
+#: modules/notifications/emails/class-email-app-guest.php:90
+#: modules/notifications/emails/class-email-app-received.php:91
+#: modules/notifications/emails/class-email-app-received.php:94
+msgid "Guest"
+msgstr "Gast"
+
+#: admin/class-admin-applications.php:409
+msgid "Email Guest"
+msgstr "E-Mail an Gast"
+
+#: admin/class-admin-applications.php:416
+#: admin/class-admin-applications.php:481 admin/class-admin.php:524
+#: admin/class-admin.php:525
+msgid "(deleted)"
+msgstr "(gelöscht)"
+
+#: admin/class-admin-applications.php:432
+msgid "Email Candidate"
+msgstr "E-Mail an Kandidat"
+
+#: admin/class-admin-applications.php:442 admin/class-admin-companies.php:240
+#: admin/class-admin-companies.php:343 admin/class-admin-companies.php:461
+#: admin/class-admin-jobs.php:266 admin/class-admin-jobs.php:457
+#: admin/class-admin-jobs.php:500
+msgid "Trash"
+msgstr "Papierkorb"
+
+#: admin/class-admin-applications.php:453 admin/class-admin-companies.php:354
+#: admin/class-admin-jobs.php:468
+msgid "Restore"
+msgstr "Wiederherstellen"
+
+#: admin/class-admin-applications.php:527
+#: blocks/employer-dashboard/render.php:686
+msgid "Change application status"
+msgstr "Bewerbungsstatus ändern"
+
+#: admin/class-admin-applications.php:647
+msgid "ID"
+msgstr "ID"
+
+#: admin/class-admin-applications.php:648
+msgid "Job ID"
+msgstr "Job-ID"
+
+#: admin/class-admin-applications.php:649 blocks/job-form-simple/render.php:299
+#: blocks/job-form/render.php:442
+msgid "Job Title"
+msgstr "Jobtitel"
+
+#: admin/class-admin-applications.php:650
+msgid "Applicant Name"
+msgstr "Bewerbername"
+
+#: admin/class-admin-applications.php:651
+msgid "Applicant Email"
+msgstr "Bewerber-E-Mail"
+
+#: admin/class-admin-applications.php:653
+#: blocks/employer-dashboard/render.php:289
+#: blocks/employer-dashboard/render.php:687
+#: modules/applications/class-application-status.php:74
+#: modules/applications/widgets/class-status-timeline.php:128
+#: modules/gdpr/class-gdpr-module.php:143
+msgid "Submitted"
+msgstr "Eingereicht"
+
+#: admin/class-admin-applications.php:654
+#: blocks/employer-dashboard/render.php:701 blocks/job-single/render.php:985
+#: modules/applications/widgets/class-cover-letter.php:43
+msgid "Cover Letter"
+msgstr "Anschreiben"
+
+#: admin/class-admin-applications.php:655
+msgid "Resume URL"
+msgstr "Lebenslauf-URL"
+
+#: admin/class-admin-candidates.php:37
+msgid "candidate"
+msgstr "Kandidat"
+
+#: admin/class-admin-candidates.php:38
+msgid "candidates"
+msgstr "Kandidaten"
+
+#: admin/class-admin-candidates.php:58 admin/class-admin-candidates.php:63
+#: admin/class-admin.php:105 admin/class-admin.php:106
+#: admin/class-admin.php:445 blocks/job-stats/render.php:38
+#: integrations/buddypress/class-bp-integration.php:62
+msgid "Candidates"
+msgstr "Kandidaten"
+
+#: admin/class-admin-candidates.php:65
+msgid "View registered candidates, their applications, and profile visibility."
+msgstr "Registrierte Kandidaten, ihre Bewerbungen und Profilsichtbarkeit anzeigen."
+
+#: admin/class-admin-candidates.php:70 admin/class-admin-companies.php:71
+#: admin/class-admin-employers.php:70 admin/class-admin-jobs.php:76
+#: admin/views/jobs-list.php:20
+msgid "Add New"
+msgstr "Neu hinzufügen"
+
+#: admin/class-admin-candidates.php:85 admin/class-admin-candidates.php:89
+msgid "Search Candidates"
+msgstr "Kandidaten durchsuchen"
+
+#: admin/class-admin-candidates.php:87
+msgid "Search candidates"
+msgstr "Kandidaten durchsuchen"
+
+#: admin/class-admin-candidates.php:88
+msgid "Name or email…"
+msgstr "Name oder E-Mail…"
+
+#: admin/class-admin-candidates.php:109
+msgid "Select all candidates"
+msgstr "Alle Kandidaten auswählen"
+
+#: admin/class-admin-candidates.php:110 admin/class-admin-employers.php:110
+msgid "Name"
+msgstr "Name"
+
+#: admin/class-admin-candidates.php:111
+msgid "Profile Visibility"
+msgstr "Profilsichtbarkeit"
+
+#: admin/class-admin-candidates.php:113
+msgid "Bookmarks"
+msgstr "Lesezeichen"
+
+#: admin/class-admin-candidates.php:114 admin/class-admin-employers.php:115
+msgid "Registered"
+msgstr "Registriert"
+
+#: admin/class-admin-candidates.php:139
+#: blocks/candidate-dashboard/render.php:862
+#: blocks/candidate-dashboard/render.php:944
+msgid "Delete"
+msgstr "Löschen"
+
+#: admin/class-admin-candidates.php:157
+msgid "No candidates yet"
+msgstr "Noch keine Kandidaten"
+
+#: admin/class-admin-candidates.php:158
+msgid ""
+"Candidates register on the frontend and appear here once they create an "
+"account."
+msgstr ""
+"Kandidaten registrieren sich im Frontend und erscheinen hier, sobald sie "
+"ein Konto erstellen."
+
+#: admin/class-admin-candidates.php:262
+msgid "Select candidate"
+msgstr "Kandidat auswählen"
+
+#: admin/class-admin-candidates.php:286 admin/class-admin-companies.php:325
+#: admin/class-admin-employers.php:433 admin/class-admin-jobs.php:382
+#: admin/views/jobs-list.php:42 admin/views/jobs-list.php:87
+#: blocks/candidate-dashboard/render.php:845
+#: blocks/employer-dashboard/render.php:576
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: admin/class-admin-companies.php:37 core/class-archive-context.php:132
+msgid "company"
+msgstr "Unternehmen"
+
+#: admin/class-admin-companies.php:38 core/class-archive-context.php:133
+msgid "companies"
+msgstr "Unternehmen"
+
+#: admin/class-admin-companies.php:59 admin/class-admin-companies.php:64
+#: admin/class-admin-settings.php:318 admin/class-admin-settings.php:734
+#: admin/class-admin.php:114 admin/class-admin.php:115
+#: admin/class-setup-wizard.php:427 blocks/job-stats/render.php:30
+#: modules/employers/class-employers-module.php:203
+msgid "Companies"
+msgstr "Unternehmen"
+
+#: admin/class-admin-companies.php:66
+msgid "Manage company profiles, trust levels, and employer associations."
+msgstr "Unternehmensprofile, Vertrauensstufen und Arbeitgeber-Zuordnungen verwalten."
+
+#: admin/class-admin-companies.php:86 admin/class-admin-companies.php:90
+msgid "Search Companies"
+msgstr "Unternehmen durchsuchen"
+
+#: admin/class-admin-companies.php:88 blocks/company-archive/render.php:224
+msgid "Search companies"
+msgstr "Unternehmen durchsuchen"
+
+#: admin/class-admin-companies.php:89
+msgid "Company name…"
+msgstr "Unternehmensname…"
+
+#: admin/class-admin-companies.php:110
+msgid "Select all companies"
+msgstr "Alle Unternehmen auswählen"
+
+#: admin/class-admin-companies.php:111 blocks/employer-dashboard/render.php:756
+#: blocks/employer-registration/render.php:200
+msgid "Company Name"
+msgstr "Unternehmensname"
+
+#: admin/class-admin-companies.php:112 core/class-roles.php:46
+#: integrations/buddypress/class-bp-integration.php:53
+msgid "Employer"
+msgstr "Arbeitgeber"
+
+#: admin/class-admin-companies.php:113 admin/class-admin-employers.php:112
+#: blocks/company-profile/render.php:212 blocks/company-profile/render.php:284
+#: blocks/employer-dashboard/render.php:825
+msgid "Website"
+msgstr "Website"
+
+#: admin/class-admin-companies.php:114 admin/class-admin-employers.php:113
+#: admin/class-admin.php:430 blocks/employer-dashboard/render.php:509
+msgid "Active Jobs"
+msgstr "Aktive Stellen"
+
+#: admin/class-admin-companies.php:115 admin/class-admin-meta-boxes.php:554
+msgid "Trust Level"
+msgstr "Vertrauensstufe"
+
+#: admin/class-admin-companies.php:238 admin/class-admin-companies.php:459
+#: admin/class-admin-jobs.php:261 admin/class-admin-jobs.php:495
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: admin/class-admin-companies.php:239 admin/class-admin-companies.php:460
+#: admin/class-admin-jobs.php:263 admin/class-admin-jobs.php:497
+#: blocks/employer-dashboard/render.php:539
+msgid "Draft"
+msgstr "Entwurf"
+
+#: admin/class-admin-companies.php:274
+msgid "No companies yet"
+msgstr "Noch keine Unternehmen"
+
+#: admin/class-admin-companies.php:275
+msgid ""
+"Company profiles are created when employers complete their profile on the "
+"employer dashboard."
+msgstr ""
+"Unternehmensprofile werden erstellt, wenn Arbeitgeber ihr Profil im "
+"Arbeitgeber-Dashboard ausfüllen."
+
+#: admin/class-admin-companies.php:277
+msgid "Add Company"
+msgstr "Unternehmen hinzufügen"
+
+#: admin/class-admin-companies.php:299
+msgid "Select company"
+msgstr "Unternehmen auswählen"
+
+#: admin/class-admin-companies.php:361 admin/class-admin-jobs.php:475
+msgid "Delete Permanently"
+msgstr "Dauerhaft löschen"
+
+#: admin/class-admin-companies.php:491
+msgid " -  None  - "
+msgstr " -  Keine  - "
+
+#: admin/class-admin-companies.php:492
+#: api/endpoints/class-companies-endpoint.php:415
+#: api/endpoints/class-jobs-endpoint.php:1372
+#: blocks/company-archive/render.php:97 blocks/company-archive/render.php:349
+#: blocks/company-profile/render.php:59 blocks/job-listings/render.php:182
+#: blocks/job-listings/render.php:737 blocks/job-single/render.php:116
+msgid "Verified"
+msgstr "Verifiziert"
+
+#: admin/class-admin-companies.php:493
+#: api/endpoints/class-companies-endpoint.php:419
+#: api/endpoints/class-jobs-endpoint.php:1376
+#: blocks/company-archive/render.php:98 blocks/company-profile/render.php:63
+#: blocks/job-listings/render.php:183 blocks/job-single/render.php:120
+msgid "Trusted"
+msgstr "Vertrauenswürdig"
+
+#: admin/class-admin-companies.php:494
+#: api/endpoints/class-companies-endpoint.php:423
+#: api/endpoints/class-jobs-endpoint.php:1380
+#: blocks/company-archive/render.php:99 blocks/company-profile/render.php:67
+#: blocks/job-listings/render.php:184 blocks/job-single/render.php:124
+msgid "Premium"
+msgstr "Premium"
+
+#: admin/class-admin-companies.php:500
+msgid "Change trust level"
+msgstr "Vertrauensstufe ändern"
+
+#: admin/class-admin-employers.php:37
+msgid "employer"
+msgstr "Arbeitgeber"
+
+#: admin/class-admin-employers.php:38
+msgid "employers"
+msgstr "Arbeitgeber"
+
+#: admin/class-admin-employers.php:58 admin/class-admin-employers.php:63
+#: admin/class-admin.php:124 admin/class-admin.php:125
+#: admin/class-admin.php:440
+#: integrations/buddypress/class-bp-integration.php:52
+msgid "Employers"
+msgstr "Arbeitgeber"
+
+#: admin/class-admin-employers.php:65
+msgid "View employer accounts, their companies, active job listings, and activity."
+msgstr ""
+"Zeige Arbeitgeber-Konten, ihre Unternehmen, aktive Stellenangebote und "
+"Aktivitäten an."
+
+#: admin/class-admin-employers.php:85 admin/class-admin-employers.php:89
+msgid "Search Employers"
+msgstr "Arbeitgeber durchsuchen"
+
+#: admin/class-admin-employers.php:87
+msgid "Search employers"
+msgstr "Arbeitgeber durchsuchen"
+
+#: admin/class-admin-employers.php:88
+msgid "Name, email, or company…"
+msgstr "Name, E-Mail oder Unternehmen…"
+
+#: admin/class-admin-employers.php:109
+msgid "Select all employers"
+msgstr "Alle Arbeitgeber auswählen"
+
+#: admin/class-admin-employers.php:111 admin/class-admin-jobs.php:110
+#: admin/class-admin-meta-boxes.php:316
+#: modules/employers/class-employers-module.php:204
+#: modules/jobs/class-jobs-module.php:114
+msgid "Company"
+msgstr "Unternehmen"
+
+#: admin/class-admin-employers.php:140 admin/class-admin-employers.php:460
+msgid "Ban"
+msgstr "Sperren"
+
+#: admin/class-admin-employers.php:141 admin/class-admin-employers.php:460
+msgid "Unban"
+msgstr "Entsperren"
+
+#: admin/class-admin-employers.php:204
+msgid "Banned"
+msgstr "Gesperrt"
+
+#: admin/class-admin-employers.php:209
+msgid "Active"
+msgstr "Aktiv"
+
+#: admin/class-admin-employers.php:227
+msgid "No employers yet"
+msgstr "Noch keine Arbeitgeber"
+
+#: admin/class-admin-employers.php:228
+msgid ""
+"Employers are users with the Employer role. Invite them via the Add New "
+"button above or let them self-register from the frontend."
+msgstr ""
+"Arbeitgeber sind Benutzer mit der Arbeitgeber-Rolle. Du kannst sie über die "
+"Schaltfläche 'Neu hinzufügen' oben einladen oder von der Frontend-Seite aus "
+"selbst registrieren lassen."
+
+#: admin/class-admin-employers.php:230
+msgid "Add Employer"
+msgstr "Arbeitgeber hinzufügen"
+
+#: admin/class-admin-employers.php:409
+msgid "Select employer"
+msgstr "Arbeitgeber auswählen"
+
+#: admin/class-admin-import.php:44
+msgid ""
+"Each migration is safe to run multiple times  -  already-imported records "
+"are automatically skipped."
+msgstr ""
+"Jede Migration kann mehrmals sicher ausgeführt werden  -  bereits "
+"importierte Datensätze werden automatisch übersprungen."
+
+#: admin/class-admin-import.php:55
+msgid "WP Job Manager → Jobs"
+msgstr "WP Job Manager → Jobs"
+
+#: admin/class-admin-import.php:58 admin/class-admin-import.php:154
+msgid "Plugin active"
+msgstr "Plugin aktiv"
+
+#: admin/class-admin-import.php:60 admin/class-admin-import.php:156
+msgid "Plugin not active"
+msgstr "Plugin nicht aktiv"
+
+#: admin/class-admin-import.php:65
+msgid ""
+"Migrates job_listing posts to wcb_job. No data is lost  -  all fields are "
+"preserved."
+msgstr ""
+"Migriert job_listing-Beiträge zu wcb_job. Keine Daten gehen verloren  -  "
+"alle Felder bleiben erhalten."
+
+#: admin/class-admin-import.php:69 admin/class-admin-import.php:165
+#: admin/class-admin-import.php:254
+msgid "Fields covered:"
+msgstr "Erfasste Felder:"
+
+#: admin/class-admin-import.php:75
+msgid "Title & description"
+msgstr "Titel & Beschreibung"
+
+#: admin/class-admin-import.php:76 admin/class-admin-import.php:174
+#: admin/class-admin-import.php:263 blocks/candidate-dashboard/render.php:990
+#: blocks/job-filters/render.php:115 blocks/job-form-simple/render.php:371
+#: blocks/job-form/render.php:748 blocks/job-listings/render.php:583
+#: blocks/job-search-hero/render.php:108 blocks/job-single/render.php:567
+#: modules/jobs/class-jobs-module.php:119 blocks/job-listings/index.js:21
+msgid "Location"
+msgstr "Standort"
+
+#: admin/class-admin-import.php:77
+msgid "Salary (min/max)"
+msgstr "Gehalt (min/max)"
+
+#: admin/class-admin-import.php:78
+msgid "Currency & pay type"
+msgstr "Währung & Zahlungstyp"
+
+#: admin/class-admin-import.php:79
+msgid "Deadline / duration"
+msgstr "Frist / Dauer"
+
+#: admin/class-admin-import.php:80 admin/class-admin-import.php:178
+#: admin/class-admin-import.php:267
+msgid "Featured flag"
+msgstr "Hervorgehoben"
+
+#: admin/class-admin-import.php:81
+msgid "Remote flag"
+msgstr "Remote-Markierung"
+
+#: admin/class-admin-import.php:82
+msgid "Application email / URL"
+msgstr "Bewerbungs-E-Mail / URL"
+
+#: admin/class-admin-import.php:83
+msgid "Company name, website, tagline, Twitter, logo, video"
+msgstr "Unternehmensname, Website, Slogan, Twitter, Logo, Video"
+
+#: admin/class-admin-import.php:84
+msgid "Filled → closed status"
+msgstr "Gefüllt → geschlossener Status"
+
+#: admin/class-admin-import.php:85
+msgid "Categories & job types"
+msgstr "Kategorien & Jobtypen"
+
+#: admin/class-admin-import.php:96 admin/class-admin-import.php:194
+msgid "found"
+msgstr "gefunden"
+
+#: admin/class-admin-import.php:100 admin/class-admin-import.php:198
+msgid "already imported"
+msgstr "bereits importiert"
+
+#: admin/class-admin-import.php:104 admin/class-admin-import.php:202
+msgid "remaining"
+msgstr "verbleibend"
+
+#: admin/class-admin-import.php:112
+msgid "Import All Jobs"
+msgstr "Alle Jobs importieren"
+
+#: admin/class-admin-import.php:115
+msgid "No jobs found in WP Job Manager."
+msgstr "Keine Jobs in WP Job Manager gefunden."
+
+#: admin/class-admin-import.php:133 admin/class-admin-import.php:231
+#. translators: %s: plugin name
+#, php-format
+msgid "%s is not installed or not active."
+msgstr "%s ist nicht installiert oder nicht aktiviert."
+
+#: admin/class-admin-import.php:151 admin/class-admin-import.php:244
+msgid "WP Job Manager Resumes → Resumes"
+msgstr "WP Job Manager Resumes → Lebensläufe"
+
+#: admin/class-admin-import.php:161 admin/class-admin-import.php:250
+msgid ""
+"Migrates resume posts to wcb_resume. All candidate data is preserved  -  "
+"nothing is lost."
+msgstr ""
+"Migriert Lebensläufe zu wcb_resume. Alle Kandidatendaten werden beibehalten "
+" -  nichts geht verloren."
+
+#: admin/class-admin-import.php:171 admin/class-admin-import.php:260
+msgid "Candidate name & bio"
+msgstr "Kandidatenname & Biografie"
+
+#: admin/class-admin-import.php:172 admin/class-admin-import.php:261
+msgid "Professional title"
+msgstr "Berufsbezeichnung"
+
+#: admin/class-admin-import.php:173 admin/class-admin-import.php:262
+msgid "Contact email"
+msgstr "Kontakt-E-Mail"
+
+#: admin/class-admin-import.php:175 admin/class-admin-import.php:264
+msgid "Photo"
+msgstr "Foto"
+
+#: admin/class-admin-import.php:176 admin/class-admin-import.php:265
+msgid "Video URL"
+msgstr "Video-URL"
+
+#: admin/class-admin-import.php:177 admin/class-admin-import.php:266
+msgid "Resume file"
+msgstr "Lebenslaufdatei"
+
+#: admin/class-admin-import.php:179 admin/class-admin-import.php:268
+msgid "Expiry date"
+msgstr "Ablaufdatum"
+
+#: admin/class-admin-import.php:180 admin/class-admin-import.php:269
+msgid "Education history"
+msgstr "Ausbildungshistorie"
+
+#: admin/class-admin-import.php:181 admin/class-admin-import.php:270
+msgid "Work experience"
+msgstr "Berufserfahrung"
+
+#: admin/class-admin-import.php:182 admin/class-admin-import.php:271
+msgid "Social / website links"
+msgstr "Soziale / Website-Links"
+
+#: admin/class-admin-import.php:183 admin/class-admin-import.php:272
+msgid "Resume categories"
+msgstr "Lebenslaufkategorien"
+
+#: admin/class-admin-import.php:210
+msgid "Import All Resumes"
+msgstr "Alle Lebensläufe importieren"
+
+#: admin/class-admin-import.php:213
+msgid "No resumes found in WP Job Manager Resumes."
+msgstr "Keine Lebensläufe in WP Job Manager Resumes gefunden."
+
+#: admin/class-admin-import.php:246 admin/class-admin-settings.php:665
+#: admin/class-admin-settings.php:789 admin/class-admin-settings.php:802
+#: admin/class-admin-settings.php:803 admin/class-admin.php:359
+msgid "Pro"
+msgstr "Pro"
+
+#: admin/class-admin-import.php:285
+msgid "Get Pro to Unlock"
+msgstr "Hol dir Pro zum Freischalten"
+
+#: admin/class-admin-import.php:288
+msgid "Resume import requires WP Career Board Pro."
+msgstr "Der Lebenslaufimport erfordert WP Career Board Pro."
+
+#: admin/class-admin-job-editor.php:77 blocks/job-form-simple/render.php:317
+#: blocks/job-form/render.php:463
+msgid "Job Description"
+msgstr "Jobbeschreibung"
+
+#: admin/class-admin-job-editor.php:101 blocks/job-form-simple/render.php:330
+#: blocks/job-form/render.php:476
+msgid "Describe the role, responsibilities and requirements…"
+msgstr "Beschreib die Rolle, Verantwortungen und Anforderungen…"
+
+#: admin/class-admin-job-editor.php:109 blocks/job-form-simple/render.php:337
+#: blocks/job-form/render.php:483
+msgid "Job description"
+msgstr "Jobbeschreibung"
+
+#: admin/class-admin-job-editor.php:113
+msgid ""
+"Use the inline toolbar (select text) and the block menu (+) to format - "
+"headings, lists, links, quotes."
+msgstr ""
+"Nutze die Inline-Symbolleiste (Text auswählen) und das Block-Menü (+) zum "
+"Formatieren - Überschriften, Listen, Links, Zitate."
+
+#: admin/class-admin-jobs.php:39 core/class-archive-context.php:113
+msgid "job"
+msgstr "Job"
+
+#: admin/class-admin-jobs.php:40 core/class-archive-context.php:114
+msgid "jobs"
+msgstr "Jobs"
+
+#: admin/class-admin-jobs.php:63 admin/class-admin-jobs.php:68
+#: admin/class-admin.php:84 admin/class-admin.php:85
+#: admin/views/jobs-list.php:16 blocks/job-stats/render.php:22
+#: modules/jobs/class-jobs-module.php:197
+msgid "Jobs"
+msgstr "Jobs"
+
+#: admin/class-admin-jobs.php:70
+msgid "Manage job listings, approve pending submissions, and track active postings."
+msgstr ""
+"Verwalte Joblisten, genehmige ausstehende Einreichungen und verfolge aktive "
+"Beiträge."
+
+#: admin/class-admin-jobs.php:86 blocks/job-listings/render.php:456
+#: blocks/job-search-hero/render.php:76 blocks/job-search-hero/render.php:83
+#: blocks/job-search/render.php:42 blocks/job-search/render.php:49
+msgid "Search jobs"
+msgstr "Jobs durchsuchen"
+
+#: admin/class-admin-jobs.php:87 modules/jobs/class-jobs-module.php:202
+msgid "Search Jobs"
+msgstr "Jobs durchsuchen"
+
+#: admin/class-admin-jobs.php:106
+msgid "Select all jobs"
+msgstr "Alle Jobs auswählen"
+
+#: admin/class-admin-jobs.php:107 admin/views/jobs-list.php:28
+#: admin/views/jobs-list.php:74 blocks/job-alert-card/index.js:18
+#: blocks/similar-companies-card/index.js:18
+msgid "Title"
+msgstr "Titel"
+
+#: admin/class-admin-jobs.php:109
+msgid "Flags"
+msgstr "Flaggen"
+
+#: admin/class-admin-jobs.php:111 admin/views/jobs-list.php:29
+#: admin/views/jobs-list.php:75
+msgid "Author"
+msgstr "Autor"
+
+#: admin/class-admin-jobs.php:137 admin/class-admin-jobs.php:398
+#: admin/class-admin.php:485 admin/class-admin.php:710
+#: admin/views/jobs-list.php:54
+msgid "Approve"
+msgstr "Genehmigen"
+
+#: admin/class-admin-jobs.php:141
+msgid "Dismiss flags"
+msgstr "Flaggen aufheben"
+
+#: admin/class-admin-jobs.php:262 admin/class-admin.php:450
+#: admin/class-admin.php:460 admin/views/jobs-list.php:24
+msgid "Pending Review"
+msgstr "Überprüfung ausstehend"
+
+#: admin/class-admin-jobs.php:264 admin/class-admin-jobs.php:498
+msgid "Expired"
+msgstr "Abgelaufen"
+
+#: admin/class-admin-jobs.php:265 admin/class-admin-jobs.php:499
+#: blocks/employer-dashboard/render.php:541
+msgid "Closed"
+msgstr "Geschlossen"
+
+#: admin/class-admin-jobs.php:301
+msgid "Flagged"
+msgstr "Gekennzeichnet"
+
+#: admin/class-admin-jobs.php:323
+msgid "No jobs found"
+msgstr "Keine Stellen gefunden"
+
+#: admin/class-admin-jobs.php:324
+msgid "Post your first job listing or adjust the filters above."
+msgstr ""
+"Veröffentliche deine erste Stellenausschreibung oder passe die Filter oben "
+"an."
+
+#: admin/class-admin-jobs.php:326 modules/jobs/class-jobs-module.php:199
+msgid "Add New Job"
+msgstr "Neue Stelle hinzufügen"
+
+#: admin/class-admin-jobs.php:348
+msgid "Select job"
+msgstr "Stelle auswählen"
+
+#: admin/class-admin-jobs.php:403 admin/class-admin.php:486
+#: admin/class-admin.php:713 admin/views/jobs-list.php:59
+#: modules/applications/widgets/class-quick-actions.php:110
+msgid "Reject"
+msgstr "Ablehnen"
+
+#: admin/class-admin-jobs.php:426
+msgid "Dismiss flag"
+msgstr "Flagge aufheben"
+
+#: admin/class-admin-jobs.php:443
+msgid "Unpublish"
+msgstr "Veröffentlichung aufheben"
+
+#: admin/class-admin-jobs.php:496 blocks/employer-dashboard/render.php:540
+msgid "Pending"
+msgstr "Ausstehend"
+
+#: admin/class-admin-jobs.php:551
+#. translators: %d: number of reports
+#, php-format
+msgid "%d report"
+msgid_plural "%d reports"
+msgstr[0] "%d Meldung"
+msgstr[1] "%d Meldungen"
+
+#: admin/class-admin-meta-boxes.php:82 blocks/job-form/render.php:517
+#: blocks/job-single/render.php:548
+msgid "Job Details"
+msgstr "Stellendetails"
+
+#: admin/class-admin-meta-boxes.php:91 blocks/company-profile/render.php:250
+msgid "Company Details"
+msgstr "Unternehmensdetails"
+
+#: admin/class-admin-meta-boxes.php:100
+msgid "Social Links"
+msgstr "Social-Media-Links"
+
+#: admin/class-admin-meta-boxes.php:109
+msgid "Trust &amp; Visibility"
+msgstr "Vertrauen &amp; Sichtbarkeit"
+
+#: admin/class-admin-meta-boxes.php:118
+msgid "Rejection Reason"
+msgstr "Ablehnungsgrund"
+
+#: admin/class-admin-meta-boxes.php:127
+#: modules/applications/class-applications-module.php:67
+msgid "Application"
+msgstr "Bewerbung"
+
+#: admin/class-admin-meta-boxes.php:197
+msgid "No rejection reason recorded."
+msgstr "Kein Ablehnungsgrund aufgezeichnet."
+
+#: admin/class-admin-meta-boxes.php:258 blocks/job-form-simple/render.php:425
+#: blocks/job-form/render.php:528
+msgid "Currency"
+msgstr "Währung"
+
+#: admin/class-admin-meta-boxes.php:265
+#. translators: 1: code (USD), 2: symbol ($).
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr "%1$s (%2$s)"
+
+#: admin/class-admin-meta-boxes.php:275 blocks/job-form/render.php:584
+msgid "Per"
+msgstr "Pro"
+
+#: admin/class-admin-meta-boxes.php:277 blocks/job-form-simple/render.php:443
+#: blocks/job-form/render.php:593
+msgid "Year"
+msgstr "Jahr"
+
+#: admin/class-admin-meta-boxes.php:278 blocks/job-form-simple/render.php:444
+#: blocks/job-form/render.php:594
+msgid "Month"
+msgstr "Monat"
+
+#: admin/class-admin-meta-boxes.php:279 blocks/job-form-simple/render.php:445
+#: blocks/job-form/render.php:595
+msgid "Hour"
+msgstr "Stunde"
+
+#: admin/class-admin-meta-boxes.php:283
+msgid "Salary Min"
+msgstr "Mindestgehalt"
+
+#: admin/class-admin-meta-boxes.php:295
+msgid "Salary Max"
+msgstr "Höchstgehalt"
+
+#: admin/class-admin-meta-boxes.php:307 blocks/job-form-simple/render.php:458
+#: blocks/job-form/render.php:624
+msgid "Application Deadline"
+msgstr "Bewerbungsfrist"
+
+#: admin/class-admin-meta-boxes.php:319
+msgid " -  Select a company  - "
+msgstr " -  Wähle ein Unternehmen  - "
+
+#: admin/class-admin-meta-boxes.php:331
+#. translators: %s: URL to add a new company
+#, php-format
+msgid "No companies yet. %s"
+msgstr "Noch keine Unternehmen. %s"
+
+#: admin/class-admin-meta-boxes.php:332
+msgid "Add one"
+msgstr "Einen hinzufügen"
+
+#: admin/class-admin-meta-boxes.php:336
+msgid "Company name"
+msgstr "Unternehmensname"
+
+#: admin/class-admin-meta-boxes.php:336
+msgid "Company name (displayed on listing)"
+msgstr "Unternehmensname (wird in der Anzeige angezeigt)"
+
+#: admin/class-admin-meta-boxes.php:347 blocks/job-form-simple/render.php:454
+#: blocks/job-form/render.php:612
+msgid "Remote-friendly position"
+msgstr "Remote-freundliche Position"
+
+#: admin/class-admin-meta-boxes.php:358
+msgid "Featured listing"
+msgstr "Featured-Anzeige"
+
+#: admin/class-admin-meta-boxes.php:388
+msgid " -  Select Size  - "
+msgstr " -  Wähle Größe  - "
+
+#: admin/class-admin-meta-boxes.php:389 blocks/company-archive/render.php:25
+#: blocks/company-profile/render.php:75
+#: blocks/employer-dashboard/render.php:799
+#: core/class-company-meta-shape.php:59
+msgid "1-10 employees"
+msgstr "1-10 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:390 blocks/company-archive/render.php:26
+#: blocks/company-profile/render.php:76
+#: blocks/employer-dashboard/render.php:800
+#: core/class-company-meta-shape.php:60
+msgid "11-50 employees"
+msgstr "11-50 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:391 blocks/company-archive/render.php:27
+#: blocks/company-profile/render.php:77
+#: blocks/employer-dashboard/render.php:801
+#: core/class-company-meta-shape.php:61
+msgid "51-200 employees"
+msgstr "51-200 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:392 blocks/company-archive/render.php:28
+#: blocks/company-profile/render.php:78
+#: blocks/employer-dashboard/render.php:802
+#: core/class-company-meta-shape.php:62
+msgid "201-500 employees"
+msgstr "201-500 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:393 blocks/company-archive/render.php:29
+#: blocks/company-profile/render.php:79
+#: blocks/employer-dashboard/render.php:803
+#: core/class-company-meta-shape.php:63
+msgid "501-1,000 employees"
+msgstr "501-1.000 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:394 blocks/company-archive/render.php:30
+#: blocks/company-profile/render.php:80
+#: blocks/employer-dashboard/render.php:804
+#: core/class-company-meta-shape.php:64
+msgid "1,001-5,000 employees"
+msgstr "1.001-5.000 Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:395
+msgid "5,001+ employees"
+msgstr "5.001+ Mitarbeiter"
+
+#: admin/class-admin-meta-boxes.php:399
+msgid " -  Select Type  - "
+msgstr " -  Wähle Typ  - "
+
+#: admin/class-admin-meta-boxes.php:400
+#: blocks/employer-dashboard/render.php:836
+msgid "Public Company"
+msgstr "Börsennotiertes Unternehmen"
+
+#: admin/class-admin-meta-boxes.php:401
+#: blocks/employer-dashboard/render.php:837
+msgid "Privately Held"
+msgstr "In Privatbesitz"
+
+#: admin/class-admin-meta-boxes.php:402
+#: blocks/employer-dashboard/render.php:838
+msgid "Self-Employed / Freelance"
+msgstr "Selbstständig / Freiberufler"
+
+#: admin/class-admin-meta-boxes.php:403
+#: blocks/employer-dashboard/render.php:839
+msgid "Non-profit"
+msgstr "Gemeinnützige Organisation"
+
+#: admin/class-admin-meta-boxes.php:404
+#: blocks/employer-dashboard/render.php:840
+msgid "Government Agency"
+msgstr "Behörde"
+
+#: admin/class-admin-meta-boxes.php:405
+#: blocks/employer-dashboard/render.php:841
+msgid "Educational Institution"
+msgstr "Bildungseinrichtung"
+
+#: admin/class-admin-meta-boxes.php:406
+#: blocks/employer-dashboard/render.php:842
+msgid "Partnership"
+msgstr "Partnerschaft"
+
+#: admin/class-admin-meta-boxes.php:418
+msgid "Featured company"
+msgstr "Hervorgehobenes Unternehmen"
+
+#: admin/class-admin-meta-boxes.php:423
+msgid "Tagline / Slogan"
+msgstr "Motto / Slogan"
+
+#: admin/class-admin-meta-boxes.php:429
+msgid "e.g. Building a better future, one product at a time"
+msgstr "z. B. Eine bessere Zukunft aufbauen, ein Produkt aufs Mal"
+
+#: admin/class-admin-meta-boxes.php:431
+msgid "Short company motto shown below the name."
+msgstr "Kurzes Unternehmens-Motto, das unter dem Namen angezeigt wird."
+
+#: admin/class-admin-meta-boxes.php:435
+msgid "Website URL"
+msgstr "Website URL"
+
+#: admin/class-admin-meta-boxes.php:446 blocks/company-archive/render.php:269
+#: blocks/company-profile/render.php:254
+#: blocks/employer-dashboard/render.php:784
+#: blocks/employer-registration/render.php:218 blocks/job-single/render.php:750
+msgid "Industry"
+msgstr "Branche"
+
+#: admin/class-admin-meta-boxes.php:457
+#: blocks/employer-dashboard/render.php:831
+msgid "Company Type"
+msgstr "Unternehmenstyp"
+
+#: admin/class-admin-meta-boxes.php:468
+#: blocks/employer-dashboard/render.php:794
+#: blocks/employer-registration/render.php:229
+msgid "Company Size"
+msgstr "Unternehmensgröße"
+
+#: admin/class-admin-meta-boxes.php:479
+#: blocks/employer-dashboard/render.php:856
+msgid "Founded Year"
+msgstr "Gründungsjahr"
+
+#: admin/class-admin-meta-boxes.php:492
+msgid "Headquarters Location"
+msgstr "Hauptsitz"
+
+#: admin/class-admin-meta-boxes.php:498
+msgid "e.g. San Francisco, CA, USA"
+msgstr "z. B. San Francisco, CA, USA"
+
+#: admin/class-admin-meta-boxes.php:521
+msgid "LinkedIn URL"
+msgstr "LinkedIn URL"
+
+#: admin/class-admin-meta-boxes.php:528
+msgid "X (Twitter) URL"
+msgstr "X (Twitter) URL"
+
+#: admin/class-admin-meta-boxes.php:547
+msgid "None"
+msgstr "Keine"
+
+#: admin/class-admin-meta-boxes.php:548
+msgid "Verified ✓"
+msgstr "Verifiziert ✓"
+
+#: admin/class-admin-meta-boxes.php:549
+msgid "Trusted ★"
+msgstr "Vertrauenswürdig ★"
+
+#: admin/class-admin-meta-boxes.php:550
+msgid "Premium ◆"
+msgstr "Premium ◆"
+
+#: admin/class-admin-meta-boxes.php:562
+msgid "\"Verified\" shows the checkmark badge on job listings."
+msgstr "\"Verifiziert\" zeigt das Häkchen-Abzeichen auf Stellenausschreibungen an."
+
+#: admin/class-admin-settings.php:299 admin/class-setup-wizard.php:84
+msgid "You do not have permission to do this."
+msgstr "Du hast keine Berechtigung, das zu tun."
+
+#: admin/class-admin-settings.php:306 admin/class-admin-settings.php:731
+#: admin/class-setup-wizard.php:423 admin/class-setup-wizard.php:424
+#: core/class-plugin.php:507
+msgid "Find Jobs"
+msgstr "Stellen finden"
+
+#: admin/class-admin-settings.php:310 admin/class-admin-settings.php:732
+#: admin/class-setup-wizard.php:415 core/class-plugin.php:518
+#: integrations/reign/class-reign-integration.php:131
+msgid "Employer Dashboard"
+msgstr "Arbeitgeber-Dashboard"
+
+#: admin/class-admin-settings.php:314 admin/class-admin-settings.php:733
+#: admin/class-setup-wizard.php:419 core/class-plugin.php:525
+msgid "Candidate Dashboard"
+msgstr "Kandidaten-Dashboard"
+
+#: admin/class-admin-settings.php:322 admin/class-admin-settings.php:735
+#: admin/class-admin.php:574 admin/class-setup-wizard.php:431
+#: blocks/employer-dashboard/render.php:268
+#: blocks/employer-dashboard/render.php:332
+#: blocks/employer-dashboard/render.php:408
+msgid "Post a Job"
+msgstr "Stelle ausschreiben"
+
+#: admin/class-admin-settings.php:326 admin/class-setup-wizard.php:411
+msgid "Employer Registration"
+msgstr "Arbeitgeber-Registrierung"
+
+#: admin/class-admin-settings.php:373 admin/class-admin-settings.php:828
+msgid "Job Listings"
+msgstr "Stellenausschreibungen"
+
+#: admin/class-admin-settings.php:374 admin/class-admin-settings.php:976
+msgid "Pages"
+msgstr "Seiten"
+
+#: admin/class-admin-settings.php:375 blocks/candidate-dashboard/render.php:387
+#: blocks/candidate-dashboard/render.php:1118
+#: blocks/employer-dashboard/render.php:401
+#: blocks/employer-dashboard/render.php:1082
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: admin/class-admin-settings.php:376 admin/class-admin.php:651
+msgid "Emails"
+msgstr "E-Mails"
+
+#: admin/class-admin-settings.php:377
+msgid "Import"
+msgstr "Importieren"
+
+#: admin/class-admin-settings.php:378
+msgid "Integrations"
+msgstr "Integrationen"
+
+#: admin/class-admin-settings.php:449
+msgid "Pipeline"
+msgstr "Pipeline"
+
+#: admin/class-admin-settings.php:450 blocks/employer-dashboard/render.php:481
+msgid "Credits"
+msgstr "Credits"
+
+#: admin/class-admin-settings.php:451
+msgid "Field Builder"
+msgstr "Feld-Editor"
+
+#: admin/class-admin-settings.php:452
+msgid "AI Settings"
+msgstr "AI-Einstellungen"
+
+#: admin/class-admin-settings.php:453
+msgid "Job Feed"
+msgstr "Job-Feed"
+
+#: admin/class-admin-settings.php:454
+msgid "Boards"
+msgstr "Boards"
+
+#: admin/class-admin-settings.php:495
+msgid "Sample data installed."
+msgstr "Beispieldaten installiert."
+
+#: admin/class-admin-settings.php:504 admin/class-admin-settings.php:526
+#: admin/class-setup-wizard.php:170
+msgid "Sample Data"
+msgstr "Beispieldaten"
+
+#: admin/class-admin-settings.php:507
+msgid ""
+"Install demo jobs, companies, and candidates so you can explore every "
+"feature. You can remove it again any time."
+msgstr ""
+"Installiere Demo-Jobs, Unternehmen und Kandidaten, um alle Funktionen zu "
+"erkunden. Du kannst sie jederzeit wieder entfernen."
+
+#: admin/class-admin-settings.php:511
+msgid "Install Sample Data"
+msgstr "Beispieldaten installieren"
+
+#: admin/class-admin-settings.php:529
+msgid ""
+"Remove demo jobs, companies, candidates, and unused taxonomy terms created "
+"by the setup wizard or marked as sample."
+msgstr ""
+"Entferne Demo-Jobs, Unternehmen, Kandidaten und ungenutzte "
+"Taxonomie-Begriffe, die vom Setup-Assistenten erstellt oder als Beispiel "
+"markiert wurden."
+
+#: admin/class-admin-settings.php:531 admin/class-admin-settings.php:542
+msgid "Remove Sample Data"
+msgstr "Beispieldaten entfernen"
+
+#: admin/class-admin-settings.php:540
+msgid "Removing…"
+msgstr "Wird entfernt…"
+
+#: admin/class-admin-settings.php:543
+msgid ""
+"Permanently delete all demo jobs, companies, candidates, and unused "
+"taxonomy terms? This cannot be undone."
+msgstr ""
+"Alle Demo-Jobs, Unternehmen, Kandidaten und ungenutzte Taxonomie-Begriffe "
+"permanent löschen? Dies kann nicht rückgängig gemacht werden."
+
+#: admin/class-admin-settings.php:544
+msgid "Delete Sample Data"
+msgstr "Beispieldaten löschen"
+
+#: admin/class-admin-settings.php:545 admin/class-admin.php:716
+#: blocks/candidate-dashboard/render.php:806
+#: blocks/candidate-dashboard/render.php:875 blocks/job-single/render.php:830
+#: core/class-plugin.php:1036
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: admin/class-admin-settings.php:546
+msgid ""
+"Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% "
+"sample candidates, %TERMS% taxonomy terms."
+msgstr ""
+"Entfernt %JOBS% Beispiel-Jobs, %COMPANIES% Beispiel-Unternehmen, "
+"%CANDIDATES% Beispiel-Kandidaten, %TERMS% Taxonomie-Begriffe."
+
+#: admin/class-admin-settings.php:547
+msgid "Nothing to remove - no sample data was found."
+msgstr "Nichts zum Entfernen – es wurden keine Beispieldaten gefunden."
+
+#: admin/class-admin-settings.php:548
+msgid "Could not remove sample data. Please try again."
+msgstr "Beispieldaten konnten nicht entfernt werden. Versuche es bitte erneut."
+
+#: admin/class-admin-settings.php:661
+msgid "General"
+msgstr "Allgemein"
+
+#: admin/class-admin-settings.php:689
+msgid "Career Board Settings"
+msgstr "Career Board-Einstellungen"
+
+#: admin/class-admin-settings.php:693
+msgid "Settings saved."
+msgstr "Einstellungen gespeichert."
+
+#: admin/class-admin-settings.php:712
+msgid "Missing pages created and assigned successfully."
+msgstr "Fehlende Seiten erfolgreich erstellt und zugewiesen."
+
+#: admin/class-admin-settings.php:719
+msgid "Test email sent. Please check your inbox."
+msgstr "Test-E-Mail gesendet. Bitte überprüfe dein Postfach."
+
+#: admin/class-admin-settings.php:723
+msgid "Test email failed. Check your server mail configuration."
+msgstr "Test-E-Mail fehlgeschlagen. Überprüfe deine Server-Mail-Konfiguration."
+
+#: admin/class-admin-settings.php:741
+msgid "Missing pages:"
+msgstr "Fehlende Seiten:"
+
+#: admin/class-admin-settings.php:747
+msgid "Create Missing Pages"
+msgstr "Fehlende Seiten erstellen"
+
+#: admin/class-admin-settings.php:759
+msgid "Career Board settings and configuration"
+msgstr "Career Board-Einstellungen und Konfiguration"
+
+#: admin/class-admin-settings.php:764
+msgid "Run Setup Wizard"
+msgstr "Setup-Assistent ausführen"
+
+#: admin/class-admin-settings.php:777 admin/class-admin.php:73
+msgid "Career Board"
+msgstr "Career Board"
+
+#: admin/class-admin-settings.php:809
+msgid "Requires Pro"
+msgstr "Erfordert Pro"
+
+#: admin/class-admin-settings.php:829
+msgid "Configure job listing behavior and defaults."
+msgstr "Konfiguriere das Verhalten und die Standardeinstellungen für Job-Listen."
+
+#: admin/class-admin-settings.php:833
+msgid "Auto-Publish Jobs"
+msgstr "Jobs automatisch veröffentlichen"
+
+#: admin/class-admin-settings.php:840
+msgid "Publish jobs immediately without admin review"
+msgstr "Veröffentliche Jobs sofort ohne Admin-Überprüfung"
+
+#: admin/class-admin-settings.php:842
+msgid ""
+"When unchecked, new jobs are held as \"Pending\" until approved under "
+"Career Board > Jobs."
+msgstr ""
+"Wenn deaktiviert, werden neue Jobs als \"Ausstehend\" gehalten, bis sie "
+"unter Career Board > Jobs genehmigt werden."
+
+#: admin/class-admin-settings.php:846
+msgid "Jobs Per Page"
+msgstr "Stellenausschreibungen pro Seite"
+
+#: admin/class-admin-settings.php:849
+msgid "Number of job listings shown per page in the job board block. Maximum 100."
+msgstr "Anzahl der Stellenausschreibungen pro Seite im Job-Board-Block. Maximum 100."
+
+#: admin/class-admin-settings.php:853
+msgid "Job Expiry (days)"
+msgstr "Stellenausschreibung Ablaufdatum (Tage)"
+
+#: admin/class-admin-settings.php:856
+msgid ""
+"Default: 30 days. Jobs older than this auto-close. Closing is reversible  - "
+" open the job in admin and republish to extend the lifetime."
+msgstr ""
+"Standard: 30 Tage. Stellenausschreibungen älter als dies schließen sich "
+"automatisch. Das Schließen ist reversibel  -  öffne die "
+"Stellenausschreibung im Admin und veröffentliche sie erneut, um die "
+"Lebensdauer zu verlängern."
+
+#: admin/class-admin-settings.php:860
+msgid "Deadline Auto-Close"
+msgstr "Automatisches Schließen bei Fristablauf"
+
+#: admin/class-admin-settings.php:867
+msgid "Automatically close jobs when their application deadline passes"
+msgstr ""
+"Schließe Stellenausschreibungen automatisch, wenn die Bewerbungsfrist "
+"verstrichen ist"
+
+#: admin/class-admin-settings.php:869
+msgid ""
+"Off by default. Runs hourly via WP-Cron  -  make sure your host has cron "
+"working (DISABLE_WP_CRON should not be set, or wp-cli should run it "
+"externally). Closed jobs remain visible but show \"Applications Closed\" "
+"instead of the apply form."
+msgstr ""
+"Standardmäßig deaktiviert. Läuft stündlich über WP-Cron  -  stelle sicher, "
+"dass dein Host Cron funktioniert (DISABLE_WP_CRON sollte nicht gesetzt sein "
+"oder wp-cli sollte es extern ausführen). Geschlossene "
+"Stellenausschreibungen bleiben sichtbar, zeigen aber \"Bewerbungen "
+"geschlossen\" statt des Bewerbungsformulars."
+
+#: admin/class-admin-settings.php:873
+msgid "Allow Withdraw"
+msgstr "Rückzug erlauben"
+
+#: admin/class-admin-settings.php:880
+msgid "Let candidates withdraw their own applications"
+msgstr "Erlaube Kandidaten, ihre Bewerbungen zurückzuziehen"
+
+#: admin/class-admin-settings.php:882
+msgid ""
+"On by default. Withdrawn applications are removed from the employer's "
+"applicant list. Turn off for boards that want apply-once-final flows "
+"(compliance, regulated hiring)."
+msgstr ""
+"Standardmäßig aktiviert. Eingezogene Bewerbungen werden aus der "
+"Bewerberliste des Arbeitgebers entfernt. Deaktiviere für Job-Boards, die "
+"einmal-endgültige Abläufe wünschen (Compliance, regulierte Einstellung)."
+
+#: admin/class-admin-settings.php:886
+msgid "Default Salary Currency"
+msgstr "Standard-Währung für Gehalt"
+
+#: admin/class-admin-settings.php:894 blocks/job-form-simple/render.php:431
+#: blocks/job-form/render.php:542
+#. translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($).
+#, php-format
+msgid "%1$s  -  %2$s (%3$s)"
+msgstr "%1$s  -  %2$s (%3$s)"
+
+#: admin/class-admin-settings.php:903
+msgid "Site-wide default for new job postings. Employers can override it per job."
+msgstr ""
+"Standardwert für neue Stellenausschreibungen auf der gesamten Website. "
+"Arbeitgeber können dies pro Stellenausschreibung überschreiben."
+
+#: admin/class-admin-settings.php:907
+msgid "Resume Required"
+msgstr "Lebenslauf erforderlich"
+
+#: admin/class-admin-settings.php:914
+msgid "Require applicants to attach a resume"
+msgstr "Verlange, dass Bewerber einen Lebenslauf beifügen"
+
+#: admin/class-admin-settings.php:916
+msgid ""
+"On by default. Turn off only for boards where applicants can apply with a "
+"cover letter alone (e.g. internal job boards, walk-in roles)."
+msgstr ""
+"Standardmäßig aktiviert. Deaktiviere nur für Job-Boards, auf denen Bewerber "
+"sich nur mit einem Anschreiben bewerben können (z. B. interne Job-Boards, "
+"Walk-in-Rollen)."
+
+#: admin/class-admin-settings.php:920
+msgid "Require Candidate Role"
+msgstr "Kandidatenrolle erforderlich"
+
+#: admin/class-admin-settings.php:927
+msgid "Only the Candidate role can apply, bookmark, and use the candidate dashboard"
+msgstr ""
+"Nur die Kandidatenrolle kann sich bewerben, Lesezeichen setzen und das "
+"Kandidaten-Dashboard nutzen"
+
+#: admin/class-admin-settings.php:929
+msgid ""
+"Off by default: any logged-in member can apply and manage a resume (ideal "
+"when the job board is part of a community site). Turn on to reserve the "
+"candidate experience for users with the Candidate role."
+msgstr ""
+"Standardmäßig deaktiviert: Jedes angemeldete Mitglied kann sich bewerben "
+"und einen Lebenslauf verwalten (ideal, wenn das Job-Board Teil einer "
+"Community-Website ist). Aktiviere, um die Kandidaten-Erfahrung für Benutzer "
+"mit der Kandidatenrolle zu reservieren."
+
+#: admin/class-admin-settings.php:933
+msgid "Application Resume File Size (MB)"
+msgstr "Dateigröße des Bewerbungs-Lebenslaufs (MB)"
+
+#: admin/class-admin-settings.php:944
+msgid ""
+"Maximum size of a resume file a candidate uploads when applying to a job "
+"(1-20 MB). Accepted formats: PDF, DOC, DOCX. The resume profile builder "
+"lives under Settings > Resumes."
+msgstr ""
+"Maximale Größe einer Lebenslaufdatei, die ein Kandidat beim Bewerben auf "
+"eine Stellenausschreibung hochlädt (1-20 MB). Akzeptierte Formate: PDF, "
+"DOC, DOCX. Der Lebenslauf-Profil-Generator befindet sich unter "
+"Einstellungen > Lebensläufe."
+
+#: admin/class-admin-settings.php:948
+msgid "Featured Duration (days)"
+msgstr "Dauer der Hervorhebung (Tage)"
+
+#: admin/class-admin-settings.php:959
+msgid ""
+"How many days a job stays in the Featured spotlight before reverting "
+"automatically. Daily cron clears expired flags."
+msgstr ""
+"Wie viele Tage eine Stellenausschreibung hervorgehoben bleibt, bevor die "
+"Hervorhebung automatisch entfernt wird. Täglicher Cron löscht abgelaufene "
+"Flaggen."
+
+#: admin/class-admin-settings.php:965 admin/class-admin-settings.php:1045
+#: admin/class-admin-settings.php:1084
+msgid "Save Changes"
+msgstr "Änderungen speichern"
+
+#: admin/class-admin-settings.php:977
+msgid "Assign the WordPress pages that contain each WP Career Board block."
+msgstr "Weise die WordPress-Seiten zu, die jeden WP Career Board-Block enthalten."
+
+#: admin/class-admin-settings.php:983
+msgid "Jobs Archive Page"
+msgstr "Stellenausschreibungs-Archivseite"
+
+#: admin/class-admin-settings.php:984
+msgid "Contains the wcb/job-listings block. Used as the main job board."
+msgstr "Enthält den wcb/job-listings-Block. Wird als Haupt-Job-Board verwendet."
+
+#: admin/class-admin-settings.php:987
+msgid "Employer Dashboard Page"
+msgstr "Arbeitgeber-Dashboard-Seite"
+
+#: admin/class-admin-settings.php:988
+msgid ""
+"Contains the wcb/employer-dashboard block. Employers manage jobs and "
+"profiles here."
+msgstr ""
+"Enthält den wcb/employer-dashboard-Block. Arbeitgeber verwalten hier "
+"Stellenausschreibungen und Profile."
+
+#: admin/class-admin-settings.php:991
+msgid "Candidate Dashboard Page"
+msgstr "Kandidaten-Dashboard-Seite"
+
+#: admin/class-admin-settings.php:992
+msgid ""
+"Contains the wcb/candidate-dashboard block. Candidates track applications "
+"and saved jobs."
+msgstr ""
+"Enthält den wcb/candidate-dashboard-Block. Kandidaten verfolgen Bewerbungen "
+"und gespeicherte Stellenausschreibungen."
+
+#: admin/class-admin-settings.php:995
+msgid "Company Directory Page"
+msgstr "Unternehmensverzeichnis-Seite"
+
+#: admin/class-admin-settings.php:996
+msgid "Contains the wcb/company-archive block. Lists all employer company profiles."
+msgstr ""
+"Enthält den wcb/company-archive-Block. Listet alle Unternehmensprofile von "
+"Arbeitgebern auf."
+
+#: admin/class-admin-settings.php:999
+msgid "Post a Job Page"
+msgstr "Stellenausschreibung veröffentlichen-Seite"
+
+#: admin/class-admin-settings.php:1000
+msgid "Contains the wcb/job-form block. Employers use this to post new jobs."
+msgstr ""
+"Enthält den wcb/job-form-Block. Arbeitgeber verwenden dies, um neue "
+"Stellenausschreibungen zu veröffentlichen."
+
+#: admin/class-admin-settings.php:1003
+msgid "Employer Registration Page"
+msgstr "Arbeitgeber-Registrierungsseite"
+
+#: admin/class-admin-settings.php:1004
+msgid ""
+"Contains the wcb/employer-registration block. New employers sign up and "
+"gain posting access here."
+msgstr ""
+"Enthält den wcb/employer-registration-Block. Neue Arbeitgeber registrieren "
+"sich hier und erhalten Zugriff auf das Veröffentlichen."
+
+#: admin/class-admin-settings.php:1028
+msgid " -  Select a page  - "
+msgstr " -  Wähle eine Seite  - "
+
+#: admin/class-admin-settings.php:1034
+msgid "View Page →"
+msgstr "Seite anzeigen →"
+
+#: admin/class-admin-settings.php:1056
+msgid "Email Configuration"
+msgstr "E-Mail-Konfiguration"
+
+#: admin/class-admin-settings.php:1057
+msgid "Configure sender details and admin notification address."
+msgstr "Konfiguriere Absenderangaben und Admin-Benachrichtigungsadresse."
+
+#: admin/class-admin-settings.php:1061
+msgid "From Name"
+msgstr "Absender-Name"
+
+#: admin/class-admin-settings.php:1064
+msgid ""
+"Sender name shown on all WCB notification emails. Defaults to your site "
+"name."
+msgstr ""
+"Name des Absenders, der auf allen WCB-Benachrichtigungsmails angezeigt "
+"wird. Standardwert: dein Sitename."
+
+#: admin/class-admin-settings.php:1068
+msgid "From Email"
+msgstr "Absender-E-Mail"
+
+#: admin/class-admin-settings.php:1071
+msgid "Sender address for all WCB emails. Defaults to the site admin email."
+msgstr ""
+"Absenderadresse für alle WCB-E-Mails. Standardwert: Admin-E-Mail deiner "
+"Site."
+
+#: admin/class-admin-settings.php:1075
+msgid "Admin Notification Email"
+msgstr "Admin-Benachrichtigungs-E-Mail"
+
+#: admin/class-admin-settings.php:1078
+msgid ""
+"Where admin alerts (new jobs, flagged content) are sent. Defaults to the "
+"site admin email."
+msgstr ""
+"Wohin Admin-Benachrichtigungen (neue Jobs, gekennzeichnete Inhalte) "
+"gesendet werden. Standardwert: Admin-E-Mail deiner Site."
+
+#: admin/class-admin-settings.php:1128 admin/views/setup-wizard-complete.php:42
+msgid "Re-run Setup Wizard"
+msgstr "Setup-Assistent erneut ausführen"
+
+#: admin/class-admin-settings.php:1132 admin/views/setup-wizard-complete.php:39
+msgid "Back to Dashboard"
+msgstr "Zurück zum Dashboard"
+
+#: admin/class-admin.php:139 blocks/job-single/render.php:517
+#: modules/jobs/class-jobs-module.php:233
+msgid "Job Categories"
+msgstr "Job-Kategorien"
+
+#: admin/class-admin.php:140 modules/jobs/class-jobs-module.php:246
+msgid "Job Types"
+msgstr "Job-Typen"
+
+#: admin/class-admin.php:141
+msgid "Job Locations"
+msgstr "Job-Standorte"
+
+#: admin/class-admin.php:142 modules/jobs/class-jobs-module.php:283
+msgid "Experience Levels"
+msgstr "Erfahrungsstufen"
+
+#: admin/class-admin.php:143 modules/jobs/class-jobs-module.php:259
+msgid "Job Tags"
+msgstr "Job-Tags"
+
+#: admin/class-admin.php:217 admin/class-admin.php:218
+#: admin/class-admin.php:371 admin/class-admin.php:582
+#: blocks/candidate-dashboard/render.php:120
+#: blocks/candidate-dashboard/render.php:380
+#: blocks/employer-dashboard/render.php:394 blocks/featured-jobs/index.js:17
+#: blocks/recent-jobs/index.js:17 blocks/similar-companies-card/index.js:16
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: admin/class-admin.php:362
+msgid "Manage your job board, applications, and hiring pipeline."
+msgstr "Verwalte dein Jobboard, Bewerbungen und deine Bewerbungs-Pipeline."
+
+#: admin/class-admin.php:366
+msgid "Visit Site"
+msgstr "Site besuchen"
+
+#: admin/class-admin.php:380
+msgid "Getting Started"
+msgstr "Erste Schritte"
+
+#: admin/class-admin.php:385
+msgid "Plugin activated"
+msgstr "Plugin aktiviert"
+
+#: admin/class-admin.php:394
+#. translators: 1: pages created count, 2: total pages count
+#, php-format
+msgid "Pages created (%1$d/%2$d)"
+msgstr "Seiten erstellt (%1$d/%2$d)"
+
+#: admin/class-admin.php:401
+msgid "Run Wizard"
+msgstr "Assistent ausführen"
+
+#: admin/class-admin.php:408
+msgid "Add your first job"
+msgstr "Füge deinen ersten Job hinzu"
+
+#: admin/class-admin.php:410
+msgid "+ Add Job"
+msgstr "+ Job hinzufügen"
+
+#: admin/class-admin.php:417
+msgid "Invite an employer"
+msgstr "Lade einen Arbeitgeber ein"
+
+#: admin/class-admin.php:418
+msgid "+ Add User"
+msgstr "+ Benutzer hinzufügen"
+
+#: admin/class-admin.php:463 admin/class-admin.php:504
+#: blocks/candidate-dashboard/render.php:484
+#: blocks/candidate-dashboard/render.php:503
+#: blocks/employer-dashboard/render.php:490 blocks/recent-jobs/render.php:66
+msgid "View all →"
+msgstr "Alle anzeigen →"
+
+#: admin/class-admin.php:465 admin/class-admin.php:506
+msgid "Toggle panel"
+msgstr "Panel umschalten"
+
+#: admin/class-admin.php:472 admin/views/jobs-list.php:66
+msgid "No jobs pending review."
+msgstr "Keine zur Überprüfung anstehenden Jobs."
+
+#: admin/class-admin.php:501 blocks/candidate-dashboard/render.php:483
+#: blocks/employer-dashboard/render.php:489
+msgid "Recent Applications"
+msgstr "Aktuelle Bewerbungen"
+
+#: admin/class-admin.php:513 blocks/candidate-dashboard/render.php:497
+#: blocks/employer-dashboard/render.php:504
+msgid "No applications yet."
+msgstr "Noch keine Bewerbungen."
+
+#: admin/class-admin.php:569
+#: modules/applications/widgets/class-quick-actions.php:43
+msgid "Quick Actions"
+msgstr "Schnellaktionen"
+
+#: admin/class-admin.php:578
+msgid "Add User"
+msgstr "Benutzer hinzufügen"
+
+#: admin/class-admin.php:587 admin/class-setup-wizard.php:135
+#: admin/class-setup-wizard.php:136
+msgid "Setup Wizard"
+msgstr "Setup-Assistent"
+
+#: admin/class-admin.php:602
+msgid "Unlock Pro Features"
+msgstr "Pro-Features freischalten"
+
+#: admin/class-admin.php:603 blocks/employer-dashboard/render.php:452
+msgid "Dismiss"
+msgstr "Schließen"
+
+#: admin/class-admin.php:611
+msgid "Application Pipeline  -  Drag-and-drop Kanban hiring stages"
+msgstr "Bewerbungs-Pipeline  -  Drag-and-Drop Kanban-Einstellungsstufen"
+
+#: admin/class-admin.php:615
+msgid "Resume Builder  -  Candidate resume profiles with rich fields"
+msgstr ""
+"Lebenslauf-Generator  -  Kandidaten-Lebenslauf-Profile mit erweiterten "
+"Feldern"
+
+#: admin/class-admin.php:619
+msgid "AI Job Descriptions  -  Auto-generate job posts with AI"
+msgstr "AI Job-Beschreibungen  -  Job-Posts automatisch mit AI generieren"
+
+#: admin/class-admin.php:623
+msgid "Credits System  -  Sell job post credits via Stripe"
+msgstr "Credits-System  -  Job-Post-Credits über Stripe verkaufen"
+
+#: admin/class-admin.php:630
+msgid "Upgrade to Pro"
+msgstr "Upgrade auf Pro"
+
+#: admin/class-admin.php:708
+msgid "Approve Job"
+msgstr "Stelle genehmigen"
+
+#: admin/class-admin.php:709
+msgid "This job will be published and the employer will be notified."
+msgstr "Diese Stelle wird veröffentlicht und der Arbeitgeber wird benachrichtigt."
+
+#: admin/class-admin.php:711
+msgid "Reject Job"
+msgstr "Stelle ablehnen"
+
+#: admin/class-admin.php:712
+msgid "This job will be moved to Draft and the employer will be notified."
+msgstr ""
+"Diese Stelle wird in den Entwurf verschoben und der Arbeitgeber wird "
+"benachrichtigt."
+
+#: admin/class-admin.php:714
+msgid "Reason (optional):"
+msgstr "Grund (optional):"
+
+#: admin/class-admin.php:715 blocks/candidate-dashboard/render.php:870
+#: core/class-plugin.php:1035
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: admin/class-admin.php:717
+msgid "Could not update. Please try again."
+msgstr "Konnte nicht aktualisiert werden. Bitte versuche es erneut."
+
+#: admin/class-admin.php:748 core/widgets/class-widget-shortcode.php:118
+msgid "Saved."
+msgstr "Gespeichert."
+
+#: admin/class-admin.php:749 core/widgets/class-widget-shortcode.php:119
+msgid "Could not save."
+msgstr "Konnte nicht gespeichert werden."
+
+#: admin/class-email-settings.php:82
+msgid "Sending…"
+msgstr "Wird gesendet…"
+
+#: admin/class-email-settings.php:83 admin/class-email-settings.php:308
+msgid "Sent"
+msgstr "Gesendet"
+
+#: admin/class-email-settings.php:84 admin/class-email-settings.php:309
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#: admin/class-email-settings.php:85
+msgid "No emails logged for the current filters."
+msgstr "Keine E-Mails für die aktuellen Filter protokolliert."
+
+#: admin/class-email-settings.php:86
+msgid "Failed to load activity log."
+msgstr "Aktivitätsprotokoll konnte nicht geladen werden."
+
+#: admin/class-email-settings.php:87
+msgid "Page"
+msgstr "Seite"
+
+#: admin/class-email-settings.php:88
+msgid "records"
+msgstr "Einträge"
+
+#: admin/class-email-settings.php:110 admin/class-email-settings.php:368
+msgid "Brand Settings"
+msgstr "Markeneinstellungen"
+
+#: admin/class-email-settings.php:116 admin/class-email-settings.php:371
+msgid "Header Color"
+msgstr "Kopfzeilenfarbe"
+
+#: admin/class-email-settings.php:125 admin/class-email-settings.php:377
+msgid "Logo"
+msgstr "Logo"
+
+#: admin/class-email-settings.php:134
+msgid "Email logo preview"
+msgstr "Vorschau des E-Mail-Logos"
+
+#: admin/class-email-settings.php:138 admin/class-email-settings.php:242
+msgid "Change Image"
+msgstr "Bild ändern"
+
+#: admin/class-email-settings.php:138 admin/class-email-settings.php:260
+msgid "Choose Image"
+msgstr "Bild wählen"
+
+#: admin/class-email-settings.php:142 admin/class-email-settings.php:249
+#: blocks/candidate-dashboard/render.php:589
+#: blocks/candidate-dashboard/render.php:646
+#: blocks/candidate-dashboard/render.php:701
+#: blocks/candidate-dashboard/render.php:757
+#: blocks/employer-dashboard/render.php:945
+#: blocks/employer-dashboard/render.php:983
+#: blocks/employer-dashboard/render.php:1022
+msgid "Remove"
+msgstr "Entfernen"
+
+#: admin/class-email-settings.php:145
+msgid "Displayed in the header of all WCB notification emails."
+msgstr "Angezeigt in der Kopfzeile aller WCB-Benachrichtigungs-E-Mails."
+
+#: admin/class-email-settings.php:150 admin/class-email-settings.php:384
+msgid "Footer Text"
+msgstr "Fußzeilentext"
+
+#: admin/class-email-settings.php:160 admin/class-email-settings.php:391
+msgid "Email Templates"
+msgstr "E-Mail-Vorlagen"
+
+#: admin/class-email-settings.php:166 admin/class-email-settings.php:395
+#: blocks/candidate-dashboard/render.php:967
+#: blocks/candidate-dashboard/render.php:1050
+#: blocks/employer-dashboard/render.php:1047
+#: modules/applications/widgets/class-applicant-card.php:102
+msgid "Email"
+msgstr "E-Mail"
+
+#: admin/class-email-settings.php:167 admin/class-email-settings.php:325
+#: admin/class-email-settings.php:396
+msgid "Recipient"
+msgstr "Empfänger"
+
+#: admin/class-email-settings.php:168 admin/class-email-settings.php:326
+#: admin/class-email-settings.php:397
+msgid "Subject"
+msgstr "Betreff"
+
+#: admin/class-email-settings.php:169 admin/class-email-settings.php:398
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: admin/class-email-settings.php:170
+msgid "Test"
+msgstr "Test"
+
+#: admin/class-email-settings.php:190 admin/class-email-settings.php:416
+msgid "Email subject"
+msgstr "E-Mail-Betreff"
+
+#: admin/class-email-settings.php:193 admin/class-email-settings.php:419
+msgid "Enable this email notification"
+msgstr "Diese E-Mail-Benachrichtigung aktivieren"
+
+#: admin/class-email-settings.php:199
+#. translators: %s: email title
+#, php-format
+msgid "Send test of %s to me"
+msgstr "Test von %s an mich senden"
+
+#: admin/class-email-settings.php:203
+msgid "Send test"
+msgstr "Test senden"
+
+#: admin/class-email-settings.php:213
+#. translators: %s: current admin email address
+#, php-format
+msgid ""
+"Test sends are dispatched to your admin email (%s) and recorded in the "
+"activity log below."
+msgstr ""
+"Test-E-Mails werden an deine Admin-E-Mail (%s) gesendet und im folgenden "
+"Aktivitätsprotokoll aufgezeichnet."
+
+#: admin/class-email-settings.php:220 admin/class-email-settings.php:426
+msgid "Save Email Settings"
+msgstr "E-Mail-Einstellungen speichern"
+
+#: admin/class-email-settings.php:235
+msgid "Select Logo"
+msgstr "Logo auswählen"
+
+#: admin/class-email-settings.php:283
+msgid "Email Activity Log"
+msgstr "E-Mail-Aktivitätsprotokoll"
+
+#: admin/class-email-settings.php:285
+msgid ""
+"Recent transactional emails dispatched by Career Board. Helps verify "
+"whether emails are firing under live conditions and which recipients "
+"received them."
+msgstr ""
+"Kürzliche Transaktions-E-Mails, die von Career Board gesendet wurden. Hilft "
+"zu überprüfen, ob E-Mails unter Live-Bedingungen gesendet werden und welche "
+"Empfänger sie erhalten haben."
+
+#: admin/class-email-settings.php:291 admin/class-email-settings.php:324
+msgid "Template"
+msgstr "Vorlage"
+
+#: admin/class-email-settings.php:293
+msgid "All templates"
+msgstr "Alle Vorlagen"
+
+#: admin/class-email-settings.php:307
+msgid "All statuses"
+msgstr "Alle Status"
+
+#: admin/class-email-settings.php:310
+msgid "Sent (test)"
+msgstr "Gesendet (Test)"
+
+#: admin/class-email-settings.php:311
+msgid "Failed (test)"
+msgstr "Fehlgeschlagen (Test)"
+
+#: admin/class-email-settings.php:316
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+#: admin/class-email-settings.php:323
+msgid "When"
+msgstr "Wann"
+
+#: admin/class-email-settings.php:331 blocks/candidate-dashboard/render.php:543
+#: blocks/candidate-dashboard/render.php:611
+#: blocks/candidate-dashboard/render.php:668
+#: blocks/candidate-dashboard/render.php:724
+#: blocks/candidate-dashboard/render.php:813
+#: blocks/employer-dashboard/render.php:924
+#: blocks/employer-dashboard/render.php:964
+#: blocks/employer-dashboard/render.php:1003
+msgid "Loading…"
+msgstr "Wird geladen…"
+
+#: admin/class-email-settings.php:338
+msgid "Previous"
+msgstr "Zurück"
+
+#: admin/class-email-settings.php:342
+msgid "Next"
+msgstr "Weiter"
+
+#: admin/class-email-settings.php:364
+msgid "Email Notifications"
+msgstr "E-Mail-Benachrichtigungen"
+
+#: admin/class-email-settings.php:373
+msgid "Header color"
+msgstr "Kopfzeilenfarbe"
+
+#: admin/class-email-settings.php:379
+msgid "Logo attachment ID"
+msgstr "Logo-Anhang-ID"
+
+#: admin/class-email-settings.php:379
+msgid "Attachment ID"
+msgstr "Anhang-ID"
+
+#: admin/class-email-settings.php:380
+msgid "Enter the attachment ID of your logo image."
+msgstr "Gib die Anhang-ID deines Logo-Bildes ein."
+
+#: admin/class-email-settings.php:386
+msgid "Email footer text"
+msgstr "E-Mail-Fußzeilentext"
+
+#: admin/class-email-settings.php:489
+msgid "Email settings saved."
+msgstr "E-Mail-Einstellungen gespeichert."
+
+#: admin/class-setup-wizard.php:165
+msgid "Create Pages"
+msgstr "Seiten erstellen"
+
+#: admin/class-setup-wizard.php:167
+#: admin/views/wizard-steps/create-pages.php:25
+msgid "Create Pages & Continue"
+msgstr "Seiten erstellen & Weiter"
+
+#: admin/class-setup-wizard.php:172 admin/views/wizard-steps/sample-data.php:24
+msgid "Finish Setup"
+msgstr "Setup abschließen"
+
+#: admin/views/integrations.php:30
+msgid "Integration installed and activated."
+msgstr "Integration installiert und aktiviert."
+
+#: admin/views/integrations.php:39
+msgid "Wbcom"
+msgstr "Wbcom"
+
+#: admin/views/integrations.php:41
+msgid "Part of the Wbcom family"
+msgstr "Teil der Wbcom-Familie"
+
+#: admin/views/integrations.php:43
+msgid ""
+"WP Career Board is part of the Wbcom community stack: gamification, "
+"discussions, courses, messaging, listings, and more. Every plugin works on "
+"its own, and you can add any of them below in one click. The family keeps "
+"growing, so check back for new releases."
+msgstr ""
+"WP Career Board ist Teil des Wbcom-Community-Stacks: Gamifizierung, "
+"Diskussionen, Kurse, Nachrichten, Angebote und mehr. Jedes Plugin "
+"funktioniert unabhängig, und du kannst beliebige davon unten mit einem "
+"Klick hinzufügen. Die Familie wächst weiter, also schau regelmäßig vorbei "
+"für neue Versionen."
+
+#: admin/views/integrations.php:46
+msgid "Explore the full Wbcom family"
+msgstr "Erkunde die vollständige Wbcom-Familie"
+
+#: admin/views/integrations.php:65 admin/views/integrations.php:96
+msgid "Connected"
+msgstr "Verbunden"
+
+#: admin/views/integrations.php:68
+msgid "Installed, activate"
+msgstr "Installiert, aktivieren"
+
+#: admin/views/integrations.php:71
+msgid "Not installed"
+msgstr "Nicht installiert"
+
+#: admin/views/integrations.php:107
+msgid "Activate"
+msgstr "Aktivieren"
+
+#: admin/views/integrations.php:108
+msgid "Install free"
+msgstr "Kostenlos installieren"
+
+#: admin/views/integrations.php:119
+msgid "Learn more"
+msgstr "Mehr erfahren"
+
+#: admin/views/integrations.php:128
+msgid ""
+"Every product above is a standalone Wbcom plugin. WP Career Board detects "
+"each one and lights up the matching features automatically when it is "
+"active."
+msgstr ""
+"Jedes oben genannte Produkt ist ein eigenständiges Wbcom-Plugin. WP Career "
+"Board erkennt jedes davon und aktiviert die entsprechenden Funktionen "
+"automatisch, wenn es aktiv ist."
+
+#: admin/views/jobs-list.php:31
+msgid "Actions"
+msgstr "Aktionen"
+
+#: admin/views/jobs-list.php:69
+msgid "Published Jobs"
+msgstr "Veröffentlichte Stellen"
+
+#: admin/views/jobs-list.php:100
+msgid "No published jobs yet."
+msgstr "Noch keine Stellen veröffentlicht."
+
+#: admin/views/jobs-list.php:101
+msgid "Add your first job."
+msgstr "Füge deine erste Stelle hinzu."
+
+#: admin/views/setup-wizard-complete.php:15 admin/views/setup-wizard.php:18
+msgid "WP Career Board Setup"
+msgstr "WP Career Board Setup"
+
+#: admin/views/setup-wizard-complete.php:23
+msgid "Setup wizard"
+msgstr "Setup-Assistent"
+
+#: admin/views/setup-wizard-complete.php:29
+msgid "Setup Already Completed"
+msgstr "Setup bereits abgeschlossen"
+
+#: admin/views/setup-wizard-complete.php:34
+msgid ""
+"The initial setup wizard has already been completed. Running it again will "
+"re-create any missing pages."
+msgstr ""
+"Der anfängliche Setup-Assistent wurde bereits abgeschlossen. Das erneute "
+"Ausführen erstellt alle fehlenden Seiten neu."
+
+#: admin/views/setup-wizard.php:26
+msgid "Quick setup  -  takes about 2 minutes"
+msgstr "Schnelle Einrichtung  -  dauert etwa 2 Minuten"
+
+#: admin/views/wizard-steps/create-pages.php:12
+msgid "Required Pages"
+msgstr "Erforderliche Seiten"
+
+#: admin/views/wizard-steps/create-pages.php:14
+msgid "We'll create the following pages automatically:"
+msgstr "Wir erstellen die folgenden Seiten automatisch:"
+
+#: admin/views/wizard-steps/create-pages.php:16
+msgid "Find Jobs (with search, filters, and listings)"
+msgstr "Jobs finden (mit Suche, Filtern und Auflistungen)"
+
+#: admin/views/wizard-steps/create-pages.php:17
+msgid "Employer Registration (sign-up form for new employers)"
+msgstr "Arbeitgeberregistrierung (Anmeldeformular für neue Arbeitgeber)"
+
+#: admin/views/wizard-steps/create-pages.php:18
+msgid "Employer Dashboard (includes job posting)"
+msgstr "Arbeitgeber-Dashboard (enthält Job-Posting)"
+
+#: admin/views/wizard-steps/create-pages.php:19
+msgid "Candidate Dashboard (includes resume builder)"
+msgstr "Kandidaten-Dashboard (enthält Lebenslauf-Generator)"
+
+#: admin/views/wizard-steps/sample-data.php:12
+msgid "Demo Content"
+msgstr "Demo-Inhalte"
+
+#: admin/views/wizard-steps/sample-data.php:18
+msgid "Install sample categories, job types, and a demo job"
+msgstr "Installiere Beispielkategorien, Jobtypen und einen Demo-Job"
+
+#: admin/views/wizard-steps/sample-data.php:19
+msgid "Helps you see how everything looks before adding real data."
+msgstr "Hilft dir zu sehen, wie alles aussieht, bevor du echte Daten hinzufügst."
+
+#: api/class-rest-controller.php:78
+msgid "Authentication is required to perform this action."
+msgstr "Authentifizierung ist erforderlich, um diese Aktion auszuführen."
+
+#: api/class-rest-controller.php:84
+msgid "You do not have permission to perform this action."
+msgstr "Du hast keine Berechtigung, diese Aktion auszuführen."
+
+#: api/endpoints/class-account-endpoint.php:124
+msgid "Please enter a valid email address."
+msgstr "Bitte gib eine gültige E-Mail-Adresse ein."
+
+#: api/endpoints/class-account-endpoint.php:132
+msgid "That email address is already in use."
+msgstr "Diese E-Mail-Adresse wird bereits verwendet."
+
+#: api/endpoints/class-account-endpoint.php:146
+msgid "Your current password is incorrect."
+msgstr "Dein aktuelles Passwort ist falsch."
+
+#: api/endpoints/class-account-endpoint.php:153
+msgid "Your new password must be at least 8 characters."
+msgstr "Dein neues Passwort muss mindestens 8 Zeichen lang sein."
+
+#: api/endpoints/class-account-endpoint.php:164
+msgid "There are no changes to save."
+msgstr "Es gibt keine Änderungen zu speichern."
+
+#: api/endpoints/class-admin-endpoint.php:162
+#. translators: %s: requested email id
+#, php-format
+msgid "No registered email matches id \"%s\"."
+msgstr "Keine registrierte E-Mail entspricht der ID \"%s\"."
+
+#: api/endpoints/class-admin-endpoint.php:174
+msgid "Sample Job Title (test send)"
+msgstr "Beispiel-Jobtitel (Test-Versand)"
+
+#: api/endpoints/class-admin-endpoint.php:179
+#: blocks/candidate-dashboard/render.php:462
+#: blocks/employer-dashboard/render.php:291
+#: blocks/employer-dashboard/render.php:633
+#: blocks/employer-dashboard/render.php:689
+#: modules/applications/class-application-status.php:76
+#: modules/applications/widgets/class-status-timeline.php:130
+msgid "Shortlisted"
+msgstr "Ausgewählt"
+
+#: api/endpoints/class-applications-endpoint.php:130
+msgid "This job is not available."
+msgstr "Dieser Job ist nicht verfügbar."
+
+#: api/endpoints/class-applications-endpoint.php:141
+msgid "Name is required."
+msgstr "Name ist erforderlich."
+
+#: api/endpoints/class-applications-endpoint.php:144
+msgid "A valid email address is required."
+msgstr "Eine gültige E-Mail-Adresse ist erforderlich."
+
+#: api/endpoints/class-applications-endpoint.php:172
+msgid "You have already applied to this job recently."
+msgstr "Du hast dich bereits kürzlich auf diesen Job beworben."
+
+#: api/endpoints/class-applications-endpoint.php:178
+#. translators: 1: guest name, 2: job post ID
+#, php-format
+msgid "Application: %1$s → Job %2$d"
+msgstr "Bewerbung: %1$s → Job %2$d"
+
+#: api/endpoints/class-applications-endpoint.php:205
+msgid "You have already applied to this job."
+msgstr "Du hast dich bereits auf diesen Job beworben."
+
+#: api/endpoints/class-applications-endpoint.php:211
+#. translators: 1: candidate user ID, 2: job post ID
+#, php-format
+msgid "Application: User %1$d → Job %2$d"
+msgstr "Bewerbung: Benutzer %1$d → Job %2$d"
+
+#: api/endpoints/class-applications-endpoint.php:275
+msgid "Invalid resume."
+msgstr "Ungültiger Lebenslauf."
+
+#: api/endpoints/class-applications-endpoint.php:306
+msgid ""
+"We couldn't attach this resume. Open it in the resume builder and use "
+"'Download as PDF', or upload a file below, before applying."
+msgstr ""
+"Wir konnten diesen Lebenslauf nicht anhängen. Öffne ihn im "
+"Lebenslauf-Generator und verwende 'Herunterladen als PDF', oder lade eine "
+"Datei unten hoch, bevor du dich bewirbst."
+
+#: api/endpoints/class-applications-endpoint.php:314
+msgid "A resume is required to apply for this job."
+msgstr "Ein Lebenslauf ist erforderlich, um dich auf diesen Job zu bewerben."
+
+#: api/endpoints/class-applications-endpoint.php:390
+#: api/endpoints/class-applications-endpoint.php:410
+#: api/endpoints/class-applications-endpoint.php:558
+msgid "Application not found."
+msgstr "Bewerbung nicht gefunden."
+
+#: api/endpoints/class-applications-endpoint.php:428
+msgid "Invalid status."
+msgstr "Ungültiger Status."
+
+#: api/endpoints/class-applications-endpoint.php:511
+msgid "Job no longer available"
+msgstr "Job nicht mehr verfügbar"
+
+#: api/endpoints/class-applications-endpoint.php:595
+#: api/endpoints/class-applications-endpoint.php:697
+msgid "No file provided."
+msgstr "Keine Datei bereitgestellt."
+
+#: api/endpoints/class-applications-endpoint.php:628
+#: api/endpoints/class-applications-endpoint.php:635
+msgid "Invalid resume attachment."
+msgstr "Ungültiger Lebenslauf-Anhang."
+
+#: api/endpoints/class-applications-endpoint.php:689
+msgid "Only PDF, DOC, and DOCX files are allowed."
+msgstr "Nur PDF-, DOC- und DOCX-Dateien sind zulässig."
+
+#: api/endpoints/class-applications-endpoint.php:706
+#. translators: %d: max file size in MB
+#, php-format
+msgid "File must be under %d MB."
+msgstr "Datei muss unter %d MB liegen."
+
+#: api/endpoints/class-applications-endpoint.php:795
+msgid "You do not have permission to apply for jobs."
+msgstr "Du hast keine Berechtigung, dich auf Jobs zu bewerben."
+
+#: api/endpoints/class-applications-endpoint.php:878
+#: api/endpoints/class-applications-endpoint.php:886
+msgid "Application withdrawal is not enabled on this site."
+msgstr "Bewerbungsrückzug ist auf dieser Website nicht aktiviert."
+
+#: api/endpoints/class-applications-endpoint.php:1085
+msgid "Hiring team"
+msgstr "Einstellungsteam"
+
+#: api/endpoints/class-candidates-endpoint.php:158
+msgid "You are already registered as a candidate."
+msgstr "Du bist bereits als Kandidat registriert."
+
+#: api/endpoints/class-candidates-endpoint.php:165
+msgid ""
+"Your account is already registered as an employer. Use a different account "
+"to apply for jobs."
+msgstr ""
+"Dein Konto ist bereits als Arbeitgeber registriert. Verwende ein anderes "
+"Konto, um dich auf Stellen zu bewerben."
+
+#: api/endpoints/class-candidates-endpoint.php:190
+#: api/endpoints/class-employers-endpoint.php:237
+msgid "User registration is currently disabled."
+msgstr "Die Benutzerregistrierung ist derzeit deaktiviert."
+
+#: api/endpoints/class-candidates-endpoint.php:218
+#: api/endpoints/class-employers-endpoint.php:266
+#. translators: %s: comma-separated list of missing field names.
+#, php-format
+msgid "Missing required fields: %s"
+msgstr "Erforderliche Felder fehlen: %s"
+
+#: api/endpoints/class-candidates-endpoint.php:228
+#: api/endpoints/class-employers-endpoint.php:276
+msgid "An account with this email address already exists."
+msgstr "Es existiert bereits ein Konto mit dieser E-Mail-Adresse."
+
+#: api/endpoints/class-candidates-endpoint.php:236
+#: api/endpoints/class-employers-endpoint.php:284
+msgid "Password must be at least 8 characters."
+msgstr "Das Passwort muss mindestens 8 Zeichen lang sein."
+
+#: api/endpoints/class-candidates-endpoint.php:304
+#: api/endpoints/class-candidates-endpoint.php:339
+msgid "Candidate not found."
+msgstr "Kandidat nicht gefunden."
+
+#: api/endpoints/class-candidates-endpoint.php:317
+msgid "This profile is private."
+msgstr "Dieses Profil ist privat."
+
+#: api/endpoints/class-companies-endpoint.php:114
+#: api/endpoints/class-employers-endpoint.php:448
+#: api/endpoints/class-employers-endpoint.php:468
+#: api/endpoints/class-employers-endpoint.php:693
+#: api/endpoints/class-employers-endpoint.php:799
+#: api/endpoints/class-employers-endpoint.php:979
+msgid "Company not found."
+msgstr "Unternehmen nicht gefunden."
+
+#: api/endpoints/class-companies-endpoint.php:491
+#: blocks/company-archive/render.php:124
+msgid "No open positions"
+msgstr "Keine offenen Stellen"
+
+#: api/endpoints/class-companies-endpoint.php:495
+#: blocks/company-archive/render.php:127
+#. translators: %d: number of open positions
+#, php-format
+msgid "%d open position"
+msgid_plural "%d open positions"
+msgstr[0] "%d offene Stelle"
+msgstr[1] "%d offene Stellen"
+
+#: api/endpoints/class-employers-endpoint.php:166
+msgid "You are already registered as an employer."
+msgstr "Du bist bereits als Arbeitgeber registriert."
+
+#: api/endpoints/class-employers-endpoint.php:173
+msgid ""
+"Your account is already registered as a candidate. Use a different account "
+"to post jobs."
+msgstr ""
+"Dein Konto ist bereits als Kandidat registriert. Verwende ein anderes "
+"Konto, um Stellen zu veröffentlichen."
+
+#: api/endpoints/class-employers-endpoint.php:180
+#: api/endpoints/class-employers-endpoint.php:379
+#: blocks/employer-dashboard/render.php:257
+msgid "Company name is required."
+msgstr "Unternehmensname ist erforderlich."
+
+#: api/endpoints/class-employers-endpoint.php:663
+#: api/endpoints/class-employers-endpoint.php:767
+#: blocks/employer-dashboard/render.php:293
+#: blocks/employer-dashboard/render.php:542
+#: blocks/employer-dashboard/render.php:637
+#: blocks/employer-dashboard/render.php:690
+#: modules/applications/class-application-status.php:77
+#: modules/applications/widgets/class-status-timeline.php:131
+msgid "Rejected"
+msgstr "Abgelehnt"
+
+#: api/endpoints/class-employers-endpoint.php:668
+#: api/endpoints/class-employers-endpoint.php:774
+msgid "No applicants"
+msgstr "Keine Bewerber"
+
+#: api/endpoints/class-employers-endpoint.php:773
+msgid "applicant"
+msgid_plural "applicants"
+msgstr[0] "Bewerber"
+msgstr[1] "Bewerber"
+
+#: api/endpoints/class-employers-endpoint.php:988
+msgid "No file uploaded."
+msgstr "Keine Datei hochgeladen."
+
+#: api/endpoints/class-import-endpoint.php:128
+msgid "WP Job Manager is not active."
+msgstr "WP Job Manager ist nicht aktiv."
+
+#: api/endpoints/class-import-endpoint.php:138
+msgid "WP Job Manager Resumes is not active."
+msgstr "WP Job Manager Resumes ist nicht aktiv."
+
+#: api/endpoints/class-jobs-endpoint.php:488
+#: api/endpoints/class-jobs-endpoint.php:725
+#: api/endpoints/class-jobs-endpoint.php:961
+#: modules/moderation/class-moderation-module.php:209
+#: modules/moderation/class-moderation-module.php:256
+#: modules/moderation/class-moderation-module.php:328
+#: modules/moderation/class-moderation-module.php:393
+msgid "Job not found."
+msgstr "Stelle nicht gefunden."
+
+#: api/endpoints/class-jobs-endpoint.php:509
+#: modules/antispam/class-anti-spam-module.php:101
+msgid "Spam detected."
+msgstr "Spam erkannt."
+
+#: api/endpoints/class-jobs-endpoint.php:521
+msgid "Job title is required."
+msgstr "Stellentitel ist erforderlich."
+
+#: api/endpoints/class-jobs-endpoint.php:535
+#. translators: 1: credit cost, 2: current balance
+#, php-format
+msgid "This board requires %1$d credits to post a job. Your balance: %2$d credits."
+msgstr ""
+"Dieses Board erfordert %1$d Credits, um eine Stelle zu veröffentlichen. "
+"Dein Guthaben: %2$d Credits."
+
+#: api/endpoints/class-jobs-endpoint.php:791
+#. translators: 1: credit cost, 2: current balance
+#, php-format
+msgid "Republishing this job requires %1$d credits. Your balance: %2$d credits."
+msgstr ""
+"Das erneute Veröffentlichen dieser Stelle erfordert %1$d Credits. Dein "
+"Guthaben: %2$d Credits."
+
+#: api/endpoints/class-jobs-endpoint.php:1471
+msgid "Sort jobs by attribute."
+msgstr "Stellen nach Attribut sortieren."
+
+#: api/endpoints/class-jobs-endpoint.php:1479
+msgid "Order jobs ascending or descending."
+msgstr "Stellen aufsteigend oder absteigend sortieren."
+
+#: blocks/candidate-dashboard/render.php:21
+msgid "Please sign in to access your candidate dashboard."
+msgstr "Bitte melden dich an, um auf dein Kandidaten-Dashboard zuzugreifen."
+
+#: blocks/candidate-dashboard/render.php:23
+#: blocks/employer-dashboard/render.php:20 blocks/job-form/render.php:34
+msgid "Sign In"
+msgstr "Anmelden"
+
+#: blocks/candidate-dashboard/render.php:33
+msgid "You do not have permission to view this dashboard."
+msgstr "Du hast keine Berechtigung, um dieses Dashboard anzuzeigen."
+
+#: blocks/candidate-dashboard/render.php:112
+#: blocks/candidate-dashboard/render.php:409
+#: blocks/employer-dashboard/render.php:264
+#: blocks/employer-dashboard/render.php:423
+msgid "Overview"
+msgstr "Übersicht"
+
+#: blocks/candidate-dashboard/render.php:113
+#: blocks/candidate-dashboard/render.php:294
+#: blocks/candidate-dashboard/render.php:538
+#: integrations/reign/class-reign-integration.php:146
+msgid "My Applications"
+msgstr "Meine Bewerbungen"
+
+#: blocks/candidate-dashboard/render.php:114
+#: blocks/candidate-dashboard/render.php:355
+#: blocks/candidate-dashboard/render.php:466
+#: blocks/candidate-dashboard/render.php:502
+#: blocks/candidate-dashboard/render.php:606
+#: blocks/employer-dashboard/render.php:375
+#: blocks/employer-dashboard/render.php:920
+msgid "Saved Jobs"
+msgstr "Gespeicherte Stellen"
+
+#: blocks/candidate-dashboard/render.php:115
+#: blocks/candidate-dashboard/render.php:313
+#: blocks/candidate-dashboard/render.php:470
+#: blocks/candidate-dashboard/render.php:775
+msgid "My Resumes"
+msgstr "Meine Lebensläufe"
+
+#: blocks/candidate-dashboard/render.php:116
+#: blocks/candidate-dashboard/render.php:339
+#: blocks/candidate-dashboard/render.php:475
+#: blocks/candidate-dashboard/render.php:919
+msgid "Job Alerts"
+msgstr "Stellenbenachrichtigungen"
+
+#: blocks/candidate-dashboard/render.php:117
+#: blocks/candidate-dashboard/render.php:332
+#: modules/candidates/class-candidates-module.php:100
+msgid "Edit Resume"
+msgstr "Lebenslauf bearbeiten"
+
+#: blocks/candidate-dashboard/render.php:118
+#: blocks/candidate-dashboard/render.php:282
+#: blocks/candidate-dashboard/render.php:288
+#: blocks/employer-dashboard/render.php:269
+#: blocks/employer-dashboard/render.php:314
+#: blocks/employer-dashboard/render.php:322
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: blocks/candidate-dashboard/render.php:119
+#: blocks/candidate-dashboard/render.php:374
+#: blocks/employer-dashboard/render.php:267
+#: blocks/employer-dashboard/render.php:343
+msgid "Profile"
+msgstr "Profil"
+
+#: blocks/candidate-dashboard/render.php:121
+msgid "resumes"
+msgstr "Lebensläufe"
+
+#: blocks/candidate-dashboard/render.php:122 blocks/job-form/render.php:864
+#: blocks/job-listings/render.php:757 blocks/job-single/render.php:348
+#: blocks/job-single/render.php:576
+#: modules/seo/class-rss-feed-enrichment.php:179
+msgid "Remote"
+msgstr "Remote"
+
+#: blocks/candidate-dashboard/render.php:123
+msgid "All jobs"
+msgstr "Alle Jobs"
+
+#: blocks/candidate-dashboard/render.php:124
+msgid "Could not load your applications."
+msgstr "Deine Bewerbungen konnten nicht geladen werden."
+
+#: blocks/candidate-dashboard/render.php:125
+msgid "Could not load saved jobs."
+msgstr "Deine gespeicherten Jobs konnten nicht geladen werden."
+
+#: blocks/candidate-dashboard/render.php:126
+msgid "Could not load your resumes."
+msgstr "Deine Lebensläufe konnten nicht geladen werden."
+
+#: blocks/candidate-dashboard/render.php:127
+msgid "Could not load your alerts."
+msgstr "Deine Benachrichtigungen konnten nicht geladen werden."
+
+#: blocks/candidate-dashboard/render.php:128
+msgid "Could not remove saved job. Please try again."
+msgstr "Der gespeicherte Job konnte nicht entfernt werden. Bitte versuche es erneut."
+
+#: blocks/candidate-dashboard/render.php:129
+msgid "Could not create resume. Please try again."
+msgstr "Der Lebenslauf konnte nicht erstellt werden. Bitte versuche es erneut."
+
+#: blocks/candidate-dashboard/render.php:130
+msgid "Could not delete resume. Please try again."
+msgstr "Der Lebenslauf konnte nicht gelöscht werden. Bitte versuche es erneut."
+
+#: blocks/candidate-dashboard/render.php:131
+#: blocks/employer-dashboard/render.php:260
+#: blocks/employer-registration/render.php:82
+#: blocks/job-form-simple/render.php:216 blocks/job-form/render.php:305
+#: blocks/job-single/render.php:300
+msgid "Connection error. Please check your network and try again."
+msgstr ""
+"Verbindungsfehler. Bitte überprüfe deine Internetverbindung und versuche es "
+"erneut."
+
+#: blocks/candidate-dashboard/render.php:132
+msgid "Connection error."
+msgstr "Verbindungsfehler."
+
+#: blocks/candidate-dashboard/render.php:133
+msgid "Withdraw application?"
+msgstr "Bewerbung zurückziehen?"
+
+#: blocks/candidate-dashboard/render.php:134
+msgid "Are you sure you want to withdraw this application? This cannot be undone."
+msgstr ""
+"Bist du sicher, dass du diese Bewerbung zurückziehen möchtest? Dies kann "
+"nicht rückgängig gemacht werden."
+
+#: blocks/candidate-dashboard/render.php:135
+#: blocks/candidate-dashboard/render.php:583
+msgid "Withdraw"
+msgstr "Zurückziehen"
+
+#: blocks/candidate-dashboard/render.php:136
+#: blocks/employer-dashboard/render.php:261
+msgid "Clear all notifications?"
+msgstr "Alle Benachrichtigungen löschen?"
+
+#: blocks/candidate-dashboard/render.php:137
+#: blocks/employer-dashboard/render.php:262
+msgid "This permanently removes all of your notifications. This cannot be undone."
+msgstr ""
+"Dies entfernt alle deine Benachrichtigungen dauerhaft. Dies kann nicht "
+"rückgängig gemacht werden."
+
+#: blocks/candidate-dashboard/render.php:138
+#: blocks/company-archive/render.php:257
+#: blocks/employer-dashboard/render.php:263 blocks/job-listings/render.php:488
+msgid "Clear all"
+msgstr "Alle löschen"
+
+#: blocks/candidate-dashboard/render.php:139
+msgid "Could not withdraw application. Please try again."
+msgstr "Bewerbung konnte nicht zurückgezogen werden. Bitte versuche es erneut."
+
+#: blocks/candidate-dashboard/render.php:140
+msgid "Delete your account?"
+msgstr "Dein Konto löschen?"
+
+#: blocks/candidate-dashboard/render.php:141
+msgid ""
+"We'll send a confirmation email to your registered address. After you click "
+"the link in the email, the site administrator will permanently delete your "
+"applications, resumes, and account. This cannot be undone."
+msgstr ""
+"Wir senden dir eine Bestätigungsmail an deine registrierte E-Mail-Adresse. "
+"Nach dem Klick auf den Link in der E-Mail löscht der Seitenadministrator "
+"deine Bewerbungen, Lebensläufe und dein Konto dauerhaft. Dies kann nicht "
+"rückgängig gemacht werden."
+
+#: blocks/candidate-dashboard/render.php:142
+msgid "Send confirmation email"
+msgstr "Bestätigungsmail senden"
+
+#: blocks/candidate-dashboard/render.php:143
+msgid "Could not submit your privacy request. Please try again or contact support."
+msgstr ""
+"Deine Datenschutzanfrage konnte nicht eingereicht werden. Bitte versuche es "
+"erneut oder kontaktiere den Support."
+
+#: blocks/candidate-dashboard/render.php:144
+#: blocks/candidate-dashboard/render.php:521
+msgid "Recommended for you"
+msgstr "Empfohlen für dich"
+
+#: blocks/candidate-dashboard/render.php:145
+msgid "AI-matched to your resume"
+msgstr "AI-Match zu deinem Lebenslauf"
+
+#: blocks/candidate-dashboard/render.php:279
+#: blocks/employer-dashboard/render.php:311
+msgid "Toggle navigation"
+msgstr "Navigation umschalten"
+
+#: blocks/candidate-dashboard/render.php:291
+msgid "Candidate dashboard navigation"
+msgstr "Kandidaten-Dashboard-Navigation"
+
+#: blocks/candidate-dashboard/render.php:292
+msgid "MY ACTIVITY"
+msgstr "MEINE AKTIVITÄT"
+
+#: blocks/candidate-dashboard/render.php:321
+msgid "Public Resume"
+msgstr "Öffentlicher Lebenslauf"
+
+#: blocks/candidate-dashboard/render.php:353
+#: blocks/employer-dashboard/render.php:373
+msgid "MY SAVES"
+msgstr "MEINE SPEICHERUNGEN"
+
+#: blocks/candidate-dashboard/render.php:359
+#: blocks/candidate-dashboard/render.php:663
+#: blocks/employer-dashboard/render.php:379
+#: blocks/employer-dashboard/render.php:960
+msgid "Saved Companies"
+msgstr "Gespeicherte Unternehmen"
+
+#: blocks/candidate-dashboard/render.php:364
+#: blocks/candidate-dashboard/render.php:719
+#: blocks/employer-dashboard/render.php:384
+#: blocks/employer-dashboard/render.php:999
+msgid "Saved Resumes"
+msgstr "Gespeicherte Lebensläufe"
+
+#: blocks/candidate-dashboard/render.php:369
+#: blocks/employer-dashboard/render.php:389
+msgid "ACCOUNT"
+msgstr "KONTO"
+
+#: blocks/candidate-dashboard/render.php:394
+#: blocks/candidate-dashboard/render.php:598
+#: blocks/candidate-dashboard/render.php:655
+#: blocks/candidate-dashboard/render.php:954
+#: blocks/employer-dashboard/render.php:953
+#: integrations/reign/class-reign-integration.php:117
+msgid "Browse Jobs"
+msgstr "Jobs durchsuchen"
+
+#: blocks/candidate-dashboard/render.php:419
+#. translators: %s: candidate's first name
+#, php-format
+msgid "Welcome, %s 👋"
+msgstr "Willkommen, %s 👋"
+
+#: blocks/candidate-dashboard/render.php:424
+msgid "Here's how to get started:"
+msgstr "Hier ist eine Anleitung zum Einstieg:"
+
+#: blocks/candidate-dashboard/render.php:430
+msgid "Browse jobs"
+msgstr "Jobs durchsuchen"
+
+#: blocks/candidate-dashboard/render.php:431
+msgid "Search and apply to roles that match your skills."
+msgstr "Suche und bewerbe dich auf Positionen, die deinen Fähigkeiten entsprechen."
+
+#: blocks/candidate-dashboard/render.php:438
+msgid "Build your resume"
+msgstr "Baue deinen Lebenslauf auf"
+
+#: blocks/candidate-dashboard/render.php:439
+msgid "A complete profile gets noticed by employers faster."
+msgstr "Ein vollständiges Profil wird von Arbeitgebern schneller bemerkt."
+
+#: blocks/candidate-dashboard/render.php:447
+msgid "Set up job alerts"
+msgstr "Richte Jobbewachungen ein"
+
+#: blocks/candidate-dashboard/render.php:448
+msgid "Get notified when matching roles are posted."
+msgstr "Erhalte Benachrichtigungen, wenn passende Stellen veröffentlicht werden."
+
+#: blocks/candidate-dashboard/render.php:497
+#: blocks/candidate-dashboard/render.php:516
+msgid "Browse jobs →"
+msgstr "Jobs durchsuchen →"
+
+#: blocks/candidate-dashboard/render.php:509
+msgid "Saved job"
+msgstr "Gespeicherte Stelle"
+
+#: blocks/candidate-dashboard/render.php:516
+msgid "No saved jobs yet."
+msgstr "Noch keine Stellen gespeichert."
+
+#: blocks/candidate-dashboard/render.php:596
+msgid "You haven't applied to any jobs yet."
+msgstr "Du hast dich noch auf keine Stellen beworben."
+
+#: blocks/candidate-dashboard/render.php:641
+#: blocks/company-profile/render.php:368
+#: blocks/employer-dashboard/render.php:944 blocks/featured-jobs/render.php:86
+#: blocks/job-listings/render.php:776 modules/jobs/class-jobs-module.php:201
+#: modules/notifications/templates/emails/application-guest-confirmation.php:23
+#: modules/notifications/templates/emails/job-approved.php:23
+msgid "View Job"
+msgstr "Stelle ansehen"
+
+#: blocks/candidate-dashboard/render.php:653
+#: blocks/employer-dashboard/render.php:952
+msgid "No saved jobs yet. Bookmark a job to find it here."
+msgstr ""
+"Noch keine Stellen gespeichert. Speichere eine Stelle, um sie hier zu "
+"finden."
+
+#: blocks/candidate-dashboard/render.php:696
+#: blocks/company-archive/render.php:380
+#: blocks/employer-dashboard/render.php:982
+msgid "View Profile"
+msgstr "Profil ansehen"
+
+#: blocks/candidate-dashboard/render.php:708
+#: blocks/employer-dashboard/render.php:990
+msgid "No saved companies yet. Bookmark a company to find it here."
+msgstr ""
+"Noch keine Unternehmen gespeichert. Speichere ein Unternehmen, um es hier "
+"zu finden."
+
+#: blocks/candidate-dashboard/render.php:710
+#: blocks/employer-dashboard/render.php:991
+msgid "Browse Companies"
+msgstr "Unternehmen durchsuchen"
+
+#: blocks/candidate-dashboard/render.php:752
+#: blocks/employer-dashboard/render.php:707
+#: blocks/employer-dashboard/render.php:1021
+msgid "View Resume"
+msgstr "Lebenslauf ansehen"
+
+#: blocks/candidate-dashboard/render.php:764
+#: blocks/employer-dashboard/render.php:1029
+msgid "No saved resumes yet. Bookmark a candidate to find it here."
+msgstr ""
+"Noch keine Lebensläufe gespeichert. Speichere einen Kandidaten, um ihn hier "
+"zu finden."
+
+#: blocks/candidate-dashboard/render.php:766
+#: blocks/employer-dashboard/render.php:1030
+msgid "Browse Candidates"
+msgstr "Kandidaten durchsuchen"
+
+#: blocks/candidate-dashboard/render.php:783
+#: blocks/candidate-dashboard/render.php:884
+msgid "+ New Resume"
+msgstr "+ Neuer Lebenslauf"
+
+#: blocks/candidate-dashboard/render.php:785
+msgid "Upload CV"
+msgstr "CV hochladen"
+
+#: blocks/candidate-dashboard/render.php:796
+msgid "Resume title"
+msgstr "Titel des Lebenslaufs"
+
+#: blocks/candidate-dashboard/render.php:801
+msgid "e.g. Software Developer"
+msgstr "z.B. Softwareentwickler"
+
+#: blocks/candidate-dashboard/render.php:805
+msgid "Create"
+msgstr "Erstellen"
+
+#: blocks/candidate-dashboard/render.php:831
+msgid "Open PDF"
+msgstr "PDF öffnen"
+
+#: blocks/candidate-dashboard/render.php:850
+msgid "Re-upload PDF"
+msgstr "PDF erneut hochladen"
+
+#: blocks/candidate-dashboard/render.php:865
+msgid "Delete this resume?"
+msgstr "Diesen Lebenslauf löschen?"
+
+#: blocks/candidate-dashboard/render.php:882
+msgid ""
+"No resumes yet. Create one with \"+ New Resume\" or upload a CV to get "
+"started."
+msgstr ""
+"Noch keine Lebensläufe vorhanden. Erstelle einen mit \"+ Neuer Lebenslauf\" "
+"oder lade einen CV hoch, um zu beginnen."
+
+#: blocks/candidate-dashboard/render.php:903
+msgid "Resume Builder"
+msgstr "Lebenslauf-Generator"
+
+#: blocks/candidate-dashboard/render.php:906
+msgid ""
+"Pick a resume from My Resumes to edit it here, or create a new one to get "
+"started."
+msgstr ""
+"Wähle einen Lebenslauf aus Meine Lebensläufe, um ihn hier zu bearbeiten, "
+"oder erstelle einen neuen, um zu beginnen."
+
+#: blocks/candidate-dashboard/render.php:907
+msgid "Go to My Resumes"
+msgstr "Zu Meine Lebensläufe"
+
+#: blocks/candidate-dashboard/render.php:938
+msgid "Alert frequency"
+msgstr "Häufigkeit der Benachrichtigungen"
+
+#: blocks/candidate-dashboard/render.php:939
+msgid "Instant"
+msgstr "Sofort"
+
+#: blocks/candidate-dashboard/render.php:940
+msgid "Daily"
+msgstr "Täglich"
+
+#: blocks/candidate-dashboard/render.php:941
+msgid "Weekly"
+msgstr "Wöchentlich"
+
+#: blocks/candidate-dashboard/render.php:952
+msgid ""
+"No job alerts yet. Search for jobs and click \"Alert me\" to get notified "
+"when matching jobs are posted."
+msgstr ""
+"Noch keine Jobbewachungen vorhanden. Durchsuche Jobs und klicke auf "
+"\"Benachrichtige mich\", um Benachrichtigungen zu erhalten, wenn passende "
+"Stellen veröffentlicht werden."
+
+#: blocks/candidate-dashboard/render.php:963
+msgid "My Profile"
+msgstr "Mein Profil"
+
+#: blocks/candidate-dashboard/render.php:978
+msgid "Phone"
+msgstr "Telefon"
+
+#: blocks/candidate-dashboard/render.php:983
+msgid "e.g. +1 555 123 4567"
+msgstr "z.B. +1 555 123 4567"
+
+#: blocks/candidate-dashboard/render.php:995
+msgid "e.g. Bengaluru, India"
+msgstr "z.B. Bengaluru, Indien"
+
+#: blocks/candidate-dashboard/render.php:1002
+msgid "Bio / About Me"
+msgstr "Bio / Über mich"
+
+#: blocks/candidate-dashboard/render.php:1003
+msgid "Tell employers about yourself…"
+msgstr "Erzähle Arbeitgebern von dir…"
+
+#: blocks/candidate-dashboard/render.php:1010
+msgid "Bio / About me"
+msgstr "Bio / Über mich"
+
+#: blocks/candidate-dashboard/render.php:1030
+#: blocks/employer-dashboard/render.php:885
+msgid "Save Profile"
+msgstr "Profil speichern"
+
+#: blocks/candidate-dashboard/render.php:1031
+#: blocks/employer-dashboard/render.php:886
+msgid "Saving…"
+msgstr "Wird gespeichert…"
+
+#: blocks/candidate-dashboard/render.php:1033
+#: blocks/company-profile/render.php:95 blocks/company-profile/render.php:108
+#: blocks/job-listings/render.php:422 blocks/job-single/render.php:294
+#: blocks/job-single/render.php:450 blocks/job-single/render.php:454
+msgid "Saved"
+msgstr "Gespeichert"
+
+#: blocks/candidate-dashboard/render.php:1041
+#: blocks/employer-dashboard/render.php:1038
+msgid "Account Settings"
+msgstr "Kontoeinstellungen"
+
+#: blocks/candidate-dashboard/render.php:1046
+#: blocks/employer-dashboard/render.php:1043
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#: blocks/candidate-dashboard/render.php:1054
+#: blocks/employer-dashboard/render.php:1051
+msgid "Save changes"
+msgstr "Änderungen speichern"
+
+#: blocks/candidate-dashboard/render.php:1059
+#: blocks/employer-dashboard/render.php:1056
+msgid "Change Password"
+msgstr "Passwort ändern"
+
+#: blocks/candidate-dashboard/render.php:1064
+#: blocks/employer-dashboard/render.php:1061
+msgid "Current Password"
+msgstr "Aktuelles Passwort"
+
+#: blocks/candidate-dashboard/render.php:1068
+#: blocks/employer-dashboard/render.php:1065
+msgid "New Password"
+msgstr "Neues Passwort"
+
+#: blocks/candidate-dashboard/render.php:1072
+#: blocks/employer-dashboard/render.php:1069
+msgid "Confirm New Password"
+msgstr "Neues Passwort bestätigen"
+
+#: blocks/candidate-dashboard/render.php:1076
+#: blocks/employer-dashboard/render.php:1073
+msgid "Update password"
+msgstr "Passwort aktualisieren"
+
+#: blocks/candidate-dashboard/render.php:1082
+msgid "Privacy & My Data"
+msgstr "Datenschutz & Meine Daten"
+
+#: blocks/candidate-dashboard/render.php:1086
+msgid ""
+"Request a copy of your personal data, or delete your account permanently. "
+"Both actions are processed by the site administrator and you'll receive an "
+"email confirmation when complete."
+msgstr ""
+"Fordere eine Kopie deiner persönlichen Daten an oder lösche dein Konto "
+"dauerhaft. Beide Maßnahmen werden vom Site-Administrator bearbeitet und du "
+"erhältst eine E-Mail-Bestätigung, wenn die Bearbeitung abgeschlossen ist."
+
+#: blocks/candidate-dashboard/render.php:1089
+msgid "Export my data"
+msgstr "Meine Daten exportieren"
+
+#: blocks/candidate-dashboard/render.php:1094
+msgid "Request data export"
+msgstr "Datenexport anfordern"
+
+#: blocks/candidate-dashboard/render.php:1095
+msgid "Export requested"
+msgstr "Export angefordert"
+
+#: blocks/candidate-dashboard/render.php:1100
+msgid "Delete my account"
+msgstr "Mein Konto löschen"
+
+#: blocks/candidate-dashboard/render.php:1105
+msgid "Request account deletion"
+msgstr "Kontolöschung anfordern"
+
+#: blocks/candidate-dashboard/render.php:1106
+msgid "Deletion requested"
+msgstr "Löschung angefordert"
+
+#: blocks/company-archive/render.php:31 blocks/company-profile/render.php:81
+#: blocks/employer-dashboard/render.php:805
+#: core/class-company-meta-shape.php:65
+msgid "5,000+ employees"
+msgstr "5.000+ Mitarbeiter"
+
+#: blocks/company-archive/render.php:225
+msgid "Search companies…"
+msgstr "Unternehmen suchen…"
+
+#: blocks/company-archive/render.php:226
+msgid "Sort companies"
+msgstr "Unternehmen sortieren"
+
+#: blocks/company-archive/render.php:228 blocks/job-listings/render.php:460
+#: templates/parts/archive-toolbar.php:76
+msgid "Newest first"
+msgstr "Neueste zuerst"
+
+#: blocks/company-archive/render.php:229 blocks/job-listings/render.php:461
+#: templates/parts/archive-toolbar.php:77
+msgid "Oldest first"
+msgstr "Älteste zuerst"
+
+#: blocks/company-archive/render.php:231 blocks/job-listings/render.php:464
+#: templates/parts/archive-toolbar.php:83
+msgid "View layout"
+msgstr "Ansichtslayout"
+
+#: blocks/company-archive/render.php:232 blocks/job-listings/render.php:465
+#: templates/parts/archive-toolbar.php:84
+msgid "List view"
+msgstr "Listenansicht"
+
+#: blocks/company-archive/render.php:233 blocks/job-listings/render.php:466
+#: templates/parts/archive-toolbar.php:85
+msgid "Grid view"
+msgstr "Rasteransicht"
+
+#: blocks/company-archive/render.php:250
+msgid "Filter companies"
+msgstr "Unternehmen filtern"
+
+#: blocks/company-archive/render.php:253 blocks/job-listings/render.php:484
+#: blocks/job-search-hero/index.js:29
+msgid "Filters"
+msgstr "Filter"
+
+#: blocks/company-archive/render.php:254 blocks/job-listings/render.php:485
+msgid "Toggle filters"
+msgstr "Filter umschalten"
+
+#: blocks/company-archive/render.php:283 blocks/company-profile/render.php:260
+#: blocks/job-single/render.php:756
+msgid "Company size"
+msgstr "Unternehmensgröße"
+
+#: blocks/company-archive/render.php:316
+msgid "Save company"
+msgstr "Unternehmen speichern"
+
+#: blocks/company-archive/render.php:396
+msgid "No companies match your filters"
+msgstr "Keine Unternehmen entsprechen deinen Filtern"
+
+#: blocks/company-archive/render.php:397 blocks/job-listings/render.php:798
+msgid "Try removing a filter or clearing them all to see more results."
+msgstr ""
+"Versuche, einen Filter zu entfernen oder alle zu löschen, um mehr "
+"Ergebnisse zu sehen."
+
+#: blocks/company-archive/render.php:400 blocks/job-listings/render.php:801
+#: templates/parts/archive-empty-state.php:51
+msgid "Clear filters"
+msgstr "Filter löschen"
+
+#: blocks/company-archive/render.php:407
+msgid "Load more companies"
+msgstr "Weitere Unternehmen laden"
+
+#: blocks/company-profile/render.php:96 blocks/company-profile/render.php:107
+#: modules/applications/widgets/class-status-changer.php:108
+msgid "Save"
+msgstr "Speichern"
+
+#: blocks/company-profile/render.php:139
+msgid "Save this company"
+msgstr "Dieses Unternehmen speichern"
+
+#: blocks/company-profile/render.php:218
+#: blocks/employer-dashboard/render.php:862
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: blocks/company-profile/render.php:224
+msgid "X / Twitter"
+msgstr "X / Twitter"
+
+#: blocks/company-profile/render.php:240
+msgid "About"
+msgstr "Über"
+
+#: blocks/company-profile/render.php:266 modules/jobs/class-jobs-module.php:124
+msgid "Type"
+msgstr "Typ"
+
+#: blocks/company-profile/render.php:272
+msgid "Founded"
+msgstr "Gegründet"
+
+#: blocks/company-profile/render.php:278
+#: blocks/employer-registration/render.php:243 blocks/job-single/render.php:767
+msgid "Headquarters"
+msgstr "Hauptsitz"
+
+#: blocks/company-profile/render.php:347
+msgid "Open Positions"
+msgstr "Offene Stellen"
+
+#: blocks/company-profile/render.php:350
+msgid "No open positions at the moment. Check back soon."
+msgstr "Momentan keine offenen Stellen. Schau bald vorbei."
+
+#: blocks/company-profile/render.php:358 blocks/job-listings/render.php:723
+msgid "Job listing"
+msgstr "Stellenangebot"
+
+#: blocks/company-profile/render.php:380 blocks/job-listings/render.php:808
+msgid "Load more jobs"
+msgstr "Weitere Stellen laden"
+
+#: blocks/company-profile/render.php:381
+#: templates/parts/archive-load-more.php:30
+msgid "Loading&hellip;"
+msgstr "Lädt&hellip;"
+
+#: blocks/company-profile/render.php:420
+msgid "Company profile sidebar"
+msgstr "Unternehmensprofil-Seitenleiste"
+
+#: blocks/employer-dashboard/render.php:18
+msgid "Please sign in to access your dashboard."
+msgstr "Bitte melde dich an, um auf dein Dashboard zuzugreifen."
+
+#: blocks/employer-dashboard/render.php:32
+msgid ""
+"The employer dashboard is for employers. If you are hiring, register as an "
+"employer. Otherwise, manage your applications and resumes from your "
+"candidate dashboard."
+msgstr ""
+"Das Arbeitgeber-Dashboard ist für Arbeitgeber. Wenn du einstellen möchtest, "
+"registriere dich als Arbeitgeber. Andernfalls verwalte deine Bewerbungen "
+"und Lebensläufe über dein Kandidaten-Dashboard."
+
+#: blocks/employer-dashboard/render.php:35 blocks/job-form-simple/render.php:37
+#: blocks/job-form/render.php:38
+msgid "Register as an employer"
+msgstr "Als Arbeitgeber registrieren"
+
+#: blocks/employer-dashboard/render.php:40
+msgid "Go to Candidate Dashboard"
+msgstr "Gehe zum Kandidaten-Dashboard"
+
+#: blocks/employer-dashboard/render.php:223
+msgid "Status updated. The candidate has been notified."
+msgstr "Status aktualisiert. Der Kandidat wurde benachrichtigt."
+
+#: blocks/employer-dashboard/render.php:224
+msgid "Could not update the status. Please try again."
+msgstr "Der Status konnte nicht aktualisiert werden. Bitte versuche es erneut."
+
+#: blocks/employer-dashboard/render.php:254
+msgid "Could not load your jobs."
+msgstr "Deine Stellen konnten nicht geladen werden."
+
+#: blocks/employer-dashboard/render.php:255
+msgid "Could not load applications."
+msgstr "Bewerbungen konnten nicht geladen werden."
+
+#: blocks/employer-dashboard/render.php:256
+msgid "Connection error loading applications."
+msgstr "Verbindungsfehler beim Laden von Bewerbungen."
+
+#: blocks/employer-dashboard/render.php:258
+msgid "Could not save profile. Please try again."
+msgstr "Profil konnte nicht gespeichert werden. Bitte versuche es erneut."
+
+#: blocks/employer-dashboard/render.php:259
+msgid "Please save your company profile before uploading a logo."
+msgstr "Bitte speichere dein Unternehmensprofil, bevor du ein Logo hochlädst."
+
+#: blocks/employer-dashboard/render.php:265
+#: blocks/employer-dashboard/render.php:328
+#: blocks/employer-dashboard/render.php:532
+msgid "My Jobs"
+msgstr "Meine Stellen"
+
+#: blocks/employer-dashboard/render.php:270
+msgid "Uploading\\u2026"
+msgstr "Wird hochgeladen…"
+
+#: blocks/employer-dashboard/render.php:271
+msgid "Change Logo"
+msgstr "Logo ändern"
+
+#: blocks/employer-dashboard/render.php:272
+msgid "Upload Logo"
+msgstr "Logo hochladen"
+
+#: blocks/employer-dashboard/render.php:273
+msgid "View application from "
+msgstr "Bewerbung von "
+
+#: blocks/employer-dashboard/render.php:274
+msgid " jobs with applications"
+msgstr " Stellen mit Bewerbungen"
+
+#: blocks/employer-dashboard/render.php:275
+msgid " job"
+msgstr " Stelle"
+
+#: blocks/employer-dashboard/render.php:276
+msgid " of "
+msgstr " von "
+
+#: blocks/employer-dashboard/render.php:277
+msgid " jobs"
+msgstr " Stellen"
+
+#: blocks/employer-dashboard/render.php:278
+msgid "Applications: "
+msgstr "Bewerbungen: "
+
+#: blocks/employer-dashboard/render.php:280
+msgid ""
+"Are you sure you want to close this job? It will no longer be visible to "
+"candidates."
+msgstr ""
+"Bist du sicher, dass du diese Stelle schließen möchtest? Sie wird für "
+"Kandidaten nicht mehr sichtbar sein."
+
+#: blocks/employer-dashboard/render.php:282
+#. translators: %d is the credit count just added to the employer's balance.
+#, php-format
+msgid "%d credits added to your balance."
+msgstr "%d Guthaben zu deinem Kontostand hinzugefügt."
+
+#: blocks/employer-dashboard/render.php:283
+msgid "1 credit added to your balance."
+msgstr "1 Guthaben zu deinem Kontostand hinzugefügt."
+
+#: blocks/employer-dashboard/render.php:285
+#. translators: %d is the current low-credit balance.
+#, php-format
+msgid "Low balance: %d credits left."
+msgstr "Niedriger Kontostand: %d Guthaben verbleibend."
+
+#: blocks/employer-dashboard/render.php:286
+msgid "Low balance: 1 credit left."
+msgstr "Niedriger Kontostand: 1 Guthaben verbleibend."
+
+#: blocks/employer-dashboard/render.php:287
+msgid "Rank by AI fit"
+msgstr "Nach AI-Passung ordnen"
+
+#: blocks/employer-dashboard/render.php:288
+msgid "Ranking…"
+msgstr "Wird eingeordnet…"
+
+#: blocks/employer-dashboard/render.php:290
+#: blocks/employer-dashboard/render.php:629
+#: blocks/employer-dashboard/render.php:688
+#: modules/applications/class-application-status.php:75
+#: modules/applications/widgets/class-status-timeline.php:129
+msgid "Reviewing"
+msgstr "Überprüfung"
+
+#: blocks/employer-dashboard/render.php:292
+#: blocks/employer-dashboard/render.php:641
+#: blocks/employer-dashboard/render.php:691
+#: modules/applications/class-application-status.php:78
+#: modules/applications/widgets/class-status-timeline.php:132
+msgid "Hired"
+msgstr "Eingestellt"
+
+#: blocks/employer-dashboard/render.php:294
+#: blocks/employer-dashboard/render.php:615 blocks/job-listings/index.js:97
+#: blocks/job-listings/index.js:154
+msgid "List"
+msgstr "Liste"
+
+#: blocks/employer-dashboard/render.php:295
+#: blocks/employer-dashboard/render.php:616
+msgid "Board"
+msgstr "Board"
+
+#: blocks/employer-dashboard/render.php:325
+msgid "Dashboard navigation"
+msgstr "Dashboard-Navigation"
+
+#: blocks/employer-dashboard/render.php:326
+msgid "JOBS"
+msgstr "JOBS"
+
+#: blocks/employer-dashboard/render.php:335
+msgid "HIRING"
+msgstr "BEWERBUNGEN"
+
+#: blocks/employer-dashboard/render.php:341
+msgid "COMPANY"
+msgstr "UNTERNEHMEN"
+
+#: blocks/employer-dashboard/render.php:346
+msgid "Public Page"
+msgstr "Öffentliche Seite"
+
+#: blocks/employer-dashboard/render.php:350
+msgid "CREDITS"
+msgstr "GUTHABEN"
+
+#: blocks/employer-dashboard/render.php:352
+msgid "Balance"
+msgstr "Guthaben"
+
+#: blocks/employer-dashboard/render.php:360
+msgid "Buy Credits"
+msgstr "Credits kaufen"
+
+#: blocks/employer-dashboard/render.php:428
+msgid "Welcome! Let's get you set up."
+msgstr "Willkommen! Lass dich einrichten."
+
+#: blocks/employer-dashboard/render.php:429
+msgid ""
+"Create your company profile to start posting jobs and receiving "
+"applications."
+msgstr ""
+"Erstelle dein Unternehmerprofil, um Jobs zu posten und Bewerbungen zu "
+"erhalten."
+
+#: blocks/employer-dashboard/render.php:431
+#: blocks/employer-dashboard/render.php:553
+msgid "Set Up Company Profile"
+msgstr "Unternehmerprofil einrichten"
+
+#: blocks/employer-dashboard/render.php:436
+msgid "Your company is ready."
+msgstr "Dein Unternehmen ist bereit."
+
+#: blocks/employer-dashboard/render.php:437
+msgid "Post your first job to start receiving applications."
+msgstr "Veröffentliche deinen ersten Job, um Bewerbungen zu erhalten."
+
+#: blocks/employer-dashboard/render.php:439
+#: blocks/employer-dashboard/render.php:560
+msgid "Post Your First Job"
+msgstr "Deinen ersten Job posten"
+
+#: blocks/employer-dashboard/render.php:457
+msgid "Buy more"
+msgstr "Mehr kaufen"
+
+#: blocks/employer-dashboard/render.php:464
+msgid "Total Jobs"
+msgstr "Insgesamt Jobs"
+
+#: blocks/employer-dashboard/render.php:468
+#: blocks/employer-dashboard/render.php:538
+msgid "Live"
+msgstr "Live"
+
+#: blocks/employer-dashboard/render.php:472
+msgid "Total Applications"
+msgstr "Insgesamt Bewerbungen"
+
+#: blocks/employer-dashboard/render.php:476
+msgid "New This Week"
+msgstr "Diese Woche neu"
+
+#: blocks/employer-dashboard/render.php:510
+msgid "Manage all →"
+msgstr "Alles verwalten →"
+
+#: blocks/employer-dashboard/render.php:524
+msgid "No active jobs."
+msgstr "Keine aktiven Jobs."
+
+#: blocks/employer-dashboard/render.php:533
+msgid "Search your jobs"
+msgstr "Durchsuche deine Jobs"
+
+#: blocks/employer-dashboard/render.php:533 blocks/job-listings/render.php:457
+#: blocks/job-search-hero/render.php:22 blocks/job-search/render.php:50
+msgid "Search jobs…"
+msgstr "Nach Jobs suchen…"
+
+#: blocks/employer-dashboard/render.php:545
+#: blocks/employer-dashboard/render.php:648
+msgid "Loading"
+msgstr "Wird geladen"
+
+#: blocks/employer-dashboard/render.php:552
+msgid "Set up your company profile first before posting jobs."
+msgstr "Richte zunächst dein Unternehmerprofil ein, bevor du Jobs postest."
+
+#: blocks/employer-dashboard/render.php:559
+msgid "No jobs posted yet."
+msgstr "Noch keine Jobs gepostet."
+
+#: blocks/employer-dashboard/render.php:575
+msgid "View ↗"
+msgstr "Ansehen ↗"
+
+#: blocks/employer-dashboard/render.php:577
+msgid "Close"
+msgstr "Schließen"
+
+#: blocks/employer-dashboard/render.php:578
+msgid "Publish"
+msgstr "Veröffentlichen"
+
+#: blocks/employer-dashboard/render.php:579
+msgid "Resubmit"
+msgstr "Erneut einreichen"
+
+#: blocks/employer-dashboard/render.php:580
+msgid "Reopen"
+msgstr "Erneut öffnen"
+
+#: blocks/employer-dashboard/render.php:595
+msgid "Search applications by job"
+msgstr "Bewerbungen nach Job durchsuchen"
+
+#: blocks/employer-dashboard/render.php:595
+msgid "Search jobs..."
+msgstr "Jobs durchsuchen…"
+
+#: blocks/employer-dashboard/render.php:605
+msgid "No jobs match your search."
+msgstr "Keine Jobs entsprechen deiner Suche."
+
+#: blocks/employer-dashboard/render.php:610
+msgid "Select a job above to view its applications."
+msgstr "Wähle oben einen Job aus, um seine Bewerbungen anzusehen."
+
+#: blocks/employer-dashboard/render.php:611
+msgid "Go to My Jobs"
+msgstr "Zu meinen Jobs"
+
+#: blocks/employer-dashboard/render.php:625
+msgid "New"
+msgstr "Neu"
+
+#: blocks/employer-dashboard/render.php:654
+msgid "No applications yet for this job."
+msgstr "Noch keine Bewerbungen für diesen Job."
+
+#: blocks/employer-dashboard/render.php:676
+msgid "Select an applicant from the list."
+msgstr "Wähle einen Bewerber aus der Liste aus."
+
+#: blocks/employer-dashboard/render.php:696
+msgid "AI fit"
+msgstr "AI-Passung"
+
+#: blocks/employer-dashboard/render.php:705 blocks/job-single/render.php:953
+#: modules/applications/widgets/class-resume-preview.php:85
+#: modules/candidates/class-candidates-module.php:98
+msgid "Resume"
+msgstr "Lebenslauf"
+
+#: blocks/employer-dashboard/render.php:708
+msgid "Download Resume"
+msgstr "Lebenslauf herunterladen"
+
+#: blocks/employer-dashboard/render.php:739
+msgid "Company Profile"
+msgstr "Unternehmensprofil"
+
+#: blocks/employer-dashboard/render.php:745
+msgid "Company Logo"
+msgstr "Unternehmenslogo"
+
+#: blocks/employer-dashboard/render.php:754
+msgid "Save your company profile first to enable logo upload."
+msgstr "Speichere zunächst dein Unternehmensprofil, um das Logo hochzuladen."
+
+#: blocks/employer-dashboard/render.php:761
+msgid "Tagline"
+msgstr "Slogan"
+
+#: blocks/employer-dashboard/render.php:762
+msgid "One-line description shown on listings"
+msgstr "Einzeilige Beschreibung, die in Angeboten angezeigt wird"
+
+#: blocks/employer-dashboard/render.php:767 blocks/job-single/render.php:721
+msgid "About the Company"
+msgstr "Über das Unternehmen"
+
+#: blocks/employer-dashboard/render.php:768
+msgid "What does your company do? Mission, products, culture…"
+msgstr "Was macht dein Unternehmen? Mission, Produkte, Unternehmenskultur…"
+
+#: blocks/employer-dashboard/render.php:775
+msgid "About the company"
+msgstr "Über das Unternehmen"
+
+#: blocks/employer-dashboard/render.php:796
+msgid " -  Select size  - "
+msgstr " -  Größe auswählen  - "
+
+#: blocks/employer-dashboard/render.php:821
+msgid "HQ Location"
+msgstr "Hauptsitz"
+
+#: blocks/employer-dashboard/render.php:822
+#: blocks/employer-registration/render.php:244
+msgid "e.g. San Francisco, CA"
+msgstr "z. B. San Francisco, CA"
+
+#: blocks/employer-dashboard/render.php:833
+msgid " -  Select type  - "
+msgstr " -  Typ auswählen  - "
+
+#: blocks/employer-dashboard/render.php:857
+msgid "e.g. 2012"
+msgstr "z. B. 2012"
+
+#: blocks/employer-dashboard/render.php:866
+msgid "X (Twitter)"
+msgstr "X (Twitter)"
+
+#: blocks/employer-dashboard/render.php:882
+msgid "Profile saved successfully."
+msgstr "Profil erfolgreich gespeichert."
+
+#: blocks/employer-dashboard/render.php:892
+msgid "Live Preview"
+msgstr "Live-Vorschau"
+
+#: blocks/employer-dashboard/render.php:933
+msgid "Bookmarked job"
+msgstr "Stellenangebot als Lesezeichen gespeichert"
+
+#: blocks/employer-dashboard/render.php:973
+msgid "Bookmarked company"
+msgstr "Unternehmen als Lesezeichen gespeichert"
+
+#: blocks/employer-dashboard/render.php:1012
+msgid "Bookmarked resume"
+msgstr "Lebenslauf als Lesezeichen gespeichert"
+
+#: blocks/employer-registration/render.php:31
+msgid "You're registered as an employer."
+msgstr "Du bist als Arbeitgeber registriert."
+
+#: blocks/employer-registration/render.php:32
+msgid "You're registered as a candidate."
+msgstr "Du bist als Kandidat registriert."
+
+#: blocks/employer-registration/render.php:39
+msgid "Go to your dashboard →"
+msgstr "Gehe zu deinem Dashboard →"
+
+#: blocks/employer-registration/render.php:93
+msgid "Account created!"
+msgstr "Konto erstellt!"
+
+#: blocks/employer-registration/render.php:95
+msgid ""
+"You are now logged in as an employer. Set up your company profile to start "
+"posting jobs."
+msgstr ""
+"Du bist jetzt als Arbeitgeber angemeldet. Richte dein Unternehmensprofil "
+"ein, um mit der Veröffentlichung von Stellenangeboten zu beginnen."
+
+#: blocks/employer-registration/render.php:98
+msgid ""
+"You are now logged in as a candidate. Start browsing jobs and building your "
+"resume."
+msgstr ""
+"Du bist jetzt als Kandidat angemeldet. Durchsuche Stellenangebote und "
+"erstelle deinen Lebenslauf."
+
+#: blocks/employer-registration/render.php:101
+msgid "Go to Dashboard →"
+msgstr "Gehe zum Dashboard →"
+
+#: blocks/employer-registration/render.php:108
+msgid "Join WP Career Board"
+msgstr "Tritt WP Career Board bei"
+
+#: blocks/employer-registration/render.php:110
+#: blocks/employer-registration/render.php:137
+msgid "Already have an account?"
+msgstr "Hast du bereits ein Konto?"
+
+#: blocks/employer-registration/render.php:111
+#: blocks/employer-registration/render.php:138
+msgid "Sign in"
+msgstr "Anmelden"
+
+#: blocks/employer-registration/render.php:113
+msgid "I want to..."
+msgstr "Ich möchte…"
+
+#: blocks/employer-registration/render.php:115
+#: blocks/employer-registration/render.php:117
+msgid "Find a Job"
+msgstr "Eine Stelle finden"
+
+#: blocks/employer-registration/render.php:118
+msgid "Browse jobs, apply, and build your resume"
+msgstr "Durchsuche Stellenangebote, bewirb dich und erstelle deinen Lebenslauf"
+
+#: blocks/employer-registration/render.php:120
+#: blocks/employer-registration/render.php:122
+msgid "Hire Talent"
+msgstr "Talente einstellen"
+
+#: blocks/employer-registration/render.php:123
+msgid "Post jobs, manage applications, and find candidates"
+msgstr "Stelle Stellenangebote ein, verwalte Bewerbungen und finde Kandidaten"
+
+#: blocks/employer-registration/render.php:131
+msgid "Back"
+msgstr "Zurück"
+
+#: blocks/employer-registration/render.php:145
+#: blocks/job-form-simple/render.php:234 blocks/job-form/render.php:940
+#: blocks/job-single/render.php:1120
+msgid "Leave this field blank"
+msgstr "Lasse dieses Feld leer"
+
+#: blocks/employer-registration/render.php:150
+msgid "First Name"
+msgstr "Vorname"
+
+#: blocks/employer-registration/render.php:163
+msgid "Last Name"
+msgstr "Nachname"
+
+#: blocks/employer-registration/render.php:194
+#. translators: %s: user's display name.
+#, php-format
+msgid "Continuing as %s. Your account will be linked to this role."
+msgstr "Du fährst fort als %s. Dein Konto wird mit dieser Rolle verknüpft."
+
+#: blocks/employer-registration/render.php:212
+msgid "Company Website"
+msgstr "Unternehmenswebsite"
+
+#: blocks/employer-registration/render.php:232
+#: core/class-form-custom-fields.php:288
+msgid "Select…"
+msgstr "Wählen…"
+
+#: blocks/employer-registration/render.php:250
+msgid "Password"
+msgstr "Passwort"
+
+#: blocks/employer-registration/render.php:261
+msgid "Minimum 8 characters"
+msgstr "Mindestens 8 Zeichen"
+
+#: blocks/employer-registration/render.php:272
+msgid "Create Account"
+msgstr "Konto erstellen"
+
+#: blocks/employer-registration/render.php:273
+msgid "Creating account…"
+msgstr "Konto wird erstellt…"
+
+#: blocks/employer-registration/render.php:280
+#. translators: 1: privacy policy link open, 2: link close
+#, php-format
+msgid "By creating an account you agree to our %1$sPrivacy Policy%2$s."
+msgstr "Wenn du ein Konto erstellst, stimmst du unserer %1$sPrivacy Policy%2$s zu."
+
+#: blocks/featured-jobs/render.php:48
+msgid "No featured jobs to display. Mark jobs as featured in the editor."
+msgstr ""
+"Keine hervorgehobenen Jobs zum Anzeigen. Markiere Jobs im Editor als "
+"hervorgehoben."
+
+#: blocks/featured-jobs/render.php:58
+msgid "Featured Jobs"
+msgstr "Hervorgehobene Jobs"
+
+#: blocks/featured-jobs/render.php:94
+msgid "View all jobs →"
+msgstr "Alle Jobs anzeigen →"
+
+#: blocks/job-alert-card/render.php:21
+msgid "Get Job Alerts"
+msgstr "Job-Benachrichtigungen erhalten"
+
+#: blocks/job-alert-card/render.php:24
+msgid ""
+"Don't miss new openings. Subscribe to email alerts for roles that match "
+"what you're looking for."
+msgstr ""
+"Verpasse keine neuen Stellenangebote. Abonniere E-Mail-Benachrichtigungen "
+"für Stellen, die deinen Anforderungen entsprechen."
+
+#: blocks/job-alert-card/render.php:27
+msgid "Set Up Alerts"
+msgstr "Benachrichtigungen einrichten"
+
+#: blocks/job-filters/render.php:97 blocks/job-form-simple/render.php:353
+#: blocks/job-form/render.php:708 blocks/job-listings/render.php:544
+#: blocks/job-listings/index.js:19
+msgid "Category"
+msgstr "Kategorie"
+
+#: blocks/job-filters/render.php:98 blocks/job-search-hero/render.php:95
+msgid "All Categories"
+msgstr "Alle Kategorien"
+
+#: blocks/job-filters/render.php:106 blocks/job-form-simple/render.php:362
+#: blocks/job-form/render.php:728 blocks/job-single/render.php:553
+msgid "Job Type"
+msgstr "Stellentyp"
+
+#: blocks/job-filters/render.php:107 blocks/job-search-hero/render.php:127
+msgid "All Types"
+msgstr "Alle Typen"
+
+#: blocks/job-filters/render.php:116 blocks/job-search-hero/render.php:111
+msgid "All Locations"
+msgstr "Alle Standorte"
+
+#: blocks/job-filters/render.php:124 blocks/job-form-simple/render.php:393
+#: blocks/job-listings/render.php:524 blocks/job-single/render.php:560
+#: blocks/job-listings/index.js:18
+msgid "Experience"
+msgstr "Erfahrung"
+
+#: blocks/job-filters/render.php:125
+msgid "All Experience Levels"
+msgstr "Alle Erfahrungsstufen"
+
+#: blocks/job-filters/render.php:134 blocks/job-form-simple/render.php:440
+msgid "Minimum salary"
+msgstr "Mindestgehalt"
+
+#: blocks/job-filters/render.php:134
+msgid "Min salary"
+msgstr "Min. Gehalt"
+
+#: blocks/job-filters/render.php:135 blocks/job-form-simple/render.php:441
+msgid "Maximum salary"
+msgstr "Höchstgehalt"
+
+#: blocks/job-filters/render.php:135
+msgid "Max salary"
+msgstr "Max. Gehalt"
+
+#: blocks/job-filters/render.php:147 blocks/job-listings/render.php:588
+msgid "Remote only"
+msgstr "Nur Remote"
+
+#: blocks/job-form-simple/render.php:32 blocks/job-form/render.php:33
+msgid "Please sign in as an employer to post a job."
+msgstr "Bitte melde dich als Arbeitgeber an, um eine Stelle zu veröffentlichen."
+
+#: blocks/job-form-simple/render.php:36
+#. translators: %s: employer registration link.
+#, php-format
+msgid "Posting a job is for employers. %s to start hiring."
+msgstr ""
+"Stellenangebote sind nur für Arbeitgeber. %s, um mit der Rekrutierung zu "
+"beginnen."
+
+#: blocks/job-form-simple/render.php:40
+msgid "Posting a job is for employers."
+msgstr "Stellenangebote sind nur für Arbeitgeber."
+
+#: blocks/job-form-simple/render.php:204 blocks/job-form/render.php:275
+#. translators: 1: required credits, 2: current balance.
+#, php-format
+msgid ""
+"This board requires %1$d credits. Your balance: %2$d. Please purchase more "
+"credits."
+msgstr ""
+"Dieses Board erfordert %1$d Credits. Dein Guthaben: %2$d. Bitte kaufe mehr "
+"Credits."
+
+#: blocks/job-form-simple/render.php:206 blocks/job-form/render.php:277
+#. translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance.
+#, php-format
+msgid "Posting deducts %1$s. Balance after: %2$d (currently %3$d)."
+msgstr "Veröffentlichung kostet %1$s. Guthaben danach: %2$d (derzeit %3$d)."
+
+#: blocks/job-form-simple/render.php:208 blocks/job-form/render.php:279
+#. translators: %d: current credit balance. Shown when the selected board has no credit cost.
+#, php-format
+msgid "Free to post on this board. Your balance: %d."
+msgstr "Kostenlos auf diesem Board zu veröffentlichen. Dein Guthaben: %d."
+
+#: blocks/job-form-simple/render.php:210 blocks/job-form/render.php:281
+#. translators: %d: number of credits (singular).
+#, php-format
+msgid "%d credit"
+msgstr "%d Credit"
+
+#: blocks/job-form-simple/render.php:212 blocks/job-form/render.php:283
+#. translators: %d: number of credits (plural).
+#, php-format
+msgid "%d credits"
+msgstr "%d Credits"
+
+#: blocks/job-form-simple/render.php:217
+msgid "Job could not be posted. Please try again."
+msgstr "Die Stelle konnte nicht veröffentlicht werden. Bitte versuche es erneut."
+
+#: blocks/job-form-simple/render.php:240
+msgid "Job posted"
+msgstr "Stelle veröffentlicht"
+
+#: blocks/job-form-simple/render.php:248
+msgid "View your job"
+msgstr "Deine Stelle anzeigen"
+
+#: blocks/job-form-simple/render.php:274
+msgid "About the role"
+msgstr "Über die Stelle"
+
+#: blocks/job-form-simple/render.php:279 blocks/job-form/render.php:422
+msgid "Post to Board"
+msgstr "Im Board veröffentlichen"
+
+#: blocks/job-form-simple/render.php:306 blocks/job-form/render.php:449
+msgid "e.g. Senior PHP Developer"
+msgstr "z. B. Senior PHP Developer"
+
+#: blocks/job-form-simple/render.php:325 blocks/job-form/render.php:471
+msgid "Generate with AI"
+msgstr "Mit AI generieren"
+
+#: blocks/job-form-simple/render.php:326 blocks/job-form/render.php:472
+msgid "Generating…"
+msgstr "Wird generiert…"
+
+#: blocks/job-form-simple/render.php:349
+msgid "Classification"
+msgstr "Klassifizierung"
+
+#: blocks/job-form-simple/render.php:355 blocks/job-form/render.php:717
+msgid "Select a category"
+msgstr "Wähle eine Kategorie"
+
+#: blocks/job-form-simple/render.php:364 blocks/job-form/render.php:737
+msgid "Select a job type"
+msgstr "Wähle einen Jobtyp"
+
+#: blocks/job-form-simple/render.php:373 blocks/job-form/render.php:757
+msgid "Select a location"
+msgstr "Wähle einen Standort"
+
+#: blocks/job-form-simple/render.php:377 blocks/job-form/render.php:763
+msgid "Other (enter manually)…"
+msgstr "Sonstiges (manuell eingeben)…"
+
+#: blocks/job-form-simple/render.php:387 blocks/job-form/render.php:773
+msgid "Custom location"
+msgstr "Benutzerdefinierter Standort"
+
+#: blocks/job-form-simple/render.php:388
+msgid "e.g. Berlin, DE or Remote - Europe"
+msgstr "z.B. Berlin, DE oder Remote - Europa"
+
+#: blocks/job-form-simple/render.php:395 blocks/job-form/render.php:790
+msgid "Select experience level"
+msgstr "Wähle ein Erfahrungsniveau"
+
+#: blocks/job-form-simple/render.php:404 blocks/job-form/render.php:803
+msgid "Skills / Tags"
+msgstr "Fähigkeiten / Tags"
+
+#: blocks/job-form-simple/render.php:409 blocks/job-form/render.php:809
+msgid "e.g. React, TypeScript, Node.js"
+msgstr "z.B. React, TypeScript, Node.js"
+
+#: blocks/job-form-simple/render.php:414
+msgid "Comma-separated."
+msgstr "Komma-getrennt."
+
+#: blocks/job-form-simple/render.php:420
+msgid "Compensation & schedule"
+msgstr "Vergütung & Zeitplan"
+
+#: blocks/job-form-simple/render.php:423 blocks/job-form/render.php:523
+msgid "Salary Range"
+msgstr "Gehaltsbereich"
+
+#: blocks/job-form-simple/render.php:440 blocks/job-form/render.php:554
+#: core/class-form-custom-fields.php:355
+msgid "Min"
+msgstr "Min"
+
+#: blocks/job-form-simple/render.php:441 blocks/job-form/render.php:569
+#: core/class-form-custom-fields.php:356
+msgid "Max"
+msgstr "Max"
+
+#: blocks/job-form-simple/render.php:442
+msgid "Period"
+msgstr "Zeitraum"
+
+#: blocks/job-form-simple/render.php:448 blocks/job-form/render.php:600
+msgid "Leave blank to hide salary from candidates."
+msgstr "Leer lassen, um das Gehalt vor Kandidaten zu verbergen."
+
+#: blocks/job-form-simple/render.php:460 blocks/job-form/render.php:636
+msgid ""
+"Auto-filled from the job-board policy. Contact your site admin to extend "
+"the listing window."
+msgstr ""
+"Automatisch aus der Richtlinie vorgefüllt. Kontaktiere deinen "
+"Website-Admin, um das Listing-Fenster zu erweitern."
+
+#: blocks/job-form-simple/render.php:466
+msgid "How candidates apply"
+msgstr "Wie Kandidaten sich bewerben"
+
+#: blocks/job-form-simple/render.php:470 blocks/job-form/render.php:643
+msgid "Apply URL"
+msgstr "Bewerbungs-URL"
+
+#: blocks/job-form-simple/render.php:474 blocks/job-form/render.php:662
+#: blocks/job-single/render.php:599
+msgid "Apply Email"
+msgstr "Bewerbungs-E-Mail"
+
+#: blocks/job-form-simple/render.php:506
+msgid "Additional details"
+msgstr "Zusätzliche Details"
+
+#: blocks/job-form-simple/render.php:521 blocks/job-form/render.php:929
+msgid "Post Job"
+msgstr "Job posten"
+
+#: blocks/job-form-simple/render.php:522 blocks/job-form/render.php:932
+msgid "Posting…"
+msgstr "Wird gepostet…"
+
+#: blocks/job-form/render.php:36
+msgid ""
+"Posting a job is for employers. Register as an employer to start hiring - "
+"it only takes a minute."
+msgstr ""
+"Einen Job zu posten ist für Arbeitgeber. Registriere dich als Arbeitgeber, "
+"um mit der Einstellung zu beginnen - es dauert nur eine Minute."
+
+#: blocks/job-form/render.php:121
+msgid "You are not authorized to edit this job."
+msgstr "Du darfst diesen Job nicht bearbeiten."
+
+#: blocks/job-form/render.php:304
+msgid "Your session has expired. Please refresh the page and try again."
+msgstr ""
+"Deine Sitzung ist abgelaufen. Bitte aktualisiere die Seite und versuche es "
+"erneut."
+
+#: blocks/job-form/render.php:315
+msgid "Basics"
+msgstr "Grundlagen"
+
+#: blocks/job-form/render.php:316
+msgid "Details"
+msgstr "Details"
+
+#: blocks/job-form/render.php:317
+msgid "Categories"
+msgstr "Kategorien"
+
+#: blocks/job-form/render.php:318
+msgid "Preview"
+msgstr "Vorschau"
+
+#: blocks/job-form/render.php:327
+msgid "Form progress"
+msgstr "Formularfortschritt"
+
+#: blocks/job-form/render.php:373
+msgid "Buy Credits →"
+msgstr "Credits kaufen →"
+
+#: blocks/job-form/render.php:390
+msgid "Job posted successfully!"
+msgstr "Job erfolgreich gepostet!"
+
+#: blocks/job-form/render.php:393
+msgid "Job submitted for review. You'll be notified once it's approved."
+msgstr ""
+"Job eingereicht zur Überprüfung. Du wirst benachrichtigt, sobald er "
+"genehmigt wurde."
+
+#: blocks/job-form/render.php:402
+msgid "View your job listing →"
+msgstr "Öffne deine Jobliste →"
+
+#: blocks/job-form/render.php:405
+msgid "Post another job"
+msgstr "Poste einen weiteren Job"
+
+#: blocks/job-form/render.php:416
+msgid "Job Basics"
+msgstr "Job-Grundlagen"
+
+#: blocks/job-form/render.php:492
+msgid ""
+"Use the inline toolbar (select text) and block menu (+) to format - "
+"headings, lists, links, quotes."
+msgstr ""
+"Verwende die Inline-Symbolleiste (Text auswählen) und das Block-Menü (+) "
+"zum Formatieren - Überschriften, Listen, Links, Zitate."
+
+#: blocks/job-form/render.php:508
+msgid "Next: Details"
+msgstr "Weiter: Details"
+
+#: blocks/job-form/render.php:655
+msgid "Link to your external ATS or application form."
+msgstr "Link zu deinem externen ATS oder Bewerbungsformular."
+
+#: blocks/job-form/render.php:674
+msgid "Candidates can apply directly by email."
+msgstr "Kandidaten können sich direkt per E-Mail bewerben."
+
+#: blocks/job-form/render.php:690 blocks/job-form/render.php:839
+#: blocks/job-form/render.php:920
+msgid "← Back"
+msgstr "← Zurück"
+
+#: blocks/job-form/render.php:693
+msgid "Next: Categories"
+msgstr "Weiter: Kategorien"
+
+#: blocks/job-form/render.php:702
+msgid "Classify Your Job"
+msgstr "Klassifiziere deine Stellenausschreibung"
+
+#: blocks/job-form/render.php:774
+msgid "e.g. Berlin, DE or Remote  -  Europe"
+msgstr "z.B. Berlin, DE oder Remote  -  Europa"
+
+#: blocks/job-form/render.php:781
+msgid "Experience Level"
+msgstr "Erfahrungsstufe"
+
+#: blocks/job-form/render.php:815
+msgid "Comma-separated. Helps candidates find your job via keyword search."
+msgstr ""
+"Durch Kommas getrennt. Hilft Kandidaten, deine Stelle durch "
+"Schlüsselwortsuche zu finden."
+
+#: blocks/job-form/render.php:842
+msgid "Preview Job"
+msgstr "Vorschau der Stelle"
+
+#: blocks/job-form/render.php:851
+msgid "Preview & Submit"
+msgstr "Vorschau und Absenden"
+
+#: blocks/job-form/render.php:883 modules/jobs/class-jobs-module.php:136
+msgid "Apply by"
+msgstr "Bewerbung über"
+
+#: blocks/job-form/render.php:908
+msgid "Review the details above. Go back to make changes before submitting."
+msgstr ""
+"Überprüfe die obigen Details. Gehe zurück, um Änderungen vor dem Absenden "
+"vorzunehmen."
+
+#: blocks/job-form/render.php:929
+msgid "Update Job"
+msgstr "Stelle aktualisieren"
+
+#: blocks/job-listings/render.php:104
+#. translators: %s: meta key the integrator tried to filter on.
+#, php-format
+msgid ""
+"metaFilter key \"%s\" is not in the WCB namespace (_wcb_*) and is not in "
+"the allowlist. Register it via add_filter( 'wcb_jobs_allowed_meta_filters', "
+"... ) to enable filtering on custom meta keys."
+msgstr ""
+"metaFilter-Schlüssel \"%s\" befindet sich nicht im WCB-Namespace (_wcb_*) "
+"und steht nicht auf der Allowlist. Registriere ihn über add_filter( "
+"'wcb_jobs_allowed_meta_filters', ... ), um Filterung auf "
+"benutzerdefinierten Meta-Keys zu aktivieren."
+
+#: blocks/job-listings/render.php:163 blocks/job-single/render.php:84
+#. translators: %s: formatted maximum salary with currency symbol and period suffix
+#. translators: %s: maximum salary with period suffix
+#, php-format
+msgid "Up to %s"
+msgstr "Bis zu %s"
+
+#: blocks/job-listings/render.php:423 blocks/job-listings/render.php:746
+msgid "Save job"
+msgstr "Stelle speichern"
+
+#: blocks/job-listings/render.php:424 blocks/job-listings/render.php:630
+#: blocks/job-single/render.php:585 modules/jobs/class-jobs-module.php:131
+#: blocks/job-listings/index.js:23
+msgid "Salary"
+msgstr "Gehalt"
+
+#: blocks/job-listings/render.php:425
+msgid "Any"
+msgstr "Beliebig"
+
+#: blocks/job-listings/render.php:427
+#. translators: %d: number of jobs
+msgid "1 job"
+msgstr "1 Stelle"
+
+#: blocks/job-listings/render.php:429
+#. translators: %d: number of jobs
+#, php-format
+msgid "%d jobs"
+msgstr "%d Stellen"
+
+#: blocks/job-listings/render.php:431
+#. translators: 1: number of shown jobs, 2: total number of jobs
+#, php-format
+msgid "%1$d of %2$d jobs"
+msgstr "%1$d von %2$d Stellen"
+
+#: blocks/job-listings/render.php:458
+msgid "Sort jobs"
+msgstr "Stellen sortieren"
+
+#: blocks/job-listings/render.php:481
+msgid "Filter jobs"
+msgstr "Stellen filtern"
+
+#: blocks/job-listings/render.php:504 blocks/job-search-hero/render.php:124
+#: blocks/job-listings/index.js:17
+msgid "Job type"
+msgstr "Stellentyp"
+
+#: blocks/job-listings/render.php:564 blocks/job-listings/index.js:20
+msgid "Tags"
+msgstr "Tags"
+
+#: blocks/job-listings/render.php:600 blocks/job-listings/index.js:22
+#: blocks/job-listings/index.js:86
+msgid "Job board"
+msgstr "Stellenboard"
+
+#: blocks/job-listings/render.php:633
+msgid "Minimum"
+msgstr "Minimum"
+
+#: blocks/job-listings/render.php:648
+msgid "Maximum"
+msgstr "Maximum"
+
+#: blocks/job-listings/render.php:664
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: blocks/job-listings/render.php:690
+msgid "Remove filter"
+msgstr "Filter entfernen"
+
+#: blocks/job-listings/render.php:755 blocks/job-single/render.php:344
+msgid "Featured"
+msgstr "Empfohlen"
+
+#: blocks/job-listings/render.php:797
+msgid "No jobs match your filters"
+msgstr "Keine Stellen entsprechen deinen Filtern"
+
+#: blocks/job-search-hero/render.php:24 blocks/job-search/render.php:57
+msgid "Search"
+msgstr "Suchen"
+
+#: blocks/job-search-hero/render.php:92
+msgid "Job category"
+msgstr "Stellenkategorie"
+
+#: blocks/job-single/render.php:60
+msgid "mo"
+msgstr "Mo"
+
+#: blocks/job-single/render.php:61
+msgid "hr"
+msgstr "h"
+
+#: blocks/job-single/render.php:62
+msgid "yr"
+msgstr "Jahr"
+
+#: blocks/job-single/render.php:295 blocks/job-single/render.php:450
+#: blocks/job-single/render.php:454
+msgid "Save Job"
+msgstr "Stelle speichern"
+
+#: blocks/job-single/render.php:296
+msgid "Please enter your name and email to apply."
+msgstr "Bitte gib deinen Namen und deine E-Mail-Adresse ein, um dich zu bewerben."
+
+#: blocks/job-single/render.php:297
+msgid "Resume upload failed. Please try again."
+msgstr "Lebenslauf-Upload fehlgeschlagen. Bitte versuche es erneut."
+
+#: blocks/job-single/render.php:298
+msgid "Please attach your resume to apply."
+msgstr "Bitte füge deinen Lebenslauf bei, um dich zu bewerben."
+
+#: blocks/job-single/render.php:299
+msgid "Application could not be submitted. Please try again."
+msgstr "Bewerbung konnte nicht eingereicht werden. Bitte versuche es erneut."
+
+#: blocks/job-single/render.php:301
+msgid "Please choose a reason for reporting."
+msgstr "Bitte wähle einen Grund für die Meldung aus."
+
+#: blocks/job-single/render.php:302
+msgid "Could not submit your report. Please try again."
+msgstr "Deine Meldung konnte nicht eingereicht werden. Bitte versuche es erneut."
+
+#: blocks/job-single/render.php:303
+msgid "Write with AI"
+msgstr "Mit AI schreiben"
+
+#: blocks/job-single/render.php:304
+msgid "Writing…"
+msgstr "Wird geschrieben…"
+
+#: blocks/job-single/render.php:376
+msgid "Posted today"
+msgstr "Heute gepostet"
+
+#: blocks/job-single/render.php:378
+msgid "Posted yesterday"
+msgstr "Gestern gepostet"
+
+#: blocks/job-single/render.php:381
+#. translators: %d: number of days
+#, php-format
+msgid "Posted %d days ago"
+msgstr "Vor %d Tagen gepostet"
+
+#: blocks/job-single/render.php:393 blocks/job-single/render.php:634
+#: core/class-abilities.php:190
+msgid "View Applications"
+msgstr "Bewerbungen anzeigen"
+
+#: blocks/job-single/render.php:403 blocks/job-single/render.php:644
+msgid "Apply on Company Site ↗"
+msgstr "Auf der Website des Unternehmens bewerben ↗"
+
+#: blocks/job-single/render.php:412 blocks/job-single/render.php:653
+msgid "Apply Now"
+msgstr "Jetzt bewerben"
+
+#: blocks/job-single/render.php:415 blocks/job-single/render.php:656
+msgid "Application Submitted"
+msgstr "Bewerbung eingereicht"
+
+#: blocks/job-single/render.php:426
+msgid "Get notified about similar jobs"
+msgstr "Benachrichtigungen über ähnliche Jobs erhalten"
+
+#: blocks/job-single/render.php:428
+msgid "You will be notified about similar jobs"
+msgstr "Du wirst über ähnliche Jobs benachrichtigt"
+
+#: blocks/job-single/render.php:436
+#. translators: %s: deadline date
+#, php-format
+msgid "Apply by %s"
+msgstr "Bewerbung bis %s"
+
+#: blocks/job-single/render.php:451
+msgid "Save this job"
+msgstr "Diesen Job speichern"
+
+#: blocks/job-single/render.php:466
+msgid "About This Role"
+msgstr "Über diese Stelle"
+
+#: blocks/job-single/render.php:529
+msgid "Skills & Tags"
+msgstr "Fähigkeiten & Tags"
+
+#: blocks/job-single/render.php:573
+msgid "Work Mode"
+msgstr "Arbeitsform"
+
+#: blocks/job-single/render.php:578
+msgid "On-site"
+msgstr "Vor Ort"
+
+#: blocks/job-single/render.php:592
+msgid "Apply By"
+msgstr "Bewerbung bis"
+
+#: blocks/job-single/render.php:603
+#. translators: %s: job title
+#, php-format
+msgid "Application for %s"
+msgstr "Bewerbung für %s"
+
+#: blocks/job-single/render.php:611
+msgid "Apply Via"
+msgstr "Bewerbung über"
+
+#: blocks/job-single/render.php:622
+msgid "External site"
+msgstr "Externe Website"
+
+#: blocks/job-single/render.php:678
+msgid "Share"
+msgstr "Teilen"
+
+#: blocks/job-single/render.php:681
+msgid "Share:"
+msgstr "Teilen:"
+
+#: blocks/job-single/render.php:687
+msgid "Share on X"
+msgstr "Auf X teilen"
+
+#: blocks/job-single/render.php:696
+msgid "Share on LinkedIn"
+msgstr "Auf LinkedIn teilen"
+
+#: blocks/job-single/render.php:704
+msgid "Copy link"
+msgstr "Link kopieren"
+
+#: blocks/job-single/render.php:760
+#. translators: %s: employee count range, e.g. 501-1000
+#, php-format
+msgid "%s employees"
+msgstr "%s Mitarbeiter"
+
+#: blocks/job-single/render.php:776
+msgid "View Company Profile"
+msgstr "Unternehmsprofil anzeigen"
+
+#: blocks/job-single/render.php:810
+msgid "Report this job"
+msgstr "Diesen Job melden"
+
+#: blocks/job-single/render.php:815
+msgid "Why are you reporting this job?"
+msgstr "Warum meldest du diesen Job?"
+
+#: blocks/job-single/render.php:822
+msgid "- Select a reason -"
+msgstr "- Wähle einen Grund aus -"
+
+#: blocks/job-single/render.php:838
+msgid "Submit report"
+msgstr "Meldung einreichen"
+
+#: blocks/job-single/render.php:845
+msgid "Thanks - this job has been reported for review."
+msgstr "Danke - dieser Job wurde zur Überprüfung gemeldet."
+
+#: blocks/job-single/render.php:870
+msgid "Close application panel"
+msgstr "Bewerbungsbereich schließen"
+
+#: blocks/job-single/render.php:874
+msgid "Apply for this job"
+msgstr "Bewirb dich auf diese Stelle"
+
+#: blocks/job-single/render.php:885
+msgid "Your Name"
+msgstr "Dein Name"
+
+#: blocks/job-single/render.php:897
+msgid "Your Email"
+msgstr "Deine E-Mail"
+
+#: blocks/job-single/render.php:916
+msgid "Select Resume"
+msgstr "Lebenslauf auswählen"
+
+#: blocks/job-single/render.php:935
+msgid "Upload a different file instead"
+msgstr "Lade stattdessen eine andere Datei hoch"
+
+#: blocks/job-single/render.php:940
+msgid "No saved resume yet."
+msgstr "Noch kein Lebenslauf gespeichert."
+
+#: blocks/job-single/render.php:944
+msgid "Build a resume →"
+msgstr "Lebenslauf erstellen →"
+
+#: blocks/job-single/render.php:950
+msgid " -  or upload a file  - "
+msgstr " -  oder lade eine Datei hoch  - "
+
+#: blocks/job-single/render.php:957 blocks/job-single/render.php:986
+msgid "(optional)"
+msgstr "(optional)"
+
+#: blocks/job-single/render.php:964
+msgid "Click to upload resume"
+msgstr "Zum Hochladen des Lebenslaufs klicken"
+
+#: blocks/job-single/render.php:968
+#. translators: %d: max upload size in MB
+#, php-format
+msgid "PDF, DOC or DOCX  -  max %d MB"
+msgstr "PDF, DOC oder DOCX  -  max %d MB"
+
+#: blocks/job-single/render.php:997
+msgid "Tell the employer why you are a great fit for this role…"
+msgstr "Erzähle dem Arbeitgeber, warum du perfekt für diese Rolle passt…"
+
+#: blocks/job-single/render.php:1004
+#: modules/applications/widgets/class-cover-letter.php:77
+msgid "Cover letter"
+msgstr "Anschreiben"
+
+#: blocks/job-single/render.php:1111
+msgid "Submit Application"
+msgstr "Bewerbung einreichen"
+
+#: blocks/job-single/render.php:1112
+msgid "Submitting…"
+msgstr "Wird eingereicht…"
+
+#: blocks/recent-jobs/render.php:41
+msgid "No recent jobs to display."
+msgstr "Keine aktuellen Stellen zum Anzeigen."
+
+#: blocks/recent-jobs/render.php:62
+msgid "Recent Jobs"
+msgstr "Aktuelle Stellen"
+
+#: blocks/recent-jobs/render.php:108
+#. translators: %s: human-readable time difference e.g. "3 days"
+#, php-format
+msgid "%s ago"
+msgstr "vor %s"
+
+#: blocks/similar-companies-card/render.php:24
+msgid "Similar Companies"
+msgstr "Ähnliche Unternehmen"
+
+#: blocks/similar-companies-card/render.php:72
+msgid "No similar companies found yet."
+msgstr "Noch keine ähnlichen Unternehmen gefunden."
+
+#: core/class-abilities.php:129
+msgid ""
+"Abilities for the WP Career Board job board (employer, candidate, "
+"moderation, and admin actions)."
+msgstr ""
+"Berechtigungen für das WP Career Board Jobboard (Arbeitgeber-, Kandidaten-, "
+"Moderations- und Admin-Aktionen)."
+
+#: core/class-abilities.php:164
+msgid "Post Jobs"
+msgstr "Stellen veröffentlichen"
+
+#: core/class-abilities.php:165
+msgid "Allows an employer to submit job listings."
+msgstr "Ermöglicht einem Arbeitgeber, Stellenangebote einzureichen."
+
+#: core/class-abilities.php:177
+msgid "Manage Company Profile"
+msgstr "Unternehmensprofil verwalten"
+
+#: core/class-abilities.php:178
+msgid "Allows an employer to edit their company profile."
+msgstr "Ermöglicht einem Arbeitgeber, sein Unternehmensprofil zu bearbeiten."
+
+#: core/class-abilities.php:191
+msgid "Allows an employer to view applications for their jobs."
+msgstr "Ermöglicht einem Arbeitgeber, Bewerbungen für seine Stellen anzusehen."
+
+#: core/class-abilities.php:203
+msgid "Access Employer Dashboard"
+msgstr "Auf Arbeitgeber-Dashboard zugreifen"
+
+#: core/class-abilities.php:204
+msgid "Allows an employer to access their management dashboard."
+msgstr "Ermöglicht einem Arbeitgeber, auf sein Verwaltungs-Dashboard zuzugreifen."
+
+#: core/class-abilities.php:224
+msgid "Apply to Jobs"
+msgstr "Auf Stellen bewerben"
+
+#: core/class-abilities.php:225
+msgid "Allows a candidate to submit job applications."
+msgstr "Ermöglicht einem Kandidaten, Bewerbungen einzureichen."
+
+#: core/class-abilities.php:237
+msgid "Manage Resume"
+msgstr "Lebenslauf verwalten"
+
+#: core/class-abilities.php:238
+msgid "Allows a candidate to create and update their resume."
+msgstr ""
+"Ermöglicht einem Kandidaten, seinen Lebenslauf zu erstellen und zu "
+"aktualisieren."
+
+#: core/class-abilities.php:250
+msgid "Bookmark Jobs"
+msgstr "Stellen merken"
+
+#: core/class-abilities.php:251
+msgid "Allows a candidate to save jobs to their bookmark list."
+msgstr "Ermöglicht einem Kandidaten, Stellen auf seiner Merkliste zu speichern."
+
+#: core/class-abilities.php:263
+msgid "Access Candidate Dashboard"
+msgstr "Auf Kandidaten-Dashboard zugreifen"
+
+#: core/class-abilities.php:264
+msgid "Allows members to access the candidate dashboard."
+msgstr "Ermöglicht Mitgliedern, auf das Kandidaten-Dashboard zuzugreifen."
+
+#: core/class-abilities.php:281
+msgid "Withdraw Application"
+msgstr "Bewerbung zurückziehen"
+
+#: core/class-abilities.php:282
+msgid "Allows a candidate to retract a previously submitted job application."
+msgstr ""
+"Ermöglicht einem Kandidaten, eine zuvor eingereichte Bewerbung "
+"zurückzuziehen."
+
+#: core/class-abilities.php:306
+msgid "Moderate Jobs"
+msgstr "Stellen moderieren"
+
+#: core/class-abilities.php:307
+msgid "Allows a moderator or admin to approve or reject job listings."
+msgstr ""
+"Ermöglicht einem Moderator oder Admin, Stellenangebote zu genehmigen oder "
+"abzulehnen."
+
+#: core/class-abilities.php:327
+msgid "Manage Settings"
+msgstr "Einstellungen verwalten"
+
+#: core/class-abilities.php:328
+msgid "Allows an admin to configure the WP Career Board plugin."
+msgstr "Erlaubt einem Admin, das WP Career Board-Plugin zu konfigurieren."
+
+#: core/class-abilities.php:341
+msgid "View Analytics"
+msgstr "Analysedaten anzeigen"
+
+#: core/class-abilities.php:342
+msgid "Allows an admin to view job board analytics and reports."
+msgstr "Erlaubt einem Admin, Analysedaten und Berichte der Jobbörse anzusehen."
+
+#: core/class-form-custom-fields.php:351
+msgid "From"
+msgstr "Von"
+
+#: core/class-form-custom-fields.php:352
+msgid "To"
+msgstr "Bis"
+
+#: core/class-form-custom-fields.php:383
+msgid "Enter one entry per line."
+msgstr "Gib einen Eintrag pro Zeile ein."
+
+#: core/class-form-custom-fields.php:402
+msgid "Paste a link to your file."
+msgstr "Füge einen Link zu deiner Datei ein."
+
+#: core/class-industries.php:41
+msgid " -  Select Industry  - "
+msgstr " -  Wähle Branche  - "
+
+#: core/class-industries.php:42
+msgid "Technology & Software"
+msgstr "Technologie & Software"
+
+#: core/class-industries.php:43
+msgid "Healthcare & Life Sciences"
+msgstr "Gesundheitswesen & Biowissenschaften"
+
+#: core/class-industries.php:44
+msgid "Finance & Banking"
+msgstr "Finanzen & Bankwesen"
+
+#: core/class-industries.php:45
+msgid "Education"
+msgstr "Bildung"
+
+#: core/class-industries.php:46
+msgid "Retail & E-commerce"
+msgstr "Einzelhandel & E-Commerce"
+
+#: core/class-industries.php:47
+msgid "Manufacturing"
+msgstr "Fertigung"
+
+#: core/class-industries.php:48
+msgid "Media & Entertainment"
+msgstr "Medien & Unterhaltung"
+
+#: core/class-industries.php:49
+msgid "Consulting & Professional Services"
+msgstr "Beratung & Professionelle Dienstleistungen"
+
+#: core/class-industries.php:50
+msgid "Non-profit & NGO"
+msgstr "Gemeinnützige Organisationen & NGO"
+
+#: core/class-industries.php:51
+msgid "Government & Public Sector"
+msgstr "Regierung & Öffentlicher Sektor"
+
+#: core/class-industries.php:52
+msgid "Real Estate & Construction"
+msgstr "Immobilien & Bauwesen"
+
+#: core/class-industries.php:53
+msgid "Transportation & Logistics"
+msgstr "Transport & Logistik"
+
+#: core/class-industries.php:54
+msgid "Energy & Utilities"
+msgstr "Energie & Versorgungswirtschaft"
+
+#: core/class-industries.php:55
+msgid "Hospitality & Tourism"
+msgstr "Gastgewerbe & Tourismus"
+
+#: core/class-industries.php:56
+msgid "Design & Creative"
+msgstr "Design & Kreativ"
+
+#: core/class-industries.php:57
+msgid "Other"
+msgstr "Sonstige"
+
+#: core/class-install.php:114
+msgid "WP Career Board requires PHP 8.1+ and WordPress 6.9+."
+msgstr "WP Career Board benötigt PHP 8.1+ und WordPress 6.9+."
+
+#: core/class-install.php:115
+msgid "Plugin Activation Error"
+msgstr "Fehler bei der Plugin-Aktivierung"
+
+#: core/class-plugin.php:504
+msgid "Full Job Board"
+msgstr "Komplette Job-Börse"
+
+#: core/class-plugin.php:505
+msgid "Search bar, filters, and job listings grid  -  the complete job board page."
+msgstr ""
+"Suchleiste, Filter und Job-Auflistungs-Grid  -  die komplette "
+"Job-Börsen-Seite."
+
+#: core/class-plugin.php:511
+msgid "Post a Job Form"
+msgstr "Job-Ausschreibungsformular"
+
+#: core/class-plugin.php:512
+msgid "Multi-step job posting form for employers."
+msgstr "Mehrstufiges Job-Ausschreibungsformular für Arbeitgeber."
+
+#: core/class-plugin.php:519
+msgid "Tabbed dashboard for employers to manage jobs and applications."
+msgstr ""
+"Dashboard mit Registerkarten für Arbeitgeber zur Verwaltung von Jobs und "
+"Bewerbungen."
+
+#: core/class-plugin.php:526
+msgid "Tabbed dashboard for candidates to track applications and saved jobs."
+msgstr ""
+"Dashboard mit Registerkarten für Kandidaten zum Verfolgen von Bewerbungen "
+"und gespeicherten Jobs."
+
+#: core/class-plugin.php:532
+msgid "Company Directory"
+msgstr "Unternehmensverzeichnis"
+
+#: core/class-plugin.php:533
+msgid ""
+"Interactive grid of employer company profiles with industry and size "
+"filters."
+msgstr ""
+"Interaktives Gitter von Arbeitgeber-Unternehmensprofilseiten mit Branchen- "
+"und Größenfiltern."
+
+#: core/class-roles.php:93
+msgid "Job Moderator"
+msgstr "Job-Moderator"
+
+#: integrations/buddypress/class-bp-integration.php:106
+#. translators: 1: linked author name, 2: linked job title
+#, php-format
+msgid "%1$s posted a new job: %2$s"
+msgstr "%1$s hat einen neuen Job veröffentlicht: %2$s"
+
+#: integrations/buddyxpro/class-buddyx-pro-integration.php:92
+msgid "#OpenToWork"
+msgstr "#OpenToWork"
+
+#: integrations/companions/class-companion-installer.php:58
+#: integrations/companions/class-companion-installer.php:94
+msgid "You do not have permission to install plugins."
+msgstr "Du hast keine Berechtigung, Plugins zu installieren."
+
+#: integrations/companions/class-companion-installer.php:99
+msgid "Unknown integration."
+msgstr "Unbekannte Integration."
+
+#: integrations/companions/class-companion-installer.php:111
+msgid "This integration cannot be installed automatically. Visit the store."
+msgstr ""
+"Diese Integration kann nicht automatisch installiert werden. Besuche den "
+"Store."
+
+#: integrations/companions/class-companion-installer.php:117
+msgid "A license key is required for this download."
+msgstr "Ein Lizenzschlüssel ist für diesen Download erforderlich."
+
+#: integrations/companions/class-companion-installer.php:175
+msgid "Could not reach the store to activate the license. Please try again."
+msgstr ""
+"Der Store konnte nicht erreicht werden, um die Lizenz zu aktivieren. Bitte "
+"versuche es erneut."
+
+#: integrations/companions/class-companion-installer.php:180
+msgid "The store returned an unexpected response while activating the license."
+msgstr ""
+"Der Store hat eine unerwartete Antwort zurückgegeben, während die Lizenz "
+"aktiviert wurde."
+
+#: integrations/companions/class-companion-installer.php:197
+#. translators: %s: the store's activation error reason.
+#, php-format
+msgid ""
+"The store would not activate this free license for your site (reason: %s). "
+"This is a store-side license configuration issue, not a site error."
+msgstr ""
+"Der Store würde diese kostenlose Lizenz für deine Website nicht aktivieren "
+"(Grund: %s). Dies ist ein Problem der Store-seitigen Lizenzkonfiguration, "
+"kein Website-Fehler."
+
+#: integrations/companions/class-companion-installer.php:226
+msgid "Could not reach the store. Please try again."
+msgstr "Der Store konnte nicht erreicht werden. Bitte versuche es erneut."
+
+#: integrations/companions/class-companion-installer.php:231
+msgid "The store returned an unexpected response."
+msgstr "Der Store hat eine unerwartete Antwort zurückgegeben."
+
+#: integrations/companions/class-companion-installer.php:237
+msgid "That license is not valid for this product."
+msgstr "Diese Lizenz ist nicht gültig für dieses Produkt."
+
+#: integrations/companions/class-companion-installer.php:242
+msgid "The store did not return a download for this plugin."
+msgstr "Der Store hat keinen Download für dieses Plugin zurückgegeben."
+
+#: integrations/companions/class-companion-installer.php:264
+msgid ""
+"WordPress needs filesystem access to install plugins. Configure direct file "
+"access or install from the Plugins screen."
+msgstr ""
+"WordPress benötigt Dateisystemzugriff, um Plugins zu installieren. "
+"Konfiguriere direkten Dateizugriff oder installiere über die Plugins-Seite."
+
+#: integrations/companions/class-companion-installer.php:283
+#. translators: 1: HTTP status, 2: store reason text.
+#, php-format
+msgid ""
+"The store rejected the download (HTTP %1$d: %2$s). This is a store-side "
+"license/entitlement issue."
+msgstr ""
+"Der Store hat den Download abgelehnt (HTTP %1$d: %2$s). Dies ist ein "
+"Problem der Store-seitigen Lizenz/Berechtigung."
+
+#: integrations/companions/class-companion-installer.php:285
+msgid "no reason given"
+msgstr "kein Grund angegeben"
+
+#: integrations/companions/class-companion-installer.php:297
+msgid "The plugin could not be installed."
+msgstr "Das Plugin konnte nicht installiert werden."
+
+#: integrations/companions/class-companion-installer.php:311
+msgid ""
+"Installed, but the plugin could not be activated automatically. Activate it "
+"from the Plugins screen."
+msgstr ""
+"Installiert, aber das Plugin konnte nicht automatisch aktiviert werden. "
+"Aktiviere es über die Plugins-Seite."
+
+#: integrations/companions/class-companion-registry.php:54
+msgid "BuddyNext"
+msgstr "BuddyNext"
+
+#: integrations/companions/class-companion-registry.php:55
+msgid "Community engine - profiles, activity feeds, and member spaces."
+msgstr "Community-Engine – Profile, Activity Feeds und Mitgliederbereiche."
+
+#: integrations/companions/class-companion-registry.php:63
+msgid "Member profiles and activity feeds for job seekers."
+msgstr "Mitgliederprofile und Activity Feeds für Jobsuchende."
+
+#: integrations/companions/class-companion-registry.php:66
+msgid "Jetonomy"
+msgstr "Jetonomy"
+
+#: integrations/companions/class-companion-registry.php:67
+msgid "Discussions and Q&A spaces around your job board."
+msgstr "Diskussions- und Fragen-und-Antworten-Bereiche rund um dein Job Board."
+
+#: integrations/companions/class-companion-registry.php:75
+msgid "Community forums and Q&A tied to job listings."
+msgstr ""
+"Community-Foren und Fragen und Antworten verknüpft mit "
+"Stellenausschreibungen."
+
+#: integrations/companions/class-companion-registry.php:78
+msgid "WB Gamification"
+msgstr "WB Gamification"
+
+#: integrations/companions/class-companion-registry.php:79
+msgid "Points and badges for applications and hires."
+msgstr "Punkte und Abzeichen für Bewerbungen und Einstellungen."
+
+#: integrations/companions/class-companion-registry.php:87
+msgid "Engagement rewards for applicants and hiring milestones."
+msgstr "Engagement-Belohnungen für Bewerber und Einstellungsmeilensteine."
+
+#: integrations/companions/class-companion-registry.php:90
+msgid "Learnomy"
+msgstr "Learnomy"
+
+#: integrations/companions/class-companion-registry.php:91
+msgid "Courses and certificates tied to job roles."
+msgstr "Kurse und Zertifikate verknüpft mit Jobrollen."
+
+#: integrations/companions/class-companion-registry.php:99
+msgid "Skill-building courses linked to job requirements."
+msgstr "Skill-Building-Kurse verknüpft mit Jobanforderungen."
+
+#: integrations/companions/class-companion-registry.php:102
+msgid "MediaVerse"
+msgstr "MediaVerse"
+
+#: integrations/companions/class-companion-registry.php:103
+msgid "Direct messaging and media galleries for members."
+msgstr "Direktnachrichten und Mediengalerien für Mitglieder."
+
+#: integrations/companions/class-companion-registry.php:111
+msgid "Direct messages between employers and candidates."
+msgstr "Direktnachrichten zwischen Arbeitgebern und Kandidaten."
+
+#: integrations/companions/class-companion-registry.php:114
+msgid "Listora"
+msgstr "Listora"
+
+#: integrations/companions/class-companion-registry.php:115
+msgid "Member-submitted directory listings."
+msgstr "Von Mitgliedern eingereichte Verzeichniseinträge."
+
+#: integrations/companions/class-companion-registry.php:123
+msgid "A company/services directory alongside the job board."
+msgstr "Ein Unternehmens-/Dienstleistungsverzeichnis neben dem Job Board."
+
+#: integrations/reign/class-reign-integration.php:97
+msgid "Primary Color"
+msgstr "Primärfarbe"
+
+#: modules/antispam/class-anti-spam-module.php:115
+msgid "CAPTCHA verification failed. Please try again."
+msgstr "CAPTCHA-Verifizierung fehlgeschlagen. Bitte versuche es erneut."
+
+#: modules/antispam/class-anti-spam-module.php:142
+#: modules/antispam/class-anti-spam-module.php:180
+msgid "Anti-Spam"
+msgstr "Anti-Spam"
+
+#: modules/antispam/class-anti-spam-module.php:171
+msgid "Anti-Spam settings saved."
+msgstr "Anti-Spam-Einstellungen gespeichert."
+
+#: modules/antispam/class-anti-spam-module.php:181
+msgid ""
+"A honeypot field is always active on all submission forms at zero "
+"performance cost. Add a CAPTCHA provider as a second layer for high-traffic "
+"sites."
+msgstr ""
+"Ein Honeypot-Feld ist immer auf allen Einreichungsformularen aktiv ohne "
+"Leistungskosten. Füge einen CAPTCHA-Provider als zweite Sicherheitsebene "
+"für Websites mit hohem Traffic hinzu."
+
+#: modules/antispam/class-anti-spam-module.php:186
+msgid "CAPTCHA Provider"
+msgstr "CAPTCHA-Provider"
+
+#: modules/antispam/class-anti-spam-module.php:190
+msgid "None (Honeypot only)"
+msgstr "Keine (nur Honeypot)"
+
+#: modules/antispam/class-anti-spam-module.php:194
+msgid "Cloudflare Turnstile is recommended - fast, privacy-friendly, and free."
+msgstr ""
+"Cloudflare Turnstile wird empfohlen – schnell, datenschutzfreundlich und "
+"kostenlos."
+
+#: modules/antispam/class-anti-spam-module.php:202
+msgid "Cloudflare Turnstile"
+msgstr "Cloudflare Turnstile"
+
+#: modules/antispam/class-anti-spam-module.php:207
+#: modules/antispam/class-anti-spam-module.php:240
+msgid "Site Key"
+msgstr "Website-Schlüssel"
+
+#: modules/antispam/class-anti-spam-module.php:215
+#. translators: %s: URL to Cloudflare dashboard
+#, php-format
+msgid "Get your keys at %s for Turnstile."
+msgstr "Hole deine Schlüssel bei %s für Turnstile."
+
+#: modules/antispam/class-anti-spam-module.php:224
+#: modules/antispam/class-anti-spam-module.php:257
+msgid "Secret Key"
+msgstr "Geheimer Schlüssel"
+
+#: modules/antispam/class-anti-spam-module.php:235
+msgid "Google reCAPTCHA v3"
+msgstr "Google reCAPTCHA v3"
+
+#: modules/antispam/class-anti-spam-module.php:248
+#. translators: %s: URL to the Google reCAPTCHA admin console.
+#, php-format
+msgid "Get your keys at %s."
+msgstr "Hole deine Schlüssel bei %s."
+
+#: modules/antispam/class-anti-spam-module.php:265
+msgid "Score Threshold"
+msgstr "Bewertungsschwelle"
+
+#: modules/antispam/class-anti-spam-module.php:269
+msgid "Requests scoring below this are rejected as bots (0.0-1.0). Default: 0.5."
+msgstr ""
+"Anfragen mit einer Bewertung unter diesem Wert werden als Bots abgelehnt "
+"(0,0–1,0). Standard: 0,5."
+
+#: modules/antispam/class-anti-spam-module.php:276
+msgid "Save Anti-Spam Settings"
+msgstr "Anti-Spam-Einstellungen speichern"
+
+#: modules/antispam/class-anti-spam-module.php:297
+msgid "Permission denied."
+msgstr "Berechtigung verweigert."
+
+#: modules/applications/class-application-status.php:79
+msgid "Withdrawn"
+msgstr "Zurückgezogen"
+
+#: modules/applications/class-application-status.php:80
+msgid "Job removed"
+msgstr "Stelle entfernt"
+
+#: modules/applications/class-applications-module.php:68
+msgid "Add New Application"
+msgstr "Neue Bewerbung hinzufügen"
+
+#: modules/applications/class-applications-module.php:69
+msgid "Edit Application"
+msgstr "Bewerbung bearbeiten"
+
+#: modules/applications/class-applications-module.php:70
+msgid "No applications found."
+msgstr "Keine Bewerbungen gefunden."
+
+#: modules/applications/class-applications-module.php:71
+msgid "No applications found in Trash."
+msgstr "Keine Bewerbungen im Papierkorb gefunden."
+
+#: modules/applications/widgets/class-applicant-card.php:43
+msgid "Applicant Card"
+msgstr "Bewerberkarte"
+
+#: modules/applications/widgets/class-applicant-card.php:79
+msgid "Unknown candidate"
+msgstr "Unbekannter Kandidat"
+
+#: modules/applications/widgets/class-applicant-card.php:84
+msgid "Guest applicant"
+msgstr "Gast-Bewerber"
+
+#: modules/applications/widgets/class-applicant-card.php:107
+msgid "Applied"
+msgstr "Beworben"
+
+#: modules/applications/widgets/class-applicant-card.php:123
+msgid "View candidate profile"
+msgstr "Kandidatenprofil anzeigen"
+
+#: modules/applications/widgets/class-cover-letter.php:79
+msgid "No cover letter submitted."
+msgstr "Kein Anschreiben eingereicht."
+
+#: modules/applications/widgets/class-quick-actions.php:101
+msgid "Quick actions"
+msgstr "Schnellaktionen"
+
+#: modules/applications/widgets/class-quick-actions.php:104
+msgid "Shortlist"
+msgstr "Merken"
+
+#: modules/applications/widgets/class-quick-actions.php:107
+msgid "Mark Hired"
+msgstr "Als eingestellt markieren"
+
+#: modules/applications/widgets/class-quick-actions.php:114
+msgid "Message"
+msgstr "Nachricht"
+
+#: modules/applications/widgets/class-resume-preview.php:43
+msgid "Resume Preview"
+msgstr "Lebenslauf-Vorschau"
+
+#: modules/applications/widgets/class-resume-preview.php:87
+msgid "No resume uploaded with this application."
+msgstr "Kein Lebenslauf mit dieser Bewerbung hochgeladen."
+
+#: modules/applications/widgets/class-resume-preview.php:105
+msgid "Open"
+msgstr "Öffnen"
+
+#: modules/applications/widgets/class-resume-preview.php:108
+msgid "Download"
+msgstr "Herunterladen"
+
+#: modules/applications/widgets/class-status-changer.php:95
+msgid "Change status"
+msgstr "Status ändern"
+
+#: modules/applications/widgets/class-status-timeline.php:43
+msgid "Status Timeline"
+msgstr "Status-Zeitleiste"
+
+#: modules/applications/widgets/class-status-timeline.php:90
+msgid "History"
+msgstr "Verlauf"
+
+#: modules/applications/widgets/class-status-timeline.php:98
+msgid "System"
+msgstr "System"
+
+#: modules/applications/widgets/class-status-timeline.php:106
+msgid "(new)"
+msgstr "(neu)"
+
+#: modules/boards/class-board-rest-controller.php:74
+msgid "Sorry, you are not allowed to view job boards."
+msgstr "Entschuldigung, dir ist nicht erlaubt, Stellentafeln anzuzeigen."
+
+#: modules/boards/class-boards-module.php:46
+msgid "Job Boards"
+msgstr "Stellentafeln"
+
+#: modules/boards/class-boards-module.php:47
+msgid "Job Board"
+msgstr "Stellentafel"
+
+#: modules/boards/class-boards-module.php:48
+msgid "Add New Board"
+msgstr "Neue Stellentafel hinzufügen"
+
+#: modules/boards/class-boards-module.php:49
+msgid "Edit Board"
+msgstr "Stellentafel bearbeiten"
+
+#: modules/boards/class-boards-module.php:113
+msgid "Main Board"
+msgstr "Haupttafel"
+
+#: modules/candidates/class-candidates-module.php:97
+msgid "Resumes"
+msgstr "Lebensläufe"
+
+#: modules/candidates/class-candidates-module.php:99
+msgid "Add New Resume"
+msgstr "Neuen Lebenslauf hinzufügen"
+
+#: modules/candidates/class-candidates-module.php:101
+msgid "No resumes found."
+msgstr "Keine Lebensläufe gefunden."
+
+#: modules/candidates/class-candidates-module.php:102
+msgid "No resumes found in Trash."
+msgstr "Keine Lebensläufe im Papierkorb gefunden."
+
+#: modules/employers/class-employers-module.php:205
+msgid "Add New Company"
+msgstr "Neues Unternehmen hinzufügen"
+
+#: modules/employers/class-employers-module.php:206
+msgid "Edit Company"
+msgstr "Unternehmen bearbeiten"
+
+#: modules/employers/class-employers-module.php:207
+msgid "View Company"
+msgstr "Unternehmen ansehen"
+
+#: modules/employers/class-employers-module.php:208
+msgid "No companies found."
+msgstr "Keine Unternehmen gefunden."
+
+#: modules/employers/class-employers-module.php:209
+msgid "No companies found in Trash."
+msgstr "Keine Unternehmen im Papierkorb gefunden."
+
+#: modules/gdpr/class-gdpr-module.php:131
+msgid "Job Applications"
+msgstr "Bewerbungen"
+
+#: modules/jobs/class-jobs-expiry.php:57
+#. translators: %s: number of expired jobs
+#, php-format
+msgid "Expired <span class=\"count\">(%s)</span>"
+msgid_plural "Expired <span class=\"count\">(%s)</span>"
+msgstr[0] "Abgelaufen <span class=\"count\">(%s)</span>"
+msgstr[1] "Abgelaufen <span class=\"count\">(%s)</span>"
+
+#: modules/jobs/class-jobs-expiry.php:83
+#. translators: %s: number of closed jobs
+#, php-format
+msgid "Closed <span class=\"count\">(%s)</span>"
+msgid_plural "Closed <span class=\"count\">(%s)</span>"
+msgstr[0] "Geschlossen <span class=\"count\">(%s)</span>"
+msgstr[1] "Geschlossen <span class=\"count\">(%s)</span>"
+
+#: modules/jobs/class-jobs-module.php:200
+msgid "Edit Job"
+msgstr "Stelle bearbeiten"
+
+#: modules/jobs/class-jobs-module.php:203
+msgid "No jobs found."
+msgstr "Keine Stellen gefunden."
+
+#: modules/jobs/class-jobs-module.php:204
+msgid "No jobs found in Trash."
+msgstr "Keine Stellen im Papierkorb gefunden."
+
+#: modules/jobs/class-jobs-module.php:270
+msgid "Locations"
+msgstr "Standorte"
+
+#: modules/moderation/class-moderation-module.php:55
+msgid "Job post ID."
+msgstr "Stellen-Beitrags-ID."
+
+#: modules/moderation/class-moderation-module.php:86
+msgid "Rejection reason sent to the employer."
+msgstr "Ablehnungsgrund an den Arbeitgeber gesendet."
+
+#: modules/moderation/class-moderation-module.php:106
+msgid "Why the visitor is reporting this job."
+msgstr "Warum der Besucher diese Stelle meldet."
+
+#: modules/moderation/class-moderation-module.php:127
+msgid "How to resolve the flag: dismiss the reports or unpublish the job."
+msgstr ""
+"Wie die Markierung zu beheben ist: Meldungen verwerfen oder die Stelle "
+"aufheben."
+
+#: modules/moderation/class-moderation-module.php:151
+msgid "Scam or fraudulent"
+msgstr "Betrug oder Abzocke"
+
+#: modules/moderation/class-moderation-module.php:152
+msgid "Spam or advertisement"
+msgstr "Spam oder Werbung"
+
+#: modules/moderation/class-moderation-module.php:153
+msgid "Expired or already filled"
+msgstr "Abgelaufen oder bereits besetzt"
+
+#: modules/moderation/class-moderation-module.php:154
+msgid "Inaccurate or misleading"
+msgstr "Ungenau oder irreführend"
+
+#: modules/moderation/class-moderation-module.php:155
+msgid "Offensive or inappropriate"
+msgstr "Beleidigend oder unangemessen"
+
+#: modules/notifications/class-notifications-email.php:40
+msgid "Use NotificationsModule and the wcb_registered_emails filter instead."
+msgstr ""
+"Verwende stattdessen NotificationsModule und den wcb_registered_emails "
+"Filter."
+
+#: modules/notifications/emails/class-email-app-confirmation.php:41
+msgid "Application Confirmation (Candidate)"
+msgstr "Bewerbungsbestätigung (Kandidat)"
+
+#: modules/notifications/emails/class-email-app-confirmation.php:59
+msgid "Application submitted successfully"
+msgstr "Bewerbung erfolgreich eingereicht"
+
+#: modules/notifications/emails/class-email-app-guest.php:41
+msgid "Application Confirmation (Guest)"
+msgstr "Bewerbungsbestätigung (Gast)"
+
+#: modules/notifications/emails/class-email-app-guest.php:59
+msgid "Your application has been received"
+msgstr "Deine Bewerbung wurde erhalten"
+
+#: modules/notifications/emails/class-email-app-received.php:41
+msgid "Application Received (Employer)"
+msgstr "Bewerbung erhalten (Arbeitgeber)"
+
+#: modules/notifications/emails/class-email-app-received.php:59
+msgid "New application for your job"
+msgstr "Neue Bewerbung für deine Stelle"
+
+#: modules/notifications/emails/class-email-app-status.php:41
+msgid "Application Status Changed"
+msgstr "Bewerbungsstatus geändert"
+
+#: modules/notifications/emails/class-email-app-status.php:59
+msgid "Your application status has been updated"
+msgstr "Dein Bewerbungsstatus wurde aktualisiert"
+
+#: modules/notifications/emails/class-email-deadline-reminder.php:43
+msgid "Application Deadline Reminder"
+msgstr "Bewerbungsfrist-Erinnerung"
+
+#: modules/notifications/emails/class-email-deadline-reminder.php:63
+msgid "Application deadline approaching for {job_title}"
+msgstr "Bewerbungsfrist nähert sich für {job_title}"
+
+#: modules/notifications/emails/class-email-job-approved.php:41
+msgid "Job Approved"
+msgstr "Stelle genehmigt"
+
+#: modules/notifications/emails/class-email-job-approved.php:59
+msgid "Your job has been approved"
+msgstr "Dein Job wurde genehmigt"
+
+#: modules/notifications/emails/class-email-job-expired.php:41
+msgid "Job Expired"
+msgstr "Job abgelaufen"
+
+#: modules/notifications/emails/class-email-job-expired.php:59
+msgid "Your job listing has expired"
+msgstr "Dein Job-Angebot ist abgelaufen"
+
+#: modules/notifications/emails/class-email-job-pending.php:41
+msgid "New Job Pending Review"
+msgstr "Neuer Job wartet auf Überprüfung"
+
+#: modules/notifications/emails/class-email-job-pending.php:60
+#. translators: %site_name% is replaced at send time
+msgid "[Action Required] New job pending approval"
+msgstr "[Aktion erforderlich] Neuer Job wartet auf Genehmigung"
+
+#: modules/notifications/emails/class-email-job-rejected.php:41
+msgid "Job Rejected"
+msgstr "Job abgelehnt"
+
+#: modules/notifications/emails/class-email-job-rejected.php:59
+msgid "Your job was not approved"
+msgstr "Dein Job wurde nicht genehmigt"
+
+#: modules/notifications/templates/application-confirmation.php:16
+#: modules/notifications/templates/application-guest-confirmation.php:23
+#. translators: %s: job title
+#, php-format
+msgid "Your application for %s has been submitted successfully."
+msgstr "Deine Bewerbung für %s wurde erfolgreich eingereicht."
+
+#: modules/notifications/templates/application-confirmation.php:19
+msgid "We will notify you when your application status changes."
+msgstr "Wir benachrichtigen dich, wenn sich dein Bewerbungsstatus ändert."
+
+#: modules/notifications/templates/application-confirmation.php:20
+#: modules/notifications/templates/application-status-changed.php:25
+msgid "View Your Applications"
+msgstr "Meine Bewerbungen ansehen"
+
+#: modules/notifications/templates/application-guest-confirmation.php:17
+#. translators: %s: guest first name
+#, php-format
+msgid "Hi %s,"
+msgstr "Hallo %s,"
+
+#: modules/notifications/templates/application-guest-confirmation.php:29
+#. translators: %d: application reference number
+#, php-format
+msgid "Your application reference is #%d."
+msgstr "Deine Bewerbungsreferenz ist #%d."
+
+#: modules/notifications/templates/application-guest-confirmation.php:32
+msgid "The employer will be in touch if your application moves forward."
+msgstr "Der Arbeitgeber wird sich melden, wenn deine Bewerbung vorankommt."
+
+#: modules/notifications/templates/application-guest-confirmation.php:33
+#: modules/notifications/templates/job-approved.php:20
+msgid "View Job Listing"
+msgstr "Job-Angebot ansehen"
+
+#: modules/notifications/templates/application-received.php:16
+#. translators: %s: job title
+#, php-format
+msgid "A new application has been received for %s."
+msgstr "Eine neue Bewerbung für %s wurde eingereicht."
+
+#: modules/notifications/templates/application-received.php:22
+#. translators: %s: candidate display name
+#, php-format
+msgid "Applicant: %s"
+msgstr "Bewerber: %s"
+
+#: modules/notifications/templates/application-received.php:25
+#: modules/notifications/templates/emails/application-received.php:23
+msgid "View in Dashboard"
+msgstr "Im Dashboard anzeigen"
+
+#: modules/notifications/templates/application-status-changed.php:16
+#. translators: %s: job title
+#, php-format
+msgid "The status of your application for %s has been updated."
+msgstr "Der Status deiner Bewerbung für %s wurde aktualisiert."
+
+#: modules/notifications/templates/application-status-changed.php:22
+#. translators: %s: new application status (e.g. Reviewed)
+#, php-format
+msgid "New status: %s"
+msgstr "Neuer Status: %s"
+
+#: modules/notifications/templates/emails/application-confirmation.php:13
+msgid "Application Submitted Successfully"
+msgstr "Bewerbung erfolgreich eingereicht"
+
+#: modules/notifications/templates/emails/application-confirmation.php:17
+#. translators: %s: job title
+#, php-format
+msgid "Your application for \"%s\" has been submitted successfully."
+msgstr "Deine Bewerbung für \"%s\" wurde erfolgreich eingereicht."
+
+#: modules/notifications/templates/emails/application-confirmation.php:23
+#: modules/notifications/templates/emails/application-status-changed.php:23
+msgid "View My Applications"
+msgstr "Meine Bewerbungen ansehen"
+
+#: modules/notifications/templates/emails/application-guest-confirmation.php:13
+msgid "Application Received"
+msgstr "Bewerbung eingegangen"
+
+#: modules/notifications/templates/emails/application-guest-confirmation.php:17
+#. translators: 1: applicant name, 2: job title
+#, php-format
+msgid "Hi %1$s, your application for \"%2$s\" has been received."
+msgstr "Hallo %1$s, deine Bewerbung für \"%2$s\" wurde eingegangen."
+
+#: modules/notifications/templates/emails/application-received.php:13
+msgid "New Application Received"
+msgstr "Neue Bewerbung eingegangen"
+
+#: modules/notifications/templates/emails/application-received.php:17
+#. translators: 1: candidate name, 2: job title
+#, php-format
+msgid "%1$s has applied for %2$s."
+msgstr "%1$s hat sich auf %2$s beworben."
+
+#: modules/notifications/templates/emails/application-status-changed.php:13
+msgid "Application Status Updated"
+msgstr "Bewerbungsstatus aktualisiert"
+
+#: modules/notifications/templates/emails/application-status-changed.php:17
+#. translators: 1: job title, 2: new status
+#, php-format
+msgid "The status of your application for \"%1$s\" has been updated to: %2$s."
+msgstr "Der Status deiner Bewerbung für \"%1$s\" wurde aktualisiert auf: %2$s."
+
+#: modules/notifications/templates/emails/deadline-reminder.php:17
+msgid "Apply by tomorrow"
+msgstr "Bewerbung bis morgen"
+
+#: modules/notifications/templates/emails/deadline-reminder.php:21
+#. translators: %d: number of days
+#, php-format
+msgid "Apply within %d day"
+msgid_plural "Apply within %d days"
+msgstr[0] "Bewerbung innerhalb von %d Tag"
+msgstr[1] "Bewerbung innerhalb von %d Tagen"
+
+#: modules/notifications/templates/emails/deadline-reminder.php:32
+#. translators: 1: job title, 2: company name
+#, php-format
+msgid "You saved \"%1$s\" at %2$s  -  the application window is closing soon."
+msgstr ""
+"Du hast \"%1$s\" um %2$s gespeichert  -  das Bewerbungsfenster schließt "
+"bald."
+
+#: modules/notifications/templates/emails/deadline-reminder.php:39
+#. translators: %s: job title
+#, php-format
+msgid "You saved \"%s\"  -  the application window is closing soon."
+msgstr "Du hast \"%s\" gespeichert  -  das Bewerbungsfenster schließt bald."
+
+#: modules/notifications/templates/emails/deadline-reminder.php:50
+#. translators: %s: deadline date
+#, php-format
+msgid "Closes on %s."
+msgstr "Schließt am %s."
+
+#: modules/notifications/templates/emails/deadline-reminder.php:59
+msgid "Apply now"
+msgstr "Jetzt bewerben"
+
+#: modules/notifications/templates/emails/email-footer.php:16
+#. translators: %s: site name
+#, php-format
+msgid "You are receiving this email because you have an account on %s."
+msgstr "Du erhältst diese E-Mail, weil du ein Konto auf %s hast."
+
+#: modules/notifications/templates/emails/job-approved.php:13
+msgid "Your Job Has Been Approved"
+msgstr "Dein Job wurde genehmigt"
+
+#: modules/notifications/templates/emails/job-approved.php:17
+#. translators: %s: job title
+#, php-format
+msgid "Good news! Your job listing \"%s\" has been approved and is now live."
+msgstr ""
+"Gute Nachrichten! Dein Job-Angebot \"%s\" wurde genehmigt und ist jetzt "
+"live."
+
+#: modules/notifications/templates/emails/job-expired.php:13
+msgid "Your Job Listing Has Expired"
+msgstr "Dein Job-Angebot ist abgelaufen"
+
+#: modules/notifications/templates/emails/job-expired.php:17
+#. translators: %s: job title
+#, php-format
+msgid "Your job listing \"%s\" has expired."
+msgstr "Dein Job-Angebot \"%s\" ist abgelaufen."
+
+#: modules/notifications/templates/emails/job-expired.php:23
+msgid "Re-post Job"
+msgstr "Job erneut veröffentlichen"
+
+#: modules/notifications/templates/emails/job-pending-review.php:13
+msgid "New Job Pending Approval"
+msgstr "Neues Job-Angebot wartet auf Genehmigung"
+
+#: modules/notifications/templates/emails/job-pending-review.php:17
+#. translators: %s: job title
+#, php-format
+msgid "A new job \"%s\" has been submitted and is awaiting your review."
+msgstr ""
+"Ein neues Job-Angebot \"%s\" wurde eingereicht und wartet auf deine "
+"Überprüfung."
+
+#: modules/notifications/templates/emails/job-pending-review.php:23
+msgid "Review Job"
+msgstr "Job überprüfen"
+
+#: modules/notifications/templates/emails/job-rejected.php:13
+msgid "Your Job Was Not Approved"
+msgstr "Dein Job-Angebot wurde nicht genehmigt"
+
+#: modules/notifications/templates/emails/job-rejected.php:17
+#. translators: %s: job title
+#, php-format
+msgid "Unfortunately, your job listing \"%s\" was not approved."
+msgstr "Leider wurde dein Job-Angebot \"%s\" nicht genehmigt."
+
+#: modules/notifications/templates/emails/job-rejected.php:24
+#: modules/notifications/templates/job-rejected.php:23
+#. translators: %s: rejection reason
+#. translators: %s: rejection reason provided by admin
+#, php-format
+msgid "Reason: %s"
+msgstr "Grund: %s"
+
+#: modules/notifications/templates/job-approved.php:16
+#. translators: %s: job title
+#, php-format
+msgid "Your job listing has been approved: %s"
+msgstr "Dein Job-Angebot wurde genehmigt: %s"
+
+#: modules/notifications/templates/job-approved.php:19
+msgid "It is now live and accepting applications."
+msgstr "Es ist jetzt veröffentlicht und nimmt Bewerbungen an."
+
+#: modules/notifications/templates/job-expired.php:16
+#. translators: %s: job title
+#, php-format
+msgid "Your job listing has expired: %s"
+msgstr "Dein Job-Angebot ist abgelaufen: %s"
+
+#: modules/notifications/templates/job-expired.php:19
+msgid "Repost from your dashboard to continue accepting applications."
+msgstr ""
+"Veröffentliche es erneut von deinem Dashboard aus, um weiterhin Bewerbungen "
+"anzunehmen."
+
+#: modules/notifications/templates/job-expired.php:20
+msgid "Go to Dashboard"
+msgstr "Zum Dashboard"
+
+#: modules/notifications/templates/job-pending-review.php:16
+#. translators: %s: job title
+#, php-format
+msgid "A new job listing is waiting for your review: %s"
+msgstr "Ein neues Job-Angebot wartet auf deine Überprüfung: %s"
+
+#: modules/notifications/templates/job-pending-review.php:19
+msgid "Review in Dashboard"
+msgstr "Im Dashboard überprüfen"
+
+#: modules/notifications/templates/job-rejected.php:16
+#. translators: %s: job title
+#, php-format
+msgid "Unfortunately, your job listing was not approved: %s"
+msgstr "Leider wurde dein Job-Angebot nicht genehmigt: %s"
+
+#: modules/notifications/templates/job-rejected.php:27
+msgid "Please review our posting guidelines and resubmit."
+msgstr "Bitte überprüfe unsere Posting-Richtlinien und reiche erneut ein."
+
+#: blocks/featured-jobs/index.js:19 blocks/recent-jobs/index.js:19
+msgid "Number of jobs"
+msgstr "Anzahl der Jobs"
+
+#: blocks/featured-jobs/index.js:25 blocks/recent-jobs/index.js:25
+msgid "Section title"
+msgstr "Abschnittstitel"
+
+#: blocks/featured-jobs/index.js:30 blocks/recent-jobs/index.js:30
+msgid "Show \"View all\" link"
+msgstr "\"Alle anzeigen\"-Link anzeigen"
+
+#: blocks/featured-jobs/index.js:35 blocks/recent-jobs/index.js:35
+msgid "\"View all\" URL (leave blank to auto-detect)"
+msgstr "\"Alle anzeigen\"-URL (leer lassen zum automatischen Erkennen)"
+
+#: blocks/job-alert-card/index.js:16
+msgid "Card content"
+msgstr "Karteninhalt"
+
+#: blocks/job-alert-card/index.js:23
+msgid "Body"
+msgstr "Text"
+
+#: blocks/job-alert-card/index.js:28
+msgid "Button text"
+msgstr "Schaltflächentext"
+
+#: blocks/job-alert-card/index.js:33
+msgid "Button URL (blank = candidate dashboard alerts tab)"
+msgstr "Schaltflächen-URL (leer = Kandidaten-Dashboard Benachrichtigungen-Tab)"
+
+#: blocks/job-listings/index.js:45 blocks/job-listings/index.js:53
+msgid "All boards"
+msgstr "Alle Boards"
+
+#: blocks/job-listings/index.js:84
+msgid "Job Listings settings"
+msgstr "Job-Angebot-Einstellungen"
+
+#: blocks/job-listings/index.js:89
+msgid "Show only jobs assigned to this board. \"All boards\" shows every job."
+msgstr ""
+"Zeige nur Jobs an, die diesem Board zugewiesen sind. \"Alle Boards\" zeigen "
+"jeden Job."
+
+#: blocks/job-listings/index.js:93 blocks/job-search-hero/index.js:17
+#: blocks/job-search-hero/index.js:19
+msgid "Layout"
+msgstr "Layout"
+
+#: blocks/job-listings/index.js:96 blocks/job-listings/index.js:155
+msgid "Grid"
+msgstr "Raster"
+
+#: blocks/job-listings/index.js:102
+msgid "Grid columns"
+msgstr "Rasterspalten"
+
+#: blocks/job-listings/index.js:105
+msgid "3 columns"
+msgstr "3 Spalten"
+
+#: blocks/job-listings/index.js:106
+msgid "4 columns"
+msgstr "4 Spalten"
+
+#: blocks/job-listings/index.js:111
+msgid "Show filter sidebar"
+msgstr "Filter-Seitenleiste anzeigen"
+
+#: blocks/job-listings/index.js:114
+msgid "Visitors can filter and search the listing."
+msgstr "Besucher können die Angebote filtern und durchsuchen."
+
+#: blocks/job-listings/index.js:115
+msgid "Listing only - no search box or filter sidebar."
+msgstr "Nur Angebote - kein Suchfeld oder Filter-Seitenleiste."
+
+#: blocks/job-listings/index.js:119
+msgid "Show page heading"
+msgstr "Seitentitel anzeigen"
+
+#: blocks/job-listings/index.js:122
+msgid ""
+"The block prints the archive title. Turn off when the page already has a "
+"heading."
+msgstr ""
+"Der Block gibt den Archivtitel aus. Deaktiviere ihn, wenn die Seite bereits "
+"einen Titel hat."
+
+#: blocks/job-listings/index.js:123
+msgid "No title printed - the page or theme provides the heading (recommended)."
+msgstr ""
+"Kein Titel gedruckt - die Seite oder das Theme stellt die Überschrift "
+"bereit (empfohlen)."
+
+#: blocks/job-listings/index.js:127
+msgid "Jobs per page (0 uses the site default)"
+msgstr "Jobs pro Seite (0 verwendet den Website-Standard)"
+
+#: blocks/job-listings/index.js:134
+msgid "Filter sidebar"
+msgstr "Filter-Seitenleiste"
+
+#: blocks/job-listings/index.js:136
+msgid "Reorder filters with the arrows, or hide ones you do not need."
+msgstr ""
+"Sortiere die Filter mit den Pfeilen um oder verstecke diejenigen, die du "
+"nicht brauchst."
+
+#: blocks/job-listings/index.js:141
+msgid "Move up"
+msgstr "Nach oben verschieben"
+
+#: blocks/job-listings/index.js:142
+msgid "Move down"
+msgstr "Nach unten verschieben"
+
+#: blocks/job-listings/index.js:144
+msgid "Show filter"
+msgstr "Filter anzeigen"
+
+#: blocks/job-listings/index.js:144
+msgid "Hide filter"
+msgstr "Filter verbergen"
+
+#: blocks/job-listings/index.js:152
+msgid "Board: "
+msgstr "Board: "
+
+#: blocks/job-listings/index.js:155
+msgid "-col"
+msgstr "-col"
+
+#: blocks/job-listings/index.js:156
+msgid "Filters on"
+msgstr "Filter an"
+
+#: blocks/job-listings/index.js:156
+msgid "Filters off"
+msgstr "Filter aus"
+
+#: blocks/job-listings/index.js:157
+msgid "Heading on"
+msgstr "Überschrift an"
+
+#: blocks/job-search-hero/index.js:21
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: blocks/job-search-hero/index.js:21
+msgid "Vertical"
+msgstr "Vertikal"
+
+#: blocks/job-search-hero/index.js:25
+msgid "Labels"
+msgstr "Beschriftungen"
+
+#: blocks/job-search-hero/index.js:26
+msgid "Search placeholder"
+msgstr "Suchplatzhalter"
+
+#: blocks/job-search-hero/index.js:27
+msgid "Button label"
+msgstr "Schaltflächenbezeichnung"
+
+#: blocks/job-search-hero/index.js:30
+msgid "Show category filter"
+msgstr "Kategoriefilter anzeigen"
+
+#: blocks/job-search-hero/index.js:31
+msgid "Show location filter"
+msgstr "Standortfilter anzeigen"
+
+#: blocks/job-search-hero/index.js:32
+msgid "Show job type filter"
+msgstr "Jobtyp-Filter anzeigen"
+
+#: blocks/job-stats/index.js:15
+msgid "Visible stats"
+msgstr "Sichtbare Statistiken"
+
+#: blocks/job-stats/index.js:16
+msgid "Show Jobs count"
+msgstr "Anzahl der Jobs anzeigen"
+
+#: blocks/job-stats/index.js:17
+msgid "Show Companies count"
+msgstr "Anzahl der Unternehmen anzeigen"
+
+#: blocks/job-stats/index.js:18
+msgid "Show Candidates count"
+msgstr "Anzahl der Kandidaten anzeigen"
+
+#: blocks/similar-companies-card/index.js:23
+msgid "Number of companies"
+msgstr "Anzahl der Unternehmen"
+
+#: blocks/similar-companies-card/index.js:29
+msgid "Company ID (blank = auto on company pages)"
+msgstr "Unternehmens-ID (leer = automatisch auf Unternehmensseiten)"
+
+#: blocks/similar-companies-card/index.js:30
+msgid ""
+"Leave blank when used in the Company Profile Sidebar. Set a company ID to "
+"anchor the block on a standalone page."
+msgstr ""
+"Lasse dieses Feld leer, wenn es in der Seitenleiste des "
+"Unternehmensprofiles verwendet wird. Setze eine Unternehmens-ID, um den "
+"Block auf einer eigenständigen Seite zu verankern."
+
+#: blocks/similar-companies-card/index.js:40
+msgid "Anchored to company ID "
+msgstr "Verankert bei Unternehmens-ID "
+
+#: blocks/similar-companies-card/index.js:41
+msgid "Auto-resolves on company-single pages."
+msgstr "Wird automatisch auf Unternehmensseiten aufgelöst."
+
+#: admin/class-email-settings.php:89
+msgctxt "email-log status pill"
+msgid "Sent"
+msgstr "Gesendet"
+
+#: admin/class-email-settings.php:90
+msgctxt "email-log status pill"
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#: admin/class-email-settings.php:91
+msgctxt "email-log status pill for admin Send Test rows"
+msgid "Sent (test)"
+msgstr "Gesendet (Test)"
+
+#: admin/class-email-settings.php:92
+msgctxt "email-log status pill for admin Send Test rows"
+msgid "Failed (test)"
+msgstr "Fehlgeschlagen (Test)"
+
+#: modules/jobs/class-jobs-expiry.php:51
+msgctxt "job post status"
+msgid "Expired"
+msgstr "Abgelaufen"
+
+#: modules/jobs/class-jobs-expiry.php:77
+msgctxt "job post status"
+msgid "Closed"
+msgstr "Geschlossen"
+
+#: blocks/candidate-dashboard/block.json
+msgctxt "block title"
+msgid "Candidate Dashboard"
+msgstr "Kandidaten-Dashboard"
+
+#: blocks/company-archive/block.json
+msgctxt "block title"
+msgid "Company Archive"
+msgstr "Unternehmensarchiv"
+
+#: blocks/company-profile/block.json
+msgctxt "block title"
+msgid "Company Profile"
+msgstr "Unternehmensprofile"
+
+#: blocks/employer-dashboard/block.json
+msgctxt "block title"
+msgid "Employer Dashboard"
+msgstr "Arbeitgeber-Dashboard"
+
+#: blocks/employer-registration/block.json
+msgctxt "block title"
+msgid "Employer Registration"
+msgstr "Arbeitgeberregistrierung"
+
+#: blocks/featured-jobs/block.json
+msgctxt "block title"
+msgid "Featured Jobs"
+msgstr "Hervorgehobene Jobs"
+
+#: blocks/job-alert-card/block.json
+msgctxt "block title"
+msgid "Job Alerts CTA"
+msgstr "Job-Benachrichtigungen CTA"
+
+#: blocks/job-filters/block.json
+msgctxt "block title"
+msgid "Job Filters"
+msgstr "Jobfilter"
+
+#: blocks/job-form-simple/block.json
+msgctxt "block title"
+msgid "Job Form (Single-Page)"
+msgstr "Jobformular (einseitig)"
+
+#: blocks/job-form/block.json
+msgctxt "block title"
+msgid "Job Form"
+msgstr "Jobformular"
+
+#: blocks/job-listings/block.json
+msgctxt "block title"
+msgid "Job Listings"
+msgstr "Joblisten"
+
+#: blocks/job-search-hero/block.json
+msgctxt "block title"
+msgid "Job Search Hero"
+msgstr "Jobsuche-Hero"
+
+#: blocks/job-search/block.json
+msgctxt "block title"
+msgid "Job Search"
+msgstr "Jobsuche"
+
+#: blocks/job-single/block.json
+msgctxt "block title"
+msgid "Job Single"
+msgstr "Einzelne Stelle"
+
+#: blocks/job-stats/block.json
+msgctxt "block title"
+msgid "Job Stats"
+msgstr "Jobstatistiken"
+
+#: blocks/recent-jobs/block.json
+msgctxt "block title"
+msgid "Recent Jobs"
+msgstr "Aktuelle Stellen"
+
+#: blocks/similar-companies-card/block.json
+msgctxt "block title"
+msgid "Similar Companies"
+msgstr "Ähnliche Unternehmen"
+
+#: blocks/candidate-dashboard/block.json
+msgctxt "block description"
+msgid "Tabbed candidate dashboard: My Applications and Saved Jobs."
+msgstr "Tabbedetes Kandidaten-Dashboard: Meine Bewerbungen und gespeicherte Stellen."
+
+#: blocks/company-archive/block.json
+msgctxt "block description"
+msgid ""
+"Interactive company directory with grid/list toggle and industry/size "
+"filters."
+msgstr ""
+"Interaktives Unternehmensverzeichnis mit Raster-/Listenumschaltung und "
+"Branchen-/Größenfiltern."
+
+#: blocks/company-profile/block.json
+msgctxt "block description"
+msgid "Public company profile with owner inline-edit and active job listings."
+msgstr ""
+"Öffentliches Unternehmensprofil mit Inline-Bearbeitung durch den Besitzer "
+"und aktiven Jobauflistungen."
+
+#: blocks/employer-dashboard/block.json
+msgctxt "block description"
+msgid "Tabbed employer dashboard: My Jobs and Company Profile."
+msgstr "Tabbedetes Arbeitgeber-Dashboard: Meine Stellen und Unternehmensprofil."
+
+#: blocks/employer-registration/block.json
+msgctxt "block description"
+msgid ""
+"Registration form for new employers to sign up and create their company "
+"profile."
+msgstr ""
+"Registrierungsformular für neue Arbeitgeber zum Anmelden und Erstellen "
+"ihres Unternehmensprofils."
+
+#: blocks/featured-jobs/block.json
+msgctxt "block description"
+msgid "Static server-rendered grid of featured jobs (no Interactivity API)."
+msgstr ""
+"Statisches Server-gerendertes Raster mit empfohlenen Stellen (keine "
+"Interactivity API)."
+
+#: blocks/job-alert-card/block.json
+msgctxt "block description"
+msgid ""
+"Sidebar card encouraging candidates to subscribe to email alerts for new "
+"jobs."
+msgstr ""
+"Seitenleisten-Karte, die Kandidaten zum Abonnieren von "
+"E-Mail-Benachrichtigungen für neue Stellen ermutigt."
+
+#: blocks/job-filters/block.json
+msgctxt "block description"
+msgid "Taxonomy filter dropdowns for the job listings grid."
+msgstr "Taxonomie-Filter-Dropdown-Menüs für das Joblisten-Raster."
+
+#: blocks/job-form-simple/block.json
+msgctxt "block description"
+msgid ""
+"Single-page job posting form — every field on one screen, suitable for "
+"sidebars, modals, or partner pages where the multi-step wizard is overkill."
+msgstr ""
+"Einseitiges Jobpostings-Formular – jedes Feld auf einem Bildschirm, "
+"geeignet für Seitenleisten, Modalfenster oder Partner-Seiten, wo der "
+"mehrstufige Assistent zu viel ist."
+
+#: blocks/job-form/block.json
+msgctxt "block description"
+msgid "Multi-step form for employers to post new jobs."
+msgstr "Mehrstufiges Formular für Arbeitgeber zum Posten neuer Stellen."
+
+#: blocks/job-listings/block.json
+msgctxt "block description"
+msgid "Reactive job listings grid with infinite scroll and bookmark toggle."
+msgstr ""
+"Reaktives Joblisten-Raster mit unendlichem Scrollen und "
+"Lesezeichen-Umschaltung."
+
+#: blocks/job-search-hero/block.json
+msgctxt "block description"
+msgid ""
+"Full-width job search form with optional filters. Horizontal or vertical "
+"layout."
+msgstr ""
+"Vollbreitiges Jobsuch-Formular mit optionalen Filtern. Horizontales oder "
+"vertikales Layout."
+
+#: blocks/job-search/block.json
+msgctxt "block description"
+msgid "Search bar for the job listings grid."
+msgstr "Suchleiste für das Joblisten-Raster."
+
+#: blocks/job-single/block.json
+msgctxt "block description"
+msgid "Full job detail view with a slide-in application panel."
+msgstr "Vollständige Job-Detailansicht mit Anwendungs-Schiebepanel."
+
+#: blocks/job-stats/block.json
+msgctxt "block description"
+msgid "Horizontal stat strip showing total jobs, companies, and candidates."
+msgstr ""
+"Horizontale Statistikleiste mit Gesamtzahl von Stellen, Unternehmen und "
+"Kandidaten."
+
+#: blocks/recent-jobs/block.json
+msgctxt "block description"
+msgid "Static sidebar widget listing the most recently published jobs."
+msgstr "Statisches Seitenleisten-Widget mit den zuletzt veröffentlichten Stellen."
+
+#: blocks/similar-companies-card/block.json
+msgctxt "block description"
+msgid ""
+"Sidebar card listing companies in the same industry. Auto-resolves on "
+"company-single pages or set Company ID manually."
+msgstr ""
+"Seitenleisten-Karte mit Unternehmen in der gleichen Branche. Wird auf "
+"Unternehmens-Einzelseiten automatisch aufgelöst oder die Unternehmens-ID "
+"kann manuell festgelegt werden."
+
+#: blocks/job-alert-card/block.json blocks/similar-companies-card/block.json
+msgctxt "block keyword"
+msgid "career board"
+msgstr "Karriere-Board"
+
+#: blocks/job-alert-card/block.json blocks/similar-companies-card/block.json
+msgctxt "block keyword"
+msgid "wcb"
+msgstr "wcb"
+
+#: blocks/job-alert-card/block.json
+msgctxt "block keyword"
+msgid "alerts"
+msgstr "Benachrichtigungen"
+
+#: blocks/job-alert-card/block.json
+msgctxt "block keyword"
+msgid "cta"
+msgstr "cta"
+
+#: blocks/job-alert-card/block.json blocks/similar-companies-card/block.json
+msgctxt "block keyword"
+msgid "sidebar"
+msgstr "Seitenleiste"
+
+#: blocks/similar-companies-card/block.json
+msgctxt "block keyword"
+msgid "companies"
+msgstr "Unternehmen"
+
+#: blocks/similar-companies-card/block.json
+msgctxt "block keyword"
+msgid "similar"
+msgstr "ähnlich"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "2XS"
+msgstr "2XS"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "XS"
+msgstr "XS"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "SM"
+msgstr "SM"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Base"
+msgstr "Basis"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "MD"
+msgstr "MD"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "LG"
+msgstr "LG"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "XL"
+msgstr "XL"
+
+#: theme.json
+msgctxt "Font size name"
+msgid "2XL"
+msgstr "2XL"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "1"
+msgstr "1"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "2"
+msgstr "2"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "3"
+msgstr "3"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "4"
+msgstr "4"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "5"
+msgstr "5"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "6"
+msgstr "6"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "8"
+msgstr "8"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Base"
+msgstr "WCB Basis"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Contrast"
+msgstr "WCB Kontrast"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Primary"
+msgstr "WCB Primär"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Primary Dark"
+msgstr "WCB Primär Dunkel"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Avatar BG"
+msgstr "WCB Avatar Hintergrund"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Muted"
+msgstr "WCB Gedeckt"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Surface"
+msgstr "WCB Oberfläche"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Border"
+msgstr "WCB Rahmen"
+
+#: theme.json
+msgctxt "Color name"
+msgid "WCB Featured"
+msgstr "WCB Hervorgehoben"
