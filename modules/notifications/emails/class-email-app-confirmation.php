@@ -60,6 +60,36 @@ class EmailAppConfirmation extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Application submitted', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: 1: candidate name, 2: job title (bold) */
+				esc_html__( 'Hi %1$s, your application for %2$s has been submitted successfully. The employer will review it and get back to you.', 'wp-career-board' ),
+				'{candidate_name}',
+				'<strong>{job_title}</strong>'
+			) . '</p>'
+			. '<p>' . esc_html__( 'You can track this and all of your applications from your dashboard at any time.', 'wp-career-board' ) . '</p>'
+			. self::button( __( 'View My Applications', 'wp-career-board' ), '{dashboard_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'candidate_name' => __( 'Candidate name', 'wp-career-board' ),
+			'job_title'      => __( 'Job title', 'wp-career-board' ),
+			'dashboard_url'  => __( 'Candidate dashboard URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void
@@ -97,8 +127,9 @@ class EmailAppConfirmation extends AbstractEmail {
 		$this->send(
 			$candidate->user_email,
 			array(
-				'job_title'     => $job->post_title,
-				'dashboard_url' => $dashboard_url,
+				'candidate_name' => $candidate->display_name,
+				'job_title'      => $job->post_title,
+				'dashboard_url'  => $dashboard_url,
 			),
 			$candidate_id
 		);

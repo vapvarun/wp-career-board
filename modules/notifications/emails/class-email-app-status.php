@@ -60,6 +60,37 @@ class EmailAppStatus extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Your application status changed', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: 1: candidate name, 2: job title (bold), 3: new status (bold) */
+				esc_html__( 'Hi %1$s, the status of your application for %2$s is now %3$s.', 'wp-career-board' ),
+				'{candidate_name}',
+				'<strong>{job_title}</strong>',
+				'<strong>{new_status}</strong>'
+			) . '</p>'
+			. self::button( __( 'View My Applications', 'wp-career-board' ), '{dashboard_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'candidate_name' => __( 'Candidate name', 'wp-career-board' ),
+			'job_title'      => __( 'Job title', 'wp-career-board' ),
+			'new_status'     => __( 'New application status', 'wp-career-board' ),
+			'dashboard_url'  => __( 'Candidate dashboard URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void
@@ -99,9 +130,10 @@ class EmailAppStatus extends AbstractEmail {
 		$this->send(
 			$candidate->user_email,
 			array(
-				'job_title'     => $job->post_title,
-				'new_status'    => $new_status,
-				'dashboard_url' => $dashboard_url,
+				'candidate_name' => $candidate->display_name,
+				'job_title'      => $job->post_title,
+				'new_status'     => $new_status,
+				'dashboard_url'  => $dashboard_url,
 			),
 			$candidate_id
 		);

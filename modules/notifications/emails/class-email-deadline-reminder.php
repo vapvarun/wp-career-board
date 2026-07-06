@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- hyphenated email class name is intentional.
 /**
  * Email: candidate reminder that a bookmarked job's application deadline is near.
  *
@@ -64,6 +64,38 @@ class EmailDeadlineReminder extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Your saved job is closing soon', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: 1: job title (bold), 2: days left, 3: deadline date */
+				esc_html__( 'The application window for %1$s is closing in %2$s day(s). It closes on %3$s.', 'wp-career-board' ),
+				'<strong>{job_title}</strong>',
+				'{days_left}',
+				'{deadline_date}'
+			) . '</p>'
+			. self::button( __( 'Apply now', 'wp-career-board' ), '{job_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'job_title'     => __( 'Job title', 'wp-career-board' ),
+			'company_name'  => __( 'Company name', 'wp-career-board' ),
+			'days_left'     => __( 'Days until deadline', 'wp-career-board' ),
+			'deadline_date' => __( 'Deadline date (formatted)', 'wp-career-board' ),
+			'job_url'       => __( 'Job listing URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Wire up the action hook.
 	 *
 	 * @since 1.1.0
@@ -90,16 +122,20 @@ class EmailDeadlineReminder extends AbstractEmail {
 			return;
 		}
 
-		$deadline_raw = (string) get_post_meta( $job_id, '_wcb_deadline', true );
+		$deadline_raw  = (string) get_post_meta( $job_id, '_wcb_deadline', true );
+		$deadline_date = '' !== $deadline_raw
+			? (string) mysql2date( (string) get_option( 'date_format', 'F j, Y' ), $deadline_raw )
+			: '';
 
 		$this->send(
 			$user->user_email,
 			array(
-				'job_title'    => $job->post_title,
-				'job_url'      => (string) get_permalink( $job_id ),
-				'days_left'    => $days_left,
-				'deadline_iso' => $deadline_raw,
-				'company_name' => (string) get_post_meta( $job_id, '_wcb_company_name', true ),
+				'job_title'     => $job->post_title,
+				'job_url'       => (string) get_permalink( $job_id ),
+				'days_left'     => $days_left,
+				'deadline_iso'  => $deadline_raw,
+				'deadline_date' => $deadline_date,
+				'company_name'  => (string) get_post_meta( $job_id, '_wcb_company_name', true ),
 			),
 			$user->ID
 		);

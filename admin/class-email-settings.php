@@ -160,12 +160,14 @@ class EmailSettings {
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Templates', 'wp-career-board' ); ?></h2>
 			</div>
 			<div style="padding: 0 24px 16px;">
+				<div class="wcb-email-templates-wrap">
 				<table class="widefat striped" style="margin-top:12px">
 					<thead>
 						<tr>
 							<th><?php esc_html_e( 'Email', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Recipient', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Subject', 'wp-career-board' ); ?></th>
+							<th><?php esc_html_e( 'Message', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Test', 'wp-career-board' ); ?></th>
 						</tr>
@@ -190,6 +192,12 @@ class EmailSettings {
 								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
 							</td>
 							<td>
+								<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-body-toggle" data-target="wcb-email-body-<?php echo esc_attr( $id ); ?>" aria-expanded="false" aria-controls="wcb-email-body-<?php echo esc_attr( $id ); ?>">
+									<i data-lucide="pencil" class="wcb-icon--xs" aria-hidden="true"></i>
+									<span><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></span>
+								</button>
+							</td>
+							<td>
 								<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
 							</td>
 							<td>
@@ -204,9 +212,24 @@ class EmailSettings {
 								</button>
 							</td>
 						</tr>
+						<tr class="wcb-email-body-row" id="wcb-email-body-<?php echo esc_attr( $id ); ?>" hidden>
+							<td colspan="6">
+								<label class="wcb-email-body-label" for="wcb-email-body-field-<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Message body (HTML)', 'wp-career-board' ); ?></label>
+								<textarea id="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" class="wcb-email-body-textarea" name="wcb_email[<?php echo esc_attr( $id ); ?>][body]" rows="8" placeholder="<?php esc_attr_e( 'Leave blank to send the ready-made default message. Click Load default to start from it.', 'wp-career-board' ); ?>"><?php echo esc_textarea( isset( $saved['body'] ) ? (string) $saved['body'] : '' ); ?></textarea>
+								<div class="wcb-email-tags">
+									<span class="wcb-email-tags__label"><?php esc_html_e( 'Insert tag:', 'wp-career-board' ); ?></span>
+			<?php foreach ( $email->get_merge_tags() as $wcb_tag => $wcb_tag_label ) : ?>
+									<button type="button" class="wcb-email-tag-chip" data-target="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" data-tag="{<?php echo esc_attr( $wcb_tag ); ?>}" title="<?php echo esc_attr( $wcb_tag_label ); ?>"><?php echo esc_html( '{' . $wcb_tag . '}' ); ?></button>
+			<?php endforeach; ?>
+									<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-load-default" data-target="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" data-default="<?php echo esc_attr( $email->get_default_body() ); ?>"><?php esc_html_e( 'Load default', 'wp-career-board' ); ?></button>
+								</div>
+								<p class="description"><?php esc_html_e( 'Leave blank to use the ready-made default. The branded header and footer are added automatically; enter only the message body.', 'wp-career-board' ); ?></p>
+							</td>
+						</tr>
 		<?php endforeach; ?>
 					</tbody>
 				</table>
+				</div>
 				<p class="description" style="margin-top: 12px;">
 		<?php
 		/* translators: %s: current admin email address */
@@ -472,6 +495,7 @@ class EmailSettings {
 			$settings[ $id ] = array(
 				'enabled' => ! empty( $raw[ $id ]['enabled'] ),
 				'subject' => sanitize_text_field( isset( $raw[ $id ]['subject'] ) ? $raw[ $id ]['subject'] : '' ),
+				'body'    => isset( $raw[ $id ]['body'] ) ? wp_kses_post( (string) $raw[ $id ]['body'] ) : '',
 			);
 		}
 
