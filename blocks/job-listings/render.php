@@ -39,7 +39,7 @@ if ( '' !== $wcb_meta_filter_attr && false !== strpos( $wcb_meta_filter_attr, ':
 
 // Site-owner filter-sidebar customization (block attributes): order + visibility.
 // Keys must match the buffered groups rendered in the filter panel below.
-$wcb_default_filter_order = array( 'type', 'experience', 'category', 'tags', 'location', 'board', 'salary' );
+$wcb_default_filter_order = apply_filters( 'wcb_default_filter_order', array( 'type', 'experience', 'category', 'tags', 'location', 'board', 'salary' ) );
 $wcb_saved_filter_order   = array_values( array_intersect( (array) ( $attributes['filterOrder'] ?? array() ), $wcb_default_filter_order ) );
 // Saved order first, then any default key the saved order is missing, so a new
 // filter shipped in a later version always appears even on older saved blocks.
