@@ -76,6 +76,24 @@ else
 	printf "  ${DIM}skip   ${RESET} size-limit (no config or not installed)\n"
 fi
 
+# 5. i18n gates — see docs/standards/i18n.md.
+# 5a. eslint @wordpress/i18n-* rules validate strings ALREADY wrapped in __()
+#     (text domain, sprintf, translator comments, whitespace). Scoped to the
+#     focused .eslintrc.json so it does not drag in prettier/no-undef noise.
+if [ -x "./node_modules/.bin/eslint" ]; then
+	run_step "i18n-eslint" './node_modules/.bin/eslint "assets/**/*.js" "blocks/**/*.js"' || failed=$((failed+1))
+else
+	printf "  ${DIM}skip   ${RESET} i18n-eslint (run \"npm install\" first)\n"
+fi
+
+# 5b. Grep gate for BARE user-facing literals — the class no @wordpress eslint
+#     rule catches (no-unlocalized-strings is not a real rule in this package).
+if [ -x "./bin/check-i18n.sh" ]; then
+	run_step "i18n-literals" './bin/check-i18n.sh' || failed=$((failed+1))
+else
+	printf "  ${DIM}skip   ${RESET} i18n-literals (bin/check-i18n.sh missing)\n"
+fi
+
 printf "\n"
 if [ "$failed" -eq 0 ]; then
 	printf "${GREEN}${BOLD}ALL GREEN${RESET} — safe to push\n"

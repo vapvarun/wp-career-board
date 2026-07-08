@@ -11,10 +11,90 @@ import { wcbFetch } from '@wcb/fetch';
 let searchDebounceTimer = null;
 
 /**
+ * Translated-string reader.
+ *
+ * view.js ships as a script module, and script modules cannot load JED
+ * translation files — `wp_set_script_module_translations()` only lands in
+ * WP 7.0 and this plugin's floor is 6.9. The ONLY way a translated string
+ * reaches this file is render.php seeding it under `state.i18n`, so every
+ * user-facing string must be read through this helper. The fallback is the
+ * exact English source text of the matching `__()` call in render.php.
+ *
+ * @param {string} key      Key in the `i18n` array seeded by render.php.
+ * @param {string} fallback English source text, identical to the PHP __() call.
+ * @return {string}
+ */
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
+/**
+ * Substitute a printf-style placeholder without letting `$` sequences in the
+ * replacement (currency symbols such as "$60k") be read as capture-group refs.
+ *
+ * @param {string} template    Format string, e.g. "%1$s+".
+ * @param {string} placeholder Placeholder token, e.g. "%1$s".
+ * @param {string} value       Literal replacement value.
+ * @return {string}
+ */
+function wcbFill( template, placeholder, value ) {
+	return String( template ).replace( placeholder, () => String( value ) );
+}
+
+/**
+ * Format a number against the SITE locale, not the browser's.
+ *
+ * `Number#toLocaleString()` and a bare `new Intl.NumberFormat()` both resolve
+ * against the visitor's browser locale, so a de_DE site viewed from an en-US
+ * browser rendered "1,000" where it must render "1.000". `state.locale` is the
+ * site locale as a BCP-47 tag, seeded at the root of the Interactivity state by
+ * render.php (\WCB\Core\SalaryFormat::locale()).
+ *
+ * @param {number} value Raw number.
+ * @return {string} Localised digits.
+ */
+function wcbNumber( value ) {
+	const n = Number( value ) || 0;
+	try {
+		return new Intl.NumberFormat( state.locale || undefined ).format( n );
+	} catch {
+		// A malformed locale tag must not take the whole listing down — and a
+		// bare `new Intl.NumberFormat()` would silently group against the
+		// browser locale, the exact drift this helper exists to prevent. Fall
+		// back to the ungrouped, locale-neutral digit string instead.
+		return String( n );
+	}
+}
+
+/**
+ * Combine a currency symbol with an already-localised amount.
+ *
+ * Never `symbol + amount`: fr_FR / de_DE / sv_SE place the symbol AFTER the
+ * figure. `moneyFormat` is a translatable format string ("%1$s%2$s") whose
+ * numbered placeholders a translator reorders to "%2$s %1$s".
+ *
+ * @param {string} symbol Currency symbol.
+ * @param {string} amount Localised amount.
+ * @return {string}
+ */
+function wcbMoney( symbol, amount ) {
+	return wcbFill(
+		wcbFill( t( 'moneyFormat', '%1$s%2$s' ), '%1$s', symbol ),
+		'%2$s',
+		amount
+	);
+}
+
+/**
  * Compact salary formatter — 60000 → "$60k", 1500000 → "$1.5M".
  * Lives outside the store so getters stay pure.
  *
- * @param {number} value Salary in base currency units.
+ * Mirrors \WCB\Core\SalaryFormat::abbreviate() + ::money(): the "k" / "M" unit
+ * is glued to the localised digits, then the currency symbol is applied through
+ * the reorderable `moneyFormat` string. Used ONLY by the salary sliders + their
+ * chips, whose values change with no server round trip. Every other money string
+ * in this block (each card's `salary_label`) is pre-formatted server-side.
+ *
+ * @param {number} value  Salary in base currency units.
+ * @param {string} symbol Currency symbol seeded by render.php.
  * @return {string}
  */
 function wcbFormatSalaryShort( value, symbol ) {
@@ -24,12 +104,35 @@ function wcbFormatSalaryShort( value, symbol ) {
 		return '';
 	}
 	if ( n >= 1_000_000 ) {
-		return s + ( n / 1_000_000 ).toFixed( 1 ).replace( /\.0$/, '' ) + 'M';
+		// Match PHP's round( $value / 1000000, 1 ): one decimal, ".0" dropped.
+		const millions = Math.round( ( n / 1_000_000 ) * 10 ) / 10;
+		return wcbMoney( s, wcbFill( t( 'salaryMillion', '%sM' ), '%s', wcbNumber( millions ) ) );
 	}
 	if ( n >= 1_000 ) {
-		return s + Math.round( n / 1_000 ) + 'k';
+		return wcbMoney( s, wcbFill( t( 'salaryThousand', '%sk' ), '%s', wcbNumber( Math.round( n / 1_000 ) ) ) );
 	}
-	return s + n;
+	return wcbMoney( s, wcbNumber( n ) );
+}
+
+/**
+ * Adopt the results-count label the REST response resolved server-side.
+ *
+ * `results_label` is additive on /wcb/v1/jobs (since 1.5.1) and reports the
+ * matches FOUND (`total`), not the rows loaded so far. It has already been
+ * through _n() + number_format_i18n() in PHP, so both the plural form and the
+ * digit grouping are correct for the site locale in every language — including
+ * the ones that need three (Polish, Russian) or six (Arabic) forms, which a
+ * `count === 1` pick between two seeded strings can never produce.
+ *
+ * A legacy bare-array response carries no label, so there is nothing to adopt
+ * and the seeded label from render.php stays put rather than being guessed at.
+ *
+ * @param {Object|Array} data Parsed REST payload.
+ */
+function wcbApplyResultsLabel( data ) {
+	if ( ! Array.isArray( data ) && typeof data?.results_label === 'string' ) {
+		state.resultsLabel = data.results_label;
+	}
 }
 
 const { state, actions } = store( 'wcb-job-listings', {
@@ -98,24 +201,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		get salaryMinDisplay() {
-			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : ( state.strings.anyLabel || 'Any' );
+			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : t( 'anyLabel', 'Any' );
 		},
 
 		get salaryMaxDisplay() {
-			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : ( state.strings.anyLabel || 'Any' );
-		},
-
-		get salaryChipLabel() {
-			const min = state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : '';
-			const max = state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : '';
-			const fallback = state.strings.salaryChipDefault || 'Salary';
-			if ( ! min && ! max ) {
-				return fallback;
-			}
-			if ( min && max ) {
-				return min + '–' + max;
-			}
-			return min ? min + '+' : '≤' + max;
+			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : t( 'anyLabel', 'Any' );
 		},
 
 		/** Array of { key, label } for active filter pills. */
@@ -142,27 +232,47 @@ const { state, actions } = store( 'wcb-job-listings', {
 					const id = parseInt( key.slice( 6 ), 10 );
 					const match = ( state.filterOptions.boards || [] ).find( ( b ) => b.id === id );
 					label = match ? match.name : value;
+				} else if ( key === 'wcb_category' ) {
+					// External filter-block keys (job-filters) carry a term slug.
+					// Resolve each to its human name via the same option lists the
+					// in-block chips use, else the pill shows a bare slug.
+					const match = ( state.filterOptions.categories || [] ).find( ( c ) => c.slug === value );
+					label = match ? match.name : value;
+				} else if ( key === 'wcb_job_type' ) {
+					const match = ( state.filterOptions.types || [] ).find( ( ty ) => ty.slug === value );
+					label = match ? match.name : value;
+				} else if ( key === 'wcb_experience' ) {
+					const match = ( state.filterOptions.experiences || [] ).find( ( ex ) => ex.slug === value );
+					label = match ? match.name : value;
+				} else if ( key === 'wcb_location' ) {
+					const match = ( state.filterOptions.locations || [] ).find( ( loc ) => loc.slug === value );
+					label = match ? match.name : value;
 				} else if ( key === 'salary_min' ) {
-					label = wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol ) + '+';
+					label = wcbFill(
+						t( 'salaryOpenMin', '%s+' ),
+						'%s',
+						wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol )
+					);
 				} else if ( key === 'salary_max' ) {
-					label = '≤' + wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol );
+					label = wcbFill(
+						t( 'salaryUpTo', 'Up to %s' ),
+						'%s',
+						wcbFormatSalaryShort( parseInt( value, 10 ), state.currencySymbol )
+					);
+				} else if ( key === 'remote' || key === 'wcb_remote' ) {
+					// Without this the pill printed the raw filter value, so
+					// every locale — English included — saw a bare "1".
+					label = t( 'remoteLabel', 'Remote only' );
 				}
 				return { key, label };
 			} );
 		},
 
-		get resultsLabel() {
-			const shown = state.jobs.length;
-			const total = state.totalCount;
-			if ( shown >= total ) {
-				return total === 1
-					? state.strings.jobCountSingle
-					: state.strings.jobCountPlural.replace( '%d', total );
-			}
-			return state.strings.jobCountOf
-				.replace( '%1$d', shown )
-				.replace( '%2$d', total );
-		},
+		// `resultsLabel` is NOT a getter: it is a plain seeded value that
+		// render.php resolves with _n() and fetchJobs() replaces with the REST
+		// response's `results_label`. Both sides run the plural through gettext
+		// on the server, which is the only place a correct plural form can be
+		// chosen for locales with more than two of them.
 
 		// ── Derived: job list ─────────────────────────────────────────
 		get hasNoJobs() {
@@ -173,8 +283,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 		get bookmarkLabel() {
 			const ctx = getContext();
 			return ctx.job?.bookmarked
-				? state.strings.bookmarkRemove
-				: state.strings.bookmarkAdd;
+				? t( 'bookmarkRemove', 'Saved' )
+				: t( 'bookmarkAdd', 'Save job' );
 		},
 	},
 
@@ -498,7 +608,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 				} );
 
 				const data = yield response.json();
-				// Envelope shape since 1.1.0: { jobs, total, pages, has_more }.
+				// Envelope shape since 1.1.0: { jobs, total, pages, has_more },
+				// plus `results_label` since 1.5.1.
 				// Fall back to bare-array + header for any external reverse proxy still serving the old shape.
 				const jobs  = Array.isArray( data ) ? data : ( data?.jobs ?? [] );
 				const total = Array.isArray( data )
@@ -506,6 +617,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					: ( data?.total ?? jobs.length );
 
 				state.totalCount = total;
+				wcbApplyResultsLabel( data );
 				if ( state.page === 1 ) {
 					state.jobs = jobs;
 				} else {

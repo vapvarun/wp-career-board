@@ -17,6 +17,18 @@ import { wcbFetch } from '@wcb/fetch';
 // to the same identifier across re-fires.
 let wcbSearchTimer = null;
 
+// This module renders no strings of its own, so there is no `i18n` bag in
+// state and no `t()` reader. Every user-facing string reaches the DOM either
+// from render.php (already run through __()/esc_html_e()) or pre-translated on
+// the REST payload — `jobs_label`, `size_label`, `trust_label`, `results_label`.
+//
+// `state.resultsLabel` is a plain seeded string, never a client-side getter:
+// _n() resolves the plural against the real total in PHP, where every plural
+// form of the locale is known. Deciding between two frozen forms with
+// `count === 1` in JS is only correct in two-form languages, and counting the
+// rows loaded so far rather than the matches found is a second bug on top.
+// Keep it that way — if you need a new plural label, resolve it server-side.
+
 const { state } = store( 'wcb-company-archive', {
 	state: {
 		get isGrid() {
@@ -24,10 +36,6 @@ const { state } = store( 'wcb-company-archive', {
 		},
 		get isList() {
 			return state.layout === 'list';
-		},
-		get resultsLabel() {
-			const count = state.companies.length;
-			return count === 1 ? '1 company found' : count + ' companies found';
 		},
 		get hasNoCompanies() {
 			return ! state.loading && state.companies.length === 0;
@@ -187,6 +195,7 @@ const { state } = store( 'wcb-company-archive', {
 				const hasMore   = Array.isArray( data ) ? companies.length === state.perPage : !! data?.has_more;
 				state.companies.push( ...companies );
 				state.hasMore = hasMore;
+				wcbApplyResultsLabel( data );
 			} catch {
 				state.page--;
 			} finally {
@@ -212,6 +221,26 @@ if ( typeof window !== 'undefined' ) {
 	}
 	if ( savedLayout && [ 'grid', 'list' ].includes( savedLayout ) ) {
 		state.layout = savedLayout;
+	}
+}
+
+/**
+ * Adopt the results-count label the REST response resolved server-side.
+ *
+ * `results_label` is additive on /wcb/v1/companies (since 1.5.1) and reports
+ * the matches FOUND (`total`), not the rows loaded so far. It has already been
+ * through _n() + number_format_i18n() in PHP, so the plural form and the digit
+ * grouping are both correct for the site locale — not the browser's.
+ *
+ * A legacy bare-array response carries no total and no label, so there is
+ * nothing to resolve; the seeded label from render.php stays put rather than
+ * being replaced by a guess.
+ *
+ * @param {Object|Array} data Parsed REST payload.
+ */
+function wcbApplyResultsLabel( data ) {
+	if ( ! Array.isArray( data ) && typeof data?.results_label === 'string' ) {
+		state.resultsLabel = data.results_label;
 	}
 }
 
@@ -279,6 +308,7 @@ function wcbFetchCompanies() {
 			state.companies = companies;
 			state.hasMore   = hasMore;
 			state.loading   = false;
+			wcbApplyResultsLabel( data );
 		} )
 		.catch( function() {
 			state.loading = false;

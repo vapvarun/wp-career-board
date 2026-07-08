@@ -76,7 +76,17 @@ if ( empty( $wcb_featured_posts ) ) {
 
 				<?php
 				$wcb_feat_loc_terms = wp_get_object_terms( $wcb_post->ID, 'wcb_location', array( 'fields' => 'names' ) );
-				$wcb_feat_location  = is_wp_error( $wcb_feat_loc_terms ) ? '' : implode( ', ', $wcb_feat_loc_terms );
+				/*
+				 * The separator between list items is user-facing punctuation, not
+				 * markup: ja/zh want the ideographic comma, ar wants the Arabic
+				 * comma, and several locales drop the trailing space. Reuse WP core's
+				 * locale-aware separator (wp_get_list_item_separator(), WP 6.0+) so it
+				 * resolves against core's own catalog instead of an untranslated
+				 * plugin-domain key.
+				 */
+				$wcb_feat_location = is_wp_error( $wcb_feat_loc_terms )
+					? ''
+					: implode( wp_get_list_item_separator(), $wcb_feat_loc_terms );
 				if ( $wcb_feat_location ) :
 					?>
 					<p class="wcb-featured-location"><?php echo esc_html( $wcb_feat_location ); ?></p>
@@ -91,7 +101,8 @@ if ( empty( $wcb_featured_posts ) ) {
 
 	<?php if ( $wcb_show_all && $wcb_view_all_url ) : ?>
 		<a class="wcb-widget-view-all" href="<?php echo esc_url( $wcb_view_all_url ); ?>">
-			<?php esc_html_e( 'View all jobs →', 'wp-career-board' ); ?>
+			<?php esc_html_e( 'View all jobs', 'wp-career-board' ); ?>
+			<span class="wcb-widget-view-all-arrow" aria-hidden="true"><?php echo is_rtl() ? '&larr;' : '&rarr;'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static HTML entity, direction-aware. ?></span>
 		</a>
 	<?php endif; ?>
 </div>

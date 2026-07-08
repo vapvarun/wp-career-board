@@ -104,45 +104,102 @@ $wcb_resumes_state = (array) apply_filters(
 	$wcb_candidate_id
 );
 
+/*
+ * Money format strings for the saved-search filter pills. The alert's
+ * salary bounds arrive from /wcb/v1/alerts as raw integers, so the label has
+ * to be assembled client-side; these numbered format strings let a translator
+ * move the currency symbol after the amount (fr_FR/de_DE/sv_SE) and swap the
+ * range separator. Only the four keys view.js actually reads are seeded --
+ * SalaryFormat::js_strings() also carries the abbreviation/period keys, which
+ * this block has no reader for.
+ */
+$wcb_money_i18n = array_intersect_key(
+	\WCB\Core\SalaryFormat::js_strings(),
+	array_flip(
+		array(
+			'moneyFormat',
+			'salaryRange',
+			'salaryOpenMin',
+			'salaryUpTo',
+		)
+	)
+);
+
+/*
+ * view.js is registered as a `viewScriptModule`. Script modules cannot load
+ * JED translation files, so every user-facing string the store renders is
+ * seeded here under the `i18n` key and read in JS through the `t()` helper.
+ * Every key below has exactly one `t( 'key', 'English fallback' )` reader.
+ */
 wp_interactivity_state(
 	'wcb-candidate-dashboard',
 	array_merge(
 		array(
-			'strings'                 => array(
-				'tabOverview'          => __( 'Overview', 'wp-career-board' ),
-				'tabApplications'      => __( 'My Applications', 'wp-career-board' ),
-				'tabBookmarks'         => __( 'Saved Jobs', 'wp-career-board' ),
-				'tabResumes'           => __( 'My Resumes', 'wp-career-board' ),
-				'tabAlerts'            => __( 'Job Alerts', 'wp-career-board' ),
-				'tabResumeBuilder'     => __( 'Edit Resume', 'wp-career-board' ),
-				'tabDashboard'         => __( 'Dashboard', 'wp-career-board' ),
-				'tabProfile'           => __( 'Profile', 'wp-career-board' ),
-				'tabSettings'          => __( 'Settings', 'wp-career-board' ),
-				'resumesUnit'          => __( 'resumes', 'wp-career-board' ),
-				'filterRemote'         => __( 'Remote', 'wp-career-board' ),
-				'alertLabelAllJobs'    => __( 'All jobs', 'wp-career-board' ),
-				'errLoadApplications'  => __( 'Could not load your applications.', 'wp-career-board' ),
-				'errLoadBookmarks'     => __( 'Could not load saved jobs.', 'wp-career-board' ),
-				'errLoadResumes'       => __( 'Could not load your resumes.', 'wp-career-board' ),
-				'errLoadAlerts'        => __( 'Could not load your alerts.', 'wp-career-board' ),
-				'errRemoveBookmark'    => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
-				'errCreateResume'      => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
-				'errDeleteResume'      => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
-				'errConnectionFull'    => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
-				'errConnectionShort'   => __( 'Connection error.', 'wp-career-board' ),
-				'confirmWithdrawTitle' => __( 'Withdraw application?', 'wp-career-board' ),
-				'confirmWithdrawMsg'   => __( 'Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board' ),
-				'withdraw'             => __( 'Withdraw', 'wp-career-board' ),
-				'confirmClearAllTitle' => __( 'Clear all notifications?', 'wp-career-board' ),
-				'confirmClearAllMsg'   => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
-				'clearAll'             => __( 'Clear all', 'wp-career-board' ),
-				'errWithdraw'          => __( 'Could not withdraw application. Please try again.', 'wp-career-board' ),
-				'confirmEraseTitle'    => __( 'Delete your account?', 'wp-career-board' ),
-				'confirmEraseMsg'      => __( 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board' ),
-				'confirmEraseConfirm'  => __( 'Send confirmation email', 'wp-career-board' ),
-				'errPrivacy'           => __( 'Could not submit your privacy request. Please try again or contact support.', 'wp-career-board' ),
-				'recommendedTitle'     => __( 'Recommended for you', 'wp-career-board' ),
-				'recommendedHint'      => __( 'AI-matched to your resume', 'wp-career-board' ),
+			// Site locale as a BCP-47 tag, at state ROOT (sibling of `i18n`) so
+			// view.js can hand it to Intl.NumberFormat. Without it,
+			// Number#toLocaleString() formats against the BROWSER locale and a
+			// de_DE site viewed from an en-US browser renders "1,000" for "1.000".
+			'locale'                  => \WCB\Core\SalaryFormat::locale(),
+			'i18n'                    => array_merge(
+				$wcb_money_i18n,
+				array(
+					'tabOverview'           => __( 'Overview', 'wp-career-board' ),
+					'tabApplications'       => __( 'My Applications', 'wp-career-board' ),
+					'tabBookmarks'          => __( 'Saved Jobs', 'wp-career-board' ),
+					'tabSavedCompanies'     => __( 'Saved Companies', 'wp-career-board' ),
+					'tabSavedResumes'       => __( 'Saved Resumes', 'wp-career-board' ),
+					'tabResumes'            => __( 'My Resumes', 'wp-career-board' ),
+					'tabAlerts'             => __( 'Job Alerts', 'wp-career-board' ),
+					'tabResumeBuilder'      => __( 'Edit Resume', 'wp-career-board' ),
+					'tabDashboard'          => __( 'Dashboard', 'wp-career-board' ),
+					'tabProfile'            => __( 'Profile', 'wp-career-board' ),
+					'tabSettings'           => __( 'Settings', 'wp-career-board' ),
+					'tabNotifications'      => __( 'Notifications', 'wp-career-board' ),
+					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. */
+					'resumeCapOne'          => __( '%1$s/%2$s resume', 'wp-career-board' ),
+					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. */
+					'resumeCapOther'        => __( '%1$s/%2$s resumes', 'wp-career-board' ),
+					/* translators: %1$s: job-match score as a whole number, e.g. 85. */
+					'scoreFormat'           => __( '%1$s%', 'wp-career-board' ),
+					'filterRemote'          => __( 'Remote', 'wp-career-board' ),
+					/* translators: currency symbol shown on salary pills when the site has no configured currency symbol. */
+					'currencySymbolFallback' => __( '$', 'wp-career-board' ),
+					'alertLabelAllJobs'     => __( 'All jobs', 'wp-career-board' ),
+					'uploadedCvTitle'       => __( 'Uploaded CV', 'wp-career-board' ),
+					'accountUpdated'        => __( 'Account updated.', 'wp-career-board' ),
+					'pwUpdated'             => __( 'Password updated.', 'wp-career-board' ),
+					'errLoadApplications'   => __( 'Could not load your applications.', 'wp-career-board' ),
+					'errLoadBookmarks'      => __( 'Could not load saved jobs.', 'wp-career-board' ),
+					'errLoadSavedCompanies' => __( 'Could not load saved companies.', 'wp-career-board' ),
+					'errLoadSavedResumes'   => __( 'Could not load saved resumes.', 'wp-career-board' ),
+					'errLoadResumes'        => __( 'Could not load your resumes.', 'wp-career-board' ),
+					'errLoadAlerts'         => __( 'Could not load your alerts.', 'wp-career-board' ),
+					'errRemoveBookmark'     => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
+					'errCreateResume'       => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
+					'errDeleteResume'       => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
+					'errSaveProfile'        => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
+					'errSaveAccount'        => __( 'Could not save your account.', 'wp-career-board' ),
+					'errPwRequired'         => __( 'Enter your current and new password.', 'wp-career-board' ),
+					'errPwMismatch'         => __( 'New password and confirmation do not match.', 'wp-career-board' ),
+					'errPwUpdate'           => __( 'Could not update your password.', 'wp-career-board' ),
+					'errUploadFailed'       => __( 'Upload failed.', 'wp-career-board' ),
+					'errUploadNoAttachment' => __( 'Upload failed: no attachment returned.', 'wp-career-board' ),
+					'errUploadRetry'        => __( 'Failed to upload resume file. Please try again.', 'wp-career-board' ),
+					'errConnectionFull'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+					'errConnectionRetry'    => __( 'Connection error. Please try again.', 'wp-career-board' ),
+					'errConnectionShort'    => __( 'Connection error.', 'wp-career-board' ),
+					'confirmWithdrawTitle'  => __( 'Withdraw application?', 'wp-career-board' ),
+					'confirmWithdrawMsg'    => __( 'Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board' ),
+					'withdraw'              => __( 'Withdraw', 'wp-career-board' ),
+					'confirmClearAllTitle'  => __( 'Clear all notifications?', 'wp-career-board' ),
+					'confirmClearAllMsg'    => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
+					'clearAll'              => __( 'Clear all', 'wp-career-board' ),
+					'errWithdraw'           => __( 'Could not withdraw application. Please try again.', 'wp-career-board' ),
+					'confirmEraseTitle'     => __( 'Delete your account?', 'wp-career-board' ),
+					'confirmEraseMsg'       => __( 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board' ),
+					'confirmEraseConfirm'   => __( 'Send confirmation email', 'wp-career-board' ),
+					'errPrivacy'            => __( 'Could not submit your privacy request. Please try again or contact support.', 'wp-career-board' ),
+				)
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
 			'savedJobsCount'          => $wcb_saved_jobs_count,
@@ -490,7 +547,7 @@ wp_interactivity_state(
 									<span class="wcb-app-name" data-wp-text="context.app.jobTitle"></span>
 									<span class="wcb-app-job" data-wp-text="context.app.company"></span>
 								</div>
-								<span class="wcb-status-badge" role="status" data-wp-text="context.app.status" data-wp-bind--data-status="context.app.status"></span>
+								<span class="wcb-status-badge" role="status" data-wp-text="context.app.statusLabel" data-wp-bind--data-status="context.app.status"></span>
 							</div>
 						</template>
 					</div>
@@ -682,7 +739,7 @@ wp_interactivity_state(
 								></a>
 							</h3>
 							<div class="wcb-cd-bookmark-meta">
-								<span data-wp-class--wcb-hidden="!context.company.industry" data-wp-text="context.company.industry"></span>
+								<span data-wp-class--wcb-hidden="!context.company.industry_label" data-wp-text="context.company.industry_label"></span>
 								<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.company.hq" aria-hidden="true">·</span>
 								<span data-wp-class--wcb-hidden="!context.company.hq" data-wp-text="context.company.hq"></span>
 							</div>

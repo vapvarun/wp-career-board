@@ -640,12 +640,12 @@ final class EmployersEndpoint extends RestController {
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 				$status_labels  = array(
-					'publish'     => 'Published',
-					'draft'       => 'Draft',
-					'pending'     => 'Pending',
-					'private'     => 'Private',
-					'wcb_closed'  => 'Closed',
-					'wcb_expired' => 'Expired',
+					'publish'     => __( 'Published', 'wp-career-board' ),
+					'draft'       => __( 'Draft', 'wp-career-board' ),
+					'pending'     => __( 'Pending', 'wp-career-board' ),
+					'private'     => __( 'Private', 'wp-career-board' ),
+					'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
+					'wcb_expired' => __( 'Expired', 'wp-career-board' ),
 				);
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
@@ -770,7 +770,11 @@ final class EmployersEndpoint extends RestController {
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
 					'appCount'    => $app_count,
 					'appLabel'    => $app_count > 0
-					? sprintf( '%d %s', $app_count, _n( 'applicant', 'applicants', $app_count, 'wp-career-board' ) )
+					? sprintf(
+						/* translators: %s: number of applicants, already localised. */
+						_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
+						number_format_i18n( $app_count )
+					)
 					: __( 'No applicants', 'wp-career-board' ),
 					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
 					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
@@ -888,7 +892,15 @@ final class EmployersEndpoint extends RestController {
 					? $candidate_user->user_email
 					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
 					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
-					'submitted_at'    => get_the_date( 'M j, Y', $app_id ),
+					// Localised label for display, alongside the raw slug for CSS/logic.
+					'statusLabel'     => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
+					// dashboard sorts and date-filters it with new Date() in JS. The
+					// localised display string is a SEPARATE sibling so a translated
+					// month name never reaches new Date() (which would yield NaN and
+					// silently break the recency sort + "new this week" stat).
+					'submitted_at'       => get_the_date( 'c', $app_id ),
+					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
 				);
 
 				$application_post = get_post( $app_id );

@@ -2,6 +2,7 @@
 	var el                = wp.element.createElement;
 	var Fragment          = wp.element.Fragment;
 	var __                = wp.i18n.__;
+	var sprintf           = wp.i18n.sprintf;
 	var InspectorControls = wp.blockEditor.InspectorControls;
 	var useBlockProps     = wp.blockEditor.useBlockProps;
 	var PanelBody         = wp.components.PanelBody;
@@ -26,7 +27,56 @@
 	var FILTER_LABELS = {};
 	DEFAULT_FILTERS.forEach( function ( f ) { FILTER_LABELS[ f.key ] = f.label; } );
 
-	wp.blocks.registerBlockType( 'wp-career-board/job-listings', {
+	var BLOCK_NAME = 'wp-career-board/job-listings';
+
+	/**
+	 * Block title as core registered it from block.json. Core translates
+	 * block.json `title`/`description` using the file's `textdomain`, so the
+	 * editor placeholder reads the metadata instead of duplicating the literal
+	 * (a duplicate would add a redundant POT entry that can drift out of sync).
+	 *
+	 * @return {string} Translated block title.
+	 */
+	function wcbBlockTitle() {
+		var meta = wp.blocks.getBlockType( BLOCK_NAME ) || {};
+		return meta.title || '';
+	}
+
+	/**
+	 * Summary line under the placeholder title. Each part is a standalone
+	 * translated label; they are joined with a separator rather than
+	 * concatenated into a sentence, so no translated fragment is ever glued to
+	 * a variable.
+	 *
+	 * @param {Object} attr               Block attributes.
+	 * @param {string} selectedBoardLabel Title of the selected job board.
+	 * @return {string[]} Translated summary parts.
+	 */
+	function wcbSummaryParts( attr, selectedBoardLabel ) {
+		var parts = [
+			sprintf(
+				/* translators: %s: name of the selected job board. */
+				__( 'Board: %s', 'wp-career-board' ),
+				selectedBoardLabel
+			),
+			'list' === attr.layout
+				? __( 'List', 'wp-career-board' )
+				: sprintf(
+					/* translators: %d: number of grid columns. */
+					__( 'Grid %d-col', 'wp-career-board' ),
+					attr.columns || 3
+				),
+			attr.showFilters
+				? __( 'Filters on', 'wp-career-board' )
+				: __( 'Filters off', 'wp-career-board' ),
+		];
+		if ( attr.showHeading ) {
+			parts.push( __( 'Heading on', 'wp-career-board' ) );
+		}
+		return parts;
+	}
+
+	wp.blocks.registerBlockType( BLOCK_NAME, {
 		edit: function ( props ) {
 			var attr    = props.attributes;
 			var setAttr = props.setAttributes;
@@ -147,14 +197,11 @@
 					)
 				),
 				el( 'div', useBlockProps( { style: { padding: '12px 16px', background: '#f0f6fc', border: '1px dashed #93c5fd', borderRadius: '4px' } } ),
-					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, 'WCB: Job Listings' ),
+					// Title comes from block.json, which core already translates via
+					// its `textdomain` key — never re-declare it here.
+					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, wcbBlockTitle() ),
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } },
-						__( 'Board: ', 'wp-career-board' ) + selectedBoardLabel
-							+ '  ·  ' + ( 'list' === attr.layout
-								? __( 'List', 'wp-career-board' )
-								: __( 'Grid', 'wp-career-board' ) + ' ' + ( attr.columns || 3 ) + __( '-col', 'wp-career-board' ) )
-							+ '  ·  ' + ( attr.showFilters ? __( 'Filters on', 'wp-career-board' ) : __( 'Filters off', 'wp-career-board' ) )
-							+ ( attr.showHeading ? '  ·  ' + __( 'Heading on', 'wp-career-board' ) : '' )
+						wcbSummaryParts( attr, selectedBoardLabel ).join( '  ·  ' )
 					)
 				)
 			);

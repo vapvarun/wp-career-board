@@ -20,16 +20,14 @@ $wcb_per_page   = (int) ( $attributes['perPage'] ?? 20 );
 $wcb_raw_layout = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout     = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
 
-// ── Company size labels ──────────────────────────────────────────────────────
-$wcb_size_labels = array(
-	'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-	'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-	'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-	'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-	'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-	'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-);
+// ── Company size buckets ─────────────────────────────────────────────────────
+// Slug list only. The seven translated labels live in exactly one place —
+// \WCB\Core\CompanyMetaShape::size_label() — which the /wcb/v1/companies REST
+// shape also consumes. Re-declaring the gettext map here would duplicate those
+// same msgids (that class's docblock forbids the duplication) and let the SSR
+// chip drift from the label the client re-fetch paints. Resolve every slug
+// through the shared serializer instead.
+$wcb_size_keys = array( '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5000+' );
 
 // ── Fetch first page of companies ────────────────────────────────────────────
 // WP_Query (not get_posts) so found_posts is available for the hasMore seed.
@@ -123,28 +121,33 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	$wcb_jobs_label = ( 0 === $wcb_job_cnt )
 		? __( 'No open positions', 'wp-career-board' )
 		: sprintf(
-			/* translators: %d: number of open positions */
-			_n( '%d open position', '%d open positions', $wcb_job_cnt, 'wp-career-board' ),
-			$wcb_job_cnt
+			/* translators: %s: number of open positions, already localised. */
+			_n( '%s open position', '%s open positions', $wcb_job_cnt, 'wp-career-board' ),
+			number_format_i18n( $wcb_job_cnt )
 		);
 
 	$wcb_companies_state[] = array(
-		'id'          => $wcb_co_id,
-		'name'        => $wcb_co_name,
-		'initials'    => $wcb_initials,
-		'has_logo'    => '' !== $wcb_logo_url,
-		'no_logo'     => '' === $wcb_logo_url,
-		'logo'        => $wcb_logo_url,
-		'tagline'     => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
-		'industry'    => \WCB\Core\Industries::label( (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ) ),
-		'size_label'  => $wcb_size_labels[ $wcb_size ] ?? $wcb_size,
-		'hq'          => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
-		'trust'       => $wcb_trust,
-		'trust_label' => $wcb_trust_info['label'] ?? '',
-		'verified'    => null !== $wcb_trust_info,
-		'permalink'   => get_permalink( $wcb_co_id ),
-		'jobs_label'  => $wcb_jobs_label,
-		'bookmarked'  => in_array( $wcb_co_id, $wcb_bookmarks, true ),
+		'id'             => $wcb_co_id,
+		'name'           => $wcb_co_name,
+		'initials'       => $wcb_initials,
+		'has_logo'       => '' !== $wcb_logo_url,
+		'no_logo'        => '' === $wcb_logo_url,
+		'logo'           => $wcb_logo_url,
+		'tagline'        => (string) get_post_meta( $wcb_co_id, '_wcb_tagline', true ),
+		// Bind the localised label sibling, matching the /wcb/v1/companies REST
+		// payload's `industry_label` field. view.js rebuilds state.companies
+		// straight from those REST objects on every filter/search, so the SSR
+		// seed key must line up with the REST key or the chip would flip from a
+		// translated label to the raw slug after the first client fetch.
+		'industry_label' => \WCB\Core\Industries::label( (string) get_post_meta( $wcb_co_id, '_wcb_industry', true ) ),
+		'size_label'     => \WCB\Core\CompanyMetaShape::size_label( $wcb_size ),
+		'hq'             => (string) get_post_meta( $wcb_co_id, '_wcb_hq_location', true ),
+		'trust'          => $wcb_trust,
+		'trust_label'    => $wcb_trust_info['label'] ?? '',
+		'verified'       => null !== $wcb_trust_info,
+		'permalink'      => get_permalink( $wcb_co_id ),
+		'jobs_label'     => $wcb_jobs_label,
+		'bookmarked'     => in_array( $wcb_co_id, $wcb_bookmarks, true ),
 	);
 }
 
@@ -183,26 +186,62 @@ foreach ( $wcb_industry_labels as $wcb_slug => $wcb_label ) {
 	}
 }
 foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
-	$wcb_filter_industries[ $wcb_legacy ] = $wcb_legacy;
+	// Legacy free-text industry values aren't in the canonical registry and
+	// carry no translation, so a __() home is impossible — but painting the
+	// raw machine slug ("fin-tech") as a visible checkbox label is wrong too.
+	// Humanise the stored slug for display; the raw slug still travels to REST
+	// as the filter value via the data-wp-context payload below.
+	$wcb_filter_industries[ $wcb_legacy ] = ucwords( str_replace( array( '-', '_' ), ' ', $wcb_legacy ) );
 }
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
 $wcb_state = array(
-	'companies'   => $wcb_companies_state,
-	'page'        => 1,
-	'perPage'     => $wcb_per_page,
-	'layout'      => $wcb_layout,
-	'loading'     => false,
-	'hasMore'     => count( $wcb_companies_raw ) < $wcb_companies_total,
-	'apiBase'     => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industries'  => array(),
-	'sizes'       => array(),
-	'searchQuery' => '',
+	'companies'    => $wcb_companies_state,
+	'page'         => 1,
+	'perPage'      => $wcb_per_page,
+	'layout'       => $wcb_layout,
+	'loading'      => false,
+	'hasMore'      => count( $wcb_companies_raw ) < $wcb_companies_total,
+	'apiBase'      => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+	'industries'   => array(),
+	'sizes'        => array(),
+	'searchQuery'  => '',
 	// Sort order pinned to the same option set as jobs + resumes
 	// (date_desc | date_asc). View.js piping sets ?orderby=date&order=ASC|DESC
 	// on the REST call so the server-side query matches the UI choice.
-	'sortBy'      => 'date_desc',
-	'restNonce'   => wp_create_nonce( 'wp_rest' ),
+	'sortBy'       => 'date_desc',
+	'restNonce'    => wp_create_nonce( 'wp_rest' ),
+	/*
+	 * Results-count label, fully resolved server-side.
+	 *
+	 * _n() picks the correct plural form for ANY locale (Polish needs different
+	 * forms at 2 / 5 / 22, Russian at 1 / 2 / 5, Arabic has six). The previous
+	 * pass seeded two frozen forms — _n(..., 1, ...) and _n(..., 2, ...) — and
+	 * chose between them in JS with `count === 1`, which is only correct in
+	 * two-form languages. It also counted state.companies.length (the rows
+	 * loaded so far, which grows with pagination) instead of the matches found.
+	 *
+	 * The value is the FOUND total, not the number of rows painted. view.js
+	 * replaces it with the REST response's additive `results_label` field —
+	 * likewise _n()-resolved server-side — after every filter / search / sort /
+	 * load-more round trip. No plural resolution happens in JS.
+	 */
+	'resultsLabel' => sprintf(
+		/* translators: %s: number of companies found, already localised. */
+		_n( '%s company found', '%s companies found', $wcb_companies_total, 'wp-career-board' ),
+		number_format_i18n( $wcb_companies_total )
+	),
+	/*
+	 * No `i18n` bag: view.js renders no strings of its own. Every user-facing
+	 * string in this block is either painted by this template (already run
+	 * through __()/esc_html_e()) or arrives pre-translated on the REST payload
+	 * (`jobs_label`, `size_label`, `trust_label`, `results_label`). Seeding an
+	 * empty bag plus a `t()` reader would be dead code. If a future change
+	 * makes view.js render a literal, re-add `'i18n' => array( … )` here and a
+	 * `t( key, fallback )` reader there — script modules cannot load JED
+	 * translation files (wp_set_script_module_translations is WP 7.0+; this
+	 * plugin's floor is 6.9), so state seeding is the only channel.
+	 */
 );
 
 $wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
@@ -282,11 +321,11 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
-					<?php foreach ( $wcb_size_labels as $wcb_size_key => $wcb_size_lbl ) : ?>
+					<?php foreach ( $wcb_size_keys as $wcb_size_key ) : ?>
 						<li>
 							<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'sizeSlug' => $wcb_size_key ) ) ); ?>">
 								<input type="checkbox" data-wp-on--change="actions.toggleSize" data-wp-bind--checked="callbacks.isSizeActive" />
-								<span><?php echo esc_html( $wcb_size_lbl ); ?></span>
+								<span><?php echo esc_html( \WCB\Core\CompanyMetaShape::size_label( $wcb_size_key ) ); ?></span>
 							</label>
 						</li>
 					<?php endforeach; ?>
@@ -365,8 +404,8 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					?>
 					<div class="wcb-ca-card-chips">
 						<span class="wcb-ca-chip"
-								data-wp-class--wcb-shown="context.company.industry"
-								data-wp-text="context.company.industry"></span>
+								data-wp-class--wcb-shown="context.company.industry_label"
+								data-wp-text="context.company.industry_label"></span>
 						<span class="wcb-ca-chip"
 								data-wp-class--wcb-shown="context.company.size_label"
 								data-wp-text="context.company.size_label"></span>

@@ -11,6 +11,10 @@
 			var attr    = props.attributes;
 			var setAttr = props.setAttributes;
 
+			// Title/description come from block.json, which core already
+			// translates via the block's `textdomain`. Never re-declare them here.
+			var meta = wp.blocks.getBlockType( 'wp-career-board/job-alert-card' ) || {};
+
 			return [
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Card content', 'wp-career-board' ), initialOpen: true },
@@ -37,9 +41,9 @@
 					)
 				),
 				el( 'div', { key: 'preview', style: { padding: '12px 16px', background: '#f0f6fc', border: '1px dashed #93c5fd', borderRadius: '4px' } },
-					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, 'WCB: Job Alerts CTA' ),
+					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, meta.title ),
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } },
-						'Sidebar CTA card. Configure copy in the inspector.' )
+						meta.description )
 				),
 			];
 		},

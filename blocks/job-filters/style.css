@@ -10,7 +10,10 @@
 	flex: 1;
 	min-width: auto;
 	height: auto;
-	padding: var(--wcb-space-sm) var(--wcb-space-3xl) var(--wcb-space-sm) var(--wcb-space-md); /* 0.625rem ≈ 10px → sm; 2.25rem ≈ 36px → 3xl (32px); 0.875rem ≈ 14px → md */
+	/* Logical padding so RTL mirrors without a generated rtl variant (block CSS is not run through rtlcss). */
+	padding-block: var(--wcb-space-sm); /* 0.625rem ≈ 10px → sm */
+	padding-inline-start: var(--wcb-space-md); /* 0.875rem ≈ 14px → md: text inset */
+	padding-inline-end: var(--wcb-space-3xl); /* 2.25rem ≈ 36px → 3xl (32px): caret gutter */
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
@@ -21,8 +24,14 @@
 	appearance: none;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
+	/* background-position has no logical-property equivalent; caret sits at the inline-end.
+	   Default LTR = right; the [dir="rtl"] override below mirrors it (block CSS is not run through rtlcss). */
 	background-position: right var(--wcb-space-md) center;
 	transition: border-color var(--wcb-transition-snappy);
+}
+
+[dir="rtl"] .wcb-filter-select {
+	background-position: left var(--wcb-space-md) center;
 }
 
 .wcb-filter-select:focus {

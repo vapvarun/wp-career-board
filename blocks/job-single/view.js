@@ -17,6 +17,11 @@ import { wcbFetch } from '@wcb/fetch';
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
 
+// Translation lookup. view.js is a script module, so it cannot load JED translation
+// files; render.php seeds every string, already translated, into state.i18n. The
+// English fallback matches the __() source text in render.php exactly.
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
 const { state } = store( 'wcb-job-single', {
 	state: {
 		// Filled per-input by actions.updateCustomField when a site uses
@@ -29,13 +34,17 @@ const { state } = store( 'wcb-job-single', {
 		// Closes Basecamp 9874915447 (custom fields silently dropped).
 		customFields: {},
 		get bookmarkLabel() {
-			return state.bookmarked ? state.strings.bookmarkSaved : state.strings.bookmarkSave;
+			return state.bookmarked
+				? t( 'bookmarkSaved', 'Saved' )
+				: t( 'bookmarkSave', 'Save Job' );
 		},
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;
 		},
 		get aiCoverBtnLabel() {
-			return state.coverLoading ? state.strings.aiCoverBusy : state.strings.aiCoverBtn;
+			return state.coverLoading
+				? t( 'aiCoverBusy', 'Writing…' )
+				: t( 'aiCoverBtn', 'Write with AI' );
 		},
 	},
 
@@ -246,14 +255,14 @@ const { state } = store( 'wcb-job-single', {
 			// Guest validation — require name + email before submitting.
 			if ( ! state.isLoggedIn ) {
 				if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
-					state.error = state.strings.guestFieldsRequired;
+					state.error = t( 'guestFieldsRequired', 'Please enter your name and email to apply.' );
 					return;
 				}
 			}
 
 			// Resume requirement check (server enforces too).
 			if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
-				state.error = state.strings.resumeRequiredError;
+				state.error = t( 'resumeRequiredError', 'Please attach your resume to apply.' );
 				return;
 			}
 
@@ -304,7 +313,9 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( ! response.ok ) {
 					const err   = yield response.json().catch( () => null );
-					state.error = ( err && err.message ) ? err.message : state.strings.applicationFailed;
+					state.error = ( err && err.message )
+						? err.message
+						: t( 'applicationFailed', 'Application could not be submitted. Please try again.' );
 					return;
 				}
 
@@ -314,7 +325,7 @@ const { state } = store( 'wcb-job-single', {
 					window.wcbCaptchaReset();
 				}
 			} catch {
-				state.error = state.strings.connectionError;
+				state.error = t( 'connectionError', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.submitting = false;
 			}
@@ -379,7 +390,7 @@ const { state } = store( 'wcb-job-single', {
 				return;
 			}
 			if ( ! state.reportReason ) {
-				state.reportError = state.strings.reportReasonRequired;
+				state.reportError = t( 'reportReasonRequired', 'Please choose a reason for reporting.' );
 				return;
 			}
 
@@ -400,7 +411,7 @@ const { state } = store( 'wcb-job-single', {
 				);
 
 				if ( ! response.ok ) {
-					state.reportError = state.strings.reportFailed;
+					state.reportError = t( 'reportFailed', 'Could not submit your report. Please try again.' );
 					return;
 				}
 
@@ -408,7 +419,7 @@ const { state } = store( 'wcb-job-single', {
 				state.reportDone = true;
 				state.reportOpen = false;
 			} catch {
-				state.reportError = state.strings.connectionError;
+				state.reportError = t( 'connectionError', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.reportSubmitting = false;
 			}

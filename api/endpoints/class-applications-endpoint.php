@@ -516,8 +516,9 @@ final class ApplicationsEndpoint extends RestController {
 				'statusLabel'  => \WCB\Modules\Applications\ApplicationStatus::label( $status ),
 				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
 				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
-				// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
-				'date'         => get_the_date( 'Y-m-d', $app ),
+				// Legacy `date` key, still rendered by the candidate dashboard.
+				// Use the site's configured date format, not a hardcoded ISO string.
+				'date'         => get_the_date( (string) get_option( 'date_format' ), $app ),
 			);
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */

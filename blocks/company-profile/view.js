@@ -12,6 +12,17 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
+/**
+ * Translation lookup. Script modules cannot load JED files, so render.php
+ * seeds every user-facing string under `state.i18n`. The fallback is the
+ * English source string and must stay identical to the PHP __() literal.
+ *
+ * @param {string} key      Key seeded in render.php's `i18n` array.
+ * @param {string} fallback English source string.
+ * @return {string} Translated string, or the English fallback.
+ */
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
 const { state } = store( 'wcb-company-profile', {
 	actions: {
 		*toggleBookmark() {
@@ -22,7 +33,7 @@ const { state } = store( 'wcb-company-profile', {
 
 			const wasBookmarked = !! state.bookmarked;
 			state.bookmarked = ! wasBookmarked;
-			state.bookmarkLabel = state.bookmarked ? state.labelSaved : state.labelSave;
+			state.bookmarkLabel = state.bookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
 
 			try {
 				const url = state.apiBase + '/' + state.companyId + '/bookmark';
@@ -36,11 +47,11 @@ const { state } = store( 'wcb-company-profile', {
 				} );
 				if ( ! response.ok ) {
 					state.bookmarked = wasBookmarked;
-					state.bookmarkLabel = wasBookmarked ? state.labelSaved : state.labelSave;
+					state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
 				}
 			} catch {
 				state.bookmarked = wasBookmarked;
-				state.bookmarkLabel = wasBookmarked ? state.labelSaved : state.labelSave;
+				state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
 			} finally {
 				state.bookmarking = false;
 			}

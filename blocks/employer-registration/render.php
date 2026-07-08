@@ -36,7 +36,12 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 			<?php echo esc_html( $wcb_role_label ); ?>
 			<?php if ( $wcb_dashboard_url ) : ?>
 				<a href="<?php echo esc_url( $wcb_dashboard_url ); ?>" class="wcb-reg-link">
-					<?php esc_html_e( 'Go to your dashboard →', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Go to your dashboard', 'wp-career-board' ); ?>
+					<?php
+					// Decorative glyph only; the link text carries the meaning.
+					// "Forward" points right in LTR and left in RTL, so it must mirror.
+					?>
+					<span aria-hidden="true"><?php echo is_rtl() ? '&#8592;' : '&#8594;'; ?></span>
 				</a>
 			<?php endif; ?>
 		</p>
@@ -58,6 +63,25 @@ if ( $wcb_user && '' === trim( $wcb_first_name . $wcb_last_name ) ) {
 	$wcb_last_name  = $parts[1] ?? '';
 }
 
+/*
+ * Company-size buckets. The slugs are the machine contract stored in
+ * `_wcb_company_size` post meta and filtered against by the company archive —
+ * never translate the array KEYS. Only the labels are user-facing.
+ *
+ * The slug set is intentionally identical to the one used by the employer
+ * dashboard and the company archive filter, so a company registered here is
+ * matchable by that filter and editable in that dashboard.
+ */
+$wcb_reg_size_options = array(
+	'1-10'      => __( '1-10 employees', 'wp-career-board' ),
+	'11-50'     => __( '11-50 employees', 'wp-career-board' ),
+	'51-200'    => __( '51-200 employees', 'wp-career-board' ),
+	'201-500'   => __( '201-500 employees', 'wp-career-board' ),
+	'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
+	'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
+	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+);
+
 wp_interactivity_state(
 	'wcb-employer-registration',
 	array(
@@ -78,8 +102,19 @@ wp_interactivity_state(
 		'submitted'       => false,
 		'error'           => '',
 		'dashboardUrl'    => '',
-		'strings'         => array(
-			'errorConnection' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		/*
+		 * Strings consumed by view.js. view.js is a script module and cannot load
+		 * JED translation files, so every user-facing string it renders must be
+		 * seeded here. Keys must match the t( 'key', … ) reads in view.js exactly.
+		 */
+		'i18n'            => array(
+			'roleTitleCandidate' => __( 'Create a Candidate Account', 'wp-career-board' ),
+			'roleTitleEmployer'  => __( 'Create an Employer Account', 'wp-career-board' ),
+			'emailLabel'         => __( 'Email', 'wp-career-board' ),
+			'emailLabelWork'     => __( 'Work Email', 'wp-career-board' ),
+			'errorMissingFields' => __( 'Please fill in all required fields.', 'wp-career-board' ),
+			'errorRegistration'  => __( 'Registration failed. Please try again.', 'wp-career-board' ),
+			'errorConnection'    => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		),
 	)
 );
@@ -98,7 +133,12 @@ wp_interactivity_state(
 			<?php esc_html_e( 'You are now logged in as a candidate. Start browsing jobs and building your resume.', 'wp-career-board' ); ?>
 		</p>
 		<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.dashboardUrl">
-			<?php esc_html_e( 'Go to Dashboard →', 'wp-career-board' ); ?>
+			<?php esc_html_e( 'Go to Dashboard', 'wp-career-board' ); ?>
+			<?php
+			// Decorative glyph only; the link text carries the meaning.
+			// "Forward" points right in LTR and left in RTL, so it must mirror.
+			?>
+			<span aria-hidden="true"><?php echo is_rtl() ? '&#8592;' : '&#8594;'; ?></span>
 		</a>
 	</div>
 
@@ -129,7 +169,11 @@ wp_interactivity_state(
 		<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.role">
 			<div class="wcb-reg-header-row">
 				<button type="button" class="wcb-reg-back" data-wp-on--click="actions.backToRolePicker" aria-label="<?php esc_attr_e( 'Back', 'wp-career-board' ); ?>">
-					&#8592;
+					<?php
+					// Decorative glyph only — the accessible name is the aria-label above.
+					// "Back" points left in LTR and right in RTL, so the glyph must mirror.
+					?>
+					<span aria-hidden="true"><?php echo is_rtl() ? '&#8594;' : '&#8592;'; ?></span>
 				</button>
 				<div>
 					<h2 class="wcb-reg-title" data-wp-text="state.roleTitle"></h2>
@@ -230,12 +274,11 @@ wp_interactivity_state(
 						<select id="wcb-reg-size" class="wcb-field-input"
 							data-wp-bind--value="state.companySize" data-wp-on--change="actions.updateField" data-wcb-field="companySize">
 							<option value=""><?php esc_html_e( 'Select…', 'wp-career-board' ); ?></option>
-							<option value="1-10">1-10</option>
-							<option value="11-50">11-50</option>
-							<option value="51-200">51-200</option>
-							<option value="201-500">201-500</option>
-							<option value="501-1000">501-1000</option>
-							<option value="1001+">1001+</option>
+							<?php foreach ( $wcb_reg_size_options as $wcb_reg_size_val => $wcb_reg_size_label ) : ?>
+								<option value="<?php echo esc_attr( $wcb_reg_size_val ); ?>">
+									<?php echo esc_html( $wcb_reg_size_label ); ?>
+								</option>
+							<?php endforeach; ?>
 						</select>
 					</div>
 				</div>

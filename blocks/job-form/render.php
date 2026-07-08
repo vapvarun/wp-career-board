@@ -197,6 +197,82 @@ if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_board_id           = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
 }
 
+// ── Credit banner + credit gate messages ───────────────────────────────────
+// Both the cost (per board) and the balance (per employer) are fully known at
+// render time and cannot change without a page load — the board picker only
+// swaps between values already seeded below. So every plural-bearing sentence
+// is resolved HERE with its real count via _n(), never re-selected in JS with
+// `count === 1`. A JS-side `one/many` pick is only correct in two-form locales:
+// Polish needs distinct forms at 2, 5 and 22; Russian at 1, 2, 5; Arabic has six.
+$wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id );
+
+// Guarantee the currently selected board has a cost entry (a site with no
+// wcb_board post type at all resolves to board 0).
+if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
+	$wcb_board_credit_costs[ $wcb_board_id ] = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
+}
+
+/**
+ * Pluralised credit noun, resolved with the real count.
+ *
+ * @param int $wcb_n Number of credits.
+ * @return string
+ */
+$wcb_credit_noun = static function ( int $wcb_n ): string {
+	return sprintf(
+		/* translators: %s: number of credits, already localised. */
+		_n( '%s credit', '%s credits', $wcb_n, 'wp-career-board' ),
+		number_format_i18n( $wcb_n )
+	);
+};
+
+$wcb_credit_messages = array();
+$wcb_credit_errors   = array();
+foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
+	$wcb_cost = (int) $wcb_cost;
+
+	if ( $wcb_cost <= 0 ) {
+		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
+			/* translators: %s: employer's current credit balance. Shown when the selected board has no credit cost. */
+			__( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
+			number_format_i18n( $wcb_credit_balance )
+		);
+		$wcb_credit_errors[ (string) $wcb_bid ] = '';
+		continue;
+	}
+
+	if ( $wcb_credit_balance < $wcb_cost ) {
+		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+			__( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			$wcb_credit_noun( $wcb_cost ),
+			number_format_i18n( $wcb_credit_balance )
+		);
+	} else {
+		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
+			__( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
+			$wcb_credit_noun( $wcb_cost ),
+			number_format_i18n( $wcb_credit_balance - $wcb_cost ),
+			number_format_i18n( $wcb_credit_balance )
+		);
+	}
+
+	$wcb_credit_errors[ (string) $wcb_bid ] = sprintf(
+		/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+		__( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),
+		$wcb_credit_noun( $wcb_cost ),
+		number_format_i18n( $wcb_credit_balance )
+	);
+}
+
+// ── Currency code → symbol map, for the client-side salary preview ─────────
+// Mirrors \WCB\Core\SalaryFormat::symbol()'s fallback (code + trailing space).
+$wcb_currency_symbols = array();
+foreach ( $wcb_currency_catalog as $wcb_code => $wcb_meta ) {
+	$wcb_currency_symbols[ (string) $wcb_code ] = (string) $wcb_meta['symbol'];
+}
+
 /**
  * Filter the initial Interactivity API state for the job form block.
  *
@@ -256,38 +332,31 @@ $wcb_initial_state = apply_filters(
 		'validationError'            => '',
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
-		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id ),
+		'creditCost'                 => (int) $wcb_board_credit_costs[ $wcb_board_id ],
 		// Per-board cost lookup so view.js can update creditCost
 		// reactively when the employer switches boards. Object keyed by
 		// stringified board ID for predictable JS access. See the
 		// matching `actions.updateField` board-switch branch.
-		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		'boardCreditCosts'           => (object) array_map( 'intval', $wcb_board_credit_costs ),
 		// Per-board currency override map: { board_id => 'EUR' }. JS reads
 		// this on board switch so the currency dropdown updates without a
 		// REST round-trip. Empty string means no override - fall back to
 		// the current state.currencyCode.
-		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
-		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() ),
+		'boardCurrencies'            => (object) array_map( 'strval', $wcb_board_currencies ),
+		'creditBalance'              => $wcb_credit_balance,
+		// Fully resolved, plural-correct banner + gate sentences keyed by board
+		// id. Built above with _n() against the REAL count, because both the
+		// cost and the balance are known server-side. JS reads the entry for the
+		// selected board; it never re-selects a plural form with `count === 1`.
+		'creditMessages'             => (object) $wcb_credit_messages,
+		'creditErrors'               => (object) $wcb_credit_errors,
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
-		// Translated templates for state.creditMessage. JS interpolates with
-		// live cost / balance — the strings live in the .pot file, not in view.js.
-		/* translators: 1: required credits, 2: current balance. */
-		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
-		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
-		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
-		/* translators: %d: current credit balance. Shown when the selected board has no credit cost. */
-		'creditFreeTemplate'         => __( 'Free to post on this board. Your balance: %d.', 'wp-career-board' ),
-		/* translators: %d: number of credits (singular). */
-		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
-		/* translators: %d: number of credits (plural). */
-		'creditNounPlural'           => __( '%d credits', 'wp-career-board' ),
 		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
 		// back to the default board id when boardId stays 0.
 		'boardId'                    => $wcb_board_id,
 		'boardOptions'               => $wcb_board_options,
-		'showBoardPicker'            => count( $wcb_board_options ) > 1,
 		'customFields'               => (object) (
 			$wcb_edit_id > 0
 				? \WCB\Core\FormCustomFields::load_values(
@@ -300,9 +369,62 @@ $wcb_initial_state = apply_filters(
 		'expNames'                   => (object) $wcb_exp_names,
 		'locationNames'              => (object) $wcb_location_names,
 		'categoryNames'              => (object) $wcb_category_names,
-		'strings'                    => array(
-			'errorSessionExpired' => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
-			'errorConnection'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+		// ── Locale for client-side number / date formatting ───────────────
+		// Root-level sibling of `i18n` (NOT inside it). Intl.NumberFormat and
+		// Intl.DateTimeFormat with no locale argument format against the
+		// BROWSER locale — a de_DE site viewed from an en-US browser would
+		// render "1,000" where it must render "1.000".
+		'locale'                     => \WCB\Core\SalaryFormat::locale(),
+		// Currency code → display symbol, mirroring SalaryFormat::symbol().
+		// The salary preview changes on every keystroke with no server
+		// round-trip, so it is the one place the money string must be
+		// assembled client-side; `i18n.moneyFormat` carries the symbol
+		// POSITION so fr_FR/de_DE/sv_SE can render "60 k €", not "€60k".
+		'currencySymbols'            => (object) $wcb_currency_symbols,
+		// ── i18n contract ─────────────────────────────────────────────────
+		// view.js is registered as a script *module* (viewScriptModule) and
+		// script modules cannot load JED translation files on this plugin's
+		// WP floor. Every user-facing string view.js renders is therefore
+		// translated here and seeded through wp_interactivity_state(). view.js
+		// reads each one with its t( key, fallback ) helper; the fallback is
+		// the identical English source string.
+		//
+		// HARD RULE: every key view.js reads must exist in this array, and
+		// every key in this array must be read by view.js (no dead seeds).
+		//
+		// NOTE: no key here may be a pre-selected plural form. Counts that are
+		// known server-side are resolved with _n() before seeding (see
+		// $wcb_credit_messages / $wcb_credit_errors above).
+		'i18n'                       => array_merge(
+			// moneyFormat, salaryThousand, salaryMillion, salaryRange,
+			// salaryOpenMin, salaryUpTo, salaryPerYear/Month/Hour — the
+			// canonical money-format strings shared with the PHP formatter.
+			\WCB\Core\SalaryFormat::js_strings(),
+			array(
+				// Errors / validation.
+				'errorSessionExpired'       => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
+				'errorConnection'           => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+				'errorSubmitFailed'         => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
+				'errorTitleRequired'        => __( 'Job title is required before you can continue.', 'wp-career-board' ),
+				'errorDescriptionRequired'  => __( 'Job description is required before you can continue.', 'wp-career-board' ),
+				'errorAiNoTitle'            => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
+				'errorAiFailed'             => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
+				// Count-free fallback for the credit gate; the numbered,
+				// plural-resolved sentence comes from state.creditErrors.
+				'errorInsufficientCredits'  => __( 'Insufficient credits to post on this board.', 'wp-career-board' ),
+
+				// Submit button label (mirrors the server-rendered default).
+				'submitLabelPost'           => __( 'Post Job', 'wp-career-board' ),
+				'submitLabelUpdate'         => __( 'Update Job', 'wp-career-board' ),
+
+				// Listing window banner.
+				/* translators: 1: localized date the listing expires on. */
+				'listingWindow'             => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+
+				// Preview card meta row.
+				/* translators: %s: localized application deadline date. */
+				'applyBy'                   => __( 'Apply by %s', 'wp-career-board' ),
+			)
 		),
 	),
 	$attributes
@@ -337,7 +459,7 @@ $wcb_step_labels = array(
 			<?php endif; ?>
 				data-wp-bind--aria-current="state.step<?php echo esc_attr( (string) $wcb_step_num ); ?>AriaCurrent"
 			>
-				<span class="wcb-step__num"><?php echo esc_html( (string) $wcb_step_num ); ?></span>
+				<span class="wcb-step__num"><?php echo esc_html( number_format_i18n( $wcb_step_num ) ); ?></span>
 				<span class="wcb-step__label"><?php echo esc_html( $wcb_step_label ); ?></span>
 			</span>
 			<?php if ( $wcb_step_num < 4 ) : ?>
@@ -878,10 +1000,10 @@ $wcb_step_labels = array(
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
 						<span data-wp-text="state.salaryDisplay"></span>
 					</span>
+					<?php // Single format string ("Apply by %s"), not label + value concatenated: the date must be able to precede the label in other locales. ?>
 					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasDeadline">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-						<?php esc_html_e( 'Apply by', 'wp-career-board' ); ?>
-						<span data-wp-text="state.deadline"></span>
+						<span data-wp-text="state.applyByLabel"></span>
 					</span>
 					<span class="wcb-preview-meta-item" data-wp-class--wcb-preview-meta-item--show="state.hasApplyUrl">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>

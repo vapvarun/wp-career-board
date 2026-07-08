@@ -12,6 +12,52 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
+/**
+ * Translated-string reader.
+ *
+ * view.js ships as a script MODULE (block.json: viewScriptModule), and script
+ * modules cannot load JED translation files. Every user-facing string is
+ * therefore seeded by render.php under state.i18n and read through t(). The
+ * fallback is the English source text, byte-identical to the __() call in
+ * render.php, so a missing key degrades to English instead of blank.
+ *
+ * @param {string} key      Key seeded in render.php's `i18n` array.
+ * @param {string} fallback English source text.
+ * @return {string} Translated string, or the English fallback.
+ */
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
+/**
+ * Format an integer against the SITE locale (state.locale, a BCP-47 tag seeded
+ * by render.php) — never the browser locale.
+ *
+ * Number(n).toLocaleString() with no locale argument groups digits per the
+ * VISITOR's browser, so a de_DE site viewed from an en-US browser renders
+ * "1,000" where it must render "1.000".
+ *
+ * @param {number|string} value Number to format.
+ * @return {string} Locale-formatted number.
+ */
+const nf = ( value ) => {
+	const num = Number( value );
+	const safe = Number.isFinite( num ) ? num : 0;
+	try {
+		return new Intl.NumberFormat( state.locale || undefined ).format( safe );
+	} catch ( _e ) {
+		// state.locale is SalaryFormat::locale() = str_replace( '_', '-', get_user_locale() ),
+		// not a true BCP-47 normalizer, so a WP locale with a variant/suffix (e.g.
+		// "de_DE_formal" -> "de-DE-formal") can throw. Retry with the primary language
+		// subtag, then a deterministic 'en' — never construct with no locale, which
+		// would group digits per the VISITOR's browser instead of the SITE.
+		try {
+			const primary = String( state.locale || '' ).split( '-' )[ 0 ];
+			return new Intl.NumberFormat( primary || 'en' ).format( safe );
+		} catch ( _e2 ) {
+			return new Intl.NumberFormat( 'en' ).format( safe );
+		}
+	}
+};
+
 const { state, actions } = store( 'wcb-job-form-simple', {
 	state: {
 		get hasInsufficientCredits() {
@@ -22,36 +68,39 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
-		// Banner visibility — true for paid boards AND free boards that have
-		// the free-posting template seeded, so the employer sees a clear
-		// state change when switching to a zero-cost board.
+		// Banner visibility — the credits system is only in play when this board
+		// charges (creditCost > 0) or the employer holds a balance (creditBalance
+		// > 0). Sites that don't use credits leave both at 0, so the banner stays
+		// hidden instead of showing a "Free to post. Balance: 0." non-message.
+		// Do NOT gate on the presence of a seeded i18n string — creditFree is always
+		// seeded, which made this a compile-time-constant `true`.
 		get hasCreditBanner() {
-			return state.creditCost > 0 || !! state.creditFreeTemplate;
+			return state.creditCost > 0 || state.creditBalance > 0;
 		},
 
 		// Dynamic message — numbers come live from state.creditCost /
-		// state.creditBalance (seeded server-side via SDK). Templates
-		// are pre-translated PHP-side and pushed via wp_interactivity_state
+		// state.creditBalance (seeded server-side). Format strings are
+		// pre-translated PHP-side and pushed via wp_interactivity_state
 		// so the literal English strings live in the .pot file.
 		get creditMessage() {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				return ( state.creditFreeTemplate || '' ).replace( '%d', balance );
+				return t( 'creditFree', 'Free to post on this board. Your balance: %s.' )
+					.replace( '%s', nf( balance ) );
 			}
+			// Plural form resolved in PHP by _n() against the real count — see
+			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.
+			const noun = state.creditNoun || '';
 			if ( balance < cost ) {
-				return ( state.creditInsufficientTemplate || '' )
-					.replace( '%1$d', cost )
-					.replace( '%2$d', balance );
+				return t( 'creditInsufficient', 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.' )
+					.replace( '%1$s', noun )
+					.replace( '%2$s', nf( balance ) );
 			}
-			const noun = 1 === cost
-				? ( state.creditNounSingular || '' )
-				: ( state.creditNounPlural || '' );
-			const balanceAfter = balance - cost;
-			return ( state.creditDeductionTemplate || '' )
-				.replace( '%1$s', noun.replace( '%d', cost ) )
-				.replace( '%2$d', balanceAfter )
-				.replace( '%3$d', balance );
+			return t( 'creditDeduction', 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).' )
+				.replace( '%1$s', noun )
+				.replace( '%2$s', nf( balance - cost ) )
+				.replace( '%3$s', nf( balance ) );
 		},
 
 		get hasListingWindow() {
@@ -62,16 +111,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( ! state.deadline ) {
 				return '';
 			}
-			let formatted = state.deadline;
-			try {
-				const d = new Date( state.deadline + 'T00:00:00' );
-				if ( ! isNaN( d.getTime() ) ) {
-					formatted = d.toLocaleDateString( undefined, { year: 'numeric', month: 'long', day: 'numeric' } );
-				}
-			} catch ( _e ) {
-				// Fall back to the raw ISO date.
-			}
-			return `Listing runs until ${ formatted }. Reopen on the dashboard to extend (counts as a republish).`;
+			// The deadline is read-only and server-owned, so its human-readable
+			// form is pre-rendered by wp_date() against the SITE locale and the
+			// site's date_format. Never re-derive it with toLocaleDateString(),
+			// which would format against the visitor's BROWSER locale.
+			const formatted = state.deadlineLabel || state.deadline;
+			return t( 'listingWindow', 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).' )
+				.replace( '%1$s', formatted );
 		},
 
 		get locationIsCustom() {
@@ -89,11 +135,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				// deduction banner and the salary currency dropdown update
 				// without a REST round-trip.
 				if ( key === 'boardId' ) {
-					const costMap = state.boardCreditCosts || {};
-					const curMap  = state.boardCurrencies || {};
+					const costMap  = state.boardCreditCosts || {};
+					const nounMap  = state.boardCreditNouns || {};
+					const curMap   = state.boardCurrencies || {};
 					const boardKey = String( state.boardId || 0 );
-					const cost    = Number( costMap[ boardKey ] );
+					const cost     = Number( costMap[ boardKey ] );
 					state.creditCost = Number.isFinite( cost ) ? cost : 0;
+					// Swap in the plural form PHP already resolved for this board.
+					state.creditNoun = nounMap[ boardKey ] || state.creditNoun;
 					if ( curMap[ boardKey ] ) {
 						state.currencyCode = curMap[ boardKey ];
 					}
@@ -104,7 +153,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		*generateDescription() {
 			if ( state._aiGenerating || ! state.title ) {
 				if ( ! state.title ) {
-					state.error = 'Enter a job title first so AI can generate a description.';
+					state.error = t( 'errorAiNoTitle', 'Enter a job title first so AI can generate a description.' );
 				}
 				return;
 			}
@@ -142,7 +191,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = data.message;
 				}
 			} catch ( _e ) {
-				state.error = 'Failed to generate description. Please try again.';
+				state.error = t( 'errorAiFailed', 'Failed to generate description. Please try again.' );
 			} finally {
 				state._aiGenerating = false;
 			}
@@ -186,17 +235,19 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 			// Required field gate (matches markup `required` attributes).
 			if ( ! state.title.trim() ) {
-				state.error = state.strings.errorRequired || 'Job title is required.';
+				state.error = t( 'errorTitleRequired', 'Job title is required.' );
 				return;
 			}
 			if ( ! state.description.trim() ) {
-				state.error = state.strings.errorRequired || 'Job description is required.';
+				state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
 				return;
 			}
 
 			// Credit gate.
 			if ( state.hasInsufficientCredits ) {
-				state.error = `Insufficient credits. This board requires ${ state.creditCost } credits but your balance is ${ state.creditBalance }.`;
+				state.error = t( 'errorInsufficientCredits', 'Insufficient credits. This board requires %1$s but your balance is %2$s.' )
+					.replace( '%1$s', state.creditNoun || '' )
+					.replace( '%2$s', nf( state.creditBalance ) );
 				return;
 			}
 
@@ -246,7 +297,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 				if ( ! response.ok ) {
 					const err = yield response.json().catch( () => null );
-					state.error = ( err && err.message ) ? err.message : state.strings.errorGeneric;
+					state.error = ( err && err.message )
+						? err.message
+						: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
 					return;
 				}
 
@@ -270,7 +323,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.description = '';
 					state.salaryMin   = '';
 					state.salaryMax   = '';
-					state.deadline    = '';
+					// state.deadline / state.deadlineLabel are server-owned (readonly
+					// input, pre-computed from the wcb_job_default_expiry_days chain and
+					// wp_date()-formatted). Leave them intact so the next post keeps a
+					// valid deadline and the two stay in sync.
 					state.applyUrl    = '';
 					state.applyEmail  = '';
 					state.locationSlug = '';
@@ -282,7 +338,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.customFields = {};
 				}, 8000 );
 			} catch {
-				state.error = state.strings.errorConnection;
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.submitting = false;
 			}

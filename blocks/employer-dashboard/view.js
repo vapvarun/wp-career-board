@@ -41,6 +41,89 @@ function writeHashView( view ) {
 	window.history.replaceState( null, '', url );
 }
 
+/**
+ * Translation reader. Every user-facing string is seeded from render.php under
+ * the `i18n` state key — this view script is registered as a script module and
+ * therefore cannot load JED translations itself. The fallback is the English
+ * source text and matches the __() call in render.php exactly.
+ *
+ * @param {string} key      Key inside state.i18n.
+ * @param {string} fallback English source text.
+ * @return {string} Translated string.
+ */
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
+/**
+ * Format an integer against the SITE locale, seeded from PHP as `state.locale`
+ * (a BCP-47 tag such as "de-DE"). Never call toLocaleString() without a locale
+ * argument: that formats against the visitor's BROWSER locale, so a de_DE site
+ * viewed from an en-US browser would render "1,000" instead of "1.000".
+ *
+ * @param {number} n Value to format.
+ * @return {string} Localised number.
+ */
+const fmtNumber = ( n ) => {
+	const value = Number( n ) || 0;
+	try {
+		return new Intl.NumberFormat( state.locale || undefined ).format( value );
+	} catch {
+		// Malformed state.locale tag (site misconfiguration). Fall back to raw,
+		// ungrouped digits — never Intl's no-argument default, which formats
+		// against the VISITOR's browser locale instead of the site's.
+		return String( value );
+	}
+};
+
+/**
+ * Render an AI fit score as a percentage. The percent sign's position is a
+ * translatable format string, not a hardcoded suffix, and the digits run
+ * through the site locale.
+ *
+ * @param {number} score 0-100.
+ * @return {string} e.g. "82%".
+ */
+const aiScoreLabel = ( score ) =>
+	t( 'aiScorePercent', '%1$s%' ).replace( '%1$s', fmtNumber( score ) );
+
+/**
+ * Filter-pill count: blank when zero (the pill hides its badge), otherwise the
+ * site-locale-formatted number.
+ *
+ * @param {number} n Count.
+ * @return {string} Localised count or ''.
+ */
+const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
+
+/**
+ * Resolve a job's status slug to its seeded, translated badge label. Applied at
+ * job-load time so the first paint shows the SAME translated label the optimistic
+ * close/reopen updates later assign — never the REST payload's untranslated
+ * English statusLabel string.
+ *
+ * @param {Object} job Raw job object from the REST payload.
+ * @return {string} Translated status label.
+ */
+const jobStatusLabel = ( job ) => {
+	// A rejected listing is stored as a draft carrying a rejection reason, so it
+	// must be checked before the plain draft case.
+	if ( job.rejected ) {
+		return t( 'jobStatusRejected', 'Rejected' );
+	}
+	switch ( job.status ) {
+		case 'closed':
+			return t( 'jobStatusClosed', 'Closed' );
+		case 'expired':
+			return t( 'jobStatusExpired', 'Expired' );
+		case 'pending':
+			return t( 'jobStatusPending', 'Pending' );
+		case 'draft':
+			return t( 'jobStatusDraft', 'Draft' );
+		case 'publish':
+		default:
+			return t( 'jobStatusPublished', 'Published' );
+	}
+};
+
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
@@ -60,15 +143,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const labels = state.industryLabels || {};
 			return labels[ slug ] || slug;
 		},
+		// Resolves the stored company-size slug ('11-50', '5000+', …) to its
+		// translated label using the companySizeLabels map seeded from PHP.
+		// The Live Preview chip binds this so a non-English site never shows the
+		// raw option slug. Falls back to the raw value for any unmapped entry.
+		get companySizeLabel() {
+			const slug = state.companySize || '';
+			if ( ! slug ) {
+				return '';
+			}
+			const labels = state.companySizeLabels || {};
+			return labels[ slug ] || slug;
+		},
 		get activeTabLabel() {
 			const map = {
-				overview:     state.strings.overview,
-				jobs:         state.strings.myJobs,
-				applications: state.strings.applications,
-				company:      state.strings.profile,
-				'post-job':   state.strings.postAJob,
+				overview:     t( 'overview', 'Overview' ),
+				jobs:         t( 'myJobs', 'My Jobs' ),
+				applications: t( 'applications', 'Applications' ),
+				company:      t( 'profile', 'Profile' ),
+				'post-job':   t( 'postAJob', 'Post a Job' ),
 			};
-			return map[ state.currentView ] || state.strings.dashboard;
+			return map[ state.currentView ] || t( 'dashboard', 'Dashboard' );
 		},
 
 		// View getters.
@@ -103,6 +198,21 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.currentView === 'saved-resumes';
 		},
 
+		// Sidebar badge digits — formatted against the site locale. The raw
+		// numeric state values stay untouched for the `!state.*` class bindings.
+		get savedJobsCountLabel() {
+			return fmtNumber( state.savedJobsCount || 0 );
+		},
+		get savedCompaniesCountLabel() {
+			return fmtNumber( state.savedCompaniesCount || 0 );
+		},
+		get savedResumesCountLabel() {
+			return fmtNumber( state.savedResumesCount || 0 );
+		},
+		get bellUnreadCountLabel() {
+			return fmtNumber( state.bellUnreadCount || 0 );
+		},
+
 		// Saved-list count + empty/populated derived getters.
 		get hasSavedJobs() {
 			return ! state.savedJobsLoading && state.savedJobs.length > 0;
@@ -127,29 +237,26 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get justAddedCredits() {
 			return state.creditsEnabled && Number( state.creditsJustAdded || 0 ) > 0;
 		},
+		// Pre-resolved server-side (render.php) with the real count, because a
+		// script module cannot call _n() and `count === 1` only picks the right
+		// plural form in 2-form locales.
 		get justAddedCreditsMessage() {
-			const n = Number( state.creditsJustAdded || 0 );
-			if ( n === 1 ) {
-				return state.strings.creditsAddedSingular;
-			}
-			return ( state.strings.creditsAdded || '' ).replace( '%d', String( n ) );
+			return t( 'creditsAddedMessage', '' );
 		},
 		get isCreditBalanceLow() {
 			if ( ! state.creditsEnabled ) {
 				return false;
 			}
-			const t = Number( state.creditLowThreshold || 0 );
-			if ( t <= 0 ) {
+			const threshold = Number( state.creditLowThreshold || 0 );
+			if ( threshold <= 0 ) {
 				return false;
 			}
-			return Number( state.creditBalance || 0 ) <= t;
+			return Number( state.creditBalance || 0 ) <= threshold;
 		},
+		// Pre-resolved server-side. state.creditBalance never changes without a
+		// page load, so the plural form seeded at render time stays correct.
 		get lowBalanceMessage() {
-			const n = Number( state.creditBalance || 0 );
-			if ( n === 1 ) {
-				return state.strings.lowBalanceSingular;
-			}
-			return ( state.strings.lowBalance || '' ).replace( '%d', String( n ) );
+			return t( 'lowBalanceMessage', '' );
 		},
 
 		// Jobs list.
@@ -159,13 +266,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noJobs() {
 			return ! state.loading && ! state.noCompany && ! state.error && state.filteredJobs.length === 0;
 		},
+		// Stat-card figures are rendered straight into the DOM, so they are
+		// formatted against the site locale here.
 		get totalJobs() {
-			return state.jobs.length || state.ssrTotalJobs || 0;
+			return fmtNumber( state.jobs.length || state.ssrTotalJobs || 0 );
 		},
 		get publishedJobs() {
-			return state.jobs.length
-				? state.jobs.filter( ( j ) => j.status === 'publish' ).length
-				: ( state.ssrPublishedJobs || 0 );
+			return fmtNumber(
+				state.jobs.length
+					? state.jobs.filter( ( j ) => j.status === 'publish' ).length
+					: ( state.ssrPublishedJobs || 0 )
+			);
 		},
 
 		// Job filter.
@@ -223,12 +334,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.hasJobsWithApps && ( state.appsJobSearch || '' ).trim() !== '' && state.filteredJobsWithApps.length === 0;
 		},
 		get appsJobSelectorHint() {
-			const total    = state.jobsWithApps.length;
 			const filtered = state.filteredJobsWithApps.length;
 			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
-				return total + state.strings.jobSingular + ( total === 1 ? '' : 's' ) + state.strings.jobsWithApps;
+				// Whole sentence pre-pluralised in render.php from a COUNT(*) of
+				// jobs that have applications — i.e. matches found, not the rows the
+				// REST page happened to load (per_page is capped at 50).
+				return t( 'jobsWithAppsLabel', '' );
 			}
-			return filtered + state.strings.jobsOf + total + state.strings.jobsPlural;
+			// The total and the plural form of "job(s)" are resolved in render.php
+			// from the same COUNT(*); only the runtime-varying search-match count is
+			// filled in here. No client-side plural/number assembly.
+			return t( 'jobsFilteredCount', '%1$s of %2$s jobs' )
+				.replace( '%1$s', fmtNumber( filtered ) );
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -248,12 +365,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Applications.
 		get totalApps() {
 			if ( state.allApplications.length > 0 ) {
-				return state.allApplications.length;
+				return fmtNumber( state.allApplications.length );
 			}
 			if ( state.jobs.length > 0 ) {
-				return state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 );
+				return fmtNumber( state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 ) );
 			}
-			return state.ssrTotalApps || 0;
+			return fmtNumber( state.ssrTotalApps || 0 );
 		},
 		get hasApplications() {
 			return state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
@@ -281,7 +398,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.aiRanking && state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
 		},
 		get aiRankBtnLabel() {
-			return state.aiRankLoading ? state.strings.aiRankingLabel : state.strings.aiRankButton;
+			return state.aiRankLoading
+				? t( 'aiRankingLabel', 'Ranking…' )
+				: t( 'aiRankButton', 'Rank by AI fit' );
 		},
 		get isAppsFilterAll() {
 			return state.appsFilter === 'all';
@@ -313,39 +432,41 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// optionally AI-ranked) applications. Same source of truth as the list.
 		get appsBoardColumns() {
 			const defs = [
-				{ key: 'submitted',   label: state.strings.statusSubmitted },
-				{ key: 'reviewing',   label: state.strings.statusReviewing },
-				{ key: 'shortlisted', label: state.strings.statusShortlisted },
-				{ key: 'hired',       label: state.strings.statusHired },
-				{ key: 'rejected',    label: state.strings.statusRejected },
+				{ key: 'submitted',   label: t( 'statusSubmitted', 'Submitted' ) },
+				{ key: 'reviewing',   label: t( 'statusReviewing', 'Reviewing' ) },
+				{ key: 'shortlisted', label: t( 'statusShortlisted', 'Shortlisted' ) },
+				{ key: 'hired',       label: t( 'statusHired', 'Hired' ) },
+				{ key: 'rejected',    label: t( 'statusRejected', 'Rejected' ) },
 			];
 			return defs.map( ( d ) => {
 				let apps = state.applications.filter( ( a ) => a.status === d.key );
 				if ( state.aiRanked ) {
 					apps = [ ...apps ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
 				}
-				return { key: d.key, label: d.label, count: apps.length, apps };
+				return { key: d.key, label: d.label, count: countLabel( apps.length ), apps };
 			} );
 		},
 
-		// Per-status counts — computed from already-loaded applications, no extra REST calls.
+		// Per-status counts — computed from already-loaded applications, no extra
+		// REST calls. Zero renders as an empty pill, anything else as a
+		// site-locale-formatted number.
 		get appsCountAll() {
-			return state.applications.length || '';
+			return countLabel( state.applications.length );
 		},
 		get appsCountSubmitted() {
-			return state.applications.filter( ( a ) => a.status === 'submitted' ).length || '';
+			return countLabel( state.applications.filter( ( a ) => a.status === 'submitted' ).length );
 		},
 		get appsCountReviewing() {
-			return state.applications.filter( ( a ) => a.status === 'reviewing' ).length || '';
+			return countLabel( state.applications.filter( ( a ) => a.status === 'reviewing' ).length );
 		},
 		get appsCountShortlisted() {
-			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length || '';
+			return countLabel( state.applications.filter( ( a ) => a.status === 'shortlisted' ).length );
 		},
 		get appsCountRejected() {
-			return state.applications.filter( ( a ) => a.status === 'rejected' ).length || '';
+			return countLabel( state.applications.filter( ( a ) => a.status === 'rejected' ).length );
 		},
 		get appsCountHired() {
-			return state.applications.filter( ( a ) => a.status === 'hired' ).length || '';
+			return countLabel( state.applications.filter( ( a ) => a.status === 'hired' ).length );
 		},
 
 		// Selected applicant detail.
@@ -364,7 +485,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.selectedApp?.applicant_email ?? '';
 		},
 		get selectedAppDate() {
-			return state.selectedApp?.submitted_at ?? '';
+			// Display the localised label; submitted_at is raw ISO for sorting.
+			return state.selectedApp?.submitted_at_label ?? '';
 		},
 		get selectedAppStatus() {
 			return state.selectedApp?.status ?? '';
@@ -410,9 +532,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ctx.app?.status === 'submitted';
 		},
 		get applicantRowLabel() {
-			const ctx = getContext();
+			const ctx  = getContext();
 			const name = ctx.app?.applicant_name || '';
-			return state.strings.viewAppFrom + name;
+			return t( 'viewApplicationFrom', 'View application from %1$s' ).replace( '%1$s', name );
 		},
 
 		// Overview panel getters.
@@ -444,12 +566,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get newThisWeek() {
 			if ( state.allApplications.length === 0 ) {
-				return state.ssrNewThisWeek || 0;
+				return fmtNumber( state.ssrNewThisWeek || 0 );
 			}
 			const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-			return state.allApplications.filter(
-				( a ) => new Date( a.submitted_at ).getTime() > cutoff
-			).length;
+			return fmtNumber(
+				state.allApplications.filter(
+					( a ) => new Date( a.submitted_at ).getTime() > cutoff
+				).length
+			);
 		},
 
 		// Company helpers.
@@ -474,15 +598,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		get logoUploadLabel() {
-			if ( state.logoUploading ) return state.strings.logoUploading;
-			return state.companyLogoUrl ? state.strings.logoChange : state.strings.logoUpload;
+			if ( state.logoUploading ) return t( 'logoUploading', 'Uploading…' );
+			return state.companyLogoUrl
+				? t( 'logoChange', 'Change Logo' )
+				: t( 'logoUpload', 'Upload Logo' );
 		},
 
-		// Legacy heading used by some templates.
-		get appsHeading() {
-			return state.appsJobTitle
-				? state.strings.appsHeadingPrefix + state.appsJobTitle
-				: state.strings.appsHeadingDefault;
+		// Credit balance — displayed in the sidebar badge and the stat card, so it
+		// is formatted against the site locale rather than dumped as raw digits.
+		get creditBalanceLabel() {
+			return fmtNumber( state.creditBalance || 0 );
 		},
 
 		// Bell notification getters.
@@ -549,7 +674,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				}
 			} catch {
-				state.error = state.strings.errorConnection;
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -601,7 +726,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 			const resp = yield wcbFetch( jobsUrl.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
 			if ( ! resp.ok ) {
-				state.error = state.strings.errorLoadJobs;
+				state.error = t( 'errorLoadJobs', 'Could not load your jobs.' );
 				return;
 			}
 			const jobsData = yield resp.json();
@@ -610,6 +735,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			// render as finished listings. "pending" = awaiting moderation, "draft" = unsaved.
 			state.jobs = jobs.map( ( j ) => ( {
 				...j,
+				// Site-locale digits for the selector badge; j.appCount stays numeric
+				// for the filters and the reduce() in state.totalApps.
+				appCountLabel: fmtNumber( j.appCount ),
+				// Translated badge label from the seeded strings, overriding the
+				// REST payload's English statusLabel so the first paint is localised.
+				statusLabel: jobStatusLabel( j ),
 				appsUrl:   j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
 				isClosed:  j.status === 'closed',
 				isExpired: j.status === 'expired',
@@ -697,13 +828,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( ! response.ok ) {
-					state.savedJobsError = 'Could not load saved jobs.';
+					state.savedJobsError = t( 'errorLoadSavedJobs', 'Could not load saved jobs.' );
 					return;
 				}
 				const data = yield response.json();
 				state.savedJobs = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
 			} catch {
-				state.savedJobsError = 'Connection error.';
+				state.savedJobsError = t( 'errorConnectionShort', 'Connection error.' );
 			} finally {
 				state.savedJobsLoading = false;
 			}
@@ -726,13 +857,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( ! response.ok ) {
-					state.savedCompaniesError = 'Could not load saved companies.';
+					state.savedCompaniesError = t( 'errorLoadSavedCompanies', 'Could not load saved companies.' );
 					return;
 				}
 				const data = yield response.json();
 				state.savedCompanies = Array.isArray( data ) ? data : ( data?.items ?? [] );
 			} catch {
-				state.savedCompaniesError = 'Connection error.';
+				state.savedCompaniesError = t( 'errorConnectionShort', 'Connection error.' );
 			} finally {
 				state.savedCompaniesLoading = false;
 			}
@@ -755,13 +886,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( ! response.ok ) {
-					state.savedResumesError = 'Could not load saved resumes.';
+					state.savedResumesError = t( 'errorLoadSavedResumes', 'Could not load saved resumes.' );
 					return;
 				}
 				const data = yield response.json();
 				state.savedResumes = Array.isArray( data ) ? data : ( data?.items ?? [] );
 			} catch {
-				state.savedResumesError = 'Connection error.';
+				state.savedResumesError = t( 'errorConnectionShort', 'Connection error.' );
 			} finally {
 				state.savedResumesLoading = false;
 			}
@@ -887,7 +1018,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.appsError = state.strings.errorLoadApps;
+					state.appsError = t( 'errorLoadApps', 'Could not load applications.' );
 					return;
 				}
 
@@ -901,7 +1032,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					...( typeof a.ai_score === 'number'
 						? {
 							aiScore: a.ai_score,
-							aiScoreLabel: String( a.ai_score ) + '%',
+							aiScoreLabel: aiScoreLabel( a.ai_score ),
 							aiReason: a.ai_reason || '',
 							aiSummary: a.ai_summary || '',
 						}
@@ -915,7 +1046,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.appsJobTitle = match.title;
 				}
 			} catch {
-				state.appsError = state.strings.errorConnectionApps;
+				state.appsError = t( 'errorConnectionApps', 'Connection error loading applications.' );
 			} finally {
 				state.appsLoading = false;
 			}
@@ -944,12 +1075,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.applications = state.applications.map( ( a ) => {
 					const r = byId[ a.id ];
 					return r
-						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: String( Number( r.score ) ) + '%' }
+						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: aiScoreLabel( Number( r.score ) ) }
 						: a;
 				} );
 				state.aiRanked = true;
 			} catch {
-				state.appsError = state.strings.errorConnectionApps;
+				state.appsError = t( 'errorConnectionApps', 'Connection error loading applications.' );
 			} finally {
 				state.aiRankLoading = false;
 			}
@@ -980,12 +1111,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					if ( idx !== -1 ) {
 						state.applications[ idx ].status = newStatus;
 					}
-					state.statusMsg = state.i18nStatusSaved;
+					state.statusMsg = t( 'statusSaved', 'Status updated. The candidate has been notified.' );
 				} else {
-					state.statusMsg = state.i18nStatusError;
+					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}
 			} catch {
-				state.statusMsg = state.i18nStatusError;
+				state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 			}
 		},
 
@@ -1030,9 +1161,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			// wcbConfirm() resolves on confirm and rejects on cancel/ESC.
 			try {
 				yield window.wcbConfirm( {
-					title:        state.strings.confirmCloseTitle || state.strings.confirmCloseJob,
-					message:      state.strings.confirmCloseJob,
-					confirmText:  state.strings.confirmCloseConfirm || 'Close job',
+					title:        t( 'confirmCloseTitle', 'Close this job?' ),
+					message:      t( 'confirmCloseJob', 'Are you sure you want to close this job? It will no longer be visible to candidates.' ),
+					confirmText:  t( 'confirmCloseConfirm', 'Close job' ),
 					destructive:  true,
 				} );
 			} catch ( cancelled ) {
@@ -1054,7 +1185,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
 					if ( idx !== -1 ) {
 						state.jobs[ idx ].status      = 'closed';
-						state.jobs[ idx ].statusLabel = 'Closed';
+						state.jobs[ idx ].statusLabel = t( 'jobStatusClosed', 'Closed' );
 						state.jobs[ idx ].isClosed    = true;
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
@@ -1090,7 +1221,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						// optimistic update so the badge matches what the API stored.
 						const wasRejected = state.jobs[ idx ].isRejected;
 						state.jobs[ idx ].status      = wasRejected ? 'pending' : 'publish';
-						state.jobs[ idx ].statusLabel = wasRejected ? 'Pending' : 'Published';
+						state.jobs[ idx ].statusLabel = wasRejected
+							? t( 'jobStatusPending', 'Pending' )
+							: t( 'jobStatusPublished', 'Published' );
 						state.jobs[ idx ].isClosed    = false;
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isRejected  = false;
@@ -1134,14 +1267,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.displayName    = data.display_name;
 					state.employerEmail  = data.email;
 					state.accountMsgType = 'success';
-					state.accountMsg     = 'Account updated.';
+					state.accountMsg     = t( 'accountUpdated', 'Account updated.' );
 				} else {
 					state.accountMsgType = 'error';
-					state.accountMsg     = data?.message || 'Could not save your account.';
+					state.accountMsg     = data?.message || t( 'errorSaveAccount', 'Could not save your account.' );
 				}
 			} catch {
 				state.accountMsgType = 'error';
-				state.accountMsg     = 'Connection error. Please try again.';
+				state.accountMsg     = t( 'errorConnectionRetry', 'Connection error. Please try again.' );
 			} finally {
 				state.accountSaving = false;
 			}
@@ -1151,12 +1284,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'Enter your current and new password.';
+				state.pwMsg     = t( 'pwEnterBoth', 'Enter your current and new password.' );
 				return;
 			}
 			if ( state.newPassword !== state.confPassword ) {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'New password and confirmation do not match.';
+				state.pwMsg     = t( 'pwMismatch', 'New password and confirmation do not match.' );
 				return;
 			}
 			state.pwSaving = true;
@@ -1184,14 +1317,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.newPassword  = '';
 					state.confPassword = '';
 					state.pwMsgType    = 'success';
-					state.pwMsg        = 'Password updated.';
+					state.pwMsg        = t( 'pwUpdated', 'Password updated.' );
 				} else {
 					state.pwMsgType = 'error';
-					state.pwMsg     = data?.message || 'Could not update your password.';
+					state.pwMsg     = data?.message || t( 'errorUpdatePassword', 'Could not update your password.' );
 				}
 			} catch {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'Connection error. Please try again.';
+				state.pwMsg     = t( 'errorConnectionRetry', 'Connection error. Please try again.' );
 			} finally {
 				state.pwSaving = false;
 			}
@@ -1225,7 +1358,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			if ( ! state.companyId ) {
-				state.error = state.strings.errorSaveLogo;
+				state.error = t( 'errorSaveLogo', 'Please save your company profile before uploading a logo.' );
 				return;
 			}
 			state.logoUploading = true;
@@ -1259,7 +1392,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const isNew = ! state.companyId;
 
 			if ( isNew && ! state.companyName.trim() ) {
-				state.error = state.strings.errorCompanyNameRequired;
+				state.error = t( 'errorCompanyNameRequired', 'Company name is required.' );
 				return;
 			}
 
@@ -1298,7 +1431,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 				const data = yield response.json();
 				if ( ! response.ok ) {
-					state.error = ( data && data.message ) ? String( data.message ) : state.strings.errorSaveProfile;
+					state.error = ( data && data.message )
+						? String( data.message )
+						: t( 'errorSaveProfile', 'Could not save profile. Please try again.' );
 					return;
 				}
 
@@ -1312,7 +1447,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.saved = false;
 				}, 3000 );
 			} catch {
-				state.error = state.strings.errorConnection;
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.saving = false;
 			}
@@ -1380,9 +1515,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		*clearBellNotifications() {
 			try {
 				yield window.wcbConfirm( {
-					title:       state.strings.confirmClearAllTitle,
-					message:     state.strings.confirmClearAllMsg,
-					confirmText: state.strings.clearAll,
+					title:       t( 'confirmClearAllTitle', 'Clear all notifications?' ),
+					message:     t( 'confirmClearAllMsg', 'This permanently removes all of your notifications. This cannot be undone.' ),
+					confirmText: t( 'clearAll', 'Clear all' ),
 					destructive: true,
 				} );
 			} catch ( cancelled ) {
