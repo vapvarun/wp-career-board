@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP Career Board 1.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-career-board\n"
-"POT-Creation-Date: 2026-07-08T15:34:18+00:00\n"
+"POT-Creation-Date: 2026-07-08T17:00:20+00:00\n"
 "PO-Revision-Date: 2026-06-28T17:07:26+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1231,7 +1231,7 @@ msgstr "Benachrichtigungen"
 msgid "Emails"
 msgstr "E-Mails"
 
-#: admin/class-admin-settings.php:377
+#: admin/class-admin-settings.php:377 admin/class-admin.php:719
 msgid "Import"
 msgstr "Importieren"
 
@@ -1854,11 +1854,15 @@ msgstr "Bestätigen"
 msgid "Could not update. Please try again."
 msgstr "Konnte nicht aktualisiert werden. Bitte versuche es erneut."
 
-#: admin/class-admin.php:748 core/widgets/class-widget-shortcode.php:118
+#: admin/class-admin.php:718
+msgid "Importing…"
+msgstr "Wird importiert…"
+
+#: admin/class-admin.php:750 core/widgets/class-widget-shortcode.php:118
 msgid "Saved."
 msgstr "Gespeichert."
 
-#: admin/class-admin.php:749 core/widgets/class-widget-shortcode.php:119
+#: admin/class-admin.php:751 core/widgets/class-widget-shortcode.php:119
 msgid "Could not save."
 msgstr "Konnte nicht gespeichert werden."
 
@@ -6292,11 +6296,12 @@ msgstr ""
 "Unternehmensprofiles verwendet wird. Setze eine Unternehmens-ID, um den "
 "Block auf einer eigenständigen Seite zu verankern."
 
-#: blocks/similar-companies-card/index.js:72
-msgid "Anchored to company ID "
-msgstr "Verankert bei Unternehmens-ID "
+#: blocks/similar-companies-card/index.js:74
+#. translators: %s: company ID the block is anchored to.
+msgid "Anchored to company ID %s"
+msgstr "Gebunden an Unternehmens-ID %s"
 
-#: blocks/similar-companies-card/index.js:73
+#: blocks/similar-companies-card/index.js:77
 msgid "Auto-resolves on company-single pages."
 msgstr "Wird automatisch auf Unternehmensseiten aufgelöst."
 
@@ -6759,6 +6764,9 @@ msgstr "WCB Rahmen"
 msgctxt "Color name"
 msgid "WCB Featured"
 msgstr "WCB Hervorgehoben"
+
+#~ msgid "Anchored to company ID "
+#~ msgstr "Verankert bei Unternehmens-ID "
 
 #, php-format
 #~ msgid "%d open position"
