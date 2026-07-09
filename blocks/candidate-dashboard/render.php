@@ -16,12 +16,18 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 if ( ! is_user_logged_in() ) {
+	$wcb_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ); ?></p>
 		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
 	<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
 		</a>
+	<?php if ( $wcb_reg_page > 0 ) : ?>
+		<a href="<?php echo esc_url( (string) get_permalink( $wcb_reg_page ) ); ?>" class="wcb-btn wcb-btn--secondary">
+		<?php esc_html_e( 'Create an account', 'wp-career-board' ); ?>
+		</a>
+	<?php endif; ?>
 	</div>
 	<?php
 	return;
