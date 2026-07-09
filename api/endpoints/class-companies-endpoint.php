@@ -334,6 +334,18 @@ final class CompaniesEndpoint extends RestController {
 				'total'     => $total,
 				'pages'     => $pages,
 				'has_more'  => $paged < $pages,
+				/*
+				 * Additive since 1.5.1. Resolved server-side because _n() handles
+				 * any number of plural forms; the block previously picked between
+				 * two seeded keys with `count === 1`, which is wrong for Polish,
+				 * Russian and Arabic. It also labelled state.companies.length (the
+				 * rows loaded so far) rather than the matches found.
+				 */
+				'results_label' => sprintf(
+					/* translators: %s: number of companies found, already localised. */
+					_n( '%s company found', '%s companies found', $total, 'wp-career-board' ),
+					number_format_i18n( $total )
+				),
 			)
 		);
 		$response->header( 'X-WCB-Total', (string) $total );
@@ -373,10 +385,14 @@ final class CompaniesEndpoint extends RestController {
 			'has_logo'    => '' !== $logo_url,
 			'no_logo'     => '' === $logo_url,
 			'logo'        => $logo_url,
-			'tagline'     => $company_meta['tagline'],
-			'industry'    => $company_meta['industry'],
-			'size'        => $company_meta['size'],
-			'size_label'  => $company_meta['size_label'],
+			'tagline'        => $company_meta['tagline'],
+			// Ship the localised industry label alongside the raw slug so the
+			// card chip shows "Technology & Software", not "technology", after a
+			// client-side re-fetch. SSR already used Industries::label().
+			'industry'       => $company_meta['industry'],
+			'industry_label' => $company_meta['industry_label'],
+			'size'           => $company_meta['size'],
+			'size_label'     => $company_meta['size_label'],
 			'hq'          => $company_meta['hq'],
 			'trust'       => $trust,
 			'trust_label' => $trust_info['label'] ?? '',
@@ -491,9 +507,9 @@ final class CompaniesEndpoint extends RestController {
 			return __( 'No open positions', 'wp-career-board' );
 		}
 		return sprintf(
-			/* translators: %d: number of open positions */
-			_n( '%d open position', '%d open positions', $count, 'wp-career-board' ),
-			$count
+			/* translators: %s: number of open positions, already localised. */
+			_n( '%s open position', '%s open positions', $count, 'wp-career-board' ),
+			number_format_i18n( $count )
 		);
 	}
 

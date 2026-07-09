@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 6.9
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,18 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.6.0 - July 2026 =
+
+Translation-ready release with editable notification emails and the plugins-screen license link restored.
+
+* New      - The plugin is now fully translation-ready and bundles German, French, Spanish, Dutch and Korean translations; every interface string loads through WordPress's standard translation system.
+* New      - Notification email bodies are now editable per template from the Emails settings, each with a ready-to-use default.
+* Fix      - Notification emails no longer send with an empty body; the message body falls back to a sensible default when left blank.
+* Fix      - The "Manage License" link is back on the WP Career Board plugins-screen row and opens a modal prefilled with the community update key, with no missing assets. Automatic updates are unaffected.
+* Dev      - New wcb_default_filter_order filter to reorder the job-listings filter groups.
+* Dev      - New wcb:results JavaScript event fires after each job-listings fetch with the matched job IDs.
+* Compat   - Aligned with WP Career Board Pro 1.6.0. Install both updates together.
 
 = 1.5.0 - June 2026 =
 

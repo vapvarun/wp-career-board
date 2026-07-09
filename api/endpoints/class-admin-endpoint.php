@@ -170,17 +170,35 @@ final class AdminEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
+		$sample_job = '<li style="margin-bottom:10px;padding:12px 16px;background:#f9fafb;border-radius:6px;"><a href="' . esc_url( home_url( '/' ) ) . '" style="font-weight:600;color:#4f46e5;text-decoration:none;">%s</a></li>';
+		$job_list   = '<ul style="padding-left:0;list-style:none;margin:0 0 24px;">'
+			. sprintf( $sample_job, esc_html__( 'Sample Job One (test send)', 'wp-career-board' ) )
+			. sprintf( $sample_job, esc_html__( 'Sample Job Two (test send)', 'wp-career-board' ) )
+			. '</ul>';
+
 		$test_vars = array(
 			'job_title'      => __( 'Sample Job Title (test send)', 'wp-career-board' ),
 			'company_name'   => get_bloginfo( 'name' ),
 			'candidate'      => $user->display_name,
 			'candidate_name' => $user->display_name,
+			'guest_name'     => $user->display_name,
 			'employer'       => $user->display_name,
 			'status_label'   => __( 'Shortlisted', 'wp-career-board' ),
+			'new_status'     => __( 'Shortlisted', 'wp-career-board' ),
 			'days_left'      => 3,
 			'deadline_iso'   => gmdate( 'Y-m-d', time() + 3 * DAY_IN_SECONDS ),
+			'deadline_date'  => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 3 * DAY_IN_SECONDS ),
 			'job_url'        => home_url( '/' ),
 			'dashboard_url'  => home_url( '/' ),
+			'repost_url'     => home_url( '/' ),
+			'approve_url'    => admin_url( 'edit.php?post_type=wcb_job' ),
+			'topup_url'      => home_url( '/' ),
+			'reason'         => __( 'Listing did not meet the posting guidelines (test send).', 'wp-career-board' ),
+			'job_list'       => $job_list,
+			'count'          => 2,
+			'credits_added'  => 50,
+			'new_balance'    => 120,
+			'balance'        => 5,
 			'is_test'        => true,
 		);
 

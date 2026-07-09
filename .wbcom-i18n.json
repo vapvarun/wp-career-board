@@ -1,0 +1,17 @@
+{
+  "domain": "wp-career-board",
+  "potFile": "languages/wp-career-board.pot",
+  "languagesDir": "languages",
+  "engine": "claude",
+  "model": "haiku",
+  "batch": 40,
+  "makeJson": true,
+  "protect": ["WP Career Board", "Career Board", "Pro", "WordPress", "BuddyPress", "WooCommerce", "Gutenberg", "REST", "API", "URL", "CSV", "AI", "PWA", "ATS", "HTML", "CSS"],
+  "locales": [
+    { "locale": "de_DE", "name": "German",  "register": "informal (du)" },
+    { "locale": "fr_FR", "name": "French",  "register": "informal (tu)" },
+    { "locale": "es_ES", "name": "Spanish", "register": "informal (tú)" },
+    { "locale": "nl_NL", "name": "Dutch",   "register": "informal (je)" },
+    { "locale": "ko_KR", "name": "Korean",  "register": "polite (해요체)", "model": "sonnet" }
+  ]
+}

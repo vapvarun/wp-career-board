@@ -9,6 +9,8 @@
 		edit: function ( props ) {
 			var attr    = props.attributes;
 			var setAttr = props.setAttributes;
+			// Title/description come from block.json and are already translated by core.
+			var meta    = wp.blocks.getBlockType( 'wp-career-board/job-stats' ) || {};
 
 			return [
 				el( InspectorControls, { key: 'inspector' },
@@ -19,8 +21,8 @@
 					)
 				),
 				el( 'div', { key: 'preview', style: { padding: '12px 16px', background: '#f0f6fc', border: '1px dashed #93c5fd', borderRadius: '4px' } },
-					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, 'WCB: Job Stats' ),
-					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } }, 'Stat strip — Jobs · Companies · Candidates' )
+					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, meta.title ),
+					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } }, meta.description )
 				),
 			];
 		},

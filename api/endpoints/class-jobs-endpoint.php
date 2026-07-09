@@ -376,11 +376,26 @@ final class JobsEndpoint extends RestController {
 				'total'    => $total,
 				'pages'    => $pages,
 				'has_more' => $paged < $pages,
+				/*
+				 * Additive since 1.5.1. The plural form MUST be resolved server-side:
+				 * a script module cannot call _n(), and picking between a seeded
+				 * singular/plural pair with `count === 1` is only correct in 2-form
+				 * locales (Polish, Russian and Arabic need 3-6 forms).
+				 * translators: %s: number of jobs, already localised.
+				 */
+				'results_label' => sprintf(
+					/* translators: %s: number of jobs found, already localised. */
+					_n( '%s job found', '%s jobs found', $total, 'wp-career-board' ),
+					number_format_i18n( $total )
+				),
 			)
 		);
 		$response->header( 'X-WCB-Total', (string) $total );
 		$response->header( 'X-WCB-TotalPages', (string) $pages );
-		$response->header( 'Cache-Control', 'public, max-age=300' );
+		// The body now carries localised strings. A logged-in user may have a
+		// different locale from the site, so a shared cache must not reuse their
+		// response for anyone else.
+		$response->header( 'Cache-Control', is_user_logged_in() ? 'private, max-age=300' : 'public, max-age=300' );
 		return $response;
 	}
 
@@ -469,7 +484,15 @@ final class JobsEndpoint extends RestController {
 	 */
 	private function get_items_cache_key( array $args ): string {
 		$version = (int) get_option( 'wcb_jobs_cache_v', 0 );
-		return 'wcb_jobs_' . $version . '_' . md5( (string) wp_json_encode( $args ) );
+
+		// The cached payload contains localised strings (salary_label, and any
+		// other *_label added later), so the key MUST vary by locale. Before
+		// 1.5.1 salary_label was hardcoded English and a locale-blind key was
+		// harmless; now a de_DE request would serve German labels to the next
+		// en_US request for the lifetime of the transient.
+		$locale = determine_locale();
+
+		return 'wcb_jobs_' . $version . '_' . $locale . '_' . md5( (string) wp_json_encode( $args ) );
 	}
 
 	/**
@@ -1090,7 +1113,11 @@ final class JobsEndpoint extends RestController {
 					'ai_reason'        => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
 					'ai_summary'       => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
 					'status'           => '' !== $status_raw ? $status_raw : 'submitted',
-					'submitted_at'     => get_the_date( 'M j, Y', $p ),
+					'statusLabel'      => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					// Raw ISO 8601 for any client-side date logic; localised sibling
+					// for display. Never hand a translated date string to new Date().
+					'submitted_at'       => get_the_date( 'c', $p ),
+					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
 					'resume_url'       => ( static function () use ( $p ): ?string {
 						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 						if ( $att_id <= 0 ) {
@@ -1261,6 +1288,8 @@ final class JobsEndpoint extends RestController {
 			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
 		}
 
+		$wcb_deadline_raw = get_post_meta( $post->ID, '_wcb_deadline', true );
+
 		$data = array(
 			'id'                 => $post->ID,
 			'title'              => $post->post_title,
@@ -1292,8 +1321,13 @@ final class JobsEndpoint extends RestController {
 			'company_size'       => $company_meta['size'],
 			'company_size_label' => $company_meta['size_label'],
 			'company_hq'         => $company_meta['hq'],
-			// Job meta.
-			'deadline'           => get_post_meta( $post->ID, '_wcb_deadline', true ),
+			// Job meta. `deadline` stays the raw stored date for any client-side
+			// date math / comparison; `deadline_label` is the localised display
+			// form (additive since 1.5.1) so the card never renders a bare ISO date.
+			'deadline'           => $wcb_deadline_raw,
+			'deadline_label'     => $wcb_deadline_raw
+				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
+				: '',
 			'salary_min'         => $salary_min,
 			'salary_max'         => $salary_max,
 			'salary_currency'    => $currency,
@@ -1308,8 +1342,13 @@ final class JobsEndpoint extends RestController {
 			'type'               => implode( ', ', $type_names ),
 			'experience'         => implode( ', ', $exp_names ),
 			'category'           => implode( ', ', $cat_names ),
-			// Relative time.
-			'days_ago'           => human_time_diff( (int) strtotime( $post->post_date ), time() ) . ' ago',
+			// Relative time. The " ago" wrapper must be translatable and able to
+			// reposition the interval, so use the same %s-ago pattern WP core uses.
+			'days_ago'           => sprintf(
+				/* translators: %s: human-readable time difference, e.g. "3 days". */
+				__( '%s ago', 'wp-career-board' ),
+				human_time_diff( (int) strtotime( $post->post_date ), time() )
+			),
 			// Slug arrays for filter/API consumers.
 			'categories'         => $cat_slugs,
 			'job_types'          => $type_slugs,
@@ -1414,25 +1453,12 @@ final class JobsEndpoint extends RestController {
 	 * @return string
 	 */
 	private function format_salary( string $min, string $max, string $currency, string $type = 'yearly' ): string {
-		if ( ! $min && ! $max ) {
-			return '';
-		}
-		$catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
-		$code    = strtoupper( $currency );
-		$symbol  = isset( $catalog[ $code ]['symbol'] ) ? (string) $catalog[ $code ]['symbol'] : $code . ' ';
-		$suffix  = match ( $type ) {
-			'monthly' => '/mo',
-			'hourly'  => '/hr',
-			default   => '/yr',
-		};
-		$fmt = static function ( string $n ) use ( $symbol ): string {
-			$val = (int) $n;
-			return $val >= 1000 ? $symbol . round( $val / 1000 ) . 'k' : $symbol . $val;
-		};
-		if ( $min && $max ) {
-			return $fmt( $min ) . '–' . $fmt( $max ) . $suffix;
-		}
-		return $min ? $fmt( $min ) . '+' . $suffix : 'Up to ' . $fmt( $max ) . $suffix;
+		// Delegates to the canonical formatter. This method previously emitted
+		// hardcoded English ('/mo', '/hr', '/yr', 'Up to ', 'k'), prefixed the
+		// currency symbol unconditionally, and never called number_format_i18n()
+		// -- so salary_label rendered English on every locale, in the REST
+		// payload the mobile app consumes as well as on the frontend.
+		return \WCB\Core\SalaryFormat::format( $min, $max, $currency, $type );
 	}
 
 	/**

@@ -60,6 +60,36 @@ class EmailAppGuest extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Application received', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: 1: applicant name, 2: job title (bold) */
+				esc_html__( 'Hi %1$s, thanks for applying for %2$s. We have received your application and shared it with the employer.', 'wp-career-board' ),
+				'{guest_name}',
+				'<strong>{job_title}</strong>'
+			) . '</p>'
+			. '<p>' . esc_html__( 'As you applied as a guest, the employer will contact you directly using the details you provided.', 'wp-career-board' ) . '</p>'
+			. self::button( __( 'View Job', 'wp-career-board' ), '{job_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'guest_name' => __( 'Applicant name', 'wp-career-board' ),
+			'job_title'  => __( 'Job title', 'wp-career-board' ),
+			'job_url'    => __( 'Job listing URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void

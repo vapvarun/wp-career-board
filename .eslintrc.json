@@ -1,0 +1,51 @@
+{
+	"root": true,
+	"parserOptions": {
+		"ecmaVersion": 2022,
+		"sourceType": "module",
+		"ecmaFeatures": { "jsx": true }
+	},
+	"env": {
+		"browser": true,
+		"es2022": true
+	},
+	"globals": {
+		"wp": "readonly",
+		"window": "readonly",
+		"document": "readonly",
+		"fetch": "readonly",
+		"FormData": "readonly",
+		"URL": "readonly",
+		"URLSearchParams": "readonly",
+		"localStorage": "readonly",
+		"IntersectionObserver": "readonly",
+		"Intl": "readonly",
+		"wcbAdmin": "readonly",
+		"wcbAdminEmails": "readonly",
+		"wcbAppDetail": "readonly",
+		"wcbConfirmI18n": "readonly",
+		"wcbWizard": "readonly",
+		"wcbAntispam": "readonly"
+	},
+	"plugins": [ "@wordpress" ],
+	"rules": {
+		"@wordpress/i18n-text-domain": [ "error", { "allowedTextDomain": "wp-career-board" } ],
+		"@wordpress/valid-sprintf": "error",
+		"@wordpress/i18n-translator-comments": "error",
+		"@wordpress/i18n-no-collapsible-whitespace": "error",
+		"@wordpress/i18n-no-placeholders-only": "error",
+		"@wordpress/i18n-no-variables": "error",
+		"@wordpress/i18n-ellipsis": "error",
+		"@wordpress/i18n-no-flanking-whitespace": "error",
+		"@wordpress/i18n-hyphenated-range": "error"
+	},
+	"ignorePatterns": [
+		"**/*.min.js",
+		"node_modules/**",
+		"vendor/**",
+		"build/**",
+		"dist/**",
+		"libs/**",
+		"assets/vendor/**"
+	]
+}

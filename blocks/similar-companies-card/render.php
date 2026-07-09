@@ -89,7 +89,15 @@ if ( empty( $wcb_companies ) ) {
 		$wcb_logo    = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
 		$wcb_loc     = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
 		$wcb_perma   = (string) get_permalink( $wcb_company->ID );
-		$wcb_initial = strtoupper( mb_substr( $wcb_company->post_title, 0, 1 ) );
+		// Prefer mb_strtoupper over byte-based strtoupper so non-ASCII initials
+		// uppercase correctly ("ärzte" -> "Ä", not "ä"). mb_substr is always
+		// available (WordPress polyfills it in wp-includes/compat.php), but
+		// mb_strtoupper is NOT polyfilled, so guard it and fall back to
+		// strtoupper on PHP builds without ext-mbstring.
+		$wcb_first   = mb_substr( $wcb_company->post_title, 0, 1 );
+		$wcb_initial = function_exists( 'mb_strtoupper' )
+			? mb_strtoupper( $wcb_first )
+			: strtoupper( $wcb_first );
 		?>
 		<li class="wcb-similar-companies-card__item">
 			<a class="wcb-similar-companies-card__link" href="<?php echo esc_url( $wcb_perma ); ?>">

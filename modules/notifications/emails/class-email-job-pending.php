@@ -61,6 +61,33 @@ class EmailJobPending extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'A job is awaiting review', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: %s: job title (bold) */
+				esc_html__( 'A new job listing %s has been submitted and is waiting for approval before it goes live.', 'wp-career-board' ),
+				'<strong>{job_title}</strong>'
+			) . '</p>'
+			. self::button( __( 'Review Job', 'wp-career-board' ), '{approve_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'job_title'   => __( 'Job title', 'wp-career-board' ),
+			'approve_url' => __( 'Review/approve job URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void

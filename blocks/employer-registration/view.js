@@ -12,6 +12,17 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
+/**
+ * Translation reader. Every user-facing string is authored once as a PHP __()
+ * call in render.php and seeded onto the `i18n` state key; this module holds no
+ * English source text of its own. An unseeded key resolves to an empty string
+ * rather than leaking a raw key name into the UI.
+ *
+ * @param {string} key Key seeded in render.php's `i18n` array.
+ * @return {string} Translated string.
+ */
+const t = ( key ) => ( state.i18n && state.i18n[ key ] ) || '';
+
 const { state } = store( 'wcb-employer-registration', {
 	state: {
 		get isCandidate() {
@@ -22,11 +33,13 @@ const { state } = store( 'wcb-employer-registration', {
 		},
 		get roleTitle() {
 			return state.role === 'candidate'
-				? 'Create a Candidate Account'
-				: 'Create an Employer Account';
+				? t( 'roleTitleCandidate' )
+				: t( 'roleTitleEmployer' );
 		},
 		get emailLabel() {
-			return state.role === 'candidate' ? 'Email' : 'Work Email';
+			return state.role === 'candidate'
+				? t( 'emailLabel' )
+				: t( 'emailLabelWork' );
 		},
 	},
 
@@ -120,14 +133,25 @@ const { state } = store( 'wcb-employer-registration', {
 				const data = yield response.json();
 
 				if ( ! response.ok ) {
-					state.error = ( data && data.message ) ? data.message : 'Registration failed. Please try again.';
+					if ( data && 'wcb_missing_params' === data.code ) {
+						// The server assembles this message by concatenating raw,
+						// untranslated field slugs; show a single localized string
+						// instead of rendering that slug list verbatim.
+						state.error = t( 'errorMissingFields' );
+					} else if ( data && data.message ) {
+						// Remaining server errors are single, self-contained __()
+						// strings (already localized), safe to surface as-is.
+						state.error = data.message;
+					} else {
+						state.error = t( 'errorRegistration' );
+					}
 					return;
 				}
 
 				state.dashboardUrl = data.dashboard_url || '';
 				state.submitted    = true;
 			} catch {
-				state.error = state.strings.errorConnection;
+				state.error = t( 'errorConnection' );
 			} finally {
 				state.submitting = false;
 			}

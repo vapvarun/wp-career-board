@@ -715,6 +715,8 @@ class Admin {
 					'confirm'      => __( 'Confirm', 'wp-career-board' ),
 					'cancel'       => __( 'Cancel', 'wp-career-board' ),
 					'saveFailed'   => __( 'Could not update. Please try again.', 'wp-career-board' ),
+					'importing'    => __( 'Importing…', 'wp-career-board' ),
+					'import'       => __( 'Import', 'wp-career-board' ),
 				),
 			)
 		);

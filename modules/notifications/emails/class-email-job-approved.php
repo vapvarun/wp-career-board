@@ -60,6 +60,33 @@ class EmailJobApproved extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Your job is now live', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: %s: job title (bold) */
+				esc_html__( 'Good news! Your job listing %s has been approved and is now published on the job board. Candidates can start applying right away.', 'wp-career-board' ),
+				'<strong>{job_title}</strong>'
+			) . '</p>'
+			. self::button( __( 'View Job', 'wp-career-board' ), '{job_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'job_title' => __( 'Job title', 'wp-career-board' ),
+			'job_url'   => __( 'Job listing URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void

@@ -45,22 +45,13 @@ $wcb_type_terms       = is_wp_error( $wcb_type_terms ) ? array() : $wcb_type_ter
 $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_experience_terms;
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
-$wcb_currency_code_raw = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
-$wcb_currency_code     = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
-$wcb_currency_catalog  = \WCB\Admin\AdminSettings::get_currency_catalog();
-$wcb_currency          = isset( $wcb_currency_catalog[ $wcb_currency_code ]['symbol'] )
-	? (string) $wcb_currency_catalog[ $wcb_currency_code ]['symbol']
-	: $wcb_currency_code . ' ';
-$wcb_remote            = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
-$wcb_salary_min        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
-$wcb_salary_max        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
-$wcb_salary_type_raw   = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
-$wcb_salary_type       = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
-$wcb_salary_suffix     = match ( $wcb_salary_type ) {
-	'monthly' => '/' . esc_html__( 'mo', 'wp-career-board' ),
-	'hourly'  => '/' . esc_html__( 'hr', 'wp-career-board' ),
-	default   => '/' . esc_html__( 'yr', 'wp-career-board' ),
-};
+$wcb_currency_code_raw  = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
+$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
+$wcb_remote             = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
+$wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
+$wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
+$wcb_salary_type_raw    = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
+$wcb_salary_type        = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
 $wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
 $wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
@@ -74,15 +65,21 @@ $wcb_apply_url      = in_array( $wcb_apply_scheme, array( 'http', 'https' ), tru
 $wcb_apply_external = '' !== $wcb_apply_url;
 
 // ── Salary display ────────────────────────────────────────────────────────────
-$wcb_salary_str = '';
-if ( $wcb_salary_min && $wcb_salary_max ) {
-	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . ' – ' . $wcb_currency . number_format( (int) $wcb_salary_max ) . $wcb_salary_suffix;
-} elseif ( $wcb_salary_min ) {
-	$wcb_salary_str = $wcb_currency . number_format( (int) $wcb_salary_min ) . '+' . $wcb_salary_suffix;
-} elseif ( $wcb_salary_max ) {
-	/* translators: %s: maximum salary with period suffix */
-	$wcb_salary_str = sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_currency . number_format( (int) $wcb_salary_max ) . $wcb_salary_suffix );
-}
+// Delegates to WCB\Core\SalaryFormat, the single canonical formatter, exactly as
+// blocks/job-listings/render.php and Jobs_Endpoint::format_salary() do — so the
+// card, the REST `salary_label` and this detail page never drift apart.
+//
+// It replaces three i18n defects that lived here: number_format() (ASCII group
+// separators, ignoring the site locale), a hardcoded `symbol . amount` order
+// (fr_FR / de_DE / sv_SE place the symbol AFTER the amount), and hardcoded
+// ' – ' / '+' / '/yr' glue. Every fragment is now a translatable format string
+// with numbered placeholders that a translator can reorder.
+$wcb_salary_str = \WCB\Core\SalaryFormat::format(
+	$wcb_salary_min,
+	$wcb_salary_max,
+	$wcb_currency_code,
+	$wcb_salary_type
+);
 
 // ── Company ───────────────────────────────────────────────────────────────────
 $wcb_company_name = (string) get_post_meta( $wcb_job_id, '_wcb_company_name', true );
@@ -128,7 +125,14 @@ $wcb_trust_map        = array(
 $wcb_trust_info       = $wcb_trust_map[ $wcb_company_trust ] ?? null;
 
 // ── Posted date ───────────────────────────────────────────────────────────────
-$wcb_days_ago = (int) round( ( time() - (int) strtotime( $wcb_job->post_date ) ) / DAY_IN_SECONDS );
+// Use the post's GMT timestamp, not strtotime( post_date ). WordPress forces
+// PHP's default timezone to UTC (wp-settings.php), so strtotime() would parse
+// the SITE-LOCAL post_date string as if it were UTC — on any site east/west of
+// UTC that skews the age by the offset (e.g. a job posted "today" on UTC+13
+// reads as "1 day ago"). get_post_time( 'U', true ) returns the true absolute
+// (GMT) timestamp, which is directly comparable to time().
+$wcb_post_ts  = (int) get_post_time( 'U', true, $wcb_job );
+$wcb_days_ago = (int) round( ( time() - $wcb_post_ts ) / DAY_IN_SECONDS );
 
 // ── Apply permission ──────────────────────────────────────────────────────────
 $wcb_can_apply = is_user_logged_in() && wp_is_ability_granted( 'wcb/apply-jobs' );
@@ -290,11 +294,15 @@ wp_interactivity_state(
 		'reportReason'         => '',
 		'reportError'          => '',
 		'reportDone'           => $wcb_already_reported,
-		'strings'              => array(
+		// Strings consumed by view.js. view.js is registered as a script module, and script
+		// modules cannot load JED translation files ( wp_set_script_module_translations is
+		// @since WP 7.0; this plugin's floor is 6.9 ). Every user-facing string the module
+		// renders must therefore be translated server-side and seeded here. view.js reads
+		// them only through its t( key, fallback ) helper.
+		'i18n'                 => array(
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
 			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
-			'resumeUploadFailed'   => __( 'Resume upload failed. Please try again.', 'wp-career-board' ),
 			'resumeRequiredError'  => __( 'Please attach your resume to apply.', 'wp-career-board' ),
 			'applicationFailed'    => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
 			'connectionError'      => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
@@ -349,7 +357,13 @@ wp_interactivity_state(
 			<?php elseif ( $wcb_location_terms ) : ?>
 				<?php foreach ( $wcb_location_terms as $wcb_term ) : ?>
 					<a href="<?php echo esc_url( (string) get_term_link( $wcb_term ) ); ?>" class="wcb-badge wcb-badge--location">
-						📍 <?php echo esc_html( $wcb_term->name ); ?>
+					<?php
+						printf(
+							/* translators: %s: location name. The 📍 pin marks a location badge — translators may move it after the name or drop it for RTL locales. */
+							esc_html__( '📍 %s', 'wp-career-board' ),
+							esc_html( $wcb_term->name )
+						);
+					?>
 					</a>
 				<?php endforeach; ?>
 			<?php endif; ?>
@@ -377,8 +391,14 @@ wp_interactivity_state(
 				} elseif ( 1 === $wcb_days_ago ) {
 					esc_html_e( 'Posted yesterday', 'wp-career-board' );
 				} else {
-					/* translators: %d: number of days */
-					printf( esc_html__( 'Posted %d days ago', 'wp-career-board' ), absint( $wcb_days_ago ) );
+					// %s + number_format_i18n(), never %d: a 1095-day-old job must render
+					// "1.095" on de_DE and "1 095" on fr_FR, not the ASCII "1095" that
+					// printf( '%d' ) always emits regardless of locale.
+					printf(
+						/* translators: %s: number of days since the job was posted, already localised. */
+						esc_html( _n( 'Posted %s day ago', 'Posted %s days ago', $wcb_days_ago, 'wp-career-board' ) ),
+						esc_html( number_format_i18n( $wcb_days_ago ) )
+					);
 				}
 				?>
 			</span>
@@ -619,7 +639,13 @@ wp_interactivity_state(
 									target="_blank"
 									rel="noopener noreferrer nofollow"
 								>
-									<?php echo esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) ); ?> ↗
+										<?php
+										printf(
+										/* translators: %s: hostname of the external application site, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+											esc_html__( '%s ↗', 'wp-career-board' ),
+											esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) )
+										);
+										?>
 								</a>
 							</dd>
 						</div>
@@ -748,7 +774,7 @@ wp_interactivity_state(
 					<?php if ( $wcb_company_industry ) : ?>
 								<div class="wcb-company-fact">
 									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value"><?php echo esc_html( ucfirst( str_replace( array( '-', '_' ), ' ', $wcb_company_industry ) ) ); ?></dd>
+									<dd class="wcb-company-fact__value"><?php echo esc_html( \WCB\Core\Industries::label( $wcb_company_industry ) ); ?></dd>
 								</div>
 					<?php endif; ?>
 					<?php if ( $wcb_company_size ) : ?>
@@ -756,8 +782,10 @@ wp_interactivity_state(
 									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
 									<dd class="wcb-company-fact__value">
 									<?php
-									/* translators: %s: employee count range, e.g. 501-1000 */
-									printf( esc_html__( '%s employees', 'wp-career-board' ), esc_html( $wcb_company_size ) );
+									// Canonical translated size-bucket label (e.g. "501-1,000 employees"), shared
+										// with the companies/jobs REST size_label. The stored value is a SLUG
+										// ('501-1000'), never a display string, so never printf it directly.
+									echo esc_html( \WCB\Core\CompanyMetaShape::size_label( $wcb_company_size ) );
 									?>
 									</dd>
 								</div>
@@ -773,7 +801,10 @@ wp_interactivity_state(
 
 				<?php if ( $wcb_company_url ) : ?>
 						<a href="<?php echo esc_url( $wcb_company_url ); ?>" class="wcb-company-link">
-					<?php esc_html_e( 'View Company Profile', 'wp-career-board' ); ?> →
+					<?php
+					/* translators: The → is a "go to" affordance. Flip it to ← (or drop it) for RTL locales. */
+					esc_html_e( 'View Company Profile →', 'wp-career-board' );
+					?>
 						</a>
 				<?php endif; ?>
 				<?php if ( $wcb_company_site ) : ?>
@@ -785,9 +816,12 @@ wp_interactivity_state(
 						>
 					<?php
 					$wcb_host = (string) wp_parse_url( $wcb_company_site, PHP_URL_HOST );
-					echo esc_html( $wcb_host ? $wcb_host : $wcb_company_site );
+					printf(
+						/* translators: %s: company website hostname. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+						esc_html__( '%s ↗', 'wp-career-board' ),
+						esc_html( $wcb_host ? $wcb_host : $wcb_company_site )
+					);
 					?>
-							↗
 						</a>
 				<?php endif; ?>
 				</div>
@@ -964,8 +998,8 @@ wp_interactivity_state(
 						<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
 						<span class="wcb-upload-hint">
 		<?php
-		/* translators: %d: max upload size in MB */
-		printf( esc_html__( 'PDF, DOC or DOCX  -  max %d MB', 'wp-career-board' ), absint( $wcb_resume_max_mb ) );
+		/* translators: %s: max upload size in MB, already localised. */
+		printf( esc_html__( 'PDF, DOC or DOCX  -  max %s MB', 'wp-career-board' ), esc_html( number_format_i18n( $wcb_resume_max_mb ) ) );
 		?>
 						</span>
 						<span class="wcb-upload-filename" data-wp-text="state.resumeFileName"></span>

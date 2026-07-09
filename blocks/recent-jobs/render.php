@@ -63,19 +63,40 @@ foreach ( $wcb_author_ids as $wcb_aid ) {
 		</h2>
 		<?php if ( $wcb_show_all && $wcb_view_all_url ) : ?>
 			<a class="wcb-widget-view-all" href="<?php echo esc_url( $wcb_view_all_url ); ?>">
-				<?php esc_html_e( 'View all →', 'wp-career-board' ); ?>
+				<?php
+				/* translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation. */
+				esc_html_e( 'View all →', 'wp-career-board' );
+				?>
 			</a>
 		<?php endif; ?>
 	</div>
 
+	<?php
+	// Locale-aware list separator supplied by WP core (Arabic "، ", Chinese "、").
+	// wp_get_list_item_separator() (WP 6.0+) is already translated inside core, so
+	// the widget no longer ships an untranslated plugin-level msgid for this glue.
+	// Hoisted out of the row loop: one lookup, not one per job.
+	$wcb_separator = wp_get_list_item_separator();
+	?>
 	<ul class="wcb-job-widget-list">
 		<?php foreach ( $wcb_jobs as $wcb_job ) : ?>
 			<?php
 			$wcb_company_name = (string) get_post_meta( $wcb_job->ID, '_wcb_company_name', true );
 			$wcb_thumb_url    = $wcb_company_map[ (int) $wcb_job->post_author ] ?? '';
-			$wcb_initial      = $wcb_company_name ? strtoupper( mb_substr( $wcb_company_name, 0, 1 ) ) : '?';
+			// Uppercased first letter of the company name as an avatar fallback.
+			// mb_* (guarded) so accented/multibyte initials uppercase correctly
+			// ("école" -> "É"); single-byte functions cover hosts without the
+			// mbstring extension. The glyph shown when there is no company name is
+			// translatable so RTL/CJK locales can adapt it.
+			if ( '' !== $wcb_company_name ) {
+				$wcb_first   = function_exists( 'mb_substr' ) ? mb_substr( $wcb_company_name, 0, 1 ) : substr( $wcb_company_name, 0, 1 );
+				$wcb_initial = function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $wcb_first ) : strtoupper( $wcb_first );
+			} else {
+				/* translators: single-character placeholder shown as a company avatar when the company name is unknown. */
+				$wcb_initial = _x( '?', 'unknown company initial placeholder', 'wp-career-board' );
+			}
 			$wcb_loc_terms    = wp_get_object_terms( $wcb_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
-			$wcb_location     = is_wp_error( $wcb_loc_terms ) ? '' : implode( ', ', $wcb_loc_terms );
+			$wcb_location     = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
 			$wcb_type_terms   = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 			$wcb_job_type     = is_wp_error( $wcb_type_terms ) ? '' : ( $wcb_type_terms[0] ?? '' );
 			$wcb_posted_ago   = human_time_diff( (int) get_post_time( 'U', false, $wcb_job ), time() );

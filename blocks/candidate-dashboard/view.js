@@ -36,6 +36,20 @@ const VALID_TABS = [
 ];
 
 /**
+ * Translation reader.
+ *
+ * view.js is a script module, so it cannot load JED catalogs. Every string is
+ * seeded by render.php under `state.i18n`; the fallback mirrors the English in
+ * the matching PHP `__()` call for the (impossible in practice) case where the
+ * key is missing.
+ *
+ * @param {string} key      Key in the seeded `state.i18n` array.
+ * @param {string} fallback English source text.
+ * @return {string} Translated string.
+ */
+const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
+
+/**
  * Read the active tab slug from the current URL hash, or null if missing/invalid.
  */
 function readHashTab() {
@@ -61,6 +75,93 @@ function writeHashTab( tab ) {
 }
 
 /**
+ * Format a number against the SITE locale, not the browser locale.
+ *
+ * `Number#toLocaleString()` with no argument resolves against the visitor's
+ * browser locale, so a de_DE site browsed from an en-US machine renders
+ * "1,000" where it must render "1.000". `state.locale` is seeded by render.php
+ * from SalaryFormat::locale() as a BCP-47 tag.
+ *
+ * @param {number|string} value Raw numeric value.
+ * @return {string} Localised digits.
+ */
+function formatNumber( value ) {
+	const n = Number( value );
+	if ( ! Number.isFinite( n ) ) {
+		return '';
+	}
+	try {
+		return new Intl.NumberFormat( state.locale || undefined ).format( n );
+	} catch {
+		// Malformed site locale tag — fall back to a FIXED, deterministic locale
+		// ('en-US') rather than `new Intl.NumberFormat()` with no argument, which
+		// would resolve against the visitor's BROWSER locale (the exact bug this
+		// function exists to avoid). A constant tag keeps output identical for
+		// every visitor regardless of their browser.
+		return new Intl.NumberFormat( 'en-US' ).format( n );
+	}
+}
+
+/**
+ * Resolve the CLDR plural category ('one', 'other', …) for a count against the
+ * SITE locale. Used so plural nouns agree with a number that changes after
+ * render (e.g. the resume count), which a PHP-frozen `_n()` cannot track.
+ *
+ * @param {number|string} n Count to classify.
+ * @return {string} CLDR plural category.
+ */
+function pluralCategory( n ) {
+	try {
+		return new Intl.PluralRules( state.locale || undefined ).select( Number( n ) );
+	} catch {
+		return Number( n ) === 1 ? 'one' : 'other';
+	}
+}
+
+/**
+ * Compose "symbol + amount" through a translatable, numbered format string so
+ * locales that place the symbol after the amount ("1 000 €") can reorder it.
+ *
+ * @param {number|string} value Raw amount.
+ * @return {string} Localised money string.
+ */
+function formatMoney( value ) {
+	const amount = formatNumber( value );
+	if ( '' === amount ) {
+		return '';
+	}
+	return t( 'moneyFormat', '%1$s%2$s' )
+		.replace( '%1$s', String( state.currencySymbol || t( 'currencySymbolFallback', '$' ) ) )
+		.replace( '%2$s', amount );
+}
+
+/**
+ * Build the salary pill for a saved search.
+ *
+ * The bounds arrive as raw integers on the alert's `filters` payload, so the
+ * label is assembled here rather than server-preformatted. Every separator and
+ * marker ("–", "+", "Up to %s") is a seeded format string, never a `+` join.
+ *
+ * @param {number|string} min Minimum bound, falsy when unset.
+ * @param {number|string} max Maximum bound, falsy when unset.
+ * @return {string} Pill label, or '' when neither bound is set.
+ */
+function buildSalaryPill( min, max ) {
+	if ( min && max ) {
+		return t( 'salaryRange', '%1$s–%2$s' )
+			.replace( '%1$s', formatMoney( min ) )
+			.replace( '%2$s', formatMoney( max ) );
+	}
+	if ( min ) {
+		return t( 'salaryOpenMin', '%s+' ).replace( '%s', formatMoney( min ) );
+	}
+	if ( max ) {
+		return t( 'salaryUpTo', 'Up to %s' ).replace( '%s', formatMoney( max ) );
+	}
+	return '';
+}
+
+/**
  * Convert an alert's filters JSON string/object into readable pill labels.
  */
 function buildFilterPills( filters ) {
@@ -78,12 +179,12 @@ function buildFilterPills( filters ) {
 	if ( filters.category ) pills.push( filters.category );
 	if ( filters.type ) pills.push( filters.type );
 	if ( filters.location ) pills.push( filters.location );
-	if ( filters.remote ) pills.push( state.strings.filterRemote );
+	if ( filters.remote ) pills.push( t( 'filterRemote', 'Remote' ) );
 	if ( filters.salary_min || filters.salary_max ) {
-		const sym = String( state.currencySymbol || '$' );
-		const min = filters.salary_min ? sym + Number( filters.salary_min ).toLocaleString() : '';
-		const max = filters.salary_max ? sym + Number( filters.salary_max ).toLocaleString() : '';
-		pills.push( min && max ? min + '–' + max : min || max );
+		const salaryPill = buildSalaryPill( filters.salary_min, filters.salary_max );
+		if ( salaryPill ) {
+			pills.push( salaryPill );
+		}
 	}
 	return pills;
 }
@@ -93,16 +194,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		navOpen: false,
 		get activeTabLabel() {
 			const map = {
-				overview:           state.strings.tabOverview,
-				applications:       state.strings.tabApplications,
-				bookmarks:          state.strings.tabBookmarks,
-				resumes:            state.strings.tabResumes,
-				alerts:             state.strings.tabAlerts,
-				'resume-builder':   state.strings.tabResumeBuilder,
-				profile:            state.strings.tabProfile,
-				settings:           state.strings.tabSettings,
+				overview:           t( 'tabOverview', 'Overview' ),
+				applications:       t( 'tabApplications', 'My Applications' ),
+				bookmarks:          t( 'tabBookmarks', 'Saved Jobs' ),
+				'saved-companies':  t( 'tabSavedCompanies', 'Saved Companies' ),
+				'saved-resumes':    t( 'tabSavedResumes', 'Saved Resumes' ),
+				resumes:            t( 'tabResumes', 'My Resumes' ),
+				alerts:             t( 'tabAlerts', 'Job Alerts' ),
+				'resume-builder':   t( 'tabResumeBuilder', 'Edit Resume' ),
+				profile:            t( 'tabProfile', 'Profile' ),
+				settings:           t( 'tabSettings', 'Settings' ),
+				notifications:      t( 'tabNotifications', 'Notifications' ),
 			};
-			return map[ state.tab ] || state.strings.tabDashboard;
+			return map[ state.tab ] || t( 'tabDashboard', 'Dashboard' );
 		},
 		get isTabApplications() {
 			return state.tab === 'applications';
@@ -150,7 +254,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return state.maxResumes > 0 && state.resumeCount >= state.maxResumes;
 		},
 		get resumeCapLabel() {
-			return state.maxResumes > 0 ? state.resumeCount + '/' + state.maxResumes + ' ' + state.strings.resumesUnit : '';
+			if ( state.maxResumes <= 0 ) {
+				return '';
+			}
+			// The noun agrees with resumeCount, which is mutated CLIENT-SIDE as the
+			// candidate creates/deletes resumes. A PHP `_n()` frozen at render against
+			// the cap would show the wrong form once the count changes, so the plural
+			// is resolved here against the live count via Intl.PluralRules.
+			const template = ( 'one' === pluralCategory( state.resumeCount ) )
+				? t( 'resumeCapOne', '%1$s/%2$s resume' )
+				: t( 'resumeCapOther', '%1$s/%2$s resumes' );
+			return template
+				.replace( '%1$s', formatNumber( state.resumeCount ) )
+				.replace( '%2$s', formatNumber( state.maxResumes ) );
 		},
 
 		// Sidebar display.
@@ -293,7 +409,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errLoadApplications;
+					state.error = t( 'errLoadApplications', 'Could not load your applications.' );
 					return;
 				}
 
@@ -301,7 +417,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				// Envelope since 1.1.0; tolerate the legacy bare-array shape.
 				state.applications = Array.isArray( data ) ? data : ( data?.applications ?? [] );
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -330,7 +446,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					const raw = yield alertsRes.json();
 					state.alerts = raw.map( ( a ) => ( {
 						id:          a.id,
-						label:       a.search_query || state.strings.alertLabelAllJobs,
+						label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 						frequency:   a.frequency,
 						filterPills: buildFilterPills( a.filters ),
 					} ) );
@@ -404,14 +520,14 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errLoadBookmarks;
+					state.error = t( 'errLoadBookmarks', 'Could not load saved jobs.' );
 					return;
 				}
 
 				const data = yield response.json();
 				state.bookmarks = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -444,13 +560,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( ! response.ok ) {
-					state.savedCompaniesError = state.strings.errLoadBookmarks || 'Could not load saved companies.';
+					state.savedCompaniesError = t( 'errLoadSavedCompanies', 'Could not load saved companies.' );
 					return;
 				}
 				const data = yield response.json();
 				state.savedCompanies = Array.isArray( data ) ? data : ( data?.items ?? [] );
 			} catch {
-				state.savedCompaniesError = state.strings.errConnectionFull || 'Connection error.';
+				state.savedCompaniesError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.savedCompaniesLoading = false;
 			}
@@ -478,13 +594,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( ! response.ok ) {
-					state.savedResumesError = state.strings.errLoadBookmarks || 'Could not load saved resumes.';
+					state.savedResumesError = t( 'errLoadSavedResumes', 'Could not load saved resumes.' );
 					return;
 				}
 				const data = yield response.json();
 				state.savedResumes = Array.isArray( data ) ? data : ( data?.items ?? [] );
 			} catch {
-				state.savedResumesError = state.strings.errConnectionFull || 'Connection error.';
+				state.savedResumesError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.savedResumesLoading = false;
 			}
@@ -506,7 +622,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				const data = yield response.json();
 				state.recommendations = ( Array.isArray( data ) ? data : [] ).map( ( r ) => ( {
 					...r,
-					score_label: String( r.score_pct ?? '' ) + '%',
+					score_label: t( 'scoreFormat', '%1$s%' ).replace( '%1$s', formatNumber( r.score_pct ) ),
 				} ) );
 			} catch {
 				// Silent — recommendations are non-critical.
@@ -653,10 +769,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 						state.profileSaved = false;
 					}, 3000 );
 				} else {
-					state.error = 'Could not save profile. Please try again.';
+					state.error = t( 'errSaveProfile', 'Could not save profile. Please try again.' );
 				}
 			} catch {
-				state.error = 'Connection error. Please try again.';
+				state.error = t( 'errConnectionRetry', 'Connection error. Please try again.' );
 			} finally {
 				state.profileSaving = false;
 			}
@@ -693,14 +809,14 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.accountEmail   = data.email;
 					state.profileEmail   = data.email;
 					state.accountMsgType = 'success';
-					state.accountMsg     = 'Account updated.';
+					state.accountMsg     = t( 'accountUpdated', 'Account updated.' );
 				} else {
 					state.accountMsgType = 'error';
-					state.accountMsg     = data?.message || 'Could not save your account.';
+					state.accountMsg     = data?.message || t( 'errSaveAccount', 'Could not save your account.' );
 				}
 			} catch {
 				state.accountMsgType = 'error';
-				state.accountMsg     = 'Connection error. Please try again.';
+				state.accountMsg     = t( 'errConnectionRetry', 'Connection error. Please try again.' );
 			} finally {
 				state.accountSaving = false;
 			}
@@ -710,12 +826,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'Enter your current and new password.';
+				state.pwMsg     = t( 'errPwRequired', 'Enter your current and new password.' );
 				return;
 			}
 			if ( state.newPassword !== state.confPassword ) {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'New password and confirmation do not match.';
+				state.pwMsg     = t( 'errPwMismatch', 'New password and confirmation do not match.' );
 				return;
 			}
 			state.pwSaving = true;
@@ -743,14 +859,14 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.newPassword  = '';
 					state.confPassword = '';
 					state.pwMsgType    = 'success';
-					state.pwMsg        = 'Password updated.';
+					state.pwMsg        = t( 'pwUpdated', 'Password updated.' );
 				} else {
 					state.pwMsgType = 'error';
-					state.pwMsg     = data?.message || 'Could not update your password.';
+					state.pwMsg     = data?.message || t( 'errPwUpdate', 'Could not update your password.' );
 				}
 			} catch {
 				state.pwMsgType = 'error';
-				state.pwMsg     = 'Connection error. Please try again.';
+				state.pwMsg     = t( 'errConnectionRetry', 'Connection error. Please try again.' );
 			} finally {
 				state.pwSaving = false;
 			}
@@ -775,19 +891,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errLoadAlerts;
+					state.error = t( 'errLoadAlerts', 'Could not load your alerts.' );
 					return;
 				}
 
 				const raw = yield response.json();
 				state.alerts = raw.map( ( a ) => ( {
 					id:          a.id,
-					label:       a.search_query || state.strings.alertLabelAllJobs,
+					label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 					frequency:   a.frequency,
 					filterPills: buildFilterPills( a.filters ),
 				} ) );
 			} catch {
-				state.error = state.strings.errConnectionShort;
+				state.error = t( 'errConnectionShort', 'Connection error.' );
 			} finally {
 				state.alertsLoading = false;
 			}
@@ -866,13 +982,13 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errLoadResumes;
+					state.error = t( 'errLoadResumes', 'Could not load your resumes.' );
 					return;
 				}
 
 				state.resumes = yield response.json();
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -895,7 +1011,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errRemoveBookmark;
+					state.error = t( 'errRemoveBookmark', 'Could not remove saved job. Please try again.' );
 					return;
 				}
 
@@ -903,7 +1019,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return b.id !== bookmark.id;
 				} );
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			}
 		},
 
@@ -939,7 +1055,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					}
 				);
 				if ( ! response.ok ) {
-					state.error = state.strings.errLoadResumes;
+					// Re-upload failed — report the upload, not a phantom list load.
+					state.error = t( 'errUploadRetry', 'Failed to upload resume file. Please try again.' );
 					return;
 				}
 				const data    = yield response.json();
@@ -947,7 +1064,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				ctx.resume.attachmentId = data.attachment_id || ctx.resume.attachmentId;
 				ctx.resume.isPdf        = !! ctx.resume.pdfUrl;
 			} catch {
-				state.error = state.strings.errConnectionShort;
+				state.error = t( 'errConnectionShort', 'Connection error.' );
 			} finally {
 				state.loading           = false;
 				event.target.value      = '';
@@ -979,7 +1096,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errCreateResume;
+					state.error = t( 'errCreateResume', 'Could not create resume. Please try again.' );
 					return;
 				}
 
@@ -991,7 +1108,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
 				}
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -1023,20 +1140,20 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				const uploadData = yield uploadResp.json();
 
 				if ( ! uploadResp.ok ) {
-					state.error = uploadData.message || 'Upload failed.';
+					state.error = uploadData.message || t( 'errUploadFailed', 'Upload failed.' );
 					return;
 				}
 
 				const attachmentId = uploadData.attachment_id;
 				if ( ! attachmentId ) {
-					state.error = 'Upload failed: no attachment returned.';
+					state.error = t( 'errUploadNoAttachment', 'Upload failed: no attachment returned.' );
 					return;
 				}
 
 				// Wrap the uploaded file in a wcb_resume post so it shows up
 				// in the candidate's resume list. Without this step the file
 				// uploads silently and the user has nothing to click on.
-				const title = file.name.replace( /\.[^.]+$/, '' ) || 'Uploaded CV';
+				const title = file.name.replace( /\.[^.]+$/, '' ) || t( 'uploadedCvTitle', 'Uploaded CV' );
 				const createResp = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ) + '/resumes',
 					{
@@ -1050,7 +1167,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! createResp.ok ) {
-					state.error = state.strings.errCreateResume || 'Could not create resume.';
+					state.error = t( 'errCreateResume', 'Could not create resume. Please try again.' );
 					return;
 				}
 
@@ -1058,7 +1175,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumes    = [ resume, ...state.resumes ];
 				state.resumeCount = state.resumeCount + 1;
 			} catch {
-				state.error = 'Failed to upload resume file. Please try again.';
+				state.error = t( 'errUploadRetry', 'Failed to upload resume file. Please try again.' );
 			} finally {
 				state.loading = false;
 			}
@@ -1087,7 +1204,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				if ( ! response.ok ) {
 					ctx.confirmingDelete = false;
-					state.error = state.strings.errDeleteResume;
+					state.error = t( 'errDeleteResume', 'Could not delete resume. Please try again.' );
 					return;
 				}
 
@@ -1097,7 +1214,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumeCount = Math.max( 0, state.resumeCount - 1 );
 			} catch {
 				ctx.confirmingDelete = false;
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			}
 		},
 
@@ -1163,9 +1280,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*clearBellNotifications() {
 			try {
 				yield window.wcbConfirm( {
-					title:       state.strings.confirmClearAllTitle,
-					message:     state.strings.confirmClearAllMsg,
-					confirmText: state.strings.clearAll,
+					title:       t( 'confirmClearAllTitle', 'Clear all notifications?' ),
+					message:     t( 'confirmClearAllMsg', 'This permanently removes all of your notifications. This cannot be undone.' ),
+					confirmText: t( 'clearAll', 'Clear all' ),
 					destructive: true,
 				} );
 			} catch ( cancelled ) {
@@ -1185,9 +1302,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 			try {
 				yield window.wcbConfirm( {
-					title:       state.strings.confirmWithdrawTitle,
-					message:     state.strings.confirmWithdrawMsg,
-					confirmText: state.strings.withdraw,
+					title:       t( 'confirmWithdrawTitle', 'Withdraw application?' ),
+					message:     t( 'confirmWithdrawMsg', 'Are you sure you want to withdraw this application? This cannot be undone.' ),
+					confirmText: t( 'withdraw', 'Withdraw' ),
 					destructive: true,
 				} );
 			} catch ( cancelled ) {
@@ -1204,7 +1321,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = state.strings.errWithdraw;
+					state.error = t( 'errWithdraw', 'Could not withdraw application. Please try again.' );
 					return;
 				}
 
@@ -1212,7 +1329,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return a.id !== application.id;
 				} );
 			} catch {
-				state.error = state.strings.errConnectionFull;
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			}
 		},
 
@@ -1233,9 +1350,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*requestErase() {
 			try {
 				yield window.wcbConfirm( {
-					title:       state.strings.confirmEraseTitle,
-					message:     state.strings.confirmEraseMsg,
-					confirmText: state.strings.confirmEraseConfirm,
+					title:       t( 'confirmEraseTitle', 'Delete your account?' ),
+					message:     t( 'confirmEraseMsg', 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.' ),
+					confirmText: t( 'confirmEraseConfirm', 'Send confirmation email' ),
 					destructive: true,
 				} );
 			} catch ( cancelled ) {
@@ -1265,7 +1382,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					}
 				);
 				if ( ! response.ok ) {
-					state.privacyError = state.strings.errPrivacy;
+					state.privacyError = t( 'errPrivacy', 'Could not submit your privacy request. Please try again or contact support.' );
 					return;
 				}
 				if ( 'export' === action ) {
@@ -1274,7 +1391,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.privacyEraseRequested = true;
 				}
 			} catch {
-				state.privacyError = state.strings.errConnectionFull;
+				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.privacyBusy = false;
 			}

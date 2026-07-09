@@ -125,16 +125,59 @@ if ( $wcb_employer_id ) {
 			$wcb_week_ago
 		)
 	);
+	/*
+	 * Number of the employer's jobs that carry at least one application. This is
+	 * the count behind the Applications job-selector hint. It MUST be resolved to
+	 * a single pre-pluralised sentence here: view.js is a script module and cannot
+	 * call _n(), and choosing between a seeded singular/plural pair with
+	 * `count === 1` is only correct in 2-form locales (pl needs 2/5/22, ru 1/2/5,
+	 * ar six). Counting server-side also reports matches FOUND rather than the
+	 * rows the client happened to load (the REST list is capped at per_page=50).
+	 */
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- lightweight count for initial render only.
+	$wcb_jobs_with_apps = (int) $GLOBALS['wpdb']->get_var(
+		$GLOBALS['wpdb']->prepare(
+			"SELECT COUNT(DISTINCT j.ID) FROM {$GLOBALS['wpdb']->posts} j
+			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON aj.meta_key = '_wcb_job_id' AND aj.meta_value = j.ID
+			 WHERE j.post_type = 'wcb_job'
+			   AND j.post_status IN ('publish','pending','draft','wcb_closed','wcb_expired')
+			   AND j.post_author = %d",
+			$wcb_employer_id
+		)
+	);
 } else {
 	$wcb_total_employer_jobs = 0;
 	$wcb_live_employer_jobs  = 0;
 	$wcb_total_apps          = 0;
 	$wcb_new_apps            = 0;
+	$wcb_jobs_with_apps      = 0;
 }
+
+// Credits — both figures are known at render time, so their plural sentences are
+// resolved here with the real count instead of being guessed client-side.
+$wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id );
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag.
+$wcb_credits_added = isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0;
+
+// Company-size slug → translated label map. Defined once here so it can both seed
+// the Interactivity state (for the Live Preview chip, which must show the label,
+// never the raw slug) and populate the size <select> below without duplication.
+$wcb_size_options = array(
+	'1-10'      => __( '1-10 employees', 'wp-career-board' ),
+	'11-50'     => __( '11-50 employees', 'wp-career-board' ),
+	'51-200'    => __( '51-200 employees', 'wp-career-board' ),
+	'201-500'   => __( '201-500 employees', 'wp-career-board' ),
+	'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
+	'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
+	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+);
 
 wp_interactivity_state(
 	'wcb-employer-dashboard',
 	array(
+		// Site locale as a BCP-47 tag. view.js feeds this to Intl.NumberFormat so
+		// counts format against the SITE locale, never the visitor's browser locale.
+		'locale'                => \WCB\Core\SalaryFormat::locale(),
 		'currentView'           => $wcb_apps_job_id > 0 ? 'applications' : ( $wcb_edit_job_id > 0 ? 'post-job' : 'overview' ),
 		'jobFilter'             => 'all',
 		'jobSearch'             => '',
@@ -177,6 +220,7 @@ wp_interactivity_state(
 		'companyIndustry'       => $wcb_company_ind,
 		'industryLabels'        => \WCB\Core\Industries::all(),
 		'companySize'           => $wcb_company_size,
+		'companySizeLabels'     => $wcb_size_options,
 		'companyHq'             => $wcb_company_hq,
 		'companyType'           => $wcb_company_type,
 		'companyFounded'        => $wcb_company_founded,
@@ -220,8 +264,6 @@ wp_interactivity_state(
 		'accountSaving'         => false,
 		// Inline confirmation shown after changing an applicant's status.
 		'statusMsg'             => '',
-		'i18nStatusSaved'       => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
-		'i18nStatusError'       => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
 		'pwMsg'                 => '',
 		'pwMsgType'             => '',
 		'pwSaving'              => false,
@@ -229,7 +271,7 @@ wp_interactivity_state(
 		// successful submit, so switchToJobs() refreshes the stale My Jobs list.
 		'_needsJobsRefresh'     => false,
 		'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
-		'creditBalance'         => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_employer_id ),
+		'creditBalance'         => $wcb_credit_balance,
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'creditsEnabled'        => (bool) apply_filters( 'wcb_credits_enabled', false ),
 		// Low-balance threshold — Pro returns the admin-configured value, Free
@@ -239,8 +281,7 @@ wp_interactivity_state(
 		// Post-purchase success — set when the checkout redirect lands the
 		// employer back on the dashboard with ?wcb_credits_added=N. Banner
 		// auto-dismisses on first interaction so the message doesn't linger.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag.
-		'creditsJustAdded'      => isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0,
+		'creditsJustAdded'      => $wcb_credits_added,
 		'bellNotifications'     => array(),
 		'bellUnreadCount'       => 0,
 		'bellLoading'           => false,
@@ -250,7 +291,11 @@ wp_interactivity_state(
 		'aiRanking'             => (bool) apply_filters( 'wcb_ai_ranking_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		'aiRanked'              => false,
 		'aiRankLoading'         => false,
-		'strings'               => array(
+		// Every user-facing string view.js renders. view.js reads these through
+		// its t( key, fallback ) helper — the view script is a script module and
+		// cannot load JED translations, so PHP is the only translation seam.
+		'i18n'                  => array(
+			// Errors + connection failures.
 			'errorLoadJobs'            => __( 'Could not load your jobs.', 'wp-career-board' ),
 			'errorLoadApps'            => __( 'Could not load applications.', 'wp-career-board' ),
 			'errorConnectionApps'      => __( 'Connection error loading applications.', 'wp-career-board' ),
@@ -258,41 +303,100 @@ wp_interactivity_state(
 			'errorSaveProfile'         => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
 			'errorSaveLogo'            => __( 'Please save your company profile before uploading a logo.', 'wp-career-board' ),
 			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'errorConnectionShort'     => __( 'Connection error.', 'wp-career-board' ),
+			'errorConnectionRetry'     => __( 'Connection error. Please try again.', 'wp-career-board' ),
+			'errorLoadSavedJobs'       => __( 'Could not load saved jobs.', 'wp-career-board' ),
+			'errorLoadSavedCompanies'  => __( 'Could not load saved companies.', 'wp-career-board' ),
+			'errorLoadSavedResumes'    => __( 'Could not load saved resumes.', 'wp-career-board' ),
+
+			// Confirm dialogs.
 			'confirmClearAllTitle'     => __( 'Clear all notifications?', 'wp-career-board' ),
 			'confirmClearAllMsg'       => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
 			'clearAll'                 => __( 'Clear all', 'wp-career-board' ),
+			'confirmCloseTitle'        => __( 'Close this job?', 'wp-career-board' ),
+			'confirmCloseJob'          => __( 'Are you sure you want to close this job? It will no longer be visible to candidates.', 'wp-career-board' ),
+			'confirmCloseConfirm'      => __( 'Close job', 'wp-career-board' ),
+
+			// Nav / tab labels.
 			'overview'                 => __( 'Overview', 'wp-career-board' ),
 			'myJobs'                   => __( 'My Jobs', 'wp-career-board' ),
 			'applications'             => __( 'Applications', 'wp-career-board' ),
 			'profile'                  => __( 'Profile', 'wp-career-board' ),
 			'postAJob'                 => __( 'Post a Job', 'wp-career-board' ),
 			'dashboard'                => __( 'Dashboard', 'wp-career-board' ),
-			'logoUploading'            => __( 'Uploading\u2026', 'wp-career-board' ),
+
+			// Logo upload button.
+			'logoUploading'            => __( 'Uploading…', 'wp-career-board' ),
 			'logoChange'               => __( 'Change Logo', 'wp-career-board' ),
 			'logoUpload'               => __( 'Upload Logo', 'wp-career-board' ),
-			'viewAppFrom'              => __( 'View application from ', 'wp-career-board' ),
-			'jobsWithApps'             => __( ' jobs with applications', 'wp-career-board' ),
-			'jobSingular'              => __( ' job', 'wp-career-board' ),
-			'jobsOf'                   => __( ' of ', 'wp-career-board' ),
-			'jobsPlural'               => __( ' jobs', 'wp-career-board' ),
-			'appsHeadingPrefix'        => __( 'Applications: ', 'wp-career-board' ),
-			'appsHeadingDefault'       => __( 'Applications', 'wp-career-board' ),
-			'confirmCloseJob'          => __( 'Are you sure you want to close this job? It will no longer be visible to candidates.', 'wp-career-board' ),
-			/* translators: %d is the credit count just added to the employer's balance. */
-			'creditsAdded'             => __( '%d credits added to your balance.', 'wp-career-board' ),
-			'creditsAddedSingular'     => __( '1 credit added to your balance.', 'wp-career-board' ),
-			/* translators: %d is the current low-credit balance. */
-			'lowBalance'               => __( 'Low balance: %d credits left.', 'wp-career-board' ),
-			'lowBalanceSingular'       => __( 'Low balance: 1 credit left.', 'wp-career-board' ),
+
+			/* translators: %1$s: applicant name. */
+			'viewApplicationFrom'      => __( 'View application from %1$s', 'wp-career-board' ),
+			// Pre-resolved plural: the real count is known here, so _n() picks the
+			// correct form for every locale (2-form, 3-form and 6-form alike).
+			// A seeded singular/plural pair chosen with `count === 1` in JS is only
+			// correct in 2-form locales, so no such pair may live in this array.
+			'jobsWithAppsLabel'        => sprintf(
+				/* translators: %1$s: number of jobs that have applications, already localised. */
+				_n( '%1$s job with applications', '%1$s jobs with applications', $wcb_jobs_with_apps, 'wp-career-board' ),
+				number_format_i18n( $wcb_jobs_with_apps )
+			),
+			// %2$s (the total) and the plural form of "job(s)" are resolved here
+			// from the COUNT(*) of jobs with applications, so every locale picks
+			// the right form. Only %1$s (the runtime search match count) is left
+			// for view.js to fill in — it never re-pluralises the noun client-side.
+			'jobsFilteredCount'        => sprintf(
+				/* translators: 1: number of jobs matching the search (filled in client-side). 2: total number of jobs, already localised. */
+				_n( '%1$s of %2$s job', '%1$s of %2$s jobs', $wcb_jobs_with_apps, 'wp-career-board' ),
+				'%1$s',
+				number_format_i18n( $wcb_jobs_with_apps )
+			),
+
+			// Credits banners — both counts are known at render time, so their
+			// plural forms are resolved here instead of guessed client-side.
+			'creditsAddedMessage'      => sprintf(
+				/* translators: %1$s: number of credits added to the employer's balance, already localised. */
+				_n( '%1$s credit added to your balance.', '%1$s credits added to your balance.', $wcb_credits_added, 'wp-career-board' ),
+				number_format_i18n( $wcb_credits_added )
+			),
+			'lowBalanceMessage'        => sprintf(
+				/* translators: %1$s: number of credits left on the employer's balance, already localised. */
+				_n( 'Low balance: %1$s credit left.', 'Low balance: %1$s credits left.', $wcb_credit_balance, 'wp-career-board' ),
+				number_format_i18n( $wcb_credit_balance )
+			),
+
+			// AI ranking.
 			'aiRankButton'             => __( 'Rank by AI fit', 'wp-career-board' ),
 			'aiRankingLabel'           => __( 'Ranking…', 'wp-career-board' ),
+			/* translators: %1$s: AI fit score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
+			'aiScorePercent'           => __( '%1$s%', 'wp-career-board' ),
+
+			// Application status labels (board columns).
 			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),
 			'statusReviewing'          => __( 'Reviewing', 'wp-career-board' ),
 			'statusShortlisted'        => __( 'Shortlisted', 'wp-career-board' ),
 			'statusHired'              => __( 'Hired', 'wp-career-board' ),
 			'statusRejected'           => __( 'Rejected', 'wp-career-board' ),
-			'viewList'                 => __( 'List', 'wp-career-board' ),
-			'viewBoard'                => __( 'Board', 'wp-career-board' ),
+
+			// Job status labels used by the optimistic close/reopen updates.
+			'jobStatusClosed'          => __( 'Closed', 'wp-career-board' ),
+			'jobStatusPending'         => __( 'Pending', 'wp-career-board' ),
+			'jobStatusPublished'       => __( 'Published', 'wp-career-board' ),
+			'jobStatusDraft'           => __( 'Draft', 'wp-career-board' ),
+			'jobStatusExpired'         => __( 'Expired', 'wp-career-board' ),
+			'jobStatusRejected'        => __( 'Rejected', 'wp-career-board' ),
+
+			// Applicant status-change confirmation.
+			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
+			'statusError'              => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
+
+			// Account settings + password change.
+			'accountUpdated'           => __( 'Account updated.', 'wp-career-board' ),
+			'errorSaveAccount'         => __( 'Could not save your account.', 'wp-career-board' ),
+			'pwEnterBoth'              => __( 'Enter your current and new password.', 'wp-career-board' ),
+			'pwMismatch'               => __( 'New password and confirmation do not match.', 'wp-career-board' ),
+			'pwUpdated'                => __( 'Password updated.', 'wp-career-board' ),
+			'errorUpdatePassword'      => __( 'Could not update your password.', 'wp-career-board' ),
 		),
 	)
 );
@@ -350,7 +454,7 @@ wp_interactivity_state(
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'CREDITS', 'wp-career-board' ); ?></span>
 			<span class="wcb-nav-item wcb-nav-item--static">
 				<?php esc_html_e( 'Balance', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-text="state.creditBalance">0</span>
+				<span class="wcb-nav-badge" data-wp-text="state.creditBalanceLabel">0</span>
 			</span>
 				<?php
 				$wcb_purchase_url = (string) apply_filters( 'wcb_credit_purchase_url', '' );
@@ -373,16 +477,16 @@ wp_interactivity_state(
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'MY SAVES', 'wp-career-board' ); ?></span>
 			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-saved-jobs" data-wp-bind--aria-selected="state.isViewSavedJobs" data-wp-class--wcb-nav-active="state.isViewSavedJobs" data-wp-on--click="actions.switchToSavedJobs">
 				<?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-text="state.savedJobsCount">0</span>
+				<span class="wcb-nav-badge" data-wp-text="state.savedJobsCountLabel">0</span>
 			</button>
 			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-saved-companies" data-wp-bind--aria-selected="state.isViewSavedCompanies" data-wp-class--wcb-nav-active="state.isViewSavedCompanies" data-wp-on--click="actions.switchToSavedCompanies">
 				<?php esc_html_e( 'Saved Companies', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-text="state.savedCompaniesCount">0</span>
+				<span class="wcb-nav-badge" data-wp-text="state.savedCompaniesCountLabel">0</span>
 			</button>
 			<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
 			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-saved-resumes" data-wp-bind--aria-selected="state.isViewSavedResumes" data-wp-class--wcb-nav-active="state.isViewSavedResumes" data-wp-on--click="actions.switchToSavedResumes">
 				<?php esc_html_e( 'Saved Resumes', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-text="state.savedResumesCount">0</span>
+				<span class="wcb-nav-badge" data-wp-text="state.savedResumesCountLabel">0</span>
 			</button>
 			<?php endif; ?>
 
@@ -399,7 +503,7 @@ wp_interactivity_state(
 				data-wp-class--wcb-nav-active="state.isViewNotifications"
 				data-wp-on--click="actions.switchToNotifications">
 				<?php esc_html_e( 'Notifications', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCount"></span>
+				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.bellUnreadCount" data-wp-text="state.bellUnreadCountLabel"></span>
 			</button>
 			<?php endif; ?>
 		</nav>
@@ -477,7 +581,7 @@ wp_interactivity_state(
 				</div>
 				<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
 				<div class="wcb-stat-card wcb-stat-card--purple" data-wp-bind--hidden="!state.creditsEnabled">
-					<span class="wcb-stat-value" data-wp-text="state.creditBalance">0</span>
+					<span class="wcb-stat-value" data-wp-text="state.creditBalanceLabel">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
 				</div>
 				<?php endif; ?>
@@ -497,7 +601,7 @@ wp_interactivity_state(
 									<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 									<span class="wcb-app-job" data-wp-text="context.app.job_title"></span>
 								</div>
-								<span class="wcb-status-badge" role="status" data-wp-text="context.app.status" data-wp-bind--data-status="context.app.status"></span>
+								<span class="wcb-status-badge" role="status" data-wp-text="context.app.statusLabel" data-wp-bind--data-status="context.app.status"></span>
 							</div>
 						</template>
 					</div>
@@ -599,7 +703,7 @@ wp_interactivity_state(
 					<template data-wp-each--job="state.filteredJobsWithApps" data-wp-each-key="context.job.id">
 						<button type="button" class="wcb-apps-job-item" data-wp-class--wcb-active="state.isSelectedAppsJob" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob">
 							<span class="wcb-apps-job-item-title" data-wp-text="context.job.title"></span>
-							<span class="wcb-apps-job-item-count" data-wp-text="context.job.appCount"></span>
+							<span class="wcb-apps-job-item-count" data-wp-text="context.job.appCountLabel"></span>
 						</button>
 					</template>
 					<p class="wcb-apps-no-match" data-wp-class--wcb-shown="state.appsJobNoMatch"><?php esc_html_e( 'No jobs match your search.', 'wp-career-board' ); ?></p>
@@ -663,7 +767,7 @@ wp_interactivity_state(
 							<div class="wcb-app-info">
 								<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 								<span class="wcb-ai-summary" data-wp-class--wcb-hidden="!context.app.aiSummary" data-wp-text="context.app.aiSummary"></span>
-								<span class="wcb-app-date" data-wp-text="context.app.submitted_at"></span>
+								<span class="wcb-app-date" data-wp-text="context.app.submitted_at_label"></span>
 							</div>
 							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 							<span class="wcb-unread-dot" data-wp-class--wcb-shown="state.isUnread"></span>
@@ -795,15 +899,8 @@ wp_interactivity_state(
 							<select id="wcb-company-size" class="wcb-field-input wcb-field-select" data-wcb-field="companySize" data-wp-on--change="actions.updateField">
 								<option value=""><?php esc_html_e( ' -  Select size  - ', 'wp-career-board' ); ?></option>
 								<?php
-								$wcb_size_options = array(
-									'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-									'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-									'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-									'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-									'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-									'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-									'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-								);
+								// $wcb_size_options is defined once above (before the state seed)
+								// so the <select> and the Live Preview chip share one source.
 								foreach ( $wcb_size_options as $wcb_val => $wcb_label ) {
 									printf(
 										'<option value="%s"%s>%s</option>',
@@ -897,7 +994,7 @@ wp_interactivity_state(
 						<p class="wcb-preview-desc" data-wp-text="state.companyDescExcerpt"></p>
 						<div class="wcb-preview-chips">
 							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companyIndustry" data-wp-text="state.companyIndustryLabel"></span>
-							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companySize" data-wp-text="state.companySize"></span>
+							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companySize" data-wp-text="state.companySizeLabel"></span>
 							<span class="wcb-preview-chip" data-wp-class--wcb-hidden="!state.companyHq" data-wp-text="state.companyHq"></span>
 						</div>
 					</div>

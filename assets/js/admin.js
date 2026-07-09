@@ -303,7 +303,7 @@
 			var log          = card.querySelector( '.wcb-import-log' );
 
 			btn.disabled    = true;
-			btn.textContent = 'Importing\u2026';
+			btn.textContent = ( wcbAdmin.i18n && wcbAdmin.i18n.importing ) || 'Importing\u2026';
 
 			if ( progressWrap ) { progressWrap.style.display = 'block'; }
 			if ( log )          { log.style.display = 'block'; while ( log.firstChild ) { log.removeChild( log.firstChild ); } }
@@ -372,7 +372,7 @@
 					var msg = ( err && err.message ) ? err.message : 'Request failed.';
 					appendLog( 'Error: ' + msg, 'wcb-import-log-line--error' );
 					btn.disabled    = false;
-					btn.textContent = 'Import';
+					btn.textContent = ( wcbAdmin.i18n && wcbAdmin.i18n.import ) || 'Import';
 				} );
 			}
 

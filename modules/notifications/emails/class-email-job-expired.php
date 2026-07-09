@@ -60,6 +60,34 @@ class EmailJobExpired extends AbstractEmail {
 	}
 
 	/**
+	 * Default message body. Production-ready — ships usable without edits.
+	 *
+	 * @return string
+	 */
+	public function get_default_body(): string {
+		return self::heading( __( 'Your job listing has expired', 'wp-career-board' ) )
+			. '<p>' . sprintf(
+				/* translators: %s: job title (bold) */
+				esc_html__( 'Your job listing %s has reached its expiry date and is no longer visible to candidates.', 'wp-career-board' ),
+				'<strong>{job_title}</strong>'
+			) . '</p>'
+			. '<p>' . esc_html__( 'Want to keep receiving applications? Re-post it in just a few clicks.', 'wp-career-board' ) . '</p>'
+			. self::button( __( 'Re-post Job', 'wp-career-board' ), '{repost_url}' );
+	}
+
+	/**
+	 * Merge tags available to this email's subject and body.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_merge_tags(): array {
+		return array(
+			'job_title'  => __( 'Job title', 'wp-career-board' ),
+			'repost_url' => __( 'Re-post job URL', 'wp-career-board' ),
+		);
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void

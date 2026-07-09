@@ -71,6 +71,12 @@ $wcb_trust_map  = array(
 $wcb_trust_info = $wcb_trust_map[ $wcb_trust ] ?? null;
 
 // ── Size labels ───────────────────────────────────────────────────────────────
+/*
+ * `5001+` is the only top-bucket slug the admin meta box ever writes
+ * (admin/class-admin-meta-boxes.php $allowed_sizes). The `5000+` key is kept
+ * for rows saved by older releases; without the `5001+` entry the profile
+ * printed the raw, untranslatable slug "5001+" to visitors.
+ */
 $wcb_size_labels = array(
 	'1-10'      => __( '1-10 employees', 'wp-career-board' ),
 	'11-50'     => __( '11-50 employees', 'wp-career-board' ),
@@ -79,8 +85,27 @@ $wcb_size_labels = array(
 	'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
 	'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
 	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+	'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 );
 $wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
+
+// ── Company type labels ───────────────────────────────────────────────────────
+/*
+ * `_wcb_company_type` stores a machine slug ("self-employed", "nonprofit"…).
+ * The Company Details list used to echo that slug straight out, so every
+ * locale saw the untranslated English slug. Labels mirror the admin meta box
+ * verbatim so translators reuse the same source strings.
+ */
+$wcb_type_labels = array(
+	'public'        => __( 'Public Company', 'wp-career-board' ),
+	'private'       => __( 'Privately Held', 'wp-career-board' ),
+	'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
+	'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
+	'government'    => __( 'Government Agency', 'wp-career-board' ),
+	'educational'   => __( 'Educational Institution', 'wp-career-board' ),
+	'partnership'   => __( 'Partnership', 'wp-career-board' ),
+);
+$wcb_type_label  = $wcb_type_labels[ $wcb_type ] ?? $wcb_type;
 
 // ── Bookmark state ───────────────────────────────────────────────────────────
 // Mirrors the archive-card bookmark + Find Jobs single hero so a customer who
@@ -95,6 +120,12 @@ $wcb_cp_bookmark_label = $wcb_cp_is_bookmarked
 	? __( 'Saved', 'wp-career-board' )
 	: __( 'Save', 'wp-career-board' );
 
+/*
+ * view.js is registered as a script module (`viewScriptModule`), and script
+ * modules cannot load JED translation files on this plugin's WP floor. Every
+ * string view.js renders must therefore be seeded from PHP under the `i18n`
+ * key and read through the `t()` helper in view.js.
+ */
 wp_interactivity_state(
 	'wcb-company-profile',
 	array(
@@ -104,8 +135,10 @@ wp_interactivity_state(
 		'bookmarkLabel' => $wcb_cp_bookmark_label,
 		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 		'restNonce'     => wp_create_nonce( 'wp_rest' ),
-		'labelSave'     => __( 'Save', 'wp-career-board' ),
-		'labelSaved'    => __( 'Saved', 'wp-career-board' ),
+		'i18n'          => array(
+			'save'  => __( 'Save', 'wp-career-board' ),
+			'saved' => __( 'Saved', 'wp-career-board' ),
+		),
 	)
 );
 
@@ -261,10 +294,10 @@ wp_interactivity_state(
 							<dd><?php echo esc_html( $wcb_size_label ); ?></dd>
 						</div>
 					<?php endif; ?>
-					<?php if ( $wcb_type ) : ?>
+					<?php if ( $wcb_type_label ) : ?>
 						<div class="wcb-cp-detail-item">
 							<dt><?php esc_html_e( 'Type', 'wp-career-board' ); ?></dt>
-							<dd><?php echo esc_html( $wcb_type ); ?></dd>
+							<dd><?php echo esc_html( $wcb_type_label ); ?></dd>
 						</div>
 					<?php endif; ?>
 					<?php if ( $wcb_founded ) : ?>

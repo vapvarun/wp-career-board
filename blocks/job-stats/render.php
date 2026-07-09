@@ -1,6 +1,25 @@
 <?php
 /**
- * Block render: wp-career-board/job-stats — stat strip.
+ * Block render: wp-career-board/job-stats - stat strip.
+ *
+ * i18n contract for this block (read before "simplifying" anything below):
+ *
+ *   - Every count is known server-side, so each label is pluralised HERE with
+ *     _n() against the REAL count. Never seed a singular/plural PAIR and pick
+ *     between them with `count === 1`: _n( …, 2, … ) freezes the n=2 form at
+ *     render time, which is only right in 2-form locales. Polish needs distinct
+ *     forms for 2/5/22, Russian for 1/2/5, Arabic has six.
+ *   - Counts run through number_format_i18n(), never a raw echo and never a
+ *     JS toLocaleString() with no locale argument.
+ *   - The count and the label are two typographic elements of a stat tile, not
+ *     a sentence glued together with `+`. The numeral is always rendered
+ *     adjacent to the noun, so _n() picks the form the numeral requires. There
+ *     is nothing here for a translator to reorder, so no sprintf() wrapper.
+ *   - This block has no viewScript, no wp_interactivity_state() and no client
+ *     side strings, so there is no 'i18n' state array to keep in sync.
+ *   - `data-lucide` icon ids ("briefcase", "building-2", "users") are
+ *     machine-facing identifiers consumed by the Lucide runtime. Like the pro
+ *     plugin's XML job feed, they are deliberately NOT translated.
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -17,25 +36,28 @@ $wcb_show_candidates = (bool) ( $attributes['showCandidates'] ?? true );
 $wcb_stats = array();
 
 if ( $wcb_show_jobs ) {
+	$wcb_count   = (int) wp_count_posts( 'wcb_job' )->publish;
 	$wcb_stats[] = array(
-		'count' => (int) wp_count_posts( 'wcb_job' )->publish,
-		'label' => __( 'Jobs', 'wp-career-board' ),
+		'count' => $wcb_count,
+		'label' => _n( 'Job', 'Jobs', $wcb_count, 'wp-career-board' ),
 		'icon'  => 'briefcase',
 	);
 }
 
 if ( $wcb_show_companies ) {
+	$wcb_count   = (int) wp_count_posts( 'wcb_company' )->publish;
 	$wcb_stats[] = array(
-		'count' => (int) wp_count_posts( 'wcb_company' )->publish,
-		'label' => __( 'Companies', 'wp-career-board' ),
+		'count' => $wcb_count,
+		'label' => _n( 'Company', 'Companies', $wcb_count, 'wp-career-board' ),
 		'icon'  => 'building-2',
 	);
 }
 
 if ( $wcb_show_candidates ) {
+	$wcb_count   = (int) wp_count_posts( 'wcb_resume' )->publish;
 	$wcb_stats[] = array(
-		'count' => (int) wp_count_posts( 'wcb_resume' )->publish,
-		'label' => __( 'Candidates', 'wp-career-board' ),
+		'count' => $wcb_count,
+		'label' => _n( 'Candidate', 'Candidates', $wcb_count, 'wp-career-board' ),
 		'icon'  => 'users',
 	);
 }

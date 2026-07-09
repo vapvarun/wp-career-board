@@ -7,10 +7,11 @@
  *   grunt start        — watch + rebuild (dev mode)
  *   grunt pot          — generate languages/wp-career-board.pot via WP-CLI
  *   grunt textdomain   — verify every PHP string uses correct text domain
- *   grunt i18n         — pot + textdomain
+ *   grunt i18n         — sync + AI-translate + compile locale .po/.mo/.json
+ *                        (see @wbcom/i18n-ai + .wbcom-i18n.json)
  *   grunt dist         — clean, copy release files, create zip
  *   grunt rtl          — generate RTL variants of admin.css and frontend.css
- *   grunt release      — build + i18n + rtl + dist (full pipeline)
+ *   grunt release      — build + pot + textdomain + rtl + dist (full pipeline)
  *   grunt version      — bump version: grunt version --ver=1.0.0
  */
 module.exports = function ( grunt ) {
@@ -120,14 +121,20 @@ module.exports = function ( grunt ) {
 	grunt.loadNpmTasks( 'grunt-checktextdomain' );
 	grunt.loadNpmTasks( 'grunt-shell' );
 
+	// Registers `grunt i18n`: sync new strings (msgmerge) → AI-translate →
+	// compile .mo + .json, per .wbcom-i18n.json. Run before a release to
+	// refresh locale translations, then commit the .po/.mo. Standalone (not in
+	// `build`/`release`) so day-to-day builds don't re-translate. See
+	// @wbcom/i18n-ai.
+	require( '@wbcom/i18n-ai/grunt' )( grunt );
+
 	// ── Composite tasks ─────────────────────────────────────────────────────
 	grunt.registerTask( 'build',      [ 'shell:build' ] );
 	grunt.registerTask( 'start',      [ 'shell:start' ] );
 	grunt.registerTask( 'pot',        [ 'shell:pot' ] );
 	grunt.registerTask( 'textdomain', [ 'checktextdomain' ] );
-	grunt.registerTask( 'i18n',       [ 'pot', 'checktextdomain' ] );
 	grunt.registerTask( 'rtl',        [ 'rtlcss:dist' ] );
 	grunt.registerTask( 'dist',       [ 'shell:packagedist' ] );
 	grunt.registerTask( 'version',    [ 'shell:version' ] );
-	grunt.registerTask( 'release',    [ 'build', 'i18n', 'rtl', 'dist' ] );
+	grunt.registerTask( 'release',    [ 'build', 'pot', 'textdomain', 'rtl', 'dist' ] );
 };

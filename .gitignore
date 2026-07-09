@@ -43,3 +43,8 @@ Thumbs.db
 audit/journey-runs/
 docs/qa/.last-smoke-pass*.json
 docs/qa/.debug-log-*.txt
+
+# Block/JS translation JSON is a build artifact regenerated from the .po by
+# `wp i18n make-json` (grunt i18n). Tracked sources are .po + .mo + .pot; the
+# hashed *-{md5}.json files churn on every string change, so keep them untracked.
+languages/*.json

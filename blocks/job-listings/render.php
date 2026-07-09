@@ -39,7 +39,7 @@ if ( '' !== $wcb_meta_filter_attr && false !== strpos( $wcb_meta_filter_attr, ':
 
 // Site-owner filter-sidebar customization (block attributes): order + visibility.
 // Keys must match the buffered groups rendered in the filter panel below.
-$wcb_default_filter_order = array( 'type', 'experience', 'category', 'tags', 'location', 'board', 'salary' );
+$wcb_default_filter_order = apply_filters( 'wcb_default_filter_order', array( 'type', 'experience', 'category', 'tags', 'location', 'board', 'salary' ) );
 $wcb_saved_filter_order   = array_values( array_intersect( (array) ( $attributes['filterOrder'] ?? array() ), $wcb_default_filter_order ) );
 // Saved order first, then any default key the saved order is missing, so a new
 // filter shipped in a later version always appears even on older saved blocks.
@@ -134,33 +134,13 @@ $wcb_bookmarks       = $wcb_current_user_id
  * @param string $wcb_currency Currency code (default USD).
  * @return string
  */
+// Delegates to WCB\Core\SalaryFormat, the single canonical formatter (1.5.1).
+// Kept as a closure so the ~6 call sites below need no change. The previous
+// inline body duplicated api/endpoints/class-jobs-endpoint.php::format_salary()
+// and blocks/job-listings/view.js::wcbFormatSalaryShort(); all three had
+// diverged and none ran amounts through number_format_i18n().
 $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string $wcb_currency = 'USD', string $wcb_type = 'yearly' ): string {
-	if ( ! $wcb_min && ! $wcb_max ) {
-		return '';
-	}
-	$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
-	$wcb_code    = strtoupper( $wcb_currency );
-	$wcb_symbol  = isset( $wcb_catalog[ $wcb_code ]['symbol'] ) ? (string) $wcb_catalog[ $wcb_code ]['symbol'] : $wcb_code . ' ';
-	$wcb_suffix  = match ( $wcb_type ) {
-		'monthly' => '/mo',
-		'hourly'  => '/hr',
-		default   => '/yr',
-	};
-	$wcb_fmt = static function ( string $n ) use ( $wcb_symbol ): string {
-		$wcb_n = (int) $n;
-		if ( $wcb_n >= 1000 ) {
-			return $wcb_symbol . round( $wcb_n / 1000 ) . 'k';
-		}
-		return $wcb_symbol . $wcb_n;
-	};
-	if ( $wcb_min && $wcb_max ) {
-		return $wcb_fmt( $wcb_min ) . '–' . $wcb_fmt( $wcb_max ) . $wcb_suffix;
-	}
-	if ( $wcb_min ) {
-		return $wcb_fmt( $wcb_min ) . '+' . $wcb_suffix;
-	}
-	/* translators: %s: formatted maximum salary with currency symbol and period suffix */
-	return sprintf( __( 'Up to %s', 'wp-career-board' ), $wcb_fmt( $wcb_max ) . $wcb_suffix );
+	return \WCB\Core\SalaryFormat::format( $wcb_min, $wcb_max, $wcb_currency, $wcb_type );
 };
 
 /**
@@ -223,8 +203,18 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'salary_min'   => $wcb_salary_min,
 		'salary_max'   => $wcb_salary_max,
 		'salary_label' => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
-		'deadline'     => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
-		'days_ago'     => human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() ) . ' ago',
+		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
+		// (fetchJobs() replaces this state with the REST payload); the card binds
+		// the localised `deadline_label`. Seeding both keeps the SSR first paint
+		// identical to the post-hydration REST payload so the date never flips to
+		// a bare ISO string after fetch.
+		'deadline'       => $wcb_deadline_val,
+		'deadline_label' => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
+		'days_ago'     => sprintf(
+			/* translators: %s: human-readable time difference, e.g. "3 days". */
+			__( '%s ago', 'wp-career-board' ),
+			human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() )
+		),
 		'bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'      => wp_trim_words( (string) preg_replace( '/[*_#`]+/', '', wp_strip_all_tags( $wcb_job_post->post_content ) ), 25, '…' ),
 	);
@@ -316,6 +306,19 @@ $wcb_tag_terms_raw = get_terms(
 );
 $wcb_tag_opts      = array_map( $wcb_term_opt, is_array( $wcb_tag_terms_raw ) ? $wcb_tag_terms_raw : array() );
 
+// Location terms are seeded so the removable filter pills can resolve the
+// external job-filters block's wcb_location slug to its human name. The
+// job-listings sidebar itself only exposes a "Remote only" toggle (no location
+// dropdown), but the shared job-filters block forwards a wcb_location slug via
+// the wcb:search event, and without this map the pill would show a bare slug.
+$wcb_loc_terms_raw = get_terms(
+	array(
+		'taxonomy'   => 'wcb_location',
+		'hide_empty' => false,
+	)
+);
+$wcb_loc_opts      = array_map( $wcb_term_opt, is_array( $wcb_loc_terms_raw ) ? $wcb_loc_terms_raw : array() );
+
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
 if ( $wcb_saved_by_attr > 0 ) {
@@ -356,6 +359,35 @@ if ( $wcb_saved_by_attr > 0 ) {
 	$wcb_total_count = (int) $wcb_count_query->found_posts;
 }
 
+/*
+ * Results-count label, fully resolved server-side.
+ *
+ * _n() picks the correct plural form for ANY locale (Polish needs different
+ * forms at 2 / 5 / 22, Russian at 1 / 2 / 5, Arabic has six). An earlier pass
+ * seeded two frozen forms — _n( …, 1, … ) and _n( …, 2, … ) — and chose between
+ * them in view.js with `count === 1`, which is only correct in two-form
+ * languages. It also counted state.jobs.length (the rows painted so far, which
+ * grows on Load more) instead of the matches FOUND.
+ *
+ * The value below is the found total. view.js replaces it with the REST
+ * response's additive `results_label` field — likewise _n()-resolved on the
+ * server — after every filter / search / sort / load-more round trip. No plural
+ * resolution ever happens in JS.
+ */
+$wcb_results_label = sprintf(
+	/* translators: %s: number of jobs found, already localised. */
+	_n( '%s job found', '%s jobs found', $wcb_total_count, 'wp-career-board' ),
+	number_format_i18n( $wcb_total_count )
+);
+
+/*
+ * Money-format strings for the salary sliders, whose value changes without a
+ * server round trip and therefore MUST be formatted client-side. Everything
+ * else (each card's `salary_label`) is pre-formatted by the same PHP helper, so
+ * the two surfaces cannot drift.
+ */
+$wcb_salary_js_strings = \WCB\Core\SalaryFormat::js_strings();
+
 $wcb_state = array(
 	'jobs'           => $wcb_jobs_state,
 	'page'           => 1,
@@ -371,6 +403,12 @@ $wcb_state = array(
 	'apiBase'        => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
 	'nonce'          => wp_create_nonce( 'wp_rest' ),
 	'totalCount'     => $wcb_total_count,
+	'resultsLabel'   => $wcb_results_label,
+	// Site locale as a BCP-47 tag. Root-level sibling of `i18n` (not inside it):
+	// it is not a translatable string, it is the argument view.js hands to
+	// Intl.NumberFormat so digit grouping follows the SITE locale rather than
+	// whatever locale the visitor's browser happens to run in.
+	'locale'         => \WCB\Core\SalaryFormat::locale(),
 	'searchQuery'    => '',
 	// User-controlled filters (type chips, exp chips, remote, salary,
 	// external filter block keys). Removable pills + "Clear all" only
@@ -418,17 +456,34 @@ $wcb_state = array(
 		'tags'        => $wcb_tag_opts,
 		'boards'      => $wcb_board_opts,
 	),
-	'strings'        => array(
-		'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
-		'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
-		'salaryChipDefault' => __( 'Salary', 'wp-career-board' ),
-		'anyLabel'          => __( 'Any', 'wp-career-board' ),
-		/* translators: %d: number of jobs */
-		'jobCountSingle'    => __( '1 job', 'wp-career-board' ),
-		/* translators: %d: number of jobs */
-		'jobCountPlural'    => __( '%d jobs', 'wp-career-board' ),
-		/* translators: 1: number of shown jobs, 2: total number of jobs */
-		'jobCountOf'        => __( '%1$d of %2$d jobs', 'wp-career-board' ),
+	// Seeded strings for view.js. view.js is registered as a script module and
+	// script modules cannot load JED translation files
+	// (wp_set_script_module_translations() is WP 7.0+; this plugin's floor is
+	// 6.9), so every string the client renders MUST be translated here and
+	// handed over as state. Read in view.js exclusively via
+	// t( 'key', 'English fallback' ). Keys seeded here and keys read there are
+	// a bijection: a key read but not seeded silently renders English forever,
+	// a key seeded but not read is dead weight in the POT file.
+	'i18n'           => array_merge(
+		// Canonical money-format strings, shared verbatim with the PHP
+		// formatter so the sliders and each card's `salary_label` cannot
+		// drift. Only the keys view.js reads are seeded — the pay-period
+		// suffixes (/yr, /mo, /hr) are omitted because the sliders label a
+		// currency-agnostic filter range, not one job's pay period.
+		array_intersect_key(
+			$wcb_salary_js_strings,
+			array_flip(
+				array( 'moneyFormat', 'salaryThousand', 'salaryMillion', 'salaryOpenMin', 'salaryUpTo' )
+			)
+		),
+		array(
+			'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
+			'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
+			'anyLabel'          => __( 'Any', 'wp-career-board' ),
+			// Label for the removable "Remote only" pill. The pill used to
+			// print the raw filter value, so every locale saw a bare "1".
+			'remoteLabel'       => __( 'Remote only', 'wp-career-board' ),
+		)
 	),
 );
 
@@ -460,6 +515,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				'date_desc' => __( 'Newest first', 'wp-career-board' ),
 				'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
 			),
+			// Same _n()-resolved label the Interactivity state carries, so the
+			// results line reads correctly before hydration replaces it via
+			// data-wp-text="state.resultsLabel".
+			'results_ssr_html'    => esc_html( $wcb_results_label ),
 			'inject_slot_key'     => 'alerts_subscribe',
 			'switcher_aria_label' => __( 'View layout', 'wp-career-board' ),
 			'switcher_list_label' => __( 'List view', 'wp-career-board' ),
@@ -771,7 +830,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<div class="wcb-card-footer">
 					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
-						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline" data-wp-text="context.job.deadline"></span>
+						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label" data-wp-text="context.job.deadline_label"></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>

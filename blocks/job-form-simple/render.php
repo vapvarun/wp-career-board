@@ -121,6 +121,24 @@ $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_pos
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
+// Currency names live in a hardcoded English const (AdminSettings::CURRENCIES),
+// so on their own they never reach wp-career-board.pot. Give the known base-catalog
+// names a __() home here so a localised site can render "US-Dollar" instead of the
+// English source. Pro-added currencies (via the wcb_currency_catalog filter) fall
+// back to their raw catalog name — Pro owns those translations.
+$wcb_currency_name = static function ( string $code, string $fallback ): string {
+	$wcb_names = array(
+		'USD' => __( 'US Dollar', 'wp-career-board' ),
+		'EUR' => __( 'Euro', 'wp-career-board' ),
+		'GBP' => __( 'British Pound', 'wp-career-board' ),
+		'CAD' => __( 'Canadian Dollar', 'wp-career-board' ),
+		'AUD' => __( 'Australian Dollar', 'wp-career-board' ),
+		'INR' => __( 'Indian Rupee', 'wp-career-board' ),
+		'SGD' => __( 'Singapore Dollar', 'wp-career-board' ),
+	);
+	return $wcb_names[ $code ] ?? $fallback;
+};
+
 $wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
@@ -135,6 +153,56 @@ $wcb_board_currency   = $wcb_resolved_board_id > 0
 $wcb_initial_currency = $wcb_board_currency && array_key_exists( $wcb_board_currency, $wcb_currency_catalog )
 	? $wcb_board_currency
 	: $wcb_default_currency;
+
+// ── Credits ────────────────────────────────────────────────────────────────
+// Credit cost for the board the form opens on, plus a per-board map so view.js
+// can swap the banner when the employer switches boards.
+$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id );
+
+/**
+ * Pre-resolve the pluralised credit noun ("1 credit" / "5 credits") server-side.
+ *
+ * The count is always known at render time (site default board + every board in
+ * the picker), so PHP picks the correct plural form for the active locale. Never
+ * seed a fixed "one" + "many" pair and branch on `count === 1` in JS: that is
+ * only correct in 2-form locales and silently breaks Polish (2/5/22), Russian
+ * (1/2/5) and Arabic (six forms).
+ *
+ * @param int $cost Number of credits.
+ * @return string Localised noun phrase, number already run through number_format_i18n().
+ */
+$wcb_credit_noun = static function ( int $cost ): string {
+	return sprintf(
+		/* translators: %s: number of credits, already formatted for the locale. */
+		_n( '%s credit', '%s credits', $cost, 'wp-career-board' ),
+		number_format_i18n( $cost )
+	);
+};
+
+$wcb_board_credit_nouns = array();
+foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
+	$wcb_board_credit_nouns[ (int) $wcb_bid ] = $wcb_credit_noun( (int) $wcb_bcost );
+}
+
+// ── Deadline ───────────────────────────────────────────────────────────────
+// Auto-filled from the wcb_job_default_expiry_days filter chain (board override
+// if set, otherwise the global jobs_expire_days). The form input is read-only —
+// admins control the policy — so the human-readable label never changes without
+// a server round-trip and is pre-formatted here with wp_date() rather than
+// client-side toLocaleDateString(), which would follow the BROWSER locale.
+$wcb_deadline = ( static function () use ( $wcb_resolved_board_id ): string {
+	$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+	$wcb_preview_request->set_param( 'board_id', $wcb_resolved_board_id );
+	$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+	$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
+	$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
+	return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
+} )();
+
+$wcb_deadline_ts    = strtotime( $wcb_deadline . ' 00:00:00' );
+$wcb_deadline_label = $wcb_deadline_ts
+	? (string) wp_date( (string) get_option( 'date_format', 'F j, Y' ), $wcb_deadline_ts )
+	: $wcb_deadline;
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -155,17 +223,15 @@ $wcb_state = apply_filters(
 		'currencyCode'               => $wcb_initial_currency,
 		'salaryType'                 => 'yearly',
 		'remote'                     => false,
-		// Auto-filled from the wcb_job_default_expiry_days filter chain (board
-		// override if set, otherwise the global jobs_expire_days). Form input
-		// is read-only; admins control the policy.
-		'deadline'                   => ( static function () use ( $wcb_resolved_board_id ): string {
-			$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
-			$wcb_preview_request->set_param( 'board_id', $wcb_resolved_board_id );
-			$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-			$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
-			$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
-			return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
-		} )(),
+		'deadline'                   => $wcb_deadline,
+		// Human-readable deadline, formatted server-side against the SITE locale
+		// and the site's date_format. view.js must never re-derive this with
+		// toLocaleDateString(), which formats against the BROWSER locale.
+		'deadlineLabel'              => $wcb_deadline_label,
+		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
+		// it is a locale tag, not a translatable string. view.js hands it to
+		// Intl.NumberFormat so numbers group per the SITE locale.
+		'locale'                     => \WCB\Core\SalaryFormat::locale(),
 		'applyUrl'                   => '',
 		'applyEmail'                 => '',
 		'locationSlug'               => '',
@@ -175,12 +241,12 @@ $wcb_state = apply_filters(
 		'expSlug'                    => '',
 		'tags'                       => '',
 		// Board picker state mirrors the wizard so future board-related changes
-		// flow through both forms. showBoardPicker drives the dropdown visibility;
-		// single-board sites suppress it and the REST callback falls back to the
-		// default board id when boardId stays 0.
+		// flow through both forms. The dropdown's visibility is gated by an inline
+		// PHP `count( $wcb_board_options ) > 1` check in the markup below; single-board
+		// sites suppress it and the REST callback falls back to the default board id
+		// when boardId stays 0.
 		'boardId'                    => $wcb_resolved_board_id,
 		'boardOptions'               => $wcb_board_options,
-		'showBoardPicker'            => count( $wcb_board_options ) > 1,
 		'companyName'                => $wcb_company_name,
 		'submitting'                 => false,
 		'submitted'                  => false,
@@ -189,32 +255,60 @@ $wcb_state = apply_filters(
 		'error'                      => '',
 		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                      => wp_create_nonce( 'wp_rest' ),
-		'creditCost'                 => (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id ),
+		'creditCost'                 => $wcb_credit_cost,
+		// Pre-resolved pluralised noun for the ACTIVE board's credit cost. PHP
+		// owns the plural form; JS only interpolates it into a sentence.
+		'creditNoun'                 => $wcb_credit_noun( $wcb_credit_cost ),
 		// Per-board cost lookup so view.js can recompute creditCost when the
 		// employer switches boards in the picker. Object keyed by board ID.
 		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		// Matching per-board map of pre-resolved plural nouns, so a board switch
+		// swaps the whole noun instead of asking JS to guess the plural form.
+		'boardCreditNouns'           => $wcb_board_credit_nouns,
 		// Per-board currency override map so view.js can update currencyCode
 		// on board switch. Empty string means no override - keep current.
 		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
-		// Translated templates for state.creditMessage. JS interpolates with
-		// live cost / balance — the strings live in the .pot file, not in view.js.
-		/* translators: 1: required credits, 2: current balance. */
-		'creditInsufficientTemplate' => __( 'This board requires %1$d credits. Your balance: %2$d. Please purchase more credits.', 'wp-career-board' ),
-		/* translators: 1: pluralised credits ("1 credit" / "N credits"), 2: balance after deduction, 3: current balance. */
-		'creditDeductionTemplate'    => __( 'Posting deducts %1$s. Balance after: %2$d (currently %3$d).', 'wp-career-board' ),
-		/* translators: %d: current credit balance. Shown when the selected board has no credit cost. */
-		'creditFreeTemplate'         => __( 'Free to post on this board. Your balance: %d.', 'wp-career-board' ),
-		/* translators: %d: number of credits (singular). */
-		'creditNounSingular'         => __( '%d credit', 'wp-career-board' ),
-		/* translators: %d: number of credits (plural). */
-		'creditNounPlural'           => __( '%d credits', 'wp-career-board' ),
 		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
 		'customFields'               => (object) array(),
-		'strings'                    => array(
-			'errorConnection' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
-			'errorGeneric'    => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
+
+		/*
+		 * ── Translated strings for view.js ─────────────────────────────────
+		 * view.js is a script MODULE (block.json: viewScriptModule). Script
+		 * modules cannot load JED translation files — wp_set_script_module_translations()
+		 * only lands in WP 7.0 and core does not register @wordpress/i18n as a
+		 * module. Seeding here is therefore the ONLY way view.js can render a
+		 * translated string, and it keeps every literal in the .pot file.
+		 *
+		 * Contract: every key below is read in view.js via t( 'key', 'English fallback' ).
+		 * Adding a t() read without adding the key here silently ships English.
+		 */
+		'i18n'                       => array(
+			// Credit banner. JS interpolates the pre-resolved credit noun and the
+			// live balance (formatted with Intl.NumberFormat against state.locale).
+			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			'creditInsufficient'       => __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
+			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
+			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
+			'creditFree'               => __( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
+
+			// Listing window notice.
+			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
+			'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+
+			// AI description generator.
+			'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
+			'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
+
+			// Submit-time validation + transport errors.
+			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
+			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
+			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			'errorInsufficientCredits' => __( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),
+			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'errorGeneric'             => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 		),
 	),
 	$attributes
@@ -430,7 +524,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 									/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
 									esc_html__( '%1$s  -  %2$s (%3$s)', 'wp-career-board' ),
 									esc_html( (string) $wcb_code ),
-									esc_html( (string) $wcb_meta['name'] ),
+									esc_html( $wcb_currency_name( (string) $wcb_code, (string) $wcb_meta['name'] ) ),
 									esc_html( (string) $wcb_meta['symbol'] )
 								);
 								?>
@@ -468,11 +562,11 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-grid">
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
-					<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="https://yourcompany.com/careers/apply" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+					<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="<?php esc_attr_e( 'https://yourcompany.com/careers/apply', 'wp-career-board' ); ?>" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
 				</div>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>
-					<input id="wcb-simple-apply-email" type="email" class="wcb-field" placeholder="jobs@yourcompany.com" data-wcb-field="applyEmail" data-wp-bind--value="state.applyEmail" data-wp-on--input="actions.updateField" />
+					<input id="wcb-simple-apply-email" type="email" class="wcb-field" placeholder="<?php esc_attr_e( 'jobs@yourcompany.com', 'wp-career-board' ); ?>" data-wcb-field="applyEmail" data-wp-bind--value="state.applyEmail" data-wp-on--input="actions.updateField" />
 				</div>
 			</div>
 

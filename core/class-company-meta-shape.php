@@ -32,17 +32,24 @@ final class CompanyMetaShape {
 	 * @since 1.2.1
 	 *
 	 * @param int $company_id Company (wcb_company) post ID.
-	 * @return array{tagline:string,industry:string,size:string,size_label:string,hq:string}
+	 * @return array{tagline:string,industry:string,industry_label:string,size:string,size_label:string,hq:string}
 	 */
 	public static function serialize( int $company_id ): array {
-		$size = (string) get_post_meta( $company_id, '_wcb_company_size', true );
+		$size     = (string) get_post_meta( $company_id, '_wcb_company_size', true );
+		$industry = (string) get_post_meta( $company_id, '_wcb_industry', true );
 
 		return array(
-			'tagline'    => (string) get_post_meta( $company_id, '_wcb_tagline', true ),
-			'industry'   => (string) get_post_meta( $company_id, '_wcb_industry', true ),
-			'size'       => $size,
-			'size_label' => self::size_label( $size ),
-			'hq'         => (string) get_post_meta( $company_id, '_wcb_hq_location', true ),
+			'tagline'        => (string) get_post_meta( $company_id, '_wcb_tagline', true ),
+			// Ship BOTH the raw slug (for enum/filtering) and the localised label.
+			// Before 1.5.1 only the slug was returned, so every REST consumer that
+			// displayed it (the company-archive chip, employer cards) showed the
+			// bare slug 'technology' after any client-side re-fetch, in every
+			// locale. Mirrors the size / size_label pair directly below.
+			'industry'       => $industry,
+			'industry_label' => \WCB\Core\Industries::label( $industry ),
+			'size'           => $size,
+			'size_label'     => self::size_label( $size ),
+			'hq'             => (string) get_post_meta( $company_id, '_wcb_hq_location', true ),
 		);
 	}
 

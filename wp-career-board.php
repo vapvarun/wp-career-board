@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.5.0
+ * Version:     1.6.0
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.5.0' );
+define( 'WCB_VERSION', '1.6.0' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -40,19 +40,19 @@ add_action(
 	static function ( \EasyDigitalDownloads\Updater\Registry $registry ): void {
 		$registry->register(
 			array(
-				'id'      => 'wp-career-board',
-				'url'     => 'https://wbcomdesigns.com',
-				'item_id' => WCB_EDD_ITEM_ID,
-				'version' => WCB_VERSION,
-				'file'    => WCB_FILE,
-				'license' => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
-				// Keyless: Free updates silently via the preset community key, so
-				// the SDK must NOT add the "Manage License" plugins-row button or
-				// hook its modal — that modal enqueued build/js/edd-sl-sdk.js +
-				// css, which 404'd (Basecamp 9919578285). Keyless skips the modal
-				// entirely; auto_updater() still runs. Pro stays non-keyless (it
-				// has a real license tab; its modal assets load from this libs copy).
-				'keyless' => true,
+				'id'          => 'wp-career-board',
+				'url'         => 'https://wbcomdesigns.com',
+				'item_id'     => WCB_EDD_ITEM_ID,
+				'version'     => WCB_VERSION,
+				'file'        => WCB_FILE,
+				'license'     => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
+				// Free ships a preset community key (auto-activated below); it only
+				// enables silent update checks and gates nothing. The SDK shows the
+				// "Manage License" plugins-row button and modal, whose JS/CSS load
+				// from this bundled libs copy via plugins_url() (no 404). option_name
+				// points the SDK at the same wcb_license_key option seeded below, so
+				// the modal prefills the key. Pro loads the same shared copy.
+				'option_name' => 'wcb_license_key',
 			)
 		);
 	}

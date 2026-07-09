@@ -264,13 +264,64 @@
 		load();
 	}
 
+	/* ── Per-email body editor: expand, insert tag, load default ───────────── */
+
+	function insertAtCursor( field, text ) {
+		field.focus();
+		var start = typeof field.selectionStart === 'number' ? field.selectionStart : field.value.length;
+		var end   = typeof field.selectionEnd === 'number' ? field.selectionEnd : field.value.length;
+		field.value = field.value.slice( 0, start ) + text + field.value.slice( end );
+		var caret = start + text.length;
+		field.setSelectionRange( caret, caret );
+		field.focus();
+	}
+
+	function bindBodyEditors() {
+		document.querySelectorAll( '.wcb-email-body-toggle' ).forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var row = document.getElementById( btn.getAttribute( 'data-target' ) );
+				if ( ! row ) {
+					return;
+				}
+				var open = row.hasAttribute( 'hidden' );
+				if ( open ) {
+					row.removeAttribute( 'hidden' );
+				} else {
+					row.setAttribute( 'hidden', '' );
+				}
+				btn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			} );
+		} );
+
+		document.querySelectorAll( '.wcb-email-tag-chip' ).forEach( function ( chip ) {
+			chip.addEventListener( 'click', function () {
+				var field = document.getElementById( chip.getAttribute( 'data-target' ) );
+				if ( field ) {
+					insertAtCursor( field, chip.getAttribute( 'data-tag' ) );
+				}
+			} );
+		} );
+
+		document.querySelectorAll( '.wcb-email-load-default' ).forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var field = document.getElementById( btn.getAttribute( 'data-target' ) );
+				if ( field ) {
+					field.value = btn.getAttribute( 'data-default' ) || '';
+					field.focus();
+				}
+			} );
+		} );
+	}
+
 	if ( document.readyState === 'loading' ) {
 		document.addEventListener( 'DOMContentLoaded', function () {
 			bindTestButtons();
+			bindBodyEditors();
 			bindLog();
 		} );
 	} else {
 		bindTestButtons();
+		bindBodyEditors();
 		bindLog();
 	}
 }());
