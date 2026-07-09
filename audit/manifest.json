@@ -3,7 +3,7 @@
   "plugin": {
     "slug": "wp-career-board",
     "name": "WP Career Board",
-    "version": "1.4.0",
+    "version": "1.5.1",
     "namespace": "WCB\\",
     "main_file": "wp-career-board.php",
     "text_domain": "wp-career-board",
@@ -24,8 +24,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 39,
-    "hooks_fired": 190,
-    "hooks_unique": 109,
+    "hooks_fired": 194,
+    "hooks_unique": 110,
     "cron": 4,
     "wp_cli": 5
   },
@@ -426,6 +426,18 @@
         "handler": "WCB\\Api\\Endpoints\\AdminEndpoint::get_email_log",
         "permission": "admin_check",
         "purpose": "Paginated, filterable email-event log query"
+      },
+      {
+        "route": "/wcb/v1/account",
+        "methods": [
+          "GET",
+          "PUT",
+          "PATCH"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\AccountEndpoint::get_account|update_account",
+        "permission": "logged_in_check (self / current user)",
+        "purpose": "Read or update the current user's own account (display_name, email, current_password, new_password)",
+        "since": "1.2.0"
       }
     ]
   },
@@ -1175,7 +1187,9 @@
       "args_count": 1,
       "args_signature": [],
       "where": "modules/notifications/class-abstract-email.php (AbstractEmail::dispatch, real sends only)",
-      "consumed_by": [ "BuddyNext (centralised notification center)" ]
+      "consumed_by": [
+        "BuddyNext (centralised notification center)"
+      ]
     },
     {
       "name": "wcb_board_credit_cost",
@@ -1566,7 +1580,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-listings/render.php:82",
+      "where": "blocks/job-listings/render.php:92",
       "consumed_by": []
     },
     {
@@ -1582,7 +1596,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-listings/render.php:102",
+      "where": "blocks/job-listings/render.php:112",
       "consumed_by": []
     },
     {
@@ -1590,7 +1604,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-listings/render.php:327",
+      "where": "blocks/job-listings/render.php:350",
       "consumed_by": []
     },
     {
@@ -1612,7 +1626,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-listings/render.php:296",
+      "where": "blocks/job-listings/render.php:319",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
@@ -1626,7 +1640,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-listings/render.php:348",
+      "where": "blocks/job-listings/render.php:371",
       "consumed_by": []
     },
     {
@@ -3050,14 +3064,6 @@
       "consumed_by": []
     },
     {
-      "name": "wcb_theme_primary_color",
-      "type": "filter",
-      "args_count": 1,
-      "args_signature": [],
-      "where": "modules/themeintegration/class-theme-integration-module.php:54",
-      "consumed_by": []
-    },
-    {
       "name": "wcb_featured_expired",
       "type": "action",
       "args_count": 1,
@@ -3086,6 +3092,62 @@
           "kind": "action_listener"
         }
       ]
+    },
+    {
+      "name": "wcb_default_filter_order",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:42",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_banned",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-employers.php:181",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_unbanned",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "admin/class-admin-employers.php:184",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_listings_filters_top",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:491",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_listings_filters_bottom",
+      "type": "action",
+      "args_count": 0,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:679",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_before_card_footer",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:772",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_after_card_footer",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "blocks/job-listings/render.php:777",
+      "consumed_by": []
     }
   ],
   "buddypress_integration": {
@@ -3434,15 +3496,15 @@
     ]
   },
   "generated": {
-    "at": "2026-06-10T00:00:00Z",
+    "at": "2026-07-09T00:00:00Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
     "scan_scope": "distignore_distribution_scope",
     "scan_path": ".",
-    "php_file_count": 175,
-    "refresh_notes": "2026-06-10 count reconciliation for 1.4.0 release. All counts re-enumerated from ground-truth grep over 175 plugin-own PHP files (.distignore distribution scope, vendor/tests/build/src/audit/bin/docs/plan/marketing/libs excluded). Counts updated: rest 43->41 (41 actual register_rest_route() call sites across 12 files; 43 was an overcount from a transitional intermediate state); shortcodes 11->2 (add_shortcode() call sites: 1 loop in core/class-plugin.php registers 18 unique tags + 1 in widgets/class-widget-shortcode.php; old 11 was a unique-tag count); capabilities 12->13 (wcb_access_admin_jobs now in class-roles.php sync array, lacks a registered ability — capabilities[] detail array still has 12 ability-backed entries); hooks_fired 175->189 (ground-truth 48 do_action + 141 apply_filters call sites, comments/docblocks excluded; prior 175 was incomplete); hooks_unique 101->108 (40 unique do_action + 68 unique apply_filters names); cron 3->4 (4 call sites: jobs-expiry daily + single-event re-arm + featured-expiry daily + deadline-reminders daily; prior 3 missed class-jobs-expiry.php:142 single-event). Stable: ajax 0, admin_pages 9, blocks 17, tables 3, services 39, wp_cli 5. Detail arrays (rest[], hooks_fired[], shortcodes[], capabilities[]) were NOT re-enumerated this pass; only counts were reconciled.",
+    "php_file_count": 177,
+    "refresh_notes": "2026-07-09 diff-driven refresh for 1.5.1 release (branch 1.4.0 -> 1.5.1). Re-enumerated only categories whose source files changed since the 2026-06-10 (1.4.0) pass. HOOKS (source **/*.php): ground-truth grep over the 177-file distribution scope (was 175) using the maintainer's established methodology (all non-comment do_action/apply_filters CALL sites, multi-line included): 51 do_action + 143 apply_filters = 194 firing sites (was 189: 48+141), 110 unique names (was 108). Reproduces the 1.4.0 baseline exactly (48+141=189 / 108 unique) at tag v1.4.0, so +5 sites / +2 unique is a real delta. NET hook-name delta v1.4.0->HEAD: +3 new (wcb_default_filter_order filter @ blocks/job-listings/render.php:42 [1.5.1 filter-sidebar reorder]; wcb_employer_banned + wcb_employer_unbanned actions @ admin/class-admin-employers.php:181,184 [employer ban]); -1 removed (wcb_theme_primary_color, was modules/themeintegration/class-theme-integration-module.php:54). hooks_fired[] (representative, not 1:1 with count per prior-pass practice): removed wcb_theme_primary_color; added the 3 new hooks; also added 4 pre-existing-but-unrecorded render.php do_actions (wcb_job_listings_filters_top:491, wcb_job_listings_filters_bottom:679, wcb_before_card_footer:772, wcb_after_card_footer:777); refreshed 5 drifted render.php line numbers. Other changed-file line drift left as-is per counts-only array policy. REST (api/**,core/**,modules/**): jobs-endpoint + admin-endpoint changed but registered NO new routes; count stays 41 register_rest_route call sites across 12 files. Exhaustive re-enum surfaced ONE pre-existing gap: /wcb/v1/account (AccountEndpoint::get_account|update_account, since 1.2.0) was in code and already counted in the 41 but MISSING from rest.endpoints[]; added it. STABLE (sources changed, counts re-verified unchanged): admin_pages 9, tables 3 (DB_VERSION still 1.2.7), blocks 17, cron 4, wp_cli 5. NOTE: new WCB\\Core\\FormCustomFields (core/class-form-custom-fields.php) is a static helper, not a container service; services left at 39. capabilities/shortcodes/post_types/taxonomies not re-enumerated (out of diff scope). --- PRIOR NOTE (2026-06-10, 1.4.0) --- 2026-06-10 count reconciliation for 1.4.0 release. All counts re-enumerated from ground-truth grep over 175 plugin-own PHP files (.distignore distribution scope, vendor/tests/build/src/audit/bin/docs/plan/marketing/libs excluded). Counts updated: rest 43->41 (41 actual register_rest_route() call sites across 12 files; 43 was an overcount from a transitional intermediate state); shortcodes 11->2 (add_shortcode() call sites: 1 loop in core/class-plugin.php registers 18 unique tags + 1 in widgets/class-widget-shortcode.php; old 11 was a unique-tag count); capabilities 12->13 (wcb_access_admin_jobs now in class-roles.php sync array, lacks a registered ability — capabilities[] detail array still has 12 ability-backed entries); hooks_fired 175->189 (ground-truth 48 do_action + 141 apply_filters call sites, comments/docblocks excluded; prior 175 was incomplete); hooks_unique 101->108 (40 unique do_action + 68 unique apply_filters names); cron 3->4 (4 call sites: jobs-expiry daily + single-event re-arm + featured-expiry daily + deadline-reminders daily; prior 3 missed class-jobs-expiry.php:142 single-event). Stable: ajax 0, admin_pages 9, blocks 17, tables 3, services 39, wp_cli 5. Detail arrays (rest[], hooks_fired[], shortcodes[], capabilities[]) were NOT re-enumerated this pass; only counts were reconciled.",
     "note": "2026-06-08 (11:02Z) targeted REFRESH after the big-site + cleanup wave on branch 1.2.1 (commits cd9fa64, 0c0ed42, 2b8c4a2, 047e6a9, a1b8ded; last manifest refresh was 4894736). Ground-truth grep over the .distignore distribution scope (172 plugin-own PHP files now, was 171 — the +1 is NEW core/class-company-meta-shape.php; libs/edd-sl-sdk vendored SDK excluded). Two static-analysis findings CLEARED this wave: (1) grid_track_overflow_risks 51->0 — every bare 1fr grid track across 18 CSS files was wrapped to minmax(0,1fr); ground-truth grep for a bare 1fr in a grid-template declaration outside minmax() now returns 0 (auto-fill/auto-fit repeat() tracks like minmax(160px,1fr) are intentional and never were overflow risks). (2) rest_hang_risks 68->11 — the 57 block view.js fetch() sites were the resolved set: all 9 data-fetching block view.js now `import { wcbFetch } from '@wcb/fetch'` and call wcbFetch() instead of native fetch(); wcbFetch (assets/js/modules/wcb-fetch.js, registered as the @wcb/fetch script module in core/class-plugin.php via wp_register_script_module on init, declared as a dep in each block's view.asset.php) wraps fetch with a 15000ms AbortController timeout that composes any caller signal. The 11 REMAINING rest_hang_risks are all admin-side and OUT OF SCOPE of this wave: assets/js/admin.js (5 wp.apiFetch), assets/js/wizard.js (3 wp.apiFetch), assets/js/admin/application-detail.js (1 native fetch), assets/js/admin/emails.js (2 native fetch) — none route through wcbFetch yet. NEW class: WCB\\Core\\CompanyMetaShape (core/class-company-meta-shape.php, static serialize()+size_label()), added to services -> services count 37->38; both the companies and jobs endpoints now consume it and the two duplicate private size_label() methods were removed (R1/R2 dedup); employers-endpoint gained a private owner_visible_statuses() helper. perf pass touched modules/jobs/class-jobs-expiry.php (bounded batch + cron re-arm), modules/gdpr/class-gdpr-module.php (page-based eraser/exporter), api/endpoints/class-employers-endpoint.php + class-jobs-endpoint.php (batch-prime cache_users/_prime_post_caches), core/class-install.php (bounded dedupe drain) — all edits inside existing files, no new endpoints/hooks/tables/blocks/cron. antispam class-anti-spam-module.php save_settings() now gates solely on wp_is_ability_granted (redundant current_user_can removed). STABLE this wave (ground-truth verified, not assumed): REST 38 register_rest_route sites = 41 endpoint entries; blocks 17 block.json; tables (4 CREATE TABLE incl. one non-schema string = 3 schema); wp_cli 5 WP_CLI::add_command; cron 3 events; add_shortcode 2 sites (1 source registrar). hooks_fired held at 173 (43 do_action + 130 apply_filters enumerated): diff of cd9fa64..a1b8ded vs 4894736 shows ZERO net hook call sites added/removed (the single touched do_action('wcb_job_expired') was an in-place argument re-cast, same site), so the per-call-site enumeration is unchanged. NOTE: a ground-truth grep of the full dist scope counts 188 raw do_action+apply_filters call sites (48+140) vs the 173 enumerated — this delta is PRE-EXISTING manifest drift carried since earlier sessions (the enumeration omits some sites), NOT introduced by this wave; left as-is per refresh-only scope, flagged for the next full audit-only re-run. static_analysis.dead_listeners remains empty. db_version still 1.2.7 (no schema change this wave). --- PRIOR NOTE (2026-06-08 09:35Z): targeted refresh after the 1.2.x bug-fix wave on branch 1.2.1 (commits ef03384..998efee). Ground-truth grep over the .distignore distribution scope (171 plugin-own PHP files, libs/edd-sl-sdk vendored SDK excluded). Resolved the long-standing drift the previous note flagged as 'queued for next full refresh': REST endpoints re-enumerated 36->41 entries covering all 38 register_rest_route() call sites — added 5 routes that were live in code but missing from the manifest (candidates/saved-companies, candidates/saved-resumes, candidates/me/privacy/(export|erase), companies/{id}/bookmark, admin/emails/log); blocks re-enumerated 15->17 to add job-alert-card and similar-companies-card (both static render.php blocks). STABLE this session: ajax 0, wp_cli 5, add_shortcode 1 source registrar, tables (3 schema tables; grep counts 4 CREATE TABLE incl. one non-schema string), cron 3 events. hooks_fired retains its per-call-site enumeration (173 sites = 43 do_action + 130 apply_filters call sites; ground-truth unique names 37 actions + 66 filters = 103) — unchanged this session, no hook sites added/removed. This session's commits added ZERO new REST routes/blocks/shortcodes/tables/cron; all six commits are bug fixes within existing files: BoardsModule::ensure_default_board() made race-safe via an add_option() lock + self-heal adopt; core/class-install.php DB_VERSION 1.2.6->1.2.7 with a new private dedupe_default_boards() run under a 1.2.7 upgrade gate to collapse duplicate Main Board posts left by the pre-fix race; setup-wizard seeder re-tracks existing sample IDs on re-run and drops a dead _wcb_user_id company-meta write; email-settings enqueue_assets() now loads on the settings page regardless of ?tab (was gated on ?tab=emails which never matched the hash-based tabs); job-search-hero render.php falls back to get_post_type_archive_link('wcb_job') when jobs_archive_page is unset; and the EDD SL SDK was relocated vendor/edd-sl-sdk -> libs/edd-sl-sdk (with built assets) so it ships in release zips (vendored lib, not a tracked manifest category). No new dead listeners; static_analysis.dead_listeners remains empty.",
-    "branch": "1.4.0",
+    "branch": "1.5.1",
     "db_version": "1.2.7"
   },
   "category_sources": {

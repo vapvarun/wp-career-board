@@ -3,7 +3,7 @@
   "plugin": {
     "slug": "wp-career-board",
     "name": "WP Career Board",
-    "version": "1.4.0",
+    "version": "1.5.1",
     "namespace": "WCB\\",
     "main_file": "wp-career-board.php",
     "text_domain": "wp-career-board",
@@ -14,15 +14,15 @@
     "extension_hook_fired": "wcb_settings_tabs"
   },
   "generated": {
-    "at": "2026-06-10T00:00:00Z",
+    "at": "2026-07-09T00:00:00Z",
     "from": "wp-plugin-onboard skill (refresh)",
     "schema_version": "v2.2",
     "scan_scope": "distignore_distribution_scope",
     "scan_path": ".",
-    "php_file_count": 175,
-    "branch": "1.4.0",
+    "php_file_count": 177,
+    "branch": "1.5.1",
     "db_version": "1.2.7",
-    "refresh_notes": "2026-06-10 count reconciliation for 1.4.0 release. All counts re-enumerated from ground-truth grep over the .distignore distribution scope (175 plugin-own PHP files, excluding vendor/, tests/, build/, src/, audit/, bin/, docs/, plan/, marketing/, libs/edd-sl-sdk). Counts updated: rest 43->41 (ground-truth register_rest_route() call sites; the 43 was an overcount from a transitional note — actual call sites are 41 across 12 files); shortcodes 11->2 (add_shortcode() call sites: 1 block-wrapper loop in core/class-plugin.php registering 18 unique shortcode tags + 1 widget in core/widgets/class-widget-shortcode.php; the old 11 was a unique-tag count not a call-site count); capabilities 12->13 (wcb_access_admin_jobs now included in the class-roles.php sync array but lacks a registered ability — counted in the full cap list; capabilities[] detail array in manifest.json still lists the 12 ability-backed caps and needs a separate full-refresh to add wcb_access_admin_jobs); hooks_fired 175->189 (ground-truth 48 do_action + 141 apply_filters call sites excluding comments/docblocks; previous 175 was an incomplete enumeration); hooks_unique 101->108 (40 unique do_action names + 68 unique apply_filters names); cron 3->4 (4 wp_schedule_event/wp_schedule_single_event call sites: jobs-expiry daily + jobs-expiry single-event re-arm + featured-expiry daily + deadline-reminders daily; previous 3 was missing the single-event re-arm). Stable: rest 41, ajax 0, admin_pages 9, blocks 17, tables 3, services 39, wp_cli 5. New 1.4.0 additions driving count changes: Report-a-Job (wcb_job_reported + wcb_job_flag_resolved do_action, POST /jobs/{id}/report + POST /jobs/{id}/resolve-flag routes already in moderation module — routes counted in 41); AI filter hooks added in core for Pro consumption (wcb_ai_ranking_available, wcb_ai_matching_available, wcb_ai_completion_available in apply_filters — these drove the hooks_fired increase). Detail arrays in manifest.json were NOT re-enumerated this pass; only counts were reconciled."
+    "refresh_notes": "2026-07-09 diff-driven refresh 1.4.0->1.5.1. Only changed categories re-enumerated. hooks_fired 189->194 (51 do_action + 143 apply_filters non-comment call sites), hooks_unique 108->110. Net hook-name delta: +wcb_default_filter_order (render.php:42), +wcb_employer_banned/+wcb_employer_unbanned (class-admin-employers.php:181,184), -wcb_theme_primary_color. rest stays 41 (no new routes; added the pre-existing missing /account entry to the detail array). admin_pages 9 / tables 3 / blocks 17 / cron 4 / wp_cli 5 re-verified unchanged. See manifest.json generated.refresh_notes for full detail."
   },
   "counts": {
     "rest": 41,
@@ -35,8 +35,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 39,
-    "hooks_fired": 189,
-    "hooks_unique": 108,
+    "hooks_fired": 194,
+    "hooks_unique": 110,
     "cron": 4,
     "wp_cli": 5
   },
