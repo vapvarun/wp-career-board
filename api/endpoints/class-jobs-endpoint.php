@@ -1288,6 +1288,8 @@ final class JobsEndpoint extends RestController {
 			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
 		}
 
+		$wcb_deadline_raw = get_post_meta( $post->ID, '_wcb_deadline', true );
+
 		$data = array(
 			'id'                 => $post->ID,
 			'title'              => $post->post_title,
@@ -1322,8 +1324,8 @@ final class JobsEndpoint extends RestController {
 			// Job meta. `deadline` stays the raw stored date for any client-side
 			// date math / comparison; `deadline_label` is the localised display
 			// form (additive since 1.5.1) so the card never renders a bare ISO date.
-			'deadline'           => get_post_meta( $post->ID, '_wcb_deadline', true ),
-			'deadline_label'     => ( $wcb_deadline_raw = get_post_meta( $post->ID, '_wcb_deadline', true ) )
+			'deadline'           => $wcb_deadline_raw,
+			'deadline_label'     => $wcb_deadline_raw
 				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
 				: '',
 			'salary_min'         => $salary_min,

@@ -54,7 +54,7 @@ final class CompanionInstaller {
 
 		check_admin_referer( 'wcb_install_companion_nonce_' . $slug );
 
-		if ( ! current_user_can( 'install_plugins' ) ) {
+		if ( ! current_user_can( 'install_plugins' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- core install_plugins cap; no Abilities API equivalent for installing plugins.
 			wp_die( esc_html__( 'You do not have permission to install plugins.', 'wp-career-board' ) );
 		}
 
@@ -90,7 +90,7 @@ final class CompanionInstaller {
 	 * @return true|WP_Error True on success (installed + active), WP_Error otherwise.
 	 */
 	public static function install( string $slug, string $tier = 'free', string $license = '' ) {
-		if ( ! current_user_can( 'install_plugins' ) ) {
+		if ( ! current_user_can( 'install_plugins' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- core install_plugins cap; no Abilities API equivalent for installing plugins.
 			return new WP_Error( 'wcb_cap', __( 'You do not have permission to install plugins.', 'wp-career-board' ) );
 		}
 

@@ -182,7 +182,7 @@
 	display: block;
 	font-weight: 600;
 	margin-bottom: 6px;
-	color: var(--wcb-text, #111827);
+	color: var(--wcb-contrast, #111827);
 }
 
 .wcb-email-body-textarea {
@@ -196,7 +196,7 @@
 	border-radius: 6px;
 	resize: vertical;
 	background: var(--wcb-surface, #ffffff);
-	color: var(--wcb-text, #111827);
+	color: var(--wcb-contrast, #111827);
 }
 
 .wcb-email-body-textarea:focus {

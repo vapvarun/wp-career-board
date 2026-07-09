@@ -97,7 +97,7 @@ final class SalaryFormat {
 	 */
 	public static function money( string $symbol, string $amount ): string {
 		/* translators: 1: currency symbol, 2: localised amount. Swap the order (and add a space) for locales that place the symbol after the amount, e.g. "%2$s %1$s". */
-		return sprintf( _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ), $symbol, $amount );
+		return sprintf( _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ), $symbol, $amount ); // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 	}
 
 	/**
@@ -160,7 +160,7 @@ final class SalaryFormat {
 		// can reposition the suffix (or drop the separator) rather than being
 		// locked into "figure then suffix".
 		/* translators: 1: salary figure, 2: pay-period suffix such as "/yr". */
-		return sprintf( _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), $body, $suffix );
+		return sprintf( _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), $body, $suffix ); // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 	}
 
 	/**
@@ -175,9 +175,9 @@ final class SalaryFormat {
 	public static function js_strings(): array {
 		return array(
 			/* translators: 1: currency symbol, 2: localised amount. */
-			'moneyFormat'     => _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ),
+			'moneyFormat'      => _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 			/* translators: 1: salary figure, 2: pay-period suffix such as "/yr". */
-			'salaryJoinFormat' => _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ),
+			'salaryJoinFormat' => _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 			/* translators: %s: number of thousands. */
 			'salaryThousand'  => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
 			/* translators: %s: number of millions. */

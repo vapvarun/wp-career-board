@@ -45,13 +45,13 @@ $wcb_type_terms       = is_wp_error( $wcb_type_terms ) ? array() : $wcb_type_ter
 $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_experience_terms;
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
-$wcb_currency_code_raw = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
-$wcb_currency_code     = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
-$wcb_remote            = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
-$wcb_salary_min        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
-$wcb_salary_max        = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
-$wcb_salary_type_raw   = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
-$wcb_salary_type       = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
+$wcb_currency_code_raw  = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
+$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
+$wcb_remote             = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
+$wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
+$wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
+$wcb_salary_type_raw    = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
+$wcb_salary_type        = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
 $wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
 $wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
@@ -357,13 +357,13 @@ wp_interactivity_state(
 			<?php elseif ( $wcb_location_terms ) : ?>
 				<?php foreach ( $wcb_location_terms as $wcb_term ) : ?>
 					<a href="<?php echo esc_url( (string) get_term_link( $wcb_term ) ); ?>" class="wcb-badge wcb-badge--location">
-<?php
+					<?php
 						printf(
 							/* translators: %s: location name. The 📍 pin marks a location badge — translators may move it after the name or drop it for RTL locales. */
 							esc_html__( '📍 %s', 'wp-career-board' ),
 							esc_html( $wcb_term->name )
 						);
-						?>
+					?>
 					</a>
 				<?php endforeach; ?>
 			<?php endif; ?>
@@ -640,12 +640,12 @@ wp_interactivity_state(
 									rel="noopener noreferrer nofollow"
 								>
 										<?php
-									printf(
+										printf(
 										/* translators: %s: hostname of the external application site, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
-										esc_html__( '%s ↗', 'wp-career-board' ),
-										esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) )
-									);
-									?>
+											esc_html__( '%s ↗', 'wp-career-board' ),
+											esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) )
+										);
+										?>
 								</a>
 							</dd>
 						</div>
