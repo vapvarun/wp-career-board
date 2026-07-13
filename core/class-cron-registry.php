@@ -48,6 +48,7 @@ final class CronRegistry {
 	 *   wcb_check_job_expiry        ← modules/jobs/class-jobs-expiry.php
 	 *   wcb_send_deadline_reminders ← modules/jobs/class-deadline-reminders.php (HOOK const)
 	 *   wcb_expire_featured_jobs    ← modules/jobs/class-featured-expiry.php (HOOK const)
+	 *   wcb_prune_job_views         ← modules/jobs/class-job-views-retention.php (HOOK const)
 	 *
 	 * @since 1.1.1
 	 *
@@ -58,6 +59,7 @@ final class CronRegistry {
 			'wcb_check_job_expiry',
 			'wcb_send_deadline_reminders',
 			'wcb_expire_featured_jobs',
+			'wcb_prune_job_views',
 		);
 	}
 }
