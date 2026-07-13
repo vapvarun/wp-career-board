@@ -2166,22 +2166,6 @@
       ]
     },
     {
-      "name": "wcb_register_extensions",
-      "type": "action",
-      "args_count": 0,
-      "args_signature": [],
-      "where": "core/class-pro-coordination.php:80",
-      "consumed_by": []
-    },
-    {
-      "name": "wcb_pro_pre_check",
-      "type": "action",
-      "args_count": 0,
-      "args_signature": [],
-      "where": "core/class-pro-coordination.php:92",
-      "consumed_by": []
-    },
-    {
       "name": "wcb_industries",
       "type": "filter",
       "args_count": 1,

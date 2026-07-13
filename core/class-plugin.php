@@ -112,12 +112,6 @@ final class Plugin {
 
 		$this->boot_modules();
 
-		// Pro-coordination filter API — single source of truth for the Free→Pro contract.
-		// Free fires; Pro hooks. See core/class-pro-coordination.php for the documented surface.
-		if ( class_exists( \WCB\Core\ProCoordination::class ) ) {
-			( new \WCB\Core\ProCoordination() )->boot();
-		}
-
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );

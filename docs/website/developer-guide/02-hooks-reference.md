@@ -166,9 +166,7 @@ hooks them to return true / version / license status.
 | `wcb_pro_version` | string - Pro version, e.g. "1.4.3" |
 | `wcb_pro_ai_enabled` | bool - is the Pro AI bundle enabled? |
 | `wcb_pro_upsell_url` | string - where the "Upgrade to Pro" CTA points |
-| `wcb_pro_pre_check` | Action - fires before Pro's compatibility check |
 | `wcb_pro_settings_saved_notice` | Filter - message for the post-save admin notice |
-| `wcb_register_extensions` | Action - Pro hooks this to register its extension classes |
 
 ### AI feature-availability filters
 

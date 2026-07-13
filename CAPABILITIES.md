@@ -74,5 +74,5 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | Find a curated hook reference + extension cookbook? | YES | `docs/HOOKS.md`; `developer-guide/02-hooks-reference.md`, `05-extension-cookbook.md` (13 recipes) |
 | Override the primary frontend templates from a theme? | NO | no `locate_template` chain for cards/listings/single — **only emails are theme-overridable**; customize via hooks |
 | Extend frontend JS behavior via a documented hook API? | NO | no `@wordpress/hooks`; the `wcb:search`/`wcb:results` CustomEvent seam is undocumented |
-| Register a whole add-on module cleanly? | YES·partial | `do_action('wcb_register_extensions')` on `init@20` — real, but under-advertised (absent from `HOOKS.md`) |
+| Register a whole add-on module cleanly? | YES | Addons boot on their own `plugins_loaded` / `init` and integrate through the Free→Pro filter contract (`ProCoordination::documented_filters()`) — the balanced surface Pro itself consumes |
 | Restyle without `!important` wars? | YES | 116 `--wcb-*` tokens; buddyx dark-mode compat layer |
