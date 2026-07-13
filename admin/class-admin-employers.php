@@ -27,6 +27,14 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class AdminEmployers extends \WP_List_Table {
 
 	/**
+	 * Memoized employer user-ID set (role holders ∪ job authors).
+	 *
+	 * @since 1.7.0
+	 * @var int[]|null
+	 */
+	private ?array $employer_ids_cache = null;
+
+	/**
 	 * Constructor — configure singular/plural labels.
 	 *
 	 * @since 1.0.0
@@ -244,12 +252,7 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$count    = ( new \WP_User_Query(
-			array(
-				'role__in' => array( 'wcb_employer' ),
-				'number'   => 0,
-			)
-		) )->get_total();
+		$count    = count( $this->employer_user_ids() );
 		$base_url = admin_url( 'admin.php?page=wcb-employers' );
 
 		return array(
@@ -284,35 +287,51 @@ class AdminEmployers extends \WP_List_Table {
 		$order = isset( $_GET['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) : 'DESC';
 		$order = in_array( $order, array( 'ASC', 'DESC' ), true ) ? $order : 'DESC';
 
-		$query_args = array(
-			'role__in' => array( 'wcb_employer' ),
-			'orderby'  => $orderby,
-			'order'    => $order,
-			'number'   => $per_page,
-			'offset'   => ( $current_page - 1 ) * $per_page,
-		);
+		// The employer set is role holders ∪ job authors (see employer_user_ids).
+		$employer_ids = $this->employer_user_ids();
 
 		if ( $search ) {
-			// Search user fields + company name via meta.
-			$company_user_ids = $this->get_user_ids_by_company_name( $search );
-
-			$query_args['search']         = '*' . $search . '*';
-			$query_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
-
-			if ( ! empty( $company_user_ids ) ) {
-				// Include users matched by company name too.
-				$query_args['include'] = array_unique(
-					array_merge(
-						$this->get_matching_user_ids( $search ),
-						$company_user_ids
-					)
-				);
-				// When using include, drop the text search to avoid double-filtering.
-				unset( $query_args['search'], $query_args['search_columns'] );
-			}
+			// Narrow the employer set to those matching the term by user field
+			// or company name. Intersect so a company/name match on a NON-
+			// employer never surfaces here.
+			$matched      = array_unique(
+				array_merge(
+					$this->get_matching_user_ids( $search ),
+					$this->get_user_ids_by_company_name( $search )
+				)
+			);
+			$employer_ids = array_values( array_intersect( $employer_ids, $matched ) );
 		}
 
-		$query       = new \WP_User_Query( $query_args );
+		$this->_column_headers = array(
+			$this->get_columns(),
+			array(), // Hidden columns.
+			$this->get_sortable_columns(),
+			'name', // Primary column.
+		);
+
+		if ( empty( $employer_ids ) ) {
+			// An empty `include` makes WP_User_Query return ALL users — guard it.
+			$this->items = array();
+			$this->set_pagination_args(
+				array(
+					'total_items' => 0,
+					'per_page'    => $per_page,
+					'total_pages' => 0,
+				)
+			);
+			return;
+		}
+
+		$query       = new \WP_User_Query(
+			array(
+				'include' => $employer_ids,
+				'orderby' => $orderby,
+				'order'   => $order,
+				'number'  => $per_page,
+				'offset'  => ( $current_page - 1 ) * $per_page,
+			)
+		);
 		$this->items = $query->get_results();
 
 		$this->set_pagination_args(
@@ -322,13 +341,51 @@ class AdminEmployers extends \WP_List_Table {
 				'total_pages' => (int) ceil( $query->get_total() / $per_page ),
 			)
 		);
+	}
 
-		$this->_column_headers = array(
-			$this->get_columns(),
-			array(), // Hidden columns.
-			$this->get_sortable_columns(),
-			'name', // Primary column.
+	/**
+	 * Every user who is functionally an employer on this board: anyone holding
+	 * the wcb_employer role PLUS anyone who has authored a job.
+	 *
+	 * Job posting is capability-gated, and administrators hold the posting cap
+	 * too, so a job author need not carry the employer role — but they ARE
+	 * running listings (the frontend attributes those jobs to them), so the
+	 * site owner must see them here. Keying the screen on `role__in` alone hid
+	 * every admin/non-role poster, which read as "No employers yet" on boards
+	 * whose listings were all posted by admins. Memoized per request.
+	 *
+	 * @since 1.7.0
+	 * @return int[]
+	 */
+	private function employer_user_ids(): array {
+		if ( null !== $this->employer_ids_cache ) {
+			return $this->employer_ids_cache;
+		}
+
+		$role_ids = ( new \WP_User_Query(
+			array(
+				'role__in' => array( 'wcb_employer' ),
+				'fields'   => 'ID',
+				'number'   => 0,
+			)
+		) )->get_results();
+
+		global $wpdb;
+		// Distinct authors of real (non-trashed) job posts.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$author_ids = $wpdb->get_col(
+			"SELECT DISTINCT post_author FROM {$wpdb->posts}
+			 WHERE post_type = 'wcb_job' AND post_author > 0
+			   AND post_status NOT IN ( 'trash', 'auto-draft' )"
 		);
+
+		$this->employer_ids_cache = array_values(
+			array_unique(
+				array_map( 'intval', array_merge( (array) $role_ids, (array) $author_ids ) )
+			)
+		);
+
+		return $this->employer_ids_cache;
 	}
 
 	/**
@@ -378,9 +435,10 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return int[]
 	 */
 	private function get_matching_user_ids( string $search ): array {
+		// Not role-scoped: an employer may be a job author without the role.
+		// The caller intersects the result with the employer set.
 		$q = new \WP_User_Query(
 			array(
-				'role__in'       => array( 'wcb_employer' ),
 				'search'         => '*' . $search . '*',
 				'search_columns' => array( 'user_login', 'user_email', 'display_name' ),
 				'fields'         => 'ID',
