@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.8';
+	const DB_VERSION = '1.2.9';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -186,7 +186,8 @@ final class Install {
 				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id),
-				KEY event_type  (event_type)
+				KEY event_type  (event_type),
+				KEY status  (status)
 			) ENGINE=InnoDB {$charset};"
 		);
 
@@ -383,6 +384,10 @@ final class Install {
 				self::migrate_add_postmeta_key_value_index();
 			}
 
+			if ( version_compare( (string) $installed, '1.2.9', '<' ) ) {
+				self::migrate_add_notifications_status_index();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -448,7 +453,7 @@ final class Install {
 			// rewrites the meta_value, shrinking the WHERE, so we loop until the
 			// duplicate owns no more jobs. Mirrors the module batch idiom.
 			do {
-				$jobs = get_posts(
+				$jobs           = get_posts(
 					array(
 						'post_type'      => 'wcb_job',
 						'post_status'    => 'any',
@@ -663,6 +668,42 @@ final class Install {
 		);
 		if ( 0 === $exists ) {
 			$wpdb->query( "ALTER TABLE {$wpdb->postmeta} ADD KEY wcb_meta_key_value (meta_key(191), meta_value(20))" );
+		}
+		// phpcs:enable
+	}
+
+	/**
+	 * Add an index on `wcb_notifications_log.status` for existing installs.
+	 *
+	 * The admin email-log endpoint (`AdminEndpoint::get_email_log()`) filters
+	 * this table by `status = %s`, but the column shipped without a key while
+	 * its sibling filter `event_type` had one. The table grows one row per
+	 * email sent, so on a busy install an admin filtering the log by status
+	 * (e.g. "failed") triggered a full-table scan. Fresh installs get the key
+	 * from `create_tables()`; this migration back-fills existing ones.
+	 *
+	 * Guarded on `information_schema` so re-runs are no-ops (idempotent),
+	 * mirroring {@see migrate_add_postmeta_key_value_index()}.
+	 *
+	 * @since  1.2.9
+	 * @return void
+	 */
+	private static function migrate_add_notifications_status_index(): void {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'wcb_notifications_log';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(1) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s',
+				DB_NAME,
+				$table,
+				'status'
+			)
+		);
+		if ( 0 === $exists ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD KEY status (status)" );
 		}
 		// phpcs:enable
 	}
