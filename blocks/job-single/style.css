@@ -253,6 +253,12 @@ a.wcb-badge:hover { opacity: 0.8; }
 	margin-bottom: 0;
 }
 
+.wcb-job-description__empty {
+	margin: 0;
+	color: var(--wcb-text-secondary, #6b7280);
+	font-style: italic;
+}
+
 .wcb-job-description p {
 	margin: 0 0 var(--wcb-space-md);
 }
