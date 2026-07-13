@@ -49,7 +49,14 @@ final class Install {
 		self::check_requirements();
 		self::maybe_upgrade();
 		( new Roles() )->register();
-		flush_rewrite_rules();
+		// DEFER the rewrite flush — do NOT call flush_rewrite_rules() here. The
+		// wcb_job / wcb_company / wcb_resume CPTs register on `init`, which has
+		// not run yet in the activation request, so an immediate flush writes a
+		// rule set WITHOUT the CPT rules and /jobs/ 404s until a manual
+		// Permalinks re-save (reproduced on any deactivate→reactivate cycle).
+		// Set the flag the modules already consume on the next `init` (after the
+		// CPTs are registered) — the established deferred-flush pattern.
+		update_option( 'wcb_flush_rewrite_rules', 1 );
 		// `wcb_db_version` is bumped inside maybe_upgrade() only when every
 		// expected table actually exists. Setting it here unconditionally
 		// (as we did pre-1.1.0) hid silent dbDelta failures: the version
