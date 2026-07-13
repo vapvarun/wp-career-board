@@ -116,11 +116,12 @@ At walk end, archive the diff window to `docs/qa/.debug-log-<release_version>-<r
 **Acceptance:** the primary front-end route returns HTTP 200; rewrite rules contain `wcb_job` (or whatever CPT permalink rule the plugin registers).
 
 ### A.db.tables-and-version
-**What to verify:** all expected tables exist; `wcb_db_version` option matches `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, 9 additional Pro tables exist (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`) created in `core/class-pro-install.php`; `wcbp_db_version` (option key, not `wcb_pro_db_version`) matches `WCBP_VERSION`. Total expected table count (combo): 12.
+**What to verify:** all expected tables exist; `wcb_db_version` option matches `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, 9 additional Pro tables exist (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`) created in `core/class-pro-install.php`; `wcbp_db_version` (option key, not `wcb_pro_db_version`) matches `WCBP_VERSION`. The bundled Wbcom Credits SDK adds **2 more** tables once native gateway checkout is exercised (`wcb_credit_gateway_log`, `wcb_credit_processed_events`) — created lazily by the SDK, not by class-pro-install.php. Total expected table count (combo): **14** (3 free + 9 pro + 2 SDK). Note `wcb_credit_ledger` is a Pro table (in the 9); the 2 SDK tables are the gateway log + processed-events idempotency store.
 
 ```bash
 wp --path="$WP_PATH" db query "SHOW TABLES LIKE '%wcb%'" --skip-column-names
-# Expected: 12 rows (3 free + 9 pro)
+# Expected: 14 rows (3 free + 9 pro + 2 Credits-SDK). Any wp_pc_-prefixed
+# wcb_credit_* tables are stray environment leftovers, not plugin-created.
 wp --path="$WP_PATH" option get wcb_db_version
 wp --path="$WP_PATH" option get wcbp_db_version
 ```
@@ -284,7 +285,7 @@ Combo-mode only. Each contract covers the customer-visible promise, not the impl
 ### E.pro.boards — `partial` (v1.1.0: 2 files, 6 hooks; REST: `GET/DELETE /boards/{id}`, CRUD on `/boards/{id}/stages`; admin surface: "Boards" tab under `wcb-settings` — rendered by `AdminBoards::render()`; board CPT is `wcb_board` owned by Free)
 **What to verify:** an admin can create a second job board with its own slug and category scope; a job assigned to that board appears on its public listing but not on the default board's listing.
 
-### E.pro.credits — `partial` (v1.1.0: 1 file, 3 hooks; REST: `GET /credits/packages`, `GET /employers/{id}/credits`; admin tab: `wcbp-credits` → redirects to `wcb-settings&tab=credits`; DB: `wcb_credit_ledger`)
+### E.pro.credits — `partial` (v1.1.0: 1 file, 3 hooks; REST: `GET /employers/{id}/credits` (balance/ledger) + the bundled Credits-SDK routes `.../balance`, `.../history`, `.../topup`, `.../checkout/{gateway}`, `.../refund/{gateway}`; admin tab: `wcbp-credits` → redirects to `wcb-settings&tab=credits`; DB: `wcb_credit_ledger` + SDK gateway tables. NOTE: there is NO `GET /credits/packages` route — credit packs are configured in the SDK pack admin and surfaced by the credit-balance block's native checkout, not a listing endpoint. Do not assert `/credits/packages`.)
 **What to verify:** the credit balance endpoint returns the employer's current balance (sum of signed ledger amounts); posting a job on a paid board decrements the balance; admin can grant credits and the audit row persists in `wcb_credit_ledger`. Reaching zero balance blocks new job posts with a clear "out of credits" notice.
 
 ### E.pro.alerts — `stub` (v1.1.0: 1 file, 4 hooks; REST: `GET/POST /alerts`, `PUT/DELETE /alerts/{id}`; cron `wcbp_dispatch_alerts`; no admin tab yet; DB: `wcb_job_alerts`)
