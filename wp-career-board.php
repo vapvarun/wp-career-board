@@ -65,7 +65,11 @@ if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
 }
 
 /*
- * Auto-activate the preset license key on first load so updates work.
+ * Auto-activate the preset community license so Free updates work — Free is
+ * keyless (no per-user license UI). Fires on plugin activation (immediate) and
+ * on admin_init (fallback for activation paths that bypass
+ * register_activation_hook: multisite network-activate, WP-CLI). Idempotent via
+ * the wcb_preset_activated flag, so running on both hooks is safe.
  *
  * Wbcom licensing model: the license is for AUTOMATIC UPDATES via EDD
  * Software Licensing only. It does NOT gate any plugin functionality —
@@ -78,36 +82,35 @@ if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
  * response was anything other than a valid license, surfacing the
  * remote 403 as a recurring PHP error in admin.
  */
-add_action(
-	'admin_init',
-	function () {
-		$preset_key = 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00';
-		$option     = 'wcb_license_key';
-		$activated  = 'wcb_preset_activated';
+function wcb_maybe_activate_preset_license(): void {
+	$preset_key = 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00';
+	$option     = 'wcb_license_key';
+	$activated  = 'wcb_preset_activated';
 
-		if ( get_option( $activated ) ) {
-			return;
-		}
-
-		update_option( $option, $preset_key, false );
-		update_option( $activated, 1, false );
-
-		// Best-effort remote activation; result is not enforced anywhere.
-		wp_remote_post(
-			'https://wbcomdesigns.com',
-			array(
-				'timeout'  => 15,
-				'blocking' => false,
-				'body'     => array(
-					'edd_action' => 'activate_license',
-					'license'    => $preset_key,
-					'item_id'    => WCB_EDD_ITEM_ID,
-					'url'        => home_url(),
-				),
-			)
-		);
+	if ( get_option( $activated ) ) {
+		return;
 	}
-);
+
+	update_option( $option, $preset_key, false );
+	update_option( $activated, 1, false );
+
+	// Best-effort remote activation; result is not enforced anywhere.
+	wp_remote_post(
+		'https://wbcomdesigns.com',
+		array(
+			'timeout'  => 15,
+			'blocking' => false,
+			'body'     => array(
+				'edd_action' => 'activate_license',
+				'license'    => $preset_key,
+				'item_id'    => WCB_EDD_ITEM_ID,
+				'url'        => home_url(),
+			),
+		)
+	);
+}
+add_action( 'admin_init', 'wcb_maybe_activate_preset_license' );
+register_activation_hook( WCB_FILE, 'wcb_maybe_activate_preset_license' );
 
 // Autoloader: maps WCB\ namespace to /core, /modules, /api, /integrations, /admin.
 // NAMING CONSTRAINT: Class names must use PascalCase for acronyms.

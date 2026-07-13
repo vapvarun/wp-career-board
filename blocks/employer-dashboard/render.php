@@ -50,7 +50,7 @@ wp_enqueue_style( 'wcb-confirm-modal' );
 wp_enqueue_script( 'wcb-confirm-modal' );
 
 $wcb_employer_id = get_current_user_id();
-$wcb_company_id  = (int) get_user_meta( $wcb_employer_id, '_wcb_company_id', true );
+$wcb_company_id  = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_employer_id );
 $wcb_company     = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 
 $wcb_company_name    = $wcb_company instanceof \WP_Post ? $wcb_company->post_title : '';

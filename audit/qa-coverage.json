@@ -2,18 +2,18 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.4.0"
+        "version": "1.5.1"
     },
     "generated": {
-        "at": "2026-06-15T10:32:48+00:00",
-        "manifest_at": "2026-06-10T00:00:00Z",
-        "manifest_branch": "1.4.0"
+        "at": "2026-07-08T19:19:03+00:00",
+        "manifest_at": "2026-07-09T00:00:00Z",
+        "manifest_branch": "1.5.1"
     },
     "categories": {
         "rest": {
-            "total": 50,
+            "total": 53,
             "covered": 0,
-            "uncovered": 50,
+            "uncovered": 53,
             "skipped": 0,
             "covered_items": [],
             "uncovered_items": [
@@ -266,6 +266,21 @@
                     "method": "GET",
                     "route": "/wcb/v1/admin/emails/log",
                     "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/admin/emails/log\""
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/account\""
+                },
+                {
+                    "method": "PUT",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest PUT \"/wcb/v1/account\""
+                },
+                {
+                    "method": "PATCH",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/account\""
                 }
             ]
         },
@@ -279,7 +294,7 @@
             "total": 86,
             "covered": 0,
             "uncovered": 86,
-            "skipped": 90,
+            "skipped": 96,
             "covered_items": [],
             "uncovered_items": [
                 {
@@ -768,15 +783,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 144,
+        "items_total": 147,
         "items_covered": 0,
-        "items_uncovered": 144,
-        "items_skipped": 90,
+        "items_uncovered": 147,
+        "items_skipped": 96,
         "coverage_percent": 0
     },
     "drift": {
-        "previous_uncovered": 143,
-        "current_uncovered": 144,
-        "delta": 1
+        "previous_uncovered": 144,
+        "current_uncovered": 147,
+        "delta": 3
     }
 }

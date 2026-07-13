@@ -407,8 +407,11 @@ class SetupWizard extends \WCB\Api\RestController {
 		$pages = apply_filters(
 			'wcb_wizard_required_pages',
 			array(
+				// Role-neutral title: the block is a dual role-picker (Find a Job /
+				// Hire Talent), so candidates and employers both register here. Key
+				// + slug stay `employer_registration_page` for back-compat.
 				'employer_registration_page' => array(
-					'title'   => __( 'Employer Registration', 'wp-career-board' ),
+					'title'   => __( 'Register', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/employer-registration /-->',
 				),
 				'employer_dashboard_page'    => array(

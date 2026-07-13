@@ -98,8 +98,12 @@ $tag_smoke = function ( int $id, string $kind ): void {
 	update_user_meta( $id, '_wcb_qa_kind', $kind );
 };
 
+// Canonical employer personas — logins match docs/qa/qa-config.json + the
+// walkthroughs (employer.figma is the primary; employer.stripe is the second
+// employer used by the cross-employer isolation journeys). Role slug is the
+// plugin's registered `wcb_employer` (NOT `employer`, which does not exist).
 $employers = array();
-foreach ( array( 'employer_alice', 'employer_bob' ) as $login ) {
+foreach ( array( 'employer.figma' => 'Figma', 'employer.stripe' => 'Stripe' ) as $login => $first_name ) {
 	$uid = username_exists( $login );
 	if ( ! $uid ) {
 		$uid = wp_insert_user(
@@ -107,8 +111,8 @@ foreach ( array( 'employer_alice', 'employer_bob' ) as $login ) {
 				'user_login' => $login,
 				'user_pass'  => wp_generate_password( 16 ),
 				'user_email' => $login . '@example.test',
-				'role'       => 'employer', // role is registered by the plugin's installer
-				'first_name' => ucfirst( str_replace( 'employer_', '', $login ) ),
+				'role'       => 'wcb_employer',
+				'first_name' => $first_name,
 			)
 		);
 		if ( is_wp_error( $uid ) ) {
@@ -120,8 +124,12 @@ foreach ( array( 'employer_alice', 'employer_bob' ) as $login ) {
 }
 WP_CLI::log( sprintf( '  employers: %s', wp_json_encode( $employers ) ) );
 
+// Canonical candidate personas — sarah.chen is the primary (qa-config candidate);
+// marcus.williams backs the "can't edit other candidate's resume" isolation
+// journey; wcbp_p5_candidate is used by the Pro group/scoping journeys. Role
+// slug is the plugin's registered `wcb_candidate` (NOT `candidate`).
 $candidates = array();
-foreach ( array( 'candidate_carol', 'candidate_dan', 'candidate_eve' ) as $login ) {
+foreach ( array( 'sarah.chen' => 'Sarah', 'marcus.williams' => 'Marcus', 'wcbp_p5_candidate' => 'Priya' ) as $login => $first_name ) {
 	$uid = username_exists( $login );
 	if ( ! $uid ) {
 		$uid = wp_insert_user(
@@ -129,8 +137,8 @@ foreach ( array( 'candidate_carol', 'candidate_dan', 'candidate_eve' ) as $login
 				'user_login' => $login,
 				'user_pass'  => wp_generate_password( 16 ),
 				'user_email' => $login . '@example.test',
-				'role'       => 'candidate',
-				'first_name' => ucfirst( str_replace( 'candidate_', '', $login ) ),
+				'role'       => 'wcb_candidate',
+				'first_name' => $first_name,
 			)
 		);
 		if ( is_wp_error( $uid ) ) {
@@ -162,6 +170,28 @@ if ( ! $moderator_id ) {
 }
 $tag_smoke( $moderator_id, 'moderator' );
 WP_CLI::log( sprintf( '  moderator: %s (id %d, role wcb_board_moderator)', $moderator_login, $moderator_id ) );
+
+// Subscriber persona — the "logged-in but no plugin role" surface. Backs the
+// security journey subscriber-cant-access-employer-dashboard (qa-config
+// `personas.subscriber`).
+$subscriber_login = 'siobhan';
+$subscriber_id    = username_exists( $subscriber_login );
+if ( ! $subscriber_id ) {
+	$subscriber_id = wp_insert_user(
+		array(
+			'user_login' => $subscriber_login,
+			'user_pass'  => wp_generate_password( 16 ),
+			'user_email' => $subscriber_login . '@example.test',
+			'role'       => 'subscriber',
+			'first_name' => 'Siobhan',
+		)
+	);
+	if ( is_wp_error( $subscriber_id ) ) {
+		WP_CLI::error( "failed to create user {$subscriber_login}: " . $subscriber_id->get_error_message() );
+	}
+}
+$tag_smoke( $subscriber_id, 'subscriber' );
+WP_CLI::log( sprintf( '  subscriber: %s (id %d, role subscriber)', $subscriber_login, $subscriber_id ) );
 
 // ---------------------------------------------------------------------------
 // 2. Posts (CPTs).
@@ -198,7 +228,7 @@ $board_id = $insert(
 );
 
 // Companies (one per employer).
-$company_alice = $insert(
+$company_alpha = $insert(
 	array(
 		'post_type'   => 'wcb_company',
 		'post_title'  => 'Smoke Co Alpha',
@@ -210,7 +240,7 @@ $company_alice = $insert(
 		'_wcb_company_website' => 'https://alpha.example.test',
 	)
 );
-$company_bob   = $insert(
+$company_beta  = $insert(
 	array(
 		'post_type'   => 'wcb_company',
 		'post_title'  => 'Smoke Co Beta',
@@ -247,7 +277,7 @@ for ( $i = 0; $i < 5; $i++ ) {
 	$status = 'publish';
 	$title  = sprintf( 'Smoke Job %d - Senior PHP Engineer', $i + 1 );
 	$meta   = array(
-		'_wcb_company_id'      => 0 === $i % 2 ? $company_alice : $company_bob,
+		'_wcb_company_id'      => 0 === $i % 2 ? $company_alpha : $company_beta,
 		'_wcb_company_name'    => 0 === $i % 2 ? 'Smoke Co Alpha' : 'Smoke Co Beta',
 		'_wcb_salary_min'      => '80000',
 		'_wcb_salary_max'      => '110000',
@@ -326,7 +356,7 @@ if ( $pro_active ) {
 				'note'        => 'Smoke seed - initial grant',
 			)
 		);
-		WP_CLI::log( '  pro: credit_ledger row for employer alice (5 credits, entry_type=topup)' );
+		WP_CLI::log( '  pro: credit_ledger row for employer.figma (5 credits, entry_type=topup)' );
 	}
 
 	// Job alert.
@@ -344,7 +374,7 @@ if ( $pro_active ) {
 				'frequency'    => 'daily',
 			)
 		);
-		WP_CLI::log( '  pro: job_alerts row for candidate carol (frequency=daily, search_query=javascript)' );
+		WP_CLI::log( '  pro: job_alerts row for sarah.chen (frequency=daily, search_query=javascript)' );
 	}
 
 	// Application stages master list (so pipeline UI has stages to render).
