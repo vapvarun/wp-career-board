@@ -82,6 +82,8 @@ class GdprModule {
 	 * @return array
 	 */
 	public function export_user_data( string $email_address, int $page = 1 ): array {
+		global $wpdb;
+
 		$user = get_user_by( 'email', $email_address );
 		if ( ! $user instanceof \WP_User ) {
 			return array(
@@ -147,7 +149,49 @@ class GdprModule {
 			);
 		}
 
-		$done = count( $apps ) < $per_page;
+		// Notifications log — page in lockstep with the applications query above
+		// using the same $page/$per_page. Rows in this table are typically far
+		// fewer than applications, so pages beyond its last one simply come back
+		// empty; `done` below only flips once both queries are drained.
+		$notification_offset = ( $page - 1 ) * $per_page;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off privacy export, not a hot path.
+		$notifications = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT event_type, channel, status, sent_at FROM {$wpdb->prefix}wcb_notifications_log WHERE user_id = %d ORDER BY id ASC LIMIT %d OFFSET %d",
+				$user->ID,
+				$per_page,
+				$notification_offset
+			),
+			ARRAY_A
+		);
+
+		foreach ( (array) $notifications as $index => $notification ) {
+			$data[] = array(
+				'group_id'    => 'wcb-notifications',
+				'group_label' => __( 'Notifications', 'wp-career-board' ),
+				'item_id'     => 'notification-' . $notification_offset . '-' . $index,
+				'data'        => array(
+					array(
+						'name'  => __( 'Event Type', 'wp-career-board' ),
+						'value' => (string) $notification['event_type'],
+					),
+					array(
+						'name'  => __( 'Channel', 'wp-career-board' ),
+						'value' => (string) $notification['channel'],
+					),
+					array(
+						'name'  => __( 'Status', 'wp-career-board' ),
+						'value' => (string) $notification['status'],
+					),
+					array(
+						'name'  => __( 'Sent', 'wp-career-board' ),
+						'value' => (string) $notification['sent_at'],
+					),
+				),
+			);
+		}
+
+		$done = count( $apps ) < $per_page && count( $notifications ) < $per_page;
 		if ( $done ) {
 			$this->log_action( $user->ID, 'export' );
 		}
@@ -175,6 +219,8 @@ class GdprModule {
 	 * @return array
 	 */
 	public function erase_user_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- destructive read always reads page 1; signature fixed by the privacy API.
+		global $wpdb;
+
 		$user = get_user_by( 'email', $email_address );
 		if ( ! $user instanceof \WP_User ) {
 			return array(
@@ -210,8 +256,36 @@ class GdprModule {
 			wp_delete_post( (int) $app_id, true );
 			++$removed;
 		}
+		$apps_done = count( $apps ) < $per_page;
 
-		$done = count( $apps ) < $per_page;
+		// Notifications log rows are transient UX/delivery notifications, not a
+		// legal or financial record — deletion is correct here (mirrors Pro's
+		// T6 eraser, which deletes wp_wcb_notifications outright rather than
+		// anonymizing it). Destructive read of the first page, same pattern as
+		// the applications query above: each pass shrinks the front of the set,
+		// so `done` is earned by whether a full batch came back, not by $page.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bulk erase of a custom table; bounded by LIMIT.
+		$notification_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}wcb_notifications_log WHERE user_id = %d ORDER BY id ASC LIMIT %d",
+				$user->ID,
+				$per_page
+			)
+		);
+
+		if ( $notification_ids ) {
+			$placeholders = implode( ',', array_fill( 0, count( $notification_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- bulk erase of a custom table; ids bound via $wpdb->prepare().
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_notifications_log WHERE id IN ({$placeholders})", $notification_ids ) );
+			$removed += count( $notification_ids );
+		}
+		$notifications_done = count( $notification_ids ) < $per_page;
+
+		$done = $apps_done && $notifications_done;
+
+		$items_retained = 0;
+		$messages       = array();
+
 		if ( $done ) {
 			// Profile-level meta is cleared once, on the final batch, so a
 			// multi-page erase doesn't repeat the work or double-log.
@@ -220,13 +294,30 @@ class GdprModule {
 			// Bookmarks are stored as non-unique meta (one row per bookmarked job).
 			delete_user_meta( $user->ID, '_wcb_bookmark' );
 
+			// wcb_job_views has no user_id (or any other person-linking) column —
+			// only a one-way SHA-256 hash of the viewer's IP address at view time
+			// (core/class-install.php). There is no reliable way to attribute a
+			// row in this table to this specific requester: the hash cannot be
+			// reversed, and matching on a hash of the requester's *current* IP
+			// would both miss their historical views (IP changes) and risk
+			// touching other people's rows on a shared/dynamic IP. It is already
+			// anonymous aggregate analytics with no linkage to a person, so it is
+			// out of scope for this eraser — nothing to erase or anonymize here.
+
+			// wcb_gdpr_log is the audit trail of GDPR requests themselves —
+			// explicit RETAIN, not erased. Legal basis: compliance/audit record
+			// of privacy-request handling (DATA-LIFECYCLE.md §9a); erasing it
+			// would destroy the evidence that this very request was honoured.
+			$items_retained = 1;
+			$messages[]     = __( 'GDPR request log entries are retained for compliance auditing.', 'wp-career-board' );
+
 			$this->log_action( $user->ID, 'erase' );
 		}
 
 		return array(
 			'items_removed'  => $removed,
-			'items_retained' => 0,
-			'messages'       => array(),
+			'items_retained' => $items_retained,
+			'messages'       => $messages,
 			'done'           => $done,
 		);
 	}
