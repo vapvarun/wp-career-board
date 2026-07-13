@@ -36,6 +36,12 @@ delete_option( 'wcb_setup_complete' );
 delete_option( 'wcb_sample_data_installed' );
 delete_option( 'wcb_companies_cache_v' );
 delete_option( 'wcb_posts_fulltext_supported' );
+delete_option( 'wcb_default_board_lock' );
+delete_option( 'wcb_flush_rewrite_rules' );
+delete_option( 'wcb_sample_data_ids' );
+
+// Version-keyed / TTL caches stored as transients.
+delete_transient( 'wcb_app_status_counts' );
 
 // Drop the indexes WCB adds to CORE tables (wp_postmeta composite lookup index
 // + wp_posts FULLTEXT) so nothing orphans on a shared table after uninstall.
