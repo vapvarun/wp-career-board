@@ -250,6 +250,21 @@ class AdminApplications extends \WP_List_Table {
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
 
+		// Prime the candidate user cache in one query so column_candidate()'s
+		// per-row get_userdata() doesn't fire an uncached user lookup per row
+		// (N+1 across the page). WP_Query already primed the postmeta cache, so
+		// these _wcb_candidate_id reads are free. See DATA-AT-SCALE Rule 3.
+		$wcb_candidate_ids = array();
+		foreach ( $this->items as $wcb_item ) {
+			$wcb_cid = (int) get_post_meta( $wcb_item->ID, '_wcb_candidate_id', true );
+			if ( $wcb_cid > 0 ) {
+				$wcb_candidate_ids[] = $wcb_cid;
+			}
+		}
+		if ( ! empty( $wcb_candidate_ids ) ) {
+			cache_users( array_values( array_unique( $wcb_candidate_ids ) ) );
+		}
+
 		$this->set_pagination_args(
 			array(
 				'total_items' => $query->found_posts,
