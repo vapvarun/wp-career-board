@@ -277,20 +277,12 @@ class AdminApplications extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		global $wpdb;
-
 		$base_url = admin_url( 'admin.php?page=wcb-applications' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
 
-		// Count total applications (all publish).
-		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'",
-				'wcb_application'
-			)
-		);
+		$counts = $this->get_status_counts();
 
 		$views = array();
 
@@ -299,24 +291,11 @@ class AdminApplications extends \WP_List_Table {
 			esc_url( $base_url ),
 			'' === $current ? ' class="current"' : '',
 			esc_html__( 'All', 'wp-career-board' ),
-			$total
+			$counts['total']
 		);
 
 		foreach ( self::STATUSES as $slug ) {
-			$label = ucfirst( $slug );
-			$count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare(
-					"SELECT COUNT(DISTINCT p.ID)
-					FROM {$wpdb->posts} p
-					INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
-					WHERE p.post_type = %s
-					  AND p.post_status = 'publish'
-					  AND pm.meta_key = '_wcb_status'
-					  AND pm.meta_value = %s",
-					'wcb_application',
-					$slug
-				)
-			);
+			$count = (int) ( $counts['by_status'][ $slug ] ?? 0 );
 
 			if ( 0 === $count && $current !== $slug ) {
 				continue;
@@ -326,12 +305,72 @@ class AdminApplications extends \WP_List_Table {
 				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 				esc_url( add_query_arg( 'app_status', $slug, $base_url ) ),
 				$current === $slug ? ' class="current"' : '',
-				esc_html( $label ),
+				esc_html( ucfirst( $slug ) ),
 				$count
 			);
 		}
 
 		return $views;
+	}
+
+	/**
+	 * Total + per-status application counts for the status tabs.
+	 *
+	 * Replaces the previous six-query-per-load pattern (one COUNT(*) plus one
+	 * non-sargable `COUNT(DISTINCT) JOIN postmeta` per status) with two
+	 * queries — a total and a single grouped scan of `_wcb_status` — behind a
+	 * short-lived transient. These are informational tab badges, so a few
+	 * minutes of staleness is acceptable (mirrors the analytics dashboard's
+	 * 5-minute stats cache); cross-surface invalidation on every REST/CLI
+	 * status change is deliberately not attempted for a non-critical count.
+	 * The grouped scan leans on the `(meta_key, meta_value)` postmeta index
+	 * (Install 1.2.8) so it stays sargable at volume.
+	 *
+	 * @since 1.2.9
+	 * @return array{total:int,by_status:array<string,int>}
+	 */
+	protected function get_status_counts(): array {
+		$cached = get_transient( 'wcb_app_status_counts' );
+		if ( is_array( $cached ) && isset( $cached['total'], $cached['by_status'] ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+
+		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'",
+				'wcb_application'
+			)
+		);
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS status, COUNT(*) AS cnt
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+				WHERE p.post_type = %s
+				  AND p.post_status = 'publish'
+				  AND pm.meta_key = '_wcb_status'
+				GROUP BY pm.meta_value",
+				'wcb_application'
+			),
+			ARRAY_A
+		);
+
+		$by_status = array();
+		foreach ( (array) $rows as $row ) {
+			$by_status[ (string) $row['status'] ] = (int) $row['cnt'];
+		}
+
+		$counts = array(
+			'total'     => $total,
+			'by_status' => $by_status,
+		);
+
+		set_transient( 'wcb_app_status_counts', $counts, 5 * MINUTE_IN_SECONDS );
+
+		return $counts;
 	}
 
 	// -------------------------------------------------------------------------
@@ -615,6 +654,10 @@ class AdminApplications extends \WP_List_Table {
 				do_action( 'wcb_application_status_changed', $app_id, $old_status, $new_status );
 			}
 		}
+
+		// Bust the status-tab count cache so the admin sees their own bulk
+		// action reflected immediately, rather than waiting out the TTL.
+		delete_transient( 'wcb_app_status_counts' );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=wcb-applications' ) );
 		exit;
