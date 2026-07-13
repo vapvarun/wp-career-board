@@ -70,6 +70,30 @@ echo "fixtures cleaned\n";
 
 > Verified CPT slugs (from code, 2026-05-09): `wcb_job`, `wcb_application`, `wcb_resume` (labelled "Resumes"; this is the candidate-profile CPT), `wcb_company`. Pro reuses these — no Pro-owned CPTs.
 
+## Adversarial fixtures (seed before Section H)
+
+Journeys seed the *ideal* data shape — a `wcb_employer`-role user, a job with a
+full description — which is exactly the shape the code was written for, so the
+walk never sees the mismatches real sites have. Bugs live in that gap ("No
+employers yet" when admins post jobs; a blank "About This Role" panel). Seed the
+messy cases below (all `Smoke ` prefixed, so Fixture cleanup removes them) and
+walk Section H against them.
+
+```bash
+# A job posted BY AN ADMIN — administrators hold wcb_post_jobs but are NOT
+# wcb_employer, so a screen keyed on the role alone hides them.
+wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
+   --post_title='Smoke Admin-Posted Role' --post_author=1 --porcelain
+# A job with an EMPTY description.
+wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
+   --post_title='Smoke No-Description Role' --post_content=''
+# A company with ZERO jobs.
+wp --path="$WP_PATH" post create --post_type=wcb_company --post_status=publish \
+   --post_title='Smoke Empty Company'
+# (combo) A board with ZERO pipeline stages — create a Smoke board, attach no stages.
+# (optional) An application with no cover letter / no resume attachment.
+```
+
 ## Debug log protocol
 
 Enable `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY=false` before Section A. Baseline `wp-content/debug.log` byte count. After every section, diff new lines into `debug_log_issues[]` classified by level. Any new fatal or warning is a failure unless explicitly whitelisted.
@@ -199,6 +223,39 @@ Each row is a repro of a past bug that caused customer pain. D rows stay specifi
 | D.public-chevron-lucide | Filter-panel expand/collapse chevrons on job-listings and company-archive blocks were hand-rolled inline SVGs that caused Interactivity API hydration mismatches. Fixed in 1.2.0 (commit `e5b7020`): both render templates replaced with `<i data-lucide="chevron-down">`. Basecamp 9891577445. | Open DevTools, navigate to /jobs/ and the company archive. Console must show ZERO hydration errors. Chevron icons must render correctly (visible, correct orientation) at both 1440px and 390px. |
 
 > D rows are sourced from the last 30 git commits (2026-05-15 audit) and updated after every customer-visible fix. After 2 clean releases, a D row graduates into C/E.
+
+---
+
+## H — Empty-state & adversarial-data matrix
+
+D looks *backward* (repros of specific past bugs). H looks *forward* at two
+whole bug classes the journey suite structurally can't catch, because journeys
+walk populated happy-path fixtures:
+
+- **Empty/blank states** — a surface renders a broken empty panel, a perpetual
+  spinner, or a misleading "0" instead of a real empty state.
+- **Adversarial data** — data that doesn't match the code's assumptions (a job
+  authored by an admin, a blank description, a company with no jobs).
+
+Requires the [Adversarial fixtures](#adversarial-fixtures-seed-before-section-h)
+seeded above. Walk every row; a blank panel, stuck spinner, misleading count, or
+fatal is a FAILURE (origin `from`). Roll pass/fail counts into
+`sections.D_regression_guards` in the report (H is a D-class structural guard).
+
+| ID | Surface | Empty / adversarial condition | Assertion |
+|---|---|---|---|
+| H.desc-empty | Job single — "About This Role" | job with blank `post_content` | shows a fallback line ("No description…"), NOT a heading over an empty panel |
+| H.employers-admin-role | Employers admin (`?page=wcb-employers`) | jobs exist but were posted by an admin (no `wcb_employer` role) | those job-authors are LISTED — screen does NOT show "No employers yet" |
+| H.employer-zero-jobs | Employers admin | an employer with a company but 0 published jobs | listed with "0" active jobs, not hidden |
+| H.applications-zero | Applications admin | a job with 0 applications / a status with 0 rows | status tab shows "(0)" and a clean empty table, no fatal |
+| H.company-zero-jobs | Company archive + single | a company with 0 jobs | renders with "No open positions" / "0", not broken markup |
+| H.search-no-match | Job archive / search | a query that matches nothing | clean empty state, not a fatal (extends C.anon.search) |
+| H.kanban-no-stages | Pipeline Kanban (combo) | a board with 0 configured stages | honest "no stages configured" empty state, NOT a perpetual "Loading…" |
+| H.credit-history-empty | Credit-balance block history (combo) | employer with 0 ledger entries | "No transactions yet", not a blank/loading panel |
+| H.orphan-application | Candidate "My Applications" | an application whose job was deleted | graceful "job removed" row (see journey `orphan-application-shows-job-removed`), not a fatal or blank row |
+
+> New empty-state / adversarial-data failures append a row here in the same PR
+> that fixes them — this matrix grows the same way D does.
 
 ---
 
