@@ -549,6 +549,13 @@ final class CompaniesEndpoint extends RestController {
 		foreach ( (array) $rows as $row ) {
 			$counts[ (int) $row->post_author ] = (int) $row->c;
 		}
+		// TTL-only cache (CACHING §4b): no write-time invalidation. The key is
+		// an md5 of the author-id SET, so a single save_post_wcb_job can't
+		// cheaply target the right entry — only a full-group flush would, which
+		// costs more than the staleness is worth. A company's "open positions"
+		// count tolerates up to 5 minutes of lag (a newly published job appears
+		// within one TTL window); we accept that bounded staleness rather than
+		// bust on every job write.
 		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
 		return $counts;
 	}
