@@ -1,0 +1,24 @@
+# Route-caller baseline — REST routes that currently have NO first-party
+# JS / admin-inline-script caller. Enforced by bin/check-route-callers.php
+# (composer route-callers), wired into bin/build-release.sh.
+#
+# An entry here is one of:
+#   (a) intentionally server-only / headless (inbound webhook, external API), or
+#   (b) KNOWN DEBT — the endpoint exists but its product UI is not wired yet.
+#
+# This file is a BASELINE, not a blessing: it exists so a NEW orphaned route
+# (like the /boards/{id}/stages CRUD + /fields/reorder that shipped unreachable
+# and became bugs) FAILS the release gate instead of slipping through. Remove an
+# entry the moment the route gets a caller — do not let this list grow silently.
+#
+# One exact route path per line (as registered), '#' starts a comment.
+
+# --- debt: wire a caller or remove the route ------------------------------
+# Headless-shaped config read; no first-party consumer found. Verify a block/
+# JS reads it, or drop it.
+/settings/app-config
+
+# Frontend moderator resolve flow. The Jobs ADMIN resolves flags via the
+# wcb_resolve_flag GET-param handler (class-admin-jobs.php), NOT this REST route
+# — confirm a frontend moderator UI calls it, or remove the duplicate path.
+/jobs/(?P<id>\d+)/resolve-flag

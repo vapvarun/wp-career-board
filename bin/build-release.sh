@@ -82,6 +82,19 @@ else
 	composer ci:no-journeys || { echo "FAIL: composer ci:no-journeys failed" >&2; exit 13; }
 fi
 
+# 4b. Surface-reachability gates — catch the "orphaned route" + "dead deprecated
+#     class" bug classes that walk-the-UI journeys/smoke structurally miss (they
+#     go UI-forward; these scan code-backward). A registered REST route with no
+#     caller, or a @deprecated class with no callers, blocks the release. These
+#     are part of `composer ci:no-journeys` (so dev CI + step 4 already ran
+#     them); run them directly only when CI was skipped, so a release NEVER
+#     ships an orphaned route / dead class regardless of flags.
+if [ "$SKIP_CI" -eq 1 ]; then
+	echo "Running reachability + dead-code gates (CI was skipped)..."
+	php "$ROOT/bin/check-route-callers.php" "$ROOT" || { echo "FAIL: orphaned REST route(s). Wire a caller or baseline in bin/route-callers-allowlist.txt." >&2; exit 14; }
+	php "$ROOT/bin/check-dead-code.php" "$ROOT"      || { echo "FAIL: dead @deprecated class(es). Remove them." >&2; exit 14; }
+fi
+
 # 5. Smoke-report gate (per docs/qa/SCAFFOLDING.md paste-block)
 # Pro reads its own supplement file; Free reads the combo file.
 if [ "$SLUG" = "wp-career-board-pro" ]; then
