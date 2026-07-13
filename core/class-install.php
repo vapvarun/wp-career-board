@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.7';
+	const DB_VERSION = '1.2.8';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -372,6 +372,17 @@ final class Install {
 				self::dedupe_default_boards();
 			}
 
+			// 1.2.8 — composite (meta_key, meta_value) index on wp_postmeta so
+			// the applications-by-job / -candidate lookups (which filter on the
+			// universal _wcb_job_id / _wcb_candidate_id / _wcb_status keys) are
+			// sargable instead of scanning every row sharing the meta_key.
+			// Confirmed under a 50k-application Docker+Redis benchmark:
+			// applications.list_for_job was 122ms (>50ms budget) without it.
+			// Idempotent information_schema guard; online ALTER on InnoDB.
+			if ( version_compare( (string) $installed, '1.2.8', '<' ) ) {
+				self::migrate_add_postmeta_key_value_index();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -618,5 +629,41 @@ final class Install {
 		// phpcs:enable
 
 		update_option( 'wcb_posts_fulltext_supported', true, false );
+	}
+
+	/**
+	 * Add a composite (meta_key, meta_value) index to wp_postmeta.
+	 *
+	 * Applications link to jobs/candidates only via the `_wcb_job_id` /
+	 * `_wcb_candidate_id` postmeta and are filtered by the universal
+	 * `_wcb_status` key. Core's `wp_postmeta` ships only `KEY meta_key(191)`,
+	 * so `WHERE meta_key = '_wcb_job_id' AND meta_value = <id>` scans every row
+	 * carrying that key (all applications). The prefixed composite index makes
+	 * those equality lookups sargable — the fix for T10 (measured 122ms >50ms
+	 * budget at 50k applications). Index name is namespaced and dropped on
+	 * uninstall so it never orphans on a shared core table.
+	 *
+	 * `meta_value(20)` fully covers the numeric IDs / short status slugs these
+	 * WCB keys hold; a wider prefix would bloat the index for no lookup gain.
+	 *
+	 * @since  1.2.8
+	 * @return void
+	 */
+	private static function migrate_add_postmeta_key_value_index(): void {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(1) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s',
+				DB_NAME,
+				$wpdb->postmeta,
+				'wcb_meta_key_value'
+			)
+		);
+		if ( 0 === $exists ) {
+			$wpdb->query( "ALTER TABLE {$wpdb->postmeta} ADD KEY wcb_meta_key_value (meta_key(191), meta_value(20))" );
+		}
+		// phpcs:enable
 	}
 }
