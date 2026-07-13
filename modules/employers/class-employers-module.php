@@ -46,6 +46,9 @@ final class EmployersModule {
 			'save_post_wcb_company',
 			static function (): void {
 				wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+				// Bump the /companies REST list-cache version so the next request
+				// rebuilds from fresh rows (see CompaniesEndpoint::get_items_cache_key).
+				update_option( 'wcb_companies_cache_v', (int) get_option( 'wcb_companies_cache_v', 0 ) + 1, false );
 			}
 		);
 		add_action(
@@ -53,6 +56,7 @@ final class EmployersModule {
 			static function ( $post_id ): void {
 				if ( 'wcb_company' === get_post_type( $post_id ) ) {
 					wp_cache_delete( 'wcb_distinct_industries', 'wcb_companies' );
+					update_option( 'wcb_companies_cache_v', (int) get_option( 'wcb_companies_cache_v', 0 ) + 1, false );
 				}
 			}
 		);
