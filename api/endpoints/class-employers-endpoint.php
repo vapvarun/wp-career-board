@@ -634,8 +634,31 @@ final class EmployersEndpoint extends RestController {
 			)
 		);
 
+		// Batch-count applications for these jobs in ONE query, exactly as the
+		// company-scoped get_jobs() does. Without this the no-company branch
+		// hardcoded appCount 0 for every job, so an employer who posts a job
+		// BEFORE completing their company profile saw "No applicants" and a 0
+		// dashboard badge even with real applications on file.
+		global $wpdb;
+		$wcb_job_ids     = wp_list_pluck( $query->posts, 'ID' );
+		$wcb_app_counts  = array();
+		if ( ! empty( $wcb_job_ids ) ) {
+			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$wcb_rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT meta_value AS job_id, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_job_id' AND meta_value IN ({$wcb_placeholders}) GROUP BY meta_value",
+					...$wcb_job_ids
+				)
+			);
+			// phpcs:enable
+			foreach ( (array) $wcb_rows as $wcb_row ) {
+				$wcb_app_counts[ (int) $wcb_row->job_id ] = (int) $wcb_row->cnt;
+			}
+		}
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url ): array {
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
@@ -664,8 +687,14 @@ final class EmployersEndpoint extends RestController {
 					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'appCount'    => 0,
-					'appLabel'    => __( 'No applicants', 'wp-career-board' ),
+					'appCount'    => $wcb_app_counts[ $p->ID ] ?? 0,
+					'appLabel'    => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+						? sprintf(
+							/* translators: %s: number of applicants, already localised. */
+							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
+							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
+						)
+						: __( 'No applicants', 'wp-career-board' ),
 					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
 					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
 					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
