@@ -85,7 +85,44 @@ final class SettingsEndpoint extends RestController {
 				'resume_archive'       => $is_pro_active,
 				'credits'              => $is_pro_active,
 				'ai_matching'          => $is_pro_active && (bool) apply_filters( 'wcb_pro_ai_enabled', false ),
+				// Compliance surfaces the mobile app must know about before it
+				// renders a control. These state what WORKS today: job reporting
+				// ships in Free; member block + in-app account deletion do not
+				// exist yet and stay false until their endpoints land, so the app
+				// never shows a button that 403s on this version.
+				'reporting'            => true,
+				'blocking'             => false,
+				'account_deletion'     => false,
 			),
+			// White-label branding. Free serves its own settings (with neutral
+			// defaults); Pro overrides from its white-label option via the
+			// wcb_rest_app_config filter. Never restate site name/icon here —
+			// those come from the core /wp-json/ index.
+			'accent_color'     => \WCB\Admin\Settings::string( 'accent_color', '#2563EB' ),
+			'logo_url'         => \WCB\Admin\Settings::string( 'logo_url', '' ),
+			'login_bg_url'     => \WCB\Admin\Settings::string( 'login_bg_url', '' ),
+			'dark_mode_default' => \WCB\Admin\Settings::bool( 'dark_mode_default', false ),
+			// Per-site legal surface (Apple 1.2 / 5.1.1). Each site owns its own
+			// policies; privacy defaults to WP core, abuse contact to the admin.
+			// Unset values are null, never a placeholder URL the app would treat
+			// as a live link.
+			'legal'            => array(
+				'privacy_policy_url'       => get_privacy_policy_url() ?: null,
+				'terms_url'                => \WCB\Admin\Settings::string( 'terms_url', '' ) ?: null,
+				'eula_url'                 => \WCB\Admin\Settings::string( 'eula_url', '' ) ?: null,
+				'community_guidelines_url' => \WCB\Admin\Settings::string( 'guidelines_url', '' ) ?: null,
+				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: (string) get_option( 'admin_email' ),
+			),
+			// Version floor + contract version so a client can force-upgrade and
+			// a strict parser can pin the shape. Additive-only: never rename or
+			// retype an existing key above.
+			'min_app_version'  => (string) apply_filters( 'wcb_min_app_version', '1.0.0' ),
+			'contract_version' => 1,
+			// The mobile app runs against the live REST API directly. This is
+			// NOT license-gated: Career Board's rule is "license = updates only,
+			// never gate functionality." A site owner can still turn the app
+			// surface off via the filter.
+			'app_enabled'      => (bool) apply_filters( 'wcb_app_enabled', true ),
 			'timezone'         => (string) wp_timezone_string(),
 			'locale'           => (string) get_locale(),
 			'rest_namespace'   => 'wcb/v1',
