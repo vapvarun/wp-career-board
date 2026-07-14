@@ -512,6 +512,23 @@ final class JobsEndpoint extends RestController {
 				array( 'status' => 404 )
 			);
 		}
+
+		// A job in moderation (pending) or a rejected draft is not public.
+		// Expose it only to its author, a moderator, or an admin — otherwise a
+		// guessed ID leaks unapproved content.
+		if ( 'publish' !== $post->post_status ) {
+			$is_owner = (int) $post->post_author === $this->current_user_id();
+			if ( ! $is_owner
+				&& ! $this->check_ability( 'wcb/moderate-jobs' )
+				&& ! $this->check_ability( 'wcb/manage-settings' ) ) {
+				return new \WP_Error(
+					'wcb_not_found',
+					__( 'Job not found.', 'wp-career-board' ),
+					array( 'status' => 404 )
+				);
+			}
+		}
+
 		$this->record_job_view( $post->ID );
 		$single_response = rest_ensure_response( $this->prepare_item_for_response_array( $post ) );
 		$single_response->header( 'Cache-Control', 'public, max-age=3600' );
@@ -1212,7 +1229,12 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Check if the current user can view applications.
+	 * Check if the current user can view this job's applications.
+	 *
+	 * The ability says the role may view applications at all; it does not say
+	 * which job's. Scope it to the job's author, or any employer could read
+	 * every other employer's applicants (name, email, cover letter, resume) —
+	 * the same IDOR the applications endpoint already guards against.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1220,7 +1242,20 @@ final class JobsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function view_applications_permissions_check( \WP_REST_Request $request ) {
-		return $this->check_ability( 'wcb/view-applications' ) ? true : $this->permission_error();
+		if ( ! $this->check_ability( 'wcb/view-applications' ) ) {
+			return $this->permission_error();
+		}
+
+		if ( $this->check_ability( 'wcb/manage-settings' ) || $this->check_ability( 'wcb/moderate-jobs' ) ) {
+			return true;
+		}
+
+		$job = get_post( (int) $request['id'] );
+		if ( ! $job instanceof \WP_Post || 'wcb_job' !== $job->post_type ) {
+			return $this->permission_error();
+		}
+
+		return (int) $job->post_author === $this->current_user_id() ? true : $this->permission_error();
 	}
 
 	// --- Helpers ----------------------------------------------------------------
