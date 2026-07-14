@@ -173,6 +173,7 @@ final class Plugin {
 			\WCB\Modules\Seo\SeoModule::class,
 			\WCB\Modules\Seo\RssFeedEnrichment::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
+			\WCB\Modules\Account\AccountDeletionService::class,
 		);
 
 		foreach ( $module_classes as $class ) {
@@ -200,6 +201,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\AdminEndpoint::class,
 			\WCB\Api\Endpoints\SettingsEndpoint::class,
 			\WCB\Api\Endpoints\AccountEndpoint::class,
+			\WCB\Api\Endpoints\AccountDeletionEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {

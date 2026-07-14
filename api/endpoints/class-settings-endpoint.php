@@ -92,7 +92,7 @@ final class SettingsEndpoint extends RestController {
 				// never shows a button that 403s on this version.
 				'reporting'            => true,
 				'blocking'             => false,
-				'account_deletion'     => false,
+				'account_deletion'     => true,
 			),
 			// White-label branding. Free serves its own settings (with neutral
 			// defaults); Pro overrides from its white-label option via the
