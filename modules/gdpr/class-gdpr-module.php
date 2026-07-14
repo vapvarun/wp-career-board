@@ -294,6 +294,14 @@ class GdprModule {
 			// Bookmarks are stored as non-unique meta (one row per bookmarked job).
 			delete_user_meta( $user->ID, '_wcb_bookmark' );
 
+			// Member safety state: who this member blocked, and any reports
+			// filed against them. Both are non-unique/scalar user-meta.
+			delete_user_meta( $user->ID, '_wcb_blocked' );
+			delete_user_meta( $user->ID, '_wcb_member_flag_reporters' );
+			delete_user_meta( $user->ID, '_wcb_member_flag_reasons' );
+			delete_user_meta( $user->ID, '_wcb_member_flag_count' );
+			delete_user_meta( $user->ID, '_wcb_member_flag_status' );
+
 			// wcb_job_views has no user_id (or any other person-linking) column —
 			// only a one-way SHA-256 hash of the viewer's IP address at view time
 			// (core/class-install.php). There is no reliable way to attribute a

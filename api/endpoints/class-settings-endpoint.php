@@ -91,7 +91,7 @@ final class SettingsEndpoint extends RestController {
 				// exist yet and stay false until their endpoints land, so the app
 				// never shows a button that 403s on this version.
 				'reporting'            => true,
-				'blocking'             => false,
+				'blocking'             => true,
 				'account_deletion'     => true,
 			),
 			// White-label branding. Free serves its own settings (with neutral

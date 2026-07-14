@@ -108,6 +108,7 @@ class AdminCandidates extends \WP_List_Table {
 		return array(
 			'cb'           => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all candidates', 'wp-career-board' ) ),
 			'name'         => __( 'Name', 'wp-career-board' ),
+			'status'       => __( 'Status', 'wp-career-board' ),
 			'visibility'   => __( 'Profile Visibility', 'wp-career-board' ),
 			'applications' => __( 'Applications', 'wp-career-board' ),
 			'bookmarks'    => __( 'Bookmarks', 'wp-career-board' ),
@@ -136,8 +137,57 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	protected function get_bulk_actions(): array {
 		return array(
-			'delete' => __( 'Delete', 'wp-career-board' ),
+			'suspend'   => __( 'Suspend', 'wp-career-board' ),
+			'unsuspend' => __( 'Restore', 'wp-career-board' ),
+			'delete'    => __( 'Delete', 'wp-career-board' ),
 		);
+	}
+
+	/**
+	 * Apply a suspend/unsuspend action from the list table.
+	 *
+	 * Mirrors AdminEmployers: reuses the single _wcb_employer_banned flag that
+	 * both Abilities::gate() and candidate_gate() already read, so a suspended
+	 * candidate is denied every write at the permission chokepoint — including
+	 * a mobile client holding a valid Application Password.
+	 *
+	 * @since 1.7.0
+	 * @return void
+	 */
+	public function process_bulk_action(): void {
+		$action = $this->current_action();
+		if ( 'suspend' !== $action && 'unsuspend' !== $action ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'bulk-candidates' ) ) {
+			return;
+		}
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_ids = isset( $_GET['user'] ) ? array_map( 'intval', (array) $_GET['user'] ) : array();
+		$current  = get_current_user_id();
+
+		foreach ( $user_ids as $user_id ) {
+			if ( $user_id <= 0 || $user_id === $current ) {
+				continue;
+			}
+			if ( 'suspend' === $action ) {
+				update_user_meta( $user_id, '_wcb_employer_banned', '1' );
+				do_action( 'wcb_member_suspended', $user_id );
+			} else {
+				delete_user_meta( $user_id, '_wcb_employer_banned' );
+				do_action( 'wcb_member_unsuspended', $user_id );
+			}
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-candidates' ) );
+		exit;
 	}
 
 	// -------------------------------------------------------------------------
@@ -292,7 +342,55 @@ class AdminCandidates extends \WP_List_Table {
 			),
 		);
 
+		$is_suspended = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
+		$toggle       = $is_suspended ? 'unsuspend' : 'suspend';
+		$toggle_url   = wp_nonce_url(
+			add_query_arg(
+				array(
+					'page'   => 'wcb-candidates',
+					'action' => $toggle,
+					'user'   => array( $item->ID ),
+				),
+				admin_url( 'admin.php' )
+			),
+			'bulk-candidates'
+		);
+		$row_actions[ $toggle ] = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( $toggle_url ),
+			$is_suspended ? esc_html__( 'Restore', 'wp-career-board' ) : esc_html__( 'Suspend', 'wp-career-board' )
+		);
+
 		$out .= $this->row_actions( $row_actions );
+		return $out;
+	}
+
+	/**
+	 * Status column — suspension state plus any open report count.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param \WP_User $item Row user object.
+	 * @return string
+	 */
+	protected function column_status( $item ): string {
+		$out = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true )
+			? sprintf( '<span class="wcb-badge wcb-badge--danger">%s</span>', esc_html__( 'Suspended', 'wp-career-board' ) )
+			: sprintf( '<span class="wcb-badge wcb-badge--success">%s</span>', esc_html__( 'Active', 'wp-career-board' ) );
+
+		$flags = (int) get_user_meta( $item->ID, '_wcb_member_flag_count', true );
+		if ( $flags > 0 && 'resolved' !== (string) get_user_meta( $item->ID, '_wcb_member_flag_status', true ) ) {
+			$out .= sprintf(
+				' <span class="wcb-badge wcb-badge--warning" title="%s">%s</span>',
+				esc_attr__( 'Open reports', 'wp-career-board' ),
+				sprintf(
+					/* translators: %d: number of reports. */
+					esc_html( _n( '%d report', '%d reports', $flags, 'wp-career-board' ) ),
+					$flags
+				)
+			);
+		}
+
 		return $out;
 	}
 

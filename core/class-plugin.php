@@ -202,6 +202,7 @@ final class Plugin {
 			\WCB\Api\Endpoints\SettingsEndpoint::class,
 			\WCB\Api\Endpoints\AccountEndpoint::class,
 			\WCB\Api\Endpoints\AccountDeletionEndpoint::class,
+			\WCB\Api\Endpoints\MembersEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
