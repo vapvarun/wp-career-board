@@ -370,6 +370,7 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	private function build_jobs_response( array $jobs, int $total, int $pages, int $paged ): \WP_REST_Response {
+		$jobs = $this->enrich_viewer_state( $jobs );
 		$response = rest_ensure_response(
 			array(
 				'jobs'     => $jobs,
@@ -392,11 +393,112 @@ final class JobsEndpoint extends RestController {
 		);
 		$response->header( 'X-WCB-Total', (string) $total );
 		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$response->header( 'Vary', 'Cookie, Authorization' );
 		// The body now carries localised strings. A logged-in user may have a
 		// different locale from the site, so a shared cache must not reuse their
 		// response for anyone else.
 		$response->header( 'Cache-Control', is_user_logged_in() ? 'private, max-age=300' : 'public, max-age=300' );
 		return $response;
+	}
+
+	/**
+	 * Add viewer-relative fields to a page of job cards.
+	 *
+	 * Runs after the query cache (the cached card set is per-query, not
+	 * per-user), so this stays out of prepare_item_for_response_array to avoid
+	 * poisoning that cache. Batch-fetched: one usermeta read for bookmarks and
+	 * one query for this page's applications, never a lookup per row.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param array<int, array<string, mixed>> $jobs Prepared job cards.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function enrich_viewer_state( array $jobs ): array {
+		$uid = $this->current_user_id();
+
+		$job_ids = array();
+		foreach ( $jobs as $job ) {
+			if ( isset( $job['id'] ) ) {
+				$job_ids[] = (int) $job['id'];
+			}
+		}
+
+		if ( 0 === $uid || empty( $job_ids ) ) {
+			foreach ( $jobs as &$job ) {
+				$job['is_bookmarked']      = false;
+				$job['has_applied']        = false;
+				$job['application_status'] = null;
+				$job['viewer_can_apply']   = 0 === $uid;
+			}
+			unset( $job );
+			return $jobs;
+		}
+
+		$bookmarked  = array_fill_keys( array_map( 'intval', (array) get_user_meta( $uid, '_wcb_bookmark', false ) ), true );
+		$application = $this->viewer_applications( $uid, $job_ids );
+		$can_apply   = $this->check_ability( 'wcb/apply-jobs' );
+
+		foreach ( $jobs as &$job ) {
+			$id                        = (int) ( $job['id'] ?? 0 );
+			$status                    = $application[ $id ] ?? null;
+			$is_owner                  = isset( $job['author'] ) && (int) $job['author'] === $uid;
+			$job['is_bookmarked']      = isset( $bookmarked[ $id ] );
+			$job['has_applied']        = null !== $status;
+			$job['application_status'] = $status;
+			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status;
+		}
+		unset( $job );
+
+		return $jobs;
+	}
+
+	/**
+	 * Map of job ID => the viewer's application status, for a set of jobs.
+	 *
+	 * One query for the whole page.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param int        $uid     Candidate user ID.
+	 * @param array<int> $job_ids Job IDs on the current page.
+	 * @return array<int, string>
+	 */
+	private function viewer_applications( int $uid, array $job_ids ): array {
+		$applications = get_posts(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => 'any',
+				'author'         => $uid,
+				'posts_per_page' => count( $job_ids ),
+				'no_found_rows'  => true,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => '_wcb_job_id',
+						'value'   => $job_ids,
+						'compare' => 'IN',
+						'type'    => 'NUMERIC',
+					),
+				),
+			)
+		);
+
+		if ( empty( $applications ) ) {
+			return array();
+		}
+
+		update_postmeta_cache( $applications );
+
+		$map = array();
+		foreach ( $applications as $application_id ) {
+			$job_id = (int) get_post_meta( (int) $application_id, '_wcb_job_id', true );
+			if ( $job_id > 0 ) {
+				$map[ $job_id ] = (string) get_post_meta( (int) $application_id, '_wcb_status', true );
+			}
+		}
+
+		return $map;
 	}
 
 	/**
@@ -530,8 +632,12 @@ final class JobsEndpoint extends RestController {
 		}
 
 		$this->record_job_view( $post->ID );
-		$single_response = rest_ensure_response( $this->prepare_item_for_response_array( $post ) );
-		$single_response->header( 'Cache-Control', 'public, max-age=3600' );
+		$enriched        = $this->enrich_viewer_state( array( $this->prepare_item_for_response_array( $post ) ) );
+		$single_response = rest_ensure_response( $enriched[0] );
+		// Viewer state makes the body user-specific, so it can no longer be
+		// shared. Public callers still get a cacheable response.
+		$single_response->header( 'Vary', 'Cookie, Authorization' );
+		$single_response->header( 'Cache-Control', is_user_logged_in() ? 'private, max-age=300' : 'public, max-age=3600' );
 		return $single_response;
 	}
 
