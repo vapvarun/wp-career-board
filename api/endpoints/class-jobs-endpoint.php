@@ -306,6 +306,14 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		// Hide jobs from an employer this viewer has blocked (or who blocked them).
+		// Added before the cache key so the transient fragments per blocklist and a
+		// shared cache never leaks a blocked employer's jobs.
+		$wcb_hidden_authors = \WCB\Core\Blocks::hidden_author_ids( $this->current_user_id() );
+		if ( ! empty( $wcb_hidden_authors ) ) {
+			$args['author__not_in'] = $wcb_hidden_authors;
+		}
+
 		$cache_key    = $this->get_items_cache_key( $args );
 		$cached_value = get_transient( $cache_key );
 
@@ -629,6 +637,16 @@ final class JobsEndpoint extends RestController {
 					array( 'status' => 404 )
 				);
 			}
+		}
+
+		// A blocked employer's job stays hidden even on a direct link — a block
+		// the list hides but the detail exposes is not a block.
+		if ( \WCB\Core\Blocks::is_hidden( $this->current_user_id(), (int) $post->post_author ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		$this->record_job_view( $post->ID );
