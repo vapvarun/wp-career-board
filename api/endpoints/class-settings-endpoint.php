@@ -121,11 +121,12 @@ final class SettingsEndpoint extends RestController {
 			// retype an existing key above.
 			'min_app_version'  => (string) apply_filters( 'wcb_min_app_version', '1.0.0' ),
 			'contract_version' => 1,
-			// The mobile app runs against the live REST API directly. This is
-			// NOT license-gated: Career Board's rule is "license = updates only,
-			// never gate functionality." A site owner can still turn the app
-			// surface off via the filter.
-			'app_enabled'      => (bool) apply_filters( 'wcb_app_enabled', true ),
+			// The mobile app is a Pro benefit gated on an active license. Free
+			// only ships the flag; Pro filters it to `&& is licensed` (see
+			// WCB\Pro\Core\FreeCoordination). Default requires Pro active so a
+			// free-only site reports the app disabled. This gates the APP surface
+			// only — the plugin's own web features stay license-independent.
+			'app_enabled'      => (bool) apply_filters( 'wcb_app_enabled', $is_pro_active ),
 			'timezone'         => (string) wp_timezone_string(),
 			'locale'           => (string) get_locale(),
 			'rest_namespace'   => 'wcb/v1',
