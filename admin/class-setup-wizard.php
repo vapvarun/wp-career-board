@@ -407,11 +407,14 @@ class SetupWizard extends \WCB\Api\RestController {
 		$pages = apply_filters(
 			'wcb_wizard_required_pages',
 			array(
-				// Role-neutral title: the block is a dual role-picker (Find a Job /
-				// Hire Talent), so candidates and employers both register here. Key
-				// + slug stay `employer_registration_page` for back-compat.
+				// Titled + slugged to match the Settings "Create Missing Pages"
+				// path and the published docs (/employer-registration/), so the
+				// wizard-created page and the doc URLs never diverge. The block
+				// itself is a dual role-picker (Find a Job / Hire Talent); the key
+				// stays `employer_registration_page` for back-compat.
 				'employer_registration_page' => array(
-					'title'   => __( 'Register', 'wp-career-board' ),
+					'title'   => __( 'Employer Registration', 'wp-career-board' ),
+					'slug'    => 'employer-registration',
 					'content' => '<!-- wp:wp-career-board/employer-registration /-->',
 				),
 				'employer_dashboard_page'    => array(
@@ -473,6 +476,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			$page_id = wp_insert_post(
 				array(
 					'post_title'   => $page_data['title'],
+					'post_name'    => $page_data['slug'] ?? '',
 					'post_content' => $page_data['content'],
 					'post_status'  => 'publish',
 					'post_type'    => 'page',
