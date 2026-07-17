@@ -190,8 +190,19 @@
 	pointer-events: none;
 }
 
+.wcb-btn:active { transform: scale(0.97); }
+
+/* Icons inside buttons (client-swapped [data-lucide] or inline Icon::svg). */
+.wcb-btn [data-lucide],
+.wcb-btn .wcb-icon {
+	width: var(--wcb-icon-sm);
+	height: var(--wcb-icon-sm);
+	flex-shrink: 0;
+}
+
 .wcb-btn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 .wcb-btn--lg { min-height: 48px; padding: 0 var(--wcb-space-xl); font-size: var(--wcb-text-md); }
+.wcb-btn--full,
 .wcb-btn--block { width: 100%; }
 
 .wcb-btn--primary {
