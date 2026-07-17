@@ -17,8 +17,8 @@
  *     is nothing here for a translator to reorder, so no sprintf() wrapper.
  *   - This block has no viewScript, no wp_interactivity_state() and no client
  *     side strings, so there is no 'i18n' state array to keep in sync.
- *   - `data-lucide` icon ids ("briefcase", "building-2", "users") are
- *     machine-facing identifiers consumed by the Lucide runtime. Like the pro
+ *   - The icon ids ("briefcase", "building-2", "users") are machine-facing
+ *     identifiers passed to `Icon::svg()` for inline SVG output. Like the pro
  *     plugin's XML job feed, they are deliberately NOT translated.
  *
  * @package WP_Career_Board
@@ -70,7 +70,7 @@ if ( empty( $wcb_stats ) ) {
 	<?php foreach ( $wcb_stats as $wcb_stat ) : ?>
 		<div class="wcb-stat-item">
 			<span class="wcb-stat-icon">
-				<i data-lucide="<?php echo esc_attr( $wcb_stat['icon'] ); ?>" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( $wcb_stat['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 			</span>
 			<span class="wcb-stat-count"><?php echo esc_html( number_format_i18n( $wcb_stat['count'] ) ); ?></span>
 			<span class="wcb-stat-label"><?php echo esc_html( $wcb_stat['label'] ); ?></span>

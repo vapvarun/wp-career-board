@@ -37,7 +37,7 @@ if ( empty( $wcb_jobs ) ) {
 		?>
 		<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-recent-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<div class="wcb-recent-empty">
-				<i data-lucide="inbox" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				<p><?php esc_html_e( 'No recent jobs to display.', 'wp-career-board' ); ?></p>
 			</div>
 		</div>

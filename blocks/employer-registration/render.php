@@ -158,7 +158,7 @@ wp_interactivity_state(
 					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
 				</button>
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer" aria-label="<?php esc_attr_e( 'Hire Talent', 'wp-career-board' ); ?>">
-					<span class="wcb-role-icon" aria-hidden="true"><i data-lucide="building-2" aria-hidden="true"></i></span>
+					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building-2' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
 					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
 				</button>
