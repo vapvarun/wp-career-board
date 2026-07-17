@@ -103,7 +103,7 @@
 .wcb-editor-holder code,
 .wcb-editor-holder .cdx-inline-code {
 	background: var(--wcb-bg-subtle, rgba(0, 0, 0, 0.05));
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 0.125em 0.375em;
 	font-size: 0.9em;
 	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;

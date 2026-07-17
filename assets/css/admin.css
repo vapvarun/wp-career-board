@@ -11,7 +11,7 @@
 	gap: 8px;
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 10px 16px;
 	margin: 12px 0 20px;
 }
@@ -30,7 +30,7 @@
 	display: inline-block;
 	background: #f0f0f1;
 	color: var(--wcb-text-secondary, #475569);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
 	font-size: 11px;
 	font-weight: 600;
@@ -40,7 +40,7 @@
 	display: inline-block;
 	background: linear-gradient(135deg, #6366f1, #8b5cf6);
 	color: #fff;
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
 	font-size: 9px;
 	font-weight: 700;
@@ -354,7 +354,7 @@
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-top: none;
-	border-radius: 0 0 var(--wcb-radius-sm, 4px) var(--wcb-radius-sm, 4px);
+	border-radius: 0 0 var(--wcb-radius-sm, 6px) var(--wcb-radius-sm, 6px);
 	padding: 0 16px;
 	display: flex;
 	gap: 0;
@@ -649,7 +649,7 @@
 	width: 100%;
 	padding: 6px 10px;
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	font-size: 13px;
 	background: var(--wcb-base, #ffffff);
 	color: var(--wcb-contrast, #1e293b);
@@ -690,7 +690,7 @@
 	width: 100%;
 	padding: 6px 10px;
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	font-size: 13px;
 }
 
@@ -754,7 +754,7 @@
 	box-sizing: border-box;
 	padding: 8px 10px;
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	font-size: 13px;
 	font-family: inherit;
 	resize: vertical;
@@ -983,7 +983,7 @@
 	font-size: 12px;
 	color: var(--wcb-text-secondary, #475569);
 	background: var(--wcb-bg-subtle, #f8fafc);
-	border-radius: var(--wcb-radius-sm, 4px);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 8px 12px;
 	margin-bottom: 16px;
 	line-height: 1.6;
