@@ -956,7 +956,7 @@
 .wcb-import-badge {
 	display: inline-block;
 	padding: 2px 8px;
-	border-radius: 3px;
+	border-radius: var(--wcb-radius-sm, 6px);
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -964,13 +964,13 @@
 }
 
 .wcb-import-badge--active {
-	background: #d1e7dd;
-	color: #0a3622;
+	background: var(--wcb-success-bg, #dcfce7);
+	color: var(--wcb-success-fg, #166534);
 }
 
 .wcb-import-badge--inactive {
-	background: #f8d7da;
-	color: #58151c;
+	background: var(--wcb-danger-bg, #fee2e2);
+	color: var(--wcb-danger-fg, #991b1b);
 }
 
 .wcb-import-desc {
@@ -1025,8 +1025,8 @@
 }
 
 .wcb-import-notice {
-	background: #fff3cd;
-	border-left: 4px solid #f0c33c;
+	background: var(--wcb-warning-bg-soft, #fffbeb);
+	border-inline-start: 4px solid var(--wcb-warning, #d97706);
 	padding: 8px 12px;
 	margin: 0;
 	font-size: 13px;
@@ -1040,7 +1040,7 @@
 
 .wcb-import-progress-bar-track {
 	height: 10px;
-	background: #dde0e4;
+	background: var(--wcb-border, #e2e8f0);
 	border-radius: 5px;
 	overflow: hidden;
 }
@@ -1064,9 +1064,9 @@
 	margin-top: 12px;
 	max-height: 160px;
 	overflow-y: auto;
-	background: #f6f7f7;
-	border: 1px solid #dde0e4;
-	border-radius: 3px;
+	background: var(--wcb-bg-subtle, #f8fafc);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 8px 12px;
 	font-size: 12px;
 	font-family: monospace;
@@ -1078,7 +1078,7 @@
 }
 
 .wcb-import-log-line--error {
-	color: #b32d2e;
+	color: var(--wcb-danger-fg, #991b1b);
 }
 
 .wcb-import-log-done {
