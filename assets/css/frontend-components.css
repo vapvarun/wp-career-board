@@ -65,7 +65,8 @@
 
 /* ── Lucide Icon Sizing ──────────────────────────────────────────────── */
 
-[data-lucide] {
+[data-lucide],
+.wcb-icon {
 	width: var(--wcb-icon-md);
 	height: var(--wcb-icon-md);
 	stroke-width: var(--wcb-icon-stroke);
@@ -101,7 +102,8 @@
 .wcb-badge--muted    { background: var(--wcb-bg-subtle, #f3f4f6); color: var(--wcb-text-secondary); }
 .wcb-badge--featured { background: var(--wcb-warning-bg);  color: var(--wcb-warning-fg); }
 
-.wcb-badge [data-lucide] {
+.wcb-badge [data-lucide],
+.wcb-badge .wcb-icon {
 	width: var(--wcb-icon-xs);
 	height: var(--wcb-icon-xs);
 }
@@ -204,7 +206,7 @@ select.wcb-field {
 	display: block;
 	width: var(--wcb-icon-2xl);
 	height: var(--wcb-icon-2xl);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: 0 auto var(--wcb-space-lg);
 	stroke-width: 1.5;
 }
@@ -265,7 +267,8 @@ select.wcb-field {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 36px;
+	min-width: 40px;
+	min-height: 40px;
 	height: 36px;
 	padding: 0 var(--wcb-space-sm);
 	font-family: inherit;
@@ -372,7 +375,7 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-field-hint,
 [class*="wp-block-wcb-"] .wcb-field-hint {
 	font-weight: var(--wcb-font-normal);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
 	margin-inline-start: var(--wcb-space-xs);
 }
@@ -677,7 +680,7 @@ select.wcb-field {
 	top: 50%;
 	transform: translateY(-50%);
 	z-index: 1;
-	color: var(--wcb-text-tertiary, var(--wp--preset--color--wcb-muted));
+	color: var(--wcb-text-secondary, var(--wp--preset--color--wcb-muted));
 	pointer-events: none;
 	display: flex;
 	align-items: center;
@@ -797,6 +800,8 @@ select.wcb-field {
 	justify-content: center;
 	width: 36px;
 	height: 36px;
+	min-width: 40px;
+	min-height: 40px;
 	padding: 0;
 	border: none;
 	background: transparent;

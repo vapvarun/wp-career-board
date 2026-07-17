@@ -78,7 +78,7 @@
 	font-weight: var(--wcb-font-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	padding: var(--wcb-space-md) var(--wcb-space-lg) var(--wcb-space-sm);
 	border-top: 1px solid var(--wcb-border);
 	margin-top: var(--wcb-space-xs);

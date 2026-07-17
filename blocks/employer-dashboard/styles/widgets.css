@@ -99,7 +99,7 @@
 	align-items: center;
 	justify-content: center;
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	cursor: default;
 	opacity: 0.55;
 	margin-bottom: var(--wcb-space-lg);
@@ -107,7 +107,7 @@
 
 .wcb-logo-caption {
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: 0 0 var(--wcb-space-lg);
 }
 
@@ -122,7 +122,7 @@
 .wcb-preview-title {
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
 	margin: 0 0 var(--wcb-space-lg);
@@ -301,7 +301,7 @@
 	background: none;
 	border: none;
 	border-radius: var(--wcb-radius-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	cursor: pointer;
 	transition: color 0.15s ease, background 0.15s ease;
 }
@@ -323,13 +323,13 @@
 .wcb-bell-time {
 	display: block;
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin-top: 2px;
 }
 .wcb-notifications__empty {
 	padding: var(--wcb-space-xl);
 	text-align: center;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
 }
 

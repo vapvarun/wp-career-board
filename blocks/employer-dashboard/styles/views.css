@@ -85,7 +85,7 @@
 
 .wcb-app-job {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-app-email {
@@ -95,7 +95,7 @@
 
 .wcb-app-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 /* Status badge (overview panels) */
@@ -156,7 +156,7 @@
 
 .wcb-job-meta {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 /* -- Filter bar -- */
@@ -544,6 +544,7 @@
 	appearance: none;
 	border: none;
 	background: transparent;
+	min-height: 40px;
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
@@ -685,7 +686,7 @@
 	display: -webkit-box;
 	margin-top: 2px;
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	overflow: hidden;
 	-webkit-line-clamp: 2;
 	line-clamp: 2;
@@ -789,7 +790,7 @@
 	font-weight: var(--wcb-font-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin-bottom: var(--wcb-space-sm);
 }
 

@@ -40,7 +40,7 @@
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: 0 0 var(--wcb-space-xs);
 }
 
@@ -64,7 +64,7 @@
 
 .wcb-form-simple .wcb-form-hint {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-form-simple .wcb-required {
@@ -153,7 +153,7 @@
 
 .wcb-form-simple .wcb-salary-row {
 	display: grid;
-	grid-template-columns: 1.4fr minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
@@ -256,7 +256,7 @@
 	font-weight: var(--wcb-font-bold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: var(--wcb-space-sm) 0 0;
 	padding: 0;
 }

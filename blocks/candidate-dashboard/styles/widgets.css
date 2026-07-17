@@ -86,7 +86,7 @@
 	background: none;
 	border: none;
 	border-radius: var(--wcb-radius-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	cursor: pointer;
 	transition: color 0.15s ease, background 0.15s ease;
 }
@@ -108,13 +108,13 @@
 .wcb-bell-time {
 	display: block;
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin-top: 2px;
 }
 .wcb-notifications__empty {
 	padding: var(--wcb-space-xl);
 	text-align: center;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
 }
 

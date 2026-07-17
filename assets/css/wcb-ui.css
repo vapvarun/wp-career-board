@@ -112,7 +112,7 @@
 	font-weight: var(--wcb-font-semibold);
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: var(--wcb-text-tertiary, #9ca3af);
+	color: var(--wcb-text-secondary, #6b7280);
 	margin-bottom: var(--wcb-space-xs);
 }
 
@@ -200,7 +200,7 @@
 	flex-shrink: 0;
 }
 
-.wcb-btn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+.wcb-btn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 .wcb-btn--lg { min-height: 48px; padding: 0 var(--wcb-space-xl); font-size: var(--wcb-text-md); }
 .wcb-btn--full,
 .wcb-btn--block { width: 100%; }
@@ -280,7 +280,7 @@ textarea.wcb-input {
 	box-sizing: border-box;
 }
 
-.wcb-input--sm { min-height: 32px; padding: var(--wcb-space-xs) var(--wcb-space-sm); font-size: var(--wcb-text-sm); }
+.wcb-input--sm { min-height: 40px; padding: var(--wcb-space-xs) var(--wcb-space-sm); font-size: var(--wcb-text-sm); }
 .wcb-input--lg { min-height: 48px; padding: var(--wcb-space-md) var(--wcb-space-lg); font-size: var(--wcb-text-md); }
 
 textarea.wcb-input {
@@ -786,7 +786,7 @@ textarea.wcb-input {
 	background: transparent;
 	border: 0;
 	box-shadow: none;
-	color: var(--wcb-text-tertiary, #94a3b8);
+	color: var(--wcb-text-secondary, #6b7280);
 	cursor: pointer;
 	border-radius: var(--wcb-radius-sm);
 	padding: 0;
@@ -1250,7 +1250,7 @@ textarea.wcb-input {
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
 }
 
-.wcb-cbtn--sm { min-height: 32px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+.wcb-cbtn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 
 /* Primary fill. Bumped to (0,2,1) via parent prefix so it beats the
  * Reign / Astra `.entry-content button` cascade (0,2,1) on source-order

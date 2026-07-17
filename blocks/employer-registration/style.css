@@ -151,6 +151,8 @@
 	justify-content: center;
 	width: var(--wcb-space-3xl);
 	height: var(--wcb-space-3xl);
+	min-width: 40px;
+	min-height: 40px;
 	padding: 0;
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
