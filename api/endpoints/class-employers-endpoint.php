@@ -138,6 +138,16 @@ final class EmployersEndpoint extends RestController {
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/me/applications',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_my_applications' ),
+				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
@@ -868,6 +878,63 @@ final class EmployersEndpoint extends RestController {
 		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
+		return $this->build_applications_response( (array) $rows, $request );
+	}
+
+	/**
+	 * Applications across the current user's authored jobs (company-independent).
+	 *
+	 * The company-scoped /employers/{id}/applications route leaves employers who
+	 * post jobs BEFORE creating a company profile with an empty dashboard Overview
+	 * (companyId is 0, so the client never fetches). This author-keyed sibling
+	 * powers that widget so applications surface regardless of whether a company
+	 * profile exists. Same status allowlist + envelope as the company view.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		global $wpdb;
+		$user_id       = get_current_user_id();
+		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql  = $wpdb->prepare(
+			"SELECT app.ID, app.post_date
+			 FROM {$wpdb->posts} app
+			 INNER JOIN {$wpdb->postmeta} pm_job
+			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
+			 INNER JOIN {$wpdb->posts} job
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_author = %d
+			 WHERE app.post_type   = 'wcb_application'
+			   AND app.post_status = 'publish'
+			 ORDER BY app.post_date DESC
+			 LIMIT 20",
+			$user_id
+		);
+		$rows = $wpdb->get_results( $sql );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return $this->build_applications_response( (array) $rows, $request );
+	}
+
+	/**
+	 * Build the standard applications list response from raw {ID, post_date} rows.
+	 *
+	 * Shared by the company-scoped (get_applications) and author-scoped
+	 * (get_my_applications) callbacks so both return an identical envelope and
+	 * apply the same cache-priming + wcb_rest_prepare_application filter.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param  array<int, object> $rows    Rows carrying ->ID (and ->post_date).
+	 * @param  \WP_REST_Request   $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	private function build_applications_response( array $rows, \WP_REST_Request $request ): \WP_REST_Response {
 		if ( empty( $rows ) ) {
 			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}

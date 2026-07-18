@@ -261,10 +261,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Jobs list.
 		get hasJobs() {
-			return ! state.loading && ! state.noCompany && state.filteredJobs.length > 0;
+			// Jobs are loaded author-scoped (/employers/me/jobs), so an employer
+			// who hasn't created a company profile still has real jobs to show —
+			// never gate the jobs list on company existence.
+			return ! state.loading && state.filteredJobs.length > 0;
 		},
 		get noJobs() {
-			return ! state.loading && ! state.noCompany && ! state.error && state.filteredJobs.length === 0;
+			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
 		},
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
@@ -662,16 +665,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield actions.loadJobs();
 
-				// Company applications (the Applications tab's dataset).
-				if ( state.companyId ) {
-					const appsResp = yield wcbFetch(
-						state.apiBase + '/employers/' + String( state.companyId ) + '/applications',
-						{ headers: { 'X-WP-Nonce': state.nonce } }
-					);
-					if ( appsResp.ok ) {
-						const appsData = yield appsResp.json();
-						state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
-					}
+				// Applications dataset (Overview "Recent Applications" widget + the
+				// Applications tab). Use the company-scoped route when a company
+				// profile exists, else the author-scoped /employers/me/applications
+				// so employers who post jobs BEFORE creating a company still see
+				// their applications instead of an empty widget beside a non-zero
+				// stat card.
+				const appsUrl = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
+					: state.apiBase + '/employers/me/applications';
+				const appsResp = yield wcbFetch(
+					appsUrl,
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( appsResp.ok ) {
+					const appsData = yield appsResp.json();
+					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
 				}
 			} catch {
 				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
