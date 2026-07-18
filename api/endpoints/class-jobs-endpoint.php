@@ -1462,8 +1462,13 @@ final class JobsEndpoint extends RestController {
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
 			'rejected'           => ( 'draft' === $post->post_status && '' !== (string) $rejection_reason ),
 			'author'             => $author_id,
-			'created_at'         => mysql_to_rfc3339( $post->post_date_gmt ),
-			'updated_at'         => mysql_to_rfc3339( $post->post_modified_gmt ),
+			// WordPress leaves *_gmt as '0000-00-00 00:00:00' for non-published
+			// posts (e.g. pending jobs, the default when auto-publish is off), and
+			// mysql_to_rfc3339() turns that into the invalid "-0001-11-30T00:00:00".
+			// Fall back to the site-local date converted to GMT so REST/mobile
+			// clients always receive a valid ISO 8601 timestamp.
+			'created_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt ),
+			'updated_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt ),
 			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
 			'date'               => $post->post_date,
 			'permalink'          => get_permalink( $post->ID ),
