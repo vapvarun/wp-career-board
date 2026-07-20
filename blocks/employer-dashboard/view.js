@@ -698,6 +698,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.loading = false;
 			}
 
+			// Guard against a stale / cross-tenant job id restored from
+			// sessionStorage: only keep appsJobId if it belongs to THIS
+			// employer's own jobs. A leaked id from a prior session as a
+			// different employer would otherwise 403 the applications fetch and
+			// surface a broken error state instead of this employer's own.
+			if ( state.appsJobId > 0 && ! state.jobs.some( function ( j ) { return Number( j.id ) === Number( state.appsJobId ); } ) ) {
+				state.appsJobId = 0;
+				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
+			}
+
 			if ( state.appsJobId > 0 ) {
 				yield actions.loadApplications();
 			}
