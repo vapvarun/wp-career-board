@@ -164,3 +164,98 @@ html.dark-mode {
 	border-radius: var( --wcb-radius-full, 9999px );
 	vertical-align: middle;
 }
+
+/*
+ * Registration role-picker cards ("Find a Job" / "Hire Talent") are <button>s
+ * used as full surface cards, not brand pills. BuddyX 5.1 paints every non-wp
+ * <button> with the accent fill + button-fg color (specificity ~0,8,2, plus a
+ * direct -webkit-text-fill-color), turning the white cards solid coral and the
+ * labels low-contrast. Re-assert the bridged surface tokens — same override
+ * pattern as the button rules above; compat layer, not block CSS. The back
+ * control (.wcb-reg-back) is a ghost/text button caught by the same theme rule.
+ */
+.wcb-role-card {
+	background: var( --wcb-base, #ffffff ) !important;
+	border-color: var( --wcb-border, #e2e8f0 ) !important;
+	color: var( --wcb-text-primary, #111111 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+.wcb-role-card:hover,
+.wcb-role-card:focus-visible {
+	background: var( --wcb-info-bg, var( --wcb-surface, #f1f5f9 ) ) !important;
+	border-color: var( --wcb-primary, #2563eb ) !important;
+}
+
+.wcb-role-card .wcb-role-label {
+	color: var( --wcb-contrast, #0f172a ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+.wcb-role-card .wcb-role-desc {
+	color: var( --wcb-text-secondary, #475569 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+.wcb-reg-back {
+	background: none !important;
+	color: var( --wcb-text-secondary, #475569 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/*
+ * WCB button system vs BuddyX's blanket <button> fill.
+ *
+ * BuddyX 5.1 paints every non-wp <button> with the accent fill + button-fg
+ * (`button:not([class*="wp-"])…`, specificity ~0,8,2, direct declarations).
+ * That coral-fills WCB's ENTIRE button system — secondary/ghost/danger pills,
+ * view toggles, bookmark, filter-clear and salary-reset icon/text buttons —
+ * not just the intended primary CTAs. A token remap can't undo a direct
+ * background/color, so re-assert the WCB ladder here with the same !important
+ * pattern as the button rules above (compat layer, not block CSS). Only the
+ * *filled* families keep a solid fill; everything else returns to its
+ * token-driven transparent/surface background with readable token text.
+ */
+
+/* Filled CTAs — keep the brand fill + a legible label. */
+button.wcb-btn--primary,
+button.wcb-cbtn--primary,
+button.wcb-search-button,
+button.wcb-search-hero__button {
+	background-color: var( --wcb-primary, #2563eb ) !important;
+	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* Every other WCB <button>: strip BuddyX's blanket accent fill back to a
+   transparent surface with readable token text. The allowlist (:not()) is the
+   intentionally-filled families above, so this one rule covers all current AND
+   future WCB buttons — ladder pills, view toggles, bookmark/filter/reset icon
+   buttons, dashboard chips/pills, bell and db-link actions — without having to
+   enumerate every class as new widgets are added. */
+button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-cbtn--primary, .wcb-search-button, .wcb-search-hero__button) {
+	background-color: transparent !important;
+	color: var( --wcb-text-primary, #111111 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* Surface (outline-on-white) variants keep a solid light background. The extra
+   [class*="wcb-"] qualifier lifts these above the blanket rule's specificity. */
+button[class*="wcb-"].wcb-btn--secondary,
+button[class*="wcb-"].wcb-cbtn--danger,
+button[class*="wcb-"].wcb-layout-btn.wcb-active {
+	background-color: var( --wcb-base, #ffffff ) !important;
+}
+
+/* Link-style + active-toggle buttons carry the primary accent on their label. */
+button[class*="wcb-"].wcb-filter-panel__clear,
+button[class*="wcb-"].wcb-salary-popover__reset,
+button[class*="wcb-"].wcb-layout-btn.wcb-active {
+	color: var( --wcb-primary, #2563eb ) !important;
+}
+
+/* Danger buttons keep their danger label tone. */
+button[class*="wcb-"].wcb-cbtn--danger,
+button[class*="wcb-"].wcb-btn--danger {
+	color: var( --wcb-danger-fg, #991b1b ) !important;
+}
