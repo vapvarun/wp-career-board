@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 			<input type="checkbox" id="wcb-install-sample" checked>
 			<span class="wcb-toggle-slider"></span>
 		</label>
-		<span style="margin-left:10px;vertical-align:middle"><?php esc_html_e( 'Install sample categories, job types, and a demo job', 'wp-career-board' ); ?></span>
+		<span style="margin-left:10px;vertical-align:middle"><?php esc_html_e( 'Install sample categories, job types, companies, and demo jobs', 'wp-career-board' ); ?></span>
 		<p class="description" style="margin-top:6px"><?php esc_html_e( 'Helps you see how everything looks before adding real data.', 'wp-career-board' ); ?></p>
 	</div>
 </div>

@@ -34,7 +34,7 @@
 .wcb-badge--exp       { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-badge--salary    { background: var(--wcb-surface); color: var(--wcb-text-secondary); font-weight: var(--wcb-font-semibold); }
 .wcb-badge--location  { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-badge--posted    { background: transparent; color: var(--wcb-text-tertiary); font-size: var(--wcb-text-sm); padding: 0; }
+.wcb-badge--posted    { background: transparent; color: var(--wcb-text-secondary); font-size: var(--wcb-text-sm); padding: 0; }
 .wcb-badge--sm { font-size: var(--wcb-text-xs); padding: 2px var(--wcb-space-sm); }
 
 a.wcb-badge:hover { opacity: 0.8; }
@@ -160,7 +160,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-deadline-note {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: 0;
 	text-align: end;
 }
@@ -251,6 +251,12 @@ a.wcb-badge:hover { opacity: 0.8; }
 
 .wcb-job-description > :last-child {
 	margin-bottom: 0;
+}
+
+.wcb-job-description__empty {
+	margin: 0;
+	color: var(--wcb-text-secondary, #6b7280);
+	font-style: italic;
 }
 
 .wcb-job-description p {
@@ -593,7 +599,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 .wcb-field-hint {
 	font-weight: var(--wcb-font-normal);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-cover-letter {
@@ -694,7 +700,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-upload-icon {
 	font-size: var(--wcb-text-2xl);
 	line-height: 1;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-upload-zone:hover .wcb-upload-icon {
@@ -713,7 +719,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 .wcb-upload-hint {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-upload-filename {
@@ -796,7 +802,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-apply-or-divider {
 	text-align: center;
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin: var(--wcb-space-lg) 0 var(--wcb-space-md);
 }
 
@@ -841,7 +847,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-share-label {
 	font-size: var(--wcb-text-xs); /* 0.78rem ≈ 12px → xs */
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin-inline-end: var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
@@ -853,6 +859,8 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	justify-content: center;
 	width: 30px; /* component dimension */
 	height: 30px;
+	min-width: 40px;
+	min-height: 40px;
 	border-radius: var(--wcb-radius-sm);
 	border: 1.5px solid var(--wcb-border);
 	background: var(--wcb-base);
@@ -903,7 +911,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	padding: var(--wcb-space-xs) var(--wcb-space-sm);
 	background: none;
 	border: none;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
 	font-family: inherit;
 	cursor: pointer;

@@ -306,6 +306,14 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		// Hide jobs from an employer this viewer has blocked (or who blocked them).
+		// Added before the cache key so the transient fragments per blocklist and a
+		// shared cache never leaks a blocked employer's jobs.
+		$wcb_hidden_authors = \WCB\Core\Blocks::hidden_author_ids( $this->current_user_id() );
+		if ( ! empty( $wcb_hidden_authors ) ) {
+			$args['author__not_in'] = $wcb_hidden_authors;
+		}
+
 		$cache_key    = $this->get_items_cache_key( $args );
 		$cached_value = get_transient( $cache_key );
 
@@ -370,6 +378,7 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	private function build_jobs_response( array $jobs, int $total, int $pages, int $paged ): \WP_REST_Response {
+		$jobs = $this->enrich_viewer_state( $jobs );
 		$response = rest_ensure_response(
 			array(
 				'jobs'     => $jobs,
@@ -392,11 +401,114 @@ final class JobsEndpoint extends RestController {
 		);
 		$response->header( 'X-WCB-Total', (string) $total );
 		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$response->header( 'Vary', 'Cookie, Authorization' );
 		// The body now carries localised strings. A logged-in user may have a
 		// different locale from the site, so a shared cache must not reuse their
 		// response for anyone else.
 		$response->header( 'Cache-Control', is_user_logged_in() ? 'private, max-age=300' : 'public, max-age=300' );
 		return $response;
+	}
+
+	/**
+	 * Add viewer-relative fields to a page of job cards.
+	 *
+	 * Runs after the query cache (the cached card set is per-query, not
+	 * per-user), so this stays out of prepare_item_for_response_array to avoid
+	 * poisoning that cache. Batch-fetched: one usermeta read for bookmarks and
+	 * one query for this page's applications, never a lookup per row.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param array<int, array<string, mixed>> $jobs Prepared job cards.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function enrich_viewer_state( array $jobs ): array {
+		$uid = $this->current_user_id();
+
+		$job_ids = array();
+		foreach ( $jobs as $job ) {
+			if ( isset( $job['id'] ) ) {
+				$job_ids[] = (int) $job['id'];
+			}
+		}
+
+		if ( 0 === $uid || empty( $job_ids ) ) {
+			foreach ( $jobs as &$job ) {
+				$job['is_bookmarked']      = false;
+				$job['has_applied']        = false;
+				$job['application_status'] = null;
+				$job['viewer_can_apply']   = 0 === $uid;
+			}
+			unset( $job );
+			return $jobs;
+		}
+
+		$bookmarked  = array_fill_keys( array_map( 'intval', (array) get_user_meta( $uid, '_wcb_bookmark', false ) ), true );
+		$application = $this->viewer_applications( $uid, $job_ids );
+		$can_apply   = $this->check_ability( 'wcb/apply-jobs' );
+
+		foreach ( $jobs as &$job ) {
+			$id                        = (int) ( $job['id'] ?? 0 );
+			$status                    = $application[ $id ] ?? null;
+			$is_owner                  = isset( $job['author'] ) && (int) $job['author'] === $uid;
+			$job['is_bookmarked']      = isset( $bookmarked[ $id ] );
+			$job['has_applied']        = null !== $status;
+			$job['application_status'] = $status;
+			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status;
+		}
+		unset( $job );
+
+		return $jobs;
+	}
+
+	/**
+	 * Map of job ID => the viewer's application status, for a set of jobs.
+	 *
+	 * One query for the whole page.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param int        $uid     Candidate user ID.
+	 * @param array<int> $job_ids Job IDs on the current page.
+	 * @return array<int, string>
+	 */
+	private function viewer_applications( int $uid, array $job_ids ): array {
+		$applications = get_posts(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => 'any',
+				'author'         => $uid,
+				'posts_per_page' => count( $job_ids ),
+				'no_found_rows'  => true,
+				'fields'         => 'ids',
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						// String compare (no NUMERIC): _wcb_job_id is stored as a string, so
+						// equality is exact and the wcb_meta_key_value index serves it. A
+						// NUMERIC type forces CAST(meta_value AS UNSIGNED) and full-scans postmeta.
+						'key'     => '_wcb_job_id',
+						'value'   => $job_ids,
+						'compare' => 'IN',
+					),
+				),
+			)
+		);
+
+		if ( empty( $applications ) ) {
+			return array();
+		}
+
+		update_postmeta_cache( $applications );
+
+		$map = array();
+		foreach ( $applications as $application_id ) {
+			$job_id = (int) get_post_meta( (int) $application_id, '_wcb_job_id', true );
+			if ( $job_id > 0 ) {
+				$map[ $job_id ] = (string) get_post_meta( (int) $application_id, '_wcb_status', true );
+			}
+		}
+
+		return $map;
 	}
 
 	/**
@@ -512,9 +624,40 @@ final class JobsEndpoint extends RestController {
 				array( 'status' => 404 )
 			);
 		}
+
+		// A job in moderation (pending) or a rejected draft is not public.
+		// Expose it only to its author, a moderator, or an admin — otherwise a
+		// guessed ID leaks unapproved content.
+		if ( 'publish' !== $post->post_status ) {
+			$is_owner = (int) $post->post_author === $this->current_user_id();
+			if ( ! $is_owner
+				&& ! $this->check_ability( 'wcb/moderate-jobs' )
+				&& ! $this->check_ability( 'wcb/manage-settings' ) ) {
+				return new \WP_Error(
+					'wcb_not_found',
+					__( 'Job not found.', 'wp-career-board' ),
+					array( 'status' => 404 )
+				);
+			}
+		}
+
+		// A blocked employer's job stays hidden even on a direct link — a block
+		// the list hides but the detail exposes is not a block.
+		if ( \WCB\Core\Blocks::is_hidden( $this->current_user_id(), (int) $post->post_author ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		$this->record_job_view( $post->ID );
-		$single_response = rest_ensure_response( $this->prepare_item_for_response_array( $post ) );
-		$single_response->header( 'Cache-Control', 'public, max-age=3600' );
+		$enriched        = $this->enrich_viewer_state( array( $this->prepare_item_for_response_array( $post ) ) );
+		$single_response = rest_ensure_response( $enriched[0] );
+		// Viewer state makes the body user-specific, so it can no longer be
+		// shared. Public callers still get a cacheable response.
+		$single_response->header( 'Vary', 'Cookie, Authorization' );
+		$single_response->header( 'Cache-Control', is_user_logged_in() ? 'private, max-age=300' : 'public, max-age=3600' );
 		return $single_response;
 	}
 
@@ -1212,7 +1355,12 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Check if the current user can view applications.
+	 * Check if the current user can view this job's applications.
+	 *
+	 * The ability says the role may view applications at all; it does not say
+	 * which job's. Scope it to the job's author, or any employer could read
+	 * every other employer's applicants (name, email, cover letter, resume) —
+	 * the same IDOR the applications endpoint already guards against.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1220,7 +1368,20 @@ final class JobsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function view_applications_permissions_check( \WP_REST_Request $request ) {
-		return $this->check_ability( 'wcb/view-applications' ) ? true : $this->permission_error();
+		if ( ! $this->check_ability( 'wcb/view-applications' ) ) {
+			return $this->permission_error();
+		}
+
+		if ( $this->check_ability( 'wcb/manage-settings' ) || $this->check_ability( 'wcb/moderate-jobs' ) ) {
+			return true;
+		}
+
+		$job = get_post( (int) $request['id'] );
+		if ( ! $job instanceof \WP_Post || 'wcb_job' !== $job->post_type ) {
+			return $this->permission_error();
+		}
+
+		return (int) $job->post_author === $this->current_user_id() ? true : $this->permission_error();
 	}
 
 	// --- Helpers ----------------------------------------------------------------
@@ -1303,8 +1464,13 @@ final class JobsEndpoint extends RestController {
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
 			'rejected'           => ( 'draft' === $post->post_status && '' !== (string) $rejection_reason ),
 			'author'             => $author_id,
-			'created_at'         => mysql_to_rfc3339( $post->post_date_gmt ),
-			'updated_at'         => mysql_to_rfc3339( $post->post_modified_gmt ),
+			// WordPress leaves *_gmt as '0000-00-00 00:00:00' for non-published
+			// posts (e.g. pending jobs, the default when auto-publish is off), and
+			// mysql_to_rfc3339() turns that into the invalid "-0001-11-30T00:00:00".
+			// Fall back to the site-local date converted to GMT so REST/mobile
+			// clients always receive a valid ISO 8601 timestamp.
+			'created_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt ),
+			'updated_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt ),
 			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
 			'date'               => $post->post_date,
 			'permalink'          => get_permalink( $post->ID ),

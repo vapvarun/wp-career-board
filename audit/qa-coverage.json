@@ -2,18 +2,18 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.4.0"
+        "version": "1.7.0"
     },
     "generated": {
-        "at": "2026-06-15T10:32:48+00:00",
-        "manifest_at": "2026-06-10T00:00:00Z",
-        "manifest_branch": "1.4.0"
+        "at": "2026-07-20T09:05:04+00:00",
+        "manifest_at": "2026-07-14T00:00:00Z",
+        "manifest_branch": "1.7.0"
     },
     "categories": {
         "rest": {
-            "total": 50,
+            "total": 60,
             "covered": 0,
-            "uncovered": 50,
+            "uncovered": 60,
             "skipped": 0,
             "covered_items": [],
             "uncovered_items": [
@@ -266,6 +266,56 @@
                     "method": "GET",
                     "route": "/wcb/v1/admin/emails/log",
                     "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/admin/emails/log\""
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/account\""
+                },
+                {
+                    "method": "PUT",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest PUT \"/wcb/v1/account\""
+                },
+                {
+                    "method": "PATCH",
+                    "route": "/wcb/v1/account",
+                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/account\""
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/me",
+                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/me\""
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/me/deletion",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/me/deletion\""
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/me/deletion",
+                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/me/deletion\""
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/users/(?P<id>\\d+)/report",
+                    "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/users/(?P<id>\\d+)/report\""
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/users/(?P<id>\\d+)/block",
+                    "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/users/(?P<id>\\d+)/block\""
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/users/(?P<id>\\d+)/block",
+                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/users/(?P<id>\\d+)/block\""
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/me/blocked",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/me/blocked\""
                 }
             ]
         },
@@ -279,7 +329,7 @@
             "total": 86,
             "covered": 0,
             "uncovered": 86,
-            "skipped": 90,
+            "skipped": 102,
             "covered_items": [],
             "uncovered_items": [
                 {
@@ -716,9 +766,9 @@
             "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
         },
         "cron": {
-            "total": 3,
+            "total": 4,
             "covered": 0,
-            "uncovered": 3,
+            "uncovered": 4,
             "skipped": 0,
             "covered_items": [],
             "uncovered_items": [
@@ -733,6 +783,10 @@
                 {
                     "hook": "wcb_send_deadline_reminders",
                     "stub_command": "bin/qa-stub-gen.php cron wcb_send_deadline_reminders"
+                },
+                {
+                    "hook": "wcb_process_account_deletions",
+                    "stub_command": "bin/qa-stub-gen.php cron wcb_process_account_deletions"
                 }
             ]
         },
@@ -768,15 +822,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 144,
+        "items_total": 155,
         "items_covered": 0,
-        "items_uncovered": 144,
-        "items_skipped": 90,
+        "items_uncovered": 155,
+        "items_skipped": 102,
         "coverage_percent": 0
     },
     "drift": {
-        "previous_uncovered": 143,
-        "current_uncovered": 144,
-        "delta": 1
+        "previous_uncovered": 147,
+        "current_uncovered": 155,
+        "delta": 8
     }
 }

@@ -716,6 +716,20 @@ const { state } = store(
 				state.tags             = '';
 				state.remote           = false;
 				state.customFields     = {};
+
+				// The rich editor mirrors a source textarea and only repaints on
+				// the wcb:editor:hydrate event; clearing state.description alone
+				// leaves the just-submitted text visible. Sync the source to empty
+				// and fire hydrate (mirrors the AI-description handler above).
+				const source = document.querySelector(
+					'.wcb-editor textarea.wcb-editor-source'
+				);
+				if ( source ) {
+					source.value = '';
+					source.dispatchEvent(
+						new Event( 'wcb:editor:hydrate', { bubbles: true } )
+					);
+				}
 			},
 		},
 	}

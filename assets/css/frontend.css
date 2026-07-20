@@ -102,8 +102,11 @@ html[data-bn-theme="dark"],
 	--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
 	--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
 	--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+	--wcb-purple-bg:       rgba( 124, 58, 237, 0.22 );
 	--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
 	--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+	--wcb-primary-bg:      color-mix( in srgb, var( --wcb-primary, #2563eb ) 18%, transparent );
+	--wcb-primary-border:  color-mix( in srgb, var( --wcb-primary, #2563eb ) 40%, transparent );
 
 	/* Status foreground — lightened so text on the translucent tints stays
 	   legible (was dark-on-dark / invisible before). */
@@ -111,6 +114,7 @@ html[data-bn-theme="dark"],
 	--wcb-warning-fg:      #fbbf24;
 	--wcb-danger-fg:       #f87171;
 	--wcb-info-fg:         #93c5fd;
+	--wcb-purple-fg:       #c4b5fd;
 }
 
 /*
@@ -146,14 +150,18 @@ html[data-bn-theme="dark"],
 		--wcb-warning-bg-soft: rgba( 217, 119, 6, 0.15 );
 		--wcb-danger-bg-soft:  rgba( 220, 38, 38, 0.15 );
 		--wcb-info-bg-soft:    rgba( 37, 99, 235, 0.15 );
+		--wcb-purple-bg:       rgba( 124, 58, 237, 0.22 );
 		--wcb-primary-bg:      rgba( 37, 99, 235, 0.18 );
 		--wcb-primary-border:  rgba( 37, 99, 235, 0.40 );
+		--wcb-primary-bg:      color-mix( in srgb, var( --wcb-primary, #2563eb ) 18%, transparent );
+		--wcb-primary-border:  color-mix( in srgb, var( --wcb-primary, #2563eb ) 40%, transparent );
 
 		/* Status foreground — lightened for legibility on the translucent tints. */
 		--wcb-success-fg:      #4ade80;
 		--wcb-warning-fg:      #fbbf24;
 		--wcb-danger-fg:       #f87171;
 		--wcb-info-fg:         #93c5fd;
+		--wcb-purple-fg:       #c4b5fd;
 	}
 }
 

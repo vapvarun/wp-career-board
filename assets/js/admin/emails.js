@@ -198,14 +198,19 @@
 
 		var eventType = eventEl.value || '';
 		var status    = statusEl.value || '';
-		var url       = cfg.restBase + '/admin/emails/log?per_page=' + perPage + '&page=' + page;
+		var url       = cfg.restBase + '/admin/emails/log';
+		var params    = [ 'per_page=' + perPage, 'page=' + page ];
 
 		if ( eventType ) {
-			url += '&event_type=' + encodeURIComponent( eventType );
+			params.push( 'event_type=' + encodeURIComponent( eventType ) );
 		}
 		if ( status ) {
-			url += '&status=' + encodeURIComponent( status );
+			params.push( 'status=' + encodeURIComponent( status ) );
 		}
+
+		// Use '&' when restBase already carries a query string — plain permalinks
+		// use the ?rest_route= form, so starting with '?' would double it and 404.
+		url += ( url.indexOf( '?' ) === -1 ? '?' : '&' ) + params.join( '&' );
 
 		fetch( url, {
 			credentials: 'same-origin',

@@ -85,7 +85,7 @@
 
 .wcb-app-job {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-app-email {
@@ -95,7 +95,7 @@
 
 .wcb-app-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 /* Status badge (overview panels) */
@@ -113,7 +113,7 @@
 
 .wcb-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 .wcb-status-badge[data-status="hired"],
 .wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
@@ -156,7 +156,7 @@
 
 .wcb-job-meta {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 /* -- Filter bar -- */
@@ -430,6 +430,7 @@
 
 .wcb-apps-job-item.wcb-active .wcb-apps-job-item-count {
 	background: rgba(29, 78, 216, 0.15);
+	background: color-mix(in srgb, var(--wcb-primary) 15%, transparent);
 }
 
 .wcb-apps-no-match {
@@ -544,6 +545,7 @@
 	appearance: none;
 	border: none;
 	background: transparent;
+	min-height: 40px;
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
@@ -685,7 +687,7 @@
 	display: -webkit-box;
 	margin-top: 2px;
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	overflow: hidden;
 	-webkit-line-clamp: 2;
 	line-clamp: 2;
@@ -789,7 +791,7 @@
 	font-weight: var(--wcb-font-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	margin-bottom: var(--wcb-space-sm);
 }
 
@@ -909,7 +911,7 @@
 .wcb-job-status-badge[data-status="publish"]  { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-job-status-badge[data-status="draft"]    { background: var(--wcb-bg-hover); color: var(--wcb-text-secondary); }
 .wcb-job-status-badge[data-status="pending"]  { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-job-status-badge[data-status="private"]  { background: #ede9fe; color: #5b21b6; }
+.wcb-job-status-badge[data-status="private"]  { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 
 /* -- Application status badge -- */
 .wcb-app-status-badge {
@@ -925,7 +927,7 @@
 
 .wcb-app-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-app-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-app-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-app-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 .wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }

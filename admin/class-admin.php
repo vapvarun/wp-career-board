@@ -100,14 +100,16 @@ class Admin {
 		);
 		add_action( 'load-' . $apps_hook, array( $admin_apps, 'process_bulk_action' ) );
 
-		add_submenu_page(
+		$admin_candidates = new AdminCandidates();
+		$candidates_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Candidates', 'wp-career-board' ),
 			__( 'Candidates', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-candidates',
-			array( new AdminCandidates(), 'render' )
+			array( $admin_candidates, 'render' )
 		);
+		add_action( 'load-' . $candidates_hook, array( $admin_candidates, 'process_bulk_action' ) );
 
 		add_submenu_page(
 			'wp-career-board',

@@ -16,6 +16,10 @@
     {
       "id": "user_meta-read-never-written:wcb_pro_banner_dismissed",
       "reason": "Written via a concatenated key the static scanner cannot trace: api/endpoints/class-admin-endpoint.php:127 builds $meta_key = 'wcb_' . $banner . '_dismissed' then update_user_meta(); admin.js:402 POSTs {banner:'pro_banner'} to /wcb/v1/admin/dismiss-banner, yielding exactly wcb_pro_banner_dismissed."
+    },
+    {
+      "id": "hook-consumed-never-fired:wcb_process_account_deletions",
+      "reason": "WP-Cron event, not a do_action. class-account-deletion-service.php:43 defines CRON_HOOK = 'wcb_process_account_deletions'; :61-62 schedules it via wp_schedule_event(..., 'daily', CRON_HOOK) and :59 add_action()s the handler. WP core fires it on schedule (verified live: `wp cron event list` shows it scheduled). The static scanner only sees do_action/apply_filters, so it can't observe the cron dispatch."
     }
   ]
 }

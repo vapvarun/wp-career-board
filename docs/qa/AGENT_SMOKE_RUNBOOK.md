@@ -70,6 +70,30 @@ echo "fixtures cleaned\n";
 
 > Verified CPT slugs (from code, 2026-05-09): `wcb_job`, `wcb_application`, `wcb_resume` (labelled "Resumes"; this is the candidate-profile CPT), `wcb_company`. Pro reuses these — no Pro-owned CPTs.
 
+## Adversarial fixtures (seed before Section H)
+
+Journeys seed the *ideal* data shape — a `wcb_employer`-role user, a job with a
+full description — which is exactly the shape the code was written for, so the
+walk never sees the mismatches real sites have. Bugs live in that gap ("No
+employers yet" when admins post jobs; a blank "About This Role" panel). Seed the
+messy cases below (all `Smoke ` prefixed, so Fixture cleanup removes them) and
+walk Section H against them.
+
+```bash
+# A job posted BY AN ADMIN — administrators hold wcb_post_jobs but are NOT
+# wcb_employer, so a screen keyed on the role alone hides them.
+wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
+   --post_title='Smoke Admin-Posted Role' --post_author=1 --porcelain
+# A job with an EMPTY description.
+wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
+   --post_title='Smoke No-Description Role' --post_content=''
+# A company with ZERO jobs.
+wp --path="$WP_PATH" post create --post_type=wcb_company --post_status=publish \
+   --post_title='Smoke Empty Company'
+# (combo) A board with ZERO pipeline stages — create a Smoke board, attach no stages.
+# (optional) An application with no cover letter / no resume attachment.
+```
+
 ## Debug log protocol
 
 Enable `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY=false` before Section A. Baseline `wp-content/debug.log` byte count. After every section, diff new lines into `debug_log_issues[]` classified by level. Any new fatal or warning is a failure unless explicitly whitelisted.
@@ -92,11 +116,12 @@ At walk end, archive the diff window to `docs/qa/.debug-log-<release_version>-<r
 **Acceptance:** the primary front-end route returns HTTP 200; rewrite rules contain `wcb_job` (or whatever CPT permalink rule the plugin registers).
 
 ### A.db.tables-and-version
-**What to verify:** all expected tables exist; `wcb_db_version` option matches `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, 9 additional Pro tables exist (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`) created in `core/class-pro-install.php`; `wcbp_db_version` (option key, not `wcb_pro_db_version`) matches `WCBP_VERSION`. Total expected table count (combo): 12.
+**What to verify:** all expected tables exist; `wcb_db_version` option matches `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, 9 additional Pro tables exist (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`) created in `core/class-pro-install.php`; `wcbp_db_version` (option key, not `wcb_pro_db_version`) matches `WCBP_VERSION`. The bundled Wbcom Credits SDK adds **2 more** tables once native gateway checkout is exercised (`wcb_credit_gateway_log`, `wcb_credit_processed_events`) — created lazily by the SDK, not by class-pro-install.php. Total expected table count (combo): **14** (3 free + 9 pro + 2 SDK). Note `wcb_credit_ledger` is a Pro table (in the 9); the 2 SDK tables are the gateway log + processed-events idempotency store.
 
 ```bash
 wp --path="$WP_PATH" db query "SHOW TABLES LIKE '%wcb%'" --skip-column-names
-# Expected: 12 rows (3 free + 9 pro)
+# Expected: 14 rows (3 free + 9 pro + 2 Credits-SDK). Any wp_pc_-prefixed
+# wcb_credit_* tables are stray environment leftovers, not plugin-created.
 wp --path="$WP_PATH" option get wcb_db_version
 wp --path="$WP_PATH" option get wcbp_db_version
 ```
@@ -185,13 +210,13 @@ Each row is a repro of a past bug that caused customer pain. D rows stay specifi
 | D.wcb-closed-status | Jobs manually closed by an employer (status `closed`) were not registered as a custom WP post status, causing them to vanish from the employer's dashboard. Basecamp 9872024322. | Create a job as employer, call `PATCH /wcb/v1/jobs/{id}` with `{"status":"closed"}`, reload employer dashboard — job must appear with status label "Closed" not disappear. |
 | D.apply-email-scraped | The job REST response (`/wcb/v1/jobs`) was including `apply_email` in the JSON, allowing scrapers to harvest recruiter inboxes. Basecamp referenced as F-1 in role-data-baseline. | As anonymous: `GET /wcb/v1/jobs/{id}` — assert response JSON contains NO `apply_email` field (any non-empty value is a fail). |
 | D.resume-required-default | Fresh installs (option `apply_resume_required` absent) were silently defaulting to NOT require a resume, letting applications land with no attachment. Basecamp 9818132111. | On a fresh install (no `apply_resume_required` option saved), attempt to `POST /wcb/v1/jobs/{id}/apply` without a resume file — assert HTTP 400 with code `wcb_resume_required`. |
-| D.company-tagline-missing | Single-job pages and the company-archive block were not surfacing company tagline, industry, size, or HQ location because those meta keys were absent from `prepare_item_for_response_array()`. Basecamp 9871740742. | `GET /wcb/v1/companies/{id}` — assert response body contains non-empty keys `tagline`, `industry`, `size_label`, `hq`. |
+| D.company-tagline-missing | Single-job pages and the company-archive block were not surfacing company tagline, industry, size, or HQ location because those meta keys were absent from `prepare_item_for_response_array()`. Basecamp 9871740742. | `GET /wcb/v1/companies?search=<name>` — assert the matching company object has non-empty keys `tagline`, `industry`, `size_label`, `hq` (there is no single-company GET route; the list endpoint serializes these fields). |
 | D.location-dropdown-scope | The employer HQ location dropdown on the company-edit form was showing all WP locations (global tax) instead of only the employer's own HQ + Remote + Other, leaking other companies' locations. Basecamp 9866553120. | As employer: navigate to company profile edit page — assert the location dropdown contains only "Remote", "Other", and HQ-specific options, NOT terms belonging to other companies. |
 | D.ability-slug-format | Ability slugs used bare `wcb_post_jobs` format instead of the WP 6.9 `wcb/post-jobs` namespace/slug format, causing `wp_get_ability()` to reject every registration silently. Basecamp implicit in T3.5. | Load `/?autologin=employer_alice`, assert that `POST /wcb/v1/jobs` returns HTTP 201 (not 403) and debug.log shows ZERO `wp_get_ability` or `wp_is_ability_granted` notices. |
 | D.vector-column-mariadb-11-7 | Pro's `wcb_ai_vectors` schema used unbacktickged `vector` column name — MariaDB 11.7+ and MySQL 9+ added `VECTOR` as a reserved data type, so dbDelta failed silently and the table was never created on those server versions. Every Pro AI feature would have errored with "table doesn't exist". Fixed in commit `fa3a337` (backtick column) + `f7ea313` / `910cdf2` (verify-before-bump version gate so a silent dbDelta failure no longer masks itself). | On a fresh wp-env with MariaDB 11.7+ or MySQL 9+, run `wp plugin deactivate ... && wp option delete wcbp_db_version && wp plugin activate wp-career-board-pro`. Then `wp db tables \| grep -c "wp_wcb_ai_vectors"` MUST return `1` AND `wp option get wcbp_db_version` MUST equal the file constant (proving create_tables succeeded). All 13 plugin-owned tables (3 Free + 10 Pro counting wcb_credit_gateway_log from the SDK) must exist. |
 | D.pwa-icon-404 | Pro's PWA module emitted a manifest with a hardcoded `icon-192.png` path that was never shipped, producing a 404 on every page load and a manifest-icon warning visible to anyone with DevTools open. Fixed in commit `936c04a` — switched to the WordPress Site Icon (Settings → General → Site Icon) at 192px and 512px, omitting the `icons` key entirely if no Site Icon is configured (manifest spec accepts that). | On a wp-env with no Site Icon configured + Pro PWA module active: `curl http://site/wcb-manifest.json \| jq '.icons // empty'` must return EMPTY. Loading any frontend page must NOT log `icon-192.png` 404 in the network tab. |
 | D.lucide-hydration-mismatch | Lucide JS swapped `<i data-lucide>` placeholders to `<svg>` after Interactivity's hydrator captured the `<i>` into its vnode tree, producing 6+ console errors per page (`Expected a DOM node of type "i" but found "svg"`) on every block that used `data-wp-interactive`. Fixed in commits `2c2cfd9` / `add54c5` — built `WCB\Core\Icon::svg()` server-side helper and replaced 40 `<i data-lucide>` sites across 13 Interactivity-bound block render templates with inline SVG. | Open DevTools, navigate to /jobs/, /jobs/<single>/, /employer-dashboard/. Console must show ZERO errors matching the pattern `Expected a DOM node of type "i" but found`. Visual icons must still render (no broken-image squares). |
-| D.test-email-bridge | Test email endpoint used ReflectionClass to bypass `is_enabled()`; the abstraction was fragile and the response omitted whether `wp_mail()` actually succeeded. Fixed in 1.2.0 (commit `e5b7020`): `AdminEndpoint` now calls `AbstractEmail::test_send()`, which routes through the shared `dispatch()` helper. Basecamp 9895205013. | As admin: `POST /wcb/v1/admin/emails/test` with a valid `email_id` and `to` address. Assert: HTTP 200, response body has `sent` (bool), `to` (string), `logged` (int). Query `wp_wcb_notifications_log WHERE status IN ('sent_test','failed_test')` — assert a row exists with `is_test: true` in the `payload` column. Assert NO row with `status = 'sent'` was written (test must not pollute production metrics). |
+| D.test-email-bridge | Test email endpoint used ReflectionClass to bypass `is_enabled()`; the abstraction was fragile and the response omitted whether `wp_mail()` actually succeeded. Fixed in 1.2.0 (commit `e5b7020`): `AdminEndpoint` now calls `AbstractEmail::test_send()`, which routes through the shared `dispatch()` helper. Basecamp 9895205013. | As admin: `POST /wcb/v1/admin/emails/test` with a valid `email_id` (the endpoint always addresses the current admin user — there is no `to` input param). Assert: HTTP 200, response body has `sent` (bool), `to` (string, the admin email), `logged` (int). Query `wp_wcb_notifications_log WHERE status IN ('sent_test','failed_test')` — assert a row exists with `is_test: true` in the `payload` column. Assert NO row with `status = 'sent'` was written (test must not pollute production metrics). |
 | D.meta-filter-default-allow | The `metaFilter` block attribute and `?meta_<key>=<value>` REST param required every `_wcb_*` key to be listed explicitly via `wcb_jobs_allowed_meta_filters`, preventing integrators from using custom WCB meta without a code change. Fixed in 1.2.0 (commit `e5b7020`): any `_wcb_*` namespaced key is auto-allowed. Basecamp 9891012864. | Create a job with a custom `_wcb_partner_id` meta value. As anonymous: `GET /wcb/v1/jobs?meta__wcb_partner_id=<value>`. Assert the response includes only jobs with that meta value (non-empty `items[]`). Repeat the query WITHOUT a `wcb_jobs_allowed_meta_filters` hook registered — result must be identical. |
 | D.setup-wizard-centering | Setup wizard page (`?page=wcb-setup`) had no max-width / centering rule so it stretched edge-to-edge on wide viewports. Fixed in 1.2.0 (commit `e5b7020`): `.wcb-wizard-wrap` is `margin-left/right: auto` and gets a 12px side-margin below 960px. Basecamp 9890815047. | As admin, navigate to `wp-admin/admin.php?page=wcb-setup` at 1440px viewport. Assert the wizard content is horizontally centered (left and right margins visible). At 768px viewport assert the side-margin collapses to 12px with no horizontal scroll. |
 | D.company-cards-alignment | Company archive cards with short taglines had meta chips that floated to different y-positions compared to adjacent cards with long taglines, because the card grid lacked explicit row sizing. Fixed in 1.2.0 (commit `e5b7020`): `.wcb-ca-card-link` has `grid-template-rows: auto 1fr auto`, chips row has `align-self: start`. Basecamp 9890919239. | Navigate to the company archive. Visually verify that the tag/chip row aligns at the same vertical position across cards in the same row when cards have taglines of different lengths. Check at 1440px and 390px. |
@@ -199,6 +224,39 @@ Each row is a repro of a past bug that caused customer pain. D rows stay specifi
 | D.public-chevron-lucide | Filter-panel expand/collapse chevrons on job-listings and company-archive blocks were hand-rolled inline SVGs that caused Interactivity API hydration mismatches. Fixed in 1.2.0 (commit `e5b7020`): both render templates replaced with `<i data-lucide="chevron-down">`. Basecamp 9891577445. | Open DevTools, navigate to /jobs/ and the company archive. Console must show ZERO hydration errors. Chevron icons must render correctly (visible, correct orientation) at both 1440px and 390px. |
 
 > D rows are sourced from the last 30 git commits (2026-05-15 audit) and updated after every customer-visible fix. After 2 clean releases, a D row graduates into C/E.
+
+---
+
+## H — Empty-state & adversarial-data matrix
+
+D looks *backward* (repros of specific past bugs). H looks *forward* at two
+whole bug classes the journey suite structurally can't catch, because journeys
+walk populated happy-path fixtures:
+
+- **Empty/blank states** — a surface renders a broken empty panel, a perpetual
+  spinner, or a misleading "0" instead of a real empty state.
+- **Adversarial data** — data that doesn't match the code's assumptions (a job
+  authored by an admin, a blank description, a company with no jobs).
+
+Requires the [Adversarial fixtures](#adversarial-fixtures-seed-before-section-h)
+seeded above. Walk every row; a blank panel, stuck spinner, misleading count, or
+fatal is a FAILURE (origin `from`). Roll pass/fail counts into
+`sections.D_regression_guards` in the report (H is a D-class structural guard).
+
+| ID | Surface | Empty / adversarial condition | Assertion |
+|---|---|---|---|
+| H.desc-empty | Job single — "About This Role" | job with blank `post_content` | shows a fallback line ("No description…"), NOT a heading over an empty panel |
+| H.employers-admin-role | Employers admin (`?page=wcb-employers`) | jobs exist but were posted by an admin (no `wcb_employer` role) | those job-authors are LISTED — screen does NOT show "No employers yet" |
+| H.employer-zero-jobs | Employers admin | an employer with a company but 0 published jobs | listed with "0" active jobs, not hidden |
+| H.applications-zero | Applications admin | a job with 0 applications / a status with 0 rows | status tab shows "(0)" and a clean empty table, no fatal |
+| H.company-zero-jobs | Company archive + single | a company with 0 jobs | renders with "No open positions" / "0", not broken markup |
+| H.search-no-match | Job archive / search | a query that matches nothing | clean empty state, not a fatal (extends C.anon.search) |
+| H.kanban-no-stages | Pipeline Kanban (combo) | a board with 0 configured stages | honest "no stages configured" empty state, NOT a perpetual "Loading…" |
+| H.credit-history-empty | Credit-balance block history (combo) | employer with 0 ledger entries | "No transactions yet", not a blank/loading panel |
+| H.orphan-application | Candidate "My Applications" | an application whose job was deleted | graceful "job removed" row (see journey `orphan-application-shows-job-removed`), not a fatal or blank row |
+
+> New empty-state / adversarial-data failures append a row here in the same PR
+> that fixes them — this matrix grows the same way D does.
 
 ---
 
@@ -218,7 +276,7 @@ Combo-mode only. Each contract covers the customer-visible promise, not the impl
 ### E.pro.fields — `partial` (v1.1.0: 3 files, 10 hooks; REST: CRUD on `/fields/groups`, `/fields/groups/{id}/fields`, `/fields/{id}`, `POST /fields/reorder`; admin slug: `wcbp-field-builder`; DB: `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`)
 **What to verify:** the field builder lets an admin create a custom field, attach it to a job CPT or candidate profile, and configure validation. The field renders on the matching form, persists on save, and the value is visible everywhere the entity renders.
 
-### E.pro.ai — `partial` (v1.1.0: 5 files, 2 hooks; REST: `POST /ai/match`, `GET /ai/matches`, `GET /ai/ranked-applications/{job_id}`, `POST /ai/generate-description`; admin tab: `wcbp-ai-settings` → redirects to `wcb-settings&tab=ai-settings`; needs Ollama or OpenAI key configured; DB: `wcb_ai_vectors`)
+### E.pro.ai — `partial` (v1.1.0: 5 files, 2 hooks; REST: `POST /ai/match`, `GET /candidates/{id}/matches`, `GET /ai/ranked-applications/{job_id}`, `POST /jobs/ai-description`; admin tab: `wcbp-ai-settings` → redirects to `wcb-settings&tab=ai-settings`; needs Ollama or OpenAI key configured; DB: `wcb_ai_vectors`)
 **What to verify:** with a configured AI provider (Ollama / OpenAI), parsing a sample resume returns structured data within the configured timeout; the parsed fields populate a candidate-profile (`wcb_resume`) draft. With no provider configured, no fatal; the UI surfaces a graceful "AI unconfigured" notice. Block `ai-chat-search` renders.
 
 ### E.pro.maps — `partial` (v1.1.0: 6 files, 4 hooks; REST: `GET /geocode`; block `job-map`)
@@ -227,7 +285,7 @@ Combo-mode only. Each contract covers the customer-visible promise, not the impl
 ### E.pro.boards — `partial` (v1.1.0: 2 files, 6 hooks; REST: `GET/DELETE /boards/{id}`, CRUD on `/boards/{id}/stages`; admin surface: "Boards" tab under `wcb-settings` — rendered by `AdminBoards::render()`; board CPT is `wcb_board` owned by Free)
 **What to verify:** an admin can create a second job board with its own slug and category scope; a job assigned to that board appears on its public listing but not on the default board's listing.
 
-### E.pro.credits — `partial` (v1.1.0: 1 file, 3 hooks; REST: `GET /credits/packages`, `GET /employers/{id}/credits`; admin tab: `wcbp-credits` → redirects to `wcb-settings&tab=credits`; DB: `wcb_credit_ledger`)
+### E.pro.credits — `partial` (v1.1.0: 1 file, 3 hooks; REST: `GET /employers/{id}/credits` (balance/ledger) + the bundled Credits-SDK routes `.../balance`, `.../history`, `.../topup`, `.../checkout/{gateway}`, `.../refund/{gateway}`; admin tab: `wcbp-credits` → redirects to `wcb-settings&tab=credits`; DB: `wcb_credit_ledger` + SDK gateway tables. NOTE: there is NO `GET /credits/packages` route — credit packs are configured in the SDK pack admin and surfaced by the credit-balance block's native checkout, not a listing endpoint. Do not assert `/credits/packages`.)
 **What to verify:** the credit balance endpoint returns the employer's current balance (sum of signed ledger amounts); posting a job on a paid board decrements the balance; admin can grant credits and the audit row persists in `wcb_credit_ledger`. Reaching zero balance blocks new job posts with a clear "out of credits" notice.
 
 ### E.pro.alerts — `stub` (v1.1.0: 1 file, 4 hooks; REST: `GET/POST /alerts`, `PUT/DELETE /alerts/{id}`; cron `wcbp_dispatch_alerts`; no admin tab yet; DB: `wcb_job_alerts`)

@@ -136,7 +136,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 
 		<div class="wcb-search-hero__field wcb-search-hero__field--submit">
 			<button type="submit" class="wcb-search-hero__button">
-				<i data-lucide="search" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				<?php echo esc_html( $wcb_button_label ); ?>
 			</button>
 		</div>

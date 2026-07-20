@@ -199,7 +199,8 @@ final class CompaniesEndpoint extends RestController {
 			// match to post_title, (b) use FULLTEXT when available, (c)
 			// fall back to LIKE otherwise. Same pattern as the jobs search.
 			$args['wcb_company_search_term'] = $search_term;
-			add_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10, 2 );
+			// NOTE: the posts_where filter is added below, only on a cache MISS,
+			// so a cache hit returns without ever hooking (and leaking) it.
 		}
 
 		// Industry + size accept either a single slug (legacy) or an array
@@ -231,17 +232,46 @@ final class CompaniesEndpoint extends RestController {
 			}
 		}
 
+		$paged = max( (int) $args['paged'], 1 );
+
+		// Version-keyed list cache — mirrors the /jobs endpoint. The Companies
+		// directory is a public, paginated, filterable, searchable list (the
+		// highest-fan-out uncached read); the version bumps on every company
+		// save/delete so this never serves stale rows. See CACHING.md.
+		$cache_key    = $this->get_items_cache_key( $args );
+		$cached_value = get_transient( $cache_key );
+		if ( false !== $cached_value && is_array( $cached_value ) ) {
+			return $this->build_companies_response(
+				(array) ( $cached_value['companies'] ?? array() ),
+				(int) ( $cached_value['total'] ?? 0 ),
+				(int) ( $cached_value['pages'] ?? 0 ),
+				$paged
+			);
+		}
+
+		if ( ! empty( $args['wcb_company_search_term'] ) ) {
+			add_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10, 2 );
+		}
+
 		$query = new \WP_Query( $args );
 		// Always unhook the search filter even when no rows were returned,
 		// so subsequent WP_Query calls in the request lifecycle don't pick
 		// up our custom WHERE on unrelated post types.
 		remove_filter( 'posts_where', array( $this, 'restrict_company_search_to_title' ), 10 );
 
-		$paged = (int) $args['paged'];
 		$total = (int) $query->found_posts;
 		$pages = (int) $query->max_num_pages;
 
 		if ( empty( $query->posts ) ) {
+			set_transient(
+				$cache_key,
+				array(
+					'companies' => array(),
+					'total'     => 0,
+					'pages'     => 0,
+				),
+				5 * MINUTE_IN_SECONDS
+			);
 			return $this->build_companies_response( array(), 0, 0, $paged );
 		}
 
@@ -262,7 +292,37 @@ final class CompaniesEndpoint extends RestController {
 			$query->posts
 		);
 
+		set_transient(
+			$cache_key,
+			array(
+				'companies' => $companies,
+				'total'     => $total,
+				'pages'     => $pages,
+			),
+			5 * MINUTE_IN_SECONDS
+		);
+
 		return $this->build_companies_response( $companies, $total, $pages, $paged );
+	}
+
+	/**
+	 * Version-keyed cache key for a companies list page.
+	 *
+	 * Mirrors JobsEndpoint::get_items_cache_key(). The version segment
+	 * (`wcb_companies_cache_v`) is bumped on every company save/delete, so a
+	 * stale page is impossible without a manual transient flush. The key varies
+	 * by locale because prepare_item() can embed localised labels.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param array<string, mixed> $args WP_Query args (includes filters/search).
+	 * @return string
+	 */
+	private function get_items_cache_key( array $args ): string {
+		$version = (int) get_option( 'wcb_companies_cache_v', 0 );
+		$locale  = determine_locale();
+
+		return 'wcb_companies_' . $version . '_' . $locale . '_' . md5( (string) wp_json_encode( $args ) );
 	}
 
 	/**
@@ -489,6 +549,13 @@ final class CompaniesEndpoint extends RestController {
 		foreach ( (array) $rows as $row ) {
 			$counts[ (int) $row->post_author ] = (int) $row->c;
 		}
+		// TTL-only cache (CACHING §4b): no write-time invalidation. The key is
+		// an md5 of the author-id SET, so a single save_post_wcb_job can't
+		// cheaply target the right entry — only a full-group flush would, which
+		// costs more than the staleness is worth. A company's "open positions"
+		// count tolerates up to 5 minutes of lag (a newly published job appears
+		// within one TTL window); we accept that bounded staleness rather than
+		// bust on every job write.
 		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
 		return $counts;
 	}

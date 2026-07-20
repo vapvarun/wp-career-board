@@ -41,7 +41,7 @@
 /* ── Badges ── */
 .wcb-badge {
     display: inline-flex; align-items: center; padding: 2px 8px;
-    font-size: 11px; font-weight: 600; border-radius: var(--wcb-radius-sm, 4px);
+    font-size: 11px; font-weight: 600; border-radius: var(--wcb-radius-sm, 6px);
     white-space: nowrap;
 }
 .wcb-badge--success { background: rgba(46,164,79,.1); color: #1a7c3b; }
@@ -246,11 +246,11 @@
 
 /* ── Premium Pagination ── */
 .wcb-admin .tablenav-pages .button {
-    border-radius: var(--wcb-radius-sm, 4px);
+    border-radius: var(--wcb-radius-sm, 6px);
 }
 .wcb-admin .tablenav-pages .current-page {
     border: 1.5px solid var(--wcb-border, #e2e8f0);
-    border-radius: var(--wcb-radius-sm, 4px);
+    border-radius: var(--wcb-radius-sm, 6px);
 }
 
 /* ── Premium Subsubsub (filter tabs) ── */

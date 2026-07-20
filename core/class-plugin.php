@@ -112,12 +112,6 @@ final class Plugin {
 
 		$this->boot_modules();
 
-		// Pro-coordination filter API — single source of truth for the Free→Pro contract.
-		// Free fires; Pro hooks. See core/class-pro-coordination.php for the documented surface.
-		if ( class_exists( \WCB\Core\ProCoordination::class ) ) {
-			( new \WCB\Core\ProCoordination() )->boot();
-		}
-
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
@@ -167,6 +161,7 @@ final class Plugin {
 			\WCB\Modules\Jobs\JobsExpiry::class,
 			\WCB\Modules\Jobs\DeadlineReminders::class,
 			\WCB\Modules\Jobs\FeaturedExpiry::class,
+			\WCB\Modules\Jobs\JobViewsRetention::class,
 			\WCB\Modules\Employers\EmployersModule::class,
 			\WCB\Modules\Candidates\CandidatesModule::class,
 			\WCB\Modules\Applications\ApplicationsModule::class,
@@ -178,6 +173,7 @@ final class Plugin {
 			\WCB\Modules\Seo\SeoModule::class,
 			\WCB\Modules\Seo\RssFeedEnrichment::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
+			\WCB\Modules\Account\AccountDeletionService::class,
 		);
 
 		foreach ( $module_classes as $class ) {
@@ -205,6 +201,8 @@ final class Plugin {
 			\WCB\Api\Endpoints\AdminEndpoint::class,
 			\WCB\Api\Endpoints\SettingsEndpoint::class,
 			\WCB\Api\Endpoints\AccountEndpoint::class,
+			\WCB\Api\Endpoints\AccountDeletionEndpoint::class,
+			\WCB\Api\Endpoints\MembersEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -369,23 +367,23 @@ final class Plugin {
 		 *   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
 		 */
 		$shortcodes = array(
-			'wcb_job_listings'        => 'wp-career-board/job-listings',
-			'wcb_job_search'          => 'wp-career-board/job-search',
-			'wcb_job_search_hero'     => 'wp-career-board/job-search-hero',
-			'wcb_job_filters'         => 'wp-career-board/job-filters',
-			'wcb_job_form'            => 'wp-career-board/job-form',
-			'wcb_job_form_simple'     => 'wp-career-board/job-form-simple',
-			'wcb_job_single'          => 'wp-career-board/job-single',
-			'wcb_employer_dashboard'  => 'wp-career-board/employer-dashboard',
-			'wcb_candidate_dashboard' => 'wp-career-board/candidate-dashboard',
-			'wcb_registration'        => 'wp-career-board/employer-registration',
-			'wcb_company_archive'     => 'wp-career-board/company-archive',
-			'wcb_company_profile'     => 'wp-career-board/company-profile',
-			'wcb_job_stats'           => 'wp-career-board/job-stats',
-			'wcb_recent_jobs'         => 'wp-career-board/recent-jobs',
-			'wcb_featured_jobs'       => 'wp-career-board/featured-jobs',
-			'wcb_similar_companies'   => 'wp-career-board/similar-companies-card',
-			'wcb_job_alert_card'      => 'wp-career-board/job-alert-card',
+			'wcb_job_listings'          => 'wp-career-board/job-listings',
+			'wcb_job_search'            => 'wp-career-board/job-search',
+			'wcb_job_search_hero'       => 'wp-career-board/job-search-hero',
+			'wcb_job_filters'           => 'wp-career-board/job-filters',
+			'wcb_job_form'              => 'wp-career-board/job-form',
+			'wcb_job_form_simple'       => 'wp-career-board/job-form-simple',
+			'wcb_job_single'            => 'wp-career-board/job-single',
+			'wcb_employer_dashboard'    => 'wp-career-board/employer-dashboard',
+			'wcb_candidate_dashboard'   => 'wp-career-board/candidate-dashboard',
+			'wcb_registration'          => 'wp-career-board/employer-registration',
+			'wcb_company_archive'       => 'wp-career-board/company-archive',
+			'wcb_company_profile'       => 'wp-career-board/company-profile',
+			'wcb_job_stats'             => 'wp-career-board/job-stats',
+			'wcb_recent_jobs'           => 'wp-career-board/recent-jobs',
+			'wcb_featured_jobs'         => 'wp-career-board/featured-jobs',
+			'wcb_similar_companies'     => 'wp-career-board/similar-companies-card',
+			'wcb_job_alert_card'        => 'wp-career-board/job-alert-card',
 			// Canonical alias for the existing wcb_registration tag. Matches the
 			// block name (employer-registration) and the docs. wcb_registration
 			// stays registered above as a back-compat tag for sites that already

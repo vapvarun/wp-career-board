@@ -401,7 +401,7 @@
 	font-weight: var(--wcb-font-semibold);
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-cp-detail-item dd {

@@ -55,7 +55,7 @@
 }
 
 .wcb-featured-location {
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
 	margin: 0;
 }

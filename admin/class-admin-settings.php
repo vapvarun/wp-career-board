@@ -728,11 +728,12 @@ class AdminSettings {
 		<?php if ( ! empty( $wcb_missing ) ) : ?>
 			<?php
 			$wcb_missing_labels = array(
-				'jobs_archive_page'        => __( 'Find Jobs', 'wp-career-board' ),
-				'employer_dashboard_page'  => __( 'Employer Dashboard', 'wp-career-board' ),
-				'candidate_dashboard_page' => __( 'Candidate Dashboard', 'wp-career-board' ),
-				'company_archive_page'     => __( 'Companies', 'wp-career-board' ),
-				'post_job_page'            => __( 'Post a Job', 'wp-career-board' ),
+				'jobs_archive_page'          => __( 'Find Jobs', 'wp-career-board' ),
+				'employer_dashboard_page'    => __( 'Employer Dashboard', 'wp-career-board' ),
+				'candidate_dashboard_page'   => __( 'Candidate Dashboard', 'wp-career-board' ),
+				'company_archive_page'       => __( 'Companies', 'wp-career-board' ),
+				'post_job_page'              => __( 'Post a Job', 'wp-career-board' ),
+				'employer_registration_page' => __( 'Employer Registration', 'wp-career-board' ),
 			);
 			$wcb_missing_names  = array_map( static fn( string $k ): string => $wcb_missing_labels[ $k ] ?? $k, $wcb_missing );
 			?>

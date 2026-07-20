@@ -168,8 +168,8 @@
 }
 
 .wcb-sidebar-cta:hover {
-	background: var(--wp--preset--color--wcb-avatar-bg);
-	color: var(--wp--preset--color--wcb-base);
+	background: var(--wcb-avatar-bg, var(--wp--preset--color--wcb-avatar-bg));
+	color: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: none;
 	text-decoration: none;
 }

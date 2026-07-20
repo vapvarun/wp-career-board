@@ -26,6 +26,8 @@
       "@phpstan"
     ],
     "coding-rules": "bin/coding-rules-check.sh --full",
+    "route-callers": "php bin/check-route-callers.php",
+    "dead-code": "php bin/check-dead-code.php",
     "qa-coverage": "php bin/qa-coverage-check.php",
     "qa-coverage:strict": "php bin/qa-coverage-check.php --strict",
     "ci:quick": [
@@ -36,6 +38,8 @@
       "@phpstan",
       "@phpcs",
       "@coding-rules",
+      "@route-callers",
+      "@dead-code",
       "@qa-coverage"
     ],
     "journeys": "bin/run-journeys.sh --priority=critical",

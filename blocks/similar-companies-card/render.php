@@ -68,7 +68,7 @@ if ( empty( $wcb_companies ) ) {
 		<aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card wcb-similar-companies-card--empty' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<h3 class="wcb-cp-side-card__title"><?php echo esc_html( $wcb_title ); ?></h3>
 			<div class="wcb-similar-companies-card__empty">
-				<i data-lucide="building" aria-hidden="true"></i>
+				<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				<p><?php esc_html_e( 'No similar companies found yet.', 'wp-career-board' ); ?></p>
 			</div>
 		</aside>
@@ -80,7 +80,7 @@ if ( empty( $wcb_companies ) ) {
 ?>
 <aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<h3 class="wcb-cp-side-card__title">
-		<i data-lucide="building" aria-hidden="true"></i>
+		<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 		<?php echo esc_html( $wcb_title ); ?>
 	</h3>
 	<ul class="wcb-similar-companies-card__list">
@@ -110,7 +110,7 @@ if ( empty( $wcb_companies ) ) {
 					<span class="wcb-similar-companies-card__name"><?php echo esc_html( $wcb_company->post_title ); ?></span>
 					<?php if ( $wcb_loc ) : ?>
 						<span class="wcb-similar-companies-card__meta">
-							<i data-lucide="map-pin" aria-hidden="true"></i>
+							<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php echo esc_html( $wcb_loc ); ?>
 						</span>
 					<?php endif; ?>

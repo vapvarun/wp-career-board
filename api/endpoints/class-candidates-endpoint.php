@@ -429,12 +429,24 @@ final class CandidatesEndpoint extends RestController {
 			$type_names     = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
 
 			$items[] = array(
-				'id'        => $post->ID,
-				'title'     => $post->post_title,
-				'permalink' => get_permalink( $post->ID ),
-				'company'   => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
-				'location'  => implode( ', ', $loc_names ),
-				'type'      => implode( ', ', $type_names ),
+				'id'           => $post->ID,
+				'title'        => $post->post_title,
+				'permalink'    => get_permalink( $post->ID ),
+				'company'      => (string) get_post_meta( $post->ID, '_wcb_company_name', true ),
+				'location'     => implode( ', ', $loc_names ),
+				'type'         => implode( ', ', $type_names ),
+				// Match the jobs-list card so a saved job reads as richly as the
+				// same job in the main list (no more "Salary not disclosed" when
+				// the job actually has a salary).
+				'salary_label' => \WCB\Core\SalaryFormat::format(
+					(string) get_post_meta( $post->ID, '_wcb_salary_min', true ),
+					(string) get_post_meta( $post->ID, '_wcb_salary_max', true ),
+					// Default currency to USD when unset, exactly as the jobs list
+					// card does, so the two render the same salary string.
+					(string) ( get_post_meta( $post->ID, '_wcb_salary_currency', true ) ?: 'USD' ),
+					(string) ( get_post_meta( $post->ID, '_wcb_salary_type', true ) ?: 'yearly' )
+				),
+				'remote'       => '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true ),
 			);
 		}
 

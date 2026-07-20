@@ -261,10 +261,23 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Jobs list.
 		get hasJobs() {
-			return ! state.loading && ! state.noCompany && state.filteredJobs.length > 0;
+			// Jobs are loaded author-scoped (/employers/me/jobs), so an employer
+			// who hasn't created a company profile still has real jobs to show —
+			// never gate the jobs list on company existence.
+			return ! state.loading && state.filteredJobs.length > 0;
 		},
 		get noJobs() {
-			return ! state.loading && ! state.noCompany && ! state.error && state.filteredJobs.length === 0;
+			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
+		},
+		// Onboarding banners must never contradict real content. Author-scoped
+		// jobs exist independently of a company profile, so suppress the "set up
+		// company" CTA the moment the employer has jobs to manage, and only offer
+		// "post your first job" once a company exists.
+		get showCompanySetup() {
+			return state.noCompany && ! state.hasJobs;
+		},
+		get showPostFirstJob() {
+			return ! state.noCompany && state.noJobs;
 		},
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
@@ -662,21 +675,37 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield actions.loadJobs();
 
-				// Company applications (the Applications tab's dataset).
-				if ( state.companyId ) {
-					const appsResp = yield wcbFetch(
-						state.apiBase + '/employers/' + String( state.companyId ) + '/applications',
-						{ headers: { 'X-WP-Nonce': state.nonce } }
-					);
-					if ( appsResp.ok ) {
-						const appsData = yield appsResp.json();
-						state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
-					}
+				// Applications dataset (Overview "Recent Applications" widget + the
+				// Applications tab). Use the company-scoped route when a company
+				// profile exists, else the author-scoped /employers/me/applications
+				// so employers who post jobs BEFORE creating a company still see
+				// their applications instead of an empty widget beside a non-zero
+				// stat card.
+				const appsUrl = state.companyId
+					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
+					: state.apiBase + '/employers/me/applications';
+				const appsResp = yield wcbFetch(
+					appsUrl,
+					{ headers: { 'X-WP-Nonce': state.nonce } }
+				);
+				if ( appsResp.ok ) {
+					const appsData = yield appsResp.json();
+					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
 				}
 			} catch {
 				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.loading = false;
+			}
+
+			// Guard against a stale / cross-tenant job id restored from
+			// sessionStorage: only keep appsJobId if it belongs to THIS
+			// employer's own jobs. A leaked id from a prior session as a
+			// different employer would otherwise 403 the applications fetch and
+			// surface a broken error state instead of this employer's own.
+			if ( state.appsJobId > 0 && ! state.jobs.some( function ( j ) { return Number( j.id ) === Number( state.appsJobId ); } ) ) {
+				state.appsJobId = 0;
+				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
 			}
 
 			if ( state.appsJobId > 0 ) {

@@ -1,0 +1,34 @@
+# Route-caller baseline — REST routes that currently have NO first-party
+# JS / admin-inline-script caller. Enforced by bin/check-route-callers.php
+# (composer route-callers), wired into bin/build-release.sh.
+#
+# An entry here is one of:
+#   (a) intentionally server-only / headless (inbound webhook, external API), or
+#   (b) KNOWN DEBT — the endpoint exists but its product UI is not wired yet.
+#
+# This file is a BASELINE, not a blessing: it exists so a NEW orphaned route
+# (like the /boards/{id}/stages CRUD + /fields/reorder that shipped unreachable
+# and became bugs) FAILS the release gate instead of slipping through. Remove an
+# entry the moment the route gets a caller — do not let this list grow silently.
+#
+# One exact route path per line (as registered), '#' starts a comment.
+
+# --- debt: wire a caller or remove the route ------------------------------
+# Headless-shaped config read; no first-party consumer found. Verify a block/
+# JS reads it, or drop it.
+/settings/app-config
+
+# Frontend moderator resolve flow. The Jobs ADMIN resolves flags via the
+# wcb_resolve_flag GET-param handler (class-admin-jobs.php), NOT this REST route
+# — confirm a frontend moderator UI calls it, or remove the duplicate path.
+/jobs/(?P<id>\d+)/resolve-flag
+
+# --- mobile-only (1.7.0 companion app), no web caller by design ------------
+# In-app account-deletion status check + cancel (Apple 5.1.1(v)). The web
+# candidate dashboard uses /candidates/me/privacy/erase; these /me/deletion
+# routes serve the native mobile client only.
+/me/deletion
+# The caller's blocked-members list (Apple 1.2 safety). Report + block actions
+# have frontend UI; the blocked-list screen ships in the native mobile client
+# only — no web management UI yet.
+/me/blocked

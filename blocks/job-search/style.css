@@ -76,7 +76,7 @@
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-md) var(--wcb-space-xl);
 	background: var(--wcb-primary);
-	color: var(--wp--preset--color--wcb-base);
+	color: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: none;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-medium);
@@ -97,7 +97,7 @@
 .wcb-search-button:hover,
 .wcb-search-button:focus {
 	background: var(--wcb-primary-dark);
-	color: var(--wp--preset--color--wcb-base);
+	color: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: none;
 }
 

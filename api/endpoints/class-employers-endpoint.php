@@ -138,6 +138,16 @@ final class EmployersEndpoint extends RestController {
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/me/applications',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_my_applications' ),
+				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+			)
+		);
 	}
 
 	// --- Route callbacks --------------------------------------------------------
@@ -479,9 +489,7 @@ final class EmployersEndpoint extends RestController {
 		if ( null !== $desc ) {
 			$data['post_content'] = wp_kses_post( (string) $desc );
 		}
-		if ( count( $data ) > 1 ) {
-			wp_update_post( $data );
-		}
+		$changed = count( $data ) > 1;
 
 		$meta_map = array(
 			'website'      => '_wcb_website',
@@ -498,11 +506,13 @@ final class EmployersEndpoint extends RestController {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, sanitize_text_field( (string) $value ) );
+				$changed = true;
 			}
 		}
 		$hq_value = $request->get_param( 'hq' );
 		if ( null !== $hq_value ) {
 			\WCB\Core\Locations::sync_company_hq( (int) $post->ID, (string) $hq_value );
+			$changed = true;
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
@@ -510,6 +520,15 @@ final class EmployersEndpoint extends RestController {
 		if ( is_array( $custom ) ) {
 			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
 			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );
+			$changed = true;
+		}
+
+		// Fire save_post_wcb_company for any change — including meta-only edits —
+		// so the /companies list cache (invalidated on that hook) rebuilds.
+		// Without this, a tagline/industry/size/hq-only save leaves the public
+		// company directory serving stale brand data until the transient expires.
+		if ( $changed ) {
+			wp_update_post( $data );
 		}
 
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );
@@ -634,8 +653,31 @@ final class EmployersEndpoint extends RestController {
 			)
 		);
 
+		// Batch-count applications for these jobs in ONE query, exactly as the
+		// company-scoped get_jobs() does. Without this the no-company branch
+		// hardcoded appCount 0 for every job, so an employer who posts a job
+		// BEFORE completing their company profile saw "No applicants" and a 0
+		// dashboard badge even with real applications on file.
+		global $wpdb;
+		$wcb_job_ids     = wp_list_pluck( $query->posts, 'ID' );
+		$wcb_app_counts  = array();
+		if ( ! empty( $wcb_job_ids ) ) {
+			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$wcb_rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT meta_value AS job_id, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_job_id' AND meta_value IN ({$wcb_placeholders}) GROUP BY meta_value",
+					...$wcb_job_ids
+				)
+			);
+			// phpcs:enable
+			foreach ( (array) $wcb_rows as $wcb_row ) {
+				$wcb_app_counts[ (int) $wcb_row->job_id ] = (int) $wcb_row->cnt;
+			}
+		}
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url ): array {
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
@@ -664,8 +706,14 @@ final class EmployersEndpoint extends RestController {
 					'rejected'    => $rejected,
 					'permalink'   => get_permalink( $p->ID ),
 					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'appCount'    => 0,
-					'appLabel'    => __( 'No applicants', 'wp-career-board' ),
+					'appCount'    => $wcb_app_counts[ $p->ID ] ?? 0,
+					'appLabel'    => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+						? sprintf(
+							/* translators: %s: number of applicants, already localised. */
+							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
+							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
+						)
+						: __( 'No applicants', 'wp-career-board' ),
 					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
 					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
 					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
@@ -839,6 +887,63 @@ final class EmployersEndpoint extends RestController {
 		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
+		return $this->build_applications_response( (array) $rows, $request );
+	}
+
+	/**
+	 * Applications across the current user's authored jobs (company-independent).
+	 *
+	 * The company-scoped /employers/{id}/applications route leaves employers who
+	 * post jobs BEFORE creating a company profile with an empty dashboard Overview
+	 * (companyId is 0, so the client never fetches). This author-keyed sibling
+	 * powers that widget so applications surface regardless of whether a company
+	 * profile exists. Same status allowlist + envelope as the company view.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
+		global $wpdb;
+		$user_id       = get_current_user_id();
+		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql  = $wpdb->prepare(
+			"SELECT app.ID, app.post_date
+			 FROM {$wpdb->posts} app
+			 INNER JOIN {$wpdb->postmeta} pm_job
+			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
+			 INNER JOIN {$wpdb->posts} job
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_author = %d
+			 WHERE app.post_type   = 'wcb_application'
+			   AND app.post_status = 'publish'
+			 ORDER BY app.post_date DESC
+			 LIMIT 20",
+			$user_id
+		);
+		$rows = $wpdb->get_results( $sql );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return $this->build_applications_response( (array) $rows, $request );
+	}
+
+	/**
+	 * Build the standard applications list response from raw {ID, post_date} rows.
+	 *
+	 * Shared by the company-scoped (get_applications) and author-scoped
+	 * (get_my_applications) callbacks so both return an identical envelope and
+	 * apply the same cache-priming + wcb_rest_prepare_application filter.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param  array<int, object> $rows    Rows carrying ->ID (and ->post_date).
+	 * @param  \WP_REST_Request   $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	private function build_applications_response( array $rows, \WP_REST_Request $request ): \WP_REST_Response {
 		if ( empty( $rows ) ) {
 			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
 		}

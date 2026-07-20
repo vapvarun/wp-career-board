@@ -52,7 +52,6 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	--wcb-text-primary: var(--wcb-contrast, var(--wp--preset--color--wcb-contrast));
 	--wcb-text-muted:   var(--wcb-text-tertiary);
 	--wcb-blue:         var(--wcb-primary, var(--wp--preset--color--wcb-primary));
-	--wcb-green:        #059669;
 	--wcb-radius:       var(--wcb-radius-md);
 	font-family: inherit;
 	/* Match the shared block base (var(--wcb-text-base)) used by every other WCB

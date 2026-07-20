@@ -45,54 +45,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ProCoordination {
 
 	/**
-	 * Register the action hooks Free fires.
-	 *
-	 * Filters declared in this class are documented but not registered here
-	 * (they're applied at their callsites). The init action below is the
-	 * contract Pro hooks to register its REST routes / blocks / modules.
-	 *
-	 * @since 1.2.0
-	 * @return void
-	 */
-	public function boot(): void {
-		add_action( 'init', array( $this, 'fire_register_extensions' ), 20 );
-	}
-
-	/**
-	 * Fire the wcb_register_extensions action so Pro can register its own
-	 * endpoints, blocks, and modules.
-	 *
-	 * Pro hooks this on priority 5 (so it runs before Free's existing init
-	 * hooks). Late priority 20 here is intentional — it runs AFTER Free's
-	 * own init=10 module boot, so Pro can safely depend on Free being fully
-	 * loaded.
-	 *
-	 * @since 1.2.0
-	 * @return void
-	 */
-	public function fire_register_extensions(): void {
-		/**
-		 * Fires once per request when Free is fully booted. Pro hooks this to
-		 * register its own REST routes, blocks, and modules.
-		 *
-		 * @since 1.2.0
-		 */
-		do_action( 'wcb_register_extensions' );
-
-		/**
-		 * Fires immediately after wcb_register_extensions. Pro hooks this to
-		 * verify Free version compatibility and bail early if Free is too old
-		 * for the installed Pro build.
-		 *
-		 * Pro's listener should call wcbp_free_compatible() and emit an admin
-		 * notice if false.
-		 *
-		 * @since 1.2.0
-		 */
-		do_action( 'wcb_pro_pre_check' );
-	}
-
-	/**
 	 * Documented filter list — for reference + IDE discovery.
 	 *
 	 * Each filter is also documented inline at its callsite, but this catalog

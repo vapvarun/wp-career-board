@@ -35,6 +35,53 @@ final class JobsModule {
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+		// Member blocking on the SSR frontend. REST already excludes blocked
+		// authors (class-jobs-endpoint.php author__not_in / is_hidden); mirror it
+		// on the server-rendered listings + single job so a blocked employer's
+		// jobs don't leak on the pretty permalink or archive.
+		add_filter( 'wcb_job_listings_query_args', array( $this, 'exclude_blocked_authors' ) );
+		add_action( 'template_redirect', array( $this, 'guard_hidden_single_job' ) );
+	}
+
+	/**
+	 * Drop authors the current viewer has blocked (or who blocked them) from the
+	 * server-rendered job listings. Mirrors the REST list filter so member
+	 * blocking is enforced on the Find Jobs block + CPT archive, not just the
+	 * REST-driven pagination. No-op for guests / viewers with no blocks.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param array<string, mixed> $args WP_Query args for the listings query.
+	 * @return array<string, mixed>
+	 */
+	public function exclude_blocked_authors( array $args ): array {
+		$wcb_hidden = \WCB\Core\Blocks::hidden_author_ids( get_current_user_id() );
+		if ( ! empty( $wcb_hidden ) ) {
+			$wcb_existing           = isset( $args['author__not_in'] ) ? (array) $args['author__not_in'] : array();
+			$args['author__not_in'] = array_values( array_unique( array_merge( $wcb_existing, $wcb_hidden ) ) );
+		}
+		return $args;
+	}
+
+	/**
+	 * 404 a single wcb_job whose author is hidden from the current viewer, so a
+	 * blocked employer's job is not reachable via its pretty permalink. Mirrors
+	 * the REST single 404 (class-jobs-endpoint.php is_hidden guard).
+	 *
+	 * @since 1.7.0
+	 * @return void
+	 */
+	public function guard_hidden_single_job(): void {
+		if ( ! is_singular( 'wcb_job' ) ) {
+			return;
+		}
+		$wcb_author_id = (int) get_post_field( 'post_author', get_queried_object_id() );
+		if ( \WCB\Core\Blocks::is_hidden( get_current_user_id(), $wcb_author_id ) ) {
+			global $wp_query;
+			$wp_query->set_404();
+			status_header( 404 );
+			nocache_headers();
+		}
 	}
 
 	/**
