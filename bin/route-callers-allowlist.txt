@@ -22,3 +22,13 @@
 # wcb_resolve_flag GET-param handler (class-admin-jobs.php), NOT this REST route
 # — confirm a frontend moderator UI calls it, or remove the duplicate path.
 /jobs/(?P<id>\d+)/resolve-flag
+
+# --- mobile-only (1.7.0 companion app), no web caller by design ------------
+# In-app account-deletion status check + cancel (Apple 5.1.1(v)). The web
+# candidate dashboard uses /candidates/me/privacy/erase; these /me/deletion
+# routes serve the native mobile client only.
+/me/deletion
+# The caller's blocked-members list (Apple 1.2 safety). Report + block actions
+# have frontend UI; the blocked-list screen ships in the native mobile client
+# only — no web management UI yet.
+/me/blocked
