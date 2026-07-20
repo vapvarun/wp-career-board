@@ -483,10 +483,12 @@ final class JobsEndpoint extends RestController {
 				'fields'         => 'ids',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
+						// String compare (no NUMERIC): _wcb_job_id is stored as a string, so
+						// equality is exact and the wcb_meta_key_value index serves it. A
+						// NUMERIC type forces CAST(meta_value AS UNSIGNED) and full-scans postmeta.
 						'key'     => '_wcb_job_id',
 						'value'   => $job_ids,
 						'compare' => 'IN',
-						'type'    => 'NUMERIC',
 					),
 				),
 			)

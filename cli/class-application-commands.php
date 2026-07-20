@@ -87,10 +87,11 @@ class ApplicationCommands extends AbstractCliCommand {
 		$meta_query = array();
 
 		if ( $job_id ) {
+			// String compare (no NUMERIC) so the wcb_meta_key_value index is used;
+			// _wcb_job_id is stored as a string, so equality is exact.
 			$meta_query[] = array(
 				'key'   => '_wcb_job_id',
 				'value' => $job_id,
-				'type'  => 'NUMERIC',
 			);
 		}
 

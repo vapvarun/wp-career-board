@@ -480,10 +480,12 @@ class ScaleCommand extends AbstractCliCommand {
 						'posts_per_page' => 50,
 						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 						'meta_query'     => array(
+							// Mirror production (applications endpoint): string compare so the
+							// wcb_meta_key_value index serves the by-job lookup. NUMERIC would
+							// force CAST(meta_value AS UNSIGNED) and full-scan postmeta.
 							array(
 								'key'   => '_wcb_job_id',
 								'value' => $sample_job_id,
-								'type'  => 'NUMERIC',
 							),
 						),
 					)
