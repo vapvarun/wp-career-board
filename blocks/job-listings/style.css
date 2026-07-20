@@ -676,7 +676,7 @@
 
 .wcb-clear-all {
 	font-size: var(--wcb-text-xs);
-	color: var(--wp--preset--color--wcb-muted);
+	color: var(--wcb-muted, var(--wp--preset--color--wcb-muted));
 	background: none;
 	border: none;
 	padding: 0;
@@ -722,7 +722,7 @@
 	padding: var(--wcb-space-xs) var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wp--preset--color--wcb-muted);
+	color: var(--wcb-muted, var(--wp--preset--color--wcb-muted));
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);

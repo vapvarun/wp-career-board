@@ -113,7 +113,7 @@
 
 .wcb-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 .wcb-status-badge[data-status="hired"],
 .wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
@@ -430,6 +430,7 @@
 
 .wcb-apps-job-item.wcb-active .wcb-apps-job-item-count {
 	background: rgba(29, 78, 216, 0.15);
+	background: color-mix(in srgb, var(--wcb-primary) 15%, transparent);
 }
 
 .wcb-apps-no-match {
@@ -910,7 +911,7 @@
 .wcb-job-status-badge[data-status="publish"]  { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-job-status-badge[data-status="draft"]    { background: var(--wcb-bg-hover); color: var(--wcb-text-secondary); }
 .wcb-job-status-badge[data-status="pending"]  { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-job-status-badge[data-status="private"]  { background: #ede9fe; color: #5b21b6; }
+.wcb-job-status-badge[data-status="private"]  { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 
 /* -- Application status badge -- */
 .wcb-app-status-badge {
@@ -926,7 +927,7 @@
 
 .wcb-app-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-app-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-app-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-app-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 .wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }

@@ -64,7 +64,7 @@
 .wcb-stat-card--green  .wcb-stat-value { color: var(--wcb-success); }
 .wcb-stat-card--blue   .wcb-stat-value { color: var(--wcb-primary); }
 .wcb-stat-card--amber  .wcb-stat-value { color: var(--wcb-warning); }
-.wcb-stat-card--purple .wcb-stat-value { color: #7c3aed; }
+.wcb-stat-card--purple .wcb-stat-value { color: var(--wcb-purple); }
 
 [data-accent="green"] .wcb-stat-value { color: var(--wcb-success); }
 [data-accent="blue"]  .wcb-stat-value { color: var(--wcb-primary); }

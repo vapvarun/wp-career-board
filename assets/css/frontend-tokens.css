@@ -113,6 +113,11 @@
 	--wcb-info-bg-soft:    #eff6ff;
 	--wcb-info-border:     #bfdbfe;
 
+	/* Purple accent — shortlisted applications + private job status. */
+	--wcb-purple:          #7c3aed;
+	--wcb-purple-fg:       #5b21b6;
+	--wcb-purple-bg:       #ede9fe;
+
 	/* Verified/trust accent (teal) — used on Verified company badges,
 	   open-to-work pills, and resume-completeness meters. */
 	--wcb-teal:            #0d9488;

@@ -370,7 +370,7 @@
 
 .wcb-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
 .wcb-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge[data-status="shortlisted"] { background: #ede9fe; color: #5b21b6; }
+.wcb-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 .wcb-status-badge[data-status="hired"],
 .wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success); }
 .wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
@@ -382,7 +382,7 @@
 	justify-content: space-between;
 	gap: var(--wcb-space-lg);
 	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wp--preset--color--wcb-surface);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 }
 
 .wcb-alert-row:last-child {
