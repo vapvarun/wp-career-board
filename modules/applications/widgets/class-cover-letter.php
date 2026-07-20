@@ -78,6 +78,7 @@ final class CoverLetter extends AbstractWidget {
 			<?php if ( '' === $letter ) : ?>
 				<p class="wcb-app-section__empty"><?php esc_html_e( 'No cover letter submitted.', 'wp-career-board' ); ?></p>
 			<?php else : ?>
+				<?php // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' is a WordPress core filter, applied intentionally so shortcodes/formatting render in the cover letter. ?>
 				<div class="wcb-app-section__body"><?php echo wp_kses_post( apply_filters( 'the_content', $letter ) ); ?></div>
 			<?php endif; ?>
 		</div>

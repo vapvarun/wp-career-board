@@ -893,9 +893,9 @@ final class EmployersEndpoint extends RestController {
 	 * @since 1.7.0
 	 *
 	 * @param  \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response|\WP_Error
+	 * @return \WP_REST_Response
 	 */
-	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		global $wpdb;
 		$user_id       = get_current_user_id();
 		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";

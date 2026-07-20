@@ -147,7 +147,12 @@ class MembersEndpoint extends RestController {
 		$reporters      = is_array( $reporters_meta ) ? array_map( 'intval', $reporters_meta ) : array();
 
 		if ( in_array( $reporter, $reporters, true ) ) {
-			return rest_ensure_response( array( 'reported' => true, 'already_reported' => true ) );
+			return rest_ensure_response(
+				array(
+					'reported'         => true,
+					'already_reported' => true,
+				)
+			);
 		}
 
 		$reason             = (string) $request->get_param( 'reason' );

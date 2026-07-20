@@ -711,7 +711,10 @@ class AdminApplications extends \WP_List_Table {
 				__( 'Submitted', 'wp-career-board' ),
 				__( 'Cover Letter', 'wp-career-board' ),
 				__( 'Resume URL', 'wp-career-board' ),
-			)
+			),
+			',',
+			'"',
+			''
 		);
 
 		foreach ( $app_ids as $app_id ) {
@@ -748,7 +751,10 @@ class AdminApplications extends \WP_List_Table {
 					$post->post_date,
 					(string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
 					$resume_url,
-				)
+				),
+				',',
+				'"',
+				''
 			);
 		}
 
