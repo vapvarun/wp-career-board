@@ -3,7 +3,7 @@
   "plugin": {
     "slug": "wp-career-board",
     "name": "WP Career Board",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "namespace": "WCB\\",
     "main_file": "wp-career-board.php",
     "text_domain": "wp-career-board",
