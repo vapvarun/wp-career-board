@@ -489,9 +489,7 @@ final class EmployersEndpoint extends RestController {
 		if ( null !== $desc ) {
 			$data['post_content'] = wp_kses_post( (string) $desc );
 		}
-		if ( count( $data ) > 1 ) {
-			wp_update_post( $data );
-		}
+		$changed = count( $data ) > 1;
 
 		$meta_map = array(
 			'website'      => '_wcb_website',
@@ -508,11 +506,13 @@ final class EmployersEndpoint extends RestController {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, sanitize_text_field( (string) $value ) );
+				$changed = true;
 			}
 		}
 		$hq_value = $request->get_param( 'hq' );
 		if ( null !== $hq_value ) {
 			\WCB\Core\Locations::sync_company_hq( (int) $post->ID, (string) $hq_value );
+			$changed = true;
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
@@ -520,6 +520,15 @@ final class EmployersEndpoint extends RestController {
 		if ( is_array( $custom ) ) {
 			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
 			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );
+			$changed = true;
+		}
+
+		// Fire save_post_wcb_company for any change — including meta-only edits —
+		// so the /companies list cache (invalidated on that hook) rebuilds.
+		// Without this, a tagline/industry/size/hq-only save leaves the public
+		// company directory serving stale brand data until the transient expires.
+		if ( $changed ) {
+			wp_update_post( $data );
 		}
 
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );

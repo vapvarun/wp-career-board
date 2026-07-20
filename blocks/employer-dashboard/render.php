@@ -527,7 +527,7 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Overview', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.noCompany">
+			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.showCompanySetup">
 				<div class="wcb-db-onboard__text">
 					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Welcome! Let\'s get you set up.', 'wp-career-board' ); ?></p>
 					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Create your company profile to start posting jobs and receiving applications.', 'wp-career-board' ); ?></p>
@@ -535,7 +535,7 @@ wp_interactivity_state(
 				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
-			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.noJobs">
+			<div class="wcb-db-onboard" data-wp-class--wcb-shown="state.showPostFirstJob">
 				<div class="wcb-db-onboard__text">
 					<p class="wcb-db-onboard__title"><?php esc_html_e( 'Your company is ready.', 'wp-career-board' ); ?></p>
 					<p class="wcb-db-onboard__msg"><?php esc_html_e( 'Post your first job to start receiving applications.', 'wp-career-board' ); ?></p>
@@ -652,14 +652,14 @@ wp_interactivity_state(
 				<div class="wcb-skeleton-row"></div>
 			</div>
 
-			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noCompany">
+			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.showCompanySetup">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'Set up your company profile first before posting jobs.', 'wp-career-board' ); ?></p>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
 			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.noJobs">
+			<div class="wcb-db-empty" data-wp-class--wcb-shown="state.showPostFirstJob">
 				<p class="wcb-db-empty-msg"><?php esc_html_e( 'No jobs posted yet.', 'wp-career-board' ); ?></p>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>

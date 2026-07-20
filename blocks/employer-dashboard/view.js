@@ -269,6 +269,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noJobs() {
 			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
 		},
+		// Onboarding banners must never contradict real content. Author-scoped
+		// jobs exist independently of a company profile, so suppress the "set up
+		// company" CTA the moment the employer has jobs to manage, and only offer
+		// "post your first job" once a company exists.
+		get showCompanySetup() {
+			return state.noCompany && ! state.hasJobs;
+		},
+		get showPostFirstJob() {
+			return ! state.noCompany && state.noJobs;
+		},
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
 		get totalJobs() {
