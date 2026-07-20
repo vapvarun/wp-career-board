@@ -2,7 +2,7 @@
   "product_name": "WP Career Board",
   "product_slug": "wp-career-board",
   "product_type": "plugin",
-  "version": "1.2.0",
+  "version": "1.7.0",
   "tagline": "The community-powered job board for WordPress",
   "categories": [
     {
@@ -85,7 +85,8 @@
         "12-custom-fields.md",
         "13-application-editor.md",
         "14-capabilities-and-roles.md",
-        "15-company-profile-sidebar.md"
+        "15-company-profile-sidebar.md",
+        "16-content-filtering.md"
       ]
     },
     {

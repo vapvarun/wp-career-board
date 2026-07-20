@@ -10,6 +10,13 @@ The **My Jobs** tab in the Employer Dashboard shows all the jobs you have posted
 2. Click **My Jobs** in the sidebar (under the JOBS section). Its badge shows your total job count.
 3. You will see a list of all your jobs with their current status
 
+Since 1.7.0, My Jobs and your Applications are available as soon as
+you have jobs on file, even if you haven't created a company profile
+yet. The dashboard no longer nags you to "set up your company profile
+first" while you're staring at a list of jobs you've already posted -
+that prompt only appears once, before you have any jobs, and you'll
+still need a company profile before posting a *new* job.
+
 ## Filtering by Status
 
 A row of filter pills at the top of My Jobs lets you narrow the list:

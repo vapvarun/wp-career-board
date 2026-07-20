@@ -47,6 +47,19 @@ The same tab includes a **Privacy & My Data** panel with two self-service contro
 
 Both requests are processed by the site administrator, and you are emailed when each one completes.
 
+### Delete your account from the app
+
+New in 1.7.0 - if the site offers the WP Career Board companion mobile
+app, you can delete your own account directly from the app, without
+waiting on the site administrator. Confirm your password and type
+DELETE to confirm, and the deletion is scheduled with a grace period
+(14 days by default): your account is locked for that window, but
+signing back in before the grace period ends cancels the deletion and
+restores full access. Once the grace period passes, your account is
+permanently removed - same underlying WordPress account-deletion
+cascade as the site administrator's tools use, so it's the same kind
+of erasure described above under Privacy & My Data.
+
 ## Notifications
 
 When the site owner enables the in-dashboard notification bell, a **Notifications** tab appears with an unread badge. It lists your Career Board notifications (for example application status changes) inside the dashboard, so you don't have to rely on email alone.

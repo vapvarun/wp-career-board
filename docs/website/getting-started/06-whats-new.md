@@ -1,9 +1,80 @@
-# What's New in 1.4.6
+# What's New in 1.7.0
 
-WP Career Board and WP Career Board Pro ship in lockstep at 1.4.6.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.7.0.
 Install both updates together. This page highlights the
-customer-facing changes across the 1.3.0 and 1.4.x cycles. For the
-full line-by-line history, see the changelog in `readme.txt`.
+customer-facing changes across the 1.5.0-1.7.0 and 1.3.0-1.4.x
+cycles. For the full line-by-line history, see the changelog in
+`readme.txt`.
+
+## 1.7.0
+
+* New      - Full mobile REST API for companion apps, including an
+  app-config endpoint and viewer-relative fields on job cards.
+* New      - Members can report other members, and site owners can
+  block members and suspend candidates.
+* New      - Members can delete their own account from within the app.
+* New      - Guest applications are linked to a member account
+  automatically when someone registers with the same email address.
+* New      - Server-side content filtering for job listings.
+* Improve  - Employers can see and manage their jobs and applications
+  before creating a company profile.
+* Improve  - Accessibility pass across the frontend with stronger text
+  contrast and 40px minimum tap targets.
+* Improve  - Faster on large sites through indexed application
+  lookups, a version-keyed company-list cache, and primed user caches
+  that remove per-row lookups.
+* Improve  - Old job-view records are pruned automatically on a daily
+  schedule.
+* Fix      - The employer dashboard no longer shows a "set up your
+  company profile first" prompt next to a list of the employer's
+  existing jobs.
+* Fix      - The public company directory reflects brand edits
+  (tagline, industry, size, location) immediately instead of after a
+  cache delay.
+* Fix      - The jobs archive no longer returns a 404 after the plugin
+  is reactivated.
+* Fix      - CSV exports are compatible with PHP 8.4 and later.
+* Security - Job listing and application detail reads are scoped to
+  their owner.
+* Security - Blocked members can no longer see listings or single jobs
+  on the server-rendered frontend.
+* Compat   - Aligned with WP Career Board Pro 1.7.0. Install both
+  updates together.
+
+## 1.6.0
+
+* New      - The plugin is now fully translation-ready and bundles
+  German, French, Spanish, Dutch and Korean translations; every
+  interface string loads through WordPress's standard translation
+  system.
+* New      - Notification email bodies are now editable per template
+  from the Emails settings, each with a ready-to-use default.
+* Fix      - Notification emails no longer send with an empty body;
+  the message body falls back to a sensible default when left blank.
+* Fix      - The "Manage License" link is back on the WP Career Board
+  plugins-screen row.
+* Compat   - Aligned with WP Career Board Pro 1.6.0. Install both
+  updates together.
+
+## 1.5.0
+
+* Improve  - Unified the admin colour tokens onto the same canonical
+  namespace as the frontend, so admin and frontend theme consistently
+  from one source.
+* Improve  - Admin buttons now meet the 40px minimum tap target, and
+  the bookmark, layout, view-switch and settings-toggle controls show
+  a keyboard focus ring.
+* Improve  - Admin status badges and the application detail screen now
+  use the semantic colour tokens.
+* Fix      - Tinted banners (onboarding notice, form success message,
+  status badges) are now readable in BuddyX and BuddyX Pro dark mode
+  instead of showing light text on a light background.
+* Fix      - The recommended jobs grid no longer collapses its columns
+  to zero width.
+* Fix      - The settings toggle knob and setup-wizard controls now
+  position correctly under right-to-left languages.
+* Compat   - Aligned with WP Career Board Pro 1.5.0. Install both
+  updates together.
 
 ## 1.4.6
 

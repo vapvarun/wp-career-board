@@ -46,7 +46,7 @@ Admins have full control over all jobs from **WP Career Board → Jobs**:
 - **Close** a job that is running too long
 - **Delete** spam or low-quality listings
 
-## Reported Jobs (Flagged)
+## Reported Jobs (Flagged) {#reported-jobs-flagged}
 
 Any logged-in user can report a published job from its single page
 ("Report this job", with a reason). Reports are stored on the job and
@@ -66,6 +66,48 @@ Moderators and admins review reports from **WP Career Board → Jobs**:
 
 Resolving flags requires the **Moderate Jobs** capability
 (`wcb_moderate_jobs`), the same gate as approving and rejecting jobs.
+
+## Member Moderation (Reporting, Blocking, Suspending)
+
+New in 1.7.0 - moderation now covers members, not just job listings.
+This layer is separate from Reported Jobs above: it deals with a
+member's account and behaviour, not a single listing.
+
+### Members reporting members
+
+Any logged-in member can report another member's profile for a reason
+such as spam, scam, a fake profile, harassment, or offensive content.
+Reports are deduplicated per reporter (reporting the same member twice
+counts once) and accumulate on the reported member's account.
+
+Open reports surface to admins as a warning badge (with the report
+count) on the **Career Board → Candidates** screen, next to that
+member's Active/Suspended status.
+
+### Members blocking members {#members-blocking-members}
+
+Any logged-in member can block another member directly from their
+account. Blocking is mutual: once either side blocks the other,
+neither one sees the other's job listings or single job pages -
+enforced server-side on both the REST API and the server-rendered
+frontend, not just hidden in the browser. A member can review and undo
+their own blocks from their blocked-members list in the app.
+
+### Site owners suspending candidates
+
+Admins and moderators can suspend a candidate account directly from
+**Career Board → Candidates**:
+
+1. Go to **Career Board → Candidates**.
+2. Hover a candidate's row and click **Suspend** (or select multiple
+   rows and choose **Suspend** from the Bulk Actions dropdown).
+3. A suspended candidate loses every Career Board ability immediately
+   - applying, saving jobs, and any other write action - including
+   from a mobile client using an Application Password.
+
+Click **Restore** (or the **Restore** bulk action) to lift the
+suspension. This uses the same suspend/restore mechanism already used
+for employers on the **Career Board → Employers** screen.
 
 ## Admin Notifications
 

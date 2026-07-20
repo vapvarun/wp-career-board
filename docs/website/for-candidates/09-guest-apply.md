@@ -45,6 +45,12 @@ create an account using the same email, the system will link your
 historical guest applications to the new account automatically - your
 "My Applications" page will show them.
 
+This linking happens automatically the moment your account is
+created (1.7.0) - there's nothing to request or claim manually. Just
+register with the same email address you applied with, and every
+guest application on file for that email becomes part of your
+application history.
+
 If you'd like a copy of your data or want it deleted, the
 [Privacy & My Data](../admin-guide/04-gdpr.md) controls in the
 candidate dashboard handle GDPR self-service requests.

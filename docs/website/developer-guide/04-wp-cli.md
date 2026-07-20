@@ -57,7 +57,7 @@ production-shape dataset.
 | `wp wcb scale teardown` | Drop the synthetic rows (idempotent - flagged via usermeta, never touches genuine content) |
 
 Per-query budgets are defined in `cli/class-scale-command.php`
-(`BUDGETS_MS`). For 1.4.3 they are: single-job read 5ms,
+(`BUDGETS_MS`), unchanged through 1.7.0: single-job read 5ms,
 applications-for-a-job 50ms, companies/candidates list-50 50ms,
 jobs list-50 100ms, location filter 150ms, keyword search 200ms.
 

@@ -139,6 +139,19 @@ without a single timeout-prone query.
 3. The candidate clicks the link; the request enters WordPress's
    privacy queue for the **site administrator** to complete.
 
+**Option A2 - Self-service deletion from the mobile app (1.7.0)**
+
+If the site runs the WP Career Board companion mobile app, a member
+can delete their own account from inside the app without waiting on
+the administrator: confirm their password and type DELETE to confirm,
+and the account is suspended immediately and scheduled for deletion
+after a grace period (14 days by default, filterable with
+`wcb_account_deletion_grace_days`). Signing back in during the grace
+period cancels the deletion. Once the grace period passes, a daily
+cron job runs `wp_delete_user()` on the account - the same core
+WordPress deletion cascade Option B below relies on, so it removes the
+account the same way an admin-processed erasure would.
+
 **Option B - Admin handles it directly**
 
 1. **WP Admin → Tools → Erase Personal Data** (WordPress built-in).

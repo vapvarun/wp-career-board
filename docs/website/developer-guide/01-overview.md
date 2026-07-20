@@ -1,12 +1,12 @@
 # Developer Guide - Overview
 
-WP Career Board is built to be extended. The plugin fires 108
-unique hooks (actions and filters), registers 41 REST routes,
+WP Career Board is built to be extended. The plugin fires 134
+unique hooks (actions and filters), registers 46 REST routes,
 5 WP-CLI command groups, and ships a JSON manifest that lets your
 code (or another plugin) reach into every part of the job-board
 flow without forking the source.
 
-> Version note: this guide tracks WP Career Board 1.4.3. Exact
+> Version note: this guide tracks WP Career Board 1.7.0. Exact
 > counts are re-enumerated on every release in
 > `audit/manifest.summary.json` - treat that file as the canonical
 > number if it ever disagrees with this prose.

@@ -49,7 +49,7 @@ Either strategy, these elements work differently:
 | **Company profiles** | Per profile; if a company hires in multiple languages, they translate the profile once. |
 | **Candidate profiles** | Per candidate; the candidate writes their bio in their language of choice. |
 | **Email notifications** | Per language; the candidate / employer's user preference determines which template is sent. |
-| **UI strings (block labels, buttons)** | Career Board wraps strings in WPML / Polylang-compatible `__()` calls and ships a POT template (`languages/wp-career-board.pot`); generate your own PO/MO, or translate inline in WPML / Polylang String Translation. |
+| **UI strings (block labels, buttons)** | Career Board wraps strings in WPML / Polylang-compatible `__()` calls and ships a POT template (`languages/wp-career-board.pot`); generate your own PO/MO, or translate inline in WPML / Polylang String Translation. Since 1.6.0, the plugin is fully translation-ready and bundles ready-made German, French, Spanish, Dutch, and Korean translations - your site loads the matching one automatically if the site language is set to one of those five. |
 | **Application form custom fields** | Per language (Pro: Field Builder). |
 
 ## Setup with WPML

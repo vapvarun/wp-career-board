@@ -27,6 +27,17 @@ Each notification can be:
 
 Click the email name to expand the editor for that notification.
 
+### Editable body per template
+
+Every notification ships with a ready-to-use default body, and since
+1.6.0 that body is fully editable per template from this screen. Leave
+the body field blank to send the shipped default, or type your own
+text to override it - a **Load default** button next to the field
+loads the shipped wording back in as a starting point if you want to
+edit from there instead of writing from scratch. If a template's body
+is left empty, the email still sends with its sensible default rather
+than going out blank.
+
 ## Send Test Email
 
 Each template ships with a **Send test** button on the right of the row. Clicking it dispatches a one-shot copy of that email to the admin user's address with sample merge-tag values, so you can preview the rendered template before any real applicant sees it.
