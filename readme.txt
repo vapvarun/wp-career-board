@@ -75,6 +75,7 @@ Mobile-ready release: a REST surface for companion apps, member moderation and i
 * Improve  - Accessibility pass across the frontend with stronger text contrast and 40px minimum tap targets.
 * Improve  - Faster on large sites through indexed application lookups, a version-keyed company-list cache, collapsed application-count queries, and primed user caches that remove per-row lookups.
 * Improve  - Old job-view records are pruned automatically on a daily schedule.
+* Fix      - Fatal error "EmailJobAlert contains 2 abstract methods" when this version runs alongside an older Pro build (1.5.x). The email base class now ships safe defaults for get_default_body() and get_merge_tags() instead of abstract declarations, so older Pro email classes keep loading.
 * Fix      - The employer dashboard no longer shows a "set up your company profile first" prompt next to a list of the employer's existing jobs.
 * Fix      - The public company directory reflects brand edits (tagline, industry, size, location) immediately instead of after a cache delay.
 * Fix      - Freshly created jobs no longer report an invalid 1970 date over the REST API.
@@ -87,6 +88,7 @@ Mobile-ready release: a REST surface for companion apps, member moderation and i
 * Fix      - CSV exports are compatible with PHP 8.4 and later.
 * Security - Job listing and application detail reads are scoped to their owner.
 * Security - Blocked members can no longer see listings or single jobs on the server-rendered frontend.
+* Dev      - New release gate freezes the email base-class abstract contract so a cross-version fatal of this kind cannot ship again.
 * Compat   - Aligned with WP Career Board Pro 1.7.0. Install both updates together.
 
 = 1.6.0 - July 2026 =

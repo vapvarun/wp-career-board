@@ -57,17 +57,29 @@ abstract class AbstractEmail {
 	 * header, or footer markup. Written to be production-ready so a site can
 	 * ship it untouched.
 	 *
+	 * Concrete (not abstract): Pro email classes extend this class, so any
+	 * abstract method added after 1.5.0 fatals every install whose Pro copy
+	 * lags behind Free (Free auto-updates; Pro updates via license). New
+	 * contract methods MUST ship a safe default here — never `abstract`.
+	 * Enforced by coding-rules Rule 9 (bin/coding-rules-check.sh).
+	 *
 	 * @return string
 	 */
-	abstract public function get_default_body(): string;
+	public function get_default_body(): string {
+		return '';
+	}
 
 	/**
 	 * Returns the merge tags this email exposes, as `tag => human label`.
 	 * Drives the clickable tag chips on the Emails settings page.
+	 * Concrete with a safe default for the same cross-plugin contract
+	 * reason as get_default_body().
 	 *
 	 * @return array<string, string>
 	 */
-	abstract public function get_merge_tags(): array;
+	public function get_merge_tags(): array {
+		return array();
+	}
 
 	/**
 	 * Merge-tag keys whose substituted value is trusted HTML (e.g. a

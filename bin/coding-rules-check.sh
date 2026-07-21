@@ -232,5 +232,33 @@ if [ -n "${CSS_FILES:-}" ]; then
 	fi
 fi
 
+# --- Rule 9: AbstractEmail contract frozen — no new abstract methods ---
+# Pro email classes (shipped separately, updated separately) extend
+# WCB\Modules\Notifications\AbstractEmail. Any abstract method added after the
+# 1.5.0 contract fatals every install whose Pro copy lags behind Free — Free
+# auto-updates from wp.org, Pro updates via license, so the staggered pair is
+# the NORMAL case in the field (the 1.6.0 get_default_body/get_merge_tags
+# additions broke exactly this way). New contract methods must be concrete
+# with a safe default body.
+ABSTRACT_EMAIL="modules/notifications/class-abstract-email.php"
+if [ -f "$ABSTRACT_EMAIL" ]; then
+	FROZEN="get_id get_title get_recipient get_default_subject boot"
+	EXTRA=""
+	while read -r method; do
+		case " $FROZEN " in
+			*" $method "*) ;;
+			*) EXTRA="$EXTRA $method" ;;
+		esac
+	done <<-EOF
+	$(grep -oE 'abstract public function [a-z_]+' "$ABSTRACT_EMAIL" | awk '{print $4}')
+	EOF
+	if [ -n "$EXTRA" ]; then
+		echo "    new abstract method(s):$EXTRA"
+		report "Rule 9: AbstractEmail gained an abstract method beyond the frozen 1.5.0 contract — older Pro builds fatal on load; ship a concrete safe default instead"
+	else
+		ok "Rule 9: AbstractEmail abstract contract frozen at the 1.5.0 five"
+	fi
+fi
+
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
 exit "$FAILED"
