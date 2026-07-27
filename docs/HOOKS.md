@@ -58,6 +58,24 @@ custom field once via `wcb_job_form_fields` and it shows in both. Same
 applies to Pro's resume-builder + resume-form-simple sharing
 `wcb_resume_form_fields`.
 
+### Where the answers show up
+
+Since 1.7.1, answers to `wcb_application_form_fields_groups` fields are not
+just stored — they are surfaced on all three entry points: the
+`custom_fields` key of every application REST envelope
+(`/applications/{id}` and `/employers/me/applications`), an "Application
+answers" pane in the employer dashboard's applicant detail, and the
+`application/custom-answers` widget in the wp-admin application metabox.
+Labels are read from the live filter output, so a field you stop
+registering stops being displayed (its meta row is left alone).
+
+Values are written and read through `\WCB\Core\FormCustomFields`.
+`save_values()`, `load_values()` and `labelled_values()` all take an
+optional trailing `string $key_prefix` applied to the meta key after
+`sanitize_key()` — applications pass
+`ApplicationsEndpoint::FIELD_META_PREFIX` (`_wcb_application_field_`), every
+other form passes nothing and keeps writing the bare field key.
+
 ## Initial-state filters (modify Interactivity API state)
 
 For state keys beyond field values — e.g. computed flags, lookup data

@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.9';
+	const DB_VERSION = '1.3.0';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -395,6 +395,13 @@ final class Install {
 				self::migrate_add_notifications_status_index();
 			}
 
+			// 1.3.0 — adopt jobs that were created while the poster's reciprocal
+			// `_wcb_company_id` user meta was missing, so they stop disappearing
+			// from the employer's company-scoped My Jobs list.
+			if ( version_compare( (string) $installed, '1.3.0', '<' ) ) {
+				self::migrate_orphan_job_company_links();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -713,5 +720,94 @@ final class Install {
 			$wpdb->query( "ALTER TABLE {$table} ADD KEY status (status)" );
 		}
 		// phpcs:enable
+	}
+
+	/**
+	 * Stamp `_wcb_company_id` onto jobs that were created without it.
+	 *
+	 * Before 1.7.1 the job-create endpoint read the poster's `_wcb_company_id`
+	 * user meta raw. Employers whose company came from an import, an admin or a
+	 * migration only ever had the post-side link, so their jobs were saved
+	 * unlinked — and the moment the dashboard self-healed the user meta, My Jobs
+	 * switched to the company-scoped query and those jobs vanished.
+	 *
+	 * Paged rather than drained: jobs whose author resolves to no company
+	 * (imports, deleted employers, admin-authored listings) are never stamped, so
+	 * a NOT-EXISTS drain would re-fetch the same rows forever. The offset advances
+	 * by the number of rows skipped — stamped rows leave the result set, so the
+	 * skipped ones sit at the head of the next page. Capped at 200 passes; on a
+	 * board past that size the tail is picked up by
+	 * {@see \WCB\Api\Endpoints\EmployersEndpoint::backfill_orphan_jobs()} the next
+	 * time the employer saves their company profile.
+	 *
+	 * @since  1.7.1
+	 * @return void
+	 */
+	private static function migrate_orphan_job_company_links(): void {
+		$author_memo  = array();
+		$company_memo = array();
+		$offset       = 0;
+
+		for ( $pass = 0; $pass < 200; $pass++ ) {
+			$job_ids = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- paged batch; one-time migration.
+					'posts_per_page' => 500,
+					'offset'         => $offset,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
+						'relation' => 'OR',
+						array(
+							'key'     => '_wcb_company_id',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_wcb_company_id',
+							'value'   => array( '', '0' ),
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
+
+			if ( ! $job_ids ) {
+				return;
+			}
+
+			_prime_post_caches( $job_ids, false, false );
+
+			$skipped = 0;
+			foreach ( $job_ids as $job_id ) {
+				$author_id = (int) get_post_field( 'post_author', (int) $job_id );
+
+				if ( ! isset( $author_memo[ $author_id ] ) ) {
+					$author_memo[ $author_id ] = CompanyMetaShape::resolve_company_id( $author_id );
+				}
+				$company_id = $author_memo[ $author_id ];
+
+				if ( $company_id <= 0 ) {
+					++$skipped;
+					continue;
+				}
+
+				if ( ! isset( $company_memo[ $company_id ] ) ) {
+					$company_memo[ $company_id ] = get_the_title( $company_id );
+				}
+
+				update_post_meta( (int) $job_id, '_wcb_company_id', $company_id );
+				update_post_meta( (int) $job_id, '_wcb_company_name', $company_memo[ $company_id ] );
+			}
+
+			if ( count( $job_ids ) < 500 ) {
+				return;
+			}
+
+			$offset += $skipped;
+		}
 	}
 }

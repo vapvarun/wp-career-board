@@ -259,6 +259,53 @@ if ( $app_id ) {
 }
 
 // ---------------------------------------------------------------------------
+// Custom application answers round-trip via a JSON (non-multipart) request
+// (Basecamp 10134659689 — answers were saved from $_POST only, and read back
+// by nothing).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Applications: custom_fields round-trip ---' );
+if ( $job_id && $candidate_id_2 ) {
+	$wcb_cf_filter = static fn(): array => array(
+		array(
+			'title'  => 'Screening',
+			'fields' => array(
+				array( 'key' => 'notice_period', 'type' => 'text', 'label' => 'Notice period' ),
+			),
+		),
+	);
+	add_filter( 'wcb_application_form_fields_groups', $wcb_cf_filter );
+
+	wp_set_current_user( $candidate_id_2 );
+	$wcb_cf_request = new WP_REST_Request( 'POST', "/wcb/v1/jobs/{$job_id}/apply" );
+	$wcb_cf_request->set_header( 'Content-Type', 'application/json' );
+	$wcb_cf_request->set_body( (string) wp_json_encode( array(
+		'cover_letter'  => 'Custom field round-trip test',
+		'custom_fields' => array( 'notice_period' => '30 days' ),
+	) ) );
+	$r          = rest_do_request( $wcb_cf_request );
+	$wcb_new_app = (int) ( $r->get_data()['id'] ?? 0 );
+	wcb_assert( $wcb_new_app > 0, 'POST /jobs/{id}/apply with a JSON body creates an application' );
+	wcb_assert(
+		'30 days' === (string) get_post_meta( $wcb_new_app, '_wcb_application_field_notice_period', true ),
+		'custom_fields from a JSON body persist to _wcb_application_field_<key>'
+	);
+
+	$r        = wcb_rest( 'GET', "/wcb/v1/applications/{$wcb_new_app}", array(), $admin_id );
+	$wcb_answers = (array) ( $r->get_data()['custom_fields'] ?? array() );
+	wcb_assert( 1 === count( $wcb_answers ), 'application envelope carries one labelled custom_fields entry' );
+	wcb_assert(
+		'Notice period' === ( $wcb_answers[0]['label'] ?? '' ) && '30 days' === ( $wcb_answers[0]['value'] ?? '' ),
+		'custom_fields entry carries the field label and the submitted value'
+	);
+
+	remove_filter( 'wcb_application_form_fields_groups', $wcb_cf_filter );
+	if ( $wcb_new_app ) {
+		wp_delete_post( $wcb_new_app, true );
+	}
+}
+
+// ---------------------------------------------------------------------------
 // GET /wcb/v1/candidates/{id}/applications (auth gate + success)
 // ---------------------------------------------------------------------------
 
@@ -480,6 +527,41 @@ wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'GET /employe
 if ( $employer_id ) {
 	$r = wcb_rest( 'GET', '/wcb/v1/employers/me/jobs', array(), $employer_id );
 	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/jobs as employer returns 200' );
+}
+
+// ---------------------------------------------------------------------------
+// Job create links the company even with the reciprocal user meta unset
+// (Basecamp 10134657106 — the raw get_user_meta read left the job orphaned).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Jobs: company link survives an empty _wcb_company_id user meta ---' );
+if ( $employer_id ) {
+	$saved_user_company = get_user_meta( $employer_id, '_wcb_company_id', true );
+	delete_user_meta( $employer_id, '_wcb_company_id' );
+
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
+		'title'       => '__wcb_test_orphan_job__',
+		'description' => 'Test job posted with no reciprocal company user meta',
+	), $employer_id );
+	$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+	wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
+	wcb_assert(
+		(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
+		'new job carries a non-zero _wcb_company_id postmeta'
+	);
+	wcb_assert(
+		'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
+		'new job carries a _wcb_company_name postmeta'
+	);
+
+	if ( $orphan_job_id ) {
+		wp_delete_post( $orphan_job_id, true );
+	}
+	if ( $saved_user_company ) {
+		update_user_meta( $employer_id, '_wcb_company_id', $saved_user_company );
+	} else {
+		delete_user_meta( $employer_id, '_wcb_company_id' );
+	}
 }
 
 // =========================================================================

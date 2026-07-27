@@ -78,6 +78,35 @@
 
 .wcb-app-section__body p { margin: 0 0 0.75em; }
 
+.wcb-app-answers {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+	gap: 8px 16px;
+	margin: 0;
+}
+
+.wcb-app-answers dt {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wcb-muted, #6b7280);
+}
+
+.wcb-app-answers dd {
+	margin: 0;
+	font-size: 14px;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+	.wcb-app-answers {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 2px 0;
+	}
+
+	.wcb-app-answers dd { margin-bottom: 8px; }
+}
+
 .wcb-app-resume {
 	display: flex;
 	align-items: center;

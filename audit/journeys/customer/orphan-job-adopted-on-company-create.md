@@ -3,7 +3,7 @@ id: orphan-job-adopted-on-company-create
 priority: high
 personas: employer.figma
 requires: mu:autologin
-last_verified: 2026-06-09
+last_verified: 2026-07-27
 bug_ref: 9976738869
 ---
 
@@ -29,5 +29,6 @@ wp post delete <company-id> --force
 
 ## Notes
 
-- Backfill lives in `EmployersEndpoint::create_item()` → `backfill_orphan_jobs()`; idempotent, bounded to one author's own jobs.
+- Backfill lives in `backfill_orphan_jobs()`, called from BOTH `EmployersEndpoint::create_item()` and `update_item()` — a job orphaned *after* the company existed is adopted the next time the employer saves their profile, not only on create. Idempotent, and drained in batches of 500 rather than one unbounded fetch.
+- Existing installs are swept once by the 1.3.0 upgrade step `Install::migrate_orphan_job_company_links()`, which resolves each distinct author through `CompanyMetaShape::resolve_company_id()`. It pages by offset rather than draining a NOT-EXISTS set, because jobs whose author resolves to no company are never stamped and would otherwise be re-fetched forever.
 - The refresh half is covered by the `_needsJobsRefresh` cross-store flag (job-form view.js sets it; employer `switchToJobs()` refetches).

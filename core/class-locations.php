@@ -215,7 +215,7 @@ final class Locations {
 			return self::all_terms();
 		}
 
-		$company_id = $user_id > 0 ? (int) get_user_meta( $user_id, '_wcb_company_id', true ) : 0;
+		$company_id = CompanyMetaShape::resolve_company_id( $user_id );
 
 		$terms    = array();
 		$seen_ids = array();

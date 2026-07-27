@@ -116,6 +116,7 @@ final class ApplicationsModule {
 		$registry = \WCB\Core\Widgets\WidgetRegistry::instance();
 		$registry->register( new Widgets\ApplicantCard() );
 		$registry->register( new Widgets\CoverLetter() );
+		$registry->register( new Widgets\CustomAnswers() );
 		$registry->register( new Widgets\ResumePreview() );
 		$registry->register( new Widgets\StatusTimeline() );
 		$registry->register( new Widgets\StatusChanger() );

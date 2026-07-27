@@ -805,6 +805,15 @@ wp_interactivity_state(
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>
 							<div class="wcb-cover-letter" data-wp-text="state.selectedAppCoverLetter"></div>
 						</div>
+						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasCustomFields">
+							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Application answers', 'wp-career-board' ); ?></h4>
+							<template data-wp-each--answer="state.selectedAppCustomFields" data-wp-each-key="context.answer.key">
+								<div class="wcb-app-answer">
+									<span class="wcb-app-answer__label" data-wp-text="context.answer.label"></span>
+									<span class="wcb-app-answer__value" data-wp-text="context.answer.value"></span>
+								</div>
+							</template>
+						</div>
 						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasResume">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Resume', 'wp-career-board' ); ?></h4>
 							<div class="wcb-resume-actions">

@@ -531,6 +531,13 @@ final class EmployersEndpoint extends RestController {
 			wp_update_post( $data );
 		}
 
+		// Adopt any of the owner's still-unlinked jobs. Create-time backfill only
+		// covers employers who had orphans on the day they made the company; a job
+		// orphaned afterwards (e.g. posted while the reciprocal user meta was
+		// missing) needs a later hook, and editing the profile is the one action
+		// every employer performs.
+		$this->backfill_orphan_jobs( (int) $post->post_author, (int) $post->ID );
+
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );
 	}
 
@@ -581,8 +588,11 @@ final class EmployersEndpoint extends RestController {
 	 * Stamp _wcb_company_id onto jobs the user posted before they had a company.
 	 *
 	 * A job created before the company existed never received the postmeta, so it
-	 * stayed invisible once My Jobs switched to querying by company. Idempotent —
-	 * bounded to a single author's own jobs, so the unbounded query is safe here.
+	 * stayed invisible once My Jobs switched to querying by company. Idempotent.
+	 * Drained in batches of 500 — an agency account can carry thousands of jobs,
+	 * so the old unbounded fetch was a memory/time hazard on a request that also
+	 * has to return a REST response. Every fetched row is stamped, so the
+	 * orphan set strictly shrinks and the loop terminates.
 	 *
 	 * @since 1.2.0
 	 * @param int $user_id    Employer user ID.
@@ -594,42 +604,44 @@ final class EmployersEndpoint extends RestController {
 			return;
 		}
 
-		$orphans = get_posts(
-			array(
-				'post_type'      => 'wcb_job',
-				'author'         => $user_id,
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
-					'relation' => 'OR',
-					array(
-						'key'     => '_wcb_company_id',
-						'compare' => 'NOT EXISTS',
-					),
-					array(
-						'key'     => '_wcb_company_id',
-						'value'   => array( '', '0' ),
-						'compare' => 'IN',
-					),
-				),
-			)
-		);
-
-		if ( ! $orphans ) {
-			return;
-		}
-
 		$company_name = get_the_title( $company_id );
-		foreach ( $orphans as $job_id ) {
-			update_post_meta( $job_id, '_wcb_company_id', $company_id );
-			update_post_meta( $job_id, '_wcb_company_name', $company_name );
-		}
+
+		do {
+			$orphans = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'author'         => $user_id,
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; every row fetched is stamped, so the set shrinks each pass.
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
+						'relation' => 'OR',
+						array(
+							'key'     => '_wcb_company_id',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_wcb_company_id',
+							'value'   => array( '', '0' ),
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
+
+			$batch_size = count( $orphans );
+			foreach ( $orphans as $job_id ) {
+				update_post_meta( (int) $job_id, '_wcb_company_id', $company_id );
+				update_post_meta( (int) $job_id, '_wcb_company_name', $company_name );
+			}
+		} while ( 500 === $batch_size );
 	}
 
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
-		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
 		if ( $company_id ) {
 			$company = get_post( $company_id );
 			if ( $company instanceof \WP_Post && 'wcb_company' === $company->post_type ) {
@@ -659,8 +671,8 @@ final class EmployersEndpoint extends RestController {
 		// BEFORE completing their company profile saw "No applicants" and a 0
 		// dashboard badge even with real applications on file.
 		global $wpdb;
-		$wcb_job_ids     = wp_list_pluck( $query->posts, 'ID' );
-		$wcb_app_counts  = array();
+		$wcb_job_ids    = wp_list_pluck( $query->posts, 'ID' );
+		$wcb_app_counts = array();
 		if ( ! empty( $wcb_job_ids ) ) {
 			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
 			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
@@ -744,7 +756,7 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
-		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
+		$is_owner    = is_user_logged_in() && \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
 
@@ -978,8 +990,13 @@ final class EmployersEndpoint extends RestController {
 		}
 		_prime_post_caches( $wcb_app_ids, false, false );
 
+		// Field groups are resolved per job, memoised across rows — the filter can
+		// hit the DB (Pro Field Builder), and a 500-row page must not re-run it
+		// once per application.
+		$wcb_groups_memo = array();
+
 		$items = array_map(
-			static function ( object $row ) use ( $request ): array {
+			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
 				$app_id         = (int) $row->ID;
 				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
@@ -987,18 +1004,18 @@ final class EmployersEndpoint extends RestController {
 				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				$prepared = array(
-					'id'              => $app_id,
-					'job_id'          => $job_id,
-					'job_title'       => $job_id > 0 ? get_the_title( $job_id ) : '',
-					'applicant_name'  => $candidate_user
+					'id'                 => $app_id,
+					'job_id'             => $job_id,
+					'job_title'          => $job_id > 0 ? get_the_title( $job_id ) : '',
+					'applicant_name'     => $candidate_user
 					? $candidate_user->display_name
 					: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
-					'applicant_email' => $candidate_user
+					'applicant_email'    => $candidate_user
 					? $candidate_user->user_email
 					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
+					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
 					// Localised label for display, alongside the raw slug for CSS/logic.
-					'statusLabel'     => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
 					// dashboard sorts and date-filters it with new Date() in JS. The
 					// localised display string is a SEPARATE sibling so a translated
@@ -1006,6 +1023,16 @@ final class EmployersEndpoint extends RestController {
 					// silently break the recency sort + "new this week" stat).
 					'submitted_at'       => get_the_date( 'c', $app_id ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
+				);
+
+				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
+					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
+				}
+				$prepared['custom_fields'] = \WCB\Core\FormCustomFields::labelled_values(
+					$wcb_groups_memo[ $job_id ],
+					$app_id,
+					'post_meta',
+					ApplicationsEndpoint::FIELD_META_PREFIX
 				);
 
 				$application_post = get_post( $app_id );

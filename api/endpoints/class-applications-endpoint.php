@@ -27,6 +27,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class ApplicationsEndpoint extends RestController {
 
+	/**
+	 * Meta-key prefix for answers to `wcb_application_form_fields_groups` fields.
+	 *
+	 * @since 1.7.1
+	 * @var string
+	 */
+	public const FIELD_META_PREFIX = '_wcb_application_field_';
 
 	/**
 	 * Register all application routes.
@@ -320,47 +327,19 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Custom application fields registered via wcb_application_form_fields_groups
 		// filter. The job-single block's view.js captures values into state.customFields
-		// as the user types and POSTs them as custom_fields[<key>] = <value>. We
-		// validate every submitted key against the active filter output (so a
-		// hand-crafted POST can't write arbitrary postmeta) and persist per-key
-		// as `_wcb_application_field_<key>`.
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- REST nonce checked by infrastructure (permission_callback runs first).
-		$wcb_custom_input = isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] )
-			? wp_unslash( $_POST['custom_fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- per-key sanitized below.
-			: array();
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		// as the user types and POSTs them as custom_fields[<key>] = <value>. Read via
+		// get_param() rather than $_POST so JSON REST clients work too — WP populates
+		// body params from $_POST for multipart/form-data, so the browser path is
+		// unchanged. Persistence goes through the shared renderer's writer, which
+		// validates every submitted key against the active filter output (a
+		// hand-crafted POST can't write arbitrary postmeta), applies the same
+		// type-aware sanitiser the forms use, and honours `wcb_save_custom_field`.
+		// The `_wcb_application_field_` prefix keeps the established meta convention.
+		$wcb_custom_input = $request->get_param( 'custom_fields' );
 
-		if ( ! empty( $wcb_custom_input ) ) {
+		if ( is_array( $wcb_custom_input ) && ! empty( $wcb_custom_input ) ) {
 			$wcb_field_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
-			$wcb_known_fields = array();
-			foreach ( $wcb_field_groups as $wcb_group ) {
-				foreach ( (array) ( $wcb_group['fields'] ?? array() ) as $wcb_field ) {
-					$wcb_field_key = (string) ( $wcb_field['key'] ?? '' );
-					if ( '' !== $wcb_field_key ) {
-						$wcb_known_fields[ $wcb_field_key ] = (string) ( $wcb_field['type'] ?? 'text' );
-					}
-				}
-			}
-
-			$wcb_persisted = array();
-			foreach ( $wcb_custom_input as $wcb_key => $wcb_value ) {
-				$wcb_key = (string) $wcb_key;
-				if ( ! isset( $wcb_known_fields[ $wcb_key ] ) ) {
-					continue; // Drop keys the active filter doesn't declare.
-				}
-				$wcb_clean = match ( $wcb_known_fields[ $wcb_key ] ) {
-					'textarea' => sanitize_textarea_field( (string) $wcb_value ),
-					'email'    => sanitize_email( (string) $wcb_value ),
-					'url'      => esc_url_raw( (string) $wcb_value ),
-					'number'   => (string) (float) $wcb_value,
-					default    => sanitize_text_field( (string) $wcb_value ),
-				};
-				update_post_meta( $app_id, '_wcb_application_field_' . sanitize_key( $wcb_key ), $wcb_clean );
-				$wcb_persisted[ $wcb_key ] = $wcb_clean;
-			}
-			if ( ! empty( $wcb_persisted ) ) {
-				update_post_meta( $app_id, '_wcb_application_custom_fields', $wcb_persisted );
-			}
+			\WCB\Core\FormCustomFields::save_values( $wcb_field_groups, $app_id, $wcb_custom_input, 'post_meta', self::FIELD_META_PREFIX );
 		}
 
 		do_action( 'wcb_application_submitted', $app_id, $job_id, $is_guest ? 0 : $candidate_id );
@@ -995,6 +974,7 @@ final class ApplicationsEndpoint extends RestController {
 		$status               = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		$resume_attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
 		$resume_id            = (int) get_post_meta( $post->ID, '_wcb_resume_id', true );
+		$job_id               = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 
 		// Public on-site resume profile — lets the employer review the candidate's
 		// full resume (experience, education, skills) on the site instead of relying
@@ -1009,9 +989,18 @@ final class ApplicationsEndpoint extends RestController {
 
 		return array(
 			'id'               => $post->ID,
-			'job_id'           => (int) get_post_meta( $post->ID, '_wcb_job_id', true ),
+			'job_id'           => $job_id,
 			'candidate_id'     => (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ),
 			'cover_letter'     => (string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
+			// Answers to the questions the job asked. The candidate seeing their
+			// own submission back is correct; employer + admin inherit this key
+			// through prepare_for_employer()/prepare_for_admin().
+			'custom_fields'    => \WCB\Core\FormCustomFields::labelled_values(
+				(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
+				$post->ID,
+				'post_meta',
+				self::FIELD_META_PREFIX
+			),
 			'resume_id'        => $resume_id,
 			'resume_url'       => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
 			'resume_permalink' => $resume_permalink,

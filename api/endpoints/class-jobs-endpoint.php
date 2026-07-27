@@ -378,13 +378,13 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	private function build_jobs_response( array $jobs, int $total, int $pages, int $paged ): \WP_REST_Response {
-		$jobs = $this->enrich_viewer_state( $jobs );
+		$jobs     = $this->enrich_viewer_state( $jobs );
 		$response = rest_ensure_response(
 			array(
-				'jobs'     => $jobs,
-				'total'    => $total,
-				'pages'    => $pages,
-				'has_more' => $paged < $pages,
+				'jobs'          => $jobs,
+				'total'         => $total,
+				'pages'         => $pages,
+				'has_more'      => $paged < $pages,
 				/*
 				 * Additive since 1.5.1. The plural form MUST be resolved server-side:
 				 * a script module cannot call _n(), and picking between a seeded
@@ -815,11 +815,17 @@ final class JobsEndpoint extends RestController {
 			update_post_meta( $job_id, '_wcb_apply_email', $wcb_apply_email );
 		}
 
-		// Link employer's company CPT to the job so the single page can render description and website.
-		$wcb_company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
+		// Link employer's company CPT to the job so the single page can render
+		// description and website. Resolve through CompanyMetaShape rather than
+		// reading `_wcb_company_id` user meta directly: an employer whose company
+		// was created by import/admin/migration has the post-side link only, and
+		// a raw read left the job orphaned. The dashboard later self-heals the
+		// user meta, at which point My Jobs switches to the company-scoped query
+		// and the orphaned job disappears from the employer's own list.
+		$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
 		if ( $wcb_company_id ) {
 			$wcb_company = get_post( $wcb_company_id );
-			if ( $wcb_company instanceof \WP_Post ) {
+			if ( $wcb_company instanceof \WP_Post && 'wcb_company' === $wcb_company->post_type ) {
 				update_post_meta( $job_id, '_wcb_company_id', $wcb_company_id );
 				update_post_meta( $job_id, '_wcb_company_name', $wcb_company->post_title );
 			}
@@ -1243,25 +1249,25 @@ final class JobsEndpoint extends RestController {
 				$status_raw     = (string) get_post_meta( $p->ID, '_wcb_status', true );
 
 				return array(
-					'id'               => $p->ID,
-					'candidate_id'     => $candidate_id,
-					'applicant_name'   => $candidate_user
+					'id'                 => $p->ID,
+					'candidate_id'       => $candidate_id,
+					'applicant_name'     => $candidate_user
 						? $candidate_user->display_name
 						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
-					'applicant_email'  => $candidate_user
+					'applicant_email'    => $candidate_user
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
-					'cover_letter'     => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					'ai_score'         => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
-					'ai_reason'        => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
-					'ai_summary'       => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
-					'status'           => '' !== $status_raw ? $status_raw : 'submitted',
-					'statusLabel'      => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
+					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
+					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// Raw ISO 8601 for any client-side date logic; localised sibling
 					// for display. Never hand a translated date string to new Date().
 					'submitted_at'       => get_the_date( 'c', $p ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
-					'resume_url'       => ( static function () use ( $p ): ?string {
+					'resume_url'         => ( static function () use ( $p ): ?string {
 						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 						if ( $att_id <= 0 ) {
 							return null;
@@ -1269,7 +1275,7 @@ final class JobsEndpoint extends RestController {
 						$url = wp_get_attachment_url( $att_id );
 						return false !== $url ? $url : null;
 					} )(),
-					'resume_permalink' => ( static function () use ( $p ): ?string {
+					'resume_permalink'   => ( static function () use ( $p ): ?string {
 						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
 						if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
 							return null;
@@ -1333,7 +1339,7 @@ final class JobsEndpoint extends RestController {
 		$user_id           = $this->current_user_id();
 		$is_author         = (int) $post->post_author === $user_id
 			&& $this->check_ability( 'wcb/post-jobs' );
-		$user_company      = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$user_company      = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
 		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$is_company_member = $user_company > 0
 			&& $user_company === $job_company
@@ -1413,6 +1419,7 @@ final class JobsEndpoint extends RestController {
 		// pre-date the postmeta convention. The reverse priority would
 		// surface the admin's own "their company" when admin posts a job
 		// for someone else, leaking the wrong company's brand metadata.
+		// The fallback must stay a plain read — this runs once per row.
 		$company_id = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		if ( ! $company_id ) {
 			$company_id = (int) get_user_meta( $author_id, '_wcb_company_id', true );
