@@ -24,8 +24,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 40,
-    "hooks_fired": 202,
-    "hooks_unique": 118,
+    "hooks_fired": 205,
+    "hooks_unique": 121,
     "cron": 5,
     "wp_cli": 5
   },
@@ -2858,6 +2858,30 @@
       "args_count": 2,
       "args_signature": [],
       "where": "api/endpoints/class-jobs-endpoint.php:503",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_active_job_limit",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php (JobsEndpoint::check_active_job_limit)",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_active_job_statuses",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php (JobsEndpoint::check_active_job_limit)",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_employer_active_job_limit_message",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-jobs-endpoint.php (JobsEndpoint::check_active_job_limit)",
       "consumed_by": []
     },
     {

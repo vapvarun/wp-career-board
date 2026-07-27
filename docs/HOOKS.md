@@ -204,6 +204,31 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
 | `wcb_pre_job_submit` | Short-circuit job creation |
 | `wcb_pre_application_submit` | Short-circuit application submission |
 
+## Active-job quota (free tier)
+
+`JobsEndpoint::check_active_job_limit()` gates job create and republish
+on an opt-in per-employer cap. Default 0 = unlimited, so the quota is
+inert until a site filters it.
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_employer_active_job_limit` | `$limit, $user_id, $request` | Max concurrently active jobs. 0 = unlimited. |
+| `wcb_employer_active_job_statuses` | `$statuses, $user_id` | Statuses that occupy a slot. Default `['publish']`. |
+| `wcb_employer_active_job_limit_message` | `$message, $limit, $count` | Copy on the 403. |
+
+Two contract notes that are easy to break in a refactor:
+
+1. **Skipped wholesale when `wcb_credits_enabled` is true.** Credits and
+   the quota are alternative volume controls, never stacked — an
+   employer must not pay a credit and still be refused.
+2. **The republish check excludes the job being republished** from its
+   own count, so reopening a listing while under the cap of the
+   employer's *other* live jobs succeeds. Counting it would make the
+   last slot permanently unusable.
+
+Counted via `posts_per_page => 1` + `found_posts` — one COUNT, never a
+hydrated result set (an agency account can hold thousands of listings).
+
 ## Convention
 
 - **`wcb_*`** — customer-facing extension surface. Stable.

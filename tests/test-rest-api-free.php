@@ -205,6 +205,19 @@ if ( $job_id ) {
 // POST /wcb/v1/jobs/{id}/apply (guest submission allowed)
 // ---------------------------------------------------------------------------
 
+// The apply assertions below submit without a resume, so they depend on
+// `apply_resume_required` being off. That is a site setting, not a constant —
+// on a site that requires resumes every apply correctly returns 400 and the
+// suite reported five phantom failures. Own the precondition here and restore
+// it afterwards rather than assuming the environment.
+$wcb_saved_settings   = get_option( 'wcb_settings', array() );
+$wcb_relaxed_settings = is_array( $wcb_saved_settings ) ? $wcb_saved_settings : array();
+if ( ! empty( $wcb_relaxed_settings['apply_resume_required'] ) ) {
+	$wcb_relaxed_settings['apply_resume_required'] = false;
+	update_option( 'wcb_settings', $wcb_relaxed_settings );
+	\WCB\Admin\Settings::flush_cache();
+}
+
 WP_CLI::log( '--- Applications: POST /wcb/v1/jobs/{id}/apply (guest) ---' );
 if ( $job_id ) {
 	$unique_email = 'wcb_test_' . wp_rand( 1000, 9999 ) . '@example.com';
@@ -304,6 +317,11 @@ if ( $job_id && $candidate_id_2 ) {
 		wp_delete_post( $wcb_new_app, true );
 	}
 }
+
+// Restore the site's own apply_resume_required value — the apply assertions
+// above are the only ones that need it relaxed.
+update_option( 'wcb_settings', $wcb_saved_settings );
+\WCB\Admin\Settings::flush_cache();
 
 // ---------------------------------------------------------------------------
 // GET /wcb/v1/candidates/{id}/applications (auth gate + success)
@@ -562,6 +580,70 @@ if ( $employer_id ) {
 	} else {
 		delete_user_meta( $employer_id, '_wcb_company_id' );
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Active-job limit — opt-in quota, skipped when credits are enabled
+// (Basecamp 10134733032).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Jobs: wcb_employer_active_job_limit ---' );
+if ( $employer_id ) {
+	$live_jobs = ( new WP_Query(
+		array(
+			'post_type'      => 'wcb_job',
+			'post_status'    => array( 'publish' ),
+			'author'         => $employer_id,
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	) )->found_posts;
+
+	// Cap one below the employer's current live count so the next post trips it.
+	$limit_cap    = max( 1, $live_jobs );
+	$cap_callback = static fn(): int => $limit_cap - 1;
+	$credits_off  = '__return_false';
+
+	add_filter( 'wcb_employer_active_job_limit', $cap_callback );
+	add_filter( 'wcb_credits_enabled', $credits_off, 99 );
+
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( 403 === $r->get_status(), 'POST /jobs over the active-job cap returns 403' );
+	$cap_err = $r->get_data();
+	wcb_assert( 'wcb_active_job_limit' === ( $cap_err['code'] ?? '' ), 'cap rejection uses the wcb_active_job_limit code' );
+	wcb_assert( isset( $cap_err['data']['limit'], $cap_err['data']['count'] ), 'cap rejection carries limit + count' );
+
+	// wcb_employer_active_job_limit_message must be able to override the copy.
+	$custom_copy = static fn(): string => '__wcb_test_cap_message__';
+	add_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( '__wcb_test_cap_message__' === ( $r->get_data()['message'] ?? '' ), 'wcb_employer_active_job_limit_message overrides the copy' );
+	remove_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
+
+	// Credits replace the quota — they are never stacked.
+	remove_filter( 'wcb_credits_enabled', $credits_off, 99 );
+	$credits_on = '__return_true';
+	add_filter( 'wcb_credits_enabled', $credits_on, 99 );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'credits enabled lifts the active-job cap' );
+	$capped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $capped_job_id ) {
+		wp_delete_post( $capped_job_id, true );
+	}
+	remove_filter( 'wcb_credits_enabled', $credits_on, 99 );
+	remove_filter( 'wcb_employer_active_job_limit', $cap_callback );
+
+	// Default is unlimited — the quota must be inert with no filter attached.
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'default active-job limit of 0 leaves posting unlimited' );
+	$uncapped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $uncapped_job_id ) {
+		wp_delete_post( $uncapped_job_id, true );
+	}
+
+	// wcb_employer_active_job_statuses is the third hook in the family.
+	$statuses = (array) apply_filters( 'wcb_employer_active_job_statuses', array( 'publish' ), $employer_id );
+	wcb_assert( array( 'publish' ) === $statuses, 'wcb_employer_active_job_statuses defaults to publish only' );
 }
 
 // =========================================================================

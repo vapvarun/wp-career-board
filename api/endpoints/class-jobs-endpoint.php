@@ -707,6 +707,13 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Active-job cap. Runs after the credit gate so a credit-priced board
+		// answers on price, not quota — the cap only governs free posting.
+		$wcb_limit_error = $this->check_active_job_limit( get_current_user_id(), $request );
+		if ( $wcb_limit_error instanceof \WP_Error ) {
+			return $wcb_limit_error;
+		}
+
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$status       = $auto_publish ? 'publish' : 'pending';
 
@@ -969,6 +976,16 @@ final class JobsEndpoint extends RestController {
 					}
 				}
 			}
+
+			// Bringing a listing back to publish occupies a slot, so the cap
+			// applies here too. The job is excluded from its own count, so
+			// reopening it while under the cap of OTHER live jobs is allowed.
+			if ( 'publish' === $status && 'publish' !== $post->post_status ) {
+				$wcb_limit_error = $this->check_active_job_limit( (int) $post->post_author, $request, $post->ID );
+				if ( $wcb_limit_error instanceof \WP_Error ) {
+					return $wcb_limit_error;
+				}
+			}
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
@@ -1079,6 +1096,114 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_updated', $post->ID, $request );
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * Reject the request when the employer is already at their active-job cap.
+	 *
+	 * Opt-in quota for sites that run a free board: `wcb_employer_active_job_limit`
+	 * returns 0 (unlimited) unless a site filters it. The cap is skipped entirely
+	 * when credits are enabled — paid posting already meters volume, and charging
+	 * an employer for a credit and then refusing the post would be the worst of
+	 * both models.
+	 *
+	 * Counted with `posts_per_page => 1` + `found_posts` so a 5,000-listing
+	 * agency account costs one COUNT, not 5,000 hydrated posts.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param int              $user_id    Employer whose jobs are counted.
+	 * @param \WP_REST_Request $request    Originating request, passed to the limit filter.
+	 * @param int              $exclude_id Job being republished, excluded so reopening
+	 *                                     an existing listing is not double-counted.
+	 * @return \WP_Error|null Error when the cap is reached, null when the post may proceed.
+	 */
+	private function check_active_job_limit( int $user_id, \WP_REST_Request $request, int $exclude_id = 0 ): ?\WP_Error {
+		if ( (bool) apply_filters( 'wcb_credits_enabled', false ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter the maximum number of concurrently active jobs one employer may hold.
+		 *
+		 * Return 0 (the default) for unlimited. Sites running a free tier cap it
+		 * and let Pro credits lift the cap:
+		 *
+		 *     add_filter( 'wcb_employer_active_job_limit', static fn(): int => 5 );
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param int              $limit   Maximum active jobs; 0 = unlimited.
+		 * @param int              $user_id Employer user ID.
+		 * @param \WP_REST_Request $request Originating REST request.
+		 */
+		$limit = (int) apply_filters( 'wcb_employer_active_job_limit', 0, $user_id, $request );
+
+		if ( $limit <= 0 ) {
+			return null;
+		}
+
+		/**
+		 * Filter the post statuses that count towards the active-job limit.
+		 *
+		 * Defaults to published jobs only — pending, draft, expired and closed
+		 * listings are not occupying a slot.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array<int, string> $statuses Post statuses that count.
+		 * @param int                $user_id  Employer user ID.
+		 */
+		$statuses = (array) apply_filters( 'wcb_employer_active_job_statuses', array( 'publish' ), $user_id );
+
+		$query_args = array(
+			'post_type'              => 'wcb_job',
+			'post_status'            => $statuses,
+			'author'                 => $user_id,
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'ignore_sticky_posts'    => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		);
+
+		if ( $exclude_id > 0 ) {
+			$query_args['post__not_in'] = array( $exclude_id );
+		}
+
+		$count = (int) ( new \WP_Query( $query_args ) )->found_posts;
+
+		if ( $count < $limit ) {
+			return null;
+		}
+
+		$message = sprintf(
+			/* translators: 1: maximum number of active jobs allowed, 2: number the employer currently has live. */
+			__( 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', 'wp-career-board' ),
+			$limit,
+			$count
+		);
+
+		/**
+		 * Filter the message shown when an employer hits the active-job limit.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param string $message Default copy.
+		 * @param int    $limit   The configured cap.
+		 * @param int    $count   How many active jobs the employer holds.
+		 */
+		$message = (string) apply_filters( 'wcb_employer_active_job_limit_message', $message, $limit, $count );
+
+		return new \WP_Error(
+			'wcb_active_job_limit',
+			$message,
+			array(
+				'status' => 403,
+				'limit'  => $limit,
+				'count'  => $count,
+			)
+		);
 	}
 
 	/**
