@@ -118,6 +118,18 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_patterns' ) );
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
+
+		// Mobile-app credential acquisition (Wbcom App Auth standard).
+		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
+		// deep-link scheme survives esc_url() there, and a WooCommerce-style
+		// wp-admin block is exempted for that one screen. AppConnect wires the
+		// one-door-per-site seams (BuddyNext bridge join, reconnect-replaces
+		// pruner). Both are harmless no-ops when nothing uses them, and both
+		// register unconditionally so plugin activation ORDER cannot matter.
+		if ( class_exists( \WCB\Auth\AppAuthorizeAccess::class ) ) {
+			( new \WCB\Auth\AppAuthorizeAccess() )->boot();
+			( new \WCB\Auth\AppConnect() )->boot();
+		}
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_filter( 'template_include', array( $this, 'use_wcb_archive_template' ), 99 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
@@ -203,6 +215,9 @@ final class Plugin {
 			\WCB\Api\Endpoints\AccountEndpoint::class,
 			\WCB\Api\Endpoints\AccountDeletionEndpoint::class,
 			\WCB\Api\Endpoints\MembersEndpoint::class,
+			// POST /auth/app-password — the mobile app's first credential.
+			// Public by necessity; every guard lives in Auth\AppCredentials.
+			\WCB\Api\Endpoints\AuthEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {

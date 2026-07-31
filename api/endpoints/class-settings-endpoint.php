@@ -127,6 +127,19 @@ final class SettingsEndpoint extends RestController {
 			// free-only site reports the app disabled. This gates the APP surface
 			// only — the plugin's own web features stay license-independent.
 			'app_enabled'      => (bool) apply_filters( 'wcb_app_enabled', $is_pro_active ),
+			// How this SITE signs a member into the app — the Wbcom App Auth
+			// standard block, so ONE reader in the app serves every Wbcom
+			// product. On sites where BuddyNext runs alongside Career Board,
+			// `connect_url` is BuddyNext's connect bridge (it owns site auth
+			// there); standalone it is empty and the app routes through core's
+			// authorize screen or the credentials exchange below.
+			'auth'             => \WCB\Auth\AppConnect::auth_block(),
+			// May a member sign in by typing their WordPress password
+			// (POST /auth/app-password), or must they go through the
+			// interactive approval flow? Owner switch, default on. The app
+			// needs to know BEFORE it renders the control, so it never offers
+			// a path this site will refuse.
+			'password_login'   => \WCB\Auth\AppCredentials::is_enabled(),
 			'timezone'         => (string) wp_timezone_string(),
 			'locale'           => (string) get_locale(),
 			'rest_namespace'   => 'wcb/v1',
