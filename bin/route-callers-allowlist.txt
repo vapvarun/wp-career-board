@@ -32,3 +32,10 @@
 # have frontend UI; the blocked-list screen ships in the native mobile client
 # only — no web management UI yet.
 /me/blocked
+
+# --- mobile-only (1.7.1 app sign-in), no web caller by design --------------
+# Trades a member's WordPress login for a WP core Application Password so the
+# native app can hold a revocable credential. The web never calls it — a browser
+# session already has cookies + nonces. Gated on the site's password_login
+# switch, which /settings/app-config advertises to the app.
+/auth/app-password
