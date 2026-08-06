@@ -86,11 +86,12 @@ class JobCommands extends AbstractCliCommand {
 			if ( ! $company instanceof \WP_Post ) {
 				\WP_CLI::error( "No company found with slug '{$company_slug}'." );
 			}
+			// String compare (no NUMERIC) so the wcb_meta_key_value index is used;
+			// _wcb_company_id is stored as a string, so equality is exact.
 			$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
 					'key'   => '_wcb_company_id',
 					'value' => $company->ID,
-					'type'  => 'NUMERIC',
 				),
 			);
 		}

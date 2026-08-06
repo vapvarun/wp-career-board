@@ -429,11 +429,14 @@ class AdminCandidates extends \WP_List_Table {
 				'post_status'    => 'publish',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
+				// String compare (no NUMERIC) so the wcb_meta_key_value index is used;
+				// _wcb_candidate_id is stored as a string, so equality is exact. This
+				// runs once per rendered row, so a CAST here full-scans postmeta 20x
+				// per page load.
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_candidate_id',
 						'value' => $item->ID,
-						'type'  => 'NUMERIC',
 					),
 				),
 			)
