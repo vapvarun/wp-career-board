@@ -891,10 +891,10 @@ final class EmployersEndpoint extends RestController {
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
 			   AND app.post_status = 'publish'
-			   AND pm_co.meta_value = %d
+			   AND pm_co.meta_value = %s
 			 ORDER BY app.post_date DESC
 			 LIMIT 20",
-			$company_id
+			(string) $company_id
 		);
 		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
