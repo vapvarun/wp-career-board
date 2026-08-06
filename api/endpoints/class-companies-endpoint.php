@@ -275,15 +275,15 @@ final class CompaniesEndpoint extends RestController {
 			return $this->build_companies_response( array(), 0, 0, $paged );
 		}
 
-		// Build author → job count map scoped to companies on this page.
-		$author_ids = array_unique(
+		// Build company → job count map scoped to companies on this page.
+		$wcb_company_ids = array_unique(
 			array_map(
 				static function ( \WP_Post $p ): int {
-					return (int) $p->post_author; },
+					return (int) $p->ID; },
 				$query->posts
 			)
 		);
-		$job_counts = $this->job_counts_by_author( $author_ids );
+		$job_counts = $this->job_counts_by_company( $wcb_company_ids );
 
 		$companies = array_map(
 			function ( \WP_Post $post ) use ( $job_counts ): array {
@@ -419,7 +419,7 @@ final class CompaniesEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post $post       Company post object.
-	 * @param array    $job_counts author_id → job_count map.
+	 * @param array    $job_counts company_id → job_count map.
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
@@ -427,7 +427,7 @@ final class CompaniesEndpoint extends RestController {
 		$trust      = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
 		$trust_info = $this->trust_badge_info( $trust );
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
-		$job_count  = $job_counts[ (int) $post->post_author ] ?? 0;
+		$job_count  = $job_counts[ (int) $post->ID ] ?? 0;
 		$name       = $post->post_title;
 
 		// Build up-to-2-letter initials.
@@ -505,28 +505,38 @@ final class CompaniesEndpoint extends RestController {
 	}
 
 	/**
-	 * Build a map of author_id → published job count.
+	 * Build a map of company_id → published job count.
 	 *
-	 * Scoped to a specific set of author IDs to avoid fetching all jobs.
+	 * Scoped to the company IDs on the current page to avoid counting all jobs.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int[] $author_ids Author user IDs to count for.
+	 * @param int[] $company_ids Company post IDs to count for.
 	 * @return array<int, int>
 	 */
-	private function job_counts_by_author( array $author_ids ): array {
-		if ( empty( $author_ids ) ) {
+	private function job_counts_by_company( array $company_ids ): array {
+		if ( empty( $company_ids ) ) {
 			return array();
 		}
 
-		// One aggregate SQL via the (post_author, post_status, post_type) index
-		// instead of materialising every job row into PHP just to count it.
-		// At 100k jobs the previous numberposts=-1 path returned 100k WP_Post
-		// objects per render; this is an index-only scan.
+		// Count through the company LINK (_wcb_company_id postmeta), which is
+		// how a job is actually attached to a company — the same relationship
+		// /employers/{id}/jobs and CompanyMetaShape::resolve_company_id() use.
+		//
+		// This previously grouped by post_author and keyed the result on the
+		// COMPANY's author, so it answered "how many jobs did the user who
+		// created this company post publish?". Wherever one admin, importer or
+		// the setup wizard created the company posts, every company inherited
+		// that one user's entire job count — six companies on a seeded site all
+		// reported 24 while really having 5, 4, 5, 3, 7 and 2.
+		//
+		// Still one aggregate query rather than materialising job rows. The
+		// value is bound as a string so the wcb_meta_key_value composite index
+		// stays eligible; an unquoted %d would make MySQL convert the column.
 		global $wpdb;
-		$author_ids   = array_map( 'intval', $author_ids );
-		$placeholders = implode( ',', array_fill( 0, count( $author_ids ), '%d' ) );
-		$cache_key    = 'wcb_job_counts_by_author_' . md5( implode( ',', $author_ids ) );
+		$company_ids  = array_map( 'intval', $company_ids );
+		$placeholders = implode( ',', array_fill( 0, count( $company_ids ), '%s' ) );
+		$cache_key    = 'wcb_job_counts_by_company_' . md5( implode( ',', $company_ids ) );
 		$cached       = wp_cache_get( $cache_key, 'wcb_companies' );
 		if ( false !== $cached && is_array( $cached ) ) {
 			return $cached;
@@ -535,19 +545,23 @@ final class CompaniesEndpoint extends RestController {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT post_author, COUNT(*) AS c FROM {$wpdb->posts}
-					WHERE post_type = 'wcb_job'
-					  AND post_status = 'publish'
-					  AND post_author IN ({$placeholders})
-					GROUP BY post_author",
-				...$author_ids
+				"SELECT pm.meta_value AS company_id, COUNT(*) AS c
+					FROM {$wpdb->postmeta} pm
+					INNER JOIN {$wpdb->posts} p
+					        ON p.ID = pm.post_id
+					       AND p.post_type = 'wcb_job'
+					       AND p.post_status = 'publish'
+					WHERE pm.meta_key = '_wcb_company_id'
+					  AND pm.meta_value IN ({$placeholders})
+					GROUP BY pm.meta_value",
+				...array_map( 'strval', $company_ids )
 			)
 		);
 		// phpcs:enable
 
 		$counts = array();
 		foreach ( (array) $rows as $row ) {
-			$counts[ (int) $row->post_author ] = (int) $row->c;
+			$counts[ (int) $row->company_id ] = (int) $row->c;
 		}
 		// TTL-only cache (CACHING §4b): no write-time invalidation. The key is
 		// an md5 of the author-id SET, so a single save_post_wcb_job can't
