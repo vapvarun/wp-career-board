@@ -425,7 +425,7 @@ final class CompaniesEndpoint extends RestController {
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
 		$logo_url     = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
 		$trust        = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
-		$trust_info   = $this->trust_badge_info( $trust );
+		$trust_info   = \WCB\Core\CompanyMetaShape::trust_badge_info( $trust );
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
 		$job_count    = $job_counts[ (int) $post->ID ] ?? 0;
 		$name         = $post->post_title;
@@ -475,34 +475,6 @@ final class CompaniesEndpoint extends RestController {
 		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
 	}
 
-	/**
-	 * Get trust badge info for a trust level.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $trust_level Trust level meta value.
-	 * @return array{label:string,icon:string}|null
-	 */
-	private function trust_badge_info( string $trust_level ): ?array {
-		$trust_level = sanitize_key( $trust_level );
-
-		$map = array(
-			'verified' => array(
-				'label' => __( 'Verified', 'wp-career-board' ),
-				'icon'  => '✓',
-			),
-			'trusted'  => array(
-				'label' => __( 'Trusted', 'wp-career-board' ),
-				'icon'  => '✓',
-			),
-			'premium'  => array(
-				'label' => __( 'Premium', 'wp-career-board' ),
-				'icon'  => '★',
-			),
-		);
-
-		return $map[ $trust_level ] ?? null;
-	}
 
 	/**
 	 * Build a map of company_id → published job count.

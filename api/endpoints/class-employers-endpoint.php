@@ -1289,22 +1289,38 @@ final class EmployersEndpoint extends RestController {
 		}
 		$logo        = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$trust_level = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
-		$data        = array(
-			'id'           => $post->ID,
-			'name'         => $post->post_title,
-			'description'  => $post->post_content,
-			'logo'         => $logo ? $logo : '',
-			'tagline'      => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'website'      => (string) get_post_meta( $post->ID, '_wcb_website', true ),
-			'industry'     => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'         => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
-			'hq'           => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
-			'company_type' => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
-			'founded'      => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
-			'linkedin'     => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
-			'twitter'      => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
-			'trust_level'  => $trust_level ? $trust_level : 'new',
-			'permalink'    => get_permalink( $post->ID ),
+		$trust_level = $trust_level ? $trust_level : 'new';
+		$trust_info  = \WCB\Core\CompanyMetaShape::trust_badge_info( $trust_level );
+
+		// Shared shape, not a second hand-rolled read: this route used to return
+		// `industry` and `size` as bare slugs while /companies returned them
+		// alongside localised labels, so the same company read as "technology"
+		// here and "Technology & Software" there. CompanyMetaShape's own
+		// docblock records that fix landing in 1.5.1 — it reached the list
+		// endpoint and never reached this one.
+		$shape = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
+
+		$data = array(
+			'id'             => $post->ID,
+			'name'           => $post->post_title,
+			'description'    => $post->post_content,
+			'logo'           => $logo ? $logo : '',
+			'tagline'        => $shape['tagline'],
+			'website'        => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'industry'       => $shape['industry'],
+			'industry_label' => $shape['industry_label'],
+			'size'           => $shape['size'],
+			'size_label'     => $shape['size_label'],
+			'hq'             => $shape['hq'],
+			'company_type'   => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
+			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
+			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'trust_level'    => $trust_level,
+			'trust_label'    => $trust_info['label'] ?? '',
+			'trust_icon'     => $trust_info['icon'] ?? '',
+			'verified'       => null !== $trust_info,
+			'permalink'      => get_permalink( $post->ID ),
 		);
 
 		// Employer endpoint shapes a company sub-resource — fires the same

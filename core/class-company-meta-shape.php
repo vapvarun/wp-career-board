@@ -56,6 +56,40 @@ final class CompanyMetaShape {
 	}
 
 	/**
+	 * Badge label + icon for a company trust level.
+	 *
+	 * Lifted here from CompaniesEndpoint so the single-company route can show
+	 * the same badge as the directory card. Returns null for an unrecognised or
+	 * empty level, which callers read as "not verified" — `new` is a real stored
+	 * value meaning exactly that, not a missing one.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @param string $trust_level Raw trust level slug.
+	 * @return array{label:string,icon:string}|null
+	 */
+	public static function trust_badge_info( string $trust_level ): ?array {
+		$trust_level = sanitize_key( $trust_level );
+
+		$map = array(
+			'verified' => array(
+				'label' => __( 'Verified', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'trusted'  => array(
+				'label' => __( 'Trusted', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'premium'  => array(
+				'label' => __( 'Premium', 'wp-career-board' ),
+				'icon'  => '★',
+			),
+		);
+
+		return $map[ $trust_level ] ?? null;
+	}
+
+	/**
 	 * Human-readable label for a company-size bucket.
 	 *
 	 * @since 1.2.1
