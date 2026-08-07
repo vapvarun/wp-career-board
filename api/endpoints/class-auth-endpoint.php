@@ -3,8 +3,11 @@
  * Auth REST endpoint — how the mobile app gets its first credential.
  *
  * Routes:
- *   POST /wcb/v1/auth/app-password — trade a WordPress login for a WP core
+ *   POST   /wcb/v1/auth/app-password — trade a WordPress login for a WP core
  *   Application Password.
+ *   DELETE /wcb/v1/auth/app-password — revoke the credential making the
+ *   request, so signing out of the app actually ends the credential rather
+ *   than only forgetting it on the device.
  *
  * Every guard lives in `WCB\Auth\AppCredentials`; this endpoint owns only the
  * request shape, the throttle that must run BEFORE a credential is read, and
@@ -83,6 +86,72 @@ final class AuthEndpoint extends RestController {
 				),
 			)
 		);
+
+		// The other half of minting. Without this the app could create a
+		// credential but never destroy one: signing out cleared the phone and
+		// left the Application Password live on the server forever, so a lost
+		// device stayed authorised until someone thought to open
+		// wp-admin > Profile and delete the row by hand. Members do not do
+		// that, which meant every sign-out quietly grew the set of live
+		// credentials on the account.
+		register_rest_route(
+			$this->namespace,
+			'/auth/app-password',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'revoke_app_password' ),
+				'permission_callback' => static function (): bool {
+					return is_user_logged_in();
+				},
+			)
+		);
+	}
+
+	/**
+	 * DELETE /auth/app-password - revoke the credential making this request.
+	 *
+	 * Deliberately takes no id. The only credential a client may revoke here is
+	 * the one it is authenticating with, which core hands us directly - so
+	 * there is no object reference to get wrong and no way to aim this at
+	 * somebody else's row.
+	 *
+	 * Succeeds when there is nothing to revoke. The app calls this on the way
+	 * out and must not be left holding a credential it believes is live because
+	 * the response was an error; a cookie-authenticated caller has no app
+	 * password to begin with, and that is not a failure either.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function revoke_app_password(): \WP_REST_Response {
+		$user_id = get_current_user_id();
+		$used    = function_exists( 'rest_get_authenticated_app_password' )
+			? rest_get_authenticated_app_password()
+			: '';
+
+		$revoked = false;
+
+		if ( is_string( $used ) && '' !== $used ) {
+			$revoked = true === \WP_Application_Passwords::delete_application_password( $user_id, $used );
+
+			if ( $revoked ) {
+				/**
+				 * Fires after a member revokes their own app credential.
+				 *
+				 * @since 1.7.2
+				 *
+				 * @param int    $user_id Member who signed out.
+				 * @param string $uuid    The credential that was deleted.
+				 */
+				do_action( 'wcb_app_credential_revoked', $user_id, $used );
+			}
+		}
+
+		$response = new \WP_REST_Response( array( 'revoked' => $revoked ), 200 );
+		$response->header( 'Cache-Control', 'no-store' );
+
+		return $response;
 	}
 
 	/**
@@ -104,9 +173,7 @@ final class AuthEndpoint extends RestController {
 		// through passwords, the username bucket stops a distributed run at a
 		// single account. Only rejected CREDENTIALS count against them.
 		$username = (string) $request->get_param( 'username' );
-		$ip       = ! empty( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: 'unknown';
+		$ip       = AppCredentials::client_ip();
 		$buckets  = array( 'ip:' . $ip, 'user:' . strtolower( $username ) );
 
 		foreach ( $buckets as $bucket ) {

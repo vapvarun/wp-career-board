@@ -192,7 +192,7 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -206,6 +206,7 @@ class AdminSettings {
 			'allow_withdraw'             => ! empty( $input['allow_withdraw'] ),
 			'apply_resume_required'      => ! empty( $input['apply_resume_required'] ),
 			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
+			'app_password_login'         => ! empty( $input['app_password_login'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
 			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
@@ -958,6 +959,19 @@ class AdminSettings {
 												step="1"
 											>
 											<span class="description"><?php esc_html_e( 'How many days a job stays in the Featured spotlight before reverting automatically. Daily cron clears expired flags.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'App Password Sign-In', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control">
+											<label class="wcb-toggle-label">
+												<span class="wcb-toggle">
+													<input type="checkbox" name="wcb_settings[app_password_login]" value="1" <?php checked( ! empty( $settings['app_password_login'] ) ); ?>>
+													<span class="wcb-toggle-slider"></span>
+												</span>
+												<?php esc_html_e( 'Let members sign in to the mobile app by typing their website password', 'wp-career-board' ); ?>
+											</label>
+											<span class="description"><?php esc_html_e( 'Off by default. The app can already sign members in without this: its "Connect with WordPress" option sends them to your normal login page, where two-factor and your security plugins apply, and no password ever reaches the app. Turn this on only if you want the extra convenience of typing a password directly in the app - it opens a route that accepts real account passwords, so leave it off if you run two-factor authentication or do not use the app at all.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 								</div>

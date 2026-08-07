@@ -106,14 +106,27 @@ final class AppCredentials {
 	/**
 	 * Is the credentials exchange available on this site?
 	 *
-	 * Owner switch, default ON. An owner running 2FA will want every member on
-	 * the interactive flow, and turning this off is how they say so.
+	 * OWNER SWITCH, DEFAULT OFF — and the default is the point.
+	 *
+	 * Most Career Board sites never install the app. Shipping this ON would put
+	 * a password-accepting endpoint on every one of them to serve the minority
+	 * that do, and a route that accepts real account passwords is exactly the
+	 * kind of surface that should be opted into rather than out of. An owner who
+	 * never heard of it should not be running it.
+	 *
+	 * Defaulting OFF costs the app nothing it cannot afford, because password
+	 * sign-in is NOT the app's only door: `AppConnect`'s browser hand-off is the
+	 * primary flow and the one the sign-in screen offers first. It sends the
+	 * member to their own wp-login, where 2FA and every security plugin apply,
+	 * and comes back with a credential — no password ever reaches this route.
+	 * Password sign-in is the convenience path, so it is the one that waits for
+	 * a deliberate yes.
 	 *
 	 * @since 1.7.2
 	 * @return bool
 	 */
 	public static function is_enabled(): bool {
-		$on = \WCB\Admin\Settings::bool( 'app_password_login', true );
+		$on = \WCB\Admin\Settings::bool( 'app_password_login', false );
 
 		/**
 		 * Filter whether members may exchange a WordPress password for an
@@ -270,7 +283,110 @@ final class AppCredentials {
 		$count = isset( $data['count'] ) ? (int) $data['count'] : 0;
 		$start = isset( $data['start'] ) ? (int) $data['start'] : 0;
 
-		return $count >= self::MAX_FAILURES && ( time() - $start ) < self::FAILURE_WINDOW;
+		return $count >= self::max_failures() && ( time() - $start ) < self::FAILURE_WINDOW;
+	}
+
+	/**
+	 * Failed attempts allowed per bucket before lockout.
+	 *
+	 * Filterable because the right ceiling is a property of the site, not of
+	 * this plugin: a board behind SSO with three staff accounts and a public
+	 * board with fifty thousand members do not want the same number, and an
+	 * owner who has to edit a constant to find out will not tune it at all.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return int
+	 */
+	private static function max_failures(): int {
+		/**
+		 * Filter how many failed sign-ins a bucket tolerates before lockout.
+		 *
+		 * @since 1.7.2
+		 *
+		 * @param int $max Default 5.
+		 */
+		return max( 1, (int) apply_filters( 'wcb_app_password_max_failures', self::MAX_FAILURES ) );
+	}
+
+	/**
+	 * Total attempts allowed per IP per window.
+	 *
+	 * The ceiling that most needs tuning, and the one most likely to be wrong
+	 * out of the box — see `client_ip()` for why a proxied site collapses every
+	 * member onto one address.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return int
+	 */
+	private static function max_attempts_per_ip(): int {
+		/**
+		 * Filter the per-IP ceiling on total sign-in attempts per hour.
+		 *
+		 * @since 1.7.2
+		 *
+		 * @param int $max Default 20.
+		 */
+		return max( 1, (int) apply_filters( 'wcb_app_password_max_attempts_per_ip', self::MAX_ATTEMPTS_PER_IP ) );
+	}
+
+	/**
+	 * The client's address, as well as this site can know it.
+	 *
+	 * `REMOTE_ADDR` is the only value a PHP process can trust, and on a direct
+	 * connection it is right. Behind Cloudflare, a load balancer or any reverse
+	 * proxy it is the PROXY's address — identical for every visitor — which
+	 * turns the per-IP ceiling from a brute-force bound into a site-wide outage:
+	 * twenty sign-ins an hour for the entire membership, then everyone is locked
+	 * out. That is a worse failure than the one the ceiling prevents.
+	 *
+	 * Forwarded headers are NOT read by default, because anyone can send one and
+	 * a spoofed header makes the limiter trivially bypassable — the opposite
+	 * mistake. So the owner names their trusted header, which is the only party
+	 * that knows the proxy in front of their own site:
+	 *
+	 *     add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
+	 *
+	 * The leftmost address is taken (the original client; later hops are
+	 * appended by each proxy) and validated, so a malformed header degrades to
+	 * REMOTE_ADDR rather than poisoning a bucket key with attacker-chosen text.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return string
+	 */
+	public static function client_ip(): string {
+		/**
+		 * Filter which `$_SERVER` key carries the real client IP.
+		 *
+		 * Empty (the default) means trust only REMOTE_ADDR. Set this ONLY when
+		 * a proxy you control always overwrites the header — an unvalidated
+		 * forwarded header is attacker-controlled.
+		 *
+		 * @since 1.7.2
+		 *
+		 * @param string $header A `$_SERVER` key, e.g. `HTTP_CF_CONNECTING_IP`.
+		 */
+		$header = (string) apply_filters( 'wcb_app_password_client_ip_header', '' );
+
+		if ( '' !== $header && ! empty( $_SERVER[ $header ] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by rest_is_ip_address below; sanitize_text_field would not make a bad IP good.
+			$raw   = (string) wp_unslash( $_SERVER[ $header ] );
+			$first = trim( strtok( $raw, ',' ) ?: '' );
+
+			if ( '' !== $first && rest_is_ip_address( $first ) ) {
+				return $first;
+			}
+		}
+
+		if ( empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			return 'unknown';
+		}
+
+		$remote = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+
+		return rest_is_ip_address( $remote ) ? $remote : 'unknown';
 	}
 
 	/**
@@ -288,7 +404,7 @@ final class AppCredentials {
 		$key   = 'wcb_apw_try_' . md5( $ip );
 		$count = (int) get_transient( $key );
 
-		if ( $count >= self::MAX_ATTEMPTS_PER_IP ) {
+		if ( $count >= self::max_attempts_per_ip() ) {
 			return false;
 		}
 
