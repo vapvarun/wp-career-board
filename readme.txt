@@ -62,6 +62,32 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 == Changelog ==
 
+= 1.7.1 - August 2026 =
+
+Companion-app parity release: members can now do in the app what they can do on the website, with several data-integrity and performance fixes found along the way.
+
+* New      - Employers can set an opt-in cap on how many jobs they keep active at once, superseded automatically when credits are in use.
+* New      - Application custom-field answers are readable in the employer dashboard, the admin application screen and the REST API. They were saved but never shown anywhere.
+* New      - The statuses an employer can set on an application are published to companion apps, so an app shows your site's statuses in your site's language instead of its own built-in list.
+* Improve  - Signing in to the app with your website password is now an opt-in setting, off by default, with a switch under Settings > Job Listings. The app's "Connect with WordPress" option still works without it.
+* Improve  - Signing out of the app now revokes that device's access key on the site, instead of leaving it valid until someone deletes it by hand.
+* Improve  - Sign-in rate limits read the real visitor address behind a proxy once you name your proxy's header, and both limits are adjustable. On a site behind Cloudflare or a load balancer the old behaviour could lock out every member at once.
+* Improve  - The company directory and the single company API now return the same localised industry, size and verification labels. The single company response previously returned raw values such as "technology".
+* Improve  - Employer application lists accept page and per_page properly instead of silently returning only the most recent 20.
+* Improve  - Faster on large sites: deadline reminders resolve their recipients in one indexed query, AI applicant scoring is queued once per job instead of once per applicant, the Boards admin list batches its job and stage counts, and several list queries no longer defeat their database index.
+* Fix      - The company directory showed the wrong number of open positions on every card wherever one person created the company profiles. Counts now follow the job to company link.
+* Fix      - Load more on a company profile no longer lists other companies' jobs.
+* Fix      - Applications now appear on the Kanban board, and new boards ship with a default set of pipeline stages instead of none.
+* Fix      - Jobs and resumes are geocoded whenever they are saved, including from wp-admin, not only when created through the API.
+* Fix      - Posting a job no longer loses the link to your company when the company profile was created by an import, an administrator or the setup wizard.
+* Fix      - Jobs imported from WP Job Manager now trigger the same follow-up actions as jobs created normally, so alerts and geocoding run for them.
+* Fix      - Scheduled account deletions survive deactivating and reactivating the plugin.
+* Security - Job alerts could be edited or deleted by any signed-in candidate, not only their owner.
+* Security - The Kanban board could be read by employers who did not own the job, exposing other employers' applicant details.
+* Dev      - REST arguments now enforce the minimum, maximum and allowed values they declare. Requests that exceed a declared page size return a clear error instead of being silently trimmed.
+* Dev      - Companion apps can discover the resume section structure from the API, so a client can build a resume form without hardcoding field names, and a site that adds its own section gets it automatically.
+* Dev      - New filters for sign-in limits, the trusted proxy header, employer-settable statuses, and the resume schema.
+
 = 1.7.0 - July 2026 =
 
 Mobile-ready release: a REST surface for companion apps, member moderation and in-app account deletion, plus a large-database performance pass.
