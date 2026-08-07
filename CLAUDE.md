@@ -8,6 +8,7 @@ Everything QA-related lives in three directories. Touch nothing else for routine
 
 | What | Where | When to use |
 |---|---|---|
+| **App parity gate (member-facing)** | [`docs/APP-PARITY.md`](docs/APP-PARITY.md) → `careerboard-app/docs/FEATURE-COVERAGE.md` | **Before shipping any member-facing change, and before tagging.** Every capability a member has on the website mapped to its app surface, gated at zero `Missing`. Canonical copy lives in the app repo on the fleet-wide path so every Wbcom app's status is findable in the same place; this repo carries a pointer plus the rules for when plugin work touches it. |
 | **Common use-case catalog (Pareto pre-release checklist)** | [`docs/qa/COMMON_USE_CASES.md`](docs/qa/COMMON_USE_CASES.md) | **START HERE before every release.** The 80–90% of flows real users hit, grouped by actor (Job Seeker / Job Poster / Admin), tiered by frequency, each row mapped to its journey. Refresh procedure + 🆕-since-last-release flags live in the doc. Pro delta mirrors it. |
 | **Docs-level walkthroughs (20, by actor)** | [`docs/qa/walkthroughs/`](docs/qa/walkthroughs/) | Human-runnable end-to-end walkthroughs, one per catalog use case: `seeker/` (7), `poster/` (5), `admin/` (8). The *how* behind the catalog's *what*. Regression sentinels stay in `audit/journeys/`. |
 | **Plugin facts for the smoke skill** | [`docs/qa/qa.config.json`](docs/qa/qa.config.json) | Edit when slug / version constant / personas / fixture-cleanup SQL / debug-log whitelist change. Read by the global `/wp-plugin-smoke` skill. |
