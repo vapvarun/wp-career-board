@@ -52,6 +52,58 @@ final class ApplicationStatus {
 	}
 
 	/**
+	 * The statuses an employer may actually set on an application.
+	 *
+	 * Not the same as all(): `withdrawn` is candidate-only and `job_removed` is
+	 * set by ApplicationLifecycle, so neither belongs in an employer's picker.
+	 * This list was inlined in ApplicationsEndpoint::update_status() and
+	 * nowhere else, which meant every API client had to carry its own copy —
+	 * the mobile app included. It is the single source for both the endpoint's
+	 * validation and the set published to clients, so the two cannot drift.
+	 *
+	 * @since 1.7.2
+	 * @return array<int,string>
+	 */
+	public static function employer_actionable(): array {
+		/**
+		 * Filter the statuses an employer may set.
+		 *
+		 * @since 1.7.2
+		 *
+		 * @param array<int,string> $statuses Employer-actionable status slugs.
+		 */
+		return (array) apply_filters(
+			'wcb_employer_actionable_statuses',
+			array(
+				self::SUBMITTED,
+				self::REVIEWING,
+				self::SHORTLISTED,
+				self::REJECTED,
+				self::HIRED,
+			)
+		);
+	}
+
+	/**
+	 * The employer-actionable set as slug + translated label, for API clients.
+	 *
+	 * Published so a client renders the site's vocabulary in the site's locale
+	 * instead of hardcoding five English strings.
+	 *
+	 * @since 1.7.2
+	 * @return array<int,array{slug:string,label:string}>
+	 */
+	public static function employer_actionable_options(): array {
+		return array_map(
+			static fn( string $slug ): array => array(
+				'slug'  => $slug,
+				'label' => self::label( $slug ),
+			),
+			array_values( self::employer_actionable() )
+		);
+	}
+
+	/**
 	 * Statuses that represent end-of-pipeline states (no further employer action expected).
 	 *
 	 * @since 1.1.2

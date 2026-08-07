@@ -393,13 +393,7 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Employer-actionable statuses only — `withdrawn` is candidate-only,
 		// `job_removed` is system-only (set by ApplicationLifecycle).
-		$allowed    = array(
-			\WCB\Modules\Applications\ApplicationStatus::SUBMITTED,
-			\WCB\Modules\Applications\ApplicationStatus::REVIEWING,
-			\WCB\Modules\Applications\ApplicationStatus::SHORTLISTED,
-			\WCB\Modules\Applications\ApplicationStatus::REJECTED,
-			\WCB\Modules\Applications\ApplicationStatus::HIRED,
-		);
+		$allowed    = \WCB\Modules\Applications\ApplicationStatus::employer_actionable();
 		$new_status = sanitize_text_field( (string) $request->get_param( 'status' ) );
 		if ( ! in_array( $new_status, $allowed, true ) ) {
 			return new \WP_Error(

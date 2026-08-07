@@ -67,20 +67,20 @@ final class SettingsEndpoint extends RestController {
 		$captcha_driver = wcb_get_captcha_driver();
 
 		$data = array(
-			'site_name'        => (string) get_bloginfo( 'name' ),
-			'site_url'         => (string) home_url( '/' ),
-			'plugin_version'   => defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
-			'pro_version'      => (string) apply_filters( 'wcb_pro_version', '' ),
-			'is_pro_active'    => $is_pro_active,
-			'is_pro_licensed'  => (bool) apply_filters( 'wcb_pro_licensed', false ),
-			'per_page'         => \WCB\Admin\Settings::int( 'jobs_per_page', 10 ),
-			'currency'         => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
-			'moderation_mode'  => \WCB\Admin\Settings::bool( 'auto_publish_jobs', false ) ? 'auto_publish' : 'pending_review',
-			'allow_withdraw'   => \WCB\Admin\Settings::bool( 'allow_withdraw', false ),
+			'site_name'             => (string) get_bloginfo( 'name' ),
+			'site_url'              => (string) home_url( '/' ),
+			'plugin_version'        => defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
+			'pro_version'           => (string) apply_filters( 'wcb_pro_version', '' ),
+			'is_pro_active'         => $is_pro_active,
+			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
+			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page', 10 ),
+			'currency'              => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
+			'moderation_mode'       => \WCB\Admin\Settings::bool( 'auto_publish_jobs', false ) ? 'auto_publish' : 'pending_review',
+			'allow_withdraw'        => \WCB\Admin\Settings::bool( 'allow_withdraw', false ),
 			// So the app can require a resume BEFORE the apply POST instead of
 			// letting the candidate submit and hit a 400.
 			'apply_resume_required' => \WCB\Admin\Settings::bool( 'apply_resume_required', true ),
-			'feature_toggles'  => array(
+			'feature_toggles'       => array(
 				'guest_apply'          => true,
 				'bookmarks'            => true,
 				'job_alerts'           => $is_pro_active,
@@ -101,49 +101,56 @@ final class SettingsEndpoint extends RestController {
 			// defaults); Pro overrides from its white-label option via the
 			// wcb_rest_app_config filter. Never restate site name/icon here —
 			// those come from the core /wp-json/ index.
-			'accent_color'     => \WCB\Admin\Settings::string( 'accent_color', '#2563EB' ),
-			'logo_url'         => \WCB\Admin\Settings::string( 'logo_url', '' ),
-			'login_bg_url'     => \WCB\Admin\Settings::string( 'login_bg_url', '' ),
-			'dark_mode_default' => \WCB\Admin\Settings::bool( 'dark_mode_default', false ),
+			'accent_color'          => \WCB\Admin\Settings::string( 'accent_color', '#2563EB' ),
+			'logo_url'              => \WCB\Admin\Settings::string( 'logo_url', '' ),
+			'login_bg_url'          => \WCB\Admin\Settings::string( 'login_bg_url', '' ),
+			'dark_mode_default'     => \WCB\Admin\Settings::bool( 'dark_mode_default', false ),
 			// Per-site legal surface (Apple 1.2 / 5.1.1). Each site owns its own
 			// policies; privacy defaults to WP core, abuse contact to the admin.
 			// Unset values are null, never a placeholder URL the app would treat
 			// as a live link.
-			'legal'            => array(
+			'legal'                 => array(
 				'privacy_policy_url'       => get_privacy_policy_url() ?: null,
 				'terms_url'                => \WCB\Admin\Settings::string( 'terms_url', '' ) ?: null,
 				'eula_url'                 => \WCB\Admin\Settings::string( 'eula_url', '' ) ?: null,
 				'community_guidelines_url' => \WCB\Admin\Settings::string( 'guidelines_url', '' ) ?: null,
 				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: (string) get_option( 'admin_email' ),
 			),
+			// The statuses an employer may set on an application, slug + label in
+			// the site's locale. Published because a client that offers a status
+			// picker otherwise has to carry its own copy of the list AND its own
+			// English labels — the mobile app did exactly that. Derived from the
+			// same set ApplicationsEndpoint validates against, so a status added
+			// to one reaches clients without a second edit.
+			'application_statuses'  => \WCB\Modules\Applications\ApplicationStatus::employer_actionable_options(),
 			// Version floor + contract version so a client can force-upgrade and
 			// a strict parser can pin the shape. Additive-only: never rename or
 			// retype an existing key above.
-			'min_app_version'  => (string) apply_filters( 'wcb_min_app_version', '1.0.0' ),
-			'contract_version' => 1,
+			'min_app_version'       => (string) apply_filters( 'wcb_min_app_version', '1.0.0' ),
+			'contract_version'      => 1,
 			// The mobile app is a Pro benefit gated on an active license. Free
 			// only ships the flag; Pro filters it to `&& is licensed` (see
 			// WCB\Pro\Core\FreeCoordination). Default requires Pro active so a
 			// free-only site reports the app disabled. This gates the APP surface
 			// only — the plugin's own web features stay license-independent.
-			'app_enabled'      => (bool) apply_filters( 'wcb_app_enabled', $is_pro_active ),
+			'app_enabled'           => (bool) apply_filters( 'wcb_app_enabled', $is_pro_active ),
 			// How this SITE signs a member into the app — the Wbcom App Auth
 			// standard block, so ONE reader in the app serves every Wbcom
 			// product. On sites where BuddyNext runs alongside Career Board,
 			// `connect_url` is BuddyNext's connect bridge (it owns site auth
 			// there); standalone it is empty and the app routes through core's
 			// authorize screen or the credentials exchange below.
-			'auth'             => \WCB\Auth\AppConnect::auth_block(),
+			'auth'                  => \WCB\Auth\AppConnect::auth_block(),
 			// May a member sign in by typing their WordPress password
 			// (POST /auth/app-password), or must they go through the
 			// interactive approval flow? Owner switch, default on. The app
 			// needs to know BEFORE it renders the control, so it never offers
 			// a path this site will refuse.
-			'password_login'   => \WCB\Auth\AppCredentials::is_enabled(),
-			'timezone'         => (string) wp_timezone_string(),
-			'locale'           => (string) get_locale(),
-			'rest_namespace'   => 'wcb/v1',
-			'captcha_required' => '' !== $captcha_driver,
+			'password_login'        => \WCB\Auth\AppCredentials::is_enabled(),
+			'timezone'              => (string) wp_timezone_string(),
+			'locale'                => (string) get_locale(),
+			'rest_namespace'        => 'wcb/v1',
+			'captcha_required'      => '' !== $captcha_driver,
 		);
 
 		/**
