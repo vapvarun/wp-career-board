@@ -283,7 +283,7 @@ final class CompaniesEndpoint extends RestController {
 				$query->posts
 			)
 		);
-		$job_counts = $this->job_counts_by_company( $wcb_company_ids );
+		$job_counts      = $this->job_counts_by_company( $wcb_company_ids );
 
 		$companies = array_map(
 			function ( \WP_Post $post ) use ( $job_counts ): array {
@@ -390,10 +390,10 @@ final class CompaniesEndpoint extends RestController {
 	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
 		$response = rest_ensure_response(
 			array(
-				'companies' => $companies,
-				'total'     => $total,
-				'pages'     => $pages,
-				'has_more'  => $paged < $pages,
+				'companies'     => $companies,
+				'total'         => $total,
+				'pages'         => $pages,
+				'has_more'      => $paged < $pages,
 				/*
 				 * Additive since 1.5.1. Resolved server-side because _n() handles
 				 * any number of plural forms; the block previously picked between
@@ -423,12 +423,12 @@ final class CompaniesEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
-		$logo_url   = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
-		$trust      = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
-		$trust_info = $this->trust_badge_info( $trust );
+		$logo_url     = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
+		$trust        = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
+		$trust_info   = $this->trust_badge_info( $trust );
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
-		$job_count  = $job_counts[ (int) $post->ID ] ?? 0;
-		$name       = $post->post_title;
+		$job_count    = $job_counts[ (int) $post->ID ] ?? 0;
+		$name         = $post->post_title;
 
 		// Build up-to-2-letter initials.
 		$words    = array_filter( explode( ' ', trim( $name ) ) );
@@ -439,12 +439,12 @@ final class CompaniesEndpoint extends RestController {
 		$initials = $initials ? $initials : '?';
 
 		$data = array(
-			'id'          => $post->ID,
-			'name'        => $name,
-			'initials'    => $initials,
-			'has_logo'    => '' !== $logo_url,
-			'no_logo'     => '' === $logo_url,
-			'logo'        => $logo_url,
+			'id'             => $post->ID,
+			'name'           => $name,
+			'initials'       => $initials,
+			'has_logo'       => '' !== $logo_url,
+			'no_logo'        => '' === $logo_url,
+			'logo'           => $logo_url,
 			'tagline'        => $company_meta['tagline'],
 			// Ship the localised industry label alongside the raw slug so the
 			// card chip shows "Technology & Software", not "technology", after a
@@ -453,14 +453,14 @@ final class CompaniesEndpoint extends RestController {
 			'industry_label' => $company_meta['industry_label'],
 			'size'           => $company_meta['size'],
 			'size_label'     => $company_meta['size_label'],
-			'hq'          => $company_meta['hq'],
-			'trust'       => $trust,
-			'trust_label' => $trust_info['label'] ?? '',
-			'trust_icon'  => $trust_info['icon'] ?? '',
-			'verified'    => null !== $trust_info,
-			'permalink'   => get_permalink( $post->ID ),
-			'job_count'   => $job_count,
-			'jobs_label'  => $this->jobs_label( $job_count ),
+			'hq'             => $company_meta['hq'],
+			'trust'          => $trust,
+			'trust_label'    => $trust_info['label'] ?? '',
+			'trust_icon'     => $trust_info['icon'] ?? '',
+			'verified'       => null !== $trust_info,
+			'permalink'      => get_permalink( $post->ID ),
+			'job_count'      => $job_count,
+			'jobs_label'     => $this->jobs_label( $job_count ),
 		);
 
 		/**
@@ -622,15 +622,17 @@ final class CompaniesEndpoint extends RestController {
 				'items' => array( 'type' => 'string' ),
 			),
 			'page'     => array(
-				'type'    => 'integer',
-				'default' => 1,
-				'minimum' => 1,
+				'type'              => 'integer',
+				'default'           => 1,
+				'minimum'           => 1,
+				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'per_page' => array(
-				'type'    => 'integer',
-				'default' => 20,
-				'minimum' => 1,
-				'maximum' => 100,
+				'type'              => 'integer',
+				'default'           => 20,
+				'minimum'           => 1,
+				'maximum'           => 100,
+				'validate_callback' => 'rest_validate_request_arg',
 			),
 		);
 	}

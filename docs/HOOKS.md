@@ -263,3 +263,52 @@ work should still ship as an Endpoint class unless the route is part of an
 already-co-located feature module (admin wizard, self-contained module).
 Reviewers seeing direct `register_rest_route()` calls in any *other* file
 should flag it.
+
+## App sign-in credentials
+
+`WCB\Auth\AppCredentials` trades a member's ordinary WordPress login for a core
+Application Password, because core will not: its Basic auth validates against
+stored application passwords only, so the core route that mints one already
+requires one, and every core path to a first credential runs through wp-admin
+under cookie auth.
+
+It is not a second authentication system — `wp_authenticate()` does the actual
+authentication exactly as wp-login.php does, so every `authenticate` filter on
+the site still runs. This class only decides what to hand back once core says yes.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_app_password_login_enabled` | filter | `$on` | Whether the exchange is available. Backs the `app_password_login` setting, **default OFF**. |
+| `wcb_app_password_max_failures` | filter | `$max` | Failed sign-ins per bucket before lockout. Default 5. |
+| `wcb_app_password_max_attempts_per_ip` | filter | `$max` | Total attempts per IP per hour. Default 20. |
+| `wcb_app_password_client_ip_header` | filter | `$header` | `$_SERVER` key carrying the real client IP. Empty by default. |
+| `wcb_app_credential_issued` | action | `$user_id, $app_id, $app_name` | A member exchanged their password for a credential. |
+| `wcb_app_credential_revoked` | action | `$user_id, $uuid` | A member revoked their own credential (app sign-out). |
+
+Three contract notes worth keeping:
+
+1. **The default is OFF, and that is not conservatism for its own sake.** This
+   route accepts real account passwords, and most sites never install the app.
+   Turning it on for everyone to serve the minority that do is the wrong trade —
+   especially since `AppConnect`'s browser hand-off is the primary sign-in flow
+   and needs no switch at all. The app's sign-in screen hides password entry when
+   the site reports the feature off, so members see the secure path, not a broken
+   button.
+
+2. **`wcb_app_credential_issued` deliberately does not carry the credential.**
+   A listener that logged it would undo the reason the class is careful with it
+   everywhere else.
+
+3. **`wcb_app_password_client_ip_header` is empty by default on purpose.**
+   `REMOTE_ADDR` is the only value a PHP process can trust; behind a proxy it is
+   the proxy's address, identical for every visitor, which turns the per-IP
+   ceiling into a site-wide outage. But reading a forwarded header by default is
+   the opposite mistake — anyone can send one, making the limiter bypassable. So
+   the owner names the header their own proxy always overwrites:
+
+   ```php
+   add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
+   ```
+
+   The leftmost address is taken and validated, so a malformed header degrades to
+   `REMOTE_ADDR` rather than poisoning a rate-limit bucket key.

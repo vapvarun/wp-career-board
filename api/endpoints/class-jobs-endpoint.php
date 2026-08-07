@@ -99,6 +99,7 @@ final class JobsEndpoint extends RestController {
 						'default'           => 1,
 						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'per_page' => array(
 						'type'              => 'integer',
@@ -106,6 +107,7 @@ final class JobsEndpoint extends RestController {
 						'minimum'           => 1,
 						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)
@@ -1825,15 +1827,17 @@ final class JobsEndpoint extends RestController {
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'page'           => array(
-					'type'    => 'integer',
-					'default' => 1,
-					'minimum' => 1,
+					'type'              => 'integer',
+					'default'           => 1,
+					'minimum'           => 1,
+					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'per_page'       => array(
-					'type'    => 'integer',
-					'default' => 20,
-					'minimum' => 1,
-					'maximum' => 100,
+					'type'              => 'integer',
+					'default'           => 20,
+					'minimum'           => 1,
+					'maximum'           => 100,
+					'validate_callback' => 'rest_validate_request_arg',
 				),
 			)
 		);

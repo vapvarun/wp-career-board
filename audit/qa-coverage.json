@@ -5,15 +5,15 @@
         "version": "1.7.0"
     },
     "generated": {
-        "at": "2026-07-27T11:27:18+00:00",
-        "manifest_at": "2026-07-14T00:00:00Z",
-        "manifest_branch": "1.7.0"
+        "at": "2026-08-07T04:24:33+00:00",
+        "manifest_at": "2026-08-07T00:00:00Z",
+        "manifest_branch": "1.7.1"
     },
     "categories": {
         "rest": {
-            "total": 60,
+            "total": 62,
             "covered": 0,
-            "uncovered": 60,
+            "uncovered": 62,
             "skipped": 0,
             "covered_items": [],
             "uncovered_items": [
@@ -316,6 +316,16 @@
                     "method": "GET",
                     "route": "/wcb/v1/me/blocked",
                     "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/me/blocked\""
+                },
+                {
+                    "method": "POST",
+                    "route": "/auth/app-password",
+                    "stub_command": "bin/qa-stub-gen.php rest POST \"/auth/app-password\""
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/auth/app-password",
+                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/auth/app-password\""
                 }
             ]
         },
@@ -329,7 +339,7 @@
             "total": 86,
             "covered": 0,
             "uncovered": 86,
-            "skipped": 105,
+            "skipped": 111,
             "covered_items": [],
             "uncovered_items": [
                 {
@@ -822,15 +832,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 155,
+        "items_total": 157,
         "items_covered": 0,
-        "items_uncovered": 155,
-        "items_skipped": 105,
+        "items_uncovered": 157,
+        "items_skipped": 111,
         "coverage_percent": 0
     },
     "drift": {
         "previous_uncovered": 155,
-        "current_uncovered": 155,
-        "delta": 0
+        "current_uncovered": 157,
+        "delta": 2
     }
 }
