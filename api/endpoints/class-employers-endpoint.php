@@ -116,6 +116,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_applications' ),
 				'permission_callback' => array( $this, 'get_applications_permissions_check' ),
+				'args'                => self::pagination_args(),
 			)
 		);
 
@@ -146,6 +147,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_applications' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+				'args'                => self::pagination_args(),
 			)
 		);
 	}
@@ -879,9 +881,7 @@ final class EmployersEndpoint extends RestController {
 		// as the other employer views (R1: single source of truth).
 		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql  = $wpdb->prepare(
-			"SELECT app.ID, app.post_date
-			 FROM {$wpdb->posts} app
+		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
@@ -891,15 +891,23 @@ final class EmployersEndpoint extends RestController {
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
 			   AND app.post_status = 'publish'
-			   AND pm_co.meta_value = %s
-			 ORDER BY app.post_date DESC
-			 LIMIT 20",
-			(string) $company_id
+			   AND pm_co.meta_value = %s";
+
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", (string) $company_id ) );
+
+		list( $paged, $per_page ) = self::paging( $request );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
+				(string) $company_id,
+				$per_page,
+				( $paged - 1 ) * $per_page
+			)
 		);
-		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		return $this->build_applications_response( (array) $rows, $request );
+		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
 	}
 
 	/**
@@ -921,9 +929,7 @@ final class EmployersEndpoint extends RestController {
 		$user_id       = get_current_user_id();
 		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql  = $wpdb->prepare(
-			"SELECT app.ID, app.post_date
-			 FROM {$wpdb->posts} app
+		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
@@ -931,15 +937,23 @@ final class EmployersEndpoint extends RestController {
 			       AND job.post_status IN ({$wcb_status_in})
 			       AND job.post_author = %d
 			 WHERE app.post_type   = 'wcb_application'
-			   AND app.post_status = 'publish'
-			 ORDER BY app.post_date DESC
-			 LIMIT 20",
-			$user_id
+			   AND app.post_status = 'publish'";
+
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", $user_id ) );
+
+		list( $paged, $per_page ) = self::paging( $request );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
+				$user_id,
+				$per_page,
+				( $paged - 1 ) * $per_page
+			)
 		);
-		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		return $this->build_applications_response( (array) $rows, $request );
+		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
 	}
 
 	/**
@@ -955,9 +969,11 @@ final class EmployersEndpoint extends RestController {
 	 * @param  \WP_REST_Request   $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	private function build_applications_response( array $rows, \WP_REST_Request $request ): \WP_REST_Response {
+	private function build_applications_response( array $rows, \WP_REST_Request $request, int $total, int $paged, int $per_page ): \WP_REST_Response {
+		$pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 0;
+
 		if ( empty( $rows ) ) {
-			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
+			return $this->build_envelope( 'applications', array(), $total, $pages, $paged );
 		}
 
 		// Prime meta cache once for the application IDs so the per-row
@@ -1043,11 +1059,57 @@ final class EmployersEndpoint extends RestController {
 			$rows
 		);
 
-		// This endpoint always returns the latest 20 with no pagination — total
-		// equals returned count and pages is 1 so consumers can use the same
-		// envelope shape as paginated lists.
-		$count = count( $items );
-		return $this->build_envelope( 'applications', $items, $count, $count > 0 ? 1 : 0, 1 );
+		return $this->build_envelope( 'applications', $items, $total, $pages, $paged );
+	}
+
+	/**
+	 * The `page` / `per_page` args every paginated list on this endpoint shares.
+	 *
+	 * Declared rather than read loosely from the request so an out-of-range
+	 * `per_page` is rejected by the schema instead of reaching a LIMIT clause.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function pagination_args(): array {
+		// validate_callback is explicit on purpose: `minimum` / `maximum` in a
+		// route arg are inert without it — core only runs schema validation for
+		// args that name a validator — so declaring a ceiling and omitting this
+		// advertises a limit nothing enforces.
+		return array(
+			'page'     => array(
+				'type'              => 'integer',
+				'default'           => 1,
+				'minimum'           => 1,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+			'per_page' => array(
+				'type'              => 'integer',
+				'default'           => 20,
+				'minimum'           => 1,
+				'maximum'           => 100,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+		);
+	}
+
+	/**
+	 * Resolve the requested page window.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return array{0:int,1:int} [ paged, per_page ]
+	 */
+	private static function paging( \WP_REST_Request $request ): array {
+		$paged    = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = (int) $request->get_param( 'per_page' );
+		$per_page = $per_page > 0 ? min( 100, $per_page ) : 20;
+
+		return array( $paged, $per_page );
 	}
 
 	/**

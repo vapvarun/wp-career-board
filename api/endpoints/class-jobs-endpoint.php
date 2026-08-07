@@ -247,6 +247,22 @@ final class JobsEndpoint extends RestController {
 			$args['author'] = (int) $author;
 		}
 
+		// Scope to the jobs LINKED to a company, which is not the same set as
+		// the jobs authored by that company's owner. A job carries its company
+		// in `_wcb_company_id`, and an admin, a second recruiter or an importer
+		// can post on a company's behalf — so `author` returns a different
+		// (and wrong) list wherever the poster is not the company owner. The
+		// company-profile block's first page always filtered on this meta key;
+		// its Load More filtered on author, so page 2 could pull in another
+		// company's jobs entirely.
+		$company = (int) $request->get_param( 'company' );
+		if ( $company > 0 ) {
+			$args['meta_query'][] = array(
+				'key'   => '_wcb_company_id',
+				'value' => (string) $company,
+			);
+		}
+
 		// Scope to a specific user's bookmarks when the caller passes
 		// `saved_by=<user_id>`. Mirrors the Saved tab SSR scope so Load
 		// More pages keep returning only bookmarked jobs instead of the
@@ -1791,6 +1807,7 @@ final class JobsEndpoint extends RestController {
 				'salary_min'     => array( 'type' => 'integer' ),
 				'salary_max'     => array( 'type' => 'integer' ),
 				'author'         => array( 'type' => 'integer' ),
+				'company'        => array( 'type' => 'integer' ),
 				'orderby'        => array(
 					'description'       => __( 'Sort jobs by attribute.', 'wp-career-board' ),
 					'type'              => 'string',

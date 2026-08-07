@@ -362,13 +362,14 @@ wp_interactivity_state(
 		wp_interactivity_state(
 			'wcb-company-profile',
 			array(
-				'jobs'      => $wcb_cp_jobs_state,
-				'page'      => 1,
-				'perPage'   => $wcb_cp_per_page,
-				'author'    => $wcb_cp_author_id,
-				'loading'   => false,
-				'hasMore'   => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
-				'hasNoJobs' => empty( $wcb_cp_jobs_state ),
+				'jobs'        => $wcb_cp_jobs_state,
+				'page'        => 1,
+				'perPage'     => $wcb_cp_per_page,
+				'author'      => $wcb_cp_author_id,
+				'companyId'   => (int) $wcb_company->ID,
+				'loading'     => false,
+				'hasMore'     => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
+				'hasNoJobs'   => empty( $wcb_cp_jobs_state ),
 				// Distinct key from the companies `apiBase` set above — both calls
 				// merge into the same store, so reusing `apiBase` here clobbered the
 				// bookmark route (company save POSTed to /jobs/{id}/bookmark).
