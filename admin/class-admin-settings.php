@@ -157,6 +157,7 @@ class AdminSettings {
 		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
+		add_action( 'wcb_settings_tab_industries', array( $this, 'render_industries_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
 		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
@@ -375,6 +376,7 @@ class AdminSettings {
 			'pages'         => __( 'Pages', 'wp-career-board' ),
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
 			'emails'        => __( 'Emails', 'wp-career-board' ),
+			'industries'    => __( 'Industries', 'wp-career-board' ),
 			'import'        => __( 'Import', 'wp-career-board' ),
 			'integrations'  => __( 'Integrations', 'wp-career-board' ),
 		);
@@ -404,6 +406,7 @@ class AdminSettings {
 		return array(
 			'listings'      => 'list',
 			'pages'         => 'file-text',
+			'industries'    => 'building-2',
 			'import'        => 'upload',
 			'antispam'      => 'shield',
 			'notifications' => 'bell',
@@ -433,6 +436,7 @@ class AdminSettings {
 			'pages'         => 'general',
 			'notifications' => 'general',
 			'emails'        => 'general',
+			'industries'    => 'general',
 			'import'        => 'general',
 			'antispam'      => 'general',
 			'integrations'  => 'general',
@@ -1149,6 +1153,369 @@ class AdminSettings {
 			</p>
 
 		</div>
+		<?php
+	}
+
+	/**
+	 * Render the Industries tab — the owner-facing editor for the company
+	 * industry registry.
+	 *
+	 * The list used to be a hardcoded PHP array reachable only through the
+	 * `wcb_industries` filter, so a site owner could not add, rename or retire
+	 * an industry without writing code (Basecamp 10254034153). State and
+	 * persistence both live behind `/wcb/v1/admin/industries`; this method only
+	 * paints the shell and lets the script fill it, so counts are always read
+	 * live rather than baked into the page.
+	 *
+	 * @since  1.7.1
+	 * @return void
+	 */
+	public function render_industries_tab(): void {
+		?>
+		<div class="wcb-settings-card" id="wcb-industries-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Industries', 'wp-career-board' ); ?></h2>
+			</div>
+			<div class="wcb-settings-row" style="display: block;">
+				<p class="description" style="margin: 0 0 12px;">
+					<?php esc_html_e( 'Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time — renaming never touches stored data. Removing an industry asks what should happen to the companies still using it.', 'wp-career-board' ); ?>
+				</p>
+
+				<div id="wcb-industries-list" class="wcb-ind-list" aria-live="polite">
+					<p class="description"><?php esc_html_e( 'Loading industries…', 'wp-career-board' ); ?></p>
+				</div>
+
+				<div id="wcb-industries-orphans" class="wcb-ind-orphans" hidden>
+					<h3 class="wcb-ind-subtitle"><?php esc_html_e( 'Not in your list', 'wp-career-board' ); ?></h3>
+					<p class="description" style="margin: 0 0 8px;">
+						<?php esc_html_e( 'These values are stored on companies but are not industries you offer — usually left behind by an import. Add one to your list to keep it, or settle it like any other removal.', 'wp-career-board' ); ?>
+					</p>
+					<div id="wcb-industries-orphan-list"></div>
+				</div>
+
+				<div class="wcb-ind-add">
+					<label class="wcb-ind-add__field">
+						<span class="wcb-ind-add__label"><?php esc_html_e( 'New industry', 'wp-career-board' ); ?></span>
+						<input type="text" id="wcb-industry-new-label" class="regular-text" placeholder="<?php esc_attr_e( 'Aerospace & Defence', 'wp-career-board' ); ?>" />
+					</label>
+					<button type="button" id="wcb-industry-add" class="wcb-btn wcb-btn--secondary">
+						<?php esc_html_e( 'Add industry', 'wp-career-board' ); ?>
+					</button>
+				</div>
+
+				<p class="wcb-ind-actions">
+					<button type="button" id="wcb-industries-save" class="wcb-btn wcb-btn--primary">
+						<?php esc_html_e( 'Save Industries', 'wp-career-board' ); ?>
+					</button>
+					<span id="wcb-industries-status" class="description"></span>
+				</p>
+			</div>
+		</div>
+
+		<style>
+			.wcb-ind-list { display: flex; flex-direction: column; gap: var( --wcb-space-xs, 8px ); }
+			.wcb-ind-row {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: var( --wcb-space-sm, 12px );
+				padding: var( --wcb-space-xs, 8px );
+				border: 1px solid var( --wcb-border, #e2e8f0 );
+				border-radius: var( --wcb-radius-sm, 6px );
+				background: var( --wcb-base, #fff );
+			}
+			.wcb-ind-row__label { flex: 1 1 auto; min-width: 0; }
+			.wcb-ind-row__label input { width: 100%; min-height: 40px; }
+			.wcb-ind-row__slug {
+				flex: 0 0 9rem;
+				/* Plain monospace, not an admin <code> chip — at a fixed column
+					width the chip background stretched into a wide grey bar. */
+				background: none;
+				padding: 0;
+				font-family: monospace;
+				font-size: 0.85em;
+				color: var( --wcb-text-muted, #6b7280 );
+				word-break: break-all;
+				text-align: end;
+			}
+			.wcb-ind-row__count {
+				flex: 0 0 7rem;
+				color: var( --wcb-text-secondary, #475569 );
+				font-size: 0.85em;
+				text-align: end;
+			}
+			.wcb-ind-row__remove { flex: 0 0 auto; min-height: 40px; min-width: 40px; }
+			.wcb-ind-row.is-removing { border-color: var( --wcb-danger, #dc2626 ); }
+			.wcb-ind-settle {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: var( --wcb-space-xs, 8px );
+				width: 100%;
+				padding-block-start: var( --wcb-space-xs, 8px );
+			}
+			.wcb-ind-settle select { min-height: 40px; }
+			.wcb-ind-add {
+				display: flex;
+				align-items: flex-end;
+				gap: var( --wcb-space-sm, 12px );
+				margin-block-start: var( --wcb-space-md, 16px );
+			}
+			.wcb-ind-add__field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; }
+			.wcb-ind-add__label { font-size: 0.85em; color: var( --wcb-text-secondary, #475569 ); }
+			.wcb-ind-add input { min-height: 40px; width: 100%; }
+			.wcb-ind-add .wcb-btn, .wcb-ind-actions .wcb-btn { min-height: 40px; }
+			.wcb-ind-actions { margin-block-start: var( --wcb-space-md, 16px ); }
+			.wcb-ind-actions .description { margin-inline-start: var( --wcb-space-sm, 12px ); }
+			.wcb-ind-orphans { margin-block-start: var( --wcb-space-md, 16px ); }
+			.wcb-ind-subtitle { font-size: 1em; margin: 0 0 4px; }
+			@media ( max-width: 640px ) {
+				.wcb-ind-row, .wcb-ind-add { flex-wrap: wrap; align-items: stretch; }
+				.wcb-ind-row__slug, .wcb-ind-row__count { flex: 1 0 100%; }
+			}
+		</style>
+
+		<script>
+		// `wcbAdmin` is localized onto the footer-loaded wcb-admin handle, so this
+		// inline block runs before it exists. Wait for the parser to finish.
+		document.addEventListener( 'DOMContentLoaded', function () {
+			var root = document.getElementById( 'wcb-industries-card' );
+			if ( ! root || 'undefined' === typeof wcbAdmin ) { return; }
+
+			var listEl    = document.getElementById( 'wcb-industries-list' );
+			var orphanBox = document.getElementById( 'wcb-industries-orphans' );
+			var orphanEl  = document.getElementById( 'wcb-industries-orphan-list' );
+			var statusEl  = document.getElementById( 'wcb-industries-status' );
+			var saveBtn   = document.getElementById( 'wcb-industries-save' );
+			var addBtn    = document.getElementById( 'wcb-industry-add' );
+			var newLabel  = document.getElementById( 'wcb-industry-new-label' );
+
+			var i18n = {
+				used:        <?php /* translators: %d: number of companies using this industry. */ echo wp_json_encode( __( '%d companies', 'wp-career-board' ) ); ?>,
+				usedOne:     <?php echo wp_json_encode( __( '1 company', 'wp-career-board' ) ); ?>,
+				unused:      <?php echo wp_json_encode( __( 'not in use', 'wp-career-board' ) ); ?>,
+				remove:      <?php echo wp_json_encode( __( 'Remove', 'wp-career-board' ) ); ?>,
+				removeAria:  <?php /* translators: %s: industry name. */ echo wp_json_encode( __( 'Remove %s', 'wp-career-board' ) ); ?>,
+				keep:        <?php echo wp_json_encode( __( 'Keep', 'wp-career-board' ) ); ?>,
+				settle:      <?php echo wp_json_encode( __( 'Move those companies to:', 'wp-career-board' ) ); ?>,
+				clear:       <?php echo wp_json_encode( __( 'Clear the industry', 'wp-career-board' ) ); ?>,
+				pendingKeep: <?php echo wp_json_encode( __( 'Will be removed on save.', 'wp-career-board' ) ); ?>,
+				addFirst:    <?php echo wp_json_encode( __( 'Enter a name first.', 'wp-career-board' ) ); ?>,
+				duplicate:   <?php echo wp_json_encode( __( 'That industry already exists.', 'wp-career-board' ) ); ?>,
+				saving:      <?php echo wp_json_encode( __( 'Saving…', 'wp-career-board' ) ); ?>,
+				saved:       <?php echo wp_json_encode( __( 'Industries saved.', 'wp-career-board' ) ); ?>,
+				savedMoved:  <?php /* translators: %d: number of companies moved to another industry. */ echo wp_json_encode( __( 'Industries saved. %d companies updated.', 'wp-career-board' ) ); ?>,
+				error:       <?php echo wp_json_encode( __( 'Could not save industries. Please try again.', 'wp-career-board' ) ); ?>,
+				loadError:   <?php echo wp_json_encode( __( 'Could not load industries.', 'wp-career-board' ) ); ?>,
+				emptyList:   <?php echo wp_json_encode( __( 'Keep at least one industry.', 'wp-career-board' ) ); ?>
+			};
+
+			var rows     = [];
+			var orphans  = [];
+			var removals = {};
+
+			function toast( message, type ) {
+				if ( 'function' === typeof window.wcbToast ) { window.wcbToast( message, type || 'info' ); }
+			}
+
+			function api( path, options ) {
+				var opts = options || {};
+				opts.headers = { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' };
+				return fetch( wcbAdmin.restUrl + path, opts ).then( function ( r ) {
+					return r.json().then( function ( body ) {
+						if ( ! r.ok ) { throw body; }
+						return body;
+					} );
+				} );
+			}
+
+			function slugify( value ) {
+				return String( value ).toLowerCase().trim()
+					.replace( /[^a-z0-9]+/g, '-' )
+					.replace( /^-+|-+$/g, '' );
+			}
+
+			function countText( count ) {
+				if ( ! count ) { return i18n.unused; }
+				if ( 1 === count ) { return i18n.usedOne; }
+				return i18n.used.replace( '%d', String( count ) );
+			}
+
+			function targetOptions( exceptSlug ) {
+				return rows.filter( function ( row ) {
+					return row.slug !== exceptSlug && ! removals[ row.slug ];
+				} );
+			}
+
+			function el( tag, className, text ) {
+				var node = document.createElement( tag );
+				if ( className ) { node.className = className; }
+				if ( undefined !== text ) { node.textContent = text; }
+				return node;
+			}
+
+			function renderSettle( row, container ) {
+				var settle = el( 'div', 'wcb-ind-settle' );
+				var choice = document.createElement( 'select' );
+				choice.className = 'regular-text';
+				choice.setAttribute( 'aria-label', i18n.settle );
+
+				targetOptions( row.slug ).forEach( function ( option ) {
+					var opt = document.createElement( 'option' );
+					opt.value = option.slug;
+					opt.textContent = option.label;
+					choice.appendChild( opt );
+				} );
+				var clearOpt = document.createElement( 'option' );
+				clearOpt.value = '';
+				clearOpt.textContent = i18n.clear;
+				choice.appendChild( clearOpt );
+
+				choice.value = removals[ row.slug ].target;
+				choice.addEventListener( 'change', function () {
+					removals[ row.slug ].target = choice.value;
+					removals[ row.slug ].action = choice.value ? 'reassign' : 'clear';
+				} );
+
+				var keep = el( 'button', 'wcb-btn wcb-btn--ghost', i18n.keep );
+				keep.type = 'button';
+				keep.addEventListener( 'click', function () {
+					delete removals[ row.slug ];
+					render();
+				} );
+
+				settle.appendChild( el( 'span', 'description', i18n.settle ) );
+				settle.appendChild( choice );
+				settle.appendChild( keep );
+				container.appendChild( settle );
+			}
+
+			function renderRow( row, isOrphan ) {
+				var pending = !! removals[ row.slug ];
+				var node    = el( 'div', 'wcb-ind-row' + ( pending ? ' is-removing' : '' ) );
+
+				var labelWrap = el( 'div', 'wcb-ind-row__label' );
+				if ( isOrphan || pending ) {
+					labelWrap.appendChild( el( 'strong', '', row.label ) );
+				} else {
+					var input = document.createElement( 'input' );
+					input.type = 'text';
+					input.className = 'regular-text';
+					input.value = row.label;
+					input.setAttribute( 'aria-label', row.label );
+					input.addEventListener( 'input', function () { row.label = input.value; } );
+					labelWrap.appendChild( input );
+				}
+				node.appendChild( labelWrap );
+				node.appendChild( el( 'code', 'wcb-ind-row__slug', row.slug ) );
+				node.appendChild( el( 'span', 'wcb-ind-row__count', countText( row.count ) ) );
+
+				if ( pending ) {
+					node.appendChild( el( 'span', 'description', i18n.pendingKeep ) );
+				} else {
+					var remove = el( 'button', 'wcb-btn wcb-btn--ghost wcb-ind-row__remove', i18n.remove );
+					remove.type = 'button';
+					remove.setAttribute( 'aria-label', i18n.removeAria.replace( '%s', row.label ) );
+					remove.addEventListener( 'click', function () {
+						if ( ! row.count ) {
+							// Nothing stored against it — drop it outright.
+							rows = rows.filter( function ( r ) { return r.slug !== row.slug; } );
+							orphans = orphans.filter( function ( r ) { return r.slug !== row.slug; } );
+							render();
+							return;
+						}
+						var fallback = targetOptions( row.slug )[ 0 ];
+						removals[ row.slug ] = {
+							action: fallback ? 'reassign' : 'clear',
+							target: fallback ? fallback.slug : ''
+						};
+						render();
+					} );
+					node.appendChild( remove );
+				}
+
+				if ( pending ) { renderSettle( row, node ); }
+				return node;
+			}
+
+			function render() {
+				listEl.textContent = '';
+				rows.forEach( function ( row ) { listEl.appendChild( renderRow( row, false ) ); } );
+
+				orphanEl.textContent = '';
+				var live = orphans.filter( function ( row ) {
+					return ! rows.some( function ( r ) { return r.slug === row.slug; } );
+				} );
+				live.forEach( function ( row ) { orphanEl.appendChild( renderRow( row, true ) ); } );
+				orphanBox.hidden = 0 === live.length;
+			}
+
+			addBtn.addEventListener( 'click', function () {
+				var label = newLabel.value.trim();
+				if ( ! label ) { toast( i18n.addFirst, 'error' ); newLabel.focus(); return; }
+				var slug = slugify( label );
+				if ( ! slug || rows.some( function ( r ) { return r.slug === slug; } ) ) {
+					toast( i18n.duplicate, 'error' );
+					return;
+				}
+				rows.push( { slug: slug, label: label, count: 0 } );
+				delete removals[ slug ];
+				newLabel.value = '';
+				render();
+				newLabel.focus();
+			} );
+
+			newLabel.addEventListener( 'keydown', function ( event ) {
+				if ( 'Enter' === event.key ) { event.preventDefault(); addBtn.click(); }
+			} );
+
+			saveBtn.addEventListener( 'click', function () {
+				var keep = rows.filter( function ( row ) { return ! removals[ row.slug ]; } );
+				if ( ! keep.length ) { toast( i18n.emptyList, 'error' ); return; }
+
+				var payload = {
+					industries: keep.map( function ( row ) {
+						return { slug: row.slug, label: row.label };
+					} ),
+					removals: Object.keys( removals ).map( function ( slug ) {
+						return {
+							slug: slug,
+							action: removals[ slug ].action,
+							target: removals[ slug ].target
+						};
+					} )
+				};
+
+				saveBtn.disabled = true;
+				statusEl.textContent = i18n.saving;
+
+				api( '/admin/industries', { method: 'POST', body: JSON.stringify( payload ) } )
+					.then( function ( data ) {
+						rows     = data.industries || [];
+						orphans  = data.orphans || [];
+						removals = {};
+						render();
+						statusEl.textContent = '';
+						toast( data.moved ? i18n.savedMoved.replace( '%d', String( data.moved ) ) : i18n.saved, 'success' );
+					} )
+					.catch( function ( body ) {
+						statusEl.textContent = '';
+						toast( ( body && body.message ) || i18n.error, 'error' );
+					} )
+					.then( function () { saveBtn.disabled = false; } );
+			} );
+
+			api( '/admin/industries', { method: 'GET' } )
+				.then( function ( data ) {
+					rows    = data.industries || [];
+					orphans = data.orphans || [];
+					render();
+				} )
+				.catch( function () {
+					listEl.textContent = i18n.loadError;
+				} );
+		} );
+		</script>
 		<?php
 	}
 }

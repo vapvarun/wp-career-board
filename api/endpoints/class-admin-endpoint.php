@@ -6,6 +6,8 @@
  *   POST /wcb/v1/admin/dismiss-banner  — mark a banner as dismissed for the current user
  *   POST /wcb/v1/admin/emails/test     — fire a test-send for the named email template
  *   GET  /wcb/v1/admin/emails/log      — paginated log query with filter args
+ *   GET  /wcb/v1/admin/industries      — registry + per-slug company counts
+ *   POST /wcb/v1/admin/industries      — save the registry, with removal instructions
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -96,6 +98,53 @@ final class AdminEndpoint extends RestController {
 						'type'              => 'integer',
 						'default'           => 1,
 						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/admin/industries',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_industries' ),
+					'permission_callback' => array( $this, 'admin_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'save_industries' ),
+					'permission_callback' => array( $this, 'admin_check' ),
+					'args'                => array(
+						'industries' => array(
+							'required'    => true,
+							'type'        => 'array',
+							'description' => __( 'Ordered slug/label pairs to persist as the registry.', 'wp-career-board' ),
+							'items'       => array(
+								'type'       => 'object',
+								'properties' => array(
+									'slug'  => array( 'type' => 'string' ),
+									'label' => array( 'type' => 'string' ),
+								),
+							),
+						),
+						'removals'   => array(
+							'type'        => 'array',
+							'default'     => array(),
+							'description' => __( 'What to do with companies still storing a removed slug.', 'wp-career-board' ),
+							'items'       => array(
+								'type'       => 'object',
+								'properties' => array(
+									'slug'   => array( 'type' => 'string' ),
+									'action' => array(
+										'type' => 'string',
+										'enum' => array( 'reassign', 'clear' ),
+									),
+									'target' => array( 'type' => 'string' ),
+								),
+							),
+						),
 					),
 				),
 			)
@@ -310,5 +359,186 @@ final class AdminEndpoint extends RestController {
 		$response = (array) apply_filters( 'wcb_admin_email_log_response', $response, $request );
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * GET /admin/industries — the registry plus how many companies use each slug.
+	 *
+	 * `orphans` carries slugs that are stored on companies but absent from the
+	 * registry: legacy free-text values, or imports from another job board.
+	 * They are surfaced so the owner can clean them up rather than discovering
+	 * them as raw slugs on a company profile.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_industries( \WP_REST_Request $request ): \WP_REST_Response {
+		unset( $request );
+		return rest_ensure_response( $this->industries_payload() );
+	}
+
+	/**
+	 * POST /admin/industries — persist the registry and settle removed slugs.
+	 *
+	 * A slug dropped from the list while companies still store it is refused
+	 * with `wcb_industry_in_use` unless the request says what to do with those
+	 * companies. That keeps the "reassign or clear" decision on the server, so
+	 * the data can never be orphaned by a client that skipped the prompt.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function save_industries( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$submitted = (array) $request->get_param( 'industries' );
+		$map       = array();
+		foreach ( $submitted as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$slug  = sanitize_key( (string) ( $row['slug'] ?? '' ) );
+			$label = sanitize_text_field( (string) ( $row['label'] ?? '' ) );
+			if ( '' === $slug || '' === $label ) {
+				continue;
+			}
+			$map[ $slug ] = $label;
+		}
+
+		if ( array() === $map ) {
+			return new \WP_Error(
+				'wcb_industries_empty',
+				__( 'Keep at least one industry — company forms need something to offer.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Removal instructions, keyed by the slug they settle.
+		$instructions = array();
+		foreach ( (array) $request->get_param( 'removals' ) as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$slug = sanitize_key( (string) ( $row['slug'] ?? '' ) );
+			if ( '' === $slug ) {
+				continue;
+			}
+			$instructions[ $slug ] = array(
+				'action' => 'reassign' === ( $row['action'] ?? '' ) ? 'reassign' : 'clear',
+				'target' => sanitize_key( (string) ( $row['target'] ?? '' ) ),
+			);
+		}
+
+		$counts = \WCB\Core\Industries::usage_counts();
+		$before = \WCB\Core\Industries::registry();
+
+		// Slugs the owner is retiring: in the registry before this save, gone
+		// from it now. Orphans are deliberately NOT in this set — they were
+		// never offered, so they are not "being removed" and must not block an
+		// unrelated save such as a label rename. An orphan is only acted on
+		// when the owner sends an explicit instruction for it.
+		$leaving = array_values( array_diff( array_keys( $before ), array_keys( $map ) ) );
+
+		// An instruction for a slug the owner kept is stale — ignore it.
+		$instructions = array_diff_key( $instructions, $map );
+
+		$settling = array_values( array_unique( array_merge( $leaving, array_keys( $instructions ) ) ) );
+
+		$unsettled = array();
+		foreach ( $leaving as $slug ) {
+			$in_use = (int) ( $counts[ $slug ] ?? 0 );
+			if ( 0 === $in_use ) {
+				continue;
+			}
+			$plan = $instructions[ $slug ] ?? null;
+			if ( null === $plan ) {
+				$unsettled[] = array(
+					'slug'  => $slug,
+					'label' => \WCB\Core\Industries::label( $slug ),
+					'count' => $in_use,
+				);
+				continue;
+			}
+			if ( 'reassign' === $plan['action'] && ! isset( $map[ $plan['target'] ] ) ) {
+				return new \WP_Error(
+					'wcb_industry_bad_target',
+					/* translators: %s: industry slug. */
+					sprintf( __( 'Cannot move companies to "%s" — it is not in the saved list.', 'wp-career-board' ), $plan['target'] ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		if ( array() !== $unsettled ) {
+			return new \WP_Error(
+				'wcb_industry_in_use',
+				__( 'Some industries are still in use. Choose what happens to those companies before saving.', 'wp-career-board' ),
+				array(
+					'status' => 400,
+					'in_use' => $unsettled,
+				)
+			);
+		}
+
+		// Save first: reassignment writes the replacement slug, and the
+		// `_wcb_industry` write guard validates against the saved registry.
+		\WCB\Core\Industries::save( $map );
+
+		$moved = 0;
+		foreach ( $settling as $slug ) {
+			$plan = $instructions[ $slug ] ?? null;
+			if ( null === $plan ) {
+				continue;
+			}
+			$moved += \WCB\Core\Industries::reassign(
+				$slug,
+				'reassign' === $plan['action'] ? $plan['target'] : ''
+			);
+		}
+
+		$payload          = $this->industries_payload();
+		$payload['moved'] = $moved;
+		$payload['saved'] = true;
+
+		return rest_ensure_response( $payload );
+	}
+
+	/**
+	 * Registry + counts + orphaned stored slugs, in one shape.
+	 *
+	 * @since 1.7.1
+	 * @return array<string,mixed>
+	 */
+	private function industries_payload(): array {
+		$counts   = \WCB\Core\Industries::usage_counts();
+		$registry = \WCB\Core\Industries::registry();
+
+		$industries = array();
+		foreach ( $registry as $slug => $label ) {
+			$industries[] = array(
+				'slug'  => $slug,
+				'label' => $label,
+				'count' => (int) ( $counts[ $slug ] ?? 0 ),
+			);
+		}
+
+		$orphans = array();
+		foreach ( $counts as $slug => $total ) {
+			if ( isset( $registry[ $slug ] ) ) {
+				continue;
+			}
+			$orphans[] = array(
+				'slug'  => (string) $slug,
+				'label' => \WCB\Core\Industries::label( (string) $slug ),
+				'count' => (int) $total,
+			);
+		}
+
+		return array(
+			'industries' => $industries,
+			'orphans'    => $orphans,
+		);
 	}
 }

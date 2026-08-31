@@ -185,14 +185,14 @@ foreach ( $wcb_industry_labels as $wcb_slug => $wcb_label ) {
 		unset( $wcb_used_industries[ $wcb_slug ] );
 	}
 }
-foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
-	// Legacy free-text industry values aren't in the canonical registry and
-	// carry no translation, so a __() home is impossible — but painting the
-	// raw machine slug ("fin-tech") as a visible checkbox label is wrong too.
-	// Humanise the stored slug for display; the raw slug still travels to REST
-	// as the filter value via the data-wp-context payload below.
-	$wcb_filter_industries[ $wcb_legacy ] = ucwords( str_replace( array( '-', '_' ), ' ', $wcb_legacy ) );
-}
+// Anything still left in $wcb_used_industries is stored on a company but is
+// no longer in the registry — a legacy free-text value, or one the owner has
+// retired from Settings > Industries. It is deliberately NOT re-added as a
+// filter option: re-adding it made removal impossible to complete, because a
+// retired industry reappeared as a checkbox for as long as one company still
+// stored it (Basecamp 10254034153). The registry is the authority for what
+// the filter offers; Settings > Industries is where a stored value gets
+// reassigned or cleared.
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
 $wcb_state = array(

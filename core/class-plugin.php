@@ -119,6 +119,10 @@ final class Plugin {
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 
+		// Enum guard for `_wcb_industry`, registered where every write path
+		// converges rather than repeated at each of the six call sites.
+		\WCB\Core\Industries::boot();
+
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
 		// deep-link scheme survives esc_url() there, and a WooCommerce-style
