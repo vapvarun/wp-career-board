@@ -554,31 +554,61 @@ if ( $employer_id ) {
 
 WP_CLI::log( '--- Jobs: company link survives an empty _wcb_company_id user meta ---' );
 if ( $employer_id ) {
-	$saved_user_company = get_user_meta( $employer_id, '_wcb_company_id', true );
-	delete_user_meta( $employer_id, '_wcb_company_id' );
-
-	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
-		'title'       => '__wcb_test_orphan_job__',
-		'description' => 'Test job posted with no reciprocal company user meta',
-	), $employer_id );
-	$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
-	wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
-	wcb_assert(
-		(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
-		'new job carries a non-zero _wcb_company_id postmeta'
+	// Precondition. The assertions below prove that resolve_company_id() can
+	// adopt the employer's company from the post author when the reciprocal
+	// user meta is gone. If no wcb_company is authored by this employer there
+	// is nothing to adopt and the test fails for a fixture reason, not a
+	// product one - which is exactly how it was misread once already
+	// (Basecamp 10171955147). Say so instead of asserting into the dark.
+	$authored_company = get_posts(
+		array(
+			'post_type'   => 'wcb_company',
+			'author'      => $employer_id,
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'post_status' => 'any',
+		)
 	);
-	wcb_assert(
-		'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
-		'new job carries a _wcb_company_name postmeta'
-	);
-
-	if ( $orphan_job_id ) {
-		wp_delete_post( $orphan_job_id, true );
-	}
-	if ( $saved_user_company ) {
-		update_user_meta( $employer_id, '_wcb_company_id', $saved_user_company );
+	if ( empty( $authored_company ) ) {
+		WP_CLI::warning(
+			"  SKIP: seed employer {$employer_id} authors no wcb_company - "
+			. 'reseed with bin/seed-qa-fixtures.php before trusting this test.'
+		);
 	} else {
-		delete_user_meta( $employer_id, '_wcb_company_id' );
+		$saved_user_company = get_user_meta( $employer_id, '_wcb_company_id', true );
+		$orphan_job_id      = 0;
+
+		// try/finally so an exception between the delete and the restore cannot
+		// leave the employer permanently unlinked. An aborted run used to poison
+		// the dataset for every later run on that site, and the next run then
+		// failed on its own residue rather than on a real defect.
+		try {
+			delete_user_meta( $employer_id, '_wcb_company_id' );
+
+			$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
+				'title'       => '__wcb_test_orphan_job__',
+				'description' => 'Test job posted with no reciprocal company user meta',
+			), $employer_id );
+			$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+			wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
+			wcb_assert(
+				(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
+				'new job carries a non-zero _wcb_company_id postmeta'
+			);
+			wcb_assert(
+				'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
+				'new job carries a _wcb_company_name postmeta'
+			);
+		} finally {
+			if ( $orphan_job_id ) {
+				wp_delete_post( $orphan_job_id, true );
+			}
+			if ( $saved_user_company ) {
+				update_user_meta( $employer_id, '_wcb_company_id', $saved_user_company );
+			} else {
+				delete_user_meta( $employer_id, '_wcb_company_id' );
+			}
+		}
 	}
 }
 

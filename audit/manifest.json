@@ -24,8 +24,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 211,
-    "hooks_unique": 127,
+    "hooks_fired": 212,
+    "hooks_unique": 128,
     "cron": 5,
     "wp_cli": 5
   },
@@ -3360,6 +3360,17 @@
       "line": 371,
       "since": "1.7.2",
       "description": "Names the $_SERVER key carrying the real client IP. Empty by default (trust REMOTE_ADDR only) because an unvalidated forwarded header is attacker-controlled; set it when a proxy you control always overwrites the header, e.g. HTTP_CF_CONNECTING_IP."
+    },
+    {
+      "name": "wcb_guest_applications_claimed",
+      "type": "action",
+      "args_count": 2,
+      "args_signature": [
+        "int $user_id",
+        "array<int> $claimed"
+      ],
+      "where": "modules/applications/class-applications-module.php:102 (ApplicationsModule, after a new registration adopts its guest applications)",
+      "consumed_by": []
     }
   ],
   "buddypress_integration": {
