@@ -362,28 +362,13 @@ final class CompaniesEndpoint extends RestController {
 			return $where;
 		}
 
-		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
-		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
-
-		if ( $use_fulltext ) {
-			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
-			$bool_term = trim( (string) $bool_term );
-			if ( '' === $bool_term ) {
-				return $where;
-			}
-			$bool_term .= '*';
-			$where     .= $wpdb->prepare(
-				" AND MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE)",
-				$bool_term
-			);
+		$title_clause = \WCB\Core\TitleSearch::title_clause( $search_term );
+		if ( '' === $title_clause ) {
 			return $where;
 		}
 
-		$like   = '%' . $wpdb->esc_like( $search_term ) . '%';
-		$where .= $wpdb->prepare(
-			" AND {$wpdb->posts}.post_title LIKE %s",
-			$like
-		);
+		// $title_clause is already prepared.
+		$where .= " AND {$title_clause}";
 		return $where;
 	}
 
