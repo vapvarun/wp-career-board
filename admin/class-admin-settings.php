@@ -1178,7 +1178,7 @@ class AdminSettings {
 			</div>
 			<div class="wcb-settings-row" style="display: block;">
 				<p class="description" style="margin: 0 0 12px;">
-					<?php esc_html_e( 'Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time — renaming never touches stored data. Removing an industry asks what should happen to the companies still using it.', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time - renaming never touches stored data. Removing an industry asks what should happen to the companies still using it.', 'wp-career-board' ); ?>
 				</p>
 
 				<div id="wcb-industries-list" class="wcb-ind-list" aria-live="polite">
@@ -1188,7 +1188,7 @@ class AdminSettings {
 				<div id="wcb-industries-orphans" class="wcb-ind-orphans" hidden>
 					<h3 class="wcb-ind-subtitle"><?php esc_html_e( 'Not in your list', 'wp-career-board' ); ?></h3>
 					<p class="description" style="margin: 0 0 8px;">
-						<?php esc_html_e( 'These values are stored on companies but are not industries you offer — usually left behind by an import. Add one to your list to keep it, or settle it like any other removal.', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'These values are stored on companies but are not industries you offer - usually left behind by an import. Add one to your list to keep it, or settle it like any other removal.', 'wp-career-board' ); ?>
 					</p>
 					<div id="wcb-industries-orphan-list"></div>
 				</div>

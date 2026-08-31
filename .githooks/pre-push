@@ -13,7 +13,7 @@ set -uo pipefail
     exit 0
 }
 
-cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Run the existing ci-local.sh if present, else composer ci:no-journeys, else fail loudly.
 if [ -x bin/ci-local.sh ]; then

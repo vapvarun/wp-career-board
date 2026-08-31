@@ -230,8 +230,12 @@ function check_rest( array $m, string $corpus ): array {
 	// Pre-extract every $this->rest( ... ) call from the corpus into an
 	// array of [ method, normalized_path ] tuples so we can match each
 	// endpoint in O(N+M) instead of O(N*M).
+	// Accept both call shapes in use across the portfolio: the `$this->rest()`
+	// method on journey/scenario classes, and the bare `wcb_rest()` helper the
+	// wp eval-file suites use. Matching only the former reported 0% REST
+	// coverage on a plugin with 59 live REST assertions (Basecamp 10171650634).
 	preg_match_all(
-		'/\$this->rest\s*\(\s*[\'"]([A-Z]+)[\'"]\s*,\s*[\'"]([^\'"]+)[\'"]/',
+		'/(?:\$this->rest|\bwcb_rest)\s*\(\s*[\'"]([A-Z]+)[\'"]\s*,\s*[\'"]([^\'"]+)[\'"]/',
 		$corpus,
 		$test_calls,
 		PREG_SET_ORDER
@@ -267,7 +271,12 @@ function check_rest( array $m, string $corpus ): array {
 
 	foreach ( $endpoints as $ep ) {
 		$route   = $ep['route'] ?? '';
-		$methods = $ep['methods'] ?? array();
+		// Manifest schema drifted between the two plugins: Free records
+		// `"methods": ["GET"]`, Pro records `"method": "POST"`. Reading only
+		// the plural key left Pro's denominator at 0, which the report then
+		// rendered as `rest 0/0 (100%)` — a green light over 35 untested
+		// routes (Basecamp 10171650634). Accept either shape.
+		$methods = $ep['methods'] ?? ( isset( $ep['method'] ) ? (array) $ep['method'] : array() );
 		foreach ( (array) $methods as $method ) {
 			$is_covered = endpoint_covered( $route, $method, $test_index );
 			$record     = array(

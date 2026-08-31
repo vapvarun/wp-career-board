@@ -410,7 +410,7 @@ final class AdminEndpoint extends RestController {
 		if ( array() === $map ) {
 			return new \WP_Error(
 				'wcb_industries_empty',
-				__( 'Keep at least one industry — company forms need something to offer.', 'wp-career-board' ),
+				__( 'Keep at least one industry - company forms need something to offer.', 'wp-career-board' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -465,7 +465,7 @@ final class AdminEndpoint extends RestController {
 				return new \WP_Error(
 					'wcb_industry_bad_target',
 					/* translators: %s: industry slug. */
-					sprintf( __( 'Cannot move companies to "%s" — it is not in the saved list.', 'wp-career-board' ), $plan['target'] ),
+					sprintf( __( 'Cannot move companies to "%s" - it is not in the saved list.', 'wp-career-board' ), $plan['target'] ),
 					array( 'status' => 400 )
 				);
 			}
