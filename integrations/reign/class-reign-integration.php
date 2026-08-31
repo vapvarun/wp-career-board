@@ -32,7 +32,11 @@ class ReignIntegration {
 		add_filter( 'archive_template', array( $this, 'archive_template' ) );
 		add_action( 'customize_register', array( $this, 'customizer_section' ) );
 		add_filter( 'reign_nav_items', array( $this, 'add_nav_items' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		\WCB\Core\ThemeCompat::register(
+			'wcb-reign-compat',
+			WCB_URL . 'integrations/reign/assets/reign-compat.css',
+			array( 'reign_main_style' )
+		);
 	}
 
 	/**
@@ -150,30 +154,5 @@ class ReignIntegration {
 		}
 
 		return $items;
-	}
-
-	/**
-	 * Enqueue Reign-compatible stylesheet on WCB job pages.
-	 */
-	public function enqueue_styles(): void {
-		$wcb_is_tax    = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
-		$wcb_cpts      = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
-		$wcb_has_block = false;
-		if ( is_singular() ) {
-			global $post;
-			if ( $post instanceof \WP_Post ) {
-				$wcb_has_block = str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
-					|| str_contains( $post->post_content, '<!-- wp:wcb/' );
-			}
-		}
-		if ( ! is_singular( $wcb_cpts ) && ! is_post_type_archive( $wcb_cpts ) && ! $wcb_is_tax && ! $wcb_has_block ) {
-			return;
-		}
-		wp_enqueue_style(
-			'wcb-reign-compat',
-			WCB_URL . 'integrations/reign/assets/reign-compat.css',
-			array( 'reign_main_style' ),
-			WCB_VERSION
-		);
 	}
 }
