@@ -750,7 +750,7 @@ class AdminSettings {
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 6px;">
 						<input type="hidden" name="action" value="wcb_create_pages">
 			<?php wp_nonce_field( 'wcb_create_pages' ); ?>
-			<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary', 'submit', false ); ?>
+			<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 					</form>
 				</div>
 		<?php endif; ?>
@@ -981,7 +981,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1061,7 +1061,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1100,7 +1100,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>

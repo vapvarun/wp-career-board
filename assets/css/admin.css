@@ -183,6 +183,25 @@
 	margin-bottom: 20px;
 }
 
+/* ── Third-party admin notices (ux-foundation Rule 16) ───────────────────────
+ * A site owner on a Career Board screen should not be reading an SEO plugin's
+ * upsell or a cache plugin's nag. Scoped to our own wrapper so it can only
+ * ever affect WCB pages, and `.wcb-notice` is exempt so the plugin's own
+ * success / error messages still show. Basecamp: [UX] Suppress third-party
+ * notices on all WCB admin pages.
+ */
+.wcb-admin > .notice:not( .wcb-notice ),
+.wcb-admin > .notice-error:not( .wcb-notice ),
+.wcb-admin > .notice-warning:not( .wcb-notice ),
+.wcb-admin > .notice-info:not( .wcb-notice ),
+.wcb-admin > .notice-success:not( .wcb-notice ),
+.wcb-admin > .update-nag,
+.wcb-admin > .updated:not( .wcb-notice ),
+.wcb-admin > .error:not( .wcb-notice ) {
+	display: none;
+}
+
+
 @media (max-width: 1100px) {
 	.wcb-dashboard-columns {
 		grid-template-columns: minmax(0, 1fr);
