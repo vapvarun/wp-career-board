@@ -5,7 +5,7 @@
         "version": "1.7.0"
     },
     "generated": {
-        "at": "2026-08-31T19:08:10+00:00",
+        "at": "2026-08-31T19:15:51+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -315,7 +315,7 @@
             "total": 86,
             "covered": 0,
             "uncovered": 86,
-            "skipped": 111,
+            "skipped": 112,
             "covered_items": [],
             "uncovered_items": [
                 {
@@ -811,12 +811,12 @@
         "items_total": 159,
         "items_covered": 35,
         "items_uncovered": 124,
-        "items_skipped": 111,
+        "items_skipped": 112,
         "coverage_percent": 22
     },
     "drift": {
-        "previous_uncovered": 159,
+        "previous_uncovered": 124,
         "current_uncovered": 124,
-        "delta": -35
+        "delta": 0
     }
 }
