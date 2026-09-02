@@ -796,7 +796,12 @@ final class Install {
 				}
 
 				if ( ! isset( $company_memo[ $company_id ] ) ) {
-					$company_memo[ $company_id ] = get_the_title( $company_id );
+					// Raw post_title — see the note in AdminMetaBoxes::save_job_meta.
+					// This backfill rewrites the meta for EVERY job on the site, so
+					// using get_the_title() here corrupted names that were already
+					// correct, on upgrade, for any company with & < > or quotes.
+					$wcb_company_post            = get_post( $company_id );
+					$company_memo[ $company_id ] = $wcb_company_post ? $wcb_company_post->post_title : '';
 				}
 
 				update_post_meta( (int) $job_id, '_wcb_company_id', $company_id );

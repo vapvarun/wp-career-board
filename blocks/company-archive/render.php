@@ -27,7 +27,7 @@ $wcb_layout     = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $
 // same msgids (that class's docblock forbids the duplication) and let the SSR
 // chip drift from the label the client re-fetch paints. Resolve every slug
 // through the shared serializer instead.
-$wcb_size_keys = array( '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5000+' );
+$wcb_size_keys = \WCB\Core\CompanyMetaShape::size_keys();
 
 // ── Fetch first page of companies ────────────────────────────────────────────
 // WP_Query (not get_posts) so found_posts is available for the hasMore seed.

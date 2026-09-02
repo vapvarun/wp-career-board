@@ -656,7 +656,13 @@ class AdminMetaBoxes {
 			$author_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
 			if ( $author_company_id > 0 ) {
 				update_post_meta( $post_id, '_wcb_company_id', $author_company_id );
-				update_post_meta( $post_id, '_wcb_company_name', get_the_title( $author_company_id ) );
+				// Raw post_title, never get_the_title(): the latter runs the `the_title`
+				// filters, and core's convert_chars() turns "&" into the entity
+				// "&#038;". This meta is a denormalised copy of the title that the job
+				// card echoes as text, so a stored entity renders literally — a company
+				// called "Marks & Spencer" showed as "Marks &#038; Spencer".
+				$wcb_author_company = get_post( $author_company_id );
+				update_post_meta( $post_id, '_wcb_company_name', $wcb_author_company ? $wcb_author_company->post_title : '' );
 			}
 		}
 
@@ -695,7 +701,7 @@ class AdminMetaBoxes {
 			return;
 		}
 
-		$allowed_sizes = array( '', '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001+' );
+		$allowed_sizes = array_merge( array( '' ), \WCB\Core\CompanyMetaShape::size_keys() );
 		$allowed_types = array( '', 'public', 'private', 'self-employed', 'nonprofit', 'government', 'educational', 'partnership' );
 		$allowed_trust = array( '', 'verified', 'trusted', 'premium' );
 

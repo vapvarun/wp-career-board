@@ -97,6 +97,26 @@ final class CompanyMetaShape {
 	 * @param string $size Raw size bucket (e.g. '51-200').
 	 * @return string
 	 */
+	/**
+	 * Canonical company-size slugs, in display order.
+	 *
+	 * The labels already had a single home (size_label below); the SLUGS did not,
+	 * and the two copies drifted: the admin meta box wrote `5001+` while the
+	 * company-archive filter offered `5000+`, so the largest size filter matched
+	 * nothing on any site (Basecamp 10074197007 item 2, resurfacing in the filter
+	 * after the display half was fixed). Both consumers now read this list.
+	 *
+	 * Legacy note: `5000+` is intentionally NOT here. Nothing has written it since
+	 * the allowlist settled on `5001+`; rows that still carry it keep rendering
+	 * correctly because size_label() retains the key.
+	 *
+	 * @since 1.7.1
+	 * @return array<int,string>
+	 */
+	public static function size_keys(): array {
+		return array( '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001+' );
+	}
+
 	public static function size_label( string $size ): string {
 		$labels = array(
 			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
