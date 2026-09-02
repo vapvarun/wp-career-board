@@ -202,6 +202,62 @@
 }
 
 
+/* ── License tab: EDD SL SDK controls ────────────────────────────────────────
+ * The SDK renders its own input and button and we do not own that markup, so
+ * the card/row chrome around it was already ours while the controls inside
+ * stayed raw WP — a plain `button button-secondary` and an unstyled password
+ * field sitting in a WCB settings card. Scoped to the License section so it
+ * cannot reach any other SDK output. Matches .wcb-btn / .wcb-input in
+ * assets/css/admin/shared.css. Basecamp: [UX] License tab: Restyle EDD SDK
+ * output to match design system.
+ */
+#section-license .edd-sl-sdk__license--input {
+	min-height: 40px;
+	padding: 0 12px;
+	font-size: 13px;
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius-md, 8px );
+	background: var( --wcb-base, #ffffff );
+	color: var( --wcb-contrast, #1e293b );
+	flex: 1 1 16rem;
+	min-width: 0;
+}
+
+#section-license .edd-sl-sdk__license--input:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+	border-color: var( --wcb-primary, #2563eb );
+}
+
+#section-license .edd-sl-sdk__action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 0 14px;
+	font-size: 13px;
+	font-weight: 500;
+	border-radius: var( --wcb-radius-md, 8px );
+	border: 1px solid var( --wcb-primary, #2563eb );
+	background: var( --wcb-primary, #2563eb );
+	color: #fff;
+	cursor: pointer;
+	text-decoration: none;
+	transition: all 0.12s ease;
+}
+
+#section-license .edd-sl-sdk__action:hover {
+	background: var( --wcb-primary-dark, #1d4ed8 );
+	color: #fff;
+}
+
+#section-license .edd-sl-sdk__action:focus-visible {
+	outline: 2px solid var( --wcb-primary, #2563eb );
+	outline-offset: 2px;
+}
+
+
 @media (max-width: 1100px) {
 	.wcb-dashboard-columns {
 		grid-template-columns: minmax(0, 1fr);
