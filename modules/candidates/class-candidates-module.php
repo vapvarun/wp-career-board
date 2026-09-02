@@ -100,6 +100,14 @@ final class CandidatesModule {
 					'edit_item'          => __( 'Edit Resume', 'wp-career-board' ),
 					'not_found'          => __( 'No resumes found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No resumes found in Trash.', 'wp-career-board' ),
+					// Without these WP falls back to the generic post labels and the
+					// list table's search button reads "Search Posts" on a screen
+					// that only ever contains resumes.
+					'search_items'       => __( 'Search Resumes', 'wp-career-board' ),
+					'all_items'          => __( 'All Resumes', 'wp-career-board' ),
+					'view_item'          => __( 'View Resume', 'wp-career-board' ),
+					'new_item'           => __( 'New Resume', 'wp-career-board' ),
+					'add_new'            => __( 'Add New Resume', 'wp-career-board' ),
 				),
 				'public'             => true,
 				'publicly_queryable' => true,
