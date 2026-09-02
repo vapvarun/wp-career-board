@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/featured-jobs — static server-rendered featured job grid.
+ * Block render: wp-career-board/featured-jobs — static server-rendered featured job grid.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

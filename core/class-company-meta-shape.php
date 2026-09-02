@@ -105,7 +105,15 @@ final class CompanyMetaShape {
 			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
 			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
 			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
+			// `5001+` is the ONLY top bucket the admin meta box writes
+			// (admin/class-admin-meta-boxes.php $allowed_sizes). Its absence here
+			// meant job-single, the company archive and every REST payload
+			// printed the raw slug "5001+" to visitors, while a local copy in
+			// blocks/company-profile/render.php had already been patched — the
+			// exact hazard of keeping two maps (Basecamp 10074197007, items 2+3).
+			// `5000+` stays for rows written by older releases.
 			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 		return $labels[ $size ] ?? $size;
 	}

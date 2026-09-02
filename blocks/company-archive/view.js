@@ -9,7 +9,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getElement, getContext } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
 // Module-scoped debounce timer for the search input. Declared before the

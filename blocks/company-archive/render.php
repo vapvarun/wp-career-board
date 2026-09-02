@@ -195,6 +195,16 @@ foreach ( $wcb_industry_labels as $wcb_slug => $wcb_label ) {
 // reassigned or cleared.
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
+// Resolved once, used twice: seeded into Interactivity state below AND painted
+// as the toolbar's pre-hydration fallback. The toolbar declares
+// `results_ssr_html` and this block never passed it, so the results line was
+// blank until view.js hydrated (Basecamp 10074197007, item 6).
+$wcb_ca_results_label = sprintf(
+	/* translators: %s: number of companies found, already localised. */
+	_n( '%s company found', '%s companies found', $wcb_companies_total, 'wp-career-board' ),
+	number_format_i18n( $wcb_companies_total )
+);
+
 $wcb_state = array(
 	'companies'    => $wcb_companies_state,
 	'page'         => 1,
@@ -226,11 +236,7 @@ $wcb_state = array(
 	 * likewise _n()-resolved server-side — after every filter / search / sort /
 	 * load-more round trip. No plural resolution happens in JS.
 	 */
-	'resultsLabel' => sprintf(
-		/* translators: %s: number of companies found, already localised. */
-		_n( '%s company found', '%s companies found', $wcb_companies_total, 'wp-career-board' ),
-		number_format_i18n( $wcb_companies_total )
-	),
+	'resultsLabel' => $wcb_ca_results_label,
 	/*
 	 * No `i18n` bag: view.js renders no strings of its own. Every user-facing
 	 * string in this block is either painted by this template (already run
@@ -267,6 +273,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			'date_desc' => __( 'Newest first', 'wp-career-board' ),
 			'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
 		),
+		'results_ssr_html'     => esc_html( $wcb_ca_results_label ),
 		'switcher_aria_label'  => __( 'View layout', 'wp-career-board' ),
 		'switcher_list_label'  => __( 'List view', 'wp-career-board' ),
 		'switcher_grid_label'  => __( 'Grid view', 'wp-career-board' ),
@@ -437,6 +444,10 @@ $wcb_empty = array(
 	'clear_action'      => 'actions.clearFilters',
 	'clear_hidden_bind' => 'callbacks.noActiveFilters',
 	'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+	// Without this the "no companies match" panel is in the SSR markup with no
+	// `hidden` attribute, so it paints for one frame on a page that DOES have
+	// companies, until Interactivity binds `wp_bind_hidden`.
+	'ssr_hidden'        => ! empty( $wcb_companies_state ),
 );
 require WCB_DIR . 'templates/parts/archive-empty-state.php';
 ?>
