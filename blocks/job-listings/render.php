@@ -223,7 +223,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 			human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() )
 		),
 		'bookmarked'     => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
-		'excerpt'        => wp_trim_words( (string) preg_replace( '/[*_#`]+/', '', wp_strip_all_tags( $wcb_job_post->post_content ) ), 25, '…' ),
+		'excerpt'        => \WCB\Core\Text::excerpt( (string) preg_replace( '/[*_#`]+/', '', $wcb_job_post->post_content ), 25, '…' ),
 	);
 
 	/**

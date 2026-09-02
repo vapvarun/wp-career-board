@@ -1576,7 +1576,7 @@ final class JobsEndpoint extends RestController {
 			'id'                 => $post->ID,
 			'title'              => $post->post_title,
 			'description'        => $post->post_content,
-			'excerpt'            => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
+			'excerpt'            => \WCB\Core\Text::excerpt( $post->post_content, 25, '…' ),
 			// Map internal wcb_closed → public 'closed' so the dashboard JS
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).

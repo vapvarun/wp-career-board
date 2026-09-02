@@ -36,6 +36,32 @@
 	padding: 0;
 }
 
+/* …except inside user-authored content. The reset above exists for the
+ * plugin's OWN lists — filter panels, chips, nav, card meta — but it also
+ * reached the job and company descriptions, which are rendered from
+ * post_content. A job description is mostly bullet lists ("What you will do",
+ * "Requirements"), and every one of them rendered as flat, unindented lines
+ * with no marker. Restore normal list rendering wherever we paint what a
+ * human wrote. */
+.wcb-job-description ul,
+.wcb-cp-desc ul {
+	list-style: disc;
+	padding-inline-start: var( --wcb-space-2xl, 24px );
+	margin-block: var( --wcb-space-md, 12px );
+}
+
+.wcb-job-description ol,
+.wcb-cp-desc ol {
+	list-style: decimal;
+	padding-inline-start: var( --wcb-space-2xl, 24px );
+	margin-block: var( --wcb-space-md, 12px );
+}
+
+.wcb-job-description li,
+.wcb-cp-desc li {
+	margin-block-end: var( --wcb-space-xs, 4px );
+}
+
 /*
  * Theme isolation: strip the theme's anchor underline from .wcb-btn states.
  * Do NOT reset `color` here — it would inherit the wrapper's --wcb-contrast

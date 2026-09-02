@@ -133,7 +133,7 @@ class SeoModule {
 
 		echo '<meta property="og:type" content="article" />' . "\n";
 		echo '<meta property="og:title" content="' . esc_attr( get_the_title( $job ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<meta property="og:description" content="' . esc_attr( wp_trim_words( wp_strip_all_tags( $job->post_content ), 30 ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<meta property="og:description" content="' . esc_attr( \WCB\Core\Text::excerpt( $job->post_content, 30 ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<meta property="og:url" content="' . esc_url( get_permalink( $job ) ) . '" />' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 

@@ -101,7 +101,7 @@ $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 // the sidebar card never shows an empty space when an employer skipped the
 // long-form description.
 $wcb_company_desc     = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
-	? wp_trim_words( $wcb_company_post->post_content, 40 )
+	? \WCB\Core\Text::excerpt( $wcb_company_post->post_content, 40 )
 	: $wcb_company_tagline;
 $wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
 $wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
