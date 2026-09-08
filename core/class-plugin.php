@@ -1167,7 +1167,19 @@ final class Plugin {
 			function (): void {
 				$theme = wp_get_theme()->get_template();
 
-				if ( 'reign-theme' === $theme && class_exists( \WCB\Integrations\Reign\ReignIntegration::class ) ) {
+				// Reign's directory name is not stable: its text domain and the
+				// usual install folder are `reign`, some distributions unzip to
+				// `reign-theme`, and either can be renamed on any install. Testing
+				// the folder slug alone silently disabled every Reign integration -
+				// templates, customizer section, nav items and the compat
+				// stylesheet - on a stock `reign` install. REIGN_THEME_VERSION is
+				// defined by the theme's own functions.php, which runs before
+				// after_setup_theme fires, so it identifies Reign whatever the
+				// directory is called, and covers child themes too.
+				$wcb_is_reign = defined( 'REIGN_THEME_VERSION' )
+					|| in_array( $theme, array( 'reign', 'reign-theme' ), true );
+
+				if ( $wcb_is_reign && class_exists( \WCB\Integrations\Reign\ReignIntegration::class ) ) {
 					( new \WCB\Integrations\Reign\ReignIntegration() )->boot();
 				}
 
