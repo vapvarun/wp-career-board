@@ -311,6 +311,16 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					old single-select radio model meant filtering to "Tech OR
 					Finance" was impossible. */
 			?>
+			<?php
+			/* Only render the group when it has options. The list is the
+			   intersection of the registry with what companies actually store,
+			   so it is legitimately empty on a site with no companies yet, or
+			   one where every stored value has been retired from the registry -
+			   and an unguarded wrapper painted a bare "Industry" heading and
+			   divider above nothing. Company size below is a fixed list and
+			   cannot empty out. */
+			?>
+			<?php if ( ! empty( $wcb_filter_industries ) ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
@@ -324,6 +334,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					<?php endforeach; ?>
 				</ul>
 			</div>
+			<?php endif; ?>
 
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
