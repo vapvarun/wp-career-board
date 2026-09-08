@@ -167,7 +167,7 @@ Approve a pending job — publishes it and fires `wcb_job_approved` (sends emplo
 Requires: `wcb_moderate_jobs`.
 
 ```bash
-wp wcb job approve 42
+wp wcb job approve 42 --user=1
 ```
 
 ---
@@ -178,8 +178,8 @@ Reject a pending job — sets it to draft, stores the rejection reason, fires `w
 Requires: `wcb_moderate_jobs`.
 
 ```bash
-wp wcb job reject 42
-wp wcb job reject 42 --reason="Duplicate listing"
+wp wcb job reject 42 --user=1
+wp wcb job reject 42 --reason="Duplicate listing" --user=1
 ```
 
 **Options:**
@@ -196,7 +196,7 @@ Force-expire a single job regardless of its deadline value. Fires `wcb_job_expir
 Requires: `wcb_moderate_jobs`.
 
 ```bash
-wp wcb job expire 42
+wp wcb job expire 42 --user=1
 ```
 
 ---
@@ -208,7 +208,7 @@ Respects the **Deadline auto-close** setting in WP Career Board → Settings.
 Requires: `wcb_manage_settings`.
 
 ```bash
-wp wcb job run-expiry
+wp wcb job run-expiry --user=1
 ```
 
 > **Tip:** If `deadline_auto_close` is disabled in settings this command is a no-op.
@@ -250,10 +250,10 @@ Update an application's status. Fires `wcb_application_status_changed` (sends ap
 Requires: `wcb_view_applications`.
 
 ```bash
-wp wcb application update 7 --status=reviewing
-wp wcb application update 7 --status=shortlisted
-wp wcb application update 7 --status=hired
-wp wcb application update 7 --status=rejected
+wp wcb application update 7 --status=reviewing --user=1
+wp wcb application update 7 --status=shortlisted --user=1
+wp wcb application update 7 --status=hired --user=1
+wp wcb application update 7 --status=rejected --user=1
 ```
 
 **Valid statuses:** `submitted` → `reviewing` → `shortlisted` → `hired` / `rejected`

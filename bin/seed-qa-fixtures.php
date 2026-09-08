@@ -25,7 +25,10 @@
  * @package WP_Career_Board
  */
 
-declare( strict_types=1 );
+// No declare(strict_types=1) here: this script is executed with `wp eval-file`,
+// which eval()s the file contents, and a strict_types declaration is only legal
+// as the first statement of a real file. Declaring it here makes the script
+// abort with a fatal before a single line runs.
 
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	echo "ERROR: this script must be run via wp eval-file (WP-CLI).\n";

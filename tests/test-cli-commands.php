@@ -45,6 +45,9 @@ function wcb_assert( bool $condition, string $label ): void {
  * @param bool   $expect_error Whether an error exit code is expected.
  * @return array{stdout: string, stderr: string, code: int}
  */
+// Mutating `wp wcb` subcommands are capability-gated (see docs/CLI.md). WP-CLI
+// runs with no current user, so those calls must pass `--user=` or they fail
+// with 'Permission denied' - which is correct product behaviour, not a bug.
 function wcb_run( string $cmd, bool $expect_error = false ): array {
 	$result = WP_CLI::runcommand( $cmd, array( 'return' => 'all', 'exit_error' => false ) );
 	return array(
@@ -129,7 +132,7 @@ $r = wcb_run( 'wcb abilities --format=json' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 $abilities = json_decode( $r['stdout'], true );
 wcb_assert( is_array( $abilities ), 'output is valid JSON array' );
-wcb_assert( count( $abilities ) > 0, 'has at least one ability' );
+wcb_assert( is_array( $abilities ) && count( $abilities ) > 0, 'has at least one ability' );
 
 // ---------------------------------------------------------------------------
 // 3. wp wcb abilities --user-id={candidate} --format=json
@@ -154,7 +157,7 @@ $r = wcb_run( 'wcb job list --format=json' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 $jobs = json_decode( $r['stdout'], true );
 wcb_assert( is_array( $jobs ), 'output is valid JSON array' );
-wcb_assert( count( $jobs ) >= 17, 'count >= 17 seeded jobs' );
+wcb_assert( is_array( $jobs ) && count( $jobs ) >= 17, 'count >= 17 seeded jobs' );
 
 // ---------------------------------------------------------------------------
 // 5. wp wcb job list --status=pending --format=json
@@ -199,7 +202,7 @@ wcb_assert( $all_ints, 'output is space-separated integers' );
 WP_CLI::log( '--- Test 7: wp wcb job approve ---' );
 if ( $pending_job_id ) {
 	$original_status = get_post_status( $pending_job_id );
-	$r               = wcb_run( "wcb job approve {$pending_job_id}" );
+	$r               = wcb_run( "wcb job approve {$pending_job_id} --user=1" );
 	wcb_assert( 0 === $r['code'], 'exit code is 0' );
 	clean_post_cache( $pending_job_id );
 	wcb_assert( 'publish' === get_post_status( $pending_job_id ), 'post_status is publish after approve' );
@@ -216,7 +219,7 @@ if ( $pending_job_id ) {
 WP_CLI::log( '--- Test 8: wp wcb job reject ---' );
 if ( $published_job_id ) {
 	$original_status = get_post_status( $published_job_id );
-	$r               = wcb_run( "wcb job reject {$published_job_id} --reason=\"Test rejection\"" );
+	$r               = wcb_run( "wcb job reject {$published_job_id} --reason=\"Test rejection\" --user=1" );
 	wcb_assert( 0 === $r['code'], 'exit code is 0' );
 	clean_post_cache( $published_job_id );
 	wcb_assert( 'draft' === get_post_status( $published_job_id ), 'post_status is draft after reject' );
@@ -236,7 +239,7 @@ if ( $published_job_id ) {
 WP_CLI::log( '--- Test 9: wp wcb job expire ---' );
 if ( $published_job_id ) {
 	$original_status = get_post_status( $published_job_id );
-	$r               = wcb_run( "wcb job expire {$published_job_id}" );
+	$r               = wcb_run( "wcb job expire {$published_job_id} --user=1" );
 	wcb_assert( 0 === $r['code'], 'exit code is 0' );
 	clean_post_cache( $published_job_id );
 	wcb_assert( 'wcb_expired' === get_post_status( $published_job_id ), 'post_status is wcb_expired after expire' );
@@ -251,7 +254,7 @@ if ( $published_job_id ) {
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '--- Test 10: wp wcb job run-expiry ---' );
-$r = wcb_run( 'wcb job run-expiry' );
+$r = wcb_run( 'wcb job run-expiry --user=1' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 
 // ---------------------------------------------------------------------------
@@ -263,7 +266,7 @@ $r = wcb_run( 'wcb application list --format=json' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 $apps = json_decode( $r['stdout'], true );
 wcb_assert( is_array( $apps ), 'output is valid JSON array' );
-wcb_assert( count( $apps ) >= 13, 'count >= 13 seeded applications' );
+wcb_assert( is_array( $apps ) && count( $apps ) >= 13, 'count >= 13 seeded applications' );
 
 // ---------------------------------------------------------------------------
 // 12. wp wcb application list --status=shortlisted --format=json
@@ -292,7 +295,7 @@ wcb_assert( $all_shortlisted, 'all items have shortlisted status' );
 WP_CLI::log( '--- Test 13: wp wcb application update --status=reviewing ---' );
 if ( $app_id ) {
 	$original_app_status = get_post_meta( $app_id, '_wcb_status', true );
-	$r                   = wcb_run( "wcb application update {$app_id} --status=reviewing" );
+	$r                   = wcb_run( "wcb application update {$app_id} --status=reviewing --user=1" );
 	wcb_assert( 0 === $r['code'], 'exit code is 0' );
 	wp_cache_flush();
 	$new_status = get_post_meta( $app_id, '_wcb_status', true );

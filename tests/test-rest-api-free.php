@@ -212,11 +212,15 @@ if ( $job_id ) {
 // it afterwards rather than assuming the environment.
 $wcb_saved_settings   = get_option( 'wcb_settings', array() );
 $wcb_relaxed_settings = is_array( $wcb_saved_settings ) ? $wcb_saved_settings : array();
-if ( ! empty( $wcb_relaxed_settings['apply_resume_required'] ) ) {
-	$wcb_relaxed_settings['apply_resume_required'] = false;
-	update_option( 'wcb_settings', $wcb_relaxed_settings );
-	\WCB\Admin\Settings::flush_cache();
-}
+// Set it unconditionally. resume_required() defaults to TRUE when the key is
+// absent, so an `! empty()` guard skipped the relaxation on exactly the sites
+// that needed it - a fresh install, or any site that never saved the setting -
+// and the five apply assertions below failed for an environment reason while
+// the comment above claimed the precondition was owned. Restore below puts the
+// original array back whether or not it carried the key.
+$wcb_relaxed_settings['apply_resume_required'] = false;
+update_option( 'wcb_settings', $wcb_relaxed_settings );
+\WCB\Admin\Settings::flush_cache();
 
 WP_CLI::log( '--- Applications: POST /wcb/v1/jobs/{id}/apply (guest) ---' );
 if ( $job_id ) {
@@ -553,61 +557,72 @@ if ( $employer_id ) {
 // ---------------------------------------------------------------------------
 
 WP_CLI::log( '--- Jobs: company link survives an empty _wcb_company_id user meta ---' );
-if ( $employer_id ) {
-	// Precondition. The assertions below prove that resolve_company_id() can
-	// adopt the employer's company from the post author when the reciprocal
-	// user meta is gone. If no wcb_company is authored by this employer there
-	// is nothing to adopt and the test fails for a fixture reason, not a
-	// product one - which is exactly how it was misread once already
-	// (Basecamp 10171955147). Say so instead of asserting into the dark.
-	$authored_company = get_posts(
+
+// Pick an employer that actually authors a wcb_company, rather than reusing
+// $employer_id. The assertions below prove that resolve_company_id() adopts the
+// employer's company from the post author when the reciprocal user meta is
+// gone, so an employer with no authored company has nothing to adopt and the
+// test would report a fixture problem as a product one.
+//
+// $employer_id is simply the first wcb_employer by login, which on a real site
+// is rarely the seeded one - so keying this test to it made the guard skip even
+// immediately after running bin/seed-qa-fixtures.php, the very remedy the old
+// skip message recommended. Search for a suitable employer instead.
+$wcb_link_employer = 0;
+foreach ( get_users( array( 'role' => 'wcb_employer', 'fields' => 'ID' ) ) as $wcb_maybe_employer ) {
+	$wcb_maybe_company = get_posts(
 		array(
 			'post_type'   => 'wcb_company',
-			'author'      => $employer_id,
+			'author'      => (int) $wcb_maybe_employer,
 			'numberposts' => 1,
 			'fields'      => 'ids',
 			'post_status' => 'any',
 		)
 	);
-	if ( empty( $authored_company ) ) {
-		WP_CLI::warning(
-			"  SKIP: seed employer {$employer_id} authors no wcb_company - "
-			. 'reseed with bin/seed-qa-fixtures.php before trusting this test.'
+	if ( ! empty( $wcb_maybe_company ) ) {
+		$wcb_link_employer = (int) $wcb_maybe_employer;
+		break;
+	}
+}
+
+if ( ! $wcb_link_employer ) {
+	WP_CLI::warning(
+		'  SKIP: no wcb_employer on this site authors a wcb_company - '
+		. 'run bin/seed-qa-fixtures.php before trusting this test.'
+	);
+} else {
+	$saved_user_company = get_user_meta( $wcb_link_employer, '_wcb_company_id', true );
+	$orphan_job_id      = 0;
+
+	// try/finally so an exception between the delete and the restore cannot
+	// leave the employer permanently unlinked. An aborted run used to poison
+	// the dataset for every later run on that site, and the next run then
+	// failed on its own residue rather than on a real defect.
+	try {
+		delete_user_meta( $wcb_link_employer, '_wcb_company_id' );
+
+		$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
+			'title'       => '__wcb_test_orphan_job__',
+			'description' => 'Test job posted with no reciprocal company user meta',
+		), $wcb_link_employer );
+		$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+		wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
+		wcb_assert(
+			(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
+			'new job carries a non-zero _wcb_company_id postmeta'
 		);
-	} else {
-		$saved_user_company = get_user_meta( $employer_id, '_wcb_company_id', true );
-		$orphan_job_id      = 0;
-
-		// try/finally so an exception between the delete and the restore cannot
-		// leave the employer permanently unlinked. An aborted run used to poison
-		// the dataset for every later run on that site, and the next run then
-		// failed on its own residue rather than on a real defect.
-		try {
-			delete_user_meta( $employer_id, '_wcb_company_id' );
-
-			$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
-				'title'       => '__wcb_test_orphan_job__',
-				'description' => 'Test job posted with no reciprocal company user meta',
-			), $employer_id );
-			$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
-			wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
-			wcb_assert(
-				(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
-				'new job carries a non-zero _wcb_company_id postmeta'
-			);
-			wcb_assert(
-				'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
-				'new job carries a _wcb_company_name postmeta'
-			);
-		} finally {
-			if ( $orphan_job_id ) {
-				wp_delete_post( $orphan_job_id, true );
-			}
-			if ( $saved_user_company ) {
-				update_user_meta( $employer_id, '_wcb_company_id', $saved_user_company );
-			} else {
-				delete_user_meta( $employer_id, '_wcb_company_id' );
-			}
+		wcb_assert(
+			'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
+			'new job carries a _wcb_company_name postmeta'
+		);
+	} finally {
+		if ( $orphan_job_id ) {
+			wp_delete_post( $orphan_job_id, true );
+		}
+		if ( $saved_user_company ) {
+			update_user_meta( $wcb_link_employer, '_wcb_company_id', $saved_user_company );
+		} else {
+			delete_user_meta( $wcb_link_employer, '_wcb_company_id' );
 		}
 	}
 }
