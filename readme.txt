@@ -62,10 +62,11 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 
 == Changelog ==
 
-= 1.7.1 - August 2026 =
+= 1.7.1 - September 2026 =
 
-Companion-app parity release: members can now do in the app what they can do on the website, with several data-integrity and performance fixes found along the way.
+Companion-app parity release: members can now do in the app what they can do on the website, with a wave of frontend, admin and data-integrity fixes alongside it.
 
+* New      - Site owners can add, rename and retire the industries offered on job and company forms, from Settings > Industries. They were previously fixed in code, and a retired industry kept reappearing as a directory filter.
 * New      - Employers can set an opt-in cap on how many jobs they keep active at once, superseded automatically when credits are in use.
 * New      - Application custom-field answers are readable in the employer dashboard, the admin application screen and the REST API. They were saved but never shown anywhere.
 * New      - The statuses an employer can set on an application are published to companion apps, so an app shows your site's statuses in your site's language instead of its own built-in list.
@@ -75,6 +76,9 @@ Companion-app parity release: members can now do in the app what they can do on 
 * Improve  - The company directory and the single company API now return the same localised industry, size and verification labels. The single company response previously returned raw values such as "technology".
 * Improve  - Employer application lists accept page and per_page properly instead of silently returning only the most recent 20.
 * Improve  - Faster on large sites: deadline reminders resolve their recipients in one indexed query, AI applicant scoring is queued once per job instead of once per applicant, the Boards admin list batches its job and stage counts, and several list queries no longer defeat their database index.
+* Improve  - Searching the admin Applications list is far faster on large sites, and no longer scans every job and user row on each search.
+* Improve  - Settings buttons across the plugin now carry the plugin's own button styling, and the License tab controls match the settings design instead of rendering as unstyled WordPress defaults.
+* Improve  - Other plugins' admin notices no longer crowd Career Board screens. The plugin's own success and error messages still show.
 * Fix      - The company directory showed the wrong number of open positions on every card wherever one person created the company profiles. Counts now follow the job to company link.
 * Fix      - Load more on a company profile no longer lists other companies' jobs.
 * Fix      - Applications now appear on the Kanban board, and new boards ship with a default set of pipeline stages instead of none.
@@ -82,11 +86,22 @@ Companion-app parity release: members can now do in the app what they can do on 
 * Fix      - Posting a job no longer loses the link to your company when the company profile was created by an import, an administrator or the setup wizard.
 * Fix      - Jobs imported from WP Job Manager now trigger the same follow-up actions as jobs created normally, so alerts and geocoding run for them.
 * Fix      - Scheduled account deletions survive deactivating and reactivating the plugin.
+* Fix      - Bullet and numbered lists in job descriptions render as lists again instead of flat, unindented lines.
+* Fix      - Excerpts no longer run words together where two paragraphs meet, on job cards, the single job page, social share previews and the API.
+* Fix      - Company names containing an ampersand displayed as "&#038;" on job cards, and the upgrade routine rewrote correct names into that form.
+* Fix      - The bookmark button no longer overlaps long job titles on listing cards.
+* Fix      - The largest company-size filter on the company directory returned nothing, because it offered a value the admin screen never saves.
+* Fix      - Company sizes of 5,001 or more employees showed as a raw "5001+" everywhere except the company profile block.
+* Fix      - Career Board blocks placed in a widget area, template part or page-builder region now pick up the Reign and BuddyX Pro styling, which previously loaded only inside post content.
+* Fix      - The Resumes admin screen offered "Search Posts" and other generic wording where it should say Resumes.
 * Security - Job alerts could be edited or deleted by any signed-in candidate, not only their owner.
 * Security - The Kanban board could be read by employers who did not own the job, exposing other employers' applicant details.
 * Dev      - REST arguments now enforce the minimum, maximum and allowed values they declare. Requests that exceed a declared page size return a clear error instead of being silently trimmed.
 * Dev      - Companion apps can discover the resume section structure from the API, so a client can build a resume form without hardcoding field names, and a site that adds its own section gets it automatically.
 * Dev      - New filters for sign-in limits, the trusted proxy header, employer-settable statuses, and the resume schema.
+* Dev      - The wcb_industries filter still runs after the saved setting, so a site that filters the list in PHP keeps precedence over the admin screen.
+* Dev      - The wcb_guest_applications_claimed action is now documented in the hook reference.
+* Dev      - The company-archive and company-profile blocks declared incomplete editor dependencies and loaded correctly only by accident of load order.
 
 = 1.7.0 - July 2026 =
 
