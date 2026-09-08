@@ -644,16 +644,46 @@ if ( $employer_id ) {
 		)
 	) )->found_posts;
 
-	// Cap one below the employer's current live count so the next post trips it.
+	// The cap has to be >= 1. wcb_employer_active_job_limit documents 0 as
+	// "unlimited" and the endpoint returns early on `$limit <= 0`, so deriving
+	// the cap from an employer with no live jobs (max(1,0) - 1 = 0) turned the
+	// guard OFF and the four assertions below failed for a fixture reason. The
+	// endpoint blocks on `count >= limit`, so give the employer at least one
+	// live job and cap at exactly that count.
+	$cap_seed_job_id = 0;
+	if ( $live_jobs < 1 ) {
+		$cap_seed_job_id = (int) wp_insert_post(
+			array(
+				'post_type'   => 'wcb_job',
+				'post_status' => 'publish',
+				'post_title'  => '__wcb_test_cap_seed__',
+				'post_author' => $employer_id,
+			)
+		);
+		$live_jobs = $cap_seed_job_id ? 1 : 0;
+	}
+
 	$limit_cap    = max( 1, $live_jobs );
-	$cap_callback = static fn(): int => $limit_cap - 1;
+	$cap_callback = static fn(): int => $limit_cap;
 	$credits_off  = '__return_false';
 
 	add_filter( 'wcb_employer_active_job_limit', $cap_callback );
 	add_filter( 'wcb_credits_enabled', $credits_off, 99 );
 
+	// The two probes below are expected to be REFUSED, so neither captures an
+	// id to clean up. When the cap was accidentally disabled they succeeded
+	// instead and left a job behind on every run. Delete whatever comes back so
+	// a regression shows up as a failed assertion, not as litter.
+	$wcb_drop_probe = static function ( $response ): void {
+		$probe_id = (int) ( $response->get_data()['id'] ?? 0 );
+		if ( $probe_id ) {
+			wp_delete_post( $probe_id, true );
+		}
+	};
+
 	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( 403 === $r->get_status(), 'POST /jobs over the active-job cap returns 403' );
+	$wcb_drop_probe( $r );
 	$cap_err = $r->get_data();
 	wcb_assert( 'wcb_active_job_limit' === ( $cap_err['code'] ?? '' ), 'cap rejection uses the wcb_active_job_limit code' );
 	wcb_assert( isset( $cap_err['data']['limit'], $cap_err['data']['count'] ), 'cap rejection carries limit + count' );
@@ -663,6 +693,7 @@ if ( $employer_id ) {
 	add_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
 	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( '__wcb_test_cap_message__' === ( $r->get_data()['message'] ?? '' ), 'wcb_employer_active_job_limit_message overrides the copy' );
+	$wcb_drop_probe( $r );
 	remove_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
 
 	// Credits replace the quota — they are never stacked.
@@ -689,6 +720,10 @@ if ( $employer_id ) {
 	// wcb_employer_active_job_statuses is the third hook in the family.
 	$statuses = (array) apply_filters( 'wcb_employer_active_job_statuses', array( 'publish' ), $employer_id );
 	wcb_assert( array( 'publish' ) === $statuses, 'wcb_employer_active_job_statuses defaults to publish only' );
+
+	if ( $cap_seed_job_id ) {
+		wp_delete_post( $cap_seed_job_id, true );
+	}
 }
 
 // =========================================================================

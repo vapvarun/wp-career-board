@@ -157,7 +157,11 @@ $r = wcb_run( 'wcb job list --format=json' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 $jobs = json_decode( $r['stdout'], true );
 wcb_assert( is_array( $jobs ), 'output is valid JSON array' );
-wcb_assert( is_array( $jobs ) && count( $jobs ) >= 17, 'count >= 17 seeded jobs' );
+// 5 is what bin/seed-qa-fixtures.php guarantees. The old threshold of 17
+// counted whatever else the site happened to hold, so this assertion turned
+// red on a clean install and green on a busy one, for reasons unrelated to
+// `wp wcb job list`.
+wcb_assert( is_array( $jobs ) && count( $jobs ) >= 5, 'lists at least the 5 seeded jobs' );
 
 // ---------------------------------------------------------------------------
 // 5. wp wcb job list --status=pending --format=json
@@ -266,7 +270,8 @@ $r = wcb_run( 'wcb application list --format=json' );
 wcb_assert( 0 === $r['code'], 'exit code is 0' );
 $apps = json_decode( $r['stdout'], true );
 wcb_assert( is_array( $apps ), 'output is valid JSON array' );
-wcb_assert( is_array( $apps ) && count( $apps ) >= 13, 'count >= 13 seeded applications' );
+// 4 is what the seeder guarantees; see the note on the job count above.
+wcb_assert( is_array( $apps ) && count( $apps ) >= 4, 'lists at least the 4 seeded applications' );
 
 // ---------------------------------------------------------------------------
 // 12. wp wcb application list --status=shortlisted --format=json
