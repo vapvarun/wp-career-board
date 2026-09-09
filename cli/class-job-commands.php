@@ -334,6 +334,18 @@ class JobCommands extends AbstractCliCommand {
 	public function run_expiry( array $args, array $assoc_args ): void {
 		$this->require_ability( 'wcb/manage-settings' );
 
+		// The sweep behind this hook returns immediately unless deadline_auto_close
+		// is on, and that setting is OFF by default - so the bare command used to
+		// print "complete" over a no-op. Say so instead: a command that reports
+		// success without doing anything is how people stop trusting it.
+		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
+			\WP_CLI::warning( 'Deadline Auto-Close is off, so no jobs were expired.' );
+			\WP_CLI::log( 'Turn it on under Career Board > Settings > Job Listings and run this again.' );
+			return;
+		}
+
+		$before = $this->expired_job_count();
+
 		\WP_CLI::log( 'Running job expiry check…' );
 
 		/**
@@ -343,6 +355,34 @@ class JobCommands extends AbstractCliCommand {
 		 */
 		do_action( 'wcb_check_job_expiry' );
 
-		\WP_CLI::success( 'Job expiry check complete.' );
+		$expired = $this->expired_job_count() - $before;
+
+		\WP_CLI::success(
+			sprintf(
+				/* translators: %d: number of jobs moved to the expired status. */
+				_n( 'Job expiry check complete. %d job expired.', 'Job expiry check complete. %d jobs expired.', $expired, 'wp-career-board' ),
+				$expired
+			)
+		);
+	}
+
+	/**
+	 * Count jobs currently carrying the expired status.
+	 *
+	 * @since 1.7.1
+	 * @return int
+	 */
+	private function expired_job_count(): int {
+		$q = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'wcb_expired',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => false,
+			)
+		);
+
+		return (int) $q->found_posts;
 	}
 }
