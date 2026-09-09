@@ -521,7 +521,16 @@ final class Plugin {
 				'title'       => __( 'Full Job Board', 'wp-career-board' ),
 				'description' => __( 'Search bar, filters, and job listings grid  -  the complete job board page.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
-				'content'     => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				// job-filters is deliberately not provisioned alongside job-listings.
+				// job-listings renders its own filter panel (showFilters defaults true)
+				// covering the same taxonomies plus job board and a salary range, client
+				// side and without a page reload. Stacking both gave every new site two
+				// sets of the same controls backed by two mechanisms that never synced:
+				// the top bar navigates by query string, the panel keeps Interactivity
+				// state, so each showed filters the other did not have applied.
+				// job-filters stays available for pages that place job-listings with
+				// showFilters off.
+				'content'     => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
 			),
 			array(
 				'name'        => 'wp-career-board/post-a-job',
