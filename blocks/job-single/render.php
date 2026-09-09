@@ -157,6 +157,16 @@ if ( $wcb_show_apply && is_user_logged_in() ) {
 	}
 }
 
+// Applications close once the advertised deadline has passed. Independent of
+// the deadline_auto_close setting: that decides whether the post status flips
+// to wcb_expired, not whether this page tells the candidate the truth. The
+// endpoint refuses these submissions too, so showing the form here would only
+// send someone to write a cover letter for a role that has closed.
+$wcb_deadline_passed = \WCB\Core\JobDeadline::has_passed( $wcb_job_id );
+if ( $wcb_deadline_passed ) {
+	$wcb_show_apply = false;
+}
+
 $wcb_dashboard_url = '';
 if ( $wcb_is_job_owner ) {
 	$wcb_employer_dash_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
@@ -412,6 +422,14 @@ wp_interactivity_state(
 				>
 				<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 				</a>
+			<?php elseif ( $wcb_deadline_passed ) : ?>
+				<p class="wcb-applications-closed">
+				<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				<?php
+				/* translators: %s: the date applications closed. */
+				printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
+				?>
+				</p>
 			<?php elseif ( $wcb_show_apply ) : ?>
 				<?php if ( $wcb_apply_external ) : ?>
 					<a
@@ -665,6 +683,14 @@ wp_interactivity_state(
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
+				<?php elseif ( $wcb_deadline_passed ) : ?>
+					<p class="wcb-applications-closed wcb-applications-closed--center">
+					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php
+					/* translators: %s: the date applications closed. */
+					printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
+					?>
+					</p>
 				<?php elseif ( $wcb_show_apply ) : ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a

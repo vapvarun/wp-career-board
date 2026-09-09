@@ -83,8 +83,31 @@ $employer_id    = ! empty( $employer_users ) ? (int) $employer_users[0]->ID : 0;
 $company_posts = get_posts( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'numberposts' => 1, 'fields' => 'ids' ) );
 $company_id    = ! empty( $company_posts ) ? (int) $company_posts[0] : 0;
 
-$job_posts = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'numberposts' => 1, 'fields' => 'ids' ) );
-$job_id    = ! empty( $job_posts ) ? (int) $job_posts[0] : 0;
+// Prefer a job that is still OPEN. The seeder deliberately ships a past-deadline
+// fixture ("Smoke Job 5 - EXPIRED") and it is usually the newest, so taking the
+// first publish row handed the apply assertions a job the endpoint now refuses -
+// a fixture problem reported as five product failures. Fall back to any
+// published job so a site without the seed still runs the non-apply assertions.
+$job_posts = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'numberposts' => -1, 'fields' => 'ids' ) );
+$job_id    = 0;
+foreach ( $job_posts as $wcb_candidate_job ) {
+	if ( ! \WCB\Core\JobDeadline::has_passed( (int) $wcb_candidate_job ) ) {
+		$job_id = (int) $wcb_candidate_job;
+		break;
+	}
+}
+if ( ! $job_id && ! empty( $job_posts ) ) {
+	$job_id = (int) $job_posts[0];
+}
+
+// A job whose deadline has passed, for the guard assertions further down.
+$closed_job_id = 0;
+foreach ( $job_posts as $wcb_candidate_job ) {
+	if ( \WCB\Core\JobDeadline::has_passed( (int) $wcb_candidate_job ) ) {
+		$closed_job_id = (int) $wcb_candidate_job;
+		break;
+	}
+}
 
 $pending_jobs   = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'numberposts' => 1, 'fields' => 'ids' ) );
 $pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
@@ -234,6 +257,29 @@ if ( $job_id ) {
 	if ( $test_app_id ) {
 		wp_delete_post( $test_app_id, true );
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Applications close once the deadline has passed (1.7.1)
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Applications: POST /jobs/{id}/apply refuses a passed deadline ---' );
+if ( $closed_job_id ) {
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$closed_job_id}/apply", array(
+		'guest_name'  => 'Deadline Probe',
+		'guest_email' => 'wcb_closed_' . wp_rand( 1000, 9999 ) . '@example.com',
+	), 0 );
+	wcb_assert( 400 === $r->get_status(), 'apply to a past-deadline job returns 400' );
+	wcb_assert(
+		'wcb_job_deadline_passed' === ( $r->get_data()['code'] ?? '' ),
+		'refusal uses the wcb_job_deadline_passed code'
+	);
+	$closed_probe_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $closed_probe_id ) {
+		wp_delete_post( $closed_probe_id, true );
+	}
+} else {
+	WP_CLI::warning( '  SKIP: no past-deadline job on this site - run bin/seed-qa-fixtures.php.' );
 }
 
 // ---------------------------------------------------------------------------

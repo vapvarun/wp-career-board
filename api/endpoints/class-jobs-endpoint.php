@@ -1615,6 +1615,10 @@ final class JobsEndpoint extends RestController {
 			'deadline_label'     => $wcb_deadline_raw
 				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
 				: '',
+			// Whether that date has passed, resolved server-side. The card needs
+			// this to badge closed roles, and a client cannot decide it safely:
+			// the browser clock is the visitor's, not the site's timezone.
+			'deadline_passed'    => \WCB\Core\JobDeadline::has_passed( $post->ID ),
 			'salary_min'         => $salary_min,
 			'salary_max'         => $salary_max,
 			'salary_currency'    => $currency,

@@ -991,3 +991,32 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	width: 1px;
 	height: 1px;
 }
+
+/* Applications-closed notice — shown in place of the apply control once the
+   job's deadline has passed. Mirrors .wcb-applied-badge's shape but in the
+   neutral/info register: this is a state of the listing, not an error the
+   visitor caused. Token-driven so it follows dark mode like everything else. */
+.wcb-applications-closed {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-muted, var(--wcb-contrast));
+	background: var(--wcb-bg-subtle);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	margin: 0;
+}
+
+.wcb-applications-closed--center {
+	justify-content: center;
+	text-align: center;
+}
+
+.wcb-applications-closed svg {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}

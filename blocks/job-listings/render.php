@@ -217,6 +217,9 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		// a bare ISO string after fetch.
 		'deadline'       => $wcb_deadline_val,
 		'deadline_label' => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
+		// Mirrors the REST field of the same name so the closed badge survives
+		// hydration instead of vanishing when fetchJobs() swaps in the payload.
+		'deadline_passed' => \WCB\Core\JobDeadline::has_passed( $wcb_job_post->ID ),
 		'days_ago'       => sprintf(
 			/* translators: %s: human-readable time difference, e.g. "3 days". */
 			__( '%s ago', 'wp-career-board' ),
@@ -838,6 +841,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label" data-wp-text="context.job.deadline_label"></span>
+						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>

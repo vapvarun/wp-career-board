@@ -139,6 +139,18 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		// A job past its advertised deadline stops taking applications, whether or
+		// not deadline_auto_close has flipped its post status yet. Without this the
+		// endpoint accepted submissions for closed roles indefinitely on the
+		// default install, and the candidate got a success response.
+		if ( \WCB\Core\JobDeadline::has_passed( $job_id ) ) {
+			return new \WP_Error(
+				'wcb_job_deadline_passed',
+				__( 'Applications for this job have closed.', 'wp-career-board' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		if ( $is_guest ) {
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
