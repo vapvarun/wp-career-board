@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-form — multi-step job posting form for employers.
+ * Block render: wp-career-board/job-form — multi-step job posting form for employers.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/employer-registration — unified sign-up form with role picker.
+ * Block render: wp-career-board/employer-registration — unified sign-up form with role picker.
  *
  * Step 1: Choose role (Candidate / Employer)
  * Step 2: Fill in details (company name shown only for employers)

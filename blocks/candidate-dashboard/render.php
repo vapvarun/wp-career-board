@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/candidate-dashboard — sidebar layout candidate interface.
+ * Block render: wp-career-board/candidate-dashboard — sidebar layout candidate interface.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

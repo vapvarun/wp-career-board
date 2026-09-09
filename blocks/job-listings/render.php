@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-listings — server-renders job cards and seeds Interactivity API state.
+ * Block render: wp-career-board/job-listings — server-renders job cards and seeds Interactivity API state.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

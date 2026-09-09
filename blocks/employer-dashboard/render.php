@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/employer-dashboard — sidebar layout employer interface.
+ * Block render: wp-career-board/employer-dashboard — sidebar layout employer interface.
  *
  * @package WP_Career_Board
  * @since   1.0.0

@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-single — enterprise-grade job detail with apply panel.
+ * Block render: wp-career-board/job-single — enterprise-grade job detail with apply panel.
  *
  * @package WP_Career_Board
  * @since   1.0.0

@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-form-simple — single-page job posting form.
+ * Block render: wp-career-board/job-form-simple — single-page job posting form.
  *
  * Sibling of wcb/job-form (the multi-step wizard) for embeds where every
  * field on one screen is the right UX: sidebars, modals, partner pages,

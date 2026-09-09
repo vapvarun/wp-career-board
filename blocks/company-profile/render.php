@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/company-profile — LinkedIn-style public company profile page.
+ * Block render: wp-career-board/company-profile — LinkedIn-style public company profile page.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/company-archive — seeds Interactivity API state and renders
+ * Block render: wp-career-board/company-archive — seeds Interactivity API state and renders
  * the interactive company directory with grid/list toggle and filters.
  *
  * WordPress injects:
