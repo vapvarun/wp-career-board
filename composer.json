@@ -17,7 +17,7 @@
         }
     },
     "scripts": {
-        "install-hooks": "git config core.hooksPath .githooks && echo 'hooks installed: .githooks/pre-commit + .githooks/pre-push'",
+        "install-hooks": "git config core.hooksPath .githooks && echo 'hooks installed: .githooks/commit-msg + .githooks/pre-commit + .githooks/pre-push'",
         "phpcs": "vendor/bin/phpcs --standard=phpcs.xml --runtime-set ignore_warnings_on_exit 1",
         "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml",
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
