@@ -218,7 +218,12 @@ wp_interactivity_state(
 			'savedResumes'            => array(),
 			'savedResumesLoading'     => false,
 			'savedResumesError'       => '',
-			'savedResumesCountSeed'   => post_type_exists( 'wcb_resume' )
+			// Gated on the PRO filter, not post_type_exists(): Free registers the
+			// wcb_resume CPT itself, so that check always passed and the tab
+			// rendered on Free-only sites. Its unsave button POSTs to
+			// /resumes/{id}/bookmark, which exists only in Pro, so the request
+			// 404'd into a silent catch and the member's click did nothing.
+			'savedResumesCountSeed'   => apply_filters( 'wcb_pro_resumes_enabled', false )
 				? (int) count( (array) get_user_meta( $wcb_candidate_id, '_wcb_resume_bookmark', false ) )
 				: 0,
 			'resumes'                 => array(),
@@ -448,7 +453,7 @@ wp_interactivity_state(
 				<?php esc_html_e( 'Saved Companies', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.savedCompaniesCount">0</span>
 			</button>
-			<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+			<?php if ( apply_filters( 'wcb_pro_resumes_enabled', false ) ) : ?>
 			<button type="button" class="wcb-nav-item" role="tab" data-wp-bind--aria-selected="state.isTabSavedResumes" data-wp-class--wcb-nav-active="state.isTabSavedResumes" data-wp-on--click="actions.switchToSavedResumes" id="wcb-tab-saved-resumes">
 				<?php esc_html_e( 'Saved Resumes', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.savedResumesCount">0</span>
@@ -801,7 +806,7 @@ wp_interactivity_state(
 			</div>
 		</div>
 
-		<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+		<?php if ( apply_filters( 'wcb_pro_resumes_enabled', false ) ) : ?>
 		<!-- VIEW: Saved Resumes -->
 		<div class="wcb-view-panel" role="tabpanel" aria-labelledby="wcb-tab-saved-resumes" data-wp-class--wcb-view-active="state.isTabSavedResumes">
 			<div class="wcb-page-header">

@@ -789,7 +789,8 @@ final class Plugin {
 	 * layout system in one place — either through:
 	 *
 	 *   - the `wcb_container_max_width` PHP filter (this method),
-	 *   - the `container_max_width` key under `wcb_settings` (admin UI), or
+	 *   - the `container_max_width` key under `wcb_settings` (no admin control
+	 *     ships for it; set it with a filter, an mu-plugin or wp option patch), or
 	 *   - a `<style>` block in the active theme that overrides the variable.
 	 *
 	 * Default: 1280 px. Min: 720, max: 1920 (clamped to keep layouts sane).

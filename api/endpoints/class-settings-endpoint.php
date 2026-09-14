@@ -73,10 +73,10 @@ final class SettingsEndpoint extends RestController {
 			'pro_version'           => (string) apply_filters( 'wcb_pro_version', '' ),
 			'is_pro_active'         => $is_pro_active,
 			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
-			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page', 10 ),
+			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page' ),
 			'currency'              => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
 			'moderation_mode'       => \WCB\Admin\Settings::bool( 'auto_publish_jobs', false ) ? 'auto_publish' : 'pending_review',
-			'allow_withdraw'        => \WCB\Admin\Settings::bool( 'allow_withdraw', false ),
+			'allow_withdraw'        => \WCB\Admin\Settings::bool( 'allow_withdraw' ),
 			// So the app can require a resume BEFORE the apply POST instead of
 			// letting the candidate submit and hit a 400.
 			'apply_resume_required' => \WCB\Admin\Settings::bool( 'apply_resume_required', true ),

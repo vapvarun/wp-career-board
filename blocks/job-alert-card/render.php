@@ -12,6 +12,19 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
+// Job alerts are a Pro feature. This card ships as one of three DEFAULT cards in
+// the company-profile sidebar, so on a Free-only site every company profile
+// rendered a "Get Job Alerts" call to action pointing at
+// candidate-dashboard/?tab=alerts - a tab that is gated off without Pro. The
+// member arrived at a dashboard with no such tab.
+//
+// The sibling surfaces already gate on this filter; this one did not. Rendering
+// nothing is right rather than showing a disabled card: the sidebar is a stack,
+// so the remaining cards simply close up.
+if ( ! apply_filters( 'wcb_pro_alerts_enabled', false ) ) {
+	return '';
+}
+
 $wcb_title = trim( (string) ( $attributes['title'] ?? '' ) );
 $wcb_body  = trim( (string) ( $attributes['body'] ?? '' ) );
 $wcb_cta   = trim( (string) ( $attributes['cta'] ?? '' ) );

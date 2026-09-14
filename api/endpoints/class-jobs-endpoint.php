@@ -138,7 +138,7 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function get_items( $request ): \WP_REST_Response {
 		if ( ! $request->has_param( 'per_page' ) ) {
-			$wcb_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 15 );
+			$wcb_per_page = \WCB\Admin\Settings::int( 'jobs_per_page' );
 			$request->set_param( 'per_page', $wcb_per_page > 0 ? $wcb_per_page : 15 );
 		}
 

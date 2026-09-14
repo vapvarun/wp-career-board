@@ -159,6 +159,7 @@ class AdminSettings {
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
 		add_action( 'wcb_settings_tab_industries', array( $this, 'render_industries_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
+		add_action( 'wcb_settings_tab_mobile-app', array( $this, 'render_mobile_app_tab' ) );
 		add_action( 'wcb_settings_tab_privacy', array( $this, 'render_privacy_tab' ) );
 		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
@@ -194,6 +195,7 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
+			'mobile-app'    => array( 'accent_color', 'logo_url', 'login_bg_url', 'dark_mode_default', 'terms_url', 'eula_url', 'guidelines_url', 'abuse_contact_email' ),
 			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
@@ -222,6 +224,17 @@ class AdminSettings {
 			'from_name'                  => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
 			'from_email'                 => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
 			'resume_archive_page'        => isset( $input['resume_archive_page'] ) ? (int) $input['resume_archive_page'] : 0,
+			// Mobile-app branding + the per-site legal surface the app is required
+			// to link (Apple 1.2 / 5.1.1). Read by GET /settings/app-config since
+			// 1.7.0 with no way for an owner to set any of them.
+			'accent_color'               => isset( $input['accent_color'] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', (string) $input['accent_color'] ) ? strtoupper( (string) $input['accent_color'] ) : '#2563EB',
+			'logo_url'                   => isset( $input['logo_url'] ) ? esc_url_raw( (string) $input['logo_url'] ) : '',
+			'login_bg_url'               => isset( $input['login_bg_url'] ) ? esc_url_raw( (string) $input['login_bg_url'] ) : '',
+			'dark_mode_default'          => ! empty( $input['dark_mode_default'] ),
+			'terms_url'                  => isset( $input['terms_url'] ) ? esc_url_raw( (string) $input['terms_url'] ) : '',
+			'eula_url'                   => isset( $input['eula_url'] ) ? esc_url_raw( (string) $input['eula_url'] ) : '',
+			'guidelines_url'             => isset( $input['guidelines_url'] ) ? esc_url_raw( (string) $input['guidelines_url'] ) : '',
+			'abuse_contact_email'        => isset( $input['abuse_contact_email'] ) ? sanitize_email( (string) $input['abuse_contact_email'] ) : '',
 		);
 
 		// Identify which tab was submitted by checking for its fields in $input.
@@ -239,6 +252,22 @@ class AdminSettings {
 		$output = $existing;
 		if ( $submitted_tab ) {
 			foreach ( $tab_fields[ $submitted_tab ] as $field ) {
+				// Only overlay a field the form actually posted. Checkboxes are
+				// the exception: an unchecked box posts nothing, and its absence
+				// IS the new value, so they must still be written.
+				//
+				// Without this, a key listed on a tab whose control the current
+				// build does not render was overwritten with its sanitise-time
+				// default on every save. resume_archive_page is in the `pages`
+				// tab but only Pro renders a control for it, so saving the Pages
+				// tab on a Free-only site silently reset the stored page id to 0
+				// - a data write, not a no-op.
+				$wcb_is_bool = is_bool( $sanitized[ $field ] ?? null );
+
+				if ( ! $wcb_is_bool && ! array_key_exists( $field, $input ) ) {
+					continue;
+				}
+
 				$output[ $field ] = $sanitized[ $field ];
 			}
 		} else {
@@ -381,6 +410,7 @@ class AdminSettings {
 			'emails'        => __( 'Emails', 'wp-career-board' ),
 			'industries'    => __( 'Industries', 'wp-career-board' ),
 			'import'        => __( 'Import', 'wp-career-board' ),
+			'mobile-app'    => __( 'Mobile App', 'wp-career-board' ),
 			'privacy'       => __( 'Privacy', 'wp-career-board' ),
 			'integrations'  => __( 'Integrations', 'wp-career-board' ),
 		);
@@ -412,6 +442,7 @@ class AdminSettings {
 			'pages'         => 'file-text',
 			'industries'    => 'building-2',
 			'import'        => 'upload',
+			'mobile-app'    => 'smartphone',
 			'privacy'       => 'shield-check',
 			'antispam'      => 'shield',
 			'notifications' => 'bell',
@@ -443,6 +474,7 @@ class AdminSettings {
 			'emails'        => 'general',
 			'industries'    => 'general',
 			'import'        => 'general',
+			'mobile-app'    => 'general',
 			'privacy'       => 'general',
 			'antispam'      => 'general',
 			'integrations'  => 'general',
@@ -1522,6 +1554,107 @@ class AdminSettings {
 				} );
 		} );
 		</script>
+		<?php
+	}
+
+	/**
+	 * Mobile App tab — branding and the per-site legal surface.
+	 *
+	 * Every key here has been read by GET /settings/app-config since 1.7.0 with
+	 * no way for a site owner to set any of them, so a companion app showed the
+	 * plugin's default blue, no logo, and fell back to the admin email for abuse
+	 * reports. The legal URLs matter beyond cosmetics: the endpoint's own comment
+	 * cites Apple guidelines 1.2 and 5.1.1, and an app that cannot link its terms
+	 * or community guidelines is a review rejection.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array<string,mixed> $settings Current settings.
+	 * @return void
+	 */
+	public function render_mobile_app_tab( array $settings = array() ): void {
+		$settings = $settings ? $settings : Settings::all();
+
+		$wcb_accent     = (string) ( $settings['accent_color'] ?? '#2563EB' );
+		$wcb_logo       = (string) ( $settings['logo_url'] ?? '' );
+		$wcb_login_bg   = (string) ( $settings['login_bg_url'] ?? '' );
+		$wcb_dark       = ! empty( $settings['dark_mode_default'] );
+		$wcb_terms      = (string) ( $settings['terms_url'] ?? '' );
+		$wcb_eula       = (string) ( $settings['eula_url'] ?? '' );
+		$wcb_guidelines = (string) ( $settings['guidelines_url'] ?? '' );
+		$wcb_abuse      = (string) ( $settings['abuse_contact_email'] ?? '' );
+		?>
+		<h2><?php esc_html_e( 'App branding', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'How your companion app looks. These are served to the app and ignored by the website, which follows your theme.', 'wp-career-board' ); ?>
+		</p>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-accent-color"><?php esc_html_e( 'Accent colour', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="color" id="wcb-accent-color" name="wcb_settings[accent_color]" value="<?php echo esc_attr( $wcb_accent ); ?>">
+				<span class="description"><?php esc_html_e( 'Buttons and highlights in the app. Default: #2563EB.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-logo-url"><?php esc_html_e( 'Logo URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-logo-url" class="regular-text" name="wcb_settings[logo_url]" value="<?php echo esc_attr( $wcb_logo ); ?>" placeholder="https://">
+				<span class="description"><?php esc_html_e( 'Shown in the app header. Leave blank to use your site name.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-login-bg-url"><?php esc_html_e( 'Sign-in background URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-login-bg-url" class="regular-text" name="wcb_settings[login_bg_url]" value="<?php echo esc_attr( $wcb_login_bg ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><?php esc_html_e( 'Dark mode', 'wp-career-board' ); ?></div>
+			<div class="wcb-settings-row-control">
+				<label for="wcb-dark-mode-default">
+					<input type="checkbox" id="wcb-dark-mode-default" name="wcb_settings[dark_mode_default]" value="1" <?php checked( $wcb_dark ); ?>>
+					<?php esc_html_e( 'Open the app in dark mode by default', 'wp-career-board' ); ?>
+				</label>
+			</div>
+		</div>
+
+		<h2><?php esc_html_e( 'Legal links', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, which falls back to your admin email. Your privacy policy comes from Settings > Privacy in WordPress.', 'wp-career-board' ); ?>
+		</p>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-terms-url"><?php esc_html_e( 'Terms of service URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-terms-url" class="regular-text" name="wcb_settings[terms_url]" value="<?php echo esc_attr( $wcb_terms ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-eula-url"><?php esc_html_e( 'EULA URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-eula-url" class="regular-text" name="wcb_settings[eula_url]" value="<?php echo esc_attr( $wcb_eula ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-guidelines-url"><?php esc_html_e( 'Community guidelines URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-guidelines-url" class="regular-text" name="wcb_settings[guidelines_url]" value="<?php echo esc_attr( $wcb_guidelines ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-abuse-contact"><?php esc_html_e( 'Abuse contact email', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="email" id="wcb-abuse-contact" class="regular-text" name="wcb_settings[abuse_contact_email]" value="<?php echo esc_attr( $wcb_abuse ); ?>" placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>">
+				<span class="description"><?php esc_html_e( 'Where reports from the app are sent. Defaults to your admin email.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
 		<?php
 	}
 
