@@ -306,7 +306,7 @@ class AdminSettings {
 		$pages = array(
 			'jobs_archive_page'          => array(
 				'title'   => __( 'Find Jobs', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
 			),
 			'employer_dashboard_page'    => array(
 				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
@@ -317,7 +317,9 @@ class AdminSettings {
 				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
 			),
 			'company_archive_page'       => array(
-				'title'   => __( 'Companies', 'wp-career-board' ),
+				// See the note in the setup wizard: "Companies" collides with the
+				// wcb_company archive slug and makes the page unreachable.
+				'title'   => __( 'Find Companies', 'wp-career-board' ),
 				'content' => '<!-- wp:wp-career-board/company-archive /-->',
 			),
 			'post_job_page'              => array(

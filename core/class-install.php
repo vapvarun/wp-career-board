@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.1';
+	const DB_VERSION = '1.3.2';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -411,6 +411,15 @@ final class Install {
 			// fixed; this repairs rows already persisted on live sites.
 			if ( version_compare( (string) $installed, '1.3.1', '<' ) ) {
 				self::migrate_repair_company_name_entities();
+			}
+
+			// 1.3.2 — free the provisioned company-archive page from the CPT's
+			// archive slug. Both provisioning paths titled it "Companies", which
+			// takes slug `companies`, which is what wcb_company registers as its
+			// has_archive - so WP served the archive and the page, with its
+			// company-archive block, was unreachable on every site.
+			if ( version_compare( (string) $installed, '1.3.2', '<' ) ) {
+				self::migrate_company_archive_page_slug();
 			}
 
 			// Only bump the stored DB version if every expected table now
@@ -879,5 +888,58 @@ final class Install {
 
 			$offset += $skipped;
 		}
+	}
+
+	/**
+	 * Move the company-archive page off the slug the CPT archive owns.
+	 *
+	 * `wcb_company` registers `has_archive => 'companies'`, so a page whose slug
+	 * is also `companies` loses: WordPress serves the post-type archive and the
+	 * page never renders. Renaming it breaks no working link precisely because
+	 * the page was never reachable at that URL - the archive answered instead,
+	 * and it still will.
+	 *
+	 * Only the page the settings actually point at is touched, only when its
+	 * slug is the colliding one, and only when the target slug is free.
+	 * Pages::CANONICAL_SLUGS already expects `find-companies` for this key, so
+	 * its resolver starts working rather than being permanently unreachable.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	private static function migrate_company_archive_page_slug(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		$settings = is_string( $settings ) ? json_decode( $settings, true ) : $settings;
+		$page_id  = is_array( $settings ) ? (int) ( $settings['company_archive_page'] ?? 0 ) : 0;
+
+		if ( $page_id <= 0 ) {
+			return;
+		}
+
+		$page = get_post( $page_id );
+		if ( ! $page instanceof \WP_Post || 'page' !== $page->post_type ) {
+			return;
+		}
+
+		$archive_slug = 'companies';
+		$post_type    = get_post_type_object( 'wcb_company' );
+		if ( $post_type && is_string( $post_type->has_archive ) && '' !== $post_type->has_archive ) {
+			$archive_slug = $post_type->has_archive;
+		}
+
+		if ( $page->post_name !== $archive_slug ) {
+			return;
+		}
+
+		if ( get_page_by_path( 'find-companies' ) ) {
+			return;
+		}
+
+		wp_update_post(
+			array(
+				'ID'        => $page_id,
+				'post_name' => 'find-companies',
+			)
+		);
 	}
 }

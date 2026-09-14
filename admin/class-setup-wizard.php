@@ -427,10 +427,17 @@ class SetupWizard extends \WCB\Api\RestController {
 				),
 				'jobs_archive_page'          => array(
 					'title'   => __( 'Find Jobs', 'wp-career-board' ),
-					'content' => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+					'content' => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
 				),
 				'company_archive_page'       => array(
-					'title'   => __( 'Companies', 'wp-career-board' ),
+					// "Find Companies", not "Companies": the wcb_company CPT
+					// registers has_archive => 'companies', so a page titled
+					// "Companies" takes slug `companies`, collides, and WP serves
+					// the archive instead - the page and its block were
+					// unreachable. Same dodge jobs_archive_page already uses with
+					// "Find Jobs" vs the /jobs/ archive, and it matches the slug
+					// Pages::CANONICAL_SLUGS already expects for this key.
+					'title'   => __( 'Find Companies', 'wp-career-board' ),
 					'content' => '<!-- wp:wp-career-board/company-archive /-->',
 				),
 				'post_job_page'              => array(
