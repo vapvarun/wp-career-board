@@ -609,6 +609,35 @@ if ( $employer_id ) {
 }
 
 // ---------------------------------------------------------------------------
+// GET /wcb/v1/employers/me/applications (auth gate + shape)
+//
+// The sibling of /employers/me/jobs. It was live and answering for two releases
+// while being absent from audit/manifest.json rest.endpoints[], which is how it
+// reached three QA rounds untested (Basecamp 10171650688). Recording it in the
+// manifest is what surfaced the gap; this closes it.
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Employers: GET /wcb/v1/employers/me/applications ---' );
+$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array(), 0 );
+wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'GET /employers/me/applications anon returns 401 or 403' );
+
+if ( $employer_id ) {
+	$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array(), $employer_id );
+	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/applications as employer returns 200' );
+
+	$wcb_me_apps = $r->get_data();
+	wcb_assert(
+		is_array( $wcb_me_apps ) && ( isset( $wcb_me_apps['items'] ) || isset( $wcb_me_apps['applications'] ) ),
+		'GET /employers/me/applications returns a collection envelope'
+	);
+
+	// Pagination is the reason this route was touched in 1.7.1 - it used to
+	// advertise total/pages/has_more over a hardcoded LIMIT 20.
+	$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array( 'per_page' => 1 ), $employer_id );
+	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/applications honours per_page' );
+}
+
+// ---------------------------------------------------------------------------
 // Job create links the company even with the reciprocal user meta unset
 // (Basecamp 10134657106 — the raw get_user_meta read left the job orphaned).
 // ---------------------------------------------------------------------------

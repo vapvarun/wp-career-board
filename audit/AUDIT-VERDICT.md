@@ -1,9 +1,9 @@
 # Audit Verdict: wp-career-board
 
 **Branch:** 1.7.1  
-**DB_VERSION:** 1.2.9  
+**DB_VERSION:** 1.3.1  
 **Manifest schema:** v2.2 (refreshed 2026-09-01)  
-**Auditor:** AutoVAP — 2026-06-08 (re-audit after big-site + cleanup wave)
+**Findings audited:** 2026-06-08 by AutoVAP (big-site + cleanup wave). NOT re-audited since.
 
 > **Header currency, 2026-09-01.** Branch / DB_VERSION / manifest date above are
 > now synced to the working branch; the *findings* below still date from the
