@@ -94,7 +94,7 @@ $result['categories']['rest']        = check_rest( $m, $test_corpus );
 $result['categories']['ajax']        = check_ajax( $m, $test_corpus );
 $result['categories']['hooks_fired'] = check_hooks_fired( $m, $test_corpus );
 $result['categories']['cron']        = check_cron( $m, $test_corpus );
-$result['categories']['wp_cli']      = check_wp_cli( $m, $test_files );
+$result['categories']['wp_cli']      = check_wp_cli( $m, $test_files, $test_corpus );
 
 // ─────────────────────────────────────────────────────────
 // 3. Summary roll-up.
@@ -514,7 +514,7 @@ function check_cron( array $m, string $corpus ): array {
  * Each command has a journey class (per the Wbcom CLI architecture pattern).
  * Coverage = file exists for the journey class.
  */
-function check_wp_cli( array $m, array $test_files ): array {
+function check_wp_cli( array $m, array $test_files, string $corpus = '' ): array {
 	$commands = $m['wp_cli'] ?? array();
 	$total    = count( $commands );
 
@@ -544,6 +544,22 @@ function check_wp_cli( array $m, array $test_files ): array {
 		$slug       = strtolower( str_replace( ' ', '-', preg_replace( '/^[^ ]+ /', '', $cmd ) ) );
 		$is_covered = strpos( $test_basenames_blob, "class-{$slug}-journey.php" ) !== false
 			|| strpos( $test_basenames_blob, "class-{$slug}-journey-test.php" ) !== false;
+
+		// House shape: the wp eval-file suites drive commands through
+		// WP_CLI::runcommand( 'wcb job approve ...' ) rather than a journey
+		// class, so matching only the filename convention reported 0/5 on a
+		// plugin whose CLI suite exercises four of the five command groups
+		// (Basecamp 10171650634). Same blindness, and same fix, as check_rest.
+		//
+		// A subcommand counts for its parent: "wcb job" is covered when the
+		// corpus invokes "wcb job approve". Word-boundary the tail so "wcb job"
+		// is not matched by "wcb jobs-something".
+		if ( ! $is_covered && '' !== $corpus ) {
+			$is_covered = (bool) preg_match(
+				'/\b' . preg_quote( $cmd, '/' ) . '\b/i',
+				$corpus
+			);
+		}
 
 		$record = array( 'command' => $cmd );
 		if ( $is_covered ) {
