@@ -89,6 +89,10 @@ Companion-app parity release: members can now do in the app what they can do on 
 * Fix      - Bullet and numbered lists in job descriptions render as lists again instead of flat, unindented lines.
 * Fix      - Excerpts no longer run words together where two paragraphs meet, on job cards, the single job page, social share previews and the API.
 * Fix      - Company names containing an ampersand displayed as "&#038;" on job cards, and the upgrade routine rewrote correct names into that form.
+* Fix      - Employers saw job titles as raw codes such as "&#8211;" in their applications list, and the same routine wrote entity-encoded company names into the database where they reached every visitor. Names already stored that way are repaired on update.
+* Fix      - Job alerts matched the saved search against an encoded title, so an alert for a term containing an ampersand never matched and no mail was sent.
+* Fix      - Three dropdowns on Reign rendered as plain boxes with no arrow, including the resume picker on the apply form, because the plugin overwrote the arrow the theme supplies.
+* Fix      - The employer login redirect no longer overrides the site's own login-redirect setting or another plugin's. Employers with no other destination set still land on the employer dashboard.
 * Fix      - The bookmark button no longer overlaps long job titles on listing cards.
 * Fix      - The largest company-size filter on the company directory returned nothing, because it offered a value the admin screen never saves.
 * Fix      - Company sizes of 5,001 or more employees showed as a raw "5001+" everywhere except the company profile block.
@@ -96,6 +100,7 @@ Companion-app parity release: members can now do in the app what they can do on 
 * Fix      - The Resumes admin screen offered "Search Posts" and other generic wording where it should say Resumes.
 * Security - Job alerts could be edited or deleted by any signed-in candidate, not only their owner.
 * Security - The Kanban board could be read by employers who did not own the job, exposing other employers' applicant details.
+* Dev      - New `wcb_employer_login_redirect_enabled` filter turns the employer login redirect off entirely, for sites that route employers somewhere else.
 * Dev      - REST arguments now enforce the minimum, maximum and allowed values they declare. Requests that exceed a declared page size return a clear error instead of being silently trimmed.
 * Dev      - Companion apps can discover the resume section structure from the API, so a client can build a resume form without hardcoding field names, and a site that adds its own section gets it automatically.
 * Dev      - New filters for sign-in limits, the trusted proxy header, employer-settable statuses, and the resume schema.

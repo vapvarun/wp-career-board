@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.0';
+	const DB_VERSION = '1.3.1';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -402,6 +402,17 @@ final class Install {
 				self::migrate_orphan_job_company_links();
 			}
 
+			// 1.3.1 — repair company names that were stored entity-encoded.
+			// backfill_orphan_jobs() used get_the_title(), which runs the
+			// the_title filter chain, so a company called "Smith & Sons" was
+			// written to _wcb_company_name as "Smith &#038; Sons" and rendered
+			// literally on job cards and the job single, for every visitor
+			// including anonymous ones (Basecamp 10300166572). The write path is
+			// fixed; this repairs rows already persisted on live sites.
+			if ( version_compare( (string) $installed, '1.3.1', '<' ) ) {
+				self::migrate_repair_company_name_entities();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -413,6 +424,60 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Repair `_wcb_company_name` values that were stored entity-encoded.
+	 *
+	 * The meta is a denormalised copy of the company post's title, so the
+	 * company post is the source of truth and re-stamping from it is exact.
+	 * Decoding the entities in place would not be: wptexturize turns " - " into
+	 * an en dash before encoding it, so `&#8211;` cannot be told apart from an
+	 * en dash the owner actually typed. Only rows whose job still points at a
+	 * readable company can be restored that way; anything else falls back to
+	 * decoding, which at least stops the raw entity showing on the page.
+	 *
+	 * Bounded drain by ascending post_id rather than by re-querying the same
+	 * predicate: a row that cannot be improved stays matching the LIKE, so a
+	 * predicate-only loop would never terminate. The cursor always advances.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	private static function migrate_repair_company_name_entities(): void {
+		global $wpdb;
+
+		$after = 0;
+
+		do {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade routine over a single meta_key.
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_name' AND meta_value LIKE %s AND post_id > %d ORDER BY post_id ASC LIMIT %d", '%&#%', $after, 500 ) );
+
+			$batch_size = is_array( $rows ) ? count( $rows ) : 0;
+
+			foreach ( (array) $rows as $row ) {
+				$job_id     = (int) $row->post_id;
+				$after      = max( $after, $job_id );
+				$company_id = (int) get_post_meta( $job_id, '_wcb_company_id', true );
+				$repaired   = '';
+
+				// The company post is the source of truth: the meta is only a
+				// denormalised copy of its title.
+				if ( $company_id > 0 ) {
+					$repaired = (string) get_post_field( 'post_title', $company_id );
+				}
+
+				// No company to read back from, or it is gone: decode what is
+				// stored so the visitor stops seeing "&#038;" on the page.
+				if ( '' === $repaired ) {
+					$repaired = html_entity_decode( (string) $row->meta_value, ENT_QUOTES, 'UTF-8' );
+				}
+
+				if ( $repaired !== (string) $row->meta_value ) {
+					update_post_meta( $job_id, '_wcb_company_name', $repaired );
+				}
+			}
+		} while ( 500 === $batch_size );
 	}
 
 	/**
