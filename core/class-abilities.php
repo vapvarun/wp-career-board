@@ -53,7 +53,21 @@ final class Abilities {
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- domain-specific user-meta gate.
 		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) ) {
-			return false;
+			// A member who schedules their own deletion is suspended through this
+			// same meta (AccountDeletionService::request), which conflates two
+			// very different states: banned BY an administrator, and leaving of
+			// their own accord. The second must still be able to reach the one
+			// screen that cancels it, or the documented 14-day grace period is
+			// unreachable from the web and only the mobile app can undo it.
+			//
+			// Deliberately narrow: dashboard ACCESS only. A member mid-deletion
+			// does not regain applying, bookmarking or resume editing, and an
+			// administrator ban is unaffected because it sets no schedule meta.
+			$wcb_self_requested = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
+
+			if ( ! $wcb_self_requested || 'wcb_access_candidate_dashboard' !== $cap ) {
+				return false;
+			}
 		}
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- $cap is a plugin-registered cap.
@@ -84,7 +98,13 @@ final class Abilities {
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- domain-specific user-meta gate.
 		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) ) {
-			return false;
+			// See the note in gate(): a self-requested deletion suspends through
+			// this same meta, and must still reach the screen that cancels it.
+			$wcb_self_requested = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
+
+			if ( ! $wcb_self_requested || 'wcb_access_candidate_dashboard' !== $cap ) {
+				return false;
+			}
 		}
 
 		/**
