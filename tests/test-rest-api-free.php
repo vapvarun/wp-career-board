@@ -175,11 +175,22 @@ if ( $job_id ) {
 
 WP_CLI::log( '--- Jobs: PUT /wcb/v1/jobs/{id} (admin) ---' );
 if ( $job_id ) {
-	$original_title = get_the_title( $job_id );
+	// Raw post_title, never get_the_title(): the latter returns the DISPLAY form
+	// (wptexturize + entity encoding), so restoring from it writes "Smoke Job 3
+	// &#8211; Senior PHP Engineer" back into the database and the next person to
+	// open the employer dashboard concludes the 10300166572 fix regressed.
+	// Doubly lossy, so decoding is not a fix either: wptexturize turns " - " into
+	// an en dash before encoding it, and the original hyphen is unrecoverable
+	// from the stored value (Basecamp 10301211928).
+	$original_title = (string) get_post_field( 'post_title', $job_id );
 	$r              = wcb_rest( 'PUT', "/wcb/v1/jobs/{$job_id}", array( 'title' => '__wcb_tmp_title__' ), $admin_id );
 	wcb_assert( 200 === $r->get_status(), 'PUT /jobs/{id} as admin returns 200' );
 	// Restore.
 	wp_update_post( array( 'ID' => $job_id, 'post_title' => $original_title ) );
+	wcb_assert(
+		$original_title === (string) get_post_field( 'post_title', $job_id ),
+		'PUT /jobs/{id} restore leaves the stored title byte-identical'
+	);
 }
 
 // ---------------------------------------------------------------------------
