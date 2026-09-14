@@ -159,6 +159,7 @@ class AdminSettings {
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
 		add_action( 'wcb_settings_tab_industries', array( $this, 'render_industries_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
+		add_action( 'wcb_settings_tab_privacy', array( $this, 'render_privacy_tab' ) );
 		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
 
@@ -380,6 +381,7 @@ class AdminSettings {
 			'emails'        => __( 'Emails', 'wp-career-board' ),
 			'industries'    => __( 'Industries', 'wp-career-board' ),
 			'import'        => __( 'Import', 'wp-career-board' ),
+			'privacy'       => __( 'Privacy', 'wp-career-board' ),
 			'integrations'  => __( 'Integrations', 'wp-career-board' ),
 		);
 
@@ -410,6 +412,7 @@ class AdminSettings {
 			'pages'         => 'file-text',
 			'industries'    => 'building-2',
 			'import'        => 'upload',
+			'privacy'       => 'shield-check',
 			'antispam'      => 'shield',
 			'notifications' => 'bell',
 			'emails'        => 'mail',
@@ -440,6 +443,7 @@ class AdminSettings {
 			'emails'        => 'general',
 			'industries'    => 'general',
 			'import'        => 'general',
+			'privacy'       => 'general',
 			'antispam'      => 'general',
 			'integrations'  => 'general',
 		);
@@ -1518,6 +1522,126 @@ class AdminSettings {
 				} );
 		} );
 		</script>
+		<?php
+	}
+
+	/**
+	 * Privacy tab — the GDPR request audit trail.
+	 *
+	 * wcb_gdpr_log has recorded every export and erase request since 1.0.0 and
+	 * nothing could read it: no admin screen, no REST route, and the GDPR
+	 * exporter deliberately excludes it. A compliance audit trail only reachable
+	 * with database access is no evidence at all at the moment an owner needs to
+	 * show a request was honoured.
+	 *
+	 * Read-only on purpose. An audit trail an administrator can edit is not one,
+	 * and rows age out with the user they belong to via the existing erase path.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array<string,mixed> $settings Current settings (unused; read-only view).
+	 * @return void
+	 */
+	public function render_privacy_tab( array $settings = array() ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- signature fixed by the wcb_settings_tab_{slug} action.
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'wcb_gdpr_log';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- admin-only audit view on a custom table.
+		$exists = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+
+		$per_page = 50;
+		$paged    = isset( $_GET['wcb_log_page'] ) ? max( 1, absint( wp_unslash( $_GET['wcb_log_page'] ) ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination.
+		$offset   = ( $paged - 1 ) * $per_page;
+
+		$total = 0;
+		$rows  = array();
+
+		if ( $exists ) {
+			$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- admin-only audit view; the only interpolation is $wpdb->prefix, so there is no user input to prepare.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- admin-only audit view; LIMIT/OFFSET paginated.
+			$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, user_id, action, ip_hash, created_at FROM {$table} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $per_page, $offset ) );
+		}
+
+		$pages = (int) ceil( $total / $per_page );
+		?>
+			<h2><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text.', 'wp-career-board' ); ?>
+			</p>
+
+			<?php if ( ! $exists ) : ?>
+				<p><?php esc_html_e( 'The request log table is not present. It is created on activation.', 'wp-career-board' ); ?></p>
+			<?php elseif ( empty( $rows ) ) : ?>
+				<p><?php esc_html_e( 'No personal-data requests have been processed yet.', 'wp-career-board' ); ?></p>
+			<?php else : ?>
+				<p class="description">
+					<?php
+					printf(
+						/* translators: %s: number of logged requests. */
+						esc_html( _n( '%s request logged.', '%s requests logged.', $total, 'wp-career-board' ) ),
+						esc_html( number_format_i18n( $total ) )
+					);
+					?>
+				</p>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th scope="col"><?php esc_html_e( 'Date', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Request', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Member', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Origin (hashed)', 'wp-career-board' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<?php
+						$user  = get_userdata( (int) $row->user_id );
+						$label = 'erase' === $row->action
+							? __( 'Erase personal data', 'wp-career-board' )
+							: __( 'Export personal data', 'wp-career-board' );
+						?>
+						<tr>
+							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row->created_at ) ); ?></td>
+							<td><?php echo esc_html( $label ); ?></td>
+							<td>
+								<?php if ( $user ) : ?>
+									<a href="<?php echo esc_url( get_edit_user_link( $user->ID ) ); ?>"><?php echo esc_html( $user->user_login ); ?></a>
+								<?php else : ?>
+									<?php
+									printf(
+										/* translators: %d: user ID of a member who no longer exists. */
+										esc_html__( 'Deleted member (#%d)', 'wp-career-board' ),
+										(int) $row->user_id
+									);
+									?>
+								<?php endif; ?>
+							</td>
+							<td><code><?php echo esc_html( substr( (string) $row->ip_hash, 0, 12 ) ); ?></code></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+
+				<?php if ( $pages > 1 ) : ?>
+					<p class="wcb-settings-pagination">
+						<?php
+						echo wp_kses_post(
+							paginate_links(
+								array(
+									'base'      => add_query_arg( 'wcb_log_page', '%#%' ),
+									'format'    => '',
+									'current'   => $paged,
+									'total'     => $pages,
+									'prev_text' => __( '&laquo; Previous', 'wp-career-board' ),
+									'next_text' => __( 'Next &raquo;', 'wp-career-board' ),
+								)
+							)
+						);
+						?>
+					</p>
+				<?php endif; ?>
+			<?php endif; ?>
 		<?php
 	}
 }
