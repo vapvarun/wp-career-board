@@ -43,6 +43,11 @@ printf "${BOLD}Local CI — %s${RESET}\n" "$(basename "$ROOT")"
 # either a parse error or warning, which we want to surface. We collect the
 # noisy output, drop the success lines, and fail iff anything remains.
 run_step "php-lint" '
+	# Match real failures rather than filtering out successes. php -l writes
+	# startup warnings to stderr on any machine with a mismatched extension
+	# (Local PHP bundle vs a Homebrew PHP, say), and 2>&1 captured those, so
+	# the gate failed for every commit on such a machine and the only way past
+	# it was SKIP_LOCAL_CI=1 - which skips the whole suite, not just this step.
 	out=$(find . -name "*.php" \
 		-not -path "./vendor/*" \
 		-not -path "./node_modules/*" \
@@ -51,7 +56,7 @@ run_step "php-lint" '
 		-not -path "./.worktrees/*" \
 		-print0 \
 		| xargs -0 -P4 -n20 php -l 2>&1 \
-		| awk "!/No syntax errors detected/")
+		| awk "/Parse error|Fatal error|Errors parsing/")
 	if [ -n "$out" ]; then printf "%s\n" "$out"; exit 1; fi
 ' || failed=$((failed+1))
 
