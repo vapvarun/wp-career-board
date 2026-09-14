@@ -10,6 +10,33 @@ Legend: **C**reate · **R**ead · **U**pdate · **D**elete · **—** no access.
 
 ---
 
+## The role ladder — who QA logs in as (wp-card-qa §1.5)
+
+Walk top-down on the surface a card names. Stop at the first row that disagrees
+with the tables below; that disagreement IS the finding.
+
+| # | Rung | Persona (`docs/qa/qa-config.json` → `personas`) | Why it is its own row |
+|---|---|---|---|
+| 1 | Reporter's role | whichever the card names | The claim is about this view. Everything else is context. |
+| 2 | Anonymous | — (logged out) | Login gates, public surfaces, and what leaks before auth. |
+| 3 | Member — owner | `employer` = `employer.figma` · `candidate` = `sarah.chen` | The authenticated happy path, on their OWN content. |
+| 4 | Member — **not** owner | `employer_other` = `employer.stripe` · `candidate_other` = `marcus.williams` | The other member's content. Where privacy and permission bugs actually live. |
+| 5 | Elevated | `moderator` = `morgan_moderator` (`wcb_board_moderator`) | Only for surfaces the moderation ability touches. |
+| 6 | Admin | `admin` = `varundubey` | **Last, never first.** An administrator bypasses nearly every gate below, so a permission card confirmed only as admin is not confirmed. |
+
+Rows 3 and 4 are **two different logins, not one**. With a single account the
+owner can always see their own item, so "works for me" is guaranteed and
+meaningless — which is why `bin/qa-fixtures.sh` fails if either second member is
+missing rather than letting a session start on a ladder that cannot detect that
+class of bug.
+
+`subscriber` = `siobhan` is the seventh persona: a logged-in user holding no
+`wcb_*` role. Use it to check that a surface gates on the ability rather than on
+`is_user_logged_in()` — a distinction that hid three unenforced abilities until
+1.7.1.
+
+---
+
 ## Custom plugin roles
 
 | Role slug | Source | Granted abilities |
