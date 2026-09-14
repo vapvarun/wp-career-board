@@ -31,6 +31,17 @@ final class CandidatesModule {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'maybe_flush_rewrites' ), 999 );
 		add_action( 'update_option_wcb_settings', array( $this, 'on_settings_updated' ), 10, 2 );
+
+		// wcb_resume registers public + show_in_rest so the block editor and the
+		// single profile template work. That also hands WordPress core two
+		// listings this plugin does not otherwise control - the wp/v2 REST
+		// collection and the sitemap - and neither knows about the per-candidate
+		// `_wcb_resume_public` opt-in, so both listed resumes their owner had
+		// never agreed to publish (Basecamp 10301167163). Both are narrowed to
+		// the opt-in here, in the module that registers the post type, so the
+		// guarantee holds whether or not Pro is active.
+		add_filter( 'rest_wcb_resume_query', array( $this, 'restrict_rest_query_to_listed' ), 10, 2 );
+		add_filter( 'wp_sitemaps_posts_query_args', array( $this, 'restrict_sitemap_to_listed' ), 10, 2 );
 	}
 
 	/**
@@ -125,5 +136,100 @@ final class CandidatesModule {
 				'map_meta_cap'       => true,
 			)
 		);
+	}
+
+	/**
+	 * Whether the current user may see resumes their owner has not listed.
+	 *
+	 * Whoever administers the plugin legitimately needs the full set - otherwise
+	 * they cannot see, in wp-admin or the block editor, resumes the site holds.
+	 * Everybody else gets only what candidates opted into publishing.
+	 *
+	 * @since 1.7.1
+	 * @return bool
+	 */
+	private function can_see_unlisted_resumes(): bool {
+		return wp_is_ability_granted( 'wcb/manage-settings' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+	}
+
+	/**
+	 * Limit the core wp/v2 resume collection to resumes the owner listed.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array            $args    WP_Query args assembled by the REST controller.
+	 * @param  \WP_REST_Request $request The request.
+	 * @return array
+	 */
+	public function restrict_rest_query_to_listed( $args, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		if ( $this->can_see_unlisted_resumes() ) {
+			return $args;
+		}
+
+		$args = is_array( $args ) ? $args : array();
+
+		$args['meta_query'] = array_merge( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one indexed meta key on a bounded collection.
+			isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : array(),
+			array(
+				array(
+					'key'   => '_wcb_resume_public',
+					'value' => '1',
+				),
+			)
+		);
+
+		/**
+		 * Filters the core REST args for the resume collection.
+		 *
+		 * Pro narrows this further when the candidate directory is not public.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array            $args    Query args, already limited to listed resumes.
+		 * @param \WP_REST_Request $request The request.
+		 */
+		return apply_filters( 'wcb_resume_rest_query_args', $args, $request );
+	}
+
+	/**
+	 * Keep resumes the owner never listed out of the sitemap.
+	 *
+	 * They 404 for anonymous visitors, so advertising them is both a privacy
+	 * leak - real sites carry the candidate's name in the slug - and a sitemap
+	 * full of dead URLs.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array  $args      WP_Query args for the sitemap provider.
+	 * @param  string $post_type Post type being listed.
+	 * @return array
+	 */
+	public function restrict_sitemap_to_listed( $args, $post_type ) {
+		if ( 'wcb_resume' !== $post_type ) {
+			return $args;
+		}
+
+		$args = is_array( $args ) ? $args : array();
+
+		$args['meta_query'] = array_merge( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one indexed meta key, sitemap pages are bounded.
+			isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : array(),
+			array(
+				array(
+					'key'   => '_wcb_resume_public',
+					'value' => '1',
+				),
+			)
+		);
+
+		/**
+		 * Filters the sitemap args for resumes.
+		 *
+		 * Pro drops the post type entirely when the directory is not public.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array $args Query args, already limited to listed resumes.
+		 */
+		return apply_filters( 'wcb_resume_sitemap_query_args', $args );
 	}
 }

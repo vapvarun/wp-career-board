@@ -2,10 +2,10 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.7.0"
+        "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-08-31T19:15:51+00:00",
+        "at": "2026-09-14T14:39:41+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -315,7 +315,7 @@
             "total": 86,
             "covered": 0,
             "uncovered": 86,
-            "skipped": 112,
+            "skipped": 113,
             "covered_items": [],
             "uncovered_items": [
                 {
@@ -811,7 +811,7 @@
         "items_total": 159,
         "items_covered": 35,
         "items_uncovered": 124,
-        "items_skipped": 112,
+        "items_skipped": 113,
         "coverage_percent": 22
     },
     "drift": {
