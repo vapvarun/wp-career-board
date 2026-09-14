@@ -50,8 +50,9 @@ final class CompaniesEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				// See the note on /jobs/{id}/bookmark - same ability, same gap.
 				'permission_callback' => static function (): bool {
-					return is_user_logged_in();
+					return wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				},
 			)
 		);

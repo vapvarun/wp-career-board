@@ -80,8 +80,14 @@ final class JobsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				// wcb/bookmark-jobs, not a bare login check: the ability was
+				// declared, granted to wcb_candidate and listed by `wp wcb
+				// abilities`, but enforced nowhere, so candidate_requires_role
+				// was silently ignored here and a banned member could still
+				// bookmark. Identical behaviour by default - candidate_gate()
+				// allows any logged-in member unless the setting is on.
 				'permission_callback' => static function (): bool {
-					return is_user_logged_in();
+					return wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				},
 			)
 		);

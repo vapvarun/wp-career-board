@@ -100,8 +100,11 @@ final class ApplicationsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'upload_resume_file' ),
+				// wcb/manage-resume. This one accepted a file upload from ANY
+				// logged-in user, including a banned one, while the ability that
+				// exists to gate it went unused.
 				'permission_callback' => static function (): bool {
-					return is_user_logged_in();
+					return wp_is_ability_granted( 'wcb/manage-resume' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				},
 			)
 		);

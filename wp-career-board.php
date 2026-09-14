@@ -161,10 +161,29 @@ function wcb_get_email_settings(): array {
  * @return string
  */
 function wcb_get_captcha_driver(): string {
+	// The Anti-Spam settings screen writes the flat `captcha_provider` key
+	// (AntiSpamModule::save_settings), and that is what the verifier reads. This
+	// accessor only knew the nested `captcha.driver` shape, which is written by
+	// nothing except the one-time pre-1.2 legacy migration - so on any site that
+	// never held the old wcb_captcha_driver option, an owner could configure
+	// Turnstile or reCAPTCHA and this still returned ''. The only consumer is
+	// GET /settings/app-config, which therefore told the mobile app
+	// captcha_required: false while the web forms enforced a captcha, and the
+	// app's submissions were rejected for a missing token.
+	// Present-and-authoritative: once the key exists, the current screen owns the
+	// answer. 'none' has to win over any legacy value, or an owner turning the
+	// captcha OFF would silently keep the old driver.
+	$provider = \WCB\Admin\Settings::get( 'captcha_provider' );
+	if ( is_string( $provider ) && '' !== $provider ) {
+		return 'none' === $provider ? '' : $provider;
+	}
+
+	// Legacy nested shape, still written by the pre-1.2 migration.
 	$captcha = \WCB\Admin\Settings::get( 'captcha' );
-	if ( is_array( $captcha ) && isset( $captcha['driver'] ) ) {
+	if ( is_array( $captcha ) && ! empty( $captcha['driver'] ) ) {
 		return (string) $captcha['driver'];
 	}
+
 	return (string) get_option( 'wcb_captcha_driver', '' );
 }
 
