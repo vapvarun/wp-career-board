@@ -161,6 +161,7 @@ class AdminSettings {
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
 		add_action( 'wcb_settings_tab_mobile-app', array( $this, 'render_mobile_app_tab' ) );
 		add_action( 'wcb_settings_tab_privacy', array( $this, 'render_privacy_tab' ) );
+		add_action( 'admin_init', array( $this, 'maybe_cancel_account_deletion' ) );
 		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
 
@@ -196,7 +197,7 @@ class AdminSettings {
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
 			'mobile-app'    => array( 'accent_color', 'logo_url', 'login_bg_url', 'dark_mode_default', 'terms_url', 'eula_url', 'guidelines_url', 'abuse_contact_email' ),
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login', 'container_max_width' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -213,6 +214,12 @@ class AdminSettings {
 			'app_password_login'         => ! empty( $input['app_password_login'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
+			// 0 means "inherit": fall through to the theme's declared content
+			// width, then the 1280 default. Anything else is clamped to the range
+			// the resolver documents, so a typo cannot produce an unusable layout.
+			'container_max_width'        => isset( $input['container_max_width'] ) && '' !== $input['container_max_width']
+				? ( (int) $input['container_max_width'] > 0 ? max( 720, min( 1920, (int) $input['container_max_width'] ) ) : 0 )
+				: 0,
 			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
@@ -1004,6 +1011,22 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-container-max-width"><?php esc_html_e( 'Content Width (px)', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<input
+												id="wcb-container-max-width"
+												type="number"
+												name="wcb_settings[container_max_width]"
+												value="<?php echo esc_attr( (string) ( isset( $settings['container_max_width'] ) ? (int) $settings['container_max_width'] : 0 ) ); ?>"
+												min="0"
+												max="1920"
+												step="10"
+												placeholder="0"
+											>
+											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
 										<div class="wcb-settings-row-label"><?php esc_html_e( 'App Password Sign-In', 'wp-career-board' ); ?></div>
 										<div class="wcb-settings-row-control">
 											<label class="wcb-toggle-label">
@@ -1659,6 +1682,42 @@ class AdminSettings {
 	}
 
 	/**
+	 * Cancel a member's pending account deletion on their behalf.
+	 *
+	 * The member can always undo their own deletion by signing back in, but a
+	 * support message asking someone else to do it is the common case, and the
+	 * owner previously had no way to act on it - nor any way to see the request
+	 * existed.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	public function maybe_cancel_account_deletion(): void {
+		if ( ! isset( $_GET['action'] ) || 'wcb_cancel_deletion' !== sanitize_key( wp_unslash( $_GET['action'] ) ) ) {
+			return;
+		}
+
+		$user_id = isset( $_GET['user_id'] ) ? absint( wp_unslash( $_GET['user_id'] ) ) : 0;
+		$nonce   = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+
+		if ( $user_id <= 0 || '' === $nonce || ! wp_verify_nonce( $nonce, 'wcb_cancel_deletion_' . $user_id ) ) {
+			return;
+		}
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			return;
+		}
+
+		$user = get_userdata( $user_id );
+		if ( $user && class_exists( '\WCB\Modules\Account\AccountDeletionService' ) ) {
+			( new \WCB\Modules\Account\AccountDeletionService() )->cancel( $user );
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&wcb_deletion_cancelled=1#privacy' ) );
+		exit;
+	}
+
+	/**
 	 * Privacy tab — the GDPR request audit trail.
 	 *
 	 * wcb_gdpr_log has recorded every export and erase request since 1.0.0 and
@@ -1698,7 +1757,72 @@ class AdminSettings {
 
 		$pages = (int) ceil( $total / $per_page );
 		?>
-			<h2><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
+			<?php
+			// Pending account deletions. Members can schedule their own deletion with
+			// a 14-day grace window, and until now the owner could not see that a
+			// single one was pending - not who, not when, and not in time to answer a
+			// "I changed my mind" support message before the cron ran.
+			$wcb_pending = get_users(
+				array(
+					'meta_key'     => '_wcb_deletion_scheduled_at', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- admin-only view, bounded by the number of leaving members.
+					'meta_compare' => 'EXISTS',
+					'number'       => 50,
+					'fields'       => array( 'ID', 'user_login', 'user_email' ),
+				)
+			);
+			?>
+		<h2><?php esc_html_e( 'Pending account deletions', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Members who asked to delete their account. They stay signed out during the wait and can stop it themselves by signing back in. Cancel on their behalf if they contact you instead.', 'wp-career-board' ); ?>
+		</p>
+
+		<?php if ( empty( $wcb_pending ) ) : ?>
+			<p><?php esc_html_e( 'No account deletions are pending.', 'wp-career-board' ); ?></p>
+		<?php else : ?>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th scope="col"><?php esc_html_e( 'Member', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Deletes on', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Time left', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Action', 'wp-career-board' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach ( $wcb_pending as $wcb_member ) : ?>
+					<?php
+					$wcb_when = (int) get_user_meta( $wcb_member->ID, '_wcb_deletion_scheduled_at', true );
+					$wcb_left = $wcb_when - time();
+					$wcb_undo = wp_nonce_url(
+						add_query_arg(
+							array(
+								'page'    => 'wcb-settings',
+								'action'  => 'wcb_cancel_deletion',
+								'user_id' => $wcb_member->ID,
+							),
+							admin_url( 'admin.php' )
+						),
+						'wcb_cancel_deletion_' . $wcb_member->ID
+					);
+					?>
+					<tr>
+						<td><a href="<?php echo esc_url( get_edit_user_link( $wcb_member->ID ) ); ?>"><?php echo esc_html( $wcb_member->user_login ); ?></a></td>
+						<td><?php echo esc_html( $wcb_when ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $wcb_when ) : '—' ); ?></td>
+						<td>
+							<?php
+							echo $wcb_left > 0
+								? esc_html( sprintf( /* translators: %s: human-readable duration. */ __( '%s left', 'wp-career-board' ), human_time_diff( time(), $wcb_when ) ) )
+								: esc_html__( 'Due - runs on the next scheduled task', 'wp-career-board' );
+							?>
+						</td>
+						<td><a href="<?php echo esc_url( $wcb_undo ); ?>" class="button button-small"><?php esc_html_e( 'Keep account', 'wp-career-board' ); ?></a></td>
+					</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+		<?php endif; ?>
+
+		<h2><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
 			<p class="description">
 				<?php esc_html_e( 'Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text.', 'wp-career-board' ); ?>
 			</p>
