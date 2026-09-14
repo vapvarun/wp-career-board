@@ -79,7 +79,7 @@ class SeoModule {
 		$schema = array(
 			'@context'           => 'https://schema.org',
 			'@type'              => 'JobPosting',
-			'title'              => get_the_title( $job ),
+			'title'              => $job->post_title,
 			'description'        => wp_strip_all_tags( $job->post_content ),
 			'datePosted'         => get_post_time( 'c', true, $job ),
 			'validThrough'       => $valid_through,
@@ -181,7 +181,7 @@ class SeoModule {
 	private function get_hiring_org( \WP_Post $job ): array {
 		$author  = (int) $job->post_author;
 		$comp_id = $author ? (int) get_user_meta( $author, '_wcb_company_id', true ) : 0;
-		$name    = $comp_id ? (string) get_the_title( $comp_id ) : (string) get_bloginfo( 'name' );
+		$name    = $comp_id ? (string) get_post_field( 'post_title', $comp_id ) : (string) get_bloginfo( 'name' );
 
 		return array(
 			'@type'  => 'Organization',

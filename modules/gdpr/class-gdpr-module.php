@@ -135,7 +135,7 @@ class GdprModule {
 				'data'        => array(
 					array(
 						'name'  => __( 'Job', 'wp-career-board' ),
-						'value' => $job_id ? get_the_title( $job_id ) : '',
+						'value' => $job_id ? (string) get_post_field( 'post_title', $job_id ) : '',
 					),
 					array(
 						'name'  => __( 'Status', 'wp-career-board' ),

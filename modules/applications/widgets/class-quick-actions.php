@@ -110,7 +110,7 @@ final class QuickActions extends AbstractWidget {
 					<?php esc_html_e( 'Reject', 'wp-career-board' ); ?>
 				</button>
 				<?php if ( '' !== $email ) : ?>
-					<a class="button" href="<?php echo esc_url( 'mailto:' . $email . '?subject=' . rawurlencode( (string) get_the_title( $post ) ) ); ?>">
+					<a class="button" href="<?php echo esc_url( 'mailto:' . $email . '?subject=' . rawurlencode( (string) get_post_field( 'post_title', $post ) ) ); ?>">
 						<?php esc_html_e( 'Message', 'wp-career-board' ); ?>
 					</a>
 				<?php endif; ?>

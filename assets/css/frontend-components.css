@@ -755,7 +755,11 @@ select.wcb-field {
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-contrast);
-	background: var(--wcb-base);
+	/* background-color, not the `background` shorthand: the shorthand resets
+	   background-image, which wipes the caret a theme supplies for an
+	   appearance:none select. On Reign that left a bordered box with no
+	   arrow and no affordance at all (Basecamp 10300196743). */
+	background-color: var(--wcb-base);
 	cursor: pointer;
 }
 

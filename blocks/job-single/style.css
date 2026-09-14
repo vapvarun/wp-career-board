@@ -656,7 +656,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
-	background: var(--wcb-base);
+	/* background-color, not the `background` shorthand: the shorthand resets
+	   background-image, which wipes the caret a theme supplies for an
+	   appearance:none select. On Reign that left a bordered box with no
+	   arrow and no affordance at all (Basecamp 10300196743). */
+	background-color: var(--wcb-base);
 }
 
 .wcb-apply-resume-select:focus {

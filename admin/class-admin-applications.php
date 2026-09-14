@@ -791,7 +791,7 @@ class AdminApplications extends \WP_List_Table {
 				array(
 					(string) $post->ID,
 					(string) $job_id,
-					$job_id > 0 ? (string) get_the_title( $job_id ) : '',
+					$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
 					$name,
 					$email,
 					'' !== $status ? $status : 'submitted',

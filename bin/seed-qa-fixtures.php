@@ -7,7 +7,8 @@
  *
  * What it creates:
  *   - 1 admin (uses user 1)
- *   - 2 employer users + 2 wcb_company posts owned by them
+ *   - 2 employer users + 2 wcb_company posts owned by them (one deliberately
+ *     named with an ampersand, so entity-encoding regressions are catchable)
  *   - 3 candidate users + 3 wcb_resume posts (one per candidate)
  *   - 5 wcb_job posts (3 published, 1 draft, 1 expired)
  *   - 4 wcb_application posts spanning stages (applied / shortlisted / rejected / hired)
@@ -15,7 +16,8 @@
  *   - Pro fixtures (only when wp-career-board-pro is active):
  *       1 row in wcb_credit_ledger (employer #1 has 5 credits)
  *       1 row in wcb_job_alerts (candidate alert for "javascript")
- *       3 rows in wcb_application_stages (applied, shortlisted, rejected)
+ *       wcb_application_stages seeded by the product (Pro's five defaults),
+ *       asserted duplicate-free rather than inserted by this script
  *
  * All seeded posts are tagged with `_wcb_qa_smoke` post-meta = 1 so the
  * runbook's fixture-cleanup pass can wipe them in a single query.
@@ -246,7 +248,7 @@ $company_alpha = $insert(
 $company_beta  = $insert(
 	array(
 		'post_type'   => 'wcb_company',
-		'post_title'  => 'Smoke Co Beta',
+		'post_title'  => 'Smoke Co Beta & Sons',
 		'post_author' => $employers[1],
 	),
 	'company',
@@ -281,7 +283,7 @@ for ( $i = 0; $i < 5; $i++ ) {
 	$title  = sprintf( 'Smoke Job %d - Senior PHP Engineer', $i + 1 );
 	$meta   = array(
 		'_wcb_company_id'      => 0 === $i % 2 ? $company_alpha : $company_beta,
-		'_wcb_company_name'    => 0 === $i % 2 ? 'Smoke Co Alpha' : 'Smoke Co Beta',
+		'_wcb_company_name'    => 0 === $i % 2 ? 'Smoke Co Alpha' : 'Smoke Co Beta & Sons',
 		'_wcb_salary_min'      => '80000',
 		'_wcb_salary_max'      => '110000',
 		'_wcb_salary_currency' => 'USD',
@@ -344,20 +346,43 @@ WP_CLI::log( sprintf( '  posts: 1 board, 2 companies, %d resumes, %d jobs, %d ap
 // ---------------------------------------------------------------------------
 
 if ( $pro_active ) {
+	/**
+	 * Insert a fixture row and abort the run if the database refuses it.
+	 *
+	 * The seeder used to call $wpdb->insert() and print its success line
+	 * regardless of the return value, so a rejected row (wrong column name,
+	 * changed schema) surfaced only in debug.log. Every Pro credits walk was
+	 * then validated against an empty table and nobody could tell that state
+	 * apart from a genuine zero balance (Basecamp 10300166951).
+	 *
+	 * @param string $table Fully-prefixed table name.
+	 * @param array  $row   Column => value map.
+	 * @param string $what  Human label for the error message.
+	 * @return void
+	 */
+	$insert_row = static function ( string $table, array $row, string $what ) use ( $wpdb ): void {
+		if ( false === $wpdb->insert( $table, $row ) ) {
+			WP_CLI::error( sprintf( '%s: insert into %s failed: %s', $what, $table, $wpdb->last_error ) );
+		}
+	};
+
 	// Credit ledger.
-	// Schema: id, employer_id, post_id, entry_type, amount, note, created_at
+	// Schema: id, user_id, item_id, entry_type, amount, note, created_at
 	// (append-only; balance = SUM of signed amounts — no balance column).
+	// user_id/item_id are the post-migration names; Pro renamed them from
+	// employer_id/post_id in class-pro-install.php.
 	$ledger_table = $wpdb->prefix . 'wcb_credit_ledger';
 	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $ledger_table ) ) ) {
-		$wpdb->insert(
+		$insert_row(
 			$ledger_table,
 			array(
-				'employer_id' => $employers[0],
-				'post_id'     => 0,
-				'entry_type'  => 'topup',
-				'amount'      => 5,
-				'note'        => 'Smoke seed - initial grant',
-			)
+				'user_id'    => $employers[0],
+				'item_id'    => 0,
+				'entry_type' => 'topup',
+				'amount'     => 5,
+				'note'       => 'Smoke seed - initial grant',
+			),
+			'credit_ledger'
 		);
 		WP_CLI::log( '  pro: credit_ledger row for employer.figma (5 credits, entry_type=topup)' );
 	}
@@ -367,7 +392,7 @@ if ( $pro_active ) {
 	// (no 'name' or 'query' or 'cadence' columns).
 	$alerts_table = $wpdb->prefix . 'wcb_job_alerts';
 	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $alerts_table ) ) ) {
-		$wpdb->insert(
+		$insert_row(
 			$alerts_table,
 			array(
 				'user_id'      => $candidates[0],
@@ -375,30 +400,35 @@ if ( $pro_active ) {
 				'search_query' => 'javascript',
 				'filters'      => wp_json_encode( array( 'location' => 'Remote' ) ),
 				'frequency'    => 'daily',
-			)
+			),
+			'job_alerts'
 		);
 		WP_CLI::log( '  pro: job_alerts row for sarah.chen (frequency=daily, search_query=javascript)' );
 	}
 
-	// Application stages master list (so pipeline UI has stages to render).
-	// Schema: id, board_id, label, color, sort_order, is_terminal, terminal_outcome
-	// (column is 'label' not 'name'; board_id required; no created_at).
+	// Application stages.
+	//
+	// Do NOT insert stages here. Publishing the smoke board above already fired
+	// BoardsProModule::seed_stages_on_publish(), which gives the board Pro's
+	// five defaults. The seeder used to add three more on top, producing an
+	// eight-stage board with two "Rejected" columns and four stages sharing two
+	// sort_order values — so Kanban QA ran against a board no real site has
+	// (Basecamp 10300167029). StageRepository::ensure_defaults() is idempotent
+	// and never touches a board that already has stages, so this both covers
+	// the case where the publish hook did not run and asserts the real product
+	// shape is what QA tests against.
 	$stages_table = $wpdb->prefix . 'wcb_application_stages';
 	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $stages_table ) ) ) {
-		foreach ( array( 'Applied', 'Shortlisted', 'Rejected' ) as $idx => $label ) {
-			$wpdb->insert(
-				$stages_table,
-				array(
-					'board_id'         => $board_id,
-					'label'            => $label,
-					'color'            => '#6366f1',
-					'sort_order'       => $idx + 1,
-					'is_terminal'      => 'Rejected' === $label ? 1 : 0,
-					'terminal_outcome' => 'Rejected' === $label ? 'rejected' : null,
-				)
-			);
+		if ( class_exists( '\\WCB\\Pro\\Modules\\Pipeline\\StageRepository' ) ) {
+			\WCB\Pro\Modules\Pipeline\StageRepository::ensure_defaults( $board_id );
 		}
-		WP_CLI::log( '  pro: application_stages 3 rows (Applied / Shortlisted / Rejected) scoped to smoke board' );
+
+		$stage_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$stages_table} WHERE board_id = %d", $board_id ) );
+		$dupe_labels = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM ( SELECT label FROM {$stages_table} WHERE board_id = %d GROUP BY label HAVING COUNT(*) > 1 ) d", $board_id ) );
+		if ( $dupe_labels > 0 ) {
+			WP_CLI::error( sprintf( 'application_stages: board %d has %d duplicated stage label(s) - the board is malformed, fix before running QA.', $board_id, $dupe_labels ) );
+		}
+		WP_CLI::log( sprintf( '  pro: application_stages %d rows (product defaults) scoped to smoke board, no duplicate labels', $stage_count ) );
 	}
 }
 

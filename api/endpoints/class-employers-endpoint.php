@@ -606,7 +606,10 @@ final class EmployersEndpoint extends RestController {
 			return;
 		}
 
-		$company_name = get_the_title( $company_id );
+		// Raw title, not get_the_title(): this value is written to post meta and
+		// rendered on job cards. the_title filters (wptexturize) would persist
+		// "Smith &#038; Sons" into the database permanently (Basecamp 10300166572).
+		$company_name = (string) get_post_field( 'post_title', $company_id );
 
 		do {
 			$orphans = get_posts(
@@ -1022,7 +1025,7 @@ final class EmployersEndpoint extends RestController {
 				$prepared = array(
 					'id'                 => $app_id,
 					'job_id'             => $job_id,
-					'job_title'          => $job_id > 0 ? get_the_title( $job_id ) : '',
+					'job_title'          => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
 					'applicant_name'     => $candidate_user
 					? $candidate_user->display_name
 					: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
