@@ -244,7 +244,8 @@ final class EmployersModule {
 			return $template;
 		}
 		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
-		if ( str_contains( $template, 'wp-career-board' ) ) {
+		// See TemplateOverride - theme templates and the bundled integrations both win.
+		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
 			return $template;
 		}
 		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';

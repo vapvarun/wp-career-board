@@ -206,8 +206,10 @@ final class JobsModule {
 		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
-		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
-		if ( str_contains( $template, 'wp-career-board' ) ) {
+		// A theme's own single-wcb_job.php wins, as do the bundled Reign /
+		// BuddyX Pro integration templates. See TemplateOverride: the old check
+		// was a plugin-path sniff, so a theme template was silently replaced.
+		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
 			return $template;
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/single-wcb_job.php';
