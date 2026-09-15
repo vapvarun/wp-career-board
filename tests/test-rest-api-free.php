@@ -918,6 +918,68 @@ $r = wcb_rest( 'POST', '/wcb/v1/wizard/complete', array(), 0 );
 wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /wizard/complete anon returns 401 or 403' );
 
 // ---------------------------------------------------------------------------
+// Resume listing opt-in: every read path, not just the collection
+// ---------------------------------------------------------------------------
+//
+// wcb_resume is public + show_in_rest, so core owns two read paths. 1.7.1
+// narrowed the COLLECTION with rest_wcb_resume_query, and a read by id kept
+// serving an unlisted candidate's title, slug and permalink to anonymous
+// callers - check_read_permission() returns true for any published post, and a
+// query filter never runs on it. Ids are enumerable, so that walked the table.
+//
+// The by-id case below is the assertion that was missing; the collection ones
+// passed throughout the leak.
+
+WP_CLI::log( '' );
+WP_CLI::log( '--- Resume listing opt-in ---' );
+
+$wcb_probe_user = wp_insert_user(
+	array(
+		'user_login' => 'wcb_optin_probe_' . wp_rand( 1000, 9999 ),
+		'user_pass'  => wp_generate_password(),
+		'role'       => 'wcb_candidate',
+	)
+);
+
+if ( is_wp_error( $wcb_probe_user ) ) {
+	wcb_assert( false, 'could not create the resume opt-in probe user' );
+} else {
+	$wcb_unlisted = wp_insert_post(
+		array(
+			'post_type'   => 'wcb_resume',
+			'post_status' => 'publish',
+			'post_title'  => 'Opt-in Probe Unlisted',
+			'post_author' => $wcb_probe_user,
+		)
+	);
+	delete_post_meta( $wcb_unlisted, '_wcb_resume_public' );
+
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), 0 );
+	wcb_assert( 200 !== $r->get_status(), 'anon GET /wp/v2/wcb_resume/{id} does not serve an UNLISTED resume' );
+
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume', array(), 0 );
+	$wcb_ids = wp_list_pluck( (array) $r->get_data(), 'id' );
+	wcb_assert( ! in_array( $wcb_unlisted, $wcb_ids, true ), 'anon collection omits an UNLISTED resume' );
+
+	// The candidate must always reach their own, listed or not.
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), (int) $wcb_probe_user );
+	wcb_assert( 200 === $r->get_status(), 'the owning candidate can still read their own unlisted resume' );
+
+	// Administering the plugin still sees everything, or wp-admin breaks.
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), $admin_id );
+	wcb_assert( 200 === $r->get_status(), 'an administrator can still read an unlisted resume' );
+
+	// Opting in restores public reach.
+	update_post_meta( $wcb_unlisted, '_wcb_resume_public', '1' );
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), 0 );
+	wcb_assert( 200 === $r->get_status(), 'anon CAN read a resume once its owner lists it' );
+
+	wp_delete_post( $wcb_unlisted, true );
+	wp_delete_user( $wcb_probe_user );
+	wp_set_current_user( 0 );
+}
+
+// ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
 
