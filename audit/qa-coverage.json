@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-15T04:34:52+00:00",
+        "at": "2026-09-15T04:49:46+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -316,11 +316,20 @@
             "skipped": 0
         },
         "hooks_fired": {
-            "total": 86,
-            "covered": 0,
+            "total": 88,
+            "covered": 2,
             "uncovered": 86,
             "skipped": 113,
-            "covered_items": [],
+            "covered_items": [
+                {
+                    "name": "wcb_scale_ops",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_scale_budgets",
+                    "consumer_count": 1
+                }
+            ],
             "uncovered_items": [
                 {
                     "name": "wcb_notification_created",
@@ -756,8 +765,8 @@
             "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
         },
         "cron": {
-            "total": 4,
-            "covered": 4,
+            "total": 5,
+            "covered": 5,
             "uncovered": 0,
             "skipped": 0,
             "covered_items": [
@@ -772,14 +781,17 @@
                 },
                 {
                     "hook": "wcb_process_account_deletions"
+                },
+                {
+                    "hook": "wcb_prune_job_views"
                 }
             ],
             "uncovered_items": []
         },
         "wp_cli": {
             "total": 5,
-            "covered": 4,
-            "uncovered": 1,
+            "covered": 5,
+            "uncovered": 0,
             "skipped": 0,
             "covered_items": [
                 {
@@ -793,27 +805,25 @@
                 },
                 {
                     "command": "wcb migrate"
+                },
+                {
+                    "command": "wcb scale"
                 }
             ],
-            "uncovered_items": [
-                {
-                    "command": "wcb scale",
-                    "stub_command": "bin/qa-stub-gen.php wp_cli wcb scale"
-                }
-            ]
+            "uncovered_items": []
         }
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 160,
-        "items_covered": 44,
-        "items_uncovered": 116,
+        "items_total": 163,
+        "items_covered": 48,
+        "items_uncovered": 115,
         "items_skipped": 113,
-        "coverage_percent": 27.5
+        "coverage_percent": 29.399999999999999
     },
     "drift": {
-        "previous_uncovered": 120,
-        "current_uncovered": 116,
-        "delta": -4
+        "previous_uncovered": 116,
+        "current_uncovered": 115,
+        "delta": -1
     }
 }

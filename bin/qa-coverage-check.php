@@ -434,10 +434,21 @@ function check_hooks_fired( array $m, string $corpus ): array {
 			continue;
 		}
 
-		$fired = strpos( $corpus, "do_action( '{$name}'" ) !== false
-			|| strpos( $corpus, "do_action('{$name}'" ) !== false
-			|| strpos( $corpus, "apply_filters( '{$name}'" ) !== false
-			|| strpos( $corpus, "apply_filters('{$name}'" ) !== false;
+		// A test covers a hook either by firing it or by listening on it. The
+		// listener half matters most for filters: the real contract is that a
+		// consumer's return value reaches the product, which a test proves by
+		// registering add_filter and asserting the effect - not by calling
+		// apply_filters itself. Counting only the firing half marked the
+		// stronger test uncovered and the weaker one covered.
+		// Matched with a regex, not strpos: a real call site is routinely wrapped
+		// across lines by the formatter, and a literal "fn( 'hook'" match misses
+		// every one of those - the same undercount that bit the manifest's own
+		// hook census.
+		$hook_call = sprintf(
+			'/\b(?:do_action|apply_filters|add_action|add_filter)\s*\(\s*[\'"]%s[\'"]/',
+			preg_quote( $name, '/' )
+		);
+		$fired     = preg_match( $hook_call, $corpus ) === 1;
 
 		$record = array(
 			'name'           => $name,
