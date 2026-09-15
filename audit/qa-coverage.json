@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-14T20:14:03+00:00",
+        "at": "2026-09-15T04:34:52+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -757,28 +757,24 @@
         },
         "cron": {
             "total": 4,
-            "covered": 0,
-            "uncovered": 4,
+            "covered": 4,
+            "uncovered": 0,
             "skipped": 0,
-            "covered_items": [],
-            "uncovered_items": [
+            "covered_items": [
                 {
-                    "hook": "wcb_check_job_expiry",
-                    "stub_command": "bin/qa-stub-gen.php cron wcb_check_job_expiry"
+                    "hook": "wcb_check_job_expiry"
                 },
                 {
-                    "hook": "wcb_expire_featured_jobs",
-                    "stub_command": "bin/qa-stub-gen.php cron wcb_expire_featured_jobs"
+                    "hook": "wcb_expire_featured_jobs"
                 },
                 {
-                    "hook": "wcb_send_deadline_reminders",
-                    "stub_command": "bin/qa-stub-gen.php cron wcb_send_deadline_reminders"
+                    "hook": "wcb_send_deadline_reminders"
                 },
                 {
-                    "hook": "wcb_process_account_deletions",
-                    "stub_command": "bin/qa-stub-gen.php cron wcb_process_account_deletions"
+                    "hook": "wcb_process_account_deletions"
                 }
-            ]
+            ],
+            "uncovered_items": []
         },
         "wp_cli": {
             "total": 5,
@@ -810,14 +806,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 160,
-        "items_covered": 40,
-        "items_uncovered": 120,
+        "items_covered": 44,
+        "items_uncovered": 116,
         "items_skipped": 113,
-        "coverage_percent": 25
+        "coverage_percent": 27.5
     },
     "drift": {
-        "previous_uncovered": 121,
-        "current_uncovered": 120,
-        "delta": -1
+        "previous_uncovered": 120,
+        "current_uncovered": 116,
+        "delta": -4
     }
 }
