@@ -1,5 +1,9 @@
 # Verified Bug Cards — WP Career Board 1.5.1
 
+> **Historical record, not a procedure.** This documents one run on one machine,
+> so the hostname below is that machine's and is left as found. Reusable
+> procedures live in `docs/qa/walkthroughs/` and take `$WCB_SITE` / `$WCB_PATH`.
+
 Only issues **confirmed at BOTH code level (root cause at file:line) AND browser/live replication**.
 Refuted / by-design / false-positive findings are NOT here (see [`VERIFY-TRACKER-1.5.1.md`](VERIFY-TRACKER-1.5.1.md)).
 Ready to file (Basecamp project 46502739 → Bugs `9691964821`, or GitHub issues).

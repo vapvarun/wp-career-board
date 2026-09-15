@@ -99,6 +99,15 @@ else
 	printf "  ${DIM}skip   ${RESET} i18n-literals (bin/check-i18n.sh missing)\n"
 fi
 
+# 5c. QA procedures must not pin one machine. A walkthrough carrying an author's
+#     hostname or home directory fails at the first command on any other box, and
+#     fails quietly: a wrong --path drives the wrong site.
+if [ -x "./bin/check-qa-portability.sh" ]; then
+	run_step "qa-portability" './bin/check-qa-portability.sh' || failed=$((failed+1))
+else
+	printf "  ${DIM}skip   ${RESET} qa-portability (bin/check-qa-portability.sh missing)\n"
+fi
+
 printf "\n"
 if [ "$failed" -eq 0 ]; then
 	printf "${GREEN}${BOLD}ALL GREEN${RESET} — safe to push\n"

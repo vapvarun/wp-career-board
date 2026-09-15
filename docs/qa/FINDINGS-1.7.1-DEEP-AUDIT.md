@@ -1,5 +1,10 @@
 # WP Career Board 1.7.1 — Deep QA Findings Log
 
+> **Historical record, not a procedure.** This documents one audit run on one
+> machine, so the hostname and paths below are that machine's and are left as
+> found. The reusable procedures are in `docs/qa/walkthroughs/`, which take
+> `$WCB_SITE` / `$WCB_PATH` instead. See Basecamp 10304164491.
+
 **Env:** Free+Pro 1.7.1 · `http://jobboard.local` · BuddyPress active · branch `1.7.1`
 **Rule:** Collect only. Re-replicate at end, then file **one card per root-cause class** into Basecamp Bugs `9691964821`.
 

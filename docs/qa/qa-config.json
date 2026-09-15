@@ -1,74 +1,74 @@
 {
-	"$schema": "https://wpmediaverse.com/schemas/wp-plugin-qa-config-v1.json",
-	"slug": "wp-career-board",
-	"name": "WP Career Board",
-	"version_constant": "WCB_VERSION",
-	"main_file": "wp-career-board.php",
-	"base_url": "http://jobboard.local",
-	"wp_path": "/Users/varundubey/Local Sites/jobboard/app/public",
-	"_site_note": "base_url/wp_path pin THIS machine's Local site. On a different QA box, override at run time: wp_path = the WP root you run wp-cli from; base_url = `wp --path=<root> option get home`.",
-	"autologin_param": "autologin",
-	"rest_namespace": "wcb/v1",
-	"front_routes": [],
-	"pair": {
-		"pro_slug": "wp-career-board-pro",
-		"pro_version_constant": "WCBP_VERSION",
-		"pro_main_file": "wp-career-board-pro.php",
-		"lockstep": true
-	},
-	"basecamp": {
-		"project_id": 46502739,
-		"bugs_column_id": 9691964821,
-		"ready_for_testing_column_id": 9681375659,
-		"in_testing_column_id": 9681375773,
-		"done_column_id": 9681375111
-	},
-	"modes": [
-		"free",
-		"combo"
-	],
-	"report_path": "docs/qa/.last-smoke-pass.json",
-	"supplements_path": null,
-	"db_version_option": "wcb_db_version",
-	"text_domain": "wp-career-board",
-	"table_prefix": "wcb",
-	"cron_prefix": "wcb_",
-	"personas": {
-		"admin": "varundubey",
-		"editor": null,
-		"moderator": "morgan_moderator",
-		"employer": "employer.figma",
-		"employer_other": "employer.stripe",
-		"candidate": "sarah.chen",
-		"candidate_other": "marcus.williams",
-		"subscriber": "siobhan"
-	},
-	"integrations": [
-		"buddypress"
-	],
-	"fixture_cleanup_sql": [
-		"DELETE FROM {prefix}posts WHERE post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board','wcb_credit_package') AND (post_title LIKE 'Smoke %' OR post_title LIKE 'Smoke-Batch%' OR post_title LIKE 'E2E %')",
-		"DELETE FROM {prefix}postmeta WHERE meta_key = '_wcb_qa_smoke'",
-		"DELETE FROM {prefix}usermeta WHERE meta_key = '_wcb_qa_smoke'"
-	],
-	"debug_log_whitelist": [
-		"PHP Warning.*paid-memberships-pro.*Undefined array key 'hook'",
-		"PHP Warning.*edd-sl-sdk.*Undefined property stdClass::\\$expires",
-		"PHP Notice.*BuddyPress.*"
-	],
-	"outputs": {
-		"journey_runs_dir": "audit/journey-runs",
-		"screenshots_dir": "audit/journey-runs/{run_id}/screenshots",
-		"debug_log_archive": "docs/qa/.debug-log-{version}-{ran_at}.txt"
-	},
-	"persona_roles": {
-		"admin": "administrator",
-		"editor": "editor",
-		"moderator": "wcb_board_moderator",
-		"employer": "wcb_employer",
-		"employer_other": "wcb_employer",
-		"candidate": "wcb_candidate",
-		"candidate_other": "wcb_candidate",
-		"subscriber": "subscriber"
-	}
+  "$schema": "https://wpmediaverse.com/schemas/wp-plugin-qa-config-v1.json",
+  "slug": "wp-career-board",
+  "name": "WP Career Board",
+  "version_constant": "WCB_VERSION",
+  "main_file": "wp-career-board.php",
+  "base_url": null,
+  "wp_path": null,
+  "_site_note": "base_url/wp_path are deliberately null: pinning them to one machine is what spread a hostname across 22 files (Basecamp 10304164491). Nothing in bin/ reads them. Derive at run time - WCB_PATH=\"$(cd \"$(git rev-parse --show-toplevel)/../../..\" && pwd)\"; WCB_SITE=\"$(wp --path=\"$WCB_PATH\" option get home)\" - which is what the walkthrough preambles and bin/qa-fixtures.sh both do.",
+  "autologin_param": "autologin",
+  "rest_namespace": "wcb/v1",
+  "front_routes": [],
+  "pair": {
+    "pro_slug": "wp-career-board-pro",
+    "pro_version_constant": "WCBP_VERSION",
+    "pro_main_file": "wp-career-board-pro.php",
+    "lockstep": true
+  },
+  "basecamp": {
+    "project_id": 46502739,
+    "bugs_column_id": 9691964821,
+    "ready_for_testing_column_id": 9681375659,
+    "in_testing_column_id": 9681375773,
+    "done_column_id": 9681375111
+  },
+  "modes": [
+    "free",
+    "combo"
+  ],
+  "report_path": "docs/qa/.last-smoke-pass.json",
+  "supplements_path": null,
+  "db_version_option": "wcb_db_version",
+  "text_domain": "wp-career-board",
+  "table_prefix": "wcb",
+  "cron_prefix": "wcb_",
+  "personas": {
+    "admin": "varundubey",
+    "editor": null,
+    "moderator": "morgan_moderator",
+    "employer": "employer.figma",
+    "employer_other": "employer.stripe",
+    "candidate": "sarah.chen",
+    "candidate_other": "marcus.williams",
+    "subscriber": "siobhan"
+  },
+  "integrations": [
+    "buddypress"
+  ],
+  "fixture_cleanup_sql": [
+    "DELETE FROM {prefix}posts WHERE post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board','wcb_credit_package') AND (post_title LIKE 'Smoke %' OR post_title LIKE 'Smoke-Batch%' OR post_title LIKE 'E2E %')",
+    "DELETE FROM {prefix}postmeta WHERE meta_key = '_wcb_qa_smoke'",
+    "DELETE FROM {prefix}usermeta WHERE meta_key = '_wcb_qa_smoke'"
+  ],
+  "debug_log_whitelist": [
+    "PHP Warning.*paid-memberships-pro.*Undefined array key 'hook'",
+    "PHP Warning.*edd-sl-sdk.*Undefined property stdClass::\\$expires",
+    "PHP Notice.*BuddyPress.*"
+  ],
+  "outputs": {
+    "journey_runs_dir": "audit/journey-runs",
+    "screenshots_dir": "audit/journey-runs/{run_id}/screenshots",
+    "debug_log_archive": "docs/qa/.debug-log-{version}-{ran_at}.txt"
+  },
+  "persona_roles": {
+    "admin": "administrator",
+    "editor": "editor",
+    "moderator": "wcb_board_moderator",
+    "employer": "wcb_employer",
+    "employer_other": "wcb_employer",
+    "candidate": "wcb_candidate",
+    "candidate_other": "wcb_candidate",
+    "subscriber": "subscriber"
+  }
 }

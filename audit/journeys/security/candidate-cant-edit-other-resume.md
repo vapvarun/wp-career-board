@@ -33,5 +33,8 @@ wp post update <marcus-resume-id> --post_content="<original-bio-captured-in-step
 ## Notes
 
 - The candidates update endpoint is `PATCH /wcb/v1/candidates/(?P<id>\\d+)` with permission `update_item_permissions_check` per manifest.
-- User IDs: sarah.chen = 51, marcus.williams = 52 on job-portal.local seed.
+- User IDs differ per site - resolve them, never paste them:
+  `SARAH=$(wp --path="$WCB_PATH" user get sarah.chen --field=ID)`,
+  `MARCUS=$(wp --path="$WCB_PATH" user get marcus.williams --field=ID)`.
+  The logins come from `docs/qa/qa-config.json` personas.
 - The `<id>` in the route is the WP user ID, not the wcb_resume post ID. Confirm by reading `CandidatesEndpoint::update_item`.

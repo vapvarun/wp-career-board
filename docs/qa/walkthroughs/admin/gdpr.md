@@ -9,17 +9,27 @@ covers: admin/walkthrough-gdpr-export-erase
 
 # Walkthrough: GDPR Export & Erase — export then erase a candidate's Career Board data via WordPress core privacy tools
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** WP Career Board ships no export/erase UI of its own — it registers a data exporter and eraser with WordPress core's built-in Tools > Export/Erase Personal Data workflow (`GdprModule::boot()`, `modules/gdpr/class-gdpr-module.php:33-36`). This walkthrough traces the full admin path: confirm registration, request + run an export (page-based, big-site safe), then request + run a destructive erase that removes applications + resume + bookmark meta and writes a hashed-IP audit row. It is the human-runnable form of the GDPR sentinel.
 
 ## Steps
 
-1. As `varundubey`, navigate to `http://jobboard.local/wp-admin/export-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Export Personal Data" screen with an "Add Data Export Request" email field (the page WCB's exporter plugs into via `register_exporter()`, keyed `wp-career-board`, friendly name "WP Career Board" — `modules/gdpr/class-gdpr-module.php:46-52`).
+1. As `varundubey`, navigate to `$WCB_SITE/wp-admin/export-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Export Personal Data" screen with an "Add Data Export Request" email field (the page WCB's exporter plugs into via `register_exporter()`, keyed `wp-career-board`, friendly name "WP Career Board" — `modules/gdpr/class-gdpr-module.php:46-52`).
 2. Enter candidate `sarah.chen`'s email, submit "Send Request" → expect a new request row with status "Pending" (admin-initiated; no confirmation email needed).
 3. Trigger the export from the request row's action → expect the generated archive/preview to contain a **"Job Applications"** group (`group_id` `wcb-applications`, `group_label` "Job Applications", `modules/gdpr/class-gdpr-module.php:130-131`).
 4. Inspect the group → expect each item labelled `application-<ID>` to carry exactly three fields **Job**, **Status**, **Submitted** (`modules/gdpr/class-gdpr-module.php:134-145`), with `Job` resolved from the linked job title (`_wcb_job_id` lookup) and `Status` from `_wcb_status`. Applications are matched to the candidate by `_wcb_candidate_id` = the user ID (`:105-110`).
 5. Confirm the exporter is page-based (big-site safe): it returns at most 100 items per page (`$per_page = 100`, `paged` increments) and reports `done` only when a partial page comes back (`modules/gdpr/class-gdpr-module.php:93-158`) → a candidate with >100 applications completes across pages with no unbounded query and no PHP timeout/fatal.
-6. Confirm the export writes ONE audit row on completion: `wp db query "SELECT action, user_id, CHAR_LENGTH(ip_hash) AS hlen FROM wp_wcb_gdpr_log ORDER BY id DESC LIMIT 1" --skip-column-names --path=/Users/varundubey/Local Sites/jobboard/app/public` → expect `action = export`, `user_id` = sarah.chen's ID, and `hlen = 64` (the IP is stored only as a SHA-256 hash, never plaintext — `log_action()`, `modules/gdpr/class-gdpr-module.php:245-263`). Logged once, on the final (`done`) page only (`:150-153`).
-7. Navigate to `http://jobboard.local/wp-admin/erase-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Erase Personal Data" screen with an "Add Data Erasure Request" email field (WCB's eraser plugs in via `register_eraser()`, `modules/gdpr/class-gdpr-module.php:62-68`).
+6. Confirm the export writes ONE audit row on completion: `wp db query "SELECT action, user_id, CHAR_LENGTH(ip_hash) AS hlen FROM wp_wcb_gdpr_log ORDER BY id DESC LIMIT 1" --skip-column-names --path=$WCB_PATH` → expect `action = export`, `user_id` = sarah.chen's ID, and `hlen = 64` (the IP is stored only as a SHA-256 hash, never plaintext — `log_action()`, `modules/gdpr/class-gdpr-module.php:245-263`). Logged once, on the final (`done`) page only (`:150-153`).
+7. Navigate to `$WCB_SITE/wp-admin/erase-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Erase Personal Data" screen with an "Add Data Erasure Request" email field (WCB's eraser plugs in via `register_eraser()`, `modules/gdpr/class-gdpr-module.php:62-68`).
 8. Enter sarah.chen's email, submit "Send Request" → expect a "Pending" erasure row; trigger "Force Erase Personal Data" on that row → expect the WCB eraser to run.
 9. Verify the eraser deletes applications in destructive batches: it reads page 1 of up to 100 `wcb_application` posts scoped by `_wcb_candidate_id` and force-deletes each (`wp_delete_post(..., true)`), re-invoked by WP until a partial batch signals `done` (`modules/gdpr/class-gdpr-module.php:188-214`) → expect the response to report `items_removed > 0` and `items_retained = 0`.
 10. Verify profile-level meta is cleared exactly once, on the final batch: after `done`, the eraser calls `delete_user_meta($user, '_wcb_resume_data')` and `delete_user_meta($user, '_wcb_bookmark')` (`modules/gdpr/class-gdpr-module.php:216-221`) → both meta keys are gone for sarah.chen (resume data + all bookmark rows), not double-run on a multi-page erase.
@@ -30,7 +40,7 @@ covers: admin/walkthrough-gdpr-export-erase
 ## Teardown
 
 ```bash
-SITE='/Users/varundubey/Local Sites/jobboard/app/public'
+SITE='$WCB_PATH'
 # Remove the privacy request posts created during the walk (core 'user_request' CPT). Safe + re-runnable.
 wp post list --post_type=user_request --field=ID --path="$SITE" 2>/dev/null \
   | xargs -r -n1 -I{} wp post delete {} --force --path="$SITE" 2>/dev/null || true
