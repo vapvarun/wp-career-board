@@ -19,6 +19,10 @@ echo "=== Seeding test data ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/seed-data.php
 echo ""
 
+echo "=== REST Exposure Contract ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/audit/rest-exposure.php
+echo ""
+
 echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""
