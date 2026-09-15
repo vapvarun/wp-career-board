@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-15T04:49:46+00:00",
+        "at": "2026-09-15T07:57:28+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -316,25 +316,65 @@
             "skipped": 0
         },
         "hooks_fired": {
-            "total": 88,
+            "total": 90,
             "covered": 2,
-            "uncovered": 86,
-            "skipped": 113,
+            "uncovered": 88,
+            "skipped": 147,
             "covered_items": [
                 {
-                    "name": "wcb_scale_ops",
+                    "name": "wcb_scale_budgets",
                     "consumer_count": 1
                 },
                 {
-                    "name": "wcb_scale_budgets",
+                    "name": "wcb_scale_ops",
                     "consumer_count": 1
                 }
             ],
             "uncovered_items": [
                 {
-                    "name": "wcb_notification_created",
+                    "name": "wcb_ai_description_enabled",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_notification_created"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_ai_description_enabled"
+                },
+                {
+                    "name": "wcb_ai_description_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_ai_description_enabled"
+                },
+                {
+                    "name": "wcb_app_page_ids",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_app_page_ids"
+                },
+                {
+                    "name": "wcb_application_deleted",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_deleted"
+                },
+                {
+                    "name": "wcb_application_status_changed",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
+                },
+                {
+                    "name": "wcb_application_status_changed",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
+                },
+                {
+                    "name": "wcb_application_status_changed",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
+                },
+                {
+                    "name": "wcb_application_status_changed",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
+                },
+                {
+                    "name": "wcb_application_submitted",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_submitted"
                 },
                 {
                     "name": "wcb_board_currency",
@@ -372,9 +412,99 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_board_options_for_employer"
                 },
                 {
-                    "name": "wcb_job_form_fields",
+                    "name": "wcb_candidate_form_fields",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_form_fields"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                },
+                {
+                    "name": "wcb_candidate_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                },
+                {
+                    "name": "wcb_candidate_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                },
+                {
+                    "name": "wcb_candidate_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                },
+                {
+                    "name": "wcb_cli_abilities",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_cli_abilities"
+                },
+                {
+                    "name": "wcb_company_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
+                },
+                {
+                    "name": "wcb_company_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
+                },
+                {
+                    "name": "wcb_company_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
+                },
+                {
+                    "name": "wcb_company_form_fields",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
+                },
+                {
+                    "name": "wcb_currency_catalog",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_currency_catalog"
+                },
+                {
+                    "name": "wcb_import_extra_cards",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_import_extra_cards"
+                },
+                {
+                    "name": "wcb_install_default_settings",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_install_default_settings"
+                },
+                {
+                    "name": "wcb_job_approved",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_approved"
+                },
+                {
+                    "name": "wcb_job_approved",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_approved"
+                },
+                {
+                    "name": "wcb_job_board_id",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_board_id"
+                },
+                {
+                    "name": "wcb_job_created",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_created"
+                },
+                {
+                    "name": "wcb_job_deleted",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_deleted"
+                },
+                {
+                    "name": "wcb_job_expired",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
+                },
+                {
+                    "name": "wcb_job_expired",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
                 },
                 {
                     "name": "wcb_job_form_fields",
@@ -407,14 +537,9 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_form_fields"
                 },
                 {
-                    "name": "wcb_ai_description_enabled",
+                    "name": "wcb_job_form_fields",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_ai_description_enabled"
-                },
-                {
-                    "name": "wcb_ai_description_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_ai_description_enabled"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_form_fields"
                 },
                 {
                     "name": "wcb_job_listing_data",
@@ -427,144 +552,194 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_listings_board_options"
                 },
                 {
+                    "name": "wcb_job_rejected",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_rejected"
+                },
+                {
+                    "name": "wcb_job_rejected",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_rejected"
+                },
+                {
+                    "name": "wcb_job_response",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_response"
+                },
+                {
+                    "name": "wcb_job_updated",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_updated"
+                },
+                {
+                    "name": "wcb_jobs_post_filter",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_jobs_post_filter"
+                },
+                {
+                    "name": "wcb_moderate_jobs_ability_check",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_moderate_jobs_ability_check"
+                },
+                {
+                    "name": "wcb_module_renders",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                },
+                {
+                    "name": "wcb_module_renders",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                },
+                {
+                    "name": "wcb_module_renders",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                },
+                {
+                    "name": "wcb_notification_created",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_notification_created"
+                },
+                {
+                    "name": "wcb_page_settings",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_page_settings"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_active",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
+                },
+                {
+                    "name": "wcb_pro_ai_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_ai_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                },
+                {
+                    "name": "wcb_pro_licensed",
+                    "consumer_count": 1,
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_licensed"
+                },
+                {
                     "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
                 },
                 {
-                    "name": "wcb_candidate_form_fields",
+                    "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
                 },
                 {
-                    "name": "wcb_candidate_form_fields",
+                    "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
                 },
                 {
-                    "name": "wcb_candidate_form_fields",
+                    "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
                 },
                 {
-                    "name": "wcb_candidate_form_fields",
+                    "name": "wcb_pro_settings_saved_notice",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_settings_saved_notice"
                 },
                 {
-                    "name": "wcb_module_renders",
+                    "name": "wcb_pro_version",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_version"
                 },
                 {
-                    "name": "wcb_module_renders",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
-                    "name": "wcb_module_renders",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
-                    "name": "wcb_module_renders",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
-                    "name": "wcb_module_renders",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_module_renders"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
-                    "name": "wcb_pro_alerts_enabled",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
-                    "name": "wcb_pro_alerts_enabled",
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
-                    "name": "wcb_company_form_fields",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
-                },
-                {
-                    "name": "wcb_company_form_fields",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
-                },
-                {
-                    "name": "wcb_company_form_fields",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
-                },
-                {
-                    "name": "wcb_company_form_fields",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_pro_active",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_active"
-                },
-                {
-                    "name": "wcb_install_default_settings",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_install_default_settings"
-                },
-                {
-                    "name": "wcb_app_page_ids",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_app_page_ids"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
                     "name": "wcb_search_active_shortcodes",
@@ -575,21 +750,6 @@
                     "name": "wcb_search_active_shortcodes",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_search_active_shortcodes"
-                },
-                {
-                    "name": "wcb_wizard_completed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_wizard_completed"
-                },
-                {
-                    "name": "wcb_wizard_force_render",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_wizard_force_render"
-                },
-                {
-                    "name": "wcb_currency_catalog",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_currency_catalog"
                 },
                 {
                     "name": "wcb_settings_sanitize",
@@ -602,164 +762,14 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_settings_tabs"
                 },
                 {
-                    "name": "wcb_pro_settings_saved_notice",
+                    "name": "wcb_wizard_completed",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_settings_saved_notice"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_wizard_completed"
                 },
                 {
-                    "name": "wcb_page_settings",
+                    "name": "wcb_wizard_force_render",
                     "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_page_settings"
-                },
-                {
-                    "name": "wcb_import_extra_cards",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_import_extra_cards"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_application_status_changed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
-                },
-                {
-                    "name": "wcb_application_status_changed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
-                },
-                {
-                    "name": "wcb_application_status_changed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
-                },
-                {
-                    "name": "wcb_application_status_changed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_status_changed"
-                },
-                {
-                    "name": "wcb_cli_abilities",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_cli_abilities"
-                },
-                {
-                    "name": "wcb_job_approved",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_approved"
-                },
-                {
-                    "name": "wcb_job_approved",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_approved"
-                },
-                {
-                    "name": "wcb_job_rejected",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_rejected"
-                },
-                {
-                    "name": "wcb_job_rejected",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_rejected"
-                },
-                {
-                    "name": "wcb_job_expired",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
-                },
-                {
-                    "name": "wcb_job_expired",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
-                },
-                {
-                    "name": "wcb_application_submitted",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_submitted"
-                },
-                {
-                    "name": "wcb_application_deleted",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_application_deleted"
-                },
-                {
-                    "name": "wcb_jobs_post_filter",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_jobs_post_filter"
-                },
-                {
-                    "name": "wcb_job_created",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_created"
-                },
-                {
-                    "name": "wcb_job_updated",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_updated"
-                },
-                {
-                    "name": "wcb_job_deleted",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_deleted"
-                },
-                {
-                    "name": "wcb_job_board_id",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_board_id"
-                },
-                {
-                    "name": "wcb_job_response",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_response"
-                },
-                {
-                    "name": "wcb_pro_version",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_version"
-                },
-                {
-                    "name": "wcb_pro_licensed",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_licensed"
-                },
-                {
-                    "name": "wcb_pro_ai_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_ai_enabled"
-                },
-                {
-                    "name": "wcb_moderate_jobs_ability_check",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_moderate_jobs_ability_check"
+                    "stub_command": "bin/qa-stub-gen.php hook wcb_wizard_force_render"
                 }
             ],
             "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
@@ -815,15 +825,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 163,
+        "items_total": 165,
         "items_covered": 48,
-        "items_uncovered": 115,
-        "items_skipped": 113,
-        "coverage_percent": 29.399999999999999
+        "items_uncovered": 117,
+        "items_skipped": 147,
+        "coverage_percent": 29.100000000000001
     },
     "drift": {
-        "previous_uncovered": 116,
-        "current_uncovered": 115,
-        "delta": -1
+        "previous_uncovered": 115,
+        "current_uncovered": 117,
+        "delta": 2
     }
 }
