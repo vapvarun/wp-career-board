@@ -71,13 +71,34 @@
 		return '';
 	}
 
+	/**
+	 * Point the address bar at a section, keeping the hash and ?tab= in step.
+	 *
+	 * Writing only the hash left ?tab= on whatever section loaded the page, so
+	 * the two halves of the URL disagreed. That is invisible until the query
+	 * param is the half that gets read: a save redirects to ?tab=<section> with
+	 * no hash, and a copied URL may lose the fragment. Either way the visitor
+	 * lands on the section they were on BEFORE the one they clicked.
+	 *
+	 * @param {string} id Section slug.
+	 */
+	function syncUrl( id ) {
+		if ( ! window.URL || ! history.replaceState ) {
+			return;
+		}
+		var url = new URL( location.href );
+		url.searchParams.set( 'tab', id );
+		url.hash = id;
+		history.replaceState( null, '', url.toString() );
+	}
+
 	// Click handler.
 	document.querySelectorAll( NAV ).forEach( function ( item ) {
 		item.addEventListener( 'click', function ( e ) {
 			e.preventDefault();
 			var section = this.getAttribute( 'data-section' );
 			activate( section );
-			history.replaceState( null, '', '#' + section );
+			syncUrl( section );
 		});
 	});
 
