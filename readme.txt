@@ -110,6 +110,7 @@ Companion-app parity release: members can now do in the app what they can do on 
 * Fix      - The captcha setting never reached the companion app, so the app was told no captcha was required and its submissions were then rejected for a missing token.
 * Fix      - A theme's own job, company and resume templates are used again instead of being replaced by the plugin's copies, which the plugin's own documentation had always promised.
 * Fix      - On a site without Pro, a Get Job Alerts card and a Saved Resumes tab pointed at features that are not installed.
+* Fix      - Saving a Career Board settings tab now keeps you on that tab. It previously returned you to whichever tab the page opened with, so the panel you had just saved was not the one you were looking at.
 * Security - Job alerts could be edited or deleted by any signed-in candidate, not only their owner.
 * Security - The Kanban board could be read by employers who did not own the job, exposing other employers' applicant details.
 * Security - Applications were readable by anonymous callers through the WordPress REST API, exposing applicant names, email addresses and cover letters.
