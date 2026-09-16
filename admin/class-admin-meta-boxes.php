@@ -144,8 +144,9 @@ class AdminMetaBoxes {
 	/**
 	 * Render the composite Application overview metabox.
 	 *
-	 * Composes ApplicantCard, CoverLetter, ResumePreview, StatusTimeline widgets
-	 * via the WidgetRegistry so the same UI is reusable as [wcb_widget] shortcodes.
+	 * Composes ApplicantCard, CoverLetter, CustomAnswers, ResumePreview and
+	 * StatusTimeline widgets via the WidgetRegistry so the same UI is reusable
+	 * as [wcb_widget] shortcodes.
 	 *
 	 * @since 1.1.0
 	 *
@@ -159,6 +160,7 @@ class AdminMetaBoxes {
 		$ids = array(
 			'application/applicant-card',
 			'application/cover-letter',
+			'application/custom-answers',
 			'application/resume-preview',
 			'application/status-timeline',
 		);
@@ -224,12 +226,12 @@ class AdminMetaBoxes {
 		$wcb_company_id          = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$wcb_company_name        = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 
-		// Fall back to employer's linked company when no company is selected yet.
+		// Fall back to the employer's linked company when no company is selected
+		// yet. Resolved through CompanyMetaShape so an employer whose company was
+		// created by import/admin/migration (post-side link only) still
+		// pre-selects correctly instead of landing on "- Select a company -".
 		if ( ! $wcb_company_id ) {
-			$wcb_employer_company_id = (int) get_user_meta( (int) $post->post_author, '_wcb_company_id', true );
-			if ( $wcb_employer_company_id ) {
-				$wcb_company_id = $wcb_employer_company_id;
-			}
+			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
 		}
 
 		$wcb_companies = get_posts(
@@ -242,6 +244,14 @@ class AdminMetaBoxes {
 				'fields'         => 'ids',
 			)
 		);
+
+		// The list is published-only, so a job linked to a pending/draft company
+		// would render with "- Select a company -" selected and lose the link on
+		// the next Update. Keep the linked company selectable.
+		$wcb_companies = array_map( 'intval', $wcb_companies );
+		if ( $wcb_company_id && ! in_array( $wcb_company_id, $wcb_companies, true ) ) {
+			$wcb_companies[] = $wcb_company_id;
+		}
 		?>
 		<style>
 			.wcb-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; padding:8px 0; }
@@ -623,14 +633,36 @@ class AdminMetaBoxes {
 				update_post_meta( $post_id, '_wcb_company_id', $company_id );
 				update_post_meta( $post_id, '_wcb_company_name', $company_post->post_title );
 			}
-		} else {
-			// Fallback text input (shown when no wcb_company posts exist yet).
-			$company_name = isset( $_POST['wcb_company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_name'] ) ) : '';
+		} elseif ( isset( $_POST['wcb_company_name'] ) ) {
+			// Fallback text input (shown only when no wcb_company posts exist yet).
+			$company_name = sanitize_text_field( wp_unslash( $_POST['wcb_company_name'] ) );
 			delete_post_meta( $post_id, '_wcb_company_id' );
 			if ( '' !== $company_name ) {
 				update_post_meta( $post_id, '_wcb_company_name', $company_name );
 			} else {
 				delete_post_meta( $post_id, '_wcb_company_name' );
+			}
+		} elseif ( (int) get_post_meta( $post_id, '_wcb_company_id', true ) > 0 ) {
+			// The select was shown and the admin deliberately chose
+			// "- Select a company -" on a job that had a company. Honour the unlink.
+			delete_post_meta( $post_id, '_wcb_company_id' );
+			delete_post_meta( $post_id, '_wcb_company_name' );
+		} else {
+			// Unlinked job saved with nothing selected — adopt the author's company
+			// rather than leaving it orphaned. Without this an admin pressing Update
+			// on an employer's job permanently strips the link the REST create just
+			// stamped, and the job vanishes from the employer's company-scoped
+			// My Jobs list.
+			$author_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
+			if ( $author_company_id > 0 ) {
+				update_post_meta( $post_id, '_wcb_company_id', $author_company_id );
+				// Raw post_title, never get_the_title(): the latter runs the `the_title`
+				// filters, and core's convert_chars() turns "&" into the entity
+				// "&#038;". This meta is a denormalised copy of the title that the job
+				// card echoes as text, so a stored entity renders literally — a company
+				// called "Marks & Spencer" showed as "Marks &#038; Spencer".
+				$wcb_author_company = get_post( $author_company_id );
+				update_post_meta( $post_id, '_wcb_company_name', $wcb_author_company ? $wcb_author_company->post_title : '' );
 			}
 		}
 
@@ -669,7 +701,7 @@ class AdminMetaBoxes {
 			return;
 		}
 
-		$allowed_sizes = array( '', '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001+' );
+		$allowed_sizes = array_merge( array( '' ), \WCB\Core\CompanyMetaShape::size_keys() );
 		$allowed_types = array( '', 'public', 'private', 'self-employed', 'nonprofit', 'government', 'educational', 'partnership' );
 		$allowed_trust = array( '', 'verified', 'trusted', 'premium' );
 

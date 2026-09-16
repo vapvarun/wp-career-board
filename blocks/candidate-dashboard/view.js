@@ -192,6 +192,43 @@ function buildFilterPills( filters ) {
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
 		navOpen: false,
+		/**
+		 * Whether a deletion is already scheduled. Derived so the markup can
+		 * branch on one flag instead of comparing the status string in five
+		 * data-wp-class attributes.
+		 */
+		get deletionPending() {
+			return 'scheduled' === state.deletionStatus;
+		},
+		/**
+		 * The three visibility flags below are derived rather than written as
+		 * compound expressions in the markup. data-wp-class--* takes a single
+		 * state/derived reference - `state.foo` or `!state.foo` - and silently
+		 * does nothing with `a || b`, which is why the form would not open.
+		 */
+		get deletionNotPending() {
+			return ! state.deletionPending;
+		},
+		get deleteButtonHidden() {
+			return state.deletionPending || state.deleteFormOpen;
+		},
+		get deleteFormHidden() {
+			return ! state.deleteFormOpen || state.deletionPending;
+		},
+		/**
+		 * Scheduling revokes every session (AccountDeletionService destroys all
+		 * session tokens, so the suspended window cannot be used). The member is
+		 * therefore signed out the moment they confirm, and an in-page "Keep my
+		 * account" button would only ever 403. Right after scheduling we explain
+		 * how to cancel; on a later visit - when they have signed back in and the
+		 * server seeds deletionStatus - the cancel button is the right control.
+		 */
+		get showSignedOutNotice() {
+			return state.deletionPending && state.deletionJustScheduled;
+		},
+		get showCancelControl() {
+			return state.deletionPending && ! state.deletionJustScheduled;
+		},
 		get activeTabLabel() {
 			const map = {
 				overview:           t( 'tabOverview', 'Overview' ),
@@ -1347,18 +1384,116 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		 * GDPR self-service: request account erasure. Confirms first via the
 		 * shared modal, then hits the same privacy REST route.
 		 */
-		*requestErase() {
-			try {
-				yield window.wcbConfirm( {
-					title:       t( 'confirmEraseTitle', 'Delete your account?' ),
-					message:     t( 'confirmEraseMsg', 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.' ),
-					confirmText: t( 'confirmEraseConfirm', 'Send confirmation email' ),
-					destructive: true,
-				} );
-			} catch ( cancelled ) {
+		/**
+		 * Account deletion.
+		 *
+		 * This button used to call runPrivacyRequest( 'erase' ), i.e. WordPress's
+		 * core privacy ERASE request - which only queues something for an
+		 * administrator to action. Meanwhile the plugin's own deletion service
+		 * (14-day grace period, self-cancel, daily cron) was reachable only over
+		 * REST, so only the mobile app could use it. The web member got the
+		 * weaker of two mechanisms. These actions drive the real one.
+		 */
+		openDeleteForm() {
+			state.deleteFormOpen = true;
+			state.privacyError   = '';
+		},
+
+		closeDeleteForm() {
+			state.deleteFormOpen = false;
+			state.deletePassword = '';
+			state.deleteConfirm  = '';
+			state.privacyError   = '';
+		},
+
+		setDeletePassword( event ) {
+			state.deletePassword = event.target.value;
+		},
+
+		setDeleteConfirm( event ) {
+			state.deleteConfirm = event.target.value;
+		},
+
+		*confirmAccountDeletion() {
+			if ( state.privacyBusy ) {
 				return;
 			}
-			yield this.runPrivacyRequest( 'erase' );
+			state.privacyBusy  = true;
+			state.privacyError = '';
+
+			try {
+				const response = yield wcbFetch( state.apiBase + '/me', {
+					method:  'DELETE',
+					headers: {
+						'X-WP-Nonce':   state.nonce,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify( {
+						password: state.deletePassword,
+						confirm:  state.deleteConfirm,
+					} ),
+				} );
+
+				const body = yield response.json().catch( () => ( {} ) );
+
+				if ( ! response.ok ) {
+					// The route distinguishes a wrong password from a missing
+					// confirmation; surfacing its message beats a generic failure.
+					state.privacyError = body && body.message
+						? body.message
+						: t( 'errDelete', 'Could not schedule deletion. Please try again.' );
+					return;
+				}
+
+				state.deletionStatus         = body.status || 'scheduled';
+				state.deletionJustScheduled  = true;
+
+				// The route returns scheduled_for as ISO 8601 (gmdate 'c'), not a
+				// display string, so format it here against the site locale the
+				// block already seeds.
+				if ( body.scheduled_for ) {
+					const when = new Date( body.scheduled_for );
+					state.deletionScheduledFor = Number.isNaN( when.getTime() )
+						? String( body.scheduled_for )
+						: when.toLocaleDateString( state.locale || undefined, {
+							year:  'numeric',
+							month: 'long',
+							day:   'numeric',
+						} );
+				}
+				state.deleteFormOpen       = false;
+				state.deletePassword       = '';
+				state.deleteConfirm        = '';
+			} catch {
+				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state.privacyBusy = false;
+			}
+		},
+
+		*cancelAccountDeletion() {
+			if ( state.privacyBusy ) {
+				return;
+			}
+			state.privacyBusy  = true;
+			state.privacyError = '';
+
+			try {
+				const response = yield wcbFetch( state.apiBase + '/me/deletion', {
+					method:  'DELETE',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( ! response.ok ) {
+					state.privacyError = t( 'errDeleteCancel', 'Could not cancel the deletion. Please try again.' );
+					return;
+				}
+				state.deletionStatus       = 'active';
+				state.deletionScheduledFor = '';
+			} catch {
+				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state.privacyBusy = false;
+			}
 		},
 
 		/**

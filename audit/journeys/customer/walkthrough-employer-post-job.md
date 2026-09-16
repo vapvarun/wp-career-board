@@ -8,6 +8,16 @@ last_verified: 2026-06-29
 
 # Walkthrough: Employer Post a Job — open the multi-step form, fill it, submit, land in moderation, go live in Find Jobs
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** This is the end-to-end walkthrough of the employer "Post a Job" flow. It
 traces the full happy path a real employer takes — open the 4-step form (`wcb/job-form` block),
 fill Basics → Details → Categories → Preview, submit to `POST /wcb/v1/jobs`, see the
@@ -16,7 +26,7 @@ appears in Find Jobs. The whole post-a-job functionality is browser-coverable in
 
 ## Steps
 
-1. As `employer.figma`, navigate to `http://jobboard.local/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). (NOT the `.wcb-job-form-gate` "Please sign in as an employer" notice — that renders only when logged-out or lacking the `wcb/post-jobs` ability.)
+1. As `employer.figma`, navigate to `$WCB_SITE/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). (NOT the `.wcb-job-form-gate` "Please sign in as an employer" notice — that renders only when logged-out or lacking the `wcb/post-jobs` ability.)
 
 2. **Step 1 (Basics)** — type into `#wcb-job-title` (`data-wcb-field="title"`) e.g. `Senior PHP Developer`, and set the description source `#wcb-job-desc` (`data-wcb-field="description"`, the hidden `textarea.wcb-editor-source` inside `.wcb-editor` — set value + dispatch an `input` event) to a non-empty body → expect both `state.title`/`state.description` populated and no `#wcb-form-validation-error` text.
 
@@ -28,17 +38,17 @@ appears in Find Jobs. The whole post-a-job functionality is browser-coverable in
 
 6. **Step 4 (Preview)** — expect the preview card `.wcb-preview-card` to mirror the entered data: `.wcb-preview-card__title` = the job title, `.wcb-cbadge--remote` visible (remote ticked), and `.wcb-preview-meta-item` salary string rendered from `state.salaryDisplay` (e.g. `USD 60,000 – 90,000/yr`).
 
-7. Click the submit button `.wcb-btn--primary[data-wp-on--click="actions.submitJob"]` (label "Post Job" via `state.submitLabel`) → expect a single `POST http://jobboard.local/wp-json/wcb/v1/jobs` request carrying header `X-WP-Nonce` and JSON body `{ title, description, salary_min:"60000", salary_max:"90000", salary_currency:"USD", salary_type:"yearly", remote:true, deadline, categories:[…], job_types:[…], locations:[…], experience:[…], tags:["react","typescript","node-js"], board_id, custom_fields:{}, hp:"" }`.
+7. Click the submit button `.wcb-btn--primary[data-wp-on--click="actions.submitJob"]` (label "Post Job" via `state.submitLabel`) → expect a single `POST $WCB_SITE/wp-json/wcb/v1/jobs` request carrying header `X-WP-Nonce` and JSON body `{ title, description, salary_min:"60000", salary_max:"90000", salary_currency:"USD", salary_type:"yearly", remote:true, deadline, categories:[…], job_types:[…], locations:[…], experience:[…], tags:["react","typescript","node-js"], board_id, custom_fields:{}, hp:"" }`.
 
 8. Expect HTTP `201` with body `{ id, status:"pending", permalink }` (default: `auto_publish_jobs` is OFF, so `create_item()` stores `post_status = pending`). The success panel `.wcb-form-success--show` appears and `.wcb-form-success__title` shows the pending copy "Job submitted for review. You'll be notified once it's approved." (the published copy + "View your job listing →" link are hidden while `state.jobPending` is true).
 
 9. Confirm "Post another job" reset works — click `.wcb-form-success__reset` (`actions.resetForm`) → expect the form to return to step 1 (`state.step === 1`) with cleared fields (title/description/salary empty). (The form also auto-resets after 8s.)
 
-10. As `varundubey` (admin), navigate to `http://jobboard.local/wp-admin/edit.php?post_type=wcb_job&post_status=pending&autologin=varundubey` → expect HTTP 200 and the newly created job listed under Pending review.
+10. As `varundubey` (admin), navigate to `$WCB_SITE/wp-admin/edit.php?post_type=wcb_job&post_status=pending&autologin=varundubey` → expect HTTP 200 and the newly created job listed under Pending review.
 
 11. Approve the job by publishing it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
 
-12. As `employer.figma` (or anonymous), navigate to `http://jobboard.local/find-jobs/` → expect HTTP 200 and the now-published job title visible in the listings (the jobs archive queries `post_status = publish` only — pending jobs never appear here).
+12. As `employer.figma` (or anonymous), navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible in the listings (the jobs archive queries `post_status = publish` only — pending jobs never appear here).
 
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 
@@ -48,8 +58,8 @@ appears in Find Jobs. The whole post-a-job functionality is browser-coverable in
 # Safe + re-runnable: only trashes wcb_job posts authored by employer.figma matching the title.
 wp post list --post_type=wcb_job --post_status=any --field=ID \
   --author="$(wp user get employer.figma --field=ID)" \
-  --s='Senior PHP Developer' --path=/Users/varundubey/Local\ Sites/jobboard/app/public \
-  | xargs -r -n1 wp post delete --force --path=/Users/varundubey/Local\ Sites/jobboard/app/public
+  --s='Senior PHP Developer' --path="$WCB_PATH" \
+  | xargs -r -n1 wp post delete --force --path="$WCB_PATH"
 
 # Orphan one-off wcb_location term created via the "Other (enter manually)" path, if used:
 # wp term delete wcb_location <term_id> --path=...

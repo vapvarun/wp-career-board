@@ -157,7 +157,11 @@ class AdminSettings {
 		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
 		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
+		add_action( 'wcb_settings_tab_industries', array( $this, 'render_industries_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
+		add_action( 'wcb_settings_tab_mobile-app', array( $this, 'render_mobile_app_tab' ) );
+		add_action( 'wcb_settings_tab_privacy', array( $this, 'render_privacy_tab' ) );
+		add_action( 'admin_init', array( $this, 'maybe_cancel_account_deletion' ) );
 		add_action( 'wcb_settings_tab_integrations', array( $this, 'render_integrations_tab' ) );
 	}
 
@@ -192,7 +196,8 @@ class AdminSettings {
 
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role' ),
+			'mobile-app'    => array( 'accent_color', 'logo_url', 'login_bg_url', 'dark_mode_default', 'terms_url', 'eula_url', 'guidelines_url', 'abuse_contact_email' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login', 'container_max_width' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -206,8 +211,15 @@ class AdminSettings {
 			'allow_withdraw'             => ! empty( $input['allow_withdraw'] ),
 			'apply_resume_required'      => ! empty( $input['apply_resume_required'] ),
 			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
+			'app_password_login'         => ! empty( $input['app_password_login'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
+			// 0 means "inherit": fall through to the theme's declared content
+			// width, then the 1280 default. Anything else is clamped to the range
+			// the resolver documents, so a typo cannot produce an unusable layout.
+			'container_max_width'        => isset( $input['container_max_width'] ) && '' !== $input['container_max_width']
+				? ( (int) $input['container_max_width'] > 0 ? max( 720, min( 1920, (int) $input['container_max_width'] ) ) : 0 )
+				: 0,
 			'salary_currency'            => isset( $input['salary_currency'] ) && array_key_exists( strtoupper( (string) $input['salary_currency'] ), self::get_currency_catalog() ) ? strtoupper( (string) $input['salary_currency'] ) : 'USD',
 			'jobs_archive_page'          => isset( $input['jobs_archive_page'] ) ? (int) $input['jobs_archive_page'] : 0,
 			'employer_dashboard_page'    => isset( $input['employer_dashboard_page'] ) ? (int) $input['employer_dashboard_page'] : 0,
@@ -219,6 +231,17 @@ class AdminSettings {
 			'from_name'                  => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
 			'from_email'                 => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
 			'resume_archive_page'        => isset( $input['resume_archive_page'] ) ? (int) $input['resume_archive_page'] : 0,
+			// Mobile-app branding + the per-site legal surface the app is required
+			// to link (Apple 1.2 / 5.1.1). Read by GET /settings/app-config since
+			// 1.7.0 with no way for an owner to set any of them.
+			'accent_color'               => isset( $input['accent_color'] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', (string) $input['accent_color'] ) ? strtoupper( (string) $input['accent_color'] ) : '#2563EB',
+			'logo_url'                   => isset( $input['logo_url'] ) ? esc_url_raw( (string) $input['logo_url'] ) : '',
+			'login_bg_url'               => isset( $input['login_bg_url'] ) ? esc_url_raw( (string) $input['login_bg_url'] ) : '',
+			'dark_mode_default'          => ! empty( $input['dark_mode_default'] ),
+			'terms_url'                  => isset( $input['terms_url'] ) ? esc_url_raw( (string) $input['terms_url'] ) : '',
+			'eula_url'                   => isset( $input['eula_url'] ) ? esc_url_raw( (string) $input['eula_url'] ) : '',
+			'guidelines_url'             => isset( $input['guidelines_url'] ) ? esc_url_raw( (string) $input['guidelines_url'] ) : '',
+			'abuse_contact_email'        => isset( $input['abuse_contact_email'] ) ? sanitize_email( (string) $input['abuse_contact_email'] ) : '',
 		);
 
 		// Identify which tab was submitted by checking for its fields in $input.
@@ -236,6 +259,22 @@ class AdminSettings {
 		$output = $existing;
 		if ( $submitted_tab ) {
 			foreach ( $tab_fields[ $submitted_tab ] as $field ) {
+				// Only overlay a field the form actually posted. Checkboxes are
+				// the exception: an unchecked box posts nothing, and its absence
+				// IS the new value, so they must still be written.
+				//
+				// Without this, a key listed on a tab whose control the current
+				// build does not render was overwritten with its sanitise-time
+				// default on every save. resume_archive_page is in the `pages`
+				// tab but only Pro renders a control for it, so saving the Pages
+				// tab on a Free-only site silently reset the stored page id to 0
+				// - a data write, not a no-op.
+				$wcb_is_bool = is_bool( $sanitized[ $field ] ?? null );
+
+				if ( ! $wcb_is_bool && ! array_key_exists( $field, $input ) ) {
+					continue;
+				}
+
 				$output[ $field ] = $sanitized[ $field ];
 			}
 		} else {
@@ -304,7 +343,7 @@ class AdminSettings {
 		$pages = array(
 			'jobs_archive_page'          => array(
 				'title'   => __( 'Find Jobs', 'wp-career-board' ),
-				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				'content' => '<!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
 			),
 			'employer_dashboard_page'    => array(
 				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
@@ -315,7 +354,9 @@ class AdminSettings {
 				'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
 			),
 			'company_archive_page'       => array(
-				'title'   => __( 'Companies', 'wp-career-board' ),
+				// See the note in the setup wizard: "Companies" collides with the
+				// wcb_company archive slug and makes the page unreachable.
+				'title'   => __( 'Find Companies', 'wp-career-board' ),
 				'content' => '<!-- wp:wp-career-board/company-archive /-->',
 			),
 			'post_job_page'              => array(
@@ -374,7 +415,10 @@ class AdminSettings {
 			'pages'         => __( 'Pages', 'wp-career-board' ),
 			'notifications' => __( 'Notifications', 'wp-career-board' ),
 			'emails'        => __( 'Emails', 'wp-career-board' ),
+			'industries'    => __( 'Industries', 'wp-career-board' ),
 			'import'        => __( 'Import', 'wp-career-board' ),
+			'mobile-app'    => __( 'Mobile App', 'wp-career-board' ),
+			'privacy'       => __( 'Privacy', 'wp-career-board' ),
 			'integrations'  => __( 'Integrations', 'wp-career-board' ),
 		);
 
@@ -403,7 +447,10 @@ class AdminSettings {
 		return array(
 			'listings'      => 'list',
 			'pages'         => 'file-text',
+			'industries'    => 'building-2',
 			'import'        => 'upload',
+			'mobile-app'    => 'smartphone',
+			'privacy'       => 'shield-check',
 			'antispam'      => 'shield',
 			'notifications' => 'bell',
 			'emails'        => 'mail',
@@ -432,7 +479,10 @@ class AdminSettings {
 			'pages'         => 'general',
 			'notifications' => 'general',
 			'emails'        => 'general',
+			'industries'    => 'general',
 			'import'        => 'general',
+			'mobile-app'    => 'general',
+			'privacy'       => 'general',
 			'antispam'      => 'general',
 			'integrations'  => 'general',
 		);
@@ -745,7 +795,7 @@ class AdminSettings {
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 6px;">
 						<input type="hidden" name="action" value="wcb_create_pages">
 			<?php wp_nonce_field( 'wcb_create_pages' ); ?>
-			<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary', 'submit', false ); ?>
+			<?php submit_button( __( 'Create Missing Pages', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 					</form>
 				</div>
 		<?php endif; ?>
@@ -854,7 +904,7 @@ class AdminSettings {
 										<div class="wcb-settings-row-label"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Job Expiry (days)', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input type="number" id="wcb-jobs-expire-days" name="wcb_settings[jobs_expire_days]" value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>" min="1" max="365" style="width:80px">
-											<span class="description"><?php esc_html_e( 'Default: 30 days. Jobs older than this auto-close. Closing is reversible  -  open the job in admin and republish to extend the lifetime.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Default: 30 days. Sets the application deadline on a new job when the employer does not pick one. This does not close anything by itself  -  whether a passed deadline closes the job is controlled by Deadline Auto-Close below.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -867,7 +917,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Automatically close jobs when their application deadline passes', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Off by default. Runs hourly via WP-Cron  -  make sure your host has cron working (DISABLE_WP_CRON should not be set, or wp-cli should run it externally). Closed jobs remain visible but show "Applications Closed" instead of the apply form.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Off by default. A daily WP-Cron sweep moves jobs whose deadline has passed to Expired  -  make sure your host has cron working (DISABLE_WP_CRON should not be set, or run wp-cli externally). Expired jobs leave the public site and their URLs return "not found", so any links you have shared will break. Reopen one by editing it in admin and republishing.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -960,10 +1010,39 @@ class AdminSettings {
 											<span class="description"><?php esc_html_e( 'How many days a job stays in the Featured spotlight before reverting automatically. Daily cron clears expired flags.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-container-max-width"><?php esc_html_e( 'Content Width (px)', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<input
+												id="wcb-container-max-width"
+												type="number"
+												name="wcb_settings[container_max_width]"
+												value="<?php echo esc_attr( (string) ( isset( $settings['container_max_width'] ) ? (int) $settings['container_max_width'] : 0 ) ); ?>"
+												min="0"
+												max="1920"
+												step="10"
+												placeholder="0"
+											>
+											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'App Password Sign-In', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control">
+											<label class="wcb-toggle-label">
+												<span class="wcb-toggle">
+													<input type="checkbox" name="wcb_settings[app_password_login]" value="1" <?php checked( ! empty( $settings['app_password_login'] ) ); ?>>
+													<span class="wcb-toggle-slider"></span>
+												</span>
+												<?php esc_html_e( 'Let members sign in to the mobile app by typing their website password', 'wp-career-board' ); ?>
+											</label>
+											<span class="description"><?php esc_html_e( 'Off by default. The app can already sign members in without this: its "Connect with WordPress" option sends them to your normal login page, where two-factor and your security plugins apply, and no password ever reaches the app. Turn this on only if you want the extra convenience of typing a password directly in the app - it opens a route that accepts real account passwords, so leave it off if you run two-factor authentication or do not use the app at all.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1043,7 +1122,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1082,7 +1161,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary', 'submit', false, array( 'class' => 'wcb-btn wcb-btn--primary' ) ); ?>
+		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1135,6 +1214,691 @@ class AdminSettings {
 			</p>
 
 		</div>
+		<?php
+	}
+
+	/**
+	 * Render the Industries tab — the owner-facing editor for the company
+	 * industry registry.
+	 *
+	 * The list used to be a hardcoded PHP array reachable only through the
+	 * `wcb_industries` filter, so a site owner could not add, rename or retire
+	 * an industry without writing code (Basecamp 10254034153). State and
+	 * persistence both live behind `/wcb/v1/admin/industries`; this method only
+	 * paints the shell and lets the script fill it, so counts are always read
+	 * live rather than baked into the page.
+	 *
+	 * @since  1.7.1
+	 * @return void
+	 */
+	public function render_industries_tab(): void {
+		?>
+		<div class="wcb-settings-card" id="wcb-industries-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Industries', 'wp-career-board' ); ?></h2>
+			</div>
+			<div class="wcb-settings-row" style="display: block;">
+				<p class="description" style="margin: 0 0 12px;">
+					<?php esc_html_e( 'Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time - renaming never touches stored data. Removing an industry asks what should happen to the companies still using it.', 'wp-career-board' ); ?>
+				</p>
+
+				<div id="wcb-industries-list" class="wcb-ind-list" aria-live="polite">
+					<p class="description"><?php esc_html_e( 'Loading industries…', 'wp-career-board' ); ?></p>
+				</div>
+
+				<div id="wcb-industries-orphans" class="wcb-ind-orphans" hidden>
+					<h3 class="wcb-ind-subtitle"><?php esc_html_e( 'Not in your list', 'wp-career-board' ); ?></h3>
+					<p class="description" style="margin: 0 0 8px;">
+						<?php esc_html_e( 'These values are stored on companies but are not industries you offer - usually left behind by an import. Add one to your list to keep it, or settle it like any other removal.', 'wp-career-board' ); ?>
+					</p>
+					<div id="wcb-industries-orphan-list"></div>
+				</div>
+
+				<div class="wcb-ind-add">
+					<label class="wcb-ind-add__field">
+						<span class="wcb-ind-add__label"><?php esc_html_e( 'New industry', 'wp-career-board' ); ?></span>
+						<input type="text" id="wcb-industry-new-label" class="regular-text" placeholder="<?php esc_attr_e( 'Aerospace & Defence', 'wp-career-board' ); ?>" />
+					</label>
+					<button type="button" id="wcb-industry-add" class="wcb-btn wcb-btn--secondary">
+						<?php esc_html_e( 'Add industry', 'wp-career-board' ); ?>
+					</button>
+				</div>
+
+				<p class="wcb-ind-actions">
+					<button type="button" id="wcb-industries-save" class="wcb-btn wcb-btn--primary">
+						<?php esc_html_e( 'Save Industries', 'wp-career-board' ); ?>
+					</button>
+					<span id="wcb-industries-status" class="description"></span>
+				</p>
+			</div>
+		</div>
+
+		<style>
+			.wcb-ind-list { display: flex; flex-direction: column; gap: var( --wcb-space-xs, 8px ); }
+			.wcb-ind-row {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: var( --wcb-space-sm, 12px );
+				padding: var( --wcb-space-xs, 8px );
+				border: 1px solid var( --wcb-border, #e2e8f0 );
+				border-radius: var( --wcb-radius-sm, 6px );
+				background: var( --wcb-base, #fff );
+			}
+			.wcb-ind-row__label { flex: 1 1 auto; min-width: 0; }
+			.wcb-ind-row__label input { width: 100%; min-height: 40px; }
+			.wcb-ind-row__slug {
+				flex: 0 0 9rem;
+				/* Plain monospace, not an admin <code> chip — at a fixed column
+					width the chip background stretched into a wide grey bar. */
+				background: none;
+				padding: 0;
+				font-family: monospace;
+				font-size: 0.85em;
+				color: var( --wcb-text-muted, #6b7280 );
+				word-break: break-all;
+				text-align: end;
+			}
+			.wcb-ind-row__count {
+				flex: 0 0 7rem;
+				color: var( --wcb-text-secondary, #475569 );
+				font-size: 0.85em;
+				text-align: end;
+			}
+			.wcb-ind-row__remove { flex: 0 0 auto; min-height: 40px; min-width: 40px; }
+			.wcb-ind-row.is-removing { border-color: var( --wcb-danger, #dc2626 ); }
+			.wcb-ind-settle {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: var( --wcb-space-xs, 8px );
+				width: 100%;
+				padding-block-start: var( --wcb-space-xs, 8px );
+			}
+			.wcb-ind-settle select { min-height: 40px; }
+			.wcb-ind-add {
+				display: flex;
+				align-items: flex-end;
+				gap: var( --wcb-space-sm, 12px );
+				margin-block-start: var( --wcb-space-md, 16px );
+			}
+			.wcb-ind-add__field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; }
+			.wcb-ind-add__label { font-size: 0.85em; color: var( --wcb-text-secondary, #475569 ); }
+			.wcb-ind-add input { min-height: 40px; width: 100%; }
+			.wcb-ind-add .wcb-btn, .wcb-ind-actions .wcb-btn { min-height: 40px; }
+			.wcb-ind-actions { margin-block-start: var( --wcb-space-md, 16px ); }
+			.wcb-ind-actions .description { margin-inline-start: var( --wcb-space-sm, 12px ); }
+			.wcb-ind-orphans { margin-block-start: var( --wcb-space-md, 16px ); }
+			.wcb-ind-subtitle { font-size: 1em; margin: 0 0 4px; }
+			@media ( max-width: 640px ) {
+				.wcb-ind-row, .wcb-ind-add { flex-wrap: wrap; align-items: stretch; }
+				.wcb-ind-row__slug, .wcb-ind-row__count { flex: 1 0 100%; }
+			}
+		</style>
+
+		<script>
+		// `wcbAdmin` is localized onto the footer-loaded wcb-admin handle, so this
+		// inline block runs before it exists. Wait for the parser to finish.
+		document.addEventListener( 'DOMContentLoaded', function () {
+			var root = document.getElementById( 'wcb-industries-card' );
+			if ( ! root || 'undefined' === typeof wcbAdmin ) { return; }
+
+			var listEl    = document.getElementById( 'wcb-industries-list' );
+			var orphanBox = document.getElementById( 'wcb-industries-orphans' );
+			var orphanEl  = document.getElementById( 'wcb-industries-orphan-list' );
+			var statusEl  = document.getElementById( 'wcb-industries-status' );
+			var saveBtn   = document.getElementById( 'wcb-industries-save' );
+			var addBtn    = document.getElementById( 'wcb-industry-add' );
+			var newLabel  = document.getElementById( 'wcb-industry-new-label' );
+
+			var i18n = {
+				used:        <?php /* translators: %d: number of companies using this industry. */ echo wp_json_encode( __( '%d companies', 'wp-career-board' ) ); ?>,
+				usedOne:     <?php echo wp_json_encode( __( '1 company', 'wp-career-board' ) ); ?>,
+				unused:      <?php echo wp_json_encode( __( 'not in use', 'wp-career-board' ) ); ?>,
+				remove:      <?php echo wp_json_encode( __( 'Remove', 'wp-career-board' ) ); ?>,
+				removeAria:  <?php /* translators: %s: industry name. */ echo wp_json_encode( __( 'Remove %s', 'wp-career-board' ) ); ?>,
+				keep:        <?php echo wp_json_encode( __( 'Keep', 'wp-career-board' ) ); ?>,
+				settle:      <?php echo wp_json_encode( __( 'Move those companies to:', 'wp-career-board' ) ); ?>,
+				clear:       <?php echo wp_json_encode( __( 'Clear the industry', 'wp-career-board' ) ); ?>,
+				pendingKeep: <?php echo wp_json_encode( __( 'Will be removed on save.', 'wp-career-board' ) ); ?>,
+				addFirst:    <?php echo wp_json_encode( __( 'Enter a name first.', 'wp-career-board' ) ); ?>,
+				duplicate:   <?php echo wp_json_encode( __( 'That industry already exists.', 'wp-career-board' ) ); ?>,
+				saving:      <?php echo wp_json_encode( __( 'Saving…', 'wp-career-board' ) ); ?>,
+				saved:       <?php echo wp_json_encode( __( 'Industries saved.', 'wp-career-board' ) ); ?>,
+				savedMoved:  <?php /* translators: %d: number of companies moved to another industry. */ echo wp_json_encode( __( 'Industries saved. %d companies updated.', 'wp-career-board' ) ); ?>,
+				error:       <?php echo wp_json_encode( __( 'Could not save industries. Please try again.', 'wp-career-board' ) ); ?>,
+				loadError:   <?php echo wp_json_encode( __( 'Could not load industries.', 'wp-career-board' ) ); ?>,
+				emptyList:   <?php echo wp_json_encode( __( 'Keep at least one industry.', 'wp-career-board' ) ); ?>
+			};
+
+			var rows     = [];
+			var orphans  = [];
+			var removals = {};
+
+			function toast( message, type ) {
+				if ( 'function' === typeof window.wcbToast ) { window.wcbToast( message, type || 'info' ); }
+			}
+
+			function api( path, options ) {
+				var opts = options || {};
+				opts.headers = { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' };
+				return fetch( wcbAdmin.restUrl + path, opts ).then( function ( r ) {
+					return r.json().then( function ( body ) {
+						if ( ! r.ok ) { throw body; }
+						return body;
+					} );
+				} );
+			}
+
+			function slugify( value ) {
+				return String( value ).toLowerCase().trim()
+					.replace( /[^a-z0-9]+/g, '-' )
+					.replace( /^-+|-+$/g, '' );
+			}
+
+			function countText( count ) {
+				if ( ! count ) { return i18n.unused; }
+				if ( 1 === count ) { return i18n.usedOne; }
+				return i18n.used.replace( '%d', String( count ) );
+			}
+
+			function targetOptions( exceptSlug ) {
+				return rows.filter( function ( row ) {
+					return row.slug !== exceptSlug && ! removals[ row.slug ];
+				} );
+			}
+
+			function el( tag, className, text ) {
+				var node = document.createElement( tag );
+				if ( className ) { node.className = className; }
+				if ( undefined !== text ) { node.textContent = text; }
+				return node;
+			}
+
+			function renderSettle( row, container ) {
+				var settle = el( 'div', 'wcb-ind-settle' );
+				var choice = document.createElement( 'select' );
+				choice.className = 'regular-text';
+				choice.setAttribute( 'aria-label', i18n.settle );
+
+				targetOptions( row.slug ).forEach( function ( option ) {
+					var opt = document.createElement( 'option' );
+					opt.value = option.slug;
+					opt.textContent = option.label;
+					choice.appendChild( opt );
+				} );
+				var clearOpt = document.createElement( 'option' );
+				clearOpt.value = '';
+				clearOpt.textContent = i18n.clear;
+				choice.appendChild( clearOpt );
+
+				choice.value = removals[ row.slug ].target;
+				choice.addEventListener( 'change', function () {
+					removals[ row.slug ].target = choice.value;
+					removals[ row.slug ].action = choice.value ? 'reassign' : 'clear';
+				} );
+
+				var keep = el( 'button', 'wcb-btn wcb-btn--ghost', i18n.keep );
+				keep.type = 'button';
+				keep.addEventListener( 'click', function () {
+					delete removals[ row.slug ];
+					render();
+				} );
+
+				settle.appendChild( el( 'span', 'description', i18n.settle ) );
+				settle.appendChild( choice );
+				settle.appendChild( keep );
+				container.appendChild( settle );
+			}
+
+			function renderRow( row, isOrphan ) {
+				var pending = !! removals[ row.slug ];
+				var node    = el( 'div', 'wcb-ind-row' + ( pending ? ' is-removing' : '' ) );
+
+				var labelWrap = el( 'div', 'wcb-ind-row__label' );
+				if ( isOrphan || pending ) {
+					labelWrap.appendChild( el( 'strong', '', row.label ) );
+				} else {
+					var input = document.createElement( 'input' );
+					input.type = 'text';
+					input.className = 'regular-text';
+					input.value = row.label;
+					input.setAttribute( 'aria-label', row.label );
+					input.addEventListener( 'input', function () { row.label = input.value; } );
+					labelWrap.appendChild( input );
+				}
+				node.appendChild( labelWrap );
+				node.appendChild( el( 'code', 'wcb-ind-row__slug', row.slug ) );
+				node.appendChild( el( 'span', 'wcb-ind-row__count', countText( row.count ) ) );
+
+				if ( pending ) {
+					node.appendChild( el( 'span', 'description', i18n.pendingKeep ) );
+				} else {
+					var remove = el( 'button', 'wcb-btn wcb-btn--ghost wcb-ind-row__remove', i18n.remove );
+					remove.type = 'button';
+					remove.setAttribute( 'aria-label', i18n.removeAria.replace( '%s', row.label ) );
+					remove.addEventListener( 'click', function () {
+						if ( ! row.count ) {
+							// Nothing stored against it — drop it outright.
+							rows = rows.filter( function ( r ) { return r.slug !== row.slug; } );
+							orphans = orphans.filter( function ( r ) { return r.slug !== row.slug; } );
+							render();
+							return;
+						}
+						var fallback = targetOptions( row.slug )[ 0 ];
+						removals[ row.slug ] = {
+							action: fallback ? 'reassign' : 'clear',
+							target: fallback ? fallback.slug : ''
+						};
+						render();
+					} );
+					node.appendChild( remove );
+				}
+
+				if ( pending ) { renderSettle( row, node ); }
+				return node;
+			}
+
+			function render() {
+				listEl.textContent = '';
+				rows.forEach( function ( row ) { listEl.appendChild( renderRow( row, false ) ); } );
+
+				orphanEl.textContent = '';
+				var live = orphans.filter( function ( row ) {
+					return ! rows.some( function ( r ) { return r.slug === row.slug; } );
+				} );
+				live.forEach( function ( row ) { orphanEl.appendChild( renderRow( row, true ) ); } );
+				orphanBox.hidden = 0 === live.length;
+			}
+
+			addBtn.addEventListener( 'click', function () {
+				var label = newLabel.value.trim();
+				if ( ! label ) { toast( i18n.addFirst, 'error' ); newLabel.focus(); return; }
+				var slug = slugify( label );
+				if ( ! slug || rows.some( function ( r ) { return r.slug === slug; } ) ) {
+					toast( i18n.duplicate, 'error' );
+					return;
+				}
+				rows.push( { slug: slug, label: label, count: 0 } );
+				delete removals[ slug ];
+				newLabel.value = '';
+				render();
+				newLabel.focus();
+			} );
+
+			newLabel.addEventListener( 'keydown', function ( event ) {
+				if ( 'Enter' === event.key ) { event.preventDefault(); addBtn.click(); }
+			} );
+
+			saveBtn.addEventListener( 'click', function () {
+				var keep = rows.filter( function ( row ) { return ! removals[ row.slug ]; } );
+				if ( ! keep.length ) { toast( i18n.emptyList, 'error' ); return; }
+
+				var payload = {
+					industries: keep.map( function ( row ) {
+						return { slug: row.slug, label: row.label };
+					} ),
+					removals: Object.keys( removals ).map( function ( slug ) {
+						return {
+							slug: slug,
+							action: removals[ slug ].action,
+							target: removals[ slug ].target
+						};
+					} )
+				};
+
+				saveBtn.disabled = true;
+				statusEl.textContent = i18n.saving;
+
+				api( '/admin/industries', { method: 'POST', body: JSON.stringify( payload ) } )
+					.then( function ( data ) {
+						rows     = data.industries || [];
+						orphans  = data.orphans || [];
+						removals = {};
+						render();
+						statusEl.textContent = '';
+						toast( data.moved ? i18n.savedMoved.replace( '%d', String( data.moved ) ) : i18n.saved, 'success' );
+					} )
+					.catch( function ( body ) {
+						statusEl.textContent = '';
+						toast( ( body && body.message ) || i18n.error, 'error' );
+					} )
+					.then( function () { saveBtn.disabled = false; } );
+			} );
+
+			api( '/admin/industries', { method: 'GET' } )
+				.then( function ( data ) {
+					rows    = data.industries || [];
+					orphans = data.orphans || [];
+					render();
+				} )
+				.catch( function () {
+					listEl.textContent = i18n.loadError;
+				} );
+		} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Mobile App tab — branding and the per-site legal surface.
+	 *
+	 * Every key here has been read by GET /settings/app-config since 1.7.0 with
+	 * no way for a site owner to set any of them, so a companion app showed the
+	 * plugin's default blue, no logo, and fell back to the admin email for abuse
+	 * reports. The legal URLs matter beyond cosmetics: the endpoint's own comment
+	 * cites Apple guidelines 1.2 and 5.1.1, and an app that cannot link its terms
+	 * or community guidelines is a review rejection.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array<string,mixed> $settings Current settings.
+	 * @return void
+	 */
+	public function render_mobile_app_tab( array $settings = array() ): void {
+		$settings = $settings ? $settings : Settings::all();
+
+		$wcb_accent     = (string) ( $settings['accent_color'] ?? '#2563EB' );
+		$wcb_logo       = (string) ( $settings['logo_url'] ?? '' );
+		$wcb_login_bg   = (string) ( $settings['login_bg_url'] ?? '' );
+		$wcb_dark       = ! empty( $settings['dark_mode_default'] );
+		$wcb_terms      = (string) ( $settings['terms_url'] ?? '' );
+		$wcb_eula       = (string) ( $settings['eula_url'] ?? '' );
+		$wcb_guidelines = (string) ( $settings['guidelines_url'] ?? '' );
+		$wcb_abuse      = (string) ( $settings['abuse_contact_email'] ?? '' );
+		?>
+		<h2><?php esc_html_e( 'App branding', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'How your companion app looks. These are served to the app and ignored by the website, which follows your theme.', 'wp-career-board' ); ?>
+		</p>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-accent-color"><?php esc_html_e( 'Accent colour', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="color" id="wcb-accent-color" name="wcb_settings[accent_color]" value="<?php echo esc_attr( $wcb_accent ); ?>">
+				<span class="description"><?php esc_html_e( 'Buttons and highlights in the app. Default: #2563EB.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-logo-url"><?php esc_html_e( 'Logo URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-logo-url" class="regular-text" name="wcb_settings[logo_url]" value="<?php echo esc_attr( $wcb_logo ); ?>" placeholder="https://">
+				<span class="description"><?php esc_html_e( 'Shown in the app header. Leave blank to use your site name.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-login-bg-url"><?php esc_html_e( 'Sign-in background URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-login-bg-url" class="regular-text" name="wcb_settings[login_bg_url]" value="<?php echo esc_attr( $wcb_login_bg ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><?php esc_html_e( 'Dark mode', 'wp-career-board' ); ?></div>
+			<div class="wcb-settings-row-control">
+				<label for="wcb-dark-mode-default">
+					<input type="checkbox" id="wcb-dark-mode-default" name="wcb_settings[dark_mode_default]" value="1" <?php checked( $wcb_dark ); ?>>
+					<?php esc_html_e( 'Open the app in dark mode by default', 'wp-career-board' ); ?>
+				</label>
+			</div>
+		</div>
+
+		<h2><?php esc_html_e( 'Legal links', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, which falls back to your admin email. Your privacy policy comes from Settings > Privacy in WordPress.', 'wp-career-board' ); ?>
+		</p>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-terms-url"><?php esc_html_e( 'Terms of service URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-terms-url" class="regular-text" name="wcb_settings[terms_url]" value="<?php echo esc_attr( $wcb_terms ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-eula-url"><?php esc_html_e( 'EULA URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-eula-url" class="regular-text" name="wcb_settings[eula_url]" value="<?php echo esc_attr( $wcb_eula ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-guidelines-url"><?php esc_html_e( 'Community guidelines URL', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="url" id="wcb-guidelines-url" class="regular-text" name="wcb_settings[guidelines_url]" value="<?php echo esc_attr( $wcb_guidelines ); ?>" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="wcb-settings-row">
+			<div class="wcb-settings-row-label"><label for="wcb-abuse-contact"><?php esc_html_e( 'Abuse contact email', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-control">
+				<input type="email" id="wcb-abuse-contact" class="regular-text" name="wcb_settings[abuse_contact_email]" value="<?php echo esc_attr( $wcb_abuse ); ?>" placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>">
+				<span class="description"><?php esc_html_e( 'Where reports from the app are sent. Defaults to your admin email.', 'wp-career-board' ); ?></span>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Cancel a member's pending account deletion on their behalf.
+	 *
+	 * The member can always undo their own deletion by signing back in, but a
+	 * support message asking someone else to do it is the common case, and the
+	 * owner previously had no way to act on it - nor any way to see the request
+	 * existed.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	public function maybe_cancel_account_deletion(): void {
+		if ( ! isset( $_GET['action'] ) || 'wcb_cancel_deletion' !== sanitize_key( wp_unslash( $_GET['action'] ) ) ) {
+			return;
+		}
+
+		$user_id = isset( $_GET['user_id'] ) ? absint( wp_unslash( $_GET['user_id'] ) ) : 0;
+		$nonce   = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+
+		if ( $user_id <= 0 || '' === $nonce || ! wp_verify_nonce( $nonce, 'wcb_cancel_deletion_' . $user_id ) ) {
+			return;
+		}
+
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			return;
+		}
+
+		$user = get_userdata( $user_id );
+		if ( $user && class_exists( '\WCB\Modules\Account\AccountDeletionService' ) ) {
+			( new \WCB\Modules\Account\AccountDeletionService() )->cancel( $user );
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&wcb_deletion_cancelled=1#privacy' ) );
+		exit;
+	}
+
+	/**
+	 * Privacy tab — the GDPR request audit trail.
+	 *
+	 * wcb_gdpr_log has recorded every export and erase request since 1.0.0 and
+	 * nothing could read it: no admin screen, no REST route, and the GDPR
+	 * exporter deliberately excludes it. A compliance audit trail only reachable
+	 * with database access is no evidence at all at the moment an owner needs to
+	 * show a request was honoured.
+	 *
+	 * Read-only on purpose. An audit trail an administrator can edit is not one,
+	 * and rows age out with the user they belong to via the existing erase path.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param  array<string,mixed> $settings Current settings (unused; read-only view).
+	 * @return void
+	 */
+	public function render_privacy_tab( array $settings = array() ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- signature fixed by the wcb_settings_tab_{slug} action.
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'wcb_gdpr_log';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- admin-only audit view on a custom table.
+		$exists = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+
+		$per_page = 50;
+		$paged    = isset( $_GET['wcb_log_page'] ) ? max( 1, absint( wp_unslash( $_GET['wcb_log_page'] ) ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination.
+		$offset   = ( $paged - 1 ) * $per_page;
+
+		$total = 0;
+		$rows  = array();
+
+		if ( $exists ) {
+			$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- admin-only audit view; the only interpolation is $wpdb->prefix, so there is no user input to prepare.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- admin-only audit view; LIMIT/OFFSET paginated.
+			$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, user_id, action, ip_hash, created_at FROM {$table} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $per_page, $offset ) );
+		}
+
+		$pages = (int) ceil( $total / $per_page );
+		?>
+			<?php
+			// Pending account deletions. Members can schedule their own deletion with
+			// a 14-day grace window, and until now the owner could not see that a
+			// single one was pending - not who, not when, and not in time to answer a
+			// "I changed my mind" support message before the cron ran.
+			$wcb_pending = get_users(
+				array(
+					'meta_key'     => '_wcb_deletion_scheduled_at', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- admin-only view, bounded by the number of leaving members.
+					'meta_compare' => 'EXISTS',
+					'number'       => 50,
+					'fields'       => array( 'ID', 'user_login', 'user_email' ),
+				)
+			);
+			?>
+		<h2><?php esc_html_e( 'Pending account deletions', 'wp-career-board' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Members who asked to delete their account. They stay signed out during the wait and can stop it themselves by signing back in. Cancel on their behalf if they contact you instead.', 'wp-career-board' ); ?>
+		</p>
+
+		<?php if ( empty( $wcb_pending ) ) : ?>
+			<p><?php esc_html_e( 'No account deletions are pending.', 'wp-career-board' ); ?></p>
+		<?php else : ?>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th scope="col"><?php esc_html_e( 'Member', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Deletes on', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Time left', 'wp-career-board' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Action', 'wp-career-board' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach ( $wcb_pending as $wcb_member ) : ?>
+					<?php
+					$wcb_when = (int) get_user_meta( $wcb_member->ID, '_wcb_deletion_scheduled_at', true );
+					$wcb_left = $wcb_when - time();
+					$wcb_undo = wp_nonce_url(
+						add_query_arg(
+							array(
+								'page'    => 'wcb-settings',
+								'action'  => 'wcb_cancel_deletion',
+								'user_id' => $wcb_member->ID,
+							),
+							admin_url( 'admin.php' )
+						),
+						'wcb_cancel_deletion_' . $wcb_member->ID
+					);
+					?>
+					<tr>
+						<td><a href="<?php echo esc_url( get_edit_user_link( $wcb_member->ID ) ); ?>"><?php echo esc_html( $wcb_member->user_login ); ?></a></td>
+						<td><?php echo esc_html( $wcb_when ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $wcb_when ) : '—' ); ?></td>
+						<td>
+							<?php
+							echo $wcb_left > 0
+								? esc_html( sprintf( /* translators: %s: human-readable duration. */ __( '%s left', 'wp-career-board' ), human_time_diff( time(), $wcb_when ) ) )
+								: esc_html__( 'Due - runs on the next scheduled task', 'wp-career-board' );
+							?>
+						</td>
+						<td><a href="<?php echo esc_url( $wcb_undo ); ?>" class="button button-small"><?php esc_html_e( 'Keep account', 'wp-career-board' ); ?></a></td>
+					</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+		<?php endif; ?>
+
+		<h2><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text.', 'wp-career-board' ); ?>
+			</p>
+
+			<?php if ( ! $exists ) : ?>
+				<p><?php esc_html_e( 'The request log table is not present. It is created on activation.', 'wp-career-board' ); ?></p>
+			<?php elseif ( empty( $rows ) ) : ?>
+				<p><?php esc_html_e( 'No personal-data requests have been processed yet.', 'wp-career-board' ); ?></p>
+			<?php else : ?>
+				<p class="description">
+					<?php
+					printf(
+						/* translators: %s: number of logged requests. */
+						esc_html( _n( '%s request logged.', '%s requests logged.', $total, 'wp-career-board' ) ),
+						esc_html( number_format_i18n( $total ) )
+					);
+					?>
+				</p>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th scope="col"><?php esc_html_e( 'Date', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Request', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Member', 'wp-career-board' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Origin (hashed)', 'wp-career-board' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<?php
+						$user  = get_userdata( (int) $row->user_id );
+						$label = 'erase' === $row->action
+							? __( 'Erase personal data', 'wp-career-board' )
+							: __( 'Export personal data', 'wp-career-board' );
+						?>
+						<tr>
+							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row->created_at ) ); ?></td>
+							<td><?php echo esc_html( $label ); ?></td>
+							<td>
+								<?php if ( $user ) : ?>
+									<a href="<?php echo esc_url( get_edit_user_link( $user->ID ) ); ?>"><?php echo esc_html( $user->user_login ); ?></a>
+								<?php else : ?>
+									<?php
+									printf(
+										/* translators: %d: user ID of a member who no longer exists. */
+										esc_html__( 'Deleted member (#%d)', 'wp-career-board' ),
+										(int) $row->user_id
+									);
+									?>
+								<?php endif; ?>
+							</td>
+							<td><code><?php echo esc_html( substr( (string) $row->ip_hash, 0, 12 ) ); ?></code></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+
+				<?php if ( $pages > 1 ) : ?>
+					<p class="wcb-settings-pagination">
+						<?php
+						echo wp_kses_post(
+							paginate_links(
+								array(
+									'base'      => add_query_arg( 'wcb_log_page', '%#%' ),
+									'format'    => '',
+									'current'   => $paged,
+									'total'     => $pages,
+									'prev_text' => __( '&laquo; Previous', 'wp-career-board' ),
+									'next_text' => __( 'Next &raquo;', 'wp-career-board' ),
+								)
+							)
+						);
+						?>
+					</p>
+				<?php endif; ?>
+			<?php endif; ?>
 		<?php
 	}
 }

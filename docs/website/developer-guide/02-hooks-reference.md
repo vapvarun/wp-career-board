@@ -115,6 +115,43 @@ employer dashboard have a consistent surface) but only return
 meaningful values when Pro is active. In Free they default to
 "credits disabled" / empty URL / zero balance.
 
+## Active job limit (free tier quota)
+
+| Hook | Type | Fires when |
+|---|---|---|
+| `wcb_employer_active_job_limit` | Filter | Max concurrently active jobs per employer; **0 = unlimited (default)**. Args: `$limit, $user_id, $request`. |
+| `wcb_employer_active_job_statuses` | Filter | Post statuses that occupy a slot. Default `array( 'publish' )`. Args: `$statuses, $user_id`. |
+| `wcb_employer_active_job_limit_message` | Filter | Copy shown when the cap blocks a post. Args: `$message, $limit, $count`. |
+
+Cap the number of live listings one employer may hold at once — the
+usual shape for a site that gives away a few free posts and sells
+volume on top:
+
+```php
+add_filter( 'wcb_employer_active_job_limit', static fn(): int => 5 );
+
+add_filter(
+    'wcb_employer_active_job_limit_message',
+    static function ( string $message, int $limit ): string {
+        return sprintf( 'Free plan allows %d live jobs. Close one or use credits.', $limit );
+    },
+    10,
+    2
+);
+```
+
+Checked in `POST /wcb/v1/jobs` and again in `PUT /wcb/v1/jobs/{id}`
+when a listing flips back to `publish` (the job being republished is
+excluded from its own count, so reopening while under the cap of your
+*other* live jobs is allowed). Blocked requests return HTTP **403**
+with code `wcb_active_job_limit`; `data.limit` and `data.count` carry
+the numbers, and the job form surfaces `message` directly.
+
+**The cap is skipped entirely when `wcb_credits_enabled` returns
+true.** Paid posting already meters volume — charging an employer a
+credit and then refusing the post would be the worst of both models.
+The quota is the free-board mechanism; credits replace it.
+
 ## REST response shaping
 
 The `wcb_rest_prepare_*` family is your hook into every REST

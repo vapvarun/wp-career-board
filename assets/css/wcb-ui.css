@@ -717,6 +717,20 @@ textarea.wcb-input {
 	margin: 0 0 var(--wcb-space-xs);
 }
 
+/* Reserve the bookmark button's gutter on the three archive card titles.
+ * The button is position:absolute, 40px wide, pinned to `right: --wcb-space-md`,
+ * so it is out of flow and the title never knew it was there — a long name ran
+ * straight under the icon ("Deputy Head Teacher" collided by 32px at 1440px).
+ * Scoped to the card contexts that actually HAVE a bookmark, because
+ * .wcb-card-title is overloaded: it is also the section heading inside cards
+ * ("Job Details", "About the Company") where padding here would misalign it.
+ * Logical property so RTL flips the gutter to the other side with the button. */
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-card-title,
+[class*="wp-block-wp-career-board"] .wcb-ca-card .wcb-ca-name,
+[class*="wp-block-wcb-"] .wcb-ra-card .wcb-ra-card-name {
+	padding-inline-end: calc( 40px + var( --wcb-space-sm, 8px ) );
+}
+
 /* Section card titles (.wcb-card-title) need more breathing room than the
  * compact archive item names above. The shared reset pins all three to
  * --wcb-space-xs (4px), which left section headings like "Job Details" / "About

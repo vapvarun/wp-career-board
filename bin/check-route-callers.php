@@ -84,6 +84,18 @@ foreach ( $php_files as $file ) {
 	}
 }
 
+/**
+ * Normalise a route path for comparison: named regex groups collapse to {id},
+ * trailing slash dropped. Keeps code and manifest spellings comparable.
+ *
+ * @param string $path Route path.
+ * @return string
+ */
+function wcb_rc_normalise_route( string $path ): string {
+	$path = (string) preg_replace( '/\(\?P<[a-z_]+>[^)]*\)/', '{id}', $path );
+	return rtrim( $path, '/' );
+}
+
 if ( empty( $routes ) ) {
 	fwrite( STDOUT, "check-route-callers: no register_rest_route calls found — nothing to gate.\n" );
 	exit( 0 );
@@ -193,7 +205,55 @@ foreach ( $routes as $path => $reg_file ) {
 	}
 }
 
-// ── 3. Report ────────────────────────────────────────────────────────────────
+// ── 3. Manifest coverage ─────────────────────────────────────────────────────
+// Every registered route must also appear in audit/manifest.json rest.endpoints[].
+// The manifest is what the next agent trusts, and a targeted delta has now left
+// this array behind three rounds running: /wcb/v1/account in one pass, then
+// /wcb/v1/employers/me/applications for two more — the second time while the
+// manifest's own refresh_notes discussed the route in prose, so a grep of the
+// file found a hit and the gap survived review (Basecamp 10171650688).
+//
+// Note what is compared: rest.endpoints[] holds one entry per route+method, so
+// its entry count is legitimately higher than the route count. This asserts
+// COVERAGE of paths, never equality of counts.
+$manifest_missing = array();
+$manifest_file    = $root . '/audit/manifest.json';
+
+if ( is_readable( $manifest_file ) ) {
+	$manifest = json_decode( (string) file_get_contents( $manifest_file ), true );
+
+	if ( is_array( $manifest ) && ! empty( $manifest['rest']['endpoints'] ) ) {
+		$recorded = array();
+
+		foreach ( (array) $manifest['rest']['endpoints'] as $entry ) {
+			$route = (string) ( $entry['route'] ?? '' );
+			if ( '' === $route ) {
+				continue;
+			}
+			// Strip the namespace prefix so both sides compare as bare paths.
+			$recorded[ wcb_rc_normalise_route( preg_replace( '#^/[^/]+/v\d+#', '', $route ) ) ] = true;
+		}
+
+		foreach ( array_keys( $routes ) as $path ) {
+			if ( ! isset( $recorded[ wcb_rc_normalise_route( $path ) ] ) ) {
+				$manifest_missing[] = $path;
+			}
+		}
+	}
+}
+
+// ── 4. Report ────────────────────────────────────────────────────────────────
+if ( ! empty( $manifest_missing ) ) {
+	fwrite( STDERR, "check-route-callers FAILED — route(s) registered in code but missing from audit/manifest.json rest.endpoints[]:\n" );
+	foreach ( $manifest_missing as $path ) {
+		fwrite( STDERR, "  - {$path}\n" );
+	}
+	fwrite( STDERR, "\nAdd each one to rest.endpoints[] with its methods, handler, permission and purpose.\n" );
+	fwrite( STDERR, "Searching the manifest for the path string is not enough — it may appear in refresh_notes prose\n" );
+	fwrite( STDERR, "while the endpoint array omits it. Check rest.endpoints[] itself.\n" );
+	exit( 1 );
+}
+
 if ( empty( $orphans ) ) {
 	$n = count( $routes );
 	fwrite( STDOUT, "check-route-callers OK: all {$n} registered REST route(s) are reachable (or allowlisted).\n" );

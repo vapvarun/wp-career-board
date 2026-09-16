@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-filters — server-renders taxonomy filter dropdowns.
+ * Block render: wp-career-board/job-filters — server-renders taxonomy filter dropdowns.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.

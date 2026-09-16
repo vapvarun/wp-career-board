@@ -233,6 +233,20 @@ class WpjmImporter {
 		$this->migrate_taxonomy( $source_id, $new_id, 'job_listing_category', 'wcb_category' );
 		$this->migrate_taxonomy( $source_id, $new_id, 'job_listing_type', 'wcb_job_type' );
 
+		/**
+		 * Fires after a job has been imported from another job board.
+		 *
+		 * Fired last, once meta and taxonomies are written, so consumers see a
+		 * complete job. Pro binds this to geocode the location (Maps) and to
+		 * match the job against saved alerts (Alerts) — both stayed silent for
+		 * WPJM migrations until this fired here.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param int $new_id Imported wcb_job post ID.
+		 */
+		do_action( 'wcb_job_imported', $new_id );
+
 		return 'imported';
 	}
 

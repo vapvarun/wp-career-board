@@ -1,25 +1,33 @@
 {
-  "generated": "2026-06-12T14:33:04Z",
-  "suppressions": [
-    {
-      "id": "ajax-action-no-handler:wcb_submit",
-      "reason": "Not an AJAX action. assets/js/wcb-recaptcha.js:33 passes 'wcb_submit' as the reCAPTCHA v3 action token to grecaptcha.execute(siteKey, {action:'wcb_submit'}) - an analytics label, not a wp_ajax_* handler. The plugin is REST-only (0 AJAX handlers)."
-    },
-    {
-      "id": "post_meta-read-never-written:_wcb_attachment_id",
-      "reason": "Defensive fallback. The real resume-file key is _wcb_resume_attachment_id (written in class-applications-endpoint.php:292/301, class-resume-endpoint.php:316/702); resume-preview.php reads that correct key at :72, and :76's _wcb_attachment_id is a guarded fallback for a path nothing writes. Harmless dead fallback."
-    },
-    {
-      "id": "user_meta-read-never-written:_wcb_job_title",
-      "reason": "Dead headline fallback in Pro resume-single/render.php:89, reached only after _wcb_resume_headline post-meta and _wcb_resume_data['headline'] are both empty. The apps endpoint writes the distinct key _wcb_job_title_snapshot. Permanently empty but harmless (no fatal, just an unused final fallback)."
-    },
-    {
-      "id": "user_meta-read-never-written:wcb_pro_banner_dismissed",
-      "reason": "Written via a concatenated key the static scanner cannot trace: api/endpoints/class-admin-endpoint.php:127 builds $meta_key = 'wcb_' . $banner . '_dismissed' then update_user_meta(); admin.js:402 POSTs {banner:'pro_banner'} to /wcb/v1/admin/dismiss-banner, yielding exactly wcb_pro_banner_dismissed."
-    },
-    {
-      "id": "hook-consumed-never-fired:wcb_process_account_deletions",
-      "reason": "WP-Cron event, not a do_action. class-account-deletion-service.php:43 defines CRON_HOOK = 'wcb_process_account_deletions'; :61-62 schedules it via wp_schedule_event(..., 'daily', CRON_HOOK) and :59 add_action()s the handler. WP core fires it on schedule (verified live: `wp cron event list` shows it scheduled). The static scanner only sees do_action/apply_filters, so it can't observe the cron dispatch."
-    }
-  ]
+ "generated": "2026-06-12T14:33:04Z",
+ "suppressions": [
+  {
+   "id": "ajax-action-no-handler:wcb_submit",
+   "reason": "Not an AJAX action. assets/js/wcb-recaptcha.js:33 passes 'wcb_submit' as the reCAPTCHA v3 action token to grecaptcha.execute(siteKey, {action:'wcb_submit'}) - an analytics label, not a wp_ajax_* handler. The plugin is REST-only (0 AJAX handlers)."
+  },
+  {
+   "id": "post_meta-read-never-written:_wcb_attachment_id",
+   "reason": "Defensive fallback. The real resume-file key is _wcb_resume_attachment_id (written in class-applications-endpoint.php:292/301, class-resume-endpoint.php:316/702); resume-preview.php reads that correct key at :72, and :76's _wcb_attachment_id is a guarded fallback for a path nothing writes. Harmless dead fallback."
+  },
+  {
+   "id": "user_meta-read-never-written:_wcb_job_title",
+   "reason": "Dead headline fallback in Pro resume-single/render.php:89, reached only after _wcb_resume_headline post-meta and _wcb_resume_data['headline'] are both empty. The apps endpoint writes the distinct key _wcb_job_title_snapshot. Permanently empty but harmless (no fatal, just an unused final fallback)."
+  },
+  {
+   "id": "user_meta-read-never-written:wcb_pro_banner_dismissed",
+   "reason": "Written via a concatenated key the static scanner cannot trace: api/endpoints/class-admin-endpoint.php:127 builds $meta_key = 'wcb_' . $banner . '_dismissed' then update_user_meta(); admin.js:402 POSTs {banner:'pro_banner'} to /wcb/v1/admin/dismiss-banner, yielding exactly wcb_pro_banner_dismissed."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_process_account_deletions",
+   "reason": "WP-Cron event, not a do_action. class-account-deletion-service.php:43 defines CRON_HOOK = 'wcb_process_account_deletions'; :61-62 schedules it via wp_schedule_event(..., 'daily', CRON_HOOK) and :59 add_action()s the handler. WP core fires it on schedule (verified live: `wp cron event list` shows it scheduled). The static scanner only sees do_action/apply_filters, so it can't observe the cron dispatch."
+  },
+  {
+   "id": "ajax-action-no-handler:wcb_cancel_deletion",
+   "reason": "Not an AJAX action. It is a $_GET['action'] value on an admin link: AdminSettings::maybe_cancel_account_deletion() is registered on admin_init (admin/class-admin-settings.php:164), matches $_GET['action'] === 'wcb_cancel_deletion' at :1696, and verifies the per-user nonce 'wcb_cancel_deletion_{ID}' at :1703 before acting. The link is built at :1800-1805. The auditor matches the 'action' => ... string in the URL builder and assumes admin-ajax.php; this plugin registers no AJAX handlers at all."
+  },
+  {
+   "id": "post_meta-read-never-written:_wcb_location_text",
+   "reason": "Written by WP Job Manager, not by us - it is WPJM's flat location key, and the job-map block reads it only as an import fallback (wp-career-board-pro/blocks/job-map/render.php:48). The primary source is the wcb_location taxonomy, read first at :45 so the SSR pin matches what the radius search swaps in. The auditor's scope is our two plugins, so the external writer is invisible to it. Reading only the importer key is the bug this fallback ordering fixed."
+  }
+ ]
 }

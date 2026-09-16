@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/employer-dashboard — sidebar layout employer interface.
+ * Block render: wp-career-board/employer-dashboard — sidebar layout employer interface.
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -804,6 +804,15 @@ wp_interactivity_state(
 						<div class="wcb-detail-section">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>
 							<div class="wcb-cover-letter" data-wp-text="state.selectedAppCoverLetter"></div>
+						</div>
+						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasCustomFields">
+							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Application answers', 'wp-career-board' ); ?></h4>
+							<template data-wp-each--answer="state.selectedAppCustomFields" data-wp-each-key="context.answer.key">
+								<div class="wcb-app-answer">
+									<span class="wcb-app-answer__label" data-wp-text="context.answer.label"></span>
+									<span class="wcb-app-answer__value" data-wp-text="context.answer.value"></span>
+								</div>
+							</template>
 						</div>
 						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasResume">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Resume', 'wp-career-board' ); ?></h4>

@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.2.9';
+	const DB_VERSION = '1.3.2';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -395,6 +395,33 @@ final class Install {
 				self::migrate_add_notifications_status_index();
 			}
 
+			// 1.3.0 — adopt jobs that were created while the poster's reciprocal
+			// `_wcb_company_id` user meta was missing, so they stop disappearing
+			// from the employer's company-scoped My Jobs list.
+			if ( version_compare( (string) $installed, '1.3.0', '<' ) ) {
+				self::migrate_orphan_job_company_links();
+			}
+
+			// 1.3.1 — repair company names that were stored entity-encoded.
+			// backfill_orphan_jobs() used get_the_title(), which runs the
+			// the_title filter chain, so a company called "Smith & Sons" was
+			// written to _wcb_company_name as "Smith &#038; Sons" and rendered
+			// literally on job cards and the job single, for every visitor
+			// including anonymous ones (Basecamp 10300166572). The write path is
+			// fixed; this repairs rows already persisted on live sites.
+			if ( version_compare( (string) $installed, '1.3.1', '<' ) ) {
+				self::migrate_repair_company_name_entities();
+			}
+
+			// 1.3.2 — free the provisioned company-archive page from the CPT's
+			// archive slug. Both provisioning paths titled it "Companies", which
+			// takes slug `companies`, which is what wcb_company registers as its
+			// has_archive - so WP served the archive and the page, with its
+			// company-archive block, was unreachable on every site.
+			if ( version_compare( (string) $installed, '1.3.2', '<' ) ) {
+				self::migrate_company_archive_page_slug();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -406,6 +433,60 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Repair `_wcb_company_name` values that were stored entity-encoded.
+	 *
+	 * The meta is a denormalised copy of the company post's title, so the
+	 * company post is the source of truth and re-stamping from it is exact.
+	 * Decoding the entities in place would not be: wptexturize turns " - " into
+	 * an en dash before encoding it, so `&#8211;` cannot be told apart from an
+	 * en dash the owner actually typed. Only rows whose job still points at a
+	 * readable company can be restored that way; anything else falls back to
+	 * decoding, which at least stops the raw entity showing on the page.
+	 *
+	 * Bounded drain by ascending post_id rather than by re-querying the same
+	 * predicate: a row that cannot be improved stays matching the LIKE, so a
+	 * predicate-only loop would never terminate. The cursor always advances.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	private static function migrate_repair_company_name_entities(): void {
+		global $wpdb;
+
+		$after = 0;
+
+		do {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade routine over a single meta_key.
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_name' AND meta_value LIKE %s AND post_id > %d ORDER BY post_id ASC LIMIT %d", '%&#%', $after, 500 ) );
+
+			$batch_size = is_array( $rows ) ? count( $rows ) : 0;
+
+			foreach ( (array) $rows as $row ) {
+				$job_id     = (int) $row->post_id;
+				$after      = max( $after, $job_id );
+				$company_id = (int) get_post_meta( $job_id, '_wcb_company_id', true );
+				$repaired   = '';
+
+				// The company post is the source of truth: the meta is only a
+				// denormalised copy of its title.
+				if ( $company_id > 0 ) {
+					$repaired = (string) get_post_field( 'post_title', $company_id );
+				}
+
+				// No company to read back from, or it is gone: decode what is
+				// stored so the visitor stops seeing "&#038;" on the page.
+				if ( '' === $repaired ) {
+					$repaired = html_entity_decode( (string) $row->meta_value, ENT_QUOTES, 'UTF-8' );
+				}
+
+				if ( $repaired !== (string) $row->meta_value ) {
+					update_post_meta( $job_id, '_wcb_company_name', $repaired );
+				}
+			}
+		} while ( 500 === $batch_size );
 	}
 
 	/**
@@ -713,5 +794,152 @@ final class Install {
 			$wpdb->query( "ALTER TABLE {$table} ADD KEY status (status)" );
 		}
 		// phpcs:enable
+	}
+
+	/**
+	 * Stamp `_wcb_company_id` onto jobs that were created without it.
+	 *
+	 * Before 1.7.1 the job-create endpoint read the poster's `_wcb_company_id`
+	 * user meta raw. Employers whose company came from an import, an admin or a
+	 * migration only ever had the post-side link, so their jobs were saved
+	 * unlinked — and the moment the dashboard self-healed the user meta, My Jobs
+	 * switched to the company-scoped query and those jobs vanished.
+	 *
+	 * Paged rather than drained: jobs whose author resolves to no company
+	 * (imports, deleted employers, admin-authored listings) are never stamped, so
+	 * a NOT-EXISTS drain would re-fetch the same rows forever. The offset advances
+	 * by the number of rows skipped — stamped rows leave the result set, so the
+	 * skipped ones sit at the head of the next page. Capped at 200 passes; on a
+	 * board past that size the tail is picked up by
+	 * {@see \WCB\Api\Endpoints\EmployersEndpoint::backfill_orphan_jobs()} the next
+	 * time the employer saves their company profile.
+	 *
+	 * @since  1.7.1
+	 * @return void
+	 */
+	private static function migrate_orphan_job_company_links(): void {
+		$author_memo  = array();
+		$company_memo = array();
+		$offset       = 0;
+
+		for ( $pass = 0; $pass < 200; $pass++ ) {
+			$job_ids = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- paged batch; one-time migration.
+					'posts_per_page' => 500,
+					'offset'         => $offset,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration.
+						'relation' => 'OR',
+						array(
+							'key'     => '_wcb_company_id',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_wcb_company_id',
+							'value'   => array( '', '0' ),
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
+
+			if ( ! $job_ids ) {
+				return;
+			}
+
+			_prime_post_caches( $job_ids, false, false );
+
+			$skipped = 0;
+			foreach ( $job_ids as $job_id ) {
+				$author_id = (int) get_post_field( 'post_author', (int) $job_id );
+
+				if ( ! isset( $author_memo[ $author_id ] ) ) {
+					$author_memo[ $author_id ] = CompanyMetaShape::resolve_company_id( $author_id );
+				}
+				$company_id = $author_memo[ $author_id ];
+
+				if ( $company_id <= 0 ) {
+					++$skipped;
+					continue;
+				}
+
+				if ( ! isset( $company_memo[ $company_id ] ) ) {
+					// Raw post_title — see the note in AdminMetaBoxes::save_job_meta.
+					// This backfill rewrites the meta for EVERY job on the site, so
+					// using get_the_title() here corrupted names that were already
+					// correct, on upgrade, for any company with & < > or quotes.
+					$wcb_company_post            = get_post( $company_id );
+					$company_memo[ $company_id ] = $wcb_company_post ? $wcb_company_post->post_title : '';
+				}
+
+				update_post_meta( (int) $job_id, '_wcb_company_id', $company_id );
+				update_post_meta( (int) $job_id, '_wcb_company_name', $company_memo[ $company_id ] );
+			}
+
+			if ( count( $job_ids ) < 500 ) {
+				return;
+			}
+
+			$offset += $skipped;
+		}
+	}
+
+	/**
+	 * Move the company-archive page off the slug the CPT archive owns.
+	 *
+	 * `wcb_company` registers `has_archive => 'companies'`, so a page whose slug
+	 * is also `companies` loses: WordPress serves the post-type archive and the
+	 * page never renders. Renaming it breaks no working link precisely because
+	 * the page was never reachable at that URL - the archive answered instead,
+	 * and it still will.
+	 *
+	 * Only the page the settings actually point at is touched, only when its
+	 * slug is the colliding one, and only when the target slug is free.
+	 * Pages::CANONICAL_SLUGS already expects `find-companies` for this key, so
+	 * its resolver starts working rather than being permanently unreachable.
+	 *
+	 * @since 1.7.1
+	 * @return void
+	 */
+	private static function migrate_company_archive_page_slug(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		$settings = is_string( $settings ) ? json_decode( $settings, true ) : $settings;
+		$page_id  = is_array( $settings ) ? (int) ( $settings['company_archive_page'] ?? 0 ) : 0;
+
+		if ( $page_id <= 0 ) {
+			return;
+		}
+
+		$page = get_post( $page_id );
+		if ( ! $page instanceof \WP_Post || 'page' !== $page->post_type ) {
+			return;
+		}
+
+		$archive_slug = 'companies';
+		$post_type    = get_post_type_object( 'wcb_company' );
+		if ( $post_type && is_string( $post_type->has_archive ) && '' !== $post_type->has_archive ) {
+			$archive_slug = $post_type->has_archive;
+		}
+
+		if ( $page->post_name !== $archive_slug ) {
+			return;
+		}
+
+		if ( get_page_by_path( 'find-companies' ) ) {
+			return;
+		}
+
+		wp_update_post(
+			array(
+				'ID'        => $page_id,
+				'post_name' => 'find-companies',
+			)
+		);
 	}
 }

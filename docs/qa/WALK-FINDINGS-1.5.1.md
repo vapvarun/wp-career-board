@@ -1,5 +1,9 @@
 # Walk Findings — WP Career Board (Free + Pro) 1.5.1
 
+> **Historical record, not a procedure.** This documents one run on one machine,
+> so the hostname below is that machine's and is left as found. Reusable
+> procedures live in `docs/qa/walkthroughs/` and take `$WCB_SITE` / `$WCB_PATH`.
+
 Full sequential browser walk of every docs-level walkthrough, combo mode (Free + Pro active),
 on `http://wp-career-board.local`. **Issues logged, not fixed** — team reviews all at the end.
 

@@ -868,3 +868,23 @@
 		transition: none;
 	}
 }
+
+/* "Applications closed" pill on a listing card. Hidden until the Interactivity
+   binding adds .wcb-shown, matching how the card's other conditional footer
+   items (salary, deadline) behave. */
+.wcb-card-closed {
+	display: none;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-muted, var(--wcb-contrast));
+	background: var(--wcb-bg-subtle);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-full);
+	padding: 2px var(--wcb-space-sm);
+	white-space: nowrap;
+}
+
+.wcb-card-closed.wcb-shown {
+	display: inline-flex;
+	align-items: center;
+}

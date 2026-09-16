@@ -50,8 +50,9 @@ final class CompaniesEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				// See the note on /jobs/{id}/bookmark - same ability, same gap.
 				'permission_callback' => static function (): bool {
-					return is_user_logged_in();
+					return wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				},
 			)
 		);
@@ -275,15 +276,15 @@ final class CompaniesEndpoint extends RestController {
 			return $this->build_companies_response( array(), 0, 0, $paged );
 		}
 
-		// Build author → job count map scoped to companies on this page.
-		$author_ids = array_unique(
+		// Build company → job count map scoped to companies on this page.
+		$wcb_company_ids = array_unique(
 			array_map(
 				static function ( \WP_Post $p ): int {
-					return (int) $p->post_author; },
+					return (int) $p->ID; },
 				$query->posts
 			)
 		);
-		$job_counts = $this->job_counts_by_author( $author_ids );
+		$job_counts      = $this->job_counts_by_company( $wcb_company_ids );
 
 		$companies = array_map(
 			function ( \WP_Post $post ) use ( $job_counts ): array {
@@ -362,38 +363,23 @@ final class CompaniesEndpoint extends RestController {
 			return $where;
 		}
 
-		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
-		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
-
-		if ( $use_fulltext ) {
-			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
-			$bool_term = trim( (string) $bool_term );
-			if ( '' === $bool_term ) {
-				return $where;
-			}
-			$bool_term .= '*';
-			$where     .= $wpdb->prepare(
-				" AND MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE)",
-				$bool_term
-			);
+		$title_clause = \WCB\Core\TitleSearch::title_clause( $search_term );
+		if ( '' === $title_clause ) {
 			return $where;
 		}
 
-		$like   = '%' . $wpdb->esc_like( $search_term ) . '%';
-		$where .= $wpdb->prepare(
-			" AND {$wpdb->posts}.post_title LIKE %s",
-			$like
-		);
+		// $title_clause is already prepared.
+		$where .= " AND {$title_clause}";
 		return $where;
 	}
 
 	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
 		$response = rest_ensure_response(
 			array(
-				'companies' => $companies,
-				'total'     => $total,
-				'pages'     => $pages,
-				'has_more'  => $paged < $pages,
+				'companies'     => $companies,
+				'total'         => $total,
+				'pages'         => $pages,
+				'has_more'      => $paged < $pages,
 				/*
 				 * Additive since 1.5.1. Resolved server-side because _n() handles
 				 * any number of plural forms; the block previously picked between
@@ -419,16 +405,16 @@ final class CompaniesEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post $post       Company post object.
-	 * @param array    $job_counts author_id → job_count map.
+	 * @param array    $job_counts company_id → job_count map.
 	 * @return array<string, mixed>
 	 */
 	private function prepare_item( \WP_Post $post, array $job_counts ): array {
-		$logo_url   = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
-		$trust      = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
-		$trust_info = $this->trust_badge_info( $trust );
+		$logo_url     = (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
+		$trust        = sanitize_key( (string) get_post_meta( $post->ID, '_wcb_trust_level', true ) );
+		$trust_info   = \WCB\Core\CompanyMetaShape::trust_badge_info( $trust );
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
-		$job_count  = $job_counts[ (int) $post->post_author ] ?? 0;
-		$name       = $post->post_title;
+		$job_count    = $job_counts[ (int) $post->ID ] ?? 0;
+		$name         = $post->post_title;
 
 		// Build up-to-2-letter initials.
 		$words    = array_filter( explode( ' ', trim( $name ) ) );
@@ -439,12 +425,12 @@ final class CompaniesEndpoint extends RestController {
 		$initials = $initials ? $initials : '?';
 
 		$data = array(
-			'id'          => $post->ID,
-			'name'        => $name,
-			'initials'    => $initials,
-			'has_logo'    => '' !== $logo_url,
-			'no_logo'     => '' === $logo_url,
-			'logo'        => $logo_url,
+			'id'             => $post->ID,
+			'name'           => $name,
+			'initials'       => $initials,
+			'has_logo'       => '' !== $logo_url,
+			'no_logo'        => '' === $logo_url,
+			'logo'           => $logo_url,
 			'tagline'        => $company_meta['tagline'],
 			// Ship the localised industry label alongside the raw slug so the
 			// card chip shows "Technology & Software", not "technology", after a
@@ -453,14 +439,14 @@ final class CompaniesEndpoint extends RestController {
 			'industry_label' => $company_meta['industry_label'],
 			'size'           => $company_meta['size'],
 			'size_label'     => $company_meta['size_label'],
-			'hq'          => $company_meta['hq'],
-			'trust'       => $trust,
-			'trust_label' => $trust_info['label'] ?? '',
-			'trust_icon'  => $trust_info['icon'] ?? '',
-			'verified'    => null !== $trust_info,
-			'permalink'   => get_permalink( $post->ID ),
-			'job_count'   => $job_count,
-			'jobs_label'  => $this->jobs_label( $job_count ),
+			'hq'             => $company_meta['hq'],
+			'trust'          => $trust,
+			'trust_label'    => $trust_info['label'] ?? '',
+			'trust_icon'     => $trust_info['icon'] ?? '',
+			'verified'       => null !== $trust_info,
+			'permalink'      => get_permalink( $post->ID ),
+			'job_count'      => $job_count,
+			'jobs_label'     => $this->jobs_label( $job_count ),
 		);
 
 		/**
@@ -475,58 +461,40 @@ final class CompaniesEndpoint extends RestController {
 		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
 	}
 
+
 	/**
-	 * Get trust badge info for a trust level.
+	 * Build a map of company_id → published job count.
+	 *
+	 * Scoped to the company IDs on the current page to avoid counting all jobs.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $trust_level Trust level meta value.
-	 * @return array{label:string,icon:string}|null
-	 */
-	private function trust_badge_info( string $trust_level ): ?array {
-		$trust_level = sanitize_key( $trust_level );
-
-		$map = array(
-			'verified' => array(
-				'label' => __( 'Verified', 'wp-career-board' ),
-				'icon'  => '✓',
-			),
-			'trusted'  => array(
-				'label' => __( 'Trusted', 'wp-career-board' ),
-				'icon'  => '✓',
-			),
-			'premium'  => array(
-				'label' => __( 'Premium', 'wp-career-board' ),
-				'icon'  => '★',
-			),
-		);
-
-		return $map[ $trust_level ] ?? null;
-	}
-
-	/**
-	 * Build a map of author_id → published job count.
-	 *
-	 * Scoped to a specific set of author IDs to avoid fetching all jobs.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int[] $author_ids Author user IDs to count for.
+	 * @param int[] $company_ids Company post IDs to count for.
 	 * @return array<int, int>
 	 */
-	private function job_counts_by_author( array $author_ids ): array {
-		if ( empty( $author_ids ) ) {
+	private function job_counts_by_company( array $company_ids ): array {
+		if ( empty( $company_ids ) ) {
 			return array();
 		}
 
-		// One aggregate SQL via the (post_author, post_status, post_type) index
-		// instead of materialising every job row into PHP just to count it.
-		// At 100k jobs the previous numberposts=-1 path returned 100k WP_Post
-		// objects per render; this is an index-only scan.
+		// Count through the company LINK (_wcb_company_id postmeta), which is
+		// how a job is actually attached to a company — the same relationship
+		// /employers/{id}/jobs and CompanyMetaShape::resolve_company_id() use.
+		//
+		// This previously grouped by post_author and keyed the result on the
+		// COMPANY's author, so it answered "how many jobs did the user who
+		// created this company post publish?". Wherever one admin, importer or
+		// the setup wizard created the company posts, every company inherited
+		// that one user's entire job count — six companies on a seeded site all
+		// reported 24 while really having 5, 4, 5, 3, 7 and 2.
+		//
+		// Still one aggregate query rather than materialising job rows. The
+		// value is bound as a string so the wcb_meta_key_value composite index
+		// stays eligible; an unquoted %d would make MySQL convert the column.
 		global $wpdb;
-		$author_ids   = array_map( 'intval', $author_ids );
-		$placeholders = implode( ',', array_fill( 0, count( $author_ids ), '%d' ) );
-		$cache_key    = 'wcb_job_counts_by_author_' . md5( implode( ',', $author_ids ) );
+		$company_ids  = array_map( 'intval', $company_ids );
+		$placeholders = implode( ',', array_fill( 0, count( $company_ids ), '%s' ) );
+		$cache_key    = 'wcb_job_counts_by_company_' . md5( implode( ',', $company_ids ) );
 		$cached       = wp_cache_get( $cache_key, 'wcb_companies' );
 		if ( false !== $cached && is_array( $cached ) ) {
 			return $cached;
@@ -535,19 +503,23 @@ final class CompaniesEndpoint extends RestController {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT post_author, COUNT(*) AS c FROM {$wpdb->posts}
-					WHERE post_type = 'wcb_job'
-					  AND post_status = 'publish'
-					  AND post_author IN ({$placeholders})
-					GROUP BY post_author",
-				...$author_ids
+				"SELECT pm.meta_value AS company_id, COUNT(*) AS c
+					FROM {$wpdb->postmeta} pm
+					INNER JOIN {$wpdb->posts} p
+					        ON p.ID = pm.post_id
+					       AND p.post_type = 'wcb_job'
+					       AND p.post_status = 'publish'
+					WHERE pm.meta_key = '_wcb_company_id'
+					  AND pm.meta_value IN ({$placeholders})
+					GROUP BY pm.meta_value",
+				...array_map( 'strval', $company_ids )
 			)
 		);
 		// phpcs:enable
 
 		$counts = array();
 		foreach ( (array) $rows as $row ) {
-			$counts[ (int) $row->post_author ] = (int) $row->c;
+			$counts[ (int) $row->company_id ] = (int) $row->c;
 		}
 		// TTL-only cache (CACHING §4b): no write-time invalidation. The key is
 		// an md5 of the author-id SET, so a single save_post_wcb_job can't
@@ -608,15 +580,17 @@ final class CompaniesEndpoint extends RestController {
 				'items' => array( 'type' => 'string' ),
 			),
 			'page'     => array(
-				'type'    => 'integer',
-				'default' => 1,
-				'minimum' => 1,
+				'type'              => 'integer',
+				'default'           => 1,
+				'minimum'           => 1,
+				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'per_page' => array(
-				'type'    => 'integer',
-				'default' => 20,
-				'minimum' => 1,
-				'maximum' => 100,
+				'type'              => 'integer',
+				'default'           => 20,
+				'minimum'           => 1,
+				'maximum'           => 100,
+				'validate_callback' => 'rest_validate_request_arg',
 			),
 		);
 	}

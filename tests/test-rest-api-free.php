@@ -83,8 +83,31 @@ $employer_id    = ! empty( $employer_users ) ? (int) $employer_users[0]->ID : 0;
 $company_posts = get_posts( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'numberposts' => 1, 'fields' => 'ids' ) );
 $company_id    = ! empty( $company_posts ) ? (int) $company_posts[0] : 0;
 
-$job_posts = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'numberposts' => 1, 'fields' => 'ids' ) );
-$job_id    = ! empty( $job_posts ) ? (int) $job_posts[0] : 0;
+// Prefer a job that is still OPEN. The seeder deliberately ships a past-deadline
+// fixture ("Smoke Job 5 - EXPIRED") and it is usually the newest, so taking the
+// first publish row handed the apply assertions a job the endpoint now refuses -
+// a fixture problem reported as five product failures. Fall back to any
+// published job so a site without the seed still runs the non-apply assertions.
+$job_posts = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'numberposts' => -1, 'fields' => 'ids' ) );
+$job_id    = 0;
+foreach ( $job_posts as $wcb_candidate_job ) {
+	if ( ! \WCB\Core\JobDeadline::has_passed( (int) $wcb_candidate_job ) ) {
+		$job_id = (int) $wcb_candidate_job;
+		break;
+	}
+}
+if ( ! $job_id && ! empty( $job_posts ) ) {
+	$job_id = (int) $job_posts[0];
+}
+
+// A job whose deadline has passed, for the guard assertions further down.
+$closed_job_id = 0;
+foreach ( $job_posts as $wcb_candidate_job ) {
+	if ( \WCB\Core\JobDeadline::has_passed( (int) $wcb_candidate_job ) ) {
+		$closed_job_id = (int) $wcb_candidate_job;
+		break;
+	}
+}
 
 $pending_jobs   = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'numberposts' => 1, 'fields' => 'ids' ) );
 $pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
@@ -152,11 +175,22 @@ if ( $job_id ) {
 
 WP_CLI::log( '--- Jobs: PUT /wcb/v1/jobs/{id} (admin) ---' );
 if ( $job_id ) {
-	$original_title = get_the_title( $job_id );
+	// Raw post_title, never get_the_title(): the latter returns the DISPLAY form
+	// (wptexturize + entity encoding), so restoring from it writes "Smoke Job 3
+	// &#8211; Senior PHP Engineer" back into the database and the next person to
+	// open the employer dashboard concludes the 10300166572 fix regressed.
+	// Doubly lossy, so decoding is not a fix either: wptexturize turns " - " into
+	// an en dash before encoding it, and the original hyphen is unrecoverable
+	// from the stored value (Basecamp 10301211928).
+	$original_title = (string) get_post_field( 'post_title', $job_id );
 	$r              = wcb_rest( 'PUT', "/wcb/v1/jobs/{$job_id}", array( 'title' => '__wcb_tmp_title__' ), $admin_id );
 	wcb_assert( 200 === $r->get_status(), 'PUT /jobs/{id} as admin returns 200' );
 	// Restore.
 	wp_update_post( array( 'ID' => $job_id, 'post_title' => $original_title ) );
+	wcb_assert(
+		$original_title === (string) get_post_field( 'post_title', $job_id ),
+		'PUT /jobs/{id} restore leaves the stored title byte-identical'
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -205,6 +239,23 @@ if ( $job_id ) {
 // POST /wcb/v1/jobs/{id}/apply (guest submission allowed)
 // ---------------------------------------------------------------------------
 
+// The apply assertions below submit without a resume, so they depend on
+// `apply_resume_required` being off. That is a site setting, not a constant —
+// on a site that requires resumes every apply correctly returns 400 and the
+// suite reported five phantom failures. Own the precondition here and restore
+// it afterwards rather than assuming the environment.
+$wcb_saved_settings   = get_option( 'wcb_settings', array() );
+$wcb_relaxed_settings = is_array( $wcb_saved_settings ) ? $wcb_saved_settings : array();
+// Set it unconditionally. resume_required() defaults to TRUE when the key is
+// absent, so an `! empty()` guard skipped the relaxation on exactly the sites
+// that needed it - a fresh install, or any site that never saved the setting -
+// and the five apply assertions below failed for an environment reason while
+// the comment above claimed the precondition was owned. Restore below puts the
+// original array back whether or not it carried the key.
+$wcb_relaxed_settings['apply_resume_required'] = false;
+update_option( 'wcb_settings', $wcb_relaxed_settings );
+\WCB\Admin\Settings::flush_cache();
+
 WP_CLI::log( '--- Applications: POST /wcb/v1/jobs/{id}/apply (guest) ---' );
 if ( $job_id ) {
 	$unique_email = 'wcb_test_' . wp_rand( 1000, 9999 ) . '@example.com';
@@ -217,6 +268,29 @@ if ( $job_id ) {
 	if ( $test_app_id ) {
 		wp_delete_post( $test_app_id, true );
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Applications close once the deadline has passed (1.7.1)
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Applications: POST /jobs/{id}/apply refuses a passed deadline ---' );
+if ( $closed_job_id ) {
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$closed_job_id}/apply", array(
+		'guest_name'  => 'Deadline Probe',
+		'guest_email' => 'wcb_closed_' . wp_rand( 1000, 9999 ) . '@example.com',
+	), 0 );
+	wcb_assert( 400 === $r->get_status(), 'apply to a past-deadline job returns 400' );
+	wcb_assert(
+		'wcb_job_deadline_passed' === ( $r->get_data()['code'] ?? '' ),
+		'refusal uses the wcb_job_deadline_passed code'
+	);
+	$closed_probe_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $closed_probe_id ) {
+		wp_delete_post( $closed_probe_id, true );
+	}
+} else {
+	WP_CLI::warning( '  SKIP: no past-deadline job on this site - run bin/seed-qa-fixtures.php.' );
 }
 
 // ---------------------------------------------------------------------------
@@ -257,6 +331,58 @@ if ( $app_id ) {
 	$r = wcb_rest( 'DELETE', "/wcb/v1/applications/{$app_id}", array(), 0 );
 	wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'DELETE /applications/{id} anon returns 401 or 403' );
 }
+
+// ---------------------------------------------------------------------------
+// Custom application answers round-trip via a JSON (non-multipart) request
+// (Basecamp 10134659689 — answers were saved from $_POST only, and read back
+// by nothing).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Applications: custom_fields round-trip ---' );
+if ( $job_id && $candidate_id_2 ) {
+	$wcb_cf_filter = static fn(): array => array(
+		array(
+			'title'  => 'Screening',
+			'fields' => array(
+				array( 'key' => 'notice_period', 'type' => 'text', 'label' => 'Notice period' ),
+			),
+		),
+	);
+	add_filter( 'wcb_application_form_fields_groups', $wcb_cf_filter );
+
+	wp_set_current_user( $candidate_id_2 );
+	$wcb_cf_request = new WP_REST_Request( 'POST', "/wcb/v1/jobs/{$job_id}/apply" );
+	$wcb_cf_request->set_header( 'Content-Type', 'application/json' );
+	$wcb_cf_request->set_body( (string) wp_json_encode( array(
+		'cover_letter'  => 'Custom field round-trip test',
+		'custom_fields' => array( 'notice_period' => '30 days' ),
+	) ) );
+	$r          = rest_do_request( $wcb_cf_request );
+	$wcb_new_app = (int) ( $r->get_data()['id'] ?? 0 );
+	wcb_assert( $wcb_new_app > 0, 'POST /jobs/{id}/apply with a JSON body creates an application' );
+	wcb_assert(
+		'30 days' === (string) get_post_meta( $wcb_new_app, '_wcb_application_field_notice_period', true ),
+		'custom_fields from a JSON body persist to _wcb_application_field_<key>'
+	);
+
+	$r        = wcb_rest( 'GET', "/wcb/v1/applications/{$wcb_new_app}", array(), $admin_id );
+	$wcb_answers = (array) ( $r->get_data()['custom_fields'] ?? array() );
+	wcb_assert( 1 === count( $wcb_answers ), 'application envelope carries one labelled custom_fields entry' );
+	wcb_assert(
+		'Notice period' === ( $wcb_answers[0]['label'] ?? '' ) && '30 days' === ( $wcb_answers[0]['value'] ?? '' ),
+		'custom_fields entry carries the field label and the submitted value'
+	);
+
+	remove_filter( 'wcb_application_form_fields_groups', $wcb_cf_filter );
+	if ( $wcb_new_app ) {
+		wp_delete_post( $wcb_new_app, true );
+	}
+}
+
+// Restore the site's own apply_resume_required value — the apply assertions
+// above are the only ones that need it relaxed.
+update_option( 'wcb_settings', $wcb_saved_settings );
+\WCB\Admin\Settings::flush_cache();
 
 // ---------------------------------------------------------------------------
 // GET /wcb/v1/candidates/{id}/applications (auth gate + success)
@@ -482,6 +608,210 @@ if ( $employer_id ) {
 	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/jobs as employer returns 200' );
 }
 
+// ---------------------------------------------------------------------------
+// GET /wcb/v1/employers/me/applications (auth gate + shape)
+//
+// The sibling of /employers/me/jobs. It was live and answering for two releases
+// while being absent from audit/manifest.json rest.endpoints[], which is how it
+// reached three QA rounds untested (Basecamp 10171650688). Recording it in the
+// manifest is what surfaced the gap; this closes it.
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Employers: GET /wcb/v1/employers/me/applications ---' );
+$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array(), 0 );
+wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'GET /employers/me/applications anon returns 401 or 403' );
+
+if ( $employer_id ) {
+	$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array(), $employer_id );
+	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/applications as employer returns 200' );
+
+	$wcb_me_apps = $r->get_data();
+	wcb_assert(
+		is_array( $wcb_me_apps ) && ( isset( $wcb_me_apps['items'] ) || isset( $wcb_me_apps['applications'] ) ),
+		'GET /employers/me/applications returns a collection envelope'
+	);
+
+	// Pagination is the reason this route was touched in 1.7.1 - it used to
+	// advertise total/pages/has_more over a hardcoded LIMIT 20.
+	$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array( 'per_page' => 1 ), $employer_id );
+	wcb_assert( 200 === $r->get_status(), 'GET /employers/me/applications honours per_page' );
+}
+
+// ---------------------------------------------------------------------------
+// Job create links the company even with the reciprocal user meta unset
+// (Basecamp 10134657106 — the raw get_user_meta read left the job orphaned).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Jobs: company link survives an empty _wcb_company_id user meta ---' );
+
+// Pick an employer that actually authors a wcb_company, rather than reusing
+// $employer_id. The assertions below prove that resolve_company_id() adopts the
+// employer's company from the post author when the reciprocal user meta is
+// gone, so an employer with no authored company has nothing to adopt and the
+// test would report a fixture problem as a product one.
+//
+// $employer_id is simply the first wcb_employer by login, which on a real site
+// is rarely the seeded one - so keying this test to it made the guard skip even
+// immediately after running bin/seed-qa-fixtures.php, the very remedy the old
+// skip message recommended. Search for a suitable employer instead.
+$wcb_link_employer = 0;
+foreach ( get_users( array( 'role' => 'wcb_employer', 'fields' => 'ID' ) ) as $wcb_maybe_employer ) {
+	$wcb_maybe_company = get_posts(
+		array(
+			'post_type'   => 'wcb_company',
+			'author'      => (int) $wcb_maybe_employer,
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'post_status' => 'any',
+		)
+	);
+	if ( ! empty( $wcb_maybe_company ) ) {
+		$wcb_link_employer = (int) $wcb_maybe_employer;
+		break;
+	}
+}
+
+if ( ! $wcb_link_employer ) {
+	WP_CLI::warning(
+		'  SKIP: no wcb_employer on this site authors a wcb_company - '
+		. 'run bin/seed-qa-fixtures.php before trusting this test.'
+	);
+} else {
+	$saved_user_company = get_user_meta( $wcb_link_employer, '_wcb_company_id', true );
+	$orphan_job_id      = 0;
+
+	// try/finally so an exception between the delete and the restore cannot
+	// leave the employer permanently unlinked. An aborted run used to poison
+	// the dataset for every later run on that site, and the next run then
+	// failed on its own residue rather than on a real defect.
+	try {
+		delete_user_meta( $wcb_link_employer, '_wcb_company_id' );
+
+		$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
+			'title'       => '__wcb_test_orphan_job__',
+			'description' => 'Test job posted with no reciprocal company user meta',
+		), $wcb_link_employer );
+		$orphan_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+		wcb_assert( $orphan_job_id > 0, 'POST /jobs succeeds with unset _wcb_company_id user meta' );
+		wcb_assert(
+			(int) get_post_meta( $orphan_job_id, '_wcb_company_id', true ) > 0,
+			'new job carries a non-zero _wcb_company_id postmeta'
+		);
+		wcb_assert(
+			'' !== (string) get_post_meta( $orphan_job_id, '_wcb_company_name', true ),
+			'new job carries a _wcb_company_name postmeta'
+		);
+	} finally {
+		if ( $orphan_job_id ) {
+			wp_delete_post( $orphan_job_id, true );
+		}
+		if ( $saved_user_company ) {
+			update_user_meta( $wcb_link_employer, '_wcb_company_id', $saved_user_company );
+		} else {
+			delete_user_meta( $wcb_link_employer, '_wcb_company_id' );
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Active-job limit — opt-in quota, skipped when credits are enabled
+// (Basecamp 10134733032).
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Jobs: wcb_employer_active_job_limit ---' );
+if ( $employer_id ) {
+	$live_jobs = ( new WP_Query(
+		array(
+			'post_type'      => 'wcb_job',
+			'post_status'    => array( 'publish' ),
+			'author'         => $employer_id,
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	) )->found_posts;
+
+	// The cap has to be >= 1. wcb_employer_active_job_limit documents 0 as
+	// "unlimited" and the endpoint returns early on `$limit <= 0`, so deriving
+	// the cap from an employer with no live jobs (max(1,0) - 1 = 0) turned the
+	// guard OFF and the four assertions below failed for a fixture reason. The
+	// endpoint blocks on `count >= limit`, so give the employer at least one
+	// live job and cap at exactly that count.
+	$cap_seed_job_id = 0;
+	if ( $live_jobs < 1 ) {
+		$cap_seed_job_id = (int) wp_insert_post(
+			array(
+				'post_type'   => 'wcb_job',
+				'post_status' => 'publish',
+				'post_title'  => '__wcb_test_cap_seed__',
+				'post_author' => $employer_id,
+			)
+		);
+		$live_jobs = $cap_seed_job_id ? 1 : 0;
+	}
+
+	$limit_cap    = max( 1, $live_jobs );
+	$cap_callback = static fn(): int => $limit_cap;
+	$credits_off  = '__return_false';
+
+	add_filter( 'wcb_employer_active_job_limit', $cap_callback );
+	add_filter( 'wcb_credits_enabled', $credits_off, 99 );
+
+	// The two probes below are expected to be REFUSED, so neither captures an
+	// id to clean up. When the cap was accidentally disabled they succeeded
+	// instead and left a job behind on every run. Delete whatever comes back so
+	// a regression shows up as a failed assertion, not as litter.
+	$wcb_drop_probe = static function ( $response ): void {
+		$probe_id = (int) ( $response->get_data()['id'] ?? 0 );
+		if ( $probe_id ) {
+			wp_delete_post( $probe_id, true );
+		}
+	};
+
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( 403 === $r->get_status(), 'POST /jobs over the active-job cap returns 403' );
+	$wcb_drop_probe( $r );
+	$cap_err = $r->get_data();
+	wcb_assert( 'wcb_active_job_limit' === ( $cap_err['code'] ?? '' ), 'cap rejection uses the wcb_active_job_limit code' );
+	wcb_assert( isset( $cap_err['data']['limit'], $cap_err['data']['count'] ), 'cap rejection carries limit + count' );
+
+	// wcb_employer_active_job_limit_message must be able to override the copy.
+	$custom_copy = static fn(): string => '__wcb_test_cap_message__';
+	add_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( '__wcb_test_cap_message__' === ( $r->get_data()['message'] ?? '' ), 'wcb_employer_active_job_limit_message overrides the copy' );
+	$wcb_drop_probe( $r );
+	remove_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
+
+	// Credits replace the quota — they are never stacked.
+	remove_filter( 'wcb_credits_enabled', $credits_off, 99 );
+	$credits_on = '__return_true';
+	add_filter( 'wcb_credits_enabled', $credits_on, 99 );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'credits enabled lifts the active-job cap' );
+	$capped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $capped_job_id ) {
+		wp_delete_post( $capped_job_id, true );
+	}
+	remove_filter( 'wcb_credits_enabled', $credits_on, 99 );
+	remove_filter( 'wcb_employer_active_job_limit', $cap_callback );
+
+	// Default is unlimited — the quota must be inert with no filter attached.
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'default active-job limit of 0 leaves posting unlimited' );
+	$uncapped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
+	if ( $uncapped_job_id ) {
+		wp_delete_post( $uncapped_job_id, true );
+	}
+
+	// wcb_employer_active_job_statuses is the third hook in the family.
+	$statuses = (array) apply_filters( 'wcb_employer_active_job_statuses', array( 'publish' ), $employer_id );
+	wcb_assert( array( 'publish' ) === $statuses, 'wcb_employer_active_job_statuses defaults to publish only' );
+
+	if ( $cap_seed_job_id ) {
+		wp_delete_post( $cap_seed_job_id, true );
+	}
+}
+
 // =========================================================================
 // SEARCH ENDPOINT
 // =========================================================================
@@ -586,6 +916,68 @@ wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /wizard
 WP_CLI::log( '--- Wizard: POST /wcb/v1/wizard/complete (anon) ---' );
 $r = wcb_rest( 'POST', '/wcb/v1/wizard/complete', array(), 0 );
 wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /wizard/complete anon returns 401 or 403' );
+
+// ---------------------------------------------------------------------------
+// Resume listing opt-in: every read path, not just the collection
+// ---------------------------------------------------------------------------
+//
+// wcb_resume is public + show_in_rest, so core owns two read paths. 1.7.1
+// narrowed the COLLECTION with rest_wcb_resume_query, and a read by id kept
+// serving an unlisted candidate's title, slug and permalink to anonymous
+// callers - check_read_permission() returns true for any published post, and a
+// query filter never runs on it. Ids are enumerable, so that walked the table.
+//
+// The by-id case below is the assertion that was missing; the collection ones
+// passed throughout the leak.
+
+WP_CLI::log( '' );
+WP_CLI::log( '--- Resume listing opt-in ---' );
+
+$wcb_probe_user = wp_insert_user(
+	array(
+		'user_login' => 'wcb_optin_probe_' . wp_rand( 1000, 9999 ),
+		'user_pass'  => wp_generate_password(),
+		'role'       => 'wcb_candidate',
+	)
+);
+
+if ( is_wp_error( $wcb_probe_user ) ) {
+	wcb_assert( false, 'could not create the resume opt-in probe user' );
+} else {
+	$wcb_unlisted = wp_insert_post(
+		array(
+			'post_type'   => 'wcb_resume',
+			'post_status' => 'publish',
+			'post_title'  => 'Opt-in Probe Unlisted',
+			'post_author' => $wcb_probe_user,
+		)
+	);
+	delete_post_meta( $wcb_unlisted, '_wcb_resume_public' );
+
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), 0 );
+	wcb_assert( 200 !== $r->get_status(), 'anon GET /wp/v2/wcb_resume/{id} does not serve an UNLISTED resume' );
+
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume', array(), 0 );
+	$wcb_ids = wp_list_pluck( (array) $r->get_data(), 'id' );
+	wcb_assert( ! in_array( $wcb_unlisted, $wcb_ids, true ), 'anon collection omits an UNLISTED resume' );
+
+	// The candidate must always reach their own, listed or not.
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), (int) $wcb_probe_user );
+	wcb_assert( 200 === $r->get_status(), 'the owning candidate can still read their own unlisted resume' );
+
+	// Administering the plugin still sees everything, or wp-admin breaks.
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), $admin_id );
+	wcb_assert( 200 === $r->get_status(), 'an administrator can still read an unlisted resume' );
+
+	// Opting in restores public reach.
+	update_post_meta( $wcb_unlisted, '_wcb_resume_public', '1' );
+	$r = wcb_rest( 'GET', '/wp/v2/wcb_resume/' . $wcb_unlisted, array(), 0 );
+	wcb_assert( 200 === $r->get_status(), 'anon CAN read a resume once its owner lists it' );
+
+	wp_delete_post( $wcb_unlisted, true );
+	wp_delete_user( $wcb_probe_user );
+	wp_set_current_user( 0 );
+}
 
 // ---------------------------------------------------------------------------
 // Summary

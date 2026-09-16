@@ -46,13 +46,23 @@ if ( empty( $wcb_jobs ) ) {
 	return;
 }
 
-// Pre-fetch company thumbnails to avoid N+1 per card.
-$wcb_author_ids  = array_unique( array_map( fn( $p ) => (int) $p->post_author, $wcb_jobs ) );
-$wcb_company_map = array(); // Maps author ID to company thumbnail URL (empty string when absent).
-foreach ( $wcb_author_ids as $wcb_aid ) {
-	$wcb_cid                     = (int) get_user_meta( $wcb_aid, '_wcb_company_id', true );
-	$wcb_thumb                   = $wcb_cid ? (string) get_the_post_thumbnail_url( $wcb_cid, 'thumbnail' ) : '';
-	$wcb_company_map[ $wcb_aid ] = $wcb_thumb;
+// Pre-fetch company thumbnails to avoid N+1 per card. Keyed by job ID off the
+// job's own `_wcb_company_id`, so an admin-posted listing shows the employer's
+// logo rather than the poster's, and jobs whose author never got the reciprocal
+// user meta still get one. Author user meta stays as the legacy fallback for
+// rows that pre-date the postmeta convention; read-only, no self-healing write.
+$wcb_company_map = array(); // Maps job ID to company thumbnail URL (empty string when absent).
+$wcb_author_map  = array(); // Memoised author ID => company ID for the fallback.
+foreach ( $wcb_jobs as $wcb_job_row ) {
+	$wcb_cid = (int) get_post_meta( $wcb_job_row->ID, '_wcb_company_id', true );
+	if ( ! $wcb_cid ) {
+		$wcb_aid = (int) $wcb_job_row->post_author;
+		if ( ! isset( $wcb_author_map[ $wcb_aid ] ) ) {
+			$wcb_author_map[ $wcb_aid ] = (int) get_user_meta( $wcb_aid, '_wcb_company_id', true );
+		}
+		$wcb_cid = $wcb_author_map[ $wcb_aid ];
+	}
+	$wcb_company_map[ $wcb_job_row->ID ] = $wcb_cid ? (string) get_the_post_thumbnail_url( $wcb_cid, 'thumbnail' ) : '';
 }
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-recent-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -82,7 +92,7 @@ foreach ( $wcb_author_ids as $wcb_aid ) {
 		<?php foreach ( $wcb_jobs as $wcb_job ) : ?>
 			<?php
 			$wcb_company_name = (string) get_post_meta( $wcb_job->ID, '_wcb_company_name', true );
-			$wcb_thumb_url    = $wcb_company_map[ (int) $wcb_job->post_author ] ?? '';
+			$wcb_thumb_url    = $wcb_company_map[ $wcb_job->ID ] ?? '';
 			// Uppercased first letter of the company name as an avatar fallback.
 			// mb_* (guarded) so accented/multibyte initials uppercase correctly
 			// ("école" -> "É"); single-byte functions cover hosts without the
@@ -95,11 +105,11 @@ foreach ( $wcb_author_ids as $wcb_aid ) {
 				/* translators: single-character placeholder shown as a company avatar when the company name is unknown. */
 				$wcb_initial = _x( '?', 'unknown company initial placeholder', 'wp-career-board' );
 			}
-			$wcb_loc_terms    = wp_get_object_terms( $wcb_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
-			$wcb_location     = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
-			$wcb_type_terms   = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
-			$wcb_job_type     = is_wp_error( $wcb_type_terms ) ? '' : ( $wcb_type_terms[0] ?? '' );
-			$wcb_posted_ago   = human_time_diff( (int) get_post_time( 'U', false, $wcb_job ), time() );
+			$wcb_loc_terms  = wp_get_object_terms( $wcb_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
+			$wcb_location   = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
+			$wcb_type_terms = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+			$wcb_job_type   = is_wp_error( $wcb_type_terms ) ? '' : ( $wcb_type_terms[0] ?? '' );
+			$wcb_posted_ago = human_time_diff( (int) get_post_time( 'U', false, $wcb_job ), time() );
 			?>
 			<li class="wcb-job-widget-item">
 				<a class="wcb-job-widget-link" href="<?php echo esc_url( get_permalink( $wcb_job->ID ) ); ?>">

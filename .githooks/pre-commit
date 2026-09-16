@@ -37,7 +37,11 @@ else
     if [ -x vendor/bin/phpcs ]; then
         echo "  -> phpcs (staged)"
         if [ -f phpcs.xml ]; then
-            vendor/bin/phpcs --standard=phpcs.xml $STAGED_PHP \
+            # Match `composer phpcs` exactly: errors block, warnings do not.
+            # Without this the hook is STRICTER than the project's own standard and
+            # refuses any commit touching a file that already carries a warning —
+            # which teaches people to reach for --no-verify and kills the gate.
+            vendor/bin/phpcs --standard=phpcs.xml --runtime-set ignore_warnings_on_exit 1 $STAGED_PHP \
                 || { echo; echo "pre-commit FAILED: WPCS errors above. composer phpcbf to auto-fix many."; exit 1; }
         else
             vendor/bin/phpcs $STAGED_PHP \

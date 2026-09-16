@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-form-simple — single-page job posting form.
+ * Block render: wp-career-board/job-form-simple — single-page job posting form.
  *
  * Sibling of wcb/job-form (the multi-step wizard) for embeds where every
  * field on one screen is the right UX: sidebars, modals, partner pages,
@@ -115,7 +115,7 @@ $wcb_experiences = array_filter( (array) get_terms( $wcb_term_args( 'wcb_experie
 // ── Currency: site-wide admin setting → USD. One source of truth across every
 // employer; the dropdown still lets them override per job.
 $wcb_user_id      = get_current_user_id();
-$wcb_company_id   = (int) get_user_meta( $wcb_user_id, '_wcb_company_id', true );
+$wcb_company_id   = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_user_id );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
@@ -216,62 +216,62 @@ $wcb_deadline_label = $wcb_deadline_ts
 $wcb_state = apply_filters(
 	'wcb_job_form_simple_initial_state',
 	array(
-		'title'                      => '',
-		'description'                => '',
-		'salaryMin'                  => '',
-		'salaryMax'                  => '',
-		'currencyCode'               => $wcb_initial_currency,
-		'salaryType'                 => 'yearly',
-		'remote'                     => false,
-		'deadline'                   => $wcb_deadline,
+		'title'             => '',
+		'description'       => '',
+		'salaryMin'         => '',
+		'salaryMax'         => '',
+		'currencyCode'      => $wcb_initial_currency,
+		'salaryType'        => 'yearly',
+		'remote'            => false,
+		'deadline'          => $wcb_deadline,
 		// Human-readable deadline, formatted server-side against the SITE locale
 		// and the site's date_format. view.js must never re-derive this with
 		// toLocaleDateString(), which formats against the BROWSER locale.
-		'deadlineLabel'              => $wcb_deadline_label,
+		'deadlineLabel'     => $wcb_deadline_label,
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
 		// Intl.NumberFormat so numbers group per the SITE locale.
-		'locale'                     => \WCB\Core\SalaryFormat::locale(),
-		'applyUrl'                   => '',
-		'applyEmail'                 => '',
-		'locationSlug'               => '',
-		'locationCustom'             => '',
-		'typeSlug'                   => '',
-		'categorySlug'               => '',
-		'expSlug'                    => '',
-		'tags'                       => '',
+		'locale'            => \WCB\Core\SalaryFormat::locale(),
+		'applyUrl'          => '',
+		'applyEmail'        => '',
+		'locationSlug'      => '',
+		'locationCustom'    => '',
+		'typeSlug'          => '',
+		'categorySlug'      => '',
+		'expSlug'           => '',
+		'tags'              => '',
 		// Board picker state mirrors the wizard so future board-related changes
 		// flow through both forms. The dropdown's visibility is gated by an inline
 		// PHP `count( $wcb_board_options ) > 1` check in the markup below; single-board
 		// sites suppress it and the REST callback falls back to the default board id
 		// when boardId stays 0.
-		'boardId'                    => $wcb_resolved_board_id,
-		'boardOptions'               => $wcb_board_options,
-		'companyName'                => $wcb_company_name,
-		'submitting'                 => false,
-		'submitted'                  => false,
-		'_aiGenerating'              => false,
-		'jobUrl'                     => '',
-		'error'                      => '',
-		'apiBase'                    => untrailingslashit( rest_url( 'wcb/v1' ) ),
-		'nonce'                      => wp_create_nonce( 'wp_rest' ),
-		'creditCost'                 => $wcb_credit_cost,
+		'boardId'           => $wcb_resolved_board_id,
+		'boardOptions'      => $wcb_board_options,
+		'companyName'       => $wcb_company_name,
+		'submitting'        => false,
+		'submitted'         => false,
+		'_aiGenerating'     => false,
+		'jobUrl'            => '',
+		'error'             => '',
+		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
+		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		'creditCost'        => $wcb_credit_cost,
 		// Pre-resolved pluralised noun for the ACTIVE board's credit cost. PHP
 		// owns the plural form; JS only interpolates it into a sentence.
-		'creditNoun'                 => $wcb_credit_noun( $wcb_credit_cost ),
+		'creditNoun'        => $wcb_credit_noun( $wcb_credit_cost ),
 		// Per-board cost lookup so view.js can recompute creditCost when the
 		// employer switches boards in the picker. Object keyed by board ID.
-		'boardCreditCosts'           => array_map( 'intval', $wcb_board_credit_costs ),
+		'boardCreditCosts'  => array_map( 'intval', $wcb_board_credit_costs ),
 		// Matching per-board map of pre-resolved plural nouns, so a board switch
 		// swaps the whole noun instead of asking JS to guess the plural form.
-		'boardCreditNouns'           => $wcb_board_credit_nouns,
+		'boardCreditNouns'  => $wcb_board_credit_nouns,
 		// Per-board currency override map so view.js can update currencyCode
 		// on board switch. Empty string means no override - keep current.
-		'boardCurrencies'            => array_map( 'strval', $wcb_board_currencies ),
-		'creditBalance'              => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
-		'creditPurchaseUrl'          => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
-		'customFieldGroups'          => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
-		'customFields'               => (object) array(),
+		'boardCurrencies'   => array_map( 'strval', $wcb_board_currencies ),
+		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
+		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
+		'customFields'      => (object) array(),
 
 		/*
 		 * ── Translated strings for view.js ─────────────────────────────────
@@ -284,7 +284,7 @@ $wcb_state = apply_filters(
 		 * Contract: every key below is read in view.js via t( 'key', 'English fallback' ).
 		 * Adding a t() read without adding the key here silently ships English.
 		 */
-		'i18n'                       => array(
+		'i18n'              => array(
 			// Credit banner. JS interpolates the pre-resolved credit noun and the
 			// live balance (formatted with Intl.NumberFormat against state.locale).
 			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */

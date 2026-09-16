@@ -94,7 +94,7 @@ $result['categories']['rest']        = check_rest( $m, $test_corpus );
 $result['categories']['ajax']        = check_ajax( $m, $test_corpus );
 $result['categories']['hooks_fired'] = check_hooks_fired( $m, $test_corpus );
 $result['categories']['cron']        = check_cron( $m, $test_corpus );
-$result['categories']['wp_cli']      = check_wp_cli( $m, $test_files );
+$result['categories']['wp_cli']      = check_wp_cli( $m, $test_files, $test_corpus );
 
 // ─────────────────────────────────────────────────────────
 // 3. Summary roll-up.
@@ -230,8 +230,12 @@ function check_rest( array $m, string $corpus ): array {
 	// Pre-extract every $this->rest( ... ) call from the corpus into an
 	// array of [ method, normalized_path ] tuples so we can match each
 	// endpoint in O(N+M) instead of O(N*M).
+	// Accept both call shapes in use across the portfolio: the `$this->rest()`
+	// method on journey/scenario classes, and the bare `wcb_rest()` helper the
+	// wp eval-file suites use. Matching only the former reported 0% REST
+	// coverage on a plugin with 59 live REST assertions (Basecamp 10171650634).
 	preg_match_all(
-		'/\$this->rest\s*\(\s*[\'"]([A-Z]+)[\'"]\s*,\s*[\'"]([^\'"]+)[\'"]/',
+		'/(?:\$this->rest|\bwcb_rest)\s*\(\s*[\'"]([A-Z]+)[\'"]\s*,\s*[\'"]([^\'"]+)[\'"]/',
 		$corpus,
 		$test_calls,
 		PREG_SET_ORDER
@@ -267,7 +271,12 @@ function check_rest( array $m, string $corpus ): array {
 
 	foreach ( $endpoints as $ep ) {
 		$route   = $ep['route'] ?? '';
-		$methods = $ep['methods'] ?? array();
+		// Manifest schema drifted between the two plugins: Free records
+		// `"methods": ["GET"]`, Pro records `"method": "POST"`. Reading only
+		// the plural key left Pro's denominator at 0, which the report then
+		// rendered as `rest 0/0 (100%)` — a green light over 35 untested
+		// routes (Basecamp 10171650634). Accept either shape.
+		$methods = $ep['methods'] ?? ( isset( $ep['method'] ) ? (array) $ep['method'] : array() );
 		foreach ( (array) $methods as $method ) {
 			$is_covered = endpoint_covered( $route, $method, $test_index );
 			$record     = array(
@@ -425,10 +434,21 @@ function check_hooks_fired( array $m, string $corpus ): array {
 			continue;
 		}
 
-		$fired = strpos( $corpus, "do_action( '{$name}'" ) !== false
-			|| strpos( $corpus, "do_action('{$name}'" ) !== false
-			|| strpos( $corpus, "apply_filters( '{$name}'" ) !== false
-			|| strpos( $corpus, "apply_filters('{$name}'" ) !== false;
+		// A test covers a hook either by firing it or by listening on it. The
+		// listener half matters most for filters: the real contract is that a
+		// consumer's return value reaches the product, which a test proves by
+		// registering add_filter and asserting the effect - not by calling
+		// apply_filters itself. Counting only the firing half marked the
+		// stronger test uncovered and the weaker one covered.
+		// Matched with a regex, not strpos: a real call site is routinely wrapped
+		// across lines by the formatter, and a literal "fn( 'hook'" match misses
+		// every one of those - the same undercount that bit the manifest's own
+		// hook census.
+		$hook_call = sprintf(
+			'/\b(?:do_action|apply_filters|add_action|add_filter)\s*\(\s*[\'"]%s[\'"]/',
+			preg_quote( $name, '/' )
+		);
+		$fired     = preg_match( $hook_call, $corpus ) === 1;
 
 		$record = array(
 			'name'           => $name,
@@ -505,7 +525,7 @@ function check_cron( array $m, string $corpus ): array {
  * Each command has a journey class (per the Wbcom CLI architecture pattern).
  * Coverage = file exists for the journey class.
  */
-function check_wp_cli( array $m, array $test_files ): array {
+function check_wp_cli( array $m, array $test_files, string $corpus = '' ): array {
 	$commands = $m['wp_cli'] ?? array();
 	$total    = count( $commands );
 
@@ -535,6 +555,22 @@ function check_wp_cli( array $m, array $test_files ): array {
 		$slug       = strtolower( str_replace( ' ', '-', preg_replace( '/^[^ ]+ /', '', $cmd ) ) );
 		$is_covered = strpos( $test_basenames_blob, "class-{$slug}-journey.php" ) !== false
 			|| strpos( $test_basenames_blob, "class-{$slug}-journey-test.php" ) !== false;
+
+		// House shape: the wp eval-file suites drive commands through
+		// WP_CLI::runcommand( 'wcb job approve ...' ) rather than a journey
+		// class, so matching only the filename convention reported 0/5 on a
+		// plugin whose CLI suite exercises four of the five command groups
+		// (Basecamp 10171650634). Same blindness, and same fix, as check_rest.
+		//
+		// A subcommand counts for its parent: "wcb job" is covered when the
+		// corpus invokes "wcb job approve". Word-boundary the tail so "wcb job"
+		// is not matched by "wcb jobs-something".
+		if ( ! $is_covered && '' !== $corpus ) {
+			$is_covered = (bool) preg_match(
+				'/\b' . preg_quote( $cmd, '/' ) . '\b/i',
+				$corpus
+			);
+		}
 
 		$record = array( 'command' => $cmd );
 		if ( $is_covered ) {

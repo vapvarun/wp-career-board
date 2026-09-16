@@ -8,6 +8,16 @@ last_verified: 2026-06-29
 
 # Walkthrough: Companies Directory — browse the archive, open a profile, see that company's open jobs
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** This is the end-to-end walkthrough of the Companies Directory. It traces the full
 happy path a real visitor takes — landing on the public `/companies/` archive, toggling grid/list, filtering by
 industry + size, searching + sorting, paging through results, opening a single company profile, reading its Open
@@ -16,7 +26,7 @@ in one pass.
 
 ## Steps
 
-1. As `anonymous`, navigate to `http://jobboard.local/companies/` → expect HTTP 200 and the archive shell
+1. As `anonymous`, navigate to `$WCB_SITE/companies/` → expect HTTP 200 and the archive shell
    `div.wcb-company-archive[data-wp-interactive="wcb-company-archive"]` with at least one company card
    `article.wcb-ca-card` rendered inside `.wcb-ca-container`. Each card shows `.wcb-ca-name`, a chip row
    `.wcb-ca-card-chips`, and an open-positions label `.wcb-ca-jobs-count` (e.g. "3 open positions" / "No open
@@ -40,7 +50,7 @@ in one pass.
 6. Change the sort dropdown `.wcb-sort-select` (`actions.changeSort`) from "Newest first" to "Oldest first" →
    expect a re-fetch with the order reversed (first card changes). (`view.js:164`-`168`; URL builder maps
    `date_asc` → `orderby=date&order=ASC` `view.js:247`-`253`.)
-7. REST contract (anonymous, public): `GET http://jobboard.local/wp-json/wcb/v1/companies?page=1&per_page=20&orderby=date&order=DESC`
+7. REST contract (anonymous, public): `GET $WCB_SITE/wp-json/wcb/v1/companies?page=1&per_page=20&orderby=date&order=DESC`
    → expect HTTP 200, JSON `{ companies:[…], total:<int>, pages:<int>, has_more:<bool> }` and response headers
    `X-WCB-Total` + `X-WCB-TotalPages`; each `companies[]` item has `id, name, initials, permalink, industry,
    size_label, hq, job_count, jobs_label, trust, verified`. (`api/endpoints/class-companies-endpoint.php:35`-`45`,
@@ -63,7 +73,7 @@ in one pass.
     that job's single permalink HTTP 200 (a `wcb_job` single). If the company has > 10 jobs, first click
     "Load more jobs" `.wcb-load-more-btn` (`actions.loadMore`) → expect more `.wcb-cp-job-card` to append from
     `GET /wp-json/wcb/v1/jobs` (`jobsApiBase` `render.php:342`). (Open-positions loader `render.php:373`-`383`.)
-12. As `sarah.chen`, open `http://jobboard.local/companies/?autologin=sarah.chen`, then on a company profile click
+12. As `sarah.chen`, open `$WCB_SITE/companies/?autologin=sarah.chen`, then on a company profile click
     the hero Save button `button.wcb-cp-hero-save` (`actions.toggleBookmark`) → expect a `POST` to
     `/wp-json/wcb/v1/companies/<id>/bookmark` returning `{ bookmarked:true, company_id:<id> }`, the button gains
     `.wcb-bookmarked` and its label flips to "Saved". Reload `/companies/` and confirm that company card renders
@@ -76,8 +86,8 @@ in one pass.
 
 ```bash
 # The walkthrough only creates a bookmark for sarah.chen (step 12). If left toggled ON, clear it.
-SARAH_ID=$(wp user get sarah.chen --field=ID --path="/Users/varundubey/Local Sites/jobboard/app/public")
-wp user meta delete "$SARAH_ID" _wcb_company_bookmark --path="/Users/varundubey/Local Sites/jobboard/app/public"
+SARAH_ID=$(wp user get sarah.chen --field=ID --path="$WCB_PATH")
+wp user meta delete "$SARAH_ID" _wcb_company_bookmark --path="$WCB_PATH"
 # No companies/jobs are created by this journey (read-only browse); seeded sample data is left intact.
 ```
 

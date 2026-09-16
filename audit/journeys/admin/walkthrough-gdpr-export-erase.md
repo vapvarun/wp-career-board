@@ -8,15 +8,25 @@ last_verified: 2026-06-29
 
 # Walkthrough: GDPR Export & Erase — admin exports then erases a candidate's WP Career Board data via WP core privacy tools
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** This is the end-to-end walkthrough of the GDPR Export & Erase feature. WP Career Board does not ship its own export/erase UI — it registers a data exporter and eraser with WordPress core's built-in Tools > Export/Erase Personal Data workflow (`wp_privacy_personal_data_exporters` / `wp_privacy_personal_data_erasers`, `modules/gdpr/class-gdpr-module.php:34-35`). This tour traces the full admin path: confirm registration, request an export, run it (page-based, no unbounded load), then request and run an erase that deletes applications + resume + bookmark meta and writes an audit-log row.
 
 ## Steps
 
-1. As `varundubey`, navigate to `http://jobboard.local/wp-admin/export-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Export Personal Data" screen with an "Add Data Export Request" email field (this is the page WCB's exporter plugs into via `register_exporter`, `class-gdpr-module.php:46-52`).
+1. As `varundubey`, navigate to `$WCB_SITE/wp-admin/export-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Export Personal Data" screen with an "Add Data Export Request" email field (this is the page WCB's exporter plugs into via `register_exporter`, `class-gdpr-module.php:46-52`).
 
 2. In the "Username or email address" field enter candidate `sarah.chen`'s email and submit "Send Request" → expect a new request row in the list table with status "Pending" (no confirmation email needed for an admin-initiated request — admin can click "Next Steps" once created).
 
-3. Confirm WCB is one of the registered exporters: navigate to `http://jobboard.local/wp-admin/admin.php?page=export_personal_data` is NOT used — instead assert on the request the "WP Career Board" exporter group runs. Trigger the export from the request row's action link → expect the generated archive/preview to contain a **"Job Applications"** group (`group_id` `wcb-applications`, `group_label` from `class-gdpr-module.php:130-131`).
+3. Confirm WCB is one of the registered exporters: navigate to `$WCB_SITE/wp-admin/admin.php?page=export_personal_data` is NOT used — instead assert on the request the "WP Career Board" exporter group runs. Trigger the export from the request row's action link → expect the generated archive/preview to contain a **"Job Applications"** group (`group_id` `wcb-applications`, `group_label` from `class-gdpr-module.php:130-131`).
 
 4. Inspect the exported "Job Applications" group → expect each item labelled `application-<ID>` to carry exactly the three fields **Job**, **Status**, **Submitted** (`class-gdpr-module.php:134-145`), with `Job` resolved to the linked job title (via `_wcb_job_id` lookup) and `Status` from `_wcb_status` meta. Applications are matched to the candidate by `_wcb_candidate_id` meta = the user ID (`class-gdpr-module.php:105-110`).
 
@@ -24,7 +34,7 @@ last_verified: 2026-06-29
 
 6. Confirm the export writes an audit-log row on completion: query `wp_wcb_gdpr_log` → expect a new row with `action = 'export'`, `user_id` = sarah.chen's ID, and `ip_hash` a 64-char SHA-256 hash (IP is hashed, never stored plaintext — `class-gdpr-module.php:152` + `log_action()` 245-263). The row is logged once, on the final (`done`) page only.
 
-7. Navigate to `http://jobboard.local/wp-admin/erase-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Erase Personal Data" screen with an "Add Data Erasure Request" email field (the page WCB's eraser plugs into via `register_eraser`, `class-gdpr-module.php:62-68`).
+7. Navigate to `$WCB_SITE/wp-admin/erase-personal-data.php?autologin=varundubey` → expect HTTP 200 and the core "Erase Personal Data" screen with an "Add Data Erasure Request" email field (the page WCB's eraser plugs into via `register_eraser`, `class-gdpr-module.php:62-68`).
 
 8. Enter sarah.chen's email, submit "Send Request" → expect a new erasure request row with status "Pending"; then trigger "Force Erase Personal Data" / the erase action on that row → expect the WCB eraser to run.
 

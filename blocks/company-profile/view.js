@@ -66,7 +66,12 @@ const { state } = store( 'wcb-company-profile', {
 
 			try {
 				const url = new URL( state.jobsApiBase );
-				url.searchParams.set( 'author', String( state.author ) );
+				// company, not author: a job belongs to a company through
+				// _wcb_company_id, and the poster may be an admin, a second
+				// recruiter or an importer. Page 1 already filters on that
+				// meta key - this used to send ?author= and could pull in
+				// another company's jobs from page 2 onward.
+				url.searchParams.set( 'company', String( state.companyId ) );
 				url.searchParams.set( 'page', String( state.page ) );
 				url.searchParams.set( 'per_page', String( state.perPage ) );
 

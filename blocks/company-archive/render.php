@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/company-archive — seeds Interactivity API state and renders
+ * Block render: wp-career-board/company-archive — seeds Interactivity API state and renders
  * the interactive company directory with grid/list toggle and filters.
  *
  * WordPress injects:
@@ -27,7 +27,7 @@ $wcb_layout     = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $
 // same msgids (that class's docblock forbids the duplication) and let the SSR
 // chip drift from the label the client re-fetch paints. Resolve every slug
 // through the shared serializer instead.
-$wcb_size_keys = array( '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5000+' );
+$wcb_size_keys = \WCB\Core\CompanyMetaShape::size_keys();
 
 // ── Fetch first page of companies ────────────────────────────────────────────
 // WP_Query (not get_posts) so found_posts is available for the hasMore seed.
@@ -185,16 +185,26 @@ foreach ( $wcb_industry_labels as $wcb_slug => $wcb_label ) {
 		unset( $wcb_used_industries[ $wcb_slug ] );
 	}
 }
-foreach ( array_keys( $wcb_used_industries ) as $wcb_legacy ) {
-	// Legacy free-text industry values aren't in the canonical registry and
-	// carry no translation, so a __() home is impossible — but painting the
-	// raw machine slug ("fin-tech") as a visible checkbox label is wrong too.
-	// Humanise the stored slug for display; the raw slug still travels to REST
-	// as the filter value via the data-wp-context payload below.
-	$wcb_filter_industries[ $wcb_legacy ] = ucwords( str_replace( array( '-', '_' ), ' ', $wcb_legacy ) );
-}
+// Anything still left in $wcb_used_industries is stored on a company but is
+// no longer in the registry — a legacy free-text value, or one the owner has
+// retired from Settings > Industries. It is deliberately NOT re-added as a
+// filter option: re-adding it made removal impossible to complete, because a
+// retired industry reappeared as a checkbox for as long as one company still
+// stored it (Basecamp 10254034153). The registry is the authority for what
+// the filter offers; Settings > Industries is where a stored value gets
+// reassigned or cleared.
 
 // ── Seed Interactivity API state ──────────────────────────────────────────────
+// Resolved once, used twice: seeded into Interactivity state below AND painted
+// as the toolbar's pre-hydration fallback. The toolbar declares
+// `results_ssr_html` and this block never passed it, so the results line was
+// blank until view.js hydrated (Basecamp 10074197007, item 6).
+$wcb_ca_results_label = sprintf(
+	/* translators: %s: number of companies found, already localised. */
+	_n( '%s company found', '%s companies found', $wcb_companies_total, 'wp-career-board' ),
+	number_format_i18n( $wcb_companies_total )
+);
+
 $wcb_state = array(
 	'companies'    => $wcb_companies_state,
 	'page'         => 1,
@@ -226,11 +236,7 @@ $wcb_state = array(
 	 * likewise _n()-resolved server-side — after every filter / search / sort /
 	 * load-more round trip. No plural resolution happens in JS.
 	 */
-	'resultsLabel' => sprintf(
-		/* translators: %s: number of companies found, already localised. */
-		_n( '%s company found', '%s companies found', $wcb_companies_total, 'wp-career-board' ),
-		number_format_i18n( $wcb_companies_total )
-	),
+	'resultsLabel' => $wcb_ca_results_label,
 	/*
 	 * No `i18n` bag: view.js renders no strings of its own. Every user-facing
 	 * string in this block is either painted by this template (already run
@@ -267,6 +273,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			'date_desc' => __( 'Newest first', 'wp-career-board' ),
 			'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
 		),
+		'results_ssr_html'     => esc_html( $wcb_ca_results_label ),
 		'switcher_aria_label'  => __( 'View layout', 'wp-career-board' ),
 		'switcher_list_label'  => __( 'List view', 'wp-career-board' ),
 		'switcher_grid_label'  => __( 'Grid view', 'wp-career-board' ),
@@ -304,6 +311,16 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					old single-select radio model meant filtering to "Tech OR
 					Finance" was impossible. */
 			?>
+			<?php
+			/* Only render the group when it has options. The list is the
+			   intersection of the registry with what companies actually store,
+			   so it is legitimately empty on a site with no companies yet, or
+			   one where every stored value has been retired from the registry -
+			   and an unguarded wrapper painted a bare "Industry" heading and
+			   divider above nothing. Company size below is a fixed list and
+			   cannot empty out. */
+			?>
+			<?php if ( ! empty( $wcb_filter_industries ) ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
@@ -317,6 +334,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					<?php endforeach; ?>
 				</ul>
 			</div>
+			<?php endif; ?>
 
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></span>
@@ -437,6 +455,10 @@ $wcb_empty = array(
 	'clear_action'      => 'actions.clearFilters',
 	'clear_hidden_bind' => 'callbacks.noActiveFilters',
 	'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+	// Without this the "no companies match" panel is in the SSR markup with no
+	// `hidden` attribute, so it paints for one frame on a page that DOES have
+	// companies, until Interactivity binds `wp_bind_hidden`.
+	'ssr_hidden'        => ! empty( $wcb_companies_state ),
 );
 require WCB_DIR . 'templates/parts/archive-empty-state.php';
 ?>

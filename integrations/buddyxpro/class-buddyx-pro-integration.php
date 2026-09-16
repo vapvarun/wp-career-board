@@ -36,7 +36,14 @@ class BuddyxProIntegration {
 	public function boot(): void {
 		add_filter( 'single_template', array( $this, 'single_template' ) );
 		add_filter( 'archive_template', array( $this, 'archive_template' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		// Depend on the WCB token stylesheet so the compat token bridge loads
+		// AFTER the plugin defaults; equal-specificity :root rules then resolve
+		// in the bridge's favor (BuddyX palette wins over the WCB fallbacks).
+		\WCB\Core\ThemeCompat::register(
+			'wcb-buddyx-compat',
+			WCB_URL . 'integrations/buddyxpro/assets/buddyx-compat.css',
+			array( 'wcb-frontend-tokens' )
+		);
 		// Add job-seeking status badge to BuddyX Pro member profiles.
 		add_action( 'buddyx_pro_after_member_name', array( $this, 'show_job_seeking_badge' ) );
 	}
@@ -50,6 +57,15 @@ class BuddyxProIntegration {
 	 * @return string
 	 */
 	public function single_template( string $template ): string {
+		// A theme shipping its own WCB template outranks the bundled
+		// integration. This handler runs on single_template/archive_template,
+		// which receive the template WordPress's hierarchy already resolved -
+		// so returning ours unconditionally threw the theme's file away and
+		// made a documented override impossible.
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+			return $template;
+		}
+
 		if ( is_singular( 'wcb_job' ) ) {
 			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/single-wcb_job.php';
 			if ( file_exists( $tpl ) ) {
@@ -68,6 +84,15 @@ class BuddyxProIntegration {
 	 * @return string
 	 */
 	public function archive_template( string $template ): string {
+		// A theme shipping its own WCB template outranks the bundled
+		// integration. This handler runs on single_template/archive_template,
+		// which receive the template WordPress's hierarchy already resolved -
+		// so returning ours unconditionally threw the theme's file away and
+		// made a documented override impossible.
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+			return $template;
+		}
+
 		if ( is_post_type_archive( 'wcb_job' ) ) {
 			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/archive-wcb_job.php';
 			if ( file_exists( $tpl ) ) {
@@ -91,36 +116,5 @@ class BuddyxProIntegration {
 		if ( $seeking ) {
 			echo '<span class="wcb-open-badge">' . esc_html__( '#OpenToWork', 'wp-career-board' ) . '</span>';
 		}
-	}
-
-	/**
-	 * Enqueue BuddyX Pro compatibility stylesheet on WCB job pages.
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
-	public function enqueue_styles(): void {
-		$wcb_cpts      = array( 'wcb_job', 'wcb_application', 'wcb_company', 'wcb_resume' );
-		$wcb_is_tax    = is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) );
-		$wcb_has_block = false;
-		if ( is_singular() ) {
-			global $post;
-			if ( $post instanceof \WP_Post ) {
-				$wcb_has_block = str_contains( $post->post_content, '<!-- wp:wp-career-board/' )
-					|| str_contains( $post->post_content, '<!-- wp:wcb/' );
-			}
-		}
-		if ( ! is_singular( $wcb_cpts ) && ! is_post_type_archive( $wcb_cpts ) && ! $wcb_is_tax && ! $wcb_has_block ) {
-			return;
-		}
-		// Depend on the WCB token stylesheet so the compat token bridge loads
-		// AFTER the plugin defaults; equal-specificity :root rules then resolve
-		// in the bridge's favor (BuddyX palette wins over the WCB fallbacks).
-		wp_enqueue_style(
-			'wcb-buddyx-compat',
-			WCB_URL . 'integrations/buddyxpro/assets/buddyx-compat.css',
-			array( 'wcb-frontend-tokens' ),
-			WCB_VERSION
-		);
 	}
 }

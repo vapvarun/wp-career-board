@@ -158,9 +158,17 @@ class Cli extends AbstractCliCommand {
 
 		$user = $user_id ? get_user_by( 'ID', $user_id ) : wp_get_current_user();
 
-		if ( ! $user || ! $user->ID ) {
-			\WP_CLI::error( 'User not found.' );
+		// An explicit --user-id that resolves to nobody is a caller error.
+		if ( $user_id && ( ! $user || ! $user->ID ) ) {
+			\WP_CLI::error( sprintf( 'User %d not found.', $user_id ) );
 		}
+
+		// With no --user-id there is usually no current user at all under WP-CLI,
+		// so requiring one made the documented bare `wp wcb abilities` invocation
+		// impossible. Listing the abilities is useful on its own; report the grant
+		// column as n/a rather than refusing to run. Pass --user-id=<id>, or
+		// WP-CLI's global --user=<id>, to get real yes/no answers.
+		$has_user = ( $user instanceof \WP_User ) && $user->ID > 0;
 
 		$rows = array();
 
@@ -168,17 +176,26 @@ class Cli extends AbstractCliCommand {
 
 		foreach ( $abilities as $slug => $label ) {
 			// phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_* abilities double as custom caps; this CLI command checks a target user, not the current user, so the polyfilled wp_is_ability_granted() (current-user-only contract) is not appropriate here.
-			$granted = user_can( $user, $slug );
+			$granted = $has_user ? user_can( $user, $slug ) : null;
 
 			$rows[] = array(
 				'Ability' => $slug,
 				'Label'   => $label,
-				'Granted' => $granted ? 'yes' : 'no',
+				'Granted' => $has_user ? ( $granted ? 'yes' : 'no' ) : 'n/a',
 			);
 		}
 
-		\WP_CLI::log( 'User: ' . $user->display_name . ' (ID ' . $user->ID . ', role: ' . implode( ', ', $user->roles ) . ')' );
-		\WP_CLI::log( '' );
+		// The header is for humans reading the table. On a machine-readable format
+		// it is corruption: it lands on stdout ahead of the payload and any caller
+		// doing json_decode() on the output gets null.
+		if ( 'table' === $format ) {
+			if ( $has_user ) {
+				\WP_CLI::log( 'User: ' . $user->display_name . ' (ID ' . $user->ID . ', role: ' . implode( ', ', $user->roles ) . ')' );
+			} else {
+				\WP_CLI::log( 'User: none (pass --user-id=<id> or --user=<id> to resolve the Granted column)' );
+			}
+			\WP_CLI::log( '' );
+		}
 
 		\WP_CLI\Utils\format_items( $format, $rows, array( 'Ability', 'Label', 'Granted' ) );
 	}

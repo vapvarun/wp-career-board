@@ -132,6 +132,7 @@ final class CandidatesEndpoint extends RestController {
 						'required'          => true,
 						'enum'              => array( 'export', 'erase' ),
 						'sanitize_callback' => 'sanitize_key',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)

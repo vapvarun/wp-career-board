@@ -56,6 +56,40 @@ final class CompanyMetaShape {
 	}
 
 	/**
+	 * Badge label + icon for a company trust level.
+	 *
+	 * Lifted here from CompaniesEndpoint so the single-company route can show
+	 * the same badge as the directory card. Returns null for an unrecognised or
+	 * empty level, which callers read as "not verified" — `new` is a real stored
+	 * value meaning exactly that, not a missing one.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @param string $trust_level Raw trust level slug.
+	 * @return array{label:string,icon:string}|null
+	 */
+	public static function trust_badge_info( string $trust_level ): ?array {
+		$trust_level = sanitize_key( $trust_level );
+
+		$map = array(
+			'verified' => array(
+				'label' => __( 'Verified', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'trusted'  => array(
+				'label' => __( 'Trusted', 'wp-career-board' ),
+				'icon'  => '✓',
+			),
+			'premium'  => array(
+				'label' => __( 'Premium', 'wp-career-board' ),
+				'icon'  => '★',
+			),
+		);
+
+		return $map[ $trust_level ] ?? null;
+	}
+
+	/**
 	 * Human-readable label for a company-size bucket.
 	 *
 	 * @since 1.2.1
@@ -63,6 +97,26 @@ final class CompanyMetaShape {
 	 * @param string $size Raw size bucket (e.g. '51-200').
 	 * @return string
 	 */
+	/**
+	 * Canonical company-size slugs, in display order.
+	 *
+	 * The labels already had a single home (size_label below); the SLUGS did not,
+	 * and the two copies drifted: the admin meta box wrote `5001+` while the
+	 * company-archive filter offered `5000+`, so the largest size filter matched
+	 * nothing on any site (Basecamp 10074197007 item 2, resurfacing in the filter
+	 * after the display half was fixed). Both consumers now read this list.
+	 *
+	 * Legacy note: `5000+` is intentionally NOT here. Nothing has written it since
+	 * the allowlist settled on `5001+`; rows that still carry it keep rendering
+	 * correctly because size_label() retains the key.
+	 *
+	 * @since 1.7.1
+	 * @return array<int,string>
+	 */
+	public static function size_keys(): array {
+		return array( '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001+' );
+	}
+
 	public static function size_label( string $size ): string {
 		$labels = array(
 			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
@@ -71,7 +125,15 @@ final class CompanyMetaShape {
 			'201-500'   => __( '201-500 employees', 'wp-career-board' ),
 			'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
 			'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
+			// `5001+` is the ONLY top bucket the admin meta box writes
+			// (admin/class-admin-meta-boxes.php $allowed_sizes). Its absence here
+			// meant job-single, the company archive and every REST payload
+			// printed the raw slug "5001+" to visitors, while a local copy in
+			// blocks/company-profile/render.php had already been patched — the
+			// exact hazard of keeping two maps (Basecamp 10074197007, items 2+3).
+			// `5000+` stays for rows written by older releases.
 			'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
+			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 		return $labels[ $size ] ?? $size;
 	}

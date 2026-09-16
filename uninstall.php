@@ -39,6 +39,7 @@ delete_option( 'wcb_posts_fulltext_supported' );
 delete_option( 'wcb_default_board_lock' );
 delete_option( 'wcb_flush_rewrite_rules' );
 delete_option( 'wcb_sample_data_ids' );
+delete_option( 'wcb_industries' );
 
 // Version-keyed / TTL caches stored as transients.
 delete_transient( 'wcb_app_status_counts' );

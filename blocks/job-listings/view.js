@@ -135,6 +135,51 @@ function wcbApplyResultsLabel( data ) {
 	}
 }
 
+/**
+ * Reset the standalone job-filters block, when a page still carries one.
+ *
+ * job-filters is a separate block that filters by navigating with query args,
+ * while this block keeps its filter state client-side. A page with both ends up
+ * with two sets of the same controls that never sync, and clearing here used to
+ * leave the other one still displaying a value and still in the URL - so the
+ * dropdown claimed a filter the results no longer had applied.
+ *
+ * New sites no longer get both blocks provisioned together, but pages created
+ * before that change still do, so put the visible controls and the address bar
+ * back in step with the results. No-ops when the block is not on the page.
+ */
+function clearLegacyFilterBar() {
+	if ( typeof document === 'undefined' ) return;
+
+	const NAMES = [ 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'salary_min', 'salary_max', 'wcb_remote' ];
+
+	NAMES.forEach( ( name ) => {
+		document.querySelectorAll( `[name="${ name }"]` ).forEach( ( el ) => {
+			if ( el.type === 'checkbox' || el.type === 'radio' ) {
+				el.checked = false;
+			} else {
+				el.value = '';
+			}
+		} );
+	} );
+
+	try {
+		const url = new URL( window.location.href );
+		let touched = false;
+		NAMES.forEach( ( name ) => {
+			if ( url.searchParams.has( name ) ) {
+				url.searchParams.delete( name );
+				touched = true;
+			}
+		} );
+		if ( touched ) {
+			window.history.replaceState( {}, '', url.toString() );
+		}
+	} catch ( e ) {
+		// A malformed location is not worth breaking the clear over.
+	}
+}
+
 const { state, actions } = store( 'wcb-job-listings', {
 	state: {
 		// ── Derived: layout ──────────────────────────────────────────
@@ -513,6 +558,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			state.searchQuery = '';
 			state.salaryMin = 0;
 			state.salaryMax = 0;
+			clearLegacyFilterBar();
 			yield actions.applyFilters();
 		},
 

@@ -118,6 +118,22 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_patterns' ) );
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
+
+		// Enum guard for `_wcb_industry`, registered where every write path
+		// converges rather than repeated at each of the six call sites.
+		\WCB\Core\Industries::boot();
+
+		// Mobile-app credential acquisition (Wbcom App Auth standard).
+		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
+		// deep-link scheme survives esc_url() there, and a WooCommerce-style
+		// wp-admin block is exempted for that one screen. AppConnect wires the
+		// one-door-per-site seams (BuddyNext bridge join, reconnect-replaces
+		// pruner). Both are harmless no-ops when nothing uses them, and both
+		// register unconditionally so plugin activation ORDER cannot matter.
+		if ( class_exists( \WCB\Auth\AppAuthorizeAccess::class ) ) {
+			( new \WCB\Auth\AppAuthorizeAccess() )->boot();
+			( new \WCB\Auth\AppConnect() )->boot();
+		}
 		add_filter( 'body_class', array( $this, 'add_page_class' ) );
 		add_filter( 'template_include', array( $this, 'use_wcb_archive_template' ), 99 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
@@ -203,6 +219,9 @@ final class Plugin {
 			\WCB\Api\Endpoints\AccountEndpoint::class,
 			\WCB\Api\Endpoints\AccountDeletionEndpoint::class,
 			\WCB\Api\Endpoints\MembersEndpoint::class,
+			// POST /auth/app-password — the mobile app's first credential.
+			// Public by necessity; every guard lives in Auth\AppCredentials.
+			\WCB\Api\Endpoints\AuthEndpoint::class,
 		);
 
 		foreach ( $endpoint_classes as $class ) {
@@ -502,7 +521,16 @@ final class Plugin {
 				'title'       => __( 'Full Job Board', 'wp-career-board' ),
 				'description' => __( 'Search bar, filters, and job listings grid  -  the complete job board page.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
-				'content'     => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-filters /--><!-- wp:wp-career-board/job-listings /-->',
+				// job-filters is deliberately not provisioned alongside job-listings.
+				// job-listings renders its own filter panel (showFilters defaults true)
+				// covering the same taxonomies plus job board and a salary range, client
+				// side and without a page reload. Stacking both gave every new site two
+				// sets of the same controls backed by two mechanisms that never synced:
+				// the top bar navigates by query string, the panel keeps Interactivity
+				// state, so each showed filters the other did not have applied.
+				// job-filters stays available for pages that place job-listings with
+				// showFilters off.
+				'content'     => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
 			),
 			array(
 				'name'        => 'wp-career-board/post-a-job',
@@ -761,7 +789,8 @@ final class Plugin {
 	 * layout system in one place — either through:
 	 *
 	 *   - the `wcb_container_max_width` PHP filter (this method),
-	 *   - the `container_max_width` key under `wcb_settings` (admin UI), or
+	 *   - the `container_max_width` key under `wcb_settings` (no admin control
+	 *     ships for it; set it with a filter, an mu-plugin or wp option patch), or
 	 *   - a `<style>` block in the active theme that overrides the variable.
 	 *
 	 * Default: 1280 px. Min: 720, max: 1920 (clamped to keep layouts sane).
@@ -1148,7 +1177,19 @@ final class Plugin {
 			function (): void {
 				$theme = wp_get_theme()->get_template();
 
-				if ( 'reign-theme' === $theme && class_exists( \WCB\Integrations\Reign\ReignIntegration::class ) ) {
+				// Reign's directory name is not stable: its text domain and the
+				// usual install folder are `reign`, some distributions unzip to
+				// `reign-theme`, and either can be renamed on any install. Testing
+				// the folder slug alone silently disabled every Reign integration -
+				// templates, customizer section, nav items and the compat
+				// stylesheet - on a stock `reign` install. REIGN_THEME_VERSION is
+				// defined by the theme's own functions.php, which runs before
+				// after_setup_theme fires, so it identifies Reign whatever the
+				// directory is called, and covers child themes too.
+				$wcb_is_reign = defined( 'REIGN_THEME_VERSION' )
+					|| in_array( $theme, array( 'reign', 'reign-theme' ), true );
+
+				if ( $wcb_is_reign && class_exists( \WCB\Integrations\Reign\ReignIntegration::class ) ) {
 					( new \WCB\Integrations\Reign\ReignIntegration() )->boot();
 				}
 

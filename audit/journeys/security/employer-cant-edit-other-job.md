@@ -34,4 +34,7 @@ wp post update <vercel-job-id> --post_title="<original-vercel-title-captured-in-
 
 - The update endpoint is `PUT/PATCH /wcb/v1/jobs/(?P<id>\\d+)` with permission `update_item_permissions_check` per manifest.
 - The ownership check should compare the job's `post_author` with the current user, OR compare the linked `_wcb_company_id` with the employer's company. Read `JobsEndpoint::update_item_permissions_check` to confirm the exact mechanism.
-- User IDs: employer.figma = 50, employer.vercel = 49 on job-portal.local.
+- User IDs differ per site - resolve them, never paste them:
+  `FIGMA=$(wp --path="$WCB_PATH" user get employer.figma --field=ID)`,
+  `VERCEL=$(wp --path="$WCB_PATH" user get employer.vercel --field=ID)`.
+  The logins come from `docs/qa/qa-config.json` personas.

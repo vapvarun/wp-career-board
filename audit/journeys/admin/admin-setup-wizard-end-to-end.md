@@ -10,6 +10,16 @@ bug_ref: Basecamp 9890815047
 
 # Admin walks the setup wizard from start to finish; completion flag is set
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** Guards the full wizard lifecycle: page renders, each step's REST endpoint responds correctly, the "Create Pages" step persists page IDs into `wcb_settings`, and the completion step sets `wcb_setup_complete = true` so the wizard does not relaunch on the next admin visit.
 
 ## Steps
@@ -23,7 +33,7 @@ bug_ref: Basecamp 9890815047
 4. Execute Step 1 (Create Pages) via the wizard REST endpoint as admin:
    ```bash
    NONCE=$(wp eval 'echo wp_create_nonce("wp_rest");')
-   curl -s -X POST "http://job-portal.local/wp-json/wcb/v1/wizard/create-pages" \
+   curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/create-pages" \
      -H "X-WP-Nonce: $NONCE" \
      -H "Cookie: $(wp eval 'wp_set_auth_cookie(1); echo $_COOKIE[AUTH_COOKIE] ?? "";')" \
      | python3 -m json.tool
@@ -40,7 +50,7 @@ bug_ref: Basecamp 9890815047
    → both values are > 0 (page IDs were created and saved)
 6. Execute Step 2 (Sample Data — skip sample data install):
    ```bash
-   curl -s -X POST "http://job-portal.local/wp-json/wcb/v1/wizard/sample-data" \
+   curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/sample-data" \
      -H "X-WP-Nonce: $NONCE" \
      -H "Content-Type: application/json" \
      -d '{"install_sample": 0}' | python3 -m json.tool
@@ -48,7 +58,7 @@ bug_ref: Basecamp 9890815047
    → expect `{"installed": false}`
 7. Execute the completion step:
    ```bash
-   curl -s -X POST "http://job-portal.local/wp-json/wcb/v1/wizard/complete" \
+   curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/complete" \
      -H "X-WP-Nonce: $NONCE" | python3 -m json.tool
    ```
    → expect JSON with `redirect` key pointing to `admin.php?page=wp-career-board`

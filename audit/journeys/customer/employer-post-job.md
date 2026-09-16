@@ -3,7 +3,7 @@ id: employer-post-job
 priority: critical
 personas: employer.figma
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-07-27
 needs: cli
 bug_ref: 9871740742
 ---
@@ -28,6 +28,10 @@ bug_ref: 9871740742
 ```bash
 wp post delete <job-id> --force
 ```
+
+## Variant — employer whose `_wcb_company_id` user meta is unset
+
+Re-run steps 3-7 after `wp user meta delete <employer-id> _wcb_company_id`, leaving their `wcb_company` post published. Step 5 must still show `_wcb_company_id` and `_wcb_company_name` populated: job-create resolves the owner's company through `CompanyMetaShape::resolve_company_id()`, not a raw user-meta read. The full failure chain (the job only disappears once the dashboard self-heals the user meta) is covered by `customer/job-links-company-when-user-meta-empty.md`.
 
 ## Notes
 

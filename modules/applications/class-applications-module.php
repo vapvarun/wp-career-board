@@ -116,6 +116,7 @@ final class ApplicationsModule {
 		$registry = \WCB\Core\Widgets\WidgetRegistry::instance();
 		$registry->register( new Widgets\ApplicantCard() );
 		$registry->register( new Widgets\CoverLetter() );
+		$registry->register( new Widgets\CustomAnswers() );
 		$registry->register( new Widgets\ResumePreview() );
 		$registry->register( new Widgets\StatusTimeline() );
 		$registry->register( new Widgets\StatusChanger() );
@@ -140,10 +141,15 @@ final class ApplicationsModule {
 					'not_found'          => __( 'No applications found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No applications found in Trash.', 'wp-career-board' ),
 				),
-				'public'          => false,
-				'show_ui'         => true,
-				'show_in_rest'    => true,
-				'show_in_menu'    => false,
+				'public'                => false,
+				'show_ui'               => true,
+				'show_in_rest'          => true,
+				// Without this, core serves every published application to
+				// anonymous callers at /wp/v2/wcb_application - cover letters,
+				// candidate ids and guest email addresses included. Same defect
+				// BoardRestController closed for wcb_board.
+				'rest_controller_class' => ApplicationRestController::class,
+				'show_in_menu'          => false,
 				'supports'        => array( 'title', 'custom-fields' ),
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,

@@ -10,22 +10,32 @@ covers: blocks/job-form (edit mode), blocks/employer-dashboard, PATCH /wcb/v1/jo
 
 # Walkthrough: Edit a Job & Company — edit an existing job, update the company profile, and resubmit a rejected job into moderation
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** Editing is a routine employer action across three surfaces that must all stay in sync. This walkthrough traces: (1) editing a job so the change propagates to the public listing, REST response, and search index; (2) editing the company profile so tagline/industry/size/HQ round-trip to the public job page (guards Basecamp 9871740742 — those four fields were missing from `prepare_item_for_response_array()`); and (3) resubmitting a rejected job so it reads "Rejected" (not "Draft") and re-publishing routes back to moderation (`pending`), never straight live (guards Basecamp 9976849052). Consolidates `customer/employer-edit-job`, `customer/employer-edit-company`, and `customer/employer-rejected-job-resubmit`.
 
 ## Steps
 
 ### A. Edit a job
 
-1. As `employer.figma`, navigate to `http://jobboard.local/?autologin=employer.figma` → expect HTTP 200, logged in (user ID 50). Find a `wcb_job` owned by them: `wp post list --post_type=wcb_job --post_author=50 --post_status=publish --field=ID --posts_per_page=1` → capture `<job-id>`; read `wp post get <job-id> --field=post_title` → capture `<original-title>`.
+1. As `employer.figma`, navigate to `$WCB_SITE/?autologin=employer.figma` → expect HTTP 200, logged in (user ID 50). Find a `wcb_job` owned by them: `wp post list --post_type=wcb_job --post_author=50 --post_status=publish --field=ID --posts_per_page=1` → capture `<job-id>`; read `wp post get <job-id> --field=post_title` → capture `<original-title>`.
 
 2. Open the job in the form's edit mode — from the dashboard My Jobs list click the Edit control `.wcb-db-link-btn--edit[data-wp-bind--href="context.job.editUrl"]` (`blocks/employer-dashboard/render.php:576`; `editUrl` = `add_query_arg('edit', <job-id>, <job-form-page>)`, `api/endpoints/class-employers-endpoint.php:666`) → expect the `wcb/job-form` block to prefill the existing title/description/salary.
 
-3. Change the title + salary and save → observe `PATCH http://jobboard.local/wp-json/wcb/v1/jobs/<job-id>` with body `{"title":"Smoke Edit - <original-title>","description":"Updated description","salary_max":99999}` → expect HTTP 200 with `id === <job-id>`. Only the owner may PATCH (cross-employer edit protection: `security/employer-cant-edit-other-job`).
+3. Change the title + salary and save → observe `PATCH $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` with body `{"title":"Smoke Edit - <original-title>","description":"Updated description","salary_max":99999}` → expect HTTP 200 with `id === <job-id>`. Only the owner may PATCH (cross-employer edit protection: `security/employer-cant-edit-other-job`).
 
 4. Verify propagation across all three surfaces:
    - DB: `wp post get <job-id> --field=post_title` → `Smoke Edit - <original-title>`; `wp post meta get <job-id> _wcb_salary_max` → `99999`.
-   - Public REST (anonymous): `GET http://jobboard.local/wp-json/wcb/v1/jobs/<job-id>` → `title` = `Smoke Edit - <original-title>`, `salary_max` = `99999` (not stale).
-   - Search index: `GET http://jobboard.local/wp-json/wcb/v1/search?q=Smoke+Edit` → array includes an entry with `id === <job-id>`. (If cached, bump `wp option update wcb_jobs_cache_v $(($(wp option get wcb_jobs_cache_v) + 1))`.)
+   - Public REST (anonymous): `GET $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` → `title` = `Smoke Edit - <original-title>`, `salary_max` = `99999` (not stale).
+   - Search index: `GET $WCB_SITE/wp-json/wcb/v1/search?q=Smoke+Edit` → array includes an entry with `id === <job-id>`. (If cached, bump `wp option update wcb_jobs_cache_v $(($(wp option get wcb_jobs_cache_v) + 1))`.)
 
 5. Restore the title: `PATCH /wcb/v1/jobs/<job-id>` `{"title":"<original-title>"}` → expect HTTP 200.
 
@@ -33,21 +43,21 @@ covers: blocks/job-form (edit mode), blocks/employer-dashboard, PATCH /wcb/v1/jo
 
 6. Find employer.figma's company: `wp post list --post_type=wcb_company --post_author=50 --field=ID --posts_per_page=1` → `<company-id>`; capture its slug `wp post get <company-id> --field=post_name` → `<company-slug>`. Note there is NO `/companies/<id>` update route — company updates flow through the employers endpoint.
 
-7. `PATCH http://jobboard.local/wp-json/wcb/v1/employers/<employer-id>` with body `{"tagline":"Smoke Tagline 2026","industry":"Technology","size":"11-50","hq":"San Francisco, CA"}` → expect HTTP 200. The endpoint maps `industry`→`_wcb_industry`, `size`→`_wcb_company_size`, `hq`→`_wcb_hq_location` (+ tagline) onto the owner's company.
+7. `PATCH $WCB_SITE/wp-json/wcb/v1/employers/<employer-id>` with body `{"tagline":"Smoke Tagline 2026","industry":"Technology","size":"11-50","hq":"San Francisco, CA"}` → expect HTTP 200. The endpoint maps `industry`→`_wcb_industry`, `size`→`_wcb_company_size`, `hq`→`_wcb_hq_location` (+ tagline) onto the owner's company.
 
 8. Verify meta in DB: `wp post meta list <company-id>` → `_wcb_tagline`=`Smoke Tagline 2026`, `_wcb_industry`=`Technology`, `_wcb_company_size`=`11-50` (or slug), `_wcb_hq_location`=`San Francisco, CA`.
 
-9. Verify the four fields reach the public API via a linked job (there is no public single-company REST route): find a published job for this company (`wp post list --post_type=wcb_job --meta_key=_wcb_company_id --meta_value=<company-id> --post_status=publish --field=ID --posts_per_page=1`), then anonymous `GET http://jobboard.local/wp-json/wcb/v1/jobs/<job-id>` → expect non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq` (Basecamp 9871740742 guard; the jobs endpoint prefixes company fields with `company_`).
+9. Verify the four fields reach the public API via a linked job (there is no public single-company REST route): find a published job for this company (`wp post list --post_type=wcb_job --meta_key=_wcb_company_id --meta_value=<company-id> --post_status=publish --field=ID --posts_per_page=1`), then anonymous `GET $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` → expect non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq` (Basecamp 9871740742 guard; the jobs endpoint prefixes company fields with `company_`).
 
-10. Navigate to `http://jobboard.local/companies/<company-slug>/` → expect HTTP 200 and the tagline "Smoke Tagline 2026" visibly rendered; open the linked job's public URL → the same tagline is visible in the company section.
+10. Navigate to `$WCB_SITE/companies/<company-slug>/` → expect HTTP 200 and the tagline "Smoke Tagline 2026" visibly rendered; open the linked job's public URL → the same tagline is visible in the company section.
 
 ### C. Resubmit a rejected job
 
-11. As `morgan_moderator`, reject a published job: `POST http://jobboard.local/wp-json/wcb/v1/jobs/<id>/reject` `{"reason":"Missing salary range"}` → expect HTTP 200; the job becomes `draft` and `_wcb_rejection_reason` is set.
+11. As `morgan_moderator`, reject a published job: `POST $WCB_SITE/wp-json/wcb/v1/jobs/<id>/reject` `{"reason":"Missing salary range"}` → expect HTTP 200; the job becomes `draft` and `_wcb_rejection_reason` is set.
 
-12. As `employer.figma` (the owner), `GET http://jobboard.local/wp-json/wcb/v1/employers/me/jobs` → the rejected job reports `status:"rejected"`, `statusLabel:"Rejected"`, `rejected:true` (NOT `draft`) — driven by `EmployersEndpoint::is_rejected_job()` (`class-employers-endpoint.php:653/756`). On the dashboard My Jobs tab it renders with a "Rejected" badge under the Rejected filter (not the Draft pill) and shows a **Resubmit** action `.wcb-db-link-btn--publish[data-wp-class--wcb-hidden="!context.job.isRejected"]` (`blocks/employer-dashboard/render.php:579`).
+12. As `employer.figma` (the owner), `GET $WCB_SITE/wp-json/wcb/v1/employers/me/jobs` → the rejected job reports `status:"rejected"`, `statusLabel:"Rejected"`, `rejected:true` (NOT `draft`) — driven by `EmployersEndpoint::is_rejected_job()` (`class-employers-endpoint.php:653/756`). On the dashboard My Jobs tab it renders with a "Rejected" badge under the Rejected filter (not the Draft pill) and shows a **Resubmit** action `.wcb-db-link-btn--publish[data-wp-class--wcb-hidden="!context.job.isRejected"]` (`blocks/employer-dashboard/render.php:579`).
 
-13. Click Resubmit → `POST http://jobboard.local/wp-json/wcb/v1/jobs/<id>` `{"status":"publish"}` (`actions.reopenJob`, render.php:579) → expect HTTP 200; the server OVERRIDES to `pending` and clears `_wcb_rejection_reason`. Verify `wp post get <id> --field=post_status` → expect `pending` (NOT `publish` — moderation was not bypassed).
+13. Click Resubmit → `POST $WCB_SITE/wp-json/wcb/v1/jobs/<id>` `{"status":"publish"}` (`actions.reopenJob`, render.php:579) → expect HTTP 200; the server OVERRIDES to `pending` and clears `_wcb_rejection_reason`. Verify `wp post get <id> --field=post_status` → expect `pending` (NOT `publish` — moderation was not bypassed).
 
 14. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 

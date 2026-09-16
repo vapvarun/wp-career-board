@@ -80,8 +80,14 @@ final class JobsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				// wcb/bookmark-jobs, not a bare login check: the ability was
+				// declared, granted to wcb_candidate and listed by `wp wcb
+				// abilities`, but enforced nowhere, so candidate_requires_role
+				// was silently ignored here and a banned member could still
+				// bookmark. Identical behaviour by default - candidate_gate()
+				// allows any logged-in member unless the setting is on.
 				'permission_callback' => static function (): bool {
-					return is_user_logged_in();
+					return wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				},
 			)
 		);
@@ -99,6 +105,7 @@ final class JobsEndpoint extends RestController {
 						'default'           => 1,
 						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'per_page' => array(
 						'type'              => 'integer',
@@ -106,6 +113,7 @@ final class JobsEndpoint extends RestController {
 						'minimum'           => 1,
 						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)
@@ -130,7 +138,7 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function get_items( $request ): \WP_REST_Response {
 		if ( ! $request->has_param( 'per_page' ) ) {
-			$wcb_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 15 );
+			$wcb_per_page = \WCB\Admin\Settings::int( 'jobs_per_page' );
 			$request->set_param( 'per_page', $wcb_per_page > 0 ? $wcb_per_page : 15 );
 		}
 
@@ -245,6 +253,22 @@ final class JobsEndpoint extends RestController {
 		$author = $request->get_param( 'author' );
 		if ( $author ) {
 			$args['author'] = (int) $author;
+		}
+
+		// Scope to the jobs LINKED to a company, which is not the same set as
+		// the jobs authored by that company's owner. A job carries its company
+		// in `_wcb_company_id`, and an admin, a second recruiter or an importer
+		// can post on a company's behalf — so `author` returns a different
+		// (and wrong) list wherever the poster is not the company owner. The
+		// company-profile block's first page always filtered on this meta key;
+		// its Load More filtered on author, so page 2 could pull in another
+		// company's jobs entirely.
+		$company = (int) $request->get_param( 'company' );
+		if ( $company > 0 ) {
+			$args['meta_query'][] = array(
+				'key'   => '_wcb_company_id',
+				'value' => (string) $company,
+			);
 		}
 
 		// Scope to a specific user's bookmarks when the caller passes
@@ -378,13 +402,13 @@ final class JobsEndpoint extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	private function build_jobs_response( array $jobs, int $total, int $pages, int $paged ): \WP_REST_Response {
-		$jobs = $this->enrich_viewer_state( $jobs );
+		$jobs     = $this->enrich_viewer_state( $jobs );
 		$response = rest_ensure_response(
 			array(
-				'jobs'     => $jobs,
-				'total'    => $total,
-				'pages'    => $pages,
-				'has_more' => $paged < $pages,
+				'jobs'          => $jobs,
+				'total'         => $total,
+				'pages'         => $pages,
+				'has_more'      => $paged < $pages,
 				/*
 				 * Additive since 1.5.1. The plural form MUST be resolved server-side:
 				 * a script module cannot call _n(), and picking between a seeded
@@ -537,51 +561,22 @@ final class JobsEndpoint extends RestController {
 
 		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-		// FULLTEXT path - O(log n) when the term clears MySQL's default
-		// `ft_min_word_len = 3`. Below that floor MATCH() returns no rows
-		// even when a LIKE would match, so fall back to LIKE on the title
-		// for 1-2 character terms.
-		$fulltext_supported = (bool) get_option( 'wcb_posts_fulltext_supported', false );
-		$use_fulltext       = $fulltext_supported && strlen( $search_term ) >= 3;
-
-		if ( $use_fulltext ) {
-			// IN BOOLEAN MODE so the term doesn't need to clear the 50%
-			// document threshold IN NATURAL LANGUAGE MODE uses, and so we
-			// can opt into prefix matching with a trailing `*`. Escape the
-			// boolean operators a user might type so they can't break the
-			// query.
-			$bool_term = preg_replace( '/[+\-><()~*\"@&|]/', ' ', $search_term );
-			$bool_term = trim( (string) $bool_term );
-			if ( '' === $bool_term ) {
-				return $where;
-			}
-			$bool_term .= '*';
-			$where     .= $wpdb->prepare(
-				" AND ( MATCH ({$wpdb->posts}.post_title) AGAINST (%s IN BOOLEAN MODE) OR EXISTS (
-					SELECT 1 FROM {$wpdb->postmeta} pm
-					WHERE pm.post_id = {$wpdb->posts}.ID
-					  AND pm.meta_key = '_wcb_company_name'
-					  AND pm.meta_value LIKE %s
-				) )",
-				$bool_term,
-				$like
-			);
+		// Jobs match on title OR the denormalised company name, so the shared
+		// builder supplies the title half and the company-name EXISTS is
+		// appended here.
+		$title_clause = \WCB\Core\TitleSearch::title_clause( $search_term );
+		if ( '' === $title_clause ) {
 			return $where;
 		}
 
-		// Fallback - LIKE on title + company name. Used when FULLTEXT is
-		// unsupported (MyISAM `wp_posts`, replicated read-only, etc.) or
-		// when the term is shorter than ft_min_word_len.
-		$where .= $wpdb->prepare(
-			" AND ( {$wpdb->posts}.post_title LIKE %s OR EXISTS (
-				SELECT 1 FROM {$wpdb->postmeta} pm
+		// $title_clause is already prepared; the EXISTS is prepared below.
+		$where .= " AND ( {$title_clause} OR EXISTS (" . $wpdb->prepare(
+			"SELECT 1 FROM {$wpdb->postmeta} pm
 				WHERE pm.post_id = {$wpdb->posts}.ID
 				  AND pm.meta_key = '_wcb_company_name'
-				  AND pm.meta_value LIKE %s
-			) )",
-			$like,
+				  AND pm.meta_value LIKE %s",
 			$like
-		);
+		) . ') )';
 
 		return $where;
 	}
@@ -707,6 +702,13 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// Active-job cap. Runs after the credit gate so a credit-priced board
+		// answers on price, not quota — the cap only governs free posting.
+		$wcb_limit_error = $this->check_active_job_limit( get_current_user_id(), $request );
+		if ( $wcb_limit_error instanceof \WP_Error ) {
+			return $wcb_limit_error;
+		}
+
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$status       = $auto_publish ? 'publish' : 'pending';
 
@@ -815,11 +817,17 @@ final class JobsEndpoint extends RestController {
 			update_post_meta( $job_id, '_wcb_apply_email', $wcb_apply_email );
 		}
 
-		// Link employer's company CPT to the job so the single page can render description and website.
-		$wcb_company_id = (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true );
+		// Link employer's company CPT to the job so the single page can render
+		// description and website. Resolve through CompanyMetaShape rather than
+		// reading `_wcb_company_id` user meta directly: an employer whose company
+		// was created by import/admin/migration has the post-side link only, and
+		// a raw read left the job orphaned. The dashboard later self-heals the
+		// user meta, at which point My Jobs switches to the company-scoped query
+		// and the orphaned job disappears from the employer's own list.
+		$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
 		if ( $wcb_company_id ) {
 			$wcb_company = get_post( $wcb_company_id );
-			if ( $wcb_company instanceof \WP_Post ) {
+			if ( $wcb_company instanceof \WP_Post && 'wcb_company' === $wcb_company->post_type ) {
 				update_post_meta( $job_id, '_wcb_company_id', $wcb_company_id );
 				update_post_meta( $job_id, '_wcb_company_name', $wcb_company->post_title );
 			}
@@ -963,6 +971,16 @@ final class JobsEndpoint extends RestController {
 					}
 				}
 			}
+
+			// Bringing a listing back to publish occupies a slot, so the cap
+			// applies here too. The job is excluded from its own count, so
+			// reopening it while under the cap of OTHER live jobs is allowed.
+			if ( 'publish' === $status && 'publish' !== $post->post_status ) {
+				$wcb_limit_error = $this->check_active_job_limit( (int) $post->post_author, $request, $post->ID );
+				if ( $wcb_limit_error instanceof \WP_Error ) {
+					return $wcb_limit_error;
+				}
+			}
 		}
 		if ( ! empty( $data ) ) {
 			$data['ID'] = $post->ID;
@@ -1073,6 +1091,114 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_updated', $post->ID, $request );
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * Reject the request when the employer is already at their active-job cap.
+	 *
+	 * Opt-in quota for sites that run a free board: `wcb_employer_active_job_limit`
+	 * returns 0 (unlimited) unless a site filters it. The cap is skipped entirely
+	 * when credits are enabled — paid posting already meters volume, and charging
+	 * an employer for a credit and then refusing the post would be the worst of
+	 * both models.
+	 *
+	 * Counted with `posts_per_page => 1` + `found_posts` so a 5,000-listing
+	 * agency account costs one COUNT, not 5,000 hydrated posts.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param int              $user_id    Employer whose jobs are counted.
+	 * @param \WP_REST_Request $request    Originating request, passed to the limit filter.
+	 * @param int              $exclude_id Job being republished, excluded so reopening
+	 *                                     an existing listing is not double-counted.
+	 * @return \WP_Error|null Error when the cap is reached, null when the post may proceed.
+	 */
+	private function check_active_job_limit( int $user_id, \WP_REST_Request $request, int $exclude_id = 0 ): ?\WP_Error {
+		if ( (bool) apply_filters( 'wcb_credits_enabled', false ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter the maximum number of concurrently active jobs one employer may hold.
+		 *
+		 * Return 0 (the default) for unlimited. Sites running a free tier cap it
+		 * and let Pro credits lift the cap:
+		 *
+		 *     add_filter( 'wcb_employer_active_job_limit', static fn(): int => 5 );
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param int              $limit   Maximum active jobs; 0 = unlimited.
+		 * @param int              $user_id Employer user ID.
+		 * @param \WP_REST_Request $request Originating REST request.
+		 */
+		$limit = (int) apply_filters( 'wcb_employer_active_job_limit', 0, $user_id, $request );
+
+		if ( $limit <= 0 ) {
+			return null;
+		}
+
+		/**
+		 * Filter the post statuses that count towards the active-job limit.
+		 *
+		 * Defaults to published jobs only — pending, draft, expired and closed
+		 * listings are not occupying a slot.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array<int, string> $statuses Post statuses that count.
+		 * @param int                $user_id  Employer user ID.
+		 */
+		$statuses = (array) apply_filters( 'wcb_employer_active_job_statuses', array( 'publish' ), $user_id );
+
+		$query_args = array(
+			'post_type'              => 'wcb_job',
+			'post_status'            => $statuses,
+			'author'                 => $user_id,
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'ignore_sticky_posts'    => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		);
+
+		if ( $exclude_id > 0 ) {
+			$query_args['post__not_in'] = array( $exclude_id );
+		}
+
+		$count = (int) ( new \WP_Query( $query_args ) )->found_posts;
+
+		if ( $count < $limit ) {
+			return null;
+		}
+
+		$message = sprintf(
+			/* translators: 1: maximum number of active jobs allowed, 2: number the employer currently has live. */
+			__( 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', 'wp-career-board' ),
+			$limit,
+			$count
+		);
+
+		/**
+		 * Filter the message shown when an employer hits the active-job limit.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param string $message Default copy.
+		 * @param int    $limit   The configured cap.
+		 * @param int    $count   How many active jobs the employer holds.
+		 */
+		$message = (string) apply_filters( 'wcb_employer_active_job_limit_message', $message, $limit, $count );
+
+		return new \WP_Error(
+			'wcb_active_job_limit',
+			$message,
+			array(
+				'status' => 403,
+				'limit'  => $limit,
+				'count'  => $count,
+			)
+		);
 	}
 
 	/**
@@ -1243,25 +1369,25 @@ final class JobsEndpoint extends RestController {
 				$status_raw     = (string) get_post_meta( $p->ID, '_wcb_status', true );
 
 				return array(
-					'id'               => $p->ID,
-					'candidate_id'     => $candidate_id,
-					'applicant_name'   => $candidate_user
+					'id'                 => $p->ID,
+					'candidate_id'       => $candidate_id,
+					'applicant_name'     => $candidate_user
 						? $candidate_user->display_name
 						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
-					'applicant_email'  => $candidate_user
+					'applicant_email'    => $candidate_user
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
-					'cover_letter'     => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					'ai_score'         => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
-					'ai_reason'        => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
-					'ai_summary'       => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
-					'status'           => '' !== $status_raw ? $status_raw : 'submitted',
-					'statusLabel'      => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
+					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
+					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// Raw ISO 8601 for any client-side date logic; localised sibling
 					// for display. Never hand a translated date string to new Date().
 					'submitted_at'       => get_the_date( 'c', $p ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
-					'resume_url'       => ( static function () use ( $p ): ?string {
+					'resume_url'         => ( static function () use ( $p ): ?string {
 						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 						if ( $att_id <= 0 ) {
 							return null;
@@ -1269,7 +1395,7 @@ final class JobsEndpoint extends RestController {
 						$url = wp_get_attachment_url( $att_id );
 						return false !== $url ? $url : null;
 					} )(),
-					'resume_permalink' => ( static function () use ( $p ): ?string {
+					'resume_permalink'   => ( static function () use ( $p ): ?string {
 						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
 						if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
 							return null;
@@ -1333,7 +1459,7 @@ final class JobsEndpoint extends RestController {
 		$user_id           = $this->current_user_id();
 		$is_author         = (int) $post->post_author === $user_id
 			&& $this->check_ability( 'wcb/post-jobs' );
-		$user_company      = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$user_company      = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
 		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$is_company_member = $user_company > 0
 			&& $user_company === $job_company
@@ -1413,6 +1539,7 @@ final class JobsEndpoint extends RestController {
 		// pre-date the postmeta convention. The reverse priority would
 		// surface the admin's own "their company" when admin posts a job
 		// for someone else, leaking the wrong company's brand metadata.
+		// The fallback must stay a plain read — this runs once per row.
 		$company_id = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		if ( ! $company_id ) {
 			$company_id = (int) get_user_meta( $author_id, '_wcb_company_id', true );
@@ -1455,7 +1582,7 @@ final class JobsEndpoint extends RestController {
 			'id'                 => $post->ID,
 			'title'              => $post->post_title,
 			'description'        => $post->post_content,
-			'excerpt'            => wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '…' ),
+			'excerpt'            => \WCB\Core\Text::excerpt( $post->post_content, 25, '…' ),
 			// Map internal wcb_closed → public 'closed' so the dashboard JS
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).
@@ -1494,6 +1621,10 @@ final class JobsEndpoint extends RestController {
 			'deadline_label'     => $wcb_deadline_raw
 				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
 				: '',
+			// Whether that date has passed, resolved server-side. The card needs
+			// this to badge closed roles, and a client cannot decide it safely:
+			// the browser clock is the visitor's, not the site's timezone.
+			'deadline_passed'    => \WCB\Core\JobDeadline::has_passed( $post->ID ),
 			'salary_min'         => $salary_min,
 			'salary_max'         => $salary_max,
 			'salary_currency'    => $currency,
@@ -1659,6 +1790,7 @@ final class JobsEndpoint extends RestController {
 				'salary_min'     => array( 'type' => 'integer' ),
 				'salary_max'     => array( 'type' => 'integer' ),
 				'author'         => array( 'type' => 'integer' ),
+				'company'        => array( 'type' => 'integer' ),
 				'orderby'        => array(
 					'description'       => __( 'Sort jobs by attribute.', 'wp-career-board' ),
 					'type'              => 'string',
@@ -1676,15 +1808,17 @@ final class JobsEndpoint extends RestController {
 					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'page'           => array(
-					'type'    => 'integer',
-					'default' => 1,
-					'minimum' => 1,
+					'type'              => 'integer',
+					'default'           => 1,
+					'minimum'           => 1,
+					'validate_callback' => 'rest_validate_request_arg',
 				),
 				'per_page'       => array(
-					'type'    => 'integer',
-					'default' => 20,
-					'minimum' => 1,
-					'maximum' => 100,
+					'type'              => 'integer',
+					'default'           => 20,
+					'minimum'           => 1,
+					'maximum'           => 100,
+					'validate_callback' => 'rest_validate_request_arg',
 				),
 			)
 		);

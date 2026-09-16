@@ -87,6 +87,38 @@ final class EmployersModule {
 			return $redirect_to;
 		}
 
+		/**
+		 * Filters whether employers are sent to the employer dashboard on login.
+		 *
+		 * Return false to leave the login destination entirely alone, for sites
+		 * that route employers somewhere else.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param bool      $enabled               Whether to apply the dashboard redirect.
+		 * @param \WP_User  $user                  The user logging in.
+		 * @param string    $redirect_to           Destination chosen so far.
+		 * @param string    $requested_redirect_to Explicitly requested destination, if any.
+		 */
+		if ( ! apply_filters( 'wcb_employer_login_redirect_enabled', true, $user, $redirect_to, $requested_redirect_to ) ) {
+			return $redirect_to;
+		}
+
+		// An explicit redirect_to wins: the member, or the login form, asked to
+		// land somewhere specific and this plugin is not entitled to overrule it.
+		if ( '' !== trim( $requested_redirect_to ) ) {
+			return $redirect_to;
+		}
+
+		// Another plugin's login_redirect filter - BuddyPress Redirect, or the
+		// site's own login-redirect setting - may already have chosen a
+		// destination. Only step in while $redirect_to is still WordPress's
+		// untouched default, so this is a default rather than an override
+		// (Basecamp 10299127872, Zoho #41525).
+		if ( ! $this->is_default_login_redirect( $redirect_to ) ) {
+			return $redirect_to;
+		}
+
 		$dashboard_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
 
 		if ( ! $dashboard_id ) {
@@ -95,6 +127,32 @@ final class EmployersModule {
 
 		$dashboard_url = get_permalink( $dashboard_id );
 		return $dashboard_url ? (string) $dashboard_url : $redirect_to;
+	}
+
+	/**
+	 * Whether $redirect_to is still WordPress's own default login destination.
+	 *
+	 * Anything else means somebody - another plugin, or the site owner's
+	 * setting - has already expressed a preference worth deferring to.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param string $redirect_to Destination chosen so far.
+	 * @return bool
+	 */
+	private function is_default_login_redirect( string $redirect_to ): bool {
+		$redirect_to = trim( $redirect_to );
+
+		if ( '' === $redirect_to ) {
+			return true;
+		}
+
+		$strip = static function ( string $url ): string {
+			$url = explode( '?', $url, 2 )[0];
+			return untrailingslashit( $url );
+		};
+
+		return $strip( $redirect_to ) === $strip( admin_url() );
 	}
 
 	/**
@@ -186,7 +244,8 @@ final class EmployersModule {
 			return $template;
 		}
 		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
-		if ( str_contains( $template, 'wp-career-board' ) ) {
+		// See TemplateOverride - theme templates and the bundled integrations both win.
+		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
 			return $template;
 		}
 		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';

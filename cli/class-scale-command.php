@@ -221,17 +221,29 @@ class ScaleCommand extends AbstractCliCommand {
 			$results[] = self::time_op( $name, $op );
 		}
 
+		/**
+		 * Filters the hot-path budgets, in milliseconds.
+		 *
+		 * Keys match op names from wcb_scale_ops. An op with no budget is timed
+		 * and printed but cannot fail the run, so adding a measurement is safe
+		 * before anyone has agreed what "too slow" means for it.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array<string,int> $budgets Op name => budget in milliseconds.
+		 */
+		$budgets = (array) apply_filters( 'wcb_scale_budgets', self::BUDGETS_MS );
+
 		$rows     = array();
 		$any_over = false;
 		$any_skip = false;
 		foreach ( $results as $row ) {
-			$budget = self::BUDGETS_MS[ $row['name'] ] ?? 0;
-			$status = 'OK';
-			if ( $row['skipped'] ) {
-				$status   = 'SKIPPED';
+			$budget = (int) ( $budgets[ $row['name'] ] ?? 0 );
+			$status = self::row_status( $row, $budget );
+
+			if ( 'SKIPPED' === $status ) {
 				$any_skip = true;
-			} elseif ( $row['duration_ms'] > $budget ) {
-				$status   = 'OVER BUDGET';
+			} elseif ( 'OVER BUDGET' === $status ) {
 				$any_over = true;
 			}
 			$rows[] = array(
@@ -391,7 +403,7 @@ class ScaleCommand extends AbstractCliCommand {
 		$sample_location = $this->find_sample_term_slug( 'wcb_location' );
 		$sample_keyword  = 'engineer';
 
-		return array(
+		$ops = array(
 			'jobs.list_50'              => function () use ( $per_page ): void {
 				$query    = new \WP_Query(
 					array(
@@ -525,6 +537,51 @@ class ScaleCommand extends AbstractCliCommand {
 				}
 			},
 		);
+
+		/**
+		 * Filters the benchmarked operations.
+		 *
+		 * The op set was a hardcoded array, so the harness could only ever
+		 * measure Free surfaces - Pro's ten tables and its REST routes had no
+		 * way in, which is why Pro shipped without a scale harness at all
+		 * rather than because nobody wanted one.
+		 *
+		 * Add a named callable and a matching entry via wcb_scale_budgets; an op
+		 * with no budget is timed and reported but never fails the run.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param array<string,callable> $ops      Operation name => callable.
+		 * @param int                    $per_page Listing page size in force.
+		 */
+		return (array) apply_filters( 'wcb_scale_ops', $ops, $per_page );
+	}
+
+	/**
+	 * Decide the benchmark status for one timed op.
+	 *
+	 * Split out of benchmark() so the budget rules are testable without WP_CLI.
+	 * An op with no agreed budget is reported but never fails the run: without
+	 * that, anything added through wcb_scale_ops would land with budget 0 and
+	 * read OVER BUDGET on every run.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param array{duration_ms:float,skipped:bool} $row    A timed op.
+	 * @param int                                   $budget Budget in ms; 0 or less means none agreed.
+	 * @return string One of SKIPPED, no budget, OVER BUDGET, OK.
+	 */
+	public static function row_status( array $row, int $budget ): string {
+		if ( ! empty( $row['skipped'] ) ) {
+			return 'SKIPPED';
+		}
+		if ( $budget <= 0 ) {
+			return 'no budget';
+		}
+		if ( (float) $row['duration_ms'] > $budget ) {
+			return 'OVER BUDGET';
+		}
+		return 'OK';
 	}
 
 	/**

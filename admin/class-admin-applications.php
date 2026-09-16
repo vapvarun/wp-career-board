@@ -36,6 +36,33 @@ class AdminApplications extends \WP_List_Table {
 	private const STATUSES = array( 'submitted', 'reviewing', 'shortlisted', 'rejected', 'hired' );
 
 	/**
+	 * Most job / candidate IDs a search feeds into the meta_query below.
+	 *
+	 * The list is 20 rows a page, so a term matching more than this is already
+	 * unusable as a list; capping keeps an unbounded `IN (...)` off the query
+	 * on a site with 20k users.
+	 *
+	 * @since 1.7.1
+	 * @var int
+	 */
+	private const SEARCH_ID_CAP = 500;
+
+	/**
+	 * Shortest term that triggers the wp_users scan.
+	 *
+	 * SEARCH_ID_CAP is what actually bounds the cost - with a LIMIT the scan
+	 * stops as soon as it has enough rows, so a short term is cheap, not
+	 * expensive. This gate exists for the result, not the query: one character
+	 * returns an arbitrary 500-of-20000 slice, which is worse than no match at
+	 * all. Two characters is a plausible search ("Li", "Wu"), so the floor sits
+	 * just above the useless case rather than at ft_min_word_len.
+	 *
+	 * @since 1.7.1
+	 * @var int
+	 */
+	private const MIN_USER_SEARCH_LEN = 2;
+
+	/**
 	 * Constructor — configure singular/plural labels.
 	 *
 	 * @since 1.0.0
@@ -193,25 +220,45 @@ class AdminApplications extends \WP_List_Table {
 		// Custom search: match by job title or candidate name/email (not post title).
 		if ( $search ) {
 			global $wpdb;
-			$like = '%' . $wpdb->esc_like( $search ) . '%';
+			$like     = '%' . $wpdb->esc_like( $search ) . '%';
+			$job_ids  = array();
+			$user_ids = array();
 
-			// Find wcb_job IDs whose title matches.
-			$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare(
-					"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'wcb_job' AND post_title LIKE %s",
-					$like
-				)
-			);
+			// Job half - reuse the FULLTEXT clause the public listing searches
+			// already use (Install migration 1.2.6 indexes wp_posts.post_title).
+			// This screen was still on a leading-wildcard LIKE, which no index
+			// can serve, so every admin search full-scanned wp_posts.
+			$title_clause = \WCB\Core\TitleSearch::title_clause( $search );
+			if ( '' !== $title_clause ) {
+				// $title_clause is already prepared; the cap is an int constant.
+				$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+					"SELECT ID FROM {$wpdb->posts}
+					 WHERE post_type = 'wcb_job' AND {$title_clause}
+					 LIMIT " . self::SEARCH_ID_CAP
+				);
+			}
 
-			// Find user IDs whose display_name, login, or email matches.
-			$user_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare(
-					"SELECT ID FROM {$wpdb->users} WHERE display_name LIKE %s OR user_login LIKE %s OR user_email LIKE %s",
-					$like,
-					$like,
-					$like
-				)
-			);
+			// Candidate half - wp_users carries no FULLTEXT index and
+			// display_name carries no index at all, so a contains-match here is
+			// a scan whatever we do. The cap is what makes that survivable: it
+			// bounds both the scan and the `IN (...)` the meta_query builds,
+			// which is what actually hurt at 20k users - the old query fed
+			// every matching ID straight into that clause. A term matching more
+			// than SEARCH_ID_CAP candidates is narrowed rather than paged; this
+			// screen is for finding one application, not listing thousands.
+			if ( strlen( $search ) >= self::MIN_USER_SEARCH_LEN ) {
+				$user_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->users}
+						 WHERE display_name LIKE %s OR user_login LIKE %s OR user_email LIKE %s
+						 LIMIT %d",
+						$like,
+						$like,
+						$like,
+						self::SEARCH_ID_CAP
+					)
+				);
+			}
 
 			// Build an OR meta_query over job_id and candidate_id.
 			$search_clauses = array( 'relation' => 'OR' );
@@ -744,7 +791,7 @@ class AdminApplications extends \WP_List_Table {
 				array(
 					(string) $post->ID,
 					(string) $job_id,
-					$job_id > 0 ? (string) get_the_title( $job_id ) : '',
+					$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
 					$name,
 					$email,
 					'' !== $status ? $status : 'submitted',

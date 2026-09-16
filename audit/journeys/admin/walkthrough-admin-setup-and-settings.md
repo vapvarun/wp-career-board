@@ -8,6 +8,16 @@ last_verified: 2026-06-29
 
 # Walkthrough: Admin Setup Wizard & Settings — run the first-run wizard (create pages + sample data), then configure every Settings tab
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** This is the end-to-end walkthrough of how a site owner stands up WP Career
 Board. It traces the full happy path: open the REST-powered Setup Wizard, create the required pages,
 optionally install sample data, complete the wizard, then walk into the Settings screen and configure
@@ -17,27 +27,27 @@ admin setup-and-configure functionality is browser-coverable in one pass.
 
 ## Steps
 
-1. As `varundubey`, navigate to `http://jobboard.local/wp-admin/admin.php?page=wcb-setup&wcb_rerun=1&autologin=varundubey` → expect HTTP 200 and the wizard shell `.wcb-wizard-wrap` with `#wcb-wizard-steps` containing two `.wcb-wizard-step` cards; step 1 (`data-step="1"` `data-key="create-pages"`) carries the `active` class. (Without `wcb_rerun=1` an already-configured site renders `admin/views/setup-wizard-complete.php` — the "Setup Already Completed" card with a "Re-run Setup Wizard" link — instead of the steps; `wcb_rerun=1` forces the steps via the `wcb_wizard_force_render` filter.)
+1. As `varundubey`, navigate to `$WCB_SITE/wp-admin/admin.php?page=wcb-setup&wcb_rerun=1&autologin=varundubey` → expect HTTP 200 and the wizard shell `.wcb-wizard-wrap` with `#wcb-wizard-steps` containing two `.wcb-wizard-step` cards; step 1 (`data-step="1"` `data-key="create-pages"`) carries the `active` class. (Without `wcb_rerun=1` an already-configured site renders `admin/views/setup-wizard-complete.php` — the "Setup Already Completed" card with a "Re-run Setup Wizard" link — instead of the steps; `wcb_rerun=1` forces the steps via the `wcb_wizard_force_render` filter.)
 
-2. **Step 1 (Create Pages)** — click the primary button `#wcb-create-pages` (`[data-wcb-wizard-action="create-pages"]`, label "Create Pages & Continue") → expect a single `POST http://jobboard.local/wp-json/wcb/v1/wizard/create-pages` (sent by `wp.apiFetch`, carrying header `X-WP-Nonce`) returning HTTP 200 with a JSON map of `setting_key => page_id` for any page that was newly created (empty map if all six pages already exist — both are success). The required pages are Employer Registration, Employer Dashboard, Candidate Dashboard, Find Jobs, Companies, and Post a Job.
+2. **Step 1 (Create Pages)** — click the primary button `#wcb-create-pages` (`[data-wcb-wizard-action="create-pages"]`, label "Create Pages & Continue") → expect a single `POST $WCB_SITE/wp-json/wcb/v1/wizard/create-pages` (sent by `wp.apiFetch`, carrying header `X-WP-Nonce`) returning HTTP 200 with a JSON map of `setting_key => page_id` for any page that was newly created (empty map if all six pages already exist — both are success). The required pages are Employer Registration, Employer Dashboard, Candidate Dashboard, Find Jobs, Companies, and Post a Job.
 
 3. Expect the wizard to auto-advance: step 1 loses `active` and step 2 (`data-step="2"` `data-key="sample-data"`, title "Sample Data") gains `active` (the `wcb-wizard-step-complete` CustomEvent → `showStep(2)`). The "Demo Content" toggle `#wcb-install-sample` is rendered **checked** by default.
 
-4. **Step 2 (Sample Data)** — leave `#wcb-install-sample` checked and click `#wcb-finish-wizard` (`[data-wcb-wizard-action="sample-data"]`, label "Finish Setup") → expect `POST http://jobboard.local/wp-json/wcb/v1/wizard/sample-data` with JSON body `{ install_sample: 1 }` returning HTTP 200 `{ installed: true }` (seeds 3 companies, 8 published jobs, and the category/job-type/location/experience/tag taxonomy terms; stamps `wcb_sample_data_installed`).
+4. **Step 2 (Sample Data)** — leave `#wcb-install-sample` checked and click `#wcb-finish-wizard` (`[data-wcb-wizard-action="sample-data"]`, label "Finish Setup") → expect `POST $WCB_SITE/wp-json/wcb/v1/wizard/sample-data` with JSON body `{ install_sample: 1 }` returning HTTP 200 `{ installed: true }` (seeds 3 companies, 8 published jobs, and the category/job-type/location/experience/tag taxonomy terms; stamps `wcb_sample_data_installed`).
 
-5. Expect a follow-up `POST http://jobboard.local/wp-json/wcb/v1/wizard/complete` returning HTTP 200 `{ redirect: "http://jobboard.local/wp-admin/admin.php?page=wp-career-board" }`, the browser to land on the WP Career Board dashboard, and `get_option('wcb_setup_complete')` to be `true`.
+5. Expect a follow-up `POST $WCB_SITE/wp-json/wcb/v1/wizard/complete` returning HTTP 200 `{ redirect: "$WCB_SITE/wp-admin/admin.php?page=wp-career-board" }`, the browser to land on the WP Career Board dashboard, and `get_option('wcb_setup_complete')` to be `true`.
 
-6. As `varundubey`, navigate to `http://jobboard.local/wp-admin/admin.php?page=wcb-settings&autologin=varundubey` → expect HTTP 200, the settings shell `.wcb-settings-wrap` with the sidebar `.wcb-settings-sidebar` listing nav items `a.wcb-settings-nav-item[data-section]` (Job Listings/`listings`, Pages/`pages`, Notifications/`notifications`, Emails/`emails`, Import/`import`, Integrations/`integrations`), and the page header action `a.wcb-btn` "Run Setup Wizard" pointing at `admin.php?page=wcb-setup`.
+6. As `varundubey`, navigate to `$WCB_SITE/wp-admin/admin.php?page=wcb-settings&autologin=varundubey` → expect HTTP 200, the settings shell `.wcb-settings-wrap` with the sidebar `.wcb-settings-sidebar` listing nav items `a.wcb-settings-nav-item[data-section]` (Job Listings/`listings`, Pages/`pages`, Notifications/`notifications`, Emails/`emails`, Import/`import`, Integrations/`integrations`), and the page header action `a.wcb-btn` "Run Setup Wizard" pointing at `admin.php?page=wcb-setup`.
 
 7. **Job Listings tab (moderation)** — the first section `#section-listings` is active by default. Set the "Auto-Publish Jobs" toggle `input[name="wcb_settings[auto_publish_jobs]"]` to **off** (so new jobs are held as Pending for review), set `#wcb-jobs-per-page` (`name="wcb_settings[jobs_per_page]"`) to `12`, and `#wcb-jobs-expire-days` (`name="wcb_settings[jobs_expire_days]"`) to `45` → click the section's "Save Changes" submit (`#section-listings form[action="options.php"]` → `submit.wcb-btn--primary`) → expect the WP Settings API redirect back with the `settings-updated=true` "Settings saved." notice and the toggle persisting as off / fields as 12 and 45 on reload.
 
 8. **Pages tab** — click `a.wcb-settings-nav-item[data-section="pages"]` → expect `#section-pages` to become the visible section (hash becomes `#pages`). Each canonical page dropdown is present and pre-selected to the wizard-created page: `#wcb-page-jobs_archive_page`, `#wcb-page-employer_dashboard_page`, `#wcb-page-candidate_dashboard_page`, `#wcb-page-company_archive_page`, `#wcb-page-post_job_page`, `#wcb-page-employer_registration_page` (all `name="wcb_settings[<key>]"`), each followed by a "View Page →" link to the assigned page. Click this section's "Save Changes" → expect `settings-updated=true` and assignments preserved.
 
-9. **Notifications tab** — click `a.wcb-settings-nav-item[data-section="notifications"]` → `#section-notifications` shows. Set `#wcb-from-name` (`name="wcb_settings[from_name]"`) to `Careers Team`, `#wcb-from-email` (`name="wcb_settings[from_email]"`) to `careers@jobboard.local`, and the required `#wcb-notification-email` (`name="wcb_settings[notification_email]"`) to `admin@jobboard.local` → click "Save Changes" → expect `settings-updated=true` and the sender values persisting.
+9. **Notifications tab** — click `a.wcb-settings-nav-item[data-section="notifications"]` → `#section-notifications` shows. Set `#wcb-from-name` (`name="wcb_settings[from_name]"`) to `Careers Team`, `#wcb-from-email` (`name="wcb_settings[from_email]"`) to `careers@example.test`, and the required `#wcb-notification-email` (`name="wcb_settings[notification_email]"`) to `admin@example.test` → click "Save Changes" → expect `settings-updated=true` and the sender values persisting.
 
 10. **Emails tab** — click `a.wcb-settings-nav-item[data-section="emails"]` → expect `#section-emails` to show the email-template UI rendered by the `wcb_settings_tab_emails` action (a list of editable notification templates with merge-tag support). Expect HTTP 200 with no missing-section / blank-panel state.
 
-11. **Sample-data control on Settings** — back on `#section-listings`, because sample data now exists (`SetupWizard::has_sample_data()` is true), expect the `#wcb-sample-data-block` card with the "Remove Sample Data" button `#wcb-remove-sample-data`. Click it, confirm the modal, and expect `POST http://jobboard.local/wp-json/wcb/v1/wizard/remove-sample-data` returning HTTP 200 with counts `{ jobs, companies, candidates, terms }`; the card is then replaced by the `#wcb-install-sample-block` "Install Sample Data" form (which posts `action=wcb_install_demo` to `admin-post.php` with the `wcb_install_demo` nonce). (Skip the click if the run must leave seeded data in place.)
+11. **Sample-data control on Settings** — back on `#section-listings`, because sample data now exists (`SetupWizard::has_sample_data()` is true), expect the `#wcb-sample-data-block` card with the "Remove Sample Data" button `#wcb-remove-sample-data`. Click it, confirm the modal, and expect `POST $WCB_SITE/wp-json/wcb/v1/wizard/remove-sample-data` returning HTTP 200 with counts `{ jobs, companies, candidates, terms }`; the card is then replaced by the `#wcb-install-sample-block` "Install Sample Data" form (which posts `action=wcb_install_demo` to `admin-post.php` with the `wcb_install_demo` nonce). (Skip the click if the run must leave seeded data in place.)
 
 12. Click the page-header "Run Setup Wizard" button (`a.wcb-btn` → `admin.php?page=wcb-setup`) → expect HTTP 200 and, since setup is already complete and `wcb_rerun` is absent, the "Setup Already Completed" card with the "Re-run Setup Wizard" link (`admin.php?page=wcb-setup&wcb_rerun=1`).
 
@@ -45,7 +55,7 @@ admin setup-and-configure functionality is browser-coverable in one pass.
 
 ## Teardown
 ```bash
-SITE='/Users/varundubey/Local Sites/jobboard/app/public'
+SITE='$WCB_PATH'
 
 # Remove wizard-seeded sample data cleanly (idempotent; mirrors SetupWizard::remove_sample_data()).
 wp eval '(new \WCB\Admin\SetupWizard())->remove_sample_data();' --path="$SITE" 2>/dev/null || true

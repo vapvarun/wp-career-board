@@ -11,8 +11,16 @@
 
 set -e
 
+# Clean up even when a suite fails - otherwise a red run leaves seed data
+# behind and the next run starts dirty.
+trap 'echo ""; echo "=== Cleaning up test data ==="; wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/cleanup-seed-data.php' EXIT
+
 echo "=== Seeding test data ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/seed-data.php
+echo ""
+
+echo "=== REST Exposure Contract ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/audit/rest-exposure.php
 echo ""
 
 echo "=== WP-CLI Command Tests ==="
@@ -27,8 +35,28 @@ echo "=== REST API Tests (Pro) ==="
 wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-rest-api-pro.php
 echo ""
 
-echo "=== Cleaning up test data ==="
-wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/cleanup-seed-data.php
+echo "=== Settings Accessor Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-settings-accessor.php
+echo ""
+
+echo "=== Pages Resolver Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-pages-resolver.php
+echo ""
+
+echo "=== App Auth Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-app-auth.php
+echo ""
+
+echo "=== Applications Role Split Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-applications-role-split.php
+echo ""
+
+echo "=== Cron Event Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-cron-events.php
+echo ""
+
+echo "=== Scale Harness Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
 echo ""
 
 echo "=== ALL SUITES COMPLETE ==="

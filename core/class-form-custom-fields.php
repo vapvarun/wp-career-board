@@ -424,13 +424,19 @@ final class FormCustomFields {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param array<int, array<string, mixed>> $groups   Field-group definitions.
-	 * @param int                              $owner_id Post / user / row id to save into.
-	 * @param array<string, mixed>             $values   Submitted values (untrusted).
-	 * @param string                           $writer   'post_meta' | 'user_meta'.
+	 * @since 1.7.1 Added $key_prefix so callers with their own meta-key
+	 *              convention (the applications endpoint writes
+	 *              `_wcb_application_field_<key>`) can reuse this writer
+	 *              instead of hand-rolling a second sanitiser.
+	 *
+	 * @param array<int, array<string, mixed>> $groups     Field-group definitions.
+	 * @param int                              $owner_id   Post / user / row id to save into.
+	 * @param array<string, mixed>             $values     Submitted values (untrusted).
+	 * @param string                           $writer     'post_meta' | 'user_meta'.
+	 * @param string                           $key_prefix Prepended to the meta key after sanitisation.
 	 * @return int Number of values persisted.
 	 */
-	public static function save_values( array $groups, int $owner_id, array $values, string $writer = 'post_meta' ): int {
+	public static function save_values( array $groups, int $owner_id, array $values, string $writer = 'post_meta', string $key_prefix = '' ): int {
 		if ( $owner_id <= 0 || empty( $groups ) ) {
 			return 0;
 		}
@@ -479,9 +485,9 @@ final class FormCustomFields {
 			}
 
 			if ( 'user_meta' === $writer ) {
-				update_user_meta( $owner_id, $key, $sanitised );
+				update_user_meta( $owner_id, $key_prefix . $key, $sanitised );
 			} else {
-				update_post_meta( $owner_id, $key, $sanitised );
+				update_post_meta( $owner_id, $key_prefix . $key, $sanitised );
 			}
 			++$count;
 		}
@@ -514,9 +520,9 @@ final class FormCustomFields {
 			}
 
 			if ( 'user_meta' === $writer ) {
-				update_user_meta( $owner_id, $range_key, $combined );
+				update_user_meta( $owner_id, $key_prefix . $range_key, $combined );
 			} else {
-				update_post_meta( $owner_id, $range_key, $combined );
+				update_post_meta( $owner_id, $key_prefix . $range_key, $combined );
 			}
 			++$count;
 		}
@@ -606,12 +612,17 @@ final class FormCustomFields {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param array<int, array<string, mixed>> $groups   Same shape as render_groups().
-	 * @param int                              $owner_id Post / user / row id whose meta to read.
-	 * @param string                           $reader   'post_meta' | 'user_meta'. Default post_meta.
+	 * @since 1.7.1 Added $key_prefix — must match the prefix the values were
+	 *              written with. The returned array is still keyed by the bare
+	 *              field key, which is what the form state binds to.
+	 *
+	 * @param array<int, array<string, mixed>> $groups     Same shape as render_groups().
+	 * @param int                              $owner_id   Post / user / row id whose meta to read.
+	 * @param string                           $reader     'post_meta' | 'user_meta'. Default post_meta.
+	 * @param string                           $key_prefix Prepended to the meta key being read.
 	 * @return array<string, string> key => string-cast value.
 	 */
-	public static function load_values( array $groups, int $owner_id, string $reader = 'post_meta' ): array {
+	public static function load_values( array $groups, int $owner_id, string $reader = 'post_meta', string $key_prefix = '' ): array {
 		$values = array();
 		if ( $owner_id <= 0 ) {
 			return $values;
@@ -633,8 +644,8 @@ final class FormCustomFields {
 				}
 
 				$value = 'user_meta' === $reader
-					? get_user_meta( $owner_id, $key, true )
-					: get_post_meta( $owner_id, $key, true );
+					? get_user_meta( $owner_id, $key_prefix . $key, true )
+					: get_post_meta( $owner_id, $key_prefix . $key, true );
 
 				if ( 'date_range' === $type || 'salary_range' === $type ) {
 					// Split the stored JSON back into the two sub-keys the render
@@ -655,5 +666,70 @@ final class FormCustomFields {
 		}
 
 		return $values;
+	}
+
+	/**
+	 * Labelled answers for display surfaces (admin metabox, REST envelopes).
+	 *
+	 * Labels come from the live filter output, so a field removed from the
+	 * filter simply stops being listed even though its meta row survives —
+	 * intentional: a display surface has no label to show for it. Composite
+	 * range values are recombined into one readable string; multiselect and
+	 * repeater values arrive from load_values() already flattened.
+	 *
+	 * @since 1.7.1
+	 *
+	 * @param array<int, array<string, mixed>> $groups     Same shape as render_groups().
+	 * @param int                              $owner_id   Post / user / row id whose meta to read.
+	 * @param string                           $reader     'post_meta' | 'user_meta'. Default post_meta.
+	 * @param string                           $key_prefix Prepended to the meta key being read.
+	 * @return array<int, array{key:string,label:string,type:string,value:string}> Answered fields only.
+	 */
+	public static function labelled_values( array $groups, int $owner_id, string $reader = 'post_meta', string $key_prefix = '' ): array {
+		$values = self::load_values( $groups, $owner_id, $reader, $key_prefix );
+		$out    = array();
+
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) || empty( $group['fields'] ) ) {
+				continue;
+			}
+			foreach ( $group['fields'] as $field ) {
+				if ( ! is_array( $field ) ) {
+					continue;
+				}
+				$normalised = self::normalise_field( $field );
+				$key        = $normalised['key'];
+				if ( '' === $key ) {
+					continue;
+				}
+
+				if ( 'date_range' === $normalised['type'] || 'salary_range' === $normalised['type'] ) {
+					$parts = 'date_range' === $normalised['type'] ? array( 'from', 'to' ) : array( 'min', 'max' );
+					$from  = (string) ( $values[ $key . '__' . $parts[0] ] ?? '' );
+					$to    = (string) ( $values[ $key . '__' . $parts[1] ] ?? '' );
+					if ( '' !== $from && '' !== $to ) {
+						/* translators: 1: start of a date or salary range, 2: end of that range. */
+						$value = sprintf( __( '%1$s - %2$s', 'wp-career-board' ), $from, $to );
+					} else {
+						$value = '' !== $from ? $from : $to;
+					}
+				} else {
+					$value = (string) ( $values[ $key ] ?? '' );
+				}
+
+				if ( '' === $value ) {
+					continue;
+				}
+
+				$out[] = array(
+					'key'   => $key,
+					'label' => '' !== $normalised['label'] ? $normalised['label'] : $key,
+					'type'  => $normalised['type'],
+					'value' => $value,
+				);
+			}
+		}
+
+		return $out;
 	}
 }

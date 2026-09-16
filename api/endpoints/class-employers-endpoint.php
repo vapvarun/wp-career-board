@@ -116,6 +116,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_applications' ),
 				'permission_callback' => array( $this, 'get_applications_permissions_check' ),
+				'args'                => self::pagination_args(),
 			)
 		);
 
@@ -146,6 +147,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_applications' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+				'args'                => self::pagination_args(),
 			)
 		);
 	}
@@ -531,6 +533,13 @@ final class EmployersEndpoint extends RestController {
 			wp_update_post( $data );
 		}
 
+		// Adopt any of the owner's still-unlinked jobs. Create-time backfill only
+		// covers employers who had orphans on the day they made the company; a job
+		// orphaned afterwards (e.g. posted while the reciprocal user meta was
+		// missing) needs a later hook, and editing the profile is the one action
+		// every employer performs.
+		$this->backfill_orphan_jobs( (int) $post->post_author, (int) $post->ID );
+
 		return rest_ensure_response( $this->prepare_company( get_post( $post->ID ) ) );
 	}
 
@@ -581,8 +590,11 @@ final class EmployersEndpoint extends RestController {
 	 * Stamp _wcb_company_id onto jobs the user posted before they had a company.
 	 *
 	 * A job created before the company existed never received the postmeta, so it
-	 * stayed invisible once My Jobs switched to querying by company. Idempotent —
-	 * bounded to a single author's own jobs, so the unbounded query is safe here.
+	 * stayed invisible once My Jobs switched to querying by company. Idempotent.
+	 * Drained in batches of 500 — an agency account can carry thousands of jobs,
+	 * so the old unbounded fetch was a memory/time hazard on a request that also
+	 * has to return a REST response. Every fetched row is stamped, so the
+	 * orphan set strictly shrinks and the loop terminates.
 	 *
 	 * @since 1.2.0
 	 * @param int $user_id    Employer user ID.
@@ -594,42 +606,47 @@ final class EmployersEndpoint extends RestController {
 			return;
 		}
 
-		$orphans = get_posts(
-			array(
-				'post_type'      => 'wcb_job',
-				'author'         => $user_id,
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
-					'relation' => 'OR',
-					array(
-						'key'     => '_wcb_company_id',
-						'compare' => 'NOT EXISTS',
-					),
-					array(
-						'key'     => '_wcb_company_id',
-						'value'   => array( '', '0' ),
-						'compare' => 'IN',
-					),
-				),
-			)
-		);
+		// Raw title, not get_the_title(): this value is written to post meta and
+		// rendered on job cards. the_title filters (wptexturize) would persist
+		// "Smith &#038; Sons" into the database permanently (Basecamp 10300166572).
+		$company_name = (string) get_post_field( 'post_title', $company_id );
 
-		if ( ! $orphans ) {
-			return;
-		}
+		do {
+			$orphans = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'author'         => $user_id,
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; every row fetched is stamped, so the set shrinks each pass.
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-off backfill bounded to a single author's jobs.
+						'relation' => 'OR',
+						array(
+							'key'     => '_wcb_company_id',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_wcb_company_id',
+							'value'   => array( '', '0' ),
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
 
-		$company_name = get_the_title( $company_id );
-		foreach ( $orphans as $job_id ) {
-			update_post_meta( $job_id, '_wcb_company_id', $company_id );
-			update_post_meta( $job_id, '_wcb_company_name', $company_name );
-		}
+			$batch_size = count( $orphans );
+			foreach ( $orphans as $job_id ) {
+				update_post_meta( (int) $job_id, '_wcb_company_id', $company_id );
+				update_post_meta( (int) $job_id, '_wcb_company_name', $company_name );
+			}
+		} while ( 500 === $batch_size );
 	}
 
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
-		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
+		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
 		if ( $company_id ) {
 			$company = get_post( $company_id );
 			if ( $company instanceof \WP_Post && 'wcb_company' === $company->post_type ) {
@@ -659,8 +676,8 @@ final class EmployersEndpoint extends RestController {
 		// BEFORE completing their company profile saw "No applicants" and a 0
 		// dashboard badge even with real applications on file.
 		global $wpdb;
-		$wcb_job_ids     = wp_list_pluck( $query->posts, 'ID' );
-		$wcb_app_counts  = array();
+		$wcb_job_ids    = wp_list_pluck( $query->posts, 'ID' );
+		$wcb_app_counts = array();
 		if ( ! empty( $wcb_job_ids ) ) {
 			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
 			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
@@ -744,7 +761,7 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
-		$is_owner    = is_user_logged_in() && (int) get_user_meta( get_current_user_id(), '_wcb_company_id', true ) === (int) $company->ID;
+		$is_owner    = is_user_logged_in() && \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
 
@@ -867,9 +884,7 @@ final class EmployersEndpoint extends RestController {
 		// as the other employer views (R1: single source of truth).
 		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql  = $wpdb->prepare(
-			"SELECT app.ID, app.post_date
-			 FROM {$wpdb->posts} app
+		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
@@ -879,15 +894,23 @@ final class EmployersEndpoint extends RestController {
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
 			   AND app.post_status = 'publish'
-			   AND pm_co.meta_value = %d
-			 ORDER BY app.post_date DESC
-			 LIMIT 20",
-			$company_id
+			   AND pm_co.meta_value = %s";
+
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", (string) $company_id ) );
+
+		list( $paged, $per_page ) = self::paging( $request );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
+				(string) $company_id,
+				$per_page,
+				( $paged - 1 ) * $per_page
+			)
 		);
-		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		return $this->build_applications_response( (array) $rows, $request );
+		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
 	}
 
 	/**
@@ -909,9 +932,7 @@ final class EmployersEndpoint extends RestController {
 		$user_id       = get_current_user_id();
 		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql  = $wpdb->prepare(
-			"SELECT app.ID, app.post_date
-			 FROM {$wpdb->posts} app
+		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
@@ -919,15 +940,23 @@ final class EmployersEndpoint extends RestController {
 			       AND job.post_status IN ({$wcb_status_in})
 			       AND job.post_author = %d
 			 WHERE app.post_type   = 'wcb_application'
-			   AND app.post_status = 'publish'
-			 ORDER BY app.post_date DESC
-			 LIMIT 20",
-			$user_id
+			   AND app.post_status = 'publish'";
+
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", $user_id ) );
+
+		list( $paged, $per_page ) = self::paging( $request );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
+				$user_id,
+				$per_page,
+				( $paged - 1 ) * $per_page
+			)
 		);
-		$rows = $wpdb->get_results( $sql );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		return $this->build_applications_response( (array) $rows, $request );
+		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
 	}
 
 	/**
@@ -943,9 +972,11 @@ final class EmployersEndpoint extends RestController {
 	 * @param  \WP_REST_Request   $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	private function build_applications_response( array $rows, \WP_REST_Request $request ): \WP_REST_Response {
+	private function build_applications_response( array $rows, \WP_REST_Request $request, int $total, int $paged, int $per_page ): \WP_REST_Response {
+		$pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 0;
+
 		if ( empty( $rows ) ) {
-			return $this->build_envelope( 'applications', array(), 0, 0, 1 );
+			return $this->build_envelope( 'applications', array(), $total, $pages, $paged );
 		}
 
 		// Prime meta cache once for the application IDs so the per-row
@@ -978,8 +1009,13 @@ final class EmployersEndpoint extends RestController {
 		}
 		_prime_post_caches( $wcb_app_ids, false, false );
 
+		// Field groups are resolved per job, memoised across rows — the filter can
+		// hit the DB (Pro Field Builder), and a 500-row page must not re-run it
+		// once per application.
+		$wcb_groups_memo = array();
+
 		$items = array_map(
-			static function ( object $row ) use ( $request ): array {
+			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
 				$app_id         = (int) $row->ID;
 				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
@@ -987,18 +1023,18 @@ final class EmployersEndpoint extends RestController {
 				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				$prepared = array(
-					'id'              => $app_id,
-					'job_id'          => $job_id,
-					'job_title'       => $job_id > 0 ? get_the_title( $job_id ) : '',
-					'applicant_name'  => $candidate_user
+					'id'                 => $app_id,
+					'job_id'             => $job_id,
+					'job_title'          => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
+					'applicant_name'     => $candidate_user
 					? $candidate_user->display_name
 					: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
-					'applicant_email' => $candidate_user
+					'applicant_email'    => $candidate_user
 					? $candidate_user->user_email
 					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					'status'          => '' !== $status_raw ? $status_raw : 'submitted',
+					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
 					// Localised label for display, alongside the raw slug for CSS/logic.
-					'statusLabel'     => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
+					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
 					// dashboard sorts and date-filters it with new Date() in JS. The
 					// localised display string is a SEPARATE sibling so a translated
@@ -1006,6 +1042,16 @@ final class EmployersEndpoint extends RestController {
 					// silently break the recency sort + "new this week" stat).
 					'submitted_at'       => get_the_date( 'c', $app_id ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
+				);
+
+				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
+					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
+				}
+				$prepared['custom_fields'] = \WCB\Core\FormCustomFields::labelled_values(
+					$wcb_groups_memo[ $job_id ],
+					$app_id,
+					'post_meta',
+					ApplicationsEndpoint::FIELD_META_PREFIX
 				);
 
 				$application_post = get_post( $app_id );
@@ -1016,11 +1062,57 @@ final class EmployersEndpoint extends RestController {
 			$rows
 		);
 
-		// This endpoint always returns the latest 20 with no pagination — total
-		// equals returned count and pages is 1 so consumers can use the same
-		// envelope shape as paginated lists.
-		$count = count( $items );
-		return $this->build_envelope( 'applications', $items, $count, $count > 0 ? 1 : 0, 1 );
+		return $this->build_envelope( 'applications', $items, $total, $pages, $paged );
+	}
+
+	/**
+	 * The `page` / `per_page` args every paginated list on this endpoint shares.
+	 *
+	 * Declared rather than read loosely from the request so an out-of-range
+	 * `per_page` is rejected by the schema instead of reaching a LIMIT clause.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function pagination_args(): array {
+		// validate_callback is explicit on purpose: `minimum` / `maximum` in a
+		// route arg are inert without it — core only runs schema validation for
+		// args that name a validator — so declaring a ceiling and omitting this
+		// advertises a limit nothing enforces.
+		return array(
+			'page'     => array(
+				'type'              => 'integer',
+				'default'           => 1,
+				'minimum'           => 1,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+			'per_page' => array(
+				'type'              => 'integer',
+				'default'           => 20,
+				'minimum'           => 1,
+				'maximum'           => 100,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+		);
+	}
+
+	/**
+	 * Resolve the requested page window.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return array{0:int,1:int} [ paged, per_page ]
+	 */
+	private static function paging( \WP_REST_Request $request ): array {
+		$paged    = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = (int) $request->get_param( 'per_page' );
+		$per_page = $per_page > 0 ? min( 100, $per_page ) : 20;
+
+		return array( $paged, $per_page );
 	}
 
 	/**
@@ -1200,22 +1292,38 @@ final class EmployersEndpoint extends RestController {
 		}
 		$logo        = get_the_post_thumbnail_url( $post->ID, 'medium' );
 		$trust_level = (string) get_post_meta( $post->ID, '_wcb_trust_level', true );
-		$data        = array(
-			'id'           => $post->ID,
-			'name'         => $post->post_title,
-			'description'  => $post->post_content,
-			'logo'         => $logo ? $logo : '',
-			'tagline'      => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
-			'website'      => (string) get_post_meta( $post->ID, '_wcb_website', true ),
-			'industry'     => (string) get_post_meta( $post->ID, '_wcb_industry', true ),
-			'size'         => (string) get_post_meta( $post->ID, '_wcb_company_size', true ),
-			'hq'           => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
-			'company_type' => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
-			'founded'      => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
-			'linkedin'     => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
-			'twitter'      => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
-			'trust_level'  => $trust_level ? $trust_level : 'new',
-			'permalink'    => get_permalink( $post->ID ),
+		$trust_level = $trust_level ? $trust_level : 'new';
+		$trust_info  = \WCB\Core\CompanyMetaShape::trust_badge_info( $trust_level );
+
+		// Shared shape, not a second hand-rolled read: this route used to return
+		// `industry` and `size` as bare slugs while /companies returned them
+		// alongside localised labels, so the same company read as "technology"
+		// here and "Technology & Software" there. CompanyMetaShape's own
+		// docblock records that fix landing in 1.5.1 — it reached the list
+		// endpoint and never reached this one.
+		$shape = \WCB\Core\CompanyMetaShape::serialize( $post->ID );
+
+		$data = array(
+			'id'             => $post->ID,
+			'name'           => $post->post_title,
+			'description'    => $post->post_content,
+			'logo'           => $logo ? $logo : '',
+			'tagline'        => $shape['tagline'],
+			'website'        => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'industry'       => $shape['industry'],
+			'industry_label' => $shape['industry_label'],
+			'size'           => $shape['size'],
+			'size_label'     => $shape['size_label'],
+			'hq'             => $shape['hq'],
+			'company_type'   => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
+			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
+			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'trust_level'    => $trust_level,
+			'trust_label'    => $trust_info['label'] ?? '',
+			'trust_icon'     => $trust_info['icon'] ?? '',
+			'verified'       => null !== $trust_info,
+			'permalink'      => get_permalink( $post->ID ),
 		);
 
 		// Employer endpoint shapes a company sub-resource — fires the same

@@ -45,10 +45,11 @@ final class CronRegistry {
 	 * corresponds to a class that calls `wp_schedule_event( ..., $hook )`
 	 * during its boot path:
 	 *
-	 *   wcb_check_job_expiry        ← modules/jobs/class-jobs-expiry.php
-	 *   wcb_send_deadline_reminders ← modules/jobs/class-deadline-reminders.php (HOOK const)
-	 *   wcb_expire_featured_jobs    ← modules/jobs/class-featured-expiry.php (HOOK const)
-	 *   wcb_prune_job_views         ← modules/jobs/class-job-views-retention.php (HOOK const)
+	 *   wcb_check_job_expiry           ← modules/jobs/class-jobs-expiry.php
+	 *   wcb_send_deadline_reminders    ← modules/jobs/class-deadline-reminders.php (HOOK const)
+	 *   wcb_expire_featured_jobs       ← modules/jobs/class-featured-expiry.php (HOOK const)
+	 *   wcb_prune_job_views            ← modules/jobs/class-job-views-retention.php (HOOK const)
+	 *   wcb_process_account_deletions  ← modules/account/class-account-deletion-service.php (CRON_HOOK const)
 	 *
 	 * @since 1.1.1
 	 *
@@ -60,6 +61,7 @@ final class CronRegistry {
 			'wcb_send_deadline_reminders',
 			'wcb_expire_featured_jobs',
 			'wcb_prune_job_views',
+			'wcb_process_account_deletions',
 		);
 	}
 }

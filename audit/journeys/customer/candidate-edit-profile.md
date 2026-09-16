@@ -31,6 +31,6 @@ wp user update $(wp user get sarah.chen --field=ID) --display_name="Sarah Chen"
 
 ## Notes
 
-- sarah.chen is user ID 51 on the job-portal.local seed. Confirm with `wp user get sarah.chen --field=ID`.
+- User IDs differ per site: resolve with `wp --path="$WCB_PATH" user get sarah.chen --field=ID`. Confirm with `wp user get sarah.chen --field=ID`.
 - Skills may be stored as serialized meta on the `wcb_resume` post — check `_wcb_skills` meta key if the REST response omits them.
 - Avatar upload may delegate to WP core's media library; the `attachment_id` returned should be a valid attachment post.

@@ -10,11 +10,21 @@ covers: blocks/job-form (wcb/job-form), POST /wcb/v1/jobs, GET /wcb/v1/jobs/{id}
 
 # Walkthrough: Post a Job — open the multi-step form, clear the free-posting credits gate, pick a board you belong to, submit into moderation, go live
 
+> **Set these two first.** Every command and URL below uses them, so the
+> walkthrough runs on any machine rather than the one it was written on:
+>
+> ```bash
+> WCB_PATH="$(cd "$(git rev-parse --show-toplevel)/../../.." && pwd)"
+> WCB_SITE="$(wp --path="$WCB_PATH" option get home)"
+> ```
+>
+> `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
+
 **Why this journey exists:** Post-a-Job is the plugin's #1 money path for the employer actor. This walkthrough traces the full happy path a real employer takes — open the 4-step `wcb/job-form` block, confirm posting is FREE by default (credits are opt-in, no nag), confirm the board picker only lists boards the employer belongs to, fill Basics → Details → Categories → Preview, submit to `POST /wcb/v1/jobs`, see the "submitted for review" confirmation (default moderation), then have an admin publish it so it appears in Find Jobs. Consolidates `customer/walkthrough-employer-post-job`, `customer/employer-post-job`, `system/credits-opt-in-free-posting`, and `customer/employer-boards-picker-respects-membership`.
 
 ## Steps
 
-1. As `employer.figma`, navigate to `http://jobboard.local/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). NOT the `.wcb-job-form-gate` "Please sign in as an employer" notice (renders only when logged-out or lacking `wcb/post-jobs`, `blocks/job-form/render.php:26-44`).
+1. As `employer.figma`, navigate to `$WCB_SITE/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). NOT the `.wcb-job-form-gate` "Please sign in as an employer" notice (renders only when logged-out or lacking `wcb/post-jobs`, `blocks/job-form/render.php:26-44`).
 
 2. **Free-posting gate (credits are opt-in)** — expect NO "purchase more credits" / "requires N credits" nag and the Next / Post Job buttons enabled, even with a 0-credit balance. On the default Main Board the cost resolves to `0` from both surfaces: `apply_filters('wcb_board_credit_cost', 0, <main_board_id>)` returns `0`, and (Pro) the SDK `job_post` consumer cost callable returns `0` — gate and hold agree via `BoardSettings::get()` defaults. Guards Basecamp 9976885975 (default cost was wrongly 1, blocking free posting out of the box).
 
@@ -28,15 +38,15 @@ covers: blocks/job-form (wcb/job-form), POST /wcb/v1/jobs, GET /wcb/v1/jobs/{id}
 
 7. **Step 4 (Preview)** — expect `.wcb-preview-card` to mirror the entered data: `.wcb-preview-card__title` = the job title, `.wcb-cbadge--remote` visible (remote ticked), and `.wcb-preview-meta-item` salary string from `state.salaryDisplay` (e.g. `USD 60,000 – 90,000/yr`).
 
-8. Click submit `.wcb-btn--primary[data-wp-on--click="actions.submitJob"]` (label "Post Job" via `state.submitLabel`) → expect a single `POST http://jobboard.local/wp-json/wcb/v1/jobs` carrying header `X-WP-Nonce` and JSON body `{ title, description, salary_min:"60000", salary_max:"90000", salary_currency:"USD", salary_type:"yearly", remote:true, deadline, categories:[…], job_types:[…], locations:[…], experience:[…], tags:["react","typescript","node-js"], board_id, custom_fields:{}, hp:"" }` (assembled `blocks/job-form/view.js:403-477`).
+8. Click submit `.wcb-btn--primary[data-wp-on--click="actions.submitJob"]` (label "Post Job" via `state.submitLabel`) → expect a single `POST $WCB_SITE/wp-json/wcb/v1/jobs` carrying header `X-WP-Nonce` and JSON body `{ title, description, salary_min:"60000", salary_max:"90000", salary_currency:"USD", salary_type:"yearly", remote:true, deadline, categories:[…], job_types:[…], locations:[…], experience:[…], tags:["react","typescript","node-js"], board_id, custom_fields:{}, hp:"" }` (assembled `blocks/job-form/view.js:403-477`).
 
 9. Expect HTTP `201` with body `{ id, status:"pending", permalink }` — default `auto_publish_jobs` is OFF (`admin/class-admin-settings.php:8`), so `create_item()` stores `post_status = pending` (`api/endpoints/class-jobs-endpoint.php:544-545`, filterable via `wcb_job_default_status`). The success panel `.wcb-form-success--show` appears and `.wcb-form-success__title` shows "Job submitted for review. You'll be notified once it's approved." (published copy + "View your job listing →" link stay hidden while `state.jobPending` is true, view.js:489-492).
 
 10. Confirm the free-posting credit outcome: with cost 0 the employer's credit balance is UNCHANGED (no hold, no deduction). (Only when a board is monetized — `_wcb_board_settings.credit_cost` set to e.g. 3 — do the gate, the SDK hold, and the ledger all read 3; see `system/credit-decrement`.)
 
-11. As `varundubey` (admin), navigate to `http://jobboard.local/wp-admin/edit.php?post_type=wcb_job&post_status=pending&autologin=varundubey` → expect HTTP 200 and the new job listed under Pending review. Approve it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
+11. As `varundubey` (admin), navigate to `$WCB_SITE/wp-admin/edit.php?post_type=wcb_job&post_status=pending&autologin=varundubey` → expect HTTP 200 and the new job listed under Pending review. Approve it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
 
-12. As anonymous, navigate to `http://jobboard.local/find-jobs/` → expect HTTP 200 and the now-published job title visible (the archive queries `post_status = publish` only — pending jobs never appear here). Confirm the D-guard: GET `http://jobboard.local/wp-json/wcb/v1/jobs/<id>` → response body contains non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq`, and MUST NOT contain `apply_email` (Basecamp 9871740742 + `security/anonymous-job-no-email-leak`).
+12. As anonymous, navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible (the archive queries `post_status = publish` only — pending jobs never appear here). Confirm the D-guard: GET `$WCB_SITE/wp-json/wcb/v1/jobs/<id>` → response body contains non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq`, and MUST NOT contain `apply_email` (Basecamp 9871740742 + `security/anonymous-job-no-email-leak`).
 
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 

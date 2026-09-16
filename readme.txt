@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.0
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,70 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.7.1 - September 2026 =
+
+Companion-app parity release: members can now do in the app what they can do on the website, with a wave of frontend, admin and data-integrity fixes alongside it.
+
+* New      - Site owners can add, rename and retire the industries offered on job and company forms, from Settings > Industries. They were previously fixed in code, and a retired industry kept reappearing as a directory filter.
+* New      - Employers can set an opt-in cap on how many jobs they keep active at once, superseded automatically when credits are in use.
+* New      - Application custom-field answers are readable in the employer dashboard, the admin application screen and the REST API. They were saved but never shown anywhere.
+* New      - The statuses an employer can set on an application are published to companion apps, so an app shows your site's statuses in your site's language instead of its own built-in list.
+* New      - Members can delete their own account from the candidate dashboard, with a 14 day grace period they can cancel during. Previously the button only queued a request for an administrator to action by hand.
+* New      - New Settings > Mobile App tab: brand the companion app with an accent colour, logo, sign-in background and dark mode default, and publish your terms, privacy policy, community guidelines and abuse contact. These were served to the app with no way to set them.
+* New      - New Settings > Privacy tab: read the GDPR request log, see which accounts are scheduled for deletion, and cancel a pending deletion.
+* New      - Content width for Career Board pages is now a setting under Settings > Job Listings, where 0 follows your theme. It was previously changeable only in code.
+* Improve  - Signing in to the app with your website password is now an opt-in setting, off by default, with a switch under Settings > Job Listings. The app's "Connect with WordPress" option still works without it.
+* Improve  - Signing out of the app now revokes that device's access key on the site, instead of leaving it valid until someone deletes it by hand.
+* Improve  - Sign-in rate limits read the real visitor address behind a proxy once you name your proxy's header, and both limits are adjustable. On a site behind Cloudflare or a load balancer the old behaviour could lock out every member at once.
+* Improve  - The company directory and the single company API now return the same localised industry, size and verification labels. The single company response previously returned raw values such as "technology".
+* Improve  - Employer application lists accept page and per_page properly instead of silently returning only the most recent 20.
+* Improve  - Faster on large sites: deadline reminders resolve their recipients in one indexed query, AI applicant scoring is queued once per job instead of once per applicant, the Boards admin list batches its job and stage counts, and several list queries no longer defeat their database index.
+* Improve  - Searching the admin Applications list is far faster on large sites, and no longer scans every job and user row on each search.
+* Improve  - Settings buttons across the plugin now carry the plugin's own button styling, and the License tab controls match the settings design instead of rendering as unstyled WordPress defaults.
+* Improve  - Other plugins' admin notices no longer crowd Career Board screens. The plugin's own success and error messages still show.
+* Improve  - Member reports can be dismissed from the Candidates screen. Nothing ever cleared them, so the warning badge was permanent.
+* Fix      - The company directory showed the wrong number of open positions on every card wherever one person created the company profiles. Counts now follow the job to company link.
+* Fix      - Load more on a company profile no longer lists other companies' jobs.
+* Fix      - Applications now appear on the Kanban board, and new boards ship with a default set of pipeline stages instead of none.
+* Fix      - Jobs and resumes are geocoded whenever they are saved, including from wp-admin, not only when created through the API.
+* Fix      - Posting a job no longer loses the link to your company when the company profile was created by an import, an administrator or the setup wizard.
+* Fix      - Jobs imported from WP Job Manager now trigger the same follow-up actions as jobs created normally, so alerts and geocoding run for them.
+* Fix      - Scheduled account deletions survive deactivating and reactivating the plugin.
+* Fix      - Bullet and numbered lists in job descriptions render as lists again instead of flat, unindented lines.
+* Fix      - Excerpts no longer run words together where two paragraphs meet, on job cards, the single job page, social share previews and the API.
+* Fix      - Company names containing an ampersand displayed as "&#038;" on job cards, and the upgrade routine rewrote correct names into that form.
+* Fix      - Employers saw job titles as raw codes such as "&#8211;" in their applications list, and the same routine wrote entity-encoded company names into the database where they reached every visitor. Names already stored that way are repaired on update.
+* Fix      - Job alerts matched the saved search against an encoded title, so an alert for a term containing an ampersand never matched and no mail was sent.
+* Fix      - Three dropdowns on Reign rendered as plain boxes with no arrow, including the resume picker on the apply form, because the plugin overwrote the arrow the theme supplies.
+* Fix      - The employer login redirect no longer overrides the site's own login-redirect setting or another plugin's. Employers with no other destination set still land on the employer dashboard.
+* Fix      - The bookmark button no longer overlaps long job titles on listing cards.
+* Fix      - The largest company-size filter on the company directory returned nothing, because it offered a value the admin screen never saves.
+* Fix      - Company sizes of 5,001 or more employees showed as a raw "5001+" everywhere except the company profile block.
+* Fix      - Career Board blocks placed in a widget area, template part or page-builder region now pick up the Reign and BuddyX Pro styling, which previously loaded only inside post content.
+* Fix      - The Resumes admin screen offered "Search Posts" and other generic wording where it should say Resumes.
+* Fix      - The Companies page the plugin creates was unreachable, because it took the same address as the company directory and WordPress served the directory instead. Existing sites are repaired on update, and no working link changes.
+* Fix      - New sites were set up with two competing sets of job filters on the same page, backed by two mechanisms that never agreed.
+* Fix      - Saving the Pages tab on a site without Pro cleared the resume archive page setting.
+* Fix      - Defaults disagreed between the website and the companion app. The app was told application withdrawal was off while the website allowed it, and job lists returned 15 per page over the API against 10 on the page.
+* Fix      - The captcha setting never reached the companion app, so the app was told no captcha was required and its submissions were then rejected for a missing token.
+* Fix      - A theme's own job, company and resume templates are used again instead of being replaced by the plugin's copies, which the plugin's own documentation had always promised.
+* Fix      - On a site without Pro, a Get Job Alerts card and a Saved Resumes tab pointed at features that are not installed.
+* Fix      - Saving a Career Board settings tab now keeps you on that tab. It previously returned you to whichever tab the page opened with, so the panel you had just saved was not the one you were looking at.
+* Security - Job alerts could be edited or deleted by any signed-in candidate, not only their owner.
+* Security - The Kanban board could be read by employers who did not own the job, exposing other employers' applicant details.
+* Security - Applications were readable by anonymous callers through the WordPress REST API, exposing applicant names, email addresses and cover letters.
+* Security - Resumes no candidate had opted to list were served by the WordPress REST API and advertised in the sitemap. A resume also stayed readable by its direct link or ID even once the listing was narrowed, so the opt-in is now enforced on every way a resume can be read.
+* Security - Suspended members could still bookmark jobs and upload a resume, and the candidate role requirement was ignored on both.
+* Dev      - New `wcb_employer_login_redirect_enabled` filter turns the employer login redirect off entirely, for sites that route employers somewhere else.
+* Dev      - REST arguments now enforce the minimum, maximum and allowed values they declare. Requests that exceed a declared page size return a clear error instead of being silently trimmed.
+* Dev      - Companion apps can discover the resume section structure from the API, so a client can build a resume form without hardcoding field names, and a site that adds its own section gets it automatically.
+* Dev      - New filters for sign-in limits, the trusted proxy header, employer-settable statuses, and the resume schema.
+* Dev      - The wcb_industries filter still runs after the saved setting, so a site that filters the list in PHP keeps precedence over the admin screen.
+* Dev      - The wcb_guest_applications_claimed action is now documented in the hook reference.
+* Dev      - The company-archive and company-profile blocks declared incomplete editor dependencies and loaded correctly only by accident of load order.
+* Dev      - New wcb_resume_rest_query_args and wcb_resume_sitemap_query_args filters for the resume listing narrowings.
+* Dev      - New wcb_scale_ops and wcb_scale_budgets filters let an addon register its own hot paths with wp wcb scale benchmark.
 
 = 1.7.0 - July 2026 =
 

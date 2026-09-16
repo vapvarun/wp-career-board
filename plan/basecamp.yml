@@ -1,0 +1,65 @@
+# Basecamp ledger config for WP Career Board (free + pro share one board).
+#
+# Read by wppqa_learn_from_basecamp, which writes plan/basecamp/ledger.md +
+# ledger.json + a per-card cache. The ledger is what stops a card being
+# re-researched from zero: fix SHAs, reopen patterns, module hot-spots and
+# title-similarity duplicate detection all persist across sessions.
+#
+# The tool does NOT talk to Basecamp. Fetch the listings named in its `needsFetch`
+# reply via the basecamp CLI, then call it again with them.
+project_id: 46502739
+project_url: https://3.basecamp.com/5798509/buckets/46502739
+
+# Column name -> Basecamp column id. Names are free-form but must stay stable:
+# they key the cache and the ledger's per-column history.
+#
+# This board has no "UI issues" column; UI defects are filed in Bugs like any
+# other. `triage` and `in_testing` are board-specific and listed because cards
+# genuinely sit in them.
+columns:
+  triage: 9681375106
+  bugs: 9691964821
+  in_progress: 9681375109
+  ready_for_testing: 9681375659
+  in_testing: 9681375773
+  done: 9681375111
+
+# Deliberately NOT bug sources. The ledger tracks defects, not backlog:
+#   Not now        9681375107
+#   Scope          9681375511
+#   Figuring it out 9681375108
+# Listing them would pollute hot-spot and duplicate detection with ideas nobody
+# has found broken.
+
+# Where new cards go. Every finding a QA walk produces is filed in `intake`,
+# including cleanup and tech-debt shapes.
+intake: bugs
+
+verdict_targets:
+  PASS: done
+  BOUNCE: bugs
+  BLOCKED: null      # stays put; the comment says what is needed
+  REFUTED: done
+  # Bugs-column verdicts (a report, not a fix — wp-card-qa §5).
+  CONFIRMED: null    # stays in bugs, now triaged and ready for a developer
+  CANNOT-REPRO: null # stays put; the comment says exactly what was tried
+  NEEDS-INFO: null   # stays put until the reporter answers
+
+# Cards this plugin pair has bounced more than once. Re-read before re-walking
+# anything in the same module — a second bounce is usually the same root cause
+# one layer up from where the first fix landed.
+known_reopen_patterns:
+  - card: 10301056989
+    module: modules/resume
+    note: >
+      Resume access. Bounced once for a render/save asymmetry: the save path was
+      moved to a three-value normaliser and one of the two RENDER lines was not,
+      so the stored value was silently rewritten on the next save. When touching
+      a setting that gains a value, check the render path as well as the save.
+  - card: 10171650688
+    module: audit/manifest.json
+    note: >
+      Manifest drift. Bounced twice. A targeted delta keeps leaving
+      rest.endpoints[] behind, and searching the file for a route path finds
+      hits in refresh_notes prose while the array omits it. Gated since
+      1.7.1 by bin/check-route-callers.php.

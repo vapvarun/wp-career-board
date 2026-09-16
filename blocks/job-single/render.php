@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/job-single — enterprise-grade job detail with apply panel.
+ * Block render: wp-career-board/job-single — enterprise-grade job detail with apply panel.
  *
  * @package WP_Career_Board
  * @since   1.0.0
@@ -101,7 +101,7 @@ $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 // the sidebar card never shows an empty space when an employer skipped the
 // long-form description.
 $wcb_company_desc     = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
-	? wp_trim_words( $wcb_company_post->post_content, 40 )
+	? \WCB\Core\Text::excerpt( $wcb_company_post->post_content, 40 )
 	: $wcb_company_tagline;
 $wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
 $wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
@@ -155,6 +155,16 @@ if ( $wcb_show_apply && is_user_logged_in() ) {
 	if ( $wcb_is_employer_user ) {
 		$wcb_show_apply = false;
 	}
+}
+
+// Applications close once the advertised deadline has passed. Independent of
+// the deadline_auto_close setting: that decides whether the post status flips
+// to wcb_expired, not whether this page tells the candidate the truth. The
+// endpoint refuses these submissions too, so showing the form here would only
+// send someone to write a cover letter for a role that has closed.
+$wcb_deadline_passed = \WCB\Core\JobDeadline::has_passed( $wcb_job_id );
+if ( $wcb_deadline_passed ) {
+	$wcb_show_apply = false;
 }
 
 $wcb_dashboard_url = '';
@@ -412,6 +422,14 @@ wp_interactivity_state(
 				>
 				<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 				</a>
+			<?php elseif ( $wcb_deadline_passed ) : ?>
+				<p class="wcb-applications-closed">
+				<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+				<?php
+				/* translators: %s: the date applications closed. */
+				printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
+				?>
+				</p>
 			<?php elseif ( $wcb_show_apply ) : ?>
 				<?php if ( $wcb_apply_external ) : ?>
 					<a
@@ -665,6 +683,14 @@ wp_interactivity_state(
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
+				<?php elseif ( $wcb_deadline_passed ) : ?>
+					<p class="wcb-applications-closed wcb-applications-closed--center">
+					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php
+					/* translators: %s: the date applications closed. */
+					printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
+					?>
+					</p>
 				<?php elseif ( $wcb_show_apply ) : ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a

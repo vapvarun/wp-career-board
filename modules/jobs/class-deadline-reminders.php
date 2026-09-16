@@ -112,40 +112,49 @@ final class DeadlineReminders {
 		global $wpdb;
 
 		// Bookmarkers — non-unique usermeta `_wcb_bookmark` row per saved job.
+		// String compare: add_user_meta stores the job id as a string, and an
+		// unquoted %d would make MySQL convert the meta_value column instead of
+		// the literal, costing the meta_key index path.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$bookmarker_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_wcb_bookmark' AND meta_value = %d",
-				$job_id
+				"SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_wcb_bookmark' AND meta_value = %s",
+				(string) $job_id
 			)
 		);
+
+		$bookmarker_ids = array_values( array_filter( array_map( 'intval', $bookmarker_ids ) ) );
 
 		if ( empty( $bookmarker_ids ) ) {
 			return;
 		}
 
-		// Candidates who already applied to this job.
-		$applied = get_posts(
-			array(
-				'post_type'      => 'wcb_application',
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					array(
-						'key'   => '_wcb_job_id',
-						'value' => $job_id,
-					),
-				),
+		// Which of those bookmarkers already applied. Resolved in ONE indexed
+		// query joining the application's job id to its candidate id, scoped to
+		// the bookmarkers we actually hold. This used to fetch every application
+		// for the job with posts_per_page => -1 and then call get_post_meta()
+		// per row (unbounded load + N+1 inside a cron tick); a popular job near
+		// its deadline made that thousands of queries per sweep.
+		$wcb_placeholders = implode( ', ', array_fill( 0, count( $bookmarker_ids ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wcb_placeholders is a generated %s list, every value is bound below.
+		$applied_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT cand.meta_value
+				 FROM {$wpdb->postmeta} job_meta
+				 INNER JOIN {$wpdb->postmeta} cand
+				         ON cand.post_id = job_meta.post_id
+				        AND cand.meta_key = '_wcb_candidate_id'
+				 WHERE job_meta.meta_key = '_wcb_job_id'
+				   AND job_meta.meta_value = %s
+				   AND cand.meta_value IN ( {$wcb_placeholders} )",
+				array_merge( array( (string) $job_id ), array_map( 'strval', $bookmarker_ids ) )
 			)
 		);
 
 		$applied_user_ids = array();
-		foreach ( $applied as $app_id ) {
-			$cid = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-			if ( $cid > 0 ) {
-				$applied_user_ids[ $cid ] = true;
-			}
+		foreach ( $applied_ids as $wcb_applied_id ) {
+			$applied_user_ids[ (int) $wcb_applied_id ] = true;
 		}
 
 		$flag_key = '_wcb_deadline_reminded_' . $job_id . '_' . $days_left;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Block render: wcb/company-profile — LinkedIn-style public company profile page.
+ * Block render: wp-career-board/company-profile — LinkedIn-style public company profile page.
  *
  * WordPress injects:
  *   $attributes  (array)    Block attributes defined in block.json.
@@ -71,23 +71,10 @@ $wcb_trust_map  = array(
 $wcb_trust_info = $wcb_trust_map[ $wcb_trust ] ?? null;
 
 // ── Size labels ───────────────────────────────────────────────────────────────
-/*
- * `5001+` is the only top-bucket slug the admin meta box ever writes
- * (admin/class-admin-meta-boxes.php $allowed_sizes). The `5000+` key is kept
- * for rows saved by older releases; without the `5001+` entry the profile
- * printed the raw, untranslatable slug "5001+" to visitors.
- */
-$wcb_size_labels = array(
-	'1-10'      => __( '1-10 employees', 'wp-career-board' ),
-	'11-50'     => __( '11-50 employees', 'wp-career-board' ),
-	'51-200'    => __( '51-200 employees', 'wp-career-board' ),
-	'201-500'   => __( '201-500 employees', 'wp-career-board' ),
-	'501-1000'  => __( '501-1,000 employees', 'wp-career-board' ),
-	'1001-5000' => __( '1,001-5,000 employees', 'wp-career-board' ),
-	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
-	'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
-);
-$wcb_size_label  = $wcb_size_labels[ $wcb_size ] ?? $wcb_size;
+// One source of truth. This file used to carry a verbatim copy of the map in
+// admin/class-admin-meta-boxes.php, and the two drifted — the copy here knew
+// about `5001+`, the shared helper did not (Basecamp 10074197007, item 3).
+$wcb_size_label = \WCB\Core\CompanyMetaShape::size_label( $wcb_size );
 
 // ── Company type labels ───────────────────────────────────────────────────────
 /*
@@ -362,13 +349,14 @@ wp_interactivity_state(
 		wp_interactivity_state(
 			'wcb-company-profile',
 			array(
-				'jobs'      => $wcb_cp_jobs_state,
-				'page'      => 1,
-				'perPage'   => $wcb_cp_per_page,
-				'author'    => $wcb_cp_author_id,
-				'loading'   => false,
-				'hasMore'   => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
-				'hasNoJobs' => empty( $wcb_cp_jobs_state ),
+				'jobs'        => $wcb_cp_jobs_state,
+				'page'        => 1,
+				'perPage'     => $wcb_cp_per_page,
+				'author'      => $wcb_cp_author_id,
+				'companyId'   => (int) $wcb_company->ID,
+				'loading'     => false,
+				'hasMore'     => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
+				'hasNoJobs'   => empty( $wcb_cp_jobs_state ),
 				// Distinct key from the companies `apiBase` set above — both calls
 				// merge into the same store, so reusing `apiBase` here clobbered the
 				// bookmark route (company save POSTed to /jobs/{id}/bookmark).

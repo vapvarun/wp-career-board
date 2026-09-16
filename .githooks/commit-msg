@@ -1,0 +1,14 @@
+#!/bin/sh
+# Reject AI attribution trailers. House rule: no Co-Authored-By: Claude,
+# no Claude-Session, no "Generated with Claude" footer — in any commit, ever.
+# Added after 14 commits across the free/pro pair shipped with them anyway
+# and a public history rewrite was needed to remove them (see CLAUDE.md).
+#
+# Anchored to line start on purpose: a trailer is its own line. Without the
+# anchor this also blocked commit messages that merely NAME the trailers,
+# such as the one that introduced this hook.
+if grep -qiE '^[[:space:]]*(Co-Authored-By:[[:space:]]*Claude|Claude-Session:|.?[[:space:]]*Generated with \[?Claude)' "$1"; then
+	echo "commit-msg: refusing — message carries an AI attribution trailer." >&2
+	echo "Strip the Co-Authored-By / Claude-Session / 'Generated with Claude' line and commit again." >&2
+	exit 1
+fi

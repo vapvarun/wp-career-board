@@ -156,7 +156,7 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	public function process_bulk_action(): void {
 		$action = $this->current_action();
-		if ( 'suspend' !== $action && 'unsuspend' !== $action ) {
+		if ( ! in_array( $action, array( 'suspend', 'unsuspend', 'resolve_flags' ), true ) ) {
 			return;
 		}
 
@@ -177,6 +177,25 @@ class AdminCandidates extends \WP_List_Table {
 			if ( $user_id <= 0 || $user_id === $current ) {
 				continue;
 			}
+			if ( 'resolve_flags' === $action ) {
+				// _wcb_member_flag_status was written as 'open' when a member was
+				// reported and never written as anything else, so the warning
+				// badge could never be cleared - the admin screen READ 'resolved'
+				// but nothing produced it. Job flags have had this loop all along
+				// (ModerationModule::resolve_job_flags); member flags did not.
+				update_user_meta( $user_id, '_wcb_member_flag_status', 'resolved' );
+
+				/**
+				 * Fires when an administrator dismisses the open reports on a member.
+				 *
+				 * @since 1.7.1
+				 *
+				 * @param int $user_id Member whose reports were dismissed.
+				 */
+				do_action( 'wcb_member_flags_resolved', $user_id );
+				continue;
+			}
+
 			if ( 'suspend' === $action ) {
 				update_user_meta( $user_id, '_wcb_employer_banned', '1' );
 				do_action( 'wcb_member_suspended', $user_id );
@@ -342,6 +361,30 @@ class AdminCandidates extends \WP_List_Table {
 			),
 		);
 
+		// Dismiss open reports. Mirrors the job-flag row action in AdminJobs, and
+		// is the only writer of 'resolved' - without it the warning badge in
+		// column_status() was permanent once a member was reported.
+		$wcb_flag_count = (int) get_user_meta( $item->ID, '_wcb_member_flag_count', true );
+		if ( $wcb_flag_count > 0 && 'resolved' !== (string) get_user_meta( $item->ID, '_wcb_member_flag_status', true ) ) {
+			$wcb_resolve_url = wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'   => 'wcb-candidates',
+						'action' => 'resolve_flags',
+						'user'   => array( $item->ID ),
+					),
+					admin_url( 'admin.php' )
+				),
+				'bulk-candidates'
+			);
+
+			$row_actions['resolve_flags'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $wcb_resolve_url ),
+				esc_html__( 'Dismiss reports', 'wp-career-board' )
+			);
+		}
+
 		$is_suspended = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 		$toggle       = $is_suspended ? 'unsuspend' : 'suspend';
 		$toggle_url   = wp_nonce_url(
@@ -429,11 +472,14 @@ class AdminCandidates extends \WP_List_Table {
 				'post_status'    => 'publish',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
+				// String compare (no NUMERIC) so the wcb_meta_key_value index is used;
+				// _wcb_candidate_id is stored as a string, so equality is exact. This
+				// runs once per rendered row, so a CAST here full-scans postmeta 20x
+				// per page load.
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_candidate_id',
 						'value' => $item->ID,
-						'type'  => 'NUMERIC',
 					),
 				),
 			)
