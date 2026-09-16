@@ -88,6 +88,19 @@
 		}
 		var url = new URL( location.href );
 		url.searchParams.set( 'tab', id );
+
+		// The Settings API redirects to _wp_http_referer after options.php
+		// writes, NOT to the address bar. Leaving it at the URL the page
+		// loaded with is why saving used to dump the owner back on the panel
+		// they started from: the address bar said Listings, the hidden field
+		// still said Industries, and the hidden field is the one that wins.
+		// Path + query only — a fragment is never sent to the server and
+		// wp_safe_redirect() would carry it into the Location header.
+		var referer = url.pathname + url.search;
+		document.querySelectorAll( 'input[name="_wp_http_referer"]' ).forEach( function ( input ) {
+			input.value = referer;
+		});
+
 		url.hash = id;
 		history.replaceState( null, '', url.toString() );
 	}
@@ -106,10 +119,17 @@
 	document.querySelectorAll( SECTION + ' form' ).forEach( function ( form ) {
 		form.addEventListener( 'submit', function () {
 			var hash = location.hash;
-			if ( hash ) {
-				var base = ( this.action || '' ).split( '#' )[0];
-				this.action = base + hash;
+			if ( ! hash ) {
+				return;
 			}
+			// getAttribute('action'), never this.action: settings_fields()
+			// emits <input type="hidden" name="action" value="update">, and a
+			// named control shadows the form property of the same name — so
+			// this.action is that INPUT ELEMENT, and calling .split() on it
+			// threw "(this.action || '').split is not a function" on every
+			// settings save. The attribute is the only reliable read here.
+			var base = ( this.getAttribute( 'action' ) || '' ).split( '#' )[0];
+			this.setAttribute( 'action', base + hash );
 		});
 	});
 
