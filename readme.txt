@@ -2,7 +2,7 @@
 Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 1.7.1
 Requires PHP: 8.1
 License: GPLv2 or later
