@@ -39,6 +39,13 @@ living:
       - bin/architecture-checks.sh
       - bin/local-ci.sh (via composer arch-checks)
 
+  - id: app-parity
+    path: app-parity.md
+    title: Plugin to companion-app functionality catalogue
+    scope: Every member capability on the website mapped to its app surface, with live-probed counts. Verdicts are starting points; the canonical gate lives in careerboard-app/docs/FEATURE-COVERAGE.md.
+    owner: TBD
+    format: markdown
+
 # ──────────────────────────────────────────────────────────────────────
 # DATED artifacts — capture a specific pass, frozen once shipped
 # ──────────────────────────────────────────────────────────────────────
