@@ -89,9 +89,11 @@ $cmd = sprintf(
 				':(exclude)dist/**',
 				':(exclude)*.md',
 				':(exclude)readme.txt',
-				// Tooling config. composer.json is safe to drop because a change to
-				// a shipped `require` always rewrites composer.lock, which stays in.
+				// Tooling config. composer.json and package.json are safe to drop:
+				// .distignore keeps both OUT of the zip, and a change to a shipped
+				// dependency always rewrites the matching lockfile, which stays in.
 				':(exclude)composer.json',
+				':(exclude)package.json',
 				':(exclude)phpcs.xml*',
 				':(exclude)phpstan*.neon*',
 				':(exclude).gitignore',
