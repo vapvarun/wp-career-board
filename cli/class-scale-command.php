@@ -1036,11 +1036,26 @@ class ScaleCommand extends AbstractCliCommand {
 	 * @return array<int, array{term_id:int,slug:string}>
 	 */
 	private function ensure_terms( string $taxonomy, array $slugs ): array {
+		// The setup wizard owns the display name for every slug it also seeds.
+		// Deriving one here instead produced "Full Time" for `full-time`, which
+		// took the clean slug and pushed the wizard's "Full-time" onto
+		// `full-time-2` - two near-identical Job Type checkboxes on the public
+		// filter, one matching nothing, on every box where both had run.
+		// ucwords() still covers the slugs only this harness seeds (london,
+		// tokyo, entry, mid), which the wizard has no opinion about.
+		$canonical = array();
+		foreach ( \WCB\Admin\SetupWizard::sample_terms() as $wizard_taxonomy => $names ) {
+			foreach ( $names as $name ) {
+				$canonical[ $wizard_taxonomy ][ sanitize_title( $name ) ] = $name;
+			}
+		}
+
 		$out = array();
 		foreach ( $slugs as $slug ) {
 			$term = get_term_by( 'slug', $slug, $taxonomy );
 			if ( ! $term instanceof \WP_Term ) {
-				$created = wp_insert_term( ucwords( str_replace( '-', ' ', $slug ) ), $taxonomy, array( 'slug' => $slug ) );
+				$name    = $canonical[ $taxonomy ][ $slug ] ?? ucwords( str_replace( '-', ' ', $slug ) );
+				$created = wp_insert_term( $name, $taxonomy, array( 'slug' => $slug ) );
 				if ( is_wp_error( $created ) ) {
 					continue;
 				}

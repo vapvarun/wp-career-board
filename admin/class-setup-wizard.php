@@ -501,6 +501,31 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * The canonical sample vocabulary, by taxonomy.
+	 *
+	 * Public because it is the ONE source for "what terms does a demo site have".
+	 * The scale-benchmark harness (cli/class-scale-command.php) reads this rather
+	 * than keeping a parallel list: it used to derive display names by ucwords-ing
+	 * a slug, so 'full-time' became "Full Time" and claimed the `full-time` slug,
+	 * and this seeder's "Full-time" then landed on `full-time-2`. A site that had
+	 * run both showed candidates two near-identical Job Type checkboxes, one of
+	 * them matching nothing.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return array<string, string[]> Taxonomy => display names.
+	 */
+	public static function sample_terms(): array {
+		return array(
+			'wcb_category'   => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success' ),
+			'wcb_job_type'   => array( 'Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship' ),
+			'wcb_location'   => array( 'Remote', 'San Francisco, CA', 'New York, NY', 'London, UK' ),
+			'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Executive' ),
+			'wcb_tag'        => array( 'Remote-first', 'SaaS', 'Fintech', 'E-commerce', 'Open Source' ),
+		);
+	}
+
+	/**
 	 * Install rich sample data so the site admin can see the plugin in action.
 	 *
 	 * Creates 3 companies, 8 published jobs across multiple categories,
@@ -525,13 +550,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		// -----------------------------------------------------------------
 		// 1. Taxonomy terms.
 		// -----------------------------------------------------------------
-		$terms = array(
-			'wcb_category'   => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success' ),
-			'wcb_job_type'   => array( 'Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship' ),
-			'wcb_location'   => array( 'Remote', 'San Francisco, CA', 'New York, NY', 'London, UK' ),
-			'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Executive' ),
-			'wcb_tag'        => array( 'Remote-first', 'SaaS', 'Fintech', 'E-commerce', 'Open Source' ),
-		);
+		$terms = self::sample_terms();
 
 		$term_map = array();
 		foreach ( $terms as $taxonomy => $names ) {
