@@ -98,7 +98,6 @@ if [ -n "$PHP_FILES" ]; then
 			*api/class-rest-controller.php) continue ;; # documented carve-out
 			*core/abilities-api-polyfill.php) continue ;; # the polyfill IS the chokepoint
 			*bin/check-ignore-budget.php) continue ;;   # names the rule in a label + regex; measuring it, not breaking it
-			*modules/antispam/*) continue ;;            # uses wcb_manage_settings cap directly
 		esac
 		# Match real call sites only. grep -n on a single file outputs
 		# `<linenum>:<text>` — no filename prefix. Filter out:
