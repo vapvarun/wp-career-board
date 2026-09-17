@@ -41,6 +41,7 @@
             "@ignore-budget",
             "@route-callers",
             "@dead-code",
+            "@manifest-consistency",
             "@qa-coverage"
         ],
         "journeys": "bin/run-journeys.sh --priority=critical",
@@ -51,12 +52,14 @@
         "ci": [
             "@ci:no-journeys",
             "@journeys",
-            "@ignore-budget"
+            "@ignore-budget",
+            "@manifest-consistency"
         ],
         "scale:seed": "wp --path=../../.. --user=1 wcb scale seed",
         "scale:bench": "wp --path=../../.. --user=1 wcb scale benchmark",
         "scale:teardown": "wp --path=../../.. --user=1 wcb scale teardown",
         "arch-checks": "bash bin/architecture-checks.sh",
-        "ignore-budget": "php bin/check-ignore-budget.php"
+        "ignore-budget": "php bin/check-ignore-budget.php",
+        "manifest-consistency": "php bin/check-manifest-consistency.php"
     }
 }
