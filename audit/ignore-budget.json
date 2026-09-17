@@ -1,0 +1,40 @@
+{
+    "generated": "2026-09-17T05:17:41+00:00",
+    "note": "Counts of coding-rule call sites silenced by phpcs:ignore. May shrink, never grow. See bin/check-ignore-budget.php.",
+    "budgets": {
+        "abilities-api": 6,
+        "prepared-sql": 20
+    },
+    "sites": {
+        "abilities-api": [
+            "blocks/featured-jobs/render.php:43",
+            "blocks/recent-jobs/render.php:36",
+            "blocks/similar-companies-card/render.php:66",
+            "integrations/companions/class-companion-installer.php:57",
+            "integrations/companions/class-companion-installer.php:93",
+            "modules/boards/class-board-rest-controller.php:69"
+        ],
+        "prepared-sql": [
+            "admin/class-admin-applications.php:234",
+            "admin/class-admin-applications.php:250",
+            "admin/class-admin-applications.php:402",
+            "admin/class-admin-applications.php:409",
+            "admin/class-admin-employers.php:404",
+            "admin/class-admin-settings.php:1753",
+            "api/endpoints/class-admin-endpoint.php:259",
+            "api/endpoints/class-admin-endpoint.php:268",
+            "api/endpoints/class-admin-endpoint.php:318",
+            "api/endpoints/class-admin-endpoint.php:319",
+            "api/endpoints/class-admin-endpoint.php:323",
+            "api/endpoints/class-employers-endpoint.php:796",
+            "cli/class-scale-command.php:331",
+            "cli/class-scale-command.php:332",
+            "cli/class-scale-command.php:333",
+            "cli/class-scale-command.php:356",
+            "cli/class-scale-command.php:357",
+            "cli/class-scale-command.php:686",
+            "cli/class-scale-command.php:691",
+            "modules/notifications/class-abstract-email.php:303"
+        ]
+    }
+}

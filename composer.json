@@ -38,6 +38,7 @@
             "@phpstan",
             "@phpcs",
             "@coding-rules",
+            "@ignore-budget",
             "@route-callers",
             "@dead-code",
             "@qa-coverage"
@@ -49,11 +50,13 @@
         "journeys:stale": "bin/run-journeys.sh --audit-stale",
         "ci": [
             "@ci:no-journeys",
-            "@journeys"
+            "@journeys",
+            "@ignore-budget"
         ],
         "scale:seed": "wp --path=../../.. --user=1 wcb scale seed",
         "scale:bench": "wp --path=../../.. --user=1 wcb scale benchmark",
         "scale:teardown": "wp --path=../../.. --user=1 wcb scale teardown",
-        "arch-checks": "bash bin/architecture-checks.sh"
+        "arch-checks": "bash bin/architecture-checks.sh",
+        "ignore-budget": "php bin/check-ignore-budget.php"
     }
 }
