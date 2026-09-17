@@ -154,8 +154,6 @@ class AdminSettings {
 	public function boot(): void {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_post_wcb_create_pages', array( $this, 'handle_create_pages' ) );
-		add_filter( 'wp_mail_from', array( $this, 'mail_from' ) );
-		add_filter( 'wp_mail_from_name', array( $this, 'mail_from_name' ) );
 		add_action( 'wcb_settings_tab_emails', array( $this, 'render_emails_tab' ) );
 		add_action( 'wcb_settings_tab_industries', array( $this, 'render_industries_tab' ) );
 		add_action( 'wcb_settings_tab_import', array( $this, 'render_import_tab' ) );
@@ -293,32 +291,6 @@ class AdminSettings {
 		 * @param array<string,mixed> $input  Raw submitted values.
 		 */
 		return apply_filters( 'wcb_settings_sanitize', $output, $input );
-	}
-
-	/**
-	 * Override wp_mail_from with the configured From Email.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string $email Default sender address.
-	 * @return string
-	 */
-	public function mail_from( string $email ): string {
-		$settings = (array) get_option( self::OPTION_KEY, array() );
-		return ! empty( $settings['from_email'] ) ? $settings['from_email'] : $email;
-	}
-
-	/**
-	 * Override wp_mail_from_name with the configured From Name.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string $name Default sender name.
-	 * @return string
-	 */
-	public function mail_from_name( string $name ): string {
-		$settings = (array) get_option( self::OPTION_KEY, array() );
-		return ! empty( $settings['from_name'] ) ? $settings['from_name'] : $name;
 	}
 
 	/**
