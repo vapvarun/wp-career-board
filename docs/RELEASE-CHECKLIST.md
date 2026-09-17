@@ -2,12 +2,12 @@
 
 > Last shipped: **v1.1.0 — 2026-04-27**. Use this checklist for every
 > point release: replace the version string in §3 / §4 / §5, then walk
-> through every section. Local CI gate (`bin/ci-local.sh` /
+> through every section. Local CI gate (`bin/local-ci.sh` /
 > `npm run ci`) runs §1 in one command.
 
 ## 1. Code Quality Gate
 
-- [ ] `bash bin/ci-local.sh` → 0 errors (PHP lint + WPCS + PHPStan + size-limit)
+- [ ] `bash bin/local-ci.sh` → 0 errors (PHP lint + WPCS + PHPStan + size-limit)
 - [ ] WPCS: `mcp__wpcs__wpcs_full_check` → 0 errors
 - [ ] PHPStan: `mcp__wpcs__wpcs_phpstan_check` → 0 errors
 - [ ] PHP lint: every `*.php` file outside `vendor/` and `node_modules/` parses

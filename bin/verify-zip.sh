@@ -68,7 +68,7 @@ fi
 [ -f "$ZIP" ] || { echo "FAIL: zip not found at $ZIP" >&2; exit 10; }
 
 ENTRIES="$(unzip -Z1 "$ZIP")"
-echo "Verifying $(basename "$ZIP") ($(printf '%s\n' "$ENTRIES" | grep -vc '/$') files)"
+echo "Verifying $(basename "$ZIP") ($(grep -vc '/$' <<< "$ENTRIES") files)"
 
 # ── 1. Required entries ──────────────────────────────────────────────────
 REQUIRED=(
@@ -95,7 +95,7 @@ fi
 
 MISSING=0
 for entry in "${REQUIRED[@]}"; do
-	if ! printf '%s\n' "$ENTRIES" | grep -qxF "$entry"; then
+	if ! grep -qxF "$entry" <<< "$ENTRIES"; then
 		echo "FAIL: required entry missing from zip: $entry" >&2
 		MISSING=1
 	fi
@@ -113,9 +113,9 @@ FORBIDDEN_REGEX=(
 )
 SHIPPED_JUNK=0
 for pattern in "${FORBIDDEN_REGEX[@]}"; do
-	if printf '%s\n' "$ENTRIES" | grep -qE "$pattern"; then
+	if grep -qE "$pattern" <<< "$ENTRIES"; then
 		echo "FAIL: forbidden entry shipped (pattern: $pattern):" >&2
-		printf '%s\n' "$ENTRIES" | grep -E "$pattern" | head -3 >&2
+		grep -E "$pattern" <<< "$ENTRIES" | head -3 >&2
 		SHIPPED_JUNK=1
 	fi
 done
@@ -150,23 +150,23 @@ LIB_FAIL=0
 for libdir in "$ROOT"/libs/*/; do
 	[ -d "$libdir" ] || continue
 	lib="libs/$(basename "$libdir")"
-	printf '%s\n' "$ENTRIES" | grep -q "^$SLUG/$lib/" || continue   # not shipped by this plugin
+	grep -q "^$SLUG/$lib/" <<< "$ENTRIES" || continue   # not shipped by this plugin
 	this_fail=0
 	while IFS= read -r src_file; do
 		rel="${src_file#"$ROOT"/}"
-		printf '%s' "$rel" | grep -qE "$CRUFT_RE" && continue
-		if ! printf '%s\n' "$ENTRIES" | grep -qxF "$SLUG/$rel"; then
+		grep -qE "$CRUFT_RE" <<< "$rel" && continue
+		if ! grep -qxF "$SLUG/$rel" <<< "$ENTRIES"; then
 			echo "FAIL: committed library runtime file missing from zip: $rel" >&2
 			this_fail=1
 			LIB_FAIL=1
 		fi
 	done < <(find "$libdir" -type f)
-	[ "$this_fail" -eq 0 ] && echo "  complete: $lib ($(printf '%s\n' "$ENTRIES" | grep -c "^$SLUG/$lib/") files)"
+	[ "$this_fail" -eq 0 ] && echo "  complete: $lib ($(grep -c "^$SLUG/$lib/" <<< "$ENTRIES") files)"
 done
 
 # 3b. Composer vendor/ — present + non-empty per package.
-for vroot in $(printf '%s\n' "$ENTRIES" | grep -v '/$' | sed -nE "s#^$SLUG/(vendor/composer|vendor/[^/]+/[^/]+)/.*#\1#p" | sort -u); do
-	n=$(printf '%s\n' "$ENTRIES" | grep -c "^$SLUG/$vroot/")
+for vroot in $(grep -v '/$' <<< "$ENTRIES" | sed -nE "s#^$SLUG/(vendor/composer|vendor/[^/]+/[^/]+)/.*#\1#p" | sort -u); do
+	n=$(grep -c "^$SLUG/$vroot/" <<< "$ENTRIES")
 	if [ "$n" -gt 0 ]; then
 		echo "  present: $vroot ($n files)"
 	else
@@ -190,11 +190,11 @@ while IFS= read -r match; do
 	src="${match%%:*}"          # path/to/file.php
 	code="${match#*:*:}"        # the require/include line
 
-	if printf '%s' "$code" | grep -qE "[^A-Z_]${OWN_CONST}[[:space:]]*\."; then
+	if grep -qE "[^A-Z_]${OWN_CONST}[[:space:]]*\." <<< "$code"; then
 		# OWN_CONST . 'relpath'  → SLUG/relpath
 		rel="$(printf '%s' "$code" | sed -nE "s/.*${OWN_CONST}[[:space:]]*\.[[:space:]]*'([^']+)'.*/\1/p")"
 		[ -n "$rel" ] && target="$SLUG/${rel#/}"
-	elif printf '%s' "$code" | grep -qE "__DIR__|plugin_dir_path"; then
+	elif grep -qE "__DIR__|plugin_dir_path" <<< "$code"; then
 		# __DIR__ / plugin_dir_path(__FILE__) . 'relpath'  → SLUG/<file's dir>/relpath
 		rel="$(printf '%s' "$code" | sed -nE "s/.*(__DIR__|plugin_dir_path\([^)]*\))[[:space:]]*\.[[:space:]]*'([^']+)'.*/\2/p")"
 		[ -z "$rel" ] && continue
@@ -206,7 +206,7 @@ while IFS= read -r match; do
 
 	[ -z "${target:-}" ] && continue
 	REQFILE_CHECKED=$((REQFILE_CHECKED + 1))
-	if ! printf '%s\n' "$ENTRIES" | grep -qxF "$target"; then
+	if ! grep -qxF "$target" <<< "$ENTRIES"; then
 		echo "FAIL: require/include target missing from zip: $target" >&2
 		echo "      referenced at: $src" >&2
 		REQFILE_FAIL=1

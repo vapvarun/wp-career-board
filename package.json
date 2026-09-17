@@ -1,6 +1,6 @@
 {
   "name": "wp-career-board",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "WP Career Board — Gutenberg blocks and Interactivity API frontend",
   "scripts": {
     "build": "wp-scripts build",
@@ -10,7 +10,7 @@
     "dist": "grunt dist",
     "pot": "grunt pot",
     "size": "size-limit",
-    "ci": "bash bin/ci-local.sh"
+    "ci": "bash bin/local-ci.sh"
   },
   "devDependencies": {
     "@size-limit/file": "^11.2.0",

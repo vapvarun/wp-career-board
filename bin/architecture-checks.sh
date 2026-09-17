@@ -51,7 +51,7 @@ is_baselined() {
         '.baseline[]? | select(.gate == $gate) | .path' 2>/dev/null)
     while IFS= read -r p; do
         [ -z "$p" ] && continue
-        if echo "$path_check" | grep -qF "$p"; then
+        if grep -qF "$p" <<< "$path_check"; then
             return 0
         fi
     done <<< "$baselined_paths"
@@ -238,7 +238,7 @@ check_U5() {
         case "$base" in
             README.yaml|INVARIANTS.yaml) continue ;;
         esac
-        if ! echo "$indexed_paths" | grep -qxF "$entry"; then
+        if ! grep -qxF "$entry" <<< "$indexed_paths"; then
             orphans="${orphans}${entry}\n"
         fi
     done < <(cd "$PLUGIN_DIR/plan" && find . -maxdepth 1 \( -name "*.md" -o -name "*.yaml" -o -type d \) ! -path . | sed 's|^./||')

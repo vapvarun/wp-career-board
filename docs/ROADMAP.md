@@ -25,7 +25,7 @@ Pro is sold separately on wbcomdesigns.com via EDD Software Licensing.
 - Declarative custom-field filters — `wcb_job_form_fields`, `wcb_application_form_fields_groups`, `wcb_resume_form_fields` on every form
 - Bulk applicant CSV export, salary range slider, deadline reminder cron
 - Resume upload for guest applicants, REST list envelope, design token registry expansion
-- Local CI gate (`bin/ci-local.sh`) — PHP lint + WPCS + PHPStan + size-limit
+- Local CI gate (`bin/local-ci.sh`) — PHP lint + WPCS + PHPStan + size-limit
 - `docs/HOOKS.md`, `docs/SHORTCODES.md` — customer-facing extension reference
 
 ### What's Done — Pro Plugin (v1.1.0)

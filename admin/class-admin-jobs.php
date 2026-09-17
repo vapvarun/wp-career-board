@@ -362,7 +362,7 @@ class AdminJobs extends \WP_List_Table {
 		// screen (no edit_posts cap), so don't surface the Edit affordance
 		// to them — clicking it would land on a "you don't have permission"
 		// screen. Admins keep both the title link and the row action.
-		$can_edit  = current_user_can( 'wcb_manage_settings' ) && current_user_can( 'edit_post', $item->ID );
+		$can_edit  = wp_is_ability_granted( 'wcb/manage-settings' ) && current_user_can( 'edit_post', $item->ID );
 		$edit_link = $can_edit ? (string) get_edit_post_link( $item->ID ) : '';
 		$view_link = (string) get_permalink( $item->ID );
 

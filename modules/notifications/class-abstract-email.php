@@ -192,6 +192,48 @@ abstract class AbstractEmail {
 	}
 
 	/**
+	 * Headers for every Career Board email, including the owner's sender.
+	 *
+	 * The From Name / From Email settings used to be applied by wp_mail_from and
+	 * wp_mail_from_name filters registered in AdminSettings::boot(). That class
+	 * only boots when is_admin(), so the filters existed during wp-admin requests
+	 * and nowhere else. Applications arrive over the REST API and alerts,
+	 * reminders and expiries run on WP-Cron - none of them is_admin() - so almost
+	 * every notification went out as "WordPress <wordpress@site>" whatever the
+	 * owner had saved. On the requests where the filters did exist, they rewrote
+	 * EVERY email the site sent, including other plugins' mail and core password
+	 * resets, which the setting never promised to touch.
+	 *
+	 * Setting the header here fixes both: it applies wherever the email is sent,
+	 * and only to email this plugin sends. Either field may be left empty, in
+	 * which case WordPress's own default for that half stands.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @return string[]
+	 */
+	private static function headers(): array {
+		$headers  = array( 'Content-Type: text/html; charset=UTF-8' );
+		$settings = (array) get_option( 'wcb_settings', array() );
+		$email    = sanitize_email( (string) ( $settings['from_email'] ?? '' ) );
+
+		if ( '' === $email || ! is_email( $email ) ) {
+			return $headers;
+		}
+
+		// Strip anything that could break out of the header or the display-name
+		// quoting. sanitize_text_field() on save already removes newlines; this
+		// guards a value written some other way.
+		$name = trim( str_replace( array( "\r", "\n", '"', '<', '>' ), '', (string) ( $settings['from_name'] ?? '' ) ) );
+
+		$headers[] = '' !== $name
+			? sprintf( 'From: "%s" <%s>', $name, $email )
+			: sprintf( 'From: %s', $email );
+
+		return $headers;
+	}
+
+	/**
 	 * Subject substitution + body render + wp_mail + log-row insert. Shared
 	 * by send() and test_send().
 	 *
@@ -214,7 +256,7 @@ abstract class AbstractEmail {
 		// production and via AdminEndpoint::test_send_email (same code path).
 		$subject = self::render_string( $this->get_subject(), $vars );
 		$body    = $this->render_body( $vars );
-		$sent    = wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		$sent    = wp_mail( $to, $subject, $body, self::headers() );
 
 		$status = $sent ? 'sent' : 'failed';
 		if ( $is_test ) {

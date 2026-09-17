@@ -30,11 +30,11 @@ check() {
 	local regex="$1"
 	while IFS= read -r line; do
 		# Skip lines already reading from an i18n source or a helper on the SAME line.
-		if echo "$line" | grep -Eq "(\.i18n[?]?\.[a-zA-Z]|\bt\( *'|\bsi\( *'|state\.i18n|wp\.i18n\.__|__\( *')"; then
+		if grep -Eq "(\.i18n[?]?\.[a-zA-Z]|\bt\( *'|\bsi\( *'|state\.i18n|wp\.i18n\.__|__\( *')" <<< "$line"; then
 			continue
 		fi
 		# Skip translator-comment markers / data-attribute template strings.
-		if echo "$line" | grep -Eq '(translators:|data-wp-|aria-label.*\$\{)'; then
+		if grep -Eq '(translators:|data-wp-|aria-label.*\$\{)' <<< "$line"; then
 			continue
 		fi
 		echo "$line"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ci-local.sh — run the full CI battery on the local workstation.
+# local-ci.sh — run the full CI battery on the local workstation.
 #
 # Mirrors .github/workflows/ci.yml for the Free plugin: must pass green
 # here BEFORE every push to origin so GitHub's runner sees a clean tree.

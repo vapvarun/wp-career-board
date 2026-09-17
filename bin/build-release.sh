@@ -125,6 +125,10 @@ else
 		exit 30
 	fi
 	echo "  smoke report OK ($REPORT_VERSION, no failures, no debug_log_issues)"
+	# A matching version string is not proof the walk saw this code. 1.7.1 shipped
+	# with a customer-visible fix committed AFTER its smoke walk, and this gate
+	# passed because both said "1.7.1". Compare timestamps instead.
+	php "$ROOT/bin/check-smoke-freshness.php" --report="$SMOKE_REPORT" || exit 30
 fi
 
 # 6. Package via the single packaging routine — rsync + .distignore + no-dev

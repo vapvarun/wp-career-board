@@ -2,8 +2,8 @@
 Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
-Tested up to: 7.0
-Stable tag: 1.7.1
+Tested up to: 7.1
+Stable tag: 1.7.2
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,15 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.7.2 - September 2026 =
+
+Fixes the notification sender and confirms support for WordPress 7.1.
+
+* Fix      - The From Name and From Email set under Settings > Notifications now apply to every Career Board email. Applications, job alerts, deadline reminders and expiry notices were being sent from the WordPress default address instead.
+* Fix      - The notification sender no longer changes the sender of other emails on the site, such as password resets or other plugins' mail.
+* Dev      - wp wcb scale seed now uses the setup wizard's job type names, so a site that has run both no longer shows duplicate Job Type filters.
+* Compat   - Tested with WordPress 7.1.
 
 = 1.7.1 - September 2026 =
 

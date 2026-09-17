@@ -9,10 +9,10 @@ This document tracks what the `wp-plugin-release-qa` skill scaffolded into this 
 - `docs/qa/UX_AUDIT.md` — per-template surface check
 - `docs/qa/QA_RELEASE_CHECKLIST.md` — release gate (PHPUnit, PHPStan, WPCS, versions, packaging)
 - `bin/seed-qa-fixtures.php` — idempotent reseeder (uses verified v1.1.0 meta keys + Pro table schemas; not normally needed once a dev install has sample jobs / applications / companies / resumes seeded)
-- `docs/qa/qa.config.json` — plugin facts consumed by the global `/wp-plugin-smoke` skill (slug, version constant, site URL, personas, basecamp IDs, fixture-cleanup SQL, debug-log whitelist). Free + Pro each have their own.
+- `docs/qa/qa-config.json` — plugin facts consumed by the global `/wp-plugin-smoke` skill (slug, version constant, site URL, personas, basecamp IDs, fixture-cleanup SQL, debug-log whitelist). Free + Pro each have their own.
 - `wp-career-board-pro/docs/qa/AGENT_SMOKE_RUNBOOK.md` — Pro-only supplement (P1 lockstep, P2 dependency guard, P3 license, P4 module presence with verified admin-surface mapping, P5 updater, P6 Pro DB)
 - `wp-career-board-pro/docs/qa/QA_RELEASE_CHECKLIST.md` — Pro-only release supplement
-- `wp-career-board-pro/docs/qa/qa.config.json` — Pro counterpart of the config file (declares `extends: wp-career-board` so the smoke skill knows to walk the combo runbook)
+- `wp-career-board-pro/docs/qa/qa-config.json` — Pro counterpart of the config file (declares `extends: wp-career-board` so the smoke skill knows to walk the combo runbook)
 
 > The smoke skill itself is **global** (`/wp-plugin-smoke`) — one skill for every plugin in the Wbcom portfolio. There is no per-plugin smoke `SKILL.md` in `.claude/skills/` (the prior `wp-career-board-smoke` skill was retired during the 2026-05-09 consistency cleanup so the dispatch pattern lives in one place).
 
