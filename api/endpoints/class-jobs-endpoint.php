@@ -875,6 +875,11 @@ final class JobsEndpoint extends RestController {
 		if ( '' !== $wcb_feature_error ) {
 			$wcb_data['feature_error'] = $wcb_feature_error;
 		}
+		// The poster's balance after any charge, so the dashboard updates its
+		// Credits badge without a reload (same key as POST /jobs/{id}/feature).
+		if ( apply_filters( 'wcb_credits_enabled', false ) ) {
+			$wcb_data['balance'] = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+		}
 		$wcb_response = rest_ensure_response( $wcb_data );
 		$wcb_response->set_status( 201 );
 		return $wcb_response;

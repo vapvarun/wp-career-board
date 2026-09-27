@@ -295,7 +295,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
 		get totalJobs() {
-			return fmtNumber( state.jobs.length || state.ssrTotalJobs || 0 );
+			// Server total (render time, then every reload), never the loaded page.
+			return fmtNumber( state.ssrTotalJobs || 0 );
 		},
 		get publishedJobs() {
 			return fmtNumber(
@@ -390,12 +391,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Applications.
 		get totalApps() {
-			if ( state.allApplications.length > 0 ) {
-				return fmtNumber( state.allApplications.length );
-			}
-			if ( state.jobs.length > 0 ) {
-				return fmtNumber( state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 ) );
-			}
+			// Server total, never the loaded page (capped at 50).
 			return fmtNumber( state.ssrTotalApps || 0 );
 		},
 		get hasApplications() {
@@ -722,6 +718,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( appsResp.ok ) {
 					const appsData = yield appsResp.json();
 					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+					if ( typeof appsData?.total === 'number' ) {
+						state.ssrTotalApps = appsData.total;
+					}
 				}
 			} catch {
 				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
@@ -791,6 +790,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const jobsData = yield resp.json();
 			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
+			if ( typeof jobsData?.total === 'number' ) {
+				state.ssrTotalJobs = jobsData.total;
+			}
 			// "closed" = employer-closed, "expired" = past-deadline (cron); both
 			// render as finished listings. "pending" = awaiting moderation, "draft" = unsaved.
 			state.jobs = jobs.map( ( j ) => ( {
@@ -810,19 +812,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} ) );
 		},
 
-		*switchToJobs() {
+		// Called by the embedded Post-a-Job form after a successful post: the
+		// badges, the Overview figures and My Jobs update now, not on the next
+		// visit to My Jobs.
+		*afterJobPosted( balance ) {
+			if ( typeof balance === 'number' ) {
+				state.creditBalance = balance;
+			}
+			yield actions.loadJobs();
+		},
+
+		switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 			writeHashView( 'jobs' );
-
-			// The embedded Post-a-Job form flags a refresh after a successful
-			// submit; reload the list silently so the new job appears.
-			if ( state._needsJobsRefresh ) {
-				state._needsJobsRefresh = false;
-				yield actions.loadJobs();
-			}
 		},
 
 		switchToApplications() {

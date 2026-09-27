@@ -95,7 +95,9 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 	$wcb_company_name = $wcb_company_post->post_title;
 }
 
-$wcb_company_url     = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+$wcb_company_url = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+// Same logo the company page and directory show (the company's featured image).
+$wcb_company_logo    = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'thumbnail' ) : '';
 $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true ) : '';
 // Company "bio" prefers the post body, falls back to the marketing tagline so
 // the sidebar card never shows an empty space when an employer skipped the
@@ -340,8 +342,12 @@ wp_interactivity_state(
 	<div class="wcb-job-hero">
 
 		<div class="wcb-job-hero-brand">
-			<div class="wcb-company-avatar">
-				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name ? $wcb_company_name : $wcb_job->post_title, 0, 2 ) ) ); ?>
+			<div class="wcb-company-avatar<?php echo $wcb_company_logo ? ' wcb-company-avatar--logo' : ''; ?>">
+				<?php if ( $wcb_company_logo ) : ?>
+					<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="<?php echo esc_attr( $wcb_company_name ); ?>" width="64" height="64" />
+				<?php else : ?>
+					<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name ? $wcb_company_name : $wcb_job->post_title, 0, 2 ) ) ); ?>
+				<?php endif; ?>
 			</div>
 			<div class="wcb-hero-titles">
 				<h1 class="wcb-job-title"><?php echo esc_html( $wcb_job->post_title ); ?></h1>
@@ -786,8 +792,12 @@ wp_interactivity_state(
 						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
 					</h3>
 					<div class="wcb-company-card-header">
-						<div class="wcb-company-avatar wcb-company-avatar--sm">
-				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>
+						<div class="wcb-company-avatar wcb-company-avatar--sm<?php echo $wcb_company_logo ? ' wcb-company-avatar--logo' : ''; ?>">
+							<?php if ( $wcb_company_logo ) : ?>
+								<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="" width="44" height="44" />
+							<?php else : ?>
+								<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>
+							<?php endif; ?>
 						</div>
 						<div>
 				<?php if ( $wcb_company_url ) : ?>

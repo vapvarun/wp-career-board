@@ -154,6 +154,25 @@ const formatDate = ( iso ) => {
 	return iso;
 };
 
+/**
+ * Put a value into the job description's rich editor.
+ *
+ * The editor only repaints from its source textarea on `wcb:editor:hydrate`
+ * (assets/js/wcb-editor.js), so setting state.description alone leaves the
+ * old text visible. Targets this form's own textarea by id: on the employer
+ * dashboard the Company Profile editor comes first in the page, and a
+ * page-wide lookup wiped the company description instead of the job's.
+ *
+ * @param {string} value HTML to show; '' clears the editor.
+ */
+const showDescription = ( value ) => {
+	const source = document.getElementById( 'wcb-job-desc' );
+	if ( source ) {
+		source.value = value;
+		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
+	}
+};
+
 const { state } = store(
 	'wcb-job-form',
 	{
@@ -516,19 +535,7 @@ const { state } = store(
 					const data = yield response.json();
 					if ( data.description ) {
 						state.description = data.description;
-						// The rich editor only re-reads its source textarea on the
-						// wcb:editor:hydrate event (see assets/js/wcb-editor.js). The
-						// data-wp-bind--value update alone won't repaint the visible
-						// editor, so push the value and fire the hydrate event.
-						const source = document.querySelector(
-							'.wcb-editor textarea.wcb-editor-source'
-						);
-						if ( source ) {
-							source.value = data.description;
-							source.dispatchEvent(
-								new Event( 'wcb:editor:hydrate', { bubbles: true } )
-							);
-						}
+						showDescription( data.description );
 					} else if ( data.message ) {
 						state.error = data.message;
 					}
@@ -668,13 +675,13 @@ const { state } = store(
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
 
-					// Signal the embedded employer dashboard (if present) to refresh
-					// its My Jobs list when the user navigates there. try/catch: the
-					// form also runs standalone (shortcode) where that store is absent.
+					// Refresh the embedded employer dashboard (if present) right away:
+					// badges, Overview and My Jobs. try/catch: the form also runs
+					// standalone (shortcode) where that store is absent.
 					try {
 						const dash = store( 'wcb-employer-dashboard' );
-						if ( dash && dash.state ) {
-							dash.state._needsJobsRefresh = true;
+						if ( dash?.actions?.afterJobPosted ) {
+							dash.actions.afterJobPosted( data.balance );
 						}
 					} catch {}
 
@@ -725,19 +732,7 @@ const { state } = store(
 				state.remote           = false;
 				state.customFields     = {};
 
-				// The rich editor mirrors a source textarea and only repaints on
-				// the wcb:editor:hydrate event; clearing state.description alone
-				// leaves the just-submitted text visible. Sync the source to empty
-				// and fire hydrate (mirrors the AI-description handler above).
-				const source = document.querySelector(
-					'.wcb-editor textarea.wcb-editor-source'
-				);
-				if ( source ) {
-					source.value = '';
-					source.dispatchEvent(
-						new Event( 'wcb:editor:hydrate', { bubbles: true } )
-					);
-				}
+				showDescription( '' );
 			},
 		},
 	}

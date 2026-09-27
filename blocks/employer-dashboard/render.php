@@ -280,9 +280,6 @@ wp_interactivity_state(
 		'pwMsg'                 => '',
 		'pwMsgType'             => '',
 		'pwSaving'              => false,
-		// Set true by the embedded Post-a-Job form (wcb-job-form) after a
-		// successful submit, so switchToJobs() refreshes the stale My Jobs list.
-		'_needsJobsRefresh'     => false,
 		'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 		'creditBalance'         => $wcb_credit_balance,
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
@@ -894,7 +891,8 @@ wp_interactivity_state(
 							<input id="wcb-company-logo" type="file" class="wcb-logo-input" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
 						</div>
 					</div>
-					<p class="wcb-field-hint" data-wp-class--wcb-shown="state.noCompany"><?php esc_html_e( 'Save your company profile first to enable logo upload.', 'wp-career-board' ); ?></p>
+					<?php // .wcb-field-hint is display:block, so it must be hidden, not "shown". ?>
+					<p class="wcb-field-hint<?php echo $wcb_company_id ? ' wcb-hidden' : ''; ?>" data-wp-class--wcb-hidden="!state.noCompany"><?php esc_html_e( 'Save your company profile first to enable logo upload.', 'wp-career-board' ); ?></p>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-name"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
 						<input id="wcb-company-name" type="text" class="wcb-field-input" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />
