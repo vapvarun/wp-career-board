@@ -26,6 +26,15 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminCandidates extends \WP_List_Table {
 
+	use ReportedMembers;
+
+	/**
+	 * Public resume link per candidate on this page (Pro).
+	 *
+	 * @var array<int, string>
+	 */
+	private array $resume_links = array();
+
 	/**
 	 * Constructor — configure singular/plural labels.
 	 *
@@ -156,7 +165,7 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	public function process_bulk_action(): void {
 		$action = $this->current_action();
-		if ( ! in_array( $action, array( 'suspend', 'unsuspend', 'resolve_flags' ), true ) ) {
+		if ( ! in_array( $action, array( 'suspend', 'unsuspend', 'resolve_flags', 'delete' ), true ) ) {
 			return;
 		}
 
@@ -172,27 +181,28 @@ class AdminCandidates extends \WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_ids = isset( $_GET['user'] ) ? array_map( 'intval', (array) $_GET['user'] ) : array();
 		$current  = get_current_user_id();
+		$user_ids = array_values( array_diff( $user_ids, array( 0, $current ) ) );
+
+		// Delete goes through WordPress's own confirmation screen (content
+		// reassignment, delete_users capability); the personal-data erasers
+		// run on delete_user from there.
+		if ( 'delete' === $action && $user_ids ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'action'   => 'delete',
+						'users'    => $user_ids,
+						'_wpnonce' => wp_create_nonce( 'bulk-users' ),
+					),
+					admin_url( 'users.php' )
+				)
+			);
+			exit;
+		}
 
 		foreach ( $user_ids as $user_id ) {
-			if ( $user_id <= 0 || $user_id === $current ) {
-				continue;
-			}
 			if ( 'resolve_flags' === $action ) {
-				// _wcb_member_flag_status was written as 'open' when a member was
-				// reported and never written as anything else, so the warning
-				// badge could never be cleared - the admin screen READ 'resolved'
-				// but nothing produced it. Job flags have had this loop all along
-				// (ModerationModule::resolve_job_flags); member flags did not.
-				update_user_meta( $user_id, '_wcb_member_flag_status', 'resolved' );
-
-				/**
-				 * Fires when an administrator dismisses the open reports on a member.
-				 *
-				 * @since 1.7.1
-				 *
-				 * @param int $user_id Member whose reports were dismissed.
-				 */
-				do_action( 'wcb_member_flags_resolved', $user_id );
+				\WCB\Modules\Moderation\ModerationModule::resolve_member_flags( $user_id );
 				continue;
 			}
 
@@ -240,22 +250,9 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$count    = ( new \WP_User_Query(
-			array(
-				'role__in' => array( 'wcb_candidate' ),
-				'number'   => 0,
-			)
-		) )->get_total();
-		$base_url = admin_url( 'admin.php?page=wcb-candidates' );
-
-		return array(
-			'all' => sprintf(
-				'<a href="%s" class="current">%s <span class="count">(%d)</span></a>',
-				esc_url( $base_url ),
-				esc_html__( 'All', 'wp-career-board' ),
-				$count
-			),
-		);
+		$args  = array( 'role__in' => array( 'wcb_candidate' ) );
+		$count = ( new \WP_User_Query( $args + array( 'number' => 0 ) ) )->get_total();
+		return $this->member_views( 'wcb-candidates', $count, $args );
 	}
 
 	// -------------------------------------------------------------------------
@@ -293,8 +290,28 @@ class AdminCandidates extends \WP_List_Table {
 			$query_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
 		}
 
+		if ( $this->reported_active() ) {
+			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
 		$query       = new \WP_User_Query( $query_args );
 		$this->items = $query->get_results();
+
+		// View opens the candidate's public resume (Pro); one query per page.
+		if ( $this->items && post_type_exists( 'wcb_resume' ) ) {
+			foreach ( get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'publish',
+					'author__in'     => wp_list_pluck( $this->items, 'ID' ),
+					'posts_per_page' => 100,
+					'orderby'        => 'modified',
+					'no_found_rows'  => true,
+				)
+			) as $resume ) {
+				$this->resume_links[ (int) $resume->post_author ] ??= (string) get_permalink( $resume );
+			}
+		}
 
 		$this->set_pagination_args(
 			array(
@@ -354,40 +371,19 @@ class AdminCandidates extends \WP_List_Table {
 				esc_url( (string) get_edit_user_link( $item->ID ) ),
 				esc_html__( 'Edit', 'wp-career-board' )
 			),
-			'view' => sprintf(
-				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				esc_url( (string) get_author_posts_url( $item->ID ) ),
-				esc_html__( 'View', 'wp-career-board' )
-			),
 		);
-
-		// Dismiss open reports. Mirrors the job-flag row action in AdminJobs, and
-		// is the only writer of 'resolved' - without it the warning badge in
-		// column_status() was permanent once a member was reported.
-		$wcb_flag_count = (int) get_user_meta( $item->ID, '_wcb_member_flag_count', true );
-		if ( $wcb_flag_count > 0 && 'resolved' !== (string) get_user_meta( $item->ID, '_wcb_member_flag_status', true ) ) {
-			$wcb_resolve_url = wp_nonce_url(
-				add_query_arg(
-					array(
-						'page'   => 'wcb-candidates',
-						'action' => 'resolve_flags',
-						'user'   => array( $item->ID ),
-					),
-					admin_url( 'admin.php' )
-				),
-				'bulk-candidates'
-			);
-
-			$row_actions['resolve_flags'] = sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( $wcb_resolve_url ),
-				esc_html__( 'Dismiss reports', 'wp-career-board' )
+		if ( isset( $this->resume_links[ $item->ID ] ) ) {
+			$row_actions['view'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( $this->resume_links[ $item->ID ] ),
+				esc_html__( 'View resume', 'wp-career-board' )
 			);
 		}
+		$row_actions += $this->dismiss_reports_action( $item->ID, 'wcb-candidates', 'bulk-candidates' );
 
-		$is_suspended = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
-		$toggle       = $is_suspended ? 'unsuspend' : 'suspend';
-		$toggle_url   = wp_nonce_url(
+		$is_suspended           = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
+		$toggle                 = $is_suspended ? 'unsuspend' : 'suspend';
+		$toggle_url             = wp_nonce_url(
 			add_query_arg(
 				array(
 					'page'   => 'wcb-candidates',
@@ -421,20 +417,7 @@ class AdminCandidates extends \WP_List_Table {
 			? sprintf( '<span class="wcb-badge wcb-badge--danger">%s</span>', esc_html__( 'Suspended', 'wp-career-board' ) )
 			: sprintf( '<span class="wcb-badge wcb-badge--success">%s</span>', esc_html__( 'Active', 'wp-career-board' ) );
 
-		$flags = (int) get_user_meta( $item->ID, '_wcb_member_flag_count', true );
-		if ( $flags > 0 && 'resolved' !== (string) get_user_meta( $item->ID, '_wcb_member_flag_status', true ) ) {
-			$out .= sprintf(
-				' <span class="wcb-badge wcb-badge--warning" title="%s">%s</span>',
-				esc_attr__( 'Open reports', 'wp-career-board' ),
-				sprintf(
-					/* translators: %d: number of reports. */
-					esc_html( _n( '%d report', '%d reports', $flags, 'wp-career-board' ) ),
-					$flags
-				)
-			);
-		}
-
-		return $out;
+		return $out . $this->reports_badge( $item->ID );
 	}
 
 	/**

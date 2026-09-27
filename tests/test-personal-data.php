@@ -124,6 +124,22 @@ WP_CLI::log( '--- registry ---' );
 $wcb_keys = array_keys( GdprModule::providers() );
 wcb_assert( ! array_diff( array( 'applications', 'profile', 'email-log' ), $wcb_keys ), 'Free registers applications, profile and email-log providers' );
 wcb_assert( ! $wcb_pro || ( in_array( 'pro-resumes', $wcb_keys, true ) && in_array( 'pro-activity', $wcb_keys, true ) ), 'Pro adds its providers to the same registry' );
+$wcb_addon_erased = array();
+add_filter(
+	'wcb_personal_data_providers',
+	static function ( array $providers ) use ( &$wcb_addon_erased ): array {
+		$providers['zz-addon'] = array(
+			'label'  => 'Add-on',
+			'export' => static fn ( array $subject ): array => array(),
+			'erase'  => static function ( array $subject ) use ( &$wcb_addon_erased ): array {
+				$wcb_addon_erased[] = $subject['user_id'];
+				return array( 'removed' => 1 );
+			},
+		);
+		return $providers;
+	}
+);
+wcb_assert( isset( GdprModule::providers()['zz-addon'] ), 'an add-on joins the registry through the filter' );
 $wcb_exporters = apply_filters( 'wp_privacy_personal_data_exporters', array() );
 $wcb_erasers   = apply_filters( 'wp_privacy_personal_data_erasers', array() );
 wcb_assert( isset( $wcb_exporters['wp-career-board'], $wcb_erasers['wp-career-board'] ) && ! isset( $wcb_exporters['wp-career-board-pro'] ) && ! isset( $wcb_erasers['wp-career-board-pro'] ), 'one exporter and one eraser, no parallel Pro copies' );
@@ -172,6 +188,7 @@ foreach ( array( $wcb_app_a, $wcb_app_b ) as $wcb_app ) {
 	wcb_assert( '' === get_post_meta( $wcb_app, '_wcb_cover_letter', true ) && '' === get_post_meta( $wcb_app, '_wcb_application_field_phone', true ), "application {$wcb_app} has no cover letter or answers" );
 }
 wcb_assert( 'PD Job' === get_post_meta( $wcb_app_a, '_wcb_job_title_snapshot', true ), 'job title snapshot kept for the employer pipeline' );
+wcb_assert( in_array( (int) $wcb_candidate, $wcb_addon_erased, true ), 'account deletion runs the add-on eraser too' );
 wcb_assert( null === get_post( $wcb_cv ) && null === get_post( $wcb_child ), 'resume attachment and application files are deleted' );
 wcb_assert( 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_notifications_log WHERE user_id = %d", $wcb_candidate ) ), 'email log rows are deleted' );
 if ( $wcb_pro ) {
@@ -200,7 +217,15 @@ if ( $wcb_pro ) {
 	$wpdb->insert( $wpdb->prefix . 'wcb_notifications', array( 'user_id' => 0, 'event_type' => 'pd_old', 'message' => 'old', 'link' => '', 'is_read' => 1, 'created_at' => $wcb_old ) );
 }
 wcb_assert( 'wcb_prune_logs' === GdprModule::PRUNE_HOOK && in_array( GdprModule::PRUNE_HOOK, \WCB\Core\CronRegistry::all(), true ), 'prune hook is registered for cleanup on deactivate' );
+$wcb_cutoff = '';
+add_action(
+	'wcb_logs_pruned',
+	static function ( string $cutoff ) use ( &$wcb_cutoff ): void {
+		$wcb_cutoff = $cutoff;
+	}
+);
 do_action( GdprModule::PRUNE_HOOK );
+wcb_assert( (bool) preg_match( '/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/', $wcb_cutoff ), 'wcb_logs_pruned passes the UTC cutoff to add-ons' );
 $wcb_left = $wpdb->get_col( "SELECT event_type FROM {$wpdb->prefix}wcb_notifications_log WHERE event_type IN ('pd_old','pd_new')" );
 wcb_assert( array( 'pd_new' ) === $wcb_left, 'rows past the retention window go, recent rows stay' );
 wcb_assert( ! $wcb_pro || 0 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_notifications WHERE event_type = 'pd_old'" ), 'Pro bell prunes with the same cutoff' );

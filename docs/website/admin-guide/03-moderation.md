@@ -61,8 +61,16 @@ Moderators and admins review reports from **WP Career Board → Jobs**:
 3. Resolve a flagged job with the row or bulk actions (the row action
    is **Dismiss flag**; the bulk action is **Dismiss flags**):
    - **Dismiss flag(s)** - clears the open reports and leaves the job
-     published (the report was not actionable).
+     published (the report was not actionable). A job that was hidden
+     by reports goes back on the site.
    - **Unpublish** - takes the job down and clears its reports.
+
+**Auto-hide.** When a set number of different members report the same
+job (3 by default), it is taken off the site as **Pending** until you
+review it; the Jobs list shows it as **Hidden: reported**. Change the
+number, or set 0 to turn this off, under **Settings → Jobs → Hide a job
+after this many reports**. You are emailed on a job's first report and
+again when it is hidden, not on every report.
 
 Resolving flags requires the **Moderate Jobs** capability
 (`wcb_moderate_jobs`), the same gate as approving and rejecting jobs.
@@ -80,9 +88,11 @@ such as spam, scam, a fake profile, harassment, or offensive content.
 Reports are deduplicated per reporter (reporting the same member twice
 counts once) and accumulate on the reported member's account.
 
-Open reports surface to admins as a warning badge (with the report
-count) on the **Career Board → Candidates** screen, next to that
-member's Active/Suspended status.
+Open reports show as a warning badge (with the report count) on both
+**Career Board → Candidates** and **Career Board → Employers**, and
+each list has a **Reported** view listing only members with open
+reports. **Dismiss reports** on the row clears them. You are emailed on
+a member's first report.
 
 ### Members blocking members {#members-blocking-members}
 
@@ -109,6 +119,21 @@ Click **Restore** (or the **Restore** bulk action) to lift the
 suspension. This uses the same suspend/restore mechanism already used
 for employers on the **Career Board → Employers** screen.
 
+**Delete** (bulk action) opens WordPress's own Delete Users screen to
+confirm. Deleting a candidate removes their personal data and keeps
+their past applications for employers as "Deleted candidate".
+
+### Banning employers
+
+**Ban** on **Career Board → Employers** stops the employer posting and
+takes their live and pending jobs and their company page off the site:
+the pages return "not found", and the jobs leave search, feeds and the
+sitemap. Nobody is emailed. **Unban** puts back exactly what was live
+or pending; a job you edited, approved or deleted while the ban was on
+is left as you set it. Suspending a candidate hides their public
+resume the same way. In the Jobs list a hidden job shows as **Hidden:
+employer banned**.
+
 ## Admin Notifications
 
-Admins receive a **New Job Pending Review** email when an employer submits a job for approval. This is the only admin-facing email notification. Notification content can be customized in **Settings → Emails**.
+Admins receive a **New Job Pending Review** email when an employer submits a job for approval, and a **Report Received** email when a job or member is first reported (and when a job is hidden by reports). With Pro, administrators also get a bell notification for reports. Notification content can be customized in **Settings → Emails**.

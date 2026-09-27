@@ -53,6 +53,7 @@ class NotificationsModule {
 			Emails\EmailAppWithdrawn::class,
 			Emails\EmailDeadlineReminder::class,
 			Emails\EmailVerifyAccount::class,
+			Emails\EmailReportReceived::class,
 		);
 
 		foreach ( $classes as $class ) {

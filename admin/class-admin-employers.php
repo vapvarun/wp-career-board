@@ -26,6 +26,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminEmployers extends \WP_List_Table {
 
+	use ReportedMembers;
+
 	/**
 	 * Memoized employer user-ID set (role holders ∪ job authors).
 	 *
@@ -163,7 +165,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	public function process_bulk_action(): void {
 		$action = $this->current_action();
-		if ( 'ban' !== $action && 'unban' !== $action ) {
+		if ( ! in_array( $action, array( 'ban', 'unban', 'resolve_flags' ), true ) ) {
 			return;
 		}
 
@@ -184,7 +186,10 @@ class AdminEmployers extends \WP_List_Table {
 			if ( $user_id <= 0 || $user_id === $current ) {
 				continue; // Never let an admin ban themselves.
 			}
-			if ( 'ban' === $action ) {
+			if ( 'resolve_flags' === $action ) {
+				\WCB\Modules\Moderation\ModerationModule::resolve_member_flags( $user_id );
+			} elseif ( 'ban' === $action ) {
+				// Hides their jobs and company page (HiddenContent, on the flag).
 				update_user_meta( $user_id, '_wcb_employer_banned', '1' );
 				do_action( 'wcb_employer_banned', $user_id );
 			} else {
@@ -206,16 +211,12 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ): string {
-		if ( '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true ) ) {
-			return sprintf(
-				'<span class="wcb-badge wcb-badge--danger">%s</span>',
-				esc_html__( 'Banned', 'wp-career-board' )
-			);
-		}
+		$banned = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 		return sprintf(
-			'<span class="wcb-badge wcb-badge--success">%s</span>',
-			esc_html__( 'Active', 'wp-career-board' )
-		);
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			$banned ? 'danger' : 'success',
+			$banned ? esc_html__( 'Banned', 'wp-career-board' ) : esc_html__( 'Active', 'wp-career-board' )
+		) . $this->reports_badge( $item->ID );
 	}
 
 	// -------------------------------------------------------------------------
@@ -252,17 +253,8 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$count    = count( $this->employer_user_ids() );
-		$base_url = admin_url( 'admin.php?page=wcb-employers' );
-
-		return array(
-			'all' => sprintf(
-				'<a href="%s" class="current">%s <span class="count">(%d)</span></a>',
-				esc_url( $base_url ),
-				esc_html__( 'All', 'wp-career-board' ),
-				$count
-			),
-		);
+		$ids = $this->employer_user_ids();
+		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ) ) : array();
 	}
 
 	// -------------------------------------------------------------------------
@@ -323,15 +315,17 @@ class AdminEmployers extends \WP_List_Table {
 			return;
 		}
 
-		$query       = new \WP_User_Query(
-			array(
-				'include' => $employer_ids,
-				'orderby' => $orderby,
-				'order'   => $order,
-				'number'  => $per_page,
-				'offset'  => ( $current_page - 1 ) * $per_page,
-			)
+		$query_args = array(
+			'include' => $employer_ids,
+			'orderby' => $orderby,
+			'order'   => $order,
+			'number'  => $per_page,
+			'offset'  => ( $current_page - 1 ) * $per_page,
 		);
+		if ( $this->reported_active() ) {
+			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+		$query       = new \WP_User_Query( $query_args );
 		$this->items = $query->get_results();
 
 		$this->set_pagination_args(
@@ -490,12 +484,16 @@ class AdminEmployers extends \WP_List_Table {
 				esc_url( (string) get_edit_user_link( $item->ID ) ),
 				esc_html__( 'Edit', 'wp-career-board' )
 			),
-			'view' => sprintf(
-				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				esc_url( (string) get_author_posts_url( $item->ID ) ),
-				esc_html__( 'View', 'wp-career-board' )
-			),
 		);
+		$company_id = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
+		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) ) {
+			$row_actions['view'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( (string) get_permalink( $company_id ) ),
+				esc_html__( 'View company', 'wp-career-board' )
+			);
+		}
+		$row_actions += $this->dismiss_reports_action( $item->ID, 'wcb-employers', 'bulk-employers' );
 
 		if ( $item->ID !== get_current_user_id() ) {
 			$is_banned              = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );

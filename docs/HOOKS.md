@@ -248,6 +248,27 @@ the folder directly (nginx ignores its .htaccess).
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
 
+## Moderation (1.8.0)
+
+A ban (`_wcb_employer_banned` user meta, from any writer) hides the
+member's published and pending jobs, company and resume; removing the
+meta restores them. Enough reports hide a job as pending. Hidden posts
+carry `_wcb_hidden_by` (`ban` or `reports`) and `_wcb_hidden_status`
+(the status to restore); read them with
+`WCB\Modules\Moderation\HiddenContent::reason( $post_id )`. The
+status change skips the transition hooks (no credit charge, emails or
+alerts) and fires `save_post_{post_type}` once so list caches refresh.
+
+| Hook | Args | When |
+|---|---|---|
+| `wcb_job_reported` | `(int $job_id, string $reason, int $user_id)` | After a report is stored and, at the threshold, the job hidden |
+| `wcb_member_reported` | `(int $user_id, string $reason, int $reporter_id)` | After a member report is stored |
+| `wcb_member_flags_resolved` | `(int $user_id)` | Reports dismissed from the Candidates or Employers list |
+
+`ModerationModule::alert_due( $count )` is the rule the owner email and
+Pro's bell share: alert on the first open report and on the one that
+reaches the auto-hide threshold.
+
 ## Personal data (1.8.0)
 
 One registry drives the WordPress privacy exporter and eraser (Tools >

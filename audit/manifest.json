@@ -25,9 +25,9 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 237,
+    "hooks_fired": 239,
     "hooks_unique": 161,
-    "cron": 7,
+    "cron": 8,
     "wp_cli": 5
   },
   "rest": {

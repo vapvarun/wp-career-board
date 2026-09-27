@@ -544,6 +544,12 @@ class AdminJobs extends \WP_List_Table {
 		if ( 'pending' === $status && \WCB\Modules\Jobs\JobPayment::is_awaiting( $item->ID ) ) {
 			$label = __( 'Awaiting payment', 'wp-career-board' );
 		}
+		$hidden = \WCB\Modules\Moderation\HiddenContent::reason( $item->ID );
+		if ( 'ban' === $hidden ) {
+			$label = __( 'Hidden: employer banned', 'wp-career-board' );
+		} elseif ( 'reports' === $hidden ) {
+			$label = __( 'Hidden: reported', 'wp-career-board' );
+		}
 
 		$badge_map = array(
 			'publish'     => 'success',
@@ -554,6 +560,9 @@ class AdminJobs extends \WP_List_Table {
 			'trash'       => 'danger',
 		);
 		$badge_var = $badge_map[ $status ] ?? 'default';
+		if ( '' !== $hidden ) {
+			$badge_var = 'danger';
+		}
 
 		return sprintf(
 			'<span class="wcb-badge wcb-badge--%s">%s</span>',

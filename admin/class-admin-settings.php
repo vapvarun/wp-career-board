@@ -770,6 +770,13 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-report-auto-hide"><?php esc_html_e( 'Hide a job after this many reports', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<input type="number" id="wcb-report-auto-hide" name="wcb_settings[report_auto_hide_threshold]" value="<?php echo (int) ( $settings['report_auto_hide_threshold'] ?? 3 ); ?>" min="0" max="50" style="width:80px">
+											<span class="description"><?php esc_html_e( 'When this many different members report a job, it is taken off the site as "Pending" until you review it under Career Board > Jobs > Flagged. Dismissing the reports puts it back. 0 never hides a job automatically. You are emailed on the first report and when a job is hidden.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
 										<div class="wcb-settings-row-label"><label for="wcb-jobs-expire-days"><?php esc_html_e( 'Default listing length (days)', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input type="number" id="wcb-jobs-expire-days" name="wcb_settings[jobs_expire_days]" value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>" min="1" max="365" style="width:80px">

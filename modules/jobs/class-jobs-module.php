@@ -35,6 +35,15 @@ final class JobsModule {
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+		// Any job save (REST, wp-admin, cron, CLI) invalidates the cached REST
+		// job lists. Registered here, not with the REST routes, which only
+		// load on REST requests.
+		add_action(
+			'save_post_wcb_job',
+			static function (): void {
+				update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
+			}
+		);
 		// Member blocking on the SSR frontend. REST already excludes blocked
 		// authors (class-jobs-endpoint.php author__not_in / is_hidden); mirror it
 		// on the server-rendered listings + single job so a blocked employer's

@@ -125,14 +125,6 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
-
-		add_action(
-			'save_post_wcb_job',
-			static function (): void {
-				$v = (int) get_option( 'wcb_jobs_cache_v', 0 );
-				update_option( 'wcb_jobs_cache_v', $v + 1, false );
-			}
-		);
 	}
 
 	/**

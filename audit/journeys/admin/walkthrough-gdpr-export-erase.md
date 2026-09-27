@@ -44,3 +44,4 @@ Delete the test candidate's leftover anonymised applications and the test job. K
 
 - Automated coverage: `tests/test-personal-data.php` (28 assertions: registry, member and guest export/erase, ban kept, full `wp_delete_user` cascade, Pro providers, retention).
 - Pro adds its providers to the same filter (`modules/privacy/class-privacy-module.php`); there is no separate Pro exporter or eraser.
+- Hooks exercised: `wcb_personal_data_providers` (steps 1-5, the registry every provider joins) and `wcb_logs_pruned` (step 7, fired after `wcb_prune_logs` with the UTC cutoff; Pro's bell prunes on it).

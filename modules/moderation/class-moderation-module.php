@@ -42,6 +42,7 @@ class ModerationModule extends \WCB\Api\RestController {
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		HiddenContent::boot();
 		// A published job is no longer rejected, whichever path published it
 		// (approve route, CLI, editor). A stale marker would send the job back to
 		// review the next time its employer republishes it.
@@ -147,6 +148,65 @@ class ModerationModule extends \WCB\Api\RestController {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Reports that hide a job until a moderator reviews it (0 = never).
+	 *
+	 * @since 1.8.0
+	 * @return int
+	 */
+	public static function auto_hide_threshold(): int {
+		return \WCB\Admin\Settings::int( 'report_auto_hide_threshold', 3 );
+	}
+
+	/**
+	 * Whether a new report should alert the site owner: the first open report,
+	 * and the one that reaches the auto-hide threshold. Later reports only
+	 * raise the count shown in the admin lists.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $count Open reports after this one.
+	 * @return bool
+	 */
+	public static function alert_due( int $count ): bool {
+		return 1 === $count || self::auto_hide_threshold() === $count;
+	}
+
+	/**
+	 * Dismiss the open reports on a member (Candidates and Employers lists).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $user_id Member.
+	 * @return void
+	 */
+	public static function resolve_member_flags( int $user_id ): void {
+		update_user_meta( $user_id, '_wcb_member_flag_status', 'resolved' );
+
+		/**
+		 * Fires when an administrator dismisses the open reports on a member.
+		 *
+		 * @since 1.7.1
+		 *
+		 * @param int $user_id Member whose reports were dismissed.
+		 */
+		do_action( 'wcb_member_flags_resolved', $user_id );
+	}
+
+	/**
+	 * Open reports on a member (0 once dismissed).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $user_id Member.
+	 * @return int
+	 */
+	public static function open_member_reports( int $user_id ): int {
+		return 'open' === (string) get_user_meta( $user_id, '_wcb_member_flag_status', true )
+			? (int) get_user_meta( $user_id, '_wcb_member_flag_count', true )
+			: 0;
 	}
 
 	/**
@@ -375,6 +435,12 @@ class ModerationModule extends \WCB\Api\RestController {
 		update_post_meta( $job_id, '_wcb_flag_count', count( $reporters ) );
 		update_post_meta( $job_id, '_wcb_flag_status', 'open' );
 
+		// Enough separate reports take the job down until a moderator looks.
+		$threshold = self::auto_hide_threshold();
+		if ( $threshold > 0 && count( $reporters ) >= $threshold ) {
+			HiddenContent::hide( array( $job_id ), 'reports', 'pending' );
+		}
+
 		/**
 		 * Fires after a visitor reports a job listing.
 		 *
@@ -444,6 +510,10 @@ class ModerationModule extends \WCB\Api\RestController {
 	 * @return true|\WP_Error
 	 */
 	public static function resolve_job_flags( int $job_id, string $action ) {
+		// A job hidden by reports goes back to how it was; 'unpublish' then
+		// sends it to pending through the normal status change.
+		HiddenContent::restore( array( $job_id ), 'reports' );
+
 		if ( 'unpublish' === $action ) {
 			$updated = wp_update_post(
 				array(

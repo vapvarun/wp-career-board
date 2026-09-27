@@ -61,6 +61,7 @@ final class SettingsSchema {
 		$fields = array(
 			// Jobs.
 			'auto_publish_jobs'          => array( false, $bool ),
+			'report_auto_hide_threshold' => array( 3, $range( 0, 50 ) ),
 			'jobs_per_page'              => array( 10, $range( 1, 100 ) ),
 			'jobs_expire_days'           => array( 30, static fn ( $v ): int => max( 1, (int) $v ) ),
 			'deadline_auto_close'        => array( false, $bool ),

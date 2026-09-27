@@ -67,6 +67,10 @@ echo "=== Personal Data Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-personal-data.php
 echo ""
 
+echo "=== Trust and Safety Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-trust-safety.php
+echo ""
+
 echo "=== Scale Harness Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
 echo ""
