@@ -183,6 +183,15 @@ Fire side effects on key plugin events:
 | `wcb_deadline_reminder` | `(int $user_id, int $job_id, int $days_left)` |
 | `wcb_featured_expired` | `(int $job_id)` |
 
+## One signal per notification
+
+`wcb_notification_created` fires once per notification-worthy event. Free
+fires it when an email is sent; an add-on that records the same event
+(Pro's bell) returns false from
+`wcb_email_announces_notification( bool $announce, string $email_id, int $user_id )`
+and fires the signal itself, so push and BuddyNext never receive an event
+twice.
+
 ## Filter early-rejection on submission
 
 Both job and application submissions pass through a "pre-submit" filter

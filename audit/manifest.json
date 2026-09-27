@@ -25,8 +25,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 235,
-    "hooks_unique": 159,
+    "hooks_fired": 236,
+    "hooks_unique": 160,
     "cron": 7,
     "wp_cli": 5
   },
@@ -2196,6 +2196,20 @@
       "args_signature": [],
       "where": "blocks/job-listings/render.php:42",
       "consumed_by": []
+    },
+    {
+      "name": "wcb_email_announces_notification",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/notifications/class-abstract-email.php:306",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:54",
+          "kind": "filter_listener"
+        }
+      ]
     },
     {
       "name": "wcb_email_template_dirs",

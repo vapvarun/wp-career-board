@@ -164,6 +164,31 @@ foreach ( $wcb_extra as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }
 
+// An add-on that records an event itself can stop the email announcing it.
+$wcb_signals = 0;
+$wcb_count   = static function ( array $n ) use ( &$wcb_signals ): void {
+	// Email-sourced signals carry id 0 (a bell row carries its own id).
+	if ( 0 === (int) $n['id'] ) {
+		++$wcb_signals;
+	}
+};
+add_action( 'wcb_notification_created', $wcb_count );
+$wcb_sig = wcb_lc_app( $wcb_job, $wcb_candidate, 'submitted' );
+add_filter( 'wcb_email_announces_notification', '__return_false', 99 );
+ApplicationLifecycle::transition( $wcb_sig, 'reviewing', 'test', $wcb_employer );
+$wcb_suppressed = $wcb_signals;
+remove_filter( 'wcb_email_announces_notification', '__return_false', 99 );
+remove_action( 'wcb_notification_created', $wcb_count );
+wcb_assert( 0 === $wcb_suppressed, 'wcb_email_announces_notification = false: the email fires no signal' );
+// Control: without our __return_false the email announces the change,
+// unless an active bell registered its own claim for this email.
+$wcb_signals = 0;
+add_action( 'wcb_notification_created', $wcb_count );
+ApplicationLifecycle::transition( $wcb_sig, 'shortlisted', 'test', $wcb_employer );
+remove_action( 'wcb_notification_created', $wcb_count );
+wcb_assert( ( has_filter( 'wcb_email_announces_notification' ) ? 0 : 1 ) === $wcb_signals, 'without the filter the email announces unless the bell claims it' );
+wp_delete_post( $wcb_sig, true );
+
 // Trash and restore: the application comes back published, not as a draft.
 $wcb_tr = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
 wp_trash_post( $wcb_tr );
@@ -213,6 +238,7 @@ wp_delete_post( $wcb_live_block, true );
 // ── Job deleted: rows become job_removed; Remove deletes them ───────────
 $wcb_live = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
 wp_delete_post( $wcb_job, true );
+wcb_assert( 'wcb_close_deleted_job_applications' === ApplicationLifecycle::JOB_REMOVED_HOOK, 'background hook name is the public contract' );
 wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) ) && 'reviewing' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete queues a background batch instead of working in the request' );
 ApplicationLifecycle::close_deleted_job_applications( $wcb_job );
 wp_clear_scheduled_hook( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) );

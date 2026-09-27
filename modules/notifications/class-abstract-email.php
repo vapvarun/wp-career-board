@@ -289,8 +289,21 @@ abstract class AbstractEmail {
 		 * test previews). Free has no in-app bell, so the email-trigger point is
 		 * the notification-worthy moment - this gives BuddyNext parity with Pro's
 		 * bell hook on Free-only sites. Additive: the email itself is unaffected.
+		 *
+		 * One domain event must announce once: when something else (Pro's bell)
+		 * records this event and fires the signal itself, it returns false here,
+		 * otherwise push and BuddyNext received every such event twice.
 		 */
-		if ( ! $is_test ) {
+		/**
+		 * Filter whether this email announces `wcb_notification_created`.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param bool   $announce Whether the email fires the signal.
+		 * @param string $email_id Email ID (e.g. application-status-changed).
+		 * @param int    $user_id  Recipient user ID.
+		 */
+		if ( ! $is_test && apply_filters( 'wcb_email_announces_notification', true, $this->get_id(), $user_id ) ) {
 			$link = '';
 			foreach ( array( 'dashboard_url', 'job_url', 'approve_url', 'repost_url', 'link' ) as $wcb_link_key ) {
 				if ( ! empty( $vars[ $wcb_link_key ] ) && is_scalar( $vars[ $wcb_link_key ] ) ) {
@@ -300,8 +313,8 @@ abstract class AbstractEmail {
 			}
 
 			/**
-			 * Fires after a Career Board notification is created (Free fires this
-			 * at the email-trigger point; Pro also fires it from the bell insert).
+			 * Fires once per notification-worthy event: from the email on Free,
+			 * from the bell insert when Pro's bell records the same event.
 			 *
 			 * @since 1.4.3
 			 *
