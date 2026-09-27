@@ -108,9 +108,9 @@ class SeoModule {
 			}
 		);
 
-		$json = wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		$json = wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP );
 		if ( false !== $json ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode produces safe JSON output.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_TAG encodes < and > so no value can close the script tag.
 			echo '<script type="application/ld+json">' . $json . "</script>\n";
 		}
 	}

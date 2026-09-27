@@ -11,7 +11,6 @@ declare( strict_types=1 );
 namespace WCB\Api\Endpoints;
 
 use WCB\Api\RestController;
-use WCB\Modules\Boards\BoardsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -48,6 +47,7 @@ final class JobsEndpoint extends RestController {
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
+					'args'                => $this->get_write_params(),
 				),
 			)
 		);
@@ -65,6 +65,7 @@ final class JobsEndpoint extends RestController {
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+					'args'                => $this->get_write_params(),
 				),
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
@@ -278,7 +279,10 @@ final class JobsEndpoint extends RestController {
 		// so WP_Query returns zero rows (not all rows).
 		$saved_by = (int) $request->get_param( 'saved_by' );
 		if ( $saved_by > 0 ) {
-			$bookmark_ids     = array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) );
+			// A member's bookmarks are theirs: anyone else (including a
+			// logged-out visitor) gets an empty list, not someone's saved jobs.
+			$can_read         = $saved_by === get_current_user_id() || $this->check_ability( 'wcb/manage-settings' );
+			$bookmark_ids     = $can_read ? array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) ) : array();
 			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
 		}
 
@@ -684,8 +688,14 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		// Resolve the board once, before pricing it: a request without board_id
+		// used to be priced as "no board" (free) and then saved to the default
+		// board, which may be paid.
+		$wcb_board_id = \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $request->get_param( 'board_id' ) );
+		$request->set_param( 'board_id', $wcb_board_id );
+
 		// Credit gate — if board has a credit cost, check employer balance.
-		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) ( $request->get_param( 'board_id' ) ?? 0 ) );
+		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 		if ( $wcb_credit_cost > 0 ) {
 			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
 			if ( $wcb_employer_balance < $wcb_credit_cost ) {
@@ -709,30 +719,7 @@ final class JobsEndpoint extends RestController {
 			return $wcb_limit_error;
 		}
 
-		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
-		$status       = $auto_publish ? 'publish' : 'pending';
-
-		/**
-		 * Filter the default post status for a newly submitted job.
-		 *
-		 * Pro hooks this to honor the per-board <code>moderation</code>
-		 * setting (auto / approval) so a board configured as
-		 * approval-required forces pending even when the global default is
-		 * auto-publish, and vice versa. Free is the source of truth for the
-		 * global default; Pro adds the per-board override.
-		 *
-		 * Allowed return values: <code>publish</code>, <code>pending</code>,
-		 * <code>draft</code>. Anything else is coerced back to the input.
-		 *
-		 * @since 1.2.5
-		 *
-		 * @param string           $status  Resolved default ('publish' | 'pending').
-		 * @param \WP_REST_Request $request The originating REST request.
-		 */
-		$status = (string) apply_filters( 'wcb_job_default_status', $status, $request );
-		if ( ! in_array( $status, array( 'publish', 'pending', 'draft' ), true ) ) {
-			$status = $auto_publish ? 'publish' : 'pending';
-		}
+		$status = $this->default_status( $request );
 
 		$wcb_post_data = array(
 			'post_type'    => 'wcb_job',
@@ -789,17 +776,16 @@ final class JobsEndpoint extends RestController {
 			$expire_days      = $expire_days > 0 ? $expire_days : 30;
 			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 		}
-		$wcb_currency_input   = strtoupper( (string) ( $request->get_param( 'salary_currency' ) ?? 'USD' ) );
-		$wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
-		$wcb_currency_param   = array_key_exists( $wcb_currency_input, $wcb_currency_catalog ) ? $wcb_currency_input : 'USD';
-		$meta                 = array(
+		// Values are validated by the route args and normalised by the meta
+		// sanitizers registered in JobsMeta.
+		$meta = array(
 			'_wcb_deadline'        => $wcb_deadline_raw,
 			'_wcb_salary_min'      => $request->get_param( 'salary_min' ),
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
-			'_wcb_salary_currency' => $wcb_currency_param,
-			'_wcb_salary_type'     => in_array( $salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type_raw : 'yearly',
+			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? '',
+			'_wcb_salary_type'     => $salary_type_raw ?? 'yearly',
 			'_wcb_remote'          => $request->get_param( 'remote' ) ? '1' : '0',
-			'_wcb_board_id'        => $request->get_param( 'board_id' ) ?? BoardsModule::get_default_board_id(),
+			'_wcb_board_id'        => $wcb_board_id,
 		);
 		foreach ( $meta as $key => $value ) {
 			if ( null !== $value ) {
@@ -833,19 +819,7 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
-		// Taxonomies.
-		$categories = $request->get_param( 'categories' );
-		if ( $categories ) {
-			wp_set_object_terms( $job_id, (array) $categories, 'wcb_category' );
-		}
-		$job_types = $request->get_param( 'job_types' );
-		if ( $job_types ) {
-			wp_set_object_terms( $job_id, (array) $job_types, 'wcb_job_type' );
-		}
-		$locations = $request->get_param( 'locations' );
-		if ( $locations ) {
-			wp_set_object_terms( $job_id, (array) $locations, 'wcb_location' );
-		}
+		$this->set_job_terms( $job_id, $request );
 		// Manual one-off location string from the form's "Other (enter
 		// manually)" path. Insert/attach a matching wcb_location term so the
 		// listings filter still indexes the job, and stash the raw label in
@@ -861,15 +835,6 @@ final class JobsEndpoint extends RestController {
 				update_post_meta( $job_id, '_wcb_location_custom', $wcb_loc_custom );
 			}
 		}
-		$experience_param = $request->get_param( 'experience' );
-		if ( $experience_param ) {
-			wp_set_object_terms( $job_id, (array) $experience_param, 'wcb_experience' );
-		}
-		$tags = $request->get_param( 'tags' );
-		if ( $tags ) {
-			wp_set_object_terms( $job_id, (array) $tags, 'wcb_tag' );
-		}
-
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons
 		// hook wcb_job_form_fields). Mirrors the company / resume custom-field
 		// save flow shared via WCB\Core\FormCustomFields — without this the
@@ -917,17 +882,21 @@ final class JobsEndpoint extends RestController {
 			// using the registered custom status under the hood.
 			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
 
-			// A rejected listing is kept as a draft carrying _wcb_rejection_reason.
-			// When the employer resubmits it, it must go back through moderation
-			// (pending) — NOT straight live — otherwise rejection is trivially
-			// bypassed. Override the requested 'publish' and clear the marker.
+			// Only moderators publish a listing that has not been approved yet.
+			// An employer asking to publish a pending or draft job gets the same
+			// status a brand-new submission would (so auto-publish boards still
+			// go live), and a rejected job always goes back to review.
 			if (
 				'publish' === $status
-				&& 'draft' === $post->post_status
-				&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true )
+				&& in_array( $post->post_status, array( 'pending', 'draft' ), true )
+				&& ! $this->check_ability( 'wcb/moderate-jobs' )
 			) {
-				$data['post_status'] = 'pending';
-				delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+				if ( EmployersEndpoint::is_rejected_job( $post ) ) {
+					$data['post_status'] = 'pending';
+					delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+				} else {
+					$data['post_status'] = $this->default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+				}
 			}
 
 			// Republish gate — when an employer flips an expired or closed
@@ -1051,20 +1020,7 @@ final class JobsEndpoint extends RestController {
 			update_post_meta( $post->ID, '_wcb_remote', $remote ? '1' : '0' );
 		}
 
-		// Taxonomies — only update when parameter is present.
-		$taxonomy_map = array(
-			'categories' => 'wcb_category',
-			'job_types'  => 'wcb_job_type',
-			'locations'  => 'wcb_location',
-			'experience' => 'wcb_experience',
-			'tags'       => 'wcb_tag',
-		);
-		foreach ( $taxonomy_map as $param => $taxonomy ) {
-			$terms = $request->get_param( $param );
-			if ( null !== $terms ) {
-				wp_set_object_terms( $post->ID, (array) $terms, $taxonomy );
-			}
-		}
+		$this->set_job_terms( $post->ID, $request );
 
 		// Manual location override — same flow as create_item().
 		$wcb_loc_custom = $request->get_param( 'location_custom' );
@@ -1091,6 +1047,105 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_updated', $post->ID, $request );
 		return rest_ensure_response( $this->prepare_item_for_response_array( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * Attach the request's taxonomy terms to a job.
+	 *
+	 * The fixed vocabularies (category, type, location, experience) only accept
+	 * terms that already exist. Passing slugs straight to wp_set_object_terms()
+	 * let any employer create public filter terms on every listing page. Tags
+	 * stay free-form: the form collects them as comma-separated text. The
+	 * location form's "Other" path creates its term on purpose and is handled
+	 * separately.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int              $job_id  Job post ID.
+	 * @param \WP_REST_Request $request Originating request; absent params are left untouched.
+	 * @return void
+	 */
+	private function set_job_terms( int $job_id, \WP_REST_Request $request ): void {
+		$taxonomy_map = array(
+			'categories' => 'wcb_category',
+			'job_types'  => 'wcb_job_type',
+			'locations'  => 'wcb_location',
+			'experience' => 'wcb_experience',
+			'tags'       => 'wcb_tag',
+		);
+
+		/**
+		 * Filter whether a job submission may create new taxonomy terms.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param bool             $allow   Default: only moderators may.
+		 * @param \WP_REST_Request $request Originating request.
+		 */
+		$allow_new = (bool) apply_filters( 'wcb_job_allow_new_terms', $this->check_ability( 'wcb/moderate-jobs' ), $request );
+
+		foreach ( $taxonomy_map as $param => $taxonomy ) {
+			$values = $request->get_param( $param );
+			if ( null === $values ) {
+				continue;
+			}
+			$terms = array();
+			foreach ( (array) $values as $value ) {
+				$term = is_numeric( $value )
+					? get_term( (int) $value, $taxonomy )
+					: get_term_by( 'slug', sanitize_title( (string) $value ), $taxonomy );
+				if ( $term instanceof \WP_Term ) {
+					$terms[] = $term->term_id;
+				} elseif ( ( $allow_new || 'wcb_tag' === $taxonomy ) && '' !== trim( (string) $value ) ) {
+					$terms[] = sanitize_text_field( (string) $value );
+				}
+			}
+			wp_set_object_terms( $job_id, $terms, $taxonomy );
+		}
+	}
+
+	/**
+	 * Status an employer's submission gets: published or held for review.
+	 *
+	 * Shared by create and by an employer publishing a pending/draft job, so
+	 * resubmitting can never skip moderation that a new post would face.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request  Originating request.
+	 * @param int              $board_id Board the job is on (update path), so the
+	 *                                   per-board override sees it even when the
+	 *                                   request itself carries no board_id.
+	 * @return string 'publish', 'pending' or 'draft'.
+	 */
+	private function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
+		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
+		$fallback     = $auto_publish ? 'publish' : 'pending';
+
+		if ( $board_id > 0 && null === $request->get_param( 'board_id' ) ) {
+			$request = clone $request;
+			$request->set_param( 'board_id', $board_id );
+		}
+
+		/**
+		 * Filter the default post status for a newly submitted job.
+		 *
+		 * Pro hooks this to honor the per-board <code>moderation</code>
+		 * setting (auto / approval) so a board configured as
+		 * approval-required forces pending even when the global default is
+		 * auto-publish, and vice versa. Free is the source of truth for the
+		 * global default; Pro adds the per-board override.
+		 *
+		 * Allowed return values: <code>publish</code>, <code>pending</code>,
+		 * <code>draft</code>. Anything else is coerced back to the input.
+		 *
+		 * @since 1.2.5
+		 *
+		 * @param string           $status  Resolved default ('publish' | 'pending').
+		 * @param \WP_REST_Request $request The originating REST request.
+		 */
+		$status = (string) apply_filters( 'wcb_job_default_status', $fallback, $request );
+		return in_array( $status, array( 'publish', 'pending', 'draft' ), true ) ? $status : $fallback;
 	}
 
 	/**
@@ -1589,7 +1644,7 @@ final class JobsEndpoint extends RestController {
 			'status'             => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
 			// A rejected job is kept as a draft carrying a rejection reason; expose
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
-			'rejected'           => ( 'draft' === $post->post_status && '' !== (string) $rejection_reason ),
+			'rejected'           => EmployersEndpoint::is_rejected_job( $post ),
 			'author'             => $author_id,
 			// WordPress leaves *_gmt as '0000-00-00 00:00:00' for non-published
 			// posts (e.g. pending jobs, the default when auto-publish is off), and
@@ -1756,6 +1811,56 @@ final class JobsEndpoint extends RestController {
 		// -- so salary_label rendered English on every locale, in the REST
 		// payload the mobile app consumes as well as on the frontend.
 		return \WCB\Core\SalaryFormat::format( $min, $max, $currency, $type );
+	}
+
+	/**
+	 * Validation for the create and update routes.
+	 *
+	 * Invalid input is answered with a 400 naming the field instead of being
+	 * stored; the JobsMeta sanitizers are the same rules, applied to every
+	 * other writer. Empty values stay allowed (they mean "not set").
+	 *
+	 * @since 1.8.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_write_params(): array {
+		$rule = static function ( callable $is_valid, string $message ): callable {
+			return static function ( $value ) use ( $is_valid, $message ) {
+				return ( null === $value || '' === $value || $is_valid( $value ) )
+					? true
+					: new \WP_Error( 'rest_invalid_param', $message, array( 'status' => 400 ) );
+			};
+		};
+
+		return array(
+			'salary_min'      => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Minimum salary must be a positive number.', 'wp-career-board' ) ),
+			),
+			'salary_max'      => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Maximum salary must be a positive number.', 'wp-career-board' ) ),
+			),
+			'salary_currency' => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => array_key_exists( strtoupper( (string) $v ), \WCB\Admin\AdminSettings::get_currency_catalog() ), __( 'Unknown salary currency.', 'wp-career-board' ) ),
+			),
+			'salary_type'     => array(
+				'type' => 'string',
+				'enum' => array( 'yearly', 'monthly', 'hourly' ),
+			),
+			'deadline'        => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => \WCB\Modules\Jobs\JobsMeta::sanitize_date( $v ) === $v, __( 'Deadline must be a date in YYYY-MM-DD format.', 'wp-career-board' ) ),
+			),
+			'board_id'        => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_board' === get_post_type( absint( $v ) ), __( 'Unknown job board.', 'wp-career-board' ) ),
+			),
+			'apply_email'     => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => (bool) is_email( (string) $v ), __( 'Apply email is not a valid email address.', 'wp-career-board' ) ),
+			),
+			'status'          => array(
+				'type' => 'string',
+				'enum' => array( 'publish', 'draft', 'closed' ),
+			),
+		);
 	}
 
 	/**

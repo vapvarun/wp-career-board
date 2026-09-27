@@ -582,8 +582,11 @@ final class EmployersEndpoint extends RestController {
 	 * @return bool
 	 */
 	public static function is_rejected_job( \WP_Post $post ): bool {
+		// The marker's presence is the signal, not its text: the reject dialog's
+		// reason is optional, and an empty reason used to read as "never
+		// rejected", letting the employer republish straight past moderation.
 		return 'draft' === $post->post_status
-			&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+			&& metadata_exists( 'post', $post->ID, '_wcb_rejection_reason' );
 	}
 
 	/**

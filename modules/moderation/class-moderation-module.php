@@ -42,6 +42,19 @@ class ModerationModule extends \WCB\Api\RestController {
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		// A published job is no longer rejected, whichever path published it
+		// (approve route, CLI, editor). A stale marker would send the job back to
+		// review the next time its employer republishes it.
+		add_action(
+			'transition_post_status',
+			static function ( string $new_status, string $old_status, \WP_Post $post ): void {
+				if ( 'publish' === $new_status && 'wcb_job' === $post->post_type ) {
+					delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+				}
+			},
+			10,
+			3
+		);
 	}
 
 	/**

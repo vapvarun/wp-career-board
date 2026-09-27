@@ -204,6 +204,21 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
 | `wcb_pre_job_submit` | Short-circuit job creation |
 | `wcb_pre_application_submit` | Short-circuit application submission |
 
+## Job fields and terms (1.8.0)
+
+Every job meta key (`_wcb_deadline`, `_wcb_salary_*`, `_wcb_board_id`,
+`_wcb_remote`, `_wcb_featured`, `_wcb_apply_*`, `_wcb_company_*`) has a
+registered `sanitize_callback` in `WCB\Modules\Jobs\JobsMeta`, so any
+writer (REST, admin editor, importers, your own code) gets the same rules.
+The create/update routes also validate input and answer `400` naming the
+field. An employer moving a pending or draft job to `publish` gets the
+status a new submission would (`wcb_job_default_status`); a rejected job
+always returns to review.
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_allow_new_terms` | `$allow, $request` | Whether a submission may create new category / type / location / experience terms. Default: moderators only. Tags are always free-form. |
+
 ## Active-job quota (free tier)
 
 `JobsEndpoint::check_active_job_limit()` gates job create and republish
