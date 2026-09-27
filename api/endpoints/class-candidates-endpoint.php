@@ -320,7 +320,25 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		return rest_ensure_response( $this->prepare_candidate( $user ) );
+		// Only candidates have a candidate profile: an admin's or employer's ID
+		// answered here too, confirming the account and its name.
+		if ( ! $is_self && ! $is_admin && ! in_array( 'wcb_candidate', (array) $user->roles, true ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$data = $this->prepare_candidate( $user );
+
+		// Contact details (phone, location, email…) go to the candidate, admins
+		// and employers the candidate applied to - not to anyone who asks.
+		if ( ! $is_self && ! $is_admin && ! \WCB\Modules\Candidates\CandidatesModule::has_applied_to( $user_id, get_current_user_id() ) ) {
+			$data['resume_data'] = array();
+		}
+
+		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -539,7 +557,10 @@ final class CandidatesEndpoint extends RestController {
 
 			foreach ( $resume_ids as $resume_id ) {
 				$post = get_post( $resume_id );
-				if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type ) {
+				// A bookmark keeps no right to a resume that has since gone
+				// private (or never was readable): show only what this viewer
+				// could open.
+				if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type || ! \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $post->ID ) ) {
 					continue;
 				}
 
