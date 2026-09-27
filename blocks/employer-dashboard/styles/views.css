@@ -120,6 +120,7 @@
 .wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="draft"]       { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); color: var(--wcb-text-secondary); }
 .wcb-status-badge[data-status="pending"]     { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
+.wcb-status-badge--featured                  { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 
 /* Status dot */
 .wcb-status-dot {

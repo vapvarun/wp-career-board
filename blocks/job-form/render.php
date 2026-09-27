@@ -351,6 +351,9 @@ $wcb_initial_state = apply_filters(
 		'creditMessages'    => (object) $wcb_credit_messages,
 		'creditErrors'      => (object) $wcb_credit_errors,
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		'buyUrl'            => '',
+		'featured'          => false,
+		'featureError'      => '',
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
@@ -429,6 +432,10 @@ $wcb_initial_state = apply_filters(
 	),
 	$attributes
 );
+
+// Paid Featured upgrade (Pro prices it; 0 means not offered).
+$wcb_featured_cost = (int) apply_filters( 'wcb_featured_upgrade_cost', 0 );
+$wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 
 wp_interactivity_state( 'wcb-job-form', $wcb_initial_state );
 
@@ -520,6 +527,7 @@ $wcb_step_labels = array(
 				data-wp-class--wcb-hidden="!state.hasListingWindow"
 				data-wp-text="state.listingWindowMessage"
 			></p>
+			<p class="wcb-form-success__meta" hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
 			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
@@ -1030,7 +1038,24 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
+<?php if ( $wcb_featured_cost > 0 ) : ?>
+			<label class="wcb-form-feature">
+				<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
+				<span>
+				<?php
+				printf(
+					/* translators: 1: number of days, 2: number of credits */
+					esc_html( _n( 'Feature this job: it lists first for %1$d days (%2$s credit).', 'Feature this job: it lists first for %1$d days (%2$s credits).', $wcb_featured_cost, 'wp-career-board' ) ),
+					(int) $wcb_featured_days,
+					esc_html( number_format_i18n( $wcb_featured_cost ) )
+				);
+				?>
+				</span>
+			</label>
+			<?php endif; ?>
+
 			<p class="wcb-form-error" role="alert" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
+			<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
 			<div class="wcb-form-nav">
 				<button

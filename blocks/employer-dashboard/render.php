@@ -66,8 +66,10 @@ $wcb_company_type    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 // present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
 // renders that markup (trusted plugin Interactivity HTML — emitted as-is below,
 // since wp_kses_post would strip the <template>/data-wp-each loop).
-$wcb_module_renders  = (array) apply_filters( 'wcb_module_renders', array() );
-$wcb_bell_enabled    = ! empty( $wcb_module_renders['notifications_bell'] );
+$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array(), 'employer-dashboard' );
+$wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
+// Pro's Credits tab (balance, buying, receipts, history).
+$wcb_credits_panel   = (string) ( $wcb_module_renders['credits_panel'] ?? '' );
 $wcb_company_founded = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_founded', true ) : '';
 $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) : '';
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
@@ -274,6 +276,8 @@ wp_interactivity_state(
 		'passwordResetUrl'      => wp_lostpassword_url( $wcb_dashboard_url ),
 		'creditBalance'         => $wcb_credit_balance,
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		// Paid Featured upgrade (Pro prices it; 0 hides the Feature action).
+		'featuredCost'          => (int) apply_filters( 'wcb_featured_upgrade_cost', 0 ),
 		'creditsEnabled'        => (bool) apply_filters( 'wcb_credits_enabled', false ),
 		// Low-balance threshold — Pro returns the admin-configured value, Free
 		// defaults to 0 (no warning). When balance dips below the threshold
@@ -387,6 +391,10 @@ wp_interactivity_state(
 			'jobStatusExpired'         => __( 'Expired', 'wp-career-board' ),
 			'jobStatusRejected'        => __( 'Rejected', 'wp-career-board' ),
 			'jobStatusAwaitingPayment' => __( 'Awaiting payment', 'wp-career-board' ),
+			/* translators: %s: number of credits */
+			'confirmFeatureMsg'        => __( 'Featured jobs list first. This uses %s credits from your balance.', 'wp-career-board' ),
+			'confirmFeatureTitle'      => __( 'Feature this job?', 'wp-career-board' ),
+			'confirmFeatureConfirm'    => __( 'Feature job', 'wp-career-board' ),
 
 			// Applicant status-change confirmation.
 			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
@@ -454,17 +462,16 @@ wp_interactivity_state(
 
 			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'CREDITS', 'wp-career-board' ); ?></span>
+				<?php if ( '' !== $wcb_credits_panel ) : ?>
+			<button type="button" role="tab" class="wcb-nav-item" id="wcb-tab-credits" aria-controls="wcb-panel-credits" data-wp-bind--aria-selected="state.isViewCredits" data-wp-class--wcb-nav-active="state.isViewCredits" data-wp-on--click="actions.switchToCredits">
+					<?php esc_html_e( 'Credits', 'wp-career-board' ); ?>
+				<span class="wcb-nav-badge" data-wp-text="state.creditBalanceLabel">0</span>
+			</button>
+				<?php else : ?>
 			<span class="wcb-nav-item wcb-nav-item--static">
-				<?php esc_html_e( 'Balance', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Balance', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.creditBalanceLabel">0</span>
 			</span>
-				<?php
-				$wcb_purchase_url = (string) apply_filters( 'wcb_credit_purchase_url', '' );
-				if ( $wcb_purchase_url ) :
-					?>
-			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_purchase_url ); ?>" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Buy Credits', 'wp-career-board' ); ?> &#8599;
-			</a>
 				<?php endif; ?>
 			<?php endif; ?>
 
@@ -675,11 +682,13 @@ wp_interactivity_state(
 							<span class="wcb-job-meta" data-wp-text="context.job.location"></span>
 						</div>
 						<span class="wcb-status-badge" role="status" data-wp-text="context.job.statusLabel" data-wp-bind--data-status="context.job.status"></span>
+						<span class="wcb-status-badge wcb-status-badge--featured" data-wp-class--wcb-hidden="!context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
 						<button type="button" class="wcb-apps-chip" data-wp-class--wcb-hidden="!context.job.appCount" data-wp-text="context.job.appLabel" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob"></button>
 						<span class="wcb-apps-chip wcb-apps-chip--empty" data-wp-class--wcb-hidden="context.job.appCount" data-wp-text="context.job.appLabel"></span>
 						<div class="wcb-job-actions">
 							<a class="wcb-db-link-btn" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 							<a class="wcb-db-link-btn wcb-db-link-btn--edit" data-wp-bind--href="context.job.editUrl"><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
+							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--feature" data-wp-class--wcb-hidden="!context.job.canFeature" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.featureJob"><?php esc_html_e( 'Feature', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--close" data-wp-class--wcb-hidden="state.isJobInactive" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.closeJob"><?php esc_html_e( 'Close', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--publish" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--publish" data-wp-class--wcb-hidden="!context.job.isRejected" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Resubmit', 'wp-career-board' ); ?></button>
@@ -1187,6 +1196,20 @@ wp_interactivity_state(
 			</div>
 		</div>
 	</div>
+
+	<?php if ( '' !== $wcb_credits_panel ) : ?>
+	<!-- VIEW: Credits (Pro) -->
+	<div class="wcb-view-panel" id="wcb-panel-credits" role="tabpanel" aria-labelledby="wcb-tab-credits" data-wp-class--wcb-view-active="state.isViewCredits">
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></h1>
+		</div>
+		<?php
+		// Pro's credits panel (trusted Interactivity HTML; see note at top).
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted plugin Interactivity markup.
+		echo $wcb_credits_panel;
+		?>
+	</div>
+	<?php endif; ?>
 
 	<?php if ( $wcb_bell_enabled ) : ?>
 	<!-- VIEW: Notifications (Pro) -->

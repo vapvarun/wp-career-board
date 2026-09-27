@@ -147,7 +147,7 @@ if ( (bool) $wcb_toolbar['show_sort'] ) {
 		</p>
 		<?php
 		if ( '' !== (string) $wcb_toolbar['inject_slot_key'] ) {
-			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array(), 'archive-toolbar' );
 			$wcb_slot_html      = (string) ( $wcb_module_renders[ (string) $wcb_toolbar['inject_slot_key'] ] ?? '' );
 			if ( '' !== $wcb_slot_html ) {
 				// Module-generated markup (escaped internally — text via esc_html_e,

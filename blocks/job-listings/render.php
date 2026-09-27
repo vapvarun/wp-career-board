@@ -109,7 +109,9 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 	}
 }
 
-$wcb_jobs_raw = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
+// Same order as the REST pages Load More fetches: featured first, newest next.
+$wcb_query_args = \WCB\Modules\Jobs\JobsMeta::featured_first( $wcb_query_args );
+$wcb_jobs_raw   = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
 
 if ( $wcb_jobs_raw ) {
 	$wcb_job_ids = wp_list_pluck( $wcb_jobs_raw, 'ID' );
@@ -191,42 +193,42 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
 	$wcb_job_card = array(
-		'id'             => $wcb_job_post->ID,
-		'title'          => $wcb_job_post->post_title,
-		'permalink'      => get_permalink( $wcb_job_post->ID ),
-		'company'        => $wcb_company_name_val,
-		'initials'       => $wcb_initials( $wcb_company_name_val ),
-		'trust'          => $wcb_trust,
-		'trust_label'    => $wcb_trust_info['label'] ?? '',
-		'verified'       => null !== $wcb_trust_info,
-		'location'       => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
-		'type'           => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
-		'experience'     => is_wp_error( $wcb_exp_terms ) ? '' : implode( ', ', $wcb_exp_terms ),
-		'category'       => is_wp_error( $wcb_cat_terms ) ? '' : implode( ', ', $wcb_cat_terms ),
-		'remote'         => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_remote', true ),
-		'featured'       => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
-		'board_id'       => (int) get_post_meta( $wcb_job_post->ID, '_wcb_board_id', true ),
-		'board_name'     => '',
-		'salary_min'     => $wcb_salary_min,
-		'salary_max'     => $wcb_salary_max,
-		'salary_label'   => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
+		'id'              => $wcb_job_post->ID,
+		'title'           => $wcb_job_post->post_title,
+		'permalink'       => get_permalink( $wcb_job_post->ID ),
+		'company'         => $wcb_company_name_val,
+		'initials'        => $wcb_initials( $wcb_company_name_val ),
+		'trust'           => $wcb_trust,
+		'trust_label'     => $wcb_trust_info['label'] ?? '',
+		'verified'        => null !== $wcb_trust_info,
+		'location'        => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
+		'type'            => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
+		'experience'      => is_wp_error( $wcb_exp_terms ) ? '' : implode( ', ', $wcb_exp_terms ),
+		'category'        => is_wp_error( $wcb_cat_terms ) ? '' : implode( ', ', $wcb_cat_terms ),
+		'remote'          => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_remote', true ),
+		'featured'        => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
+		'board_id'        => (int) get_post_meta( $wcb_job_post->ID, '_wcb_board_id', true ),
+		'board_name'      => '',
+		'salary_min'      => $wcb_salary_min,
+		'salary_max'      => $wcb_salary_max,
+		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
 		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
 		// (fetchJobs() replaces this state with the REST payload); the card binds
 		// the localised `deadline_label`. Seeding both keeps the SSR first paint
 		// identical to the post-hydration REST payload so the date never flips to
 		// a bare ISO string after fetch.
-		'deadline'       => $wcb_deadline_val,
-		'deadline_label' => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
+		'deadline'        => $wcb_deadline_val,
+		'deadline_label'  => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
 		// Mirrors the REST field of the same name so the closed badge survives
 		// hydration instead of vanishing when fetchJobs() swaps in the payload.
 		'deadline_passed' => \WCB\Core\JobDeadline::has_passed( $wcb_job_post->ID ),
-		'days_ago'       => sprintf(
+		'days_ago'        => sprintf(
 			/* translators: %s: human-readable time difference, e.g. "3 days". */
 			__( '%s ago', 'wp-career-board' ),
 			human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() )
 		),
-		'bookmarked'     => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
-		'excerpt'        => \WCB\Core\Text::excerpt( (string) preg_replace( '/[*_#`]+/', '', $wcb_job_post->post_content ), 25, '…' ),
+		'bookmarked'      => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
+		'excerpt'         => \WCB\Core\Text::excerpt( (string) preg_replace( '/[*_#`]+/', '', $wcb_job_post->post_content ), 25, '…' ),
 	);
 
 	/**
@@ -241,18 +243,6 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_jobs_state[] = (array) apply_filters( 'wcb_job_listing_data', $wcb_job_card, $wcb_job_post );
 }
 
-// Sort featured jobs first, then by date (newest).
-usort(
-	$wcb_jobs_state,
-	static function ( array $a, array $b ): int {
-		$fa = ( $a['featured'] ?? false ) ? 1 : 0;
-		$fb = ( $b['featured'] ?? false ) ? 1 : 0;
-		if ( $fa !== $fb ) {
-			return $fb - $fa; // featured first.
-		}
-		return ( $b['id'] ?? 0 ) - ( $a['id'] ?? 0 ); // newest first.
-	}
-);
 
 $wcb_type_terms_raw = get_terms(
 	array(

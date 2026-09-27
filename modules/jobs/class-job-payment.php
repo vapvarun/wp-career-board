@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Every place a job starts costing calls {@see self::charge()}: a new job
  * (after it is inserted, before anyone is told about it), a rejected job
  * sent back for review, an expired or closed job brought back, and a job
- * moved to another board. A charge that fails returns the 402 built by
+ * moved to another board, and a Featured upgrade. A charge that fails
+ * returns the 402 built by
  * {@see self::insufficient()}, which carries what the job costs, the
  * balance and where to buy credits, so the website and the app can both
  * send the employer straight to a purchase.
@@ -44,7 +45,7 @@ final class JobPayment {
 	 *
 	 * @since 1.8.0
 	 * @param int    $job_id Job post ID.
-	 * @param string $event  create | resubmit | republish | board_change.
+	 * @param string $event  create | resubmit | republish | board_change | feature.
 	 * @return bool|\WP_Error True when paid for or free.
 	 */
 	public static function charge( int $job_id, string $event ): bool|\WP_Error {
@@ -58,7 +59,9 @@ final class JobPayment {
 		 *
 		 * @param true|\WP_Error $paid   True so far.
 		 * @param int            $job_id Job post ID.
-		 * @param string         $event  create | resubmit | republish | board_change.
+		 * @param string         $event  create | resubmit | republish | board_change,
+		 *                               or feature (the paid Featured upgrade; the handler
+		 *                               that takes payment also sets the flag).
 		 */
 		$paid = apply_filters( 'wcb_job_payment', true, $job_id, $event );
 		return is_wp_error( $paid ) ? $paid : true;

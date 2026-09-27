@@ -327,10 +327,13 @@ final class JobsEndpoint extends RestController {
 		}
 
 		$orderby = $request->get_param( 'orderby' );
-		if ( $orderby ) {
-			$primary_order   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
+		$order   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
+		if ( 'date' === (string) ( $orderby ?: 'date' ) && 'DESC' === $order ) {
+			// The default listing order: featured first, newest next.
+			$args = \WCB\Modules\Jobs\JobsMeta::featured_first( $args );
+		} elseif ( $orderby ) {
 			$args['orderby'] = array(
-				(string) $orderby => $primary_order,
+				(string) $orderby => $order,
 				'ID'              => 'DESC', // ID tiebreaker for stable infinite-scroll pagination.
 			);
 		}
@@ -846,7 +849,21 @@ final class JobsEndpoint extends RestController {
 
 		do_action( 'wcb_job_created', $job_id, $request );
 
-		$wcb_response = rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
+		// Featuring is a separate upgrade: a job that can't be featured is
+		// still posted, and the response says why the upgrade didn't happen.
+		$wcb_feature_error = '';
+		if ( true === rest_sanitize_boolean( $request->get_param( 'featured' ) ) ) {
+			$wcb_featured = JobPayment::charge( (int) $job_id, 'feature' );
+			if ( is_wp_error( $wcb_featured ) ) {
+				$wcb_feature_error = $wcb_featured->get_error_message();
+			}
+		}
+
+		$wcb_data = $this->prepare_item_for_response_array( get_post( $job_id ) );
+		if ( '' !== $wcb_feature_error ) {
+			$wcb_data['feature_error'] = $wcb_feature_error;
+		}
+		$wcb_response = rest_ensure_response( $wcb_data );
 		$wcb_response->set_status( 201 );
 		return $wcb_response;
 	}
@@ -1015,6 +1032,13 @@ final class JobsEndpoint extends RestController {
 		$remote = $request->get_param( 'remote' );
 		if ( null !== $remote ) {
 			update_post_meta( $post->ID, '_wcb_remote', $remote ? '1' : '0' );
+		}
+
+		// Moderators set Featured directly (the admin toggle). Employers buy it
+		// through the paid upgrade (Pro), never by writing the flag.
+		$wcb_featured = $request->get_param( 'featured' );
+		if ( null !== $wcb_featured && $this->check_ability( 'wcb/moderate-jobs' ) ) {
+			update_post_meta( $post->ID, '_wcb_featured', rest_sanitize_boolean( $wcb_featured ) ? '1' : '0' );
 		}
 
 		$this->set_job_terms( $post->ID, $request );
@@ -1834,6 +1858,10 @@ final class JobsEndpoint extends RestController {
 		};
 
 		return array(
+			// Ask to feature the job (a paid upgrade in Pro; ignored without it).
+			'featured'        => array(
+				'type' => 'boolean',
+			),
 			'salary_min'      => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Minimum salary must be a positive number.', 'wp-career-board' ) ),
 			),

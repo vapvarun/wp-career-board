@@ -277,6 +277,24 @@ employer dashboard labels it "Awaiting payment" and wp-admin Jobs has an
 |---|---|---|---|
 | `wcb_job_payment` | filter | `$paid, $job_id, $event` | Return true when the job is paid for or free, a WP_Error (402, see `JobPayment::insufficient()`) when not. |
 | `wcb_job_republish_credit_cost` | filter (applied by Pro since 1.8.0) | `$cost, $post, $previous` | Credits charged to bring an expired or closed job back. |
+| `wcb_featured_upgrade_cost` | filter | `$cost` | What featuring a job costs (Pro prices it). 0 hides the job-form checkbox and the My Jobs Feature action. |
+| `wcb_job_featured_expired` | action | `$job_id` | A job's featured period ended (daily sweep). Pro emails the employer and adds a bell notification. |
+
+**Featured (1.8.0).** A job asks to be featured with `featured: true` on
+`POST /jobs` (or Pro's `POST /jobs/{id}/feature`); both go through
+`JobPayment::charge( $job_id, 'feature' )`, and the handler that takes payment
+sets `_wcb_featured`. A job is still posted when the upgrade can't be paid for;
+the create response then carries `feature_error`. Moderators write `featured`
+directly on `PATCH /jobs/{id}`. Every listing orders featured first, then
+newest: `JobsMeta::featured_first( $args )` flags a query
+(`wcb_featured_first`) and one `posts_clauses` join does the ordering, so REST
+pages and the first server render agree.
+
+**Dashboard slots.** `wcb_module_renders` now receives the asking surface as a
+second argument (`employer-dashboard`, `candidate-dashboard`,
+`archive-toolbar`) so an extension renders only where its slot is shown. Pro
+fills `credits_panel` on the employer dashboard: the Credits tab
+(`#credits`), where every purchase link and gateway return lands.
 
 ## Active-job quota (free tier)
 

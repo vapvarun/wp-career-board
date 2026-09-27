@@ -270,6 +270,9 @@ $wcb_state = apply_filters(
 		'boardCurrencies'   => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		'buyUrl'            => '',
+		'featured'          => false,
+		'featureError'      => '',
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
 		'customFields'      => (object) array(),
 
@@ -314,6 +317,10 @@ $wcb_state = apply_filters(
 	$attributes
 );
 
+// Paid Featured upgrade (Pro prices it; 0 means not offered).
+$wcb_featured_cost = (int) apply_filters( 'wcb_featured_upgrade_cost', 0 );
+$wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
+
 wp_interactivity_state( 'wcb-job-form-simple', $wcb_state );
 
 $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple--compact' : '' );
@@ -337,6 +344,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			data-wp-class--wcb-hidden="!state.hasListingWindow"
 			data-wp-text="state.listingWindowMessage"
 		></p>
+		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
 		<p data-wp-class--wcb-hidden="!state.jobUrl">
 			<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
@@ -349,6 +357,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 		<!-- Error banner -->
 		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+		<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
 		<!-- Credit + listing window banners -->
 		<p
@@ -603,6 +612,22 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<?php
 		endif;
 		?>
+
+<?php if ( $wcb_featured_cost > 0 ) : ?>
+		<label class="wcb-form-feature">
+			<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
+			<span>
+			<?php
+			printf(
+				/* translators: 1: number of days, 2: number of credits */
+				esc_html( _n( 'Feature this job: it lists first for %1$d days (%2$s credit).', 'Feature this job: it lists first for %1$d days (%2$s credits).', $wcb_featured_cost, 'wp-career-board' ) ),
+				(int) $wcb_featured_days,
+				esc_html( number_format_i18n( $wcb_featured_cost ) )
+			);
+			?>
+			</span>
+		</label>
+		<?php endif; ?>
 
 		<!-- Submit -->
 		<div class="wcb-form-simple__nav">

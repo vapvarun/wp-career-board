@@ -29,6 +29,7 @@ final class JobsMeta {
 	 */
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_meta' ) );
+		add_filter( 'posts_clauses', array( self::class, 'featured_first_clauses' ), 10, 2 );
 	}
 
 	/**
@@ -136,6 +137,47 @@ final class JobsMeta {
 	 */
 	public static function sanitize_salary_type( mixed $value ): string {
 		return in_array( $value, array( 'yearly', 'monthly', 'hourly' ), true ) ? (string) $value : 'yearly';
+	}
+
+	/**
+	 * Order a job query featured first, then newest.
+	 *
+	 * One rule for every listing (REST pages, the first server render), so
+	 * "Load more" keeps featured jobs on top instead of only the first page
+	 * sorting them. Applied in SQL by {@see self::featured_first_clauses()}:
+	 * one LEFT JOIN on `_wcb_featured`, so jobs without the flag stay in.
+	 *
+	 * @since  1.8.0
+	 * @param  array<string, mixed> $args WP_Query args.
+	 * @return array<string, mixed>
+	 */
+	public static function featured_first( array $args ): array {
+		$args['wcb_featured_first'] = true;
+		$args['orderby']            = array(
+			'date' => 'DESC',
+			'ID'   => 'DESC',
+		);
+		unset( $args['order'] );
+		return $args;
+	}
+
+	/**
+	 * `posts_clauses`: put featured jobs first for queries flagged by
+	 * {@see self::featured_first()}.
+	 *
+	 * @since  1.8.0
+	 * @param  array<string, string> $clauses Query clauses.
+	 * @param  \WP_Query             $query   The query.
+	 * @return array<string, string>
+	 */
+	public static function featured_first_clauses( array $clauses, \WP_Query $query ): array {
+		if ( ! $query->get( 'wcb_featured_first' ) ) {
+			return $clauses;
+		}
+		global $wpdb;
+		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS wcb_ff ON ( wcb_ff.post_id = {$wpdb->posts}.ID AND wcb_ff.meta_key = '_wcb_featured' )";
+		$clauses['orderby'] = "( wcb_ff.meta_value = '1' ) DESC" . ( '' !== $clauses['orderby'] ? ', ' . $clauses['orderby'] : '' );
+		return $clauses;
 	}
 
 	/**

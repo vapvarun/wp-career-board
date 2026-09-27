@@ -128,6 +128,15 @@ final class FeaturedExpiry {
 		foreach ( $jobs as $job_id ) {
 			update_post_meta( (int) $job_id, '_wcb_featured', '0' );
 			delete_post_meta( (int) $job_id, self::SINCE_META );
+
+			/**
+			 * Fires when a job's featured period ends.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int $job_id Job post ID.
+			 */
+			do_action( 'wcb_job_featured_expired', (int) $job_id );
 			/**
 			 * Fired after a featured job's flag has expired.
 			 *

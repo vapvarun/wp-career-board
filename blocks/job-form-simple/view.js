@@ -197,6 +197,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 		},
 
+		toggleFeatured( event ) {
+			state.featured = !! event.target.checked;
+		},
+
 		toggleRemote( event ) {
 			state.remote = !! event.target.checked;
 		},
@@ -265,6 +269,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					: [];
 
 				const body = {
+					featured:        state.featured,
 					title:             state.title,
 					description:       state.description,
 					salary_min:        state.salaryMin,
@@ -300,11 +305,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = ( err && err.message )
 						? err.message
 						: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
+					// Not enough credits: offer the Credits tab right there.
+					state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
 					return;
 				}
 
 				const json = yield response.json();
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
+				state.featureError = ( json && json.feature_error ) || '';
 				state.submitted = true;
 
 				if ( window.wcbCaptchaReset ) {

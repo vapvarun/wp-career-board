@@ -22,6 +22,8 @@ const VALID_VIEWS = [
 	'saved-companies',
 	'saved-resumes',
 	'settings',
+	'notifications',
+	'credits',
 ];
 
 function readHashView() {
@@ -189,6 +191,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isViewSettings() {
 			return state.currentView === 'settings';
+		},
+		get isViewCredits() {
+			return state.currentView === 'credits';
 		},
 		get isViewNotifications() {
 			return state.currentView === 'notifications';
@@ -786,6 +791,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				isExpired: j.status === 'expired',
 				isRejected: !! j.rejected,
 				isDraft:   j.status === 'draft' && ! j.rejected,
+				canFeature: Number( state.featuredCost ) > 0 && j.status === 'publish' && ! j.featured,
 			} ) );
 		},
 
@@ -826,6 +832,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
 			writeHashView( 'settings' );
+		},
+
+		switchToCredits() {
+			state.currentView = 'credits';
+			state.error       = '';
+			state.navOpen     = false;
+			sessionStorage.setItem( 'wcb_employer_view', 'credits' );
+			writeHashView( 'credits' );
 		},
 
 		*switchToNotifications() {
@@ -1189,6 +1203,46 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( app && app.status !== status ) {
 					yield actions.applyStatusChange( appId, status );
 				}
+			}
+		},
+
+		*featureJob( event ) {
+			const jobId = Number( event.target.dataset.wcbJobId );
+			if ( ! jobId ) {
+				return;
+			}
+			try {
+				yield window.wcbConfirm( {
+					title:       t( 'confirmFeatureTitle', 'Feature this job?' ),
+					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. This uses %s credits from your balance.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
+					confirmText: t( 'confirmFeatureConfirm', 'Feature job' ),
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			state.error = '';
+			try {
+				const response = yield wcbFetch( state.apiBase + '/jobs/' + String( jobId ) + '/feature', {
+					method:  'POST',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				const data = yield response.json();
+				if ( ! response.ok ) {
+					// 402 carries the Credits tab link; the low-balance banner and
+					// the Credits nav item offer it too.
+					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					return;
+				}
+				const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
+				if ( idx !== -1 ) {
+					state.jobs[ idx ].featured   = true;
+					state.jobs[ idx ].canFeature = false;
+				}
+				if ( typeof data.balance === 'number' ) {
+					state.creditBalance = data.balance;
+				}
+			} catch {
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			}
 		},
 

@@ -58,7 +58,7 @@ $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permal
 // present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
 // renders that markup (trusted plugin Interactivity HTML — emitted as-is below,
 // since wp_kses_post would strip the <template>/data-wp-each loop).
-$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array(), 'candidate-dashboard' );
 $wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
