@@ -278,6 +278,12 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		// `open=1`: only jobs still taking applications (a company's Open
+		// Positions). Matters on sites that keep past-deadline jobs listed.
+		if ( rest_sanitize_boolean( $request->get_param( 'open' ) ) ) {
+			$args['meta_query'][] = \WCB\Core\JobDeadline::open_jobs_meta_query();
+		}
+
 		// Scope to a specific user's bookmarks when the caller passes
 		// `saved_by=<user_id>`. Mirrors the Saved tab SSR scope so Load
 		// More pages keep returning only bookmarked jobs instead of the
@@ -1985,6 +1991,7 @@ final class JobsEndpoint extends RestController {
 				'salary_max'     => array( 'type' => 'integer' ),
 				'author'         => array( 'type' => 'integer' ),
 				'company'        => array( 'type' => 'integer' ),
+				'open'           => array( 'type' => 'boolean' ),
 				'orderby'        => array(
 					'description'       => __( 'Sort jobs by attribute.', 'wp-career-board' ),
 					'type'              => 'string',

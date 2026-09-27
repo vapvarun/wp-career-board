@@ -206,7 +206,8 @@ Pro adds: `wcb_rest_prepare_board`, `wcb_rest_prepare_board_stage`,
 | `wcb_candidate_resumes_state` | Filter | Inject `maxResumes`/`resumeCount` (or other resume-cap fields) into the candidate dashboard's Interactivity state. Pro uses this for resume-archive cap enforcement. Args: `$state, $candidate_user_id`. |
 | `wcb_company_sidebar_before` | Action | Company-profile block, before the sidebar renders. Args: `$company_id`. |
 | `wcb_company_sidebar_after` | Action | Company-profile block, after the sidebar renders. Args: `$company_id`. |
-| `wcb_company_sidebar_blocks` | Filter | Add or remove sidebar block IDs shown on the company-profile page. Args: `$blocks, $company_id`. |
+| `wcb_company_sidebar_blocks` | Filter | Add or remove sidebar block IDs shown on the company-profile page. Args: `$blocks, $company_id`. Default since 1.8.0: Similar Companies and Job Alerts (the site-wide Recent Jobs block was removed because it listed other companies' jobs). |
+| `wcb_job_expiring_soon` | Action | Once per deadline, 3 days before a job ends, for its employer. Args: `$job_id, $days_left`. |
 | `wcb_save_custom_field` | Filter | Sanitize a custom profile/form field before it is persisted. Args: `$value, $key, $owner_id`. |
 | `wcb_shortcode_attr_aliases` | Filter | Add to the camelCase to lowercase attribute map (so `[wcb_job_listings boardId="1"]` works). |
 | `wcb_search_active_shortcodes` | Filter | Tag/prefix names for the body-class detector. Extend if you register custom shortcodes that should also force the `wcb-page` body class. |

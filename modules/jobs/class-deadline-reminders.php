@@ -44,6 +44,14 @@ final class DeadlineReminders {
 	const BUCKETS = array( 3, 1 );
 
 	/**
+	 * Days before the deadline the employer is warned (once per deadline).
+	 *
+	 * @since 1.8.0
+	 * @var int
+	 */
+	const EMPLOYER_BUCKET = 3;
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.1.0
@@ -95,8 +103,41 @@ final class DeadlineReminders {
 
 			foreach ( $jobs as $job_id ) {
 				$this->process_job( (int) $job_id, $days_left );
+				if ( self::EMPLOYER_BUCKET === $days_left ) {
+					$this->warn_employer( (int) $job_id, $days_left );
+				}
 			}
 		}
+	}
+
+	/**
+	 * Tell the employer their job ends soon, once per deadline.
+	 *
+	 * The flag stores the deadline it warned about, so a job reopened or
+	 * extended to a new deadline is warned again for that one.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $job_id    Job post ID.
+	 * @param int $days_left Days until the deadline.
+	 * @return void
+	 */
+	private function warn_employer( int $job_id, int $days_left ): void {
+		$deadline = \WCB\Core\JobDeadline::get( $job_id );
+		if ( '' === $deadline || get_post_meta( $job_id, '_wcb_expiring_warned', true ) === $deadline ) {
+			return;
+		}
+		update_post_meta( $job_id, '_wcb_expiring_warned', $deadline );
+
+		/**
+		 * Fires once when a job is a few days from its deadline, for its employer.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param int $job_id    Job post ID.
+		 * @param int $days_left Days until the deadline.
+		 */
+		do_action( 'wcb_job_expiring_soon', $job_id, $days_left );
 	}
 
 	/**

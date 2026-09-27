@@ -181,6 +181,7 @@ Fire side effects on key plugin events:
 | `wcb_application_withdrawn` | `(int $app_id, int $job_id, int $candidate_id)` - the application is kept with status `withdrawn` since 1.8.0 |
 | `wcb_application_deleted` | `(int $app_id, int $job_id)` - fires before an application post is permanently deleted |
 | `wcb_deadline_reminder` | `(int $user_id, int $job_id, int $days_left)` |
+| `wcb_job_expiring_soon` | `(int $job_id, int $days_left)` - once per deadline, 3 days before, for the job's employer (1.8.0) |
 | `wcb_featured_expired` | `(int $job_id)` |
 
 ## One signal per notification

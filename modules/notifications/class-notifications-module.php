@@ -45,6 +45,7 @@ class NotificationsModule {
 			Emails\EmailJobApproved::class,
 			Emails\EmailJobRejected::class,
 			Emails\EmailJobExpired::class,
+			Emails\EmailJobExpiring::class,
 			Emails\EmailAppReceived::class,
 			Emails\EmailAppConfirmation::class,
 			Emails\EmailAppGuest::class,

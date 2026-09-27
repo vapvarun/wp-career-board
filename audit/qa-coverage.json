@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-27T15:56:04+00:00",
+        "at": "2026-09-27T16:02:07+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -326,8 +326,8 @@
             "skipped": 0
         },
         "hooks_fired": {
-            "total": 88,
-            "covered": 7,
+            "total": 89,
+            "covered": 8,
             "uncovered": 81,
             "skipped": 148,
             "covered_items": [
@@ -345,6 +345,10 @@
                 },
                 {
                     "name": "wcb_job_expired",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_expiring_soon",
                     "consumer_count": 1
                 },
                 {
@@ -826,15 +830,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 168,
-        "items_covered": 60,
+        "items_total": 169,
+        "items_covered": 61,
         "items_uncovered": 108,
         "items_skipped": 148,
-        "coverage_percent": 35.700000000000003
+        "coverage_percent": 36.100000000000001
     },
     "drift": {
-        "previous_uncovered": 110,
+        "previous_uncovered": 108,
         "current_uncovered": 108,
-        "delta": -2
+        "delta": 0
     }
 }

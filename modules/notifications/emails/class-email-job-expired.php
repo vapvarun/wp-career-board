@@ -68,11 +68,11 @@ class EmailJobExpired extends AbstractEmail {
 		return self::heading( __( 'Your job listing has expired', 'wp-career-board' ) )
 			. '<p>' . sprintf(
 				/* translators: %s: job title (bold) */
-				esc_html__( 'Your job listing %s has reached its expiry date and is no longer visible to candidates.', 'wp-career-board' ),
+				esc_html__( 'Your job listing %s has passed its deadline. It no longer takes applications and has left the job listings; its page stays up and tells visitors it has expired.', 'wp-career-board' ),
 				'<strong>{job_title}</strong>'
 			) . '</p>'
-			. '<p>' . esc_html__( 'Want to keep receiving applications? Re-post it in just a few clicks.', 'wp-career-board' ) . '</p>'
-			. self::button( __( 'Re-post Job', 'wp-career-board' ), '{repost_url}' );
+			. '<p>' . esc_html__( 'Still hiring? Reopen it from your dashboard for a new listing period.', 'wp-career-board' ) . '</p>'
+			. self::button( __( 'Reopen Job', 'wp-career-board' ), '{repost_url}' );
 	}
 
 	/**

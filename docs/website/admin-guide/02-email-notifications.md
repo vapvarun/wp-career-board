@@ -11,7 +11,8 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 | **New Job Pending Review** | Admin | Employer submits a new job |
 | **Job Approved** | Employer | Admin approves a pending job |
 | **Job Rejected** | Employer | Admin rejects a pending job |
-| **Job Expired** | Employer | Job reaches its expiry date |
+| **Job Ending Soon (Employer)** | Employer | 3 days before a job's deadline, once per deadline, with a link to extend it |
+| **Job Expired** | Employer | Job passes its deadline (only for jobs that ended in the last 7 days, so switching expiry on for an older site does not email a backlog) |
 | **Application Received** | Employer | Candidate applies to their job |
 | **Application Confirmation (Candidate)** | Candidate | Registered candidate submits an application |
 | **Application Confirmation (Guest)** | Guest | Guest applicant submits an application |

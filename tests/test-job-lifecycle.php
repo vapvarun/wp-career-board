@@ -192,6 +192,71 @@ wp_set_current_user( $wcb_employer );
 $wcb_resp = rest_do_request( $wcb_request );
 wcb_jl_assert( 200 === $wcb_resp->get_status() && JobDeadline::get( $wcb_late ) > $wcb_today, 'reopening an expired job sets a future deadline (' . JobDeadline::get( $wcb_late ) . ')' );
 
+// ── Company page: open positions only ────────────────────────────────────
+$wcb_company = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'JL Co ' . $wcb_suffix, 'post_author' => $wcb_employer ) );
+$wcb_co_jobs = array(
+	wcb_jl_job( $wcb_employer, $wcb_future ),
+	wcb_jl_job( $wcb_employer, '' ),
+	wcb_jl_job( $wcb_employer, $wcb_past ),
+	wcb_jl_job( $wcb_employer, $wcb_future, 'wcb_closed' ),
+);
+foreach ( $wcb_co_jobs as $wcb_id ) {
+	update_post_meta( $wcb_id, '_wcb_company_id', (string) $wcb_company );
+	$wcb_made[] = $wcb_id;
+}
+wp_cache_flush_group( 'wcb_companies' );
+$wcb_counts = \WCB\Core\CompanyMetaShape::open_job_counts( array( $wcb_company ) );
+wcb_jl_assert( 2 === ( $wcb_counts[ $wcb_company ] ?? 0 ), 'open positions count excludes past-deadline and closed jobs (' . ( $wcb_counts[ $wcb_company ] ?? 0 ) . ')' );
+$wcb_req = new WP_REST_Request( 'GET', '/wcb/v1/jobs' );
+$wcb_req->set_param( 'company', $wcb_company );
+$wcb_req->set_param( 'open', true );
+$wcb_ids = wp_list_pluck( (array) ( rest_do_request( $wcb_req )->get_data()['jobs'] ?? array() ), 'id' );
+sort( $wcb_ids );
+$wcb_want = array( $wcb_co_jobs[0], $wcb_co_jobs[1] );
+sort( $wcb_want );
+wcb_jl_assert( $wcb_want === $wcb_ids, 'GET /jobs?company=&open=1 returns only the open ones' );
+
+// ── Employer warned once per deadline, 3 days out ────────────────────────
+$wcb_in3    = gmdate( 'Y-m-d', time() + 3 * DAY_IN_SECONDS );
+$wcb_soon   = wcb_jl_job( $wcb_employer, $wcb_in3 );
+$wcb_made[] = $wcb_soon;
+$wcb_parked = array_diff(
+	get_posts(
+		array(
+			'post_type'      => 'wcb_job',
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+			'posts_per_page' => 500,
+			'meta_key'       => '_wcb_deadline', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'     => $wcb_in3, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		)
+	),
+	array( $wcb_soon )
+);
+foreach ( $wcb_parked as $wcb_id ) {
+	$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	clean_post_cache( $wcb_id );
+}
+$wcb_warned = array();
+add_action(
+	'wcb_job_expiring_soon',
+	static function ( int $id ) use ( &$wcb_warned ): void {
+		$wcb_warned[] = $id;
+	}
+);
+$wcb_reminders = new \WCB\Modules\Jobs\DeadlineReminders();
+$wcb_reminders->sweep();
+$wcb_reminders->sweep();
+wcb_jl_assert( array( $wcb_soon ) === $wcb_warned, 'employer warned once, 3 days before the deadline (sweep ran twice)' );
+// The job was reopened: the flag holds the previous listing period's deadline.
+update_post_meta( $wcb_soon, '_wcb_expiring_warned', '2000-01-01' );
+$wcb_reminders->sweep();
+wcb_jl_assert( 2 === count( $wcb_warned ), 'a new deadline is warned again' );
+foreach ( $wcb_parked as $wcb_id ) {
+	$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	clean_post_cache( $wcb_id );
+}
+
 // ── REST: one answer for clients ─────────────────────────────────────────
 wp_set_current_user( 0 );
 $wcb_resp = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/jobs/' . $wcb_nodate ) );
@@ -209,6 +274,7 @@ foreach ( $wcb_made as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 	wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_id, 'job_removed' ) );
 }
+wp_delete_post( $wcb_company, true );
 require_once ABSPATH . 'wp-admin/includes/user.php';
 wp_delete_user( (int) $wcb_employer );
 wp_delete_user( (int) $wcb_candidate );

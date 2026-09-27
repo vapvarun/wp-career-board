@@ -318,20 +318,24 @@ wp_interactivity_state(
 		$wcb_cp_per_page  = 10;
 		$wcb_cp_author_id = (int) $wcb_company->post_author;
 
-		$wcb_open_jobs = get_posts(
+		// Open Positions = jobs still taking applications (JobDeadline's rule),
+		// not every published job: past-deadline ones read "Applications
+		// closed" on their own page, so they are not open positions.
+		$wcb_open_query = new WP_Query(
 			array(
-				'post_type'     => 'wcb_job',
-				'post_status'   => 'publish',
-				'numberposts'   => $wcb_cp_per_page,
-				'no_found_rows' => true,
-				'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'publish',
+				'posts_per_page' => $wcb_cp_per_page,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_company_id',
-						'value' => $wcb_company->ID,
+						'value' => (string) $wcb_company->ID,
 					),
+					\WCB\Core\JobDeadline::open_jobs_meta_query(),
 				),
 			)
 		);
+		$wcb_open_jobs  = $wcb_open_query->posts;
 
 		$wcb_cp_jobs_state = array();
 		foreach ( $wcb_open_jobs as $wcb_jpost ) {
@@ -355,7 +359,7 @@ wp_interactivity_state(
 				'author'      => $wcb_cp_author_id,
 				'companyId'   => (int) $wcb_company->ID,
 				'loading'     => false,
-				'hasMore'     => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
+				'hasMore'     => $wcb_open_query->found_posts > count( $wcb_open_jobs ),
 				'hasNoJobs'   => empty( $wcb_cp_jobs_state ),
 				// Distinct key from the companies `apiBase` set above — both calls
 				// merge into the same store, so reusing `apiBase` here clobbered the
@@ -424,7 +428,9 @@ wp_interactivity_state(
 	 *       before or after the three default cards.
 	 *
 	 *   apply_filters( 'wcb_company_sidebar_blocks', array $blocks, int $company_id )
-	 *     - Replace, reorder, or append to the default three blocks.
+	 *     - Replace, reorder, or append to the default two blocks (the
+	 *       site-wide Recent Jobs block was dropped in 1.8.0: on a company
+	 *       page it listed other companies' jobs; Open Positions covers it).
 	 *       Each entry is a Gutenberg block-comment string passed to
 	 *       `do_blocks()`. Return an empty array to render nothing.
 	 */
@@ -432,7 +438,6 @@ wp_interactivity_state(
 		'wcb_company_sidebar_blocks',
 		array(
 			'<!-- wp:wp-career-board/similar-companies-card /-->',
-			'<!-- wp:wp-career-board/recent-jobs {"count":5,"showViewAll":true} /-->',
 			'<!-- wp:wp-career-board/job-alert-card /-->',
 		),
 		(int) $wcb_company_id

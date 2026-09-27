@@ -55,34 +55,9 @@ $wcb_company_ids = $wcb_companies_raw
 	)
 	: array();
 
-// Open-positions counter — one aggregate SQL keyed on the (meta_key, meta_value)
-// postmeta index instead of materialising every wcb_job into PHP just to count
-// it. At 100k jobs the previous numberposts=-1 path allocated 100k WP_Post
-// objects per archive render; this is an index-only scan grouped in MySQL.
-$wcb_jobs_by_company = array();
-if ( $wcb_company_ids ) {
-	global $wpdb;
-	$wcb_co_ids   = array_map( 'intval', $wcb_company_ids );
-	$placeholders = implode( ',', array_fill( 0, count( $wcb_co_ids ), '%d' ) );
-	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wcb_rows = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT pm.meta_value AS company_id, COUNT(*) AS c
-			 FROM {$wpdb->postmeta} pm
-			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			 WHERE pm.meta_key = '_wcb_company_id'
-			   AND p.post_type = 'wcb_job'
-			   AND p.post_status = 'publish'
-			   AND pm.meta_value IN ({$placeholders})
-			 GROUP BY pm.meta_value",
-			...$wcb_co_ids
-		)
-	);
-	// phpcs:enable
-	foreach ( (array) $wcb_rows as $wcb_row ) {
-		$wcb_jobs_by_company[ (int) $wcb_row->company_id ] = (int) $wcb_row->c;
-	}
-}
+// Open positions per company: one grouped query (published, deadline not
+// passed), the same count GET /companies returns.
+$wcb_jobs_by_company = \WCB\Core\CompanyMetaShape::open_job_counts( (array) $wcb_company_ids );
 
 // ── Current user's bookmarked companies (for initial card state). ────────────
 $wcb_current_user_id = get_current_user_id();
@@ -313,12 +288,12 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			?>
 			<?php
 			/* Only render the group when it has options. The list is the
-			   intersection of the registry with what companies actually store,
-			   so it is legitimately empty on a site with no companies yet, or
-			   one where every stored value has been retired from the registry -
-			   and an unguarded wrapper painted a bare "Industry" heading and
-			   divider above nothing. Company size below is a fixed list and
-			   cannot empty out. */
+				intersection of the registry with what companies actually store,
+				so it is legitimately empty on a site with no companies yet, or
+				one where every stored value has been retired from the registry -
+				and an unguarded wrapper painted a bare "Industry" heading and
+				divider above nothing. Company size below is a fixed list and
+				cannot empty out. */
 			?>
 			<?php if ( ! empty( $wcb_filter_industries ) ) : ?>
 			<div class="wcb-filter-panel__group">
