@@ -14,19 +14,24 @@ A summary so you know what's actually on the line:
 
 | Data | Where | When deleted |
 |---|---|---|
-| **User account** | `wp_users` table | On admin-processed erasure, or admin removal |
-| **Candidate profile** (email, phone, location, bio) | WordPress user + user meta | With the user account |
-| **Resumes** (Pro, uploaded files) | `wcb_resume` CPT + media | On erasure (deleted) |
-| **Applications submitted** | `wp_posts` (CPT `wcb_application`) | On erasure: the candidate's applications are deleted |
-| **Cover letters and answers** | Application meta | Deleted with the application |
-| **Saved jobs (bookmarks)** | User meta | With the user account |
-| **Job alerts** (Pro) | `wcb_job_alerts` table (Pro) | With the user account |
-| **AI vectors** (Pro, jobs only) | `wcb_ai_vectors` table (Pro) | Kept until the job is deleted |
+| **User account** | `wp_users` table | When the member deletes their account (after the grace period) or an admin deletes the user |
+| **Candidate profile** (headline, location, profile resume) | User meta | On erasure or account deletion |
+| **Uploaded CVs and generated PDFs** | Private uploads folder | On erasure or account deletion |
+| **Resumes** (Pro) | `wcb_resume` CPT + photo | On erasure or account deletion |
+| **Applications submitted** | `wp_posts` (CPT `wcb_application`) | On erasure: **anonymised**, not deleted (see below) |
+| **Cover letters, answers and attached files** | Application meta + files | Deleted on erasure |
+| **Saved jobs, companies and resumes** | User meta | On erasure or account deletion |
+| **Email history** | `wcb_notifications_log` table | On erasure, and automatically after the retention period |
+| **Job alerts, bell notifications, app devices** (Pro) | Pro tables | On erasure or account deletion; bell rows also after the retention period |
 
-> Career Board does not anonymise applications - the privacy eraser
-> deletes the candidate's applications and resumes outright. There is no
-> "Anonymous candidate" preservation and no `wcb_anonymize_or_delete`
-> filter.
+Applications are anonymised so employers' hiring records stay accurate:
+the job, status, stage and dates stay; the name becomes "Deleted
+candidate", and the email, cover letter, answers and every attached file
+are removed. The same happens to a guest's applications when the erasure
+request is for the email address they applied with.
+
+A ban on an account is never lifted by an erasure: it is kept as a
+safety record.
 
 ## What data Career Board stores about employers
 
@@ -35,7 +40,7 @@ A summary so you know what's actually on the line:
 | **User account** | `wp_users` | On removal |
 | **Company profile** (name, logo, about, locations) | `wcb_company` CPT + meta | With company removal |
 | **Jobs posted** | `wcb_job` CPT | When the employer deletes them; when a job is permanently deleted, its applications transition to the `job_removed` status |
-| **Credit ledger** (Pro) | `wcb_credit_ledger` table (Pro) | Never auto-deleted (append-only financial record; admin purges manually if required) |
+| **Credit ledger** (Pro) | `wcb_credit_ledger` table (Pro) | Kept for accounting; on erasure the rows lose their link to the person (`user_id` 0) |
 | **Payment records** | WooCommerce / PMPro / etc. (Pro checkout) | Per that plugin's deletion policy |
 
 ## What you legally need to do (typical GDPR baseline)
@@ -65,8 +70,8 @@ template paragraph to add to yours:
 > the board. We do not sell this data. You can request a full
 > export or deletion of your data at any time from
 > **Candidate Dashboard → Settings** (Export my data / Delete my
-> account). Requests are processed by the site administrator through
-> WordPress's privacy tools.
+> account). When you delete your account, your past applications stay
+> with the employer without your name or contact details.
 >
 > **AI Features**: If we have AI features enabled, your data may be
 > sent to a third-party AI provider (OpenAI, Anthropic Claude, or
@@ -130,44 +135,38 @@ without a single timeout-prone query.
 
 **For candidates:**
 
-**Option A - User requests it from the dashboard**
+**Option A - The member deletes their own account**
 
-1. **Candidate Dashboard → Settings → Delete my account → Send
-   confirmation email.**
-2. This calls WordPress's `wp_create_user_request()` with the
-   `remove_personal_data` type and emails a confirmation link.
-3. The candidate clicks the link; the request enters WordPress's
-   privacy queue for the **site administrator** to complete.
-
-**Option A2 - Self-service deletion from the mobile app (1.7.0)**
-
-If the site runs the WP Career Board companion mobile app, a member
-can delete their own account from inside the app without waiting on
-the administrator: confirm their password and type DELETE to confirm,
-and the account is suspended immediately and scheduled for deletion
-after a grace period (14 days by default, filterable with
+From **Candidate Dashboard → Settings → Delete my account** (or the
+same screen in the mobile app), the member confirms their password and
+types DELETE. The account is locked immediately and deleted after a
+grace period (14 days by default, filterable with
 `wcb_account_deletion_grace_days`). Signing back in during the grace
-period cancels the deletion. Once the grace period passes, a daily
-cron job runs `wp_delete_user()` on the account - the same core
-WordPress deletion cascade Option B below relies on, so it removes the
-account the same way an admin-processed erasure would.
+period cancels the deletion. Once it passes, a daily cron job runs
+`wp_delete_user()`, which runs every Career Board eraser first (see
+below).
 
 **Option B - Admin handles it directly**
 
 1. **WP Admin → Tools → Erase Personal Data** (WordPress built-in).
 2. Enter the user's email and confirm.
-3. Career Board registers a privacy **eraser** (via
-   `wp_privacy_personal_data_erasers`) that runs in pages and **deletes**
-   the candidate's applications (and their attached resumes).
+3. Career Board registers one privacy **eraser** (via
+   `wp_privacy_personal_data_erasers`) that runs in pages, one data
+   type per page. It works for guests too, by the email they applied
+   with.
+
+Deleting a user in **WP Admin → Users** runs the same erasers, so the
+result is identical whichever way the account goes.
 
 **What happens on erasure:**
 
-- The candidate's applications are **deleted** (`wp_delete_post`), not
-  anonymised. There is no "Anonymous candidate" placeholder and no
-  `wcb_anonymize_or_delete` filter - deletion is the only behavior.
-- Removing the user account itself (and reassigning or deleting their
-  authored content) is handled by WordPress's standard user-deletion
-  flow, which the admin runs alongside the erasure.
+- Applications are anonymised as described at the top of this page;
+  the employer sees "Deleted candidate".
+- Profile fields, saved items, uploaded files, resumes (Pro), job
+  alerts and bell notifications (Pro) are deleted.
+- Email history for the person is deleted.
+- Credit ledger rows (Pro) are kept for accounting without the link to
+  the person, and a ban stays in place.
 
 **For employers:**
 
@@ -177,22 +176,21 @@ account the same way an admin-processed erasure would.
 2. When an employer's jobs are permanently deleted, every linked
    application transitions to the `job_removed` status (the candidate
    keeps the row in their history).
-3. Credit ledger (Pro): not deleted (append-only financial record). If
-   a jurisdiction requires it, the admin must purge the ledger table
-   manually.
+3. Credit ledger (Pro): kept for accounting; the rows lose their link
+   to the person.
 
 ## Step 5 - Retention policy
 
-Career Board does not ship a retention settings screen or a retention
-cron - there is no "Settings → Privacy → Retention" page and no
-`wcb_privacy_retention_cron`. The daily crons that do exist handle job
-expiry, featured-listing expiry, and deadline reminders, not data
-retention.
+**Settings → Advanced → Keep Email History (days)** sets how long the
+email log and bell notifications (Pro) are kept; 180 days by default,
+0 keeps them forever. A daily job (`wcb_prune_logs`) deletes older
+rows.
 
-If you need scheduled PII purges (e.g. delete applications older than N
-months), implement them yourself - schedule a WP-Cron event that runs
-your own cleanup against the `wcb_application` posts, and document the
-policy in your privacy notice.
+Applications themselves are not purged on a schedule: they are the
+employer's hiring record. If you need that (e.g. delete applications
+older than N months), schedule your own WP-Cron cleanup against the
+`wcb_application` posts and document the policy in your privacy
+notice.
 
 ## Step 6 - Cookie policy
 

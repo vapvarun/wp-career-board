@@ -447,13 +447,13 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		// Withdrawn and job-removed are the candidate's and the system's outcome;
-		// the employer sees them but cannot reopen them.
+		// Withdrawn, position-closed and job-removed are final outcomes; the
+		// employer sees them but cannot reopen them.
 		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		if ( '' !== $current && ! in_array( $current, $allowed, true ) ) {
 			return new \WP_Error(
 				'wcb_application_closed',
-				__( 'This application was withdrawn or its job was removed, so its status can no longer change.', 'wp-career-board' ),
+				__( 'This application is closed (withdrawn, position closed or job removed), so its status can no longer change.', 'wp-career-board' ),
 				array( 'status' => 409 )
 			);
 		}

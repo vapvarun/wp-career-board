@@ -43,22 +43,9 @@ If you are locked out instead, use the WordPress "Lost password" link on the log
 The same tab includes a **Privacy & My Data** panel with two self-service controls:
 
 - **Request data export** - asks the site to compile a copy of your personal data. You receive an email when it is ready.
-- **Request account deletion** - sends a confirmation email; after you click the link, the site administrator permanently deletes your account, applications, resume(s), saved jobs, saved companies, and alerts. This cannot be undone.
+- **Delete my account** - confirm your password and type DELETE. Your account is locked straight away and deleted after a grace period (14 days by default); signing back in before then cancels it. The same option is in the mobile app.
 
-Both requests are processed by the site administrator, and you are emailed when each one completes.
-
-### Delete your account from the app
-
-New in 1.7.0 - if the site offers the WP Career Board companion mobile
-app, you can delete your own account directly from the app, without
-waiting on the site administrator. Confirm your password and type
-DELETE to confirm, and the deletion is scheduled with a grace period
-(14 days by default): your account is locked for that window, but
-signing back in before the grace period ends cancels the deletion and
-restores full access. Once the grace period passes, your account is
-permanently removed - same underlying WordPress account-deletion
-cascade as the site administrator's tools use, so it's the same kind
-of erasure described above under Privacy & My Data.
+When your account is deleted, your profile, resumes, uploaded files, saved jobs and companies, and alerts are removed. Employers keep the applications you sent, but with your name, email, cover letter, answers and files removed: they see "Deleted candidate".
 
 ## Notifications
 

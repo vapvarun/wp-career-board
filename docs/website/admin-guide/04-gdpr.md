@@ -15,6 +15,7 @@ WP Career Board integrates with WordPress's built-in privacy tools to help you c
 
 **System logs:**
 - Application timestamps
+- Email history (kept for the period set under **Settings → Advanced → Keep Email History**, 180 days by default)
 
 ## Data Export
 
@@ -37,7 +38,7 @@ To erase a user's personal data:
 4. The user confirms via email
 5. After confirmation, WordPress erases all personal data including WP Career Board records
 
-> **Note:** Erasing a user's data removes their applications and profile. Job listings posted by an employer are not automatically deleted — you may need to manually remove those.
+Erasing a person's data removes their profile, files, resumes and saved items, and anonymises their applications: employers keep the job, status and dates, shown as "Deleted candidate", with the name, email, cover letter, answers and files removed. Guests are found by the email they applied with. Deleting a user under **Users** does the same. Job listings posted by an employer are not deleted automatically; remove those yourself if needed.
 
 ## Privacy Policy Page
 

@@ -183,6 +183,7 @@ Fire side effects on key plugin events:
 | `wcb_deadline_reminder` | `(int $user_id, int $job_id, int $days_left)` |
 | `wcb_job_expiring_soon` | `(int $job_id, int $days_left)` - once per deadline, 3 days before, for the job's employer (1.8.0) |
 | `wcb_featured_expired` | `(int $job_id)` |
+| `wcb_logs_pruned` | `(string $cutoff)` - daily, after email history older than the retention setting is deleted; prune your own history with the same UTC cutoff (1.8.0) |
 
 ## One signal per notification
 
@@ -246,6 +247,17 @@ the folder directly (nginx ignores its .htaccess).
 | Filter | Args | Purpose |
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
+
+## Personal data (1.8.0)
+
+One registry drives the WordPress privacy exporter and eraser (Tools >
+Export/Erase Personal Data) and user deletion (`delete_user`), so an
+add-on that stores personal data registers once and is covered by all
+three.
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_personal_data_providers` | `array $providers` | Add `'key' => [ 'label' => string, 'export' => callable, 'erase' => callable ]`. Both callables receive `[ 'user_id' => int, 'email' => string ]` (`user_id` is 0 for a guest). `export` returns WordPress export items; `erase` returns `[ 'removed' => int, 'retained' => int, 'messages' => string[] ]`. Providers run in key order, one per privacy-tool page. |
 
 ## Sign-up and accounts (1.8.0)
 

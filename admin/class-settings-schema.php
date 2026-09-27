@@ -121,6 +121,7 @@ final class SettingsSchema {
 			'recaptcha_v2_secret_key'    => array( '', $text ),
 			// Data.
 			'remove_data_on_uninstall'   => array( false, $bool ),
+			'log_retention_days'         => array( 180, $range( 0, 3650 ) ),
 		);
 
 		$out = array();

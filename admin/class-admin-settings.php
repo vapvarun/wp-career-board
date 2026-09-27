@@ -989,6 +989,20 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-log-retention-days"><?php esc_html_e( 'Keep Email History (days)', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<input
+												id="wcb-log-retention-days"
+												type="number"
+												name="wcb_settings[log_retention_days]"
+												value="<?php echo esc_attr( (string) ( isset( $settings['log_retention_days'] ) ? (int) $settings['log_retention_days'] : 180 ) ); ?>"
+												min="0"
+												max="3650"
+											>
+											<span class="description"><?php esc_html_e( 'How long the email log and notification history are kept before they are deleted automatically. 0 keeps them forever.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
 										<div class="wcb-settings-row-label"><?php esc_html_e( 'Remove Data on Delete', 'wp-career-board' ); ?></div>
 										<div class="wcb-settings-row-control">
 											<label class="wcb-toggle-label">

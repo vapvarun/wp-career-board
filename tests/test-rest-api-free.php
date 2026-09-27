@@ -96,8 +96,19 @@ foreach ( $job_posts as $wcb_candidate_job ) {
 		break;
 	}
 }
-if ( ! $job_id && ! empty( $job_posts ) ) {
-	$job_id = (int) $job_posts[0];
+// No open job on the site (every seeded deadline has passed): make one.
+$wcb_own_job = 0;
+if ( ! $job_id ) {
+	$wcb_own_job = (int) wp_insert_post(
+		array(
+			'post_type'   => 'wcb_job',
+			'post_status' => 'publish',
+			'post_title'  => 'REST test open job',
+			'post_author' => 1,
+			'meta_input'  => array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+30 days' ) ) ),
+		)
+	);
+	$job_id      = $wcb_own_job;
 }
 
 // A job whose deadline has passed, for the guard assertions further down.
@@ -112,7 +123,22 @@ foreach ( $job_posts as $wcb_candidate_job ) {
 $pending_jobs   = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'numberposts' => 1, 'fields' => 'ids' ) );
 $pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
 
-$app_posts = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids' ) );
+// An application the employer can still act on (not withdrawn or closed).
+$app_posts = get_posts(
+	array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'any',
+		'numberposts' => 1,
+		'fields'      => 'ids',
+		'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			array(
+				'key'     => '_wcb_status',
+				'value'   => \WCB\Modules\Applications\ApplicationStatus::employer_actionable(),
+				'compare' => 'IN',
+			),
+		),
+	)
+);
 $app_id    = ! empty( $app_posts ) ? (int) $app_posts[0] : 0;
 
 WP_CLI::log( "Seed IDs => admin:{$admin_id} candidate:{$candidate_id} employer:{$employer_id} company:{$company_id} job:{$job_id} pending_job:{$pending_job_id} app:{$app_id}" );
@@ -982,6 +1008,13 @@ if ( is_wp_error( $wcb_probe_user ) ) {
 // ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
+
+if ( $wcb_own_job ) {
+	foreach ( get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'fields' => 'ids', 'numberposts' => -1, 'meta_key' => '_wcb_job_id', 'meta_value' => $wcb_own_job ) ) as $wcb_app_id ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		wp_delete_post( (int) $wcb_app_id, true );
+	}
+	wp_delete_post( $wcb_own_job, true );
+}
 
 WP_CLI::log( '' );
 WP_CLI::log( '========================================' );

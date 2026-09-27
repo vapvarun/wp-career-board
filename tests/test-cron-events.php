@@ -89,9 +89,8 @@ foreach ( $wcb_registered as $wcb_hook ) {
 
 WP_CLI::log( '--- wcb_check_job_expiry ---' );
 
-// The sweep is gated on deadline_auto_close, which ships OFF - a job past its
-// deadline stays published unless the owner opted in. Both states are asserted,
-// because "does nothing by default" is the contract, not a bug.
+// The sweep is gated on deadline_auto_close: on for new sites (1.8.0), off on
+// older sites until the owner turns it on. Both states are asserted.
 $wcb_settings_backup = get_option( 'wcb_settings', array() );
 $wcb_settings_backup = is_string( $wcb_settings_backup ) ? json_decode( $wcb_settings_backup, true ) : $wcb_settings_backup;
 $wcb_settings_backup = is_array( $wcb_settings_backup ) ? $wcb_settings_backup : array();
@@ -103,7 +102,7 @@ update_option( 'wcb_settings', $wcb_off );
 
 $wcb_stale_off = wcb_cron_make_job( array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '-10 days' ) ) ) );
 do_action( 'wcb_check_job_expiry' );
-wcb_assert( 'publish' === get_post_status( $wcb_stale_off ), 'with deadline_auto_close OFF (the default) an overdue job stays published' );
+wcb_assert( 'publish' === get_post_status( $wcb_stale_off ), 'with deadline_auto_close OFF an overdue job stays published' );
 wp_delete_post( $wcb_stale_off, true );
 
 $wcb_on                        = $wcb_settings_backup;
@@ -114,7 +113,36 @@ update_option( 'wcb_settings', $wcb_on );
 $wcb_stale  = wcb_cron_make_job( array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '-10 days' ) ) ) );
 $wcb_future = wcb_cron_make_job( array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+30 days' ) ) ) );
 
+// The sweep acts on the whole site: park the site's own overdue jobs outside
+// it (no hooks, so no emails) and put them back afterwards.
+global $wpdb;
+$wcb_bystanders = array_diff(
+	get_posts(
+		array(
+			'post_type'      => 'wcb_job',
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+			'posts_per_page' => 500,
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => '_wcb_deadline',
+					'value'   => gmdate( 'Y-m-d' ),
+					'compare' => '<',
+				),
+			),
+		)
+	),
+	array( $wcb_stale )
+);
+foreach ( $wcb_bystanders as $wcb_id ) {
+	$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	clean_post_cache( $wcb_id );
+}
 do_action( 'wcb_check_job_expiry' );
+foreach ( $wcb_bystanders as $wcb_id ) {
+	$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	clean_post_cache( $wcb_id );
+}
 
 wcb_assert( 'publish' !== get_post_status( $wcb_stale ), 'with it ON, a job past its deadline is no longer published' );
 wcb_assert( 'publish' === get_post_status( $wcb_future ), 'a job with a future deadline is left alone' );

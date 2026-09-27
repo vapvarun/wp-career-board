@@ -3760,6 +3760,34 @@
       "args_signature": [],
       "where": "admin/class-setup-wizard.php:161",
       "consumed_by": []
+    },
+    {
+      "name": "wcb_logs_pruned",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/gdpr/class-gdpr-module.php:614",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/notificationsbell/class-notifications-bell-module.php:52",
+          "kind": "action_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_personal_data_providers",
+      "type": "filter",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "modules/gdpr/class-gdpr-module.php:116",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/privacy/class-privacy-module.php:41",
+          "kind": "filter_listener"
+        }
+      ]
     }
   ],
   "buddypress_integration": {
@@ -3951,6 +3979,12 @@
       "schedule": "single (self-rescheduling, 200 per run)",
       "where": "modules/applications/class-application-lifecycle.php:51",
       "purpose": "Close a job's open applications in background batches: job_removed when the job is deleted, position_closed when the employer closes it (D15); each candidate gets the status email"
+    },
+    {
+      "hook": "wcb_prune_logs",
+      "schedule": "daily (re-arms a single run while a 5000-row batch was full)",
+      "where": "modules/gdpr/class-gdpr-module.php:74",
+      "purpose": "Delete email-log rows older than Settings > Advanced 'Keep Email History' (log_retention_days, default 180, 0 keeps); fires wcb_logs_pruned so Pro prunes the bell (1.8.0, W13)"
     }
   ],
   "wp_cli": [

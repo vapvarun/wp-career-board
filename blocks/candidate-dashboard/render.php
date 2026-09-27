@@ -1199,7 +1199,7 @@ wp_interactivity_state(
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel">
 			<p class="wcb-privacy-desc">
-				<?php esc_html_e( 'Request a copy of your personal data, or delete your account permanently. Both actions are processed by the site administrator and you\'ll receive an email confirmation when complete.', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Request a copy of your personal data, or delete your account. We email you to confirm an export request, and send the file once the site has prepared it.', 'wp-career-board' ); ?>
 			</p>
 			<div class="wcb-settings-row">
 				<div class="wcb-settings-row-label"><?php esc_html_e( 'Export my data', 'wp-career-board' ); ?></div>
@@ -1265,7 +1265,21 @@ wp_interactivity_state(
 					<div class="wcb-hidden wcb-delete-account-form"
 						data-wp-class--wcb-hidden="state.deleteFormHidden">
 						<p class="wcb-settings-note">
-							<?php esc_html_e( 'This removes your applications, resumes and profile. You will have 14 days to change your mind before anything is permanently deleted.', 'wp-career-board' ); ?>
+							<?php
+							$wcb_grace_days = ( new \WCB\Modules\Account\AccountDeletionService() )->grace_days();
+							echo esc_html(
+								sprintf(
+									/* translators: %d: number of days before the account is deleted. */
+									_n(
+										'This deletes your profile, resumes and uploaded files. Employers keep your past applications with your name and contact details removed. You have %d day to change your mind.',
+										'This deletes your profile, resumes and uploaded files. Employers keep your past applications with your name and contact details removed. You have %d days to change your mind.',
+										$wcb_grace_days,
+										'wp-career-board'
+									),
+									$wcb_grace_days
+								)
+							);
+							?>
 						</p>
 						<label class="wcb-field-label" for="wcb-delete-password"><?php esc_html_e( 'Your password', 'wp-career-board' ); ?></label>
 						<input type="password" id="wcb-delete-password" class="wcb-field-input" autocomplete="current-password"

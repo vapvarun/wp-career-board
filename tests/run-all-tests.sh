@@ -55,6 +55,18 @@ echo "=== Cron Event Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cron-events.php
 echo ""
 
+echo "=== Application Lifecycle Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-application-lifecycle.php
+echo ""
+
+echo "=== Job Lifecycle Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-lifecycle.php
+echo ""
+
+echo "=== Personal Data Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-personal-data.php
+echo ""
+
 echo "=== Scale Harness Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
 echo ""

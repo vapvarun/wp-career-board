@@ -50,6 +50,7 @@ final class CronRegistry {
 	 *   wcb_expire_featured_jobs       ← modules/jobs/class-featured-expiry.php (HOOK const)
 	 *   wcb_prune_job_views            ← modules/jobs/class-job-views-retention.php (HOOK const)
 	 *   wcb_process_account_deletions  ← modules/account/class-account-deletion-service.php (CRON_HOOK const)
+	 *   wcb_prune_logs                 ← modules/gdpr/class-gdpr-module.php (PRUNE_HOOK const)
 	 *
 	 * @since 1.1.1
 	 *
@@ -62,6 +63,7 @@ final class CronRegistry {
 			'wcb_expire_featured_jobs',
 			'wcb_prune_job_views',
 			'wcb_process_account_deletions',
+			\WCB\Modules\Gdpr\GdprModule::PRUNE_HOOK,
 			\WCB\Core\PrivateFiles::MIGRATE_HOOK,
 		);
 	}
