@@ -193,13 +193,7 @@ final class EmployersEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			// Replace existing roles, not stack on top. wp-admin role
-			// assignment uses replace semantics (set_role); frontend
-			// self-registration must match so a logged-in subscriber who
-			// converts to Employer ends up with just wcb_employer, not
-			// subscriber + wcb_employer. BuddyPress member-type sync hangs
-			// off set_role() too.
-			$user->set_role( 'wcb_employer' );
+			\WCB\Core\Roles::grant_member_role( $user, 'wcb_employer' );
 			$user_id = $user->ID;
 
 			$company_id = wp_insert_post(
@@ -306,6 +300,11 @@ final class EmployersEndpoint extends RestController {
 			$username = $username . wp_rand( 100, 999 );
 		}
 
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => $username,
@@ -355,8 +354,15 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Authenticate the new user immediately.
-		wp_set_current_user( $user_id );
-		wp_set_auth_cookie( $user_id, false );
+		// With verification on, the account stays signed out until the
+		// emailed link is opened (EmailVerification handles it).
+		$wcb_verify = \WCB\Modules\Account\EmailVerification::is_required();
+		if ( $wcb_verify ) {
+			\WCB\Modules\Account\EmailVerification::start( (int) $user_id );
+		} else {
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id, false );
+		}
 
 		$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 		do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
@@ -368,9 +374,10 @@ final class EmployersEndpoint extends RestController {
 
 		return rest_ensure_response(
 			array(
-				'user_id'       => $user_id,
-				'company_id'    => $resolved_company_id,
-				'dashboard_url' => $dashboard_url,
+				'user_id'               => $user_id,
+				'company_id'            => $resolved_company_id,
+				'dashboard_url'         => $dashboard_url,
+				'verification_required' => $wcb_verify,
 			)
 		);
 	}

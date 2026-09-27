@@ -5,15 +5,15 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-27T03:19:44+00:00",
+        "at": "2026-09-27T03:51:08+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
     "categories": {
         "rest": {
-            "total": 66,
-            "covered": 37,
-            "uncovered": 29,
+            "total": 67,
+            "covered": 40,
+            "uncovered": 27,
             "skipped": 0,
             "covered_items": [
                 {
@@ -161,8 +161,20 @@
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)/reject"
                 },
                 {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/me"
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/me/deletion"
+                },
+                {
                     "method": "GET",
                     "route": "/wcb/v1/files/(?P<id>\\d+)"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/auth/verify-email/resend"
                 }
             ],
             "uncovered_items": [
@@ -257,19 +269,9 @@
                     "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/account\""
                 },
                 {
-                    "method": "DELETE",
-                    "route": "/wcb/v1/me",
-                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/me\""
-                },
-                {
                     "method": "GET",
                     "route": "/wcb/v1/me/deletion",
                     "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/me/deletion\""
-                },
-                {
-                    "method": "DELETE",
-                    "route": "/wcb/v1/me/deletion",
-                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/me/deletion\""
                 },
                 {
                     "method": "POST",
@@ -832,15 +834,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 167,
-        "items_covered": 50,
-        "items_uncovered": 117,
+        "items_total": 168,
+        "items_covered": 53,
+        "items_uncovered": 115,
         "items_skipped": 147,
-        "coverage_percent": 29.899999999999999
+        "coverage_percent": 31.5
     },
     "drift": {
-        "previous_uncovered": 119,
-        "current_uncovered": 117,
+        "previous_uncovered": 117,
+        "current_uncovered": 115,
         "delta": -2
     }
 }

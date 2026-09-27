@@ -195,7 +195,7 @@ class AdminSettings {
 		// Determine which tab was submitted based on which fields are present.
 		$tab_fields = array(
 			'mobile-app'    => array( 'accent_color', 'logo_url', 'login_bg_url', 'dark_mode_default', 'terms_url', 'eula_url', 'guidelines_url', 'abuse_contact_email' ),
-			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'app_password_login', 'container_max_width' ),
+			'listings'      => array( 'auto_publish_jobs', 'jobs_per_page', 'jobs_expire_days', 'deadline_auto_close', 'allow_withdraw', 'salary_currency', 'apply_resume_required', 'apply_resume_max_mb', 'apply_featured_days', 'candidate_requires_role', 'require_email_verification', 'app_password_login', 'container_max_width' ),
 			'pages'         => array( 'jobs_archive_page', 'employer_dashboard_page', 'candidate_dashboard_page', 'company_archive_page', 'post_job_page', 'employer_registration_page', 'resume_archive_page' ),
 			'notifications' => array( 'notification_email', 'from_name', 'from_email' ),
 		);
@@ -209,6 +209,7 @@ class AdminSettings {
 			'allow_withdraw'             => ! empty( $input['allow_withdraw'] ),
 			'apply_resume_required'      => ! empty( $input['apply_resume_required'] ),
 			'candidate_requires_role'    => ! empty( $input['candidate_requires_role'] ),
+			'require_email_verification' => ! empty( $input['require_email_verification'] ),
 			'app_password_login'         => ! empty( $input['app_password_login'] ),
 			'apply_resume_max_mb'        => isset( $input['apply_resume_max_mb'] ) ? max( 1, min( 20, (int) $input['apply_resume_max_mb'] ) ) : 5,
 			'apply_featured_days'        => isset( $input['apply_featured_days'] ) ? max( 1, min( 365, (int) $input['apply_featured_days'] ) ) : 30,
@@ -950,6 +951,19 @@ class AdminSettings {
 												<?php esc_html_e( 'Only the Candidate role can apply, bookmark, and use the candidate dashboard', 'wp-career-board' ); ?>
 											</label>
 											<span class="description"><?php esc_html_e( 'Off by default: any logged-in member can apply and manage a resume (ideal when the job board is part of a community site). Turn on to reserve the candidate experience for users with the Candidate role.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'Email Verification', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control">
+											<label class="wcb-toggle-label">
+												<span class="wcb-toggle">
+													<input type="checkbox" name="wcb_settings[require_email_verification]" value="1" <?php checked( ! empty( $settings['require_email_verification'] ) ); ?>>
+													<span class="wcb-toggle-slider"></span>
+												</span>
+												<?php esc_html_e( 'New candidates and employers confirm their email before they can sign in', 'wp-career-board' ); ?>
+											</label>
+											<span class="description"><?php esc_html_e( 'Stops fake sign-ups using addresses the person does not own. Uses the "Confirm Your Email" message under Emails; if that message is turned off, sign-ups are not held.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

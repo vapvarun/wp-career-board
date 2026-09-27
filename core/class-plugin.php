@@ -194,6 +194,7 @@ final class Plugin {
 			\WCB\Modules\Seo\RssFeedEnrichment::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
 			\WCB\Modules\Account\AccountDeletionService::class,
+			\WCB\Modules\Account\EmailVerification::class,
 		);
 
 		foreach ( $module_classes as $class ) {

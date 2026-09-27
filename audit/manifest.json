@@ -15,7 +15,7 @@
     "db_version": null
   },
   "counts": {
-    "rest": 50,
+    "rest": 51,
     "ajax": 0,
     "admin_pages": 9,
     "shortcodes": 2,
@@ -24,7 +24,7 @@
     "taxonomies": 5,
     "tables": 3,
     "capabilities": 13,
-    "services": 39,
+    "services": 40,
     "hooks_fired": 237,
     "hooks_unique": 158,
     "cron": 6,
@@ -542,6 +542,15 @@
         "handler": "WCB\\Core\\PrivateFiles::send (via ApplicationsEndpoint)",
         "permission": "PrivateFiles::can_download",
         "purpose": "Download a private candidate file (mobile app; the website uses ?wcb_file=)"
+      },
+      {
+        "route": "/wcb/v1/auth/verify-email/resend",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\AuthEndpoint::resend_verification",
+        "permission": "public (per-IP 5/hour)",
+        "purpose": "Email a fresh sign-up confirmation link; same answer for every address"
       }
     ]
   },
@@ -1283,6 +1292,12 @@
       "class": "WCB\\Modules\\Account\\AccountDeletionService",
       "added": "1.7.0",
       "purpose": "Self-service account deletion (grace period + daily finaliser cron)"
+    },
+    {
+      "key": "account.email_verification",
+      "class": "WCB\\Modules\\Account\\EmailVerification",
+      "added": "1.8.0",
+      "purpose": "Sign-up email confirmation: ?wcb_verify= link handler + sign-in block for unconfirmed accounts (setting require_email_verification, on for new installs)"
     }
   ],
   "hooks_fired": [
@@ -4076,6 +4091,12 @@
       "class": "WCB\\Modules\\Notifications\\Emails\\Email_Job_Expired",
       "trigger": "wcb_job_expired",
       "purpose": "Notify employer their job expired"
+    },
+    {
+      "id": "verify-account",
+      "class": "WCB\\Modules\\Notifications\\Emails\\EmailVerifyAccount",
+      "trigger": "wcb_email_verification_requested",
+      "purpose": "Confirm a new account email address (sign-up verification link)"
     }
   ],
   "notes": {
@@ -4088,7 +4109,8 @@
       "F-4 (1.2.0): allow_withdraw setting deprecated → wcb_withdraw_application ability. Setting tombstoned for one cycle, removed in 1.3.0.",
       "F-6 (1.2.0): bin/check-pro-decoupling.sh wired into .github/workflows/ci.yml as a blocking job. Catches direct WCB\\Pro\\ refs, wcbp_*() calls, WCBP_ constant reads.",
       "F-1 + F-2 (1.2.0): core/class-pro-coordination.php declares 11 documented filters + 2 actions Pro is allowed to hook. 22 callsites migrated; zero direct Pro references remain in Free runtime code."
-    ]
+    ],
+    "1.8.0-w3": "rest 50->51 (POST /auth/verify-email/resend, caller: employer-registration view.js), services +1 (EmailVerification), email verify-account, filters wcb_pre_registration + wcb_registration_rate_limit, action wcb_email_verification_requested, setting require_email_verification."
   },
   "generated": {
     "at": "2026-09-01T00:00:00Z",

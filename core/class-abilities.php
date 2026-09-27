@@ -24,6 +24,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Abilities {
 
 	/**
+	 * Whether a suspension leaves this capability available.
+	 *
+	 * An administrator's ban (`_wcb_employer_banned`) removes everything. A
+	 * member who scheduled their own deletion is locked too, but keeps
+	 * dashboard access so they can reach the screen that cancels it. The two
+	 * are separate flags since 1.8.0: sharing one meant cancelling a deletion
+	 * lifted an administrator's ban.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_User $user Current user.
+	 * @param string   $cap  Capability being checked.
+	 * @return bool
+	 */
+	private static function member_may( \WP_User $user, string $cap ): bool {
+		// Pre-1.8.0 deletion requests locked through the ban flag; they carry a
+		// schedule but no lock key and keep the dashboard exception.
+		$scheduled = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
+		$legacy    = $scheduled && ! metadata_exists( 'user', $user->ID, \WCB\Modules\Account\AccountDeletionService::META_LOCKED );
+
+		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) && ! $legacy ) {
+			return false;
+		}
+		if ( $scheduled || '1' === (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_LOCKED, true ) ) {
+			return 'wcb_access_candidate_dashboard' === $cap;
+		}
+		return true;
+	}
+
+	/**
 	 * Permission chokepoint for every WCB ability.
 	 *
 	 * Encapsulates the three checks every ability needs:
@@ -51,23 +81,8 @@ final class Abilities {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- domain-specific user-meta gate.
-		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) ) {
-			// A member who schedules their own deletion is suspended through this
-			// same meta (AccountDeletionService::request), which conflates two
-			// very different states: banned BY an administrator, and leaving of
-			// their own accord. The second must still be able to reach the one
-			// screen that cancels it, or the documented 14-day grace period is
-			// unreachable from the web and only the mobile app can undo it.
-			//
-			// Deliberately narrow: dashboard ACCESS only. A member mid-deletion
-			// does not regain applying, bookmarking or resume editing, and an
-			// administrator ban is unaffected because it sets no schedule meta.
-			$wcb_self_requested = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
-
-			if ( ! $wcb_self_requested || 'wcb_access_candidate_dashboard' !== $cap ) {
-				return false;
-			}
+		if ( ! self::member_may( $user, $cap ) ) {
+			return false;
 		}
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- $cap is a plugin-registered cap.
@@ -96,15 +111,8 @@ final class Abilities {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- domain-specific user-meta gate.
-		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) ) {
-			// See the note in gate(): a self-requested deletion suspends through
-			// this same meta, and must still reach the screen that cancels it.
-			$wcb_self_requested = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
-
-			if ( ! $wcb_self_requested || 'wcb_access_candidate_dashboard' !== $cap ) {
-				return false;
-			}
+		if ( ! self::member_may( $user, $cap ) ) {
+			return false;
 		}
 
 		/**

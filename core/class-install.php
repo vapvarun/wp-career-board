@@ -241,6 +241,17 @@ final class Install {
 		if ( version_compare( (string) $installed, self::DB_VERSION, '<' ) ) {
 			self::create_tables();
 			self::seed_default_settings();
+
+			// Safer defaults for brand-new sites only (owner decision, 1.8.0).
+			// Existing sites keep their behaviour: the key stays absent there,
+			// so Settings falls back to off.
+			if ( '0' === (string) $installed ) {
+				$settings = \WCB\Admin\Settings::all();
+				if ( ! array_key_exists( 'require_email_verification', $settings ) ) {
+					$settings['require_email_verification'] = true;
+					update_option( 'wcb_settings', $settings );
+				}
+			}
 			// Reserved location terms ('remote', 'other') are seeded by
 			// Plugin::init on init@20 — taxonomy registration happens on
 			// init@10 and is unavailable during activation. Idempotent.

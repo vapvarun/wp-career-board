@@ -50,6 +50,7 @@ class NotificationsModule {
 			Emails\EmailAppGuest::class,
 			Emails\EmailAppStatus::class,
 			Emails\EmailDeadlineReminder::class,
+			Emails\EmailVerifyAccount::class,
 		);
 
 		foreach ( $classes as $class ) {

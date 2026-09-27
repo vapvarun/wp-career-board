@@ -87,6 +87,65 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Spam gate shared by both registration routes.
+	 *
+	 * Registration used to create accounts with no honeypot, CAPTCHA or rate
+	 * limit, and skipped core's `registration_errors`, so third-party anti-spam
+	 * plugins never saw these sign-ups either. Runs `wcb_pre_registration`
+	 * (the anti-spam module's honeypot + CAPTCHA), a per-IP limit, then
+	 * `registration_errors`.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request  Registration request.
+	 * @param string           $username Login about to be created.
+	 * @param string           $email    Email about to be used.
+	 * @return \WP_Error|null Error to return, or null to continue.
+	 */
+	protected function registration_guard( \WP_REST_Request $request, string $username, string $email ): ?\WP_Error {
+		/**
+		 * Filter - reject a registration before the account is created.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param \WP_Error|null   $error   Null to allow.
+		 * @param \WP_REST_Request $request Registration request.
+		 */
+		$error = apply_filters( 'wcb_pre_registration', null, $request );
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		/**
+		 * Filter the number of registrations one IP may make per hour.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param int $limit Default 5. 0 disables the limit.
+		 */
+		$limit = (int) apply_filters( 'wcb_registration_rate_limit', 5 );
+		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key   = 'wcb_reg_' . md5( wp_salt() . $ip );
+		$count = (int) get_transient( $key );
+		if ( $limit > 0 && $count >= $limit ) {
+			return new \WP_Error(
+				'wcb_rate_limited',
+				__( 'Too many sign-ups from your network. Please try again in an hour.', 'wp-career-board' ),
+				array( 'status' => 429 )
+			);
+		}
+		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, so third-party anti-spam plugins see these sign-ups.
+		$errors = apply_filters( 'registration_errors', new \WP_Error(), $username, $email );
+		if ( $errors instanceof \WP_Error && $errors->has_errors() ) {
+			return new \WP_Error( 'wcb_registration_rejected', $errors->get_error_message(), array( 'status' => 400 ) );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Record a job view in the wcb_job_views table.
 	 *
 	 * IP is hashed (SHA-256) for GDPR compliance — not stored in plaintext.

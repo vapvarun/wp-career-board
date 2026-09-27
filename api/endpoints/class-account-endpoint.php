@@ -125,6 +125,17 @@ final class AccountEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
+			// Changing the address the password reset goes to is as sensitive
+			// as changing the password: without this, a hijacked session could
+			// swap the email and then reset the password to take the account.
+			$current = (string) $request->get_param( 'current_password' );
+			if ( '' === $current || ! wp_check_password( $current, $user->user_pass, $user_id ) ) {
+				return new \WP_Error(
+					'wcb_bad_current_password',
+					__( 'Enter your current password to change your email.', 'wp-career-board' ),
+					array( 'status' => 403 )
+				);
+			}
 			$existing = email_exists( $email );
 			if ( $existing && (int) $existing !== $user_id ) {
 				return new \WP_Error(
@@ -136,7 +147,7 @@ final class AccountEndpoint extends RestController {
 			$update['user_email'] = $email;
 		}
 
-		$new_password = (string) $request->get_param( 'new_password' );
+		$new_password     = (string) $request->get_param( 'new_password' );
 		$password_changed = false;
 		if ( '' !== $new_password ) {
 			$current = (string) $request->get_param( 'current_password' );

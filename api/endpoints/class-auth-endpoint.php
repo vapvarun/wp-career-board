@@ -105,6 +105,53 @@ final class AuthEndpoint extends RestController {
 				},
 			)
 		);
+
+		// Send a new "Confirm your email" link. Public by necessity (the member
+		// cannot sign in yet); answers the same whether or not the address has
+		// a pending account, and is rate-limited per IP.
+		register_rest_route(
+			$this->namespace,
+			'/auth/verify-email/resend',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'resend_verification' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'email' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_email',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * POST /auth/verify-email/resend - email a fresh confirmation link.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request Request with `email`.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function resend_verification( \WP_REST_Request $request ) {
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key = 'wcb_verify_resend_' . md5( wp_salt() . $ip );
+		$n   = (int) get_transient( $key );
+		if ( $n >= 5 ) {
+			return new \WP_Error( 'wcb_rate_limited', __( 'Too many requests. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
+		}
+		set_transient( $key, $n + 1, HOUR_IN_SECONDS );
+
+		\WCB\Modules\Account\EmailVerification::resend( (string) $request->get_param( 'email' ) );
+
+		return new \WP_REST_Response(
+			array(
+				'message' => __( 'If that address has an unconfirmed account, a new link is on its way.', 'wp-career-board' ),
+			),
+			200
+		);
 	}
 
 	/**

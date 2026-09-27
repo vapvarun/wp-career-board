@@ -835,13 +835,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify( {
-							display_name: state.accountName,
-							email:        state.accountEmail,
+							display_name:     state.accountName,
+							email:            state.accountEmail,
+							current_password: state.accountEmailPassword,
 						} ),
 					}
 				);
 				const data = yield response.json();
 				if ( response.ok ) {
+					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
 					state.profileEmail   = data.email;

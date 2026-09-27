@@ -235,6 +235,24 @@ the folder directly (nginx ignores its .htaccess).
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
 
+## Sign-up and accounts (1.8.0)
+
+Both sign-up routes (`/candidates/register`, `/employers/register`) run one
+gate before an account is created: the plugin's anti-spam check (honeypot +
+CAPTCHA), a per-IP limit, then core's `registration_errors` filter so
+third-party anti-spam plugins see these sign-ups too. When the
+**Email Verification** setting is on (default for new installs), the new
+account stays signed out until the link in the "Confirm your email address"
+email is opened; sign-in is refused with `wcb_email_unverified` until then.
+Signing up while logged in adds the member role instead of replacing an
+existing one (administrators and editors keep theirs).
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_pre_registration` | filter | `$error, $request` | Return a `WP_Error` to refuse a sign-up before the account exists. |
+| `wcb_registration_rate_limit` | filter | `$limit` | Sign-ups one IP may make per hour. Default 5, 0 disables. |
+| `wcb_email_verification_requested` | action | `$user_id, $verify_url` | A new account needs to confirm its email. The confirmation email listens here. |
+
 ## Active-job quota (free tier)
 
 `JobsEndpoint::check_active_job_limit()` gates job create and republish

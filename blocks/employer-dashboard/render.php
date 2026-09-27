@@ -256,6 +256,7 @@ wp_interactivity_state(
 		// Account Settings panel — editable display name + email + password.
 		'accountName'           => wp_get_current_user()->display_name,
 		'accountEmail'          => wp_get_current_user()->user_email,
+		'accountEmailPassword'  => '',
 		'curPassword'           => '',
 		'newPassword'           => '',
 		'confPassword'          => '',
@@ -1152,6 +1153,11 @@ wp_interactivity_state(
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-emp-account-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
 				<input type="email" id="wcb-emp-account-email" class="wcb-input" autocomplete="email" data-wp-bind--value="state.accountEmail" data-wp-on--input="actions.updateField" data-wcb-field="accountEmail" />
+			</div>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-emp-account-emailpw"><?php esc_html_e( 'Current password', 'wp-career-board' ); ?></label>
+				<input type="password" id="wcb-emp-account-emailpw" class="wcb-input" autocomplete="current-password" data-wp-bind--value="state.accountEmailPassword" data-wp-on--input="actions.updateField" data-wcb-field="accountEmailPassword" />
+				<span class="wcb-field-hint"><?php esc_html_e( 'Needed only if you change your email.', 'wp-career-board' ); ?></span>
 			</div>
 			<div class="wcb-form-field">
 				<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.saveAccount" data-wp-bind--disabled="state.accountSaving"><?php esc_html_e( 'Save changes', 'wp-career-board' ); ?></button>

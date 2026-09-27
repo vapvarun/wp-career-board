@@ -67,6 +67,7 @@ class AntiSpamModule {
 
 		add_filter( 'wcb_pre_job_submit', array( $this, 'verify_request' ), 10, 2 );
 		add_filter( 'wcb_pre_application_submit', array( $this, 'verify_request' ), 10, 2 );
+		add_filter( 'wcb_pre_registration', array( $this, 'verify_request' ), 10, 2 );
 
 		if ( null !== $this->driver ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend' ) );
@@ -80,7 +81,8 @@ class AntiSpamModule {
 	/**
 	 * Check the honeypot field and optional CAPTCHA token for a REST request.
 	 *
-	 * Hooked onto wcb_pre_job_submit and wcb_pre_application_submit. Returns a
+	 * Hooked onto wcb_pre_job_submit, wcb_pre_application_submit and
+	 * wcb_pre_registration. Returns a
 	 * WP_Error to short-circuit the endpoint if spam is detected.
 	 *
 	 * @since 1.0.0

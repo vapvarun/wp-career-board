@@ -167,9 +167,7 @@ final class CandidatesEndpoint extends RestController {
 					array( 'status' => 409 )
 				);
 			}
-			// Replace existing roles, not stack. See same note in
-			// EmployersEndpoint::register_employer().
-			$user->set_role( 'wcb_candidate' );
+			\WCB\Core\Roles::grant_member_role( $user, 'wcb_candidate' );
 			do_action( 'wcb_candidate_registered', $user->ID );
 
 			$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
@@ -247,6 +245,11 @@ final class CandidatesEndpoint extends RestController {
 			$username = $username . wp_rand( 100, 999 );
 		}
 
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => $username,
@@ -267,8 +270,15 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		wp_set_current_user( $user_id );
-		wp_set_auth_cookie( $user_id, false );
+		// With verification on, the account stays signed out until the
+		// emailed link is opened (EmailVerification handles it).
+		$wcb_verify = \WCB\Modules\Account\EmailVerification::is_required();
+		if ( $wcb_verify ) {
+			\WCB\Modules\Account\EmailVerification::start( (int) $user_id );
+		} else {
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id, false );
+		}
 
 		do_action( 'wcb_candidate_registered', $user_id );
 
@@ -279,8 +289,9 @@ final class CandidatesEndpoint extends RestController {
 
 		return rest_ensure_response(
 			array(
-				'user_id'       => $user_id,
-				'dashboard_url' => $dashboard_url,
+				'user_id'               => $user_id,
+				'dashboard_url'         => $dashboard_url,
+				'verification_required' => $wcb_verify,
 			)
 		);
 	}
