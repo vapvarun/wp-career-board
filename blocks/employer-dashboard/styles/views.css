@@ -111,12 +111,6 @@
 	flex-shrink: 0;
 }
 
-.wcb-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
-.wcb-status-badge[data-status="hired"],
-.wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 .wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="draft"]       { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); color: var(--wcb-text-secondary); }
 .wcb-status-badge[data-status="pending"]     { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
@@ -743,9 +737,16 @@
 
 .wcb-detail-header {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: flex-start;
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-xl);
+}
+
+/* The status control drops under the name when the panel is narrow. */
+.wcb-detail-header > div:not(.wcb-detail-avatar) {
+	flex: 1 1 8rem;
+	min-width: 0;
 }
 
 .wcb-detail-name {
@@ -964,12 +965,6 @@
 	white-space: nowrap;
 }
 
-.wcb-app-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-app-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-app-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
-.wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 
 /* -- Application status select -- */
 .wcb-app-status-select {

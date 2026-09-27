@@ -139,7 +139,7 @@ class GdprModule {
 					),
 					array(
 						'name'  => __( 'Status', 'wp-career-board' ),
-						'value' => (string) get_post_meta( $app->ID, '_wcb_status', true ),
+						'value' => \WCB\Modules\Applications\ApplicationStatus::label( (string) get_post_meta( $app->ID, '_wcb_status', true ), \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ),
 					),
 					array(
 						'name'  => __( 'Submitted', 'wp-career-board' ),

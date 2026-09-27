@@ -108,6 +108,11 @@ class EmailAppStatus extends AbstractEmail {
 	 * @return void
 	 */
 	public function handle( int $app_id, string $old_status, string $new_status ): void {
+		// The candidate withdrew it themselves; the employer gets EmailAppWithdrawn.
+		if ( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN === $new_status ) {
+			return;
+		}
+
 		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 		if ( $candidate_id <= 0 ) {
 			return;
@@ -132,7 +137,7 @@ class EmailAppStatus extends AbstractEmail {
 			array(
 				'candidate_name' => $candidate->display_name,
 				'job_title'      => $job->post_title,
-				'new_status'     => $new_status,
+				'new_status'     => \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ),
 				'dashboard_url'  => $dashboard_url,
 			),
 			$candidate_id

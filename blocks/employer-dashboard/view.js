@@ -514,6 +514,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppStatus() {
 			return state.selectedApp?.status ?? '';
 		},
+		// Withdrawn / job removed: an outcome the employer cannot change.
+		get selectedAppClosed() {
+			const status = state.selectedApp?.status;
+			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
+		},
+		get selectedAppStatusLabel() {
+			return state.selectedApp?.statusLabel ?? '';
+		},
 		get selectedAppCoverLetter() {
 			return state.selectedApp?.cover_letter ?? '';
 		},
@@ -555,6 +563,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isSelectedApp() {
 			const ctx = getContext();
 			return ctx.app?.id === state.selectedAppId;
+		},
+		get isAppClosed() {
+			const status = getContext().app?.status;
+			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
 		},
 		get isUnread() {
 			const ctx = getContext();
@@ -1161,11 +1173,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				);
 				if ( response.ok ) {
-					const idx = state.applications.findIndex( ( a ) => a.id === appId );
+					// The server's label and tone win: one wording everywhere (ApplicationStatus).
+					const data = yield response.json();
+					const idx  = state.applications.findIndex( ( a ) => a.id === appId );
 					if ( idx !== -1 ) {
-						state.applications[ idx ].status = newStatus;
+						state.applications[ idx ].status      = data.status || newStatus;
+						state.applications[ idx ].statusLabel = data.status_label || state.applications[ idx ].statusLabel;
+						state.applications[ idx ].status_tone = data.status_tone || '';
 					}
-					state.statusMsg = t( 'statusSaved', 'Status updated. The candidate has been notified.' );
+					state.statusMsg = false === data.changed
+						? t( 'statusUnchanged', 'No change. The candidate was not notified.' )
+						: t( 'statusSaved', 'Status updated. The candidate has been notified.' );
 				} else {
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}

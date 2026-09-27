@@ -240,6 +240,12 @@ final class ApplicationsEndpoint extends RestController {
 								'key'   => '_wcb_candidate_id',
 								'value' => $candidate_id,
 							),
+							// A withdrawn application does not block applying again.
+							array(
+								'key'     => '_wcb_status',
+								'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+								'compare' => '!=',
+							),
 					),
 				)
 			);
@@ -441,26 +447,47 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$old_status = (string) get_post_meta( $post->ID, '_wcb_status', true );
-		update_post_meta( $post->ID, '_wcb_status', $new_status );
+		// Withdrawn and job-removed are the candidate's and the system's outcome;
+		// the employer sees them but cannot reopen them.
+		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		if ( '' !== $current && ! in_array( $current, $allowed, true ) ) {
+			return new \WP_Error(
+				'wcb_application_closed',
+				__( 'This application was withdrawn or its job was removed, so its status can no longer change.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
 
-		$log   = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
-		$log[] = array(
-			'from' => $old_status,
-			'to'   => $new_status,
-			'by'   => get_current_user_id(),
-			'at'   => gmdate( 'Y-m-d H:i:s' ),
-		);
-		update_post_meta( $post->ID, '_wcb_status_log', $log );
-
-		do_action( 'wcb_application_status_changed', $post->ID, $old_status, $new_status );
+		$note    = sanitize_textarea_field( (string) $request->get_param( 'note' ) );
+		$changed = \WCB\Modules\Applications\ApplicationLifecycle::transition( $post->ID, $new_status, 'employer_update', get_current_user_id(), $note );
 
 		return rest_ensure_response(
-			array(
-				'id'     => $post->ID,
-				'status' => $new_status,
+			array_merge(
+				array(
+					'id'      => $post->ID,
+					'changed' => $changed,
+				),
+				\WCB\Modules\Applications\ApplicationStatus::payload( $new_status, $this->audience_for( $post ) )
 			)
 		);
+	}
+
+	/**
+	 * Which wording the current user should read for this application.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $post Application post.
+	 * @return string ApplicationStatus::AUDIENCE_* constant.
+	 */
+	private function audience_for( \WP_Post $post ): string {
+		$user_id = get_current_user_id();
+		if ( $user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $user_id ) {
+			return \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE;
+		}
+		return $this->check_ability( 'wcb/manage-settings' )
+			? \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN
+			: \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER;
 	}
 
 	/**
@@ -523,14 +550,14 @@ final class ApplicationsEndpoint extends RestController {
 				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
 				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
 				'jobRemoved'   => $job_removed || ! $job_exists,
-				'status'       => $status,
-				'statusLabel'  => \WCB\Modules\Applications\ApplicationStatus::label( $status ),
+				// Withdraw is offered until the application has an outcome.
+				'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
 				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
 				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
 				// Legacy `date` key, still rendered by the candidate dashboard.
 				// Use the site's configured date format, not a hardcoded ISO string.
 				'date'         => get_the_date( (string) get_option( 'date_format' ), $app ),
-			);
+			) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
 			$items[] = (array) apply_filters( 'wcb_rest_prepare_application', $row, $app, $request, 'candidate' );
@@ -552,12 +579,16 @@ final class ApplicationsEndpoint extends RestController {
 	}
 
 	/**
-	 * Withdraw (delete) an application — candidate owner only.
+	 * Withdraw an application — candidate owner only.
 	 *
-	 * Respects the allow_withdraw site setting. Fires wcb_application_withdrawn
-	 * so other modules (e.g. notifications) can react.
+	 * Since 1.8.0 the application is kept with status `withdrawn` instead of
+	 * being deleted, so the employer's list and the candidate's history both
+	 * stay truthful. Allowed until the application reaches an outcome (hired,
+	 * rejected, job removed). Fires wcb_application_withdrawn, which emails
+	 * the employer.
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 Keeps the application as `withdrawn`.
 	 *
 	 * @param  \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -572,20 +603,55 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		$status = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+
+		// The job is gone: nobody else sees this row, so "Remove" really deletes
+		// it and the candidate can tidy their history.
+		if ( \WCB\Modules\Applications\ApplicationStatus::JOB_REMOVED === $status || 'wcb_job' !== get_post_type( $job_id ) ) {
+			wp_delete_post( $post->ID, true );
+			return rest_ensure_response(
+				array(
+					'id'        => $post->ID,
+					'withdrawn' => false,
+					'deleted'   => true,
+				)
+			);
+		}
+
+		if ( in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ) ) {
+			return new \WP_Error(
+				'wcb_withdraw_closed',
+				__( 'This application already has an outcome and can no longer be withdrawn.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		$app_id       = $post->ID;
 		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-		$job_id       = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
-		wp_delete_post( $app_id, true );
-		// Allow add-ons to clean up when an application is permanently deleted.
-		do_action( 'wcb_application_deleted', $app_id );
+		\WCB\Modules\Applications\ApplicationLifecycle::transition( $app_id, \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, 'candidate_withdrew', get_current_user_id() );
 
+		/**
+		 * Fires after a candidate withdraws an application.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int $app_id       Application post ID (kept, status withdrawn, since 1.8.0).
+		 * @param int $job_id       Job post ID.
+		 * @param int $candidate_id Candidate user ID.
+		 */
 		do_action( 'wcb_application_withdrawn', $app_id, $job_id, $candidate_id );
 
 		return rest_ensure_response(
-			array(
-				'deleted' => true,
-				'id'      => $app_id,
+			array_merge(
+				array(
+					'id'        => $app_id,
+					'withdrawn' => true,
+					// Legacy key: clients before 1.8.0 treated `deleted` as success.
+					'deleted'   => true,
+				),
+				\WCB\Modules\Applications\ApplicationStatus::payload( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE )
 			)
 		);
 	}
@@ -977,6 +1043,8 @@ final class ApplicationsEndpoint extends RestController {
 			}
 		}
 
+		$data = array_merge( $data, \WCB\Modules\Applications\ApplicationStatus::payload( (string) ( $data['status'] ?? '' ), $viewer_role ) );
+
 		/**
 		 * Canonical wcb_rest_prepare_* filter for the application resource.
 		 *
@@ -1100,17 +1168,14 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<int, array<string, string>>
 	 */
 	private function status_history_for_employer( \WP_Post $post ): array {
-		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log = \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID );
 		return array_map(
-			static function ( $entry ): array {
-				$entry = is_array( $entry ) ? $entry : array();
-				return array(
-					'status'    => isset( $entry['to'] ) ? (string) $entry['to'] : '',
-					'from'      => isset( $entry['from'] ) ? (string) $entry['from'] : '',
-					'timestamp' => isset( $entry['at'] ) ? (string) $entry['at'] : '',
-					'reviewer'  => __( 'Hiring team', 'wp-career-board' ),
-				);
-			},
+			static fn( array $entry ): array => array(
+				'status'    => $entry['to'],
+				'from'      => $entry['from'],
+				'timestamp' => $entry['at'],
+				'reviewer'  => __( 'Hiring team', 'wp-career-board' ),
+			),
 			$log
 		);
 	}
@@ -1124,17 +1189,14 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function status_history_for_admin( \WP_Post $post ): array {
-		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log = \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID );
 		return array_map(
-			static function ( $entry ): array {
-				$entry = is_array( $entry ) ? $entry : array();
-				return array(
-					'status'           => isset( $entry['to'] ) ? (string) $entry['to'] : '',
-					'from'             => isset( $entry['from'] ) ? (string) $entry['from'] : '',
-					'timestamp'        => isset( $entry['at'] ) ? (string) $entry['at'] : '',
-					'reviewer_user_id' => isset( $entry['by'] ) ? (int) $entry['by'] : 0,
-				);
-			},
+			static fn( array $entry ): array => array(
+				'status'           => $entry['to'],
+				'from'             => $entry['from'],
+				'timestamp'        => $entry['at'],
+				'reviewer_user_id' => $entry['by'],
+			),
 			$log
 		);
 	}

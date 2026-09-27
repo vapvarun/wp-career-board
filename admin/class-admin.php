@@ -624,19 +624,7 @@ class Admin {
 												</small>
 											</td>
 											<td>
-								<?php
-								$wcb_badge_map = array(
-									'submitted'   => 'info',
-									'reviewing'   => 'warn',
-									'shortlisted' => 'success',
-									'rejected'    => 'danger',
-									'hired'       => 'success',
-								);
-								$wcb_badge_var = $wcb_badge_map[ $wcb_status ] ?? 'default';
-								?>
-												<span class="wcb-badge wcb-badge--<?php echo esc_attr( $wcb_badge_var ); ?>">
-								<?php echo esc_html( ucfirst( $wcb_status ) ); ?>
-												</span>
+								<?php echo \WCB\Modules\Applications\ApplicationStatus::admin_badge( $wcb_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 											</td>
 										</tr>
 							<?php endforeach; ?>

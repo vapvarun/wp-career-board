@@ -25,8 +25,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 237,
-    "hooks_unique": 158,
+    "hooks_fired": 235,
+    "hooks_unique": 159,
     "cron": 6,
     "wp_cli": 5
   },
@@ -1563,9 +1563,9 @@
     {
       "name": "wcb_application_deleted",
       "type": "action",
-      "args_count": 1,
+      "args_count": 2,
       "args_signature": [],
-      "where": "api/endpoints/class-applications-endpoint.php:558",
+      "where": "modules/applications/class-application-lifecycle.php:67",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
@@ -1625,58 +1625,29 @@
     {
       "name": "wcb_application_status_changed",
       "type": "action",
-      "args_count": 3,
+      "args_count": 5,
       "args_signature": [],
-      "where": "admin/class-admin-applications.php:716",
+      "where": "modules/applications/class-application-lifecycle.php:162",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
           "where": "integrations/buddypress/class-bp-pro-integration.php:47",
+          "kind": "action_listener"
+        },
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/pipeline/class-pipeline-module.php:86",
           "kind": "action_listener"
         }
       ]
     },
     {
-      "name": "wcb_application_status_changed",
-      "type": "action",
+      "name": "wcb_application_status_label",
+      "type": "filter",
       "args_count": 3,
       "args_signature": [],
-      "where": "api/endpoints/class-applications-endpoint.php:433",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
-          "kind": "action_listener"
-        }
-      ]
-    },
-    {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [],
-      "where": "cli/class-application-commands.php:225",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
-          "kind": "action_listener"
-        }
-      ]
-    },
-    {
-      "name": "wcb_application_status_changed",
-      "type": "action",
-      "args_count": 3,
-      "args_signature": [],
-      "where": "modules/applications/class-application-lifecycle.php:120",
-      "consumed_by": [
-        {
-          "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-pro-integration.php:47",
-          "kind": "action_listener"
-        }
-      ]
+      "where": "modules/applications/class-application-status.php:175",
+      "consumed_by": []
     },
     {
       "name": "wcb_application_submitted",
@@ -1697,7 +1668,7 @@
       "type": "action",
       "args_count": 3,
       "args_signature": [],
-      "where": "api/endpoints/class-applications-endpoint.php:560",
+      "where": "api/endpoints/class-applications-endpoint.php:644",
       "consumed_by": []
     },
     {

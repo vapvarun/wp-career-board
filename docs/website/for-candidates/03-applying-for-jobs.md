@@ -53,7 +53,7 @@ If you change your mind:
 2. Find the application you want to withdraw
 3. Click **Withdraw**
 
-Withdrawing permanently deletes the application. It is removed from both your dashboard and the employer's view. You cannot resubmit after withdrawing.
+Withdrawing keeps the application in your list marked **Withdrawn**, and the employer gets an email so they stop reviewing it. You can withdraw until the employer hires or declines you. After withdrawing you can apply to the same job again.
 
 > **Note for site owners:** the Withdraw control is on by default and can be turned off under **Career Board → Settings → Listings → Allow Withdraw**. When it is off, candidates can no longer withdraw their own applications.
 

@@ -177,7 +177,9 @@ Fire side effects on key plugin events:
 | `wcb_job_expired` | `(int $job_id)` |
 | `wcb_job_deleted` | `(int $job_id)` |
 | `wcb_application_submitted` | `(int $app_id, int $job_id, int $candidate_id)` |
-| `wcb_application_status_changed` | `(int $app_id, string $old_status, string $new_status)` |
+| `wcb_application_status_changed` | `(int $app_id, string $old_status, string $new_status, string $reason, int $actor)` - fired once per real change, only by `ApplicationLifecycle::transition()` (1.8.0: `$reason`, `$actor`) |
+| `wcb_application_withdrawn` | `(int $app_id, int $job_id, int $candidate_id)` - the application is kept with status `withdrawn` since 1.8.0 |
+| `wcb_application_deleted` | `(int $app_id, int $job_id)` - fires before an application post is permanently deleted |
 | `wcb_deadline_reminder` | `(int $user_id, int $job_id, int $days_left)` |
 | `wcb_featured_expired` | `(int $job_id)` |
 

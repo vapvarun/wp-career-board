@@ -195,6 +195,12 @@ if ( $wcb_current_user_id && $wcb_show_apply ) {
 						'key'   => '_wcb_candidate_id',
 						'value' => $wcb_current_user_id,
 					),
+					// A withdrawn application does not block applying again.
+					array(
+						'key'     => '_wcb_status',
+						'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+						'compare' => '!=',
+					),
 			),
 		)
 	);

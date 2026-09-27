@@ -252,6 +252,9 @@ wp_interactivity_state(
 		'draggingAppId'         => 0,
 		'applications'          => array(),
 		'appsLoading'           => false,
+		// Statuses the employer can pick; anything else (withdrawn, job removed)
+		// is shown as a read-only badge.
+		'actionableStatuses'    => \WCB\Modules\Applications\ApplicationStatus::employer_actionable(),
 		'appsError'             => '',
 		'employerEmail'         => wp_get_current_user()->user_email,
 		'displayName'           => wp_get_current_user()->display_name,
@@ -398,6 +401,7 @@ wp_interactivity_state(
 
 			// Applicant status-change confirmation.
 			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
+			'statusUnchanged'          => __( 'No change. The candidate was not notified.', 'wp-career-board' ),
 			'statusError'              => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
 
 			// Account settings + password change.
@@ -781,6 +785,7 @@ wp_interactivity_state(
 								<span class="wcb-app-date" data-wp-text="context.app.submitted_at_label"></span>
 							</div>
 							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
+							<span class="wcb-status-badge wcb-hidden" data-wp-class--wcb-hidden="!state.isAppClosed" data-wp-bind--data-status="context.app.status" data-wp-text="context.app.statusLabel"></span>
 							<span class="wcb-unread-dot" data-wp-class--wcb-shown="state.isUnread"></span>
 						</div>
 					</template>
@@ -798,13 +803,12 @@ wp_interactivity_state(
 								<p class="wcb-detail-email" data-wp-text="state.selectedAppEmail"></p>
 								<p class="wcb-detail-date" data-wp-text="state.selectedAppDate"></p>
 							</div>
-							<select class="wcb-status-select" aria-label="<?php esc_attr_e( 'Change application status', 'wp-career-board' ); ?>" data-wp-bind--value="state.selectedAppStatus" data-wp-bind--data-wcb-app-id="state.selectedAppId" data-wp-on--change="actions.updateAppStatus" data-wp-bind--data-status="state.selectedAppStatus">
-								<option value="submitted"><?php esc_html_e( 'Submitted', 'wp-career-board' ); ?></option>
-								<option value="reviewing"><?php esc_html_e( 'Reviewing', 'wp-career-board' ); ?></option>
-								<option value="shortlisted"><?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?></option>
-								<option value="rejected"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></option>
-								<option value="hired"><?php esc_html_e( 'Hired', 'wp-career-board' ); ?></option>
+							<select class="wcb-status-select" aria-label="<?php esc_attr_e( 'Change application status', 'wp-career-board' ); ?>" data-wp-class--wcb-hidden="state.selectedAppClosed" data-wp-bind--value="state.selectedAppStatus" data-wp-bind--data-wcb-app-id="state.selectedAppId" data-wp-on--change="actions.updateAppStatus" data-wp-bind--data-status="state.selectedAppStatus">
+								<?php foreach ( \WCB\Modules\Applications\ApplicationStatus::employer_actionable_options() as $wcb_status_option ) : ?>
+									<option value="<?php echo esc_attr( $wcb_status_option['slug'] ); ?>"><?php echo esc_html( $wcb_status_option['label'] ); ?></option>
+								<?php endforeach; ?>
 							</select>
+							<span class="wcb-status-badge wcb-hidden" role="status" data-wp-class--wcb-hidden="!state.selectedAppClosed" data-wp-bind--data-status="state.selectedAppStatus" data-wp-text="state.selectedAppStatusLabel"></span>
 							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusMsg" data-wp-text="state.statusMsg"></p>
 						</div>
 						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">

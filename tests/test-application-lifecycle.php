@@ -1,0 +1,205 @@
+<?php
+/**
+ * Application status lifecycle tests (1.8.0, W10).
+ *
+ * Run: wp eval-file wp-content/plugins/wp-career-board/tests/test-application-lifecycle.php
+ *
+ * Pins: one writer (ApplicationLifecycle::transition) logs and announces each
+ * real change exactly once; a same-status save sends nothing; candidates read
+ * "Not selected" where employers read "Rejected"; every payload carries
+ * status, status_label and status_tone; withdrawing keeps the application,
+ * tells the employer and still lets the candidate apply again.
+ *
+ * @package WP_Career_Board
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+	return;
+}
+
+use WCB\Modules\Applications\ApplicationLifecycle;
+use WCB\Modules\Applications\ApplicationStatus;
+
+$GLOBALS['wcb_test_pass'] = 0;
+$GLOBALS['wcb_test_fail'] = 0;
+
+/**
+ * Assert a condition and log the result.
+ *
+ * @param bool   $condition Test condition.
+ * @param string $label     Human-readable test label.
+ * @return void
+ */
+function wcb_assert( bool $condition, string $label ): void {
+	if ( $condition ) {
+		++$GLOBALS['wcb_test_pass'];
+		WP_CLI::log( "  PASS: {$label}" );
+	} else {
+		++$GLOBALS['wcb_test_fail'];
+		WP_CLI::log( "  FAIL: {$label}" );
+	}
+}
+
+/**
+ * Dispatch an internal REST request.
+ *
+ * @param string   $method  HTTP method.
+ * @param string   $route   REST route path.
+ * @param array    $params  Request parameters.
+ * @param int|null $user_id User ID to set (null = leave unchanged, 0 = anonymous).
+ * @return WP_REST_Response
+ */
+function wcb_rest( string $method, string $route, array $params = array(), ?int $user_id = null ): WP_REST_Response {
+	if ( null !== $user_id ) {
+		wp_set_current_user( $user_id );
+	}
+	$request = new WP_REST_Request( $method, $route );
+	if ( 'GET' === $method ) {
+		foreach ( $params as $k => $v ) {
+			$request->set_param( $k, $v );
+		}
+	} else {
+		$request->set_body_params( $params );
+	}
+	return rest_do_request( $request );
+}
+
+rest_get_server();
+
+WP_CLI::log( '=== Application lifecycle ===' );
+
+// Count what reaches the outside world instead of sending it.
+$GLOBALS['wcb_mail_to'] = array();
+add_filter(
+	'pre_wp_mail',
+	static function ( $short, array $atts ) {
+		$GLOBALS['wcb_mail_to'][] = (string) ( is_array( $atts['to'] ) ? implode( ',', $atts['to'] ) : $atts['to'] );
+		return true;
+	},
+	10,
+	2
+);
+$GLOBALS['wcb_events'] = array();
+add_action(
+	'wcb_application_status_changed',
+	static function ( $id, $from, $to ) {
+		$GLOBALS['wcb_events'][] = "{$id}:{$from}>{$to}";
+	},
+	1,
+	3
+);
+
+$wcb_suffix    = wp_generate_password( 6, false );
+$wcb_employer  = wp_insert_user( array( 'user_login' => 'lc-emp-' . $wcb_suffix, 'user_pass' => wp_generate_password(), 'user_email' => 'lc-emp-' . $wcb_suffix . '@example.test', 'role' => 'wcb_employer' ) );
+$wcb_candidate = wp_insert_user( array( 'user_login' => 'lc-cand-' . $wcb_suffix, 'user_pass' => wp_generate_password(), 'user_email' => 'lc-cand-' . $wcb_suffix . '@example.test', 'role' => 'wcb_candidate' ) );
+$wcb_job       = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC job ' . $wcb_suffix, 'post_author' => $wcb_employer ) );
+update_post_meta( $wcb_job, '_wcb_deadline', gmdate( 'Y-m-d', strtotime( '+10 days' ) ) );
+
+/**
+ * Create an application.
+ *
+ * @param int    $job       Job ID.
+ * @param int    $candidate Candidate user ID.
+ * @param string $status    Initial status.
+ * @return int
+ */
+function wcb_lc_app( int $job, int $candidate, string $status = 'submitted' ): int {
+	$id = (int) wp_insert_post( array( 'post_type' => 'wcb_application', 'post_status' => 'publish', 'post_title' => 'LC app', 'post_author' => $candidate ) );
+	update_post_meta( $id, '_wcb_job_id', $job );
+	update_post_meta( $id, '_wcb_candidate_id', $candidate );
+	update_post_meta( $id, '_wcb_status', $status );
+	return $id;
+}
+
+// ── Labels ───────────────────────────────────────────────────────────────
+wcb_assert( 'Not selected' === ApplicationStatus::label( 'rejected', 'candidate' ), 'candidate reads "Not selected"' );
+wcb_assert( 'Rejected' === ApplicationStatus::label( 'rejected', 'employer' ), 'employer reads "Rejected"' );
+wcb_assert( 'Submitted' === ApplicationStatus::label( '' ), 'empty status reads as Submitted' );
+wcb_assert( 'danger' === ApplicationStatus::tone( 'rejected' ) && 'success' === ApplicationStatus::tone( 'hired' ), 'tone follows the outcome' );
+$wcb_payload = ApplicationStatus::payload( 'hired', 'candidate' );
+wcb_assert( array( 'status', 'status_label', 'status_tone', 'statusLabel' ) === array_keys( $wcb_payload ), 'payload carries status, status_label, status_tone (+ legacy statusLabel)' );
+
+// ── One writer, one event per real change ────────────────────────────────
+$wcb_app = wcb_lc_app( $wcb_job, $wcb_candidate );
+$r       = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'reviewing' ), $wcb_employer );
+wcb_assert( 200 === $r->get_status() && true === $r->get_data()['changed'], 'employer moves submitted -> reviewing' );
+wcb_assert( 'Reviewing' === $r->get_data()['status_label'] && 'warning' === $r->get_data()['status_tone'], 'response carries label + tone' );
+$r = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'reviewing' ), $wcb_employer );
+wcb_assert( false === $r->get_data()['changed'], 'same-status save reports unchanged' );
+wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'shortlisted' ), $wcb_employer );
+wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'rejected' ), $wcb_employer );
+$wcb_mine = array_values( array_filter( $GLOBALS['wcb_events'], static fn( $e ) => str_starts_with( $e, $wcb_app . ':' ) ) );
+wcb_assert( array( "{$wcb_app}:submitted>reviewing", "{$wcb_app}:reviewing>shortlisted", "{$wcb_app}:shortlisted>rejected" ) === $wcb_mine, 'exactly one event per real change, none for the repeat' );
+$wcb_log = ApplicationLifecycle::log( $wcb_app );
+wcb_assert( 3 === count( $wcb_log ) && $wcb_employer === $wcb_log[0]['by'] && str_contains( $wcb_log[0]['at'], 'T' ), 'log: one row per change, actor + ISO time' );
+$wcb_cand_mail = count( array_filter( $GLOBALS['wcb_mail_to'], static fn( $to ) => str_contains( $to, 'lc-cand-' ) ) );
+wcb_assert( 3 === $wcb_cand_mail, 'candidate got 3 status emails, not 4' );
+wcb_assert( false === ApplicationLifecycle::transition( $wcb_app, 'closed' ), 'unknown status is refused' );
+$r = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'withdrawn' ), $wcb_employer );
+wcb_assert( 400 === $r->get_status(), 'employer cannot set withdrawn' );
+
+// Candidate sees the candidate wording.
+$r    = wcb_rest( 'GET', '/wcb/v1/candidates/' . $wcb_candidate . '/applications', array(), $wcb_candidate );
+$rows = wp_list_pluck( (array) $r->get_data()['applications'], 'status_label', 'id' );
+wcb_assert( 'Not selected' === ( $rows[ $wcb_app ] ?? '' ), 'candidate list says "Not selected"' );
+$r = wcb_rest( 'GET', '/wcb/v1/jobs/' . $wcb_job . '/applications', array(), $wcb_employer );
+$e = wp_list_pluck( (array) $r->get_data()['applications'], 'status_label', 'id' );
+wcb_assert( 'Rejected' === ( $e[ $wcb_app ] ?? '' ), 'employer list says "Rejected"' );
+
+// Legacy log rows ('Y-m-d H:i:s', blank first row) read back clean.
+update_post_meta( $wcb_app, '_wcb_status_log', array( array( 'from' => '', 'to' => '' ), array( 'from' => 'submitted', 'to' => 'reviewing', 'by' => 1, 'at' => '2026-01-02 03:04:05' ) ) );
+$wcb_log = ApplicationLifecycle::log( $wcb_app );
+wcb_assert( 1 === count( $wcb_log ) && '2026-01-02T03:04:05+00:00' === $wcb_log[0]['at'], 'legacy log: blank row dropped, time as ISO UTC' );
+
+// ── Withdraw ─────────────────────────────────────────────────────────────
+$wcb_rejected_app       = $wcb_app;
+$wcb_app                = wcb_lc_app( $wcb_job, $wcb_candidate, 'shortlisted' );
+$GLOBALS['wcb_mail_to'] = array();
+$r                      = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_app, array(), $wcb_candidate );
+wcb_assert( 200 === $r->get_status() && true === $r->get_data()['withdrawn'] && 'Withdrawn' === $r->get_data()['status_label'], 'candidate withdraws' );
+wcb_assert( get_post( $wcb_app ) instanceof WP_Post && 'withdrawn' === get_post_meta( $wcb_app, '_wcb_status', true ), 'application kept as withdrawn' );
+wcb_assert( array( 'lc-emp-' . $wcb_suffix . '@example.test' ) === $GLOBALS['wcb_mail_to'], 'only the employer is emailed' );
+$r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_app, array(), $wcb_candidate );
+wcb_assert( 409 === $r->get_status(), 'withdrawing twice is refused' );
+$r = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'reviewing' ), $wcb_employer );
+wcb_assert( 409 === $r->get_status() && 'withdrawn' === get_post_meta( $wcb_app, '_wcb_status', true ), 'employer cannot reopen a withdrawn application' );
+$r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_rejected_app, array(), $wcb_candidate );
+wcb_assert( 409 === $r->get_status(), 'an application with an outcome cannot be withdrawn' );
+wp_delete_post( $wcb_rejected_app, true );
+
+// Withdrawn does not count as applied: the candidate may apply again.
+$r = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Second try' ), $wcb_candidate );
+$wcb_code = (string) ( $r->get_data()['code'] ?? '' );
+wcb_assert( 'wcb_already_applied' !== $wcb_code, 'apply after withdrawing is not blocked as a duplicate (' . $r->get_status() . ' ' . $wcb_code . ')' );
+// Control: a live application does block a second one.
+$wcb_live_block = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
+$r              = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Third try' ), $wcb_candidate );
+wcb_assert( 'wcb_already_applied' === ( $r->get_data()['code'] ?? '' ), 'control: a live application still blocks a duplicate' );
+wp_delete_post( $wcb_live_block, true );
+
+// ── Job deleted: rows become job_removed; Remove deletes them ───────────
+$wcb_live = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
+wp_delete_post( $wcb_job, true );
+wcb_assert( 'job_removed' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete marks applications job_removed' );
+$r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_live, array(), $wcb_candidate );
+wcb_assert( 200 === $r->get_status() && true === $r->get_data()['deleted'] && null === get_post( $wcb_live ), 'Remove on a dead row deletes it' );
+
+// Teardown.
+foreach ( get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'fields' => 'ids', 'numberposts' => -1, 'author' => $wcb_candidate ) ) as $wcb_id ) {
+	wp_delete_post( (int) $wcb_id, true );
+}
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( (int) $wcb_employer );
+wp_delete_user( (int) $wcb_candidate );
+
+WP_CLI::log( '' );
+WP_CLI::log( '  Total: ' . ( $GLOBALS['wcb_test_pass'] + $GLOBALS['wcb_test_fail'] ) . '  Pass: ' . $GLOBALS['wcb_test_pass'] . '  Fail: ' . $GLOBALS['wcb_test_fail'] );
+if ( $GLOBALS['wcb_test_fail'] > 0 ) {
+	WP_CLI::error( $GLOBALS['wcb_test_fail'] . ' test(s) failed.' );
+} else {
+	WP_CLI::success( 'All application lifecycle tests passed.' );
+}

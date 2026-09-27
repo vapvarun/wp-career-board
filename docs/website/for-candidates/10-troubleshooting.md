@@ -15,7 +15,7 @@ your application is there.
 - **Status "Shortlisted"** - you're under consideration. Expect
   follow-up.
 - **Status "Hired"** - congratulations, you got the job.
-- **Status "Rejected"** - not a fit for this role; the application
+- **Status "Not selected"** - not a fit for this role; the application
   is closed.
 - **Status "Withdrawn"** - you (or the system) withdrew it.
 - **Status "Job Removed"** - the job posting was taken down. Your

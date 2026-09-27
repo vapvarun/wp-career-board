@@ -127,15 +127,16 @@
 					path:   '/wcb/v1/applications/' + appId + '/status',
 					method: 'PATCH',
 					data:   { status: status },
-				} ).then( function () {
+				} ).then( function ( res ) {
 					select.disabled = false;
 					select.dataset.original = status;
 
+					// Label and tone come from the server (ApplicationStatus), never a local copy.
 					var badge = select.closest( 'tr' ).querySelector( '.wcb-badge' );
-					if ( badge ) {
-						var badgeMap = { submitted: 'info', reviewing: 'warn', shortlisted: 'success', rejected: 'danger', hired: 'success' };
-						badge.className  = 'wcb-badge wcb-badge--' + ( badgeMap[ status ] || 'default' );
-						badge.textContent = status.charAt( 0 ).toUpperCase() + status.slice( 1 );
+					if ( badge && res && res.status_label ) {
+						var toneMap = { info: 'info', warning: 'warn', accent: 'info', success: 'success', danger: 'danger' };
+						badge.className   = 'wcb-badge wcb-badge--' + ( toneMap[ res.status_tone ] || 'default' );
+						badge.textContent = res.status_label;
 					}
 				} ).catch( function () {
 					select.disabled = false;

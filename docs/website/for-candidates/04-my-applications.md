@@ -40,7 +40,7 @@ Each row shows:
 | **Submitted** | Your application was received; the employer hasn't reviewed it yet |
 | **Reviewing** | The employer is actively looking at your application |
 | **Shortlisted** | You're being considered - the employer is interested |
-| **Rejected** | The employer is no longer considering your application |
+| **Not selected** | The employer is no longer considering your application (employers see this as "Rejected") |
 | **Hired** | Congratulations - you got the job |
 | **Withdrawn** | You withdrew this application; it is no longer active |
 | **Job Removed** | The job posting was taken down. Your application is preserved in your history, but no further action is expected. |
@@ -55,7 +55,7 @@ To withdraw from a role you are no longer interested in:
 2. Click the **Withdraw** button
 3. Confirm in the prompt
 
-Withdrawing permanently deletes the application. It is removed from both your dashboard and the employer's view. You cannot resubmit after withdrawing.
+Withdrawing keeps the application in your list marked **Withdrawn**, and the employer gets an email so they stop reviewing it. You can withdraw until the employer hires or declines you. After withdrawing you can apply to the same job again.
 
 > The Withdraw button only appears when the site allows it. Site owners can disable withdrawals under **Career Board → Settings → Listings → Allow Withdraw** (on by default).
 

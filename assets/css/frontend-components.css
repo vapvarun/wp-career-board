@@ -1112,3 +1112,17 @@ select.wcb-field {
 .wcb-db-gate .wcb-btn + .wcb-btn {
 	margin-inline-start: var(--wcb-space-sm);
 }
+
+/* ── Application status badges ─────────────────────────────────────────
+ * One palette for every status badge (candidate dashboard, employer
+ * dashboard, My Applications, the kanban). Colours follow
+ * ApplicationStatus::tone(): info, warning, accent, success, danger, and a
+ * neutral grey for outcomes the candidate or the system set (withdrawn,
+ * job removed). The badge text is ApplicationStatus::label().
+ */
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="reviewing"]   { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge):is([data-status="withdrawn"], [data-status="job_removed"]) { background: var(--wcb-bg-hover); color: var(--wcb-text-secondary); }

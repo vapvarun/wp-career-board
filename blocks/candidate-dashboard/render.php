@@ -663,17 +663,17 @@ wp_interactivity_state(
 							></span>
 							<?php
 							/*
-							Withdraw shows for live applications (gated by ability).
-							 * Remove shows for "Job no longer available" rows so the
-							 * candidate can clean dead history out of their list -
-							 * both buttons call the same REST endpoint which deletes
-							 * the application record. */
+							Withdraw shows until the application has an outcome (gated
+							 * by ability) and keeps the row as "Withdrawn". Remove shows
+							 * for "Job no longer available" rows and deletes the row, so
+							 * the candidate can clean dead history out of their list.
+							 * Both call DELETE /applications/{id}. */
 							?>
 							<button
 								type="button"
 								class="wcb-cd-withdraw-btn"
 								data-wp-class--wcb-shown="state.allowWithdraw"
-								data-wp-class--wcb-hidden="context.application.jobRemoved"
+								data-wp-class--wcb-hidden="!context.application.canWithdraw"
 								data-wp-on--click="actions.withdrawApplication"
 							><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
 							<button

@@ -10,7 +10,7 @@
  *   createResume          — POST to /candidates/{id}/resumes to create a new resume.
  *   openResumeEditor      — navigate to resume builder for the current resume.
  *   deleteResume          — DELETE /resumes/{id}.
- *   withdrawApplication   — DELETE /applications/{id}; removes from list.
+ *   withdrawApplication   — DELETE /applications/{id}; marks Withdrawn (or removes a dead row).
  *
  * @package WP_Career_Board
  */
@@ -1364,9 +1364,17 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return;
 				}
 
-				state.applications = state.applications.filter( function( a ) {
-					return a.id !== application.id;
-				} );
+				const data = yield response.json();
+				if ( data.withdrawn ) {
+					// Kept as Withdrawn: show the server's label, hide the button.
+					application.status      = data.status;
+					application.statusLabel = data.status_label;
+					application.canWithdraw = false;
+				} else {
+					state.applications = state.applications.filter( function( a ) {
+						return a.id !== application.id;
+					} );
+				}
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			}

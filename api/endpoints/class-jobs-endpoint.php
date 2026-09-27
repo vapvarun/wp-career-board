@@ -522,6 +522,13 @@ final class JobsEndpoint extends RestController {
 						'value'   => $job_ids,
 						'compare' => 'IN',
 					),
+					// A withdrawn application does not count as applied: the
+					// candidate may apply again.
+					array(
+						'key'     => '_wcb_status',
+						'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+						'compare' => '!=',
+					),
 				),
 			)
 		);
@@ -1457,8 +1464,6 @@ final class JobsEndpoint extends RestController {
 					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
 					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
 					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
-					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
-					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// Raw ISO 8601 for any client-side date logic; localised sibling
 					// for display. Never hand a translated date string to new Date().
 					'submitted_at'       => get_the_date( 'c', $p ),
@@ -1483,7 +1488,7 @@ final class JobsEndpoint extends RestController {
 						$url = get_permalink( $resume_id );
 						return false !== $url ? (string) $url : null;
 					} )(),
-				);
+				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 			},
 			$posts
 		);

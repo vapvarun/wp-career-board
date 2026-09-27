@@ -65,4 +65,4 @@ Use the applicant's email address to reach out from your mail client. All commun
 
 ## When Candidates Withdraw
 
-If a candidate withdraws their application, it is permanently deleted and will no longer appear in your application list.
+If a candidate withdraws, you get an email and the application stays in your list with a **Withdrawn** badge instead of a status picker. You cannot change its status. The candidate may apply again later, which shows up as a new application.

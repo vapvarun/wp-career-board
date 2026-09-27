@@ -1046,9 +1046,6 @@ final class EmployersEndpoint extends RestController {
 					'applicant_email'    => $candidate_user
 					? $candidate_user->user_email
 					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
-					// Localised label for display, alongside the raw slug for CSS/logic.
-					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
 					// dashboard sorts and date-filters it with new Date() in JS. The
 					// localised display string is a SEPARATE sibling so a translated
@@ -1056,7 +1053,7 @@ final class EmployersEndpoint extends RestController {
 					// silently break the recency sort + "new this week" stat).
 					'submitted_at'       => get_the_date( 'c', $app_id ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
-				);
+				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 
 				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
 					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );

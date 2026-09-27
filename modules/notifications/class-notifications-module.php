@@ -49,6 +49,7 @@ class NotificationsModule {
 			Emails\EmailAppConfirmation::class,
 			Emails\EmailAppGuest::class,
 			Emails\EmailAppStatus::class,
+			Emails\EmailAppWithdrawn::class,
 			Emails\EmailDeadlineReminder::class,
 			Emails\EmailVerifyAccount::class,
 		);

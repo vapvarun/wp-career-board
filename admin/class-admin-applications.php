@@ -29,13 +29,6 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class AdminApplications extends \WP_List_Table {
 
 	/**
-	 * Valid application status values.
-	 *
-	 * @var string[]
-	 */
-	private const STATUSES = array( 'submitted', 'reviewing', 'shortlisted', 'rejected', 'hired' );
-
-	/**
 	 * Most job / candidate IDs a search feeds into the meta_query below.
 	 *
 	 * The list is 20 rows a page, so a term matching more than this is already
@@ -208,7 +201,7 @@ class AdminApplications extends \WP_List_Table {
 		);
 
 		// Filter by application status meta.
-		if ( $status_filter && in_array( $status_filter, self::STATUSES, true ) ) {
+		if ( $status_filter && \WCB\Modules\Applications\ApplicationStatus::is_valid( $status_filter ) ) {
 			$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
 					'key'   => '_wcb_status',
@@ -356,7 +349,7 @@ class AdminApplications extends \WP_List_Table {
 			$counts['total']
 		);
 
-		foreach ( self::STATUSES as $slug ) {
+		foreach ( \WCB\Modules\Applications\ApplicationStatus::all() as $slug ) {
 			$count = (int) ( $counts['by_status'][ $slug ] ?? 0 );
 
 			if ( 0 === $count && $current !== $slug ) {
@@ -367,7 +360,7 @@ class AdminApplications extends \WP_List_Table {
 				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 				esc_url( add_query_arg( 'app_status', $slug, $base_url ) ),
 				$current === $slug ? ' class="current"' : '',
-				esc_html( ucfirst( $slug ) ),
+				esc_html( \WCB\Modules\Applications\ApplicationStatus::label( $slug, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ) ),
 				$count
 			);
 		}
@@ -592,22 +585,9 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	protected function column_status( $item ): string {
 		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
-		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
+		$status = \WCB\Modules\Applications\ApplicationStatus::is_valid( $raw ) ? $raw : 'submitted';
 
-		$badge_map = array(
-			'submitted'   => 'info',
-			'reviewing'   => 'warn',
-			'shortlisted' => 'success',
-			'rejected'    => 'danger',
-			'hired'       => 'success',
-		);
-		$badge_var = $badge_map[ $status ] ?? 'default';
-
-		return sprintf(
-			'<span class="wcb-badge wcb-badge--%s">%s</span>',
-			esc_attr( $badge_var ),
-			esc_html( ucfirst( $status ) )
-		);
+		return \WCB\Modules\Applications\ApplicationStatus::admin_badge( $status );
 	}
 
 	/**
@@ -620,19 +600,24 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	protected function column_change( $item ): string {
 		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
-		$status = in_array( $raw, self::STATUSES, true ) ? $raw : 'submitted';
+		$status = '' !== $raw ? $raw : 'submitted';
+
+		// A candidate-side or system outcome is shown, not offered as a choice.
+		if ( ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::employer_actionable(), true ) ) {
+			return esc_html( \WCB\Modules\Applications\ApplicationStatus::label( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ) );
+		}
 
 		$select = sprintf(
 			'<select class="wcb-status-select" data-app-id="%1$d" aria-label="%2$s">',
 			(int) $item->ID,
 			esc_attr__( 'Change application status', 'wp-career-board' )
 		);
-		foreach ( self::STATUSES as $opt ) {
+		foreach ( \WCB\Modules\Applications\ApplicationStatus::employer_actionable() as $opt ) {
 			$select .= sprintf(
 				'<option value="%s"%s>%s</option>',
 				esc_attr( $opt ),
 				selected( $status, $opt, false ),
-				esc_html( ucfirst( $opt ) )
+				esc_html( \WCB\Modules\Applications\ApplicationStatus::label( $opt, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ) )
 			);
 		}
 		$select .= '</select>';
@@ -710,10 +695,7 @@ class AdminApplications extends \WP_List_Table {
 			if ( 'trash' === $action ) {
 				wp_trash_post( $app_id );
 			} elseif ( isset( $bulk_status_map[ $action ] ) ) {
-				$new_status = $bulk_status_map[ $action ];
-				$old_status = (string) get_post_meta( $app_id, '_wcb_status', true );
-				update_post_meta( $app_id, '_wcb_status', $new_status );
-				do_action( 'wcb_application_status_changed', $app_id, $old_status, $new_status );
+				\WCB\Modules\Applications\ApplicationLifecycle::transition( (int) $app_id, $bulk_status_map[ $action ], 'admin_bulk' );
 			}
 		}
 

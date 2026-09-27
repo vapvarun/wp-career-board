@@ -83,8 +83,16 @@ final class StatusChanger extends AbstractWidget {
 		if ( '' === $current ) {
 			$current = 'submitted';
 		}
-		$labels = StatusTimeline::status_labels();
-		$nonce  = wp_create_nonce( 'wp_rest' );
+		// Employers and admins pick from the actionable set; a withdrawn or
+		// job-removed application shows its outcome instead of a picker.
+		$labels = array_intersect_key(
+			StatusTimeline::status_labels(),
+			array_flip( \WCB\Modules\Applications\ApplicationStatus::employer_actionable() )
+		);
+		if ( ! isset( $labels[ $current ] ) ) {
+			return '';
+		}
+		$nonce = wp_create_nonce( 'wp_rest' );
 
 		ob_start();
 		?>

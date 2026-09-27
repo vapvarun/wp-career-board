@@ -114,24 +114,144 @@ final class ApplicationStatus {
 	}
 
 	/**
-	 * Human-friendly translated label for a status slug.
+	 * Audience: the candidate who applied.
+	 *
+	 * @since 1.8.0
+	 */
+	public const AUDIENCE_CANDIDATE = 'candidate';
+
+	/**
+	 * Audience: the employer who owns the job.
+	 *
+	 * @since 1.8.0
+	 */
+	public const AUDIENCE_EMPLOYER = 'employer';
+
+	/**
+	 * Audience: a site administrator.
+	 *
+	 * @since 1.8.0
+	 */
+	public const AUDIENCE_ADMIN = 'admin';
+
+	/**
+	 * Translated label for a status slug, worded for who is reading it.
+	 *
+	 * The one place a status becomes words. Every badge, email, bell, push and
+	 * API payload calls this, so a candidate never reads "Rejected" in one
+	 * place and "Not selected" in another (owner decision D12: candidates see
+	 * "Not selected", employers and admins see "Rejected").
 	 *
 	 * @since 1.1.2
+	 * @since 1.8.0 Added `$audience`.
 	 *
-	 * @param string $status Status slug.
+	 * @param string $status   Status slug. Empty means submitted.
+	 * @param string $audience One of the AUDIENCE_* constants.
 	 * @return string Translated label, or the slug itself if unknown.
 	 */
-	public static function label( string $status ): string {
+	public static function label( string $status, string $audience = self::AUDIENCE_EMPLOYER ): string {
+		$status = '' !== $status ? $status : self::SUBMITTED;
 		$labels = array(
 			self::SUBMITTED   => __( 'Submitted', 'wp-career-board' ),
 			self::REVIEWING   => __( 'Reviewing', 'wp-career-board' ),
 			self::SHORTLISTED => __( 'Shortlisted', 'wp-career-board' ),
-			self::REJECTED    => __( 'Rejected', 'wp-career-board' ),
+			self::REJECTED    => self::AUDIENCE_CANDIDATE === $audience
+				? __( 'Not selected', 'wp-career-board' )
+				: __( 'Rejected', 'wp-career-board' ),
 			self::HIRED       => __( 'Hired', 'wp-career-board' ),
 			self::WITHDRAWN   => __( 'Withdrawn', 'wp-career-board' ),
 			self::JOB_REMOVED => __( 'Job removed', 'wp-career-board' ),
 		);
-		return $labels[ $status ] ?? $status;
+
+		/**
+		 * Filter the label shown for an application status.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param string $label    Translated label.
+		 * @param string $status   Status slug.
+		 * @param string $audience candidate, employer or admin.
+		 */
+		return (string) apply_filters( 'wcb_application_status_label', $labels[ $status ] ?? $status, $status, $audience );
+	}
+
+	/**
+	 * Visual tone for a status, so every client colours a badge the same way.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $status Status slug. Empty means submitted.
+	 * @return string neutral, info, warning, accent, success or danger.
+	 */
+	public static function tone( string $status ): string {
+		$tones = array(
+			self::SUBMITTED   => 'info',
+			self::REVIEWING   => 'warning',
+			self::SHORTLISTED => 'accent',
+			self::HIRED       => 'success',
+			self::REJECTED    => 'danger',
+		);
+		return $tones[ '' !== $status ? $status : self::SUBMITTED ] ?? 'neutral';
+	}
+
+	/**
+	 * Escaped wp-admin badge for a status (admin wording, tone colour).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $status Status slug. Empty means submitted.
+	 * @return string `<span class="wcb-badge ...">` markup, already escaped.
+	 */
+	public static function admin_badge( string $status ): string {
+		$variants = array(
+			'info'    => 'info',
+			'warning' => 'warn',
+			'accent'  => 'info',
+			'success' => 'success',
+			'danger'  => 'danger',
+		);
+		return sprintf(
+			'<span class="wcb-badge wcb-badge--%1$s">%2$s</span>',
+			esc_attr( $variants[ self::tone( $status ) ] ?? 'default' ),
+			esc_html( self::label( $status, self::AUDIENCE_ADMIN ) )
+		);
+	}
+
+	/**
+	 * Every status as slug => label for one audience, in pipeline order.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $audience One of the AUDIENCE_* constants.
+	 * @return array<string,string>
+	 */
+	public static function labels( string $audience = self::AUDIENCE_EMPLOYER ): array {
+		$out = array();
+		foreach ( self::all() as $slug ) {
+			$out[ $slug ] = self::label( $slug, $audience );
+		}
+		return $out;
+	}
+
+	/**
+	 * The status fields every API payload carries: slug, label and tone.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $status   Status slug. Empty means submitted.
+	 * @param string $audience One of the AUDIENCE_* constants.
+	 * @return array{status:string,status_label:string,status_tone:string,statusLabel:string}
+	 */
+	public static function payload( string $status, string $audience ): array {
+		$status = '' !== $status ? $status : self::SUBMITTED;
+		$label  = self::label( $status, $audience );
+		return array(
+			'status'       => $status,
+			'status_label' => $label,
+			'status_tone'  => self::tone( $status ),
+			// camelCase twin read by the dashboards since 1.1.
+			'statusLabel'  => $label,
+		);
 	}
 
 	/**

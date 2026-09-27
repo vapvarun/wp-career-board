@@ -52,6 +52,21 @@ final class ApplicationLifecycle {
 	 */
 	public function on_job_deleted( int $post_id, $post = null ): void {
 		$post = $post instanceof \WP_Post ? $post : get_post( $post_id );
+		if ( $post instanceof \WP_Post && 'wcb_application' === $post->post_type ) {
+			/**
+			 * Fires before an application post is permanently deleted.
+			 *
+			 * Since 1.8.0 withdrawing keeps the application (status withdrawn),
+			 * so this fires only for a real delete (admin, account erasure).
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param int $application_id Application post ID.
+			 * @param int $job_id         Job post ID.
+			 */
+			do_action( 'wcb_application_deleted', $post->ID, (int) get_post_meta( $post->ID, '_wcb_job_id', true ) );
+			return;
+		}
 		if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
 			return;
 		}
@@ -73,52 +88,110 @@ final class ApplicationLifecycle {
 		);
 
 		foreach ( $application_ids as $application_id ) {
-			self::transition( (int) $application_id, ApplicationStatus::JOB_REMOVED, 'job_deleted' );
+			self::transition( (int) $application_id, ApplicationStatus::JOB_REMOVED, 'job_deleted', 0 );
 		}
 	}
 
 	/**
-	 * Transition an application to a new status with audit trail + the standard event.
+	 * The one way an application's status changes.
 	 *
-	 * Centralises the three steps every status change needs: write the new
-	 * status, append to `_wcb_status_log`, fire `wcb_application_status_changed`.
-	 * Returns false when the status is unchanged so callers can skip noise.
+	 * Every writer (REST, admin bulk, admin detail screen, CLI, Pro pipeline,
+	 * candidate withdraw, job deletion) calls this, so each change is validated,
+	 * logged, counted and announced exactly once. A save that does not change
+	 * the status returns false and sends nothing.
+	 *
+	 * Who may set which status is the caller's policy (e.g. the REST endpoint
+	 * only lets employers pick ApplicationStatus::employer_actionable()); this
+	 * method only refuses slugs that are not statuses at all.
 	 *
 	 * @since 1.1.2
+	 * @since 1.8.0 Added `$actor` and `$note`; clears the status counts cache.
 	 *
-	 * @param int    $application_id Application post ID.
-	 * @param string $new_status     Target status slug (use ApplicationStatus constants).
-	 * @param string $reason         Optional machine-readable reason (e.g. job_deleted, candidate_withdrew).
+	 * @param int      $application_id Application post ID.
+	 * @param string   $new_status     Target status slug (use ApplicationStatus constants).
+	 * @param string   $reason         Machine-readable reason (e.g. job_deleted, candidate_withdrew, pipeline_stage).
+	 * @param int|null $actor          User making the change; null = current user, 0 = system.
+	 * @param string   $note           Optional human note kept in the log.
 	 * @return bool Whether the status actually changed.
 	 */
-	public static function transition( int $application_id, string $new_status, string $reason = '' ): bool {
-		if ( ! ApplicationStatus::is_valid( $new_status ) ) {
+	public static function transition( int $application_id, string $new_status, string $reason = '', ?int $actor = null, string $note = '' ): bool {
+		if ( ! ApplicationStatus::is_valid( $new_status ) || 'wcb_application' !== get_post_type( $application_id ) ) {
 			return false;
 		}
 
 		$old_status = (string) get_post_meta( $application_id, '_wcb_status', true );
+		$old_status = '' !== $old_status ? $old_status : ApplicationStatus::SUBMITTED;
 		if ( $old_status === $new_status ) {
 			return false;
 		}
 
 		update_post_meta( $application_id, '_wcb_status', $new_status );
 
-		$log   = (array) get_post_meta( $application_id, '_wcb_status_log', true );
-		$log[] = array(
+		$entry = array(
 			'from'   => $old_status,
 			'to'     => $new_status,
+			'by'     => null === $actor ? get_current_user_id() : $actor,
 			'at'     => gmdate( 'c' ),
 			'reason' => $reason,
 		);
-		update_post_meta( $application_id, '_wcb_status_log', $log );
+		if ( '' !== $note ) {
+			$entry['note'] = $note;
+		}
+		$log   = (array) get_post_meta( $application_id, '_wcb_status_log', true );
+		$log[] = $entry;
+		update_post_meta( $application_id, '_wcb_status_log', array_values( array_filter( $log, 'is_array' ) ) );
+
+		delete_transient( 'wcb_app_status_counts' );
 
 		/**
-		 * This action is documented in api/endpoints/class-applications-endpoint.php.
-		 * Arg order is ($id, $old_status, $new_status) — matching every other call site
-		 * so consumers (e.g. gamification "hired" rewards) read $new_status reliably.
+		 * Fires once after an application's status really changed.
+		 *
+		 * Arg order is ($id, $old_status, $new_status) at every call site so
+		 * consumers (emails, bell, BuddyPress, gamification) read $new_status
+		 * reliably. $old_status is never empty: a missing status reads as submitted.
+		 *
+		 * @since 1.0.0
+		 * @since 1.8.0 Added `$reason` and `$actor`.
+		 *
+		 * @param int    $application_id Application post ID.
+		 * @param string $old_status     Previous status slug.
+		 * @param string $new_status     New status slug.
+		 * @param string $reason         Machine-readable reason.
+		 * @param int    $actor          User who made the change, 0 = system.
 		 */
-		do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status );
+		do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status, $reason, (int) $entry['by'] );
 
 		return true;
+	}
+
+	/**
+	 * An application's status log, cleaned for display.
+	 *
+	 * Older writers stored `at` as 'Y-m-d H:i:s' (UTC) and some left a blank
+	 * first row; readers get every entry with a status and an ISO 8601 `at`.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $application_id Application post ID.
+	 * @return array<int,array{from:string,to:string,by:int,at:string,reason:string,note:string}>
+	 */
+	public static function log( int $application_id ): array {
+		$out = array();
+		foreach ( (array) get_post_meta( $application_id, '_wcb_status_log', true ) as $entry ) {
+			if ( ! is_array( $entry ) || empty( $entry['to'] ) ) {
+				continue;
+			}
+			$at    = (string) ( $entry['at'] ?? '' );
+			$time  = '' !== $at ? strtotime( str_contains( $at, 'T' ) ? $at : $at . ' UTC' ) : false;
+			$out[] = array(
+				'from'   => (string) ( $entry['from'] ?? '' ),
+				'to'     => (string) $entry['to'],
+				'by'     => (int) ( $entry['by'] ?? 0 ),
+				'at'     => false !== $time ? gmdate( 'c', $time ) : '',
+				'reason' => (string) ( $entry['reason'] ?? '' ),
+				'note'   => (string) ( $entry['note'] ?? '' ),
+			);
+		}
+		return $out;
 	}
 }

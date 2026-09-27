@@ -15,7 +15,8 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 | **Application Received** | Employer | Candidate applies to their job |
 | **Application Confirmation (Candidate)** | Candidate | Registered candidate submits an application |
 | **Application Confirmation (Guest)** | Guest | Guest applicant submits an application |
-| **Application Status Changed** | Candidate | Employer updates application status (Reviewing, Shortlisted, Rejected, Hired) |
+| **Application Status Changed** | Candidate | Employer updates application status (Reviewing, Shortlisted, Not selected, Hired). Saving the same status again sends nothing. |
+| **Application Withdrawn (Employer)** | Employer | A candidate withdraws their application |
 
 ## Managing Notifications
 

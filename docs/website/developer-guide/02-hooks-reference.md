@@ -81,9 +81,10 @@ Self-service account deletion (`AccountDeletionEndpoint` /
 | `wcb_pre_application_submit` | Filter | Before an application is created. Return `WP_Error` to abort (custom anti-spam, eligibility checks, etc.). |
 | `wcb_before_create_application` | Filter | Modify `wp_insert_post` arg array. |
 | `wcb_application_submitted` | Action | After successful submit. Args: `$app_id, $job_id, $candidate_id`. |
-| `wcb_application_status_changed` | Action | When status moves (`submitted -> reviewing -> shortlisted -> rejected/hired/withdrawn/job_removed`). Args: `$app_id, $old_status, $new_status`. |
-| `wcb_application_withdrawn` | Action | Candidate withdrew. Args: `$app_id, $job_id, $candidate_id`. |
-| `wcb_application_deleted` | Action | Application post deleted. Args: `$app_id, $job_id`. |
+| `wcb_application_status_changed` | Action | Once per real status change (`submitted -> reviewing -> shortlisted -> rejected/hired/withdrawn/job_removed`); a save that keeps the same status fires nothing. Args: `$app_id, $old_status, $new_status, $reason, $actor`. |
+| `wcb_application_status_label` | Filter | The words shown for a status. Args: `$label, $status, $audience` (`candidate`, `employer`, `admin`). Candidates see "Not selected" where employers see "Rejected". |
+| `wcb_application_withdrawn` | Action | Candidate withdrew; the application stays with status `withdrawn` and the employer is emailed. Args: `$app_id, $job_id, $candidate_id`. |
+| `wcb_application_deleted` | Action | Before an application post is permanently deleted (admin delete, account erasure, removing a row whose job is gone). Args: `$app_id, $job_id`. |
 | `wcb_application_form_fields` | Action | Inside the apply form template - render extra `<input>`s here. |
 | `wcb_application_form_fields_groups` | Filter | Add a group of custom fields to the apply form. |
 | `wcb_guest_applications_claimed` | Action | After a newly-registered user's prior guest applications (matched by email, `post_author=0` + `_wcb_guest_email`) are reassigned to their new account. Args: `$user_id, $claimed_application_ids`. |

@@ -211,7 +211,7 @@ dashboard updates.
   outreach.
 - **Hired** - congratulations. Confirm details with the employer
   outside the platform.
-- **Rejected** - not moving forward. The application is closed.
+- **Not selected** - not moving forward. The application is closed.
 - **Withdrawn** - you (or the system) pulled the application out.
 - **Job Removed** - the employer or admin deleted the job posting
   while your application was in flight. Your application is preserved
@@ -231,10 +231,11 @@ If you got an offer elsewhere or you're no longer interested:
 
 1. **My Applications → click the role → Withdraw.**
 2. Confirm.
-3. The employer is notified.
+3. The application stays in your list as **Withdrawn** and the employer
+   is emailed.
 
-This frees up your "I've already applied" status - if a duplicate of
-the role comes up in 3 months, you can re-apply.
+You can withdraw until the employer hires or declines you, and you can
+apply to the same job again afterwards.
 
 ## Step 10 - Manage saved jobs and alerts over time
 
