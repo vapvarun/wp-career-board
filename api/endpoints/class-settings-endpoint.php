@@ -107,8 +107,8 @@ final class SettingsEndpoint extends RestController {
 			// defaults); Pro overrides from its white-label option via the
 			// wcb_rest_app_config filter. Never restate site name/icon here —
 			// those come from the core /wp-json/ index.
-			'accent_color'          => \WCB\Admin\Settings::string( 'accent_color', '#2563EB' ),
-			'logo_url'              => \WCB\Admin\Settings::string( 'logo_url', '' ),
+			'accent_color'          => \WCB\Core\Brand::color(),
+			'logo_url'              => \WCB\Core\Brand::logo_url(),
 			'login_bg_url'          => \WCB\Admin\Settings::string( 'login_bg_url', '' ),
 			'dark_mode_default'     => \WCB\Admin\Settings::bool( 'dark_mode_default', false ),
 			// Per-site legal surface (Apple 1.2 / 5.1.1). Each site owns its own

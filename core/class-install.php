@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.3';
+	const DB_VERSION = '1.3.4';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -439,6 +439,13 @@ final class Install {
 				wp_schedule_single_event( time() + 30, PrivateFiles::MIGRATE_HOOK );
 			}
 
+			// 1.3.4 - one Brand (owner decision D14): the email header colour
+			// and logo become the site Brand, so existing emails look the same
+			// and the app and PWA follow them.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.4', '<' ) ) {
+				self::migrate_email_brand();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -450,6 +457,32 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Move the email header colour and logo into the site Brand
+	 * (`accent_color`, `logo_id`), then drop them from the email settings.
+	 * Idempotent: a second run finds nothing to move.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public static function migrate_email_brand(): void {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		$brand    = (array) ( $settings['emails']['brand'] ?? array() );
+		if ( ! array_key_exists( 'header_color', $brand ) && ! array_key_exists( 'logo_id', $brand ) ) {
+			return;
+		}
+
+		$color = sanitize_hex_color( (string) ( $brand['header_color'] ?? '' ) );
+		if ( $color ) {
+			$settings['accent_color'] = strtoupper( $color );
+		}
+		if ( ! empty( $brand['logo_id'] ) ) {
+			$settings['logo_id'] = (int) $brand['logo_id'];
+		}
+		unset( $settings['emails']['brand']['header_color'], $settings['emails']['brand']['logo_id'] );
+		update_option( 'wcb_settings', $settings );
 	}
 
 	/**

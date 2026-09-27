@@ -326,6 +326,12 @@ WordPress's `users_can_register`), which uses the same sanitizer.
 | `wcb_safer_defaults_notice` | filter | `$items` | The list shown once to owners of sites that predate the 1.8.0 defaults. |
 | `wcb_apply_ai_notice` | filter | `$text, $job_id` | Notice shown above Submit Application (and in app-config `apply_ai_notice`) when AI reads applications. Empty hides it. |
 
+**Brand.** One colour and logo (`accent_color`, `logo_id` in `wcb_settings`,
+set under Settings > Brand) for emails, app-config and Pro's PWA manifest.
+Read it with `WCB\Core\Brand::color()` and `WCB\Core\Brand::logo_url( $size )`
+rather than the raw keys. The 1.3.4 upgrade moves an existing site's email
+header colour and logo into the Brand.
+
 **CAPTCHA.** `WCB\Modules\AntiSpam\AntiSpamModule::active()` answers which
 provider is in force (chosen AND both keys set): Turnstile, reCAPTCHA v3 or
 reCAPTCHA v2 (invisible badge). The web forms and app-config

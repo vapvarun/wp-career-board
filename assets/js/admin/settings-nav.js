@@ -119,6 +119,16 @@
 		});
 	});
 
+	// In-page links to another tab (e.g. "change them under Brand").
+	document.addEventListener( 'click', function ( e ) {
+		var link = e.target.closest( '[data-wcb-goto-section]' );
+		if ( link ) {
+			e.preventDefault();
+			activate( link.getAttribute( 'data-wcb-goto-section' ) );
+			syncUrl( link.getAttribute( 'data-wcb-goto-section' ) );
+		}
+	} );
+
 	// Preserve hash on form submit so the user returns to the same section.
 	document.querySelectorAll( SECTION + ' form' ).forEach( function ( form ) {
 		form.addEventListener( 'submit', function () {

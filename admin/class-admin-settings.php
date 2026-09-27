@@ -279,6 +279,7 @@ class AdminSettings {
 			'import'       => __( 'Import', 'wp-career-board' ),
 			'signups'      => __( 'Sign-ups', 'wp-career-board' ),
 			'privacy'      => __( 'Privacy', 'wp-career-board' ),
+			'brand'        => __( 'Brand', 'wp-career-board' ),
 			'emails'       => __( 'Emails', 'wp-career-board' ),
 			'mobile-app'   => __( 'Mobile App', 'wp-career-board' ),
 			'pages'        => __( 'Pages', 'wp-career-board' ),
@@ -313,6 +314,7 @@ class AdminSettings {
 			'applications'  => 'inbox',
 			'signups'       => 'user-plus',
 			'advanced'      => 'sliders-horizontal',
+			'brand'         => 'palette',
 			'resumes'       => 'file-user',
 			'analytics'     => 'chart-column',
 			'pages'         => 'file-text',
@@ -361,7 +363,7 @@ class AdminSettings {
 				),
 				'comms'  => array(
 					'label' => __( 'Emails & App', 'wp-career-board' ),
-					'tabs'  => array( 'emails', 'mobile-app' ),
+					'tabs'  => array( 'brand', 'emails', 'mobile-app' ),
 				),
 				'site'   => array(
 					'label' => __( 'Site', 'wp-career-board' ),
@@ -378,7 +380,7 @@ class AdminSettings {
 	 * @return string[]
 	 */
 	private function get_free_tab_slugs(): array {
-		return array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'emails', 'industries', 'import', 'mobile-app', 'privacy', 'antispam', 'integrations' );
+		return array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'brand', 'emails', 'industries', 'import', 'mobile-app', 'privacy', 'antispam', 'integrations' );
 	}
 
 	/**
@@ -1059,6 +1061,48 @@ class AdminSettings {
 						</form>
 					</div>
 
+					<!-- ── Brand ─── -->
+					<div class="wcb-settings-section" id="section-brand">
+						<form method="post" action="options.php">
+		<?php settings_fields( 'wcb_settings_group' ); ?>
+		<?php SettingsSchema::form_fields(); ?>
+		<?php
+		$wcb_brand_logo_id  = (int) ( $settings['logo_id'] ?? 0 );
+		$wcb_brand_logo_url = \WCB\Core\Brand::logo_url();
+		?>
+							<div class="wcb-card">
+								<div class="wcb-card__head">
+									<p class="wcb-card__title"><?php esc_html_e( 'Brand', 'wp-career-board' ); ?></p>
+									<p class="wcb-card__desc"><?php esc_html_e( 'One colour and one logo for your Career Board emails, the mobile app and the installable app. Your website follows your theme.', 'wp-career-board' ); ?></p>
+								</div>
+								<div class="wcb-card__body">
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-brand-color"><?php esc_html_e( 'Brand Colour', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<input type="color" id="wcb-brand-color" name="wcb_settings[accent_color]" value="<?php echo esc_attr( \WCB\Core\Brand::color() ); ?>">
+											<span class="description"><?php esc_html_e( 'Email header, app buttons and the browser bar of the installable app. Pick a colour white text reads well on.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'Logo', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control wcb-brand-logo" data-wcb-brand-logo>
+											<input type="hidden" name="wcb_settings[logo_id]" value="<?php echo (int) $wcb_brand_logo_id; ?>" data-wcb-brand-logo-id>
+											<img class="wcb-brand-logo__preview" src="<?php echo esc_url( $wcb_brand_logo_url ); ?>" alt="<?php esc_attr_e( 'Logo preview', 'wp-career-board' ); ?>" data-wcb-brand-logo-preview <?php echo $wcb_brand_logo_url ? '' : 'hidden'; ?>>
+											<span class="wcb-brand-logo__actions">
+												<button type="button" class="wcb-btn wcb-btn--sm" data-wcb-brand-logo-choose><?php esc_html_e( 'Choose Image', 'wp-career-board' ); ?></button>
+												<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--danger" data-wcb-brand-logo-remove <?php echo $wcb_brand_logo_url ? '' : 'hidden'; ?>><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+											</span>
+											<span class="description"><?php esc_html_e( 'Shown at the top of every email and in the app. A wide image around 400 x 120 px works best.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="wcb-settings-section__footer">
+								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+							</div>
+						</form>
+					</div>
+
 					<!-- ── Emails ───────────────────────────────────────────── -->
 					<div class="wcb-settings-section" id="section-emails">
 											<form method="post" action="options.php">
@@ -1110,7 +1154,7 @@ class AdminSettings {
 
 		<?php
 		// Render Pro / extension tab sections.
-		$wcb_builtin = array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'emails' );
+		$wcb_builtin = array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'brand', 'emails' );
 		foreach ( $wcb_tabs as $wcb_slug => $wcb_label ) :
 			if ( in_array( $wcb_slug, $wcb_builtin, true ) ) {
 				continue;
@@ -1527,8 +1571,6 @@ class AdminSettings {
 	public function render_mobile_app_tab( array $settings = array() ): void {
 		$settings = $settings ? $settings : Settings::all();
 
-		$wcb_accent     = (string) ( $settings['accent_color'] ?? '#2563EB' );
-		$wcb_logo       = (string) ( $settings['logo_url'] ?? '' );
 		$wcb_login_bg   = (string) ( $settings['login_bg_url'] ?? '' );
 		$wcb_dark       = ! empty( $settings['dark_mode_default'] );
 		$wcb_terms      = (string) ( $settings['terms_url'] ?? '' );
@@ -1545,18 +1587,17 @@ class AdminSettings {
 		</p>
 
 		<div class="wcb-settings-row">
-			<div class="wcb-settings-row-label"><label for="wcb-accent-color"><?php esc_html_e( 'Accent colour', 'wp-career-board' ); ?></label></div>
+			<div class="wcb-settings-row-label"><?php esc_html_e( 'Colour and Logo', 'wp-career-board' ); ?></div>
 			<div class="wcb-settings-row-control">
-				<input type="color" id="wcb-accent-color" name="wcb_settings[accent_color]" value="<?php echo esc_attr( $wcb_accent ); ?>">
-				<span class="description"><?php esc_html_e( 'Buttons and highlights in the app. Default: #2563EB.', 'wp-career-board' ); ?></span>
-			</div>
-		</div>
-
-		<div class="wcb-settings-row">
-			<div class="wcb-settings-row-label"><label for="wcb-logo-url"><?php esc_html_e( 'Logo URL', 'wp-career-board' ); ?></label></div>
-			<div class="wcb-settings-row-control">
-				<input type="url" id="wcb-logo-url" class="regular-text" name="wcb_settings[logo_url]" value="<?php echo esc_attr( $wcb_logo ); ?>" placeholder="https://">
-				<span class="description"><?php esc_html_e( 'Shown in the app header. Leave blank to use your site name.', 'wp-career-board' ); ?></span>
+				<span class="description">
+					<?php
+					printf(
+						/* translators: %s: link to the Brand tab. */
+						esc_html__( 'The app uses your Brand colour and logo, shared with your emails. Change them under %s.', 'wp-career-board' ),
+						'<a href="#brand" data-wcb-goto-section="brand">' . esc_html__( 'Brand', 'wp-career-board' ) . '</a>'
+					);
+					?>
+				</span>
 			</div>
 		</div>
 
@@ -1579,7 +1620,7 @@ class AdminSettings {
 
 		<h2><?php esc_html_e( 'Legal links', 'wp-career-board' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, which falls back to your admin email. Your privacy policy comes from Settings > Privacy in WordPress.', 'wp-career-board' ); ?>
+			<?php esc_html_e( 'App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, where the app shows your privacy page instead. Your privacy policy comes from Settings > Privacy in WordPress.', 'wp-career-board' ); ?>
 		</p>
 
 		<div class="wcb-settings-row">

@@ -94,13 +94,13 @@ final class SettingsSchema {
 			'from_name'                  => array( '', $text ),
 			'from_email'                 => array( '', $email ),
 			'emails'                     => array( array(), $raw ),
-			'brand'                      => array( array(), $raw ),
-			// Mobile app.
+			// Brand: one colour and logo for emails, the app and the PWA.
 			'accent_color'               => array(
-				'#2563EB',
-				static fn ( $v ): string => preg_match( '/^#[0-9A-Fa-f]{6}$/', (string) $v ) ? strtoupper( (string) $v ) : '#2563EB',
+				'#4F46E5',
+				static fn ( $v ): string => preg_match( '/^#[0-9A-Fa-f]{6}$/', (string) $v ) ? strtoupper( (string) $v ) : '#4F46E5',
 			),
-			'logo_url'                   => array( '', $url ),
+			'logo_id'                    => array( 0, static fn ( $v ): int => max( 0, (int) $v ) ),
+			// Mobile app.
 			'login_bg_url'               => array( '', $url ),
 			'dark_mode_default'          => array( false, $bool ),
 			'terms_url'                  => array( '', $url ),

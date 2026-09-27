@@ -57,12 +57,15 @@ Configure WP Career Board from **WP Career Board → Settings** in wp-admin. The
 
 | Tab | What It Controls |
 |---|---|
+| **Brand** | One colour and one logo used by every Career Board email, the mobile app and the installable app (PWA). Your website itself follows your theme |
 | **Emails** | Sender name, sender email, admin notification address, plus per-notification enable/disable and customization. See [Email Notifications](./02-email-notifications.md) |
 | **Mobile App** | App branding, legal links, and sign-in options for the companion app |
 
+The **Brand** tab holds the Brand Colour and the Logo (picked from the Media Library). Emails paint their header in the Brand Colour and show the logo; the app and the installable app use the same colour and logo. On sites that existed before 1.8.0, the Brand starts as your old email header colour and logo, so emails look the same.
+
 The Emails tab opens with a **Sender** card at the top (From Name, From Email, Admin Notification Email) used by every WCB email, followed by the per-template list. Any older link to a separate "Notifications" tab now opens Emails.
 
-The Mobile App tab has its own **Save Changes** button, separate from Emails. It controls app branding (accent colour, logo, sign-in background, dark mode), legal links (terms, EULA, community guidelines, abuse contact), and **App Password Sign-In** (off by default - the app can already sign members in via "Connect with WordPress" without it).
+The Mobile App tab has its own **Save Changes** button, separate from Emails. It controls the app's sign-in background and dark mode (its colour and logo come from **Brand**), legal links (terms, EULA, community guidelines, abuse contact), and **App Password Sign-In** (off by default - the app can already sign members in via "Connect with WordPress" without it).
 
 ## Site
 
