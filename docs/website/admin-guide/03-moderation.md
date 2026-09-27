@@ -8,7 +8,7 @@ When **Auto-Publish Jobs** is turned **off** (the default), every job submitted 
 
 When **Auto-Publish Jobs** is turned **on**, submitted jobs go live immediately without review.
 
-To toggle moderation: **WP Career Board → Settings → Job Listings → Auto-Publish Jobs**
+To toggle moderation: **WP Career Board → Settings → Jobs → Auto-Publish Jobs**
 
 ## Reviewing Pending Jobs
 

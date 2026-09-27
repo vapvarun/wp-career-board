@@ -69,7 +69,7 @@ Treat this as a smoke test of the whole pipeline.
 
 Three settings that determine the day-2 experience:
 
-- **Moderation** (Career Board → Settings → Job Listings, the
+- **Moderation** (Career Board → Settings → Jobs, the
   "Auto-Publish Jobs" toggle). Leave it off to require admin
   approval, or turn it on to auto-publish. Most marketplace sites
   use approval; most internal job boards auto-publish.
@@ -104,7 +104,7 @@ What comes next depends on what you're building:
 - **Apply button missing on jobs** - the job must be published and
   open (not expired or closed). Guest applications are enabled by
   default in Free, so visitors can apply without an account. If you
-  turned on **Require Candidate Role** (Settings -> Job Listings),
+  turned on **Require Candidate Role** (Settings -> Sign-ups),
   only users with the Candidate role can apply.
 - **No "Post a Job" link for employers** - the employer needs the
   `wcb_post_jobs` capability. Site admin has it by default; for

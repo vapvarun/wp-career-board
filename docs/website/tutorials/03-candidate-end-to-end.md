@@ -81,7 +81,7 @@ applications carry your bio plus your uploaded resume.
 In Free, you attach a resume **file** to each application from the
 apply panel - there is no resume stored on the dashboard. The site
 owner sets whether the resume is required and the maximum file size
-(**Settings → Job Listings → Application Resume File Size**, default
+(**Settings → Applications → Application Resume File Size**, default
 5 MB, range 1-20 MB).
 
 - **PDF preferred.** Word docs work too. Accepted formats: PDF, DOC,

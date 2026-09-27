@@ -1,14 +1,20 @@
 # Setup Wizard
 
-The Setup Wizard is the fastest way to get your job board up and running. It creates all the pages you need in two quick steps.
+The Setup Wizard is the fastest way to get your job board up and running. It walks you through pages, sign-ups, jobs, emails, and spam protection, then offers sample data.
 
 ![Setup Wizard - Welcome Screen](../images/setup-wizard-welcome.png)
 
-## What the Wizard Does
+## How It Works
 
-### Step 1 - Create Pages
+A stepper runs across the top of the wizard showing every step and your progress. The WordPress admin menu is hidden while the wizard runs, so you finish the task instead of wandering off half configured - click **Exit setup** in the wizard header to leave at any time. Every finished step stays reachable: click it in the stepper to reopen and change what you entered.
 
-The wizard creates six pages automatically, each with the correct block placed and configured:
+Every settings step has two ways forward: **Save & Continue** to save your answer and move on, or **Skip for now** to move on without saving. Nothing here is final - every answer can be changed later in **Settings**.
+
+## The Steps
+
+### 1. Pages
+
+Creates the pages your board needs, each with the correct block already placed. A page that already exists with the right block is reused, not duplicated - the wizard is safe to run again.
 
 | Page | Block(s) | Purpose |
 |---|---|---|
@@ -17,22 +23,40 @@ The wizard creates six pages automatically, each with the correct block placed a
 | Employer Registration | Employer Registration | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
 | Employer Dashboard | Employer Dashboard | Employer manages jobs + applications |
 | Candidate Dashboard | Candidate Dashboard | Candidate tracks applications + saved jobs |
-| Companies | Company Archive | Browsable company directory |
+| Find Companies | Company Archive | Browsable company directory |
 
-### Step 2 - Sample Data
+### 2. Sign-ups
 
-Optionally install demo content - 3 companies, 8 published jobs across multiple categories, and all taxonomy terms. This lets you see how the board looks with real content before going live.
+- **Let people sign up** - candidates and employers create their own accounts. This is WordPress's "Anyone can register" setting. Off: only you can add users, and the sign-up forms show a "registration closed" notice.
+- **Confirm email addresses** - new accounts click a link in their inbox before they can post or apply. Stops fake and mistyped sign-ups.
 
-> **Safe to re-run.** The wizard checks for existing pages first. If a page with the correct block already exists, it will not create a duplicate.
+### 3. Jobs
 
-> **Extensible.** WP Career Board Pro and other add-ons can append their own steps using the `wcb_wizard_steps` filter and their own pages using the `wcb_wizard_required_pages` filter.
+- **Publish jobs without review** - off by default; every new job waits for your approval under Career Board → Jobs before candidates see it.
+- **Default listing length** - how long a job stays open when the employer sets no deadline.
+- **Salary currency** - pre-selected on the job form; employers can still pick another.
 
-## Running the Wizard
+### 4. Emails
 
-1. After plugin activation, the wizard launches automatically
-2. Click **Create Pages & Continue** - the wizard creates all pages and shows a progress indicator
-3. On Step 2, optionally click **Install Sample Data** to add demo content
-4. Click **Finish Setup** to complete
+- **Sender name** - shown as "From" on every Career Board email.
+- **Sender email** - use an address on your own domain so emails don't land in spam.
+- **Send admin alerts to** - new jobs waiting for review, reports, and other admin notices go here.
+
+### 5. Spam Protection
+
+Choose a CAPTCHA provider (None, Cloudflare Turnstile, Google reCAPTCHA v3, or Google reCAPTCHA v2) and enter its keys. See [Settings → Anti-Spam](../admin-guide/01-settings.md#anti-spam) for provider details. A honeypot field protects every form regardless of this choice.
+
+### 6. License (Pro only)
+
+Activate your WP Career Board Pro license key.
+
+### 7. How Employers Pay (Pro only)
+
+Configure how employers pay for job posts (credits, connected payment provider).
+
+### 8. Sample Data
+
+Optionally install demo content - companies, published jobs across multiple categories, and taxonomy terms. This lets you see how the board looks with real content before going live. Click **Finish Setup** to complete.
 
 ![Setup Wizard - Pages Created](../images/setup-wizard-complete.png)
 
@@ -47,6 +71,6 @@ If you dismissed the wizard or need to reset your pages:
 
 Once complete, your site has a working job board. Next steps:
 
-- **[Configure settings](../admin-guide/01-settings.md)** - set up moderation, job expiry, and page assignments
+- **[Configure settings](../admin-guide/01-settings.md)** - review moderation, listing length, and page assignments
 - **[Set up email notifications](../admin-guide/02-email-notifications.md)** - customize the emails sent to employers and candidates
-- **[Assign pages in Settings](../admin-guide/01-settings.md#pages-tab)** - link each page in the Pages settings tab if not done automatically
+- **[Review page assignments](../admin-guide/01-settings.md#pages)** - confirm each page in the Pages settings tab if anything needs adjusting

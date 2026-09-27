@@ -91,7 +91,7 @@ The plugin's registration flow creates accounts with these roles:
 
 By default any logged-in member can apply to jobs and manage a resume
 even without the Candidate role - jobs and resumes are commonly a
-side-feature of a community site. Turn on **Settings → Job Listings →
+side-feature of a community site. Turn on **Settings → Sign-ups →
 Require Candidate Role** (or filter `wcb_candidate_requires_role`) to
 reserve the candidate experience for users who hold the candidate cap.
 

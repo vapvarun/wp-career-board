@@ -42,7 +42,7 @@ fund the board through:
 
 ### Setup
 
-1. **WP Admin → Career Board → Settings → Job Listings.**
+1. **WP Admin → Career Board → Settings → Jobs.**
 2. **Posting cost:** Free is the default - there is no per-post cost in
    the Free plugin, so there is nothing to set. (Per-post credit cost
    is a Pro feature.)

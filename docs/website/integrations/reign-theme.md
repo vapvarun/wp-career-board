@@ -1,12 +1,11 @@
 # Reign Theme Integration
 
-WP Career Board includes built-in support for the **Reign** theme by Wbcom Designs. When Reign is active, the job board uses Reign-tuned page templates, adds its links to Reign's navigation, exposes a Customizer color control, and inherits Reign's accent color.
+WP Career Board includes built-in support for the **Reign** theme by Wbcom Designs. When Reign is active, the job board uses Reign-tuned page templates, adds its links to Reign's navigation, and inherits Reign's accent color.
 
 ## What You Get
 
 - A Reign-compatible single job template for `wcb_job` posts
 - A Reign-compatible archive template for the jobs post-type archive
-- A Customizer color control under a dedicated "WP Career Board" section
 - WP Career Board links added to Reign's navigation (Browse Jobs, plus role-aware Employer Dashboard and My Applications)
 - An accent-color bridge that maps Reign's accent color onto WP Career Board's primary color
 - A compatibility stylesheet (`reign-compat.css`) loaded on every WP Career Board page
@@ -21,14 +20,6 @@ The integration is selected by the active theme's template slug and boots automa
 ## Setup
 
 Activate Reign and WP Career Board. No additional settings are required; the integration activates automatically when Reign is the active theme.
-
-## Reign Customizer Control
-
-With the integration active, **Appearance > Customize** shows a "WP Career Board" section. It contains a single control:
-
-- **Primary Color** - a color picker (default `#4f46e5`) that sets the job board's primary accent color to match your Reign theme.
-
-This is the only Customizer control the Reign integration registers. Other styling is handled by the compatibility stylesheet and the accent-color bridge described below.
 
 ## Accent Color Bridge
 

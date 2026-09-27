@@ -67,7 +67,7 @@ Use these placeholders in email subjects and bodies - they are replaced with rea
 
 ## Email From Name and Address
 
-Go to **WP Career Board → Settings → Notifications** to set:
+Go to **WP Career Board → Settings → Emails**, in the **Sender** card at the top of the tab, to set:
 - **From Name** - the sender name shown in inboxes (e.g. "Career Board")
 - **From Email** - the reply-to address for all WCB emails
 - **Admin Notification Email** - where admin alerts (e.g. new job pending review) are sent

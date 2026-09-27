@@ -39,7 +39,7 @@ Then go to **Settings → Permalinks** and click **Save Changes** to flush rewri
 ### The Job Listings block shows "No jobs found"
 
 1. Confirm you have published jobs - go to **WP Career Board → Jobs** and check the status column.
-2. If jobs are pending review, go to **WP Career Board → Settings → Job Listings** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
+2. If jobs are pending review, go to **WP Career Board → Settings → Jobs** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
 3. Check your active filters in the block - the **Job Type**, **Category**, or **Location** filters may be set to a value that returns no results.
 4. Go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
@@ -73,12 +73,12 @@ WP Career Board uses `wp_mail()` to send emails. If emails aren't arriving:
 
 1. **Check spam** - the notification emails from a local WordPress install often land in spam.
 2. **Install an SMTP plugin** - the default `wp_mail()` uses PHP's `mail()` function, which most shared hosts reject. Install an SMTP plugin (e.g. WP Mail SMTP, FluentSMTP) and connect it to a transactional email service (Mailgun, SendGrid, Postmark).
-3. **Verify the sender address** - go to **WP Career Board → Settings → Notifications** and confirm the From email matches your domain. Some hosts reject mail from mismatched domains.
-4. **Check notification toggles** - each notification type can be enabled or disabled on the **Settings → Emails** tab. Confirm the relevant notification is enabled.
+3. **Verify the sender address** - go to **WP Career Board → Settings → Emails** and confirm the From Email in the Sender card matches your domain. Some hosts reject mail from mismatched domains.
+4. **Check notification toggles** - each notification type can be enabled or disabled further down the **Settings → Emails** tab. Confirm the relevant notification is enabled.
 
 ### The wrong email address is receiving notifications
 
-Admin notification emails go to the address set in **Settings → Notifications → Admin Email**. This defaults to the WordPress admin email but can be overridden.
+Admin notification emails go to the address set in **Settings → Emails → Admin Notification Email** (in the Sender card). This defaults to the WordPress admin email but can be overridden.
 
 ---
 

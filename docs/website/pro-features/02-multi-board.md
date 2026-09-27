@@ -10,7 +10,7 @@ Boards are administrator-only configuration. They are created and managed from w
 
 - **Multiple boards** - create as many boards as you need
 - **Board scoping** - a job is linked to a board via its `_wcb_board_id` meta, so listings can be filtered to a single board
-- **Per-board settings** - each board has its own credit cost, moderation mode, expiry, currency, map provider, and AI toggle
+- **Per-board settings** - each board has its own credit cost, moderation mode, listing length, and currency
 - **Board-scoped listings** - the Job Listings block accepts a `boardId` attribute (or `[wcb_job_listings boardId="42"]` shortcode) to render only one board's jobs anywhere on the site
 
 ## Where Boards Live
@@ -35,10 +35,10 @@ Open a board and use the **Board Settings** meta box on the board edit screen:
 |---|---|
 | **Credit Cost Per Job** | Credits deducted when an employer posts to this board. 0 means free. |
 | **Moderation** | "Use global default", "Auto-publish", or "Requires approval" for jobs posted to this board. |
-| **Job Expiry (days)** | Days until jobs on this board expire. 0 follows the site-wide default. |
+| **Listing length (days)** | How long a job on this board stays open when the employer sets no deadline. 0 follows "Default listing length (days)" under Settings > Jobs. |
 | **Currency** | Salary currency for this board (from the plugin currency catalog). |
-| **Map Provider** | Leaflet / OpenStreetMap, Google Maps, or Mapbox for this board's Job Map. |
-| **Enable AI Features** | Turns the AI features on for jobs and applicants on this board. |
+
+The Job Map's map provider is a single site-wide setting under **Settings -> Integrations**; there is no per-board override. AI features are configured under **Settings -> AI Settings** and are not toggled per board.
 
 ## Assigning Jobs to a Board
 

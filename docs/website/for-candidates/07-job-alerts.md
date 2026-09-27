@@ -1,8 +1,8 @@
 # Job Alerts
 
-> **Pro feature** — Requires WP Career Board Pro.
+> **Pro feature** - Requires WP Career Board Pro.
 
-Job Alerts let candidates subscribe to saved searches and receive email notifications when new matching jobs are posted. Candidates set a frequency — instant, daily, or weekly — and WP Career Board sends digests automatically.
+Job Alerts let candidates subscribe to saved searches and receive email notifications when new matching jobs are posted. Candidates set a frequency - instant, daily, or weekly - and WP Career Board sends digests automatically.
 
 ## Three Ways to Create Alerts
 
@@ -14,7 +14,7 @@ The button turns into **"Alert saved"** with a green checkmark to confirm.
 
 ### 2. After Applying for a Job
 
-After submitting an application, you'll see a **"Get notified about similar jobs"** button below the success message. Clicking it creates an alert based on the job you just applied to — matching its category, type, and remote status.
+After submitting an application, you'll see a **"Get notified about similar jobs"** button below the success message. Clicking it creates an alert based on the job you just applied to - matching its category, type, and remote status.
 
 ### 3. From the Candidate Dashboard
 
@@ -34,12 +34,12 @@ You can change the frequency at any time from the dashboard.
 
 Alerts match new jobs against these criteria:
 
-- **Keywords** — job title contains your search terms
-- **Category** — job is in the same category
-- **Job Type** — full-time, part-time, contract, etc.
-- **Location** — matches the location taxonomy
-- **Salary Range** — job salary falls within your range
-- **Remote** — remote-only filter
+- **Keywords** - job title contains your search terms
+- **Category** - job is in the same category
+- **Job Type** - full-time, part-time, contract, etc.
+- **Location** - matches the location taxonomy
+- **Salary Range** - job salary falls within your range
+- **Remote** - remote-only filter
 
 ## Managing Alerts
 
@@ -57,4 +57,4 @@ Your alert count also appears on the **Dashboard Overview** page alongside your 
 
 ## Email Delivery
 
-Alert emails are sent via the Notifications settings configured in **WP Career Board → Settings → Notifications** (From Name, From Email). Configure an SMTP plugin for reliable delivery.
+Alert emails are sent via the sender settings configured in the Sender card on **WP Career Board → Settings → Emails** (From Name, From Email). Configure an SMTP plugin for reliable delivery.

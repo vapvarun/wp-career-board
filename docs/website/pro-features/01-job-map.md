@@ -35,7 +35,7 @@ The Job Map supports three providers. The default is **Leaflet** with OpenStreet
 4. If you chose Google Maps or Mapbox, paste the API key / access token in the matching field
 5. Click **Save Integrations**
 
-The provider can also be overridden per board. Open a board (Career Board -> Settings -> Boards -> Edit) and set the **Map Provider** field in the **Board Settings** meta box. A board's setting takes priority over the global default; if a board leaves it on the default, the global Map Provider is used.
+This provider applies site-wide, including for every board's Job Map - there is no per-board override.
 
 ## Adding the Job Map
 

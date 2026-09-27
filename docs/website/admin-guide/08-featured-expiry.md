@@ -16,7 +16,7 @@ clears the `_wcb_featured` flag on each. The job stays published - only its Feat
 
 ## Configuration
 
-Navigate to **Career Board → Settings → Job Listings**, find the
+Navigate to **Career Board → Settings → Jobs**, find the
 **Featured Duration (days)** field. Set the number of days a
 Featured boost lasts after activation.
 
