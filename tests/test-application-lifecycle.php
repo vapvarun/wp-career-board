@@ -150,6 +150,35 @@ $r = wcb_rest( 'GET', '/wcb/v1/jobs/' . $wcb_job . '/applications', array(), $wc
 $e = wp_list_pluck( (array) $r->get_data()['applications'], 'status_label', 'id' );
 wcb_assert( 'Rejected' === ( $e[ $wcb_app ] ?? '' ), 'employer list says "Rejected"' );
 
+// ── Counts and pagination come from the server, not the loaded page ─────
+$wcb_extra = array( wcb_lc_app( $wcb_job, $wcb_candidate, 'shortlisted' ), wcb_lc_app( $wcb_job, $wcb_candidate, 'shortlisted' ) );
+$r         = wcb_rest( 'GET', '/wcb/v1/jobs/' . $wcb_job . '/applications', array( 'per_page' => 1 ), $wcb_employer );
+$d         = $r->get_data();
+wcb_assert( 1 === count( $d['applications'] ) && true === $d['has_more'] && 3 === $d['counts']['total'], 'job list: one row per page, but counts cover all 3' );
+wcb_assert( 2 === $d['counts']['by_status']['shortlisted'] && 1 === $d['counts']['by_status']['rejected'], 'job counts per status match SQL' );
+$r = wcb_rest( 'GET', '/wcb/v1/jobs/' . $wcb_job . '/applications', array( 'status' => 'shortlisted' ), $wcb_employer );
+wcb_assert( array( 'shortlisted' ) === array_values( array_unique( wp_list_pluck( $r->get_data()['applications'], 'status' ) ) ) && 2 === count( $r->get_data()['applications'] ), 'status filter runs on the server' );
+$r = wcb_rest( 'GET', '/wcb/v1/candidates/' . $wcb_candidate . '/applications', array( 'per_page' => 1 ), $wcb_candidate );
+wcb_assert( 3 === $r->get_data()['counts']['total'] && 2 === $r->get_data()['counts']['by_status']['shortlisted'], 'candidate counts cover every page' );
+foreach ( $wcb_extra as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+
+// Trash and restore: the application comes back published, not as a draft.
+$wcb_tr = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
+wp_trash_post( $wcb_tr );
+wp_untrash_post( $wcb_tr );
+wcb_assert( 'publish' === get_post_status( $wcb_tr ) && 'reviewing' === get_post_meta( $wcb_tr, '_wcb_status', true ), 'restored application is published again with its status' );
+wp_delete_post( $wcb_tr, true );
+
+// CSV cells that a spreadsheet would run as a formula are neutralised.
+$wcb_csv = new ReflectionMethod( \WCB\Admin\AdminApplications::class, 'csv_row' );
+$wcb_csv->setAccessible( true );
+$wcb_fh = fopen( 'php://memory', 'w+' );
+$wcb_csv->invoke( null, $wcb_fh, array( '=HYPERLINK("x")', '+1', '-2', '@SUM(A1)', 'plain', '' ) );
+rewind( $wcb_fh );
+wcb_assert( "\"'=HYPERLINK(\"\"x\"\")\",'+1,'-2,'@SUM(A1),plain,\n" === stream_get_contents( $wcb_fh ), 'CSV: = + - @ cells exported as text' );
+
 // Legacy log rows ('Y-m-d H:i:s', blank first row) read back clean.
 update_post_meta( $wcb_app, '_wcb_status_log', array( array( 'from' => '', 'to' => '' ), array( 'from' => 'submitted', 'to' => 'reviewing', 'by' => 1, 'at' => '2026-01-02 03:04:05' ) ) );
 $wcb_log = ApplicationLifecycle::log( $wcb_app );
@@ -184,7 +213,10 @@ wp_delete_post( $wcb_live_block, true );
 // ── Job deleted: rows become job_removed; Remove deletes them ───────────
 $wcb_live = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
 wp_delete_post( $wcb_job, true );
-wcb_assert( 'job_removed' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete marks applications job_removed' );
+wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) ) && 'reviewing' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete queues a background batch instead of working in the request' );
+ApplicationLifecycle::close_deleted_job_applications( $wcb_job );
+wp_clear_scheduled_hook( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) );
+wcb_assert( 'job_removed' === get_post_meta( $wcb_live, '_wcb_status', true ), 'the batch marks open applications job_removed' );
 $r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_live, array(), $wcb_candidate );
 wcb_assert( 200 === $r->get_status() && true === $r->get_data()['deleted'] && null === get_post( $wcb_live ), 'Remove on a dead row deletes it' );
 

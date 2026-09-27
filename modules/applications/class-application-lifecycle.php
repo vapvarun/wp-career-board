@@ -27,6 +27,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ApplicationLifecycle {
 
 	/**
+	 * Cron hook that marks a deleted job's open applications job_removed.
+	 *
+	 * @since 1.8.0
+	 */
+	public const JOB_REMOVED_HOOK = 'wcb_close_deleted_job_applications';
+
+	/**
+	 * Applications handled per cron run.
+	 *
+	 * @since 1.8.0
+	 */
+	private const BATCH = 200;
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.1.2
@@ -34,6 +48,27 @@ final class ApplicationLifecycle {
 	 */
 	public function boot(): void {
 		add_action( 'before_delete_post', array( $this, 'on_job_deleted' ), 10, 2 );
+		add_action( self::JOB_REMOVED_HOOK, array( self::class, 'close_deleted_job_applications' ) );
+
+		// Site-wide status counts go stale when an application is created,
+		// trashed, restored or deleted, not only when its status changes.
+		$clear_counts = static function ( int $post_id ): void {
+			if ( 'wcb_application' === get_post_type( $post_id ) ) {
+				delete_transient( 'wcb_app_status_counts' );
+			}
+		};
+		add_action( 'save_post_wcb_application', $clear_counts );
+
+		// Restoring from Trash puts an application back where it was. Core
+		// restores every post as a draft (WP 5.6+), which hid restored
+		// applications from every list and count.
+		add_filter(
+			'wp_untrash_post_status',
+			static fn( string $status, int $post_id, string $previous ): string => 'wcb_application' === get_post_type( $post_id ) ? $previous : $status,
+			10,
+			3
+		);
+		add_action( 'delete_post', $clear_counts );
 	}
 
 	/**
@@ -71,24 +106,62 @@ final class ApplicationLifecycle {
 			return;
 		}
 
-		$application_ids = get_posts(
+		// Background batches: a job with thousands of applicants used to run
+		// one transition and one email per applicant inside the delete request.
+		if ( ! wp_next_scheduled( self::JOB_REMOVED_HOOK, array( $post_id ) ) ) {
+			wp_schedule_single_event( time(), self::JOB_REMOVED_HOOK, array( $post_id ) );
+		}
+	}
+
+	/**
+	 * Mark one batch of a deleted job's open applications job_removed; queue
+	 * the next batch until none are left. Each candidate gets the status email
+	 * once. Idempotent: a finished application no longer matches.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $job_id Deleted job ID.
+	 * @return void
+	 */
+	public static function close_deleted_job_applications( int $job_id ): void {
+		$ids = get_posts(
 			array(
 				'post_type'      => 'wcb_application',
 				'post_status'    => 'any',
-				'posts_per_page' => -1,
+				'posts_per_page' => self::BATCH,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_job_id',
-						'value' => $post_id,
+						'value' => (string) $job_id,
+					),
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => '_wcb_status',
+							'value'   => ApplicationStatus::terminal(),
+							'compare' => 'NOT IN',
+						),
+						// Pre-1.1 applications with no status at all.
+						array(
+							'key'     => '_wcb_status',
+							'compare' => 'NOT EXISTS',
+						),
 					),
 				),
 			)
 		);
 
-		foreach ( $application_ids as $application_id ) {
+		if ( $ids ) {
+			update_postmeta_cache( $ids );
+		}
+		foreach ( $ids as $application_id ) {
 			self::transition( (int) $application_id, ApplicationStatus::JOB_REMOVED, 'job_deleted', 0 );
+		}
+
+		if ( self::BATCH === count( $ids ) ) {
+			wp_schedule_single_event( time(), self::JOB_REMOVED_HOOK, array( $job_id ) );
 		}
 	}
 
@@ -193,5 +266,24 @@ final class ApplicationLifecycle {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Title of the job an application is for, even after the job is deleted.
+	 *
+	 * Falls back to the snapshot taken at apply time, so "job removed" emails
+	 * and notices still name the role.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $application_id Application post ID.
+	 * @return string Empty only when neither exists.
+	 */
+	public static function job_title( int $application_id ): string {
+		$job_id = (int) get_post_meta( $application_id, '_wcb_job_id', true );
+		if ( $job_id > 0 && 'wcb_job' === get_post_type( $job_id ) ) {
+			return (string) get_post_field( 'post_title', $job_id );
+		}
+		return (string) get_post_meta( $application_id, '_wcb_job_title_snapshot', true );
 	}
 }

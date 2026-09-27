@@ -3,7 +3,7 @@ id: employer-applicants-list
 priority: high
 personas: employer-a
 requires: mu:autologin, seed:jobs, seed:applications
-last_verified: 2026-06-27
+last_verified: 2026-09-27
 needs: cli
 ---
 
@@ -22,7 +22,9 @@ needs: cli
 5. Negative: GET `/wp-json/wcb/v1/employers/<companyB>/applications` as employer A → expect HTTP 403 (cannot read another company's application list — cross-employer isolation at the route level).
 6. Navigate to `/employer-dashboard/?autologin=<empA>` → expect HTTP 200, the applicant panel shows only applications for employer A's own jobs.
 7. Verify application count: items from step 3 ≥ 1 (seed must have at least one application for company A's jobs).
-8. tail debug.log diff → expect ZERO new fatal/warning lines.
+8. Scale (1.8.0): with 120+ applications on one job, open Applications and select that job → 50 rows load, the status pills show the job's full totals (they equal `ApplicationStatus::counts('job', <job>)`), and **Load more applicants** brings 100, then all, with no duplicate rows; the button then disappears. Same in Board layout.
+9. Click the **Rejected** pill → the list is fetched from the server (`?status=rejected`) and shows every rejected applicant, not only those already loaded. Change one to Hired → Rejected drops by 1 and Hired rises by 1 without a reload.
+10. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
 

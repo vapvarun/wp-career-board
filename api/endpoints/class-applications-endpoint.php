@@ -464,8 +464,10 @@ final class ApplicationsEndpoint extends RestController {
 		return rest_ensure_response(
 			array_merge(
 				array(
-					'id'      => $post->ID,
-					'changed' => $changed,
+					'id'       => $post->ID,
+					'changed'  => $changed,
+					// Guests have no account, so the status email never reaches them.
+					'notified' => $changed && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) > 0,
 				),
 				\WCB\Modules\Applications\ApplicationStatus::payload( $new_status, $this->audience_for( $post ) )
 			)
@@ -571,6 +573,7 @@ final class ApplicationsEndpoint extends RestController {
 				'total'        => $total,
 				'pages'        => $pages,
 				'has_more'     => $paged < $pages,
+				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $candidate_id ),
 			)
 		);
 		$response->header( 'X-WCB-Total', (string) $total );

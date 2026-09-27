@@ -210,6 +210,13 @@ wp_interactivity_state(
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
 			'savedJobsCount'          => $wcb_saved_jobs_count,
 			'applications'            => array(),
+			'appsPage'                => 1,
+			'appsHasMore'             => false,
+			'appsLoadingMore'         => false,
+			'appsCounts'              => array(
+				'total'     => 0,
+				'by_status' => new \stdClass(),
+			),
 			'bookmarks'               => array(),
 			'savedCompanies'          => array(),
 			'savedCompaniesLoading'   => false,
@@ -685,6 +692,13 @@ wp_interactivity_state(
 						</div>
 					</div>
 				</template>
+			</div>
+
+			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.appsHasMore">
+				<button type="button" class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn" data-wp-on--click="actions.loadMoreApplications" data-wp-bind--disabled="state.appsLoadingMore">
+					<span data-wp-class--wcb-hidden="state.appsLoadingMore"><?php esc_html_e( 'Load more applications', 'wp-career-board' ); ?></span>
+					<span class="wcb-load-more-loading" data-wp-class--wcb-shown="state.appsLoadingMore"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+				</button>
 			</div>
 
 			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noApplications">

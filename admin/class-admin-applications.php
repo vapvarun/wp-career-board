@@ -99,8 +99,31 @@ class AdminApplications extends \WP_List_Table {
 
 			<?php $this->views(); ?>
 
+			<?php
+			$wcb_job_filter = $this->job_filter();
+			$wcb_export_url = wp_nonce_url(
+				add_query_arg( array_merge( $this->filter_args(), array( 'wcb_export' => 'all' ) ), admin_url( 'admin.php?page=wcb-applications' ) ),
+				'wcb-export-applications'
+			);
+			?>
+			<p class="wcb-applications-toolbar">
+				<?php if ( $wcb_job_filter > 0 ) : ?>
+					<span class="wcb-filter-chip">
+						<?php
+						/* translators: %s: job title */
+						printf( esc_html__( 'Job: %s', 'wp-career-board' ), esc_html( (string) get_post_field( 'post_title', $wcb_job_filter ) ) );
+						?>
+						<a href="<?php echo esc_url( remove_query_arg( array( 'job_id', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all jobs', 'wp-career-board' ); ?>">&times;</a>
+					</span>
+				<?php endif; ?>
+				<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
+			</p>
+
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-applications">
+				<?php foreach ( array_diff_key( $this->filter_args(), array( 's' => 1 ) ) as $wcb_key => $wcb_val ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
+				<?php endforeach; ?>
 				<?php
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$wcb_search_val = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
@@ -159,6 +182,13 @@ class AdminApplications extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_bulk_actions(): array {
+		if ( $this->is_trash_view() ) {
+			return array(
+				'untrash' => __( 'Restore', 'wp-career-board' ),
+				'delete'  => __( 'Delete Permanently', 'wp-career-board' ),
+			);
+		}
+
 		return array(
 			'bulk_status_reviewing'   => __( 'Mark as Reviewing', 'wp-career-board' ),
 			'bulk_status_shortlisted' => __( 'Mark as Shortlisted', 'wp-career-board' ),
@@ -180,112 +210,11 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function prepare_items(): void {
-		$per_page     = 20;
-		$current_page = $this->get_pagenum();
+		$per_page = 20;
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$status_filter = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$order = isset( $_GET['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) : 'DESC';
-		$order = in_array( $order, array( 'ASC', 'DESC' ), true ) ? $order : 'DESC';
-
-		$query_args = array(
-			'post_type'      => 'wcb_application',
-			'post_status'    => 'publish',
-			'posts_per_page' => $per_page,
-			'paged'          => $current_page,
-			'orderby'        => 'date',
-			'order'          => $order,
-		);
-
-		// Filter by application status meta.
-		if ( $status_filter && \WCB\Modules\Applications\ApplicationStatus::is_valid( $status_filter ) ) {
-			$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					'key'   => '_wcb_status',
-					'value' => $status_filter,
-				),
-			);
-		}
-
-		// Custom search: match by job title or candidate name/email (not post title).
-		if ( $search ) {
-			global $wpdb;
-			$like     = '%' . $wpdb->esc_like( $search ) . '%';
-			$job_ids  = array();
-			$user_ids = array();
-
-			// Job half - reuse the FULLTEXT clause the public listing searches
-			// already use (Install migration 1.2.6 indexes wp_posts.post_title).
-			// This screen was still on a leading-wildcard LIKE, which no index
-			// can serve, so every admin search full-scanned wp_posts.
-			$title_clause = \WCB\Core\TitleSearch::title_clause( $search );
-			if ( '' !== $title_clause ) {
-				// $title_clause is already prepared; the cap is an int constant.
-				$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-					"SELECT ID FROM {$wpdb->posts}
-					 WHERE post_type = 'wcb_job' AND {$title_clause}
-					 LIMIT " . self::SEARCH_ID_CAP
-				);
-			}
-
-			// Candidate half - wp_users carries no FULLTEXT index and
-			// display_name carries no index at all, so a contains-match here is
-			// a scan whatever we do. The cap is what makes that survivable: it
-			// bounds both the scan and the `IN (...)` the meta_query builds,
-			// which is what actually hurt at 20k users - the old query fed
-			// every matching ID straight into that clause. A term matching more
-			// than SEARCH_ID_CAP candidates is narrowed rather than paged; this
-			// screen is for finding one application, not listing thousands.
-			if ( strlen( $search ) >= self::MIN_USER_SEARCH_LEN ) {
-				$user_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->users}
-						 WHERE display_name LIKE %s OR user_login LIKE %s OR user_email LIKE %s
-						 LIMIT %d",
-						$like,
-						$like,
-						$like,
-						self::SEARCH_ID_CAP
-					)
-				);
-			}
-
-			// Build an OR meta_query over job_id and candidate_id.
-			$search_clauses = array( 'relation' => 'OR' );
-			if ( ! empty( $job_ids ) ) {
-				$search_clauses[] = array(
-					'key'     => '_wcb_job_id',
-					'value'   => array_map( 'intval', $job_ids ),
-					'compare' => 'IN',
-				);
-			}
-			if ( ! empty( $user_ids ) ) {
-				$search_clauses[] = array(
-					'key'     => '_wcb_candidate_id',
-					'value'   => array_map( 'intval', $user_ids ),
-					'compare' => 'IN',
-				);
-			}
-
-			if ( count( $search_clauses ) > 1 ) {
-				// Combine with any existing status meta_query using AND.
-				if ( isset( $query_args['meta_query'] ) ) { // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-						'relation' => 'AND',
-						$query_args['meta_query'],
-						$search_clauses,
-					);
-				} else {
-					$query_args['meta_query'] = $search_clauses; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				}
-			} else {
-				// No jobs or candidates matched — force zero results.
-				$query_args['post__in'] = array( 0 );
-			}
-		}
+		$query_args                   = $this->query_args();
+		$query_args['posts_per_page'] = $per_page;
+		$query_args['paged']          = $this->get_pagenum();
 
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
@@ -304,6 +233,11 @@ class AdminApplications extends \WP_List_Table {
 		if ( ! empty( $wcb_candidate_ids ) ) {
 			cache_users( array_values( array_unique( $wcb_candidate_ids ) ) );
 		}
+		// Same for the Job column's get_post(): one query for the page.
+		$wcb_job_ids = array_filter( array_map( static fn( $item ) => (int) get_post_meta( $item->ID, '_wcb_job_id', true ), $this->items ) );
+		if ( $wcb_job_ids ) {
+			_prime_post_caches( array_values( array_unique( $wcb_job_ids ) ), false, false );
+		}
 
 		$this->set_pagination_args(
 			array(
@@ -321,6 +255,149 @@ class AdminApplications extends \WP_List_Table {
 		);
 	}
 
+	/**
+	 * The filters on screen as WP_Query args (status tab, job, search, Trash).
+	 *
+	 * Shared by the table and "Export all matching", so an export always
+	 * contains exactly what the filters show.
+	 *
+	 * @since 1.8.0
+	 * @return array<string,mixed>
+	 */
+	private function query_args(): array {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only filters.
+		$status_filter = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
+		$search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$order         = isset( $_GET['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) : 'DESC';
+		// phpcs:enable
+
+		$query_args = array(
+			'post_type'   => 'wcb_application',
+			'post_status' => $this->is_trash_view() ? 'trash' : 'publish',
+			'orderby'     => 'date',
+			'order'       => in_array( $order, array( 'ASC', 'DESC' ), true ) ? $order : 'DESC',
+		);
+
+		$clauses = array( 'relation' => 'AND' );
+		if ( $status_filter && \WCB\Modules\Applications\ApplicationStatus::is_valid( $status_filter ) ) {
+			$clauses[] = array(
+				'key'   => '_wcb_status',
+				'value' => $status_filter,
+			);
+		}
+		if ( $this->job_filter() > 0 ) {
+			$clauses[] = array(
+				'key'   => '_wcb_job_id',
+				'value' => (string) $this->job_filter(),
+			);
+		}
+
+		// Custom search: match by job title or candidate name/email (not post title).
+		if ( $search ) {
+			global $wpdb;
+			$like     = '%' . $wpdb->esc_like( $search ) . '%';
+			$job_ids  = array();
+			$user_ids = array();
+
+			// Job half - reuse the FULLTEXT clause the public listing searches
+			// already use (Install migration 1.2.6 indexes wp_posts.post_title).
+			$title_clause = \WCB\Core\TitleSearch::title_clause( $search );
+			if ( '' !== $title_clause ) {
+				// $title_clause is already prepared; the cap is an int constant.
+				$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+					"SELECT ID FROM {$wpdb->posts}
+					 WHERE post_type = 'wcb_job' AND {$title_clause}
+					 LIMIT " . self::SEARCH_ID_CAP
+				);
+			}
+
+			// Candidate half - wp_users has no FULLTEXT index, so the cap is what
+			// bounds both the scan and the IN (...) the meta_query builds. This
+			// screen is for finding one application, not listing thousands.
+			if ( strlen( $search ) >= self::MIN_USER_SEARCH_LEN ) {
+				$user_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->users}
+						 WHERE display_name LIKE %s OR user_login LIKE %s OR user_email LIKE %s
+						 LIMIT %d",
+						$like,
+						$like,
+						$like,
+						self::SEARCH_ID_CAP
+					)
+				);
+			}
+
+			$search_clauses = array( 'relation' => 'OR' );
+			if ( ! empty( $job_ids ) ) {
+				$search_clauses[] = array(
+					'key'     => '_wcb_job_id',
+					'value'   => array_map( 'intval', $job_ids ),
+					'compare' => 'IN',
+				);
+			}
+			if ( ! empty( $user_ids ) ) {
+				$search_clauses[] = array(
+					'key'     => '_wcb_candidate_id',
+					'value'   => array_map( 'intval', $user_ids ),
+					'compare' => 'IN',
+				);
+			}
+
+			if ( count( $search_clauses ) > 1 ) {
+				$clauses[] = $search_clauses;
+			} else {
+				// No jobs or candidates matched - force zero results.
+				$query_args['post__in'] = array( 0 );
+			}
+		}
+
+		if ( count( $clauses ) > 1 ) {
+			$query_args['meta_query'] = $clauses; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * Whether the Trash view is showing.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	private function is_trash_view(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view switch.
+		return isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'];
+	}
+
+	/**
+	 * Job the list is narrowed to, 0 for all jobs.
+	 *
+	 * @since 1.8.0
+	 * @return int
+	 */
+	private function job_filter(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+		return isset( $_GET['job_id'] ) ? absint( $_GET['job_id'] ) : 0;
+	}
+
+	/**
+	 * The current filters as query args, for links that must keep them.
+	 *
+	 * @since 1.8.0
+	 * @return array<string,string>
+	 */
+	private function filter_args(): array {
+		$args = array();
+		foreach ( array( 'app_status', 'job_id', 'post_status', 's' ) as $key ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filters.
+			if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
+				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+		}
+		return $args;
+	}
+
 	// -------------------------------------------------------------------------
 	// Status tabs
 	// -------------------------------------------------------------------------
@@ -332,19 +409,23 @@ class AdminApplications extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$base_url = admin_url( 'admin.php?page=wcb-applications' );
+		// Views keep the job filter; switching status or Trash drops the others.
+		$base_url = add_query_arg( array_intersect_key( $this->filter_args(), array( 'job_id' => 1 ) ), admin_url( 'admin.php?page=wcb-applications' ) );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
+		$trash   = $this->is_trash_view();
 
-		$counts = $this->get_status_counts();
+		$counts = $this->job_filter() > 0
+			? \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $this->job_filter() )
+			: $this->get_status_counts();
 
 		$views = array();
 
 		$views['all'] = sprintf(
 			'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 			esc_url( $base_url ),
-			'' === $current ? ' class="current"' : '',
+			'' === $current && ! $trash ? ' class="current"' : '',
 			esc_html__( 'All', 'wp-career-board' ),
 			$counts['total']
 		);
@@ -359,9 +440,20 @@ class AdminApplications extends \WP_List_Table {
 			$views[ $slug ] = sprintf(
 				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 				esc_url( add_query_arg( 'app_status', $slug, $base_url ) ),
-				$current === $slug ? ' class="current"' : '',
+				$current === $slug && ! $trash ? ' class="current"' : '',
 				esc_html( \WCB\Modules\Applications\ApplicationStatus::label( $slug, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ) ),
 				$count
+			);
+		}
+
+		$trashed = (int) ( wp_count_posts( 'wcb_application' )->trash ?? 0 );
+		if ( $trashed > 0 || $trash ) {
+			$views['trash'] = sprintf(
+				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+				esc_url( add_query_arg( 'post_status', 'trash', admin_url( 'admin.php?page=wcb-applications' ) ) ),
+				$trash ? ' class="current"' : '',
+				esc_html__( 'Trash', 'wp-career-board' ),
+				$trashed
 			);
 		}
 
@@ -371,61 +463,14 @@ class AdminApplications extends \WP_List_Table {
 	/**
 	 * Total + per-status application counts for the status tabs.
 	 *
-	 * Replaces the previous six-query-per-load pattern (one COUNT(*) plus one
-	 * non-sargable `COUNT(DISTINCT) JOIN postmeta` per status) with two
-	 * queries — a total and a single grouped scan of `_wcb_status` — behind a
-	 * short-lived transient. These are informational tab badges, so a few
-	 * minutes of staleness is acceptable (mirrors the analytics dashboard's
-	 * 5-minute stats cache); cross-surface invalidation on every REST/CLI
-	 * status change is deliberately not attempted for a non-critical count.
-	 * The grouped scan leans on the `(meta_key, meta_value)` postmeta index
-	 * (Install 1.2.8) so it stays sargable at volume.
+	 * One grouped query behind a transient that is cleared on every status
+	 * change, new, trashed or deleted application (ApplicationStatus::counts()).
 	 *
 	 * @since 1.2.9
 	 * @return array{total:int,by_status:array<string,int>}
 	 */
 	protected function get_status_counts(): array {
-		$cached = get_transient( 'wcb_app_status_counts' );
-		if ( is_array( $cached ) && isset( $cached['total'], $cached['by_status'] ) ) {
-			return $cached;
-		}
-
-		global $wpdb;
-
-		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'",
-				'wcb_application'
-			)
-		);
-
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT pm.meta_value AS status, COUNT(*) AS cnt
-				FROM {$wpdb->posts} p
-				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
-				WHERE p.post_type = %s
-				  AND p.post_status = 'publish'
-				  AND pm.meta_key = '_wcb_status'
-				GROUP BY pm.meta_value",
-				'wcb_application'
-			),
-			ARRAY_A
-		);
-
-		$by_status = array();
-		foreach ( (array) $rows as $row ) {
-			$by_status[ (string) $row['status'] ] = (int) $row['cnt'];
-		}
-
-		$counts = array(
-			'total'     => $total,
-			'by_status' => $by_status,
-		);
-
-		set_transient( 'wcb_app_status_counts', $counts, 5 * MINUTE_IN_SECONDS );
-
-		return $counts;
+		return \WCB\Modules\Applications\ApplicationStatus::counts();
 	}
 
 	// -------------------------------------------------------------------------
@@ -565,9 +610,11 @@ class AdminApplications extends \WP_List_Table {
 		$job    = $job_id ? get_post( $job_id ) : null;
 
 		if ( $job instanceof \WP_Post ) {
+			// The title narrows the list to this job (per-job review and export).
 			return sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( (string) get_edit_post_link( $job->ID ) ),
+				'<a href="%1$s" title="%2$s">%3$s</a>',
+				esc_url( add_query_arg( 'job_id', $job->ID, admin_url( 'admin.php?page=wcb-applications' ) ) ),
+				esc_attr__( 'Show only this job\'s applications', 'wp-career-board' ),
 				esc_html( $job->post_title )
 			);
 		}
@@ -660,6 +707,14 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function process_bulk_action(): void {
+		// "Export all matching": every row the current filters select, not just
+		// the ticked rows of this page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified on the next line.
+		if ( isset( $_GET['wcb_export'] ) && check_admin_referer( 'wcb-export-applications' ) ) {
+			$this->export_applications_csv( $this->query_args() );
+			return; // exits inside.
+		}
+
 		$action = $this->current_action();
 		if ( ! $action ) {
 			return;
@@ -677,7 +732,14 @@ class AdminApplications extends \WP_List_Table {
 		}
 
 		if ( 'export_csv' === $action ) {
-			$this->export_applications_csv( $app_ids );
+			$this->export_applications_csv(
+				array(
+					'post_type'   => 'wcb_application',
+					'post_status' => 'any',
+					'post__in'    => $app_ids,
+					'orderby'     => 'post__in',
+				)
+			);
 			return; // exits inside.
 		}
 
@@ -694,31 +756,36 @@ class AdminApplications extends \WP_List_Table {
 			}
 			if ( 'trash' === $action ) {
 				wp_trash_post( $app_id );
+			} elseif ( 'untrash' === $action ) {
+				wp_untrash_post( $app_id );
+			} elseif ( 'delete' === $action && current_user_can( 'delete_post', $app_id ) ) {
+				wp_delete_post( $app_id, true );
 			} elseif ( isset( $bulk_status_map[ $action ] ) ) {
 				\WCB\Modules\Applications\ApplicationLifecycle::transition( (int) $app_id, $bulk_status_map[ $action ], 'admin_bulk' );
 			}
 		}
 
-		// Bust the status-tab count cache so the admin sees their own bulk
-		// action reflected immediately, rather than waiting out the TTL.
-		delete_transient( 'wcb_app_status_counts' );
-
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-applications' ) );
+		wp_safe_redirect( add_query_arg( $this->filter_args(), admin_url( 'admin.php?page=wcb-applications' ) ) );
 		exit;
 	}
 
 	/**
-	 * Stream a CSV download of the selected applications.
+	 * Stream a CSV of the applications a query selects.
+	 *
+	 * Walks the query 500 IDs at a time so "export all" on a large board never
+	 * loads every row at once. Every cell is guarded against spreadsheet
+	 * formula injection (a cover letter starting with "=" opens as text).
 	 *
 	 * Columns: ID, Job ID, Job Title, Applicant Name, Applicant Email,
 	 * Status, Submitted, Cover Letter, Resume URL.
 	 *
 	 * @since 1.1.0
+	 * @since 1.8.0 Takes query args; batched; formula-safe; status label.
 	 *
-	 * @param int[] $app_ids Application post IDs.
+	 * @param array<string,mixed> $query_args WP_Query args selecting the rows.
 	 * @return void Exits after streaming.
 	 */
-	private function export_applications_csv( array $app_ids ): void {
+	private function export_applications_csv( array $query_args ): void {
 		$filename = 'wcb-applications-' . gmdate( 'Y-m-d-His' ) . '.csv';
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
@@ -728,7 +795,7 @@ class AdminApplications extends \WP_List_Table {
 		// UTF-8 BOM so Excel respects the encoding.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- streaming to php://output, not a real file.
 		fwrite( $out, "\xEF\xBB\xBF" );
-		fputcsv(
+		self::csv_row(
 			$out,
 			array(
 				__( 'ID', 'wp-career-board' ),
@@ -740,55 +807,78 @@ class AdminApplications extends \WP_List_Table {
 				__( 'Submitted', 'wp-career-board' ),
 				__( 'Cover Letter', 'wp-career-board' ),
 				__( 'Resume URL', 'wp-career-board' ),
-			),
-			',',
-			'"',
-			''
+			)
 		);
 
-		foreach ( $app_ids as $app_id ) {
-			if ( ! current_user_can( 'edit_post', $app_id ) ) {
-				continue;
-			}
-			$post = get_post( $app_id );
-			if ( ! $post instanceof \WP_Post || 'wcb_application' !== $post->post_type ) {
-				continue;
-			}
-
-			$job_id        = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
-			$candidate_id  = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true );
-			$user          = $candidate_id > 0 ? get_userdata( $candidate_id ) : false;
-			$name          = $user instanceof \WP_User
-				? $user->display_name
-				: (string) get_post_meta( $post->ID, '_wcb_guest_name', true );
-			$email         = $user instanceof \WP_User
-				? $user->user_email
-				: (string) get_post_meta( $post->ID, '_wcb_guest_email', true );
-			$status        = (string) get_post_meta( $post->ID, '_wcb_status', true );
-			$attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
-			$resume_url    = $attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '';
-
-			fputcsv(
-				$out,
+		$page = 1;
+		do {
+			$batch_args = array_merge(
+				$query_args,
 				array(
-					(string) $post->ID,
-					(string) $job_id,
-					$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-					$name,
-					$email,
-					'' !== $status ? $status : 'submitted',
-					$post->post_date,
-					(string) get_post_meta( $post->ID, '_wcb_cover_letter', true ),
-					$resume_url,
-				),
-				',',
-				'"',
-				''
+					'fields'         => 'ids',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded batch.
+					'posts_per_page' => 500,
+					'paged'          => $page,
+					'no_found_rows'  => true,
+				)
 			);
-		}
+			$ids        = wp_parse_id_list( get_posts( $batch_args ) );
+			if ( $ids ) {
+				update_postmeta_cache( $ids );
+				cache_users( array_filter( array_map( static fn( $id ) => (int) get_post_meta( $id, '_wcb_candidate_id', true ), $ids ) ) );
+			}
+
+			foreach ( $ids as $app_id ) {
+				if ( ! current_user_can( 'edit_post', $app_id ) ) {
+					continue;
+				}
+				$job_id        = (int) get_post_meta( $app_id, '_wcb_job_id', true );
+				$candidate_id  = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
+				$user          = $candidate_id > 0 ? get_userdata( $candidate_id ) : false;
+				$attachment_id = (int) get_post_meta( $app_id, '_wcb_resume_attachment_id', true );
+
+				self::csv_row(
+					$out,
+					array(
+						(string) $app_id,
+						(string) $job_id,
+						$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
+						$user instanceof \WP_User ? $user->display_name : (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
+						$user instanceof \WP_User ? $user->user_email : (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
+						\WCB\Modules\Applications\ApplicationStatus::label( (string) get_post_meta( $app_id, '_wcb_status', true ), \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ),
+						(string) get_post_field( 'post_date', $app_id ),
+						(string) get_post_meta( $app_id, '_wcb_cover_letter', true ),
+						$attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '',
+					)
+				);
+			}
+
+			$wcb_batch = count( $ids );
+			++$page;
+		} while ( 500 === $wcb_batch );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- streaming to php://output, not a real file.
 		fclose( $out );
 		exit;
+	}
+
+	/**
+	 * Write one CSV row with every cell safe to open in a spreadsheet.
+	 *
+	 * A cell starting with = + - @ tab or CR is run as a formula by Excel,
+	 * LibreOffice and Sheets; a leading apostrophe makes it plain text.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param resource           $out   Output stream.
+	 * @param array<int, string> $cells Row cells.
+	 * @return void
+	 */
+	private static function csv_row( $out, array $cells ): void {
+		$cells = array_map(
+			static fn( string $cell ): string => '' !== $cell && str_contains( "=+-@\t\r", $cell[0] ) ? "'" . $cell : $cell,
+			$cells
+		);
+		fputcsv( $out, $cells, ',', '"', '' );
 	}
 }

@@ -255,6 +255,70 @@ final class ApplicationStatus {
 	}
 
 	/**
+	 * Application counts per status, site-wide or for one job or candidate.
+	 *
+	 * One GROUP BY instead of counting a loaded page, so pills and tabs stay
+	 * right at any size. Applications with no status meta (pre-1.1 rows)
+	 * count as submitted. The site-wide figure is cached until the next
+	 * status change (ApplicationLifecycle clears `wcb_app_status_counts`).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $scope    '' for all, 'job' or 'candidate'.
+	 * @param int    $scope_id Job or candidate user ID.
+	 * @return array{total:int,by_status:array<string,int>}
+	 */
+	public static function counts( string $scope = '', int $scope_id = 0 ): array {
+		$scope_key = array(
+			'job'       => '_wcb_job_id',
+			'candidate' => '_wcb_candidate_id',
+		)[ $scope ] ?? '';
+
+		if ( '' === $scope_key ) {
+			$cached = get_transient( 'wcb_app_status_counts' );
+			if ( is_array( $cached ) && isset( $cached['total'], $cached['by_status'] ) ) {
+				return $cached;
+			}
+		}
+
+		global $wpdb;
+
+		$scope_join = '' !== $scope_key
+			? $wpdb->prepare( " INNER JOIN {$wpdb->postmeta} sc ON sc.post_id = p.ID AND sc.meta_key = %s AND sc.meta_value = %s", $scope_key, (string) $scope_id )
+			: '';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $scope_join is prepared above.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT COALESCE(st.meta_value, '') AS status, COUNT(*) AS cnt
+				FROM {$wpdb->posts} p{$scope_join}
+				LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_wcb_status'
+				WHERE p.post_type = %s AND p.post_status = 'publish'
+				GROUP BY status",
+				'wcb_application'
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$counts = array(
+			'total'     => 0,
+			'by_status' => array(),
+		);
+		foreach ( (array) $rows as $row ) {
+			$status                         = '' !== $row['status'] ? (string) $row['status'] : self::SUBMITTED;
+			$counts['by_status'][ $status ] = ( $counts['by_status'][ $status ] ?? 0 ) + (int) $row['cnt'];
+			$counts['total']               += (int) $row['cnt'];
+		}
+
+		if ( '' === $scope_key ) {
+			set_transient( 'wcb_app_status_counts', $counts, HOUR_IN_SECONDS );
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * Whether a status slug is recognised.
 	 *
 	 * @since 1.1.2

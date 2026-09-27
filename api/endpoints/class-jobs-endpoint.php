@@ -117,6 +117,11 @@ final class JobsEndpoint extends RestController {
 						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
+					'status'   => array(
+						'type'              => 'string',
+						'enum'              => \WCB\Modules\Applications\ApplicationStatus::all(),
+						'validate_callback' => 'rest_validate_request_arg',
+					),
 				),
 			)
 		);
@@ -1410,6 +1415,7 @@ final class JobsEndpoint extends RestController {
 		$job_id   = (int) $request['id'];
 		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
 		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?: 1 ) );
+		$status   = (string) $request->get_param( 'status' );
 
 		$query = new \WP_Query(
 			array(
@@ -1417,11 +1423,17 @@ final class JobsEndpoint extends RestController {
 				'post_status'    => 'any',
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'meta_query'     => array_filter( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
-						'key'   => '_wcb_job_id',
-						'value' => $job_id,
-					),
+						array(
+							'key'   => '_wcb_job_id',
+							'value' => $job_id,
+						),
+						$status ? array(
+							'key'   => '_wcb_status',
+							'value' => $status,
+						) : null,
+					)
 				),
 			)
 		);
@@ -1503,6 +1515,8 @@ final class JobsEndpoint extends RestController {
 				'total'        => $total,
 				'pages'        => $pages,
 				'has_more'     => $has_more,
+				// Per-status totals for the whole job, not just this page.
+				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
 			)
 		);
 	}

@@ -316,7 +316,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		// Nav badges.
 		get appsCount() {
-			return state.applications.length;
+			return state.appsCounts.total;
 		},
 		get bookmarksCount() {
 			return state.bookmarks.length;
@@ -396,7 +396,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				&& ( ! state.alertsCount || Number( state.alertsCount ) === 0 );
 		},
 		get overviewShortlistedCount() {
-			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length;
+			return state.appsCounts.by_status.shortlisted || 0;
 		},
 		get overviewRecentSavedJobs() {
 			return state.bookmarks.slice( 0, 3 );
@@ -436,28 +436,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 			} );
 
-			state.loading = true;
-			state.error   = '';
-
-			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-
-				if ( ! response.ok ) {
-					state.error = t( 'errLoadApplications', 'Could not load your applications.' );
-					return;
-				}
-
-				const data = yield response.json();
-				// Envelope since 1.1.0; tolerate the legacy bare-array shape.
-				state.applications = Array.isArray( data ) ? data : ( data?.applications ?? [] );
-			} catch {
-				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.loading = false;
-			}
+			yield actions.fetchApplications();
 
 			// Prefetch bookmarks so the Overview panel can display recent saved jobs.
 			try {
@@ -1335,6 +1314,41 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.bellUnreadCount   = 0;
 		},
 
+		// One page of the candidate's applications plus per-status totals for
+		// all of them; `append` adds the next page for Load more.
+		*fetchApplications( append = false ) {
+			const flag = append ? 'appsLoadingMore' : 'loading';
+			state[ flag ] = true;
+			state.error   = '';
+
+			try {
+				const url = new URL( state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications' );
+				url.searchParams.set( 'per_page', '50' );
+				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
+				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+
+				if ( ! response.ok ) {
+					state.error = t( 'errLoadApplications', 'Could not load your applications.' );
+					return;
+				}
+
+				const data = yield response.json();
+				const rows = data?.applications ?? [];
+				state.applications = append ? [ ...state.applications, ...rows ] : rows;
+				state.appsPage     = append ? state.appsPage + 1 : 1;
+				state.appsHasMore  = !! data?.has_more;
+				state.appsCounts   = data?.counts ?? { total: rows.length, by_status: {} };
+			} catch {
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state[ flag ] = false;
+			}
+		},
+
+		*loadMoreApplications() {
+			yield actions.fetchApplications( true );
+		},
+
 		*withdrawApplication() {
 			const ctx         = getContext();
 			const application = ctx.application;
@@ -1365,12 +1379,16 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 
 				const data = yield response.json();
+				const by = state.appsCounts.by_status;
+				by[ application.status ] = Math.max( 0, ( by[ application.status ] || 0 ) - 1 );
 				if ( data.withdrawn ) {
 					// Kept as Withdrawn: show the server's label, hide the button.
+					by.withdrawn = ( by.withdrawn || 0 ) + 1;
 					application.status      = data.status;
 					application.statusLabel = data.status_label;
 					application.canWithdraw = false;
 				} else {
+					state.appsCounts.total = Math.max( 0, state.appsCounts.total - 1 );
 					state.applications = state.applications.filter( function( a ) {
 						return a.id !== application.id;
 					} );

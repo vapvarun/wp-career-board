@@ -95,7 +95,12 @@ operations:
 - **Bulk export to CSV** - see [Bulk CSV Export](../for-employers/09-csv-export.md).
 - **Bulk status change** - set multiple applications to the same
   status in one action.
-- **Bulk delete** - same as native WP bulk delete on CPTs.
+- **Move to Trash** - trashed applications appear under the **Trash**
+  view, where **Restore** puts them back exactly as they were (same
+  status) and **Delete Permanently** removes them.
+
+Click a job title in the list to show only that job's applicants; the
+status tabs then count that job only.
 
 ## Permissions
 

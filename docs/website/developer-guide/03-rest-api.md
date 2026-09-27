@@ -70,7 +70,7 @@ All routes below are relative to `/wp-json/wcb/v1`.
 | `POST` | `/jobs/{id}/bookmark` | logged-in | Toggle a saved/bookmarked job |
 | `POST` | `/jobs/{id}/report` | logged-in | Report a job for moderation (deduped per user) |
 | `POST` | `/jobs/{id}/resolve-flag` | moderator | Dismiss or unpublish a flagged job |
-| `GET` | `/jobs/{id}/applications` | author or admin | List applications for a job |
+| `GET` | `/jobs/{id}/applications` | author or admin | List applications for a job. `page`, `per_page` (max 100), optional `status`. Returns `counts` (`total`, `by_status`) for the whole job, not just the page. |
 
 Republishing an expired job is available via WP-CLI
 (`wp wcb job ...`) and the admin Jobs screen, not as a dedicated
@@ -93,9 +93,9 @@ requesters. A guest or a request with no matching user gets
 |---|---|---|---|
 | `POST` | `/jobs/{id}/apply` | candidate or guest | Submit application (guests always allowed; a logged-in user needs the `wcb/apply-jobs` ability) |
 | `GET` | `/applications/{id}` | candidate or job-owner | Single application detail |
-| `DELETE` | `/applications/{id}` | candidate owner | Withdraw application |
-| `PUT` | `/applications/{id}/status` | employer/admin | Change status (submitted/reviewing/shortlisted/rejected/hired) |
-| `GET` | `/candidates/{id}/applications` | self or admin | Candidate's application history |
+| `DELETE` | `/applications/{id}` | candidate owner | Withdraw: keeps the application as `withdrawn` (409 once it has an outcome). A row whose job is gone is deleted instead. |
+| `PUT` | `/applications/{id}/status` | employer/admin | Change status (submitted/reviewing/shortlisted/rejected/hired). Returns `changed` (false for a same-status save, nothing is sent) and `notified`; 409 on a withdrawn or job-removed application. |
+| `GET` | `/candidates/{id}/applications` | self or admin | Candidate's application history, paginated, with `counts` for all of them. |
 | `POST` | `/candidates/resume-upload` | candidate | Upload a resume PDF |
 
 ### Candidates
@@ -295,3 +295,8 @@ field plus an optional CAPTCHA provider (Google reCAPTCHA v3 or
 Cloudflare Turnstile), configured under Settings -> Anti-Spam. The
 module validates on the `rest_pre_dispatch` filter and rejects
 spammy submissions before the route handler runs.
+
+
+## Application status fields
+
+Every application payload carries `status` (slug), `status_label` (worded for the viewer: candidates see "Not selected" where employers and admins see "Rejected") and `status_tone` (`info`, `warning`, `accent`, `success`, `danger` or `neutral`) so clients show the same words and colours as the site.

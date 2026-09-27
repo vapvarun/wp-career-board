@@ -27,7 +27,7 @@
     "services": 42,
     "hooks_fired": 235,
     "hooks_unique": 159,
-    "cron": 6,
+    "cron": 7,
     "wp_cli": 5
   },
   "rest": {
@@ -95,7 +95,7 @@
         ],
         "handler": "WCB\\Api\\Endpoints\\JobsEndpoint::get_applications",
         "permission": "view_applications_permissions_check",
-        "purpose": "List applications for a job (employer)"
+        "purpose": "List applications for a job (employer); page/per_page, optional status filter, per-status counts for the whole job"
       },
       {
         "route": "/wcb/v1/jobs/(?P<id>\\d+)/apply",
@@ -133,7 +133,7 @@
         ],
         "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::get_candidate_applications",
         "permission": "candidate_permissions_check (self)",
-        "purpose": "List candidate's own applications"
+        "purpose": "List candidate's own applications; paginated, per-status counts for all of them"
       },
       {
         "route": "/wcb/v1/candidates/resume-upload",
@@ -3917,6 +3917,12 @@
       "schedule": "single (self re-arming until drained)",
       "where": "core/class-private-files.php (PrivateFiles::migrate_batch)",
       "purpose": "Move existing candidate files into private storage, 50 per pass (1.3.3 upgrade)"
+    },
+    {
+      "hook": "wcb_close_deleted_job_applications",
+      "schedule": "single (self-rescheduling, 200 per run)",
+      "where": "modules/applications/class-application-lifecycle.php:51",
+      "purpose": "Mark a deleted job's open applications job_removed in background batches; each candidate gets the status email"
     }
   ],
   "wp_cli": [

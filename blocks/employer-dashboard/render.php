@@ -251,6 +251,13 @@ wp_interactivity_state(
 		'appsLayout'            => 'list',
 		'draggingAppId'         => 0,
 		'applications'          => array(),
+		'appsPage'              => 1,
+		'appsHasMore'           => false,
+		'appsLoadingMore'       => false,
+		'appsCounts'            => array(
+			'total'     => 0,
+			'by_status' => new \stdClass(),
+		),
 		'appsLoading'           => false,
 		// Statuses the employer can pick; anything else (withdrawn, job removed)
 		// is shown as a read-only badge.
@@ -402,6 +409,7 @@ wp_interactivity_state(
 			// Applicant status-change confirmation.
 			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
 			'statusUnchanged'          => __( 'No change. The candidate was not notified.', 'wp-career-board' ),
+			'statusSavedGuest'         => __( 'Status updated. Guest applicants are not emailed.', 'wp-career-board' ),
 			'statusError'              => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
 
 			// Account settings + password change.
@@ -858,6 +866,13 @@ wp_interactivity_state(
 						</div>
 					</div>
 				</template>
+			</div>
+
+			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.appsHasMore">
+				<button type="button" class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn" data-wp-on--click="actions.loadMoreApps" data-wp-bind--disabled="state.appsLoadingMore">
+					<span data-wp-class--wcb-hidden="state.appsLoadingMore"><?php esc_html_e( 'Load more applicants', 'wp-career-board' ); ?></span>
+					<span class="wcb-load-more-loading" data-wp-class--wcb-shown="state.appsLoadingMore"><?php esc_html_e( 'Loading&hellip;', 'wp-career-board' ); ?></span>
+				</button>
 			</div>
 		</div>
 

@@ -123,9 +123,9 @@ class EmailAppStatus extends AbstractEmail {
 			return;
 		}
 
-		$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
-		$job    = $job_id > 0 ? get_post( $job_id ) : null;
-		if ( ! $job instanceof \WP_Post ) {
+		// The job may already be deleted (job_removed runs after the delete).
+		$job_title = \WCB\Modules\Applications\ApplicationLifecycle::job_title( $app_id );
+		if ( '' === $job_title ) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ class EmailAppStatus extends AbstractEmail {
 			$candidate->user_email,
 			array(
 				'candidate_name' => $candidate->display_name,
-				'job_title'      => $job->post_title,
+				'job_title'      => $job_title,
 				'new_status'     => \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ),
 				'dashboard_url'  => $dashboard_url,
 			),

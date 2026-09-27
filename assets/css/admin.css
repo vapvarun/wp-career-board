@@ -1467,3 +1467,31 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 		display: none;
 	}
 }
+
+/* Applications list: active job filter + Export all matching. */
+.wcb-applications-toolbar {
+	clear: both;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm, 8px);
+}
+
+.wcb-filter-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs, 4px);
+	padding-block: 2px;
+	padding-inline: var(--wcb-space-sm, 8px);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-full, 999px);
+	background: var(--wcb-bg-hover, #f1f5f9);
+}
+
+.wcb-filter-chip a {
+	text-decoration: none;
+	font-size: 1.2em;
+	line-height: 1;
+	min-width: 24px;
+	text-align: center;
+}

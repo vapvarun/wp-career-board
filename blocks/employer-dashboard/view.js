@@ -94,6 +94,9 @@ const aiScoreLabel = ( score ) =>
  * @param {number} n Count.
  * @return {string} Localised count or ''.
  */
+// Applicants fetched per page (endpoint maximum is 100).
+const APPS_PER_PAGE = 50;
+
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
 /**
@@ -402,7 +405,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ! state.appsJobId;
 		},
 		get noApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && state.applications.length === 0;
+			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
 		},
 
 		// Application filter.
@@ -466,7 +469,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( state.aiRanked ) {
 					apps = [ ...apps ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
 				}
-				return { key: d.key, label: d.label, count: countLabel( apps.length ), apps };
+				return { key: d.key, label: d.label, count: countLabel( state.appsCounts.by_status[ d.key ] ), apps };
 			} );
 		},
 
@@ -474,22 +477,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// REST calls. Zero renders as an empty pill, anything else as a
 		// site-locale-formatted number.
 		get appsCountAll() {
-			return countLabel( state.applications.length );
+			return countLabel( state.appsCounts.total );
 		},
 		get appsCountSubmitted() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'submitted' ).length );
+			return countLabel( state.appsCounts.by_status.submitted );
 		},
 		get appsCountReviewing() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'reviewing' ).length );
+			return countLabel( state.appsCounts.by_status.reviewing );
 		},
 		get appsCountShortlisted() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'shortlisted' ).length );
+			return countLabel( state.appsCounts.by_status.shortlisted );
 		},
 		get appsCountRejected() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'rejected' ).length );
+			return countLabel( state.appsCounts.by_status.rejected );
 		},
 		get appsCountHired() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'hired' ).length );
+			return countLabel( state.appsCounts.by_status.hired );
 		},
 
 		// Selected applicant detail.
@@ -1045,10 +1048,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		setAppsFilter( event ) {
-			const f = event.target.dataset.wcbFilter;
-			if ( f ) {
+		*setAppsFilter( event ) {
+			const f = event.target.closest( '[data-wcb-filter]' )?.dataset.wcbFilter;
+			if ( f && f !== state.appsFilter ) {
 				state.appsFilter = f;
+				yield actions.loadApplications();
 			}
 		},
 
@@ -1069,19 +1073,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.appsJobSearch = event.target.value;
 		},
 
-		*loadApplications() {
+		// One page of the selected job's applicants (server-side status
+		// filter), plus per-status totals for the whole job. `append` adds the
+		// next page for Load more.
+		*loadApplications( append = false ) {
 			if ( ! state.appsJobId ) {
 				return;
 			}
 
-			state.appsLoading = true;
-			state.appsError   = '';
+			const flag = append ? 'appsLoadingMore' : 'appsLoading';
+			state[ flag ]   = true;
+			state.appsError = '';
 
 			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
+				const url = new URL( state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications' );
+				url.searchParams.set( 'per_page', String( APPS_PER_PAGE ) );
+				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
+				if ( state.appsFilter !== 'all' ) {
+					url.searchParams.set( 'status', state.appsFilter );
+				}
+
+				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
 
 				if ( ! response.ok ) {
 					state.appsError = t( 'errorLoadApps', 'Could not load applications.' );
@@ -1089,8 +1101,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				}
 
 				const appsData = yield response.json();
-				const apps     = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
-				state.applications = apps.map( ( a ) => ( {
+				const apps     = ( appsData?.applications ?? [] ).map( ( a ) => ( {
 					...a,
 					initials: a.applicant_name
 						? a.applicant_name.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
@@ -1104,6 +1115,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						}
 						: {} ),
 				} ) );
+				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				state.appsPage     = append ? state.appsPage + 1 : 1;
+				state.appsHasMore  = !! appsData?.has_more;
+				state.appsCounts   = appsData?.counts ?? { total: 0, by_status: {} };
 				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
 					state.aiRanked = true;
 				}
@@ -1114,8 +1129,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} catch {
 				state.appsError = t( 'errorConnectionApps', 'Connection error loading applications.' );
 			} finally {
-				state.appsLoading = false;
+				state[ flag ] = false;
 			}
+		},
+
+		*loadMoreApps() {
+			yield actions.loadApplications( true );
 		},
 
 		// Rank the loaded applications by AI fit score (Pro /ai/ranked-applications).
@@ -1176,14 +1195,24 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					// The server's label and tone win: one wording everywhere (ApplicationStatus).
 					const data = yield response.json();
 					const idx  = state.applications.findIndex( ( a ) => a.id === appId );
+					if ( idx !== -1 && data.changed ) {
+						const by = state.appsCounts.by_status;
+						const was = state.applications[ idx ].status;
+						by[ was ] = Math.max( 0, ( by[ was ] || 0 ) - 1 );
+						by[ data.status ] = ( by[ data.status ] || 0 ) + 1;
+					}
 					if ( idx !== -1 ) {
 						state.applications[ idx ].status      = data.status || newStatus;
 						state.applications[ idx ].statusLabel = data.status_label || state.applications[ idx ].statusLabel;
 						state.applications[ idx ].status_tone = data.status_tone || '';
 					}
-					state.statusMsg = false === data.changed
-						? t( 'statusUnchanged', 'No change. The candidate was not notified.' )
-						: t( 'statusSaved', 'Status updated. The candidate has been notified.' );
+					if ( ! data.changed ) {
+						state.statusMsg = t( 'statusUnchanged', 'No change. The candidate was not notified.' );
+					} else {
+						state.statusMsg = data.notified
+							? t( 'statusSaved', 'Status updated. The candidate has been notified.' )
+							: t( 'statusSavedGuest', 'Status updated. Guest applicants are not emailed.' );
+					}
 				} else {
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}
