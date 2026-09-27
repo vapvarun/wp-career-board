@@ -1447,8 +1447,8 @@ final class JobsEndpoint extends RestController {
 						if ( $att_id <= 0 ) {
 							return null;
 						}
-						$url = wp_get_attachment_url( $att_id );
-						return false !== $url ? $url : null;
+						$url = \WCB\Core\PrivateFiles::url( $att_id );
+						return '' !== $url ? $url : null;
 					} )(),
 					'resume_permalink'   => ( static function () use ( $p ): ?string {
 						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );

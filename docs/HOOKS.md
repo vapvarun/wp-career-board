@@ -219,6 +219,22 @@ always returns to review.
 |---|---|---|
 | `wcb_job_allow_new_terms` | `$allow, $request` | Whether a submission may create new category / type / location / experience terms. Default: moderators only. Tags are always free-form. |
 
+## Candidate files (1.8.0)
+
+Resumes, CVs and generated resume PDFs are stored under
+`uploads/wcb-private/<random>/` with `private` attachment status and are
+downloaded only through `?wcb_file=<id>` (website) or
+`GET /wcb/v1/files/{id}` (app), both gated by
+`WCB\Core\PrivateFiles::can_download()`: the uploader, admins/moderators,
+and both sides of an application that carries the file. Use
+`PrivateFiles::url( $attachment_id )` when you output a link, never
+`wp_get_attachment_url()`. Site Health reports when the web server serves
+the folder directly (nginx ignores its .htaccess).
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
+
 ## Active-job quota (free tier)
 
 `JobsEndpoint::check_active_job_limit()` gates job create and republish

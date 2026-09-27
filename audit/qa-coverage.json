@@ -5,14 +5,14 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-15T07:57:28+00:00",
+        "at": "2026-09-27T03:19:44+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
     "categories": {
         "rest": {
-            "total": 65,
-            "covered": 36,
+            "total": 66,
+            "covered": 37,
             "uncovered": 29,
             "skipped": 0,
             "covered_items": [
@@ -159,6 +159,10 @@
                 {
                     "method": "POST",
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)/reject"
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/files/(?P<id>\\d+)"
                 }
             ],
             "uncovered_items": [
@@ -775,8 +779,8 @@
             "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
         },
         "cron": {
-            "total": 5,
-            "covered": 5,
+            "total": 6,
+            "covered": 6,
             "uncovered": 0,
             "skipped": 0,
             "covered_items": [
@@ -794,6 +798,9 @@
                 },
                 {
                     "hook": "wcb_prune_job_views"
+                },
+                {
+                    "hook": "wcb_private_files_migrate"
                 }
             ],
             "uncovered_items": []
@@ -825,15 +832,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 165,
-        "items_covered": 48,
+        "items_total": 167,
+        "items_covered": 50,
         "items_uncovered": 117,
         "items_skipped": 147,
-        "coverage_percent": 29.100000000000001
+        "coverage_percent": 29.899999999999999
     },
     "drift": {
-        "previous_uncovered": 115,
+        "previous_uncovered": 119,
         "current_uncovered": 117,
-        "delta": 2
+        "delta": -2
     }
 }

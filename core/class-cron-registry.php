@@ -62,6 +62,7 @@ final class CronRegistry {
 			'wcb_expire_featured_jobs',
 			'wcb_prune_job_views',
 			'wcb_process_account_deletions',
+			\WCB\Core\PrivateFiles::MIGRATE_HOOK,
 		);
 	}
 }

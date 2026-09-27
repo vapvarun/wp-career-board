@@ -784,7 +784,7 @@ class AdminApplications extends \WP_List_Table {
 				: (string) get_post_meta( $post->ID, '_wcb_guest_email', true );
 			$status        = (string) get_post_meta( $post->ID, '_wcb_status', true );
 			$attachment_id = (int) get_post_meta( $post->ID, '_wcb_resume_attachment_id', true );
-			$resume_url    = $attachment_id > 0 ? (string) wp_get_attachment_url( $attachment_id ) : '';
+			$resume_url    = $attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '';
 
 			fputcsv(
 				$out,

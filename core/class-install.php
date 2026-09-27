@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.2';
+	const DB_VERSION = '1.3.3';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -48,6 +48,11 @@ final class Install {
 	public static function activate(): void {
 		self::check_requirements();
 		self::maybe_upgrade();
+		// Deactivation clears the file-migration job; re-arm it so a site that
+		// was switched off mid-migration finishes. One pass is a no-op when done.
+		if ( ! wp_next_scheduled( PrivateFiles::MIGRATE_HOOK ) ) {
+			wp_schedule_single_event( time() + 30, PrivateFiles::MIGRATE_HOOK );
+		}
 		( new Roles() )->register();
 		// DEFER the rewrite flush — do NOT call flush_rewrite_rules() here. The
 		// wcb_job / wcb_company / wcb_resume CPTs register on `init`, which has
@@ -420,6 +425,13 @@ final class Install {
 			// company-archive block, was unreachable on every site.
 			if ( version_compare( (string) $installed, '1.3.2', '<' ) ) {
 				self::migrate_company_archive_page_slug();
+			}
+
+			// 1.3.3 — move existing candidate files (resumes, generated CVs)
+			// into private storage. File moves are slow, so a cron job does
+			// it in batches instead of this request.
+			if ( version_compare( (string) $installed, '1.3.3', '<' ) && ! wp_next_scheduled( PrivateFiles::MIGRATE_HOOK ) ) {
+				wp_schedule_single_event( time() + 30, PrivateFiles::MIGRATE_HOOK );
 			}
 
 			// Only bump the stored DB version if every expected table now

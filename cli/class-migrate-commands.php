@@ -309,4 +309,31 @@ class MigrateCommands extends AbstractCliCommand {
 			)
 		);
 	}
+
+	/**
+	 * Move existing candidate files (resumes, generated CVs) into private storage.
+	 *
+	 * Upgrading to 1.8.0 already does this in the background, 50 files per
+	 * cron pass. Run this to finish at once, e.g. on a site with WP-Cron off.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *   wp wcb migrate files
+	 *
+	 * @subcommand files
+	 * @since 1.8.0
+	 *
+	 * @param array                $args       Positional arguments (unused).
+	 * @param array<string,string> $assoc_args Named arguments (unused).
+	 * @return void
+	 */
+	public function files( array $args, array $assoc_args ): void {
+		$total = 0;
+		do {
+			$done   = \WCB\Core\PrivateFiles::migrate_batch();
+			$total += $done;
+		} while ( $done > 0 );
+		wp_clear_scheduled_hook( \WCB\Core\PrivateFiles::MIGRATE_HOOK );
+		\WP_CLI::success( sprintf( '%d candidate file(s) now in private storage.', $total ) );
+	}
 }

@@ -123,6 +123,10 @@ final class Plugin {
 		// converges rather than repeated at each of the six call sites.
 		\WCB\Core\Industries::boot();
 
+		// Candidate files (resumes, generated CVs) live in private storage and
+		// download only through the gated handler.
+		\WCB\Core\PrivateFiles::boot();
+
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
 		// deep-link scheme survives esc_url() there, and a WooCommerce-style

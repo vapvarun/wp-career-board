@@ -93,6 +93,29 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
+		// Download a private candidate file. The website links to the
+		// `?wcb_file=` handler (cookie session); the app authenticates only on
+		// REST, so it uses this route. Same check either way.
+		register_rest_route(
+			$this->namespace,
+			'/files/(?P<id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static function ( \WP_REST_Request $request ): void {
+					\WCB\Core\PrivateFiles::send( (int) $request['id'] );
+				},
+				'permission_callback' => static function ( \WP_REST_Request $request ): bool {
+					return \WCB\Core\PrivateFiles::can_download( (int) $request['id'] );
+				},
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
 		// Upload a resume file (Free mode — no wcb_resume post). Requires login.
 		register_rest_route(
 			$this->namespace,
@@ -610,6 +633,16 @@ final class ApplicationsEndpoint extends RestController {
 
 		$pre_uploaded = (int) $request->get_param( 'resume_attachment_id' );
 		if ( $pre_uploaded > 0 ) {
+			// A guest has no uploads of their own to point at: any id they send
+			// belongs to someone else, and attaching it handed that person's CV
+			// to the job's employer. Guests upload the file on this request.
+			if ( $author_id <= 0 ) {
+				return new \WP_Error(
+					'wcb_invalid_resume',
+					__( 'Invalid resume attachment.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
 			$attachment = get_post( $pre_uploaded );
 			if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
 				return new \WP_Error(
@@ -618,7 +651,7 @@ final class ApplicationsEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			if ( $author_id > 0 && (int) $attachment->post_author !== $author_id ) {
+			if ( (int) $attachment->post_author !== $author_id ) {
 				return new \WP_Error(
 					'wcb_invalid_resume',
 					__( 'Invalid resume attachment.', 'wp-career-board' ),
@@ -628,20 +661,11 @@ final class ApplicationsEndpoint extends RestController {
 			return $pre_uploaded;
 		}
 
-		// Fall back to the attachment stored on the selected resume CPT post.
-		// Without this, picking a saved resume leaves the application's
-		// _wcb_resume_attachment_id empty and the preview renders blank.
-		$resume_id = (int) $request->get_param( 'resume_id' );
-		if ( $resume_id > 0 && $author_id > 0 ) {
-			$resume = get_post( $resume_id );
-			if ( $resume && 'wcb_resume' === $resume->post_type && (int) $resume->post_author === $author_id ) {
-				$resume_attachment_id = (int) get_post_meta( $resume_id, '_wcb_resume_attachment_id', true );
-				if ( $resume_attachment_id > 0 && get_post( $resume_attachment_id ) ) {
-					return $resume_attachment_id;
-				}
-			}
-		}
-
+		// A saved resume's PDF is resolved by the `wcb_resume_pdf_attachment_id`
+		// filter in the caller, which returns the candidate's uploaded PDF or a
+		// generated one that still matches the resume. Reading the stored
+		// attachment here instead skipped that check and kept sending employers
+		// the CV as it was before the candidate edited it.
 		return 0;
 	}
 
@@ -710,11 +734,14 @@ final class ApplicationsEndpoint extends RestController {
 			),
 		);
 
-		$attachment_id = media_handle_upload( 'resume_file', $parent_id, array(), $overrides );
+		$attachment_id = \WCB\Core\PrivateFiles::in_private_dir(
+			static fn () => media_handle_upload( 'resume_file', $parent_id, array(), $overrides )
+		);
 
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}
+		\WCB\Core\PrivateFiles::protect( (int) $attachment_id );
 
 		if ( $author_id > 0 ) {
 			wp_update_post(
@@ -1011,7 +1038,7 @@ final class ApplicationsEndpoint extends RestController {
 				self::FIELD_META_PREFIX
 			),
 			'resume_id'        => $resume_id,
-			'resume_url'       => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'resume_url'       => $resume_attachment_id ? \WCB\Core\PrivateFiles::url( (int) $resume_attachment_id ) : '',
 			'resume_permalink' => $resume_permalink,
 			'status'           => '' !== $status ? $status : 'submitted',
 			'submitted_at'     => $post->post_date,
