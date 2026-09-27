@@ -124,7 +124,7 @@ class EmailAppStatus extends AbstractEmail {
 			return;
 		}
 
-		$dashboard     = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$dashboard     = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
 		$this->send(

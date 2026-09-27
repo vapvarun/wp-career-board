@@ -5,14 +5,14 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-27T03:51:08+00:00",
+        "at": "2026-09-27T12:03:41+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
     "categories": {
         "rest": {
-            "total": 67,
-            "covered": 40,
+            "total": 68,
+            "covered": 41,
             "uncovered": 27,
             "skipped": 0,
             "covered_items": [
@@ -143,6 +143,10 @@
                 {
                     "method": "POST",
                     "route": "/wcb/v1/wizard/create-pages"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/wizard/settings"
                 },
                 {
                     "method": "POST",
@@ -834,15 +838,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 168,
-        "items_covered": 53,
+        "items_total": 169,
+        "items_covered": 54,
         "items_uncovered": 115,
         "items_skipped": 147,
-        "coverage_percent": 31.5
+        "coverage_percent": 32
     },
     "drift": {
-        "previous_uncovered": 117,
+        "previous_uncovered": 116,
         "current_uncovered": 115,
-        "delta": -2
+        "delta": -1
     }
 }

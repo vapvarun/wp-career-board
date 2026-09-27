@@ -34,9 +34,40 @@ class AntiSpamModule {
 	 * Active CAPTCHA driver, or null when provider is 'none'.
 	 *
 	 * @since 1.0.0
-	 * @var TurnstileDriver|RecaptchaDriver|null
+	 * @var TurnstileDriver|RecaptchaDriver|RecaptchaV2Driver|null
 	 */
-	private TurnstileDriver|RecaptchaDriver|null $driver = null;
+	private TurnstileDriver|RecaptchaDriver|RecaptchaV2Driver|null $driver = null;
+
+	/**
+	 * The CAPTCHA in force: the chosen provider when both of its keys are
+	 * set, else null (honeypot only). One answer for the web forms and the
+	 * app-config the mobile app reads, so the app never demands a token the
+	 * site doesn't check, or skips one it does.
+	 *
+	 * @since 1.8.0
+	 * @return array{provider: string, site_key: string, secret_key: string}|null
+	 */
+	public static function active(): ?array {
+		$provider = \WCB\Admin\Settings::string( 'captcha_provider', 'none' );
+		$prefix   = array(
+			'turnstile'    => 'turnstile',
+			'recaptcha'    => 'recaptcha',
+			'recaptcha_v2' => 'recaptcha_v2',
+		)[ $provider ] ?? '';
+		if ( '' === $prefix ) {
+			return null;
+		}
+		$site   = \WCB\Admin\Settings::string( $prefix . '_site_key', '' );
+		$secret = \WCB\Admin\Settings::string( $prefix . '_secret_key', '' );
+		if ( '' === $site || '' === $secret ) {
+			return null;
+		}
+		return array(
+			'provider'   => $provider,
+			'site_key'   => $site,
+			'secret_key' => $secret,
+		);
+	}
 
 	/**
 	 * Register all hooks.
@@ -45,24 +76,12 @@ class AntiSpamModule {
 	 * @return void
 	 */
 	public function boot(): void {
-		$settings = \WCB\Admin\Settings::all();
-		$provider = (string) ( $settings['captcha_provider'] ?? 'none' );
-
-		$this->driver = match ( $provider ) {
-			'turnstile' => ( '' !== ( $settings['turnstile_site_key'] ?? '' ) && '' !== ( $settings['turnstile_secret_key'] ?? '' ) )
-				? new TurnstileDriver(
-					(string) $settings['turnstile_site_key'],
-					(string) $settings['turnstile_secret_key']
-				)
-				: null,
-			'recaptcha' => ( '' !== ( $settings['recaptcha_site_key'] ?? '' ) && '' !== ( $settings['recaptcha_secret_key'] ?? '' ) )
-				? new RecaptchaDriver(
-					(string) $settings['recaptcha_site_key'],
-					(string) $settings['recaptcha_secret_key'],
-					(float) ( $settings['recaptcha_threshold'] ?? 0.5 )
-				)
-				: null,
-			default     => null,
+		$active       = self::active();
+		$this->driver = match ( $active['provider'] ?? '' ) {
+			'turnstile'    => new TurnstileDriver( $active['site_key'], $active['secret_key'] ),
+			'recaptcha'    => new RecaptchaDriver( $active['site_key'], $active['secret_key'], (float) \WCB\Admin\Settings::get( 'recaptcha_threshold', 0.5 ) ),
+			'recaptcha_v2' => new RecaptchaV2Driver( $active['site_key'], $active['secret_key'] ),
+			default        => null,
 		};
 
 		add_filter( 'wcb_pre_job_submit', array( $this, 'verify_request' ), 10, 2 );
@@ -75,7 +94,6 @@ class AntiSpamModule {
 
 		add_filter( 'wcb_settings_tabs', array( $this, 'add_settings_tab' ) );
 		add_action( 'wcb_settings_tab_antispam', array( $this, 'render_settings_tab' ) );
-		add_action( 'admin_post_wcb_save_antispam', array( $this, 'save_settings' ) );
 	}
 
 	/**
@@ -167,15 +185,12 @@ class AntiSpamModule {
 		$wcb_rc_secret = (string) ( $settings['recaptcha_secret_key'] ?? '' );
 		$wcb_rc_thresh = (float) ( $settings['recaptcha_threshold'] ?? 0.5 );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['wcb-antispam-saved'] ) ) {
-			echo '<div class="notice notice-success is-dismissible"><p>' .
-				esc_html__( 'Anti-Spam settings saved.', 'wp-career-board' ) . '</p></div>';
-		}
+		$wcb_v2_site   = (string) ( $settings['recaptcha_v2_site_key'] ?? '' );
+		$wcb_v2_secret = (string) ( $settings['recaptcha_v2_secret_key'] ?? '' );
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<input type="hidden" name="action" value="wcb_save_antispam">
-			<?php wp_nonce_field( 'wcb_save_antispam' ); ?>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'wcb_settings_group' ); ?>
+			<?php \WCB\Admin\SettingsSchema::form_fields(); ?>
 
 			<div class="wcb-card">
 				<div class="wcb-card__head">
@@ -188,10 +203,11 @@ class AntiSpamModule {
 							<label for="wcb-captcha-provider"><?php esc_html_e( 'CAPTCHA Provider', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<select id="wcb-captcha-provider" name="captcha_provider">
+							<select id="wcb-captcha-provider" name="wcb_settings[captcha_provider]">
 								<option value="none" <?php selected( $wcb_provider, 'none' ); ?>><?php esc_html_e( 'None (Honeypot only)', 'wp-career-board' ); ?></option>
-								<option value="turnstile" <?php selected( $wcb_provider, 'turnstile' ); ?>>Cloudflare Turnstile</option>
-								<option value="recaptcha" <?php selected( $wcb_provider, 'recaptcha' ); ?>>Google reCAPTCHA v3</option>
+								<option value="turnstile" <?php selected( $wcb_provider, 'turnstile' ); ?>><?php esc_html_e( 'Cloudflare Turnstile', 'wp-career-board' ); ?></option>
+								<option value="recaptcha" <?php selected( $wcb_provider, 'recaptcha' ); ?>><?php esc_html_e( 'Google reCAPTCHA v3 (invisible, score)', 'wp-career-board' ); ?></option>
+								<option value="recaptcha_v2" <?php selected( $wcb_provider, 'recaptcha_v2' ); ?>><?php esc_html_e( 'Google reCAPTCHA v2 (invisible badge)', 'wp-career-board' ); ?></option>
 							</select>
 							<p class="description"><?php esc_html_e( 'Cloudflare Turnstile is recommended - fast, privacy-friendly, and free.', 'wp-career-board' ); ?></p>
 						</div>
@@ -209,7 +225,7 @@ class AntiSpamModule {
 							<label for="wcb-turnstile-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<input type="text" id="wcb-turnstile-site-key" name="turnstile_site_key" value="<?php echo esc_attr( $wcb_ts_site ); ?>" class="regular-text">
+							<input type="text" id="wcb-turnstile-site-key" name="wcb_settings[turnstile_site_key]" value="<?php echo esc_attr( $wcb_ts_site ); ?>" class="regular-text">
 							<p class="description">
 								<?php
 								printf(
@@ -226,7 +242,7 @@ class AntiSpamModule {
 							<label for="wcb-turnstile-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<input type="password" id="wcb-turnstile-secret-key" name="turnstile_secret_key" value="<?php echo esc_attr( $wcb_ts_secret ); ?>" class="regular-text" autocomplete="off">
+							<input type="password" id="wcb-turnstile-secret-key" name="wcb_settings[turnstile_secret_key]" value="<?php echo esc_attr( $wcb_ts_secret ); ?>" class="regular-text" autocomplete="off">
 						</div>
 					</div>
 				</div>
@@ -242,7 +258,7 @@ class AntiSpamModule {
 							<label for="wcb-recaptcha-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<input type="text" id="wcb-recaptcha-site-key" name="recaptcha_site_key" value="<?php echo esc_attr( $wcb_rc_site ); ?>" class="regular-text">
+							<input type="text" id="wcb-recaptcha-site-key" name="wcb_settings[recaptcha_site_key]" value="<?php echo esc_attr( $wcb_rc_site ); ?>" class="regular-text">
 							<p class="description">
 								<?php
 								printf(
@@ -259,7 +275,7 @@ class AntiSpamModule {
 							<label for="wcb-recaptcha-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<input type="password" id="wcb-recaptcha-secret-key" name="recaptcha_secret_key" value="<?php echo esc_attr( $wcb_rc_secret ); ?>" class="regular-text" autocomplete="off">
+							<input type="password" id="wcb-recaptcha-secret-key" name="wcb_settings[recaptcha_secret_key]" value="<?php echo esc_attr( $wcb_rc_secret ); ?>" class="regular-text" autocomplete="off">
 						</div>
 					</div>
 					<div class="wcb-settings-row">
@@ -267,8 +283,33 @@ class AntiSpamModule {
 							<label for="wcb-recaptcha-threshold"><?php esc_html_e( 'Score Threshold', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
-							<input type="number" id="wcb-recaptcha-threshold" name="recaptcha_threshold" value="<?php echo esc_attr( (string) $wcb_rc_thresh ); ?>" min="0" max="1" step="0.1" class="small-text">
+							<input type="number" id="wcb-recaptcha-threshold" name="wcb_settings[recaptcha_threshold]" value="<?php echo esc_attr( (string) $wcb_rc_thresh ); ?>" min="0" max="1" step="0.1" class="small-text">
 							<p class="description"><?php esc_html_e( 'Requests scoring below this are rejected as bots (0.0-1.0). Default: 0.5.', 'wp-career-board' ); ?></p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="wcb-card">
+				<div class="wcb-card__head">
+					<p class="wcb-card__title"><?php esc_html_e( 'Google reCAPTCHA v2', 'wp-career-board' ); ?></p>
+					<p class="wcb-card__desc"><?php esc_html_e( 'Create the keys as reCAPTCHA v2, "Invisible reCAPTCHA badge". Suspicious visitors get a picture challenge; everyone else sees nothing.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-card__body">
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-recaptcha-v2-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="text" id="wcb-recaptcha-v2-site-key" name="wcb_settings[recaptcha_v2_site_key]" value="<?php echo esc_attr( $wcb_v2_site ); ?>" class="regular-text">
+						</div>
+					</div>
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-recaptcha-v2-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<input type="password" id="wcb-recaptcha-v2-secret-key" name="wcb_settings[recaptcha_v2_secret_key]" value="<?php echo esc_attr( $wcb_v2_secret ); ?>" class="regular-text" autocomplete="off">
 						</div>
 					</div>
 				</div>
@@ -279,51 +320,5 @@ class AntiSpamModule {
 			</div>
 		</form>
 		<?php
-	}
-
-	/**
-	 * Handle admin-post save for the Anti-Spam settings form.
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
-	public function save_settings(): void {
-		check_admin_referer( 'wcb_save_antispam' );
-
-		// Abilities API is the single authorization gate (matches every other
-		// settings save, e.g. AdminSettings::save). The `wcb/manage-settings`
-		// permission_callback already resolves to wcb_manage_settings ||
-		// manage_options, so a separate current_user_can() is redundant and
-		// violated the Abilities-API-only rule.
-		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
-			wp_die( esc_html__( 'Permission denied.', 'wp-career-board' ) );
-		}
-
-		$allowed   = array( 'none', 'turnstile', 'recaptcha' );
-		$wcb_input = isset( $_POST['captcha_provider'] ) ? sanitize_key( wp_unslash( $_POST['captcha_provider'] ) ) : 'none';
-		$provider  = in_array( $wcb_input, $allowed, true ) ? $wcb_input : 'none';
-
-		$settings = \WCB\Admin\Settings::all();
-
-		$settings['captcha_provider']     = $provider;
-		$settings['turnstile_site_key']   = sanitize_text_field( wp_unslash( $_POST['turnstile_site_key'] ?? '' ) );
-		$settings['turnstile_secret_key'] = sanitize_text_field( wp_unslash( $_POST['turnstile_secret_key'] ?? '' ) );
-		$settings['recaptcha_site_key']   = sanitize_text_field( wp_unslash( $_POST['recaptcha_site_key'] ?? '' ) );
-		$settings['recaptcha_secret_key'] = sanitize_text_field( wp_unslash( $_POST['recaptcha_secret_key'] ?? '' ) );
-		$settings['recaptcha_threshold']  = max( 0.0, min( 1.0, (float) sanitize_text_field( wp_unslash( $_POST['recaptcha_threshold'] ?? '0.5' ) ) ) );
-
-		update_option( 'wcb_settings', $settings );
-
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'page'               => 'wcb-settings',
-					'tab'                => 'antispam',
-					'wcb-antispam-saved' => '1',
-				),
-				admin_url( 'admin.php' )
-			)
-		);
-		exit;
 	}
 }

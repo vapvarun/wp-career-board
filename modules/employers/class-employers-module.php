@@ -119,7 +119,7 @@ final class EmployersModule {
 			return $redirect_to;
 		}
 
-		$dashboard_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+		$dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 
 		if ( ! $dashboard_id ) {
 			return $redirect_to;

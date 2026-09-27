@@ -244,23 +244,24 @@
 		width: 100%;
 		border-right: none;
 		border-bottom: 1px solid var(--wcb-border, #e2e8f0);
-		overflow-x: auto;
 	}
 
+	/* Every tab stays visible: items wrap under their group label instead
+	   of hiding past the edge of a sideways scroller. */
 	.wcb-settings-nav-group {
 		display: flex;
-		flex-wrap: nowrap;
-		padding: 0 8px;
-		gap: 0;
+		flex-wrap: wrap;
+		padding: 0 8px 8px;
+		gap: 4px;
 	}
 
 	.wcb-settings-nav-group__label {
-		display: none;
+		flex-basis: 100%;
 	}
 
 	.wcb-settings-nav-item {
 		white-space: nowrap;
-		padding: 8px 12px;
+		padding: 6px 10px;
 		border-radius: 6px;
 	}
 

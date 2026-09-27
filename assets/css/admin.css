@@ -987,6 +987,134 @@
 	display: block;
 }
 
+/* Focus mode: no admin menu while the wizard runs ("Exit setup" leaves). */
+body.wcb-wizard-focus #adminmenumain {
+	display: none;
+}
+
+body.wcb-wizard-focus #wpcontent,
+body.wcb-wizard-focus #wpfooter {
+	margin-inline-start: 0;
+}
+
+body.wcb-wizard-focus #wpbody-content > .notice,
+body.wcb-wizard-focus #wpbody-content > .update-nag {
+	display: none;
+}
+
+.wcb-wizard-progress {
+	display: flex;
+	gap: 4px;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-wizard-progress li {
+	flex: 1 1 0;
+	min-width: 0;
+	margin: 0;
+}
+
+.wcb-wizard-progress button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+	height: 100%;
+	padding: 8px 4px;
+	border: 0;
+	border-block-end: 3px solid var(--wcb-border, #e2e8f0);
+	background: none;
+	color: var(--wcb-text-secondary, #475569);
+	font: inherit;
+	font-size: 12px;
+	line-height: 1.3;
+	text-align: center;
+	cursor: pointer;
+}
+
+.wcb-wizard-progress button:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+.wcb-wizard-progress button:focus-visible {
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
+}
+
+.wcb-wizard-progress__num {
+	display: inline-grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: var(--wcb-border, #e2e8f0);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.wcb-wizard-progress .is-done button {
+	border-block-end-color: var(--wcb-success-fg, #15803d);
+}
+
+.wcb-wizard-progress .is-done .wcb-wizard-progress__num {
+	background: var(--wcb-success-bg, #dcfce7);
+	color: var(--wcb-success-fg, #15803d);
+}
+
+.wcb-wizard-progress .is-current button {
+	border-block-end-color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-contrast, #1e293b);
+	font-weight: 600;
+	opacity: 1;
+}
+
+.wcb-wizard-progress .is-current .wcb-wizard-progress__num {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-base, #ffffff);
+}
+
+.wcb-wizard-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.wcb-wizard-error {
+	color: var(--wcb-danger, #dc2626);
+	font-size: 13px;
+}
+
+.wcb-wizard-pages {
+	margin: 8px 0 0;
+	padding-inline-start: 18px;
+	list-style: disc;
+}
+
+.wcb-wizard-pages__state {
+	margin-inline-start: 6px;
+	color: var(--wcb-text-secondary, #475569);
+	font-size: 12px;
+}
+
+.wcb-wizard-pages__state.is-ready {
+	color: var(--wcb-success-fg, #15803d);
+}
+
+@media (max-width: 782px) {
+	.wcb-wizard-progress__label {
+		display: none;
+	}
+
+	.wcb-wizard-progress .is-current .wcb-wizard-progress__label {
+		display: inline;
+	}
+}
+
 /* ── Import page ─────────────────────────────────────────────────────────── */
 
 .wcb-admin-import {

@@ -246,6 +246,9 @@ final class Install {
 			// Existing sites keep their behaviour: the key stays absent there,
 			// so Settings falls back to off.
 			if ( '0' === (string) $installed ) {
+				// New sites start on the 1.8.0 defaults and never see the
+				// "safer defaults" notice existing sites get.
+				update_option( 'wcb_defaults_version', '1.8.0', false );
 				$settings = \WCB\Admin\Settings::all();
 				if ( ! array_key_exists( 'require_email_verification', $settings ) ) {
 					$settings['require_email_verification'] = true;
@@ -256,17 +259,8 @@ final class Install {
 			// Plugin::init on init@20 — taxonomy registration happens on
 			// init@10 and is unavailable during activation. Idempotent.
 
-			// 1.2 — F-3: resume CPT visibility moved from Pro filter to Free
-			// setting. Pre-existing sites with Pro active expect the resume
-			// archive to stay public, so seed the setting from the install
-			// state rather than letting the new default flip URLs to 404.
 			if ( version_compare( (string) $installed, '1.2', '<' ) ) {
 				$settings = \WCB\Admin\Settings::all();
-				if ( ! array_key_exists( 'resume_archive_enabled', $settings ) ) {
-					$settings['resume_archive_enabled'] = (bool) apply_filters( 'wcb_pro_active', false );
-					update_option( 'wcb_settings', $settings );
-					update_option( 'wcb_flush_rewrite_rules', 1 );
-				}
 
 				// 1.2 — F-4: allow_withdraw setting → wcb_withdraw_application
 				// ability. Default ability grant covers true; only the false case
@@ -615,7 +609,7 @@ final class Install {
 		/**
 		 * Filter the default wcb_settings values written on plugin install/upgrade.
 		 *
-		 * Pro hooks this to seed Pro-specific defaults (e.g. resume_archive_enabled).
+		 * Add-ons hook this to seed their own defaults.
 		 * Free's installer merges the filter output onto the existing option using
 		 * key-absence as the gate, so user-configured values are never overwritten.
 		 *

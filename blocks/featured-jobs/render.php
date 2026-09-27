@@ -23,7 +23,7 @@ $wcb_show_all     = (bool) ( $attributes['showViewAll'] ?? true );
 $wcb_view_all_url = trim( (string) ( $attributes['viewAllUrl'] ?? '' ) );
 
 if ( ! $wcb_view_all_url ) {
-	$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+	$wcb_archive_page_id = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 	$wcb_view_all_url    = $wcb_archive_page_id > 0
 		? (string) get_permalink( $wcb_archive_page_id )
 		: '';

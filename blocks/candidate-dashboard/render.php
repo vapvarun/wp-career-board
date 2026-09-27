@@ -16,7 +16,7 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 if ( ! is_user_logged_in() ) {
-	$wcb_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
+	$wcb_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ); ?></p>
@@ -48,7 +48,7 @@ $wcb_candidate_id = get_current_user_id();
 $wcb_current_user = wp_get_current_user();
 $wcb_display_name = $wcb_current_user->display_name;
 
-$wcb_jobs_page_id   = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+$wcb_jobs_page_id   = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 $wcb_jobs_permalink = $wcb_jobs_page_id > 0 ? get_permalink( $wcb_jobs_page_id ) : false;
 $wcb_jobs_url       = ( false !== $wcb_jobs_permalink && '' !== $wcb_jobs_permalink )
 	? (string) $wcb_jobs_permalink
@@ -857,9 +857,11 @@ wp_interactivity_state(
 
 			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noSavedResumes">
 				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No saved resumes yet. Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
-				<a href="<?php echo esc_url( home_url( '/find-candidates/' ) ); ?>" class="wcb-cbtn wcb-cbtn--primary">
+				<?php if ( \WCB\Admin\Pages::url( 'resume_archive_page' ) ) : ?>
+				<a href="<?php echo esc_url( \WCB\Admin\Pages::url( 'resume_archive_page' ) ); ?>" class="wcb-cbtn wcb-cbtn--primary">
 					<?php esc_html_e( 'Browse Candidates', 'wp-career-board' ); ?>
 				</a>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php endif; ?>

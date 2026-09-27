@@ -169,7 +169,7 @@ if ( $wcb_deadline_passed ) {
 
 $wcb_dashboard_url = '';
 if ( $wcb_is_job_owner ) {
-	$wcb_employer_dash_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+	$wcb_employer_dash_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 	if ( $wcb_employer_dash_id > 0 ) {
 		$wcb_dashboard_url = (string) get_permalink( $wcb_employer_dash_id );
 	}
@@ -245,7 +245,7 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	// to their dashboard's resume tab so a no-resume applicant always has a place
 	// to add one instead of a dead-end message.
 	if ( '' === $wcb_resume_page_url ) {
-		$wcb_cand_dash_page = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$wcb_cand_dash_page = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		if ( $wcb_cand_dash_page > 0 ) {
 			$wcb_resume_page_url = get_permalink( $wcb_cand_dash_page ) . '#resumes';
 		}
@@ -1167,7 +1167,22 @@ wp_interactivity_state(
 		 * @param int $wcb_job_id The job being applied to.
 		 */
 		do_action( 'wcb_application_form_fields', $wcb_job_id );
+
+		/**
+		 * Filter the notice shown above "Submit Application" when applications
+		 * may be screened with AI ('' shows nothing). Pro fills it when AI is
+		 * configured and the site owner keeps the notice on.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param string $notice Notice text.
+		 * @param int    $job_id Job being applied to.
+		 */
+		$wcb_ai_notice = (string) apply_filters( 'wcb_apply_ai_notice', '', $wcb_job_id );
 		?>
+		<?php if ( '' !== $wcb_ai_notice ) : ?>
+				<p class="wcb-field-hint wcb-apply-ai-notice"><?php echo esc_html( $wcb_ai_notice ); ?></p>
+		<?php endif; ?>
 
 				<button
 					type="button"

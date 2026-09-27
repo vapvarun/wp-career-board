@@ -170,7 +170,7 @@ final class CandidatesEndpoint extends RestController {
 			\WCB\Core\Roles::grant_member_role( $user, 'wcb_candidate' );
 			do_action( 'wcb_candidate_registered', $user->ID );
 
-			$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+			$dashboard_id  = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 			$dashboard_url = $dashboard_id > 0
 				? (string) get_permalink( $dashboard_id )
 				: home_url( '/' );
@@ -282,7 +282,7 @@ final class CandidatesEndpoint extends RestController {
 
 		do_action( 'wcb_candidate_registered', $user_id );
 
-		$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$dashboard_id  = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		$dashboard_url = $dashboard_id > 0
 			? (string) get_permalink( $dashboard_id )
 			: home_url( '/' );

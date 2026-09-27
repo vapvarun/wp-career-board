@@ -30,7 +30,6 @@ final class CandidatesModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'maybe_flush_rewrites' ), 999 );
-		add_action( 'update_option_wcb_settings', array( $this, 'on_settings_updated' ), 10, 2 );
 
 		// wcb_resume registers public + show_in_rest so the block editor and the
 		// single profile template work. That also hands WordPress core two
@@ -93,28 +92,6 @@ final class CandidatesModule {
 		$wp_query->set_404();
 		status_header( 404 );
 		nocache_headers();
-	}
-
-	/**
-	 * Flag a rewrite-rule flush when `resume_archive_enabled` toggles.
-	 *
-	 * Re-registering the CPT alone isn't enough — rewrite rules are cached and
-	 * must be flushed for `/resume/{slug}` to resolve (or stop resolving). We
-	 * defer the flush until the next request's init so the new CPT args are
-	 * already in place when WordPress rebuilds the rules.
-	 *
-	 * @since 1.2.0
-	 *
-	 * @param  array<string,mixed> $old_settings Previous settings array.
-	 * @param  array<string,mixed> $new_settings New settings array.
-	 * @return void
-	 */
-	public function on_settings_updated( $old_settings, $new_settings ): void {
-		$old_value = (bool) ( is_array( $old_settings ) ? ( $old_settings['resume_archive_enabled'] ?? false ) : false );
-		$new_value = (bool) ( is_array( $new_settings ) ? ( $new_settings['resume_archive_enabled'] ?? false ) : false );
-		if ( $old_value !== $new_value ) {
-			update_option( 'wcb_flush_rewrite_rules', 1 );
-		}
 	}
 
 	/**

@@ -45,6 +45,8 @@ class Admin {
 		// so the redirect is silent — the old in-render redirect fired after
 		// output had begun and threw "headers already sent".
 		add_action( 'admin_init', array( $this, 'redirect_moderator_to_queue' ) );
+		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
+		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -60,6 +62,76 @@ class Admin {
 		// Editor.js surface — matches the simplified admin pattern from Learnomy.
 		( new AdminJobEditor() )->boot();
 	}
+	/**
+	 * Once, on sites that existed before 1.8.0: the safer defaults new sites
+	 * get, which this site keeps off until the owner chooses (owner decision
+	 * D4), and the one behaviour that changed for everyone.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function notice_safer_defaults(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( (string) $screen->id, 'wcb' ) || '1.8.0' === get_option( 'wcb_defaults_version' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			return;
+		}
+
+		$settings = admin_url( 'admin.php?page=wcb-settings' );
+		$items    = array(
+			array(
+				__( 'Deleting the plugin now keeps your jobs, applications and credits. To remove everything on delete, turn on "Remove Data on Delete" under Advanced.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'advanced', $settings ),
+			),
+			array(
+				__( 'New sign-ups can be asked to confirm their email before they can sign in (Email Verification, under Sign-ups).', 'wp-career-board' ),
+				add_query_arg( 'tab', 'signups', $settings ),
+			),
+		);
+
+		/**
+		 * Filter the "safer defaults" listed to sites that existed before 1.8.0.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param array<int, array{0: string, 1: string}> $items Text and settings URL.
+		 */
+		$items = (array) apply_filters( 'wcb_safer_defaults_notice', $items );
+		?>
+		<div class="notice notice-info">
+			<p><strong><?php esc_html_e( 'WP Career Board 1.8.0: new sites start with safer defaults. Yours kept its settings. Review these when you have a minute:', 'wp-career-board' ); ?></strong></p>
+			<ul class="ul-disc">
+				<?php foreach ( $items as $item ) : ?>
+				<li><?php echo esc_html( (string) $item[0] ); ?> <a href="<?php echo esc_url( (string) $item[1] ); ?>"><?php esc_html_e( 'Open setting', 'wp-career-board' ); ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+			<p><a class="button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wcb_dismiss_defaults', '1' ), 'wcb_dismiss_defaults' ) ); ?>"><?php esc_html_e( 'Got it', 'wp-career-board' ); ?></a></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Dismiss the safer-defaults notice for the site.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function dismiss_safer_defaults(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
+		if ( ! isset( $_GET['wcb_dismiss_defaults'] ) || ! check_admin_referer( 'wcb_dismiss_defaults' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			update_option( 'wcb_defaults_version', '1.8.0', false );
+		}
+		wp_safe_redirect( remove_query_arg( array( 'wcb_dismiss_defaults', '_wpnonce' ) ) );
+		exit;
+	}
+
 
 	/**
 	 * Register the top-level Career Board menu and its sub-menus.
@@ -144,6 +216,14 @@ class Admin {
 			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
 			'wcb_tag'        => __( 'Job Tags', 'wp-career-board' ),
 		);
+		// Written straight into $submenu, these skip the capability check
+		// add_submenu_page() does - and a non-empty submenu keeps the top-level
+		// menu, so subscribers and candidates saw a Career Board menu of
+		// taxonomy links. Only settings managers get them.
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			return;
+		}
 		foreach ( $wcb_tax_links as $wcb_tax => $wcb_label ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- documented WP idiom for appending taxonomy edit links to a custom top-level menu.
 			$submenu['wp-career-board'][] = array(

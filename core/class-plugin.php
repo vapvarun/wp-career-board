@@ -653,16 +653,7 @@ final class Plugin {
 		$is_wcb_page = false;
 
 		// Path 1 — explicit Settings mapping (cheapest).
-		$mapped_keys = array(
-			'jobs_archive_page',
-			'employer_dashboard_page',
-			'candidate_dashboard_page',
-			'company_archive_page',
-			'employer_registration_page',
-			'post_job_page',
-			'find_candidates_page',
-			'resume_archive_page',
-		);
+		$mapped_keys = \WCB\Admin\Pages::known_keys();
 		$mapped_ids  = array();
 		foreach ( $mapped_keys as $key ) {
 			$id = \WCB\Admin\Settings::int( $key, 0 );

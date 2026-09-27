@@ -330,6 +330,15 @@
         "purpose": "Setup wizard: auto-create app pages"
       },
       {
+        "route": "/wcb/v1/wizard/settings",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Admin\\SetupWizard::settings_handler",
+        "permission": "wizard_permission_check (wcb_manage_settings)",
+        "purpose": "Setup wizard: save a settings step through the settings schema (plus WP users_can_register)"
+      },
+      {
         "route": "/wcb/v1/wizard/sample-data",
         "methods": [
           "POST"

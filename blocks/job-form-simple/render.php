@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
+	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	echo '<p class="wcb-form-simple__gate">';
 	if ( ! is_user_logged_in() ) {
 		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );

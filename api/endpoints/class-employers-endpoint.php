@@ -223,7 +223,7 @@ final class EmployersEndpoint extends RestController {
 			$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 			do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
 
-			$dashboard_id  = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+			$dashboard_id  = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 			$dashboard_url = $dashboard_id > 0
 				? (string) get_permalink( $dashboard_id )
 				: home_url( '/' );
@@ -367,7 +367,7 @@ final class EmployersEndpoint extends RestController {
 		$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 		do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
 
-		$dashboard_id  = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+		$dashboard_id  = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 		$dashboard_url = $dashboard_id > 0
 			? (string) get_permalink( $dashboard_id )
 			: home_url( '/' );
@@ -1272,7 +1272,7 @@ final class EmployersEndpoint extends RestController {
 	 * @return string Absolute URL.
 	 */
 	private function get_job_form_page_url(): string {
-		$post_job_page_id = \WCB\Admin\Settings::int( 'post_job_page', 0 );
+		$post_job_page_id = \WCB\Admin\Pages::get_id( 'post_job_page' );
 		if ( $post_job_page_id > 0 ) {
 			return (string) get_permalink( $post_job_page_id );
 		}

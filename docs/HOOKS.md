@@ -296,6 +296,41 @@ second argument (`employer-dashboard`, `candidate-dashboard`,
 fills `credits_panel` on the employer dashboard: the Credits tab
 (`#credits`), where every purchase link and gateway return lands.
 
+## Settings, pages and setup (1.8.0)
+
+Every key in the `wcb_settings` option is defined once in
+`WCB\Admin\SettingsSchema` with its default and its cleaning rule. Settings
+forms post a hidden `_wcb_form` marker, so a save merges only the keys that
+form posted over what is stored (an unticked checkbox posts `0` and saves
+false). A key that is not in the schema is never written by a form.
+
+Every Career Board page (title, slug, block content, Pages-tab copy) is
+defined once in `WCB\Admin\Pages::definitions()`. The setup wizard's Pages
+step, Settings > Pages "Create Missing Pages", the Pages tab and the page
+resolver all read it. `Pages::create_missing()` keeps a page that already
+resolves, adopts a published page that already carries the block, and only
+then creates one at the canonical slug.
+
+The setup wizard saves each settings step through
+`POST /wcb/v1/wizard/settings` (`settings` = key => value; any schema key plus
+WordPress's `users_can_register`), which uses the same sanitizer.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_settings_schema` | filter | `$fields` | Add setting keys: `$fields['my_key'] = array( 'default' => false, 'sanitize' => 'rest_sanitize_boolean' )`. Pro registers its keys here. |
+| `wcb_settings_sanitize` | filter | `$output, $input` | Last look at the cleaned option before it is saved. |
+| `wcb_page_definitions` | filter | `$defs` | Add a page: `title`, `slug`, `content` (block markup), `label`, `desc`, optional `aliases` (older slugs still accepted). Register the key in `wcb_settings_schema` too. Pro adds Find Candidates (`resume_archive_page`, slug `find-candidates`, alias `find-resumes`) and Job Map (`job_map_page`). |
+| `wcb_wizard_required_pages` | filter, deprecated 1.8.0 | `$defs` | Use `wcb_page_definitions`. Still applied. |
+| `wcb_page_settings` | filter, deprecated 1.8.0 | `$rows` | Use `wcb_page_definitions`. Still applied (label and desc). |
+| `wcb_wizard_steps` | filter | `$steps` | Add wizard steps (`title`, `template`, `button_text`). A step template that renders inputs named after schema keys plus the shared footer (`admin/views/wizard-steps/_footer.php`) saves with no JavaScript of its own. |
+| `wcb_safer_defaults_notice` | filter | `$items` | The list shown once to owners of sites that predate the 1.8.0 defaults. |
+| `wcb_apply_ai_notice` | filter | `$text, $job_id` | Notice shown above Submit Application (and in app-config `apply_ai_notice`) when AI reads applications. Empty hides it. |
+
+**CAPTCHA.** `WCB\Modules\AntiSpam\AntiSpamModule::active()` answers which
+provider is in force (chosen AND both keys set): Turnstile, reCAPTCHA v3 or
+reCAPTCHA v2 (invisible badge). The web forms and app-config
+(`captcha_required`, `captcha.provider`, `captcha.site_key`) both read it.
+
 ## Active-job quota (free tier)
 
 `JobsEndpoint::check_active_job_limit()` gates job create and republish

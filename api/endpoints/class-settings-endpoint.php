@@ -63,8 +63,8 @@ final class SettingsEndpoint extends RestController {
 		// salary_currency → currency, auto_publish_jobs → moderation_mode).
 		// Reads use \WCB\Admin\Settings so internal callers and this endpoint
 		// share one source of truth for canonical keys.
-		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
-		$captcha_driver = wcb_get_captcha_driver();
+		$is_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
+		$captcha       = \WCB\Modules\AntiSpam\AntiSpamModule::active();
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled Abilities API check, see core/abilities-api-polyfill.php.
 		$can_manage = wp_is_ability_granted( 'wcb/manage-settings' );
 
@@ -76,6 +76,8 @@ final class SettingsEndpoint extends RestController {
 			'plugin_version'        => $can_manage && defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
 			'pro_version'           => $can_manage ? (string) apply_filters( 'wcb_pro_version', '' ) : '',
 			'is_pro_active'         => $is_pro_active,
+			// Shown on the app's apply screen, same text as the website ('' = none).
+			'apply_ai_notice'       => (string) apply_filters( 'wcb_apply_ai_notice', '', 0 ),
 			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
 			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page' ),
 			'currency'              => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
@@ -156,7 +158,13 @@ final class SettingsEndpoint extends RestController {
 			'timezone'              => (string) wp_timezone_string(),
 			'locale'                => (string) get_locale(),
 			'rest_namespace'        => 'wcb/v1',
-			'captcha_required'      => '' !== $captcha_driver,
+			'captcha_required'      => null !== $captcha,
+			// The app renders the same widget the website does. The site key is
+			// public by design (it is in every page's HTML); the secret never leaves.
+			'captcha'               => null === $captcha ? null : array(
+				'provider' => $captcha['provider'],
+				'site_key' => $captcha['site_key'],
+			),
 		);
 
 		/**

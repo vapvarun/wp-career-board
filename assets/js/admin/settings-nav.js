@@ -14,12 +14,16 @@
 	var SECTION = '.wcb-settings-section';
 	var ACTIVE  = 'is-active';
 
+	// Tabs merged in 1.8.0; old bookmarks and links land on their new home.
+	var MOVED = { notifications: 'emails' };
+
 	/**
 	 * Activate a section by its slug.
 	 *
 	 * @param {string} id Section slug (e.g. "listings").
 	 */
 	function activate( id ) {
+		id = MOVED[ id ] || id;
 		document.querySelectorAll( NAV ).forEach( function ( el ) {
 			el.classList.remove( ACTIVE );
 		});

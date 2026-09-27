@@ -25,8 +25,8 @@ if ( ! is_user_logged_in() ) {
 }
 
 if ( ! $wcb_can_manage ) {
-	$wcb_emp_reg_page   = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
-	$wcb_cand_dash_page = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+	$wcb_emp_reg_page   = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
+	$wcb_cand_dash_page = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 	?>
 	<div class="wcb-db-gate">
 		<p><?php esc_html_e( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ); ?></p>
@@ -75,7 +75,7 @@ $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
 $wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
-$wcb_company_archive_id = \WCB\Admin\Settings::int( 'company_archive_page', 0 );
+$wcb_company_archive_id = \WCB\Admin\Pages::get_id( 'company_archive_page' );
 $wcb_company_dir_url    = $wcb_company_archive_id > 0
 	? (string) get_permalink( $wcb_company_archive_id )
 	: '#';
@@ -1144,7 +1144,9 @@ wp_interactivity_state(
 
 		<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noSavedResumes">
 			<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No saved resumes yet. Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
-			<a href="<?php echo esc_url( home_url( '/find-candidates/' ) ); ?>" class="wcb-cbtn wcb-cbtn--primary"><?php esc_html_e( 'Browse Candidates', 'wp-career-board' ); ?></a>
+			<?php if ( \WCB\Admin\Pages::url( 'resume_archive_page' ) ) : ?>
+			<a href="<?php echo esc_url( \WCB\Admin\Pages::url( 'resume_archive_page' ) ); ?>" class="wcb-cbtn wcb-cbtn--primary"><?php esc_html_e( 'Browse Candidates', 'wp-career-board' ); ?></a>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php endif; ?>

@@ -31,7 +31,7 @@ $wcb_show_type     = (bool) ( $attributes['showJobTypeFilter'] ?? true );
 // and honours the wcb_* GET params) rather than the site home, which has no
 // listings block and made the hero search look broken when the setting was
 // never configured (e.g. the hero was added before the setup wizard ran).
-$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+$wcb_archive_page_id = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 $wcb_action_url      = $wcb_archive_page_id > 0
 	? (string) get_permalink( $wcb_archive_page_id )
 	: (string) ( get_post_type_archive_link( 'wcb_job' ) ?: home_url( '/' ) );
