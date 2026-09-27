@@ -1209,11 +1209,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		include_once ABSPATH . 'wp-admin/includes/image.php';
-		include_once ABSPATH . 'wp-admin/includes/file.php';
-		include_once ABSPATH . 'wp-admin/includes/media.php';
-
-		$attachment_id = media_handle_upload( 'logo', $post->ID );
+		$attachment_id = \WCB\Core\ImageUpload::handle( 'logo', $post->ID );
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}

@@ -136,13 +136,9 @@ final class AuthEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function resend_verification( \WP_REST_Request $request ) {
-		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$key = 'wcb_verify_resend_' . md5( wp_salt() . $ip );
-		$n   = (int) get_transient( $key );
-		if ( $n >= 5 ) {
+		if ( $this->ip_limit_reached( 'wcb_verify_resend_', 5 ) ) {
 			return new \WP_Error( 'wcb_rate_limited', __( 'Too many requests. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
 		}
-		set_transient( $key, $n + 1, HOUR_IN_SECONDS );
 
 		\WCB\Modules\Account\EmailVerification::resend( (string) $request->get_param( 'email' ) );
 

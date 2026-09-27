@@ -65,12 +65,16 @@ final class SettingsEndpoint extends RestController {
 		// share one source of truth for canonical keys.
 		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
 		$captcha_driver = wcb_get_captcha_driver();
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled Abilities API check, see core/abilities-api-polyfill.php.
+		$can_manage = wp_is_ability_granted( 'wcb/manage-settings' );
 
 		$data = array(
 			'site_name'             => (string) get_bloginfo( 'name' ),
 			'site_url'              => (string) home_url( '/' ),
-			'plugin_version'        => defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
-			'pro_version'           => (string) apply_filters( 'wcb_pro_version', '' ),
+			// Exact versions only for the site's admins: this route is public, and
+			// a version string tells an attacker which known bugs to try.
+			'plugin_version'        => $can_manage && defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
+			'pro_version'           => $can_manage ? (string) apply_filters( 'wcb_pro_version', '' ) : '',
 			'is_pro_active'         => $is_pro_active,
 			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
 			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page' ),
@@ -114,7 +118,9 @@ final class SettingsEndpoint extends RestController {
 				'terms_url'                => \WCB\Admin\Settings::string( 'terms_url', '' ) ?: null,
 				'eula_url'                 => \WCB\Admin\Settings::string( 'eula_url', '' ) ?: null,
 				'community_guidelines_url' => \WCB\Admin\Settings::string( 'guidelines_url', '' ) ?: null,
-				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: (string) get_option( 'admin_email' ),
+				// Never the admin email: WordPress doesn't publish it anywhere, and
+				// the app falls back to the privacy page when this is null.
+				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: null,
 			),
 			// The statuses an employer may set on an application, slug + label in
 			// the site's locale. Published because a client that offers a status

@@ -87,6 +87,31 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Count one request from the caller's IP against an hourly limit.
+	 *
+	 * For public routes that cost something per call (account creation,
+	 * outgoing email, paid upstream APIs).
+	 *
+	 * @since 1.8.0
+	 * @param string $bucket Transient prefix naming the limit.
+	 * @param int    $limit  Requests per hour; 0 disables the limit.
+	 * @return bool True when the caller is over the limit (the request is not counted).
+	 */
+	protected function ip_limit_reached( string $bucket, int $limit ): bool {
+		if ( $limit <= 0 ) {
+			return false;
+		}
+		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key   = $bucket . md5( wp_salt() . $ip );
+		$count = (int) get_transient( $key );
+		if ( $count >= $limit ) {
+			return true;
+		}
+		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+		return false;
+	}
+
+	/**
 	 * Spam gate shared by both registration routes.
 	 *
 	 * Registration used to create accounts with no honeypot, CAPTCHA or rate
@@ -123,18 +148,13 @@ abstract class RestController extends \WP_REST_Controller {
 		 *
 		 * @param int $limit Default 5. 0 disables the limit.
 		 */
-		$limit = (int) apply_filters( 'wcb_registration_rate_limit', 5 );
-		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$key   = 'wcb_reg_' . md5( wp_salt() . $ip );
-		$count = (int) get_transient( $key );
-		if ( $limit > 0 && $count >= $limit ) {
+		if ( $this->ip_limit_reached( 'wcb_reg_', (int) apply_filters( 'wcb_registration_rate_limit', 5 ) ) ) {
 			return new \WP_Error(
 				'wcb_rate_limited',
 				__( 'Too many sign-ups from your network. Please try again in an hour.', 'wp-career-board' ),
 				array( 'status' => 429 )
 			);
 		}
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, so third-party anti-spam plugins see these sign-ups.
 		$errors = apply_filters( 'registration_errors', new \WP_Error(), $username, $email );

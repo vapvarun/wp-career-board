@@ -274,7 +274,8 @@ wp_interactivity_state(
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
 		'coverLetter'          => '',
-		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		// Only members who may apply can draft a letter (the route checks the same ability).
+		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		'coverLoading'         => false,
 		'error'                => '',
 		'userResumes'          => $wcb_user_resumes,

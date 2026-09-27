@@ -24,7 +24,7 @@
     "taxonomies": 5,
     "tables": 3,
     "capabilities": 13,
-    "services": 40,
+    "services": 41,
     "hooks_fired": 237,
     "hooks_unique": 158,
     "cron": 6,
@@ -1298,6 +1298,12 @@
       "class": "WCB\\Modules\\Account\\EmailVerification",
       "added": "1.8.0",
       "purpose": "Sign-up email confirmation: ?wcb_verify= link handler + sign-in block for unconfirmed accounts (setting require_email_verification, on for new installs)"
+    },
+    {
+      "key": "core.image_upload",
+      "class": "WCB\\Core\\ImageUpload",
+      "added": "1.8.0",
+      "purpose": "Image-only upload gate (real-content type check) for company logos and Pro profile photos"
     }
   ],
   "hooks_fired": [
@@ -4110,7 +4116,8 @@
       "F-6 (1.2.0): bin/check-pro-decoupling.sh wired into .github/workflows/ci.yml as a blocking job. Catches direct WCB\\Pro\\ refs, wcbp_*() calls, WCBP_ constant reads.",
       "F-1 + F-2 (1.2.0): core/class-pro-coordination.php declares 11 documented filters + 2 actions Pro is allowed to hook. 22 callsites migrated; zero direct Pro references remain in Free runtime code."
     ],
-    "1.8.0-w3": "rest 50->51 (POST /auth/verify-email/resend, caller: employer-registration view.js), services +1 (EmailVerification), email verify-account, filters wcb_pre_registration + wcb_registration_rate_limit, action wcb_email_verification_requested, setting require_email_verification."
+    "1.8.0-w3": "rest 50->51 (POST /auth/verify-email/resend, caller: employer-registration view.js), services +1 (EmailVerification), email verify-account, filters wcb_pre_registration + wcb_registration_rate_limit, action wcb_email_verification_requested, setting require_email_verification.",
+    "1.8.0-w4": "services +1 (ImageUpload). RestController::ip_limit_reached() is the one per-IP hourly limiter (sign-up, verify resend, Pro geocode). app-config hides plugin/pro versions from non-admins and no longer falls back to admin_email for abuse_contact_email."
   },
   "generated": {
     "at": "2026-09-01T00:00:00Z",

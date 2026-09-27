@@ -1660,8 +1660,8 @@ class AdminSettings {
 		<div class="wcb-settings-row">
 			<div class="wcb-settings-row-label"><label for="wcb-abuse-contact"><?php esc_html_e( 'Abuse contact email', 'wp-career-board' ); ?></label></div>
 			<div class="wcb-settings-row-control">
-				<input type="email" id="wcb-abuse-contact" class="regular-text" name="wcb_settings[abuse_contact_email]" value="<?php echo esc_attr( $wcb_abuse ); ?>" placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>">
-				<span class="description"><?php esc_html_e( 'Where reports from the app are sent. Defaults to your admin email.', 'wp-career-board' ); ?></span>
+				<input type="email" id="wcb-abuse-contact" class="regular-text" name="wcb_settings[abuse_contact_email]" value="<?php echo esc_attr( $wcb_abuse ); ?>">
+				<span class="description"><?php esc_html_e( 'Shown in the app so members can email you about abuse. It is public, so use a support address. Leave blank to show your privacy page instead.', 'wp-career-board' ); ?></span>
 			</div>
 		</div>
 		<?php

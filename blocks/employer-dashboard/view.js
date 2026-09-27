@@ -1410,12 +1410,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						body:    fd,
 					}
 				);
+				const data = yield response.json();
 				if ( response.ok ) {
-					const data          = yield response.json();
 					state.companyLogoUrl = data.logo_url;
+				} else {
+					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 				}
 			} catch {
-				// Upload failed — user can retry.
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.logoUploading = false;
 			}
