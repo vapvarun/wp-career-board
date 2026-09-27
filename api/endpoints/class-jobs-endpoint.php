@@ -10,6 +10,7 @@ declare( strict_types=1 );
 
 namespace WCB\Api\Endpoints;
 
+use WCB\Modules\Jobs\JobPayment;
 use WCB\Api\RestController;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -698,17 +699,10 @@ final class JobsEndpoint extends RestController {
 		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 		if ( $wcb_credit_cost > 0 ) {
 			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+			// Fast answer for the common case. The charge after insert is the
+			// one that counts: it runs under the employer's credit lock.
 			if ( $wcb_employer_balance < $wcb_credit_cost ) {
-				return new \WP_Error(
-					'wcb_insufficient_credits',
-					sprintf(
-						/* translators: 1: credit cost, 2: current balance */
-						__( 'This board requires %1$d credits to post a job. Your balance: %2$d credits.', 'wp-career-board' ),
-						$wcb_credit_cost,
-						$wcb_employer_balance
-					),
-					array( 'status' => 402 )
-				);
+				return JobPayment::insufficient( $wcb_credit_cost, $wcb_employer_balance );
 			}
 		}
 
@@ -841,6 +835,15 @@ final class JobsEndpoint extends RestController {
 		// job form posts custom_fields and the endpoint silently drops them.
 		$this->save_job_custom_fields( $job_id, $request );
 
+		// Collect the price before the job is announced (emails, activity,
+		// alerts all hang off wcb_job_created). A parallel post that spent
+		// the same credits first loses here and leaves nothing behind.
+		$wcb_paid = JobPayment::charge( (int) $job_id, 'create' );
+		if ( is_wp_error( $wcb_paid ) ) {
+			wp_delete_post( (int) $job_id, true );
+			return $wcb_paid;
+		}
+
 		do_action( 'wcb_job_created', $job_id, $request );
 
 		$wcb_response = rest_ensure_response( $this->prepare_item_for_response_array( get_post( $job_id ) ) );
@@ -866,8 +869,25 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$data  = array();
-		$title = $request->get_param( 'title' );
+		// A board move changes the price: collect the difference (or hand it
+		// back) before anything else changes, and refuse the move if the
+		// employer can't pay it.
+		$wcb_new_board = $request->get_param( 'board_id' );
+		if ( null !== $wcb_new_board ) {
+			$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
+			if ( (int) $wcb_new_board !== $wcb_old_board ) {
+				update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
+				$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
+				if ( is_wp_error( $wcb_paid ) ) {
+					update_post_meta( $post->ID, '_wcb_board_id', $wcb_old_board );
+					return $wcb_paid;
+				}
+			}
+		}
+
+		$wcb_charge = '';
+		$data       = array();
+		$title      = $request->get_param( 'title' );
 		if ( null !== $title ) {
 			$data['post_title'] = sanitize_text_field( $title );
 		}
@@ -892,53 +912,20 @@ final class JobsEndpoint extends RestController {
 				&& ! $this->check_ability( 'wcb/moderate-jobs' )
 			) {
 				if ( EmployersEndpoint::is_rejected_job( $post ) ) {
+					// Rejection refunded the job, so going back to review costs
+					// it again (owner decision D2).
 					$data['post_status'] = 'pending';
-					delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+					$wcb_charge          = 'resubmit';
 				} else {
 					$data['post_status'] = $this->default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
 				}
 			}
 
-			// Republish gate — when an employer flips an expired or closed
-			// listing back to publish, treat it as a fresh post for billing
-			// purposes so paid boards re-charge instead of giving free
-			// extensions. Skipped when the post never carried a cost (free
-			// boards, boardless posts) since the gate filter returns 0 there.
-			$republish_from = array( 'wcb_expired', 'wcb_closed' );
-			if ( 'publish' === $status && in_array( $post->post_status, $republish_from, true ) ) {
-				$republish_board_id = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
-				$republish_cost     = (int) apply_filters( 'wcb_board_credit_cost', 0, $republish_board_id );
-
-				/**
-				 * Filter the credit cost charged when an expired or closed job
-				 * is brought back to publish status. Pro hooks this to apply a
-				 * republish discount (e.g. 50% of the original board cost) so
-				 * site owners can offer "renew listings cheaper than re-post"
-				 * pricing without rewriting the board cost callable.
-				 *
-				 * @since 1.2.5
-				 *
-				 * @param int     $cost     Credits required to republish.
-				 * @param \WP_Post $post     The job being republished.
-				 * @param string  $previous The post status the job is leaving.
-				 */
-				$republish_cost = (int) apply_filters( 'wcb_job_republish_credit_cost', $republish_cost, $post, $post->post_status );
-
-				if ( $republish_cost > 0 ) {
-					$republish_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
-					if ( $republish_balance < $republish_cost ) {
-						return new \WP_Error(
-							'wcb_insufficient_credits',
-							sprintf(
-								/* translators: 1: credit cost, 2: current balance */
-								__( 'Republishing this job requires %1$d credits. Your balance: %2$d credits.', 'wp-career-board' ),
-								$republish_cost,
-								$republish_balance
-							),
-							array( 'status' => 402 )
-						);
-					}
-				}
+			// Bringing an expired or closed listing back is a new listing period,
+			// so paid boards charge again (Pro prices it, with the
+			// wcb_job_republish_credit_cost filter for renewal discounts).
+			if ( 'publish' === $status && in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
+				$wcb_charge = 'republish';
 			}
 
 			// Bringing a listing back to publish occupies a slot, so the cap
@@ -966,6 +953,16 @@ final class JobsEndpoint extends RestController {
 			$data = apply_filters( 'wcb_before_update_job', $data, $post, $request );
 			if ( is_wp_error( $data ) ) {
 				return $data;
+			}
+
+			if ( '' !== $wcb_charge ) {
+				$wcb_paid = JobPayment::charge( $post->ID, $wcb_charge );
+				if ( is_wp_error( $wcb_paid ) ) {
+					return $wcb_paid;
+				}
+				if ( 'resubmit' === $wcb_charge ) {
+					delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+				}
 			}
 
 			wp_update_post( $data );
@@ -1645,6 +1642,9 @@ final class JobsEndpoint extends RestController {
 			// A rejected job is kept as a draft carrying a rejection reason; expose
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
 			'rejected'           => EmployersEndpoint::is_rejected_job( $post ),
+			// Approved by a moderator but not yet paid for (Pro credits): the job
+			// stays pending until the employer's balance covers it.
+			'awaiting_payment'   => JobPayment::is_awaiting( $post->ID ),
 			'author'             => $author_id,
 			// WordPress leaves *_gmt as '0000-00-00 00:00:00' for non-published
 			// posts (e.g. pending jobs, the default when auto-publish is off), and

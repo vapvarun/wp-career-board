@@ -386,6 +386,7 @@ wp_interactivity_state(
 			'jobStatusDraft'           => __( 'Draft', 'wp-career-board' ),
 			'jobStatusExpired'         => __( 'Expired', 'wp-career-board' ),
 			'jobStatusRejected'        => __( 'Rejected', 'wp-career-board' ),
+			'jobStatusAwaitingPayment' => __( 'Awaiting payment', 'wp-career-board' ),
 
 			// Applicant status-change confirmation.
 			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),

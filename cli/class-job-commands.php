@@ -173,13 +173,11 @@ class JobCommands extends AbstractCliCommand {
 			\WP_CLI::error( $result->get_error_message() );
 		}
 
-		/**
-		 * Fires after a job listing is approved.
-		 *
-		 * @since 1.0.0
-		 * @param int $job_id The approved job post ID.
-		 */
-		do_action( 'wcb_job_approved', $job_id );
+		// wcb_job_approved fires from the status transition, as for every other
+		// approval path; firing it here too charged and emailed twice.
+		if ( \WCB\Modules\Jobs\JobPayment::is_awaiting( $job_id ) ) {
+			\WP_CLI::error( "Job #{$job_id} stays pending: its employer doesn't have enough credits for this board." );
+		}
 
 		\WP_CLI::success( "Job #{$job_id} \"{$job->post_title}\" approved and published." );
 	}

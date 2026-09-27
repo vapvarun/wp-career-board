@@ -253,6 +253,31 @@ existing one (administrators and editors keep theirs).
 | `wcb_registration_rate_limit` | filter | `$limit` | Sign-ups one IP may make per hour. Default 5, 0 disables. |
 | `wcb_email_verification_requested` | action | `$user_id, $verify_url` | A new account needs to confirm its email. The confirmation email listens here. |
 
+## Job payment (1.8.0)
+
+Free has no prices. Every place a job starts costing calls
+`WCB\Modules\Jobs\JobPayment::charge( $job_id, $event )`, which applies
+`wcb_job_payment`; Pro's credits answer it. Events: `create` (after the job
+is inserted, before `wcb_job_created`, so a job that can't be paid for is
+removed before anyone is told), `resubmit` (a rejected job sent back),
+`republish` (an expired or closed job brought back) and `board_change`
+(before any other field changes; a refused move restores the old board).
+
+A failed charge is a 402 `wcb_insufficient_credits` whose `data` carries
+`cost`, `balance` and `purchase_url` (from `wcb_credit_purchase_url`), so the
+website and the app can send the employer straight to a purchase.
+
+A job a moderator approves that its employer can't pay for stays `pending`
+with post meta `_wcb_awaiting_payment` = `1` (the approve route answers 402
+`wcb_awaiting_payment`); job payloads expose it as `awaiting_payment`, the
+employer dashboard labels it "Awaiting payment" and wp-admin Jobs has an
+"Awaiting payment" view. Pro publishes it once the balance covers it.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_job_payment` | filter | `$paid, $job_id, $event` | Return true when the job is paid for or free, a WP_Error (402, see `JobPayment::insufficient()`) when not. |
+| `wcb_job_republish_credit_cost` | filter (applied by Pro since 1.8.0) | `$cost, $post, $previous` | Credits charged to bring an expired or closed job back. |
+
 ## Active-job quota (free tier)
 
 `JobsEndpoint::check_active_job_limit()` gates job create and republish

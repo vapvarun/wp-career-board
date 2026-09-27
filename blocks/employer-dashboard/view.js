@@ -109,6 +109,11 @@ const jobStatusLabel = ( job ) => {
 	if ( job.rejected ) {
 		return t( 'jobStatusRejected', 'Rejected' );
 	}
+	// Approved, waiting for enough credits: it goes live on its own once
+	// the balance covers it.
+	if ( job.awaiting_payment ) {
+		return t( 'jobStatusAwaitingPayment', 'Awaiting payment' );
+	}
 	switch ( job.status ) {
 		case 'closed':
 			return t( 'jobStatusClosed', 'Closed' );

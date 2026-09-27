@@ -240,6 +240,14 @@ class ModerationModule extends \WCB\Api\RestController {
 		// via the transition_post_status hook triggered by wp_update_post() above.
 		// No explicit do_action() needed here — firing it twice would send duplicate emails.
 
+		if ( \WCB\Modules\Jobs\JobPayment::is_awaiting( $job_id ) ) {
+			return new \WP_Error(
+				'wcb_awaiting_payment',
+				__( "The employer doesn't have enough credits for this board. The job stays pending until they buy more.", 'wp-career-board' ),
+				array( 'status' => 402 )
+			);
+		}
+
 		return rest_ensure_response(
 			array(
 				'id'     => $job_id,

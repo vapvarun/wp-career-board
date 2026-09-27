@@ -202,6 +202,11 @@ class AdminJobs extends \WP_List_Table {
 			$query_args['post_status'] = $allowed_statuses;
 			$query_args['meta_key']    = '_wcb_flag_status'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			$query_args['meta_value']  = 'open'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		} elseif ( $this->awaiting_view() ) {
+			// "Awaiting payment" view — approved, waiting for the employer's credits.
+			$query_args['post_status'] = 'pending';
+			$query_args['meta_key']    = \WCB\Modules\Jobs\JobPayment::AWAITING; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$query_args['meta_value']  = '1'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
 		$query       = new \WP_Query( $query_args );
@@ -249,10 +254,12 @@ class AdminJobs extends \WP_List_Table {
 
 		$views = array();
 
+		$awaiting_active = $this->awaiting_view();
+
 		$views['all'] = sprintf(
 			'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 			esc_url( $base_url ),
-			'' === $current && ! $flag_active ? ' class="current"' : '',
+			'' === $current && ! $flag_active && ! $awaiting_active ? ' class="current"' : '',
 			esc_html__( 'All', 'wp-career-board' ),
 			$all
 		);
@@ -300,6 +307,28 @@ class AdminJobs extends \WP_List_Table {
 				$flag_active ? ' class="current"' : '',
 				esc_html__( 'Flagged', 'wp-career-board' ),
 				$flagged_count
+			);
+		}
+
+		// "Awaiting payment" view — approved jobs whose employer can't pay yet.
+		$awaiting_query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'pending',
+				'meta_key'       => \WCB\Modules\Jobs\JobPayment::AWAITING, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+		$awaiting_count = (int) $awaiting_query->found_posts;
+		if ( $awaiting_count > 0 || $awaiting_active ) {
+			$views['awaiting_payment'] = sprintf(
+				'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+				esc_url( add_query_arg( 'wcb_payment', 'awaiting', $base_url ) ),
+				$awaiting_active ? ' class="current"' : '',
+				esc_html__( 'Awaiting payment', 'wp-career-board' ),
+				$awaiting_count
 			);
 		}
 
@@ -483,6 +512,17 @@ class AdminJobs extends \WP_List_Table {
 	}
 
 	/**
+	 * Whether the "Awaiting payment" view is active.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	private function awaiting_view(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view filter.
+		return isset( $_GET['wcb_payment'] ) && 'awaiting' === sanitize_key( wp_unslash( $_GET['wcb_payment'] ) );
+	}
+
+	/**
 	 * Status column — coloured badge.
 	 *
 	 * @since 1.0.0
@@ -501,6 +541,9 @@ class AdminJobs extends \WP_List_Table {
 		);
 		$status = $item->post_status;
 		$label  = $labels[ $status ] ?? ucfirst( $status );
+		if ( 'pending' === $status && \WCB\Modules\Jobs\JobPayment::is_awaiting( $item->ID ) ) {
+			$label = __( 'Awaiting payment', 'wp-career-board' );
+		}
 
 		$badge_map = array(
 			'publish'     => 'success',

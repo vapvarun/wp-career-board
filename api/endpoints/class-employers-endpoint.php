@@ -726,24 +726,25 @@ final class EmployersEndpoint extends RestController {
 					default       => $p->post_status,
 				};
 				return array(
-					'id'          => $p->ID,
-					'title'       => $p->post_title,
-					'status'      => $rejected ? 'rejected' : $public_status,
-					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
-					'rejected'    => $rejected,
-					'permalink'   => get_permalink( $p->ID ),
-					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'appCount'    => $wcb_app_counts[ $p->ID ] ?? 0,
-					'appLabel'    => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+					'id'               => $p->ID,
+					'title'            => $p->post_title,
+					'status'           => $rejected ? 'rejected' : $public_status,
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'         => $rejected,
+					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+					'permalink'        => get_permalink( $p->ID ),
+					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
+					'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
 						? sprintf(
 							/* translators: %s: number of applicants, already localised. */
 							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
 							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
 						)
 						: __( 'No applicants', 'wp-career-board' ),
-					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
-					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
 			$query->posts
@@ -836,24 +837,25 @@ final class EmployersEndpoint extends RestController {
 				};
 
 				return array(
-					'id'          => $p->ID,
-					'title'       => $p->post_title,
-					'status'      => $rejected ? 'rejected' : $public_status,
-					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
-					'rejected'    => $rejected,
-					'permalink'   => get_permalink( $p->ID ),
-					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
-					'appCount'    => $app_count,
-					'appLabel'    => $app_count > 0
+					'id'               => $p->ID,
+					'title'            => $p->post_title,
+					'status'           => $rejected ? 'rejected' : $public_status,
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'rejected'         => $rejected,
+					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+					'permalink'        => get_permalink( $p->ID ),
+					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
+					'appCount'         => $app_count,
+					'appLabel'         => $app_count > 0
 					? sprintf(
 						/* translators: %s: number of applicants, already localised. */
 						_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
 						number_format_i18n( $app_count )
 					)
 					: __( 'No applicants', 'wp-career-board' ),
-					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
-					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
 			$query->posts
