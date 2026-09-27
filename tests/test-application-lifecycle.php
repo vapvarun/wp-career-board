@@ -238,10 +238,10 @@ wp_delete_post( $wcb_live_block, true );
 // ── Job deleted: rows become job_removed; Remove deletes them ───────────
 $wcb_live = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
 wp_delete_post( $wcb_job, true );
-wcb_assert( 'wcb_close_deleted_job_applications' === ApplicationLifecycle::JOB_REMOVED_HOOK, 'background hook name is the public contract' );
-wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) ) && 'reviewing' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete queues a background batch instead of working in the request' );
-ApplicationLifecycle::close_deleted_job_applications( $wcb_job );
-wp_clear_scheduled_hook( ApplicationLifecycle::JOB_REMOVED_HOOK, array( $wcb_job ) );
+wcb_assert( 'wcb_close_job_applications' === ApplicationLifecycle::CLOSE_HOOK, 'background hook name is the public contract' );
+wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_job, 'job_removed' ) ) && 'reviewing' === get_post_meta( $wcb_live, '_wcb_status', true ), 'job delete queues a background batch instead of working in the request' );
+ApplicationLifecycle::close_job_applications( $wcb_job, 'job_removed' );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_job, 'job_removed' ) );
 wcb_assert( 'job_removed' === get_post_meta( $wcb_live, '_wcb_status', true ), 'the batch marks open applications job_removed' );
 $r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_live, array(), $wcb_candidate );
 wcb_assert( 200 === $r->get_status() && true === $r->get_data()['deleted'] && null === get_post( $wcb_live ), 'Remove on a dead row deletes it' );

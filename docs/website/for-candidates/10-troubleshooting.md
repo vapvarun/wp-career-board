@@ -66,9 +66,9 @@ You already submitted to this job. Two ways this happens:
 
 ## "I can't find a job I saw earlier"
 
-- **It might have expired.** Default listing hides past-deadline
-  jobs. Use the search bar to find it by title - expired jobs
-  may still be searchable in some configurations.
+- **It might have expired.** Jobs leave the listings once their
+  deadline passes. If you saved the link, it still opens: the page
+  says the job has expired and suggests similar open roles.
 - **It might have been deleted.** If the employer pulled the
   posting, it's gone.
 - **You bookmarked it.** Check **Candidate Dashboard → Saved

@@ -34,6 +34,13 @@ final class ApplicationStatus {
 	public const JOB_REMOVED = 'job_removed';
 
 	/**
+	 * The employer closed the job before deciding (owner decision D15).
+	 *
+	 * @since 1.8.0
+	 */
+	public const POSITION_CLOSED = 'position_closed';
+
+	/**
 	 * All valid status slugs.
 	 *
 	 * @since 1.1.2
@@ -48,6 +55,7 @@ final class ApplicationStatus {
 			self::HIRED,
 			self::WITHDRAWN,
 			self::JOB_REMOVED,
+			self::POSITION_CLOSED,
 		);
 	}
 
@@ -110,7 +118,7 @@ final class ApplicationStatus {
 	 * @return array<int,string>
 	 */
 	public static function terminal(): array {
-		return array( self::HIRED, self::REJECTED, self::WITHDRAWN, self::JOB_REMOVED );
+		return array( self::HIRED, self::REJECTED, self::WITHDRAWN, self::JOB_REMOVED, self::POSITION_CLOSED );
 	}
 
 	/**
@@ -152,15 +160,18 @@ final class ApplicationStatus {
 	public static function label( string $status, string $audience = self::AUDIENCE_EMPLOYER ): string {
 		$status = '' !== $status ? $status : self::SUBMITTED;
 		$labels = array(
-			self::SUBMITTED   => __( 'Submitted', 'wp-career-board' ),
-			self::REVIEWING   => __( 'Reviewing', 'wp-career-board' ),
-			self::SHORTLISTED => __( 'Shortlisted', 'wp-career-board' ),
-			self::REJECTED    => self::AUDIENCE_CANDIDATE === $audience
+			self::SUBMITTED       => __( 'Submitted', 'wp-career-board' ),
+			self::REVIEWING       => __( 'Reviewing', 'wp-career-board' ),
+			self::SHORTLISTED     => __( 'Shortlisted', 'wp-career-board' ),
+			self::REJECTED        => self::AUDIENCE_CANDIDATE === $audience
 				? __( 'Not selected', 'wp-career-board' )
 				: __( 'Rejected', 'wp-career-board' ),
-			self::HIRED       => __( 'Hired', 'wp-career-board' ),
-			self::WITHDRAWN   => __( 'Withdrawn', 'wp-career-board' ),
-			self::JOB_REMOVED => __( 'Job removed', 'wp-career-board' ),
+			self::HIRED           => __( 'Hired', 'wp-career-board' ),
+			self::WITHDRAWN       => __( 'Withdrawn', 'wp-career-board' ),
+			self::JOB_REMOVED     => __( 'Job removed', 'wp-career-board' ),
+			self::POSITION_CLOSED => self::AUDIENCE_CANDIDATE === $audience
+				? __( 'Position closed', 'wp-career-board' )
+				: __( 'Closed', 'wp-career-board' ),
 		);
 
 		/**

@@ -297,6 +297,10 @@ module validates on the `rest_pre_dispatch` filter and rejects
 spammy submissions before the route handler runs.
 
 
+## Job lifecycle fields
+
+Every job payload carries `accepting_applications` (true only while the job is published and its deadline has not passed) and `closes_at` (the `Y-m-d` deadline, or empty). Use these instead of comparing status and dates in the client. An expired or closed job still answers `GET /jobs/{id}` and keeps its `/jobs/{slug}/` page; it is simply not accepting applications.
+
 ## Application status fields
 
 Every application payload carries `status` (slug), `status_label` (worded for the viewer: candidates see "Not selected" where employers and admins see "Rejected") and `status_tone` (`info`, `warning`, `accent`, `success`, `danger` or `neutral`) so clients show the same words and colours as the site.

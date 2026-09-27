@@ -62,7 +62,8 @@ class SeoModule {
 		}
 
 		$job = get_post();
-		if ( ! $job instanceof \WP_Post ) {
+		// An ended job keeps its page but must not be offered as a JobPosting.
+		if ( ! $job instanceof \WP_Post || ! \WCB\Core\JobDeadline::accepts_applications( $job->ID ) ) {
 			return;
 		}
 

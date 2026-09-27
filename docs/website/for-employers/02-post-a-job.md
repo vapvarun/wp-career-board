@@ -58,7 +58,11 @@ You can edit a pending or published job from your **Employer Dashboard → My Jo
 
 ## Job Expiry
 
-If your admin has set an expiry period (e.g., 30 days), your job will automatically close on that date. You will receive an email notification before it expires, and you can re-open it from your dashboard.
+Every job runs until its deadline (the date you set, or the site's listing length, 30 days by default). At the deadline it stops taking applications and leaves the job listings. Its page stays up and tells visitors it has expired, so links you shared keep working. You get an email 3 days before, and your dashboard shows it as **Expired** with a **Reopen** button, which starts a new listing period with a fresh deadline (paid boards charge for it). Applications you already received stay as they are, so you can keep reviewing them.
+
+## Closing a Job Early
+
+Use **Close** in **My Jobs** when the role is filled or cancelled. The job leaves the listings and stops taking applications, and every applicant you have not hired or rejected is moved to **Closed** and gets one email saying the position is closed. You can reopen a closed job later; the closed applications stay closed.
 
 ## Single-Page Form - when the 4-step wizard is overkill
 

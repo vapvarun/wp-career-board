@@ -27,11 +27,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ApplicationLifecycle {
 
 	/**
-	 * Cron hook that marks a deleted job's open applications job_removed.
+	 * Cron hook that closes a job's open applications in batches.
+	 * Args: job ID, target status (job_removed on delete, position_closed
+	 * when the employer closes the job).
 	 *
 	 * @since 1.8.0
 	 */
-	public const JOB_REMOVED_HOOK = 'wcb_close_deleted_job_applications';
+	public const CLOSE_HOOK = 'wcb_close_job_applications';
 
 	/**
 	 * Applications handled per cron run.
@@ -48,7 +50,22 @@ final class ApplicationLifecycle {
 	 */
 	public function boot(): void {
 		add_action( 'before_delete_post', array( $this, 'on_job_deleted' ), 10, 2 );
-		add_action( self::JOB_REMOVED_HOOK, array( self::class, 'close_deleted_job_applications' ) );
+		add_action( self::CLOSE_HOOK, array( self::class, 'close_job_applications' ), 10, 2 );
+
+		// Owner decision D15: when the employer closes a job (filled or
+		// cancelled), its undecided applications close too and each candidate
+		// is told once. Automatic expiry leaves them alone: the employer may
+		// still be reviewing.
+		add_action(
+			'transition_post_status',
+			static function ( string $new_status, string $old_status, \WP_Post $post ): void {
+				if ( 'wcb_job' === $post->post_type && 'wcb_closed' === $new_status && 'wcb_closed' !== $old_status ) {
+					self::queue_close( $post->ID, ApplicationStatus::POSITION_CLOSED );
+				}
+			},
+			10,
+			3
+		);
 
 		// Site-wide status counts go stale when an application is created,
 		// trashed, restored or deleted, not only when its status changes.
@@ -106,24 +123,39 @@ final class ApplicationLifecycle {
 			return;
 		}
 
-		// Background batches: a job with thousands of applicants used to run
-		// one transition and one email per applicant inside the delete request.
-		if ( ! wp_next_scheduled( self::JOB_REMOVED_HOOK, array( $post_id ) ) ) {
-			wp_schedule_single_event( time(), self::JOB_REMOVED_HOOK, array( $post_id ) );
+		self::queue_close( $post_id, ApplicationStatus::JOB_REMOVED );
+	}
+
+	/**
+	 * Close a job's open applications in the background.
+	 *
+	 * A job with thousands of applicants used to run one transition and one
+	 * email per applicant inside the request that deleted it.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int    $job_id Job ID.
+	 * @param string $status job_removed or position_closed.
+	 * @return void
+	 */
+	public static function queue_close( int $job_id, string $status ): void {
+		if ( ! wp_next_scheduled( self::CLOSE_HOOK, array( $job_id, $status ) ) ) {
+			wp_schedule_single_event( time(), self::CLOSE_HOOK, array( $job_id, $status ) );
 		}
 	}
 
 	/**
-	 * Mark one batch of a deleted job's open applications job_removed; queue
-	 * the next batch until none are left. Each candidate gets the status email
-	 * once. Idempotent: a finished application no longer matches.
+	 * Move one batch of a job's open applications to $status; queue the next
+	 * batch until none are left. Each candidate gets the status email once.
+	 * Idempotent: a finished application no longer matches.
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param int $job_id Deleted job ID.
+	 * @param int    $job_id Job ID.
+	 * @param string $status Target status (job_removed or position_closed).
 	 * @return void
 	 */
-	public static function close_deleted_job_applications( int $job_id ): void {
+	public static function close_job_applications( int $job_id, string $status = ApplicationStatus::JOB_REMOVED ): void {
 		$ids = get_posts(
 			array(
 				'post_type'      => 'wcb_application',
@@ -157,11 +189,11 @@ final class ApplicationLifecycle {
 			update_postmeta_cache( $ids );
 		}
 		foreach ( $ids as $application_id ) {
-			self::transition( (int) $application_id, ApplicationStatus::JOB_REMOVED, 'job_deleted', 0 );
+			self::transition( (int) $application_id, $status, ApplicationStatus::JOB_REMOVED === $status ? 'job_deleted' : 'job_closed', 0 );
 		}
 
 		if ( self::BATCH === count( $ids ) ) {
-			wp_schedule_single_event( time(), self::JOB_REMOVED_HOOK, array( $job_id ) );
+			wp_schedule_single_event( time(), self::CLOSE_HOOK, array( $job_id, $status ) );
 		}
 	}
 

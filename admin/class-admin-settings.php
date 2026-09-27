@@ -8,7 +8,7 @@
  *  auto_publish_jobs        — publish employer jobs without admin review (default: OFF)
  *  jobs_per_page            — listings per page in the job-listings block (default: 10)
  *  jobs_expire_days         — default listing lifetime in days (default: 30)
- *  deadline_auto_close      — auto-close jobs when application deadline passes (default: OFF)
+ *  deadline_auto_close      — end jobs at their deadline; on for sites installed on 1.8.0+, switched on from Settings > Jobs for older sites (no UI to turn off)
  *  allow_withdraw           — let candidates withdraw their own applications (default: ON, only an explicit OFF turns it off)
  *  salary_currency          — default currency code for new job postings (default: USD)
  *  apply_resume_required    — require a resume on applications (default: ON, only an explicit OFF turns it off)
@@ -749,7 +749,7 @@ class AdminSettings {
 					<div class="wcb-settings-section" id="section-listings">
 						<form method="post" action="options.php">
 		<?php settings_fields( 'wcb_settings_group' ); ?>
-		<?php SettingsSchema::form_fields( array( 'auto_publish_jobs', 'deadline_auto_close' ) ); ?>
+		<?php SettingsSchema::form_fields( array( 'auto_publish_jobs' ) ); ?>
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Jobs', 'wp-career-board' ); ?></p>
@@ -777,16 +777,13 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><?php esc_html_e( 'Deadline Auto-Close', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'When a job ends', 'wp-career-board' ); ?></div>
 										<div class="wcb-settings-row-control">
-											<label class="wcb-toggle-label">
-												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[deadline_auto_close]" value="1" <?php checked( ! empty( $settings['deadline_auto_close'] ) ); ?>>
-													<span class="wcb-toggle-slider"></span>
-												</span>
-												<?php esc_html_e( 'Automatically close jobs when their application deadline passes', 'wp-career-board' ); ?>
-											</label>
-											<span class="description"><?php esc_html_e( 'Off by default. A daily WP-Cron sweep moves jobs whose deadline has passed to Expired  -  make sure your host has cron working (DISABLE_WP_CRON should not be set, or run wp-cli externally). Expired jobs leave the public site and their URLs return "not found", so any links you have shared will break. Reopen one by editing it in admin and republishing.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour. Its page stays up as an expired page with similar open jobs, so shared links keep working. Employers can reopen it from their dashboard with a new deadline.', 'wp-career-board' ); ?></span>
+											<?php if ( empty( $settings['deadline_auto_close'] ) ) : ?>
+												<p class="description"><strong><?php esc_html_e( 'This site still lists jobs past their deadline (set before 1.8.0).', 'wp-career-board' ); ?></strong></p>
+												<p><a class="button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wcb_enable_expiry', '1' ), 'wcb_enable_expiry' ) ); ?>"><?php esc_html_e( 'End jobs at their deadline', 'wp-career-board' ); ?></a></p>
+											<?php endif; ?>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

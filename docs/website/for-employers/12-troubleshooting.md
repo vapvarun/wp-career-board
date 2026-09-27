@@ -12,10 +12,10 @@ Three things to check, in order:
    My Jobs**. If the job is there with status "Pending" or "Under
    Review", the site is configured to require admin approval.
    Contact the site admin or wait for approval.
-2. **Is it past the deadline?** If you set an "Apply by" date in
-   the past (or your draft sat too long and the date came and
-   went), the job auto-expires. Open it from your dashboard and
-   either extend the deadline or republish.
+2. **Is it past the deadline?** If the deadline is in the past (or
+   your draft sat too long and the date came and went), the job has
+   expired: its page still works but it is out of the listings.
+   Click **Reopen** in your dashboard for a new listing period.
 3. **Did the submit actually complete?** Your dashboard shows
    every job you've created. If it's not there, the form
    didn't save - usually because of a network blip. Re-submit.
@@ -29,8 +29,8 @@ Posting alone doesn't bring traffic. Check:
 - **Your job's URL has been shared.** Share on LinkedIn, your
   company's social channels, internal Slack. New job boards
   build traffic over months.
-- **The "Apply by" date isn't past.** Expired jobs disappear from
-  the default listing.
+- **The deadline isn't past.** Expired jobs leave the listings within
+  the hour; their page stays up but takes no applications.
 - **Your category, location, and type are typical search terms.**
   A "Senior Frontend Engineer" gets more eyeballs than a job filed
   as "Other → Other".

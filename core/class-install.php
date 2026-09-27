@@ -250,9 +250,13 @@ final class Install {
 				// "safer defaults" notice existing sites get.
 				update_option( 'wcb_defaults_version', '1.8.0', false );
 				$settings = \WCB\Admin\Settings::all();
-				if ( ! array_key_exists( 'require_email_verification', $settings ) ) {
-					$settings['require_email_verification'] = true;
-					update_option( 'wcb_settings', $settings );
+				// D4/D5: a job ends at its deadline.
+				$new_site = array(
+					'require_email_verification' => true,
+					'deadline_auto_close'        => true,
+				);
+				if ( array_diff_key( $new_site, $settings ) ) {
+					update_option( 'wcb_settings', $settings + $new_site );
 				}
 			}
 			// Reserved location terms ('remote', 'other') are seeded by

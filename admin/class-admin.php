@@ -47,6 +47,7 @@ class Admin {
 		add_action( 'admin_init', array( $this, 'redirect_moderator_to_queue' ) );
 		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
+		add_action( 'admin_init', array( $this, 'enable_job_expiry' ) );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -95,6 +96,14 @@ class Admin {
 				add_query_arg( 'tab', 'brand', $settings ),
 			),
 		);
+		// New sites end every job at its deadline (owner decisions D4/D5). This
+		// site kept its old behaviour, so say what that means and how to switch.
+		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
+			$items[] = array(
+				__( 'Jobs past their deadline still appear in your listings and feeds. New sites now end every job at its deadline: it leaves the listings and keeps its page as an expired page.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'listings', $settings ),
+			);
+		}
 
 		/**
 		 * Filter the "safer defaults" listed to sites that existed before 1.8.0.
@@ -133,6 +142,33 @@ class Admin {
 			update_option( 'wcb_defaults_version', '1.8.0', false );
 		}
 		wp_safe_redirect( remove_query_arg( array( 'wcb_dismiss_defaults', '_wpnonce' ) ) );
+		exit;
+	}
+
+	/**
+	 * Turn on "end jobs at their deadline" for a site that had it off.
+	 *
+	 * The one-click switch offered on Settings > Jobs and in the 1.8.0
+	 * defaults notice. There is no switch back: owner decision D5 makes the
+	 * deadline the end of every job.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function enable_job_expiry(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
+		if ( ! isset( $_GET['wcb_enable_expiry'] ) || ! check_admin_referer( 'wcb_enable_expiry' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			$settings                        = \WCB\Admin\Settings::all();
+			$settings['deadline_auto_close'] = true;
+			update_option( 'wcb_settings', $settings );
+			// Move the backlog now instead of waiting for the next hourly run.
+			wp_schedule_single_event( time(), 'wcb_check_job_expiry' );
+		}
+		wp_safe_redirect( remove_query_arg( array( 'wcb_enable_expiry', '_wpnonce' ) ) );
 		exit;
 	}
 

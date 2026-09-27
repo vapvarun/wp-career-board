@@ -725,11 +725,16 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'expired',
 					default       => $p->post_status,
 				};
+				// Past its deadline but not swept yet (or expiry is paused on this
+				// site): it takes no applications, so it is not "Published".
+				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
+					$public_status = 'expired';
+				}
 				return array(
 					'id'               => $p->ID,
 					'title'            => $p->post_title,
 					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
@@ -836,12 +841,17 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'expired',
 					default       => $p->post_status,
 				};
+				// Past its deadline but not swept yet (or expiry is paused on this
+				// site): it takes no applications, so it is not "Published".
+				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
+					$public_status = 'expired';
+				}
 
 				return array(
 					'id'               => $p->ID,
 					'title'            => $p->post_title,
 					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),

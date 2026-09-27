@@ -8,7 +8,7 @@ Configure WP Career Board from **WP Career Board → Settings** in wp-admin. The
 
 | Tab | What It Controls |
 |---|---|
-| **Jobs** | Auto-Publish Jobs, default listing length, Deadline Auto-Close, Jobs Per Page, Default Salary Currency, Featured Duration |
+| **Jobs** | Auto-Publish Jobs, default listing length, When a job ends, Jobs Per Page, Default Salary Currency, Featured Duration |
 | **Applications** | Resume Required, Application Resume File Size, Allow Withdraw |
 | **Boards** (Pro) | Multi-board engine: create and manage independent job boards |
 | **Field Builder** (Pro) | Custom fields for jobs, companies, and candidates |
@@ -23,7 +23,7 @@ Configure WP Career Board from **WP Career Board → Settings** in wp-admin. The
 |---|---|---|
 | **Auto-Publish Jobs** | Off | When on, submitted jobs go live immediately without admin approval. When off, new jobs are held as Pending until approved under Career Board → Jobs |
 | **Default listing length (days)** | 30 | How long a job stays open when the employer sets no deadline (1-365). A board's own listing length, if set, wins over this default. Closing is reversible - open the job in admin and republish |
-| **Deadline Auto-Close** | Off | Automatically closes jobs when their application deadline passes. Requires working WP-Cron |
+| **When a job ends** | - | Not a switch. At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour (hourly WP-Cron). Its page stays up as an expired page (noindex, similar open jobs) so shared links keep working; employers reopen it from their dashboard with a new deadline. Sites set up before 1.8.0 that had "Deadline Auto-Close" off keep listing past-deadline jobs until you click **End jobs at their deadline** here. Only jobs that ended in the last 7 days email their employer, so switching on does not email about an old backlog |
 | **Jobs Per Page** | 10 | Number of jobs shown per page in the job board block (1-100) |
 | **Default Salary Currency** | USD | Site-wide default currency for new job postings; employers can override per job |
 | **Featured Duration (days)** | 30 | How many days a job stays in the Featured spotlight before reverting automatically (1-365). See [Featured Listing Expiry](./08-featured-expiry.md) |

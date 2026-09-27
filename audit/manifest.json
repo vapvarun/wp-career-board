@@ -3933,10 +3933,10 @@
       "purpose": "Move existing candidate files into private storage, 50 per pass (1.3.3 upgrade)"
     },
     {
-      "hook": "wcb_close_deleted_job_applications",
+      "hook": "wcb_close_job_applications",
       "schedule": "single (self-rescheduling, 200 per run)",
       "where": "modules/applications/class-application-lifecycle.php:51",
-      "purpose": "Mark a deleted job's open applications job_removed in background batches; each candidate gets the status email"
+      "purpose": "Close a job's open applications in background batches: job_removed when the job is deleted, position_closed when the employer closes it (D15); each candidate gets the status email"
     }
   ],
   "wp_cli": [

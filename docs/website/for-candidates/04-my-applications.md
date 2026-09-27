@@ -43,6 +43,7 @@ Each row shows:
 | **Not selected** | The employer is no longer considering your application (employers see this as "Rejected") |
 | **Hired** | Congratulations - you got the job |
 | **Withdrawn** | You withdrew this application; it is no longer active |
+| **Position closed** | The employer closed the job before deciding (for example the role was filled). You got an email when it happened |
 | **Job Removed** | The job posting was taken down. Your application is preserved in your history, but no further action is expected. |
 
 > **Status updates:** You will receive an email notification whenever your application status changes.

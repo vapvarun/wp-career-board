@@ -764,26 +764,7 @@ final class JobsEndpoint extends RestController {
 		$salary_type_raw  = $request->get_param( 'salary_type' );
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
-			$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-			$expire_days = $expire_days > 0 ? $expire_days : 30;
-
-			/**
-			 * Filter the default expiry window (in days) for a newly submitted
-			 * job when the request did not supply an explicit deadline.
-			 *
-			 * Pro hooks this to honor the per-board <code>expiry_days</code>
-			 * setting so each board can run its own posting cadence (e.g. a
-			 * "weekend gigs" board with 7-day listings vs a "permanent roles"
-			 * board with 60-day listings).
-			 *
-			 * @since 1.2.5
-			 *
-			 * @param int              $expire_days Resolved default (positive integer).
-			 * @param \WP_REST_Request $request     The originating REST request.
-			 */
-			$expire_days      = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
-			$expire_days      = $expire_days > 0 ? $expire_days : 30;
-			$wcb_deadline_raw = gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
+			$wcb_deadline_raw = $this->default_deadline( $request );
 		}
 		// Values are validated by the route args and normalised by the meta
 		// sanitizers registered in JobsMeta.
@@ -886,6 +867,42 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
+	 * Deadline for a job with none given: today plus the listing length
+	 * (the board's own length when set, else Settings > Jobs, else 30 days).
+	 *
+	 * Used when a job is created without a deadline and when an ended job is
+	 * republished, so a republished job gets a full new listing period instead
+	 * of expiring again at the next sweep.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request The originating request (board resolution).
+	 * @return string Y-m-d date.
+	 */
+	private function default_deadline( \WP_REST_Request $request ): string {
+		$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+
+		/**
+		 * Filter the default expiry window (in days) for a newly submitted
+		 * job when the request did not supply an explicit deadline.
+		 *
+		 * Pro hooks this to honor the per-board <code>expiry_days</code>
+		 * setting so each board can run its own posting cadence (e.g. a
+		 * "weekend gigs" board with 7-day listings vs a "permanent roles"
+		 * board with 60-day listings).
+		 *
+		 * @since 1.2.5
+		 *
+		 * @param int              $expire_days Resolved default (positive integer).
+		 * @param \WP_REST_Request $request     The originating REST request.
+		 */
+		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
+	}
+
+	/**
 	 * Update an existing job listing.
 	 *
 	 * @since 1.0.0
@@ -960,6 +977,21 @@ final class JobsEndpoint extends RestController {
 			// wcb_job_republish_credit_cost filter for renewal discounts).
 			if ( 'publish' === $status && in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
 				$wcb_charge = 'republish';
+			}
+			// Reopening an ended job starts a new listing period: without a future
+			// deadline it would expire again at the next hourly sweep. Covers a
+			// job the sweep has not moved yet (still published, deadline passed).
+			if (
+				'publish' === $status
+				&& ( in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) || \WCB\Core\JobDeadline::has_passed( $post->ID ) )
+			) {
+				$wcb_new_deadline = (string) $request->get_param( 'deadline' );
+				if ( '' === $wcb_new_deadline || $wcb_new_deadline < current_time( 'Y-m-d' ) ) {
+					if ( ! $request->has_param( 'board_id' ) ) {
+						$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+					}
+					$request->set_param( 'deadline', $this->default_deadline( $request ) );
+				}
 			}
 
 			// Bringing a listing back to publish occupies a slot, so the cap
@@ -1679,92 +1711,97 @@ final class JobsEndpoint extends RestController {
 		$wcb_deadline_raw = get_post_meta( $post->ID, '_wcb_deadline', true );
 
 		$data = array(
-			'id'                 => $post->ID,
-			'title'              => $post->post_title,
-			'description'        => $post->post_content,
-			'excerpt'            => \WCB\Core\Text::excerpt( $post->post_content, 25, '…' ),
+			'id'                     => $post->ID,
+			'title'                  => $post->post_title,
+			'description'            => $post->post_content,
+			'excerpt'                => \WCB\Core\Text::excerpt( $post->post_content, 25, '…' ),
 			// Map internal wcb_closed → public 'closed' so the dashboard JS
 			// can keep its prefix-free status comparisons (mirrors the inverse
 			// mapping in update_item()).
-			'status'             => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
+			'status'                 => 'wcb_closed' === $post->post_status ? 'closed' : $post->post_status,
 			// A rejected job is kept as a draft carrying a rejection reason; expose
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
-			'rejected'           => EmployersEndpoint::is_rejected_job( $post ),
+			'rejected'               => EmployersEndpoint::is_rejected_job( $post ),
 			// Approved by a moderator but not yet paid for (Pro credits): the job
 			// stays pending until the employer's balance covers it.
-			'awaiting_payment'   => JobPayment::is_awaiting( $post->ID ),
-			'author'             => $author_id,
+			'awaiting_payment'       => JobPayment::is_awaiting( $post->ID ),
+			'author'                 => $author_id,
 			// WordPress leaves *_gmt as '0000-00-00 00:00:00' for non-published
 			// posts (e.g. pending jobs, the default when auto-publish is off), and
 			// mysql_to_rfc3339() turns that into the invalid "-0001-11-30T00:00:00".
 			// Fall back to the site-local date converted to GMT so REST/mobile
 			// clients always receive a valid ISO 8601 timestamp.
-			'created_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt ),
-			'updated_at'         => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt ),
+			'created_at'             => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt ),
+			'updated_at'             => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt ),
 			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
-			'date'               => $post->post_date,
-			'permalink'          => get_permalink( $post->ID ),
-			'rejection_reason'   => $rejection_reason,
+			'date'                   => $post->post_date,
+			'permalink'              => get_permalink( $post->ID ),
+			'rejection_reason'       => $rejection_reason,
 			// Company fields.
-			'company'            => $company_name,
-			'initials'           => $this->company_initials( $company_name ),
-			'trust'              => $trust,
-			'trust_label'        => $trust_info['label'] ?? '',
-			'trust_icon'         => $trust_info['icon'] ?? '',
-			'verified'           => null !== $trust_info,
-			'company_tagline'    => $company_meta['tagline'],
-			'company_industry'   => $company_meta['industry'],
-			'company_size'       => $company_meta['size'],
-			'company_size_label' => $company_meta['size_label'],
-			'company_hq'         => $company_meta['hq'],
+			'company'                => $company_name,
+			'initials'               => $this->company_initials( $company_name ),
+			'trust'                  => $trust,
+			'trust_label'            => $trust_info['label'] ?? '',
+			'trust_icon'             => $trust_info['icon'] ?? '',
+			'verified'               => null !== $trust_info,
+			'company_tagline'        => $company_meta['tagline'],
+			'company_industry'       => $company_meta['industry'],
+			'company_size'           => $company_meta['size'],
+			'company_size_label'     => $company_meta['size_label'],
+			'company_hq'             => $company_meta['hq'],
 			// Job meta. `deadline` stays the raw stored date for any client-side
 			// date math / comparison; `deadline_label` is the localised display
 			// form (additive since 1.5.1) so the card never renders a bare ISO date.
-			'deadline'           => $wcb_deadline_raw,
-			'deadline_label'     => $wcb_deadline_raw
+			'deadline'               => $wcb_deadline_raw,
+			'deadline_label'         => $wcb_deadline_raw
 				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
 				: '',
 			// Whether that date has passed, resolved server-side. The card needs
 			// this to badge closed roles, and a client cannot decide it safely:
 			// the browser clock is the visitor's, not the site's timezone.
-			'deadline_passed'    => \WCB\Core\JobDeadline::has_passed( $post->ID ),
-			'salary_min'         => $salary_min,
-			'salary_max'         => $salary_max,
-			'salary_currency'    => $currency,
-			'salary_type'        => $salary_type,
-			'salary_label'       => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
-			'remote'             => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
-			'featured'           => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
-			'board_id'           => $board_id,
-			'board_currency'     => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
+			'deadline_passed'        => \WCB\Core\JobDeadline::has_passed( $post->ID ),
+			// The one "is it open" answer (published and not past its deadline),
+			// and when it stops taking applications. Clients use these instead
+			// of comparing status and dates themselves.
+			'accepting_applications' => \WCB\Core\JobDeadline::accepts_applications( $post->ID ),
+			'closes_at'              => \WCB\Core\JobDeadline::get( $post->ID ),
+			'salary_min'             => $salary_min,
+			'salary_max'             => $salary_max,
+			'salary_currency'        => $currency,
+			'salary_type'            => $salary_type,
+			'salary_label'           => $this->format_salary( $salary_min, $salary_max, $currency, $salary_type ),
+			'remote'                 => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
+			'featured'               => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
+			'board_id'               => $board_id,
+			'board_currency'         => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
 			// Display-name strings for cards.
-			'location'           => implode( ', ', $loc_names ),
-			'type'               => implode( ', ', $type_names ),
-			'experience'         => implode( ', ', $exp_names ),
-			'category'           => implode( ', ', $cat_names ),
+			'location'               => implode( ', ', $loc_names ),
+			'type'                   => implode( ', ', $type_names ),
+			'experience'             => implode( ', ', $exp_names ),
+			'category'               => implode( ', ', $cat_names ),
 			// Relative time. The " ago" wrapper must be translatable and able to
 			// reposition the interval, so use the same %s-ago pattern WP core uses.
-			'days_ago'           => sprintf(
+			'days_ago'               => sprintf(
 				/* translators: %s: human-readable time difference, e.g. "3 days". */
 				__( '%s ago', 'wp-career-board' ),
 				human_time_diff( (int) strtotime( $post->post_date ), time() )
 			),
 			// Slug arrays for filter/API consumers.
-			'categories'         => $cat_slugs,
-			'job_types'          => $type_slugs,
-			'locations'          => $loc_slugs,
-			'experience_slugs'   => $exp_slugs,
-			'tags'               => $tag_slugs,
-			'thumbnail'          => false !== $thumbnail_url ? (string) $thumbnail_url : '',
-			'apply_url'          => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
+			'categories'             => $cat_slugs,
+			'job_types'              => $type_slugs,
+			'locations'              => $loc_slugs,
+			'experience_slugs'       => $exp_slugs,
+			'tags'                   => $tag_slugs,
+			'thumbnail'              => false !== $thumbnail_url ? (string) $thumbnail_url : '',
+			'apply_url'              => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
 			// apply_email intentionally NOT exposed via REST. Anonymous scrapers
 			// were harvesting recruiter inboxes in bulk (F-1 in
 			// plan/role-data-baseline-2026-05-07.md). The apply submission
 			// posts to /wcb/v1/jobs/{id}/apply which delivers email
 			// server-side; no client needs the literal address. Postmeta
 			// `_wcb_apply_email` remains for the apply handler + RSS feed.
-			'lat'                => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
-			'lng'                => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
+			'lat'                    => (float) get_post_meta( $post->ID, '_wcb_lat', true ),
+			'lng'                    => (float) get_post_meta( $post->ID, '_wcb_lng', true ),
 		);
 
 		/**

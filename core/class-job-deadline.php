@@ -23,11 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * apply endpoint accepted the submission, so candidates wrote applications for
  * roles that had closed.
  *
- * Deliberately independent of the `deadline_auto_close` setting. That setting
- * decides whether the post status also flips to `wcb_expired`; it should not
- * decide whether the UI tells the truth. With auto-close off — the default —
- * the listing stays reachable and simply shows that applications have closed,
- * which is the state the settings screen always described but never had.
+ * has_passed() is the date alone. accepts_applications() is the full rule
+ * (published and not past the deadline) that every "open" surface uses; the
+ * hourly sweep in JobsExpiry then moves ended jobs to `wcb_expired`, where
+ * their page stays up as an expired page (owner decision D5).
  *
  * @since 1.7.1
  */
@@ -82,14 +81,63 @@ class JobDeadline {
 	}
 
 	/**
-	 * Whether the job is still taking applications.
+	 * Whether the job is still taking applications: the one "is this job
+	 * open" rule (owner decision D5).
+	 *
+	 * Open means published and not past its deadline. Expired (deadline
+	 * passed, swept to `wcb_expired`) and closed (the employer closed it) are
+	 * both ended. Every surface that says "open" or counts open positions
+	 * asks this, or open_jobs_meta_query() for a query.
 	 *
 	 * @since  1.7.1
+	 * @since  1.8.0 Also requires the job to be published.
 	 * @param  int $job_id Job post ID.
 	 * @return bool
 	 */
 	public static function accepts_applications( int $job_id ): bool {
-		return ! self::has_passed( $job_id );
+		return 'publish' === get_post_status( $job_id ) && ! self::has_passed( $job_id );
+	}
+
+	/**
+	 * How a job ended, for the page and labels.
+	 *
+	 * @since  1.8.0
+	 * @param  int $job_id Job post ID.
+	 * @return string 'closed' (the employer closed it), 'expired' (deadline
+	 *                passed) or '' while it is open.
+	 */
+	public static function ended( int $job_id ): string {
+		if ( 'wcb_closed' === get_post_status( $job_id ) ) {
+			return 'closed';
+		}
+		return self::accepts_applications( $job_id ) ? '' : 'expired';
+	}
+
+	/**
+	 * Meta query clause that keeps only jobs whose deadline has not passed.
+	 *
+	 * Pair with `post_status => publish`. Jobs with no deadline stay in.
+	 *
+	 * @since  1.8.0
+	 * @return array<int|string, mixed>
+	 */
+	public static function open_jobs_meta_query(): array {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_wcb_deadline',
+				'value'   => current_time( 'Y-m-d' ),
+				'compare' => '>=',
+			),
+			array(
+				'key'     => '_wcb_deadline',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'   => '_wcb_deadline',
+				'value' => '',
+			),
+		);
 	}
 
 	/**

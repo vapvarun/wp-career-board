@@ -288,8 +288,8 @@ You have a working board. Now you'd usually pick a direction:
   and skips role gates. Always test as a real employer / candidate.
 - **Skipping the deadline.** Newly posted jobs default to the listing
   length set under **Settings → Jobs → Default listing length (days)**
-  (default 30, range 1-365). A job is moved to the expired status by the
-  daily expiry cron once it passes its deadline.
+  (default 30, range 1-365). Once a job passes its deadline it leaves
+  the listings within the hour and its page becomes an expired page.
 - **Not wiring the menu.** Employers and candidates can't navigate
   if the menu doesn't link to dashboards. Easy to forget; users
   notice immediately.

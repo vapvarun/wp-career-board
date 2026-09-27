@@ -16,7 +16,7 @@ Operate on `wcb_job` posts.
 | `wp wcb job list` | List jobs, with filters such as `--status=pending` |
 | `wp wcb job approve <id>` | Approve a pending job |
 | `wp wcb job reject <id> --reason="..."` | Reject a job with a reason |
-| `wp wcb job expire [<id>]` | Run the expiry sweep manually (same as the daily cron); pass an ID to expire one job |
+| `wp wcb job expire [<id>]` | Run the expiry sweep manually (same as the hourly cron); pass an ID to expire one job |
 | `wp wcb job run-expiry` | Run the scheduled expiry cron callback directly |
 
 **Example - bulk reject:**

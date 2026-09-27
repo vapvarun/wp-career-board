@@ -159,14 +159,46 @@ if ( $wcb_show_apply && is_user_logged_in() ) {
 	}
 }
 
-// Applications close once the advertised deadline has passed. Independent of
-// the deadline_auto_close setting: that decides whether the post status flips
-// to wcb_expired, not whether this page tells the candidate the truth. The
-// endpoint refuses these submissions too, so showing the form here would only
-// send someone to write a cover letter for a role that has closed.
-$wcb_deadline_passed = \WCB\Core\JobDeadline::has_passed( $wcb_job_id );
+// An ended job (deadline passed, expired or closed by the employer) keeps its
+// page but takes no applications (owner decision D5). The endpoint refuses
+// them too, so showing the form would only send someone to write a cover
+// letter for a role that has closed.
+$wcb_ended           = \WCB\Core\JobDeadline::ended( $wcb_job_id );
+$wcb_deadline_passed = '' !== $wcb_ended;
 if ( $wcb_deadline_passed ) {
 	$wcb_show_apply = false;
+}
+$wcb_closed_text = ( 'closed' === $wcb_ended || '' === $wcb_deadline_formatted )
+	? __( 'This job is no longer taking applications', 'wp-career-board' )
+	/* translators: %s: the date applications closed. */
+	: sprintf( __( 'Applications closed on %s', 'wp-career-board' ), $wcb_deadline_formatted );
+
+// Up to three open jobs to offer instead: same category first, then the latest.
+$wcb_similar_jobs = array();
+if ( $wcb_deadline_passed ) {
+	$wcb_similar_args = array(
+		'post_type'      => 'wcb_job',
+		'post_status'    => 'publish',
+		'posts_per_page' => 3,
+		'post__not_in'   => array( $wcb_job_id ),
+		'no_found_rows'  => true,
+		'meta_query'     => \WCB\Core\JobDeadline::open_jobs_meta_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+	);
+	if ( ! is_wp_error( $wcb_category_terms ) && $wcb_category_terms ) {
+		$wcb_similar_jobs = get_posts(
+			$wcb_similar_args + array(
+				'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy' => 'wcb_category',
+						'terms'    => wp_list_pluck( $wcb_category_terms, 'term_id' ),
+					),
+				),
+			)
+		);
+	}
+	if ( ! $wcb_similar_jobs ) {
+		$wcb_similar_jobs = get_posts( $wcb_similar_args );
+	}
 }
 
 $wcb_dashboard_url = '';
@@ -438,10 +470,7 @@ wp_interactivity_state(
 			<?php elseif ( $wcb_deadline_passed ) : ?>
 				<p class="wcb-applications-closed">
 				<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<?php
-				/* translators: %s: the date applications closed. */
-				printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
-				?>
+				<?php echo esc_html( $wcb_closed_text ); ?>
 				</p>
 			<?php elseif ( $wcb_show_apply ) : ?>
 				<?php if ( $wcb_apply_external ) : ?>
@@ -513,6 +542,18 @@ wp_interactivity_state(
 
 		<?php /* Main content */ ?>
 		<div class="wcb-job-main">
+			<?php if ( $wcb_deadline_passed ) : ?>
+				<p class="wcb-job-ended" role="status">
+					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php
+					echo esc_html(
+						'closed' === $wcb_ended
+							? __( 'This job is closed and no longer taking applications.', 'wp-career-board' )
+							: __( 'This job has expired and is no longer taking applications.', 'wp-career-board' )
+					);
+					?>
+				</p>
+			<?php endif; ?>
 			<div class="wcb-section">
 				<h2 class="wcb-section-heading"><?php esc_html_e( 'About This Role', 'wp-career-board' ); ?></h2>
 				<div class="wcb-job-description">
@@ -592,6 +633,23 @@ wp_interactivity_state(
 				<?php endforeach; ?>
 					</div>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_similar_jobs ) : ?>
+				<section class="wcb-similar-jobs" aria-labelledby="wcb-similar-jobs-heading">
+					<h2 id="wcb-similar-jobs-heading" class="wcb-section-heading"><?php esc_html_e( 'Open roles you might like', 'wp-career-board' ); ?></h2>
+					<ul class="wcb-similar-jobs__list">
+						<?php foreach ( $wcb_similar_jobs as $wcb_similar ) : ?>
+							<?php $wcb_similar_company = (string) get_post_meta( $wcb_similar->ID, '_wcb_company_name', true ); ?>
+							<li>
+								<a href="<?php echo esc_url( (string) get_permalink( $wcb_similar ) ); ?>"><?php echo esc_html( get_the_title( $wcb_similar ) ); ?></a>
+								<?php if ( '' !== $wcb_similar_company ) : ?>
+									<span class="wcb-similar-jobs__company"><?php echo esc_html( $wcb_similar_company ); ?></span>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</section>
 			<?php endif; ?>
 		</div>
 
@@ -699,10 +757,7 @@ wp_interactivity_state(
 				<?php elseif ( $wcb_deadline_passed ) : ?>
 					<p class="wcb-applications-closed wcb-applications-closed--center">
 					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					<?php
-					/* translators: %s: the date applications closed. */
-					printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
-					?>
+					<?php echo esc_html( $wcb_closed_text ); ?>
 					</p>
 				<?php elseif ( $wcb_show_apply ) : ?>
 					<?php if ( $wcb_apply_external ) : ?>

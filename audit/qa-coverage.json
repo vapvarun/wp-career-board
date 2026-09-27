@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-27T13:47:17+00:00",
+        "at": "2026-09-27T15:56:04+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -327,8 +327,8 @@
         },
         "hooks_fired": {
             "total": 88,
-            "covered": 5,
-            "uncovered": 83,
+            "covered": 7,
+            "uncovered": 81,
             "skipped": 148,
             "covered_items": [
                 {
@@ -337,6 +337,14 @@
                 },
                 {
                     "name": "wcb_email_announces_notification",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_expired",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_expired",
                     "consumer_count": 1
                 },
                 {
@@ -497,16 +505,6 @@
                     "name": "wcb_job_deleted",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_deleted"
-                },
-                {
-                    "name": "wcb_job_expired",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
-                },
-                {
-                    "name": "wcb_job_expired",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_expired"
                 },
                 {
                     "name": "wcb_job_form_fields",
@@ -796,7 +794,7 @@
                     "hook": "wcb_private_files_migrate"
                 },
                 {
-                    "hook": "wcb_close_deleted_job_applications"
+                    "hook": "wcb_close_job_applications"
                 }
             ],
             "uncovered_items": []
@@ -829,14 +827,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 168,
-        "items_covered": 58,
-        "items_uncovered": 110,
+        "items_covered": 60,
+        "items_uncovered": 108,
         "items_skipped": 148,
-        "coverage_percent": 34.5
+        "coverage_percent": 35.700000000000003
     },
     "drift": {
-        "previous_uncovered": 113,
-        "current_uncovered": 110,
-        "delta": -3
+        "previous_uncovered": 110,
+        "current_uncovered": 108,
+        "delta": -2
     }
 }

@@ -326,7 +326,7 @@ wp_interactivity_state(
 			'confirmClearAllMsg'       => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
 			'clearAll'                 => __( 'Clear all', 'wp-career-board' ),
 			'confirmCloseTitle'        => __( 'Close this job?', 'wp-career-board' ),
-			'confirmCloseJob'          => __( 'Are you sure you want to close this job? It will no longer be visible to candidates.', 'wp-career-board' ),
+			'confirmCloseJob'          => __( 'It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed.', 'wp-career-board' ),
 			'confirmCloseConfirm'      => __( 'Close job', 'wp-career-board' ),
 
 			// Nav / tab labels.

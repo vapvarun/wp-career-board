@@ -1308,7 +1308,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield window.wcbConfirm( {
 					title:        t( 'confirmCloseTitle', 'Close this job?' ),
-					message:      t( 'confirmCloseJob', 'Are you sure you want to close this job? It will no longer be visible to candidates.' ),
+					message:      t( 'confirmCloseJob', 'It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed.' ),
 					confirmText:  t( 'confirmCloseConfirm', 'Close job' ),
 					destructive:  true,
 				} );

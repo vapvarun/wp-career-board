@@ -1026,6 +1026,58 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin: 0;
 }
 
+.wcb-job-ended {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wcb-space-sm);
+	margin: 0 0 var(--wcb-space-lg);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-contrast);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-job-ended svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-block-start: 3px;
+}
+
+.wcb-similar-jobs {
+	margin-block-start: var(--wcb-space-xl);
+}
+
+.wcb-similar-jobs__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-similar-jobs__list li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--wcb-space-xs) var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+}
+
+.wcb-similar-jobs__list a {
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-similar-jobs__company {
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-sm);
+}
+
 .wcb-applications-closed--center {
 	justify-content: center;
 	text-align: center;
