@@ -98,7 +98,7 @@ trait ReportedMembers {
 			return '';
 		}
 		return sprintf(
-			' <span class="wcb-badge wcb-badge--warning" title="%s">%s</span>',
+			' <span class="wcb-badge wcb-badge--warn" title="%s">%s</span>',
 			esc_attr__( 'Open reports', 'wp-career-board' ),
 			esc_html(
 				sprintf(

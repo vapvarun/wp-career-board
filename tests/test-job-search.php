@@ -240,7 +240,7 @@ wcb_assert( '' === ( $wcb_payload( $wcb_nologo_job )['company_logo'] ?? 'missing
 $_GET     = array( 'wcb_search' => "{$wcb_t2} Has logo" );
 $wcb_html = do_blocks( '<!-- wp:wp-career-board/job-listings /-->' );
 $_GET     = array();
-wcb_assert( str_contains( $wcb_html, 'wcb-logo-' . $wcb_t2 ) && str_contains( $wcb_html, 'wcb-card-avatar__img' ), 'the first-paint card has the logo in its data and an image element' );
+wcb_assert( str_contains( $wcb_html, 'wcb-logo-' . $wcb_t2 ) && 1 === preg_match( '/class="wcb-avatar wcb-card-avatar"[^>]*data-wp-class--wcb-avatar--logo="context\.job\.company_logo"[^>]*>\s*<img/', $wcb_html ), 'the first-paint card has the logo in its data and an image element inside the avatar' );
 foreach ( array( $wcb_logo_job, $wcb_nologo_job, $wcb_logo_co ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }
