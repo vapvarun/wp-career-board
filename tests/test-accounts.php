@@ -134,6 +134,31 @@ $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
 $wcb_auth = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw );
 wcb_assert( is_wp_error( $wcb_auth ) && 'wcb_email_unverified' === $wcb_auth->get_error_code(), 'an unconfirmed account cannot sign in' );
+
+// Losing the sign-up screen is not the end: the sign-in message and the expired-link page offer a new link.
+$wcb_sent = 0;
+$wcb_hook = static function () use ( &$wcb_sent ): void {
+	++$wcb_sent;
+};
+add_action( 'wcb_email_verification_requested', $wcb_hook );
+$wcb_link = static function () use ( $wcb_s, $wcb_pw ): string {
+	$msg = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw )->get_error_message();
+	return preg_match( '/wcb_resend=([^"&\s]+)/', html_entity_decode( $msg ), $m ) ? urldecode( $m[1] ) : '';
+};
+wcb_assert( '' !== $wcb_link(), 'the sign-in message offers "Send me a new link"' );
+wcb_assert( false === EmailVerification::resend_by_link( $wcb_link() ) && 0 === $wcb_sent, 'a link sent a moment ago is not sent again (no inbox flooding)' );
+$wcb_pending         = get_user_meta( $wcb_new, EmailVerification::META, true );
+$wcb_pending['time'] = time() - 120;
+update_user_meta( $wcb_new, EmailVerification::META, $wcb_pending );
+$wcb_req = $wcb_link();
+wcb_assert( false === EmailVerification::resend_by_link( $wcb_new . '.not-the-token' ) && 0 === $wcb_sent, 'a forged request sends nothing' );
+wcb_assert( true === EmailVerification::resend_by_link( $wcb_req ) && 1 === $wcb_sent, 'the link sends a new confirmation, once' );
+wcb_assert( false === EmailVerification::resend_by_link( $wcb_req ) && 1 === $wcb_sent, 'the same link cannot be replayed' );
+remove_action( 'wcb_email_verification_requested', $wcb_hook );
+$wcb_page = wp_remote_get( home_url( '/?wcb_verify=' . $wcb_new . '.wrong' ), array( 'timeout' => 20, 'sslverify' => false ) );
+wcb_assert( 400 === (int) wp_remote_retrieve_response_code( $wcb_page ) && str_contains( (string) wp_remote_retrieve_body( $wcb_page ), 'wcb_resend=' ), 'the expired-link page offers a new link instead of "try signing in"' );
+$wcb_gone = wp_remote_get( home_url( '/?wcb_verify=999999999.wrong' ), array( 'timeout' => 20, 'sslverify' => false ) );
+wcb_assert( ! str_contains( (string) wp_remote_retrieve_body( $wcb_gone ), 'wcb_resend=' ), 'control: no link is offered for an account that does not exist' );
 delete_transient( 'wcb_verify_resend_' . md5( wp_salt() . $wcb_ip ) );
 $wcb_resend = wcb_rest( 'POST', '/wcb/v1/auth/verify-email/resend', array( 'email' => 'nobody-' . $wcb_s . '@example.test' ), 0 );
 wcb_assert( 200 === $wcb_resend->get_status(), 'resend answers 200 for an unknown address' );

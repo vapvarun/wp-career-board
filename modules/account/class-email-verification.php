@@ -43,6 +43,22 @@ class EmailVerification {
 	private const TTL = 7 * DAY_IN_SECONDS;
 
 	/**
+	 * A resent link is sent at most this often per account.
+	 *
+	 * @var int
+	 */
+	private const RESEND_EVERY = MINUTE_IN_SECONDS;
+
+	/**
+	 * Markup allowed in the messages that carry the resend link.
+	 *
+	 * @var array<string, array<string, bool>>
+	 */
+	private const LINK_HTML = array(
+		'a' => array( 'href' => true ),
+	);
+
+	/**
 	 * Register the link handler and the sign-in block.
 	 *
 	 * @since 1.8.0
@@ -50,6 +66,7 @@ class EmailVerification {
 	 */
 	public function boot(): void {
 		add_action( 'template_redirect', array( $this, 'maybe_verify' ), 0 );
+		add_action( 'template_redirect', array( $this, 'maybe_resend' ), 0 );
 		add_filter( 'wp_authenticate_user', array( $this, 'block_unverified' ), 20 );
 	}
 
@@ -119,7 +136,7 @@ class EmailVerification {
 		if ( $user instanceof \WP_User && self::is_pending( $user->ID ) ) {
 			return new \WP_Error(
 				'wcb_email_unverified',
-				__( 'Please confirm your email address first. We sent you a link when you signed up.', 'wp-career-board' )
+				__( 'Please confirm your email address first. We sent you a link when you signed up.', 'wp-career-board' ) . ' ' . self::resend_link( $user->ID )
 			);
 		}
 		return $user;
@@ -156,7 +173,7 @@ class EmailVerification {
 
 		if ( ! $valid ) {
 			wp_die(
-				esc_html__( 'This confirmation link is invalid or has expired. Try signing in to get a new one.', 'wp-career-board' ),
+				wp_kses( esc_html__( 'This confirmation link is invalid or has expired.', 'wp-career-board' ) . ' ' . self::resend_link( $user_id ), self::LINK_HTML ),
 				esc_html__( 'Link expired', 'wp-career-board' ),
 				array( 'response' => 400 )
 			);
@@ -182,6 +199,81 @@ class EmailVerification {
 		$page_key = $user && in_array( 'wcb_employer', (array) $user->roles, true ) ? 'employer_dashboard_page' : 'candidate_dashboard_page';
 		$page_id  = \WCB\Admin\Settings::int( $page_key, 0 );
 		return $page_id > 0 ? (string) get_permalink( $page_id ) : home_url( '/' );
+	}
+
+	/**
+	 * A "send me a new link" link for a pending account, or '' when there is
+	 * nothing to resend. It carries a signed token, so it works for the person
+	 * who is looking at it and cannot be built for another account.
+	 *
+	 * @since 1.8.0
+	 * @param int $user_id Account ID.
+	 * @return string HTML link.
+	 */
+	private static function resend_link( int $user_id ): string {
+		$pending = $user_id > 0 ? get_user_meta( $user_id, self::META, true ) : '';
+		if ( ! is_array( $pending ) ) {
+			return '';
+		}
+		$url = add_query_arg( 'wcb_resend', $user_id . '.' . self::resend_token( $user_id, (int) ( $pending['time'] ?? 0 ) ), home_url( '/' ) );
+		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Send me a new link', 'wp-career-board' ) );
+	}
+
+	/**
+	 * Signature of a resend request: account and the moment its current link was made.
+	 *
+	 * @param int $user_id Account ID.
+	 * @param int $time    When the pending link was made.
+	 * @return string
+	 */
+	private static function resend_token( int $user_id, int $time ): string {
+		return wp_hash( 'wcb_resend|' . $user_id . '|' . $time );
+	}
+
+	/**
+	 * Send a fresh link for a resend request from a page the member is on.
+	 *
+	 * @since 1.8.0
+	 * @param string $request "<user>.<token>" from the link.
+	 * @return bool True when a new link was sent; false when the request is not
+	 *              valid, the account is no longer pending, or one went out a minute ago.
+	 */
+	public static function resend_by_link( string $request ): bool {
+		$parts   = explode( '.', $request, 2 );
+		$user_id = (int) $parts[0];
+		$pending = $user_id > 0 ? get_user_meta( $user_id, self::META, true ) : '';
+		if ( ! is_array( $pending ) || ! hash_equals( self::resend_token( $user_id, (int) ( $pending['time'] ?? 0 ) ), (string) ( $parts[1] ?? '' ) ) ) {
+			return false;
+		}
+		// Nobody can fill an inbox by reloading the link.
+		if ( time() - (int) ( $pending['time'] ?? 0 ) < self::RESEND_EVERY ) {
+			return false;
+		}
+		self::start( $user_id );
+		return true;
+	}
+
+	/**
+	 * `template_redirect`: handle `?wcb_resend=<user>.<token>` from the sign-in
+	 * message or the expired-link page.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function maybe_resend(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the signed token in the link is the proof.
+		if ( ! isset( $_GET['wcb_resend'] ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the signed token in the link is the proof.
+		$sent = self::resend_by_link( sanitize_text_field( wp_unslash( $_GET['wcb_resend'] ) ) );
+		wp_die(
+			$sent
+				? wp_kses( esc_html__( 'We sent you a new confirmation link. It can take a minute to arrive.', 'wp-career-board' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . esc_html__( 'Back to sign in', 'wp-career-board' ) . '</a>', self::LINK_HTML )
+				: wp_kses( esc_html__( 'A link was sent a moment ago, or this request is no longer valid. Check your inbox, or sign in to ask again.', 'wp-career-board' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . esc_html__( 'Back to sign in', 'wp-career-board' ) . '</a>', self::LINK_HTML ),
+			esc_html__( 'Confirmation link', 'wp-career-board' ),
+			array( 'response' => 200 )
+		);
 	}
 
 	/**
