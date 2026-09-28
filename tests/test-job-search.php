@@ -215,6 +215,37 @@ foreach ( array( $wcb_feat, $wcb_better, $wcb_c_soon, $wcb_c_later, $wcb_c_none,
 	wp_delete_post( $wcb_id, true );
 }
 
+WP_CLI::log( '--- company logo on the job card ---' );
+$wcb_png     = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' );
+$wcb_up      = wp_upload_bits( 'wcb-logo-' . $wcb_t2 . '.png', null, $wcb_png );
+$wcb_logo_co = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => "{$wcb_t2} Logo Co", 'post_author' => 1 ) );
+$wcb_logo_at = (int) wp_insert_attachment( array( 'post_mime_type' => 'image/png', 'post_title' => 'logo', 'post_status' => 'inherit' ), $wcb_up['file'], $wcb_logo_co );
+set_post_thumbnail( $wcb_logo_co, $wcb_logo_at );
+$wcb_logo_job   = wcb_jsx_job( "{$wcb_t2} Has logo", 'x', array( '_wcb_company_id' => $wcb_logo_co, '_wcb_company_name' => "{$wcb_t2} Logo Co" ) );
+$wcb_nologo_job = wcb_jsx_job( "{$wcb_t2} No logo", 'x', array( '_wcb_company_name' => "{$wcb_t2} Plain Co" ) );
+wp_set_current_user( 0 );
+$wcb_payload = static function ( int $job_id ): array {
+	$request = new WP_REST_Request( 'GET', '/wcb/v1/jobs' );
+	$request->set_param( 'search', get_the_title( $job_id ) );
+	foreach ( (array) ( rest_do_request( $request )->get_data()['jobs'] ?? array() ) as $row ) {
+		if ( (int) $row['id'] === $job_id ) {
+			return $row;
+		}
+	}
+	return array();
+};
+$wcb_row = $wcb_payload( $wcb_logo_job );
+wcb_assert( '' !== ( $wcb_row['company_logo'] ?? '' ) && str_contains( (string) $wcb_row['company_logo'], 'wcb-logo-' . $wcb_t2 ), 'the job payload carries the company logo URL' );
+wcb_assert( '' === ( $wcb_payload( $wcb_nologo_job )['company_logo'] ?? 'missing' ), 'control: a job with no company logo has an empty company_logo (the card falls back to initials)' );
+$_GET     = array( 'wcb_search' => "{$wcb_t2} Has logo" );
+$wcb_html = do_blocks( '<!-- wp:wp-career-board/job-listings /-->' );
+$_GET     = array();
+wcb_assert( str_contains( $wcb_html, 'wcb-logo-' . $wcb_t2 ) && str_contains( $wcb_html, 'wcb-card-avatar__img' ), 'the first-paint card has the logo in its data and an image element' );
+foreach ( array( $wcb_logo_job, $wcb_nologo_job, $wcb_logo_co ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+wp_delete_attachment( $wcb_logo_at, true );
+
 // Teardown.
 foreach ( array( $wcb_title, $wcb_body, $wcb_comp ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );

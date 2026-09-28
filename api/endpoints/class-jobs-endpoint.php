@@ -251,6 +251,7 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
+		\WCB\Core\CompanyMetaShape::prime_logos( array_map( array( \WCB\Core\CompanyMetaShape::class, 'for_job' ), $query->posts ) );
 		$jobs = array_map( array( $this, 'prepare_item_for_response_array' ), $query->posts );
 		$jobs = (array) apply_filters( 'wcb_jobs_post_filter', $jobs, $query, $request );
 
@@ -1578,6 +1579,7 @@ final class JobsEndpoint extends RestController {
 			// Company fields.
 			'company'                => $company_name,
 			'initials'               => $this->company_initials( $company_name ),
+			'company_logo'           => \WCB\Core\CompanyMetaShape::logo_url( $company_id ),
 			'trust'                  => $trust,
 			'trust_label'            => $trust_info['label'] ?? '',
 			'trust_icon'             => $trust_info['icon'] ?? '',

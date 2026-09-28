@@ -544,6 +544,24 @@ select.wcb-field {
 	margin: 0;
 }
 
+/*
+ * A field and its hint: stacked, so the hint sits under its control instead of
+ * running into a label on the same line. Shared because the Pro resume builder
+ * uses them without the job form (which used to be the only place they were
+ * defined) being on the page.
+ */
+.wcb-form-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+}
+
+.wcb-form-hint {
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
 /* Dashboard email preferences: a fieldset for grouping, without the browser frame. */
 .wcb-email-prefs {
 	border: 0;

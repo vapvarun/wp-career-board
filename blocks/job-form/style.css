@@ -118,13 +118,6 @@
 }
 
 /* ── Fields ──────────────────────────────────────────────────────────── */
-.wcb-form-field {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	min-width: 0;
-}
-
 .wcb-form-label {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
@@ -138,11 +131,6 @@
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
 	margin-inline-start: 2px; /* hairline gap */
-}
-
-.wcb-form-hint {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
 }
 
 .wcb-field {

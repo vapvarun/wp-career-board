@@ -70,7 +70,10 @@
 .wcb-email-log-table-wrap {
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: 8px;
-	overflow: hidden;
+	/* Scroll, never clip: a long subject makes the table wider than the panel,
+	   and `hidden` cut the Status column off with no way to reach it. */
+	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 .wcb-email-log-table {

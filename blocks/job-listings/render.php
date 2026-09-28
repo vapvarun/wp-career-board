@@ -176,6 +176,9 @@ $wcb_trust_badges = array(
 
 $wcb_jobs_state = array();
 
+// One query for the page's company logos, not a few per card.
+\WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
+
 foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_location_terms   = wp_get_object_terms( $wcb_job_post->ID, 'wcb_location', array( 'fields' => 'names' ) );
 	$wcb_type_terms       = wp_get_object_terms( $wcb_job_post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
@@ -206,6 +209,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'permalink'       => get_permalink( $wcb_job_post->ID ),
 		'company'         => $wcb_company_name_val,
 		'initials'        => $wcb_initials( $wcb_company_name_val ),
+		'company_logo'    => \WCB\Core\CompanyMetaShape::logo_url( $wcb_company_post_id ),
 		'trust'           => $wcb_trust,
 		'trust_label'     => $wcb_trust_info['label'] ?? '',
 		'verified'        => null !== $wcb_trust_info,
@@ -802,7 +806,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
-				<div class="wcb-card-avatar" aria-hidden="true" data-wp-text="context.job.initials"></div>
+				<div class="wcb-card-avatar" aria-hidden="true" data-wp-class--wcb-card-avatar--logo="context.job.company_logo">
+					<img class="wcb-card-avatar__img" alt="" loading="lazy" decoding="async" data-wp-bind--src="context.job.company_logo" data-wp-bind--hidden="!context.job.company_logo" />
+					<span class="wcb-card-avatar__initials" data-wp-text="context.job.initials" data-wp-bind--hidden="context.job.company_logo"></span>
+				</div>
 
 				<div class="wcb-card-body">
 

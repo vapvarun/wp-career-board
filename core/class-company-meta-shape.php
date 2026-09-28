@@ -261,4 +261,37 @@ final class CompanyMetaShape {
 		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
 		return $counts;
 	}
+
+	/**
+	 * A company's logo URL for a card ('' when it has none).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $company_id Company post ID (0 for no company).
+	 * @return string
+	 */
+	public static function logo_url( int $company_id ): string {
+		return $company_id > 0 ? (string) get_the_post_thumbnail_url( $company_id, 'thumbnail' ) : '';
+	}
+
+	/**
+	 * Load the logos of a page of companies in a few queries instead of a few
+	 * per card: the companies' meta, then their images.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int[] $company_ids Company post IDs (repeats and zeros are fine).
+	 * @return void
+	 */
+	public static function prime_logos( array $company_ids ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $company_ids ) ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		update_postmeta_cache( $ids );
+		$images = array_values( array_filter( array_map( 'get_post_thumbnail_id', $ids ) ) );
+		if ( $images ) {
+			_prime_post_caches( $images, false, true );
+		}
+	}
 }

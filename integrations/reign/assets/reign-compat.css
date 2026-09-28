@@ -59,9 +59,9 @@
 	--wcb-danger:  var( --reign-color-error, #dc2626 );
 	--wcb-info:    var( --reign-color-info, #2563eb );
 
-	/* Avatar background — uses Reign's heading colour so initials read
-	   correctly against the theme's preferred contrast tone. */
-	--wcb-avatar-bg: var( --reign-site-headings-color, #1e293b );
+	/* No --wcb-avatar-bg here: it is a surface, and Reign's heading colour is
+	   text, which is light in dark mode (a white chip with white initials).
+	   The plugin's own light and dark values apply. */
 }
 
 /* Honour the Customizer primary colour on WCB interactive elements */

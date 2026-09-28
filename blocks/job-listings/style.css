@@ -181,6 +181,25 @@
 	letter-spacing: 0.02em;
 }
 
+/* A company logo replaces the initials: an image on the surface colour, not the
+   avatar's dark fill, so a logo with a transparent background reads. */
+.wcb-card-avatar--logo {
+	background: var(--wcb-surface, #fff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	overflow: hidden;
+}
+
+.wcb-card-avatar__img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.wcb-card-avatar__img[hidden],
+.wcb-card-avatar__initials[hidden] {
+	display: none;
+}
+
 /* ── Card body ───────────────────────────────────────────────────────────── */
 .wcb-card-body {
 	flex: 1;

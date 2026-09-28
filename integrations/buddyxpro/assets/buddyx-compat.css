@@ -69,8 +69,8 @@ html.dark-mode {
 	--wcb-danger:  var( --bbg-danger-color, #dc2626 );
 	--wcb-info:    var( --wcb-primary );
 
-	/* Avatar background — heading tone so initials read against theme contrast. */
-	--wcb-avatar-bg: var( --bx-color-text-primary, var( --bbg-headings-color, #1e293b ) );
+	/* No --wcb-avatar-bg here: it is a surface, and the theme's text colour is
+	   light in dark mode. The plugin's own light and dark values apply. */
 }
 
 /*
