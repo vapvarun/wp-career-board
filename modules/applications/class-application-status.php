@@ -112,6 +112,18 @@ final class ApplicationStatus {
 	}
 
 	/**
+	 * Statuses nobody moves an application out of: the candidate withdrew, the
+	 * position closed, or the job is gone. The one rule behind the REST status
+	 * route, the Kanban and ApplicationLifecycle::transition().
+	 *
+	 * @since 1.8.0
+	 * @return array<int,string>
+	 */
+	public static function closed(): array {
+		return array( self::WITHDRAWN, self::JOB_REMOVED, self::POSITION_CLOSED );
+	}
+
+	/**
 	 * Statuses that represent end-of-pipeline states (no further employer action expected).
 	 *
 	 * @since 1.1.2

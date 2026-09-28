@@ -558,7 +558,7 @@ final class ApplicationsEndpoint extends RestController {
 		// Withdrawn, position-closed and job-removed are final outcomes; the
 		// employer sees them but cannot reopen them.
 		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
-		if ( '' !== $current && ! in_array( $current, $allowed, true ) ) {
+		if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {
 			return new \WP_Error(
 				'wcb_application_closed',
 				__( 'This application is closed (withdrawn, position closed or job removed), so its status can no longer change.', 'wp-career-board' ),

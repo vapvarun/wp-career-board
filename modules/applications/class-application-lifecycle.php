@@ -36,6 +36,20 @@ final class ApplicationLifecycle {
 	public const CLOSE_HOOK = 'wcb_close_job_applications';
 
 	/**
+	 * Cron hook: give a reopened job's closed applications their status back.
+	 *
+	 * @var string
+	 */
+	public const REOPEN_HOOK = 'wcb_reopen_job_applications';
+
+	/**
+	 * Reason logged when a reopen restores an application.
+	 *
+	 * @var string
+	 */
+	private const REOPEN_REASON = 'job_reopened';
+
+	/**
 	 * Applications handled per cron run.
 	 *
 	 * @since 1.8.0
@@ -51,6 +65,7 @@ final class ApplicationLifecycle {
 	public function boot(): void {
 		add_action( 'before_delete_post', array( $this, 'on_job_deleted' ), 10, 2 );
 		add_action( self::CLOSE_HOOK, array( self::class, 'close_job_applications' ), 10, 2 );
+		add_action( self::REOPEN_HOOK, array( self::class, 'reopen_job_applications' ), 10, 1 );
 
 		// Owner decision D15: when the employer closes a job (filled or
 		// cancelled), its undecided applications close too and each candidate
@@ -59,8 +74,16 @@ final class ApplicationLifecycle {
 		add_action(
 			'transition_post_status',
 			static function ( string $new_status, string $old_status, \WP_Post $post ): void {
-				if ( 'wcb_job' === $post->post_type && 'wcb_closed' === $new_status && 'wcb_closed' !== $old_status ) {
+				if ( 'wcb_job' !== $post->post_type || $new_status === $old_status ) {
+					return;
+				}
+				if ( 'wcb_closed' === $new_status ) {
 					self::queue_close( $post->ID, ApplicationStatus::POSITION_CLOSED );
+				} elseif ( 'wcb_closed' === $old_status ) {
+					// Reopened (or re-advertised): the applicants that Close moved are back in play.
+					if ( ! wp_next_scheduled( self::REOPEN_HOOK, array( $post->ID ) ) ) {
+						wp_schedule_single_event( time(), self::REOPEN_HOOK, array( $post->ID ) );
+					}
 				}
 			},
 			10,
@@ -171,6 +194,10 @@ final class ApplicationLifecycle {
 	 * @return void
 	 */
 	public static function close_job_applications( int $job_id, string $status = ApplicationStatus::JOB_REMOVED ): void {
+		// Reopened before this queued close ran: nothing to close.
+		if ( ApplicationStatus::POSITION_CLOSED === $status && 'wcb_closed' !== get_post_status( $job_id ) ) {
+			return;
+		}
 		$ids = get_posts(
 			array(
 				'post_type'      => 'wcb_application',
@@ -213,6 +240,57 @@ final class ApplicationLifecycle {
 	}
 
 	/**
+	 * Put back what a Close did: each application the close moved to Position
+	 * closed returns to the status it had, with no email (owner decision, 1.8.0).
+	 * Idempotent, in batches: a restored application no longer matches.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $job_id Job ID.
+	 * @return void
+	 */
+	public static function reopen_job_applications( int $job_id ): void {
+		// Closed again since: leave them.
+		if ( 'wcb_closed' === get_post_status( $job_id ) ) {
+			return;
+		}
+		$ids = get_posts(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => 'any',
+				'posts_per_page' => self::BATCH,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => '_wcb_job_id',
+						'value' => (string) $job_id,
+					),
+					array(
+						'key'   => '_wcb_status',
+						'value' => ApplicationStatus::POSITION_CLOSED,
+					),
+				),
+			)
+		);
+		if ( $ids ) {
+			update_postmeta_cache( $ids );
+		}
+		foreach ( $ids as $application_id ) {
+			$log  = self::log( (int) $application_id );
+			$last = $log ? (array) end( $log ) : array();
+			$back = (string) ( $last['from'] ?? '' );
+			// Only what the Close moved; a status it never changed has nothing to give back.
+			if ( 'job_closed' === ( $last['reason'] ?? '' ) && ApplicationStatus::is_valid( $back ) && ! in_array( $back, ApplicationStatus::closed(), true ) ) {
+				self::transition( (int) $application_id, $back, self::REOPEN_REASON, 0, '', false );
+			}
+		}
+		if ( self::BATCH === count( $ids ) ) {
+			wp_schedule_single_event( time(), self::REOPEN_HOOK, array( $job_id ) );
+		}
+	}
+
+	/**
 	 * The one way an application's status changes.
 	 *
 	 * Every writer (REST, admin bulk, admin detail screen, CLI, Pro pipeline,
@@ -232,9 +310,10 @@ final class ApplicationLifecycle {
 	 * @param string   $reason         Machine-readable reason (e.g. job_deleted, candidate_withdrew, pipeline_stage).
 	 * @param int|null $actor          User making the change; null = current user, 0 = system.
 	 * @param string   $note           Optional human note kept in the log.
+	 * @param bool     $notify         False to log the change without announcing it (a reopen restoring what a Close moved).
 	 * @return bool Whether the status actually changed.
 	 */
-	public static function transition( int $application_id, string $new_status, string $reason = '', ?int $actor = null, string $note = '' ): bool {
+	public static function transition( int $application_id, string $new_status, string $reason = '', ?int $actor = null, string $note = '', bool $notify = true ): bool {
 		if ( ! ApplicationStatus::is_valid( $new_status ) || 'wcb_application' !== get_post_type( $application_id ) ) {
 			return false;
 		}
@@ -242,6 +321,11 @@ final class ApplicationLifecycle {
 		$old_status = (string) get_post_meta( $application_id, '_wcb_status', true );
 		$old_status = '' !== $old_status ? $old_status : ApplicationStatus::SUBMITTED;
 		if ( $old_status === $new_status ) {
+			return false;
+		}
+		// Withdrawn, position closed and job removed are final for every writer
+		// (REST, Kanban, admin bulk, CLI); only a reopen gives them back.
+		if ( in_array( $old_status, ApplicationStatus::closed(), true ) && self::REOPEN_REASON !== $reason ) {
 			return false;
 		}
 
@@ -279,7 +363,9 @@ final class ApplicationLifecycle {
 		 * @param string $reason         Machine-readable reason.
 		 * @param int    $actor          User who made the change, 0 = system.
 		 */
-		do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status, $reason, (int) $entry['by'] );
+		if ( $notify ) {
+			do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status, $reason, (int) $entry['by'] );
+		}
 
 		return true;
 	}
