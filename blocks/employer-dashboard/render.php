@@ -399,6 +399,8 @@ wp_interactivity_state(
 
 			// Application status labels (board columns).
 			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),
+			/* translators: %s: number of applications. */
+			'boardNotShown'            => __( 'Not on the board (closed, withdrawn or removed): %s', 'wp-career-board' ),
 			'statusReviewing'          => __( 'Reviewing', 'wp-career-board' ),
 			'statusShortlisted'        => __( 'Shortlisted', 'wp-career-board' ),
 			'statusHired'              => __( 'Hired', 'wp-career-board' ),
@@ -882,6 +884,8 @@ wp_interactivity_state(
 					</div>
 				</div>
 			</div>
+
+			<p class="wcb-apps-board-note" hidden data-wp-bind--hidden="!state.showBoardNote" data-wp-text="state.boardNoteLabel"></p>
 
 			<!-- Board (Kanban) layout — columns by status; drag a card to re-status. -->
 			<div class="wcb-apps-board" data-wp-class--wcb-shown="state.isAppsBoardLayout">

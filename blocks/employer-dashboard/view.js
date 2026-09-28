@@ -481,6 +481,23 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} );
 		},
 
+		// The board has one column per live status, so closed, withdrawn and removed
+		// applications are in the total but on no column: say so instead of letting the
+		// column counts disagree with "All".
+		get appsNotOnBoard() {
+			const by = state.appsCounts.by_status || {};
+			const onBoard = [ 'submitted', 'reviewing', 'shortlisted', 'hired', 'rejected' ]
+				.reduce( ( sum, key ) => sum + Number( by[ key ] || 0 ), 0 );
+			return Math.max( 0, Number( state.appsCounts.total || 0 ) - onBoard );
+		},
+		get showBoardNote() {
+			return state.isAppsBoardLayout && state.appsNotOnBoard > 0;
+		},
+		get boardNoteLabel() {
+			return t( 'boardNotShown', 'Not on the board (closed, withdrawn or removed): %s' )
+				.replace( '%s', fmtNumber( state.appsNotOnBoard ) );
+		},
+
 		// Per-status counts — computed from already-loaded applications, no extra
 		// REST calls. Zero renders as an empty pill, anything else as a
 		// site-locale-formatted number.

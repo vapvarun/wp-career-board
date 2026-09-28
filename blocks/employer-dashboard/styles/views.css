@@ -553,6 +553,12 @@
 }
 
 /* -- Board (Kanban) layout -- */
+.wcb-apps-board-note {
+	margin: 0 0 var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
 .wcb-apps-board {
 	display: none;
 	gap: var(--wcb-space-md);
