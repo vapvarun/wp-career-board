@@ -113,11 +113,11 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 			?>
 			<li class="wcb-job-widget-item">
 				<a class="wcb-job-widget-link" href="<?php echo esc_url( get_permalink( $wcb_job->ID ) ); ?>">
-					<span class="wcb-job-widget-logo" aria-hidden="true">
+					<span class="wcb-avatar<?php echo $wcb_thumb_url ? ' wcb-avatar--logo' : ''; ?> wcb-job-widget-logo" aria-hidden="true">
 						<?php if ( $wcb_thumb_url ) : ?>
 							<img src="<?php echo esc_url( $wcb_thumb_url ); ?>" alt="" width="16" height="16" loading="lazy" />
 						<?php else : ?>
-							<span class="wcb-job-widget-initial"><?php echo esc_html( $wcb_initial ); ?></span>
+							<?php echo esc_html( $wcb_initial ); ?>
 						<?php endif; ?>
 					</span>
 					<span class="wcb-job-widget-body">

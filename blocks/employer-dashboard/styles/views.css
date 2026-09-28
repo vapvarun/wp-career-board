@@ -52,17 +52,7 @@
 }
 
 .wcb-app-avatar {
-	flex-shrink: 0;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	border-radius: 50%;
-	background: var(--wcb-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-secondary);
+	--wcb-avatar-size: var(--wcb-space-3xl);
 }
 
 .wcb-app-info {
@@ -656,11 +646,7 @@
 }
 
 .wcb-board-card .wcb-app-avatar {
-	width: 26px;
-	height: 26px;
-	font-size: 11px;
-	background: var(--wcb-primary-bg, #eef2ff);
-	color: var(--wcb-primary);
+	--wcb-avatar-size: 26px;
 }
 
 .wcb-board-card .wcb-app-name {
@@ -710,29 +696,6 @@
 	font-size: var(--wcb-text-base);
 	font-style: italic;
 	color: var(--wcb-text-secondary);
-}
-
-/* Avatar (generic) */
-.wcb-avatar,
-.wcb-detail-avatar {
-	flex-shrink: 0;
-	border-radius: 50%;
-	background: var(--wcb-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-avatar--sm { width: var(--wcb-space-3xl); height: var(--wcb-space-3xl); }
-.wcb-avatar--lg { width: 44px; height: 44px; font-size: var(--wcb-text-base); }
-
-.wcb-detail-avatar {
-	width: 44px;
-	height: 44px;
-	font-size: var(--wcb-text-base);
 }
 
 /* Applicant detail column */

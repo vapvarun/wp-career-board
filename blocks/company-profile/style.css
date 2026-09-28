@@ -71,25 +71,21 @@
 
 .wcb-cp-logo,
 .wcb-cp-avatar {
-	width: 88px;
-	height: 88px;
-	border-radius: 14px;
 	border: 3px solid var(--wcb-base);
 	box-shadow: var(--wcb-shadow-sm);
+}
+
+.wcb-cp-logo {
+	width: 88px;
+	height: 88px;
+	border-radius: var(--wcb-radius-lg);
 	display: block;
 	object-fit: cover;
 	background: var(--wcb-base);
 }
 
 .wcb-cp-avatar {
-	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-base, #ffffff);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-2xl);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
+	--wcb-avatar-size: 88px;
 }
 
 /* -- Hero info --
@@ -563,17 +559,6 @@
 		text-align: center;
 		gap: var(--wcb-space-md);
 		padding: var(--wcb-space-2xl) var(--wcb-space-xl);
-	}
-
-	.wcb-cp-avatar-wrap {
-		margin-top: 0;
-	}
-
-	.wcb-cp-logo,
-	.wcb-cp-avatar {
-		width: 88px;
-		height: 88px;
-		font-size: var(--wcb-text-2xl);
 	}
 
 	.wcb-cp-hero-info {

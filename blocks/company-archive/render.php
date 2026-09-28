@@ -356,7 +356,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						<div class="wcb-ca-avatar-wrap">
 							<img class="wcb-ca-logo" alt="" data-wp-class--wcb-shown="context.company.has_logo" data-wp-bind--src="context.company.logo" data-wp-bind--alt="context.company.name" />
 							<div
-								class="wcb-ca-avatar"
+								class="wcb-avatar wcb-ca-avatar"
 								data-wp-class--wcb-shown="context.company.no_logo"
 								data-wp-text="context.company.initials"
 								aria-hidden="true"

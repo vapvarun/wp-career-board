@@ -375,7 +375,7 @@ wp_interactivity_state(
 	<div class="wcb-job-hero">
 
 		<div class="wcb-job-hero-brand">
-			<div class="wcb-company-avatar<?php echo $wcb_company_logo ? ' wcb-company-avatar--logo' : ''; ?>">
+			<div class="wcb-avatar wcb-avatar--xl<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
 				<?php if ( $wcb_company_logo ) : ?>
 					<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="<?php echo esc_attr( $wcb_company_name ); ?>" width="64" height="64" />
 				<?php else : ?>
@@ -863,7 +863,7 @@ wp_interactivity_state(
 						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
 					</h3>
 					<div class="wcb-company-card-header">
-						<div class="wcb-company-avatar wcb-company-avatar--sm<?php echo $wcb_company_logo ? ' wcb-company-avatar--logo' : ''; ?>">
+						<div class="wcb-avatar wcb-avatar--sm<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
 							<?php if ( $wcb_company_logo ) : ?>
 								<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="" width="44" height="44" />
 							<?php else : ?>

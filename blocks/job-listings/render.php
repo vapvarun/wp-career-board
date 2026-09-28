@@ -806,9 +806,9 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
-				<div class="wcb-card-avatar" aria-hidden="true" data-wp-class--wcb-card-avatar--logo="context.job.company_logo">
-					<img class="wcb-card-avatar__img" alt="" loading="lazy" decoding="async" data-wp-bind--src="context.job.company_logo" data-wp-bind--hidden="!context.job.company_logo" />
-					<span class="wcb-card-avatar__initials" data-wp-text="context.job.initials" data-wp-bind--hidden="context.job.company_logo"></span>
+				<div class="wcb-avatar wcb-card-avatar" aria-hidden="true" data-wp-class--wcb-avatar--logo="context.job.company_logo">
+					<img alt="" loading="lazy" decoding="async" data-wp-bind--src="context.job.company_logo" data-wp-bind--hidden="!context.job.company_logo" />
+					<span data-wp-text="context.job.initials" data-wp-bind--hidden="context.job.company_logo"></span>
 				</div>
 
 				<div class="wcb-card-body">

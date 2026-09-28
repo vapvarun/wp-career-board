@@ -199,17 +199,7 @@
 }
 
 .wcb-sidebar-avatar {
-	flex-shrink: 0;
-	width: 26px;
-	height: 26px;
-	border-radius: 50%;
-	background: var(--wcb-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-secondary);
+	--wcb-avatar-size: 26px;
 }
 
 .wcb-sidebar-company {

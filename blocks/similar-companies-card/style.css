@@ -55,22 +55,8 @@
 	text-decoration: none;
 }
 
-.wcb-similar-companies-card__logo,
-.wcb-similar-companies-card__initial {
-	flex: 0 0 36px;
-	width: 36px;
-	height: 36px;
-	border-radius: var(--wcb-radius-sm, 6px);
-	object-fit: cover;
-}
-
-.wcb-similar-companies-card__initial {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	background: var(--wcb-accent-bg, #eef2ff);
-	color: var(--wcb-accent-strong, #4338ca);
-	font-weight: 600;
+.wcb-similar-companies-card__avatar {
+	--wcb-avatar-size: 36px;
 }
 
 .wcb-similar-companies-card__body {

@@ -101,11 +101,13 @@ if ( empty( $wcb_companies ) ) {
 		?>
 		<li class="wcb-similar-companies-card__item">
 			<a class="wcb-similar-companies-card__link" href="<?php echo esc_url( $wcb_perma ); ?>">
-				<?php if ( $wcb_logo ) : ?>
-					<img class="wcb-similar-companies-card__logo" src="<?php echo esc_url( $wcb_logo ); ?>" alt="" loading="lazy" />
-				<?php else : ?>
-					<span class="wcb-similar-companies-card__initial" aria-hidden="true"><?php echo esc_html( $wcb_initial ); ?></span>
-				<?php endif; ?>
+				<span class="wcb-avatar<?php echo $wcb_logo ? ' wcb-avatar--logo' : ''; ?> wcb-similar-companies-card__avatar" aria-hidden="true">
+					<?php if ( $wcb_logo ) : ?>
+						<img src="<?php echo esc_url( $wcb_logo ); ?>" alt="" loading="lazy" />
+					<?php else : ?>
+						<?php echo esc_html( $wcb_initial ); ?>
+					<?php endif; ?>
+				</span>
 				<span class="wcb-similar-companies-card__body">
 					<span class="wcb-similar-companies-card__name"><?php echo esc_html( $wcb_company->post_title ); ?></span>
 					<?php if ( $wcb_loc ) : ?>

@@ -497,7 +497,7 @@ wp_interactivity_state(
 		</a>
 
 		<div class="wcb-sidebar-user">
-			<div class="wcb-sidebar-avatar" data-wp-text="state.candidateInitials" aria-hidden="true"></div>
+			<div class="wcb-avatar wcb-avatar--round wcb-sidebar-avatar" data-wp-text="state.candidateInitials" aria-hidden="true"></div>
 			<span class="wcb-sidebar-company" data-wp-text="state.candidateName"></span>
 		</div>
 	</aside>

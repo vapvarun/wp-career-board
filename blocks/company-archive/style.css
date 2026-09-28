@@ -307,12 +307,19 @@
 /* Logo and avatar are hidden by default; shown via .wcb-shown added by IA */
 .wcb-ca-logo,
 .wcb-ca-avatar {
+	position: absolute;
+	inset: 0;
+}
+
+.wcb-ca-logo:not(.wcb-shown),
+.wcb-ca-avatar:not(.wcb-shown) {
+	display: none;
+}
+
+.wcb-ca-logo {
 	width: 56px;
 	height: 56px;
 	border-radius: var(--wcb-radius-lg);
-	position: absolute;
-	inset: 0;
-	display: none;
 }
 
 .wcb-ca-logo.wcb-shown {
@@ -324,19 +331,9 @@
 }
 
 .wcb-ca-avatar {
-	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-on-primary, #ffffff);
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
+	--wcb-avatar-size: var(--wcb-avatar-lg);
 	border: 2px solid transparent;
 	box-shadow: var(--wcb-shadow-sm);
-}
-
-.wcb-ca-avatar.wcb-shown {
-	display: flex;
 }
 
 /* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -

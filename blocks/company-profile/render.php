@@ -169,7 +169,7 @@ wp_interactivity_state(
 				<?php if ( $wcb_logo_url ) : ?>
 					<img class="wcb-cp-logo" src="<?php echo esc_url( $wcb_logo_url ); ?>" alt="<?php echo esc_attr( $wcb_name ); ?>" />
 				<?php else : ?>
-					<div class="wcb-cp-avatar" aria-hidden="true">
+					<div class="wcb-avatar wcb-cp-avatar" aria-hidden="true">
 						<?php echo esc_html( $wcb_initials ); ?>
 					</div>
 				<?php endif; ?>

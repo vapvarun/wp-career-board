@@ -542,7 +542,7 @@ wp_interactivity_state(
 		</button>
 
 		<div class="wcb-sidebar-user">
-			<div class="wcb-sidebar-avatar" data-wp-text="state.companyInitials" aria-hidden="true"></div>
+			<div class="wcb-avatar wcb-avatar--round wcb-sidebar-avatar" data-wp-text="state.companyInitials" aria-hidden="true"></div>
 			<span class="wcb-sidebar-company" data-wp-text="state.sidebarName"></span>
 		</div>
 	</aside>
@@ -625,7 +625,7 @@ wp_interactivity_state(
 					<div data-wp-class--wcb-shown="state.hasRecentApps">
 						<template data-wp-each--app="state.overviewRecentApps" data-wp-each-key="context.app.id">
 							<div class="wcb-overview-app-row">
-								<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
+								<div class="wcb-avatar wcb-avatar--round wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
 								<div class="wcb-app-info">
 									<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 									<span class="wcb-app-job" data-wp-text="context.app.job_title"></span>
@@ -795,7 +795,7 @@ wp_interactivity_state(
 					<button type="button" class="wcb-btn wcb-btn--ghost wcb-ai-rank-btn" data-wp-class--wcb-hidden="!state.showAiRankButton" data-wp-bind--disabled="state.aiRankLoading" data-wp-on--click="actions.rankByAi" data-wp-text="state.aiRankBtnLabel"></button>
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
 						<div class="wcb-applicant-row" role="button" tabindex="0" data-wp-class--wcb-selected="state.isSelectedApp" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-bind--aria-label="state.applicantRowLabel" data-wp-on--click="actions.selectApplicant" data-wp-on--keydown="actions.handleRowKeydown">
-							<div class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
+							<div class="wcb-avatar wcb-avatar--round wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></div>
 							<div class="wcb-app-info">
 								<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 								<span class="wcb-ai-summary" data-wp-class--wcb-hidden="!context.app.aiSummary" data-wp-text="context.app.aiSummary"></span>
@@ -814,7 +814,7 @@ wp_interactivity_state(
 					</div>
 					<div data-wp-class--wcb-hidden="state.noAppSelected">
 						<div class="wcb-detail-header">
-							<div class="wcb-detail-avatar" data-wp-text="state.selectedAppInitials" aria-hidden="true"></div>
+							<div class="wcb-avatar wcb-avatar--round wcb-avatar--sm wcb-detail-avatar" data-wp-text="state.selectedAppInitials" aria-hidden="true"></div>
 							<div>
 								<h3 class="wcb-detail-name" data-wp-text="state.selectedAppName"></h3>
 								<p class="wcb-detail-email" data-wp-text="state.selectedAppEmail"></p>
@@ -886,7 +886,7 @@ wp_interactivity_state(
 							<template data-wp-each--app="context.column.apps" data-wp-each-key="context.app.id">
 								<div class="wcb-board-card" draggable="true" tabindex="0" role="button" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.openFromBoard" data-wp-on--keydown="actions.openFromBoardKey">
 									<div class="wcb-board-card-head">
-										<span class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></span>
+										<span class="wcb-avatar wcb-avatar--round wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></span>
 										<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 									</div>
 									<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
