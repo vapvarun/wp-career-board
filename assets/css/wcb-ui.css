@@ -23,9 +23,8 @@
  *   .wcb-stack             — vertical flow utility, gap presets --xs, --sm, --md, --lg, --xl.
  *   .wcb-row               — horizontal flex utility with wrap + gap presets.
  *
- * `.wcb-cbtn` is a legacy alias of `.wcb-btn` (--ghost = --outline), listed on the
- * same selectors in the button ladder. No markup in either plugin uses it any
- * more; drop the alias selectors one release after 1.8.0.
+ * `.wcb-btn` is the only button ladder; Rule 10 in bin/coding-rules-check.sh
+ * blocks the retired legacy button class.
  *
  * @package WP_Career_Board
  * @since 1.2.0
@@ -158,8 +157,7 @@
 
 /* ── Button ladder ────────────────────────────────────────────────────────── */
 
-.wcb-btn,
-.wcb-cbtn {
+.wcb-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -178,17 +176,14 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-.wcb-btn:focus-visible,
-.wcb-cbtn:focus-visible {
+.wcb-btn:focus-visible {
 	outline: 2px solid transparent;
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-btn[disabled],
 .wcb-btn:disabled,
-.wcb-btn--disabled,
-.wcb-cbtn[disabled],
-.wcb-cbtn:disabled {
+.wcb-btn--disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
 	pointer-events: none;
@@ -204,8 +199,7 @@
 	flex-shrink: 0;
 }
 
-.wcb-btn--sm,
-.wcb-cbtn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+.wcb-btn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 .wcb-btn--lg { min-height: 48px; padding: 0 var(--wcb-space-xl); font-size: var(--wcb-text-md); }
 .wcb-btn--full,
 .wcb-btn--block { width: 100%; }
@@ -285,12 +279,9 @@
  * (0,3,1), which beats the Reign / Astra `.entry-content button|a` cascade
  * ((0,2,1)) without `!important`. `-webkit-text-fill-color` follows the
  * resolved `color` so an aggressive theme (BuddyX) cannot strand a fixed fill
- * on a same-colour background. `.wcb-cbtn--*` is the legacy alias, kept for one
- * release so third-party overrides keep working; drop it with the alias below. */
+ * on a same-colour background. */
 [class*="wp-block-wp-career-board"] .wcb-btn--primary,
-[class*="wp-block-wcb-"] .wcb-btn--primary,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary {
+[class*="wp-block-wcb-"] .wcb-btn--primary {
 	background: var(--wcb-primary, #2563eb);
 	color: var(--wcb-on-primary, #ffffff);
 	border-color: var(--wcb-primary, #2563eb);
@@ -299,11 +290,7 @@
 [class*="wp-block-wp-career-board"] .wcb-btn--primary:hover,
 [class*="wp-block-wp-career-board"] .wcb-btn--primary:focus-visible,
 [class*="wp-block-wcb-"] .wcb-btn--primary:hover,
-[class*="wp-block-wcb-"] .wcb-btn--primary:focus-visible,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:hover,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:focus-visible,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary:hover,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
+[class*="wp-block-wcb-"] .wcb-btn--primary:focus-visible {
 	background: var(--wcb-primary-dark, #1d4ed8);
 	border-color: var(--wcb-primary-dark, #1d4ed8);
 	color: var(--wcb-on-primary, #ffffff);
@@ -319,17 +306,7 @@
 [class*="wp-block-wcb-"] a.wcb-btn--outline:visited,
 [class*="wp-block-wcb-"] span.wcb-btn--outline,
 [class*="wp-block-wcb-"] button.wcb-btn--outline,
-[class*="wp-block-wcb-"] .wcb-btn.wcb-btn--outline,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:link,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:visited,
-[class*="wp-block-wp-career-board"] span.wcb-cbtn--ghost,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost,
-[class*="wp-block-wp-career-board"] .wcb-cbtn.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:link,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:visited,
-[class*="wp-block-wcb-"] span.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
+[class*="wp-block-wcb-"] .wcb-btn.wcb-btn--outline {
 	background: transparent;
 	color: var(--wcb-primary, #2563eb);
 	-webkit-text-fill-color: currentColor;
@@ -343,15 +320,7 @@
 [class*="wp-block-wcb-"] a.wcb-btn--outline:hover,
 [class*="wp-block-wcb-"] a.wcb-btn--outline:focus-visible,
 [class*="wp-block-wcb-"] button.wcb-btn--outline:hover,
-[class*="wp-block-wcb-"] button.wcb-btn--outline:focus-visible,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:hover,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:hover,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:hover,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:hover,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:focus-visible {
+[class*="wp-block-wcb-"] button.wcb-btn--outline:focus-visible {
 	background: var(--wcb-primary, #2563eb);
 	color: var(--wcb-on-primary, #ffffff);
 	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
@@ -360,9 +329,7 @@
 }
 
 [class*="wp-block-wp-career-board"] .wcb-btn--danger,
-[class*="wp-block-wcb-"] .wcb-btn--danger,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger {
+[class*="wp-block-wcb-"] .wcb-btn--danger {
 	background: transparent;
 	color: var(--wcb-danger, #dc2626);
 	border-color: var(--wcb-danger-border, #fecaca);
@@ -371,11 +338,7 @@
 [class*="wp-block-wp-career-board"] .wcb-btn--danger:hover,
 [class*="wp-block-wp-career-board"] .wcb-btn--danger:focus-visible,
 [class*="wp-block-wcb-"] .wcb-btn--danger:hover,
-[class*="wp-block-wcb-"] .wcb-btn--danger:focus-visible,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:hover,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:focus-visible,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger:hover,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger:focus-visible {
+[class*="wp-block-wcb-"] .wcb-btn--danger:focus-visible {
 	background: var(--wcb-danger-bg-soft, #fef2f2);
 	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger, #dc2626);

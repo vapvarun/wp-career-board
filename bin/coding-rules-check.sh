@@ -17,7 +17,7 @@
 #      dir/namespace mismatch, no class whose file .distignore strips)
 #   8. Design-system contracts: (a) single canonical token namespace, no legacy
 #      --wcb-accent/text/bg/warn aliases; (b) dual-context CSS keeps hex fallbacks
-#  10. One button system: no legacy `.wcb-cbtn` class outside the wcb-ui.css alias
+#  10. One button system: no legacy `.wcb-cbtn` class
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -263,10 +263,9 @@ fi
 
 # --- Rule 10: one button system - no legacy `.wcb-cbtn` class ---
 # `.wcb-btn` (--primary|--secondary|--outline|--ghost|--danger) is the only
-# button ladder. `.wcb-cbtn` survives solely as an alias inside
-# assets/css/wcb-ui.css for one release, so nothing else may reference it and
-# no block may redefine its own button.
-CBTN=$(grep -nE 'wcb-cbtn' $(printf '%s\n' $PHP_FILES $JS_FILES $CSS_FILES | grep -v 'assets/css/wcb-ui\.css$') 2>/dev/null || true)
+# button ladder; `.wcb-cbtn` is retired and no block may bring it back or
+# redefine its own button.
+CBTN=$(grep -nE 'wcb-cbtn' $PHP_FILES $JS_FILES $CSS_FILES 2>/dev/null || true)
 if [ -n "$CBTN" ]; then
 	echo "$CBTN" | sed 's/^/    /'
 	report "Rule 10: legacy .wcb-cbtn class - use .wcb-btn (--outline replaces --ghost on archive cards)"
