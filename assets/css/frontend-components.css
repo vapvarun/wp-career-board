@@ -539,6 +539,15 @@ select.wcb-field {
 	color: var(--wcb-text-secondary);
 }
 
+/* A bare <p> with no margin of its own inherits whatever the theme gives a
+ * paragraph (Reign: 1.375rem, an off-scale value) instead of the plugin's
+ * own rhythm. */
+.wcb-form-help {
+	margin: var(--wcb-space-xs) 0 0 !important;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
 /* Dashboard email preferences: a fieldset for grouping, without the browser frame. */
 .wcb-email-prefs {
 	border: 0;
