@@ -105,6 +105,13 @@ class Admin {
 			);
 		}
 
+		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
+			$items[] = array(
+				__( 'New sites ask employers for a location on every job that is not remote, which Google for Jobs needs to list it. Turn on "Require a location" under Jobs to do the same here.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'listings', $settings ),
+			);
+		}
+
 		/**
 		 * Filter the "safer defaults" listed to sites that existed before 1.8.0.
 		 *

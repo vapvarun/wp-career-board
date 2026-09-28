@@ -254,6 +254,7 @@ final class Install {
 				$new_site = array(
 					'require_email_verification' => true,
 					'deadline_auto_close'        => true,
+					'require_job_location'       => true,
 				);
 				if ( array_diff_key( $new_site, $settings ) ) {
 					update_option( 'wcb_settings', $settings + $new_site );

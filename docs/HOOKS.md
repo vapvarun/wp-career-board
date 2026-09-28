@@ -248,6 +248,14 @@ the folder directly (nginx ignores its .htaccess).
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
 
+## Search engines (1.8.0)
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_posting_schema` | `array $schema, WP_Post $job, array $data` | Change a job's JobPosting (built from the job's REST data `$data`), or return `[]` to leave the job out of Google for Jobs. |
+
+`WCB\Modules\Seo\SeoModule::job_posting( $job )` and `::organization( $company_id )` return the markup arrays. Location country is term meta `_wcb_country` on `wcb_location` (REST-visible).
+
 ## Moderation (1.8.0)
 
 A ban (`_wcb_employer_banned` user meta, from any writer) hides the

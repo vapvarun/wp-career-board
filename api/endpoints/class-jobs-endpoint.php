@@ -693,6 +693,11 @@ final class JobsEndpoint extends RestController {
 			return $wcb_spam;
 		}
 
+		$wcb_location_error = $this->location_error( $request );
+		if ( $wcb_location_error ) {
+			return $wcb_location_error;
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -916,6 +921,11 @@ final class JobsEndpoint extends RestController {
 				__( 'Job not found.', 'wp-career-board' ),
 				array( 'status' => 404 )
 			);
+		}
+
+		$wcb_location_error = $this->location_error( $request, $post );
+		if ( $wcb_location_error ) {
+			return $wcb_location_error;
 		}
 
 		// A board move changes the price: collect the difference (or hand it
@@ -1643,18 +1653,58 @@ final class JobsEndpoint extends RestController {
 	// --- Helpers ----------------------------------------------------------------
 
 	/**
+	 * Settings > Jobs "Require a location": a job needs a location or Remote.
+	 *
+	 * On update the rule runs only when the request touches the location or
+	 * Remote, so older jobs without one stay editable.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function location_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
+			return null;
+		}
+		$remote    = $request->get_param( 'remote' );
+		$locations = $request->get_param( 'locations' );
+		$custom    = $request->get_param( 'location_custom' );
+		if ( $job && null === $remote && null === $locations && null === $custom ) {
+			return null;
+		}
+		if ( $job ) {
+			$remote    = $remote ?? '1' === get_post_meta( $job->ID, '_wcb_remote', true );
+			$locations = $locations ?? wp_get_object_terms( $job->ID, 'wcb_location', array( 'fields' => 'slugs' ) );
+			$custom    = $custom ?? get_post_meta( $job->ID, '_wcb_location_custom', true );
+		}
+		$locations = is_array( $locations ) ? array_filter( array_map( 'strval', $locations ) ) : ( is_string( $locations ) && '' !== $locations ? array( $locations ) : array() );
+		if ( rest_sanitize_boolean( $remote ) || $locations || '' !== trim( (string) $custom ) ) {
+			return null;
+		}
+		return new \WP_Error(
+			'wcb_location_required',
+			__( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	/**
 	 * Shape a WP_Post into the REST response array.
 	 *
 	 * Returns both slug-indexed taxonomy arrays (for filtering) and
 	 * display-name strings (for card rendering) so the frontend never needs
-	 * secondary lookups.
+	 * secondary lookups. Also the source of the JobPosting schema, so the
+	 * page markup and the API never disagree about a job.
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 Public (SeoModule builds JobPosting from it).
 	 *
 	 * @param \WP_Post $post Job post object.
 	 * @return array<string, mixed>
 	 */
-	private function prepare_item_for_response_array( \WP_Post $post ): array {
+	public function prepare_item_for_response_array( \WP_Post $post ): array {
 		$currency     = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
 		$currency     = '' !== $currency ? $currency : 'USD';
 		$salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
@@ -1663,19 +1713,9 @@ final class JobsEndpoint extends RestController {
 		$salary_type  = in_array( $salary_type, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type : 'yearly';
 		$company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 		$author_id    = (int) $post->post_author;
-		// Prefer the job's own _wcb_company_id postmeta (the explicit link
-		// stored at job-create time). Fall back to the author's user-meta
-		// only when the job has no postmeta — covers legacy rows that
-		// pre-date the postmeta convention. The reverse priority would
-		// surface the admin's own "their company" when admin posts a job
-		// for someone else, leaking the wrong company's brand metadata.
-		// The fallback must stay a plain read — this runs once per row.
-		$company_id = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
-		if ( ! $company_id ) {
-			$company_id = (int) get_user_meta( $author_id, '_wcb_company_id', true );
-		}
-		$trust      = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
-		$trust_info = $this->trust_badge_info( $trust );
+		$company_id   = \WCB\Core\CompanyMetaShape::for_job( $post );
+		$trust        = $company_id ? sanitize_key( (string) get_post_meta( $company_id, '_wcb_trust_level', true ) ) : '';
+		$trust_info   = $this->trust_badge_info( $trust );
 		// Shared brand-meta shape (R2) — serialize(0) returns empty strings, so
 		// this is safe when the job has no linked company.
 		$company_meta = \WCB\Core\CompanyMetaShape::serialize( $company_id );

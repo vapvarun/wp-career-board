@@ -296,6 +296,7 @@ $wcb_initial_state = apply_filters(
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// Application deadline is admin-controlled, not employer-editable. For
 		// new submissions we compute the deadline using the same filter chain
@@ -410,6 +411,7 @@ $wcb_initial_state = apply_filters(
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
+				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
 				'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
 				// Count-free fallback for the credit gate; the numbered,
@@ -876,6 +878,9 @@ $wcb_step_labels = array(
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-location">
 						<?php esc_html_e( 'Location', 'wp-career-board' ); ?>
+						<?php if ( \WCB\Admin\Settings::bool( 'require_job_location', false ) ) : ?>
+							<span class="wcb-form-hint"><?php esc_html_e( '(required unless the job is remote)', 'wp-career-board' ); ?></span>
+						<?php endif; ?>
 					</label>
 					<select
 						id="wcb-location"

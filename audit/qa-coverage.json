@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-27T17:35:43+00:00",
+        "at": "2026-09-28T00:29:58+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -329,7 +329,7 @@
             "total": 91,
             "covered": 10,
             "uncovered": 81,
-            "skipped": 148,
+            "skipped": 149,
             "covered_items": [
                 {
                     "name": "wcb_application_status_changed",
@@ -844,12 +844,12 @@
         "items_total": 172,
         "items_covered": 64,
         "items_uncovered": 108,
-        "items_skipped": 148,
+        "items_skipped": 149,
         "coverage_percent": 37.200000000000003
     },
     "drift": {
-        "previous_uncovered": 110,
+        "previous_uncovered": 108,
         "current_uncovered": 108,
-        "delta": -2
+        "delta": 0
     }
 }

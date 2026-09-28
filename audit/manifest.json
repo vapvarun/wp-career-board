@@ -25,7 +25,7 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 239,
+    "hooks_fired": 240,
     "hooks_unique": 161,
     "cron": 8,
     "wp_cli": 5
@@ -3788,6 +3788,14 @@
           "kind": "filter_listener"
         }
       ]
+    },
+    {
+      "name": "wcb_job_posting_schema",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "modules/seo/class-seo-module.php",
+      "consumed_by": []
     }
   ],
   "buddypress_integration": {

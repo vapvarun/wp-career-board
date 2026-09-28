@@ -559,6 +559,10 @@ const { state } = store(
 						return;
 					}
 				}
+				if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
+					state.validationError = t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' );
+					return;
+				}
 
 				state.validationError = '';
 				if ( state.step < 4 ) {

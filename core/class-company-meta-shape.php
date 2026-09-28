@@ -29,6 +29,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CompanyMetaShape {
 
 	/**
+	 * The company a job belongs to.
+	 *
+	 * The job's own `_wcb_company_id` (stored at create time) wins; the
+	 * author's user meta is only the fallback for legacy rows. The reverse
+	 * order would brand an admin-posted or imported job with the admin's own
+	 * company. A plain read: it runs once per row in job lists.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $job Job post.
+	 * @return int Company post ID, or 0.
+	 */
+	public static function for_job( \WP_Post $job ): int {
+		$company_id = (int) get_post_meta( $job->ID, '_wcb_company_id', true );
+		return $company_id ? $company_id : (int) get_user_meta( (int) $job->post_author, '_wcb_company_id', true );
+	}
+
+	/**
 	 * Serialize a company's brand meta for a REST response.
 	 *
 	 * @since 1.2.1
