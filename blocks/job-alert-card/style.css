@@ -52,10 +52,9 @@
 
 .wcb-job-alert-card__btn:hover,
 .wcb-job-alert-card__btn:focus {
-	background: var(--wcb-primary-hover, var(--wcb-primary));
+	background: var(--wcb-primary-dark);
 	color: var(--wcb-on-primary);
 	text-decoration: none;
-	filter: brightness(0.95);
 }
 
 @media (max-width: 640px) {

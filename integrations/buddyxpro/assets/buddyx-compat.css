@@ -31,7 +31,10 @@ html.dark-mode {
 	   Legacy BuddyX Pro used `--bbg-primary` / `--buddyx-primary-color`; kept as
 	   fallbacks so older theme builds still bridge. */
 	--wcb-primary: var( --bx-color-primary, var( --bx-color-accent, var( --bbg-primary, var( --buddyx-primary-color, #2563eb ) ) ) );
-	--wcb-primary-dark: var( --bx-color-accent-hover, var( --button-background-hover-color, var( --bbg-primary-hover, #1d4ed8 ) ) );
+	/* No --wcb-primary-dark remap: BuddyX's own hover token isn't reliably
+	   darker than the (possibly capped) fill on every accent/mode. The
+	   plugin's own frontend.css derives it from --wcb-primary-strong, which
+	   is always darker, so hover is guaranteed to read as pressed-in. */
 
 	/* Theme-aware primary tints — older browsers fall back to the static
 	   rgba on the first declaration; modern browsers use color-mix below. */

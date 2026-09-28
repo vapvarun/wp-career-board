@@ -33,8 +33,6 @@
 	--wcb-primary-ring: color-mix( in srgb, var( --wcb-primary ) 16%, transparent );
 
 	/* Darker shade for hover/active — tracks whatever accent resolved. */
-	--wcb-primary-dark: #1d4ed8;
-	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
 
 	/* Text — Reign's heading colour for strong titles, body colour for copy,
 	   the lighter alternate colour for tertiary/meta. */
@@ -62,20 +60,6 @@
 	/* No --wcb-avatar-bg here: it is a surface, and Reign's heading colour is
 	   text, which is light in dark mode (a white chip with white initials).
 	   The plugin's own light and dark values apply. */
-}
-
-/* Honour the Customizer primary colour on WCB interactive elements */
-.wcb-btn-primary,
-.wcb-apply-btn,
-.wcb-save-btn {
-	background-color: var( --wcb-primary );
-	border-color: var( --wcb-primary );
-}
-
-.wcb-btn-primary:hover,
-.wcb-apply-btn:hover,
-.wcb-save-btn:hover {
-	filter: brightness( 1.1 );
 }
 
 /* Strip double padding that Reign adds to .entry-content inside its content canvas */
