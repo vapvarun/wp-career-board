@@ -1126,3 +1126,73 @@
 		transition: none;
 	}
 }
+
+/* ── Hiring-team rating and notes (W19) ────────────────────────────────── */
+.wcb-rating {
+	display: flex;
+	gap: var(--wcb-space-2xs, 2px);
+	margin-bottom: var(--wcb-space-sm);
+}
+
+.wcb-rating__star {
+	padding: 0 var(--wcb-space-2xs, 2px);
+	border: 0;
+	background: none;
+	color: var(--wcb-border);
+	font-size: 1.4rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.wcb-rating__star--on {
+	color: var(--wcb-warning, #d97706);
+}
+
+.wcb-rating__star:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-notes-list {
+	margin: 0 0 var(--wcb-space-sm);
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-note {
+	position: relative;
+	padding: var(--wcb-space-xs) var(--wcb-space-xl) var(--wcb-space-xs) 0;
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-note__text {
+	margin: 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.wcb-note__meta {
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-xs);
+}
+
+.wcb-note__delete {
+	position: absolute;
+	inset-inline-end: 0;
+	top: var(--wcb-space-xs);
+	border: 0;
+	background: none;
+	color: var(--wcb-text-secondary);
+	cursor: pointer;
+}
+
+.wcb-app-notes textarea {
+	width: 100%;
+	margin-bottom: var(--wcb-space-xs);
+}
+
+/* A detail section that is shown only when it has content stays hidden
+   until then (AI fit, answers, resume printed empty headings). */
+.wcb-detail-section[data-wp-class--wcb-shown]:not(.wcb-shown) {
+	display: none;
+}

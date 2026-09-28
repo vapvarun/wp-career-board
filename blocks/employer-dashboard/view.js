@@ -444,6 +444,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get isStarOn() {
+			return ( getContext().star?.value || 0 ) <= ( state.selectedApp?.rating || 0 );
+		},
 		get isBoardOptSelected() {
 			const ctx = getContext();
 			return ctx.opt?.key === ctx.app?.status;
@@ -1042,6 +1045,60 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		setJobSearch( event ) {
 			state.jobSearch = event.target.value;
+		},
+
+		setNoteDraft( event ) {
+			state.noteDraft = event.target.value;
+		},
+
+		*addNote() {
+			const appId = state.selectedAppId;
+			if ( ! appId || ! state.noteDraft.trim() ) {
+				return;
+			}
+			const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+				body: JSON.stringify( { text: state.noteDraft } ),
+			} );
+			if ( response.ok ) {
+				state.appNotes  = yield response.json();
+				state.noteDraft = '';
+			}
+		},
+
+		*deleteNote() {
+			const appId = state.selectedAppId;
+			const note  = getContext().note;
+			const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes/' + note.id, {
+				method: 'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			if ( response.ok ) {
+				state.appNotes = yield response.json();
+			}
+		},
+
+		*setRating() {
+			const app   = state.selectedApp;
+			const value = getContext().star.value;
+			if ( ! app ) {
+				return;
+			}
+			// Clicking the current rating again clears it.
+			const rating   = app.rating === value ? 0 : value;
+			const response = yield wcbFetch( state.apiBase + '/applications/' + String( app.id ) + '/rating', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+				body: JSON.stringify( { rating } ),
+			} );
+			if ( response.ok ) {
+				const data = yield response.json();
+				const idx  = state.applications.findIndex( ( a ) => a.id === app.id );
+				if ( idx !== -1 ) {
+					state.applications[ idx ].rating = data.rating;
+				}
+			}
 		},
 
 		// Board card: open the applicant's details (the list view shows them).
@@ -1705,6 +1762,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} );
 			state.bellNotifications = [];
 			state.bellUnreadCount   = 0;
+		},
+	},
+
+	callbacks: {
+		// Notes for the applicant in the detail panel; re-runs when another
+		// applicant is selected (reads state.selectedAppId).
+		loadNotes() {
+			const id = state.selectedAppId;
+			state.noteDraft = '';
+			if ( ! id ) {
+				state.appNotes = [];
+				return;
+			}
+			wcbFetch( state.apiBase + '/applications/' + String( id ) + '/notes', { headers: { 'X-WP-Nonce': state.nonce } } )
+				.then( ( r ) => ( r.ok ? r.json() : [] ) )
+				.then( ( notes ) => {
+					if ( state.selectedAppId === id ) {
+						state.appNotes = Array.isArray( notes ) ? notes : [];
+					}
+				} )
+				.catch( () => {} );
 		},
 	},
 } );

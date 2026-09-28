@@ -1343,6 +1343,7 @@ final class JobsEndpoint extends RestController {
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
 					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
 					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+					'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
 					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
 					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
 					// Raw ISO 8601 for any client-side date logic; localised sibling

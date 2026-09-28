@@ -249,6 +249,16 @@ wp_interactivity_state(
 		// Applications tab layout — list (split panel) vs board (Kanban by
 		// status). draggingAppId holds the app id mid drag-and-drop.
 		'appsLayout'            => 'list',
+		'appNotes'              => array(),
+		'noteDraft'             => '',
+		'ratingStars'           => array_map(
+			static fn ( int $n ): array => array(
+				'value' => $n,
+				/* translators: %d: star rating 1-5. */
+				'label' => sprintf( _n( '%d star', '%d stars', $n, 'wp-career-board' ), $n ),
+			),
+			range( 1, 5 )
+		),
 		'draggingAppId'         => 0,
 		'applications'          => array(),
 		'appsPage'              => 1,
@@ -821,6 +831,26 @@ wp_interactivity_state(
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>
 							<p class="wcb-ai-summary-detail" data-wp-class--wcb-hidden="!state.selectedAppAiSummary" data-wp-text="state.selectedAppAiSummary"></p>
 							<p class="wcb-ai-reason" data-wp-text="state.selectedAppAiReason"></p>
+						</div>
+						<div class="wcb-detail-section wcb-app-notes" data-wp-watch="callbacks.loadNotes">
+							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Your rating and notes', 'wp-career-board' ); ?> <span class="wcb-field-hint"><?php esc_html_e( '(only your hiring team sees these)', 'wp-career-board' ); ?></span></h4>
+							<div class="wcb-rating" role="group" aria-label="<?php esc_attr_e( 'Rating', 'wp-career-board' ); ?>">
+								<template data-wp-each--star="state.ratingStars">
+									<button type="button" class="wcb-rating__star" data-wp-on--click="actions.setRating" data-wp-bind--aria-pressed="state.isStarOn" data-wp-bind--aria-label="context.star.label" data-wp-class--wcb-rating__star--on="state.isStarOn">&#9733;</button>
+								</template>
+							</div>
+							<ul class="wcb-notes-list">
+								<template data-wp-each--note="state.appNotes" data-wp-each-key="context.note.id">
+									<li class="wcb-note">
+										<p class="wcb-note__text" data-wp-text="context.note.text"></p>
+										<span class="wcb-note__meta" data-wp-text="context.note.author_name"></span>
+										<button type="button" class="wcb-note__delete" data-wp-on--click="actions.deleteNote" aria-label="<?php esc_attr_e( 'Delete note', 'wp-career-board' ); ?>">&times;</button>
+									</li>
+								</template>
+							</ul>
+							<label class="screen-reader-text" for="wcb-note-draft"><?php esc_html_e( 'Add a note', 'wp-career-board' ); ?></label>
+							<textarea id="wcb-note-draft" class="wcb-field-input" rows="2" placeholder="<?php esc_attr_e( 'Add a note for your team…', 'wp-career-board' ); ?>" data-wp-bind--value="state.noteDraft" data-wp-on--input="actions.setNoteDraft"></textarea>
+							<button type="button" class="wcb-cbtn wcb-cbtn--ghost" data-wp-on--click="actions.addNote" data-wp-bind--disabled="!state.noteDraft"><?php esc_html_e( 'Add note', 'wp-career-board' ); ?></button>
 						</div>
 						<div class="wcb-detail-section">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>

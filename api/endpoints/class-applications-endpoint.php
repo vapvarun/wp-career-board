@@ -53,6 +53,60 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
+		// Hiring-team notes and rating: the job's employer and staff only.
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/notes',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static fn ( \WP_REST_Request $r ): \WP_REST_Response => rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) ),
+					'permission_callback' => array( $this, 'update_permissions_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => static function ( \WP_REST_Request $r ): \WP_REST_Response|\WP_Error {
+						$text = trim( sanitize_textarea_field( (string) $r->get_param( 'text' ) ) );
+						if ( '' === $text ) {
+							return new \WP_Error( 'wcb_note_empty', __( 'Write a note first.', 'wp-career-board' ), array( 'status' => 400 ) );
+						}
+						\WCB\Modules\Applications\ApplicationNotes::add( (int) $r['id'], get_current_user_id(), mb_substr( $text, 0, 5000 ) );
+						return rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) );
+					},
+					'permission_callback' => array( $this, 'update_permissions_check' ),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/notes/(?P<note>[A-Za-z0-9]+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => function ( \WP_REST_Request $r ): \WP_REST_Response|\WP_Error {
+					$done = \WCB\Modules\Applications\ApplicationNotes::delete( (int) $r['id'], (string) $r['note'], get_current_user_id(), $this->check_ability( 'wcb/manage-settings' ) );
+					return $done ? rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) ) : new \WP_Error( 'wcb_note_not_found', __( 'That note was already removed, or is not yours.', 'wp-career-board' ), array( 'status' => 404 ) );
+				},
+				'permission_callback' => array( $this, 'update_permissions_check' ),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/rating',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => static fn ( \WP_REST_Request $r ): \WP_REST_Response => rest_ensure_response( array( 'rating' => \WCB\Modules\Applications\ApplicationNotes::set_rating( (int) $r['id'], (int) $r->get_param( 'rating' ) ) ) ),
+				'permission_callback' => array( $this, 'update_permissions_check' ),
+				'args'                => array(
+					'rating' => array(
+						'type'     => 'integer',
+						'minimum'  => 0,
+						'maximum'  => 5,
+						'required' => true,
+					),
+				),
+			)
+		);
+
 		// Single application — candidate or employer owning the job.
 		register_rest_route(
 			$this->namespace,
