@@ -220,7 +220,7 @@ html.dark-mode {
 button.wcb-btn--primary,
 button.wcb-search-button,
 button.wcb-search-hero__button {
-	background-color: var( --wcb-primary, #2563eb ) !important;
+	background-color: var(--wcb-primary-strong) !important;
 	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }

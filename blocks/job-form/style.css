@@ -71,7 +71,7 @@
 }
 
 .wcb-step--active {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 }

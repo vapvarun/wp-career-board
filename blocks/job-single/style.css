@@ -740,7 +740,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-post-apply-alert-btn:hover {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 }
 

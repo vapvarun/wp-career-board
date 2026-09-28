@@ -79,8 +79,8 @@
 	 * background (filled buttons, badges, banners). Always-white in
 	 * standard light/dark modes; themes that override --wcb-primary
 	 * with a light accent should override --wcb-on-primary to match
-	 * (e.g. a yellow primary needs a dark on-primary). Browsers with relative
-	 * colour syntax derive it from the adopted accent below; the rest keep white. */
+	 * (e.g. a yellow primary needs a dark on-primary). Fills use --wcb-primary-strong
+	 * below, so the label stays white on every theme. */
 	--wcb-on-primary: #ffffff;
 
 	/* Status colors come in three layers:
@@ -154,18 +154,21 @@
 	--wcb-icon-stroke: 1.75;
 }
 
-/* Text on a primary-filled element follows the adopted accent: white on a dark
-   accent, near-black on a light one, so the label passes 4.5:1 on any theme and
-   in its dark mode (BuddyX #ef5455 and Reign dark #97c0ee both fail with white).
-   The 0.57 lightness cut-over is where white and black text both reach ~4.5:1.
-   Declared on :root, like --wcb-primary, so it follows wherever the theme moves
-   the accent. Browsers without relative colour syntax keep the white above. */
-@supports (color: oklch(from red l c h)) {
-	:root {
-		--wcb-on-primary: oklch(from var(--wcb-primary) clamp(0, (0.57 - l) * 1000, 1) 0 0);
-	}
+/* Filled controls (buttons, active chips, step pills) always carry a white label.
+   Where the theme's accent is too light for white (BuddyX #ef5455 is 3.46:1, Reign
+   dark #97c0ee is 1.89:1), the FILL is darkened, not the text: the accent's own hue
+   with its lightness capped at 0.54, where white reaches about 5:1. Browsers without
+   relative colour syntax keep the plain accent. Text, borders and links keep the
+   brand accent. */
+:root {
+	--wcb-primary-strong: var(--wcb-primary);
 }
 
+@supports (color: oklch(from red l c h)) {
+	:root {
+		--wcb-primary-strong: oklch(from var(--wcb-primary) min(l, 0.54) c h);
+	}
+}
 /* One height for every listing search, filter and map control (was 37 to 50px). */
 :root {
 	--wcb-control-h: 2.75rem;

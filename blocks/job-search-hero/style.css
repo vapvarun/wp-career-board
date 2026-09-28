@@ -49,7 +49,7 @@
 .wcb-search-hero__button {
 	height: var(--wcb-control-h);
 	padding: 0 var(--wcb-space-2xl);
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	border: none;
 	border-radius: var(--wcb-radius-md);

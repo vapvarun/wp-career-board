@@ -41,7 +41,7 @@
 	   BuddyX red primary must not get a blue hover). Hex fallback first for
 	   browsers without color-mix(). */
 	--wcb-primary-dark: #1d4ed8;
-	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
+	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary-strong ) 85%, #000 );
 
 	/* Accent used as TEXT (small links, pills on a tint): the raw accent is chosen
 	   for fills and often misses 4.5:1 on white, so text uses this darker shade.

@@ -202,7 +202,7 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background: var( --wcb-primary, #4f46e5 );
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 	font-size: var(--wcb-text-md);

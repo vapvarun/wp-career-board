@@ -887,9 +887,9 @@
 .wcb-db-link-btn--edit:hover,
 .wcb-db-link-btn--publish:hover,
 .wcb-db-link-btn--reopen:hover {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary);
+	border-color: var(--wcb-primary-strong);
 }
 
 .wcb-db-link-btn--close {

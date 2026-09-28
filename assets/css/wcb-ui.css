@@ -206,9 +206,9 @@
 .wcb-btn--block { width: 100%; }
 
 .wcb-btn--primary {
-	background: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary-strong);
 }
 
 .wcb-btn--primary:hover,
@@ -270,9 +270,9 @@
 
 .wcb-btn--outline:hover,
 .wcb-btn--outline:focus-visible {
-	background: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary-strong);
 	text-decoration: none;
 }
 
@@ -283,9 +283,9 @@
  * on a same-colour background. */
 [class*="wp-block-wp-career-board"] .wcb-btn--primary,
 [class*="wp-block-wcb-"] .wcb-btn--primary {
-	background: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary-strong);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-btn--primary:hover,
@@ -322,10 +322,10 @@
 [class*="wp-block-wcb-"] a.wcb-btn--outline:focus-visible,
 [class*="wp-block-wcb-"] button.wcb-btn--outline:hover,
 [class*="wp-block-wcb-"] button.wcb-btn--outline:focus-visible {
-	background: var(--wcb-primary, #2563eb);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary-strong);
 	text-decoration: none;
 }
 
@@ -1226,8 +1226,8 @@ textarea.wcb-input {
 }
 
 .wcb-chip.wcb-chip-active {
-	border-color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary-strong);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 }
 

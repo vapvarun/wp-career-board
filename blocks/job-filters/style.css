@@ -82,7 +82,7 @@
 		min-width: 1.4em;
 		padding: 0 var(--wcb-space-xs);
 		border-radius: 999px;
-		background: var(--wcb-primary);
+		background: var(--wcb-primary-strong);
 		color: var(--wcb-on-primary);
 		font-size: var(--wcb-text-xs);
 		text-align: center;

@@ -309,7 +309,7 @@
 }
 
 .wcb-form-simple .wcb-btn--primary {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	box-shadow: var(--wcb-shadow-sm);
 }

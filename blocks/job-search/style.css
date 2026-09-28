@@ -75,7 +75,7 @@
 	justify-content: center;
 	gap: var(--wcb-space-xs);
 	padding: 0 var(--wcb-space-xl);
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	border: none;
 	font-size: var(--wcb-text-md);

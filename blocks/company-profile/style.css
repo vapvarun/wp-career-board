@@ -305,7 +305,7 @@
 	min-width: 22px;
 	height: 22px;
 	padding: 0 var(--wcb-space-xs);
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
@@ -522,7 +522,7 @@
 	display: inline-flex;
 	align-items: center;
 	padding: var(--wcb-space-xs) var(--wcb-space-lg);
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);

@@ -283,9 +283,9 @@ select.wcb-field {
 }
 
 .wcb-pagination__btn--active {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #fff);
-	border-color: var(--wcb-primary);
+	border-color: var(--wcb-primary-strong);
 }
 
 .wcb-pagination__btn:disabled {

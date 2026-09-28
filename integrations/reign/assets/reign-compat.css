@@ -101,8 +101,8 @@
 }
 
 .wcb-chip.wcb-chip-active {
-	border-color: var( --wcb-primary );
-	background: var( --wcb-primary );
+	border-color: var(--wcb-primary-strong);
+	background: var(--wcb-primary-strong);
 	color: var( --wcb-on-primary, #ffffff );
 }
 
