@@ -596,7 +596,7 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
+					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
 				</div>
 
 				<div class="wcb-panel wcb-shown">
@@ -615,7 +615,7 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-panel-empty" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
+					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
 				</div>
 			</div>
 
@@ -701,8 +701,8 @@ wp_interactivity_state(
 				</button>
 			</div>
 
-			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noApplications">
-				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'You haven\'t applied to any jobs yet.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noApplications">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'You haven\'t applied to any jobs yet.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
 				</a>
@@ -758,8 +758,8 @@ wp_interactivity_state(
 				</template>
 			</div>
 
-			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noBookmarks">
-				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No saved jobs yet. Bookmark a job to find it here.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noBookmarks">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved jobs yet. Bookmark a job to find it here.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
 				</a>
@@ -813,8 +813,8 @@ wp_interactivity_state(
 				</template>
 			</div>
 
-			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noSavedCompanies">
-				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No saved companies yet. Bookmark a company to find it here.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noSavedCompanies">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved companies yet. Bookmark a company to find it here.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( home_url( '/companies/' ) ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse Companies', 'wp-career-board' ); ?>
 				</a>
@@ -869,8 +869,8 @@ wp_interactivity_state(
 				</template>
 			</div>
 
-			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noSavedResumes">
-				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No saved resumes yet. Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noSavedResumes">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved resumes yet. Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
 				<?php if ( \WCB\Admin\Pages::url( 'resume_archive_page' ) ) : ?>
 				<a href="<?php echo esc_url( \WCB\Admin\Pages::url( 'resume_archive_page' ) ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse Candidates', 'wp-career-board' ); ?>
@@ -989,8 +989,8 @@ wp_interactivity_state(
 			</template>
 		</div><!-- .wcb-panel -->
 
-		<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noResumes">
-			<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No resumes yet. Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
+		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noResumes">
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'No resumes yet. Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
 			<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.toggleNewResumeForm">
 				<?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?>
 			</button>
@@ -1013,8 +1013,8 @@ wp_interactivity_state(
 				<div class="wcb-page-header">
 					<h1 class="wcb-page-title"><?php esc_html_e( 'Resume Builder', 'wp-career-board' ); ?></h1>
 				</div>
-				<div class="wcb-panel-empty wcb-shown">
-					<p><?php esc_html_e( 'Pick a resume from My Resumes to edit it here, or create a new one to get started.', 'wp-career-board' ); ?></p>
+				<div class="wcb-empty-state wcb-empty-state--plain">
+					<p class="wcb-empty-state__body"><?php esc_html_e( 'Pick a resume from My Resumes to edit it here, or create a new one to get started.', 'wp-career-board' ); ?></p>
 					<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToResumes"><?php esc_html_e( 'Go to My Resumes', 'wp-career-board' ); ?></button>
 				</div>
 				<?php
@@ -1059,8 +1059,8 @@ wp_interactivity_state(
 				</template>
 			</div>
 
-			<div class="wcb-cd-empty" data-wp-class--wcb-shown="state.noAlerts">
-				<p class="wcb-cd-empty-msg"><?php esc_html_e( 'No job alerts yet. Search for jobs and click "Alert me" to get notified when matching jobs are posted.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noAlerts">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No job alerts yet. Search for jobs and click "Alert me" to get notified when matching jobs are posted.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 		<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
 				</a>

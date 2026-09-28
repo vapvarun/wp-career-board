@@ -148,18 +148,6 @@
 	text-decoration: underline;
 }
 
-.wcb-panel-empty {
-	display: none;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	margin: 0;
-}
-
-.wcb-panel-empty.wcb-shown {
-	display: block;
-}
-
 /* ── Responsive: tighten main padding and stack two-col on narrow screens ─ */
 @media (max-width: 640px) {
 	/* Drop horizontal padding on `.wcb-main` so the active view panel

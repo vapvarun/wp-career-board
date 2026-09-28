@@ -221,39 +221,6 @@ select.wcb-field {
 	margin-top: var(--wcb-space-xs);
 }
 
-/* ── Empty State ─────────────────────────────────────────────────────── */
-
-.wcb-empty-state {
-	text-align: center;
-	padding: var(--wcb-space-4xl) var(--wcb-space-xl);
-}
-
-.wcb-empty-state__icon {
-	display: block;
-	width: var(--wcb-icon-2xl);
-	height: var(--wcb-icon-2xl);
-	color: var(--wcb-text-secondary);
-	margin: 0 auto var(--wcb-space-lg);
-	stroke-width: 1.5;
-}
-
-.wcb-empty-state__title {
-	font-family: inherit;
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	margin: 0 0 var(--wcb-space-sm);
-}
-
-.wcb-empty-state__desc {
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-	margin: 0 0 var(--wcb-space-xl);
-	max-width: 360px;
-	margin-inline: auto;
-}
-
 /* ── Grid Layouts ────────────────────────────────────────────────────── */
 
 .wcb-grid {

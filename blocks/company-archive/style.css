@@ -425,17 +425,6 @@
  * .wcb-btn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
  * No per-block override here. */
 
-/* -- Empty state -- */
-.wcb-ca-empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
-	color: var(--wcb-text-secondary);
-	text-align: center;
-}
-
 /* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
  * `assets/css/frontend-components.css`. */
 

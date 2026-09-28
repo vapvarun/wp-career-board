@@ -137,18 +137,6 @@
 	text-decoration: underline;
 }
 
-.wcb-panel-empty {
-	display: none;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	margin: 0;
-}
-
-.wcb-panel-empty.wcb-shown {
-	display: block;
-}
-
 @media (max-width: 768px) {
 	.wcb-two-col {
 		grid-template-columns: minmax(0, 1fr);

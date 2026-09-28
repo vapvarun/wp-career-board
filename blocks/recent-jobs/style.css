@@ -121,16 +121,6 @@
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-recent-empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-3xl) var(--wcb-space-lg);
-	color: var(--wcb-text-secondary);
-	text-align: center;
-}
-
 @media (max-width: 640px) {
 	.wcb-job-widget-name {
 		white-space: normal;

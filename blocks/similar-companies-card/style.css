@@ -89,16 +89,6 @@
 	height: 12px;
 }
 
-.wcb-similar-companies-card--empty .wcb-similar-companies-card__empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-lg) 0;
-	color: var(--wcb-muted);
-	text-align: center;
-}
-
 @media (max-width: 640px) {
 	.wcb-similar-companies-card {
 		padding: var(--wcb-space-xl) var(--wcb-space-xl);

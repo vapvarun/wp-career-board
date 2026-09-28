@@ -704,16 +704,6 @@
 	overflow-y: auto;
 }
 
-.wcb-no-selection {
-	display: none;
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-}
-
-.wcb-no-selection.wcb-shown {
-	display: block;
-}
-
 .wcb-detail-header {
 	display: flex;
 	flex-wrap: wrap;

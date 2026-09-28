@@ -8,10 +8,6 @@
  * markup duplication is gone.
  *
  * Expected in $wcb_empty:
- *   container_class    string  Outer wrapper class. Default 'wcb-empty-state'.
- *                              Some surfaces also need a custom class (e.g.
- *                              `wcb-ra-empty` on resumes) so the existing JS
- *                              selectors keep working - pass it through.
  *   wp_bind_hidden     string  data-wp-bind--hidden directive value (e.g.
  *                              "!state.hasNoJobs"). Leave empty to opt out.
  *   ssr_hidden         bool    Whether to render the `hidden` HTML attribute
@@ -40,7 +36,6 @@ defined( 'ABSPATH' ) || exit;
 $wcb_empty = wp_parse_args(
 	$wcb_empty ?? array(),
 	array(
-		'container_class'   => 'wcb-empty-state',
 		'wp_bind_hidden'    => '',
 		'ssr_hidden'        => false,
 		'icon'              => 'inbox',
@@ -53,7 +48,7 @@ $wcb_empty = wp_parse_args(
 );
 ?>
 <div
-	class="<?php echo esc_attr( (string) $wcb_empty['container_class'] ); ?>"
+	class="wcb-empty-state"
 	role="status"
 	<?php if ( '' !== (string) $wcb_empty['wp_bind_hidden'] ) : ?>
 	data-wp-bind--hidden="<?php echo esc_attr( (string) $wcb_empty['wp_bind_hidden'] ); ?>"

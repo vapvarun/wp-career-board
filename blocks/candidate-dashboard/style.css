@@ -119,26 +119,6 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	margin: 0 0 var(--wcb-space-lg);
 }
 
-/* ── Empty state ──────────────────────────────────────────────────────────── */
-.wcb-cd-empty {
-	display: none;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
-	text-align: center;
-}
-
-.wcb-cd-empty.wcb-shown {
-	display: flex;
-}
-
-.wcb-cd-empty-msg {
-	font-size: var(--wcb-text-md);
-	color: var(--wcb-text-secondary);
-	margin: 0;
-}
-
 /* Button system (.wcb-btn / --primary / --outline / --danger) is owned
  * by `assets/css/wcb-ui.css`. That file ships parent-prefixed selectors
  * at (0,3,1) which beat Reign / Astra `.entry-content a` cascades

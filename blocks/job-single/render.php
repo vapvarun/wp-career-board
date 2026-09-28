@@ -607,7 +607,7 @@ wp_interactivity_state(
 					if ( '' === trim( wp_strip_all_tags( (string) $wcb_job->post_content ) ) ) {
 						// No description yet — an honest fallback instead of a
 						// blank "About This Role" panel that reads as broken.
-						echo '<p class="wcb-job-description__empty">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
+						echo '<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
 					} else {
 						echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
 					}

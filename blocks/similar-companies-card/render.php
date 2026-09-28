@@ -65,11 +65,11 @@ $wcb_companies = get_posts( $wcb_query_args );
 if ( empty( $wcb_companies ) ) {
 	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate.
 		?>
-		<aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card wcb-similar-companies-card--empty' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<h3 class="wcb-cp-side-card__title"><?php echo esc_html( $wcb_title ); ?></h3>
-			<div class="wcb-similar-companies-card__empty">
-				<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<p><?php esc_html_e( 'No similar companies found yet.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No similar companies found yet.', 'wp-career-board' ); ?></p>
 			</div>
 		</aside>
 		<?php

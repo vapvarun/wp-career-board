@@ -36,9 +36,9 @@ if ( empty( $wcb_jobs ) ) {
 	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate; no Abilities API equivalent for "can edit posts in general".
 		?>
 		<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-recent-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<div class="wcb-recent-empty">
-				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<p><?php esc_html_e( 'No recent jobs to display.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No recent jobs to display.', 'wp-career-board' ); ?></p>
 			</div>
 		</div>
 		<?php
