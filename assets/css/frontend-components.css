@@ -968,6 +968,18 @@ select.wcb-field {
 	width: 100%;
 }
 
+/*
+ * Block themes have no shell (TemplateOverride::block_theme() leaves the theme's
+ * own template alone), so the theme's constrained layout is the page container,
+ * and that is a reading column (about 645px on Twenty Twenty-Five). A Career Board
+ * screen placed straight in it gets the canonical width instead; it still fills
+ * a narrower parent, so a block dropped into a small group keeps inheriting it.
+ */
+.is-layout-constrained > [class*="wp-block-wp-career-board"],
+.is-layout-constrained > [class*="wp-block-wcb-"] {
+	max-width: var(--wcb-container-max-width, 1280px);
+}
+
 @media (max-width: 768px) {
 
 	.wcb-archive-shell {
