@@ -268,12 +268,6 @@
 .wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
 .wcb-salary-prefix span { font-size:13px; line-height:1; }
 
-@media (max-width: 1100px) {
-	.wcb-dashboard-columns {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
 .wcb-dashboard-panel {
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
@@ -621,45 +615,6 @@
 }
 
 /* Mobile */
-@media ( max-width: 782px ) {
-	.wcb-settings-header {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
-	.wcb-settings-header-actions {
-		flex-wrap: wrap;
-	}
-
-	.wcb-settings-tabs-nav {
-		overflow-x: auto;
-	}
-
-	.wcb-settings-row {
-		grid-template-columns: minmax(0, 1fr);
-		gap: 8px;
-	}
-
-	.wcb-settings-row-label {
-		padding-right: 0;
-		padding-top: 0;
-	}
-
-	.wcb-stats-grid {
-		gap: 8px;
-	}
-
-	.wcb-stat-box {
-		flex: 1 1 calc( 50% - 4px );
-		min-width: 0;
-	}
-
-	.wcb-dashboard-actions {
-		padding: 12px 16px;
-		gap: 8px;
-	}
-}
-
 /* No items message */
 .wcb-no-items {
 	color: var(--wcb-text-secondary, #475569);
@@ -983,12 +938,6 @@
 	margin-inline: auto;
 }
 
-@media (max-width: 960px) {
-	.wcb-wizard-wrap {
-		margin-inline: 12px;
-	}
-}
-
 .wcb-wizard-step {
 	display: none;
 }
@@ -1113,16 +1062,6 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 
 .wcb-wizard-pages__state.is-ready {
 	color: var(--wcb-success-fg, #15803d);
-}
-
-@media (max-width: 782px) {
-	.wcb-wizard-progress__label {
-		display: none;
-	}
-
-	.wcb-wizard-progress .is-current .wcb-wizard-progress__label {
-		display: inline;
-	}
 }
 
 /* ── Import page ─────────────────────────────────────────────────────────── */
@@ -1350,22 +1289,6 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	text-decoration: underline;
 }
 
-@media (max-width: 782px) {
-	.wcb-getting-started-list {
-		padding: 8px 16px;
-	}
-}
-
-@media (max-width: 782px) {
-	.wcb-import-stats {
-		flex-direction: column;
-		gap: 8px;
-	}
-	.wcb-import-card-head {
-		flex-wrap: wrap;
-	}
-}
-
 /* ── Import card locked (Pro teaser) ─────────────────────────────── */
 
 .wcb-import-card--locked {
@@ -1464,20 +1387,6 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	flex-shrink: 0;
 }
 
-@media (max-width: 782px) {
-	.wcb-pro-upgrade-body {
-		padding: 12px 16px 16px;
-	}
-
-	.wcb-pro-feature-list li {
-		font-size: 12px;
-	}
-
-	.wcb-nav-lock-icon {
-		display: none;
-	}
-}
-
 /* Applications list: active job filter + Export all matching. */
 .wcb-applications-toolbar {
 	clear: both;
@@ -1506,7 +1415,95 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	text-align: center;
 }
 
-/* Job edit screen: one column on a phone. */
+
+/*
+ * Responsive contract: two blocks, at the bottom, so the cascade reads top to
+ * bottom and a later rule cannot silently beat an earlier one at the same width.
+ * Tablet is 1024px and phone is 640px; nothing else.
+ */
+@media (max-width: 1024px) {
+	.wcb-dashboard-columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.wcb-wizard-wrap {
+		margin-inline: 12px;
+	}
+}
+
 @media (max-width: 640px) {
-	.wcb-meta-grid { grid-template-columns: minmax(0, 1fr); }
+	.wcb-settings-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.wcb-settings-header-actions {
+		flex-wrap: wrap;
+	}
+
+	.wcb-settings-tabs-nav {
+		overflow-x: auto;
+	}
+
+	.wcb-settings-row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+	}
+
+	.wcb-settings-row-label {
+		padding-right: 0;
+		padding-top: 0;
+	}
+
+	.wcb-stats-grid {
+		gap: 8px;
+	}
+
+	.wcb-stat-box {
+		flex: 1 1 calc( 50% - 4px );
+		min-width: 0;
+	}
+
+	.wcb-dashboard-actions {
+		padding: 12px 16px;
+		gap: 8px;
+	}
+
+	.wcb-wizard-progress__label {
+		display: none;
+	}
+
+	.wcb-wizard-progress .is-current .wcb-wizard-progress__label {
+		display: inline;
+	}
+
+	.wcb-getting-started-list {
+		padding: 8px 16px;
+	}
+
+	.wcb-import-stats {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.wcb-import-card-head {
+		flex-wrap: wrap;
+	}
+
+	.wcb-pro-upgrade-body {
+		padding: 12px 16px 16px;
+	}
+
+	.wcb-pro-feature-list li {
+		font-size: 12px;
+	}
+
+	.wcb-nav-lock-icon {
+		display: none;
+	}
+
+	/* Job edit screen: details grid, one column. */
+	.wcb-meta-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
