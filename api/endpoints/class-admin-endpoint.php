@@ -69,6 +69,19 @@ final class AdminEndpoint extends RestController {
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
 					),
+					'preview'  => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'subject'  => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'body'     => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
 			)
 		);
@@ -248,8 +261,18 @@ final class AdminEndpoint extends RestController {
 			'credits_added'  => 50,
 			'new_balance'    => 120,
 			'balance'        => 5,
+			'user_name'      => $user->display_name,
+			'site_name'      => (string) get_bloginfo( 'name' ),
+			'login_url'      => wp_login_url(),
+			'delete_date'    => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 7 * DAY_IN_SECONDS ),
+			'credits'        => 5,
+			'refund_message' => __( '5 credits held for a job listing have been returned to your account (test send).', 'wp-career-board' ),
 			'is_test'        => true,
 		);
+
+		if ( $request->get_param( 'preview' ) ) {
+			return rest_ensure_response( $target->preview( $test_vars, (string) $request->get_param( 'subject' ), (string) $request->get_param( 'body' ) ) );
+		}
 
 		// AbstractEmail::test_send() is the public bridge: it bypasses
 		// is_enabled() so disabled templates still render in the admin

@@ -202,8 +202,13 @@ class EmailSettings {
 									<button type="button" class="wcb-email-tag-chip" data-target="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" data-tag="{<?php echo esc_attr( $wcb_tag ); ?>}" title="<?php echo esc_attr( $wcb_tag_label ); ?>"><?php echo esc_html( '{' . $wcb_tag . '}' ); ?></button>
 			<?php endforeach; ?>
 									<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-load-default" data-target="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" data-default="<?php echo esc_attr( $email->get_default_body() ); ?>"><?php esc_html_e( 'Load default', 'wp-career-board' ); ?></button>
+									<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-preview-btn" data-email-id="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Preview', 'wp-career-board' ); ?></button>
 								</div>
 								<p class="description"><?php esc_html_e( 'Leave blank to use the ready-made default. The branded header and footer are added automatically; enter only the message body.', 'wp-career-board' ); ?></p>
+								<div class="wcb-email-preview" hidden>
+									<p class="wcb-email-preview__subject"></p>
+									<iframe class="wcb-email-preview__frame" sandbox="" title="<?php esc_attr_e( 'Email preview', 'wp-career-board' ); ?>"></iframe>
+								</div>
 							</td>
 						</tr>
 		<?php endforeach; ?>

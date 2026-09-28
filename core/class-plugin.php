@@ -268,6 +268,12 @@ final class Plugin {
 				array(),
 				WCB_VERSION
 			);
+			wp_register_script_module(
+				'@wcb/email-prefs',
+				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
+				array( '@wordpress/interactivity', '@wcb/fetch' ),
+				WCB_VERSION
+			);
 		}
 
 		$blocks = array(

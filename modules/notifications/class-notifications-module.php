@@ -54,6 +54,10 @@ class NotificationsModule {
 			Emails\EmailAppWithdrawn::class,
 			Emails\EmailDeadlineReminder::class,
 			Emails\EmailVerifyAccount::class,
+			Emails\EmailWelcome::class,
+			Emails\EmailDeletionRequested::class,
+			Emails\EmailDeletionCancelled::class,
+			Emails\EmailDeletionCompleted::class,
 			Emails\EmailReportReceived::class,
 		);
 

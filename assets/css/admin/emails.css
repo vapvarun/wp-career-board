@@ -257,3 +257,21 @@
 	.wcb-email-body-textarea,
 	.wcb-email-tag-chip { background: var(--wcb-surface, #0f172a); border-color: var(--wcb-border, #334155); }
 }
+
+/* Editor preview: the rendered email, sandboxed. */
+.wcb-email-preview {
+	margin-top: var(--wcb-space-md, 12px);
+}
+
+.wcb-email-preview__subject {
+	font-weight: 600;
+	margin: 0 0 var(--wcb-space-sm, 8px);
+}
+
+.wcb-email-preview__frame {
+	width: 100%;
+	height: 480px;
+	border: 1px solid var(--wcb-border, #dcdcde);
+	border-radius: 6px;
+	background: #fff;
+}

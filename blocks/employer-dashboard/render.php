@@ -1252,6 +1252,10 @@ wp_interactivity_state(
 				<button type="button" class="wcb-cbtn wcb-cbtn--primary" data-wp-on--click="actions.changePassword" data-wp-bind--disabled="state.pwSaving"><?php esc_html_e( 'Update password', 'wp-career-board' ); ?></button>
 			</div>
 		</div>
+		<?php
+		$wcb_email_prefs_for = 'employer';
+		require WCB_DIR . 'templates/parts/email-preferences.php';
+		?>
 	</div>
 
 	<?php if ( '' !== $wcb_credits_panel ) : ?>

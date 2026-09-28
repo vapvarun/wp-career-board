@@ -13,6 +13,8 @@ namespace WCB\Api\Endpoints;
 
 use WCB\Api\RestController;
 
+use WCB\Modules\Notifications\AbstractEmail;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -61,6 +63,10 @@ final class AccountEndpoint extends RestController {
 						'new_password'     => array(
 							'type' => 'string',
 						),
+						'email_optout'     => array(
+							'type'  => 'array',
+							'items' => array( 'type' => 'string' ),
+						),
 					),
 				),
 			)
@@ -91,6 +97,7 @@ final class AccountEndpoint extends RestController {
 			array(
 				'display_name' => $user->display_name,
 				'email'        => $user->user_email,
+				'email_optout' => AbstractEmail::opted_out( $user->ID ),
 			)
 		);
 	}
@@ -167,6 +174,15 @@ final class AccountEndpoint extends RestController {
 			}
 			$update['user_pass'] = $new_password;
 			$password_changed    = true;
+		}
+
+		// Only optional emails can be turned off; anything else in the list is dropped.
+		$optout = $request->get_param( 'email_optout' );
+		if ( null !== $optout ) {
+			update_user_meta( $user_id, '_wcb_email_optout', array_values( array_intersect( (array) $optout, array_keys( AbstractEmail::optional_emails() ) ) ) );
+			if ( 1 === count( $update ) ) {
+				return rest_ensure_response( array( 'email_optout' => AbstractEmail::opted_out( $user_id ) ) );
+			}
 		}
 
 		if ( 1 === count( $update ) ) {

@@ -1193,6 +1193,11 @@ wp_interactivity_state(
 			</div>
 		</div>
 
+		<?php
+		$wcb_email_prefs_for = 'candidate';
+		require WCB_DIR . 'templates/parts/email-preferences.php';
+		?>
+
 		<!-- ── Privacy & data controls (GDPR self-service, A-11) ─────── -->
 		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
 			<h2 class="wcb-page-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>

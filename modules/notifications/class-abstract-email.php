@@ -112,6 +112,45 @@ abstract class AbstractEmail {
 	}
 
 	/**
+	 * Whether members may turn this email off for themselves. Alerts and
+	 * reminders are optional; transactional and security emails are not.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public function is_optional(): bool {
+		return false;
+	}
+
+	/**
+	 * IDs of the optional emails a member has turned off.
+	 *
+	 * @since 1.8.0
+	 * @param int $user_id Member.
+	 * @return string[]
+	 */
+	public static function opted_out( int $user_id ): array {
+		return array_values( array_filter( (array) get_user_meta( $user_id, '_wcb_email_optout', true ), 'is_string' ) );
+	}
+
+	/**
+	 * Optional emails, keyed by ID, for one recipient type or all of them.
+	 *
+	 * @since 1.8.0
+	 * @param string $recipient 'candidate', 'employer', or '' for all.
+	 * @return array<string, string> ID => title.
+	 */
+	public static function optional_emails( string $recipient = '' ): array {
+		$list = array();
+		foreach ( (array) apply_filters( 'wcb_registered_emails', array() ) as $email ) {
+			if ( $email instanceof self && $email->is_optional() && $email->is_enabled() && ( '' === $recipient || $recipient === $email->get_recipient() ) ) {
+				$list[ $email->get_id() ] = $email->get_title();
+			}
+		}
+		return $list;
+	}
+
+	/**
 	 * Returns the active subject line, falling back to get_default_subject().
 	 *
 	 * @return string
@@ -166,10 +205,16 @@ abstract class AbstractEmail {
 	 * @return void
 	 */
 	protected function send( string $to, array $vars, int $user_id = 0 ): void {
-		if ( ! $this->is_enabled() ) {
+		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
+		// A member gets the email in their own language, not the language of
+		// whoever triggered it (an admin, a cron run).
+		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
 		$this->dispatch( $to, $vars, $user_id );
+		if ( $switched ) {
+			restore_previous_locale();
+		}
 	}
 
 	/**
@@ -189,6 +234,26 @@ abstract class AbstractEmail {
 	 */
 	public function test_send( string $to, array $vars, int $user_id = 0 ): bool {
 		return $this->dispatch( $to, $vars, $user_id, true );
+	}
+
+	/**
+	 * Render the email without sending it, for the editor's preview. Unsaved
+	 * subject/body edits win over the saved ones so the admin sees what they typed.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<string, mixed> $vars    Sample merge values.
+	 * @param string               $subject Unsaved subject, '' for the saved one.
+	 * @param string               $body    Unsaved body, '' for the saved one.
+	 * @return array{subject: string, html: string}
+	 */
+	public function preview( array $vars, string $subject = '', string $body = '' ): array {
+		return array(
+			'subject' => self::render_string( '' !== trim( $subject ) ? $subject : $this->get_subject(), $vars ),
+			'html'    => '' !== trim( $body )
+				? self::wrap_body( self::render_string( wp_kses_post( $body ), $this->body_vars( $vars ) ) )
+				: $this->render_body( $vars ),
+		);
 	}
 
 	/**

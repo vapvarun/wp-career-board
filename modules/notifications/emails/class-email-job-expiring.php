@@ -93,6 +93,15 @@ class EmailJobExpiring extends AbstractEmail {
 	}
 
 	/**
+	 * Members may turn this email off.
+	 *
+	 * @return bool
+	 */
+	public function is_optional(): bool {
+		return true;
+	}
+
+	/**
 	 * Registers action hooks that trigger this email.
 	 *
 	 * @return void

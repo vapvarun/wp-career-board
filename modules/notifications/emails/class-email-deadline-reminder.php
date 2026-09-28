@@ -96,6 +96,15 @@ class EmailDeadlineReminder extends AbstractEmail {
 	}
 
 	/**
+	 * Members may turn this email off.
+	 *
+	 * @return bool
+	 */
+	public function is_optional(): bool {
+		return true;
+	}
+
+	/**
 	 * Wire up the action hook.
 	 *
 	 * @since 1.1.0

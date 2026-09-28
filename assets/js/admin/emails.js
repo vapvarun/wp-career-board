@@ -91,6 +91,46 @@
 		} );
 	}
 
+	/* ── Preview (renders unsaved edits, sends nothing) ──────────────────── */
+
+	document.addEventListener( 'click', function ( event ) {
+		var btn = event.target.closest( '.wcb-email-preview-btn' );
+		if ( ! btn ) {
+			return;
+		}
+		var id      = btn.getAttribute( 'data-email-id' );
+		var cell    = btn.closest( 'td' );
+		var box     = cell.querySelector( '.wcb-email-preview' );
+		var subject = document.querySelector( 'input[name="wcb_email[' + id + '][subject]"]' );
+		var body    = document.getElementById( 'wcb-email-body-field-' + id );
+
+		btn.disabled = true;
+		fetch( cfg.restBase + '/admin/emails/test', {
+			method:      'POST',
+			credentials: 'same-origin',
+			headers:     { 'X-WP-Nonce': cfg.nonce, 'Content-Type': 'application/json' },
+			body:        JSON.stringify( {
+				email_id: id,
+				preview:  true,
+				subject:  subject ? subject.value : '',
+				body:     body ? body.value : ''
+			} )
+		} )
+			.then( function ( r ) { return r.json(); } )
+			.then( function ( data ) {
+				box.querySelector( '.wcb-email-preview__subject' ).textContent = data.subject || data.message || '';
+				box.querySelector( '.wcb-email-preview__frame' ).srcdoc = data.html || '';
+				box.hidden = false;
+			} )
+			.catch( function () {
+				box.querySelector( '.wcb-email-preview__subject' ).textContent = i18n.failed || 'Failed';
+				box.hidden = false;
+			} )
+			.finally( function () {
+				btn.disabled = false;
+			} );
+	} );
+
 	/* ── Activity log ─────────────────────────────────────────────────────── */
 
 	var page    = 1;
