@@ -318,8 +318,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get appsCount() {
 			return state.appsCounts.total;
 		},
+		// One count for the sidebar badge and the overview tile: the server's count until the
+		// list has loaded (so neither flashes 0), the live list after (so a removal is reflected).
 		get bookmarksCount() {
-			return state.bookmarks.length;
+			return state.bookmarksLoaded ? state.bookmarks.length : Number( state.savedJobsCount ) || 0;
 		},
 		// `savedCompaniesCountSeed` + `savedResumesCountSeed` are bootstrapped
 		// from PHP at render time so the sidebar badges show the correct
@@ -361,8 +363,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get hasResumes() {
 			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
 		},
+		// Only "none" once the list has actually loaded: resumes are fetched when the tab opens,
+		// and the empty initial array must not read as "no resumes" (it contradicts the N/max count).
 		get noResumes() {
-			return ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
+			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
 		// Bell notification getters.
@@ -447,6 +451,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				if ( bmResponse.ok ) {
 					const bmData = yield bmResponse.json();
 					state.bookmarks = Array.isArray( bmData ) ? bmData : ( bmData?.bookmarks ?? [] );
+					state.bookmarksLoaded = true;
 				}
 			} catch {
 				// Non-critical — overview saved jobs panel will show empty state.
@@ -542,6 +547,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				const data = yield response.json();
 				state.bookmarks = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
+				state.bookmarksLoaded = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
@@ -1005,6 +1011,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 
 				state.resumes = yield response.json();
+				state.resumesLoaded = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {

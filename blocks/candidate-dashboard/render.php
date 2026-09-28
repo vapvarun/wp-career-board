@@ -99,7 +99,14 @@ if ( post_type_exists( 'wcb_resume' ) ) {
  * @param array<string,mixed> $state   Default state with maxResumes=0, resumeCount=0.
  * @param int                 $user_id Current candidate user ID.
  */
-$wcb_saved_jobs_count = (int) count( (array) get_user_meta( $wcb_candidate_id, '_wcb_bookmark', false ) );
+// Count what the Saved Jobs list shows: a bookmark whose job was deleted is not listed (see
+// CandidatesEndpoint::get_bookmarks), so the overview must not count it either.
+$wcb_saved_jobs_count = count(
+	array_filter(
+		array_map( 'intval', (array) get_user_meta( $wcb_candidate_id, '_wcb_bookmark', false ) ),
+		static fn ( int $wcb_bookmark_id ): bool => 'wcb_job' === get_post_type( $wcb_bookmark_id )
+	)
+);
 
 $wcb_resumes_state = (array) apply_filters(
 	'wcb_candidate_resumes_state',
@@ -218,6 +225,7 @@ wp_interactivity_state(
 				'by_status' => new \stdClass(),
 			),
 			'bookmarks'               => array(),
+			'bookmarksLoaded'         => false,
 			'savedCompanies'          => array(),
 			'savedCompaniesLoading'   => false,
 			'savedCompaniesError'     => '',
@@ -234,6 +242,7 @@ wp_interactivity_state(
 				? (int) count( (array) get_user_meta( $wcb_candidate_id, '_wcb_resume_bookmark', false ) )
 				: 0,
 			'resumes'                 => array(),
+			'resumesLoaded'           => false,
 			'loading'                 => false,
 			'error'                   => '',
 			'apiBase'                 => untrailingslashit( rest_url( 'wcb/v1' ) ),
@@ -455,7 +464,7 @@ wp_interactivity_state(
 			<span class="wcb-nav-section-label"><?php esc_html_e( 'MY SAVES', 'wp-career-board' ); ?></span>
 			<button type="button" class="wcb-nav-item" role="tab" data-wp-bind--aria-selected="state.isTabBookmarks" data-wp-class--wcb-nav-active="state.isTabBookmarks" data-wp-on--click="actions.switchToBookmarks" id="wcb-tab-bookmarks">
 				<?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?>
-				<span class="wcb-nav-badge" data-wp-text="state.bookmarksCount">0</span>
+				<span class="wcb-nav-badge" data-wp-text="state.bookmarksCount"><?php echo esc_html( (string) $wcb_saved_jobs_count ); ?></span>
 			</button>
 			<button type="button" class="wcb-nav-item" role="tab" data-wp-bind--aria-selected="state.isTabSavedCompanies" data-wp-class--wcb-nav-active="state.isTabSavedCompanies" data-wp-on--click="actions.switchToSavedCompanies" id="wcb-tab-saved-companies">
 				<?php esc_html_e( 'Saved Companies', 'wp-career-board' ); ?>
@@ -565,7 +574,7 @@ wp_interactivity_state(
 					<span class="wcb-stat-label"><?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?></span>
 				</div>
 				<div class="wcb-stat-card">
-					<span class="wcb-stat-value" data-wp-text="state.savedJobsCount"><?php echo esc_html( (string) $wcb_saved_jobs_count ); ?></span>
+					<span class="wcb-stat-value" data-wp-text="state.bookmarksCount"><?php echo esc_html( (string) $wcb_saved_jobs_count ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?></span>
 				</div>
 				<div class="wcb-stat-card">
