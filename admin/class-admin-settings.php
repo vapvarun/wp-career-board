@@ -448,8 +448,8 @@ class AdminSettings {
 				<div class="wcb-settings-card-header">
 					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
 				</div>
-				<div class="wcb-settings-row" style="display: block;">
-					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
+				<div class="wcb-settings-row wcb-settings-row--block">
+					<p class="description wcb-settings-intro"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 						<input type="hidden" name="action" value="wcb_install_demo" />
 			<?php wp_nonce_field( 'wcb_install_demo' ); ?>
@@ -466,12 +466,12 @@ class AdminSettings {
 				<div class="wcb-settings-card-header">
 					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
 				</div>
-				<div class="wcb-settings-row" style="display: block;">
-					<p class="description" style="margin: 0 0 12px;"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
+				<div class="wcb-settings-row wcb-settings-row--block">
+					<p class="description wcb-settings-intro"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>
 					<button type="button" id="wcb-remove-sample-data" class="button button-secondary">
 				<?php esc_html_e( 'Remove Sample Data', 'wp-career-board' ); ?>
 				</button>
-				<span id="wcb-remove-sample-status" class="description" style="margin-left: 0.75rem;"></span>
+				<span id="wcb-remove-sample-status" class="description wcb-settings-status"></span>
 				</div>
 			</div>
 			<?php
@@ -1211,8 +1211,8 @@ class AdminSettings {
 			<div class="wcb-settings-card-header">
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Industries', 'wp-career-board' ); ?></h2>
 			</div>
-			<div class="wcb-settings-row" style="display: block;">
-				<p class="description" style="margin: 0 0 12px;">
+			<div class="wcb-settings-row wcb-settings-row--block">
+				<p class="description wcb-settings-intro">
 					<?php esc_html_e( 'Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time - renaming never touches stored data. Removing an industry asks what should happen to the companies still using it.', 'wp-career-board' ); ?>
 				</p>
 

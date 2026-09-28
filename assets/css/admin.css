@@ -510,6 +510,20 @@
 	border-bottom: none;
 }
 
+/* Row that is not label + control (intro copy above a form or list, status
+   pills): full width but keeps the card's row rhythm. Pro cards use it too. */
+.wcb-settings-row--block {
+	display: block;
+}
+
+.wcb-settings-row .wcb-settings-intro {
+	margin: 0 0 12px;
+}
+
+.wcb-settings-status {
+	margin-inline-start: 0.75rem;
+}
+
 .wcb-settings-row-label {
 	font-size: 13px;
 	font-weight: 600;
