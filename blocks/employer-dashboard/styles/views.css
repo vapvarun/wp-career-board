@@ -871,7 +871,7 @@
 
 .wcb-db-link-btn--edit:hover {
 	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-db-link-btn--close {

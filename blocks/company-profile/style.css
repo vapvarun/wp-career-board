@@ -306,7 +306,7 @@
 	height: 22px;
 	padding: 0 var(--wcb-space-xs);
 	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-bold);
@@ -523,7 +523,7 @@
 	align-items: center;
 	padding: var(--wcb-space-xs) var(--wcb-space-lg);
 	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
@@ -534,7 +534,7 @@
 
 .wcb-cp-job-apply:hover {
 	background: var(--wcb-primary-dark);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 	text-decoration: none;
 }
 

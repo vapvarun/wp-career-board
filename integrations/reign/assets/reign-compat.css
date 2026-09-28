@@ -103,7 +103,7 @@
 .wcb-chip.wcb-chip-active {
 	border-color: var( --wcb-primary );
 	background: var( --wcb-primary );
-	color: var( --reign-site-button-text-color, #ffffff );
+	color: var( --wcb-on-primary, #ffffff );
 }
 
 .wcb-clear-all:hover {

@@ -79,7 +79,8 @@
 	 * background (filled buttons, badges, banners). Always-white in
 	 * standard light/dark modes; themes that override --wcb-primary
 	 * with a light accent should override --wcb-on-primary to match
-	 * (e.g. a yellow primary needs a dark on-primary). */
+	 * (e.g. a yellow primary needs a dark on-primary). Browsers with relative
+	 * colour syntax derive it from the adopted accent below; the rest keep white. */
 	--wcb-on-primary: #ffffff;
 
 	/* Status colors come in three layers:
@@ -151,4 +152,16 @@
 	--wcb-icon-xl:     32px;
 	--wcb-icon-2xl:    48px;
 	--wcb-icon-stroke: 1.75;
+}
+
+/* Text on a primary-filled element follows the adopted accent: white on a dark
+   accent, near-black on a light one, so the label passes 4.5:1 on any theme and
+   in its dark mode (BuddyX #ef5455 and Reign dark #97c0ee both fail with white).
+   The 0.57 lightness cut-over is where white and black text both reach ~4.5:1.
+   Declared on :root, like --wcb-primary, so it follows wherever the theme moves
+   the accent. Browsers without relative colour syntax keep the white above. */
+@supports (color: oklch(from red l c h)) {
+	:root {
+		--wcb-on-primary: oklch(from var(--wcb-primary) clamp(0, (0.57 - l) * 1000, 1) 0 0);
+	}
 }

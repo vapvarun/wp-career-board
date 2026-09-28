@@ -523,13 +523,13 @@
 .wcb-chip.wcb-chip-active:hover {
 	background: var(--wcb-primary-dark);
 	border-color: var(--wcb-primary-dark);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-chip.wcb-chip-active {
 	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 	background: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-chip:focus-visible {

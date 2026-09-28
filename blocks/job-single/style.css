@@ -741,7 +741,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 .wcb-post-apply-alert-btn:hover {
 	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-post-apply-alert-btn:disabled {

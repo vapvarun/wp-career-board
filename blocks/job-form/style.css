@@ -57,7 +57,7 @@
 }
 
 .wcb-step--active .wcb-step__num {
-	background: rgba(255, 255, 255, 0.2);
+	background: color-mix(in srgb, var(--wcb-on-primary) 20%, transparent);
 	color: var(--wcb-on-primary);
 }
 
@@ -68,7 +68,7 @@
 
 .wcb-step--done .wcb-step__num {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 	font-size: 0;
 }
 
@@ -491,7 +491,7 @@ textarea.wcb-field {
 	height: var(--wcb-space-3xl);
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	flex-shrink: 0;
@@ -535,12 +535,12 @@ textarea.wcb-field {
 
 .wcb-form-success__reset:hover {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 }
 
 .wcb-form-success__reset:focus-visible {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 }

@@ -93,16 +93,16 @@ html.dark-mode {
 
 /*
  * WCB's brand pill buttons (apply / primary / save) sit on the saturated
- * `--wcb-primary`. BuddyX's own `--button-text-color` varies per palette
- * (some Customizer presets use a dark value that fails contrast against
- * the saturated background), so we force the theme's button text — falling
- * back to white — instead of letting it pick a too-dark token.
+ * `--wcb-primary`. The label is `--wcb-on-primary`, which is derived from that
+ * same accent (white on a dark one, near-black on a light one), so it passes
+ * contrast whatever palette the Customizer picks. BuddyX's own button text
+ * colour is chosen for BuddyX's fill, not ours, so it is not used here.
  */
 .wcb-btn--primary,
 .wcb-btn-primary,
 .wcb-apply-btn,
 .wcb-save-btn {
-	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
 	transition: filter var( --wcb-transition-snappy, 0.15s ease );
 }
 
@@ -221,7 +221,7 @@ button.wcb-btn--primary,
 button.wcb-search-button,
 button.wcb-search-hero__button {
 	background-color: var( --wcb-primary, #2563eb ) !important;
-	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
 

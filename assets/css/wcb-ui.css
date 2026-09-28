@@ -364,7 +364,7 @@
 	overflow: hidden;
 	border-radius: var(--wcb-avatar-radius, var(--wcb-radius-lg));
 	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-on-primary, #ffffff);
+	color: #ffffff;
 	font-size: max(10px, calc(var(--wcb-avatar-size, var(--wcb-avatar-md, 52px)) * 0.33));
 	font-weight: var(--wcb-font-bold);
 	line-height: 1;
@@ -584,7 +584,7 @@ textarea.wcb-input {
 	height: 16px;
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success, #16a34a);
-	color: var(--wcb-on-primary, #ffffff);
+	color: #ffffff;
 	font-size: 10px;
 	font-weight: var(--wcb-font-bold);
 	line-height: 1;
