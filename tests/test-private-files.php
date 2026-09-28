@@ -95,12 +95,17 @@ $wcb_file   = (int) wp_insert_attachment(
 	$wcb_app
 );
 update_post_meta( $wcb_app, '_wcb_resume_attachment_id', $wcb_file );
+// WordPress's page-1 preview of a PDF sits beside it and shows the CV.
+$wcb_preview = str_replace( '.pdf', '-pdf.jpg', $wcb_upload['file'] );
+file_put_contents( $wcb_preview, 'jpg' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+wp_update_attachment_metadata( $wcb_file, array( 'sizes' => array( 'full' => array( 'file' => basename( $wcb_preview ) ) ) ) );
 
 WP_CLI::log( '--- migration cron: wcb_private_files_migrate ---' );
 do_action( 'wcb_private_files_migrate' );
 $wcb_path = (string) get_attached_file( $wcb_file );
 wcb_assert( false !== strpos( $wcb_path, '/wcb-private/' ) && file_exists( $wcb_path ), 'legacy resume moved into uploads/wcb-private/' );
 wcb_assert( ! file_exists( $wcb_upload['file'] ), 'old public copy is gone' );
+wcb_assert( ! file_exists( $wcb_preview ) && file_exists( dirname( $wcb_path ) . '/' . basename( $wcb_preview ) ), 'the PDF preview image moved with it, not left public' );
 wcb_assert( 'private' === get_post_status( $wcb_file ), 'attachment status is private' );
 wcb_assert( false !== strpos( \WCB\Core\PrivateFiles::url( $wcb_file ), 'wcb_file=' . $wcb_file ), 'url() hands out the gated handler' );
 

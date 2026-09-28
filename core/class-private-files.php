@@ -387,6 +387,16 @@ final class PrivateFiles {
 			if ( wp_mkdir_p( $folder ) && @rename( $old, $new ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename -- failure handled below.
 				update_attached_file( $attachment_id, $new );
 				$moved = true;
+				// A PDF's page-1 preview and its sizes sit beside it and show the CV
+				// (name, email); WordPress resolves them from the file's folder, so
+				// they move with it and the metadata needs no rewrite.
+				$meta = wp_get_attachment_metadata( $attachment_id );
+				foreach ( is_array( $meta ) && is_array( $meta['sizes'] ?? null ) ? $meta['sizes'] : array() as $size ) {
+					$preview = dirname( $old ) . '/' . basename( (string) ( $size['file'] ?? '' ) );
+					if ( is_file( $preview ) ) {
+						@rename( $preview, $folder . '/' . basename( $preview ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename -- best effort; the CV itself already moved.
+					}
+				}
 			}
 		}
 
