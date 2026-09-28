@@ -2,15 +2,21 @@
  * ".wp-block { padding: ... }" rule the (0,1,0) selector wins on
  * source-order, so plain rules suffice. */
 .wp-block-wp-career-board-job-search {
+	/* Matches .wcb-job-listings below it (1200px) so the search row and the
+	 * results are flush. Without this, a block theme's own content width wins
+	 * (Twenty Twenty-Five: 645px here vs 1340px on Find Companies, which sets
+	 * its own width the same way company-archive does). */
+	max-width: 1200px;
+	margin: 0 auto var(--wcb-space-lg);
 	border: none;
 	box-shadow: none;
-	margin: 0 0 var(--wcb-space-lg);
 	padding: 0;
 	background: none;
 }
 
 .wp-block-wp-career-board-job-filters {
-    margin: 0 0 var(--wcb-space-lg);
+	max-width: 1200px;
+	margin: 0 auto var(--wcb-space-lg);
 }
 
 /* ── Search form ─────────────────────────────────────────────────────────── */

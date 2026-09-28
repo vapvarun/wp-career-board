@@ -57,22 +57,19 @@ class BuddyxProIntegration {
 	 * @return string
 	 */
 	public function single_template( string $template ): string {
-		// A theme shipping its own WCB template outranks the bundled
-		// integration. This handler runs on single_template/archive_template,
-		// which receive the template WordPress's hierarchy already resolved -
-		// so returning ours unconditionally threw the theme's file away and
-		// made a documented override impossible.
-		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
 
-		if ( is_singular( 'wcb_job' ) ) {
-			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/single-wcb_job.php';
-			if ( file_exists( $tpl ) ) {
-				return $tpl;
-			}
+		// A theme shipping its OWN single-wcb_job.php outranks the bundled
+		// integration; its generic single.php does not count, only a file
+		// matching this exact slot. See TemplateOverride::is_theme_template().
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template, 'single-wcb_job.php' ) ) {
+			return $template;
 		}
-		return $template;
+
+		$tpl = WCB_DIR . 'integrations/buddyxpro/templates/single-wcb_job.php';
+		return file_exists( $tpl ) ? $tpl : $template;
 	}
 
 	/**
@@ -84,22 +81,18 @@ class BuddyxProIntegration {
 	 * @return string
 	 */
 	public function archive_template( string $template ): string {
-		// A theme shipping its own WCB template outranks the bundled
-		// integration. This handler runs on single_template/archive_template,
-		// which receive the template WordPress's hierarchy already resolved -
-		// so returning ours unconditionally threw the theme's file away and
-		// made a documented override impossible.
-		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+		if ( ! is_post_type_archive( 'wcb_job' ) ) {
 			return $template;
 		}
 
-		if ( is_post_type_archive( 'wcb_job' ) ) {
-			$tpl = WCB_DIR . 'integrations/buddyxpro/templates/archive-wcb_job.php';
-			if ( file_exists( $tpl ) ) {
-				return $tpl;
-			}
+		// A theme shipping its OWN archive-wcb_job.php outranks the bundled
+		// integration; its generic archive.php does not count. See single_template().
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template, 'archive-wcb_job.php' ) ) {
+			return $template;
 		}
-		return $template;
+
+		$tpl = WCB_DIR . 'integrations/buddyxpro/templates/archive-wcb_job.php';
+		return file_exists( $tpl ) ? $tpl : $template;
 	}
 
 	/**

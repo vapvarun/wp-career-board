@@ -245,7 +245,7 @@ final class EmployersModule {
 		}
 		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
 		// See TemplateOverride - theme templates and the bundled integrations both win.
-		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
+		if ( \WCB\Core\TemplateOverride::keep( $template, 'single-wcb_company.php' ) ) {
 			return $template;
 		}
 		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';

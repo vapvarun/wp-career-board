@@ -219,7 +219,7 @@ final class JobsModule {
 		// A theme's own single-wcb_job.php wins, as do the bundled Reign /
 		// BuddyX Pro integration templates. See TemplateOverride: the old check
 		// was a plugin-path sniff, so a theme template was silently replaced.
-		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
+		if ( \WCB\Core\TemplateOverride::keep( $template, 'single-wcb_job.php' ) ) {
 			return $template;
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/single-wcb_job.php';
