@@ -33,6 +33,7 @@ wp_interactivity_state(
 	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-search"
 >
+	<?php echo \WCB\Core\ArchiveHeading::render( 'wcb_job', 'jobs_archive_page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 	<form
 		class="wcb-search-form"
 		role="search"

@@ -10,6 +10,7 @@
 	flex: 1;
 	min-width: auto;
 	height: auto;
+	min-height: var(--wcb-control-h);
 	/* Logical padding so RTL mirrors without a generated rtl variant (block CSS is not run through rtlcss). */
 	padding-block: var(--wcb-space-sm); /* 0.625rem ≈ 10px → sm */
 	padding-inline-start: var(--wcb-space-md); /* 0.875rem ≈ 14px → md: text inset */
@@ -119,6 +120,7 @@
 .wcb-filter-input {
 	width: min(120px, 100%); /* component-specific salary-input width */
 	height: auto;
+	min-height: var(--wcb-control-h);
 	padding: var(--wcb-space-sm) var(--wcb-space-md); /* 0.625rem ≈ 10px → sm */
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);

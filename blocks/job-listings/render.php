@@ -448,6 +448,7 @@ $wcb_state = array(
 	// '' = the server's default (best match for a keyword, else Settings).
 	'sortBy'         => in_array( $wcb_url_params['sort'] ?? '', \WCB\Modules\Jobs\JobSearch::SORTS, true ) ? (string) $wcb_url_params['sort'] : '',
 	'alertSaved'     => false,
+	'alertEmailOpen' => false,
 	'alertSaving'    => false,
 	'alertNeedsConfirm' => false,
 	'alertError'     => '',
@@ -510,8 +511,6 @@ $wcb_state = array(
 	),
 );
 
-$wcb_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_job', 'jobs_archive_page' );
-
 wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 ?>
 <div
@@ -519,9 +518,11 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	data-wp-interactive="wcb-job-listings"
 	data-wp-init="callbacks.init"
 >
-	<?php if ( $wcb_page_heading && ( $attributes['showHeading'] ?? false ) ) : ?>
-	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
-	<?php endif; ?>
+	<?php
+	if ( $attributes['showHeading'] ?? false ) {
+		echo \WCB\Core\ArchiveHeading::render( 'wcb_job', 'jobs_archive_page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper.
+	}
+	?>
 	<?php
 	// Results toolbar (count, sort, layout) and active-filter pills.
 	$wcb_jl_list_ui = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr && $wcb_show_filters );

@@ -46,7 +46,7 @@
 	border-radius: 0;
 	-webkit-appearance: none;
 	appearance: none;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	padding: 0 var(--wcb-space-lg);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
 	color: var(--wcb-contrast);
@@ -55,7 +55,7 @@
 	/* height:auto cancels any theme-set fixed input height so the flex
 	 * `align-items: stretch` on the form can size it to the button. */
 	height: auto;
-	min-height: 50px;
+	min-height: var(--wcb-control-h);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-search-input:focus {
@@ -74,7 +74,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--wcb-space-xs);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	padding: 0 var(--wcb-space-xl);
 	background: var(--wcb-primary);
 	color: var(--wcb-on-primary, #ffffff);
 	border: none;
@@ -83,7 +83,7 @@
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;
-	min-height: 50px;
+	min-height: var(--wcb-control-h);
 	transition: background var(--wcb-transition-snappy);
 }
 

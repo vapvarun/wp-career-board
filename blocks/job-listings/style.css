@@ -894,6 +894,13 @@
 	color: var(--wcb-contrast);
 }
 
+/* Phones: the guest sees just the button (two toolbar rows saved); the first tap reveals the field. */
+@media (max-width: 640px) {
+	.wcb-alert-me--guest:not(.wcb-alert-open) .wcb-alert-guest-email {
+		display: none;
+	}
+}
+
 .wcb-alert-me__error {
 	flex-basis: 100%;
 	color: var(--wcb-danger, #b91c1c);

@@ -414,6 +414,13 @@ const { state, actions } = store( 'wcb-job-listings', {
 			}
 			// Guests (when the owner allows it) type an email next to the button.
 			const emailInput = document.querySelector( '.wcb-alert-guest-email' );
+			// On phones the email field is collapsed behind the button: the first tap opens it.
+			if ( emailInput && null === emailInput.offsetParent ) {
+				state.alertEmailOpen = true;
+				yield Promise.resolve();
+				emailInput.focus();
+				return;
+			}
 			if ( emailInput && ! emailInput.reportValidity() ) {
 				return;
 			}

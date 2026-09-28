@@ -225,7 +225,6 @@ $wcb_state = array(
 	 */
 );
 
-$wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
 
 wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 ?>
@@ -234,9 +233,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	data-wp-interactive="wcb-company-archive"
 >
 
-	<?php if ( $wcb_ca_page_heading ) : ?>
-	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
-	<?php endif; ?>
+	<?php echo \WCB\Core\ArchiveHeading::render( 'wcb_company', 'company_archive_page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 
 	<?php
 	$wcb_toolbar = array(

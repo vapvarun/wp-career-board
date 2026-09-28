@@ -165,3 +165,8 @@
 		--wcb-on-primary: oklch(from var(--wcb-primary) clamp(0, (0.57 - l) * 1000, 1) 0 0);
 	}
 }
+
+/* One height for every listing search, filter and map control (was 37 to 50px). */
+:root {
+	--wcb-control-h: 2.75rem;
+}
