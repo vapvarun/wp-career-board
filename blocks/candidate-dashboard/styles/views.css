@@ -406,10 +406,8 @@
 	outline-offset: 2px;
 }
 
-/* ── Profile form ────────────────────────────────────────────────────────── */
-.wcb-form-field {
-	margin-bottom: var(--wcb-space-lg);
-}
+/* Field rhythm now lives in the shared .wcb-form-field rule
+   (assets/css/frontend-components.css) so every form uses one gap. */
 
 .wcb-form-label {
 	display: block;

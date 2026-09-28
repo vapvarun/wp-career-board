@@ -339,7 +339,12 @@ select.wcb-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
-	margin-bottom: var(--wcb-space-xl);
+	margin-bottom: var(--wcb-space-lg);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-field-group:last-child,
+[class*="wp-block-wcb-"] .wcb-field-group:last-child {
+	margin-bottom: 0;
 }
 
 [class*="wp-block-wp-career-board"] .wcb-field-row,
@@ -521,7 +526,12 @@ select.wcb-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
+	margin-bottom: var(--wcb-space-lg);
 	min-width: 0;
+}
+
+.wcb-form-field:last-child {
+	margin-bottom: 0;
 }
 
 .wcb-form-hint {

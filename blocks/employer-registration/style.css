@@ -29,7 +29,8 @@
 .wcb-reg-form {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-space-lg);
+	/* No gap here: .wcb-field-group supplies its own margin-bottom (the
+	   shared field rhythm) - a gap on top of that double-spaced every field. */
 }
 
 .wcb-reg-row {
