@@ -178,6 +178,81 @@ wcb_assert( array( (string) $wcb_employer ) === array_map( 'strval', $wcb_report
 ModerationModule::resolve_member_flags( $wcb_employer );
 wcb_assert( 0 === ModerationModule::open_member_reports( $wcb_employer ), 'Dismiss reports clears the badge' );
 
+WP_CLI::log( '--- Dismiss, then report again ---' );
+$wcb_mark = $wcb_log_id();
+$r        = wcb_ts_rest( 'POST', '/wcb/v1/users/' . $wcb_employer . '/report', array( 'reason' => 'scam' ), $wcb_reporters[0] );
+wcb_assert( 200 === $r->get_status() && 1 === ModerationModule::open_member_reports( $wcb_employer ), 'the same member can report again after Dismiss' );
+wcb_assert( 1 === wcb_ts_mail( $wcb_mark, 'report-received' ), 'the owner is told about a report made after a Dismiss' );
+ModerationModule::resolve_member_flags( $wcb_employer );
+
+WP_CLI::log( '--- a job hidden by reports meets a ban ---' );
+$wcb_j = wcb_ts_post( 'wcb_job', $wcb_employer, 'publish' );
+HiddenContent::hide( array( $wcb_j ), 'reports', 'pending' );
+update_user_meta( $wcb_employer, '_wcb_employer_banned', '1' );
+wcb_assert( 'reports' === HiddenContent::reason( $wcb_j ), 'a ban leaves a report-hidden job under its own marker' );
+delete_user_meta( $wcb_employer, '_wcb_employer_banned' );
+wcb_assert( 'pending' === get_post_status( $wcb_j ) && 'reports' === HiddenContent::reason( $wcb_j ), 'unban leaves it for its reports' );
+ModerationModule::resolve_job_flags( $wcb_j, 'dismiss' );
+wcb_assert( 'publish' === get_post_status( $wcb_j ), 'Dismiss still brings it back' );
+HiddenContent::hide( array( $wcb_j ), 'reports', 'pending' );
+update_user_meta( $wcb_employer, '_wcb_employer_banned', '1' );
+ModerationModule::resolve_job_flags( $wcb_j, 'dismiss' );
+wcb_assert( 'draft' === get_post_status( $wcb_j ) && 'ban' === HiddenContent::reason( $wcb_j ), 'dismissing reports on a banned employer\'s job does not put it live' );
+delete_user_meta( $wcb_employer, '_wcb_employer_banned' );
+wcb_assert( 'publish' === get_post_status( $wcb_j ), 'unban then restores it' );
+
+WP_CLI::log( '--- deleting a banned employer ---' );
+$wcb_gone = wcb_ts_user( 'wcb_employer' );
+$wcb_gj   = wcb_ts_post( 'wcb_job', $wcb_gone, 'publish' );
+$wcb_gc   = wcb_ts_post( 'wcb_company', $wcb_gone, 'publish' );
+update_user_meta( $wcb_gone, '_wcb_employer_banned', '1' );
+wp_delete_user( $wcb_gone );
+wcb_assert( 'publish' !== get_post_status( $wcb_gj ) && 'publish' !== get_post_status( $wcb_gc ), 'deleting a banned employer does not put their listings back live' );
+foreach ( array( $wcb_gj, $wcb_gc ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+
+WP_CLI::log( '--- a suspended candidate and a banned employer are off the API ---' );
+$wcb_cand   = wcb_ts_user( 'wcb_candidate' );
+$wcb_resume = wcb_ts_post( 'wcb_resume', $wcb_cand, 'publish' );
+update_post_meta( $wcb_resume, '_wcb_resume_public', '1' );
+$wcb_other  = wcb_ts_user( 'wcb_employer' );
+wp_set_current_user( $wcb_other );
+wcb_assert( \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $wcb_resume ), 'control: a listed resume is readable by an employer' );
+wcb_assert( 200 === wcb_ts_rest( 'GET', '/wcb/v1/candidates/' . $wcb_cand, array(), $wcb_other )->get_status(), 'control: the candidate profile is readable' );
+update_user_meta( $wcb_cand, '_wcb_employer_banned', '1' );
+wp_set_current_user( $wcb_other );
+wcb_assert( ! \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $wcb_resume ), 'a suspended candidate\'s resume is not readable by an employer' );
+wcb_assert( 404 === wcb_ts_rest( 'GET', '/wcb/v1/candidates/' . $wcb_cand, array(), $wcb_other )->get_status(), 'a suspended candidate\'s profile is a 404' );
+wcb_assert( 200 === wcb_ts_rest( 'GET', '/wcb/v1/candidates/' . $wcb_cand, array(), $wcb_cand )->get_status(), 'the suspended candidate still reads their own profile' );
+wp_set_current_user( $wcb_cand );
+wcb_assert( \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $wcb_resume ), 'and their own resume' );
+delete_user_meta( $wcb_cand, '_wcb_employer_banned' );
+wp_set_current_user( $wcb_other );
+wcb_assert( \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $wcb_resume ), 'restore brings the resume back' );
+wcb_assert( 200 === wcb_ts_rest( 'GET', '/wcb/v1/employers/' . $wcb_company, array(), 0 )->get_status(), 'control: a published company is public' );
+update_user_meta( $wcb_employer, '_wcb_employer_banned', '1' );
+wcb_assert( 404 === wcb_ts_rest( 'GET', '/wcb/v1/employers/' . $wcb_company, array(), 0 )->get_status(), 'a banned employer\'s hidden company is a 404 to a guest' );
+wcb_assert( 200 === wcb_ts_rest( 'GET', '/wcb/v1/employers/' . $wcb_company, array(), $wcb_employer )->get_status(), 'its owner still reads it' );
+delete_user_meta( $wcb_employer, '_wcb_employer_banned' );
+
+WP_CLI::log( '--- members banned before this release ---' );
+$wcb_old  = wcb_ts_user( 'wcb_employer' );
+$wcb_oj   = wcb_ts_post( 'wcb_job', $wcb_old, 'publish' );
+$wpdb->insert( $wpdb->usermeta, array( 'user_id' => $wcb_old, 'meta_key' => '_wcb_employer_banned', 'meta_value' => '1' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery -- the pre-1.8.0 state: flag set, nothing hidden.
+$wcb_db   = get_option( 'wcb_db_version' );
+update_option( 'wcb_db_version', '1.3.4' );
+wcb_assert( 'publish' === get_post_status( $wcb_oj ), 'control: a ban set before 1.8.0 left the listing live' );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( 'publish' !== get_post_status( $wcb_oj ) && 'ban' === HiddenContent::reason( $wcb_oj ), 'the upgrade hides the listings of members banned before 1.8.0' );
+update_option( 'wcb_db_version', $wcb_db );
+wp_delete_post( $wcb_oj, true );
+foreach ( array( $wcb_old, $wcb_cand, $wcb_other ) as $wcb_id ) {
+	wp_delete_user( $wcb_id );
+}
+wp_delete_post( $wcb_resume, true );
+wp_delete_post( $wcb_j, true );
+
 // Teardown.
 update_option( 'wcb_settings', $wcb_settings );
 \WCB\Admin\Settings::flush_cache();

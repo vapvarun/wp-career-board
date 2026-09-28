@@ -461,7 +461,9 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+		// A company that is not published (a draft, or hidden by a ban) is its owner's and the admin's only.
+		if ( ! $post || 'wcb_company' !== $post->post_type
+			|| ( 'publish' !== $post->post_status && get_current_user_id() !== (int) $post->post_author && ! $this->check_ability( 'wcb/manage-settings' ) ) ) {
 			return new \WP_Error(
 				'wcb_not_found',
 				__( 'Company not found.', 'wp-career-board' ),

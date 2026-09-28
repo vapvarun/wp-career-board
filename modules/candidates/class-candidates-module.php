@@ -193,6 +193,10 @@ final class CandidatesModule {
 		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return true;
 		}
+		// A resume moderation took down (a suspended candidate's) is private, listed or not.
+		if ( '' !== \WCB\Modules\Moderation\HiddenContent::reason( $post_id ) ) {
+			return false;
+		}
 		// A block hides the candidate from the blocker (and back), whatever the
 		// resume's visibility.
 		if ( $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner ) ) {

@@ -56,6 +56,13 @@ final class HiddenContent {
 	private const BAN_META = '_wcb_employer_banned';
 
 	/**
+	 * Users WordPress is deleting right now: core deletes every one of their meta
+	 * rows, ban flag included, and that is not an unban.
+	 * @var array<int, true>
+	 */
+	private static array $deleting = array();
+
+	/**
 	 * Hook the ban flag itself, so every writer hides and restores.
 	 *
 	 * @return void
@@ -64,6 +71,13 @@ final class HiddenContent {
 		add_action( 'added_user_meta', array( self::class, 'on_ban_set' ), 10, 4 );
 		add_action( 'updated_user_meta', array( self::class, 'on_ban_set' ), 10, 4 );
 		add_action( 'deleted_user_meta', array( self::class, 'on_ban_lifted' ), 10, 3 );
+		add_action(
+			'delete_user',
+			static function ( int $user_id ): void {
+				self::$deleting[ $user_id ] = true;
+			},
+			1
+		);
 		// Someone changed a hidden post's status by hand (approved, trashed,
 		// edited): it is theirs now, never ours to restore.
 		add_action(
@@ -119,7 +133,7 @@ final class HiddenContent {
 	 */
 	public static function on_ban_lifted( array $meta_ids, int $user_id, string $key ): void {
 		unset( $meta_ids );
-		if ( self::BAN_META !== $key ) {
+		if ( self::BAN_META !== $key || isset( self::$deleting[ $user_id ] ) ) {
 			return;
 		}
 		self::restore(
@@ -153,7 +167,8 @@ final class HiddenContent {
 		// ponytail: about four queries a post, in the request; move to a background batch if members with thousands of live posts get banned.
 		foreach ( $ids as $id ) {
 			$status = (string) get_post_status( (int) $id );
-			if ( ! in_array( $status, array( 'publish', 'pending' ), true ) ) {
+			// Already hidden (say by reports): keep that reason, so its own restore still works.
+			if ( ! in_array( $status, array( 'publish', 'pending' ), true ) || '' !== self::reason( (int) $id ) ) {
 				continue;
 			}
 			update_post_meta( (int) $id, self::META_STATUS, $status );
@@ -177,6 +192,13 @@ final class HiddenContent {
 		foreach ( $ids as $id ) {
 			$id = (int) $id;
 			if ( get_post_meta( $id, self::META_BY, true ) !== $by ) {
+				continue;
+			}
+			// Reports were dismissed but the employer is banned: the ban holds it now.
+			if ( 'reports' === $by && get_user_meta( (int) get_post_field( 'post_author', $id ), self::BAN_META, true ) ) {
+				update_post_meta( $id, self::META_BY, 'ban' );
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- see changed().
+				$changed[] = $id;
 				continue;
 			}
 			$status = (string) get_post_meta( $id, self::META_STATUS, true );

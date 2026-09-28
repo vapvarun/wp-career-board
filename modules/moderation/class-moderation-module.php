@@ -183,6 +183,10 @@ class ModerationModule extends \WCB\Api\RestController {
 	 * @return void
 	 */
 	public static function resolve_member_flags( int $user_id ): void {
+		// Like a job's: Dismiss clears the reports, so the same or a new reporter counts again and the owner hears of it.
+		foreach ( array( 'reporters', 'reasons', 'count' ) as $part ) {
+			delete_user_meta( $user_id, '_wcb_member_flag_' . $part );
+		}
 		update_user_meta( $user_id, '_wcb_member_flag_status', 'resolved' );
 
 		/**

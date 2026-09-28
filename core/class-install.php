@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.4';
+	const DB_VERSION = '1.3.5';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -449,6 +449,23 @@ final class Install {
 			// and the app and PWA follow them.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.4', '<' ) ) {
 				self::migrate_email_brand();
+			}
+
+			// 1.3.5 - members banned before 1.8.0 still have live listings: hide
+			// them now (a ban set from here on hides them as it is set).
+			// ponytail: in the request; bans are a handful per site.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.5', '<' ) ) {
+				$wcb_banned = get_users(
+					array(
+						'meta_key'   => '_wcb_employer_banned', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'fields'     => 'ID',
+						'number'     => -1,
+					)
+				);
+				foreach ( $wcb_banned as $wcb_banned_id ) {
+					\WCB\Modules\Moderation\HiddenContent::on_ban_set( 0, (int) $wcb_banned_id, '_wcb_employer_banned', '1' );
+				}
 			}
 
 			// Only bump the stored DB version if every expected table now

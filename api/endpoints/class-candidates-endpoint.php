@@ -331,6 +331,15 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
+		// A suspended candidate is off the site (moderation), as their resume page is.
+		if ( ! $is_self && ! $is_admin && get_user_meta( $user_id, '_wcb_employer_banned', true ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		// Only candidates have a candidate profile: an admin's or employer's ID
 		// answered here too, confirming the account and its name.
 		if ( ! $is_self && ! $is_admin && ! in_array( 'wcb_candidate', (array) $user->roles, true ) ) {
