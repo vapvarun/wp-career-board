@@ -17,6 +17,17 @@ set -e
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+# Fast path: syntax only. The full gate (PHPStan, WPCS, coding rules, qa-coverage
+# drift) runs once per release in bin/build-release.sh (step 4), or on demand
+# with FULL_CI=1 git commit.
+if [ "${FULL_CI:-0}" != "1" ]; then
+    git diff --cached --name-only --diff-filter=ACMR -- '*.php' | while IFS= read -r f; do
+        php -l "$f" >/dev/null 2>&1 || { echo "pre-commit FAILED: syntax error in $f"; exit 1; }
+    done || exit 1
+    echo "pre-commit: syntax OK (full checks run at release; FULL_CI=1 to run them now)"
+    exit 0
+fi
+
 STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php' | tr '\n' ' ')
 
 if [ -z "$STAGED_PHP" ]; then

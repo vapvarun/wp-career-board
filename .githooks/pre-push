@@ -15,6 +15,12 @@ set -uo pipefail
 
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# The full CI runs once per release (bin/build-release.sh step 4), not on every push.
+[ "${FULL_CI:-0}" = "1" ] || {
+    echo "pre-push: full CI runs at release (FULL_CI=1 git push to run it now)."
+    exit 0
+}
+
 # Run the existing local-ci.sh if present, else composer ci:no-journeys, else fail loudly.
 if [ -x bin/local-ci.sh ]; then
     bin/local-ci.sh \
