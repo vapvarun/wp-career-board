@@ -1183,7 +1183,7 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
-			<h2 class="wcb-page-title"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
+			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown">
 			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.pwMsg" data-wp-bind--data-type="state.pwMsgType" data-wp-text="state.pwMsg"></p>
@@ -1211,7 +1211,7 @@ wp_interactivity_state(
 
 		<!-- ── Privacy & data controls (GDPR self-service, A-11) ─────── -->
 		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
-			<h2 class="wcb-page-title"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
+			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel">
 			<p class="wcb-privacy-desc">

@@ -340,7 +340,7 @@
 }
 
 .wcb-cp-desc h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); }
-.wcb-cp-desc h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-semibold); } /* lighter weight than h2 (was 700, same as h2) so the two are visually distinct */
 .wcb-cp-desc h4 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-semibold); }
 
 .wcb-cp-desc ul,

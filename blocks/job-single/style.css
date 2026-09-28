@@ -244,7 +244,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-job-description h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); } /* 1.25rem */
-.wcb-job-description h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-bold); } /* 1.0625rem ≈ 17px → lg (18px) */
+.wcb-job-description h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-semibold); } /* lighter weight than h2 (was 700, same as h2) so the two are visually distinct */
 .wcb-job-description h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); } /* base body size */
 
 .wcb-job-description ul,
