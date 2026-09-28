@@ -331,6 +331,7 @@ $wcb_initial_state = apply_filters(
 		'jobUrl'            => '',
 		'error'             => '',
 		'validationError'   => '',
+		'validationField'   => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
 		'creditCost'        => (int) $wcb_board_credit_costs[ $wcb_board_id ],
@@ -477,15 +478,6 @@ $wcb_step_labels = array(
 		<?php endforeach; ?>
 	</nav>
 
-	<!-- ── Validation error banner ───────────────────────────────────────── -->
-	<p
-		id="wcb-form-validation-error"
-		class="wcb-form-error"
-		role="alert"
-		data-wp-class--wcb-form-error--show="state.hasValidation"
-		data-wp-text="state.validationError"
-	></p>
-
 	<!-- ── Credit info banner ────────────────────────────────────────────── -->
 	<div
 		class="wcb-credit-banner"
@@ -584,9 +576,11 @@ $wcb_step_labels = array(
 					data-wp-on--input="actions.updateField"
 					required
 					aria-required="true"
-					aria-describedby="wcb-form-validation-error"
+					aria-describedby="wcb-job-title-error"
+					data-wp-bind--aria-invalid="state.titleInvalid"
 					autocomplete="off"
 				/>
+				<p class="wcb-field-error" id="wcb-job-title-error" role="alert" hidden data-wp-bind--hidden="!state.titleInvalid" data-wp-text="state.validationError"></p>
 			</div>
 
 			<div class="wcb-form-field">
@@ -606,7 +600,7 @@ $wcb_step_labels = array(
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
-					<div class="wcb-editor-holder" id="wcb-editor-job-desc"></div>
+					<div class="wcb-editor-holder" id="wcb-editor-job-desc" aria-describedby="wcb-job-desc-error" data-wp-bind--aria-invalid="state.descriptionInvalid"></div>
 					<textarea
 						id="wcb-job-desc"
 						class="wcb-editor-source"
@@ -620,6 +614,7 @@ $wcb_step_labels = array(
 						aria-required="true"
 					><?php echo esc_textarea( $wcb_edit_job ? (string) $wcb_edit_job->post_content : '' ); ?></textarea>
 				</div>
+				<p class="wcb-field-error" id="wcb-job-desc-error" role="alert" hidden data-wp-bind--hidden="!state.descriptionInvalid" data-wp-text="state.validationError"></p>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
 				</span>
@@ -885,6 +880,8 @@ $wcb_step_labels = array(
 					<select
 						id="wcb-location"
 						class="wcb-field"
+						aria-describedby="wcb-location-error"
+						data-wp-bind--aria-invalid="state.locationInvalid"
 						data-wcb-field="locationSlug"
 						data-wp-bind--value="state.locationSlug"
 						data-wp-on--change="actions.updateField"
@@ -909,6 +906,7 @@ $wcb_step_labels = array(
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
+					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>
 				</div>
 
 				<div class="wcb-form-field">

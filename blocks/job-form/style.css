@@ -10,6 +10,26 @@
  *   - Primary CTA with shadow ramp + translateY(-1px) lift on hover
  */
 
+/* ── Field validation ────────────────────────────────────────────────── */
+/* The message sits under its field, in the AA-safe danger text colour. Fields
+   keep a scroll margin so a theme's sticky header does not cover the one that
+   was just focused. */
+.wcb-field,
+.wcb-editor-holder {
+	scroll-margin-top: 7.5rem;
+}
+
+.wcb-field-error {
+	margin: var(--wcb-space-xs) 0 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+.wcb-field[aria-invalid="true"],
+.wcb-editor-holder[aria-invalid="true"] {
+	border-color: var(--wcb-danger, #dc2626);
+}
+
 /* ── Step indicator (chip-style, kept functional + clean) ────────────── */
 .wcb-steps {
 	display: flex;

@@ -17,7 +17,7 @@
  *   salaryDisplay              — formatted salary string for preview.
  *   hasCompany, isRemote, hasType, hasExp, hasLocation, hasCategory — preview card conditionals.
  *   hasSalary, hasDeadline, hasApplyUrl, hasApplyEmail              — preview meta conditionals.
- *   hasError, hasValidation                                          — error banner conditionals.
+ *   hasError, titleInvalid, descriptionInvalid, locationInvalid      — error banner / per-field error conditionals.
  *
  * @package WP_Career_Board
  */
@@ -86,6 +86,30 @@ const locale = () => {
  * @return {string} Localised number.
  */
 const num = ( value, options ) => new Intl.NumberFormat( locale(), options ).format( value );
+
+/**
+ * Attach a validation message to one field ('' clears it).
+ *
+ * @param {Object} state   Store state.
+ * @param {string} field   title | description | location, or '' to clear.
+ * @param {string} message Message shown under that field.
+ */
+const setValidation = ( state, field, message ) => {
+	state.validationField = field;
+	state.validationError = message;
+};
+
+/**
+ * Move focus to the offending field. Focusing scrolls it into view; the field's
+ * scroll-margin-top keeps a theme's sticky header from covering it.
+ *
+ * @param {string} id Element id, or the id of a wrapper holding a focusable editor.
+ */
+const focusField = ( id ) => {
+	const el = document.getElementById( id );
+	const target = el?.matches( 'input, select, textarea' ) ? el : el?.querySelector( '[contenteditable], input, textarea' ) ?? el;
+	target?.focus( { preventScroll: false } );
+};
 
 /**
  * Abbreviate a figure, mirroring \WCB\Core\SalaryFormat::abbreviate().
@@ -344,9 +368,18 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return ! ! state.error;
 			},
-			get hasValidation() {
+			// A validation message belongs to one field: shown under it, flagged on it.
+			get titleInvalid() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.validationError;
+				return 'title' === state.validationField && ! ! state.validationError;
+			},
+			get descriptionInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'description' === state.validationField && ! ! state.validationError;
+			},
+			get locationInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'location' === state.validationField && ! ! state.validationError;
 			},
 
 			// ── Edit mode ─────────────────────────────────────────────────────────
@@ -460,8 +493,8 @@ const { state } = store(
 				const field     = event.target.dataset.wcbField;
 				if ( field ) {
 					state[ field ] = event.target.value;
-					if ( field === 'title' && state.validationError ) {
-						state.validationError = '';
+					if ( field === state.validationField && state.validationError ) {
+						setValidation( state, '', '' );
 					}
 					// When the employer switches boards, re-derive the
 					// credit cost AND currency from the seeded per-board
@@ -518,7 +551,8 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				if ( state._aiGenerating || ! state.title ) {
 					if ( ! state.title ) {
-						state.validationError = t( 'errorAiNoTitle', 'Enter a job title first so AI can generate a description.' );
+						setValidation( state, 'title', t( 'errorAiNoTitle', 'Enter a job title first so AI can generate a description.' ) );
+						focusField( 'wcb-job-title' );
 					}
 					return;
 				}
@@ -558,28 +592,31 @@ const { state } = store(
 
 				if ( state.step === 1 ) {
 					if ( ! state.title.trim() ) {
-						state.validationError = t( 'errorTitleRequired', 'Job title is required before you can continue.' );
+						setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
+						focusField( 'wcb-job-title' );
 						return;
 					}
 					if ( ! state.description.trim() ) {
-						state.validationError = t( 'errorDescriptionRequired', 'Job description is required before you can continue.' );
+						setValidation( state, 'description', t( 'errorDescriptionRequired', 'Job description is required before you can continue.' ) );
+						focusField( 'wcb-editor-job-desc' );
 						return;
 					}
 				}
 				if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
-					state.validationError = t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' );
+					setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
+					focusField( 'wcb-location' );
 					return;
 				}
 
-				state.validationError = '';
+				setValidation( state, '', '' );
 				if ( state.step < 4 ) {
 					state.step++;
 				}
 			},
 
 			prevStep() {
-				const { state }       = store( 'wcb-job-form' );
-				state.validationError = '';
+				const { state } = store( 'wcb-job-form' );
+				setValidation( state, '', '' );
 				if ( state.step > 1 ) {
 					state.step--;
 				}
@@ -723,7 +760,7 @@ const { state } = store(
 				state.submitted        = false;
 				state.step             = 1;
 				state.error            = '';
-				state.validationError  = '';
+				setValidation( state, '', '' );
 				state.jobUrl           = '';
 				state.jobStatus        = '';
 				state.editJobId        = 0;
