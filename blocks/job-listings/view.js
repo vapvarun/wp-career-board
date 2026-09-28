@@ -136,6 +136,47 @@ function wcbApplyResultsLabel( data ) {
 }
 
 /**
+ * Active filters as REST params. In-block chip keys (type_*, exp_*, cat_*,
+ * tag_*) and external filter-block keys (wcb_category, …) join into one
+ * comma list per filter (any of): repeated ?type=a&type=b keeps only the
+ * last in PHP. Shared by the job search and "Alert me", so an alert saves
+ * exactly the search the visitor is looking at.
+ *
+ * @param {Object<string,string>} merged activeFilters + baseFilters.
+ * @return {Object<string,string>} Param => value.
+ */
+function wcbFilterParams( merged ) {
+	const params   = {};
+	const multi    = { type: [], experience: [], category: [], tag: [], location: [] };
+	const prefixes = { type_: 'type', exp_: 'experience', cat_: 'category', tag_: 'tag' };
+	const external = { wcb_job_type: 'type', wcb_experience: 'experience', wcb_category: 'category', wcb_tag: 'tag', wcb_location: 'location' };
+	for ( const [ key, value ] of Object.entries( merged ) ) {
+		const prefix = Object.keys( prefixes ).find( ( p ) => key.startsWith( p ) );
+		if ( prefix ) {
+			multi[ prefixes[ prefix ] ].push( value );
+		} else if ( external[ key ] && value ) {
+			multi[ external[ key ] ].push( ...String( value ).split( ',' ) );
+		} else if ( key === 'remote' || key === 'wcb_remote' ) {
+			params.remote = '1';
+		} else if ( ( key === 'salary_min' || key === 'salary_max' ) && value ) {
+			params[ key ] = value;
+		} else if ( key.startsWith( 'board_' ) ) {
+			params.board = value;
+		} else if ( key.startsWith( 'meta_' ) && value ) {
+			// REST checks meta_<key> against its allowlist.
+			params[ key ] = value;
+		}
+	}
+	for ( const [ param, values ] of Object.entries( multi ) ) {
+		const unique = [ ...new Set( values.filter( Boolean ) ) ];
+		if ( unique.length ) {
+			params[ param ] = unique.join( ',' );
+		}
+	}
+	return params;
+}
+
+/**
  * Maximum-salary slider value: the right end means "Any" (0).
  *
  * @param {HTMLInputElement} input Range input.
@@ -367,17 +408,16 @@ const { state, actions } = store( 'wcb-job-listings', {
 			if ( state.alertSaved || state.alertSaving ) {
 				return;
 			}
+			// Guests (when the owner allows it) type an email next to the button.
+			const emailInput = document.querySelector( '.wcb-alert-guest-email' );
+			if ( emailInput && ! emailInput.reportValidity() ) {
+				return;
+			}
 
 			state.alertSaving = true;
-
-			const filters = {};
-			Object.keys( state.activeFilters ).forEach( ( key ) => {
-				if ( key.startsWith( 'type_' ) ) {
-					filters.type = key.replace( 'type_', '' );
-				} else if ( key.startsWith( 'exp_' ) ) {
-					filters.experience = key.replace( 'exp_', '' );
-				}
-			} );
+			const params  = wcbFilterParams( { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) } );
+			const boardId = parseInt( params.board || '0', 10 ) || 0;
+			delete params.board;
 
 			try {
 				const response = yield wcbFetch(
@@ -390,17 +430,22 @@ const { state, actions } = store( 'wcb-job-listings', {
 						},
 						body: JSON.stringify( {
 							search_query: state.searchQuery || '',
-							filters,
+							filters:      params,
+							board_id:     boardId,
 							frequency:    'daily',
+							email:        emailInput ? emailInput.value.trim() : '',
 						} ),
 					}
 				);
-
+				const data = yield response.json();
 				if ( response.ok ) {
-					state.alertSaved = true;
+					state.alertSaved        = true;
+					state.alertNeedsConfirm = !! data?.needsConfirm;
+				} else {
+					state.alertError = data?.message || '';
 				}
 			} catch {
-				// Silent failure — button stays enabled.
+				// Network failure: the button stays enabled to retry.
 			} finally {
 				state.alertSaving = false;
 			}
@@ -659,37 +704,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 			// integrator can pin a scope the user can't override from the UI.
 			const merged = { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) };
 
-			// Active filters — in-block chip keys (type_*, exp_*, cat_*, tag_*)
-			// and external filter block keys (wcb_category, wcb_location, …).
-			// Several values for one filter go out comma-joined (any of):
-			// repeated ?type=a&type=b keeps only the last in PHP.
-			const multi = { type: [], experience: [], category: [], tag: [], location: [] };
-			const prefixes = { type_: 'type', exp_: 'experience', cat_: 'category', tag_: 'tag' };
-			const external = { wcb_job_type: 'type', wcb_experience: 'experience', wcb_category: 'category', wcb_tag: 'tag', wcb_location: 'location' };
-			for ( const [ key, value ] of Object.entries( merged ) ) {
-				const prefix = Object.keys( prefixes ).find( ( p ) => key.startsWith( p ) );
-				if ( prefix ) {
-					multi[ prefixes[ prefix ] ].push( value );
-				} else if ( external[ key ] && value ) {
-					multi[ external[ key ] ].push( ...String( value ).split( ',' ) );
-				} else if ( key === 'remote' || key === 'wcb_remote' ) {
-					url.searchParams.set( 'remote', '1' );
-				} else if ( key === 'salary_min' && value ) {
-					url.searchParams.set( 'salary_min', value );
-				} else if ( key === 'salary_max' && value ) {
-					url.searchParams.set( 'salary_max', value );
-				} else if ( key.startsWith( 'board_' ) ) {
-					url.searchParams.set( 'board', value );
-				} else if ( key.startsWith( 'meta_' ) && value ) {
-					// Forward as ?meta_<key>=<value>; REST endpoint validates against allowlist.
-					url.searchParams.set( key, value );
-				}
-			}
-			for ( const [ param, values ] of Object.entries( multi ) ) {
-				const unique = [ ...new Set( values.filter( Boolean ) ) ];
-				if ( unique.length ) {
-					url.searchParams.set( param, unique.join( ',' ) );
-				}
+			for ( const [ param, value ] of Object.entries( wcbFilterParams( merged ) ) ) {
+				url.searchParams.set( param, value );
 			}
 
 			try {
