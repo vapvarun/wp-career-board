@@ -100,47 +100,71 @@ class EmailAppStatus extends AbstractEmail {
 	}
 
 	/**
-	 * Sends the status-change notification to the candidate.
+	 * Who hears about an application: the member, or the guest by email.
 	 *
-	 * @param int    $app_id     Application post ID.
-	 * @param string $old_status Previous application status.
-	 * @param string $new_status New application status.
-	 * @return void
+	 * @since 1.8.0
+	 *
+	 * @param int $app_id Application ID.
+	 * @return array{email:string, name:string, user_id:int}|null
 	 */
-	public function handle( int $app_id, string $old_status, string $new_status ): void {
-		// The candidate withdrew it themselves; the employer gets EmailAppWithdrawn.
-		if ( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN === $new_status ) {
-			return;
+	public static function recipient( int $app_id ): ?array {
+		$candidate = get_userdata( (int) get_post_meta( $app_id, '_wcb_candidate_id', true ) );
+		if ( $candidate instanceof \WP_User ) {
+			return array(
+				'email'   => $candidate->user_email,
+				'name'    => $candidate->display_name,
+				'user_id' => (int) $candidate->ID,
+			);
 		}
+		$email = (string) get_post_meta( $app_id, '_wcb_guest_email', true );
+		return is_email( $email ) ? array(
+			'email'   => $email,
+			'name'    => (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
+			'user_id' => 0,
+		) : null;
+	}
 
-		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-		if ( $candidate_id <= 0 ) {
-			return;
-		}
-
-		$candidate = get_userdata( $candidate_id );
-		if ( ! $candidate instanceof \WP_User ) {
-			return;
-		}
-
+	/**
+	 * Merge values shared by the status emails.
+	 *
+	 * @param int                 $app_id Application ID.
+	 * @param array{name:string} $to     Recipient.
+	 * @return array<string, string>|null Null when the job title is gone.
+	 */
+	public static function vars( int $app_id, array $to ): ?array {
 		// The job may already be deleted (job_removed runs after the delete).
 		$job_title = \WCB\Modules\Applications\ApplicationLifecycle::job_title( $app_id );
 		if ( '' === $job_title ) {
+			return null;
+		}
+		$dashboard = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
+		return array(
+			'candidate_name' => $to['name'],
+			'job_title'      => $job_title,
+			'dashboard_url'  => $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' ),
+		);
+	}
+
+	/**
+	 * Tell the candidate (member or guest) about a new status.
+	 *
+	 * @param int    $app_id     Application ID.
+	 * @param string $old_status Previous status.
+	 * @param string $new_status New status.
+	 * @return void
+	 */
+	public function handle( int $app_id, string $old_status, string $new_status ): void {
+		// Withdrawn: the employer gets EmailAppWithdrawn. Rejected: its own,
+		// gentler email (EmailAppRejected).
+		if ( in_array( $new_status, array( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, \WCB\Modules\Applications\ApplicationStatus::REJECTED ), true ) ) {
 			return;
 		}
-
-		$dashboard     = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
-		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
-
-		$this->send(
-			$candidate->user_email,
-			array(
-				'candidate_name' => $candidate->display_name,
-				'job_title'      => $job_title,
-				'new_status'     => \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ),
-				'dashboard_url'  => $dashboard_url,
-			),
-			$candidate_id
-		);
+		$to   = self::recipient( $app_id );
+		$vars = $to ? self::vars( $app_id, $to ) : null;
+		if ( ! $to || ! $vars ) {
+			return;
+		}
+		$vars['new_status'] = \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
+		$this->send( $to['email'], $vars, $to['user_id'] );
 	}
 }

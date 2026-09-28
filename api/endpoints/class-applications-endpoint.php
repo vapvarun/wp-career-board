@@ -53,6 +53,30 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
+		// CSV of one job's applicants, for its employer (and staff).
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/applications/export',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static function ( \WP_REST_Request $r ): void {
+					\WCB\Core\ApplicationsCsv::stream(
+						array(
+							'post_type'   => 'wcb_application',
+							'post_status' => 'any',
+							'meta_key'    => '_wcb_job_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+							'meta_value'  => (string) (int) $r['id'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						),
+						static fn ( int $app_id ): bool => true
+					);
+				},
+				'permission_callback' => function ( \WP_REST_Request $r ): bool|\WP_Error {
+					$job = get_post( (int) $r['id'] );
+					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( (int) $job->post_author === get_current_user_id() || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
+				},
+			)
+		);
+
 		// Hiring-team notes and rating: the job's employer and staff only.
 		register_rest_route(
 			$this->namespace,
@@ -551,7 +575,7 @@ final class ApplicationsEndpoint extends RestController {
 					'id'       => $post->ID,
 					'changed'  => $changed,
 					// Guests have no account, so the status email never reaches them.
-					'notified' => $changed && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) > 0,
+					'notified' => $changed && null !== \WCB\Modules\Notifications\Emails\EmailAppStatus::recipient( $post->ID ),
 				),
 				\WCB\Modules\Applications\ApplicationStatus::payload( $new_status, $this->audience_for( $post ) )
 			)

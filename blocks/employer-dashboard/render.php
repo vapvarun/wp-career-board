@@ -417,7 +417,7 @@ wp_interactivity_state(
 			// Applicant status-change confirmation.
 			'statusSaved'              => __( 'Status updated. The candidate has been notified.', 'wp-career-board' ),
 			'statusUnchanged'          => __( 'No change. The candidate was not notified.', 'wp-career-board' ),
-			'statusSavedGuest'         => __( 'Status updated. Guest applicants are not emailed.', 'wp-career-board' ),
+			'statusSavedGuest'         => __( 'Status updated. This applicant left no email address, so they were not notified.', 'wp-career-board' ),
 			'statusError'              => __( 'Could not update the status. Please try again.', 'wp-career-board' ),
 
 			// Account settings + password change.
@@ -750,6 +750,7 @@ wp_interactivity_state(
 					<button type="button" class="wcb-layout-btn" data-layout="list" data-wp-class--wcb-layout-active="state.isAppsListLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'List', 'wp-career-board' ); ?></button>
 					<button type="button" class="wcb-layout-btn" data-layout="board" data-wp-class--wcb-layout-active="state.isAppsBoardLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'Board', 'wp-career-board' ); ?></button>
 				</div>
+				<a class="wcb-cbtn wcb-cbtn--ghost wcb-apps-export" data-wp-class--wcb-hidden="!state.hasApplications" data-wp-bind--href="state.appsExportUrl" download><?php esc_html_e( 'Export CSV', 'wp-career-board' ); ?></a>
 
 				<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">

@@ -447,6 +447,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isStarOn() {
 			return ( getContext().star?.value || 0 ) <= ( state.selectedApp?.rating || 0 );
 		},
+		get appsExportUrl() {
+			return state.appsJobId
+				? state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications/export?_wpnonce=' + state.nonce
+				: '';
+		},
 		get isBoardOptSelected() {
 			const ctx = getContext();
 			return ctx.opt?.key === ctx.app?.status;
@@ -1299,7 +1304,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					} else {
 						state.statusMsg = data.notified
 							? t( 'statusSaved', 'Status updated. The candidate has been notified.' )
-							: t( 'statusSavedGuest', 'Status updated. Guest applicants are not emailed.' );
+							: t( 'statusSavedGuest', 'Status updated. This applicant left no email address, so they were not notified.' );
 					}
 				} else {
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
