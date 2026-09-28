@@ -591,29 +591,31 @@ wp_interactivity_state(
 			</div>
 			<?php endif; ?>
 
+			<div class="wcb-stats">
 			<div class="wcb-stats-row">
 				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.totalJobs">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Total Jobs', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--green">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.publishedJobs">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--blue">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.totalApps">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Total Applications', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--amber">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'New This Week', 'wp-career-board' ); ?></span>
 				</div>
 				<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
-				<div class="wcb-stat-card wcb-stat-card--purple" data-wp-bind--hidden="!state.creditsEnabled">
+				<div class="wcb-stat-card" data-wp-bind--hidden="!state.creditsEnabled">
 					<span class="wcb-stat-value" data-wp-text="state.creditBalanceLabel">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
 				</div>
 				<?php endif; ?>
+			</div>
 			</div>
 
 			<div class="wcb-two-col">

@@ -554,29 +554,31 @@ wp_interactivity_state(
 				</div>
 			</div>
 
+			<div class="wcb-stats">
 			<div class="wcb-stats-row">
 				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.appsCount">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--green">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.overviewShortlistedCount">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--blue">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.savedJobsCount"><?php echo esc_html( (string) $wcb_saved_jobs_count ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Saved Jobs', 'wp-career-board' ); ?></span>
 				</div>
-				<div class="wcb-stat-card wcb-stat-card--amber">
+				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.resumeCount"><?php echo esc_html( (string) ( $wcb_resumes_state['resumeCount'] ?? 0 ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></span>
 				</div>
 				<?php if ( apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
-				<div class="wcb-stat-card wcb-stat-card--green" style="cursor:pointer" data-wp-on--click="actions.switchToAlerts">
+				<div class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToAlerts">
 					<span class="wcb-stat-value" data-wp-text="state.alertsCount">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Job Alerts', 'wp-career-board' ); ?></span>
 				</div>
 				<?php endif; ?>
+			</div>
 			</div>
 
 			<div class="wcb-two-col">
