@@ -212,8 +212,36 @@
 		}
 
 		let isSaving       = false;
+		let syncing        = false;
+		let syncAgain      = false;
 		let lastRendered   = textarea.value;
 		let isUserEditing  = false;
+
+		// Write the editor's content to the textarea and tell the form (Interactivity
+		// state listens for `input`). Editor.js saves asynchronously.
+		const writeBack = () => editor.save().then( ( saved ) => {
+			const html     = blocksToHtml( saved );
+			textarea.value = html;
+			lastRendered   = html;
+			textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+		} );
+
+		// A change made while a save is running is queued, not dropped, so the last
+		// keystrokes always reach the textarea.
+		const queueSync = () => {
+			if ( syncing ) {
+				syncAgain = true;
+				return;
+			}
+			syncing = true;
+			writeBack().finally( () => {
+				syncing = false;
+				if ( syncAgain ) {
+					syncAgain = false;
+					queueSync();
+				}
+			} );
+		};
 
 		const editor = new window.EditorJS( {
 			holder: holder.id,
@@ -226,15 +254,7 @@
 					return;
 				}
 				isUserEditing = true;
-				isSaving      = true;
-				editor.save().then( ( saved ) => {
-					const html     = blocksToHtml( saved );
-					textarea.value = html;
-					lastRendered   = html;
-					textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-				} ).finally( () => {
-					isSaving = false;
-				} );
+				queueSync();
 			},
 		} );
 
@@ -272,6 +292,8 @@
 		textarea.addEventListener( 'wcb:editor:hydrate', rerenderFromTextarea );
 
 		editorEl.wcbEditor = editor;
+		// Forms call this before they read the description (Next, Publish).
+		editorEl.wcbFlush = () => editor.isReady.then( writeBack );
 		editorEl.dataset.wcbEditorVersion = EDITOR_VERSION;
 	}
 

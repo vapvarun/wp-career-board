@@ -25,9 +25,18 @@
 	color: var(--wcb-danger-fg, #991b1b);
 }
 
+/* The invalid border uses the plugin's own dark red (a theme's error colour can be
+   under 3:1 on white) and stays red while the field has focus. The description's
+   border is on the .wcb-editor wrapper, not on its holder. !important because a
+   theme's bare `input:not(...)` rule out-ranks any single-class selector. */
 .wcb-field[aria-invalid="true"],
-.wcb-editor-holder[aria-invalid="true"] {
-	border-color: var(--wcb-danger, #dc2626);
+.wcb-editor:has( > .wcb-editor-holder[aria-invalid="true"] ) {
+	border-color: var(--wcb-danger-fg, #991b1b) !important;
+}
+
+.wcb-field[aria-invalid="true"]:focus,
+.wcb-editor:has( > .wcb-editor-holder[aria-invalid="true"] ):focus-within {
+	box-shadow: 0 0 0 3px color-mix( in srgb, var(--wcb-danger-fg, #991b1b) 18%, transparent );
 }
 
 /* ── Step indicator (chip-style, kept functional + clean) ────────────── */

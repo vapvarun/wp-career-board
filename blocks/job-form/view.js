@@ -202,6 +202,19 @@ const showDescription = ( value ) => {
 	}
 };
 
+/**
+ * Make the description textarea current. The rich editor saves asynchronously, so
+ * a click right after typing would otherwise read the text from before the last
+ * edit and see an empty or stale description.
+ *
+ * @return {Promise<void>} Resolves when the description state is up to date.
+ */
+const flushDescription = () => {
+	const holder = document.getElementById( 'wcb-editor-job-desc' );
+	const editor = holder && holder.closest( '.wcb-editor' );
+	return editor && editor.wcbFlush ? editor.wcbFlush().catch( () => {} ) : Promise.resolve();
+};
+
 const { state } = store(
 	'wcb-job-form',
 	{
@@ -588,10 +601,11 @@ const { state } = store(
 				}
 			},
 
-			nextStep() {
+			* nextStep() {
 				const { state } = store( 'wcb-job-form' );
 
 				if ( state.step === 1 ) {
+					yield flushDescription();
 					if ( ! state.title.trim() ) {
 						setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
 						focusField( 'wcb-job-title' );
@@ -629,6 +643,8 @@ const { state } = store(
 				if ( state.submitting ) {
 					return;
 				}
+
+				yield flushDescription();
 
 				// Honeypot check — bots filling all fields get a fake success response.
 				const hpEl = document.getElementById( 'wcb-hp' );
