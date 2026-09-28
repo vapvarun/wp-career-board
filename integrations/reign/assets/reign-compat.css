@@ -127,12 +127,6 @@
    in-card View Job / View Profile / View Company CTAs, so a Reign-specific
    override is no longer needed. */
 
-/* Reign uses box-shadows for card depth — match WCB job cards */
-.wcb-job-card {
-	box-shadow: var( --wcb-shadow-sm, 0 1px 3px rgba( 0, 0, 0, 0.08 ) );
-	border-radius: var( --wcb-radius-sm, 6px );
-}
-
 /* Status badges inside Reign tables */
 .wcb-status-badge {
 	font-size: 0.78em;
