@@ -11,12 +11,6 @@
 	font-family: inherit;
 }
 
-.wp-block-wp-career-board-job-listings .wcb-page-heading {
-	/* Sit close to its toolbar — the 2xl gap left the heading floating in
-	 * dead space above the (now unified) results toolbar. */
-	margin: 0 0 var(--wcb-space-md);
-}
-
 /* Canonical `.wcb-listings-toolbar`, `.wcb-results-count`,
  * `.wcb-view-switcher`, `.wcb-layout-btn` styles live in
  * `assets/css/frontend-components.css` so all 3 archives (Jobs,
@@ -773,29 +767,10 @@
 	margin: 0;
 }
 
-/* ── Empty state ─────────────────────────────────────────────────────────── */
-.wcb-empty-state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
-	text-align: center;
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-empty-state [data-lucide],
-.wcb-empty-state .wcb-icon {
-	width: var(--wcb-icon-2xl);
-	height: var(--wcb-icon-2xl);
-}
-
-.wcb-empty-state-text {
-	margin: 0;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-}
+/* Empty state paint (.wcb-empty-state) is shared in assets/css/wcb-ui.css so
+ * Find Jobs, Companies and Find Candidates all show the same bordered card -
+ * this block used to redefine it unscoped, quietly stripping the border/
+ * background/radius wherever this file loaded. */
 
 /* ── View switcher ───────────────────────────────────────────────────────── */
 .wcb-view-switcher {
