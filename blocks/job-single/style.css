@@ -29,7 +29,7 @@
 	color: inherit;
 }
 .wcb-badge--featured  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
-.wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success); }
+.wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success-fg, #166534); }
 .wcb-badge--type      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-badge--exp       { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-badge--salary    { background: var(--wcb-surface); color: var(--wcb-text-secondary); font-weight: var(--wcb-font-semibold); }
@@ -152,7 +152,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	display: none;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-success);
+	color: var(--wcb-success-fg, #166534);
 	background: var(--wcb-success-bg-soft);
 	border: 1px solid var(--wcb-success-border, #bbf7d0);
 	border-radius: var(--wcb-radius-md);
@@ -452,7 +452,7 @@ a.wcb-company-card-name:hover {
 	display: none;
 	background: var(--wcb-danger-bg-soft);
 	border: 1px solid var(--wcb-danger-border, #fecaca);
-	color: var(--wcb-danger, #b91c1c);
+	color: var(--wcb-danger-fg, #991b1b);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg); /* 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
@@ -731,7 +731,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-info-bg-soft);
 	border: 1px solid var(--wcb-primary);
 	border-radius: var(--wcb-radius-sm);

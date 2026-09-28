@@ -401,7 +401,7 @@
 
 .wcb-apps-job-item.wcb-active {
 	background: var(--wcb-info-bg);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 	font-weight: var(--wcb-font-semibold);
 }
 
@@ -1091,7 +1091,7 @@
 	padding: 0 var(--wcb-space-2xs, 2px);
 	border: 0;
 	background: none;
-	color: var(--wcb-border);
+	color: var(--wcb-text-secondary);
 	font-size: 1.4rem;
 	line-height: 1;
 	cursor: pointer;

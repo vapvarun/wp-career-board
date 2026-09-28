@@ -108,12 +108,12 @@
 
 .wcb-badge--location {
 	background: var(--wcb-info-bg);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 }
 
 .wcb-badge--type {
 	background: var(--wcb-success-bg);
-	color: var(--wcb-success);
+	color: var(--wcb-success-fg, #166534);
 }
 
 .wcb-job-widget-age {

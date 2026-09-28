@@ -43,6 +43,12 @@
 	--wcb-primary-dark: #1d4ed8;
 	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
 
+	/* Accent used as TEXT (small links, pills on a tint): the raw accent is chosen
+	   for fills and often misses 4.5:1 on white, so text uses this darker shade.
+	   Dark mode overrides it back to the accent. */
+	--wcb-primary-text: #1d4ed8;
+	--wcb-primary-text: color-mix( in srgb, var( --wcb-primary ) 78%, #000 );
+
 	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
 
 	/* Surfaces + text — adopt BuddyX / BuddyX Pro's clean --bx-color-* and
@@ -119,6 +125,7 @@ html[data-bn-theme="dark"],
 	--wcb-success-fg:      #4ade80;
 	--wcb-warning-fg:      #fbbf24;
 	--wcb-danger-fg:       #f87171;
+	--wcb-primary-text:    var( --wcb-primary );
 	--wcb-info-fg:         #93c5fd;
 	--wcb-purple-fg:       #c4b5fd;
 }
@@ -167,6 +174,7 @@ html[data-bn-theme="dark"],
 		--wcb-success-fg:      #4ade80;
 		--wcb-warning-fg:      #fbbf24;
 		--wcb-danger-fg:       #f87171;
+	--wcb-primary-text:    var( --wcb-primary );
 		--wcb-info-fg:         #93c5fd;
 		--wcb-purple-fg:       #c4b5fd;
 	}

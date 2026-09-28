@@ -121,9 +121,9 @@
 	vertical-align: middle;
 }
 
-.wcb-badge--success  { background: var(--wcb-success-bg); color: var(--wcb-success); }
+.wcb-badge--success  { background: var(--wcb-success-bg); color: var(--wcb-success-fg, #166534); }
 .wcb-badge--warning  { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
-.wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger); }
+.wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger-fg, #991b1b); }
 .wcb-badge--info     { background: var(--wcb-info-bg);    color: var(--wcb-info); }
 .wcb-badge--muted    { background: var(--wcb-bg-subtle, #f3f4f6); color: var(--wcb-text-secondary); }
 .wcb-badge--featured { background: var(--wcb-warning-bg);  color: var(--wcb-warning-fg); }
@@ -897,14 +897,14 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:hover,
 [class*="wp-block-wcb-"] .wcb-bookmark-hero-btn:hover {
 	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-info-bg-soft);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn.wcb-bookmarked,
 [class*="wp-block-wcb-"] .wcb-bookmark-hero-btn.wcb-bookmarked {
 	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-bg-subtle);
 }
 

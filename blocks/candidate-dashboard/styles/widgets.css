@@ -92,7 +92,7 @@
 }
 .wcb-bell-item__delete:hover,
 .wcb-bell-item__delete:focus-visible {
-	color: var(--wcb-danger, #dc2626);
+	color: var(--wcb-danger-fg, #991b1b);
 	background: var(--wcb-surface);
 }
 .wcb-bell-item__delete svg {

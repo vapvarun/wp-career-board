@@ -250,7 +250,7 @@
 }
 .wcb-bell-item__delete:hover,
 .wcb-bell-item__delete:focus-visible {
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 }
 .wcb-bell-item__delete svg {

@@ -248,7 +248,7 @@
 
 .wcb-btn--danger {
 	background: transparent;
-	color: var(--wcb-danger, #dc2626);
+	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger-border, #fecaca);
 }
 
@@ -264,7 +264,7 @@
  * (View Job, View Profile, View Resume) and the shared Load more button. */
 .wcb-btn--outline {
 	background: transparent;
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	border-color: var(--wcb-primary, #2563eb);
 }
 
@@ -309,7 +309,7 @@
 [class*="wp-block-wcb-"] button.wcb-btn--outline,
 [class*="wp-block-wcb-"] .wcb-btn.wcb-btn--outline {
 	background: transparent;
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	-webkit-text-fill-color: currentColor;
 	border-color: var(--wcb-primary, #2563eb);
 }
@@ -332,7 +332,7 @@
 [class*="wp-block-wp-career-board"] .wcb-btn--danger,
 [class*="wp-block-wcb-"] .wcb-btn--danger {
 	background: transparent;
-	color: var(--wcb-danger, #dc2626);
+	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger-border, #fecaca);
 }
 
@@ -1217,7 +1217,7 @@ textarea.wcb-input {
 .wcb-chip:hover {
 	border-color: var(--wcb-primary, #2563eb);
 	background: var(--wcb-info-bg, #dbeafe);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 }
 
 .wcb-chip:focus-visible {
