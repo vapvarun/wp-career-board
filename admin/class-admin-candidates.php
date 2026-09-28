@@ -251,7 +251,8 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	protected function get_views(): array {
 		$args  = array( 'role__in' => array( 'wcb_candidate' ) );
-		$count = ( new \WP_User_Query( $args + array( 'number' => 0 ) ) )->get_total();
+		// number 0 means "no limit" to WP_User_Query and would load every candidate just to count them.
+		$count = ( new \WP_User_Query( $args + array( 'fields' => 'ID', 'number' => 1, 'count_total' => true ) ) )->get_total();
 		return $this->member_views( 'wcb-candidates', $count, $args );
 	}
 

@@ -434,24 +434,16 @@ class Admin {
 			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => \WCB\Admin\Settings::int( $k, 0 ), $wcb_page_keys ) ) );
 			$wcb_total_pages   = count( $wcb_page_keys );
 		}
-		$total_emp  = count(
-			get_users(
-				array(
-					'role'   => 'wcb_employer',
-					'fields' => 'ID',
-					'number' => 9999,
-				)
+		$count_role = static fn ( string $role ): int => ( new \WP_User_Query(
+			array(
+				'role'        => $role,
+				'fields'      => 'ID',
+				'number'      => 1,
+				'count_total' => true,
 			)
-		); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_number
-		$total_cand = count(
-			get_users(
-				array(
-					'role'   => 'wcb_candidate',
-					'fields' => 'ID',
-					'number' => 9999,
-				)
-			)
-		); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_number
+		) )->get_total();
+		$total_emp  = $count_role( 'wcb_employer' );
+		$total_cand = $count_role( 'wcb_candidate' );
 
 		// Pending jobs for inline moderation queue.
 		$pending_posts = get_posts(
