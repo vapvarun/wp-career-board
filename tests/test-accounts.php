@@ -134,6 +134,9 @@ $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
 $wcb_auth = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw );
 wcb_assert( is_wp_error( $wcb_auth ) && 'wcb_email_unverified' === $wcb_auth->get_error_code(), 'an unconfirmed account cannot sign in' );
+$wcb_wrong = wp_authenticate( "acc-new-{$wcb_s}", 'not-the-password' );
+wcb_assert( is_wp_error( $wcb_wrong ) && 'incorrect_password' === $wcb_wrong->get_error_code(), 'a wrong password gets core\'s normal error, so it does not reveal the account is unconfirmed' );
+wcb_assert( is_wp_error( $wcb_wrong ) && false === strpos( html_entity_decode( $wcb_wrong->get_error_message() ), 'wcb_resend' ), '... and offers no confirmation email to someone who does not know the password' );
 
 // Losing the sign-up screen is not the end: the sign-in message and the expired-link page offer a new link.
 $wcb_sent = 0;

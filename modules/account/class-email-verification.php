@@ -67,7 +67,7 @@ class EmailVerification {
 	public function boot(): void {
 		add_action( 'template_redirect', array( $this, 'maybe_verify' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_resend' ), 0 );
-		add_filter( 'wp_authenticate_user', array( $this, 'block_unverified' ), 20 );
+		add_filter( 'wp_authenticate_user', array( $this, 'block_unverified' ), 20, 2 );
 	}
 
 	/**
@@ -128,12 +128,17 @@ class EmailVerification {
 	/**
 	 * `wp_authenticate_user`: refuse sign-in until the email is confirmed.
 	 *
+	 * Core runs this before it checks the password, so the answer is only given
+	 * to someone who knows it. A wrong password falls through to core's normal
+	 * error, which does not say whether the account exists or is unconfirmed.
+	 *
 	 * @since 1.8.0
-	 * @param \WP_User|\WP_Error $user User being authenticated.
+	 * @param \WP_User|\WP_Error $user     User being authenticated.
+	 * @param string             $password Password that was typed.
 	 * @return \WP_User|\WP_Error
 	 */
-	public function block_unverified( \WP_User|\WP_Error $user ): \WP_User|\WP_Error {
-		if ( $user instanceof \WP_User && self::is_pending( $user->ID ) ) {
+	public function block_unverified( \WP_User|\WP_Error $user, string $password = '' ): \WP_User|\WP_Error {
+		if ( $user instanceof \WP_User && self::is_pending( $user->ID ) && wp_check_password( $password, $user->user_pass, $user->ID ) ) {
 			return new \WP_Error(
 				'wcb_email_unverified',
 				__( 'Please confirm your email address first. We sent you a link when you signed up.', 'wp-career-board' ) . ' ' . self::resend_link( $user->ID )
