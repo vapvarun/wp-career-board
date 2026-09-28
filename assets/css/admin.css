@@ -28,7 +28,7 @@
 
 .wcb-version-badge {
 	display: inline-block;
-	background: #f0f0f1;
+	background: var(--wcb-surface, #f1f5f9);
 	color: var(--wcb-text-secondary, #475569);
 	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
@@ -38,8 +38,9 @@
 
 .wcb-pro-badge {
 	display: inline-block;
-	background: linear-gradient(135deg, #6366f1, #8b5cf6);
-	color: #fff;
+	background: linear-gradient(135deg, var(--wcb-pro-from, #6366f1), var(--wcb-pro-to, #8b5cf6));
+	color: var(--wcb-on-primary, #ffffff);
+	margin-inline-start: auto;
 	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
 	font-size: 9px;
@@ -241,7 +242,7 @@
 	border-radius: var( --wcb-radius-md, 8px );
 	border: 1px solid var( --wcb-primary, #2563eb );
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var( --wcb-on-primary, #ffffff );
 	cursor: pointer;
 	text-decoration: none;
 	transition: all 0.12s ease;
@@ -249,7 +250,7 @@
 
 #section-license .edd-sl-sdk__action:hover {
 	background: var( --wcb-primary-dark, #1d4ed8 );
-	color: #fff;
+	color: var( --wcb-on-primary, #ffffff );
 }
 
 #section-license .edd-sl-sdk__action:focus-visible {
@@ -332,7 +333,7 @@
 .wcb-admin-table td {
 	padding: 8px 12px;
 	text-align: left;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
 .wcb-admin-table th {
@@ -489,6 +490,13 @@
 	margin: 0;
 }
 
+/* Generic card content wrapper for a card that is not a row-based form:
+   description text, tables, key/value lists, provider status. */
+.wcb-settings-card-body {
+	padding: var(--wcb-space-xl, 20px) var(--wcb-space-2xl, 24px);
+	font-size: var(--wcb-text-sm, 0.8125rem);
+}
+
 /* Settings row: 240px label + flex control */
 .wcb-settings-row {
 	display: grid;
@@ -558,7 +566,7 @@
 	width: 18px;
 	inset-inline-start: 3px;
 	bottom: 3px;
-	background: #fff;
+	background: var(--wcb-base, #ffffff);
 	border-radius: 50%;
 	transition: inset-inline-start 0.2s;
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.2 );

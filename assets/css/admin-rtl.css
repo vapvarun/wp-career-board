@@ -402,6 +402,13 @@
 	margin: 0;
 }
 
+/* Generic card content wrapper for a card that is not a row-based form:
+   description text, tables, key/value lists, provider status. */
+.wcb-settings-card-body {
+	padding: var(--wcb-space-xl, 20px) var(--wcb-space-2xl, 24px);
+	font-size: var(--wcb-text-sm, 0.8125rem);
+}
+
 /* Settings row: 240px label + flex control */
 .wcb-settings-row {
 	display: grid;

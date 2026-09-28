@@ -18,19 +18,13 @@
 	}
 
 	function openConfirm() {
-		if ( 'function' === typeof window.wcbConfirm ) {
-			return window.wcbConfirm( {
-				title:       i18n.confirmTitle,
-				message:     i18n.confirmMessage,
-				confirmText: i18n.confirmCta,
-				cancelText:  i18n.cancel,
-				destructive: true,
-			} );
-		}
-		// Last-resort fallback — only fires if the modal asset failed to load.
-		return window.confirm( i18n.confirmMessage )
-			? Promise.resolve( true )
-			: Promise.reject();
+		return window.wcbConfirm( {
+			title:       i18n.confirmTitle,
+			message:     i18n.confirmMessage,
+			confirmText: i18n.confirmCta,
+			cancelText:  i18n.cancel,
+			destructive: true,
+		} );
 	}
 
 	btn.addEventListener( 'click', function () {

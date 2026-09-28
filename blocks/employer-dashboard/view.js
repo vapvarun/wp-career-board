@@ -536,6 +536,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppCoverLetter() {
 			return state.selectedApp?.cover_letter ?? '';
 		},
+		get selectedAppHasCoverLetter() {
+			return '' !== state.selectedAppCoverLetter.trim();
+		},
 		get selectedAppCustomFields() {
 			return state.selectedApp?.custom_fields ?? [];
 		},

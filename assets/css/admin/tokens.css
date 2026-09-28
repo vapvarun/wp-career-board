@@ -30,6 +30,8 @@
     --wcb-on-primary: #ffffff;
     --wcb-primary-soft: rgba(37, 99, 235, 0.08);
     --wcb-primary-ring: rgba(37, 99, 235, 0.16);
+    --wcb-pro-from: #6366f1;
+    --wcb-pro-to: #8b5cf6;
 
     /* ── Borders ───────────────────────────────────────────────────────── */
     --wcb-border: #e2e8f0;

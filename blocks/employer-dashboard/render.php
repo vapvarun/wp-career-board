@@ -855,7 +855,8 @@ wp_interactivity_state(
 						</div>
 						<div class="wcb-detail-section">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?></h4>
-							<div class="wcb-cover-letter" data-wp-text="state.selectedAppCoverLetter"></div>
+							<div class="wcb-cover-letter" data-wp-bind--hidden="!state.selectedAppHasCoverLetter" data-wp-text="state.selectedAppCoverLetter"></div>
+							<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact" data-wp-bind--hidden="state.selectedAppHasCoverLetter"><?php esc_html_e( 'No cover letter submitted.', 'wp-career-board' ); ?></p>
 						</div>
 						<div class="wcb-detail-section" data-wp-class--wcb-shown="state.selectedAppHasCustomFields">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Application answers', 'wp-career-board' ); ?></h4>

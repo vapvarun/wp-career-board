@@ -461,10 +461,6 @@ class AdminSettings {
 		endif;
 
 		if ( $wcb_has_sample ) :
-			// Ensure the shared confirm-modal assets are present on the settings
-			// page so wcbConfirm() resolves; wcbToast() ships with wcb-admin.
-			wp_enqueue_style( 'wcb-confirm-modal' );
-			wp_enqueue_script( 'wcb-confirm-modal' );
 			?>
 			<div class="wcb-settings-card" id="wcb-sample-data-block">
 				<div class="wcb-settings-card-header">
@@ -1465,7 +1461,11 @@ class AdminSettings {
 				)
 			);
 			?>
-		<h2><?php esc_html_e( 'Pending account deletions', 'wp-career-board' ); ?></h2>
+		<div class="wcb-settings-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Pending account deletions', 'wp-career-board' ); ?></h2>
+			</div>
+			<div class="wcb-settings-card-body">
 		<p class="description">
 			<?php esc_html_e( 'Members who asked to delete their account. They stay signed out during the wait and can stop it themselves by signing back in. Cancel on their behalf if they contact you instead.', 'wp-career-board' ); ?>
 		</p>
@@ -1516,7 +1516,14 @@ class AdminSettings {
 			</table>
 		<?php endif; ?>
 
-		<h2><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
+			</div>
+		</div>
+
+		<div class="wcb-settings-card">
+			<div class="wcb-settings-card-header">
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Privacy request log', 'wp-career-board' ); ?></h2>
+			</div>
+			<div class="wcb-settings-card-body">
 			<p class="description">
 				<?php esc_html_e( 'Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text.', 'wp-career-board' ); ?>
 			</p>
@@ -1593,6 +1600,8 @@ class AdminSettings {
 					</p>
 				<?php endif; ?>
 			<?php endif; ?>
+			</div>
+		</div>
 		<?php
 	}
 }

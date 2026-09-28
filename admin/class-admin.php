@@ -878,7 +878,8 @@ class Admin {
 					),
 				)
 			);
-			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_enqueue_style( 'wcb-confirm-modal' );
+			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
 			wp_localize_script(
 				'wcb-admin-sample-data',
 				'wcbSampleData',
