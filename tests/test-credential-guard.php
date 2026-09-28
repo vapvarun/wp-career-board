@@ -109,6 +109,47 @@ $wcb_admin = (int) get_users( array( 'role' => 'administrator', 'number' => 1, '
 $wcb_r     = wcb_cg_post( '/wp/v2/users/' . $wcb_user, array( 'email' => 'by-admin-' . $wcb_mail ), $wcb_admin );
 wcb_assert( 200 === $wcb_r->get_status(), 'an administrator editing another member is left to core' );
 
+// The wp-admin profile form (core's own, open to members) follows the same rule.
+$wcb_guard   = new \WCB\Modules\Account\CredentialGuard();
+$wcb_current = 'Cg-New-Pass-456';
+// Core's personal_options_update handler queues an email change and mails a link before any
+// error is checked, so the guard screens the POST first and resets the risky fields.
+$wcb_profile = static function ( int $as, array $data, string $typed ) use ( $wcb_guard ): array {
+	wp_set_current_user( $as );
+	$_POST  = array_merge( array( 'email' => get_userdata( $as )->user_email ), $data );
+	$_POST += '' === $typed ? array() : array( 'wcb_current_password' => $typed );
+	$wcb_guard->screen_profile_save( $as );
+	$errors = new WP_Error();
+	$wcb_guard->report_refusal( $errors );
+	$after = $_POST;
+	$_POST = array();
+	return array( $errors, $after );
+};
+$wcb_has = static fn ( array $r ): bool => in_array( 'wcb_bad_current_password', $r[0]->get_error_codes(), true );
+
+$wcb_r = $wcb_profile( $wcb_user, array( 'email' => 'hijack-' . $wcb_mail ), '' );
+wcb_assert( $wcb_has( $wcb_r ) && $wcb_email() === $wcb_r[1]['email'], 'profile form: a new email with no current password is refused and the submitted email is put back' );
+wcb_assert( $wcb_has( $wcb_profile( $wcb_user, array( 'email' => 'hijack-' . $wcb_mail ), 'wrong' ) ), 'profile form: a new email with a wrong current password is refused' );
+$wcb_r = $wcb_profile( $wcb_user, array( 'pass1' => 'Cg-Hijack-Pass-9', 'pass2' => 'Cg-Hijack-Pass-9' ), '' );
+wcb_assert( $wcb_has( $wcb_r ) && ! isset( $wcb_r[1]['pass1'] ) && ! isset( $wcb_r[1]['pass2'] ), 'profile form: a new password with no current password is refused and dropped from the request' );
+$wcb_r = $wcb_profile( $wcb_user, array( 'email' => 'ok-' . $wcb_mail ), $wcb_current );
+wcb_assert( ! $wcb_has( $wcb_r ) && 'ok-' . $wcb_mail === $wcb_r[1]['email'], 'profile form: the correct current password lets the change through untouched' );
+wcb_assert( ! $wcb_has( $wcb_profile( $wcb_user, array(), '' ) ), 'profile form: a save that changes neither email nor password needs no password' );
+wcb_assert( ! $wcb_has( $wcb_profile( $wcb_admin, array( 'email' => 'admin-' . $wcb_mail ), '' ) ), 'profile form: an administrator is left to core' );
+$wcb_errors_after = new WP_Error();
+$wcb_guard->report_refusal( $wcb_errors_after );
+wcb_assert( ! $wcb_errors_after->has_errors(), 'a refusal is reported once and does not leak into the next save' );
+
+wp_set_current_user( $wcb_user );
+ob_start();
+$wcb_guard->render_profile_field( get_userdata( $wcb_user ) );
+$wcb_member_field = (string) ob_get_clean();
+wp_set_current_user( $wcb_admin );
+ob_start();
+$wcb_guard->render_profile_field( get_userdata( $wcb_admin ) );
+$wcb_admin_field = (string) ob_get_clean();
+wcb_assert( str_contains( $wcb_member_field, 'wcb_current_password' ) && '' === $wcb_admin_field, 'the profile form shows a Current password field to a member and none to an administrator' );
+
 // Cleanup.
 wp_set_current_user( 0 );
 require_once ABSPATH . 'wp-admin/includes/user.php';
