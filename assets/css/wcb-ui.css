@@ -16,17 +16,16 @@
  *   .wcb-card-eyebrow      — uppercase muted label above the title.
  *   .wcb-card-body         — padded inner content.
  *   .wcb-card-foot         — action footer with right-aligned buttons.
- *   .wcb-btn               — button (40px default). Variants primary|secondary|ghost|danger × sm|md|lg.
+ *   .wcb-btn               — button (40px default). Variants primary|secondary|outline|ghost|danger × sm|md|lg.
  *   .wcb-input             — input/select/textarea (40px default). Variants --sm, --lg.
  *   .wcb-badge             — pill chip. Variants success|warning|danger|info|neutral|outlined.
  *   .wcb-empty-state       — centered icon + title + description + optional CTA.
  *   .wcb-stack             — vertical flow utility, gap presets --xs, --sm, --md, --lg, --xl.
  *   .wcb-row               — horizontal flex utility with wrap + gap presets.
  *
- * Backwards-compatibility shims for the legacy `.wcb-cbtn` ladder sit at the
- * bottom of this file. They re-use the new rules so the dashboard does not
- * regress while individual blocks migrate to the canonical names. The shims
- * drop one release after the migration finishes.
+ * `.wcb-cbtn` is a legacy alias of `.wcb-btn` (--ghost = --outline), listed on the
+ * same selectors in the button ladder. No markup in either plugin uses it any
+ * more; drop the alias selectors one release after 1.8.0.
  *
  * @package WP_Career_Board
  * @since 1.2.0
@@ -159,7 +158,8 @@
 
 /* ── Button ladder ────────────────────────────────────────────────────────── */
 
-.wcb-btn {
+.wcb-btn,
+.wcb-cbtn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -178,13 +178,17 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-.wcb-btn:focus-visible {
+.wcb-btn:focus-visible,
+.wcb-cbtn:focus-visible {
 	outline: 2px solid transparent;
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-btn[disabled],
-.wcb-btn:disabled {
+.wcb-btn:disabled,
+.wcb-btn--disabled,
+.wcb-cbtn[disabled],
+.wcb-cbtn:disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
 	pointer-events: none;
@@ -200,7 +204,8 @@
 	flex-shrink: 0;
 }
 
-.wcb-btn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
+.wcb-btn--sm,
+.wcb-cbtn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
 .wcb-btn--lg { min-height: 48px; padding: 0 var(--wcb-space-xl); font-size: var(--wcb-text-md); }
 .wcb-btn--full,
 .wcb-btn--block { width: 100%; }
@@ -254,6 +259,123 @@
 
 .wcb-btn--danger:hover,
 .wcb-btn--danger:focus-visible {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
+	border-color: var(--wcb-danger, #dc2626);
+	text-decoration: none;
+}
+
+/* Outlined primary pill that fills on hover. The card action on every archive
+ * (View Job, View Profile, View Resume) and the shared Load more button. */
+.wcb-btn--outline {
+	background: transparent;
+	color: var(--wcb-primary, #2563eb);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+.wcb-btn--outline:hover,
+.wcb-btn--outline:focus-visible {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+	text-decoration: none;
+}
+
+/* Theme-hardened tiers. Inside a plugin block these chains land at (0,2,0) to
+ * (0,3,1), which beats the Reign / Astra `.entry-content button|a` cascade
+ * ((0,2,1)) without `!important`. `-webkit-text-fill-color` follows the
+ * resolved `color` so an aggressive theme (BuddyX) cannot strand a fixed fill
+ * on a same-colour background. `.wcb-cbtn--*` is the legacy alias, kept for one
+ * release so third-party overrides keep working; drop it with the alias below. */
+[class*="wp-block-wp-career-board"] .wcb-btn--primary,
+[class*="wp-block-wcb-"] .wcb-btn--primary,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-btn--primary:hover,
+[class*="wp-block-wp-career-board"] .wcb-btn--primary:focus-visible,
+[class*="wp-block-wcb-"] .wcb-btn--primary:hover,
+[class*="wp-block-wcb-"] .wcb-btn--primary:focus-visible,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
+	background: var(--wcb-primary-dark, #1d4ed8);
+	border-color: var(--wcb-primary-dark, #1d4ed8);
+	color: var(--wcb-on-primary, #ffffff);
+	text-decoration: none;
+}
+
+[class*="wp-block-wp-career-board"] a.wcb-btn--outline:link,
+[class*="wp-block-wp-career-board"] a.wcb-btn--outline:visited,
+[class*="wp-block-wp-career-board"] span.wcb-btn--outline,
+[class*="wp-block-wp-career-board"] button.wcb-btn--outline,
+[class*="wp-block-wp-career-board"] .wcb-btn.wcb-btn--outline,
+[class*="wp-block-wcb-"] a.wcb-btn--outline:link,
+[class*="wp-block-wcb-"] a.wcb-btn--outline:visited,
+[class*="wp-block-wcb-"] span.wcb-btn--outline,
+[class*="wp-block-wcb-"] button.wcb-btn--outline,
+[class*="wp-block-wcb-"] .wcb-btn.wcb-btn--outline,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wp-career-board"] span.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost,
+[class*="wp-block-wp-career-board"] .wcb-cbtn.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:link,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:visited,
+[class*="wp-block-wcb-"] span.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost,
+[class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
+	background: transparent;
+	color: var(--wcb-primary, #2563eb);
+	-webkit-text-fill-color: currentColor;
+	border-color: var(--wcb-primary, #2563eb);
+}
+
+[class*="wp-block-wp-career-board"] a.wcb-btn--outline:hover,
+[class*="wp-block-wp-career-board"] a.wcb-btn--outline:focus-visible,
+[class*="wp-block-wp-career-board"] button.wcb-btn--outline:hover,
+[class*="wp-block-wp-career-board"] button.wcb-btn--outline:focus-visible,
+[class*="wp-block-wcb-"] a.wcb-btn--outline:hover,
+[class*="wp-block-wcb-"] a.wcb-btn--outline:focus-visible,
+[class*="wp-block-wcb-"] button.wcb-btn--outline:hover,
+[class*="wp-block-wcb-"] button.wcb-btn--outline:focus-visible,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:focus-visible,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:hover,
+[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:focus-visible {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-on-primary, #ffffff);
+	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary, #2563eb);
+	text-decoration: none;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-btn--danger,
+[class*="wp-block-wcb-"] .wcb-btn--danger,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger {
+	background: transparent;
+	color: var(--wcb-danger, #dc2626);
+	border-color: var(--wcb-danger-border, #fecaca);
+}
+
+[class*="wp-block-wp-career-board"] .wcb-btn--danger:hover,
+[class*="wp-block-wp-career-board"] .wcb-btn--danger:focus-visible,
+[class*="wp-block-wcb-"] .wcb-btn--danger:hover,
+[class*="wp-block-wcb-"] .wcb-btn--danger:focus-visible,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:focus-visible,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:hover,
+[class*="wp-block-wcb-"] .wcb-cbtn--danger:focus-visible {
 	background: var(--wcb-danger-bg-soft, #fef2f2);
 	color: var(--wcb-danger-fg, #991b1b);
 	border-color: var(--wcb-danger, #dc2626);
@@ -1241,110 +1363,3 @@ textarea.wcb-input {
 		transition: none !important;
 	}
 }
-
-/* ── Legacy class shims — drop one release after migration ──────────────── */
-
-.wcb-cbtn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wcb-space-xs);
-	min-height: 40px;
-	padding: 0 var(--wcb-space-lg);
-	border: 1px solid transparent;
-	border-radius: var(--wcb-radius-md);
-	font-family: inherit;
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	line-height: 1;
-	white-space: nowrap;
-	text-decoration: none;
-	cursor: pointer;
-	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
-}
-
-.wcb-cbtn--sm { min-height: 40px; padding: 0 var(--wcb-space-md); font-size: var(--wcb-text-xs); }
-
-/* Primary fill. Bumped to (0,2,1) via parent prefix so it beats the
- * Reign / Astra `.entry-content button` cascade (0,2,1) on source-order
- * tie-break, no `!important` needed. */
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary {
-	background: var(--wcb-primary, #2563eb);
-	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:hover,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--primary:focus-visible,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary:hover,
-[class*="wp-block-wcb-"] .wcb-cbtn--primary:focus-visible {
-	background: var(--wcb-primary-dark, #1d4ed8);
-	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: var(--wcb-on-primary, #ffffff);
-	text-decoration: none;
-}
-
-/* Token-driven outlined-pill. Used as the primary card action on every
- * archive: Find Jobs "View Job", Companies "View Profile", Find
- * Candidates "View Resume", plus the shared Load more button. The
- * `[class*="wp-block-..."] a.wcb-cbtn--ghost:link` chain lands at
- * (0,3,1) which beats the Reign / Astra `.entry-content a` cascade
- * (0,2,1) outright - no `!important` required. `-webkit-text-fill-color`
- * is the safety net for builds where the theme uses it to override
- * `color`. */
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:link,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:visited,
-[class*="wp-block-wp-career-board"] span.wcb-cbtn--ghost,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost,
-[class*="wp-block-wp-career-board"] .wcb-cbtn.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:link,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:visited,
-[class*="wp-block-wcb-"] span.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost,
-[class*="wp-block-wcb-"] .wcb-cbtn.wcb-cbtn--ghost {
-	background: transparent;
-	color: var(--wcb-primary, #2563eb);
-	/* Follow the resolved `color` so the label stays legible even when an
-	 * aggressive theme (e.g. BuddyX) wins the `color`/`background` cascade on a
-	 * <button> and would otherwise leave our fixed fill colour stranded on a
-	 * same-colour background (red-on-red). currentColor tracks whatever colour
-	 * actually paints. */
-	-webkit-text-fill-color: currentColor;
-	border-color: var(--wcb-primary, #2563eb);
-}
-
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:hover,
-[class*="wp-block-wp-career-board"] a.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:hover,
-[class*="wp-block-wp-career-board"] button.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:hover,
-[class*="wp-block-wcb-"] a.wcb-cbtn--ghost:focus-visible,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:hover,
-[class*="wp-block-wcb-"] button.wcb-cbtn--ghost:focus-visible {
-	background: var(--wcb-primary, #2563eb);
-	color: var(--wcb-on-primary, #ffffff);
-	-webkit-text-fill-color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary, #2563eb);
-	text-decoration: none;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger {
-	background: transparent;
-	color: var(--wcb-danger, #dc2626);
-	border-color: var(--wcb-danger-border, #fecaca);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:hover,
-[class*="wp-block-wp-career-board"] .wcb-cbtn--danger:focus-visible,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger:hover,
-[class*="wp-block-wcb-"] .wcb-cbtn--danger:focus-visible {
-	background: var(--wcb-danger-bg-soft, #fef2f2);
-	color: var(--wcb-danger-fg, #991b1b);
-	border-color: var(--wcb-danger, #dc2626);
-	text-decoration: none;
-}
-
-.wcb-cbtn[disabled],
-.wcb-cbtn:disabled { opacity: 0.55; cursor: not-allowed; }

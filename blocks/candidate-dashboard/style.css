@@ -139,16 +139,12 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	margin: 0;
 }
 
-/* Button system (.wcb-cbtn / --primary / --ghost / --danger) is owned
+/* Button system (.wcb-btn / --primary / --outline / --danger) is owned
  * by `assets/css/wcb-ui.css`. That file ships parent-prefixed selectors
  * at (0,3,1) which beat Reign / Astra `.entry-content a` cascades
  * without `!important`. Per-block duplication used to live here with
  * six `!important` flags; removed - the wcb-ui rule wins on any page
  * carrying a `wp-block-wp-career-board-*` ancestor. */
-.wcb-cbtn--primary:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
 
 /* ── Recommended for you (AI matches, Overview view) ─────────────────────────
  * Hidden by default; shown only when Pro's matching gate is on AND the
@@ -231,7 +227,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	.wcb-resume-card,
 	.wcb-rec-card,
 	.wcb-sidebar-cta,
-	.wcb-cbtn,
+	.wcb-btn,
 	.wcb-nav-toggle-icon::after,
 	.wcb-cd-spinner {
 		transition: none !important;

@@ -409,7 +409,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 					<div class="wcb-ca-card-footer">
 						<span class="wcb-ca-jobs-count" data-wp-text="context.company.jobs_label"></span>
-						<span class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
+						<span class="wcb-btn wcb-btn--outline wcb-btn--sm"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
 					</div>
 
 				</a>

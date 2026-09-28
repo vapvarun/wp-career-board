@@ -98,8 +98,7 @@ html.dark-mode {
  * the saturated background), so we force the theme's button text — falling
  * back to white — instead of letting it pick a too-dark token.
  */
-.wcb-cbtn--apply,
-.wcb-cbtn--primary,
+.wcb-btn--primary,
 .wcb-btn-primary,
 .wcb-apply-btn,
 .wcb-save-btn {
@@ -219,7 +218,6 @@ html.dark-mode {
 
 /* Filled CTAs — keep the brand fill + a legible label. */
 button.wcb-btn--primary,
-button.wcb-cbtn--primary,
 button.wcb-search-button,
 button.wcb-search-hero__button {
 	background-color: var( --wcb-primary, #2563eb ) !important;
@@ -233,7 +231,7 @@ button.wcb-search-hero__button {
    future WCB buttons — ladder pills, view toggles, bookmark/filter/reset icon
    buttons, dashboard chips/pills, bell and db-link actions — without having to
    enumerate every class as new widgets are added. */
-button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-cbtn--primary, .wcb-search-button, .wcb-search-hero__button) {
+button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button) {
 	background-color: transparent !important;
 	color: var( --wcb-text-primary, #111111 ) !important;
 	-webkit-text-fill-color: currentColor !important;
@@ -242,7 +240,7 @@ button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-cbtn--primary, .wcb-search-but
 /* Surface (outline-on-white) variants keep a solid light background. The extra
    [class*="wcb-"] qualifier lifts these above the blanket rule's specificity. */
 button[class*="wcb-"].wcb-btn--secondary,
-button[class*="wcb-"].wcb-cbtn--danger,
+button[class*="wcb-"].wcb-btn--danger,
 button[class*="wcb-"].wcb-layout-btn.wcb-active {
 	background-color: var( --wcb-base, #ffffff ) !important;
 }
@@ -255,7 +253,6 @@ button[class*="wcb-"].wcb-layout-btn.wcb-active {
 }
 
 /* Danger buttons keep their danger label tone. */
-button[class*="wcb-"].wcb-cbtn--danger,
 button[class*="wcb-"].wcb-btn--danger {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
 }

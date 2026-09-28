@@ -68,7 +68,7 @@ $wcb_empty = wp_parse_args(
 	<?php if ( '' !== (string) $wcb_empty['clear_action'] ) : ?>
 	<button
 		type="button"
-		class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"
+		class="wcb-btn wcb-btn--outline wcb-btn--sm"
 		data-wp-on--click="<?php echo esc_attr( (string) $wcb_empty['clear_action'] ); ?>"
 		<?php if ( '' !== (string) $wcb_empty['clear_hidden_bind'] ) : ?>
 		data-wp-bind--hidden="<?php echo esc_attr( (string) $wcb_empty['clear_hidden_bind'] ); ?>"

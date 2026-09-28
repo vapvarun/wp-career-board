@@ -122,7 +122,7 @@
 	transition: outline-color var( --wcb-transition-snappy, 0.15s ease );
 }
 
-/* Load more button - retired in 1.2.x. The unified .wcb-cbtn--ghost rule
+/* Load more button - retired in 1.2.x. The unified .wcb-btn--outline rule
    in assets/css/wcb-ui.css now scopes the Load more button alongside the
    in-card View Job / View Profile / View Company CTAs, so a Reign-specific
    override is no longer needed. */

@@ -870,7 +870,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label" data-wp-text="context.job.deadline_label"></span>
 						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
-						<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 					</div>
 

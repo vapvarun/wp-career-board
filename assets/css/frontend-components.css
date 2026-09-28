@@ -617,7 +617,7 @@ select.wcb-field {
 
 /*
  * Layout primitive only - the button itself inherits the unified
- * .wcb-cbtn--ghost system from wcb-ui.css so the visual contract matches
+ * .wcb-btn--outline system from wcb-ui.css so the visual contract matches
  * the in-card View Job / View Profile / View Company CTAs. The wrap is
  * hidden via display:none until state.hasMore flips wcb-shown on.
  *

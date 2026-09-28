@@ -398,7 +398,7 @@ wp_interactivity_state(
 			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
 				<button
 					type="button"
-					class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
+					class="wcb-btn wcb-btn--outline wcb-load-more-btn"
 					data-wp-on--click="actions.loadMore"
 					data-wp-bind--disabled="state.loading"
 				>

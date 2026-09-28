@@ -17,6 +17,7 @@
 #      dir/namespace mismatch, no class whose file .distignore strips)
 #   8. Design-system contracts: (a) single canonical token namespace, no legacy
 #      --wcb-accent/text/bg/warn aliases; (b) dual-context CSS keeps hex fallbacks
+#  10. One button system: no legacy `.wcb-cbtn` class outside the wcb-ui.css alias
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -50,9 +51,9 @@ else
 		-not -path './vendor/*' -not -path './node_modules/*' -not -path './tests/*' \
 		-not -path './build/*' -not -path './dist/*' -not -path './libs/*' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(find . -path '*/assets/js/*.js' -o -path '*/blocks/*/view.js' 2>/dev/null \
-		| grep -v '\.min\.js$' | grep -v node_modules | tr '\n' ' ')
+		| grep -v '\.min\.js$' | grep -vE 'node_modules|^\./(dist|build)/' | tr '\n' ' ')
 	CSS_FILES=$(find . \( -path '*/assets/css/*.css' -o -path '*/blocks/*/style.css' -o -path '*/blocks/*/styles/*.css' \) \
-		-not -path './node_modules/*' -not -path './vendor/*' 2>/dev/null | tr '\n' ' ')
+		-not -path './node_modules/*' -not -path './vendor/*' -not -path './dist/*' -not -path './build/*' 2>/dev/null | tr '\n' ' ')
 fi
 
 FAILED=0
@@ -258,6 +259,19 @@ if [ -f "$ABSTRACT_EMAIL" ]; then
 	else
 		ok "Rule 9: AbstractEmail abstract contract frozen at the 1.5.0 five"
 	fi
+fi
+
+# --- Rule 10: one button system - no legacy `.wcb-cbtn` class ---
+# `.wcb-btn` (--primary|--secondary|--outline|--ghost|--danger) is the only
+# button ladder. `.wcb-cbtn` survives solely as an alias inside
+# assets/css/wcb-ui.css for one release, so nothing else may reference it and
+# no block may redefine its own button.
+CBTN=$(grep -nE 'wcb-cbtn' $(printf '%s\n' $PHP_FILES $JS_FILES $CSS_FILES | grep -v 'assets/css/wcb-ui\.css$') 2>/dev/null || true)
+if [ -n "$CBTN" ]; then
+	echo "$CBTN" | sed 's/^/    /'
+	report "Rule 10: legacy .wcb-cbtn class - use .wcb-btn (--outline replaces --ghost on archive cards)"
+else
+	ok "Rule 10: single .wcb-btn button system"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

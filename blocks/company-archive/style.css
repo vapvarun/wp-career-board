@@ -424,8 +424,8 @@
 	font-weight: var(--wcb-font-medium);
 }
 
-/* Company card CTA reuses the shared `.wcb-cbtn .wcb-cbtn--ghost
- * .wcb-cbtn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
+/* Company card CTA reuses the shared `.wcb-btn .wcb-btn--outline
+ * .wcb-btn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
  * No per-block override here. */
 
 /* -- Empty state -- */

@@ -196,7 +196,7 @@
 	/* On mobile split the two action buttons 50/50 across the row and
 	 * drop the cap label onto its own row underneath. Reads as one tidy
 	 * pair of equal-weight CTAs instead of staggered inline-flow chaos. */
-	.wcb-resumes-actions .wcb-cbtn,
+	.wcb-resumes-actions .wcb-btn,
 	.wcb-resumes-actions .wcb-upload-label {
 		flex: 1 1 calc(50% - var(--wcb-space-sm));
 		justify-content: center;

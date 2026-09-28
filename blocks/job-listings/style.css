@@ -332,9 +332,9 @@
 	color: var(--wcb-text-secondary);
 }
 
-/* `.wcb-cbtn` base + `.wcb-cbtn--ghost` modifier + `.wcb-cbtn--sm` sizing
+/* `.wcb-btn` base + `.wcb-btn--outline` modifier + `.wcb-btn--sm` sizing
  * all live in `assets/css/wcb-ui.css`. Find Jobs uses
- * `<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm">View Job</a>` on
+ * `<a class="wcb-btn wcb-btn--outline wcb-btn--sm">View Job</a>` on
  * its card CTA, same as Companies (View Profile) and Find Candidates
  * (View Resume). No per-block button styles are needed here. */
 
@@ -365,7 +365,7 @@
 	display: none;
 }
 
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-btn {
 	margin-inline-start: auto;
 }
 
@@ -879,7 +879,7 @@
 	.wcb-layout-btn,
 	.wcb-view-btn,
 	.wcb-bookmark-btn,
-	.wcb-cbtn,
+	.wcb-btn,
 	.wcb-load-more-btn,
 	.wcb-chip,
 	.wcb-alert-me-btn,

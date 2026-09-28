@@ -307,24 +307,6 @@
 
 .wcb-privacy-note.wcb-shown { display: block; }
 
-.wcb-cbtn--danger {
-	color: var(--wcb-danger-fg, #991b1b);
-	border-color: var(--wcb-danger-border, #fecaca);
-	background: var(--wcb-base);
-}
-
-.wcb-cbtn--danger:hover,
-.wcb-cbtn--danger:focus-visible {
-	background: var(--wcb-danger-bg-soft, #fef2f2);
-	border-color: var(--wcb-danger, #ef4444);
-	color: var(--wcb-danger-fg, #7f1d1d);
-}
-
-.wcb-cbtn--danger:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
 /* Account Settings inline status message (save / password feedback). */
 .wcb-account-msg {
 	margin: 0 0 var(--wcb-space-md);
