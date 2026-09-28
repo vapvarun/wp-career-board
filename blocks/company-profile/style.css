@@ -23,12 +23,6 @@
 	z-index: 1;
 }
 
-/* Reserve right padding inside the hero body so the absolute-positioned
- * Save button doesn't crash into the meta chip row at narrow widths. */
-.wcb-cp-hero-body {
-	padding-inline-end: var(--wcb-space-5xl, 4rem);
-}
-
 /* On mobile keep the Save button absolutely anchored at the top-right
  * corner of the hero (same spot as desktop, just snugger). The earlier
  * `position: static` override pushed the pill into DOM order at the top
@@ -38,10 +32,6 @@
 	[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
 		top: var(--wcb-space-md);
 		inset-inline-end: var(--wcb-space-md);
-	}
-
-	.wcb-cp-hero-body {
-		padding-inline-end: var(--wcb-space-4xl);
 	}
 }
 
@@ -62,6 +52,14 @@
 	gap: var(--wcb-space-xl);
 	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
 	margin-top: 0;
+}
+
+/* Reserve room for the absolutely-positioned Save button (above) so a long
+ * company name, or a wide chip row, doesn't run under it. --wcb-space-5xl
+ * doesn't exist as a token; this also has to come after the shorthand
+ * `padding` above it, which was overwriting this whenever both rules loaded. */
+.wcb-cp-hero-body {
+	padding-inline-end: var(--wcb-space-4xl);
 }
 
 /* -- Avatar / Logo -- */
@@ -558,7 +556,7 @@
 		align-items: center;
 		text-align: center;
 		gap: var(--wcb-space-md);
-		padding: var(--wcb-space-2xl) var(--wcb-space-xl);
+		padding: var(--wcb-space-xl) var(--wcb-space-lg);
 	}
 
 	.wcb-cp-hero-info {
