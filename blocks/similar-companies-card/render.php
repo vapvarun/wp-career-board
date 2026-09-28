@@ -39,8 +39,10 @@ $wcb_industry = $wcb_current_id
 $wcb_query_args = array(
 	'post_type'      => 'wcb_company',
 	'post_status'    => 'publish',
-	'posts_per_page' => $wcb_count,
-	'orderby'        => 'rand',
+	// A small newest-first pool (served by the type/status/date index), varied in PHP below.
+	// orderby => rand would sort every matching company on each page view.
+	'posts_per_page' => 30,
+	'orderby'        => 'date',
 	'no_found_rows'  => true,
 );
 
@@ -58,6 +60,8 @@ if ( '' !== $wcb_industry ) {
 }
 
 $wcb_companies = get_posts( $wcb_query_args );
+shuffle( $wcb_companies );
+$wcb_companies = array_slice( $wcb_companies, 0, $wcb_count );
 
 // Empty state: keep the sidebar slot visible for admins (so they know the
 // block rendered and can fix the lack of matching companies). Front-end

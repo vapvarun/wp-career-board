@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.6';
+	const DB_VERSION = '1.3.7';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -199,7 +199,8 @@ final class Install {
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id),
 				KEY event_type  (event_type),
-				KEY status  (status)
+				KEY status  (status),
+				KEY sent_at  (sent_at)
 			) ENGINE=InnoDB {$charset};"
 		);
 
@@ -407,7 +408,12 @@ final class Install {
 			}
 
 			if ( version_compare( (string) $installed, '1.2.9', '<' ) ) {
-				self::migrate_add_notifications_status_index();
+				self::ensure_notifications_log_key( 'status' );
+			}
+
+			// 1.3.7 — the retention prune (`WHERE sent_at < cutoff`) scanned the whole email log.
+			if ( version_compare( (string) $installed, '1.3.7', '<' ) ) {
+				self::ensure_notifications_log_key( 'sent_at' );
 			}
 
 			// 1.3.0 — adopt jobs that were created while the poster's reciprocal
@@ -839,22 +845,18 @@ final class Install {
 	}
 
 	/**
-	 * Add an index on `wcb_notifications_log.status` for existing installs.
+	 * Add a single-column index to `wcb_notifications_log` on existing installs.
 	 *
-	 * The admin email-log endpoint (`AdminEndpoint::get_email_log()`) filters
-	 * this table by `status = %s`, but the column shipped without a key while
-	 * its sibling filter `event_type` had one. The table grows one row per
-	 * email sent, so on a busy install an admin filtering the log by status
-	 * (e.g. "failed") triggered a full-table scan. Fresh installs get the key
-	 * from `create_tables()`; this migration back-fills existing ones.
+	 * The table grows one row per email sent, so every column it is filtered or
+	 * pruned by needs a key: `status` (the admin email-log filter, 1.2.9) and
+	 * `sent_at` (the retention prune, 1.3.7). Fresh installs get both from
+	 * `create_tables()`. Guarded on `information_schema`, so re-runs are no-ops.
 	 *
-	 * Guarded on `information_schema` so re-runs are no-ops (idempotent),
-	 * mirroring {@see migrate_add_postmeta_key_value_index()}.
-	 *
-	 * @since  1.2.9
+	 * @since  1.3.7
+	 * @param  string $column Column to index; the key takes the same name.
 	 * @return void
 	 */
-	private static function migrate_add_notifications_status_index(): void {
+	private static function ensure_notifications_log_key( string $column ): void {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'wcb_notifications_log';
@@ -865,11 +867,11 @@ final class Install {
 				'SELECT COUNT(1) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s',
 				DB_NAME,
 				$table,
-				'status'
+				$column
 			)
 		);
 		if ( 0 === $exists ) {
-			$wpdb->query( "ALTER TABLE {$table} ADD KEY status (status)" );
+			$wpdb->query( "ALTER TABLE {$table} ADD KEY {$column} ({$column})" );
 		}
 		// phpcs:enable
 	}
