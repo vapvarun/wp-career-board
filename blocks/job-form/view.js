@@ -604,28 +604,40 @@ const { state } = store(
 			* nextStep() {
 				const { state } = store( 'wcb-job-form' );
 
-				if ( state.step === 1 ) {
-					yield flushDescription();
-					if ( ! state.title.trim() ) {
-						setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
-						focusField( 'wcb-job-title' );
-						return;
-					}
-					if ( ! state.description.trim() ) {
-						setValidation( state, 'description', t( 'errorDescriptionRequired', 'Job description is required before you can continue.' ) );
-						focusField( 'wcb-editor-job-desc' );
-						return;
-					}
-				}
-				if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
-					setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
-					focusField( 'wcb-location' );
+				// Guards a real gap now: flushDescription() below yields, so a
+				// second click in the same tick used to re-enter before this ran
+				// (Basecamp 10348706675).
+				if ( state.stepping ) {
 					return;
 				}
+				state.stepping = true;
 
-				setValidation( state, '', '' );
-				if ( state.step < 4 ) {
-					state.step++;
+				try {
+					if ( state.step === 1 ) {
+						yield flushDescription();
+						if ( ! state.title.trim() ) {
+							setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
+							focusField( 'wcb-job-title' );
+							return;
+						}
+						if ( ! state.description.trim() ) {
+							setValidation( state, 'description', t( 'errorDescriptionRequired', 'Job description is required before you can continue.' ) );
+							focusField( 'wcb-editor-job-desc' );
+							return;
+						}
+					}
+					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
+						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
+						focusField( 'wcb-location' );
+						return;
+					}
+
+					setValidation( state, '', '' );
+					if ( state.step < 4 ) {
+						state.step++;
+					}
+				} finally {
+					state.stepping = false;
 				}
 			},
 
@@ -640,9 +652,15 @@ const { state } = store(
 			* submitJob() {
 				const { state } = store( 'wcb-job-form' );
 
+				// Set before the first yield: flushDescription() below yields, so a
+				// second click in the same tick used to re-enter before this ran
+				// (Basecamp 10348706675).
 				if ( state.submitting ) {
 					return;
 				}
+				state.submitting = true;
+
+				try {
 
 				yield flushDescription();
 
@@ -668,8 +686,7 @@ const { state } = store(
 					? yield window.wcbCaptchaGetToken()
 					: '';
 
-				state.submitting = true;
-				state.error      = '';
+				state.error = '';
 
 				try {
 					// Parse comma-separated tags into a slug array.
@@ -765,6 +782,7 @@ const { state } = store(
 					}, 8000 );
 				} catch {
 					state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+				}
 				} finally {
 					state.submitting = false;
 				}
