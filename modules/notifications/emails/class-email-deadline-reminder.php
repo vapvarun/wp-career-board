@@ -146,7 +146,11 @@ class EmailDeadlineReminder extends AbstractEmail {
 				'deadline_date' => $deadline_date,
 				'company_name'  => (string) get_post_meta( $job_id, '_wcb_company_name', true ),
 			),
-			$user->ID
+			$user->ID,
+			array(
+				'object_type' => 'job',
+				'object_id'   => $job_id,
+			)
 		);
 	}
 }

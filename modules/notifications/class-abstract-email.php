@@ -202,16 +202,20 @@ abstract class AbstractEmail {
 	 * @param string               $to      Recipient email address.
 	 * @param array<string, mixed> $vars    Template variables passed to render_template().
 	 * @param int                  $user_id Optional WP user ID for the log row.
+	 * @param array<string, mixed> $context Optional community-notification context
+	 *                                      (object_type, object_id, actor_id, group_key).
+	 *                                      Omit for a transactional or admin-only email —
+	 *                                      no `object_type` means no bell row.
 	 * @return void
 	 */
-	protected function send( string $to, array $vars, int $user_id = 0 ): void {
+	protected function send( string $to, array $vars, int $user_id = 0, array $context = array() ): void {
 		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
 		// A member gets the email in their own language, not the language of
 		// whoever triggered it (an admin, a cron run).
 		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
-		$this->dispatch( $to, $vars, $user_id );
+		$this->dispatch( $to, $vars, $user_id, false, $context );
 		if ( $switched ) {
 			restore_previous_locale();
 		}
@@ -309,9 +313,10 @@ abstract class AbstractEmail {
 	 *                                       writes a *_test status so admin
 	 *                                       previews don't pollute production
 	 *                                       delivery metrics.
+	 * @param array<string, mixed> $context  Optional community-notification context, see send().
 	 * @return bool True when wp_mail() reported a successful handoff.
 	 */
-	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false ): bool {
+	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false, array $context = array() ): bool {
 		// Subject placeholders (both {key} and {{key}} forms) get substituted
 		// from $vars here. The body template already runs through
 		// render_template() which extracts $vars into PHP scope and the
@@ -381,9 +386,18 @@ abstract class AbstractEmail {
 			 * Fires once per notification-worthy event: from the email on Free,
 			 * from the bell insert when Pro's bell records the same event.
 			 *
+			 * The second argument is the community notification contract payload
+			 * (recipient_id, type, actor_id, object_type, object_id, message, url,
+			 * group_key, notification_id) for a centralised notification center —
+			 * null when $context carries no object_type (a transactional or
+			 * admin-only email). Existing listeners registered with
+			 * accepted_args = 1 never receive it.
+			 *
 			 * @since 1.4.3
+			 * @since 1.8.0 Added the contract payload as a second argument.
 			 *
 			 * @param array{user_id:int,event_type:string,message:string,link:string,id:int} $notification Notification payload.
+			 * @param array<string, mixed>|null                                              $contract     Community notification contract payload, or null.
 			 */
 			do_action(
 				'wcb_notification_created',
@@ -393,7 +407,8 @@ abstract class AbstractEmail {
 					'message'    => $subject,
 					'link'       => $link,
 					'id'         => 0,
-				)
+				),
+				CommunityNotificationContract::build( $user_id, $this->get_id(), $subject, $link, $context )
 			);
 		}
 

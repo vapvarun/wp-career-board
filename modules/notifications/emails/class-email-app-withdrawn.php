@@ -106,7 +106,6 @@ class EmailAppWithdrawn extends AbstractEmail {
 	 * @return void
 	 */
 	public function handle( int $app_id, int $job_id, int $candidate_id ): void {
-		unset( $app_id );
 		$job      = get_post( $job_id );
 		$employer = $job instanceof \WP_Post ? get_user_by( 'ID', (int) $job->post_author ) : false;
 		if ( ! $job instanceof \WP_Post || ! $employer instanceof \WP_User ) {
@@ -123,7 +122,12 @@ class EmailAppWithdrawn extends AbstractEmail {
 				'candidate_name' => $candidate instanceof \WP_User ? $candidate->display_name : __( 'A candidate', 'wp-career-board' ),
 				'dashboard_url'  => $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' ),
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $candidate_id,
+			)
 		);
 	}
 }

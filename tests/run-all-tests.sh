@@ -59,6 +59,10 @@ echo "=== Application Lifecycle Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-application-lifecycle.php
 echo ""
 
+echo "=== Community Notification Contract Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-community-notification-contract.php
+echo ""
+
 echo "=== Job Lifecycle Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-job-lifecycle.php
 echo ""

@@ -131,7 +131,11 @@ class EmailAppConfirmation extends AbstractEmail {
 				'job_title'      => $job->post_title,
 				'dashboard_url'  => $dashboard_url,
 			),
-			$candidate_id
+			$candidate_id,
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+			)
 		);
 	}
 }

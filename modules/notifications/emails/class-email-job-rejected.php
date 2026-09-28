@@ -118,7 +118,11 @@ class EmailJobRejected extends AbstractEmail {
 				'job_title' => $job->post_title,
 				'reason'    => $reason,
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'job',
+				'object_id'   => $job_id,
+			)
 		);
 	}
 }

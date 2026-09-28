@@ -29,6 +29,7 @@ class NotificationsModule {
 	public function boot(): void {
 		add_filter( 'wcb_registered_emails', array( $this, 'register_emails' ) );
 		add_action( 'init', array( $this, 'boot_emails' ) );
+		CommunityNotificationContract::register();
 	}
 
 	/**

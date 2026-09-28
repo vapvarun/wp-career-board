@@ -118,7 +118,11 @@ class EmailJobExpired extends AbstractEmail {
 				'job_title'  => $job->post_title,
 				'repost_url' => $repost_url,
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'job',
+				'object_id'   => $job_id,
+			)
 		);
 	}
 }

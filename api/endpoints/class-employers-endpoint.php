@@ -568,12 +568,16 @@ final class EmployersEndpoint extends RestController {
 	 *
 	 * Single source of truth (R1) — a new lifecycle status is added here, not in
 	 * each query. Previously this allowlist was duplicated across three sites in
-	 * this endpoint, so a new status silently missed some views.
+	 * this endpoint, so a new status silently missed some views. Public + static
+	 * since 1.8.0 so `CommunityNotificationContract::job_visible()` answers the
+	 * same way instead of carrying a second copy of this allowlist.
+	 *
+	 * @since 1.8.0 Public + static (was private).
 	 *
 	 * @param bool $is_owner_or_admin Viewer owns the company or is an admin.
 	 * @return string[]
 	 */
-	private function owner_visible_statuses( bool $is_owner_or_admin ): array {
+	public static function owner_visible_statuses( bool $is_owner_or_admin ): array {
 		return $is_owner_or_admin
 			? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
 			: array( 'publish' );
@@ -674,7 +678,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'post_type'      => 'wcb_job',
 				'author'         => (int) $user_id,
-				'post_status'    => $this->owner_visible_statuses( true ),
+				'post_status'    => self::owner_visible_statuses( true ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 			)
@@ -780,7 +784,7 @@ final class EmployersEndpoint extends RestController {
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
 		$is_owner    = is_user_logged_in() && \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
-		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
+		$post_status = self::owner_visible_statuses( $is_owner || $is_admin );
 
 		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
 		$paged    = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
@@ -906,7 +910,7 @@ final class EmployersEndpoint extends RestController {
 		$company_id = (int) $company->ID;
 		// Owner viewing their own company's applications — same status allowlist
 		// as the other employer views (R1: single source of truth).
-		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
+		$wcb_status_in = "'" . implode( "','", self::owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
@@ -954,7 +958,7 @@ final class EmployersEndpoint extends RestController {
 	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		global $wpdb;
 		$user_id       = get_current_user_id();
-		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
+		$wcb_status_in = "'" . implode( "','", self::owner_visible_statuses( true ) ) . "'";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$from = "FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
