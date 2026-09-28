@@ -70,7 +70,8 @@ final class SalaryFormat {
 	 * @return string
 	 */
 	public static function abbreviate( int $value ): string {
-		if ( $value >= 1000000 ) {
+		// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule below.
+		if ( $value >= 1000000 && 0 === $value % 100000 ) {
 			$n = round( $value / 1000000, 1 );
 			$n = floor( $n ) === $n ? (string) (int) $n : number_format_i18n( $n, 1 );
 			/* translators: %s: number of millions, already localised. Abbreviation for millions appended to a salary figure. */

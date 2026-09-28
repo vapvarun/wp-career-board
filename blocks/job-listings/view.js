@@ -103,7 +103,8 @@ function wcbFormatSalaryShort( value, symbol ) {
 	if ( n <= 0 ) {
 		return '';
 	}
-	if ( n >= 1_000_000 ) {
+	// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule.
+	if ( n >= 1_000_000 && n % 100_000 === 0 ) {
 		// Match PHP's round( $value / 1000000, 1 ): one decimal, ".0" dropped.
 		const millions = Math.round( ( n / 1_000_000 ) * 10 ) / 10;
 		return wcbMoney( s, wcbFill( t( 'salaryMillion', '%sM' ), '%s', wcbNumber( millions ) ) );

@@ -118,7 +118,8 @@ const focusField = ( id ) => {
  * @return {string} Abbreviated, localised amount.
  */
 const abbreviate = ( value ) => {
-	if ( value >= 1000000 ) {
+	// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule.
+	if ( value >= 1000000 && value % 100000 === 0 ) {
 		const n = Math.round( ( value / 1000000 ) * 10 ) / 10;
 		const amount = Number.isInteger( n )
 			? num( n )

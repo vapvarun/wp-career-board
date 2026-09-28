@@ -53,6 +53,9 @@ foreach ( array(
 	4450    => '4,450',
 	85250   => '85,250',
 	1500000 => '1.5M',
+	2000000 => '2M',
+	1250000 => '1,250k',
+	1040000 => '1,040k',
 ) as $wcb_in => $wcb_expected ) {
 	wcb_assert( $wcb_expected === SalaryFormat::abbreviate( $wcb_in ), "abbreviate({$wcb_in}) is {$wcb_expected}" );
 }
