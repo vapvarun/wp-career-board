@@ -253,16 +253,6 @@ class AdminMetaBoxes {
 			$wcb_companies[] = $wcb_company_id;
 		}
 		?>
-		<style>
-			.wcb-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; padding:8px 0; }
-			.wcb-meta-full { grid-column:1/-1; }
-			.wcb-meta-grid label { display:block; font-weight:600; margin-bottom:4px; }
-			.wcb-meta-grid input[type=text],
-			.wcb-meta-grid input[type=number],
-			.wcb-meta-grid input[type=date] { width:100%; }
-			.wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
-			.wcb-salary-prefix span { font-size:13px; line-height:1; }
-		</style>
 		<div class="wcb-meta-grid">
 			<div>
 				<label for="wcb_salary_currency"><?php esc_html_e( 'Currency', 'wp-career-board' ); ?></label>

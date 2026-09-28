@@ -846,6 +846,55 @@ class Admin {
 			wp_localize_script( 'wcb-admin-brand', 'wcbBrand', array( 'i18n' => array( 'selectLogo' => __( 'Select Logo', 'wp-career-board' ) ) ) );
 			wp_enqueue_style( 'wcb-integrations-css', WCB_URL . 'assets/css/admin/integrations.css', array( 'wcb-tokens', 'wcb-settings-css' ), WCB_VERSION );
 			wp_enqueue_script( 'wcb-settings-nav', WCB_URL . 'assets/js/admin/settings-nav.js', array( 'lucide' ), WCB_VERSION, true );
+
+			// Companies > Industries editor and Advanced > Remove Sample Data: each
+			// script null-checks its own root, so both load with the page.
+			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_localize_script(
+				'wcb-admin-industries',
+				'wcbIndustries',
+				array(
+					'i18n' => array(
+						/* translators: %d: number of companies using this industry. */
+						'used' => __( '%d companies', 'wp-career-board' ),
+						'usedOne' => __( '1 company', 'wp-career-board' ),
+						'unused' => __( 'not in use', 'wp-career-board' ),
+						'remove' => __( 'Remove', 'wp-career-board' ),
+						/* translators: %s: industry name. */
+						'removeAria' => __( 'Remove %s', 'wp-career-board' ),
+						'keep' => __( 'Keep', 'wp-career-board' ),
+						'settle' => __( 'Move those companies to:', 'wp-career-board' ),
+						'clear' => __( 'Clear the industry', 'wp-career-board' ),
+						'pendingKeep' => __( 'Will be removed on save.', 'wp-career-board' ),
+						'addFirst' => __( 'Enter a name first.', 'wp-career-board' ),
+						'duplicate' => __( 'That industry already exists.', 'wp-career-board' ),
+						'saving' => __( 'Saving…', 'wp-career-board' ),
+						'saved' => __( 'Industries saved.', 'wp-career-board' ),
+						/* translators: %d: number of companies moved to another industry. */
+						'savedMoved' => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
+						'error' => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
+						'loadError' => __( 'Could not load industries.', 'wp-career-board' ),
+						'emptyList' => __( 'Keep at least one industry.', 'wp-career-board' ),
+					),
+				)
+			);
+			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_localize_script(
+				'wcb-admin-sample-data',
+				'wcbSampleData',
+				array(
+					'i18n' => array(
+						'removing' => __( 'Removing…', 'wp-career-board' ),
+						'confirmTitle' => __( 'Remove Sample Data', 'wp-career-board' ),
+						'confirmMessage' => __( 'Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone.', 'wp-career-board' ),
+						'confirmCta' => __( 'Delete Sample Data', 'wp-career-board' ),
+						'cancel' => __( 'Cancel', 'wp-career-board' ),
+						'success' => __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ),
+						'emptyNotice' => __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ),
+						'error' => __( 'Could not remove sample data. Please try again.', 'wp-career-board' ),
+					),
+				)
+			);
 		}
 
 		// Application edit screen — composite widget assets.

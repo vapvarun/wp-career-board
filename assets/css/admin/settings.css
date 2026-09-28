@@ -293,3 +293,65 @@
 		padding: 16px;
 	}
 }
+
+/* ── Companies > Industries editor ────────────────────────────────────────── */
+.wcb-ind-list { display: flex; flex-direction: column; gap: var( --wcb-space-xs, 8px ); }
+.wcb-ind-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var( --wcb-space-sm, 12px );
+	padding: var( --wcb-space-xs, 8px );
+	border: 1px solid var( --wcb-border, #e2e8f0 );
+	border-radius: var( --wcb-radius-sm, 6px );
+	background: var( --wcb-base, #fff );
+}
+.wcb-ind-row__label { flex: 1 1 auto; min-width: 0; }
+.wcb-ind-row__label input { width: 100%; min-height: 40px; }
+.wcb-ind-row__slug {
+	flex: 0 0 9rem;
+	/* Plain monospace, not an admin <code> chip — at a fixed column
+		width the chip background stretched into a wide grey bar. */
+	background: none;
+	padding: 0;
+	font-family: monospace;
+	font-size: 0.85em;
+	color: var( --wcb-text-muted, #6b7280 );
+	word-break: break-all;
+	text-align: end;
+}
+.wcb-ind-row__count {
+	flex: 0 0 7rem;
+	color: var( --wcb-text-secondary, #475569 );
+	font-size: 0.85em;
+	text-align: end;
+}
+.wcb-ind-row__remove { flex: 0 0 auto; min-height: 40px; min-width: 40px; }
+.wcb-ind-row.is-removing { border-color: var( --wcb-danger, #dc2626 ); }
+.wcb-ind-settle {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var( --wcb-space-xs, 8px );
+	width: 100%;
+	padding-block-start: var( --wcb-space-xs, 8px );
+}
+.wcb-ind-settle select { min-height: 40px; }
+.wcb-ind-add {
+	display: flex;
+	align-items: flex-end;
+	gap: var( --wcb-space-sm, 12px );
+	margin-block-start: var( --wcb-space-md, 16px );
+}
+.wcb-ind-add__field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; }
+.wcb-ind-add__label { font-size: 0.85em; color: var( --wcb-text-secondary, #475569 ); }
+.wcb-ind-add input { min-height: 40px; width: 100%; }
+.wcb-ind-add .wcb-btn, .wcb-ind-actions .wcb-btn { min-height: 40px; }
+.wcb-ind-actions { margin-block-start: var( --wcb-space-md, 16px ); }
+.wcb-ind-actions .description { margin-inline-start: var( --wcb-space-sm, 12px ); }
+.wcb-ind-orphans { margin-block-start: var( --wcb-space-md, 16px ); }
+.wcb-ind-subtitle { font-size: 1em; margin: 0 0 4px; }
+@media ( max-width: 640px ) {
+	.wcb-ind-row, .wcb-ind-add { flex-wrap: wrap; align-items: stretch; }
+	.wcb-ind-row__slug, .wcb-ind-row__count { flex: 1 0 100%; }
+}
