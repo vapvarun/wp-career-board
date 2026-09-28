@@ -91,6 +91,10 @@ echo "=== Scale Harness Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
 echo ""
 
+echo "=== Credential Guard Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-credential-guard.php
+echo ""
+
 echo "=== RTL Style Opt-in Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-rtl-styles.php
 echo ""

@@ -199,6 +199,7 @@ final class Plugin {
 			\WCB\Modules\Gdpr\GdprModule::class,
 			\WCB\Modules\Account\AccountDeletionService::class,
 			\WCB\Modules\Account\EmailVerification::class,
+			\WCB\Modules\Account\CredentialGuard::class,
 		);
 
 		foreach ( $module_classes as $class ) {
