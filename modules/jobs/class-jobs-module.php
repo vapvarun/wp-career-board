@@ -290,6 +290,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Categories', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Job Categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
@@ -303,6 +304,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Types', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job Type', 'wp-career-board' ), false ),
 				'hierarchical'      => false,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),
@@ -316,6 +318,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'        => __( 'Job Tags', 'wp-career-board' ),
+				'labels'       => self::taxonomy_labels( __( 'Job Tags', 'wp-career-board' ), __( 'Job Tag', 'wp-career-board' ), false ),
 				'hierarchical' => false,
 				'show_in_rest' => true,
 				'rewrite'      => array( 'slug' => 'job-tag' ),
@@ -327,6 +330,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Locations', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Locations', 'wp-career-board' ), __( 'Location', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-location' ),
@@ -340,10 +344,71 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'        => __( 'Experience Levels', 'wp-career-board' ),
+				'labels'       => self::taxonomy_labels( __( 'Experience Levels', 'wp-career-board' ), __( 'Experience Level', 'wp-career-board' ), false ),
 				'hierarchical' => false,
 				'show_in_rest' => true,
 				'rewrite'      => array( 'slug' => 'job-experience' ),
 			)
 		);
+	}
+
+	/**
+	 * The full label set for a job taxonomy. Passing only `label` leaves every
+	 * other label at WordPress's generic "Category" / "Tag" text (Edit Category,
+	 * Add New Tag) on all five screens.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $plural       Plural name, e.g. "Job Types".
+	 * @param string $singular     Singular name, e.g. "Job Type".
+	 * @param bool   $hierarchical Whether terms have parents.
+	 * @return array<string, string>
+	 */
+	private static function taxonomy_labels( string $plural, string $singular, bool $hierarchical ): array {
+		$labels = array(
+			'name'                  => $plural,
+			'singular_name'         => $singular,
+			'menu_name'             => $plural,
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'search_items'          => sprintf( __( 'Search %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'all_items'             => sprintf( __( 'All %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'edit_item'             => sprintf( __( 'Edit %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'view_item'             => sprintf( __( 'View %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'update_item'           => sprintf( __( 'Update %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'add_new_item'          => sprintf( __( 'Add New %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'new_item_name'         => sprintf( __( 'New %s Name', 'wp-career-board' ), $singular ),
+			/* translators: %s: plural name, lower case, e.g. "job types". */
+			'not_found'             => sprintf( __( 'No %s found.', 'wp-career-board' ), mb_strtolower( $plural ) ),
+			/* translators: %s: plural name, lower case, e.g. "job types". */
+			'no_terms'              => sprintf( __( 'No %s', 'wp-career-board' ), mb_strtolower( $plural ) ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'back_to_items'         => sprintf( __( '&larr; Go to %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'items_list'            => sprintf( __( '%s list', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'items_list_navigation' => sprintf( __( '%s list navigation', 'wp-career-board' ), $plural ),
+		);
+		if ( $hierarchical ) {
+			/* translators: %s: singular name, e.g. "Job Category". */
+			$labels['parent_item'] = sprintf( __( 'Parent %s', 'wp-career-board' ), $singular );
+			/* translators: %s: singular name, e.g. "Job Category". */
+			$labels['parent_item_colon'] = sprintf( __( 'Parent %s:', 'wp-career-board' ), $singular );
+		} else {
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['popular_items'] = sprintf( __( 'Popular %s', 'wp-career-board' ), $plural );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['separate_items_with_commas'] = sprintf( __( 'Separate %s with commas', 'wp-career-board' ), mb_strtolower( $plural ) );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['add_or_remove_items'] = sprintf( __( 'Add or remove %s', 'wp-career-board' ), mb_strtolower( $plural ) );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['choose_from_most_used'] = sprintf( __( 'Choose from the most used %s', 'wp-career-board' ), mb_strtolower( $plural ) );
+		}
+		return $labels;
 	}
 }

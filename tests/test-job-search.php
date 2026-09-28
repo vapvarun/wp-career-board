@@ -164,6 +164,57 @@ if ( has_filter( 'wcb_job_search_args' ) ) {
 	wcb_assert( 3 === $r['total'], 'the plain listing is not affected by a radius search' );
 }
 
+WP_CLI::log( '--- ranking, short words, markup, pay units, page size ---' );
+$wcb_t2  = 'Yqw' . wp_generate_password( 5, false, false );
+$wcb_ids = static fn ( array $params ): array => array_map( 'intval', JobSearch::run( JobSearch::query_args( $params, array( 'posts_per_page' => 50, 'fields' => 'ids', 'no_found_rows' => true ) ) )->posts );
+
+// Featured leads a keyword search, ahead of a better text match.
+$wcb_feat   = wcb_jsx_job( 'Plain listing', "{$wcb_t2} only in the description", array( '_wcb_featured' => '1' ) );
+$wcb_better = wcb_jsx_job( "{$wcb_t2} in the title", 'Nothing else' );
+wcb_assert( array( $wcb_feat, $wcb_better ) === $wcb_ids( array( 'search' => $wcb_t2 ) ), 'a featured job leads a keyword search (relevance)' );
+delete_post_meta( $wcb_feat, '_wcb_featured' );
+wcb_assert( array( $wcb_better, $wcb_feat ) === $wcb_ids( array( 'search' => $wcb_t2 ) ), 'control: unfeatured, the better text match leads' );
+
+// Closing soonest: open jobs first by deadline, no deadline next, jobs already past it last.
+$wcb_c_soon  = wcb_jsx_job( "{$wcb_t2} soon", 'x', array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+5 days' ) ) ) );
+$wcb_c_later = wcb_jsx_job( "{$wcb_t2} later", 'x', array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+20 days' ) ) ) );
+$wcb_c_none  = wcb_jsx_job( "{$wcb_t2} none", 'x', array( '_wcb_deadline' => '' ) );
+$wcb_c_past  = wcb_jsx_job( "{$wcb_t2} past", 'x', array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '-60 days' ) ) ) );
+wcb_assert( array( $wcb_c_soon, $wcb_c_later, $wcb_c_none, $wcb_c_past ) === array_values( array_intersect( $wcb_ids( array( 'search' => $wcb_t2, 'sort' => 'closing' ) ), array( $wcb_c_soon, $wcb_c_later, $wcb_c_none, $wcb_c_past ) ) ), 'Closing soonest: open jobs by deadline, then no deadline, jobs already past it last' );
+
+// A keyword with no word of two letters is nothing to search for, not "everything".
+wcb_assert( array() === $wcb_ids( array( 'search' => 'Q' ) ) && array() === $wcb_ids( array( 'search' => 'C R' ) ), 'a one-letter keyword returns nothing instead of every job' );
+wcb_assert( array() !== $wcb_ids( array( 'search' => $wcb_t2 ) ), 'control: a real keyword still finds jobs' );
+
+// Editor block markup is not job text.
+$wcb_marked = wcb_jsx_job( "{$wcb_t2} Marked", "<!-- wp:paragraph -->\n<p>We run kubernetes clusters.</p>\n<!-- /wp:paragraph -->" );
+wcb_assert( array() === $wcb_ids( array( 'search' => "{$wcb_t2} paragraph" ) ), 'a word that is only block markup (paragraph) finds nothing' );
+wcb_assert( array( $wcb_marked ) === $wcb_ids( array( 'search' => "{$wcb_t2} kubernetes" ) ), 'control: a word in the text is found' );
+delete_post_meta( $wcb_marked, JobSearch::TEXT_META );
+wcb_assert( array( $wcb_marked ) === $wcb_ids( array( 'search' => "{$wcb_t2} kubernetes" ) ), 'a job not indexed yet is still found (falls back to its content)' );
+JobSearch::index_batch();
+wcb_assert( '' !== (string) get_post_meta( $wcb_marked, JobSearch::TEXT_META, true ) && array() === $wcb_ids( array( 'search' => "{$wcb_t2} paragraph" ) ), 'the background backfill indexes it, and the markup word stops matching' );
+wcb_assert( ! JobSearch::text_matches( $wcb_marked, 'paragraph' ) && JobSearch::text_matches( $wcb_marked, 'kubernetes' ), 'alerts read the same plain text' );
+
+// Highest salary compares pay per year, not raw numbers across units.
+$wcb_yearly = wcb_jsx_job( "{$wcb_t2} Yearly", 'x', array( '_wcb_salary_max' => 50000, '_wcb_salary_type' => 'yearly' ) );
+$wcb_hourly = wcb_jsx_job( "{$wcb_t2} Hourly", 'x', array( '_wcb_salary_max' => 200, '_wcb_salary_type' => 'hourly' ) );
+wcb_assert( array( $wcb_hourly, $wcb_yearly ) === array_values( array_intersect( $wcb_ids( array( 'search' => $wcb_t2, 'sort' => 'salary' ) ), array( $wcb_hourly, $wcb_yearly ) ) ), 'Highest salary: $200 an hour ranks above $50k a year' );
+
+// The REST list uses the owner's Jobs per page when the client sends none.
+$wcb_settings = get_option( 'wcb_settings', array() );
+update_option( 'wcb_settings', array_merge( (array) $wcb_settings, array( 'jobs_per_page' => 7 ) ) );
+\WCB\Admin\Settings::flush_cache();
+wp_set_current_user( 0 );
+$wcb_page = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/jobs' ) )->get_data();
+update_option( 'wcb_settings', $wcb_settings );
+\WCB\Admin\Settings::flush_cache();
+wcb_assert( 7 === count( (array) ( $wcb_page['jobs'] ?? array() ) ), 'REST returns the owner\'s Jobs per page (7), not a fixed 20 (' . count( (array) ( $wcb_page['jobs'] ?? array() ) ) . ')' );
+
+foreach ( array( $wcb_feat, $wcb_better, $wcb_c_soon, $wcb_c_later, $wcb_c_none, $wcb_c_past, $wcb_marked, $wcb_yearly, $wcb_hourly ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+
 // Teardown.
 foreach ( array( $wcb_title, $wcb_body, $wcb_comp ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );

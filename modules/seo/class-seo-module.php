@@ -139,37 +139,32 @@ class SeoModule {
 		if ( ! \WCB\Core\JobDeadline::accepts_applications( $job->ID ) ) {
 			return array();
 		}
-		$data       = ( new \WCB\Api\Endpoints\JobsEndpoint() )->prepare_item_for_response_array( $job );
+		$data = ( new \WCB\Api\Endpoints\JobsEndpoint() )->prepare_item_for_response_array( $job );
+
+		// Google rejects a JobPosting with no place to work: a location, a typed
+		// location, or Remote. Leave such a job out (owner decision, 1.8.0); the
+		// Jobs list marks it so the owner can fix it.
+		list( $places, $remote ) = self::locations( $job, (bool) $data['remote'] );
+		if ( ! $places && ! $remote ) {
+			return array();
+		}
+
 		$company_id = \WCB\Core\CompanyMetaShape::for_job( $job );
 		$org        = $company_id ? self::organization( $company_id ) : array();
 		unset( $org['@context'], $org['description'], $org['address'] );
 		if ( ! $org ) {
 			$org = array(
 				'@type' => 'Organization',
-				'name'  => '' !== $data['company'] ? $data['company'] : (string) get_bloginfo( 'name' ),
+				'name'  => self::plain( '' !== $data['company'] ? (string) $data['company'] : (string) get_bloginfo( 'name' ) ),
 			);
 		}
 
-		$terms   = get_the_terms( $job->ID, 'wcb_location' );
-		$terms   = is_array( $terms ) ? $terms : array();
-		$custom  = (string) get_post_meta( $job->ID, '_wcb_location_custom', true );
 		$default = self::default_country();
-		$places  = array();
-		foreach ( $terms as $term ) {
-			if ( 'remote' === $term->slug ) {
-				continue;
-			}
-			$country  = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
-			$places[] = self::place( $term->name, '' !== $country ? $country : $default );
-		}
-		if ( '' !== $custom ) {
-			$places[] = self::place( $custom, $default );
-		}
 
 		$schema = array(
 			'@context'           => 'https://schema.org',
 			'@type'              => 'JobPosting',
-			'title'              => $data['title'],
+			'title'              => self::plain( (string) $data['title'] ),
 			'description'        => wpautop( wp_kses_post( (string) $data['description'] ) ),
 			'datePosted'         => get_post_time( 'c', true, $job ),
 			'validThrough'       => self::valid_through( (string) $data['closes_at'] ),
@@ -185,7 +180,7 @@ class SeoModule {
 			'jobLocation'        => $places,
 		);
 
-		if ( $data['remote'] ) {
+		if ( $remote ) {
 			$schema['jobLocationType'] = 'TELECOMMUTE';
 			if ( '' !== $default ) {
 				$schema['applicantLocationRequirements'] = array(
@@ -245,7 +240,7 @@ class SeoModule {
 			array(
 				'@context'    => 'https://schema.org',
 				'@type'       => 'Organization',
-				'name'        => get_the_title( $company_id ),
+				'name'        => self::plain( get_the_title( $company_id ) ),
 				'url'         => (string) get_permalink( $company_id ),
 				'sameAs'      => esc_url_raw( (string) get_post_meta( $company_id, '_wcb_website', true ) ),
 				'logo'        => (string) get_the_post_thumbnail_url( $company_id, 'medium' ),
@@ -253,6 +248,76 @@ class SeoModule {
 				'address'     => '' !== $meta['hq'] ? self::place( $meta['hq'], self::default_country() )['address'] : '',
 			)
 		);
+	}
+
+	/**
+	 * Where a job is done, as Google needs it: Places, and whether it is remote.
+	 *
+	 * The reserved Remote term means remote, not a place called "Remote"; the
+	 * reserved Other term is a placeholder for a typed location, never a place.
+	 * A typed location that repeats a term (the job form adds both) counts once.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $job    Job.
+	 * @param bool     $remote The job's Remote switch.
+	 * @return array{0: array<int, array<string, mixed>>, 1: bool} Places and remote.
+	 */
+	private static function locations( \WP_Post $job, bool $remote ): array {
+		$terms   = get_the_terms( $job->ID, 'wcb_location' );
+		$default = self::default_country();
+		$places  = array();
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			if ( 'remote' === $term->slug ) {
+				$remote = true;
+				continue;
+			}
+			if ( 'other' === $term->slug ) {
+				continue;
+			}
+			$country                                  = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
+			$places[ self::place_key( $term->name ) ] = self::place( $term->name, '' !== $country ? $country : $default );
+		}
+		$custom = trim( (string) get_post_meta( $job->ID, '_wcb_location_custom', true ) );
+		if ( '' !== $custom && ! isset( $places[ self::place_key( $custom ) ] ) ) {
+			$places[ self::place_key( $custom ) ] = self::place( $custom, $default );
+		}
+		return array( array_values( $places ), $remote );
+	}
+
+	/**
+	 * Whether a job has a place Google can use (a location or Remote). The Jobs
+	 * list uses it to mark the jobs left out of Google for Jobs.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $job Job.
+	 * @return bool
+	 */
+	public static function has_location( \WP_Post $job ): bool {
+		list( $places, $remote ) = self::locations( $job, '1' === (string) get_post_meta( $job->ID, '_wcb_remote', true ) );
+		return $places || $remote;
+	}
+
+	/**
+	 * Same place, however it was typed: case and spacing do not matter.
+	 *
+	 * @param string $name Place name.
+	 * @return string
+	 */
+	private static function place_key( string $name ): string {
+		return strtolower( preg_replace( '/\s+/', ' ', self::plain( $name ) ) );
+	}
+
+	/**
+	 * Text as a person reads it: a stored "AT&amp;T" or "AT&#038;T" is "AT&T".
+	 * JSON-LD is data, not HTML, so entities would show up literally.
+	 *
+	 * @param string $text Possibly entity-encoded text.
+	 * @return string
+	 */
+	private static function plain( string $text ): string {
+		return trim( html_entity_decode( html_entity_decode( $text, ENT_QUOTES, 'UTF-8' ), ENT_QUOTES, 'UTF-8' ) );
 	}
 
 	/**
@@ -268,7 +333,7 @@ class SeoModule {
 			'address' => self::compact(
 				array(
 					'@type'           => 'PostalAddress',
-					'addressLocality' => $locality,
+					'addressLocality' => self::plain( $locality ),
 					'addressCountry'  => $country,
 				)
 			),

@@ -564,11 +564,20 @@ class AdminJobs extends \WP_List_Table {
 			$badge_var = 'danger';
 		}
 
-		return sprintf(
+		$badge = sprintf(
 			'<span class="wcb-badge wcb-badge--%s">%s</span>',
 			esc_attr( $badge_var ),
 			esc_html( $label )
 		);
+		// A live job with no location and not remote is left out of Google for Jobs (Google rejects it).
+		if ( 'publish' === $status && '' === $hidden && \WCB\Admin\Settings::bool( 'job_schema_enabled', true ) && ! \WCB\Modules\Seo\SeoModule::has_location( $item ) ) {
+			$badge .= sprintf(
+				' <span class="wcb-badge wcb-badge--warn" title="%s">%s</span>',
+				esc_attr__( 'Not in Google for Jobs: add a location or mark the job as remote.', 'wp-career-board' ),
+				esc_html__( 'No location', 'wp-career-board' )
+			);
+		}
+		return $badge;
 	}
 
 	/**

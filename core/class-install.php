@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.5';
+	const DB_VERSION = '1.3.6';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -466,6 +466,12 @@ final class Install {
 				foreach ( $wcb_banned as $wcb_banned_id ) {
 					\WCB\Modules\Moderation\HiddenContent::on_ban_set( 0, (int) $wcb_banned_id, '_wcb_employer_banned', '1' );
 				}
+			}
+
+			// 1.3.6 - keyword search matches a plain-text copy of each job (no block
+			// markup); index the jobs saved before it existed, in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.6', '<' ) && ! wp_next_scheduled( \WCB\Modules\Jobs\JobSearch::INDEX_HOOK ) ) {
+				wp_schedule_single_event( time() + 30, \WCB\Modules\Jobs\JobSearch::INDEX_HOOK );
 			}
 
 			// Only bump the stored DB version if every expected table now

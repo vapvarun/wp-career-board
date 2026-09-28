@@ -76,6 +76,9 @@ function wcb_js_settings( array $overrides ): void {
 }
 
 $GLOBALS['wcb_js_backup'] = get_option( 'wcb_settings', array() );
+// Posting is free here whatever the site's credits are set to: this test is about the markup and the location rule.
+add_filter( 'wcb_board_credit_cost', '__return_zero', 99 );
+add_filter( 'wcb_job_payment', '__return_true', 99 );
 wcb_js_settings( array( 'default_country' => 'US', 'job_schema_enabled' => true ) );
 
 $wcb_admin   = 1;
@@ -144,15 +147,70 @@ $r = $wcb_req( 'PUT', '/wcb/v1/jobs/' . $wcb_remote, array( 'title' => 'JS renam
 wcb_assert( 200 === $r->get_status(), 'editing an older job without touching its location still works' );
 $r = $wcb_req( 'PUT', '/wcb/v1/jobs/' . $wcb_remote, array( 'remote' => false ) );
 wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'unticking Remote with no location is refused' );
+$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS other', 'description' => 'x', 'locations' => array( 'other' ) ) );
+wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: the Other placeholder with no typed location is refused' );
+$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS bogus', 'description' => 'x', 'locations' => array( 'no-such-place-' . wp_generate_password( 6, false ) ) ) );
+wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: a slug that does not exist is refused' );
+$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS blank custom', 'description' => 'x', 'locations' => array( 'other' ), 'location_custom' => '   ' ) );
+wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: Other with a blank typed location is refused' );
+$wcb_slug = (string) get_term( $wcb_term_id )->slug;
+$r        = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS real place', 'description' => 'x', 'locations' => array( $wcb_slug ) ) );
+$wcb_made3 = (int) ( $r->get_data()['id'] ?? 0 );
+wcb_assert( $wcb_made3 > 0, 'control: an existing location term satisfies the rule' );
 wcb_js_settings( array( 'require_job_location' => false ) );
 $r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS optional', 'description' => 'x' ) );
 $wcb_made2 = (int) ( $r->get_data()['id'] ?? 0 );
 wcb_assert( $wcb_made2 > 0, 'with the setting off a location stays optional' );
 
+WP_CLI::log( '--- a place Google can use ---' );
+$wcb_reserved = static function ( string $slug, string $name ): int {
+	$t = term_exists( $slug, 'wcb_location' ) ?: wp_insert_term( $name, 'wcb_location', array( 'slug' => $slug ) );
+	return (int) ( is_array( $t ) ? $t['term_id'] : 0 );
+};
+$wcb_rem_term   = $wcb_reserved( 'remote', 'Remote' );
+$wcb_oth_term   = $wcb_reserved( 'other', 'Other' );
+$wcb_only_rem   = wcb_js_job( $wcb_admin, array() );
+wp_set_object_terms( $wcb_only_rem, array( $wcb_rem_term ), 'wcb_location' );
+$s = SeoModule::job_posting( get_post( $wcb_only_rem ) );
+wcb_assert( 'TELECOMMUTE' === ( $s['jobLocationType'] ?? '' ) && ! isset( $s['jobLocation'] ), 'picking Remote in the location list is a remote job, not a place called Remote' );
+$wcb_only_oth = wcb_js_job( $wcb_admin, array() );
+wp_set_object_terms( $wcb_only_oth, array( $wcb_oth_term ), 'wcb_location' );
+wcb_assert( array() === SeoModule::job_posting( get_post( $wcb_only_oth ) ) && ! SeoModule::has_location( get_post( $wcb_only_oth ) ), 'Other with no typed location has no place: no JobPosting' );
+$wcb_berlin = wcb_js_job( $wcb_admin, array( '_wcb_location_custom' => 'Berlin' ) );
+wp_set_object_terms( $wcb_berlin, array( $wcb_oth_term ), 'wcb_location' );
+$wcb_bterm = wp_insert_term( 'Berlin', 'wcb_location' );
+if ( ! is_wp_error( $wcb_bterm ) ) {
+	wp_set_object_terms( $wcb_berlin, array( $wcb_oth_term, (int) $wcb_bterm['term_id'] ), 'wcb_location' );
+}
+$s = SeoModule::job_posting( get_post( $wcb_berlin ) );
+wcb_assert( 1 === count( (array) ( $s['jobLocation'] ?? array() ) ) && 'Berlin' === ( $s['jobLocation'][0]['address']['addressLocality'] ?? '' ), 'a typed location that is also a term is published once, and Other never is' );
+$wcb_none = wcb_js_job( $wcb_admin, array() );
+wcb_assert( array() === SeoModule::job_posting( get_post( $wcb_none ) ) && ! SeoModule::has_location( get_post( $wcb_none ) ), 'a job with no location and not remote is left out of Google for Jobs' );
+update_post_meta( $wcb_none, '_wcb_remote', '1' );
+wcb_assert( 'JobPosting' === ( SeoModule::job_posting( get_post( $wcb_none ) )['@type'] ?? '' ) && SeoModule::has_location( get_post( $wcb_none ) ), 'control: the same job marked remote is published' );
+$wcb_amp_co  = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'AT&amp;T Labs', 'post_author' => $wcb_admin ) );
+$wcb_amp_job = wcb_js_job( $wcb_admin, array( '_wcb_company_id' => $wcb_amp_co, '_wcb_remote' => '1' ) );
+$s           = SeoModule::job_posting( get_post( $wcb_amp_job ) );
+wcb_assert( 'AT&T Labs' === ( $s['hiringOrganization']['name'] ?? '' ) && 'AT&T Labs' === ( $s['identifier']['name'] ?? '' ) && 'AT&T Labs' === ( SeoModule::organization( $wcb_amp_co )['name'] ?? '' ), 'company names are not published HTML-encoded (AT&T, not AT&amp;T)' );
+
+WP_CLI::log( '--- taxonomy screens name their own terms ---' );
+$wcb_expect = array(
+	'wcb_category'   => array( 'Edit Job Category', 'Add New Job Category' ),
+	'wcb_job_type'   => array( 'Edit Job Type', 'Add New Job Type' ),
+	'wcb_tag'        => array( 'Edit Job Tag', 'Add New Job Tag' ),
+	'wcb_location'   => array( 'Edit Location', 'Add New Location' ),
+	'wcb_experience' => array( 'Edit Experience Level', 'Add New Experience Level' ),
+);
+foreach ( $wcb_expect as $wcb_tax => $wcb_want ) {
+	$wcb_labels = get_taxonomy( $wcb_tax )->labels;
+	wcb_assert( $wcb_want === array( $wcb_labels->edit_item, $wcb_labels->add_new_item ), $wcb_tax . ' says "' . $wcb_want[0] . '", not the generic Category / Tag (' . $wcb_labels->edit_item . ')' );
+}
+wcb_assert( 'Parent Location' === get_taxonomy( 'wcb_location' )->labels->parent_item && 'Add or remove job tags' === get_taxonomy( 'wcb_tag' )->labels->add_or_remove_items, 'hierarchical and flat taxonomies get their own extra labels' );
+
 // Teardown.
 update_option( 'wcb_settings', $GLOBALS['wcb_js_backup'] );
 \WCB\Admin\Settings::flush_cache();
-foreach ( array( $wcb_onsite, $wcb_remote, $wcb_custom, $wcb_made, $wcb_made2, $wcb_company ) as $wcb_id ) {
+foreach ( array( $wcb_onsite, $wcb_remote, $wcb_custom, $wcb_made, $wcb_made2, $wcb_made3, $wcb_only_rem, $wcb_only_oth, $wcb_berlin, $wcb_none, $wcb_amp_job, $wcb_amp_co, $wcb_company ) as $wcb_id ) {
 	if ( $wcb_id ) {
 		wp_delete_post( $wcb_id, true );
 	}

@@ -74,12 +74,85 @@ final class JobSearch {
 	private const MAX_WORDS = 6;
 
 	/**
+	 * Post meta: the job's text as a person reads it (no block markup), which
+	 * keyword search matches instead of raw post_content.
+	 *
+	 * @var string
+	 */
+	public const TEXT_META = '_wcb_search_text';
+
+	/**
+	 * Cron hook: index the text of jobs saved before the index existed.
+	 *
+	 * @var string
+	 */
+	public const INDEX_HOOK = 'wcb_index_job_search_text';
+
+	/**
+	 * Jobs indexed per background pass.
+	 *
+	 * @var int
+	 */
+	private const INDEX_BATCH = 200;
+
+	/**
 	 * Register the SQL for keyword, relevance and the meta sorts.
 	 *
 	 * @return void
 	 */
 	public static function boot(): void {
 		add_filter( 'posts_clauses', array( self::class, 'clauses' ), 10, 2 );
+		add_action( 'save_post_wcb_job', array( self::class, 'index_text' ), 10, 2 );
+		add_action( self::INDEX_HOOK, array( self::class, 'index_batch' ) );
+	}
+
+	/**
+	 * Keep a job's plain text for keyword search. Post content carries block
+	 * markup (`<!-- wp:paragraph -->`, class names), so a search for "paragraph"
+	 * or "class" matched every job.
+	 *
+	 * @param int      $post_id Job ID.
+	 * @param \WP_Post $post    Job.
+	 * @return void
+	 */
+	public static function index_text( int $post_id, \WP_Post $post ): void {
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+		update_post_meta( $post_id, self::TEXT_META, self::plain_text( $post->post_content ) );
+	}
+
+	/**
+	 * Index the next batch of jobs that have no text yet; re-queue while any remain.
+	 * Until a job is indexed, search falls back to its raw content.
+	 *
+	 * @return void
+	 */
+	public static function index_batch(): void {
+		global $wpdb;
+		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time bounded backfill.
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m ON ( m.post_id = p.ID AND m.meta_key = %s ) WHERE p.post_type = 'wcb_job' AND m.meta_id IS NULL ORDER BY p.ID LIMIT %d",
+				self::TEXT_META,
+				self::INDEX_BATCH
+			)
+		);
+		foreach ( array_map( 'intval', $ids ) as $id ) {
+			update_post_meta( $id, self::TEXT_META, self::plain_text( (string) get_post_field( 'post_content', $id ) ) );
+		}
+		if ( count( $ids ) === self::INDEX_BATCH && ! wp_next_scheduled( self::INDEX_HOOK ) ) {
+			wp_schedule_single_event( time() + 60, self::INDEX_HOOK );
+		}
+	}
+
+	/**
+	 * Post content as text: no block comments, tags or shortcodes.
+	 *
+	 * @param string $content Post content.
+	 * @return string
+	 */
+	public static function plain_text( string $content ): string {
+		return trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( strip_shortcodes( $content ) ) ) );
 	}
 
 	/**
@@ -264,7 +337,7 @@ final class JobSearch {
 			return true;
 		}
 		$haystack = mb_strtolower(
-			get_post_field( 'post_title', $job_id ) . ' ' . get_post_field( 'post_content', $job_id ) . ' ' . get_post_meta( $job_id, '_wcb_company_name', true )
+			get_post_field( 'post_title', $job_id ) . ' ' . self::plain_text( (string) get_post_field( 'post_content', $job_id ) ) . ' ' . get_post_meta( $job_id, '_wcb_company_name', true )
 		);
 		foreach ( $words as $word ) {
 			if ( ! str_contains( $haystack, mb_strtolower( $word ) ) ) {
@@ -290,26 +363,42 @@ final class JobSearch {
 		global $wpdb;
 		$posts = $wpdb->posts;
 		$score = array();
-		foreach ( self::words( $term ) as $word ) {
+		$words = self::words( $term );
+		// A keyword with no word of 2+ characters ("C", "R") is nothing to search
+		// for; it must not read as "no keyword" and list every job.
+		if ( '' !== $term && ! $words ) {
+			$clauses['where'] .= ' AND 1 = 0';
+			return $clauses;
+		}
+		if ( $words ) {
+			// The job's plain text; a job not indexed yet falls back to its raw content.
+			$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} wcb_st ON ( wcb_st.post_id = {$posts}.ID AND wcb_st.meta_key = '" . self::TEXT_META . "' )";
+		}
+		$text = "IF( wcb_st.meta_id IS NULL, {$posts}.post_content, wcb_st.meta_value )";
+		foreach ( $words as $word ) {
 			$like              = '%' . $wpdb->esc_like( $word ) . '%';
 			$clauses['where'] .= $wpdb->prepare(
-				" AND ( {$posts}.post_title LIKE %s OR {$posts}.post_content LIKE %s OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} wcb_cn WHERE wcb_cn.post_id = {$posts}.ID AND wcb_cn.meta_key = '_wcb_company_name' AND wcb_cn.meta_value LIKE %s ) )",
+				" AND ( {$posts}.post_title LIKE %s OR {$text} LIKE %s OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} wcb_cn WHERE wcb_cn.post_id = {$posts}.ID AND wcb_cn.meta_key = '_wcb_company_name' AND wcb_cn.meta_value LIKE %s ) )",
 				$like,
 				$like,
 				$like
 			);
-			$score[]           = $wpdb->prepare( "( {$posts}.post_title LIKE %s ) * 3 + ( {$posts}.post_content LIKE %s )", $like, $like );
+			$score[]           = $wpdb->prepare( "( {$posts}.post_title LIKE %s ) * 3 + ( {$text} LIKE %s )", $like, $like );
 		}
 		if ( 'relevance' === $sort && $score ) {
+			// Featured is what an employer pays for: it leads a keyword search too.
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_fr ON ( wcb_fr.post_id = {$posts}.ID AND wcb_fr.meta_key = '_wcb_featured' )";
 			$clauses['fields'] .= ', ( ' . implode( ' + ', $score ) . ' ) AS wcb_relevance';
-			$clauses['orderby'] = "wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['orderby'] = "( wcb_fr.meta_value = '1' ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'salary' === $sort ) {
+			// Compared per year: $150-200 an hour is more than $50k a year.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
-			$clauses['orderby'] = "CAST( wcb_sal.meta_value AS DECIMAL(12,2) ) DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_su ON ( wcb_su.post_id = {$posts}.ID AND wcb_su.meta_key = '_wcb_salary_type' )";
+			$clauses['orderby'] = "CAST( wcb_sal.meta_value AS DECIMAL(12,2) ) * CASE wcb_su.meta_value WHEN 'hourly' THEN 2080 WHEN 'monthly' THEN 12 ELSE 1 END DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'closing' === $sort ) {
-			// Jobs without a deadline go last, not first.
+			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
-			$clauses['orderby'] = "wcb_dl.meta_value IS NULL, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'Y-m-d' ) );
 		}
 		return $clauses;
 	}

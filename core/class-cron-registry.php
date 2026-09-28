@@ -65,6 +65,7 @@ final class CronRegistry {
 			'wcb_process_account_deletions',
 			\WCB\Modules\Gdpr\GdprModule::PRUNE_HOOK,
 			\WCB\Core\PrivateFiles::MIGRATE_HOOK,
+			\WCB\Modules\Jobs\JobSearch::INDEX_HOOK,
 		);
 	}
 }
