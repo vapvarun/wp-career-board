@@ -16,6 +16,12 @@
 	'use strict';
 
 	var container  = document.getElementById( 'wcb-wizard-steps' );
+
+	// The "setup already completed" view renders no steps, so there is nothing to wire.
+	if ( ! container ) {
+		return;
+	}
+
 	var totalSteps = wcbWizard.totalSteps || 1;
 
 	/* ------------------------------------------------------------------ */
