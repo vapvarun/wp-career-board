@@ -96,6 +96,8 @@
 	border-radius: var(--wcb-radius-xl);
 	background: var(--wcb-base);
 	cursor: pointer;
+	/* A <button>: without its own colour it takes the theme's white button text, which blanks the icon. */
+	color: var(--wcb-contrast);
 	transition: border-color var(--wcb-transition-fast), background-color var(--wcb-transition-fast), transform var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 	text-align: center;
 }
