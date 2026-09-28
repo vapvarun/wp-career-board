@@ -95,6 +95,7 @@ echo "=== Credential Guard Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-credential-guard.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-salary-format.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-text-excerpt.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-email-locale.php
 echo ""
 
 echo "=== RTL Style Opt-in Tests ==="

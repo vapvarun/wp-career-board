@@ -166,10 +166,9 @@ class EmailAppStatus extends AbstractEmail {
 		if ( ! $to || ! $vars ) {
 			return;
 		}
-		$vars['new_status'] = \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
 		$this->send(
 			$to['email'],
-			$vars,
+			static fn(): array => $vars + array( 'new_status' => \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ) ),
 			$to['user_id'],
 			array(
 				'object_type' => 'application',

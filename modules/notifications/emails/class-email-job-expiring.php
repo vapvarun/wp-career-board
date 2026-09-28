@@ -130,7 +130,7 @@ class EmailJobExpiring extends AbstractEmail {
 
 		$this->send(
 			$employer->user_email,
-			array(
+			static fn(): array => array(
 				'job_title'     => $job->post_title,
 				'deadline_date' => '' !== $deadline ? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( $deadline ) ) : '',
 				'days_left'     => $days_left,

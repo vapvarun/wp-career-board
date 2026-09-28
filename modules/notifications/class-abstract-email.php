@@ -199,23 +199,25 @@ abstract class AbstractEmail {
 	 *
 	 * No-ops when the template is disabled in settings.
 	 *
-	 * @param string               $to      Recipient email address.
-	 * @param array<string, mixed> $vars    Template variables passed to render_template().
-	 * @param int                  $user_id Optional WP user ID for the log row.
-	 * @param array<string, mixed> $context Optional community-notification context
+	 * @param string                                   $to      Recipient email address.
+	 * @param array<string, mixed>|\Closure            $vars    Template variables passed to render_template(). Pass a closure
+	 *                                                          to build values that depend on the language (dates, labels,
+	 *                                                          numbers): it runs after the switch to the recipient's locale.
+	 * @param int                                      $user_id Optional WP user ID for the log row.
+	 * @param array<string, mixed>                     $context Optional community-notification context
 	 *                                      (object_type, object_id, actor_id, group_key).
 	 *                                      Omit for a transactional or admin-only email —
 	 *                                      no `object_type` means no bell row.
 	 * @return void
 	 */
-	protected function send( string $to, array $vars, int $user_id = 0, array $context = array() ): void {
+	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array() ): void {
 		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
 		// A member gets the email in their own language, not the language of
 		// whoever triggered it (an admin, a cron run).
 		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
-		$this->dispatch( $to, $vars, $user_id, false, $context );
+		$this->dispatch( $to, $vars instanceof \Closure ? $vars() : $vars, $user_id, false, $context );
 		if ( $switched ) {
 			restore_previous_locale();
 		}
