@@ -627,6 +627,22 @@
 	transform: translateY(-1px);
 }
 
+.wcb-board-card:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-board-card-move {
+	width: 100%;
+	margin-top: var(--wcb-space-xs);
+	padding: var(--wcb-space-2xs, 4px) var(--wcb-space-xs);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font-size: var(--wcb-text-xs);
+}
+
 .wcb-board-card:active {
 	cursor: grabbing;
 	transform: none;

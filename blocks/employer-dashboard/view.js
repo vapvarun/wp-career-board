@@ -444,6 +444,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get isBoardOptSelected() {
+			const ctx = getContext();
+			return ctx.opt?.key === ctx.app?.status;
+		},
 		get isAppsBoardLayout() {
 			return state.appsLayout === 'board';
 		},
@@ -1038,6 +1042,23 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		setJobSearch( event ) {
 			state.jobSearch = event.target.value;
+		},
+
+		// Board card: open the applicant's details (the list view shows them).
+		openFromBoard( event ) {
+			if ( event.target.closest( 'select' ) ) {
+				return;
+			}
+			state.selectedAppId = Number( getContext().app.id );
+			state.appsLayout    = 'list';
+		},
+
+		openFromBoardKey( event ) {
+			if ( event.target === event.currentTarget && ( event.key === 'Enter' || event.key === ' ' ) ) {
+				event.preventDefault();
+				state.selectedAppId = Number( getContext().app.id );
+				state.appsLayout    = 'list';
+			}
 		},
 
 		selectApplicant( event ) {

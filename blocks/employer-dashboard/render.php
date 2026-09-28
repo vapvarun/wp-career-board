@@ -853,12 +853,18 @@ wp_interactivity_state(
 						<div class="wcb-board-col-head"><span data-wp-text="context.column.label"></span> <span class="wcb-pill-count" data-wp-text="context.column.count"></span></div>
 						<div class="wcb-board-col-cards">
 							<template data-wp-each--app="context.column.apps" data-wp-each-key="context.app.id">
-								<div class="wcb-board-card" draggable="true" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.selectApplicant">
+								<div class="wcb-board-card" draggable="true" tabindex="0" role="button" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.openFromBoard" data-wp-on--keydown="actions.openFromBoardKey">
 									<div class="wcb-board-card-head">
 										<span class="wcb-app-avatar" data-wp-text="context.app.initials" aria-hidden="true"></span>
 										<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 									</div>
 									<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
+									<?php // Keyboard and touch: move without dragging. ?>
+									<select class="wcb-board-card-move" aria-label="<?php esc_attr_e( 'Move to', 'wp-career-board' ); ?>" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--change="actions.updateAppStatus">
+										<template data-wp-each--opt="state.appsBoardColumns" data-wp-each-key="context.opt.key">
+											<option data-wp-bind--value="context.opt.key" data-wp-bind--selected="state.isBoardOptSelected" data-wp-text="context.opt.label"></option>
+										</template>
+									</select>
 								</div>
 							</template>
 						</div>
