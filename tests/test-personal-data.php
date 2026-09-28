@@ -202,12 +202,38 @@ WP_CLI::log( '--- guest by email ---' );
 $wcb_guest_email = 'pd-guest-' . wp_generate_password( 6, false ) . '@example.test';
 $wcb_guest_app   = wcb_pd_app( $wcb_job, 0, array( '_wcb_guest_email' => $wcb_guest_email, '_wcb_guest_name' => 'PD Guest', '_wcb_cover_letter' => 'PD guest cover' ) );
 $wpdb->insert( $wpdb->prefix . 'wcb_notifications_log', array( 'user_id' => 0, 'event_type' => 'pd_guest', 'channel' => 'email', 'payload' => wp_json_encode( array( 'to' => $wcb_guest_email ) ), 'status' => 'sent', 'sent_at' => current_time( 'mysql', true ) ) );
+$wpdb->insert( $wpdb->prefix . 'wcb_notifications_log', array( 'user_id' => 0, 'event_type' => 'pd_guest_other', 'channel' => 'email', 'payload' => wp_json_encode( array( 'to' => 'pd-other-' . $wcb_guest_email ) ), 'status' => 'sent', 'sent_at' => current_time( 'mysql', true ) ) );
 $wcb_export = wp_json_encode( wcb_pd_pages( array( $wcb_module, 'export_user_data' ), $wcb_guest_email ) );
+wcb_assert( ! str_contains( $wcb_export, 'pd_guest_other' ), 'guest export holds only the requester\'s email history, not other guests\'' );
 wcb_assert( str_contains( $wcb_export, 'PD guest cover' ) && str_contains( $wcb_export, 'pd_guest' ), 'guest export finds the application and email history by address' );
 $wcb_pages = wcb_pd_pages( array( $wcb_module, 'erase_user_data' ), $wcb_guest_email );
 wcb_assert( ! empty( end( $wcb_pages )['done'] ) && count( $wcb_pages ) === count( GdprModule::providers() ), 'eraser pages once per provider and finishes' );
 wcb_assert( 'Deleted candidate' === get_post_meta( $wcb_guest_app, '_wcb_guest_name', true ) && '' === get_post_meta( $wcb_guest_app, '_wcb_guest_email', true ), 'guest application is anonymised' );
 wcb_assert( 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_notifications_log WHERE event_type = %s", 'pd_guest' ) ), 'guest email history is deleted' );
+wcb_assert( 1 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_notifications_log WHERE event_type = %s", 'pd_guest_other' ) ), 'erasing one guest leaves every other guest\'s email history' );
+
+WP_CLI::log( '--- Tools > Erase on an account that stays open ---' );
+$wcb_emp_email = (string) get_userdata( $wcb_employer )->user_email;
+update_user_meta( $wcb_employer, '_wcb_company_id', 4242 );
+update_user_meta( $wcb_employer, '_wcb_email_unverified', '1' );
+update_user_meta( $wcb_employer, '_wcb_member_flag_count', 2 );
+update_user_meta( $wcb_employer, '_wcb_job_title', 'Head of Talent' );
+if ( $wcb_pro ) {
+	$wpdb->insert( $wpdb->prefix . 'wcb_credit_ledger', array( 'user_id' => $wcb_employer, 'entry_type' => 'topup', 'amount' => 5, 'note' => 'pd_keep', 'created_at' => current_time( 'mysql', true ) ) );
+	$wcb_keep_row = (int) $wpdb->insert_id;
+}
+wcb_pd_pages( array( $wcb_module, 'erase_user_data' ), $wcb_emp_email );
+wcb_assert( '' === get_user_meta( $wcb_employer, '_wcb_job_title', true ), 'the erase removes personal profile data' );
+wcb_assert( '4242' === (string) get_user_meta( $wcb_employer, '_wcb_company_id', true ), 'the account keeps its company link' );
+wcb_assert( '1' === (string) get_user_meta( $wcb_employer, '_wcb_email_unverified', true ), 'an unverified account does not become verified' );
+wcb_assert( '2' === (string) get_user_meta( $wcb_employer, '_wcb_member_flag_count', true ), 'moderation reports are kept' );
+wcb_assert( ! $wcb_pro || (string) $wcb_employer === (string) $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM {$wpdb->prefix}wcb_credit_ledger WHERE id = %d", $wcb_keep_row ) ), 'paid credits stay with the account' );
+if ( $wcb_pro ) {
+	$wpdb->delete( $wpdb->prefix . 'wcb_credit_ledger', array( 'id' => $wcb_keep_row ) );
+}
+foreach ( array( '_wcb_company_id', '_wcb_email_unverified', '_wcb_member_flag_count' ) as $wcb_key ) {
+	delete_user_meta( $wcb_employer, $wcb_key );
+}
 
 WP_CLI::log( '--- retention ---' );
 $wcb_old = gmdate( 'Y-m-d H:i:s', time() - 400 * DAY_IN_SECONDS );

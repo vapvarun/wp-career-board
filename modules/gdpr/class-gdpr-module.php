@@ -57,6 +57,13 @@ class GdprModule {
 	private const KEEP_USER_META = array( '_wcb_employer_banned', '_wcb_deletion_scheduled_at', '_wcb_deletion_locked' );
 
 	/**
+	 * Account state, not personal data: a Tools > Erase request for an account that
+	 * stays open must not unlink the company, mark an unverified email verified, or
+	 * drop moderation reports (`_wcb_member_flag_*` holds other members' reports).
+	 */
+	private const KEEP_ACTIVE_META = array( '_wcb_company_id', '_wcb_email_unverified' );
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -120,7 +127,7 @@ class GdprModule {
 		 * Each entry: `label`, `export( array $subject ): array` (privacy
 		 * exporter items) and `erase( array $subject ): array{removed:int,
 		 * retained:int, messages:string[]}`. `$subject` is
-		 * `array{user_id:int, email:string}`; user_id is 0 for a guest.
+		 * `array{user_id:int, email:string, closing?:bool}`; user_id is 0 for a guest, `closing` is true only when the account itself is being deleted.
 		 *
 		 * @since 1.8.0
 		 *
@@ -202,6 +209,7 @@ class GdprModule {
 		$subject = array(
 			'user_id' => $user_id,
 			'email'   => (string) $user->user_email,
+			'closing' => true,
 		);
 		foreach ( self::providers() as $provider ) {
 			self::erase_one( $provider, $subject );
@@ -478,7 +486,7 @@ class GdprModule {
 	 * Ban and pending-deletion flags are kept: they are safety records, and
 	 * an erase must never lift a ban.
 	 *
-	 * @param array{user_id:int, email:string} $subject Person.
+	 * @param array{user_id:int, email:string, closing?:bool} $subject Person.
 	 * @return array{removed:int, retained:int, messages:array<int,string>}
 	 */
 	public static function erase_profile( array $subject ): array {
@@ -491,7 +499,9 @@ class GdprModule {
 		}
 		$removed = 0;
 		foreach ( array_keys( (array) get_user_meta( $subject['user_id'] ) ) as $key ) {
-			if ( str_starts_with( (string) $key, '_wcb_' ) && ! in_array( $key, self::KEEP_USER_META, true ) ) {
+			$keep = in_array( $key, self::KEEP_USER_META, true )
+				|| ( empty( $subject['closing'] ) && ( in_array( $key, self::KEEP_ACTIVE_META, true ) || str_starts_with( (string) $key, '_wcb_member_flag_' ) ) );
+			if ( str_starts_with( (string) $key, '_wcb_' ) && ! $keep ) {
 				delete_user_meta( $subject['user_id'], (string) $key );
 				++$removed;
 			}
@@ -528,10 +538,11 @@ class GdprModule {
 	 */
 	private static function email_log_where( array $subject ): array {
 		global $wpdb;
-		return array(
-			'( user_id = %d OR ( user_id = 0 AND payload LIKE %s ) )',
-			array( $subject['user_id'], '%' . $wpdb->esc_like( '"to":' . (string) wp_json_encode( $subject['email'] ) ) . '%' ),
-		);
+		$like = '%' . $wpdb->esc_like( '"to":' . (string) wp_json_encode( $subject['email'] ) ) . '%';
+		// A guest is user_id 0, which is every guest's rows: only the address tells them apart.
+		return $subject['user_id'] > 0
+			? array( '( user_id = %d OR ( user_id = 0 AND payload LIKE %s ) )', array( $subject['user_id'], $like ) )
+			: array( '( user_id = 0 AND payload LIKE %s )', array( $like ) );
 	}
 
 	/**
