@@ -102,7 +102,11 @@ const abbreviate = ( value ) => {
 		return fill( t( 'salaryMillion', '%sM' ), '%s', amount );
 	}
 	if ( value >= 1000 ) {
-		return fill( t( 'salaryThousand', '%sk' ), '%s', num( Math.round( value / 1000 ) ) );
+		// Match PHP: abbreviate only when exact at one decimal (4,500 -> 4.5k), else the full figure.
+		if ( value % 100 !== 0 ) {
+			return num( value );
+		}
+		return fill( t( 'salaryThousand', '%sk' ), '%s', num( value / 1000, { maximumFractionDigits: 1 } ) );
 	}
 	return num( value );
 };

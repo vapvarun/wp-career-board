@@ -78,8 +78,14 @@ final class SalaryFormat {
 		}
 
 		if ( $value >= 1000 ) {
+			// A published salary is a fact, not an estimate: abbreviate only when the
+			// short form is exact (4,500 -> 4.5k), else show the full figure.
+			if ( 0 !== $value % 100 ) {
+				return number_format_i18n( $value );
+			}
+			$n = 0 === $value % 1000 ? number_format_i18n( intdiv( $value, 1000 ) ) : number_format_i18n( $value / 1000, 1 );
 			/* translators: %s: number of thousands, already localised. Abbreviation for thousands appended to a salary figure. */
-			return sprintf( _x( '%sk', 'thousands abbreviation', 'wp-career-board' ), number_format_i18n( (int) round( $value / 1000 ) ) );
+			return sprintf( _x( '%sk', 'thousands abbreviation', 'wp-career-board' ), $n );
 		}
 
 		return number_format_i18n( $value );

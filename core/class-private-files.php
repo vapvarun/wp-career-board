@@ -105,6 +105,26 @@ final class PrivateFiles {
 			}
 		);
 		add_filter( 'site_status_tests', array( self::class, 'register_health_test' ) );
+		add_action( 'delete_attachment', array( self::class, 'purge_left_behind' ) );
+	}
+
+	/**
+	 * Delete the public files a failed move left behind when their attachment goes.
+	 *
+	 * The record that lists them (and that Site Health reads) is deleted with the
+	 * attachment, so without this a candidate's CV preview would stay public with
+	 * nothing left to report it.
+	 *
+	 * @since 1.8.0
+	 * @param int $attachment_id Attachment being deleted.
+	 * @return void
+	 */
+	public static function purge_left_behind( int $attachment_id ): void {
+		$pending = get_post_meta( $attachment_id, self::LEFT_BEHIND, true );
+		$base    = wp_get_upload_dir()['basedir'];
+		foreach ( is_array( $pending ) ? $pending : array() as $path ) {
+			wp_delete_file_from_directory( (string) $path, $base );
+		}
 	}
 
 	/**

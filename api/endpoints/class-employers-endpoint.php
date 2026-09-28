@@ -1049,7 +1049,7 @@ final class EmployersEndpoint extends RestController {
 				$app_id         = (int) $row->ID;
 				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = (string) get_post_meta( $app_id, '_wcb_status', true );
+				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app_id );
 				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				$prepared = array(

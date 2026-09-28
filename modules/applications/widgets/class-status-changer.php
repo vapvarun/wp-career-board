@@ -79,7 +79,7 @@ final class StatusChanger extends AbstractWidget {
 			return '';
 		}
 
-		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$current = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
 		if ( '' === $current ) {
 			$current = 'submitted';
 		}

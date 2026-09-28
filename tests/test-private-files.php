@@ -203,6 +203,15 @@ if ( 'Darwin' !== PHP_OS_FAMILY ) {
 	PrivateFiles::migrate_batch();
 	wcb_assert( ! is_file( $wcb_c_prev ) && '' === (string) get_post_meta( $wcb_c, PrivateFiles::LEFT_BEHIND, true ), 'a manual re-run right after fixing permissions moves the file without backdating anything' );
 
+	// Deleting the attachment while a preview is left behind must not leave that preview public.
+	list( $wcb_d, $wcb_d_main, $wcb_d_prev ) = $wcb_fixture( 'delleft' );
+	$wcb_lock( $wcb_d_prev, true );
+	PrivateFiles::move_to_private( $wcb_d );
+	$wcb_lock( $wcb_d_prev, false );
+	wcb_assert( is_file( $wcb_d_prev ), 'control: the locked preview is still in the public folder' );
+	wp_delete_attachment( $wcb_d, true );
+	wcb_assert( ! is_file( $wcb_d_prev ), 'deleting the attachment removes a preview a failed move left public' );
+
 	foreach ( array( $wcb_a, $wcb_b, $wcb_c ) as $wcb_id ) {
 		wp_delete_attachment( $wcb_id, true );
 	}

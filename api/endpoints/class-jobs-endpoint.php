@@ -1295,7 +1295,7 @@ final class JobsEndpoint extends RestController {
 			static function ( \WP_Post $p ): array {
 				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = (string) get_post_meta( $p->ID, '_wcb_status', true );
+				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
 
 				return array(
 					'id'                 => $p->ID,

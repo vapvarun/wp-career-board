@@ -339,6 +339,32 @@ ApplicationLifecycle::close_job_applications( $wcb_hj, 'position_closed' );
 wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_hj, 'position_closed' ) );
 wp_update_post( array( 'ID' => $wcb_hj, 'post_status' => 'publish' ) );
 wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_hj ) );
+// The employer's own lists (the Free dashboard has no Kanban) must show the real status.
+$wcb_status_in = static function ( WP_REST_Response $res, int $id ): string {
+	$d    = (array) $res->get_data();
+	$rows = (array) ( $d['applications'] ?? $d['items'] ?? $d );
+	foreach ( $rows as $row ) {
+		if ( is_array( $row ) && (int) ( $row['id'] ?? 0 ) === $id ) {
+			return (string) ( $row['status'] ?? '' );
+		}
+	}
+	return 'missing';
+};
+$r = wcb_rest( 'GET', '/wcb/v1/jobs/' . $wcb_hj . '/applications', array(), $wcb_employer );
+wcb_assert( 200 === $r->get_status() && 'reviewing' === $wcb_status_in( $r, $wcb_ha ), 'the employer\'s applicants list for a job shows the real status of a stranded application' );
+// A second stranded job for the all-jobs route (a healed row cannot be stranded by hand: its log says why).
+$wcb_gj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC lost reopen list', 'post_author' => $wcb_employer ) );
+$wcb_ga = wcb_lc_app( $wcb_gj, $wcb_candidate, 'submitted' );
+wp_update_post( array( 'ID' => $wcb_gj, 'post_status' => 'wcb_closed' ) );
+ApplicationLifecycle::close_job_applications( $wcb_gj, 'position_closed' );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_gj, 'position_closed' ) );
+wp_update_post( array( 'ID' => $wcb_gj, 'post_status' => 'publish' ) );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_gj ) );
+$r = wcb_rest( 'GET', '/wcb/v1/employers/me/applications', array( 'per_page' => 100 ), $wcb_employer );
+wcb_assert( 200 === $r->get_status() && 'submitted' === $wcb_status_in( $r, $wcb_ga ), 'the employer\'s all-jobs applicants list shows the real status too' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_gj ) );
+wp_delete_post( $wcb_gj, true );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_gj, 'job_removed' ) );
 $r        = wcb_rest( 'GET', '/wcb/v1/candidates/' . $wcb_candidate . '/applications', array(), $wcb_candidate );
 $wcb_hrows = array();
 foreach ( (array) ( $r->get_data()['applications'] ?? array() ) as $wcb_hrow ) {

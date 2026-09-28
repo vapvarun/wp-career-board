@@ -631,7 +631,7 @@ class AdminApplications extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ): string {
-		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
+		$raw    = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $item->ID );
 		$status = \WCB\Modules\Applications\ApplicationStatus::is_valid( $raw ) ? $raw : 'submitted';
 
 		return \WCB\Modules\Applications\ApplicationStatus::admin_badge( $status );
@@ -646,7 +646,7 @@ class AdminApplications extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_change( $item ): string {
-		$raw    = (string) get_post_meta( $item->ID, '_wcb_status', true );
+		$raw    = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $item->ID );
 		$status = '' !== $raw ? $raw : 'submitted';
 
 		// A candidate-side or system outcome is shown, not offered as a choice.

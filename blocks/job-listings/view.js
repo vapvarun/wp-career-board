@@ -109,7 +109,11 @@ function wcbFormatSalaryShort( value, symbol ) {
 		return wcbMoney( s, wcbFill( t( 'salaryMillion', '%sM' ), '%s', wcbNumber( millions ) ) );
 	}
 	if ( n >= 1_000 ) {
-		return wcbMoney( s, wcbFill( t( 'salaryThousand', '%sk' ), '%s', wcbNumber( Math.round( n / 1_000 ) ) ) );
+		// Match PHP: abbreviate only when exact at one decimal (4,500 -> 4.5k), else the full figure.
+		if ( n % 100 !== 0 ) {
+			return wcbMoney( s, wcbNumber( n ) );
+		}
+		return wcbMoney( s, wcbFill( t( 'salaryThousand', '%sk' ), '%s', wcbNumber( n / 1_000 ) ) );
 	}
 	return wcbMoney( s, wcbNumber( n ) );
 }
