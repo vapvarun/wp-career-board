@@ -200,3 +200,15 @@ html[data-bn-theme="dark"],
 	margin: 0 0 var(--wcb-space-2xl);
 	line-height: 1.2;
 }
+
+/* Block themes (Twenty Twenty-Five) print their own title and an author/date byline
+   above our single templates. A job and a company already render their own H1, so
+   the theme's title is a second H1; the byline is an empty "Written by" band on all
+   three. A resume renders no H1 of its own, so its theme title stays. */
+body.single-wcb_job .wp-block-post-title,
+body.single-wcb_company .wp-block-post-title,
+body.single-wcb_job .wp-block-post-title ~ .wp-block-group.is-layout-flex,
+body.single-wcb_company .wp-block-post-title ~ .wp-block-group.is-layout-flex,
+body.single-wcb_resume .wp-block-post-title ~ .wp-block-group.is-layout-flex {
+	display: none;
+}
