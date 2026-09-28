@@ -161,6 +161,53 @@ class ModerationModule extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * Whether a member's report counts toward hiding a job.
+	 *
+	 * Anyone signed in can report, and the owner sees every report. But three
+	 * throwaway sign-ups must not be able to take a competitor's job down, so
+	 * only reporters with standing count toward the auto-hide: an account at
+	 * least a week old, or one that has taken part (a candidate with an
+	 * application, an employer with a published job).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $user_id Reporting user.
+	 * @return bool
+	 */
+	public static function has_standing( int $user_id ): bool {
+		static $memo = array();
+		if ( ! isset( $memo[ $user_id ] ) ) {
+			$user     = get_userdata( $user_id );
+			$standing = $user instanceof \WP_User && (
+				strtotime( $user->user_registered . ' UTC' ) <= time() - WEEK_IN_SECONDS
+				|| count_user_posts( $user_id, 'wcb_job', true ) > 0
+				|| (bool) get_posts(
+					array(
+						'post_type'      => 'wcb_application',
+						'post_status'    => 'any',
+						'fields'         => 'ids',
+						'posts_per_page' => 1,
+						'no_found_rows'  => true,
+						'meta_key'       => '_wcb_candidate_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value'     => (string) $user_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					)
+				)
+			);
+
+			/**
+			 * Filter whether a reporter has standing (their report counts toward the auto-hide).
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param bool $standing Default: account a week old, or has taken part.
+			 * @param int  $user_id  Reporting user.
+			 */
+			$memo[ $user_id ] = (bool) apply_filters( 'wcb_reporter_has_standing', $standing, $user_id );
+		}
+		return $memo[ $user_id ];
+	}
+
+	/**
 	 * Whether a new report should alert the site owner: the first open report,
 	 * and the one that reaches the auto-hide threshold. Later reports only
 	 * raise the count shown in the admin lists.
@@ -439,9 +486,11 @@ class ModerationModule extends \WCB\Api\RestController {
 		update_post_meta( $job_id, '_wcb_flag_count', count( $reporters ) );
 		update_post_meta( $job_id, '_wcb_flag_status', 'open' );
 
-		// Enough separate reports take the job down until a moderator looks.
+		// Enough separate reports from members with standing take the job down
+		// until a moderator looks. Standing is only checked once the total could
+		// reach the threshold.
 		$threshold = self::auto_hide_threshold();
-		if ( $threshold > 0 && count( $reporters ) >= $threshold ) {
+		if ( $threshold > 0 && count( $reporters ) >= $threshold && count( array_filter( $reporters, array( self::class, 'has_standing' ) ) ) >= $threshold ) {
 			HiddenContent::hide( array( $job_id ), 'reports', 'pending' );
 		}
 

@@ -151,6 +151,10 @@ WP_CLI::log( '--- reports hide a job ---' );
 update_option( 'wcb_settings', array_merge( (array) $wcb_settings, array( 'report_auto_hide_threshold' => 3 ) ) );
 \WCB\Admin\Settings::flush_cache();
 $wcb_reporters = array( wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ) );
+// Members with standing: accounts more than a week old (see the throwaway-account cases below).
+foreach ( $wcb_reporters as $wcb_id ) {
+	wp_update_user( array( 'ID' => $wcb_id, 'user_registered' => gmdate( 'Y-m-d H:i:s', time() - 30 * DAY_IN_SECONDS ) ) );
+}
 $wcb_mark      = $wcb_log_id();
 $wcb_bell0     = $wcb_bell( 'report_received' );
 foreach ( $wcb_reporters as $i => $wcb_reporter ) {
@@ -184,6 +188,47 @@ $r        = wcb_ts_rest( 'POST', '/wcb/v1/users/' . $wcb_employer . '/report', a
 wcb_assert( 200 === $r->get_status() && 1 === ModerationModule::open_member_reports( $wcb_employer ), 'the same member can report again after Dismiss' );
 wcb_assert( 1 === wcb_ts_mail( $wcb_mark, 'report-received' ), 'the owner is told about a report made after a Dismiss' );
 ModerationModule::resolve_member_flags( $wcb_employer );
+
+WP_CLI::log( '--- reports from throwaway accounts do not hide a job ---' );
+$wcb_gj  = wcb_ts_post( 'wcb_job', $wcb_employer, 'publish' );
+$wcb_new = array( wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ) );
+foreach ( $wcb_new as $wcb_reporter ) {
+	wcb_ts_rest( 'POST', '/wcb/v1/jobs/' . $wcb_gj . '/report', array( 'reason' => 'scam' ), $wcb_reporter );
+}
+wcb_assert( 'publish' === get_post_status( $wcb_gj ) && '' === HiddenContent::reason( $wcb_gj ), 'three brand-new accounts reporting do not hide a job' );
+wcb_assert( 3 === (int) get_post_meta( $wcb_gj, '_wcb_flag_count', true ), 'their reports are still recorded for the owner' );
+
+// Each way of having standing: a week-old account, an application, a published job.
+$wcb_gj2   = wcb_ts_post( 'wcb_job', $wcb_employer, 'publish' );
+$wcb_aged  = wcb_ts_user( 'wcb_candidate' );
+wp_update_user( array( 'ID' => $wcb_aged, 'user_registered' => gmdate( 'Y-m-d H:i:s', time() - 10 * DAY_IN_SECONDS ) ) );
+$wcb_applied = wcb_ts_user( 'wcb_candidate' );
+$wcb_app_row = wcb_ts_post( 'wcb_application', $wcb_applied, 'publish' );
+update_post_meta( $wcb_app_row, '_wcb_candidate_id', $wcb_applied );
+$wcb_fresh   = wcb_ts_user( 'wcb_candidate' );
+$wcb_poster  = wcb_ts_user( 'wcb_employer' );
+$wcb_poster_job = wcb_ts_post( 'wcb_job', $wcb_poster, 'publish' );
+foreach ( array( $wcb_aged, $wcb_applied, $wcb_fresh ) as $wcb_reporter ) {
+	wcb_ts_rest( 'POST', '/wcb/v1/jobs/' . $wcb_gj2 . '/report', array( 'reason' => 'scam' ), $wcb_reporter );
+}
+wcb_assert( 'publish' === get_post_status( $wcb_gj2 ), 'a week-old account and an applicant count, a fresh account does not: two of three, still live' );
+wcb_ts_rest( 'POST', '/wcb/v1/jobs/' . $wcb_gj2 . '/report', array( 'reason' => 'scam' ), $wcb_poster );
+wcb_assert( 'pending' === get_post_status( $wcb_gj2 ) && 'reports' === HiddenContent::reason( $wcb_gj2 ), 'an employer with a published job counts: the third with standing hides it' );
+
+$wcb_gj3   = wcb_ts_post( 'wcb_job', $wcb_employer, 'publish' );
+$wcb_open  = array( wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ), wcb_ts_user( 'wcb_candidate' ) );
+add_filter( 'wcb_reporter_has_standing', '__return_true' );
+foreach ( $wcb_open as $wcb_reporter ) {
+	wcb_ts_rest( 'POST', '/wcb/v1/jobs/' . $wcb_gj3 . '/report', array( 'reason' => 'scam' ), $wcb_reporter );
+}
+remove_filter( 'wcb_reporter_has_standing', '__return_true' );
+wcb_assert( 'pending' === get_post_status( $wcb_gj3 ), 'wcb_reporter_has_standing lets a site count everyone' );
+foreach ( array( $wcb_gj, $wcb_gj2, $wcb_gj3, $wcb_app_row, $wcb_poster_job ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+foreach ( array_merge( $wcb_new, $wcb_open, array( $wcb_aged, $wcb_applied, $wcb_fresh, $wcb_poster ) ) as $wcb_id ) {
+	wp_delete_user( $wcb_id );
+}
 
 WP_CLI::log( '--- a job hidden by reports meets a ban ---' );
 $wcb_j = wcb_ts_post( 'wcb_job', $wcb_employer, 'publish' );
