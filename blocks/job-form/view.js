@@ -270,6 +270,9 @@ const { state } = store(
 						? t( 'salaryPerHour', '/hr' )
 						: t( 'salaryPerYear', '/yr' );
 				const fmt = ( v ) => money( symbol, abbreviate( v ) );
+				if ( min && max && min === max ) {
+					return fmt( min ) + suffix;
+				}
 				if ( min && max ) {
 					const range = fill(
 						fill( t( 'salaryRange', '%1$s–%2$s' ), '%1$s', fmt( min ) ),

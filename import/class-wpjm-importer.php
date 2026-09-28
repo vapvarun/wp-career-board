@@ -13,6 +13,9 @@ declare( strict_types=1 );
 
 namespace WCB\Import;
 
+use WCB\Modules\Applications\ApplicationLifecycle;
+use WCB\Modules\Applications\ApplicationStatus;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -50,6 +53,15 @@ class WpjmImporter {
 	);
 
 	/**
+	 * WPJM job statuses the import brings across by default. Expired is listed
+	 * on purpose: WPJM registers it excluded from search, so neither 'any' nor a
+	 * default query would ever return it.
+	 *
+	 * @var string[]
+	 */
+	public const JOB_STATUSES = array( 'publish', 'expired' );
+
+	/**
 	 * Every post status. 'any' skips statuses excluded from search, and our
 	 * Closed and Expired jobs are: an already-imported closed job then read
 	 * as not imported (re-imported on every run) and its applications as
@@ -59,6 +71,21 @@ class WpjmImporter {
 	 */
 	private static function all_statuses(): array {
 		return array_keys( get_post_stati() );
+	}
+
+	/**
+	 * WPJM statuses a job import reads: none named = the default list, 'any' =
+	 * the default list plus jobs awaiting approval, else just the one named.
+	 *
+	 * @param string $status Status, 'any' or '' for the default.
+	 * @return string[]
+	 */
+	public static function job_statuses( string $status = '' ): array {
+		return match ( $status ) {
+			''      => self::JOB_STATUSES,
+			'any'   => array( 'publish', 'pending', 'expired' ),
+			default => array( $status ),
+		};
 	}
 
 	/**
@@ -114,6 +141,11 @@ class WpjmImporter {
 		}
 		$company_id = (int) ( $existing[0] ?? 0 );
 
+		// Matched by name alone: adopt the website WPJM knows (structured data uses it).
+		if ( $company_id && '' !== $website && '' === (string) get_post_meta( $company_id, '_wcb_website', true ) ) {
+			update_post_meta( $company_id, '_wcb_website', $website );
+		}
+
 		if ( ! $company_id ) {
 			$company_id = (int) wp_insert_post(
 				array(
@@ -155,7 +187,8 @@ class WpjmImporter {
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- admin preview, read only.
 		$filled = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_filled' AND m.meta_value = '1' WHERE p.post_type = 'job_listing' AND p.post_status = 'publish'" );
-		$names  = (array) $wpdb->get_col( "SELECT DISTINCT TRIM(m.meta_value) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_company_name' WHERE p.post_type = 'job_listing' AND p.post_status = 'publish' AND m.meta_value <> '' LIMIT 5000" );
+		$in     = implode( ', ', array_fill( 0, count( self::JOB_STATUSES ), '%s' ) );
+		$names  = (array) $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT TRIM(m.meta_value) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_company_name' WHERE p.post_type = 'job_listing' AND p.post_status IN ( {$in} ) AND m.meta_value <> '' LIMIT 5000", self::JOB_STATUSES ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the status constant.
 		$have   = (array) $wpdb->get_col( "SELECT post_title FROM {$wpdb->posts} WHERE post_type = 'wcb_company' AND post_status NOT IN ( 'trash', 'auto-draft' )" );
 		// phpcs:enable
 		return array(
@@ -172,18 +205,19 @@ class WpjmImporter {
 	 * Total WPJM job_listing posts with the given status.
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 The default is publish plus expired; see job_statuses().
 	 *
-	 * @param string $status Post status (default 'publish').
+	 * @param string $status Post status, 'any', or '' for the default list.
 	 * @return int
 	 */
-	public function wpjm_jobs_total( string $status = 'publish' ): int {
+	public function wpjm_jobs_total( string $status = '' ): int {
 		if ( ! post_type_exists( 'job_listing' ) ) {
 			return 0;
 		}
 		$q = new \WP_Query(
 			array(
 				'post_type'              => 'job_listing',
-				'post_status'            => $status,
+				'post_status'            => self::job_statuses( $status ),
 				'posts_per_page'         => 1,
 				'fields'                 => 'ids',
 				'no_found_rows'          => false,
@@ -224,14 +258,14 @@ class WpjmImporter {
 	 *
 	 * @param int    $offset Number of jobs to skip.
 	 * @param int    $limit  Maximum jobs to process in this batch.
-	 * @param string $status WPJM post status to query.
+	 * @param string $status WPJM post status, 'any', or '' for the default list.
 	 * @return array{imported:int, skipped:int, errors:string[]}
 	 */
-	public function migrate_jobs_batch( int $offset, int $limit, string $status = 'publish' ): array {
+	public function migrate_jobs_batch( int $offset, int $limit, string $status = '' ): array {
 		$ids = get_posts(
 			array(
 				'post_type'      => 'job_listing',
-				'post_status'    => $status,
+				'post_status'    => self::job_statuses( $status ),
 				'posts_per_page' => $limit,
 				'offset'         => $offset,
 				'orderby'        => 'ID',
@@ -759,6 +793,13 @@ class WpjmImporter {
 		}
 		update_post_meta( $app_id, '_wcb_migrated_from', $source_id );
 		update_post_meta( $app_id, '_wcb_migrated_source', 'wp-job-manager-applications' );
+		// The close rule (undecided applicants on a closed job become Position
+		// closed) queues on the job's import, so it may run before or after this
+		// application exists. Apply it here, silently, so the outcome does not
+		// depend on cron timing and nobody is emailed about an old application.
+		if ( 'wcb_closed' === get_post_status( $job_id ) && ! in_array( (string) get_post_meta( $app_id, '_wcb_status', true ), ApplicationStatus::terminal(), true ) ) {
+			ApplicationLifecycle::transition( (int) $app_id, ApplicationStatus::POSITION_CLOSED, 'job_closed', 0, '', false );
+		}
 		return 'imported';
 	}
 

@@ -145,7 +145,10 @@ final class SalaryFormat {
 
 		$fmt = static fn ( int $n ): string => self::money( $symbol, self::abbreviate( $n ) );
 
-		if ( $min && $max ) {
+		if ( $min && $max && $min === $max ) {
+			// One figure entered (an importer copies a single salary to both ends).
+			$body = $fmt( $min );
+		} elseif ( $min && $max ) {
 			/* translators: 1: minimum salary, 2: maximum salary. En dash separator; change it if your locale uses another range mark. */
 			$body = sprintf( _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ), $fmt( $min ), $fmt( $max ) );
 		} elseif ( $min ) {
@@ -179,18 +182,18 @@ final class SalaryFormat {
 			/* translators: 1: salary figure, 2: pay-period suffix such as "/yr". */
 			'salaryJoinFormat' => _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 			/* translators: %s: number of thousands. */
-			'salaryThousand'  => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
+			'salaryThousand'   => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
 			/* translators: %s: number of millions. */
-			'salaryMillion'   => _x( '%sM', 'millions abbreviation', 'wp-career-board' ),
+			'salaryMillion'    => _x( '%sM', 'millions abbreviation', 'wp-career-board' ),
 			/* translators: 1: minimum salary, 2: maximum salary. */
-			'salaryRange'     => _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ),
+			'salaryRange'      => _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ),
 			/* translators: %s: minimum salary. */
-			'salaryOpenMin'   => _x( '%s+', 'open-ended salary minimum', 'wp-career-board' ),
+			'salaryOpenMin'    => _x( '%s+', 'open-ended salary minimum', 'wp-career-board' ),
 			/* translators: %s: maximum salary. */
-			'salaryUpTo'      => __( 'Up to %s', 'wp-career-board' ),
-			'salaryPerYear'   => self::period_suffix( 'yearly' ),
-			'salaryPerMonth'  => self::period_suffix( 'monthly' ),
-			'salaryPerHour'   => self::period_suffix( 'hourly' ),
+			'salaryUpTo'       => __( 'Up to %s', 'wp-career-board' ),
+			'salaryPerYear'    => self::period_suffix( 'yearly' ),
+			'salaryPerMonth'   => self::period_suffix( 'monthly' ),
+			'salaryPerHour'    => self::period_suffix( 'hourly' ),
 		);
 	}
 }

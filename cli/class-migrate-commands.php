@@ -33,7 +33,7 @@ class MigrateCommands extends AbstractCliCommand {
 	/**
 	 * Migrate jobs from WP Job Manager (job_listing CPT) into WP Career Board.
 	 *
-	 * Reads every published `job_listing` post and creates a matching `wcb_job`.
+	 * Reads every published or expired `job_listing` post and creates a matching `wcb_job`.
 	 * Company meta is copied as inline meta (no wcb_company CPT post created).
 	 * Taxonomies are mapped: job_listing_category → wcb_category,
 	 * job_listing_type → wcb_job_type.
@@ -52,12 +52,12 @@ class MigrateCommands extends AbstractCliCommand {
 	 * : Skip the first N jobs. Useful for resuming a partial migration.
 	 *
 	 * [--status=<status>]
-	 * : Which WPJM post status to migrate.
+	 * : Which WPJM post status to migrate. Default: published and expired jobs.
 	 * ---
-	 * default: publish
 	 * options:
 	 *   - publish
 	 *   - pending
+	 *   - expired
 	 *   - any
 	 * ---
 	 *
@@ -82,14 +82,14 @@ class MigrateCommands extends AbstractCliCommand {
 		$dry_run = (bool) \WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false );
 		$limit   = (int) \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit', -1 );
 		$offset  = (int) \WP_CLI\Utils\get_flag_value( $assoc_args, 'offset', 0 );
-		$status  = \WP_CLI\Utils\get_flag_value( $assoc_args, 'status', 'publish' );
+		$status  = (string) \WP_CLI\Utils\get_flag_value( $assoc_args, 'status', '' );
 
 		if ( $dry_run ) {
 			\WP_CLI::log( \WP_CLI::colorize( '%YDRY RUN — no data will be written.%n' ) );
 		}
 
 		$importer = new WpjmImporter();
-		$total    = $importer->wpjm_jobs_total( 'any' === $status ? 'publish' : $status );
+		$total    = $importer->wpjm_jobs_total( $status );
 
 		if ( 0 === $total ) {
 			\WP_CLI::success( 'No WP Job Manager jobs found to migrate.' );
@@ -103,7 +103,7 @@ class MigrateCommands extends AbstractCliCommand {
 			$ids = get_posts(
 				array(
 					'post_type'      => 'job_listing',
-					'post_status'    => $status,
+					'post_status'    => WpjmImporter::job_statuses( $status ),
 					'posts_per_page' => $limit > 0 ? $limit : -1,
 					'offset'         => $offset,
 					'orderby'        => 'ID',
