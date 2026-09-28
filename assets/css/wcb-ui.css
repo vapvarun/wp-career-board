@@ -864,6 +864,15 @@ textarea.wcb-input {
 	margin-bottom: var(--wcb-space-lg);
 }
 
+/* ...except the Find Jobs archive card's own title, which is the same kind of
+ * element as .wcb-ca-name / .wcb-ra-card-name above and must keep their tight
+ * 4px gap to the line below it (was 16px, the only one of the three archive
+ * cards that didn't match - Basecamp 10348287993). Same specificity as the
+ * lift rule, later in source, so it wins for this one context. */
+[class*="wp-block-wp-career-board"] .wcb-job-card .wcb-card-title {
+	margin-bottom: var(--wcb-space-xs);
+}
+
 /* ── Archive layout — sidebar filter panel + results ──────────────────────── */
 
 /* Two-column layout used by every archive surface (`/find-jobs/`,
