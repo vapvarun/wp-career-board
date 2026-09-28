@@ -628,6 +628,19 @@ select.wcb-field {
 	display: none !important;
 }
 
+/*
+ * `data-wp-bind--hidden` sets the `hidden` attribute. The browser's own
+ * `[hidden] { display: none }` loses to any class that sets `display`, and a
+ * theme without a global `[hidden]` rule (block themes such as Twenty
+ * Twenty-Five) lets that class win, so a hidden message shows. Reign and
+ * BuddyX carry that global rule, which is why it only broke elsewhere.
+ * Scoped to our blocks so it never touches the theme's own markup.
+ */
+[class*="wp-block-wp-career-board"] [hidden],
+[class*="wp-block-wcb-"] [hidden] {
+	display: none !important;
+}
+
 .wcb-shown {
 	display: block;
 }
@@ -802,7 +815,8 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-results-count,
 [class*="wp-block-wcb-"] .wcb-results-count {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary, var(--wp--preset--color--wcb-muted));
+	/* On the theme's canvas, so it follows the theme's text colour. */
+	color: var(--wcb-canvas-fg, #475569);
 	font-weight: var(--wcb-font-medium);
 	margin: 0;
 	flex: 0 0 auto;
