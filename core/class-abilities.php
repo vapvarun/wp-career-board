@@ -134,6 +134,13 @@ final class Abilities {
 			return $user->has_cap( $cap ) || $user->has_cap( 'manage_options' );
 		}
 
+		// Employers hire, they don't apply: a member who posts jobs needs the
+		// candidate cap too (admins keep it for testing).
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- plugin-registered caps.
+		if ( $user->has_cap( 'wcb_post_jobs' ) && ! $user->has_cap( 'wcb_apply_jobs' ) && ! $user->has_cap( 'manage_options' ) ) {
+			return false;
+		}
+
 		return true;
 	}
 

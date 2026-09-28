@@ -81,6 +81,7 @@ final class SettingsSchema {
 			'apply_resume_max_mb'        => array( 5, $range( 1, 20 ) ),
 			// Accounts.
 			'candidate_requires_role'    => array( false, $bool ),
+			'apply_require_login'        => array( false, $bool ),
 			'require_email_verification' => array( false, $bool ),
 			'app_password_login'         => array( false, $bool ),
 			// Layout.

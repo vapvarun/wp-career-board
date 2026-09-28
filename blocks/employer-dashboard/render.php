@@ -382,6 +382,7 @@ wp_interactivity_state(
 			'aiRankingLabel'           => __( 'Ranking…', 'wp-career-board' ),
 			/* translators: %1$s: AI fit score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
 			'aiScorePercent'           => __( '%1$s%', 'wp-career-board' ),
+			'aiNotScored'              => __( 'Not scored', 'wp-career-board' ),
 
 			// Application status labels (board columns).
 			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),

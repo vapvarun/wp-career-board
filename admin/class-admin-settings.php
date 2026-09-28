@@ -975,7 +975,7 @@ class AdminSettings {
 					<div class="wcb-settings-section" id="section-signups">
 						<form method="post" action="options.php">
 		<?php settings_fields( 'wcb_settings_group' ); ?>
-		<?php SettingsSchema::form_fields( array( 'require_email_verification', 'candidate_requires_role' ) ); ?>
+		<?php SettingsSchema::form_fields( array( 'require_email_verification', 'candidate_requires_role', 'apply_require_login' ) ); ?>
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Sign-ups', 'wp-career-board' ); ?></p>
@@ -1025,6 +1025,19 @@ class AdminSettings {
 												<?php esc_html_e( 'Only the Candidate role can apply, bookmark, and use the candidate dashboard', 'wp-career-board' ); ?>
 											</label>
 											<span class="description"><?php esc_html_e( 'Off by default: any logged-in member can apply and manage a resume (ideal when the job board is part of a community site). Turn on to reserve the candidate experience for users with the Candidate role.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><?php esc_html_e( 'Require login to apply', 'wp-career-board' ); ?></div>
+										<div class="wcb-settings-row-control">
+											<label class="wcb-toggle-label">
+												<span class="wcb-toggle">
+													<input type="checkbox" name="wcb_settings[apply_require_login]" value="1" <?php checked( ! empty( $settings['apply_require_login'] ) ); ?>>
+													<span class="wcb-toggle-slider"></span>
+												</span>
+												<?php esc_html_e( 'Only signed-in members can apply', 'wp-career-board' ); ?>
+											</label>
+											<span class="description"><?php esc_html_e( 'Off by default: visitors can apply with their name and email. Guest applications are limited to 10 an hour from one connection.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 								</div>

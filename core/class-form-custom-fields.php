@@ -132,6 +132,37 @@ final class FormCustomFields {
 	}
 
 	/**
+	 * Required fields left empty, as key => label.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<int, array<string, mixed>> $groups Field groups.
+	 * @param array<string, mixed>             $values Submitted values.
+	 * @return array<string, string>
+	 */
+	public static function missing_required( array $groups, array $values ): array {
+		$missing = array();
+		foreach ( $groups as $group ) {
+			foreach ( (array) ( is_array( $group ) ? ( $group['fields'] ?? array() ) : array() ) as $field ) {
+				if ( ! is_array( $field ) || empty( $field['required'] ) ) {
+					continue;
+				}
+				$field = self::normalise_field( $field );
+				$key   = $field['key'];
+				if ( '' === $key ) {
+					continue;
+				}
+				$value = $values[ $key ] ?? ( $values[ $key . '__from' ] ?? ( $values[ $key . '__min' ] ?? '' ) );
+				$empty = is_array( $value ) ? ! array_filter( $value, static fn ( $v ): bool => '' !== trim( (string) $v ) ) : '' === trim( (string) $value ) || ( 'checkbox' === $field['type'] && in_array( strtolower( (string) $value ), array( '0', 'false', 'off' ), true ) );
+				if ( $empty ) {
+					$missing[ $key ] = '' !== $field['label'] ? $field['label'] : $key;
+				}
+			}
+		}
+		return $missing;
+	}
+
+	/**
 	 * Coerce a field definition to the canonical {key,type,label,...}
 	 * shape regardless of source. Accepts both the apply-form's
 	 * documented contract (`key`/`type`) and Pro Field Builder's

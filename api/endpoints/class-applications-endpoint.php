@@ -177,7 +177,37 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		if ( ! $is_guest && (int) $job->post_author === get_current_user_id() ) {
+			return new \WP_Error( 'wcb_own_job', __( 'You cannot apply to your own job.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+
+		// Required screening questions, checked here and not only in the
+		// browser (a request without JavaScript skipped them).
+		$wcb_missing = \WCB\Core\FormCustomFields::missing_required(
+			(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
+			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
+		);
+		if ( $wcb_missing ) {
+			return new \WP_Error(
+				'wcb_required_fields',
+				/* translators: %s: comma-separated field labels. */
+				sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $wcb_missing ) ),
+				array(
+					'status' => 400,
+					'fields' => array_keys( $wcb_missing ),
+				)
+			);
+		}
+
 		if ( $is_guest ) {
+			// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
+			$wcb_ip_key = 'wcb_guest_apply_' . md5( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- hashed, never output.
+			$wcb_tries  = (int) get_transient( $wcb_ip_key );
+			if ( $wcb_tries >= 10 ) {
+				return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
+			}
+			set_transient( $wcb_ip_key, $wcb_tries + 1, HOUR_IN_SECONDS );
+
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
 			$guest_email = sanitize_email( (string) ( $request->get_param( 'guest_email' ) ?? '' ) );
@@ -862,9 +892,11 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function submit_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		// Guests can always apply (no account needed).
+		// Guests can apply unless Settings > Applications requires an account.
 		if ( ! is_user_logged_in() ) {
-			return true;
+			return \WCB\Admin\Settings::bool( 'apply_require_login', false )
+				? new \WP_Error( 'wcb_login_required', __( 'Please sign in to apply for this job.', 'wp-career-board' ), array( 'status' => 401 ) )
+				: true;
 		}
 
 		// Logged-in users must have the wcb_apply_jobs ability/cap.

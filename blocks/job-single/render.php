@@ -139,8 +139,9 @@ $wcb_days_ago = (int) round( ( time() - $wcb_post_ts ) / DAY_IN_SECONDS );
 // ── Apply permission ──────────────────────────────────────────────────────────
 $wcb_can_apply = is_user_logged_in() && wp_is_ability_granted( 'wcb/apply-jobs' );
 
-// Guests may always apply — the endpoint accepts unauthenticated submissions.
-$wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
+// Guests may apply unless Settings > Applications requires an account.
+$wcb_login_to_apply = ! is_user_logged_in() && \WCB\Admin\Settings::bool( 'apply_require_login', false );
+$wcb_show_apply     = $wcb_can_apply || ( ! is_user_logged_in() && ! $wcb_login_to_apply );
 
 // ── Job owner check — employers see "View Applications" instead of "Apply Now" ─
 $wcb_is_job_owner = is_user_logged_in()
@@ -472,6 +473,10 @@ wp_interactivity_state(
 				<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 				<?php echo esc_html( $wcb_closed_text ); ?>
 				</p>
+			<?php elseif ( $wcb_login_to_apply ) : ?>
+				<a href="<?php echo esc_url( wp_login_url( (string) get_permalink( $wcb_job_id ) ) ); ?>" class="wcb-btn wcb-btn--primary">
+				<?php esc_html_e( 'Sign in to apply', 'wp-career-board' ); ?>
+				</a>
 			<?php elseif ( $wcb_show_apply ) : ?>
 				<?php if ( $wcb_apply_external ) : ?>
 					<a

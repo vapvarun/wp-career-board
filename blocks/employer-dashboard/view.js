@@ -1164,9 +1164,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				state.applications = state.applications.map( ( a ) => {
 					const r = byId[ a.id ];
-					return r
-						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: aiScoreLabel( Number( r.score ) ) }
-						: a;
+					if ( ! r ) {
+						return a;
+					}
+					// A provider failure is "Not scored" (retried later), never 0%.
+					if ( typeof r.score !== 'number' ) {
+						return { ...a, aiScore: undefined, aiScoreLabel: t( 'aiNotScored', 'Not scored' ) };
+					}
+					return { ...a, aiScore: r.score, aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: aiScoreLabel( r.score ) };
 				} );
 				state.aiRanked = true;
 			} catch {
