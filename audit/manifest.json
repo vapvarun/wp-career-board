@@ -25,8 +25,8 @@
     "tables": 3,
     "capabilities": 13,
     "services": 43,
-    "hooks_fired": 243,
-    "hooks_unique": 162,
+    "hooks_fired": 245,
+    "hooks_unique": 163,
     "cron": 8,
     "wp_cli": 5
   },
@@ -2295,6 +2295,22 @@
       "args_count": 2,
       "args_signature": [],
       "where": "blocks/employer-dashboard/render.php:305",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_pipeline_url",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php",
+      "consumed_by": []
+    },
+    {
+      "name": "wcb_job_pipeline_url",
+      "type": "filter",
+      "args_count": 2,
+      "args_signature": [],
+      "where": "api/endpoints/class-employers-endpoint.php",
       "consumed_by": []
     },
     {

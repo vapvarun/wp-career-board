@@ -746,6 +746,7 @@ final class EmployersEndpoint extends RestController {
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
 					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
 					'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
 						? sprintf(
@@ -863,6 +864,7 @@ final class EmployersEndpoint extends RestController {
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
 					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
+					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 					'appCount'         => $app_count,
 					'appLabel'         => $app_count > 0
 					? sprintf(

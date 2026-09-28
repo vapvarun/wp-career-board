@@ -715,6 +715,7 @@ wp_interactivity_state(
 						<div class="wcb-job-actions">
 							<a class="wcb-db-link-btn" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 							<a class="wcb-db-link-btn wcb-db-link-btn--edit" data-wp-bind--href="context.job.editUrl"><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
+							<a class="wcb-db-link-btn wcb-hidden" data-wp-bind--href="context.job.pipelineUrl" data-wp-class--wcb-hidden="!context.job.pipelineUrl"><?php esc_html_e( 'Pipeline', 'wp-career-board' ); ?></a>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--feature" data-wp-class--wcb-hidden="!context.job.canFeature" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.featureJob"><?php esc_html_e( 'Feature', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--close" data-wp-class--wcb-hidden="state.isJobInactive" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.closeJob"><?php esc_html_e( 'Close', 'wp-career-board' ); ?></button>
 							<button type="button" class="wcb-db-link-btn wcb-db-link-btn--publish" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>
