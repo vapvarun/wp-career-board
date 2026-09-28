@@ -1351,6 +1351,22 @@ textarea.wcb-input {
 	}
 }
 
+/* ── Touch targets ────────────────────────────────────────────────────────── */
+/* The responsive contract is a 40px minimum tap target. Small controls keep their
+   look on a pointer device and gain height (not size) on touch and on phones. */
+@media (pointer: coarse), (max-width: 640px) {
+	.wcb-btn--sm,
+	.wcb-chip,
+	.wcb-panel-link,
+	.wcb-bell-action,
+	.wcb-cd-withdraw-btn,
+	.wcb-filter-panel__clear {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.5rem;
+	}
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
