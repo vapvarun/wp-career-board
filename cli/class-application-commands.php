@@ -231,14 +231,19 @@ class ApplicationCommands extends AbstractCliCommand {
 			\WP_CLI::error( "No wcb_application found with ID {$app_id}." );
 		}
 
-		$old_status_raw = (string) get_post_meta( $app_id, '_wcb_status', true );
-		$old_status     = '' !== $old_status_raw ? $old_status_raw : 'submitted';
-
 		if ( ! \WCB\Modules\Applications\ApplicationLifecycle::transition( $app_id, $new_status, 'cli' ) ) {
-			\WP_CLI::warning( "Application #{$app_id} is already {$new_status}. Nothing changed, nothing sent." );
+			$current = (string) get_post_meta( $app_id, '_wcb_status', true );
+			if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {
+				\WP_CLI::warning( "Application #{$app_id} is closed ({$current}), so its status can no longer change." );
+			} else {
+				\WP_CLI::warning( "Application #{$app_id} is already {$new_status}. Nothing changed, nothing sent." );
+			}
 			return;
 		}
 
+		// The log's last entry is the change just made (a healed reopen comes before it).
+		$log        = \WCB\Modules\Applications\ApplicationLifecycle::log( $app_id );
+		$old_status = (string) ( ( $log ? (array) end( $log ) : array() )['from'] ?? 'submitted' );
 		\WP_CLI::success( "Application #{$app_id} status updated: {$old_status} → {$new_status}." );
 	}
 }

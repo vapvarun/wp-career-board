@@ -87,6 +87,14 @@ wcb_assert( 403 === $wcb_r->get_status() && wp_check_password( $wcb_pass, get_us
 $wcb_r = wcb_cg_post( '/wp/v2/users/' . $wcb_user, array( 'email' => 'hijack-' . $wcb_mail ), $wcb_user );
 wcb_assert( 403 === $wcb_r->get_status(), 'the same refusal applies through the numeric id route' );
 
+// WordPress matches routes case-insensitively: capitals must not slip past the guard.
+foreach ( array( '/wp/v2/Users/me', '/wp/v2/USERS/ME', '/wp/V2/users/' . $wcb_user) as $wcb_variant ) {
+	$wcb_r = wcb_cg_post( $wcb_variant, array( 'email' => 'hijack-' . $wcb_mail ), $wcb_user );
+	wcb_assert( 403 === $wcb_r->get_status() && $wcb_mail === $wcb_email(), "email change with no password is refused on {$wcb_variant}" );
+	$wcb_r = wcb_cg_post( $wcb_variant, array( 'password' => 'Cg-Hijack-Pass-9' ), $wcb_user );
+	wcb_assert( 403 === $wcb_r->get_status() && wp_check_password( $wcb_pass, get_userdata( $wcb_user )->user_pass, $wcb_user ), "password change with no current password is refused on {$wcb_variant}" );
+}
+
 $wcb_r = wcb_cg_post( '/wp/v2/users/me', array( 'name' => 'Cg Renamed' ), $wcb_user );
 wcb_assert( 200 === $wcb_r->get_status(), 'a change that touches neither email nor password needs no password' );
 

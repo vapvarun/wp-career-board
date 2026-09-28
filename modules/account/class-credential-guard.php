@@ -55,11 +55,12 @@ final class CredentialGuard {
 		if ( is_wp_error( $response ) || ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true ) ) {
 			return $response;
 		}
-		if ( ! preg_match( '#^/wp/v2/users/(me|\d+)$#', $request->get_route(), $target ) ) {
+		// WordPress matches routes case-insensitively, so /wp/v2/Users/me reaches the same handler.
+		if ( ! preg_match( '#^/wp/v2/users/(me|\d+)$#i', $request->get_route(), $target ) ) {
 			return $response;
 		}
 
-		$user_id = 'me' === $target[1] ? get_current_user_id() : (int) $target[1];
+		$user_id = 'me' === strtolower( $target[1] ) ? get_current_user_id() : (int) $target[1];
 		if ( $user_id <= 0 || get_current_user_id() !== $user_id || wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return $response;
 		}

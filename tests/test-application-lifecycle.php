@@ -308,6 +308,53 @@ wcb_assert( false === ApplicationLifecycle::heal_reopened( $wcb_still ), 'a job 
 wp_delete_post( $wcb_lj, true );
 wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_lj, 'job_removed' ) );
 
+// Every writer heals, not only the two REST routes: a candidate withdrawing, and
+// wp-admin bulk edit / the CLI (both call transition()).
+$wcb_wj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC lost reopen writers', 'post_author' => $wcb_employer ) );
+$wcb_wa = wcb_lc_app( $wcb_wj, $wcb_candidate, 'reviewing' );
+$wcb_wb = wcb_lc_app( $wcb_wj, $wcb_candidate, 'submitted' );
+wp_update_post( array( 'ID' => $wcb_wj, 'post_status' => 'wcb_closed' ) );
+ApplicationLifecycle::close_job_applications( $wcb_wj, 'position_closed' );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_wj, 'position_closed' ) );
+wp_update_post( array( 'ID' => $wcb_wj, 'post_status' => 'publish' ) );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_wj ) );
+$r = wcb_rest( 'DELETE', '/wcb/v1/applications/' . $wcb_wa, array(), $wcb_candidate );
+wcb_assert( 200 === $r->get_status() && 'withdrawn' === get_post_meta( $wcb_wa, '_wcb_status', true ), 'a candidate can withdraw from a reopened job even when the reopen event was lost' );
+wcb_assert( true === ApplicationLifecycle::transition( $wcb_wb, 'shortlisted', 'cli' ) && 'shortlisted' === get_post_meta( $wcb_wb, '_wcb_status', true ), 'transition() from the CLI or a bulk edit moves a stranded application instead of doing nothing' );
+$wcb_wlog = ApplicationLifecycle::log( $wcb_wb );
+wcb_assert( array( 'job_reopened', 'cli' ) === array_slice( array_column( $wcb_wlog, 'reason' ), -2 ), '... and the log shows the reopen, then the change' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_wj ) );
+wp_update_post( array( 'ID' => $wcb_wj, 'post_status' => 'wcb_closed' ) );
+$wcb_wc = wcb_lc_app( $wcb_wj, $wcb_candidate, 'position_closed' );
+wcb_assert( false === ApplicationLifecycle::transition( $wcb_wc, 'shortlisted', 'cli' ) && 'position_closed' === get_post_meta( $wcb_wc, '_wcb_status', true ), 'control: under a job that is still closed, Position closed stays final' );
+wp_delete_post( $wcb_wj, true );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_wj, 'job_removed' ) );
+
+// Reading heals too: the candidate's own list shows the real status, and a board load heals the job.
+$wcb_hj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC lost reopen reads', 'post_author' => $wcb_employer ) );
+$wcb_ha = wcb_lc_app( $wcb_hj, $wcb_candidate, 'reviewing' );
+$wcb_hb = wcb_lc_app( $wcb_hj, $wcb_candidate, 'submitted' );
+wp_update_post( array( 'ID' => $wcb_hj, 'post_status' => 'wcb_closed' ) );
+ApplicationLifecycle::close_job_applications( $wcb_hj, 'position_closed' );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_hj, 'position_closed' ) );
+wp_update_post( array( 'ID' => $wcb_hj, 'post_status' => 'publish' ) );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_hj ) );
+$r        = wcb_rest( 'GET', '/wcb/v1/candidates/' . $wcb_candidate . '/applications', array(), $wcb_candidate );
+$wcb_hrows = array();
+foreach ( (array) ( $r->get_data()['applications'] ?? array() ) as $wcb_hrow ) {
+	$wcb_hrows[ (int) ( $wcb_hrow['id'] ?? 0 ) ] = (string) ( $wcb_hrow['status'] ?? '' );
+}
+wcb_assert( 200 === $r->get_status() && 'reviewing' === ( $wcb_hrows[ $wcb_ha ] ?? '' ) && 'submitted' === ( $wcb_hrows[ $wcb_hb ] ?? '' ), 'the candidate\'s own list shows the real status of a stranded application, not Position closed' );
+wp_update_post( array( 'ID' => $wcb_hj, 'post_status' => 'wcb_closed' ) );
+wp_update_post( array( 'ID' => $wcb_hj, 'post_status' => 'publish' ) );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_hj ) );
+$wcb_hc = wcb_lc_app( $wcb_hj, $wcb_candidate, 'position_closed' );
+ApplicationLifecycle::heal_job( $wcb_hj );
+wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_hj ) ), 'a board load queues the reopen for a job with a stranded applicant' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_hj ) );
+wp_delete_post( $wcb_hj, true );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_hj, 'job_removed' ) );
+
 // A batch of applications the Close never moved must not queue itself forever.
 $wcb_nj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC endless', 'post_author' => $wcb_employer ) );
 $wcb_ids = array();

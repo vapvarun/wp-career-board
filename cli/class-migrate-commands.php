@@ -384,13 +384,16 @@ class MigrateCommands extends AbstractCliCommand {
 	 */
 	public function files( array $args, array $assoc_args ): void {
 		$total = 0;
+		// Run by hand usually means "I just fixed the folder": skip the retry cool-down.
+		\WCB\Core\PrivateFiles::retry_now();
 		do {
 			$done   = \WCB\Core\PrivateFiles::migrate_batch();
 			$total += $done;
 		} while ( $done > 0 );
-		wp_clear_scheduled_hook( \WCB\Core\PrivateFiles::MIGRATE_HOOK );
 		$left = \WCB\Core\PrivateFiles::left_behind_count();
-		if ( $left > 0 ) {
+		if ( 0 === $left ) {
+			wp_clear_scheduled_hook( \WCB\Core\PrivateFiles::MIGRATE_HOOK );
+		} else {
 			\WP_CLI::warning( sprintf( '%d candidate file(s) could not be moved and are still in the public uploads folder. Check that the web server user can write to and delete from it, then run this again.', $left ) );
 		}
 		\WP_CLI::success( sprintf( '%d candidate file(s) processed.', $total ) );

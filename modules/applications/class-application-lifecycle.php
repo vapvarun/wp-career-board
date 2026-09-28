@@ -373,6 +373,59 @@ final class ApplicationLifecycle {
 	}
 
 	/**
+	 * Heal a reopened job's stranded applicants when one is found: a board view
+	 * calls this once per load (one indexed lookup) instead of every card.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return void
+	 */
+	public static function heal_job( int $job_id ): void {
+		if ( $job_id <= 0 || in_array( get_post_status( $job_id ), array( false, 'wcb_closed', 'trash' ), true ) ) {
+			return;
+		}
+		$stuck = get_posts(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => '_wcb_job_id',
+						'value' => (string) $job_id,
+					),
+					array(
+						'key'   => '_wcb_status',
+						'value' => ApplicationStatus::POSITION_CLOSED,
+					),
+				),
+			)
+		);
+		if ( $stuck ) {
+			self::heal_reopened( (int) $stuck[0] );
+		}
+	}
+
+	/**
+	 * An application's status as it really is: a stranded Position closed under
+	 * a reopened job is healed first. Endpoints that refuse a change on a final
+	 * status read it here, so they never refuse on a status a lost event left.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $application_id Application post ID.
+	 * @return string Status slug; a missing status reads as submitted.
+	 */
+	public static function current_status( int $application_id ): string {
+		self::heal_reopened( $application_id );
+		$status = (string) get_post_meta( $application_id, '_wcb_status', true );
+		return '' !== $status ? $status : ApplicationStatus::SUBMITTED;
+	}
+
+	/**
 	 * The one way an application's status changes.
 	 *
 	 * Every writer (REST, admin bulk, admin detail screen, CLI, Pro pipeline,
@@ -398,6 +451,13 @@ final class ApplicationLifecycle {
 	public static function transition( int $application_id, string $new_status, string $reason = '', ?int $actor = null, string $note = '', bool $notify = true ): bool {
 		if ( ! ApplicationStatus::is_valid( $new_status ) || 'wcb_application' !== get_post_type( $application_id ) ) {
 			return false;
+		}
+
+		// A lost reopen event leaves the applicant on Position closed under an open
+		// job. Heal here, in the one writer, so withdraw, bulk edit, the CLI and
+		// the Kanban all start from the real status (the reopen itself is exempt).
+		if ( self::REOPEN_REASON !== $reason ) {
+			self::heal_reopened( $application_id );
 		}
 
 		$old_status = (string) get_post_meta( $application_id, '_wcb_status', true );

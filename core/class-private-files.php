@@ -507,6 +507,24 @@ final class PrivateFiles {
 	}
 
 	/**
+	 * Make every left-behind file due for another attempt right now.
+	 *
+	 * The hourly cool-down protects a busy site from retrying a broken folder
+	 * on every pass; an owner who has just fixed permissions and runs the
+	 * migration by hand should not have to wait it out. A file that fails again
+	 * gets a fresh cool-down, so a loop of migrate_batch() calls still ends.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public static function retry_now(): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bounded to the few left-behind rows.
+		$wpdb->update( $wpdb->postmeta, array( 'meta_value' => (string) ( time() - 1 ) ), array( 'meta_key' => self::RETRY_AT ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+	}
+
+	/**
 	 * Create the private root with a deny-all .htaccess and a blank index.
 	 *
 	 * @since 1.8.0

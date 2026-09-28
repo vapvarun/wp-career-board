@@ -188,7 +188,22 @@ if ( 'Darwin' !== PHP_OS_FAMILY ) {
 	PrivateFiles::move_to_private( $wcb_b );
 	wcb_assert( ! is_file( $wcb_b_main ) && ! is_file( $wcb_b_prev ) && '' === (string) get_post_meta( $wcb_b, PrivateFiles::LEFT_BEHIND, true ), 'once unlocked it moves, previews included, and the record clears' );
 
-	foreach ( array( $wcb_a, $wcb_b ) as $wcb_id ) {
+	// What `wp wcb migrate files` does after the owner fixes permissions: no waiting out the hour.
+	list( $wcb_c, $wcb_c_main, $wcb_c_prev ) = $wcb_fixture( 'clirerun' );
+	$wcb_lock( $wcb_c_prev, true );
+	PrivateFiles::move_to_private( $wcb_c );
+	wp_clear_scheduled_hook( PrivateFiles::MIGRATE_HOOK );
+	PrivateFiles::retry_now();
+	PrivateFiles::migrate_batch();
+	wcb_assert( is_file( $wcb_c_prev ) && (int) wp_next_scheduled( PrivateFiles::MIGRATE_HOOK ) > time(), 'a manual run that still cannot move the file leaves the hourly retry scheduled' );
+	wcb_assert( 0 === PrivateFiles::migrate_batch(), '... and does not pick the same file again in the same run, so a loop of passes ends' );
+	$wcb_lock( $wcb_c_prev, false );
+	wcb_assert( (int) get_post_meta( $wcb_c, '_wcb_private_retry_at', true ) > time(), 'the cool-down is still ahead, as a fix-then-rerun would find it' );
+	PrivateFiles::retry_now();
+	PrivateFiles::migrate_batch();
+	wcb_assert( ! is_file( $wcb_c_prev ) && '' === (string) get_post_meta( $wcb_c, PrivateFiles::LEFT_BEHIND, true ), 'a manual re-run right after fixing permissions moves the file without backdating anything' );
+
+	foreach ( array( $wcb_a, $wcb_b, $wcb_c ) as $wcb_id ) {
 		wp_delete_attachment( $wcb_id, true );
 	}
 }

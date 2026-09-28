@@ -560,10 +560,7 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Withdrawn, position-closed and job-removed are final outcomes; the
 		// employer sees them but cannot reopen them.
-		if ( \WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( $post->ID ) ) {
-			clean_post_cache( $post->ID );
-		}
-		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$current = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
 		if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {
 			return new \WP_Error(
 				'wcb_application_closed',
@@ -648,8 +645,7 @@ final class ApplicationsEndpoint extends RestController {
 		foreach ( $query->posts as $app ) {
 			$job_id      = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 			$job         = $job_id ? get_post( $job_id ) : null;
-			$status      = (string) get_post_meta( $app->ID, '_wcb_status', true );
-			$status      = $status ? $status : \WCB\Modules\Applications\ApplicationStatus::SUBMITTED;
+			$status      = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app->ID );
 			$job_removed = \WCB\Modules\Applications\ApplicationStatus::JOB_REMOVED === $status;
 
 			// Snapshot meta (saved at apply-time) preserves the title/company
@@ -720,7 +716,7 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$status = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$status = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
 		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 
 		// The job is gone: nobody else sees this row, so "Remove" really deletes
@@ -1136,6 +1132,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_application( \WP_Post $post, ?\WP_REST_Request $request = null ): array {
+		\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( $post->ID );
 		$current_user_id = get_current_user_id();
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		$viewer_role     = 'candidate';
