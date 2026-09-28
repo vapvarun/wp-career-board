@@ -137,7 +137,11 @@ class EmailJobExpiring extends AbstractEmail {
 				'edit_url'      => $edit_url,
 				'job_url'       => (string) get_permalink( $job_id ),
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'job',
+				'object_id'   => $job_id,
+			)
 		);
 	}
 }

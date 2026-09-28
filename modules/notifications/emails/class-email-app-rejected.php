@@ -97,7 +97,7 @@ class EmailAppRejected extends AbstractEmail {
 	 * @return void
 	 */
 	public function boot(): void {
-		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 3 );
+		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 5 );
 	}
 
 	/**
@@ -106,9 +106,11 @@ class EmailAppRejected extends AbstractEmail {
 	 * @param int    $app_id     Application ID.
 	 * @param string $old_status Previous status.
 	 * @param string $new_status New status.
+	 * @param string $reason     Machine-readable reason (unused in this email).
+	 * @param int    $actor      User who made the change, 0 = system.
 	 * @return void
 	 */
-	public function handle( int $app_id, string $old_status, string $new_status ): void {
+	public function handle( int $app_id, string $old_status, string $new_status, string $reason = '', int $actor = 0 ): void {
 		if ( \WCB\Modules\Applications\ApplicationStatus::REJECTED !== $new_status ) {
 			return;
 		}
@@ -119,6 +121,15 @@ class EmailAppRejected extends AbstractEmail {
 		}
 		$archive          = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 		$vars['jobs_url'] = $archive > 0 ? (string) get_permalink( $archive ) : home_url( '/' );
-		$this->send( $to['email'], $vars, $to['user_id'] );
+		$this->send(
+			$to['email'],
+			$vars,
+			$to['user_id'],
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $actor,
+			)
+		);
 	}
 }

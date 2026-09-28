@@ -130,7 +130,12 @@ class EmailAppReceived extends AbstractEmail {
 				'candidate_name' => $candidate_name,
 				'dashboard_url'  => $dashboard_url,
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $candidate_id,
+			)
 		);
 	}
 }

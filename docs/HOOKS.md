@@ -194,6 +194,40 @@ fires it when an email is sent; an add-on that records the same event
 and fires the signal itself, so push and BuddyNext never receive an event
 twice.
 
+## Community notification contract
+
+For a centralised notification center (BuddyNext, or any add-on that wants
+one inbox across every plugin): `wcb_notification_created` carries the
+contract payload as its **second argument**, alongside the original payload
+array documented above. Existing listeners registered with
+`accepted_args = 1` (CB Pro's push module, BuddyNext's bridge) never receive
+it — PHP only passes as many arguments as a listener asks for.
+
+```php
+add_action( 'wcb_notification_created', function ( array $legacy, ?array $contract ) {
+    if ( null === $contract ) {
+        return; // A transactional or admin-only email — no community object.
+    }
+    // $contract: recipient_id, type, actor_id, object_type ('job'|'application'),
+    // object_id, message, url, group_key, notification_id.
+}, 10, 2 );
+```
+
+`CommunityNotificationContract::build()` (`modules/notifications/class-community-notification-contract.php`)
+is the one place the payload is assembled — every `AbstractEmail::send()` call
+site that names an `object_type` in its `$context` argument gets a contract
+payload; a call with no `object_type` (email verification, admin moderation
+alerts, the job-pending-review notice) gets `null` and is skipped, since
+those are not community-facing events.
+
+| Filter/action | Args | Purpose |
+|---|---|---|
+| `wcb_community_notification_types` | `( array $types )` returns `slug => array{label,description,default_on}` | Declares every type Free's emails can fire, for a settings screen with one switch per type. |
+| `wcb_community_notification_visible` | `( array $visible, int $viewer_id, array $targets )` returns `key => bool` | Answers whether the viewer may still see a bell row about a `job` or `application` object — hidden once trashed, or (for the employer's copy only) once the candidate withdraws. |
+| `wcb_community_notification_removed` | `( string $object_type, int $object_id )` | Fires once a `job` or `application` is **permanently** deleted (never on trash/unpublish — that is what `wcb_community_notification_visible` covers). |
+
+@since 1.8.0.
+
 ## Filter early-rejection on submission
 
 Both job and application submissions pass through a "pre-submit" filter

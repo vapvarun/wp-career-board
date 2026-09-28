@@ -117,11 +117,26 @@ final class ApplicationLifecycle {
 			 * @param int $job_id         Job post ID.
 			 */
 			do_action( 'wcb_application_deleted', $post->ID, (int) get_post_meta( $post->ID, '_wcb_job_id', true ) );
+
+			/**
+			 * Fires when a community-notification object is permanently gone.
+			 * BuddyNext (or any centralised notification center) deletes every
+			 * bell row about it. Trash is visibility, not removal — this only
+			 * fires on a real delete.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param string $object_type 'application' or 'job'.
+			 * @param int    $object_id   The deleted object's post ID.
+			 */
+			do_action( 'wcb_community_notification_removed', 'application', $post->ID );
 			return;
 		}
 		if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
 			return;
 		}
+
+		do_action( 'wcb_community_notification_removed', 'job', $post_id );
 
 		self::queue_close( $post_id, ApplicationStatus::JOB_REMOVED );
 	}

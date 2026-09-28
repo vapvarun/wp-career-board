@@ -271,7 +271,10 @@ final class Plugin {
 			wp_register_script_module(
 				'@wcb/email-prefs',
 				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
-				array( '@wordpress/interactivity', '@wcb/fetch' ),
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/fetch' ),
+				),
 				WCB_VERSION
 			);
 		}

@@ -96,7 +96,7 @@ class EmailAppStatus extends AbstractEmail {
 	 * @return void
 	 */
 	public function boot(): void {
-		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 3 );
+		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 5 );
 	}
 
 	/**
@@ -151,9 +151,11 @@ class EmailAppStatus extends AbstractEmail {
 	 * @param int    $app_id     Application ID.
 	 * @param string $old_status Previous status.
 	 * @param string $new_status New status.
+	 * @param string $reason     Machine-readable reason (unused in this email).
+	 * @param int    $actor      User who made the change, 0 = system.
 	 * @return void
 	 */
-	public function handle( int $app_id, string $old_status, string $new_status ): void {
+	public function handle( int $app_id, string $old_status, string $new_status, string $reason = '', int $actor = 0 ): void {
 		// Withdrawn: the employer gets EmailAppWithdrawn. Rejected: its own,
 		// gentler email (EmailAppRejected).
 		if ( in_array( $new_status, array( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, \WCB\Modules\Applications\ApplicationStatus::REJECTED ), true ) ) {
@@ -165,6 +167,15 @@ class EmailAppStatus extends AbstractEmail {
 			return;
 		}
 		$vars['new_status'] = \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
-		$this->send( $to['email'], $vars, $to['user_id'] );
+		$this->send(
+			$to['email'],
+			$vars,
+			$to['user_id'],
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $actor,
+			)
+		);
 	}
 }
