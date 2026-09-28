@@ -78,7 +78,7 @@
 	height: 88px;
 	border-radius: var(--wcb-radius-lg);
 	display: block;
-	object-fit: cover;
+	object-fit: contain;
 	background: var(--wcb-base);
 }
 
