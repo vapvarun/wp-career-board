@@ -50,6 +50,13 @@ final class ApplicationLifecycle {
 	private const REOPEN_REASON = 'job_reopened';
 
 	/**
+	 * Action Scheduler group for this plugin's background work.
+	 *
+	 * @var string
+	 */
+	private const GROUP = 'wp-career-board';
+
+	/**
 	 * Applications handled per cron run.
 	 *
 	 * @since 1.8.0
@@ -65,7 +72,7 @@ final class ApplicationLifecycle {
 	public function boot(): void {
 		add_action( 'before_delete_post', array( $this, 'on_job_deleted' ), 10, 2 );
 		add_action( self::CLOSE_HOOK, array( self::class, 'close_job_applications' ), 10, 2 );
-		add_action( self::REOPEN_HOOK, array( self::class, 'reopen_job_applications' ), 10, 1 );
+		add_action( self::REOPEN_HOOK, array( self::class, 'reopen_job_applications' ), 10, 2 );
 
 		// Owner decision D15: when the employer closes a job (filled or
 		// cancelled), its undecided applications close too and each candidate
@@ -81,9 +88,7 @@ final class ApplicationLifecycle {
 					self::queue_close( $post->ID, ApplicationStatus::POSITION_CLOSED );
 				} elseif ( 'wcb_closed' === $old_status ) {
 					// Reopened (or re-advertised): the applicants that Close moved are back in play.
-					if ( ! wp_next_scheduled( self::REOPEN_HOOK, array( $post->ID ) ) ) {
-						wp_schedule_single_event( time(), self::REOPEN_HOOK, array( $post->ID ) );
-					}
+					self::dispatch( self::REOPEN_HOOK, array( $post->ID ) );
 				}
 			},
 			10,
@@ -177,8 +182,31 @@ final class ApplicationLifecycle {
 	 * @return void
 	 */
 	public static function queue_close( int $job_id, string $status ): void {
-		if ( ! wp_next_scheduled( self::CLOSE_HOOK, array( $job_id, $status ) ) ) {
-			wp_schedule_single_event( time(), self::CLOSE_HOOK, array( $job_id, $status ) );
+		self::dispatch( self::CLOSE_HOOK, array( $job_id, $status ) );
+	}
+
+	/**
+	 * Run a hook in the background, once.
+	 *
+	 * Action Scheduler when the site has it (a queue that records, retries and
+	 * shows in Tools > Scheduled Actions), WP-Cron otherwise. Idempotent: an
+	 * identical pending action is not queued twice.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string           $hook Action hook.
+	 * @param array<int,mixed> $args Hook arguments.
+	 * @return void
+	 */
+	private static function dispatch( string $hook, array $args ): void {
+		if ( function_exists( 'as_enqueue_async_action' ) && function_exists( 'as_has_scheduled_action' ) ) {
+			if ( ! as_has_scheduled_action( $hook, $args, self::GROUP ) ) {
+				as_enqueue_async_action( $hook, $args, self::GROUP );
+			}
+			return;
+		}
+		if ( ! wp_next_scheduled( $hook, $args ) ) {
+			wp_schedule_single_event( time(), $hook, $args );
 		}
 	}
 
@@ -235,7 +263,7 @@ final class ApplicationLifecycle {
 		}
 
 		if ( self::BATCH === count( $ids ) ) {
-			wp_schedule_single_event( time(), self::CLOSE_HOOK, array( $job_id, $status ) );
+			self::dispatch( self::CLOSE_HOOK, array( $job_id, $status ) );
 		}
 	}
 
@@ -244,22 +272,35 @@ final class ApplicationLifecycle {
 	 * closed returns to the status it had, with no email (owner decision, 1.8.0).
 	 * Idempotent, in batches: a restored application no longer matches.
 	 *
+	 * Batches walk forward by application ID. A row the close never moved (no
+	 * job_closed entry in its log) is skipped, not restored, so it would match
+	 * the query again; without the cursor a batch of 200 of them queued itself
+	 * forever.
+	 *
 	 * @since 1.8.0
 	 *
 	 * @param int $job_id Job ID.
+	 * @param int $after  Only applications with an ID above this (the previous batch's last).
 	 * @return void
 	 */
-	public static function reopen_job_applications( int $job_id ): void {
+	public static function reopen_job_applications( int $job_id, int $after = 0 ): void {
 		// Closed again since: leave them.
 		if ( 'wcb_closed' === get_post_status( $job_id ) ) {
 			return;
 		}
-		$ids = get_posts(
+		$after_id = static function ( string $where ) use ( $after ): string {
+			global $wpdb;
+			return $where . $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", $after );
+		};
+		add_filter( 'posts_where', $after_id );
+		$query = new \WP_Query(
 			array(
 				'post_type'      => 'wcb_application',
 				'post_status'    => 'any',
 				'posts_per_page' => self::BATCH,
 				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
 				'no_found_rows'  => true,
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
@@ -273,21 +314,62 @@ final class ApplicationLifecycle {
 				),
 			)
 		);
+		remove_filter( 'posts_where', $after_id );
+
+		$ids = array_map( 'intval', $query->posts );
 		if ( $ids ) {
 			update_postmeta_cache( $ids );
 		}
 		foreach ( $ids as $application_id ) {
-			$log  = self::log( (int) $application_id );
-			$last = $log ? (array) end( $log ) : array();
-			$back = (string) ( $last['from'] ?? '' );
-			// Only what the Close moved; a status it never changed has nothing to give back.
-			if ( 'job_closed' === ( $last['reason'] ?? '' ) && ApplicationStatus::is_valid( $back ) && ! in_array( $back, ApplicationStatus::closed(), true ) ) {
-				self::transition( (int) $application_id, $back, self::REOPEN_REASON, 0, '', false );
-			}
+			self::restore_closed( $application_id );
 		}
 		if ( self::BATCH === count( $ids ) ) {
-			wp_schedule_single_event( time(), self::REOPEN_HOOK, array( $job_id ) );
+			self::dispatch( self::REOPEN_HOOK, array( $job_id, (int) end( $ids ) ) );
 		}
+	}
+
+	/**
+	 * Give one application back the status a Close took from it.
+	 *
+	 * @param int $application_id Application post ID.
+	 * @return bool Whether it was restored.
+	 */
+	private static function restore_closed( int $application_id ): bool {
+		$log  = self::log( $application_id );
+		$last = $log ? (array) end( $log ) : array();
+		$back = (string) ( $last['from'] ?? '' );
+		// Only what the Close moved; a status it never changed has nothing to give back.
+		if ( 'job_closed' === ( $last['reason'] ?? '' ) && ApplicationStatus::is_valid( $back ) && ! in_array( $back, ApplicationStatus::closed(), true ) ) {
+			return self::transition( $application_id, $back, self::REOPEN_REASON, 0, '', false );
+		}
+		return false;
+	}
+
+	/**
+	 * Restore an application a Close moved when its job has since been reopened
+	 * and the background reopen never reached it.
+	 *
+	 * The reopen runs as one background event; if that event is lost the
+	 * applicant stays on "Position closed" under an open job, and neither side
+	 * can change it. Called where that state blocks someone (an employer moving
+	 * the application, a candidate applying again), so a lost event costs a
+	 * delay, not a stuck applicant. The rest of the job's applicants are queued.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $application_id Application post ID.
+	 * @return bool Whether the application was restored.
+	 */
+	public static function heal_reopened( int $application_id ): bool {
+		if ( ApplicationStatus::POSITION_CLOSED !== (string) get_post_meta( $application_id, '_wcb_status', true ) ) {
+			return false;
+		}
+		$job_id = (int) get_post_meta( $application_id, '_wcb_job_id', true );
+		if ( $job_id <= 0 || ! get_post( $job_id ) || 'wcb_closed' === get_post_status( $job_id ) || 'trash' === get_post_status( $job_id ) ) {
+			return false;
+		}
+		self::dispatch( self::REOPEN_HOOK, array( $job_id ) );
+		return self::restore_closed( $application_id );
 	}
 
 	/**

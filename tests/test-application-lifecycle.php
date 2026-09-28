@@ -283,6 +283,48 @@ wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_rj, 'posi
 wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_rj ) );
 wcb_assert( 'submitted' === get_post_meta( $wcb_ra['submitted'], '_wcb_status', true ), 'a close that runs after a reopen does not close an open job\'s applications' );
 
+// A reopen whose background event was lost: the applicants would stay on
+// Position closed under an open job. Where that blocks someone, it heals.
+$wcb_lj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC lost reopen', 'post_author' => $wcb_employer ) );
+$wcb_la = wcb_lc_app( $wcb_lj, $wcb_candidate, 'reviewing' );
+$wcb_lb = wcb_lc_app( $wcb_lj, $wcb_candidate, 'submitted' );
+wp_update_post( array( 'ID' => $wcb_lj, 'post_status' => 'wcb_closed' ) );
+ApplicationLifecycle::close_job_applications( $wcb_lj, 'position_closed' );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_lj, 'position_closed' ) );
+wp_update_post( array( 'ID' => $wcb_lj, 'post_status' => 'publish' ) );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_lj ) ); // the event is lost.
+wcb_assert( 'position_closed' === get_post_meta( $wcb_la, '_wcb_status', true ) && false === wp_next_scheduled( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_lj ) ), 'control: with the reopen event lost, applicants sit on Position closed under an open job' );
+$r = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_la . '/status', array( 'status' => 'shortlisted' ), $wcb_employer );
+wcb_assert( 200 === $r->get_status() && 'shortlisted' === get_post_meta( $wcb_la, '_wcb_status', true ), 'the employer moving a stranded application heals it instead of getting a 409' );
+wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_lj ) ), 'the rest of the job\'s applicants are queued again' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_lj ) );
+wcb_assert( true === ApplicationLifecycle::heal_reopened( $wcb_lb ) && 'submitted' === get_post_meta( $wcb_lb, '_wcb_status', true ), 'heal_reopened() gives a stranded application the status the Close took' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_lj ) );
+$wcb_open_log = ApplicationLifecycle::log( $wcb_lb );
+wcb_assert( 'job_reopened' === ( end( $wcb_open_log )['reason'] ?? '' ), '... and logs why' );
+wp_update_post( array( 'ID' => $wcb_lj, 'post_status' => 'wcb_closed' ) );
+$wcb_still = wcb_lc_app( $wcb_lj, $wcb_candidate, 'position_closed' );
+wcb_assert( false === ApplicationLifecycle::heal_reopened( $wcb_still ), 'a job that is still closed heals nothing' );
+wp_delete_post( $wcb_lj, true );
+wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_lj, 'job_removed' ) );
+
+// A batch of applications the Close never moved must not queue itself forever.
+$wcb_nj = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'LC endless', 'post_author' => $wcb_employer ) );
+$wcb_ids = array();
+for ( $wcb_i = 0; $wcb_i < 201; $wcb_i++ ) {
+	$wcb_ids[] = wcb_lc_app( $wcb_nj, $wcb_candidate, 'position_closed' ); // no job_closed entry in the log: nothing to give back.
+}
+ApplicationLifecycle::reopen_job_applications( $wcb_nj );
+$wcb_cursor = (int) $wcb_ids[199];
+wcb_assert( false !== wp_next_scheduled( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_nj, $wcb_cursor ) ), 'a full batch queues the next one with a cursor after its last application' );
+wp_clear_scheduled_hook( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_nj, $wcb_cursor ) );
+ApplicationLifecycle::reopen_job_applications( $wcb_nj, $wcb_cursor );
+wcb_assert( false === wp_next_scheduled( ApplicationLifecycle::REOPEN_HOOK, array( $wcb_nj, (int) $wcb_ids[200] ) ), 'the last, short batch ends the chain' );
+foreach ( $wcb_ids as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+wp_delete_post( $wcb_nj, true );
+
 // One rule for every writer: closed applications do not move.
 $wcb_gone = wcb_lc_app( $wcb_rj, $wcb_candidate, 'withdrawn' );
 wcb_assert( false === ApplicationLifecycle::transition( $wcb_gone, 'rejected', 'pipeline_stage', 0 ) && 'withdrawn' === get_post_meta( $wcb_gone, '_wcb_status', true ), 'transition() refuses to move a withdrawn application, whichever writer asks' );

@@ -359,6 +359,9 @@ final class ApplicationsEndpoint extends RestController {
 			);
 
 			if ( $existing ) {
+				// If this is a Position closed row under a job that has been reopened,
+				// give it back its status so the candidate's dashboard is right.
+				\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( (int) $existing[0]->ID );
 				return new \WP_Error(
 					'wcb_already_applied',
 					__( 'You have already applied to this job.', 'wp-career-board' ),
@@ -557,6 +560,9 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Withdrawn, position-closed and job-removed are final outcomes; the
 		// employer sees them but cannot reopen them.
+		if ( \WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( $post->ID ) ) {
+			clean_post_cache( $post->ID );
+		}
 		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
 		if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {
 			return new \WP_Error(
