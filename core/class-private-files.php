@@ -66,6 +66,23 @@ final class PrivateFiles {
 	private const BATCH = 50;
 
 	/**
+	 * Post meta: paths of files that could not be moved out of the public
+	 * folder, so the next pass can finish them and Site Health can report them.
+	 *
+	 * @since 1.8.0
+	 * @var string
+	 */
+	public const LEFT_BEHIND = '_wcb_private_left_behind';
+
+	/**
+	 * Post meta: unix time before which a failed attachment is not retried.
+	 *
+	 * @since 1.8.0
+	 * @var string
+	 */
+	private const RETRY_AT = '_wcb_private_retry_at';
+
+	/**
 	 * Random sub-folder for the upload in flight.
 	 *
 	 * @since 1.8.0
@@ -136,7 +153,18 @@ final class PrivateFiles {
 			'test'        => 'wcb_private_files',
 		);
 
-		if ( $reachable ) {
+		$left = self::left_behind_count();
+		if ( $left > 0 ) {
+			$result['status']      = 'critical';
+			$result['label']       = __( 'Some candidate files could not be moved out of the public uploads folder', 'wp-career-board' );
+			$result['description'] = '<p>' . esc_html(
+				sprintf(
+					/* translators: %d: number of resumes/CVs with a file still in the public uploads folder. */
+					_n( '%d candidate file is still in the public uploads folder, so anyone with its address can open it. It is retried every hour.', '%d candidate files are still in the public uploads folder, so anyone with their address can open them. They are retried every hour.', $left, 'wp-career-board' ),
+					$left
+				)
+			) . '</p><p>' . esc_html__( 'This usually means the web server user cannot write to (or delete from) the uploads folder for those files. Fix the permissions, then run: wp wcb migrate files', 'wp-career-board' ) . '</p>';
+		} elseif ( $reachable ) {
 			$result['status']      = 'recommended';
 			$result['label']       = __( 'Candidate files can be fetched directly from the uploads folder', 'wp-career-board' );
 			$result['description'] = '<p>' . esc_html__( 'Your web server does not read .htaccess files (common on nginx), so the private folder is protected only by its random folder names. Add this rule to your nginx server block, or ask your host to:', 'wp-career-board' ) . '</p><p><code>location ^~ ' . esc_html( untrailingslashit( (string) wp_parse_url( (string) $uploads['baseurl'], PHP_URL_PATH ) ) ) . '/' . self::DIR . '/ { deny all; }</code></p>';
@@ -343,23 +371,35 @@ final class PrivateFiles {
 				LEFT JOIN {$wpdb->postmeta} ref ON ref.meta_key = '_wcb_resume_attachment_id' AND ref.meta_value = CAST( a.ID AS CHAR )
 				LEFT JOIN {$wpdb->posts} parent ON parent.ID = a.post_parent
 				LEFT JOIN {$wpdb->postmeta} done ON done.post_id = a.ID AND done.meta_key = %s
+				LEFT JOIN {$wpdb->postmeta} retry ON retry.post_id = a.ID AND retry.meta_key = %s
 				WHERE a.post_type = 'attachment'
 				AND a.post_mime_type IN ( 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' )
 				AND ( ref.meta_id IS NOT NULL OR parent.post_type IN ( 'wcb_application', 'wcb_resume' ) )
-				AND done.meta_id IS NULL
+				AND ( done.meta_id IS NULL OR ( retry.meta_id IS NOT NULL AND CAST( retry.meta_value AS UNSIGNED ) <= %d ) )
 				ORDER BY a.ID
 				LIMIT %d",
 				self::META,
+				self::RETRY_AT,
+				time(),
 				self::BATCH
 			)
 		);
 
+		$failed = 0;
 		foreach ( array_map( 'intval', $ids ) as $attachment_id ) {
 			self::move_to_private( $attachment_id );
+			if ( get_post_meta( $attachment_id, self::RETRY_AT, true ) ) {
+				++$failed;
+			}
 		}
 
-		if ( count( $ids ) === self::BATCH && ! wp_next_scheduled( self::MIGRATE_HOOK ) ) {
-			wp_schedule_single_event( time() + 60, self::MIGRATE_HOOK );
+		if ( ! wp_next_scheduled( self::MIGRATE_HOOK ) ) {
+			if ( count( $ids ) === self::BATCH ) {
+				wp_schedule_single_event( time() + 60, self::MIGRATE_HOOK );
+			} elseif ( $failed > 0 ) {
+				// A file that would not move is tried again later, not forgotten.
+				wp_schedule_single_event( time() + HOUR_IN_SECONDS, self::MIGRATE_HOOK );
+			}
 		}
 
 		return count( $ids );
@@ -369,7 +409,11 @@ final class PrivateFiles {
 	 * Move one attachment's file into a new private folder and protect it.
 	 *
 	 * A file that is missing on disk is still protected (status + meta) so it
-	 * leaves core REST and is not retried forever.
+	 * leaves core REST and is not retried forever. A file that exists but
+	 * cannot be moved (permissions, a locked file, another mount) is also
+	 * protected, but stays on the retry list with the paths left behind, so it
+	 * is finished on a later pass and shows in Site Health instead of sitting
+	 * in the public folder unnoticed.
 	 *
 	 * @since 1.8.0
 	 * @param int $attachment_id Attachment post ID.
@@ -378,13 +422,14 @@ final class PrivateFiles {
 	public static function move_to_private( int $attachment_id ): bool {
 		$old   = (string) get_attached_file( $attachment_id );
 		$moved = false;
+		$left  = array();
 
 		if ( '' !== $old && is_readable( $old ) && false === strpos( $old, '/' . self::DIR . '/' ) ) {
 			$uploads = wp_get_upload_dir();
 			self::guard_folder( (string) $uploads['basedir'] );
 			$folder = trailingslashit( $uploads['basedir'] ) . self::DIR . '/' . wp_generate_password( 20, false, false );
 			$new    = $folder . '/' . basename( $old );
-			if ( wp_mkdir_p( $folder ) && @rename( $old, $new ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename -- failure handled below.
+			if ( wp_mkdir_p( $folder ) && self::relocate( $old, $new ) ) {
 				update_attached_file( $attachment_id, $new );
 				$moved = true;
 				// A PDF's page-1 preview and its sizes sit beside it and show the CV
@@ -393,15 +438,72 @@ final class PrivateFiles {
 				$meta = wp_get_attachment_metadata( $attachment_id );
 				foreach ( is_array( $meta ) && is_array( $meta['sizes'] ?? null ) ? $meta['sizes'] : array() as $size ) {
 					$preview = dirname( $old ) . '/' . basename( (string) ( $size['file'] ?? '' ) );
-					if ( is_file( $preview ) ) {
-						@rename( $preview, $folder . '/' . basename( $preview ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename -- best effort; the CV itself already moved.
+					if ( is_file( $preview ) && ! self::relocate( $preview, $folder . '/' . basename( $preview ) ) ) {
+						$left[] = $preview;
 					}
+				}
+			} else {
+				$left[] = $old;
+			}
+		} elseif ( '' !== $old ) {
+			// Already in the private folder: finish any previews an earlier pass left behind.
+			$pending = get_post_meta( $attachment_id, self::LEFT_BEHIND, true );
+			foreach ( is_array( $pending ) ? $pending : array() as $path ) {
+				if ( is_file( (string) $path ) && ! self::relocate( (string) $path, dirname( $old ) . '/' . basename( (string) $path ) ) ) {
+					$left[] = (string) $path;
 				}
 			}
 		}
 
 		self::protect( $attachment_id );
+
+		if ( $left ) {
+			update_post_meta( $attachment_id, self::LEFT_BEHIND, $left );
+			update_post_meta( $attachment_id, self::RETRY_AT, (string) ( time() + HOUR_IN_SECONDS ) );
+			error_log( sprintf( 'WP Career Board: could not move %d file(s) of attachment %d into private storage; still in the public uploads folder: %s', count( $left ), $attachment_id, implode( ', ', array_map( 'basename', $left ) ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- a background job has no other channel; Site Health reports it too.
+		} else {
+			delete_post_meta( $attachment_id, self::LEFT_BEHIND );
+			delete_post_meta( $attachment_id, self::RETRY_AT );
+		}
+
 		return $moved;
+	}
+
+	/**
+	 * Move a file, falling back to copy-and-delete for another mount.
+	 *
+	 * Never leaves two copies: if the original cannot be removed after the copy,
+	 * the copy is dropped and the move counts as failed.
+	 *
+	 * @since 1.8.0
+	 * @param string $from Current path.
+	 * @param string $to   Destination path.
+	 * @return bool True when the file now exists only at $to.
+	 */
+	private static function relocate( string $from, string $to ): bool {
+		if ( @rename( $from, $to ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename -- failure handled below.
+			return true;
+		}
+		if ( @copy( $from, $to ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- failure handled below.
+			if ( @unlink( $from ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink -- failure handled below.
+				return true;
+			}
+			@unlink( $to ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink -- drop the copy so only the original remains.
+		}
+		return false;
+	}
+
+	/**
+	 * How many attachments still have a file in the public uploads folder.
+	 *
+	 * @since 1.8.0
+	 * @return int
+	 */
+	public static function left_behind_count(): int {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- small indexed count for Site Health.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s", self::LEFT_BEHIND ) );
 	}
 
 	/**

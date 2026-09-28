@@ -20,6 +20,8 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	return;
 }
 
+use WCB\Core\PrivateFiles;
+
 $GLOBALS['wcb_test_pass'] = 0;
 $GLOBALS['wcb_test_fail'] = 0;
 
@@ -134,6 +136,62 @@ $wcb_guest = wcb_rest(
 	0
 );
 wcb_assert( 400 === $wcb_guest->get_status(), 'guest apply with someone else\'s attachment is rejected' );
+
+// A file that cannot be moved out of the public folder is recorded, retried and
+// reported, not marked done and forgotten.
+if ( 'Darwin' !== PHP_OS_FAMILY ) {
+	WP_CLI::log( '  SKIP: the move-failure checks lock a file with chflags (macOS only).' );
+} else {
+	$wcb_fixture = static function ( string $tag ) use ( $wcb_suffix, $wcb_candidate, $wcb_app ): array {
+		$upload   = wp_upload_bits( 'pf-' . $tag . '-' . $wcb_suffix . '.pdf', null, "%PDF-1.4\nfixture\n" );
+		$preview  = str_replace( '.pdf', '-pdf-212x300.jpg', $upload['file'] );
+		file_put_contents( $preview, 'jpg' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$id = (int) wp_insert_attachment(
+			array(
+				'post_mime_type' => 'application/pdf',
+				'post_title'     => 'PF ' . $tag,
+				'post_status'    => 'inherit',
+				'post_author'    => $wcb_candidate,
+			),
+			$upload['file'],
+			$wcb_app
+		);
+		wp_update_attachment_metadata( $id, array( 'sizes' => array( 'medium' => array( 'file' => basename( $preview ) ) ) ) );
+		return array( $id, $upload['file'], $preview );
+	};
+	$wcb_lock   = static function ( string $path, bool $on ): void {
+		exec( ( $on ? 'chflags uchg ' : 'chflags nouchg ' ) . escapeshellarg( $path ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
+	};
+
+	// A locked preview: the CV moves, the preview is left behind and recorded.
+	list( $wcb_a, $wcb_a_main, $wcb_a_prev ) = $wcb_fixture( 'lockprev' );
+	$wcb_lock( $wcb_a_prev, true );
+	$wcb_moved = PrivateFiles::move_to_private( $wcb_a );
+	$wcb_left  = (array) get_post_meta( $wcb_a, PrivateFiles::LEFT_BEHIND, true );
+	wcb_assert( true === $wcb_moved && ! is_file( $wcb_a_main ), 'a locked preview does not stop the CV itself moving' );
+	wcb_assert( array( $wcb_a_prev ) === $wcb_left && is_file( $wcb_a_prev ), 'the preview that would not move is recorded as left behind' );
+	wcb_assert( '' !== (string) get_post_meta( $wcb_a, '_wcb_private_retry_at', true ), 'and a retry time is set, so it is not marked done and forgotten' );
+	wcb_assert( 'critical' === PrivateFiles::health_test()['status'] && PrivateFiles::left_behind_count() >= 1, 'Site Health reports the file still in the public folder as critical' );
+
+	$wcb_lock( $wcb_a_prev, false );
+	update_post_meta( $wcb_a, '_wcb_private_retry_at', (string) ( time() - 5 ) );
+	PrivateFiles::migrate_batch();
+	wcb_assert( ! is_file( $wcb_a_prev ) && '' === (string) get_post_meta( $wcb_a, PrivateFiles::LEFT_BEHIND, true ), 'once unlocked, the next pass moves the preview and clears the record' );
+
+	// A locked main file: nothing moves, it is recorded, and a later pass moves it.
+	list( $wcb_b, $wcb_b_main, $wcb_b_prev ) = $wcb_fixture( 'lockmain' );
+	$wcb_lock( $wcb_b_main, true );
+	$wcb_moved = PrivateFiles::move_to_private( $wcb_b );
+	wcb_assert( false === $wcb_moved && is_file( $wcb_b_main ) && get_attached_file( $wcb_b ) === $wcb_b_main, 'a CV that cannot be moved stays where it is, with its path unchanged' );
+	wcb_assert( in_array( $wcb_b_main, (array) get_post_meta( $wcb_b, PrivateFiles::LEFT_BEHIND, true ), true ), '... and is recorded as left behind' );
+	$wcb_lock( $wcb_b_main, false );
+	PrivateFiles::move_to_private( $wcb_b );
+	wcb_assert( ! is_file( $wcb_b_main ) && ! is_file( $wcb_b_prev ) && '' === (string) get_post_meta( $wcb_b, PrivateFiles::LEFT_BEHIND, true ), 'once unlocked it moves, previews included, and the record clears' );
+
+	foreach ( array( $wcb_a, $wcb_b ) as $wcb_id ) {
+		wp_delete_attachment( $wcb_id, true );
+	}
+}
 
 // Teardown.
 foreach ( get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'fields' => 'ids', 'numberposts' => -1, 'meta_key' => '_wcb_job_id', 'meta_value' => $wcb_job ) ) as $wcb_id ) { // phpcs:ignore WordPress.DB.SlowDBQuery

@@ -389,6 +389,10 @@ class MigrateCommands extends AbstractCliCommand {
 			$total += $done;
 		} while ( $done > 0 );
 		wp_clear_scheduled_hook( \WCB\Core\PrivateFiles::MIGRATE_HOOK );
-		\WP_CLI::success( sprintf( '%d candidate file(s) now in private storage.', $total ) );
+		$left = \WCB\Core\PrivateFiles::left_behind_count();
+		if ( $left > 0 ) {
+			\WP_CLI::warning( sprintf( '%d candidate file(s) could not be moved and are still in the public uploads folder. Check that the web server user can write to and delete from it, then run this again.', $left ) );
+		}
+		\WP_CLI::success( sprintf( '%d candidate file(s) processed.', $total ) );
 	}
 }
