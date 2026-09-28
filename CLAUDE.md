@@ -123,6 +123,11 @@ blocks/{name}/
 ```
 - `register_block_type_from_metadata()` only
 
+### Generated assets - never hand-kept
+- `-rtl.css` twins are written by `npm run rtl` (`grunt rtl`, rtlcss) for every stylesheet with direction-dependent rules, and again inside `bin/package-dist.sh`, so a release zip always carries fresh ones. They are gitignored; `core/class-rtl.php` switches a style to its twin only when the file exists, so a style with no twin uses the LTR file and nothing 404s.
+- Never register `rtl` per style with `wp_style_add_data()` and never commit a `-rtl.css` or `.min.css/.js` (vendored third-party files excepted). `bin/coding-rules-check.sh` Rule 11 fails on a tracked one.
+- To test RTL locally, run `npm run rtl`, then load the site in an RTL language.
+
 ### Escaping
 ```php
 esc_html_e( 'string', 'wp-career-board' );  // output

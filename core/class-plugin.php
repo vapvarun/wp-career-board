@@ -127,6 +127,10 @@ final class Plugin {
 		// download only through the gated handler.
 		\WCB\Core\PrivateFiles::boot();
 
+		// Generated -rtl stylesheets: on RTL sites, each style of ours switches to
+		// its build-generated twin when one exists.
+		\WCB\Core\Rtl::boot();
+
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
 		// deep-link scheme survives esc_url() there, and a WooCommerce-style
@@ -942,7 +946,6 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
 
 		wp_enqueue_style(
 			'wcb-frontend-tokens',
@@ -950,7 +953,6 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend-tokens', 'rtl', 'replace' );
 
 		wp_enqueue_style(
 			'wcb-frontend-components',
@@ -958,7 +960,6 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend-components', 'rtl', 'replace' );
 
 		$this->enqueue_editor_assets();
 
@@ -1018,7 +1019,6 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-editor', 'rtl', 'replace' );
 
 		wp_enqueue_script(
 			'wcb-editor',

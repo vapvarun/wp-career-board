@@ -18,6 +18,7 @@
 #   8. Design-system contracts: (a) single canonical token namespace, no legacy
 #      --wcb-accent/text/bg/warn aliases; (b) dual-context CSS keeps hex fallbacks
 #  10. One button system: no legacy `.wcb-cbtn` class
+#  11. No tracked generated assets (-rtl.css, .min.css/.js outside vendored code)
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -271,6 +272,19 @@ if [ -n "$CBTN" ]; then
 	report "Rule 10: legacy .wcb-cbtn class - use .wcb-btn (--outline replaces --ghost on archive cards)"
 else
 	ok "Rule 10: single .wcb-btn button system"
+fi
+
+# --- Rule 11: generated assets are never hand-kept ---
+# -rtl.css twins are written by `grunt rtl` and (later) minified files by the
+# build. A tracked copy drifts from its source: Free's admin-rtl.css sat 450
+# lines behind admin.css until RTL sites got a different, older admin. Vendored
+# third-party files (assets/js/vendor/*.min.js, libs/) are exempt.
+HANDKEPT=$(git ls-files 2>/dev/null | grep -E '(-rtl\.css|\.min\.(css|js))$' | grep -vE '(^|/)(vendor|libs|node_modules)/' || true)
+if [ -n "$HANDKEPT" ]; then
+	echo "$HANDKEPT" | sed 's/^/    /'
+	report "Rule 11: tracked generated file - delete it; -rtl.css comes from 'npm run rtl' (grunt rtl) and is gitignored"
+else
+	ok "Rule 11: no hand-kept generated assets"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

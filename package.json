@@ -6,6 +6,7 @@
     "build": "wp-scripts build",
     "start": "wp-scripts start",
     "lint:js": "wp-scripts lint-js",
+    "rtl": "grunt rtl",
     "release": "grunt release",
     "dist": "grunt dist",
     "pot": "grunt pot",

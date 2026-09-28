@@ -808,7 +808,6 @@ class Admin {
 		wp_enqueue_style( 'wcb-shared', WCB_URL . 'assets/css/admin/shared.css', array( 'wcb-tokens' ), WCB_VERSION );
 		wp_enqueue_style( 'wcb-toast-css', WCB_URL . 'assets/css/admin/toast.css', array( 'wcb-tokens' ), WCB_VERSION );
 		wp_enqueue_style( 'wcb-admin', WCB_URL . 'assets/css/admin.css', array( 'wcb-tokens' ), WCB_VERSION );
-		wp_style_add_data( 'wcb-admin', 'rtl', 'replace' );
 
 		wp_enqueue_script( 'lucide', WCB_URL . 'assets/js/vendor/lucide.min.js', array(), '0.460.0', true );
 		wp_enqueue_script( 'wcb-icons', WCB_URL . 'assets/js/admin/icons.js', array( 'lucide' ), WCB_VERSION, true );
