@@ -97,6 +97,14 @@ wcb_cnc_assert(
 	'recipient_id <= 0 => no contract payload'
 );
 
+// 3b. One vocabulary: an email id announces the same event type Pro's bell
+// uses, and every declared type is an event name (never an email id).
+$mapped = CommunityNotificationContract::build( $employer, 'job-approved', 'x', 'https://example.test/', array( 'object_type' => 'job', 'object_id' => $job ) );
+wcb_cnc_assert( 'job_approved' === $mapped['type'], 'the job-approved email announces the job_approved event' );
+$declared = CommunityNotificationContract::filter_types( array() );
+wcb_cnc_assert( array() === array_diff( array_keys( $declared ), array_values( CommunityNotificationContract::EMAIL_EVENTS ) ), 'every declared type is an event name from EMAIL_EVENTS' );
+wcb_cnc_assert( ! isset( $declared['application-confirmation'] ), 'the candidate\'s own confirmation is not a declared type' );
+
 // 4. Visibility: trashed hides from everyone; withdrawn hides from the
 // employer only, the candidate keeps their own record.
 $targets = array(

@@ -27,6 +27,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CommunityNotificationContract {
 
 	/**
+	 * The ONE vocabulary of Career Board notification types, shared by Free's
+	 * emails and Pro's bell: email id => event type. Pro's bell already stores
+	 * these event names, so Free maps onto them; one event has one type (one
+	 * settings switch) whichever side announces it.
+	 *
+	 * The candidate's own "application submitted" confirmation maps to the same
+	 * event as the employer's alert and carries the candidate as actor, so a
+	 * community inbox drops it as a self-notification (the email still goes).
+	 *
+	 * @since 1.8.0
+	 */
+	public const EMAIL_EVENTS = array(
+		'application-received'       => 'application_submitted',
+		'application-confirmation'   => 'application_submitted',
+		'application-status-changed' => 'application_status_changed',
+		'application-withdrawn'      => 'application_withdrawn',
+		'deadline-reminder'          => 'deadline_reminder',
+		'job-approved'               => 'job_approved',
+		'job-rejected'               => 'job_rejected',
+		'job-expired'                => 'job_expired',
+		'job-expiring'               => 'job_expiring',
+	);
+
+	/**
 	 * Wire the types + visibility filters. Called once from
 	 * NotificationsModule::boot().
 	 *
@@ -64,13 +88,13 @@ final class CommunityNotificationContract {
 
 		return array(
 			'recipient_id'    => $recipient_id,
-			'type'            => $type,
+			'type'            => self::EMAIL_EVENTS[ $type ] ?? $type,
 			'actor_id'        => $actor_id,
 			'object_type'     => $object_type,
 			'object_id'       => $object_id,
 			'message'         => wp_strip_all_tags( $message ),
 			'url'             => $url,
-			'group_key'       => isset( $context['group_key'] ) ? sanitize_key( (string) $context['group_key'] ) : sanitize_key( $type ) . '_' . $object_id,
+			'group_key'       => isset( $context['group_key'] ) ? sanitize_key( (string) $context['group_key'] ) : sanitize_key( self::EMAIL_EVENTS[ $type ] ?? $type ) . '_' . $object_id,
 			'notification_id' => (int) ( $context['notification_id'] ?? 0 ),
 		);
 	}
@@ -85,47 +109,42 @@ final class CommunityNotificationContract {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function filter_types( array $types ): array {
-		$types['application-confirmation']   = array(
-			'label'       => __( 'Application submitted', 'wp-career-board' ),
-			'description' => __( 'Confirmation that your application was submitted.', 'wp-career-board' ),
-			'default_on'  => true,
-		);
-		$types['application-received']       = array(
+		$types['application_submitted']      = array(
 			'label'       => __( 'New application received', 'wp-career-board' ),
 			'description' => __( 'A candidate applied for one of your jobs.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['application-status-changed'] = array(
+		$types['application_status_changed'] = array(
 			'label'       => __( 'Application status updated', 'wp-career-board' ),
 			'description' => __( 'The status of your application changed.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['application-withdrawn']      = array(
+		$types['application_withdrawn']      = array(
 			'label'       => __( 'Candidate withdrew their application', 'wp-career-board' ),
 			'description' => __( 'A candidate withdrew their application to your job.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['deadline-reminder']          = array(
+		$types['deadline_reminder']          = array(
 			'label'       => __( 'Saved job deadline approaching', 'wp-career-board' ),
 			'description' => __( 'A job you applied to is closing soon.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['job-approved']               = array(
+		$types['job_approved']               = array(
 			'label'       => __( 'Job approved', 'wp-career-board' ),
 			'description' => __( 'Your job listing was approved and is now live.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['job-expired']                = array(
+		$types['job_expired']                = array(
 			'label'       => __( 'Job listing expired', 'wp-career-board' ),
 			'description' => __( 'Your job listing has expired.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['job-expiring']               = array(
+		$types['job_expiring']               = array(
 			'label'       => __( 'Job listing expiring soon', 'wp-career-board' ),
 			'description' => __( 'Your job listing closes to applications soon.', 'wp-career-board' ),
 			'default_on'  => true,
 		);
-		$types['job-rejected']               = array(
+		$types['job_rejected']               = array(
 			'label'       => __( 'Job listing rejected', 'wp-career-board' ),
 			'description' => __( 'Your job listing was not approved.', 'wp-career-board' ),
 			'default_on'  => true,

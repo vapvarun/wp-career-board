@@ -135,6 +135,7 @@ class EmailAppConfirmation extends AbstractEmail {
 			array(
 				'object_type' => 'application',
 				'object_id'   => $app_id,
+				'actor_id'    => $candidate_id, // Self-action: not a community notification.
 			)
 		);
 	}
