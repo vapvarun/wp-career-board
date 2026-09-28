@@ -87,6 +87,20 @@ ApplicationLifecycle::transition( $app, 'shortlisted', 'test', $employer );
 wcb_cnc_assert( 1 === $legacy_args, 'a listener registered with accepted_args=1 receives exactly one argument' );
 remove_action( 'wcb_notification_created', $legacy, 10 );
 
+// 2b. A rejection has its own email (application-not-selected); it must still
+// reach a community inbox as a status change, exactly once (Pro's bell claims
+// it when active, the email announces it on a Free-only site).
+$captured = array();
+$listener = static function ( array $legacy, ?array $contract ) use ( &$captured ): void {
+	$captured[] = $contract;
+};
+add_action( 'wcb_notification_created', $listener, 10, 2 );
+ApplicationLifecycle::transition( $app, 'rejected', 'test', $employer );
+remove_action( 'wcb_notification_created', $listener, 10 );
+wcb_cnc_assert( 1 === count( $captured ), 'a rejection fires the signal once' );
+wcb_cnc_assert( isset( $captured[0]['type'], $captured[0]['recipient_id'] ) && 'application_status_changed' === $captured[0]['type'] && $candidate === (int) $captured[0]['recipient_id'], 'a rejection reaches the candidate as application_status_changed' );
+update_post_meta( $app, '_wcb_status', 'shortlisted' );
+
 // 3. A transactional email (no object_type) yields a null contract payload.
 wcb_cnc_assert(
 	null === CommunityNotificationContract::build( $candidate, 'verify-account', 'Verify your account', 'https://example.test/verify' ),

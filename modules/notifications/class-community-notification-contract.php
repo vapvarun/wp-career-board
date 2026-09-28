@@ -42,6 +42,7 @@ final class CommunityNotificationContract {
 		'application-received'       => 'application_submitted',
 		'application-confirmation'   => 'application_submitted',
 		'application-status-changed' => 'application_status_changed',
+		'application-not-selected'   => 'application_status_changed',
 		'application-withdrawn'      => 'application_withdrawn',
 		'deadline-reminder'          => 'deadline_reminder',
 		'job-approved'               => 'job_approved',
