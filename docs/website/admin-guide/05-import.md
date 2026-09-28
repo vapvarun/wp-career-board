@@ -27,23 +27,40 @@ Migrates `job_listing` posts to `wcb_job`. Available in the free plugin.
 | Title & description | Job title + post content |
 | `_job_location` | `_wcb_location` + location taxonomy |
 | `_job_salary` | `_wcb_salary_min` / `_wcb_salary_max` |
-| Salary currency & pay type | `_wcb_salary_currency` / `_wcb_salary_type` |
+| Salary currency | `_wcb_salary_currency` |
+| Pay unit HOUR / MONTH / YEAR | Hourly / monthly / yearly (DAY and WEEK are left unset and show as yearly) |
 | `_job_expires` / `_job_duration` | `_wcb_deadline` |
 | `_featured` | `_wcb_featured` |
 | `_remote_position` | `_wcb_remote` |
 | `_application` (email or URL) | Preserved as application meta |
-| `_company_name`, `_company_website`, `_company_tagline`, `_company_twitter`, logo, video | Company profile meta |
-| `_filled` → closed | Post status mapped to Closed |
-| `job_cat`, `job_type` taxonomies | `wcb_category`, `wcb_job_type` |
+| `_company_name`, `_company_website`, `_company_tagline`, `_company_twitter`, logo | A company page, linked to the job. An existing company with the same website (or name) is reused, so a company's jobs share one page. An employer with no company adopts it. |
+| Filled job | Imported as **Closed** (not live) |
+| Expired job (when importing expired jobs) | Imported as **Expired** |
+| Categories, job types, tags | `wcb_category`, `wcb_job_type`, `wcb_tag` |
 
 **How to run:**
 
 1. Go to **WP Career Board → Settings → Import**
-2. The card shows how many WP Job Manager jobs were found and how many are already imported
+2. The card shows how many WP Job Manager jobs were found and how many are already imported, plus a preview: how many filled jobs will be closed, how many company pages will be created and how many applications wait to be imported
 3. Click **Import All Jobs**
 4. A progress bar shows batch-by-batch progress until complete
 
 WP Job Manager does not need to remain active after the import is complete.
+
+From the command line, `wp wcb migrate wpjm --dry-run` prints the same preview without writing anything.
+
+### WP Job Manager Applications → Applications (Free)
+
+When the WP Job Manager Applications add-on is active, a second card moves its applications onto the imported jobs. Import the jobs first.
+
+| WP Job Manager Applications | WP Career Board |
+|---|---|
+| Status new / interviewed / offer / hired / rejected / archived | Submitted / Shortlisted / Shortlisted / Hired / Rejected / Rejected |
+| Candidate name and email | The candidate's account when the email matches a member, else a guest application |
+| Message | Cover letter |
+| Attached files | Listed as links in the cover letter (files stay where WP Job Manager stored them) |
+
+No emails are sent to candidates or employers during the import. Command line: `wp wcb migrate wpjm-applications [--dry-run]`.
 
 ### WP Job Manager Resumes → Resumes (Pro)
 
@@ -100,5 +117,4 @@ The Import page shows live stats for each migration:
 ## Limitations
 
 - Custom fields added by WP Job Manager extensions are not automatically mapped — you will need to re-enter those manually
-- Applications submitted in WP Job Manager are not migrated (no equivalent structure in the free plugin)
 - The importer does not delete WP Job Manager data after migration — you can deactivate and delete WP Job Manager separately once you are satisfied with the results

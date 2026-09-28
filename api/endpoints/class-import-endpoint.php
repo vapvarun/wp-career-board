@@ -56,7 +56,7 @@ final class ImportEndpoint extends RestController {
 					'type'   => array(
 						'required'          => true,
 						'type'              => 'string',
-						'enum'              => array( 'wpjm-jobs', 'wpjm-resumes' ),
+						'enum'              => array( 'wpjm-jobs', 'wpjm-applications', 'wpjm-resumes' ),
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'offset' => array(
@@ -92,12 +92,18 @@ final class ImportEndpoint extends RestController {
 
 		return rest_ensure_response(
 			array(
-				'jobs'    => array(
+				'jobs'         => array(
 					'source_active' => post_type_exists( 'job_listing' ),
 					'total'         => $importer->wpjm_jobs_total(),
 					'migrated'      => $importer->wcb_jobs_migrated(),
 				),
-				'resumes' => array(
+				'applications' => array(
+					'source_active' => post_type_exists( 'job_application' ),
+					'total'         => $importer->applications_total(),
+					'migrated'      => $importer->wcb_applications_migrated(),
+				),
+				'preview'      => $importer->preview(),
+				'resumes'      => array(
 					'source_active' => post_type_exists( 'resume' ),
 					'total'         => $importer->wpjm_resumes_total(),
 					'migrated'      => $importer->wcb_resumes_migrated(),
@@ -131,6 +137,16 @@ final class ImportEndpoint extends RestController {
 			}
 			$result = $importer->migrate_jobs_batch( $offset, $limit );
 			$total  = $importer->wpjm_jobs_total();
+		} elseif ( 'wpjm-applications' === $type ) {
+			if ( ! post_type_exists( 'job_application' ) ) {
+				return new \WP_Error(
+					'wcb_source_inactive',
+					__( 'WP Job Manager Applications is not active.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
+			$result = $importer->migrate_applications_batch( $offset, $limit );
+			$total  = $importer->applications_total();
 		} else {
 			if ( ! post_type_exists( 'resume' ) ) {
 				return new \WP_Error(

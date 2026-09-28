@@ -38,6 +38,9 @@ class AdminImport {
 		$jobs_migrated    = $importer->wcb_jobs_migrated();
 		$resumes_total    = $importer->wpjm_resumes_total();
 		$resumes_migrated = $importer->wcb_resumes_migrated();
+		$preview          = $wpjm_jobs ? $importer->preview() : array();
+		$apps_total       = $importer->applications_total();
+		$apps_migrated    = $importer->wcb_applications_migrated();
 		?>
 		<div class="wcb-admin-import">
 			<p class="description" style="margin: 0 0 16px;">
@@ -74,15 +77,15 @@ class AdminImport {
 				array(
 					__( 'Title & description', 'wp-career-board' ),
 					__( 'Location', 'wp-career-board' ),
-					__( 'Salary (min/max)', 'wp-career-board' ),
-					__( 'Currency & pay type', 'wp-career-board' ),
+					__( 'Salary', 'wp-career-board' ),
+					__( 'Currency & pay period (hourly, monthly, yearly)', 'wp-career-board' ),
 					__( 'Deadline / duration', 'wp-career-board' ),
 					__( 'Featured flag', 'wp-career-board' ),
 					__( 'Remote flag', 'wp-career-board' ),
 					__( 'Application email / URL', 'wp-career-board' ),
-					__( 'Company name, website, tagline, Twitter, logo, video', 'wp-career-board' ),
-					__( 'Filled → closed status', 'wp-career-board' ),
-					__( 'Categories & job types', 'wp-career-board' ),
+					__( 'Company pages (name, website, tagline, Twitter, logo), matched to existing companies by website or name', 'wp-career-board' ),
+					__( 'Filled jobs → Closed, expired → Expired', 'wp-career-board' ),
+					__( 'Categories, job types & tags', 'wp-career-board' ),
 				)
 			)
 		);
@@ -104,6 +107,21 @@ class AdminImport {
 			<?php esc_html_e( 'remaining', 'wp-career-board' ); ?>
 						</span>
 					</div>
+
+					<?php if ( $preview ) : ?>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: 1: jobs to import, 2: filled jobs that will be closed, 3: new company pages, 4: applications to import. */
+								esc_html__( 'Preview: %1$s jobs to import, %2$s filled jobs will be closed, %3$s new company pages, %4$s applications (import them after the jobs).', 'wp-career-board' ),
+								esc_html( number_format_i18n( $preview['jobs'] ) ),
+								esc_html( number_format_i18n( $preview['filled'] ) ),
+								esc_html( number_format_i18n( $preview['companies_new'] ) ),
+								esc_html( number_format_i18n( $preview['applications'] ) )
+							);
+							?>
+						</p>
+					<?php endif; ?>
 
 					<div class="wcb-import-actions">
 			<?php if ( $jobs_total > 0 ) : ?>
@@ -137,6 +155,48 @@ class AdminImport {
 					</p>
 				<?php endif; ?>
 			</div>
+
+		<?php /* ── WP Job Manager Applications ── */ ?>
+			<?php if ( post_type_exists( 'job_application' ) ) : ?>
+			<div class="wcb-import-card" id="wcb-import-wpjm-applications"
+				data-type="wpjm-applications"
+				data-total="<?php echo (int) $apps_total; ?>">
+				<div class="wcb-import-card-head">
+					<div class="wcb-import-card-title">
+						<i data-lucide="inbox"></i>
+						<?php esc_html_e( 'WP Job Manager Applications → Applications', 'wp-career-board' ); ?>
+					</div>
+					<span class="wcb-import-badge wcb-import-badge--active"><?php esc_html_e( 'Plugin active', 'wp-career-board' ); ?></span>
+				</div>
+				<p class="wcb-import-desc">
+					<?php esc_html_e( 'Moves applications onto the imported jobs with their status (new, interviewed, offer, hired, rejected), message, candidate and attached file links. Import the jobs first. No emails are sent.', 'wp-career-board' ); ?>
+				</p>
+				<div class="wcb-import-stats">
+					<span class="wcb-import-stat">
+						<strong class="wcb-import-stat-num"><?php echo (int) $apps_total; ?></strong>
+						<?php esc_html_e( 'found', 'wp-career-board' ); ?>
+					</span>
+					<span class="wcb-import-stat">
+						<strong class="wcb-import-stat-num wcb-import-stat-migrated"><?php echo (int) $apps_migrated; ?></strong>
+						<?php esc_html_e( 'already imported', 'wp-career-board' ); ?>
+					</span>
+				</div>
+				<div class="wcb-import-actions">
+					<?php if ( $apps_total > 0 ) : ?>
+						<button type="button" class="wcb-btn wcb-btn--primary wcb-import-start" data-type="wpjm-applications">
+							<?php esc_html_e( 'Import All Applications', 'wp-career-board' ); ?>
+						</button>
+					<?php endif; ?>
+				</div>
+				<div class="wcb-import-progress-wrap" style="display:none">
+					<div class="wcb-import-progress-bar-track">
+						<div class="wcb-import-progress-bar-fill" style="width:0%"></div>
+					</div>
+					<p class="wcb-import-progress-label"></p>
+				</div>
+				<div class="wcb-import-log" style="display:none"></div>
+			</div>
+			<?php endif; ?>
 
 		<?php /* ── WP Job Manager Resumes ── */ ?>
 		<?php $wcb_pro_active = (bool) apply_filters( 'wcb_pro_active', false ); ?>

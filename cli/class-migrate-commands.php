@@ -115,6 +115,8 @@ class MigrateCommands extends AbstractCliCommand {
 				$post = get_post( (int) $id );
 				\WP_CLI::log( sprintf( '  [dry-run] Would import: "%s" (ID %d)', $post ? $post->post_title : '?', $id ) );
 			}
+			$preview = $importer->preview();
+			\WP_CLI::log( sprintf( 'Filled jobs that will be closed: %d | New company pages: %d | Applications to import afterwards: %d', $preview['filled'], $preview['companies_new'], $preview['applications'] ) );
 			\WP_CLI::success( sprintf( 'Dry run complete. %d job(s) would be processed.', count( $ids ) ) );
 			return;
 		}
@@ -308,6 +310,59 @@ class MigrateCommands extends AbstractCliCommand {
 				$errors
 			)
 		);
+	}
+
+	/**
+	 * Import WP Job Manager Applications onto the imported jobs (no emails).
+	 *
+	 * Import the jobs first (`wp wcb migrate wpjm`). Safe to re-run: already
+	 * imported applications are skipped.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 * : Count what would be imported without writing anything.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *   wp wcb migrate wpjm-applications --dry-run
+	 *   wp wcb migrate wpjm-applications
+	 *
+	 * @subcommand wpjm-applications
+	 * @since 1.8.0
+	 *
+	 * @param array                $args       Positional arguments (unused).
+	 * @param array<string,string> $assoc_args Named arguments.
+	 * @return void
+	 */
+	public function wpjm_applications( array $args, array $assoc_args ): void {
+		if ( ! post_type_exists( 'job_application' ) ) {
+			\WP_CLI::error( 'WP Job Manager Applications is not active.' );
+		}
+		$importer  = new WpjmImporter();
+		$remaining = max( 0, $importer->applications_total() - $importer->wcb_applications_migrated() );
+		if ( \WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false ) ) {
+			\WP_CLI::success( sprintf( 'Dry run complete. %d application(s) would be imported.', $remaining ) );
+			return;
+		}
+		$totals = array(
+			'imported' => 0,
+			'skipped'  => 0,
+			'errors'   => 0,
+		);
+		for ( $offset = 0; ; $offset += 50 ) {
+			$result = $importer->migrate_applications_batch( $offset, 50 );
+			foreach ( $result['errors'] as $error ) {
+				\WP_CLI::warning( $error );
+			}
+			$totals['imported'] += $result['imported'];
+			$totals['skipped']  += $result['skipped'];
+			$totals['errors']   += count( $result['errors'] );
+			if ( $result['imported'] + $result['skipped'] + count( $result['errors'] ) < 50 ) {
+				break;
+			}
+		}
+		\WP_CLI::success( sprintf( 'Done. Imported: %d | Skipped: %d | Errors: %d', $totals['imported'], $totals['skipped'], $totals['errors'] ) );
 	}
 
 	/**
