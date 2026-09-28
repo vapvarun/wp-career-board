@@ -261,7 +261,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return false;
 			}
 			const threshold = Number( state.creditLowThreshold || 0 );
-			if ( threshold <= 0 ) {
+			if ( threshold <= 0 || ! state.creditHasHistory ) {
 				return false;
 			}
 			return Number( state.creditBalance || 0 ) <= threshold;

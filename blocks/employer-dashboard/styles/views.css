@@ -268,14 +268,11 @@
 	background: var(--wcb-bg-subtle);
 }
 
-.wcb-job-row.wcb-job-closed,
-.wcb-job-row.wcb-job-expired {
-	opacity: 0.55;
-}
-
+/* A closed or expired job stays readable and keeps usable actions (Reopen): the status
+   badge says what it is, a muted title says it is not live. No fade, no strike-through. */
 .wcb-job-row.wcb-job-closed .wcb-job-title,
 .wcb-job-row.wcb-job-expired .wcb-job-title {
-	text-decoration: line-through;
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-job-actions {
@@ -856,6 +853,15 @@
 	white-space: nowrap;
 	transition: background 0.1s, border-color 0.1s;
 	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (pointer: coarse), (max-width: 640px) {
+	.wcb-db-link-btn {
+		min-height: 2.5rem;
+	}
 }
 
 .wcb-db-link-btn:hover {
@@ -864,14 +870,20 @@
 	border-color: var(--wcb-text-tertiary);
 }
 
-.wcb-db-link-btn--edit {
-	color: var(--wcb-primary);
+/* One accent for the actions that move a job forward (Edit, Publish, Reopen). */
+.wcb-db-link-btn--edit,
+.wcb-db-link-btn--publish,
+.wcb-db-link-btn--reopen {
+	color: var(--wcb-primary-text, #1d4ed8);
 	border-color: var(--wcb-primary);
 }
 
-.wcb-db-link-btn--edit:hover {
+.wcb-db-link-btn--edit:hover,
+.wcb-db-link-btn--publish:hover,
+.wcb-db-link-btn--reopen:hover {
 	background: var(--wcb-primary);
 	color: var(--wcb-on-primary, #ffffff);
+	border-color: var(--wcb-primary);
 }
 
 .wcb-db-link-btn--close {
@@ -883,27 +895,6 @@
 .wcb-db-link-btn--close:hover {
 	background: var(--wcb-warning-bg);
 	border-color: var(--wcb-warning);
-}
-
-.wcb-db-link-btn--publish {
-	color: var(--wcb-primary);
-	border-color: var(--wcb-info-border, #bfdbfe);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--publish:hover {
-	background: var(--wcb-info-bg);
-}
-
-.wcb-db-link-btn--reopen {
-	color: var(--wcb-success-fg);
-	border-color: var(--wcb-success-border);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--reopen:hover {
-	background: var(--wcb-success-bg);
-	border-color: var(--wcb-success-border, #4ade80);
 }
 
 /* -- Job status badge -- */

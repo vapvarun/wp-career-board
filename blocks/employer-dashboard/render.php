@@ -300,6 +300,9 @@ wp_interactivity_state(
 		// defaults to 0 (no warning). When balance dips below the threshold
 		// dashboard renders a subtle banner pointing at the Buy Credits page.
 		'creditLowThreshold'    => (int) apply_filters( 'wcb_credit_low_threshold', 0 ),
+		// A brand-new employer holds 0 credits without being low on anything, and may be
+		// posting to free boards: warn only someone who has held credits before.
+		'creditHasHistory'      => (bool) apply_filters( 'wcb_employer_credit_has_history', false, $wcb_employer_id ),
 		// Post-purchase success — set when the checkout redirect lands the
 		// employer back on the dashboard with ?wcb_credits_added=N. Banner
 		// auto-dismisses on first interaction so the message doesn't linger.
@@ -760,7 +763,7 @@ wp_interactivity_state(
 					<span class="wcb-pill-count" data-wp-text="state.appsCountAll"></span>
 				</button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter">
-					<?php esc_html_e( 'New', 'wp-career-board' ); ?>
+					<?php echo esc_html( \WCB\Modules\Applications\ApplicationStatus::label( \WCB\Modules\Applications\ApplicationStatus::SUBMITTED ) ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountSubmitted"></span>
 				</button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="reviewing" data-wp-class--wcb-filter-active="state.isAppsFilterReviewing" data-wp-on--click="actions.setAppsFilter">
