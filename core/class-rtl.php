@@ -53,7 +53,7 @@ class Rtl {
 		}
 
 		foreach ( wp_styles()->registered as $handle => $style ) {
-			if ( ! empty( $style->extra['rtl'] ) || ! is_string( $style->src ) ) {
+			if ( ! is_string( $style->src ) ) {
 				continue;
 			}
 			foreach ( $roots as $url => $dir ) {
@@ -63,6 +63,11 @@ class Rtl {
 				$file = (string) strtok( substr( $style->src, strlen( $url ) ), '?' );
 				if ( '.css' === substr( $file, -4 ) && is_file( $dir . substr( $file, 0, -4 ) . '-rtl.css' ) ) {
 					wp_style_add_data( $handle, 'rtl', 'replace' );
+					// Core registers block styles with rtl=replace and a `.min` suffix
+					// when SCRIPT_DEBUG is off, then swaps only `.min.css` for
+					// `-rtl.css`, which never matches our unminified files. An empty
+					// suffix makes it swap the `.css` we actually ship.
+					wp_style_add_data( $handle, 'suffix', '' );
 				}
 				break;
 			}
