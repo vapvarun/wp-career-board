@@ -274,6 +274,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : t( 'anyLabel', 'Any' );
 		},
 
+		get isMetaChipActive() {
+			const { metaKey, metaValue } = getContext();
+			return state.activeFilters[ 'meta_' + metaKey ] === metaValue;
+		},
+
 		/** Array of { key, label } for active filter pills. */
 		get activeFilterChips() {
 			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
@@ -312,6 +317,9 @@ const { state, actions } = store( 'wcb-job-listings', {
 						.split( ',' )
 						.map( ( slug ) => ( lists[ key ] || [] ).find( ( o ) => o.slug === slug )?.name || slug )
 						.join( ', ' );
+				} else if ( key.startsWith( 'meta_' ) && state.metaLabels && state.metaLabels[ key ] ) {
+					// Custom fields (Pro seeds metaLabels): "Label: value", "Yes" for a checkbox.
+					label = state.metaLabels[ key ] + ': ' + ( value === '1' && state.metaYes ? state.metaYes : value );
 				} else if ( key === 'salary_min' ) {
 					label = wcbFill(
 						t( 'salaryOpenMin', '%s+' ),
@@ -415,6 +423,22 @@ const { state, actions } = store( 'wcb-job-listings', {
 			searchDebounceTimer = setTimeout( () => {
 				store( 'wcb-job-listings' ).actions.applyFilters();
 			}, 400 );
+		},
+
+		// ── Custom-field chip (Pro filterable fields) ─────────────────
+		// One value per field: picking another value of the same field
+		// replaces it, picking the same one clears it.
+		* toggleMetaChip() {
+			const { metaKey, metaValue } = getContext();
+			const key  = 'meta_' + metaKey;
+			const next = { ...state.activeFilters };
+			if ( next[ key ] === metaValue ) {
+				delete next[ key ];
+			} else {
+				next[ key ] = metaValue;
+			}
+			state.activeFilters = next;
+			yield actions.applyFilters();
 		},
 
 		// ── Sort ──────────────────────────────────────────────────────

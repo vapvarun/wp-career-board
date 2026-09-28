@@ -25,7 +25,7 @@
     "tables": 3,
     "capabilities": 13,
     "services": 42,
-    "hooks_fired": 241,
+    "hooks_fired": 242,
     "hooks_unique": 161,
     "cron": 8,
     "wp_cli": 5
@@ -3808,6 +3808,20 @@
           "plugin": "wp-career-board-pro",
           "where": "modules/maps/class-geo-filter-module.php",
           "kind": "filter_listener"
+        }
+      ]
+    },
+    {
+      "name": "wcb_job_single_after_description",
+      "type": "action",
+      "args_count": 1,
+      "args_signature": [],
+      "where": "blocks/job-single/render.php",
+      "consumed_by": [
+        {
+          "plugin": "wp-career-board-pro",
+          "where": "modules/fields/class-fields-module.php",
+          "kind": "action_listener"
         }
       ]
     }

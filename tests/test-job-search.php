@@ -132,6 +132,16 @@ $wcb_html = do_blocks( '<!-- wp:wp-career-board/job-listings /-->' );
 $_GET     = array();
 wcb_assert( str_contains( $wcb_html, "{$wcb_tag} Platform Engineer" ) && ! str_contains( $wcb_html, "{$wcb_tag} Senior Designer" ) && str_contains( $wcb_html, '1 job found' ), 'hero keyword + type filter apply before any JavaScript' );
 
+$wcb_fired = 0;
+$wcb_hook  = static function ( int $job_id ) use ( &$wcb_fired, $wcb_body ): void {
+	$wcb_fired = $job_id === $wcb_body ? 1 : 0;
+	echo '<p class="qa-after-desc">extra</p>';
+};
+add_action( 'wcb_job_single_after_description', $wcb_hook );
+$wcb_html = do_blocks( '<!-- wp:wp-career-board/job-single {"jobId":' . $wcb_body . '} /-->' );
+remove_action( 'wcb_job_single_after_description', $wcb_hook );
+wcb_assert( 1 === $wcb_fired && str_contains( $wcb_html, 'qa-after-desc' ), 'the job page offers wcb_job_single_after_description (custom field Details)' );
+
 WP_CLI::log( '--- alerts ---' );
 wcb_assert( JobSearch::text_matches( $wcb_body, 'kubernetes senior' ) && ! JobSearch::text_matches( $wcb_body, 'kubernetes designer' ), 'alerts match with the same every-word rule' );
 

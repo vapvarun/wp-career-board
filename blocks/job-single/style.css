@@ -1088,3 +1088,37 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	height: 16px;
 	flex-shrink: 0;
 }
+
+/* ── Details (custom fields, printed on wcb_job_single_after_description) ── */
+.wcb-job-details__list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--wcb-space-sm);
+	margin: 0;
+}
+
+.wcb-job-details__row {
+	display: grid;
+	grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+	gap: var(--wcb-space-md);
+	padding-block: var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-job-details__row dt {
+	color: var(--wcb-text-secondary);
+	font-weight: 600;
+}
+
+.wcb-job-details__row dd {
+	margin: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+	.wcb-job-details__row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--wcb-space-xs);
+	}
+}

@@ -248,6 +248,14 @@ the folder directly (nginx ignores its .htaccess).
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
 
+## Job page (1.8.0)
+
+| Action | Args | When |
+|---|---|---|
+| `wcb_job_single_after_description` | `(int $job_id)` | Right after the job description; Pro prints the job's custom field "Additional details" (public fields to visitors, "Employer only" to the job's employer, "Admin only" to staff). |
+
+Job listing sidebar chips for custom fields toggle `meta_<key>` in the listing's `activeFilters` (`actions.toggleMetaChip` with context `{ metaKey, metaValue }`); a `meta_<key>` URL param is applied on first paint. Pro handles its "Filterable" fields through `wcb_job_search_args`.
+
 ## Job search (1.8.0)
 
 `WCB\Modules\Jobs\JobSearch` builds every job list query: GET /jobs and /search, the job listings block's first paint, the `/jobs/` archive and alert keyword matching. Keyword: every word must appear in the title, description or company name; title matches rank first. Filters take one slug or a comma list (any of). `sort`: `relevance` (default with a keyword), `newest` (featured first), `oldest`, `salary`, `closing`; the default without a keyword is Settings > Jobs "Default order".

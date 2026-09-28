@@ -423,6 +423,10 @@ $wcb_state = array(
 			'remote'         => ! empty( $wcb_url_params['remote'] ) ? '1' : '',
 			'salary_min'     => (string) ( $wcb_url_params['salary_min'] ?? '' ),
 			'salary_max'     => (string) ( $wcb_url_params['salary_max'] ?? '' ),
+		) + array_filter(
+			$wcb_url_params,
+			static fn ( $value, $key ): bool => str_starts_with( (string) $key, 'meta_' ) && '' !== (string) $value,
+			ARRAY_FILTER_USE_BOTH
 		)
 	),
 	// Immutable shortcode/block scope (boardId + metaFilter). Merged into

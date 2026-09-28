@@ -610,6 +610,17 @@ wp_interactivity_state(
 				</div>
 			</div>
 
+			<?php
+			/**
+			 * Fires after the job description (Pro: the job's custom field Details).
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int $job_id Job post ID.
+			 */
+			do_action( 'wcb_job_single_after_description', $wcb_job_id );
+			?>
+
 			<?php if ( ! empty( $wcb_categories ) ) : ?>
 				<div class="wcb-section">
 					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job Categories', 'wp-career-board' ); ?></h3>
