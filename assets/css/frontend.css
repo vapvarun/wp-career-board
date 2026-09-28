@@ -201,7 +201,10 @@ html[data-bn-theme="dark"],
 }
 
 /* ── Page heading — rendered inside listing blocks ───────────────────────── */
-.wcb-page-heading {
+/* Two selectors: the block-scope reset in frontend-components.css zeroes h1 margins. */
+.wcb-page-heading,
+[class*="wp-block-wp-career-board"] .wcb-page-heading,
+[class*="wp-block-wcb-"] .wcb-page-heading {
 	font-size: var(--wcb-text-2xl);
 	font-weight: var( --wcb-font-bold, 700 );
 	color: var( --wcb-canvas-fg, #0f172a );

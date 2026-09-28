@@ -890,17 +890,17 @@ wp_interactivity_state(
 				<?php endif; ?>
 
 				<?php if ( $wcb_company_industry || $wcb_company_size || $wcb_company_hq ) : ?>
-						<dl class="wcb-company-facts">
+						<dl class="wcb-detail-list">
 					<?php if ( $wcb_company_industry ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value"><?php echo esc_html( \WCB\Core\Industries::label( $wcb_company_industry ) ); ?></dd>
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
+									<dd><?php echo esc_html( \WCB\Core\Industries::label( $wcb_company_industry ) ); ?></dd>
 								</div>
 					<?php endif; ?>
 					<?php if ( $wcb_company_size ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value">
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
+									<dd>
 									<?php
 									// Canonical translated size-bucket label (e.g. "501-1,000 employees"), shared
 										// with the companies/jobs REST size_label. The stored value is a SLUG
@@ -911,9 +911,9 @@ wp_interactivity_state(
 								</div>
 					<?php endif; ?>
 					<?php if ( $wcb_company_hq ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value"><?php echo esc_html( $wcb_company_hq ); ?></dd>
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
+									<dd><?php echo esc_html( $wcb_company_hq ); ?></dd>
 								</div>
 					<?php endif; ?>
 						</dl>
