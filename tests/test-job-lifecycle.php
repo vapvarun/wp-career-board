@@ -154,15 +154,21 @@ wcb_jl_assert( 'hourly' === wp_get_schedule( 'wcb_check_job_expiry' ), 'sweep ru
 wcb_jl_assert( ! str_contains( (string) get_permalink( $wcb_late ), '?' ) && str_contains( (string) get_permalink( $wcb_late ), '/jobs/' ), 'an expired job keeps its /jobs/{slug}/ link' );
 
 // ── The ended page: 200, noindex, no JobPosting ──────────────────────────
+foreach ( array( $wcb_late, $wcb_open ) as $wcb_apply_job ) {
+	update_post_meta( $wcb_apply_job, '_wcb_apply_email', 'jobs@example.test' );
+	update_post_meta( $wcb_apply_job, '_wcb_apply_url', 'https://apply.example.test/job' );
+}
 wp_set_current_user( 0 );
 $wcb_page = wp_remote_get( (string) get_permalink( $wcb_late ), array( 'timeout' => 20, 'sslverify' => false ) );
 $wcb_body = (string) wp_remote_retrieve_body( $wcb_page );
 wcb_jl_assert( 200 === (int) wp_remote_retrieve_response_code( $wcb_page ), 'expired job URL answers 200, not 404 (' . wp_remote_retrieve_response_code( $wcb_page ) . ')' );
 wcb_jl_assert( str_contains( $wcb_body, 'class="wcb-job-ended"' ) && (bool) preg_match( '/<meta name=.robots. content=.[^>]*noindex/', $wcb_body ), 'expired page shows the notice and is noindex' );
 wcb_jl_assert( ! str_contains( $wcb_body, '"JobPosting"' ), 'expired page has no JobPosting schema' );
+wcb_jl_assert( ! str_contains( $wcb_body, 'wcb-apply-email-link' ) && ! str_contains( $wcb_body, 'wcb-apply-url-link' ) && ! str_contains( $wcb_body, 'mailto:jobs@example.test' ), 'expired page offers no way to apply (no apply email, no apply link)' );
 $wcb_page = wp_remote_get( (string) get_permalink( $wcb_open ), array( 'timeout' => 20, 'sslverify' => false ) );
 $wcb_body = (string) wp_remote_retrieve_body( $wcb_page );
 wcb_jl_assert( ! str_contains( $wcb_body, 'class="wcb-job-ended"' ) && ! (bool) preg_match( '/<meta name=.robots. content=.[^>]*noindex/', $wcb_body ), 'control: an open job page is indexable with no ended notice' );
+wcb_jl_assert( str_contains( $wcb_body, 'wcb-apply-email-link' ) && str_contains( $wcb_body, 'wcb-apply-url-link' ), 'control: an open job shows its apply email and link' );
 
 // ── D15: Close closes open applications, expiry does not ─────────────────
 $wcb_apps = array();
@@ -191,6 +197,22 @@ $wcb_request->set_body_params( array( 'status' => 'publish' ) );
 wp_set_current_user( $wcb_employer );
 $wcb_resp = rest_do_request( $wcb_request );
 wcb_jl_assert( 200 === $wcb_resp->get_status() && JobDeadline::get( $wcb_late ) > $wcb_today, 'reopening an expired job sets a future deadline (' . JobDeadline::get( $wcb_late ) . ')' );
+
+// An administrator's Approve (wp_update_post: the bulk action, the row action, the edit screen and WP-CLI all end here) is a new listing period too.
+$wcb_past  = gmdate( 'Y-m-d', strtotime( '-40 days' ) );
+$wcb_adm   = wcb_jl_job( $wcb_employer, $wcb_past, 'wcb_expired' );
+$wcb_own   = wcb_jl_job( $wcb_employer, $wcb_past, 'wcb_expired' );
+$wcb_live  = wcb_jl_job( $wcb_employer, $wcb_past, 'publish' );
+wp_set_current_user( 1 );
+wp_update_post( array( 'ID' => $wcb_adm, 'post_status' => 'publish' ) );
+wcb_jl_assert( JobDeadline::get( $wcb_adm ) > $wcb_today && JobDeadline::accepts_applications( $wcb_adm ), 'admin Approve on an expired job gives it a fresh deadline, so it accepts applications (' . JobDeadline::get( $wcb_adm ) . ')' );
+wp_update_post( array( 'ID' => $wcb_own, 'post_status' => 'publish', 'meta_input' => array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ) ) ) );
+wcb_jl_assert( JobDeadline::get( $wcb_own ) === gmdate( 'Y-m-d', strtotime( '+90 days' ) ), 'control: a deadline given with the republish is kept' );
+wp_update_post( array( 'ID' => $wcb_live, 'post_title' => 'JL edited' ) );
+wcb_jl_assert( JobDeadline::get( $wcb_live ) === $wcb_past, 'control: editing a job that never ended does not touch its deadline' );
+foreach ( array( $wcb_adm, $wcb_own, $wcb_live ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
 
 // ── Company page: open positions only ────────────────────────────────────
 $wcb_company = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'JL Co ' . $wcb_suffix, 'post_author' => $wcb_employer ) );

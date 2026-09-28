@@ -149,4 +149,40 @@ class JobDeadline {
 	public static function closed_label(): string {
 		return __( 'Applications closed', 'wp-career-board' );
 	}
+
+	/**
+	 * Deadline for a job with none given: today plus the listing length
+	 * (the board's own length when set, else Settings > Jobs, else 30 days).
+	 *
+	 * Used when a job is created without a deadline and when an ended job is
+	 * republished (REST, admin Approve, CLI: see JobsExpiry::renew_deadline_on_republish), so a republished job gets a full new listing period instead
+	 * of expiring again at the next sweep.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request The originating request (board resolution).
+	 * @return string Y-m-d date.
+	 */
+	public static function default_end( \WP_REST_Request $request ): string {
+		$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+
+		/**
+		 * Filter the default expiry window (in days) for a newly submitted
+		 * job when the request did not supply an explicit deadline.
+		 *
+		 * Pro hooks this to honor the per-board <code>expiry_days</code>
+		 * setting so each board can run its own posting cadence (e.g. a
+		 * "weekend gigs" board with 7-day listings vs a "permanent roles"
+		 * board with 60-day listings).
+		 *
+		 * @since 1.2.5
+		 *
+		 * @param int              $expire_days Resolved default (positive integer).
+		 * @param \WP_REST_Request $request     The originating REST request.
+		 */
+		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
+	}
 }

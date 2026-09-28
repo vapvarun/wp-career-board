@@ -32,6 +32,7 @@ final class JobsExpiry {
 		add_action( 'init', array( $this, 'register_expired_status' ) );
 		add_action( 'init', array( $this, 'register_closed_status' ) );
 		add_action( 'wcb_check_job_expiry', array( $this, 'expire_jobs' ) );
+		add_action( 'transition_post_status', array( $this, 'renew_deadline_on_republish' ), 10, 3 );
 		add_action( 'pre_get_posts', array( $this, 'serve_ended_job' ) );
 		add_filter( 'post_type_link', array( $this, 'ended_job_link' ), 10, 2 );
 		add_filter( 'wp_robots', array( $this, 'noindex_ended_job' ) );
@@ -42,6 +43,30 @@ final class JobsExpiry {
 			wp_clear_scheduled_hook( 'wcb_check_job_expiry' );
 			wp_schedule_event( time(), 'hourly', 'wcb_check_job_expiry' );
 		}
+	}
+
+	/**
+	 * Bringing an ended job back is a new listing period, whoever does it.
+	 *
+	 * The employer's Reopen sets a fresh deadline itself; an administrator's
+	 * Approve (bulk, row action, edit screen, WP-CLI) did not, so the job went
+	 * live with its old deadline still in the past: published, but accepting no
+	 * applications and due to expire again at the next sweep.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Previous status.
+	 * @param \WP_Post $post       Job.
+	 * @return void
+	 */
+	public function renew_deadline_on_republish( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'wcb_job' !== $post->post_type || 'publish' !== $new_status || ! in_array( $old_status, array( 'wcb_expired', 'wcb_closed' ), true ) || ! \WCB\Core\JobDeadline::has_passed( $post->ID ) ) {
+			return;
+		}
+		$request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $post->ID );
+		$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+		update_post_meta( $post->ID, '_wcb_deadline', \WCB\Core\JobDeadline::default_end( $request ) );
 	}
 
 	/**

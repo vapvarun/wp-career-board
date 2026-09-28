@@ -67,6 +67,23 @@ class TemplateOverride {
 	}
 
 	/**
+	 * Whether the active theme is a block theme (templates/*.html).
+	 *
+	 * A block theme renders through WordPress's block template canvas, where our
+	 * blocks already reach the page (the `the_content` injection and the block
+	 * markup in each page). A plugin PHP template on top of it calls
+	 * `get_header()` (a bare fallback there) and skips the script-module import
+	 * map, so the page is blank or dead. Hybrid themes (Reign, BuddyX: theme.json
+	 * plus PHP templates) are not block themes and are unaffected.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public static function block_theme(): bool {
+		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
+	}
+
+	/**
 	 * Whether the already-resolved template should be kept as-is.
 	 *
 	 * True when the theme (child or parent) resolved it, or when one of the
@@ -80,6 +97,11 @@ class TemplateOverride {
 	public static function keep( string $template ): bool {
 		if ( '' === $template ) {
 			return false;
+		}
+
+		// On a block theme WordPress resolved the block template canvas: keep it.
+		if ( self::block_theme() ) {
+			return true;
 		}
 
 		// A theme shipping its own template wins. WordPress's hierarchy already

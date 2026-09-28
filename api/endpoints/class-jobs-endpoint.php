@@ -591,7 +591,7 @@ final class JobsEndpoint extends RestController {
 		$salary_type_raw  = $request->get_param( 'salary_type' );
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
-			$wcb_deadline_raw = $this->default_deadline( $request );
+			$wcb_deadline_raw = \WCB\Core\JobDeadline::default_end( $request );
 		}
 		// Values are validated by the route args and normalised by the meta
 		// sanitizers registered in JobsMeta.
@@ -694,42 +694,6 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Deadline for a job with none given: today plus the listing length
-	 * (the board's own length when set, else Settings > Jobs, else 30 days).
-	 *
-	 * Used when a job is created without a deadline and when an ended job is
-	 * republished, so a republished job gets a full new listing period instead
-	 * of expiring again at the next sweep.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param \WP_REST_Request $request The originating request (board resolution).
-	 * @return string Y-m-d date.
-	 */
-	private function default_deadline( \WP_REST_Request $request ): string {
-		$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-		$expire_days = $expire_days > 0 ? $expire_days : 30;
-
-		/**
-		 * Filter the default expiry window (in days) for a newly submitted
-		 * job when the request did not supply an explicit deadline.
-		 *
-		 * Pro hooks this to honor the per-board <code>expiry_days</code>
-		 * setting so each board can run its own posting cadence (e.g. a
-		 * "weekend gigs" board with 7-day listings vs a "permanent roles"
-		 * board with 60-day listings).
-		 *
-		 * @since 1.2.5
-		 *
-		 * @param int              $expire_days Resolved default (positive integer).
-		 * @param \WP_REST_Request $request     The originating REST request.
-		 */
-		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
-		$expire_days = $expire_days > 0 ? $expire_days : 30;
-		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
-	}
-
-	/**
 	 * Update an existing job listing.
 	 *
 	 * @since 1.0.0
@@ -822,7 +786,7 @@ final class JobsEndpoint extends RestController {
 					if ( ! $request->has_param( 'board_id' ) ) {
 						$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
 					}
-					$request->set_param( 'deadline', $this->default_deadline( $request ) );
+					$request->set_param( 'deadline', \WCB\Core\JobDeadline::default_end( $request ) );
 				}
 			}
 

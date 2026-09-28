@@ -206,7 +206,7 @@ final class EmployersModule {
 	 * @return string Overridden or original template path.
 	 */
 	public function archive_template( string $template ): string {
-		if ( ! is_post_type_archive( 'wcb_company' ) ) {
+		if ( ! is_post_type_archive( 'wcb_company' ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}
 

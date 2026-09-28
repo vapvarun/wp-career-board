@@ -725,7 +725,7 @@ wp_interactivity_state(
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $wcb_apply_email ) : ?>
+					<?php if ( $wcb_apply_email && ! $wcb_deadline_passed ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
 							<dd>
@@ -737,7 +737,7 @@ wp_interactivity_state(
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $wcb_apply_external ) : ?>
+					<?php if ( $wcb_apply_external && ! $wcb_deadline_passed ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply Via', 'wp-career-board' ); ?></dt>
 							<dd>

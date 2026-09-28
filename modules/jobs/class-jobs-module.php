@@ -235,7 +235,7 @@ final class JobsModule {
 	 * @return string
 	 */
 	public function taxonomy_archive_template( string $template ): string {
-		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) ) {
+		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/archive-tax.php';

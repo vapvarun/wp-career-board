@@ -284,8 +284,12 @@ final class CandidatesModule {
 		$post_id = (int) get_queried_object_id();
 
 		// A public resume the viewer may not open (e.g. "logged-in members
-		// only") is left to the resume block, which shows a sign-in wall.
-		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) {
+		// only") is left to the resume block, which shows a sign-in wall, unless
+		// the candidate blocked this viewer: then it does not exist for them.
+		$viewer  = get_current_user_id();
+		$owner   = (int) get_post_field( 'post_author', $post_id );
+		$blocked = $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner );
+		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) ) {
 			return;
 		}
 

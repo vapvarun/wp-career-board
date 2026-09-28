@@ -92,6 +92,24 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	wcb_assert( CandidatesModule::resume_is_readable( $wcb_resume ), 'readable by the applied-to employer' );
 	wp_set_current_user( 0 );
 	wcb_assert( ! CandidatesModule::resume_is_readable( $wcb_resume ), 'hidden from guests' );
+
+	// A listed resume's page: a blocked employer gets a 404, an unblocked one does not.
+	update_post_meta( $wcb_resume, '_wcb_resume_public', '1' );
+	$wcb_blocks_cache = new ReflectionProperty( \WCB\Core\Blocks::class, 'cache' ); // hidden_author_ids() memoises per request.
+	$wcb_page_404     = static function ( int $viewer ) use ( $wcb_resume, $wcb_blocks_cache ): bool {
+		$wcb_blocks_cache->setValue( null, array() );
+		wp_set_current_user( $viewer );
+		$q                   = new WP_Query( array( 'p' => $wcb_resume, 'post_type' => 'wcb_resume' ) );
+		$GLOBALS['wp_query'] = $q;
+		( new CandidatesModule() )->guard_single_resume();
+		return $q->is_404();
+	};
+	wcb_assert( ! $wcb_page_404( $wcb_other ), 'control: a listed resume page opens for an employer' );
+	add_user_meta( $wcb_cand, '_wcb_blocked', $wcb_other );
+	wcb_assert( $wcb_page_404( $wcb_other ), 'a candidate who blocked an employer is a 404 to that employer, even when the resume is listed' );
+	wcb_assert( ! $wcb_page_404( $wcb_emp ), 'and it still opens for an employer they did not block' );
+	delete_user_meta( $wcb_cand, '_wcb_blocked' );
+	$wcb_blocks_cache->setValue( null, array() );
 	wp_delete_post( $wcb_resume, true );
 } else {
 	WP_CLI::log( '  (skipped: wcb_resume is registered by Pro)' );

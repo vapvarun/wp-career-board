@@ -899,6 +899,11 @@ final class Plugin {
 	 * @return string Plugin-shipped template path or original.
 	 */
 	public function use_wcb_archive_template( string $template ): string {
+		// A block theme renders its own template; see TemplateOverride::block_theme().
+		if ( \WCB\Core\TemplateOverride::block_theme() ) {
+			return $template;
+		}
+
 		$context = $this->resolve_page_context();
 		if ( ! $context['is_wcb_page'] ) {
 			return $template;
