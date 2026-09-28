@@ -248,6 +248,14 @@ the folder directly (nginx ignores its .htaccess).
 |---|---|---|
 | `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
 
+## Job search (1.8.0)
+
+`WCB\Modules\Jobs\JobSearch` builds every job list query: GET /jobs and /search, the job listings block's first paint, the `/jobs/` archive and alert keyword matching. Keyword: every word must appear in the title, description or company name; title matches rank first. Filters take one slug or a comma list (any of). `sort`: `relevance` (default with a keyword), `newest` (featured first), `oldest`, `salary`, `closing`; the default without a keyword is Settings > Jobs "Default order".
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_search_args` | `array $args, array $params` | Change the WP_Query args of a job search (Pro adds the radius bounding box). Put every result-changing value in `$args`: the REST cache key is built from them. |
+
 ## Search engines (1.8.0)
 
 | Filter | Args | Purpose |

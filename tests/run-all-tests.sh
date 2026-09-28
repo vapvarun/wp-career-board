@@ -75,6 +75,10 @@ echo "=== Job Schema Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-job-schema.php
 echo ""
 
+echo "=== Job Search Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search.php
+echo ""
+
 echo "=== Scale Harness Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
 echo ""

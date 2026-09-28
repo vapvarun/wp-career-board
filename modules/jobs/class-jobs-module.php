@@ -35,6 +35,7 @@ final class JobsModule {
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+		JobSearch::boot();
 		// Any job save (REST, wp-admin, cron, CLI) invalidates the cached REST
 		// job lists. Registered here, not with the REST routes, which only
 		// load on REST requests.

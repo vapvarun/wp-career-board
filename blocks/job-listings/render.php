@@ -109,9 +109,17 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 	}
 }
 
-// Same order as the REST pages Load More fetches: featured first, newest next.
-$wcb_query_args = \WCB\Modules\Jobs\JobsMeta::featured_first( $wcb_query_args );
-$wcb_jobs_raw   = get_posts( apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
+// Filters, keyword and sort from the URL (hero search, job-filters block,
+// shared links) go through the same search as the REST pages Load More
+// fetches, so the first paint already shows the filtered results. Dashboard
+// lists (author, saved) are scoped by the block and ignore the URL.
+$wcb_url_params = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ) ? \WCB\Modules\Jobs\JobSearch::from_url() : array();
+$wcb_query_args = \WCB\Modules\Jobs\JobSearch::query_args( $wcb_url_params, $wcb_query_args );
+unset( $wcb_query_args['numberposts'] );
+$wcb_query_args['posts_per_page'] = $wcb_per_page;
+$wcb_query_args['no_found_rows']  = false;
+$wcb_query                        = \WCB\Modules\Jobs\JobSearch::run( (array) apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
+$wcb_jobs_raw                     = $wcb_query->posts;
 
 if ( $wcb_jobs_raw ) {
 	$wcb_job_ids = wp_list_pluck( $wcb_jobs_raw, 'ID' );
@@ -345,18 +353,8 @@ if ( $wcb_saved_by_attr > 0 ) {
 		$wcb_total_count = (int) $wcb_count_query->found_posts;
 	}
 } else {
-	// Mirror $wcb_query_args (author + board + metaFilter + Pro filters) so the
-	// found_posts count matches the filtered listing instead of the site-wide
-	// publish count. Site-wide count showed Load More on filtered shortcodes
-	// (e.g. boardId=42 with 3 jobs on a site with 50 total) — clicking it
-	// fetched a second page that REST correctly returned empty.
-	$wcb_count_args                   = (array) apply_filters( 'wcb_job_listings_query_args', $wcb_query_args );
-	$wcb_count_args['posts_per_page'] = 1;
-	$wcb_count_args['fields']         = 'ids';
-	$wcb_count_args['no_found_rows']  = false;
-	unset( $wcb_count_args['numberposts'] );
-	$wcb_count_query = new \WP_Query( $wcb_count_args );
-	$wcb_total_count = (int) $wcb_count_query->found_posts;
+	// The listing query's own total, so it always matches what is shown.
+	$wcb_total_count = (int) $wcb_query->found_posts;
 }
 
 /*
@@ -409,11 +407,24 @@ $wcb_state = array(
 	// Intl.NumberFormat so digit grouping follows the SITE locale rather than
 	// whatever locale the visitor's browser happens to run in.
 	'locale'         => \WCB\Core\SalaryFormat::locale(),
-	'searchQuery'    => '',
+	'searchQuery'    => (string) ( $wcb_url_params['search'] ?? '' ),
 	// User-controlled filters (type chips, exp chips, remote, salary,
 	// external filter block keys). Removable pills + "Clear all" only
 	// touch this map - never the shortcode-baked scope.
-	'activeFilters'  => (object) array(),
+	// Seeded from the URL, under the keys the filter blocks use, so the
+	// pills show and every later fetch keeps them.
+	'activeFilters'  => (object) array_filter(
+		array(
+			'wcb_category'   => (string) ( $wcb_url_params['category'] ?? '' ),
+			'wcb_job_type'   => (string) ( $wcb_url_params['type'] ?? '' ),
+			'wcb_location'   => (string) ( $wcb_url_params['location'] ?? '' ),
+			'wcb_experience' => (string) ( $wcb_url_params['experience'] ?? '' ),
+			'wcb_tag'        => (string) ( $wcb_url_params['tag'] ?? '' ),
+			'remote'         => ! empty( $wcb_url_params['remote'] ) ? '1' : '',
+			'salary_min'     => (string) ( $wcb_url_params['salary_min'] ?? '' ),
+			'salary_max'     => (string) ( $wcb_url_params['salary_max'] ?? '' ),
+		)
+	),
 	// Immutable shortcode/block scope (boardId + metaFilter). Merged into
 	// every REST fetch and into "is active" UI signals, but never
 	// surfaced as a removable chip and never wiped by "Clear all". Keeps
@@ -426,7 +437,8 @@ $wcb_state = array(
 			'meta_' . $wcb_meta_filter_key => ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) ? $wcb_meta_filter_val : '',
 		)
 	),
-	'sortBy'         => 'date_desc',
+	// '' = the server's default (best match for a keyword, else Settings).
+	'sortBy'         => in_array( $wcb_url_params['sort'] ?? '', \WCB\Modules\Jobs\JobSearch::SORTS, true ) ? (string) $wcb_url_params['sort'] : '',
 	'alertSaved'     => false,
 	'alertSaving'    => false,
 	'authorId'       => $wcb_author_id_attr,
@@ -454,6 +466,7 @@ $wcb_state = array(
 		'experiences' => $wcb_exp_opts,
 		'categories'  => $wcb_cat_opts,
 		'tags'        => $wcb_tag_opts,
+		'locations'   => $wcb_loc_opts,
 		'boards'      => $wcb_board_opts,
 	),
 	// Seeded strings for view.js. view.js is registered as a script module and
@@ -500,9 +513,13 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_page_heading ); ?></h1>
 	<?php endif; ?>
 	<?php
-	$wcb_jl_has_filter_ui = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr && $wcb_show_filters );
+	// Results toolbar (count, sort, layout) and active-filter pills.
+	$wcb_jl_list_ui = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr && $wcb_show_filters );
+	// One set of filters per page: a job-filters block on the page replaces
+	// the listing's own sidebar, as a job-search block replaces its search box.
+	$wcb_jl_has_filter_ui = $wcb_jl_list_ui && ! has_block( 'wp-career-board/job-filters' );
 	?>
-	<?php if ( $wcb_jl_has_filter_ui ) : ?>
+	<?php if ( $wcb_jl_list_ui ) : ?>
 
 		<?php
 		$wcb_toolbar = array(
@@ -512,8 +529,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			'search_placeholder'  => __( 'Search jobs…', 'wp-career-board' ),
 			'sort_aria_label'     => __( 'Sort jobs', 'wp-career-board' ),
 			'sort_options'        => array(
-				'date_desc' => __( 'Newest first', 'wp-career-board' ),
-				'date_asc'  => __( 'Oldest first', 'wp-career-board' ),
+				// Best match when searching, else the owner's default order.
+				''        => __( 'Recommended', 'wp-career-board' ),
+				'newest'  => __( 'Newest first', 'wp-career-board' ),
+				'closing' => __( 'Closing soonest', 'wp-career-board' ),
+				'salary'  => __( 'Highest salary', 'wp-career-board' ),
+				'oldest'  => __( 'Oldest first', 'wp-career-board' ),
 			),
 			// Same _n()-resolved label the Interactivity state carries, so the
 			// results line reads correctly before hydration replaces it via
@@ -535,6 +556,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			toggleRemote, toggleBoardChip) stay as-is — we just stack the
 			chips vertically inside .wcb-filter-panel__group sections. */
 		?>
+		<?php if ( $wcb_jl_has_filter_ui ) : ?>
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter jobs', 'wp-career-board' ); ?>">
@@ -714,7 +736,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						min="0"
 						max="500000"
 						step="5000"
-						data-wp-bind--value="state.salaryMax"
+						value="500000"
+						data-wp-bind--value="state.salaryMaxSlider"
 						data-wp-on--change="actions.updateSalaryMax"
 						data-wp-on--input="actions.previewSalaryMax"
 					/>
@@ -740,6 +763,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		</aside>
 
 		<main class="wcb-archive-results">
+	<?php endif; ?>
 
 			<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">
 				<template data-wp-each--chip="state.activeFilterChips" data-wp-each-key="context.chip.key">

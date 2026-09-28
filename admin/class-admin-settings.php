@@ -801,6 +801,19 @@ class AdminSettings {
 										</div>
 									</div>
 									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-jobs-default-sort"><?php esc_html_e( 'Default order', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<?php $wcb_default_sort = \WCB\Admin\Settings::string( 'jobs_default_sort', 'newest' ); ?>
+											<select id="wcb-jobs-default-sort" name="wcb_settings[jobs_default_sort]">
+												<option value="newest" <?php selected( $wcb_default_sort, 'newest' ); ?>><?php esc_html_e( 'Featured, then newest', 'wp-career-board' ); ?></option>
+												<option value="closing" <?php selected( $wcb_default_sort, 'closing' ); ?>><?php esc_html_e( 'Closing soonest', 'wp-career-board' ); ?></option>
+												<option value="salary" <?php selected( $wcb_default_sort, 'salary' ); ?>><?php esc_html_e( 'Highest salary', 'wp-career-board' ); ?></option>
+												<option value="oldest" <?php selected( $wcb_default_sort, 'oldest' ); ?>><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
+											</select>
+											<span class="description"><?php esc_html_e( 'How job lists are ordered before a visitor picks a sort. A keyword search always shows the best matches first.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<div class="wcb-settings-row">
 										<div class="wcb-settings-row-label"><label for="wcb-salary-currency"><?php esc_html_e( 'Default Salary Currency', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<select id="wcb-salary-currency" name="wcb_settings[salary_currency]">

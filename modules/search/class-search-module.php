@@ -37,91 +37,28 @@ final class SearchModule {
 	}
 
 	/**
-	 * Apply URL filter parameters to the main job archive query.
+	 * Apply URL filters to the main job archive query.
 	 *
-	 * Supports: wcb_category, wcb_job_type, wcb_location, wcb_experience, remote.
-	 * Only runs on the main query for the wcb_job archive — never on admin queries.
+	 * Same search as the listing block and GET /jobs (JobSearch), so a theme
+	 * that renders the archive's own loop shows the same jobs. The keyword
+	 * uses JobSearch's matching, not core `s` (titles and excerpts only).
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 Delegates to JobSearch.
 	 *
 	 * @param \WP_Query $query The current WordPress query object.
 	 * @return void
 	 */
 	public function filter_job_archive( \WP_Query $query ): void {
-		if ( is_admin() || ! $query->is_main_query() ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'wcb_job' ) ) {
 			return;
 		}
-
-		if ( ! $query->is_post_type_archive( 'wcb_job' ) ) {
-			return;
-		}
-
-		// Keyword search — the landing-page hero + job-search block submit
-		// `wcb_search`. Without this the keyword was dropped on the wcb_job CPT
-		// archive (the hero's fallback target), so "search" returned every job
-		// and read as broken (Basecamp 9966091017). Map it to the core `s` var.
-		$search = isset( $_GET['wcb_search'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_search'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( '' !== $search ) {
-			$query->set( 's', $search );
-		}
-
-		$tax_query = array();
-
-		$category = isset( $_GET['wcb_category'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_category'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $category ) {
-			$tax_query[] = array(
-				'taxonomy' => 'wcb_category',
-				'field'    => 'slug',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $category ) ),
-			);
-		}
-
-		$job_type = isset( $_GET['wcb_job_type'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_job_type'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $job_type ) {
-			$tax_query[] = array(
-				'taxonomy' => 'wcb_job_type',
-				'field'    => 'slug',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $job_type ) ),
-			);
-		}
-
-		$location = isset( $_GET['wcb_location'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_location'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $location ) {
-			$tax_query[] = array(
-				'taxonomy' => 'wcb_location',
-				'field'    => 'slug',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $location ) ),
-			);
-		}
-
-		$experience = isset( $_GET['wcb_experience'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_experience'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $experience ) {
-			$tax_query[] = array(
-				'taxonomy' => 'wcb_experience',
-				'field'    => 'slug',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $experience ) ),
-			);
-		}
-
-		if ( ! empty( $tax_query ) ) {
-			$existing = $query->get( 'tax_query' );
-			if ( ! is_array( $existing ) ) {
-				$existing = array();
+		$args = \WCB\Modules\Jobs\JobSearch::query_args( \WCB\Modules\Jobs\JobSearch::from_url() );
+		foreach ( array( 'tax_query', 'meta_query', 'wcb_search_term', 'wcb_sort', 'wcb_featured_first', 'orderby' ) as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$query->set( $key, $args[ $key ] );
 			}
-			$query->set( 'tax_query', array_merge( $existing, $tax_query ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		}
-
-		$remote = isset( $_GET['wcb_remote'] ) ? sanitize_text_field( wp_unslash( $_GET['wcb_remote'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( '1' === $remote ) {
-			$query->set(
-				'meta_query', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					array(
-						'key'   => '_wcb_remote',
-						'value' => '1',
-					),
-				)
-			);
-		}
+		$query->set( 's', '' );
 	}
 }

@@ -155,125 +155,13 @@ final class JobsEndpoint extends RestController {
 			'meta_query'     => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 
-		// Support wcb_* prefixed aliases so URL filter params forward transparently to the REST API.
-		$search = $request->get_param( 'search' ) ?? $request->get_param( 'wcb_search' );
-		if ( $search ) {
-			// Store search term for later use in posts_where filter.
-			$args['wcb_search_term'] = sanitize_text_field( $search );
-		}
-
-		$category = $request->get_param( 'category' ) ?? $request->get_param( 'wcb_category' );
-		if ( $category ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'wcb_category',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $category ) ),
-				'field'    => 'slug',
-			);
-		}
-
-		$type = $request->get_param( 'type' ) ?? $request->get_param( 'wcb_job_type' );
-		if ( $type ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'wcb_job_type',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $type ) ),
-				'field'    => 'slug',
-			);
-		}
-
-		$location = $request->get_param( 'location' ) ?? $request->get_param( 'wcb_location' );
-		if ( $location ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'wcb_location',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $location ) ),
-				'field'    => 'slug',
-			);
-		}
-
-		$experience = $request->get_param( 'experience' ) ?? $request->get_param( 'wcb_experience' );
-		if ( $experience ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'wcb_experience',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $experience ) ),
-				'field'    => 'slug',
-			);
-		}
-
-		$tag = $request->get_param( 'tag' ) ?? $request->get_param( 'wcb_tag' );
-		if ( $tag ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'wcb_tag',
-				'terms'    => array_map( 'sanitize_text_field', explode( ',', $tag ) ),
-				'field'    => 'slug',
-			);
-		}
-
-		// Accept BOTH `board` and `board_id`. The listings block's view.js sends
-		// `board` (url.searchParams.set('board', ...)); other callers + the
-		// schema use `board_id`. Reading only one silently dropped the other —
-		// the board chip sent `board` and the API ignored it, so the filter did
-		// nothing (Basecamp 9976414471). Mirrors the `category`/`wcb_category`
-		// dual-read above.
-		$board_id = $request->get_param( 'board_id' ) ?? $request->get_param( 'board' );
-		if ( $board_id ) {
-			$args['meta_query'][] = array(
-				'key'   => '_wcb_board_id',
-				'value' => absint( $board_id ),
-				'type'  => 'NUMERIC',
-			);
-		}
-
-		if ( $request->get_param( 'remote' ) ) {
-			$args['meta_query'][] = array(
-				'key'   => '_wcb_remote',
-				'value' => '1',
-			);
-		}
-
-		$salary_min = $request->get_param( 'salary_min' );
-		if ( $salary_min ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_salary_max',
-				'value'   => (int) $salary_min,
-				'compare' => '>=',
-				'type'    => 'NUMERIC',
-			);
-		}
-
-		$salary_max = $request->get_param( 'salary_max' );
-		if ( $salary_max ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_salary_min',
-				'value'   => (int) $salary_max,
-				'compare' => '<=',
-				'type'    => 'NUMERIC',
-			);
-		}
+		// Filters, keyword and sort: the shared search, so the listing's first
+		// paint, the archive and alerts mean the same thing by each filter.
+		$args = \WCB\Modules\Jobs\JobSearch::query_args( $request->get_params(), $args );
 
 		$author = $request->get_param( 'author' );
 		if ( $author ) {
 			$args['author'] = (int) $author;
-		}
-
-		// Scope to the jobs LINKED to a company, which is not the same set as
-		// the jobs authored by that company's owner. A job carries its company
-		// in `_wcb_company_id`, and an admin, a second recruiter or an importer
-		// can post on a company's behalf — so `author` returns a different
-		// (and wrong) list wherever the poster is not the company owner. The
-		// company-profile block's first page always filtered on this meta key;
-		// its Load More filtered on author, so page 2 could pull in another
-		// company's jobs entirely.
-		$company = (int) $request->get_param( 'company' );
-		if ( $company > 0 ) {
-			$args['meta_query'][] = array(
-				'key'   => '_wcb_company_id',
-				'value' => (string) $company,
-			);
-		}
-
-		// `open=1`: only jobs still taking applications (a company's Open
-		// Positions). Matters on sites that keep past-deadline jobs listed.
-		if ( rest_sanitize_boolean( $request->get_param( 'open' ) ) ) {
-			$args['meta_query'][] = \WCB\Core\JobDeadline::open_jobs_meta_query();
 		}
 
 		// Scope to a specific user's bookmarks when the caller passes
@@ -329,18 +217,6 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$orderby = $request->get_param( 'orderby' );
-		$order   = 'ASC' === strtoupper( (string) $request->get_param( 'order' ) ) ? 'ASC' : 'DESC';
-		if ( 'date' === (string) ( $orderby ?: 'date' ) && 'DESC' === $order ) {
-			// The default listing order: featured first, newest next.
-			$args = \WCB\Modules\Jobs\JobsMeta::featured_first( $args );
-		} elseif ( $orderby ) {
-			$args['orderby'] = array(
-				(string) $orderby => $order,
-				'ID'              => 'DESC', // ID tiebreaker for stable infinite-scroll pagination.
-			);
-		}
-
 		// Hide jobs from an employer this viewer has blocked (or who blocked them).
 		// Added before the cache key so the transient fragments per blocklist and a
 		// shared cache never leaks a blocked employer's jobs.
@@ -361,13 +237,7 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		if ( ! empty( $args['wcb_search_term'] ) ) {
-			add_filter( 'posts_where', array( $this, 'restrict_search_to_title_and_company' ), 10, 2 );
-		}
-
-		$query = new \WP_Query( $args );
-
-		remove_filter( 'posts_where', array( $this, 'restrict_search_to_title_and_company' ), 10 );
+		$query = \WCB\Modules\Jobs\JobSearch::run( $args );
 
 		// Prime caches before the prepare loop so per-post get_post_meta() and
 		// get_the_terms() inside prepare_item_for_response_array() hit the
@@ -551,52 +421,6 @@ final class JobsEndpoint extends RestController {
 		}
 
 		return $map;
-	}
-
-	/**
-	 * Restrict search to only post_title and company name for wcb_job post types.
-	 *
-	 * Uses posts_where filter to completely control the search logic,
-	 * excluding post_content from job searches.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string    $where Existing WHERE clause.
-	 * @param \WP_Query $query Current WP_Query instance.
-	 * @return string
-	 */
-	public function restrict_search_to_title_and_company( string $where, \WP_Query $query ): string {
-		global $wpdb;
-
-		if ( 'wcb_job' !== $query->get( 'post_type' ) ) {
-			return $where;
-		}
-
-		$search_term = (string) $query->get( 'wcb_search_term' );
-		if ( '' === $search_term ) {
-			return $where;
-		}
-
-		$like = '%' . $wpdb->esc_like( $search_term ) . '%';
-
-		// Jobs match on title OR the denormalised company name, so the shared
-		// builder supplies the title half and the company-name EXISTS is
-		// appended here.
-		$title_clause = \WCB\Core\TitleSearch::title_clause( $search_term );
-		if ( '' === $title_clause ) {
-			return $where;
-		}
-
-		// $title_clause is already prepared; the EXISTS is prepared below.
-		$where .= " AND ( {$title_clause} OR EXISTS (" . $wpdb->prepare(
-			"SELECT 1 FROM {$wpdb->postmeta} pm
-				WHERE pm.post_id = {$wpdb->posts}.ID
-				  AND pm.meta_key = '_wcb_company_name'
-				  AND pm.meta_value LIKE %s",
-			$like
-		) . ') )';
-
-		return $where;
 	}
 
 	/**
@@ -2024,6 +1848,12 @@ final class JobsEndpoint extends RestController {
 				'author'         => array( 'type' => 'integer' ),
 				'company'        => array( 'type' => 'integer' ),
 				'open'           => array( 'type' => 'boolean' ),
+				'sort'           => array(
+					'type'              => 'string',
+					'enum'              => \WCB\Modules\Jobs\JobSearch::SORTS,
+					'description'       => __( 'relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default.', 'wp-career-board' ),
+					'validate_callback' => 'rest_validate_request_arg',
+				),
 				'orderby'        => array(
 					'description'       => __( 'Sort jobs by attribute.', 'wp-career-board' ),
 					'type'              => 'string',

@@ -980,15 +980,14 @@ textarea.wcb-input {
 	flex-shrink: 0;
 }
 
-/* ── Mobile collapse for the filter panel ────────────────────────────────
- * At ≤640px the filter panel costs ~500-700px of viewport above any
- * result card, forcing every visitor to scroll past the entire filter
- * UI before seeing a single Job / Company / Resume. Collapsed by default
- * on mobile - a chevron in the panel header expands it on tap. The
- * checkbox-as-state pattern keeps this purely CSS so the existing
+/* ── Tablet / mobile collapse for the filter panel ───────────────────────
+ * Wherever the archive layout stacks (≤900px, see .wcb-archive-layout) the
+ * open filter panel pushed the first result ~1,800px down on an iPad.
+ * Collapsed by default there - a chevron in the panel header expands it on
+ * tap. The checkbox-as-state pattern keeps this purely CSS so the existing
  * Interactivity stores on the three archives don't need to learn a new
  * "filtersOpen" piece of state. */
-@media (max-width: 640px) {
+@media (max-width: 900px) {
 	.wcb-filter-panel {
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
 	}

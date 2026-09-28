@@ -63,6 +63,10 @@ final class SettingsSchema {
 			'auto_publish_jobs'          => array( false, $bool ),
 			'report_auto_hide_threshold' => array( 3, $range( 0, 50 ) ),
 			'jobs_per_page'              => array( 10, $range( 1, 100 ) ),
+			'jobs_default_sort'          => array(
+				'newest',
+				static fn ( $v ): string => in_array( (string) $v, array( 'newest', 'closing', 'salary', 'oldest' ), true ) ? (string) $v : 'newest',
+			),
 			'jobs_expire_days'           => array( 30, static fn ( $v ): int => max( 1, (int) $v ) ),
 			'deadline_auto_close'        => array( false, $bool ),
 			'require_job_location'       => array( false, $bool ),

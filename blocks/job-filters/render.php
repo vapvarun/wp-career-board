@@ -92,6 +92,17 @@ wp_interactivity_state(
 	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-search"
 >
+	<?php
+	// Tablet and phone: one "Filters (n)" button instead of a wall of
+	// dropdowns above the results (CSS-only toggle, no JS needed to open).
+	$wcb_filters_toggle_id = wp_unique_id( 'wcb-job-filters-toggle-' );
+	?>
+	<input type="checkbox" id="<?php echo esc_attr( $wcb_filters_toggle_id ); ?>" class="wcb-filters-toggle-input" />
+	<label for="<?php echo esc_attr( $wcb_filters_toggle_id ); ?>" class="wcb-filters-toggle">
+		<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+		<?php esc_html_e( 'Filters', 'wp-career-board' ); ?>
+		<span class="wcb-filters-toggle__count<?php echo count( (array) $wcb_active_filters ) ? ' wcb-shown' : ''; ?>" data-wp-text="state.activeFilterCount" data-wp-class--wcb-shown="state.activeFilterCount"><?php echo esc_html( (string) count( (array) $wcb_active_filters ) ); ?></span>
+	</label>
 	<div class="wcb-filters-row">
 
 		<select class="wcb-filter-select" name="wcb_category" aria-label="<?php esc_attr_e( 'Category', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_category">

@@ -5,7 +5,7 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-28T00:29:58+00:00",
+        "at": "2026-09-28T01:08:02+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
@@ -326,8 +326,8 @@
             "skipped": 0
         },
         "hooks_fired": {
-            "total": 91,
-            "covered": 10,
+            "total": 92,
+            "covered": 11,
             "uncovered": 81,
             "skipped": 149,
             "covered_items": [
@@ -369,6 +369,10 @@
                 },
                 {
                     "name": "wcb_personal_data_providers",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_search_args",
                     "consumer_count": 1
                 }
             ],
@@ -841,11 +845,11 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 172,
-        "items_covered": 64,
+        "items_total": 173,
+        "items_covered": 65,
         "items_uncovered": 108,
         "items_skipped": 149,
-        "coverage_percent": 37.200000000000003
+        "coverage_percent": 37.600000000000001
     },
     "drift": {
         "previous_uncovered": 108,
