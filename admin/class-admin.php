@@ -856,25 +856,25 @@ class Admin {
 				array(
 					'i18n' => array(
 						/* translators: %d: number of companies using this industry. */
-						'used' => __( '%d companies', 'wp-career-board' ),
-						'usedOne' => __( '1 company', 'wp-career-board' ),
-						'unused' => __( 'not in use', 'wp-career-board' ),
-						'remove' => __( 'Remove', 'wp-career-board' ),
+						'used'        => __( '%d companies', 'wp-career-board' ),
+						'usedOne'     => __( '1 company', 'wp-career-board' ),
+						'unused'      => __( 'not in use', 'wp-career-board' ),
+						'remove'      => __( 'Remove', 'wp-career-board' ),
 						/* translators: %s: industry name. */
-						'removeAria' => __( 'Remove %s', 'wp-career-board' ),
-						'keep' => __( 'Keep', 'wp-career-board' ),
-						'settle' => __( 'Move those companies to:', 'wp-career-board' ),
-						'clear' => __( 'Clear the industry', 'wp-career-board' ),
+						'removeAria'  => __( 'Remove %s', 'wp-career-board' ),
+						'keep'        => __( 'Keep', 'wp-career-board' ),
+						'settle'      => __( 'Move those companies to:', 'wp-career-board' ),
+						'clear'       => __( 'Clear the industry', 'wp-career-board' ),
 						'pendingKeep' => __( 'Will be removed on save.', 'wp-career-board' ),
-						'addFirst' => __( 'Enter a name first.', 'wp-career-board' ),
-						'duplicate' => __( 'That industry already exists.', 'wp-career-board' ),
-						'saving' => __( 'Saving…', 'wp-career-board' ),
-						'saved' => __( 'Industries saved.', 'wp-career-board' ),
+						'addFirst'    => __( 'Enter a name first.', 'wp-career-board' ),
+						'duplicate'   => __( 'That industry already exists.', 'wp-career-board' ),
+						'saving'      => __( 'Saving…', 'wp-career-board' ),
+						'saved'       => __( 'Industries saved.', 'wp-career-board' ),
 						/* translators: %d: number of companies moved to another industry. */
-						'savedMoved' => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
-						'error' => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
-						'loadError' => __( 'Could not load industries.', 'wp-career-board' ),
-						'emptyList' => __( 'Keep at least one industry.', 'wp-career-board' ),
+						'savedMoved'  => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
+						'error'       => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
+						'loadError'   => __( 'Could not load industries.', 'wp-career-board' ),
+						'emptyList'   => __( 'Keep at least one industry.', 'wp-career-board' ),
 					),
 				)
 			);
@@ -884,14 +884,14 @@ class Admin {
 				'wcbSampleData',
 				array(
 					'i18n' => array(
-						'removing' => __( 'Removing…', 'wp-career-board' ),
-						'confirmTitle' => __( 'Remove Sample Data', 'wp-career-board' ),
+						'removing'       => __( 'Removing…', 'wp-career-board' ),
+						'confirmTitle'   => __( 'Remove Sample Data', 'wp-career-board' ),
 						'confirmMessage' => __( 'Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone.', 'wp-career-board' ),
-						'confirmCta' => __( 'Delete Sample Data', 'wp-career-board' ),
-						'cancel' => __( 'Cancel', 'wp-career-board' ),
-						'success' => __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ),
-						'emptyNotice' => __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ),
-						'error' => __( 'Could not remove sample data. Please try again.', 'wp-career-board' ),
+						'confirmCta'     => __( 'Delete Sample Data', 'wp-career-board' ),
+						'cancel'         => __( 'Cancel', 'wp-career-board' ),
+						'success'        => __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ),
+						'emptyNotice'    => __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ),
+						'error'          => __( 'Could not remove sample data. Please try again.', 'wp-career-board' ),
 					),
 				)
 			);
