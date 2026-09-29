@@ -130,10 +130,15 @@ html.dark-mode {
 	-webkit-text-fill-color: currentColor !important;
 }
 
-.wcb-dashboard .wcb-nav-item:hover,
+.wcb-dashboard .wcb-nav-item:hover {
+	color: var( --wcb-contrast ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* Active tab: brand text on the brand tint, same as every other theme. */
 .wcb-dashboard .wcb-nav-item.wcb-nav-active,
 .wcb-dashboard .wcb-nav-item.wcb-view-active {
-	color: var( --wcb-contrast ) !important;
+	color: var( --wcb-primary-text ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
 

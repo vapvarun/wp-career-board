@@ -1427,6 +1427,279 @@ textarea.wcb-input {
 	}
 }
 
+/* ── Dashboard sidebar (candidate + employer) ──────────────────────────────
+   One copy for both dashboards; the two per-block sidebar.css files drifted.
+   Order: who you are (links to Profile), one nav-item style, quiet sentence-
+   case group labels, the main action pinned at the bottom. Nav items are
+   <button role="tab">, and BuddyX paints every button with its primary using
+   !important, so the transparent/hover/active surfaces need !important too. */
+.wcb-sidebar {
+	width: 220px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--wcb-base);
+	border-inline-end: 1px solid var(--wcb-border);
+	padding: var(--wcb-space-xl) 0 var(--wcb-space-lg);
+}
+
+.wcb-nav-toggle {
+	display: none;
+}
+
+.wcb-sidebar-identity {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	width: calc( 100% - ( var(--wcb-space-sm) * 2 ) );
+	margin: 0 var(--wcb-space-sm) var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
+	border: 0;
+	border-radius: var(--wcb-radius-md);
+	font: inherit;
+	color: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.wcb-dashboard .wcb-sidebar-identity {
+	background: transparent !important;
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-sidebar-identity:hover {
+	background: var(--wcb-bg-subtle) !important;
+}
+
+.wcb-sidebar-avatar {
+	--wcb-avatar-size: 40px;
+}
+
+.wcb-sidebar-avatar img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	background: var(--wcb-base);
+}
+
+.wcb-sidebar-identity__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.wcb-sidebar-identity__name,
+.wcb-sidebar-identity__role {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wcb-sidebar-identity__name {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	line-height: 1.3;
+}
+
+.wcb-sidebar-identity__role {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-sidebar-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 0 var(--wcb-space-sm) var(--wcb-space-lg);
+}
+
+.wcb-nav-section-label {
+	display: block;
+	padding: var(--wcb-space-lg) var(--wcb-space-md) var(--wcb-space-xs);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 40px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border: 0;
+	border-radius: var(--wcb-radius-md);
+	font: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-secondary);
+	text-align: start;
+	text-decoration: none;
+	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+}
+
+.wcb-dashboard .wcb-nav-item {
+	background: transparent !important;
+	box-shadow: none;
+}
+
+/* (0,3,0): beats the block-scope `font: inherit` button reset (0,2,0) and
+   the theme compat button colour rules (0,2,1), so a <button> tab and the
+   <a> tab (Public Resume) share one colour on every theme. */
+.wcb-dashboard .wcb-sidebar .wcb-nav-item {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-text-secondary) !important;
+	-webkit-text-fill-color: currentColor;
+}
+
+.wcb-dashboard .wcb-sidebar .wcb-nav-item:hover {
+	background: var(--wcb-bg-subtle) !important;
+	color: var(--wcb-contrast) !important;
+	text-decoration: none;
+}
+
+.wcb-dashboard .wcb-sidebar .wcb-nav-item.wcb-nav-active {
+	background: var(--wcb-primary-soft) !important;
+	color: var(--wcb-primary-text) !important;
+}
+
+.wcb-dashboard .wcb-sidebar .wcb-nav-item--static,
+.wcb-dashboard .wcb-sidebar .wcb-nav-item--static:hover {
+	background: transparent !important;
+	color: var(--wcb-text-secondary) !important;
+	cursor: default;
+}
+
+.wcb-sidebar .wcb-nav-item:focus-visible,
+.wcb-sidebar .wcb-sidebar-identity:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: -2px;
+}
+
+.wcb-nav-badge {
+	display: inline-block;
+	padding: 1px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	line-height: 1.4;
+}
+
+/* The main action sits at the bottom of the sidebar; its colour, height and
+   focus come from .wcb-btn--primary. */
+.wcb-sidebar-cta {
+	display: flex;
+	width: calc( 100% - ( var(--wcb-space-lg) * 2 ) );
+	margin: auto var(--wcb-space-lg) 0;
+}
+
+@media (max-width: 1024px) {
+	.wcb-dashboard-shell {
+		flex-direction: column;
+	}
+
+	.wcb-sidebar {
+		width: 100%;
+		padding: 0;
+		border-inline-end: none;
+		border-bottom: 1px solid var(--wcb-border);
+	}
+
+	/* Identity stays visible, compact, above the dropdown. */
+	.wcb-sidebar-identity {
+		order: -1;
+		margin: var(--wcb-space-sm);
+	}
+
+	.wcb-sidebar-avatar {
+		--wcb-avatar-size: 32px;
+	}
+
+	.wcb-nav-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		min-height: 44px;
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
+		border: 0;
+		border-top: 1px solid var(--wcb-border);
+		font: inherit;
+		font-size: var(--wcb-text-base);
+		font-weight: var(--wcb-font-semibold);
+		color: var(--wcb-contrast);
+		text-align: start;
+		cursor: pointer;
+	}
+
+	.wcb-dashboard .wcb-nav-toggle {
+		background: var(--wcb-base) !important;
+		color: var(--wcb-contrast);
+		box-shadow: none;
+	}
+
+	.wcb-nav-toggle-icon::after {
+		content: '\25BE';
+		display: block;
+		color: var(--wcb-text-tertiary);
+		transition: transform var(--wcb-transition-fast);
+	}
+
+	.wcb-nav-open .wcb-nav-toggle-icon::after {
+		transform: rotate(180deg);
+	}
+
+	.wcb-sidebar-nav,
+	.wcb-sidebar-cta,
+	.wcb-nav-section-label {
+		display: none;
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-nav {
+		display: flex;
+		padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	}
+
+	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
+		display: flex;
+		width: calc( 100% - ( var(--wcb-space-md) * 2 ) );
+		margin: var(--wcb-space-sm) var(--wcb-space-md) var(--wcb-space-md);
+	}
+
+	/* The dropdown label already names the tab: keep the H1 for screen
+	   readers but don't print it a second time under the label. */
+	.wcb-dashboard .wcb-main .wcb-page-title {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.wcb-dashboard .wcb-main .wcb-page-header:has(> .wcb-page-title:only-child) {
+		margin-bottom: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wcb-nav-item,
+	.wcb-nav-toggle-icon::after {
+		transition: none;
+	}
+}
+
 /* ── Touch targets ────────────────────────────────────────────────────────── */
 /* The responsive contract is a 40px minimum tap target. Small controls keep their
    look on a pointer device and gain height (not size) on touch and on phones. */
