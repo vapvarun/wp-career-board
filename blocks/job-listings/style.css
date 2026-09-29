@@ -626,7 +626,9 @@
 	border: 1px solid var(--wcb-info-border, #bfdbfe);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-info);
+	/* -fg, not the raw theme-mapped --wcb-info: on the tint background,
+	   the plain accent measured 2.84-3.0:1 depending on theme. */
+	color: var(--wcb-info-fg);
 }
 
 .wcb-active-chip-remove {

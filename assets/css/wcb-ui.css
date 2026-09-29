@@ -1369,9 +1369,17 @@ textarea.wcb-input {
 	.wcb-panel-link,
 	.wcb-bell-action,
 	.wcb-cd-withdraw-btn,
-	.wcb-filter-panel__clear {
+	.wcb-filter-panel__clear,
+	.wcb-active-chip,
+	.wcb-apps-filter-bar .wcb-filter-pill {
 		display: inline-flex;
 		align-items: center;
+		min-height: 2.5rem;
+	}
+
+	/* Icon-only, not a text pill — needs both dimensions bumped. */
+	.wcb-active-chip-remove {
+		min-width: 2.5rem;
 		min-height: 2.5rem;
 	}
 }
