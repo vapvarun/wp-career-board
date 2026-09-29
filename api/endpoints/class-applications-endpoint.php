@@ -279,12 +279,9 @@ final class ApplicationsEndpoint extends RestController {
 
 		if ( $is_guest ) {
 			// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
-			$wcb_ip_key = 'wcb_guest_apply_' . md5( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- hashed, never output.
-			$wcb_tries  = (int) get_transient( $wcb_ip_key );
-			if ( $wcb_tries >= 10 ) {
+			if ( $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
 				return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
 			}
-			set_transient( $wcb_ip_key, $wcb_tries + 1, HOUR_IN_SECONDS );
 
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
@@ -431,79 +428,83 @@ final class ApplicationsEndpoint extends RestController {
 			if ( $is_guest ) {
 				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
 			}
-		} finally {
-			$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_lock_key ) );
-		}
 
-		// Snapshot the job title + company at apply time so the candidate's
-		// history stays readable if the job post is deleted later.
-		$snapshot_job = get_post( $job_id );
-		if ( $snapshot_job instanceof \WP_Post ) {
-			update_post_meta( $app_id, '_wcb_job_title_snapshot', (string) $snapshot_job->post_title );
-			update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
-		}
-		update_post_meta(
-			$app_id,
-			'_wcb_cover_letter',
-			sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
-		);
+			// Resume checks run inside the lock too: a request that fails them
+			// deletes its row before the lock is released, so a valid retry never
+			// sees it as 'already applied' (Basecamp 10352603157).
 
-		$resume_id = 0;
+			// Snapshot the job title + company at apply time so the candidate's
+			// history stays readable if the job post is deleted later.
+			$snapshot_job = get_post( $job_id );
+			if ( $snapshot_job instanceof \WP_Post ) {
+				update_post_meta( $app_id, '_wcb_job_title_snapshot', (string) $snapshot_job->post_title );
+				update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
+			}
+			update_post_meta(
+				$app_id,
+				'_wcb_cover_letter',
+				sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
+			);
 
-		if ( $is_guest ) {
-			update_post_meta( $app_id, '_wcb_guest_name', $guest_name );
-			update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
-		} else {
-			// Validate resume belongs to the current candidate before storing.
-			$resume_id = (int) $request->get_param( 'resume_id' );
-			if ( $resume_id > 0 ) {
-				$resume = get_post( $resume_id );
-				if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+			$resume_id = 0;
+
+			if ( $is_guest ) {
+				update_post_meta( $app_id, '_wcb_guest_name', $guest_name );
+				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+			} else {
+				// Validate resume belongs to the current candidate before storing.
+				$resume_id = (int) $request->get_param( 'resume_id' );
+				if ( $resume_id > 0 ) {
+					$resume = get_post( $resume_id );
+					if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+						wp_delete_post( $app_id, true );
+						return new \WP_Error(
+							'wcb_invalid_resume',
+							__( 'Invalid resume.', 'wp-career-board' ),
+							array( 'status' => 400 )
+						);
+					}
+				}
+				update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
+			}
+
+			// Resume file attachment — accepted from both guests and logged-in users
+			// either as a multipart upload on this request or as a pre-uploaded
+			// attachment id from the legacy /candidates/resume-upload flow.
+			$attachment_id = $this->resolve_resume_attachment( $request, $is_guest ? 0 : $candidate_id, $app_id );
+			if ( is_wp_error( $attachment_id ) ) {
+				wp_delete_post( $app_id, true );
+				return $attachment_id;
+			}
+			if ( $attachment_id > 0 ) {
+				update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+			} elseif ( $resume_id > 0 ) {
+				// Candidate picked a saved resume with no uploaded PDF — common when
+				// the resume was built in the manual builder. Auto-generate the PDF so
+				// applying stays one tap: Pro renders the structured resume to a PDF and
+				// caches it on the resume. Falls back to the upload/export error only
+				// when generation isn't available (e.g. Pro inactive).
+				$generated_id = (int) apply_filters( 'wcb_resume_pdf_attachment_id', 0, $resume_id, $candidate_id );
+				if ( $generated_id > 0 ) {
+					update_post_meta( $app_id, '_wcb_resume_attachment_id', $generated_id );
+				} elseif ( $this->resume_required() ) {
 					wp_delete_post( $app_id, true );
 					return new \WP_Error(
-						'wcb_invalid_resume',
-						__( 'Invalid resume.', 'wp-career-board' ),
+						'wcb_resume_no_pdf',
+						__( "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying.", 'wp-career-board' ),
 						array( 'status' => 400 )
 					);
 				}
-			}
-			update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
-		}
-
-		// Resume file attachment — accepted from both guests and logged-in users
-		// either as a multipart upload on this request or as a pre-uploaded
-		// attachment id from the legacy /candidates/resume-upload flow.
-		$attachment_id = $this->resolve_resume_attachment( $request, $is_guest ? 0 : $candidate_id, $app_id );
-		if ( is_wp_error( $attachment_id ) ) {
-			wp_delete_post( $app_id, true );
-			return $attachment_id;
-		}
-		if ( $attachment_id > 0 ) {
-			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
-		} elseif ( $resume_id > 0 ) {
-			// Candidate picked a saved resume with no uploaded PDF — common when
-			// the resume was built in the manual builder. Auto-generate the PDF so
-			// applying stays one tap: Pro renders the structured resume to a PDF and
-			// caches it on the resume. Falls back to the upload/export error only
-			// when generation isn't available (e.g. Pro inactive).
-			$generated_id = (int) apply_filters( 'wcb_resume_pdf_attachment_id', 0, $resume_id, $candidate_id );
-			if ( $generated_id > 0 ) {
-				update_post_meta( $app_id, '_wcb_resume_attachment_id', $generated_id );
 			} elseif ( $this->resume_required() ) {
 				wp_delete_post( $app_id, true );
 				return new \WP_Error(
-					'wcb_resume_no_pdf',
-					__( "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying.", 'wp-career-board' ),
+					'wcb_resume_required',
+					__( 'A resume is required to apply for this job.', 'wp-career-board' ),
 					array( 'status' => 400 )
 				);
 			}
-		} elseif ( $this->resume_required() ) {
-			wp_delete_post( $app_id, true );
-			return new \WP_Error(
-				'wcb_resume_required',
-				__( 'A resume is required to apply for this job.', 'wp-career-board' ),
-				array( 'status' => 400 )
-			);
+		} finally {
+			$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_lock_key ) );
 		}
 
 		update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );

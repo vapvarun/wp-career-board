@@ -46,19 +46,13 @@ final class ApplicationNotes {
 	 * @return array<int, array{id:string, author:int, author_name:string, text:string, at:string}>
 	 */
 	public static function notes( int $app_id ): array {
-		// One meta row per note. A pre-1.8 install stored them as one row
-		// holding the whole list: flatten that shape on read.
-		$notes = array();
-		foreach ( (array) get_post_meta( $app_id, self::NOTES, false ) as $row ) {
-			if ( ! is_array( $row ) ) {
-				continue;
-			}
-			if ( isset( $row['id'] ) ) {
-				$notes[] = $row;
-			} else {
-				array_push( $notes, ...array_values( array_filter( $row, 'is_array' ) ) );
-			}
-		}
+		// One meta row per note.
+		$notes = array_values(
+			array_filter(
+				(array) get_post_meta( $app_id, self::NOTES, false ),
+				static fn ( $row ): bool => is_array( $row ) && isset( $row['id'] )
+			)
+		);
 		usort( $notes, static fn ( array $a, array $b ): int => strcmp( (string) $a['at'], (string) $b['at'] ) );
 		return array_map(
 			static function ( array $note ): array {
@@ -106,24 +100,8 @@ final class ApplicationNotes {
 	public static function delete( int $app_id, string $note_id, int $user, bool $staff ): bool {
 		$allowed = static fn ( array $n ): bool => $n['id'] === $note_id && ( $staff || (int) $n['author'] === $user );
 		foreach ( (array) get_post_meta( $app_id, self::NOTES, false ) as $row ) {
-			if ( ! is_array( $row ) ) {
-				continue;
-			}
-			if ( isset( $row['id'] ) ) {
-				if ( $allowed( $row ) ) {
-					return delete_post_meta( $app_id, self::NOTES, $row );
-				}
-				continue;
-			}
-			// Legacy list row: split it into one row per remaining note.
-			$list = array_values( array_filter( $row, 'is_array' ) );
-			$kept = array_values( array_filter( $list, static fn ( array $n ): bool => ! $allowed( $n ) ) );
-			if ( count( $kept ) !== count( $list ) ) {
-				delete_post_meta( $app_id, self::NOTES, $row );
-				foreach ( $kept as $n ) {
-					add_post_meta( $app_id, self::NOTES, $n );
-				}
-				return true;
+			if ( is_array( $row ) && isset( $row['id'] ) && $allowed( $row ) ) {
+				return delete_post_meta( $app_id, self::NOTES, $row );
 			}
 		}
 		return false;

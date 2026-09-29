@@ -47,6 +47,10 @@ echo "=== Template Override Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-template-override.php
 echo ""
 
+echo "=== Apply and Notes Concurrency Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-apply-concurrency.php
+echo ""
+
 echo "=== App Auth Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-app-auth.php
 echo ""

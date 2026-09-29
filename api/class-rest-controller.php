@@ -101,14 +101,28 @@ abstract class RestController extends \WP_REST_Controller {
 		if ( $limit <= 0 ) {
 			return false;
 		}
-		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$key   = $bucket . md5( wp_salt() . $ip );
-		$count = (int) get_transient( $key );
-		if ( $count >= $limit ) {
-			return true;
+		global $wpdb;
+		$ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key  = $bucket . md5( wp_salt() . $ip );
+		$lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $key );
+
+		// The count is read-modify-write: a burst from one IP would otherwise
+		// read the same value and undercount. A short named lock serialises it.
+		// ponytail: if the lock can't be had in 2s the request is counted
+		// without it, so a stuck lock never blocks sign-ups.
+		$locked = 1 === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 2 )', $lock ) );
+		try {
+			$count = (int) get_transient( $key );
+			if ( $count >= $limit ) {
+				return true;
+			}
+			set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+			return false;
+		} finally {
+			if ( $locked ) {
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $lock ) );
+			}
 		}
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
-		return false;
 	}
 
 	/**
