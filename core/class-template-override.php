@@ -127,8 +127,20 @@ class TemplateOverride {
 		$resolved = wp_normalize_path( $template );
 
 		// The bundled integrations (Reign, BuddyX Pro) set their own template via
-		// single_template and live inside the plugin directory. Preserved so this
-		// change is purely additive to the behaviour that already worked.
-		return str_contains( $resolved, 'wp-career-board' );
+		// single_template and live inside one of the two plugin directories.
+		// Compared against the actual directory, not a substring of the path -
+		// an install path that happens to contain the plugin slug (a demo
+		// folder, a site named after the plugin) otherwise falsely matches a
+		// theme's own generic template (Basecamp 10350370251).
+		foreach ( array( WCB_DIR, defined( 'WCBP_DIR' ) ? WCBP_DIR : null ) as $plugin_dir ) {
+			if ( ! is_string( $plugin_dir ) || '' === $plugin_dir ) {
+				continue;
+			}
+			if ( str_starts_with( $resolved, trailingslashit( wp_normalize_path( $plugin_dir ) ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

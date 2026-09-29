@@ -4,8 +4,12 @@
 	   sets the page's canonical content width. A local 1100px cap here made
 	   the job page narrower than the company page, which fills the shell
 	   fully — the two read as different container widths on the same site. */
+	/* No side padding of its own either: the shell already insets the page,
+	 * and a local 16px here stacked on top of it (double inset vs.
+	 * company-profile, which has none). Vertical padding stays — it's page
+	 * rhythm, not the shell's job. */
 	margin: 0 auto;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg) var(--wcb-space-4xl);
+	padding: var(--wcb-space-2xl) 0 var(--wcb-space-4xl);
 	font-family: inherit;
 	color: var(--wcb-contrast);
 }
