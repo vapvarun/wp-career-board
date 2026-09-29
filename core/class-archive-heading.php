@@ -89,6 +89,9 @@ final class ArchiveHeading {
 		if ( is_post_type_archive( $cpt_slug ) ) {
 			return (string) post_type_archive_title( '', false );
 		}
+		if ( is_tax( \WCB\Modules\Jobs\JobsModule::TAXONOMIES ) ) {
+			return single_term_title( '', false );
+		}
 		return '';
 	}
 }

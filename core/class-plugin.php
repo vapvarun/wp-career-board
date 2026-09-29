@@ -419,6 +419,19 @@ final class Plugin {
 			'archive-wcb_company' => array( __( 'Company Archive', 'wp-career-board' ), '<!-- wp:wp-career-board/company-archive /-->' ),
 		);
 
+		// Job taxonomy archives show the listing scoped to the term; the scoping
+		// itself is JobsModule::scope_listing_to_term(), which runs on any theme.
+		$taxonomy_titles = array(
+			'wcb_category'   => __( 'Job Category Archive', 'wp-career-board' ),
+			'wcb_job_type'   => __( 'Job Type Archive', 'wp-career-board' ),
+			'wcb_tag'        => __( 'Job Tag Archive', 'wp-career-board' ),
+			'wcb_location'   => __( 'Job Location Archive', 'wp-career-board' ),
+			'wcb_experience' => __( 'Experience Level Archive', 'wp-career-board' ),
+		);
+		foreach ( $taxonomy_titles as $taxonomy => $title ) {
+			$archives[ 'taxonomy-' . $taxonomy ] = array( $title, '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' );
+		}
+
 		// The block goes where post-content was, inside a group with the same
 		// attributes and classes, so it keeps that wrapper's padding and width.
 		preg_match( '#<!-- wp:post-content\b\s*(\{.*?\})?\s*/-->#', $canvas, $match );
