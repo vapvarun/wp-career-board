@@ -23,6 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobsExpiry {
 
 	/**
+	 * Job statuses that still have a public page: open, expired and closed
+	 * jobs are all served at /jobs/{slug}/ (an ended job shows a notice).
+	 *
+	 * @since 1.8.0
+	 */
+	public const PAGE_STATUSES = array( 'publish', 'wcb_expired', 'wcb_closed' );
+
+	/**
 	 * Boot the expiry handler.
 	 *
 	 * @since 1.0.0
@@ -87,7 +95,7 @@ final class JobsExpiry {
 		if ( is_admin() || ! $query->is_main_query() || '' === (string) $query->get( 'wcb_job' ) ) {
 			return;
 		}
-		$query->set( 'post_status', array( 'publish', 'wcb_expired', 'wcb_closed' ) );
+		$query->set( 'post_status', self::PAGE_STATUSES );
 	}
 
 	/**

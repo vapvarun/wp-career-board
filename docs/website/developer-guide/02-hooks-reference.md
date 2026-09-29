@@ -82,6 +82,7 @@ Self-service account deletion (`AccountDeletionEndpoint` /
 | `wcb_before_create_application` | Filter | Modify `wp_insert_post` arg array. |
 | `wcb_application_submitted` | Action | After successful submit. Args: `$app_id, $job_id, $candidate_id`. |
 | `wcb_application_status_changed` | Action | Once per real status change (`submitted -> reviewing -> shortlisted -> rejected/hired/withdrawn/job_removed`); a save that keeps the same status fires nothing. Args: `$app_id, $old_status, $new_status, $reason, $actor`. |
+| `wcb_application_status_updated` | Action | Every status change, including silent ones (job close / reopen, migrations) that skip `wcb_application_status_changed`. For keeping data in step with the status; never send a message from it. Args: `$app_id, $old_status, $new_status, $reason`. |
 | `wcb_application_status_label` | Filter | The words shown for a status. Args: `$label, $status, $audience` (`candidate`, `employer`, `admin`). Candidates see "Not selected" where employers see "Rejected". |
 | `wcb_application_withdrawn` | Action | Candidate withdrew; the application stays with status `withdrawn` and the employer is emailed. Args: `$app_id, $job_id, $candidate_id`. |
 | `wcb_application_deleted` | Action | Before an application post is permanently deleted (admin delete, account erasure, removing a row whose job is gone). Args: `$app_id, $job_id`. |

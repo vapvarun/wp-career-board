@@ -505,6 +505,23 @@ final class ApplicationLifecycle {
 		 * @param string $reason         Machine-readable reason.
 		 * @param int    $actor          User who made the change, 0 = system.
 		 */
+		/**
+		 * Fires on EVERY status change, including silent ones (a job close or
+		 * reopen, migrations) that skip wcb_application_status_changed.
+		 *
+		 * For data that must follow the status (Pro keeps each Kanban card in
+		 * the column its status calls for). Never send a message from this
+		 * hook: use wcb_application_status_changed, which respects $notify.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param int    $application_id Application post ID.
+		 * @param string $old_status     Previous status slug.
+		 * @param string $new_status     New status slug.
+		 * @param string $reason         Machine-readable reason.
+		 */
+		do_action( 'wcb_application_status_updated', $application_id, $old_status, $new_status, $reason );
+
 		if ( $notify ) {
 			do_action( 'wcb_application_status_changed', $application_id, $old_status, $new_status, $reason, (int) $entry['by'] );
 		}
