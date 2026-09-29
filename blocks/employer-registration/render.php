@@ -55,12 +55,15 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 if ( ! $wcb_user && ! get_option( 'users_can_register' ) && ! is_multisite() ) {
 	?>
 	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-		<p class="wcb-reg-notice">
-			<?php esc_html_e( 'New account registration is closed on this site.', 'wp-career-board' ); ?>
-			<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-reg-link">
+		<div class="wcb-reg-closed">
+			<?php echo \WCB\Core\Icon::svg( 'user-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			<p class="wcb-reg-closed__text">
+				<?php esc_html_e( 'New account registration is closed on this site.', 'wp-career-board' ); ?>
+			</p>
+			<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Sign in', 'wp-career-board' ); ?>
 			</a>
-		</p>
+		</div>
 	</div>
 	<?php
 	return;
