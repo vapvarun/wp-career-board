@@ -590,7 +590,14 @@ textarea.wcb-input {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wcb-space-xs);
-	flex-wrap: wrap;
+	max-width: 100%;
+	/* nowrap + a shrinkable name keeps the tick beside a long (clamped)
+	 * name instead of dropping onto its own line. */
+	flex-wrap: nowrap;
+}
+
+.wcb-ca-name-row > .wcb-ca-name {
+	min-width: 0;
 }
 
 .wcb-ca-trust-tick {

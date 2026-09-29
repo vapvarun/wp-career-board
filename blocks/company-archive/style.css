@@ -413,8 +413,10 @@
 	text-overflow: ellipsis;
 }
 
+/* inline-block, not inline-flex: text-overflow: ellipsis doesn't apply
+ * to a flex container, so a long HQ was clipped mid-word. */
 .wcb-ca-chip.wcb-shown {
-	display: inline-flex;
+	display: inline-block;
 }
 
 /* -- Card footer -- */
