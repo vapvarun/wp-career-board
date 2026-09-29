@@ -411,8 +411,9 @@
 
 .wcb-cd-withdraw-btn:hover,
 .wcb-cd-withdraw-btn:focus-visible {
-	/* A light tint keeps the danger label above 4.5:1 in dark mode too. */
-	background: color-mix(in srgb, var(--wcb-danger, #dc2626) 8%, transparent);
+	/* No tint: the row under it is already tinted on hover, and a second
+	 * tint pulled the label under 4.5:1 in dark mode. The border marks it. */
+	background: transparent;
 	color: var(--wcb-danger-fg, #b91c1c);
 	border-color: var(--wcb-danger);
 }
