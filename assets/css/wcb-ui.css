@@ -563,6 +563,32 @@ textarea.wcb-input {
 	margin: 0 0 var(--wcb-space-md);
 }
 
+/* ── Detail-page card — shared hero + section shape across job/company/
+ * resume single ("detail" pages). Owner decision: uniform density wins
+ * over per-page variety (10348287589 section rhythm, 10348288572 card
+ * radius/shadow) — one radius, one padding ladder, one shadow treatment
+ * for every hero and section card on these three pages. Each page keeps
+ * its own component class (`.wcb-job-hero`, `.wcb-rs-section`, ...) for
+ * layout/print rules and adds this class alongside it for the shared
+ * shape. */
+.wcb-detail-hero,
+.wcb-detail-section {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+	box-shadow: var(--wcb-shadow-sm);
+}
+
+.wcb-detail-hero {
+	padding: var(--wcb-space-3xl);
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+.wcb-detail-section {
+	padding: var(--wcb-space-2xl);
+	margin-bottom: var(--wcb-space-xl);
+}
+
 /* ── Trust tick — shared paint across all archive cards ──────────────────
  * Small green checkmark rendered INLINE after the company/job name. The
  * `data-trust` attribute carries the trust level so verified / trusted /
@@ -1403,6 +1429,8 @@ textarea.wcb-input {
 	   Without this, the two insets stacked (was 12px body + 15px shell = the
 	   theme header/logo shifting 12px between a listing and any other page). */
 	.wcb-page:has(.wcb-archive-shell) { padding-inline: 0; }
+
+	.wcb-detail-hero { padding: var(--wcb-space-2xl); }
 }
 
 @media (max-width: 640px) {
@@ -1414,6 +1442,9 @@ textarea.wcb-input {
 	.wcb-card-body    { padding: var(--wcb-space-lg); }
 	.wcb-card-foot    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
 	.wcb-field-row    { grid-template-columns: minmax(0, 1fr); }
+
+	.wcb-detail-hero    { padding: var(--wcb-space-xl); }
+	.wcb-detail-section { padding: var(--wcb-space-lg); }
 }
 
 /* ── Reduced motion ───────────────────────────────────────────────────────── */

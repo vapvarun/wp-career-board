@@ -3,14 +3,12 @@
 	font-family: inherit;
 }
 
-/* -- Hero -- */
+/* -- Hero --
+ * Card shape (background/border/radius/shadow/padding/margin) comes from
+ * the shared `.wcb-detail-hero` primitive in wcb-ui.css. */
 .wcb-cp-hero {
 	position: relative;
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
 	overflow: hidden;
-	margin-bottom: var(--wcb-space-xl);
 }
 
 /* Save button anchored top-right of the hero card so it sits in the same
@@ -28,7 +26,7 @@
  * `position: static` override pushed the pill into DOM order at the top
  * of the card where it clipped against the avatar - the avatar now sits
  * naturally below the header line without needing a negative margin. */
-@media (max-width: 720px) {
+@media (max-width: 640px) {
 	[class*="wp-block-wp-career-board"] .wcb-cp-hero > .wcb-cp-hero-save {
 		top: var(--wcb-space-md);
 		inset-inline-end: var(--wcb-space-md);
@@ -46,19 +44,15 @@
 	background: transparent;
 }
 
+/* Padding now lives on the outer `.wcb-detail-hero` (shared primitive) so
+ * this is layout-only. padding-inline-end still reserves room for the
+ * absolutely-positioned Save button above so a long company name, or a
+ * wide chip row, doesn't run under it. --wcb-space-5xl doesn't exist as
+ * a token. */
 .wcb-cp-hero-body {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-xl);
-	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
-	margin-top: 0;
-}
-
-/* Reserve room for the absolutely-positioned Save button (above) so a long
- * company name, or a wide chip row, doesn't run under it. --wcb-space-5xl
- * doesn't exist as a token; this also has to come after the shorthand
- * `padding` above it, which was overwriting this whenever both rules loaded. */
-.wcb-cp-hero-body {
 	padding-inline-end: var(--wcb-space-4xl);
 }
 
@@ -276,13 +270,9 @@
 	}
 }
 
-/* -- Sections -- */
-.wcb-cp-section {
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
-	padding: var(--wcb-space-2xl);
-}
+/* -- Sections --
+ * Card shape now comes from the shared `.wcb-detail-section` primitive
+ * in wcb-ui.css (render.php uses that class alongside `.wcb-cp-section`). */
 
 .wcb-cp-section-title {
 	display: flex;
@@ -556,7 +546,7 @@
 		align-items: center;
 		text-align: center;
 		gap: var(--wcb-space-md);
-		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+		padding-inline-end: 0;
 	}
 
 	.wcb-cp-hero-info {
@@ -582,10 +572,6 @@
 
 	.wcb-cp-links {
 		justify-content: center;
-	}
-
-	.wcb-cp-section {
-		padding: var(--wcb-space-xl);
 	}
 
 	.wcb-cp-details-grid {

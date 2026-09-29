@@ -136,7 +136,7 @@ wp_interactivity_state(
 >
 
 	<?php /* ── Hero ── */ ?>
-	<div class="wcb-cp-hero">
+	<div class="wcb-cp-hero wcb-detail-hero">
 		<div class="wcb-cp-cover" aria-hidden="true"></div>
 
 		<?php
@@ -256,7 +256,7 @@ wp_interactivity_state(
 
 		<?php /* About */ ?>
 		<?php if ( $wcb_desc ) : ?>
-			<section class="wcb-cp-section">
+			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'About', 'wp-career-board' ); ?></h2>
 				<div class="wcb-cp-desc">
 					<?php echo wp_kses_post( wpautop( $wcb_desc ) ); ?>
@@ -266,7 +266,7 @@ wp_interactivity_state(
 
 		<?php /* Company Details */ ?>
 		<?php if ( $wcb_industry || $wcb_size || $wcb_type || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
-			<section class="wcb-cp-section">
+			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Company Details', 'wp-career-board' ); ?></h2>
 				<dl class="wcb-cp-details-grid">
 					<?php if ( $wcb_industry ) : ?>
@@ -368,7 +368,7 @@ wp_interactivity_state(
 			)
 		);
 		?>
-		<section class="wcb-cp-section">
+		<section class="wcb-cp-section wcb-detail-section">
 			<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?></h2>
 
 			<p class="wcb-cp-no-jobs" data-wp-bind--hidden="!state.hasNoJobs">

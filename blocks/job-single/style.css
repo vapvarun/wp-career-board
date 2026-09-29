@@ -62,17 +62,14 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 /* ── Hero banner ─────────────────────────────────────────────────────────── */
+/* Card shape (background/border/radius/shadow/padding/margin) comes from
+ * the shared `.wcb-detail-hero` primitive in wcb-ui.css. */
 .wcb-job-hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-rows: auto auto;
 	gap: var(--wcb-space-lg) var(--wcb-space-3xl);
 	align-items: start;
-	padding: var(--wcb-space-3xl);
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	margin-bottom: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
 }
 
 .wcb-job-hero-brand {
@@ -194,13 +191,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 	min-width: 0;
 }
 
-.wcb-section {
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
-	margin-bottom: var(--wcb-space-xl);
-}
+/* Card shape now comes from the shared `.wcb-detail-section` primitive
+ * in wcb-ui.css (render.php uses that class directly in place of a
+ * local `.wcb-section`). */
 
 .wcb-section-heading {
 	font-size: var(--wcb-text-lg);

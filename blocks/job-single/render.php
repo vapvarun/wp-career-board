@@ -372,7 +372,7 @@ wp_interactivity_state(
 >
 
 	<?php /* ── Hero banner ──────────────────────────────────────────────── */ ?>
-	<div class="wcb-job-hero">
+	<div class="wcb-job-hero wcb-detail-hero">
 
 		<div class="wcb-job-hero-brand">
 			<div class="wcb-avatar wcb-avatar--xl<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
@@ -559,7 +559,7 @@ wp_interactivity_state(
 					?>
 				</p>
 			<?php endif; ?>
-			<div class="wcb-section">
+			<div class="wcb-detail-section">
 				<h2 class="wcb-section-heading"><?php esc_html_e( 'About This Role', 'wp-career-board' ); ?></h2>
 				<div class="wcb-job-description">
 					<?php
@@ -627,7 +627,7 @@ wp_interactivity_state(
 			?>
 
 			<?php if ( ! empty( $wcb_categories ) ) : ?>
-				<div class="wcb-section">
+				<div class="wcb-detail-section">
 					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job Categories', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_categories as $wcb_cat ) : ?>
@@ -639,7 +639,7 @@ wp_interactivity_state(
 				</div>
 			<?php endif; ?>
 			<?php if ( ! empty( $wcb_tags ) ) : ?>
-				<div class="wcb-section">
+				<div class="wcb-detail-section">
 					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Skills & Tags', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_tags as $wcb_tag_item ) : ?>
