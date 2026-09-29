@@ -402,8 +402,8 @@ select.wcb-input,
 textarea.wcb-input {
 	display: block;
 	width: 100%;
-	min-height: 40px;
-	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	min-height: var(--wcb-control-h, 44px);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border: 1px solid var(--wcb-border, #cbd5e1);
 	border-radius: var(--wcb-radius-md);
 	font-family: inherit;

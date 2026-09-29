@@ -381,8 +381,8 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-field-input,
 [class*="wp-block-wcb-"] .wcb-field-input {
 	width: 100%;
-	min-height: 44px;
-	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	min-height: var(--wcb-control-h, 44px);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border: 1.5px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
