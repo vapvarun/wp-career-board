@@ -542,7 +542,7 @@ wp_interactivity_state(
 			<?php endif; ?>
 		</nav>
 
-		<button type="button" class="wcb-sidebar-cta" data-wp-on--click="actions.switchToPostJob">
+		<button type="button" class="wcb-sidebar-cta wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToPostJob">
 			+ <?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?>
 		</button>
 

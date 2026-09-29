@@ -165,27 +165,14 @@
 	color: var(--wcb-primary-dark);
 }
 
-/* Post a Job CTA */
+/* Post a Job CTA — layout only; colour/height/focus/press come from the
+ * shared .wcb-btn--primary (was --wcb-contrast, a token that flips per
+ * theme/mode and went invisible on Reign dark and unfilled on BuddyX -
+ * Basecamp 10345889841). */
 .wcb-sidebar-cta {
 	display: block;
+	width: calc( 100% - ( var( --wcb-space-lg ) * 2 ) );
 	margin: var(--wcb-space-lg);
-	padding: var(--wcb-space-lg) var(--wcb-space-lg);
-	background: var(--wcb-contrast);
-	color: var(--wcb-base);
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	text-align: center;
-	text-decoration: none;
-	border: none;
-	border-radius: var(--wcb-radius-md);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-sidebar-cta:hover {
-	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-base);
-	border: none;
-	text-decoration: none;
 }
 
 /* User / company row */

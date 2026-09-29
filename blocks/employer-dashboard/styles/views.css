@@ -24,7 +24,7 @@
 	border-color: var(--wcb-border);
 }
 .wcb-dashboard .wcb-filter-pill:focus {
-	outline: 2px solid transparent !important;
+	outline: 2px solid transparent;
 }
 .wcb-dashboard .wcb-filter-pill:focus-visible {
 	outline: 2px solid var(--wcb-primary);
@@ -184,7 +184,7 @@
 }
 
 .wcb-filter-pill:focus {
-	outline: 2px solid transparent !important;
+	outline: 2px solid transparent;
 }
 
 .wcb-filter-pill:focus-visible {
@@ -388,7 +388,7 @@
 }
 
 .wcb-apps-job-item:focus {
-	outline: 2px solid transparent !important;
+	outline: 2px solid transparent;
 }
 
 .wcb-apps-job-item:focus-visible {
