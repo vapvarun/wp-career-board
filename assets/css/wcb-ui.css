@@ -508,7 +508,7 @@
 }
 
 /* Field units stack 16px apart, in one column or a two-column row. */
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-panel--form, .wcb-profile-form, .wcb-reg-form, .wcb-form-simple__section, .wcb-resume-simple__section) {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-panel--form, .wcb-profile-form, .wcb-reg-form, .wcb-form-simple__section, .wcb-resume-simple__section, .wcb-rf-stack, .wcb-rb-profile-fields) {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-lg);
