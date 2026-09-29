@@ -1389,10 +1389,19 @@ textarea.wcb-input {
 @media (max-width: 1024px) {
 	.wcb-page { padding-inline: var(--wcb-space-md); }
 	.wcb-page--dashboard { padding-inline: var(--wcb-space-md); }
+
+	/* .wcb-page is the plugin's <body> class on every WCB-controlled page,
+	   dashboards and archive-shell pages alike — but a page whose content is
+	   .wcb-archive-shell already gets its own inset from that shell (and the
+	   theme's own header/footer read it too, since the class sits on <body>).
+	   Without this, the two insets stacked (was 12px body + 15px shell = the
+	   theme header/logo shifting 12px between a listing and any other page). */
+	.wcb-page:has(.wcb-archive-shell) { padding-inline: 0; }
 }
 
 @media (max-width: 640px) {
 	.wcb-page         { padding: var(--wcb-space-lg) var(--wcb-space-md); }
+	.wcb-page:has(.wcb-archive-shell) { padding: 0; }
 	.wcb-page-header  { gap: var(--wcb-space-sm); }
 	.wcb-page-title   { font-size: var(--wcb-text-xl); }
 	.wcb-card-head    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
