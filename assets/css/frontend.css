@@ -203,7 +203,19 @@ html[data-bn-theme="dark"],
 /* A display:none title still counts as the first child, so a block theme's
  * blockGap stayed on the content under it (19px more than the same page's
  * archive on Twenty Twenty-Five). */
-.wcb-page .wp-block-post-title:not(.wp-block-post-template .wp-block-post-title) + * {
+.wcb-page .wp-block-post-title:not(.wp-block-post-template .wp-block-post-title) ~ .wp-block-post-content,
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-post-title ~ .wp-block-post-content {
+	margin-block-start: 0;
+}
+
+/* Some block themes (Twenty Twenty-Four) put the title and byline in their own
+ * padded group above the content. With both hidden it was an empty 130px band,
+ * so the group goes too, along with the gap it left on the content. */
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-group:has(> .wp-block-post-title):not(:has(.wp-block-post-content)) {
+	display: none;
+}
+
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-group:has(> .wp-block-post-title):not(:has(.wp-block-post-content)) + .wp-block-post-content {
 	margin-block-start: 0;
 }
 
