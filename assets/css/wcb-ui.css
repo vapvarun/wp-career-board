@@ -743,6 +743,7 @@
  *   --compact  tighter padding for sidebar widgets and inline list sections.
  *   --toggle   hidden until `.wcb-shown` is added by an Interactivity store. */
 .wcb-empty-state {
+	margin: 0; /* it is a <p> in places; a theme's p margin must not leak in */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
