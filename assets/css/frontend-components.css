@@ -788,6 +788,15 @@
 	box-sizing: border-box;
 }
 
+/* Inside a theme's own .container (Reign, BuddyX and most classic themes), the
+ * container already sets the width and the gutter. The shell fills it and adds
+ * no inset of its own, so Career Board content starts on the same edge as a
+ * plain page (owner decision: flush with the theme's content edge). */
+.container .wcb-archive-shell {
+	max-width: none !important;
+	padding-inline: 0;
+}
+
 .wcb-archive-main {
 	width: 100%;
 }

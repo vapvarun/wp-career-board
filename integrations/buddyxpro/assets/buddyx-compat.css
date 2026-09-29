@@ -77,24 +77,6 @@ html.dark-mode {
 }
 
 /*
- * Ensure WCB blocks respect BuddyX Pro's content width.
- * `--buddyx-content-width` is set inline by the integration when the site owner
- * picks a custom width; 1200px mirrors BuddyX Pro's default content container.
- * `margin-inline: auto` centres the block when it's narrower than the viewport.
- */
-.wcb-job-single,
-.wcb-job-listings,
-.wcb-resume-archive,
-.wcb-resume-single,
-.wcb-dashboard,
-.wcb-company-archive,
-.wcb-company-profile {
-	max-width: var( --buddyx-content-width, 1200px );
-	margin-inline: auto;
-	box-sizing: border-box;
-}
-
-/*
  * WCB's brand pill buttons (apply / primary / save) sit on the saturated
  * `--wcb-primary`. The label is `--wcb-on-primary`, which is derived from that
  * same accent (white on a dark one, near-black on a light one), so it passes
@@ -146,14 +128,6 @@ html.dark-mode {
 	background: none !important;
 	color: var( --wcb-blue, var( --wcb-primary, #2563eb ) ) !important;
 	-webkit-text-fill-color: currentColor !important;
-}
-
-/* Dark pill CTAs ("Browse Jobs" / "Post a Job") — <a> styled as a solid button;
- * BuddyX paints links with its body color, washing the white label into the
- * dark pill. Force the bridged light surface token for the label. */
-.wcb-dashboard .wcb-sidebar-cta {
-	color: var( --wcb-base, #ffffff ) !important;
-	-webkit-text-fill-color: var( --wcb-base, #ffffff ) !important;
 }
 
 /* #OpenToWork badge shown on BuddyX Pro member profiles — uses the WCB
@@ -300,6 +274,12 @@ button[class*="wcb-"].wcb-layout-btn.wcb-active {
 	background-color: var( --wcb-base, #ffffff ) !important;
 }
 
+/* ...and keep the shared hover tint, which the !important surface above
+   would otherwise cancel for <button> actions (Reopen, Close) but not <a>. */
+button[class*="wcb-"].wcb-btn--secondary:is(:hover, :focus-visible) {
+	background-color: var( --wcb-bg-hover, #f1f5f9 ) !important;
+}
+
 /* The selected row in the applications picker: the blanket strip above was
    also stripping its .wcb-active tint, leaving it identical to every other
    row. Keeps the same info-tint the non-BuddyX design already uses instead
@@ -328,8 +308,10 @@ button[class*="wcb-"].wcb-rating__star--on {
 	color: var( --wcb-warning, #d97706 ) !important;
 }
 
-/* Danger buttons keep their danger label tone. */
-button[class*="wcb-"].wcb-btn--danger {
+/* Danger actions keep their danger label tone. */
+button[class*="wcb-"].wcb-btn--danger,
+button[class*="wcb-"].wcb-bell-clear-all,
+button[class*="wcb-"].wcb-cd-withdraw-btn {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
 }
 
@@ -343,15 +325,11 @@ button[class*="wcb-"].wcb-btn--danger {
 
 /*
  * Content edge: flush with the theme's own. BuddyX wraps the shell in its
- * .container, which already carries the gutter, so the shell adds none.
- * BuddyX Pro has no wrapper, so the shell mirrors that container (1170px
- * wide, 15px gutter) and lands on the same left edge as a plain page.
+ * .container (see the shared rule in frontend-components.css). BuddyX Pro has
+ * no wrapper, so the shell mirrors that container (1270px wide, 15px gutter)
+ * and lands on the same left edge as a plain page.
  */
-.container .wcb-archive-shell {
-	padding-inline: 0;
-}
-
 #page > .wcb-archive-shell {
-	max-width: 1170px !important;
+	max-width: 1270px !important; /* the theme's own .container width */
 	padding-inline: 15px;
 }

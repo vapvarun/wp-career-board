@@ -1,13 +1,10 @@
 /* Block wrapper reset (0,1,0). Most themes wrap blocks in a low-specificity
  * ".wp-block { padding: ... }" rule the (0,1,0) selector wins on
  * source-order, so plain rules suffice. */
+/* No width of its own: the page shell, or on a block theme the shared
+ * constrained-layout rule in frontend-components.css, sets it. */
 .wp-block-wp-career-board-job-search {
-	/* Matches .wcb-job-listings below it (1200px) so the search row and the
-	 * results are flush. Without this, a block theme's own content width wins
-	 * (Twenty Twenty-Five: 645px here vs 1340px on Find Companies, which sets
-	 * its own width the same way company-archive does). */
-	max-width: 1200px;
-	margin: 0 auto var(--wcb-space-lg);
+	margin: 0 0 var(--wcb-space-lg);
 	border: none;
 	box-shadow: none;
 	padding: 0;
@@ -15,8 +12,7 @@
 }
 
 .wp-block-wp-career-board-job-filters {
-	max-width: 1200px;
-	margin: 0 auto var(--wcb-space-lg);
+	margin: 0 0 var(--wcb-space-lg);
 }
 
 /* ── Search form ─────────────────────────────────────────────────────────── */

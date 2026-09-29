@@ -1,7 +1,7 @@
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
+/* No width of its own: the page shell (or a block theme's layout) sets it, as
+ * for every other Career Board block. */
 .wcb-company-archive {
-	max-width: 1200px;
-	margin: 0 auto;
 	font-family: inherit;
 }
 

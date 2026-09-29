@@ -5,9 +5,9 @@
 }
 
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
+/* No width of its own: the page shell, or on a block theme the shared
+ * constrained-layout rule in frontend-components.css, sets it. */
 .wcb-job-listings {
-	max-width: 1200px;
-	margin: 0 auto;
 	font-family: inherit;
 }
 

@@ -14,6 +14,15 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 get_header();
-// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.
-echo do_blocks( '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' );
+?>
+<div id="primary" class="wcb-archive-shell wcb-archive-shell--jobs">
+	<main class="wcb-archive-main">
+		<article class="wcb-archive-article entry-content">
+			<?php
+			echo do_blocks( '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render escapes internally.
+			?>
+		</article>
+	</main>
+</div>
+<?php
 get_footer();
