@@ -55,13 +55,14 @@
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border-strong);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	color: var(--wcb-text-secondary);
 	background: transparent;
 	white-space: nowrap;
-	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
+	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy), border-color var(--wcb-transition-snappy);
 }
 
 .wcb-step__num {
@@ -81,23 +82,36 @@
 
 .wcb-step--active {
 	background: var(--wcb-primary-strong);
+	border-color: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 }
 
+/* A solid white disc with a coloured numeral, not a translucent white ring
+   with a white numeral on it — the ring only ever showed 20% white over the
+   pill's own fill, 3.4-4.1:1 depending on theme accent. Contrast is the same
+   either way round, and --wcb-primary-strong is capped precisely so its
+   pairing with white clears AA (see its own definition above). */
 .wcb-step--active .wcb-step__num {
-	background: color-mix(in srgb, var(--wcb-on-primary) 20%, transparent);
-	color: var(--wcb-on-primary);
+	background: var(--wcb-on-primary);
+	color: var(--wcb-primary-strong);
 }
 
 .wcb-step--done {
 	background: var(--wcb-success-bg-soft);
+	border-color: var(--wcb-success-border);
 	color: var(--wcb-success-fg);
 }
 
+/* --wcb-success-strong is capped the same way --wcb-primary-strong is (see
+   above), so white always reads on it regardless of theme or mode — the
+   theme-mapped --wcb-success alone measured 1.84:1 on Reign. Not
+   --wcb-success-border/-fg: that pair has no dark-mode values of its own, so
+   in dark mode the "border" fill and the "fg" check landed on nearly the
+   same light green. */
 .wcb-step--done .wcb-step__num {
-	background: var(--wcb-success);
-	color: #ffffff;
+	background: var(--wcb-success-strong);
+	color: var(--wcb-on-primary, #ffffff);
 	font-size: 0;
 }
 

@@ -80,6 +80,13 @@
 	--wcb-bg-subtle:      #f8fafc;
 	--wcb-bg-hover:       #f1f5f9;
 
+	/* A 1px border for a control that needs to read against the page
+	   without relying on fill alone (WCAG 1.4.11, 3:1 non-text contrast) —
+	   --wcb-border alone is a subtle hairline (~1.2:1) meant for dividers,
+	   not this. Aliases the already dark/light-mode-aware secondary text
+	   tone rather than adding a second token to keep in sync. */
+	--wcb-border-strong: var(--wcb-text-secondary);
+
 	/* Foreground color for elements painted with --wcb-primary as
 	 * background (filled buttons, badges, banners). Always-white in
 	 * standard light/dark modes; themes that override --wcb-primary
@@ -167,11 +174,20 @@
    brand accent. */
 :root {
 	--wcb-primary-strong: var(--wcb-primary);
+	--wcb-success-strong: var(--wcb-success);
 }
 
 @supports (color: oklch(from red l c h)) {
 	:root {
 		--wcb-primary-strong: oklch(from var(--wcb-primary) min(l, 0.54) c h);
+		/* Same cap for a filled success badge (the done-step check) — a
+		   theme's own mapped --wcb-success (Reign's scheme green measured
+		   1.84:1) is exactly the same "too light for white" case as an
+		   uncapped --wcb-primary. --wcb-success-border/-fg have no dark-mode
+		   values of their own (never needed a solid fill before), so this
+		   avoids relying on that pairing where mode makes the fg and a
+		   would-be badge fill nearly the same tone. */
+		--wcb-success-strong: oklch(from var(--wcb-success) min(l, 0.54) c h);
 	}
 }
 /* One height for every listing search, filter and map control (was 37 to 50px). */
