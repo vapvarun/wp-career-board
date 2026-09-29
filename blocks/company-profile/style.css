@@ -629,7 +629,15 @@
 .wcb-company-page .site-sidebar,
 .wcb-company-page #sidebar { display: none !important; }
 
-.wcb-company-page #primary,
+/* :not(.wcb-archive-shell) — this rule exists to strip a THEME's own
+ * sidebar column when the theme's own single-wcb_company.php renders the
+ * block with `id="primary"` in its normal two-column layout. Our own
+ * fallback template's shell (modules/employers/templates/single-wcb_company.php)
+ * also happens to carry `id="primary"` to blend with theme markup, and its
+ * own max-width (--wcb-container-max-width, canonically 1280px) was losing
+ * to this rule's !important + ID-anchored selector, collapsing to the full
+ * (often 1400px+) theme container width instead. */
+.wcb-company-page #primary:not(.wcb-archive-shell),
 .wcb-company-page .content-area,
 .wcb-company-page .primary-content,
 .wcb-company-page main.site-main,

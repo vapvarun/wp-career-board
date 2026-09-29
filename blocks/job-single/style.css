@@ -1,6 +1,9 @@
 /* ── Reset / shared ────────────────────────────────────────────────────────── */
 .wp-block-wp-career-board-job-single {
-	max-width: 1100px;
+	/* No max-width of its own: the shell (.wcb-archive-shell, 1200px) already
+	   sets the page's canonical content width. A local 1100px cap here made
+	   the job page narrower than the company page, which fills the shell
+	   fully — the two read as different container widths on the same site. */
 	margin: 0 auto;
 	padding: var(--wcb-space-2xl) var(--wcb-space-lg) var(--wcb-space-4xl);
 	font-family: inherit;
