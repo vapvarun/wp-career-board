@@ -182,6 +182,12 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* Mouse press only: some block themes (TT25) draw a 2px white outline on
+   :focus. Keyboard focus keeps the ring above. */
+:is(.wcb-btn, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn):focus:not(:focus-visible) {
+	outline: none;
+}
+
 .wcb-btn[disabled],
 .wcb-btn:disabled,
 .wcb-btn--disabled {
