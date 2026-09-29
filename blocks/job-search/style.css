@@ -108,8 +108,12 @@
 }
 
 .wcb-search-button:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
+	outline: 2px solid transparent;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-search-button:active {
+	transform: scale(0.97);
 }
 
 @media (prefers-reduced-motion: reduce) {

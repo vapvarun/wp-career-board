@@ -219,13 +219,53 @@ html.dark-mode {
  * token-driven transparent/surface background with readable token text.
  */
 
-/* Filled CTAs — keep the brand fill + a legible label. */
+/* Filled CTAs — keep the brand fill + a legible label. Also covers the two
+   Pro <button>s (job-map/resume-map location search, resume Print) BuddyX's
+   blanket strip below used to catch unfilled — same allowlist, both sides. */
 button.wcb-btn--primary,
 button.wcb-search-button,
-button.wcb-search-hero__button {
+button.wcb-search-hero__button,
+button.wcb-jm-location-btn,
+button.wcb-rs-print-btn {
 	background-color: var(--wcb-primary-strong) !important;
 	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
+}
+
+button.wcb-btn--primary:hover,
+button.wcb-btn--primary:focus-visible,
+button.wcb-btn--primary:active,
+button.wcb-search-button:hover,
+button.wcb-search-button:focus-visible,
+button.wcb-search-button:active,
+button.wcb-search-hero__button:hover,
+button.wcb-search-hero__button:focus-visible,
+button.wcb-search-hero__button:active,
+button.wcb-jm-location-btn:hover,
+button.wcb-jm-location-btn:focus-visible,
+button.wcb-jm-location-btn:active,
+button.wcb-rs-print-btn:hover,
+button.wcb-rs-print-btn:focus-visible,
+button.wcb-rs-print-btn:active {
+	background-color: var(--wcb-primary-dark, var(--wcb-primary-strong)) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* The alert-card CTA is an <a>, not a <button> — BuddyX's own anchor-as-button
+   styling paints it with a dark label (#111 light / #ff6b6b dark) that the
+   button-only rules above never reach. */
+a.wcb-job-alert-card__btn,
+a.wcb-job-alert-card__btn:hover,
+a.wcb-job-alert-card__btn:focus-visible {
+	color: var( --wcb-on-primary, #ffffff ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+a.wcb-job-alert-card__btn:hover,
+a.wcb-job-alert-card__btn:focus-visible,
+a.wcb-job-alert-card__btn:active {
+	background-color: var(--wcb-primary-dark, var(--wcb-primary-strong)) !important;
 }
 
 /* Every other WCB <button>: strip BuddyX's blanket accent fill back to a
@@ -234,7 +274,7 @@ button.wcb-search-hero__button {
    future WCB buttons — ladder pills, view toggles, bookmark/filter/reset icon
    buttons, dashboard chips/pills, bell and db-link actions — without having to
    enumerate every class as new widgets are added. */
-button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button) {
+button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn, .wcb-rs-print-btn) {
 	background-color: transparent !important;
 	color: var( --wcb-text-primary, #111111 ) !important;
 	-webkit-text-fill-color: currentColor !important;

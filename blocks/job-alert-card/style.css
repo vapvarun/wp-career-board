@@ -57,6 +57,16 @@
 	text-decoration: none;
 }
 
+/* Same ring and press feedback every other filled WCB control uses. */
+.wcb-job-alert-card__btn:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-job-alert-card__btn:active {
+	transform: scale(0.97);
+}
+
 @media (max-width: 640px) {
 	.wcb-job-alert-card {
 		padding: var(--wcb-space-xl) var(--wcb-space-xl);

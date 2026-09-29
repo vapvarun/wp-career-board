@@ -52,8 +52,6 @@
 	--wcb-shadow-sm:    var(--bn-shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.04), 0 2px 4px rgba(16, 24, 40, 0.04));
 	--wcb-shadow-md:    var(--bn-shadow-md, 0 2px 4px rgba(16, 24, 40, 0.04), 0 8px 16px rgba(16, 24, 40, 0.06));
 	--wcb-shadow-lg:    var(--bn-shadow-lg, 0 8px 16px rgba(16, 24, 40, 0.06), 0 24px 48px rgba(16, 24, 40, 0.08));
-	--wcb-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
-
 	/* ── Primary tints (theme-aware via color-mix) ──────────────────────
 	   Useful for hover backgrounds and focus rings that should track
 	   any theme override of --wcb-primary. Older browsers without
@@ -62,6 +60,13 @@
 	--wcb-primary-ring: rgba(37, 99, 235, 0.16);
 	--wcb-primary-soft: color-mix(in srgb, var(--wcb-primary, #2563eb) 8%, transparent);
 	--wcb-primary-ring: color-mix(in srgb, var(--wcb-primary, #2563eb) 16%, transparent);
+
+	/* One focus ring for every filled control (buttons across every block +
+	   theme compat layer). Was a hardcoded blue shared by nothing else on the
+	   page; now tracks the same accent the fill itself uses, so a control's
+	   ring, fill and hover shade all read as one system on any theme. */
+	--wcb-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
+	--wcb-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--wcb-primary, #2563eb) 40%, transparent);
 
 	/* Primary tinted banner (info-style callouts, onboarding banner). Defined
 	   here so consumers stop falling back to a hardcoded light blue that never
