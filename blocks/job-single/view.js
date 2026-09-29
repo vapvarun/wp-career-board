@@ -13,6 +13,7 @@
  */
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -62,7 +63,7 @@ const { state } = store( 'wcb-job-single', {
 			if ( ! key ) {
 				return;
 			}
-			state.customFields = { ...state.customFields, [ key ]: target.value };
+			state.customFields = { ...state.customFields, [ key ]: customFieldValue( target ) };
 		},
 
 		openPanel( event ) {
@@ -298,10 +299,13 @@ const { state } = store( 'wcb-job-single', {
 				// filter's active output before persisting.
 				for ( const customKey in state.customFields ) {
 					if ( Object.prototype.hasOwnProperty.call( state.customFields, customKey ) ) {
-						formData.append(
-							'custom_fields[' + customKey + ']',
-							String( state.customFields[ customKey ] ?? '' )
-						);
+						const customValue = state.customFields[ customKey ];
+						if ( Array.isArray( customValue ) ) {
+							// Multi-choice: one entry per checked choice.
+							customValue.forEach( ( choice ) => formData.append( 'custom_fields[' + customKey + '][]', String( choice ) ) );
+						} else {
+							formData.append( 'custom_fields[' + customKey + ']', String( customValue ?? '' ) );
+						}
 					}
 				}
 

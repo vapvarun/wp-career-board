@@ -29,7 +29,8 @@ final class ApplicationsCsv {
 	 * formula injection (a cover letter starting with "=" opens as text).
 	 *
 	 * Columns: ID, Job ID, Job Title, Applicant Name, Applicant Email,
-	 * Status, Submitted, Cover Letter, Resume URL.
+	 * Status, Submitted, Cover Letter, Resume URL, Screening Answers (one
+	 * "Question: answer" pair per line, since each job asks its own).
 	 *
 	 * @since 1.1.0
 	 * @since 1.8.0 Takes query args; batched; formula-safe; status label.
@@ -61,8 +62,12 @@ final class ApplicationsCsv {
 				__( 'Submitted', 'wp-career-board' ),
 				__( 'Cover Letter', 'wp-career-board' ),
 				__( 'Resume URL', 'wp-career-board' ),
+				__( 'Screening Answers', 'wp-career-board' ),
 			)
 		);
+
+		// The job's questions, looked up once per job rather than once per row.
+		$question_groups = array();
 
 		$page = 1;
 		do {
@@ -103,6 +108,18 @@ final class ApplicationsCsv {
 						(string) get_post_field( 'post_date', $app_id ),
 						(string) get_post_meta( $app_id, '_wcb_cover_letter', true ),
 						$attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '',
+						implode(
+							"\n",
+							array_map(
+								static fn ( array $answer ): string => $answer['label'] . ': ' . $answer['value'],
+								\WCB\Core\FormCustomFields::labelled_values(
+									$question_groups[ $job_id ] ??= (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
+									(int) $app_id,
+									'post_meta',
+									\WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX
+								)
+							)
+						),
 					)
 				);
 			}

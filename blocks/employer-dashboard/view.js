@@ -5,6 +5,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -1644,19 +1645,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			const target = event.target;
-			let value;
-			if ( target.dataset.wcbMulti ) {
-				// multiselect — collect every checked box sharing this field key.
-				value = Array.from(
-					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
-				)
-					.filter( ( el ) => el.checked )
-					.map( ( el ) => el.value );
-			} else if ( target.type === 'checkbox' ) {
-				value = target.checked;
-			} else {
-				value = target.value;
-			}
+			const value = customFieldValue( target );
 			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 

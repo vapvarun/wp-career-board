@@ -23,6 +23,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class AbstractEmail {
 
 	/**
+	 * Whether the email being rendered goes to someone with no account here
+	 * (a guest applicant). Read by the footer partial for its wording.
+	 *
+	 * @since 1.8.0
+	 * @var bool
+	 */
+	private static bool $to_guest = false;
+
+	/**
+	 * Whether the email being rendered is addressed to a guest.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public static function is_to_guest(): bool {
+		return self::$to_guest;
+	}
+
+	/**
 	 * Returns the unique email ID (used as settings key and log event_type).
 	 *
 	 * @return string
@@ -326,9 +345,11 @@ abstract class AbstractEmail {
 		// same result. Without this line, subjects like "Application deadline
 		// approaching for {job_title}" reach recipients verbatim, both in
 		// production and via AdminEndpoint::test_send_email (same code path).
-		$subject = self::render_string( $this->get_subject(), $vars );
-		$body    = $this->render_body( $vars );
-		$sent    = wp_mail( $to, $subject, $body, self::headers() );
+		$subject        = self::render_string( $this->get_subject(), $vars );
+		self::$to_guest = ! $is_test && false === get_user_by( 'email', $to );
+		$body           = $this->render_body( $vars );
+		self::$to_guest = false;
+		$sent           = wp_mail( $to, $subject, $body, self::headers() );
 
 		$status = $sent ? 'sent' : 'failed';
 		if ( $is_test ) {

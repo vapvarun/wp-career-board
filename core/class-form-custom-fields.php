@@ -59,8 +59,7 @@ final class FormCustomFields {
 	/**
 	 * Output Interactivity-API-bound markup for an array of field groups.
 	 *
-	 * Mirrors the rendering loop in blocks/job-single/render.php (the apply
-	 * form), which is the canonical reference implementation since 1.0.0.
+	 * The one renderer for every custom-field form, the apply form included.
 	 *
 	 * @since 1.1.1
 	 *
@@ -153,6 +152,7 @@ final class FormCustomFields {
 					continue;
 				}
 				$value = $values[ $key ] ?? ( $values[ $key . '__from' ] ?? ( $values[ $key . '__min' ] ?? '' ) );
+				$value = self::choice_value( $field, $value );
 				$empty = is_array( $value ) ? ! array_filter( $value, static fn ( $v ): bool => '' !== trim( (string) $v ) ) : '' === trim( (string) $value ) || ( 'checkbox' === $field['type'] && in_array( strtolower( (string) $value ), array( '0', 'false', 'off' ), true ) );
 				if ( $empty ) {
 					$missing[ $key ] = '' !== $field['label'] ? $field['label'] : $key;
@@ -160,6 +160,31 @@ final class FormCustomFields {
 			}
 		}
 		return $missing;
+	}
+
+	/**
+	 * Drop answers that are not one of a choice field's options.
+	 *
+	 * Select, radio and multi-choice answers must be one of the field's own
+	 * choices; anything else (a hand-crafted request, a stale form) is
+	 * treated as unanswered. Other field types pass through unchanged.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array{type:string,options:array<string,string>} $field Normalised field.
+	 * @param mixed                                          $value Submitted value.
+	 * @return mixed
+	 */
+	private static function choice_value( array $field, mixed $value ): mixed {
+		if ( ! in_array( $field['type'], array( 'select', 'radio', 'multiselect' ), true ) || ! $field['options'] ) {
+			return $value;
+		}
+		$choices = array_map( 'strval', array_keys( $field['options'] ) );
+		if ( 'multiselect' === $field['type'] ) {
+			$items = is_array( $value ) ? $value : explode( ',', is_scalar( $value ) ? (string) $value : '' );
+			return array_values( array_intersect( array_map( static fn ( $v ): string => trim( (string) $v ), $items ), $choices ) );
+		}
+		return is_scalar( $value ) && in_array( (string) $value, $choices, true ) ? (string) $value : '';
 	}
 
 	/**
@@ -188,14 +213,22 @@ final class FormCustomFields {
 			$raw_options = array();
 		}
 
+		$options = self::normalise_options( $raw_options );
+		$type    = self::normalise_type( $type );
+		// A Field Builder "checkbox" with choices is a multi-choice question
+		// (tick any of Day / Night), not a single on/off box.
+		if ( 'checkbox' === $type && $options ) {
+			$type = 'multiselect';
+		}
+
 		return array(
 			'key'         => sanitize_key( $key ),
-			'type'        => self::normalise_type( $type ),
+			'type'        => $type,
 			'label'       => (string) ( $field['label'] ?? '' ),
 			'required'    => ! empty( $field['required'] ),
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
-			'options'     => self::normalise_options( $raw_options ),
+			'options'     => $options,
 		);
 	}
 
@@ -204,11 +237,9 @@ final class FormCustomFields {
 	 *
 	 * The Pro Field Builder stores choices as a flat list (['Alpha','Beta']),
 	 * while the filter contract documented above uses a value => label map.
-	 * Every renderer of a `select`/`radio`/`multiselect` field — including
-	 * blocks/job-single/render.php's own apply-form loop, which doesn't go
-	 * through render_field() — must call this first, or a flat list's
-	 * numeric array index ends up as the stored answer instead of the
-	 * choice itself.
+	 * Every renderer of a `select`/`radio`/`multiselect` field must call this
+	 * first, or a flat list's numeric array index ends up as the stored
+	 * answer instead of the choice itself.
 	 *
 	 * @since 1.8.0
 	 *
@@ -488,6 +519,7 @@ final class FormCustomFields {
 		}
 
 		$allowed_keys = array();
+		$fields       = array();
 		foreach ( $groups as $group ) {
 			if ( ! is_array( $group ) || empty( $group['fields'] ) ) {
 				continue;
@@ -499,6 +531,7 @@ final class FormCustomFields {
 				$normalised = self::normalise_field( $field );
 				if ( '' !== $normalised['key'] ) {
 					$allowed_keys[ $normalised['key'] ] = $normalised['type'];
+					$fields[ $normalised['key'] ]       = $normalised;
 				}
 			}
 		}
@@ -511,7 +544,7 @@ final class FormCustomFields {
 			}
 
 			$type      = $allowed_keys[ $key ];
-			$sanitised = self::sanitise_value( $type, $raw_value );
+			$sanitised = self::sanitise_value( $type, self::choice_value( $fields[ $key ], $raw_value ) );
 
 			/**
 			 * Filter a single custom-field value before it's written to meta.

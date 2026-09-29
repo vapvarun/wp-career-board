@@ -275,6 +275,12 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/fields',
+				WCB_URL . 'assets/js/modules/wcb-fields.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/email-prefs',
 				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
 				array(

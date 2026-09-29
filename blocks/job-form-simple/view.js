@@ -11,6 +11,7 @@
 
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -209,19 +210,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) return;
 			const target = event.target;
-			let value;
-			if ( target.dataset.wcbMulti ) {
-				// multiselect — collect every checked box sharing this field key.
-				value = Array.from(
-					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
-				)
-					.filter( ( el ) => el.checked )
-					.map( ( el ) => el.value );
-			} else if ( target.type === 'checkbox' ) {
-				value = target.checked;
-			} else {
-				value = target.value;
-			}
+			const value = customFieldValue( target );
 			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
