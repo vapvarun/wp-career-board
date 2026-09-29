@@ -1046,7 +1046,7 @@
 	box-shadow: none;
 	color: var(--wcb-text-secondary, #6b7280);
 	cursor: pointer;
-	border-radius: var(--wcb-radius-sm);
+	border-radius: var(--wcb-radius-md);
 	padding: 0;
 	margin: 0;
 	flex-shrink: 0;
@@ -2071,13 +2071,13 @@
 	.wcb-apps-filter-bar .wcb-filter-pill {
 		display: inline-flex;
 		align-items: center;
-		min-height: 2.5rem;
+		min-height: 40px;
 	}
 
 	/* Icon-only, not a text pill — needs both dimensions bumped. */
 	.wcb-active-chip-remove {
-		min-width: 2.5rem;
-		min-height: 2.5rem;
+		min-width: 40px;
+		min-height: 40px;
 	}
 }
 
