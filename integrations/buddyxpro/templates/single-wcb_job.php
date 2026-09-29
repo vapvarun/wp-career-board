@@ -21,7 +21,10 @@ get_header();
 ?>
 <div id="primary" class="wcb-archive-shell wcb-archive-shell--single">
 	<main class="wcb-archive-main">
-		<?php while ( have_posts() ) : the_post(); ?>
+		<?php
+		while ( have_posts() ) :
+			the_post();
+			?>
 			<article id="post-<?php the_ID(); ?>" <?php post_class( 'wcb-single entry-content' ); ?>>
 				<?php
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output is safe rendered HTML.

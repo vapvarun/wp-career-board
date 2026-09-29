@@ -155,8 +155,8 @@ class TemplateVersionCheck {
 			<p>
 				<?php
 				printf(
-					/* translators: %s: comma-separated list of template filenames. */
 					esc_html(
+						/* translators: %s: comma-separated list of template filenames. */
 						_n(
 							'Your theme has its own copy of %s, and it looks older than the version WP Career Board now ships. Compare it against the plugin\'s file and update your copy to keep the page working as intended.',
 							'Your theme has its own copy of %s, and they look older than the versions WP Career Board now ships. Compare them against the plugin\'s files and update your copies to keep those pages working as intended.',

@@ -127,6 +127,52 @@
         "purpose": "Update application status"
       },
       {
+        "route": "/wcb/v1/jobs/(?P<id>\\d+)/applications/export",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::register_routes (closure) -> WCB\\Core\\ApplicationsCsv::stream",
+        "permission": "closure: the job's own employer, or wcb/manage-settings",
+        "purpose": "Stream a CSV of one job's applicants to its employer (or staff)"
+      },
+      {
+        "route": "/wcb/v1/applications/(?P<id>\\d+)/notes",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::register_routes (closure) -> WCB\\Modules\\Applications\\ApplicationNotes::notes",
+        "permission": "update_permissions_check",
+        "purpose": "List the hiring team's private notes on an application"
+      },
+      {
+        "route": "/wcb/v1/applications/(?P<id>\\d+)/notes",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::register_routes (closure) -> WCB\\Modules\\Applications\\ApplicationNotes::add",
+        "permission": "update_permissions_check",
+        "purpose": "Add a private hiring-team note to an application"
+      },
+      {
+        "route": "/wcb/v1/applications/(?P<id>\\d+)/notes/(?P<note>[A-Za-z0-9]+)",
+        "methods": [
+          "DELETE"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::register_routes (closure) -> WCB\\Modules\\Applications\\ApplicationNotes::delete",
+        "permission": "update_permissions_check",
+        "purpose": "Delete a hiring-team note (the author, or wcb/manage-settings)"
+      },
+      {
+        "route": "/wcb/v1/applications/(?P<id>\\d+)/rating",
+        "methods": [
+          "PUT",
+          "PATCH"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::register_routes (closure) -> WCB\\Modules\\Applications\\ApplicationNotes::set_rating",
+        "permission": "update_permissions_check",
+        "purpose": "Set the hiring team's 0-5 rating on an application"
+      },
+      {
         "route": "/wcb/v1/candidates/(?P<id>\\d+)/applications",
         "methods": [
           "GET"

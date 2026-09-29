@@ -5,15 +5,15 @@
         "version": "1.7.1"
     },
     "generated": {
-        "at": "2026-09-28T01:20:29+00:00",
+        "at": "2026-09-29T03:13:31+00:00",
         "manifest_at": "2026-09-01T00:00:00Z",
         "manifest_branch": "1.7.1"
     },
     "categories": {
         "rest": {
-            "total": 68,
+            "total": 74,
             "covered": 41,
-            "uncovered": 27,
+            "uncovered": 33,
             "skipped": 0,
             "covered_items": [
                 {
@@ -193,6 +193,36 @@
                     "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/applications/(?P<id>\\d+)/status\""
                 },
                 {
+                    "method": "GET",
+                    "route": "/wcb/v1/jobs/(?P<id>\\d+)/applications/export",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/jobs/(?P<id>\\d+)/applications/export\""
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/applications/(?P<id>\\d+)/notes",
+                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/applications/(?P<id>\\d+)/notes\""
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/applications/(?P<id>\\d+)/notes",
+                    "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/applications/(?P<id>\\d+)/notes\""
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/applications/(?P<id>\\d+)/notes/(?P<note>[A-Za-z0-9]+)",
+                    "stub_command": "bin/qa-stub-gen.php rest DELETE \"/wcb/v1/applications/(?P<id>\\d+)/notes/(?P<note>[A-Za-z0-9]+)\""
+                },
+                {
+                    "method": "PUT",
+                    "route": "/wcb/v1/applications/(?P<id>\\d+)/rating",
+                    "stub_command": "bin/qa-stub-gen.php rest PUT \"/wcb/v1/applications/(?P<id>\\d+)/rating\""
+                },
+                {
+                    "method": "PATCH",
+                    "route": "/wcb/v1/applications/(?P<id>\\d+)/rating",
+                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/applications/(?P<id>\\d+)/rating\""
+                },
+                {
                     "method": "PATCH",
                     "route": "/wcb/v1/candidates/(?P<id>\\d+)",
                     "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/candidates/(?P<id>\\d+)\""
@@ -329,7 +359,7 @@
             "total": 93,
             "covered": 12,
             "uncovered": 81,
-            "skipped": 149,
+            "skipped": 152,
             "covered_items": [
                 {
                     "name": "wcb_application_status_changed",
@@ -849,15 +879,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 174,
+        "items_total": 180,
         "items_covered": 66,
-        "items_uncovered": 108,
-        "items_skipped": 149,
-        "coverage_percent": 37.899999999999999
+        "items_uncovered": 114,
+        "items_skipped": 152,
+        "coverage_percent": 36.700000000000003
     },
     "drift": {
         "previous_uncovered": 108,
-        "current_uncovered": 108,
-        "delta": 0
+        "current_uncovered": 114,
+        "delta": 6
     }
 }

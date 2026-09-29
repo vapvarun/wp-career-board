@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,21 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.0 - September 2026 =
+
+A presentation and consistency pass across every page, plus fixes for the Post a Job form, the notification bell, custom fields and resume printing found while preparing it.
+
+* New      - A warning when a theme's own copy of a Career Board template is older than the plugin's, so a customization does not silently fall behind.
+* Improve  - One shared page container on every theme (Reign, BuddyX, Twenty Twenty-Five): job, company and resume pages and the three listing archives now measure the same width, instead of falling back to whichever theme wrapper happened to apply.
+* Improve  - One heading scale, card style, form field size and admin spacing scale across the plugin, replacing several near-duplicate versions that had drifted apart.
+* Improve  - Company logos display uncropped; a long company name wraps to two lines instead of stretching its card taller than its neighbours.
+* Improve  - Primary button hover is always darker than the button's own fill, on every theme, instead of sometimes computing lighter on a light accent.
+* Improve  - The notification bell shows a relative time ("2 hours ago") instead of a raw database timestamp.
+* Improve  - Emails now build dates and status names in the recipient's own language, not the language of whoever triggered the email.
+* Fix      - Post a Job: the description editor's last edit is saved before Next or Publish act on it, and a double-click no longer creates two jobs or skips a step.
+* Fix      - Admin dashboard totals, Candidates and Employers counts no longer slow down or cap out on a large site.
+* Dev      - A theme resolving to its own generic single.php no longer blocks the plugin's canonical template; only a theme file matching the exact page name counts as an intentional override.
 
 = 1.7.2 - September 2026 =
 
