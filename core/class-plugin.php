@@ -120,6 +120,10 @@ final class Plugin {
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 
+		// Site Health test: registered on every request, not only in wp-admin, so
+		// WordPress's weekly background check (WP-Cron) counts it too.
+		( new \WCB\Core\TemplateVersionCheck() )->boot();
+
 		// Enum guard for `_wcb_industry`, registered where every write path
 		// converges rather than repeated at each of the six call sites.
 		\WCB\Core\Industries::boot();

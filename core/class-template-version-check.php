@@ -102,7 +102,7 @@ class TemplateVersionCheck {
 	 * Find every theme copy that is missing a version, or behind the plugin's.
 	 *
 	 * @since  1.8.0
-	 * @return array<int,array{basename:string,theme_file:string,theme_version:string,plugin_version:string}> Outdated copies.
+	 * @return array<int,array{basename:string,plugin_file:string,theme_file:string,theme_version:string,plugin_version:string}> Outdated copies.
 	 */
 	public static function outdated(): array {
 		$outdated = array();
@@ -123,6 +123,7 @@ class TemplateVersionCheck {
 			if ( '' === $theme_version || version_compare( $theme_version, $plugin_version, '<' ) ) {
 				$outdated[] = array(
 					'basename'       => $basename,
+					'plugin_file'    => $plugin_file,
 					'theme_file'     => $theme_file,
 					'theme_version'  => $theme_version,
 					'plugin_version' => $plugin_version,
@@ -134,15 +135,54 @@ class TemplateVersionCheck {
 	}
 
 	/**
+	 * Whether the active theme (or its parent) copies any watched template.
+	 *
+	 * @since  1.8.0
+	 * @return bool
+	 */
+	private static function has_theme_copies(): bool {
+		foreach ( array_keys( self::templates() ) as $basename ) {
+			if ( '' !== locate_template( $basename ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * A path relative to wp-content, which is what an owner sees over FTP.
+	 *
+	 * @since  1.8.0
+	 * @param  string $file Absolute path.
+	 * @return string
+	 */
+	private static function relative_path( string $file ): string {
+		$file    = wp_normalize_path( $file );
+		$content = trailingslashit( wp_normalize_path( WP_CONTENT_DIR ) );
+		return str_starts_with( $file, $content ) ? 'wp-content/' . substr( $file, strlen( $content ) ) : $file;
+	}
+
+	/**
 	 * Run the Site Health test.
 	 *
 	 * @since  1.8.0
 	 * @return array<string,mixed> Site Health test result.
 	 */
 	public function run_test(): array {
+		/**
+		 * Filter the documentation link shown with this Site Health item.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param string $url Documentation URL.
+		 */
+		$docs_url = (string) apply_filters( 'wcb_template_override_docs_url', 'https://github.com/vapvarun/wp-career-board/blob/HEAD/docs/website/developer-guide/06-template-overrides.md' );
+
 		$result = array(
 			'test'        => 'wcb_template_versions',
-			'label'       => __( 'Your theme\'s WP Career Board template copies are current', 'wp-career-board' ),
+			'label'       => self::has_theme_copies()
+				? __( 'Your theme\'s WP Career Board template copies are current', 'wp-career-board' )
+				: __( 'Your theme uses WP Career Board\'s own templates', 'wp-career-board' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => __( 'WP Career Board', 'wp-career-board' ),
@@ -152,7 +192,13 @@ class TemplateVersionCheck {
 				'<p>%s</p>',
 				esc_html__( 'When your theme copies one of WP Career Board\'s overridable templates, this compares it against the version the plugin ships so a plugin update does not silently go unused.', 'wp-career-board' )
 			),
-			'actions'     => '',
+			'actions'     => sprintf(
+				'<p><a href="%1$s" target="_blank" rel="noopener">%2$s<span class="screen-reader-text"> %3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a></p>',
+				esc_url( $docs_url ),
+				esc_html__( 'Learn how template overrides work', 'wp-career-board' ),
+				/* translators: Hidden accessibility text. */
+				esc_html__( '(opens in a new tab)', 'wp-career-board' )
+			),
 		);
 
 		$outdated = self::outdated();
@@ -163,7 +209,7 @@ class TemplateVersionCheck {
 		$items = '';
 		foreach ( $outdated as $row ) {
 			$items .= sprintf(
-				'<li><code>%1$s</code> — %2$s</li>',
+				'<li><code>%1$s</code> — %2$s<br />%3$s <code>%4$s</code><br />%5$s <code>%6$s</code></li>',
 				esc_html( $row['basename'] ),
 				esc_html(
 					sprintf(
@@ -172,7 +218,11 @@ class TemplateVersionCheck {
 						'' !== $row['theme_version'] ? $row['theme_version'] : __( 'none', 'wp-career-board' ),
 						$row['plugin_version']
 					)
-				)
+				),
+				esc_html__( 'Your copy:', 'wp-career-board' ),
+				esc_html( self::relative_path( $row['theme_file'] ) ),
+				esc_html__( 'Compare with:', 'wp-career-board' ),
+				esc_html( self::relative_path( $row['plugin_file'] ) )
 			);
 		}
 
@@ -181,7 +231,7 @@ class TemplateVersionCheck {
 
 		$result['description'] = sprintf(
 			'<p>%s</p><ul>%s</ul>',
-			esc_html__( 'Your theme has its own copy of the following WP Career Board templates, and they look older than the version the plugin now ships. Compare them against the plugin\'s files and update your copies to keep those pages working as intended.', 'wp-career-board' ),
+			esc_html__( 'Your theme has its own copy of the following WP Career Board templates, and they are older than the version the plugin now ships. Compare each copy with the plugin file listed under it and bring your copy up to date, so those pages keep working as intended.', 'wp-career-board' ),
 			$items
 		);
 

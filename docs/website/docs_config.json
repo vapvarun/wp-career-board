@@ -131,7 +131,8 @@
         "02-hooks-reference.md",
         "03-rest-api.md",
         "04-wp-cli.md",
-        "05-extension-cookbook.md"
+        "05-extension-cookbook.md",
+        "06-template-overrides.md"
       ]
     }
   ]
