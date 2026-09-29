@@ -843,39 +843,12 @@
 }
 
 /* Dashboard buttons use the canonical .wcb-btn ladder (assets/css/wcb-ui.css).
-   The row actions render as wcb-btn wcb-btn--secondary directly (owner
-   decision 2026-09-29: "uniform wins" — the same component and 40px height
-   as every other secondary button in the product, no compact desktop
-   variant of its own). The wcb-db-link-btn--* modifiers below now layer an
-   accent on top of that shared base; they no longer carry their own box
-   model. */
-
-/* One accent for the actions that move a job forward (Edit, Publish, Reopen). */
-.wcb-db-link-btn--edit,
-.wcb-db-link-btn--publish,
-.wcb-db-link-btn--reopen {
-	color: var(--wcb-primary-text, #1d4ed8);
-	border-color: var(--wcb-primary);
-}
-
-.wcb-db-link-btn--edit:hover,
-.wcb-db-link-btn--publish:hover,
-.wcb-db-link-btn--reopen:hover {
-	background: var(--wcb-primary-strong);
-	color: var(--wcb-on-primary, #ffffff);
-	border-color: var(--wcb-primary-strong);
-}
-
-.wcb-db-link-btn--close {
-	color: var(--wcb-warning-fg, #b45309);
-	border-color: var(--wcb-warning-border, #fde68a);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--close:hover {
-	background: var(--wcb-warning-bg);
-	border-color: var(--wcb-warning);
-}
+   Row actions render as plain wcb-btn wcb-btn--secondary (owner decision
+   2026-09-29: "uniform wins" - one look per variant, no per-action accent
+   colour). The wcb-db-link-btn--* modifiers this used to layer an accent
+   on top were leaking a second colour on BuddyX where the shared
+   secondary button itself gets an accent border (10350124316) - removed
+   from markup and dropped here. */
 
 /* -- Job status badge -- */
 .wcb-job-status-badge {
