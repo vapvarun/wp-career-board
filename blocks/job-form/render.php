@@ -497,7 +497,7 @@ $wcb_step_labels = array(
 
 	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->
 	<p
-		class="wcb-form-help wcb-listing-window"
+		class="wcb-listing-window"
 		data-wp-class--wcb-hidden="!state.hasListingWindow"
 		data-wp-text="state.listingWindowMessage"
 	></p>

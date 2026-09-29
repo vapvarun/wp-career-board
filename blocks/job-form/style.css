@@ -59,7 +59,7 @@
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-text-secondary);
+	color: var(--wcb-contrast);
 	background: transparent;
 	white-space: nowrap;
 	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy), border-color var(--wcb-transition-snappy);
@@ -75,7 +75,7 @@
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-bold);
 	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-secondary);
+	color: var(--wcb-contrast);
 	flex-shrink: 0;
 	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
 }
@@ -125,6 +125,15 @@
 	min-width: var(--wcb-space-sm);
 	height: 1px;
 	background: var(--wcb-border);
+}
+
+/* The listing-window notice sits between the stepper and the step panel. Not
+   .wcb-form-help: that class forces margin with !important and would pin the
+   notice against the panel title. */
+[class*="wp-block-wp-career-board"] .wcb-listing-window {
+	margin: 0 0 var(--wcb-space-lg);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-contrast);
 }
 
 /* ── Form step panel — transparent, no card chrome ───────────────────── */
