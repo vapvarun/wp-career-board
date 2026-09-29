@@ -342,7 +342,6 @@
 	flex-shrink: 0;
 }
 
-
 /* ── Job Alerts tab ────────────────────────────────────────────────────── */
 .wcb-alert-row {
 	display: flex;
@@ -404,27 +403,6 @@
 .wcb-alert-freq:focus {
 	outline: 2px solid var(--wcb-primary, var(--wp--preset--color--wcb-primary));
 	outline-offset: 2px;
-}
-
-/* Field rhythm now lives in the shared .wcb-form-field rule
-   (assets/css/frontend-components.css) so every form uses one gap. */
-
-.wcb-form-label {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast);
-	margin-bottom: var(--wcb-space-xs);
-}
-
-/* .wcb-input's shared rule (assets/css/wcb-ui.css) now matches this exactly
- * (44px, --wcb-space-md/lg padding) - the local copy that used to differ by a
- * couple of px is gone. */
-
-.wcb-input[readonly] {
-	background: var(--wcb-surface);
-	color: var(--wcb-text-secondary);
-	cursor: default;
 }
 
 .wcb-form-actions {

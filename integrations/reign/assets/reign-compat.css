@@ -133,3 +133,11 @@
 .entry-content > :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
 	margin-block-start: var(--wcb-space-lg) !important;
 }
+
+/* Reign 8.0.8 sets `textarea { border-radius: 6px !important }` on everything
+ * outside its $plugin-ui exclusion list (which names only BuddyNext), so the
+ * shared field radius can't win without !important. Same mirror-the-keyword
+ * pattern as the block margin reset above. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea {
+	border-radius: var(--wcb-radius-md) !important;
+}

@@ -131,7 +131,6 @@
 .wcb-form-step {
 	display: none;
 	flex-direction: column;
-	gap: var(--wcb-space-3xl);
 	padding: 0;
 	background: transparent;
 	border: 0;
@@ -160,41 +159,10 @@
 	border: 0;
 }
 
-/* ── Fields ──────────────────────────────────────────────────────────── */
-.wcb-form-label {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
 .wcb-required {
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
 	margin-inline-start: 2px; /* hairline gap */
-}
-
-.wcb-field {
-	width: 100%;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-base);
-	line-height: var(--wcb-leading-tight);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	-webkit-appearance: none;
-	appearance: none;
-	box-sizing: border-box;
-	min-width: 0;
-}
-
-.wcb-field:hover {
-	border-color: var(--wcb-text-tertiary);
 }
 
 /* No `outline: none` on plain `:focus` - modern browsers default to no
@@ -205,24 +173,6 @@
 .wcb-field:focus {
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field::placeholder {
-	color: var(--wcb-text-tertiary);
-	opacity: 0.7;
-}
-
-textarea.wcb-field {
-	resize: vertical;
-	min-height: 200px; /* component-specific dimension */
-	line-height: var(--wcb-leading-normal);
 }
 
 /* ── 2-col grid for paired fields / taxonomy selects ─────────────────── */
@@ -246,14 +196,6 @@ textarea.wcb-field {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
-
-.wcb-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	min-width: 0;
-}
-
 .wcb-field-group__label {
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);

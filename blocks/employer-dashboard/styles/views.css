@@ -878,7 +878,6 @@
 	white-space: nowrap;
 }
 
-
 /* -- Application status select -- */
 .wcb-app-status-select {
 	font-size: var(--wcb-text-sm);
@@ -968,7 +967,9 @@
 		max-height: 240px;
 	}
 
-	.wcb-field-row {
+	/* The dashboard main area is narrower than the viewport, so its field
+	   rows stack at tablet width, earlier than the shared 640 step. */
+	.wcb-dashboard .wcb-field-row {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }

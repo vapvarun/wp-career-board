@@ -26,19 +26,6 @@
 	text-decoration: underline;
 }
 
-.wcb-reg-form {
-	display: flex;
-	flex-direction: column;
-	/* No gap here: .wcb-field-group supplies its own margin-bottom (the
-	   shared field rhythm) - a gap on top of that double-spaced every field. */
-}
-
-.wcb-reg-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--wcb-space-lg);
-}
-
 .wcb-reg-error {
 	color: var(--wcb-danger);
 	font-size: var(--wcb-text-base);
@@ -209,10 +196,6 @@
 }
 
 @media (max-width: 640px) {
-	.wcb-reg-row {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
 	.wcb-role-options {
 		grid-template-columns: minmax(0, 1fr);
 	}

@@ -202,5 +202,5 @@
 }
 /* One height for every listing search, filter and map control (was 37 to 50px). */
 :root {
-	--wcb-control-h: 2.75rem;
+	--wcb-control-h: 44px; /* px, not rem: every theme renders the same field height */
 }

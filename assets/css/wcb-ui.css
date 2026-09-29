@@ -17,7 +17,7 @@
  *   .wcb-card-body         — padded inner content.
  *   .wcb-card-foot         — action footer with right-aligned buttons.
  *   .wcb-btn               — button (40px default). Variants primary|secondary|outline|ghost|danger × sm|md|lg.
- *   .wcb-input             — input/select/textarea (40px default). Variants --sm, --lg.
+ *   .wcb-input             — input/select/textarea (44px), see "Forms" below.
  *   .wcb-avatar            — initials/image tile. Variants --round, --logo, --sm|lg|xl.
  *   .wcb-badge             — pill chip. Variants success|warning|danger|info|neutral|outlined.
  *   .wcb-empty-state       — centered icon + title + description + optional CTA.
@@ -395,92 +395,127 @@
 
 .wcb-avatar [hidden] { display: none; }
 
-/* ── Input ladder ─────────────────────────────────────────────────────────── */
-
-.wcb-input,
-select.wcb-input,
-textarea.wcb-input {
-	display: block;
-	width: 100%;
-	min-height: var(--wcb-control-h, 44px);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border, #cbd5e1);
-	border-radius: var(--wcb-radius-md);
-	font-family: inherit;
-	font-size: var(--wcb-text-md);
-	line-height: var(--wcb-leading-normal);
-	color: var(--wcb-contrast, #0f172a);
-	background: var(--wcb-base, #ffffff);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
+/* ── Forms: one field, one label, one rhythm ────────────────────────────────
+ * Every Career Board form (settings, profiles, company profile, registration,
+ * post-a-job, apply drawer, resume forms and builder) uses these; the blocks
+ * set layout only. The field rule is scoped to the block roots and the
+ * element, (0,2,1), so a theme's input[type="text"] (0,1,1) can't restyle it.
+ * UI guideline: field 44px, radius md, 1px border; label then field 4; field
+ * then field 16, set by gap on the wrapper and its container, not margins. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	box-sizing: border-box;
+	width: 100%;
+	height: var(--wcb-control-h);
+	margin: 0;
+	padding: 0 var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background-color: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font: inherit;
+	font-size: var(--wcb-text-base);
+	line-height: var(--wcb-leading-tight);
+	box-shadow: none;
+	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-.wcb-input--sm { min-height: 40px; padding: var(--wcb-space-xs) var(--wcb-space-sm); font-size: var(--wcb-text-sm); }
-.wcb-input--lg { min-height: 48px; padding: var(--wcb-space-md) var(--wcb-space-lg); font-size: var(--wcb-text-md); }
-
-textarea.wcb-input {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+	height: auto;
 	min-height: 120px;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	line-height: var(--wcb-leading-normal);
 	resize: vertical;
 }
 
-.wcb-input:hover {
-	border-color: var(--wcb-text-tertiary, #9ca3af);
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+	-webkit-appearance: none;
+	appearance: none;
+	padding-inline-end: var(--wcb-space-3xl);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right var(--wcb-space-md) center;
+	background-size: 16px;
+	cursor: pointer;
 }
 
-.wcb-input:focus,
-.wcb-input:focus-visible {
-	outline: 2px solid transparent !important;
-	border-color: var(--wcb-primary, #2563eb);
-	box-shadow: var(--wcb-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.15));
+[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+	background-position: left var(--wcb-space-md) center;
 }
 
-.wcb-input[readonly],
-.wcb-input[disabled] {
-	background: var(--wcb-bg-subtle, #f8fafc);
-	color: var(--wcb-text-secondary, #6b7280);
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):hover {
+	border-color: var(--wcb-text-tertiary);
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):focus {
+	outline: 2px solid transparent;
+	border-color: var(--wcb-primary);
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)::placeholder {
+	color: var(--wcb-text-tertiary);
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):is([readonly], :disabled) {
+	background-color: var(--wcb-bg-subtle);
+	color: var(--wcb-text-secondary);
 	cursor: default;
 }
 
-.wcb-input[aria-invalid="true"] {
-	border-color: var(--wcb-danger, #dc2626);
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)[aria-invalid="true"] {
+	border-color: var(--wcb-danger);
 }
 
-.wcb-input[aria-invalid="true"]:focus {
-	box-shadow: 0 0 0 3px var(--wcb-danger-bg, #fee2e2);
-}
-
-.wcb-label {
-	display: block;
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-form-label, .wcb-field-label, .wcb-rf-label, .wcb-rb-label, .wcb-rb-summary-label, .wcb-cb-custom-label) {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--wcb-space-xs);
+	margin: 0;
 	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast, #0f172a);
-	margin-bottom: var(--wcb-space-xs);
+	font-weight: var(--wcb-font-semibold);
+	line-height: var(--wcb-leading-tight);
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--wcb-contrast);
 }
 
-.wcb-label-required::after {
-	content: " *";
-	color: var(--wcb-danger, #dc2626);
-	font-weight: var(--wcb-font-bold);
-}
-
-.wcb-help {
-	display: block;
-	margin-top: var(--wcb-space-xs);
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-field-hint, .wcb-form-hint) {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary, #6b7280);
-	line-height: var(--wcb-leading-normal);
+	font-weight: var(--wcb-font-normal);
+	color: var(--wcb-text-secondary);
 }
 
-.wcb-field {
-	margin-bottom: var(--wcb-space-lg);
+/* A field unit: label, control, hint, stacked 4px apart. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-form-field, .wcb-field-group, .wcb-rf-field, .wcb-rb-field) {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+	margin: 0;
 }
 
-.wcb-field:last-child { margin-bottom: 0; }
+/* Field units stack 16px apart, in one column or a two-column row. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-panel--form, .wcb-profile-form, .wcb-reg-form, .wcb-form-simple__section, .wcb-resume-simple__section) {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+}
 
-.wcb-field-row {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-form-step {
+	gap: var(--wcb-space-lg);
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-field-row, .wcb-reg-row, .wcb-form-grid, .wcb-rf-fields) {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--wcb-space-lg);
+}
+
+@media (max-width: 640px) {
+	:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-field-row, .wcb-reg-row, .wcb-form-grid, .wcb-rf-fields) {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 /* ── Detail-page section heading — shared across all detail surfaces ──────
@@ -2050,7 +2085,6 @@ textarea.wcb-input {
 	.wcb-card-head    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
 	.wcb-card-body    { padding: var(--wcb-space-lg); }
 	.wcb-card-foot    { padding: var(--wcb-space-md) var(--wcb-space-lg); }
-	.wcb-field-row    { grid-template-columns: minmax(0, 1fr); }
 
 	.wcb-detail-hero    { padding: var(--wcb-space-xl); }
 	.wcb-detail-section { padding: var(--wcb-space-lg); }
@@ -2070,8 +2104,8 @@ textarea.wcb-input {
  * WCAG 2.3.3. Do not refactor away. */
 @media (prefers-reduced-motion: reduce) {
 	.wcb-btn,
-	.wcb-input,
-	.wcb-card {
+	.wcb-card,
+	[class*="wcb-"] :is(input, select, textarea) {
 		transition: none !important;
 	}
 }

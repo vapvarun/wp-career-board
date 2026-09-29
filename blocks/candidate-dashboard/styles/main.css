@@ -18,6 +18,11 @@
 	display: block;
 }
 
+/* Form panels stack their fields with the shared 16px gap (wcb-ui.css). */
+.wcb-panel.wcb-shown.wcb-panel--form {
+	display: flex;
+}
+
 /* The embedded resume builder drops its own frame and padding inside a tab. */
 .wcb-view-panel.wcb-view-active .wcb-resume-builder {
 	padding: 0;

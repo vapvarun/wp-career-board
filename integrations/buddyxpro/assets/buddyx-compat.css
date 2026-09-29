@@ -336,3 +336,11 @@ button[class*="wcb-"].wcb-rating__star--on {
 button[class*="wcb-"].wcb-btn--danger {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
 }
+
+/* BuddyX paints every input with `input:not(...)x5` (0,5,1) using
+ * --bx-radius-form, which outranks the shared field rule. Inside Career Board
+ * blocks that token resolves to the plugin's field radius instead, so inputs,
+ * selects and textareas share one corner. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
+	--bx-radius-form: var(--wcb-radius-md);
+}

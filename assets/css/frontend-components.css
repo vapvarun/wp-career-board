@@ -139,80 +139,7 @@
    .wcb-btn remain in this file. */
 
 
-/* ── Form Fields ─────────────────────────────────────────────────────── */
-
-.wcb-field {
-	width: 100%;
-	height: 44px;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-normal);
-	line-height: var(--wcb-leading-normal);
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
-	appearance: none;
-	-webkit-appearance: none;
-}
-
-.wcb-field:focus {
-	outline: 2px solid transparent !important;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field::placeholder {
-	color: var(--wcb-text-tertiary);
-}
-
-.wcb-field:disabled {
-	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-tertiary);
-	cursor: not-allowed;
-}
-
-textarea.wcb-field {
-	height: auto;
-	min-height: 100px;
-	resize: vertical;
-}
-
-select.wcb-field {
-	padding-right: 2.5rem;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right var(--wcb-space-md) center;
-	background-size: 16px;
-}
-
-/* Error state */
-.wcb-field--error {
-	border-color: var(--wcb-danger);
-}
-
-.wcb-field--error:focus {
-	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
-}
-
-/* Label */
-.wcb-label {
-	display: block;
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast);
-	margin-bottom: var(--wcb-space-xs);
-}
-
-/* Helper text */
-.wcb-helper {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-	margin-top: var(--wcb-space-xs);
-}
+/* ── Form fields, labels and field rhythm: wcb-ui.css ("Forms"). ── */
 
 /* Error message */
 .wcb-error-msg {
@@ -320,107 +247,6 @@ select.wcb-field {
 
 /* ── Form Primitives — shared across blocks ──────────────────────────── */
 
-/*
- * `.wcb-field-*` is the canonical form-primitive set. Every block that renders
- * a label + input pair (registration, dashboard profile, post-a-job, candidate
- * profile, etc.) uses these classes. Defining them globally — scoped under
- * the WCB block wrappers — means a page with only ONE block enqueued still
- * gets the full set, fixing the historical bug where the registration page
- * rendered raw browser-default inputs because only `employer-dashboard/style.css`
- * carried the rules.
- *
- * Block-specific layout overrides (e.g. dashboard wraps two field-groups in a
- * 2-col `.wcb-field-row` grid that should NOT apply on registration) live
- * inside that block's stylesheet, scoped under the block's root class.
- */
-
-[class*="wp-block-wp-career-board"] .wcb-field-group,
-[class*="wp-block-wcb-"] .wcb-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	margin-bottom: var(--wcb-space-lg);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-group:last-child,
-[class*="wp-block-wcb-"] .wcb-field-group:last-child {
-	margin-bottom: 0;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-row,
-[class*="wp-block-wcb-"] .wcb-field-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--wcb-space-lg);
-}
-
-@media (max-width: 640px) {
-
-	[class*="wp-block-wp-career-board"] .wcb-field-row,
-	[class*="wp-block-wcb-"] .wcb-field-row {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-label,
-[class*="wp-block-wcb-"] .wcb-field-label {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-hint,
-[class*="wp-block-wcb-"] .wcb-field-hint {
-	font-weight: var(--wcb-font-normal);
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-sm);
-	margin-inline-start: var(--wcb-space-xs);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-input,
-[class*="wp-block-wcb-"] .wcb-field-input {
-	width: 100%;
-	min-height: var(--wcb-control-h, 44px);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-md);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	transition: border-color var(--wcb-transition-fast);
-	box-sizing: border-box;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-input:focus,
-[class*="wp-block-wcb-"] .wcb-field-input:focus {
-	outline: 2px solid transparent !important;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-textarea,
-[class*="wp-block-wcb-"] .wcb-field-textarea {
-	resize: vertical;
-	line-height: 1.6;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-select,
-[class*="wp-block-wcb-"] .wcb-field-select {
-	cursor: pointer;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right var(--wcb-space-md) center;
-	appearance: none;
-	padding-inline-end: 2.5rem;
-}
-
-[dir="rtl"] [class*="wp-block-wp-career-board"] .wcb-field-select,
-[dir="rtl"] [class*="wp-block-wcb-"] .wcb-field-select {
-	background-position: left var(--wcb-space-md) center;
-}
-
 /* ── Panel — shared dashboard / detail panel structure ──────────────── */
 
 /*
@@ -516,28 +342,7 @@ select.wcb-field {
 	margin: 0;
 }
 
-/*
- * A field and its hint: stacked, so the hint sits under its control instead of
- * running into a label on the same line. Shared because the Pro resume builder
- * uses them without the job form (which used to be the only place they were
- * defined) being on the page.
- */
-.wcb-form-field {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	margin-bottom: var(--wcb-space-lg);
-	min-width: 0;
-}
 
-.wcb-form-field:last-child {
-	margin-bottom: 0;
-}
-
-.wcb-form-hint {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-}
 
 /* A bare <p> with no margin of its own inherits whatever the theme gives a
  * paragraph (Reign: 1.375rem, an off-scale value) instead of the plugin's
