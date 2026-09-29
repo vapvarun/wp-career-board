@@ -498,7 +498,7 @@ class Admin {
 		<?php if ( $wcb_show_gs ) : ?>
 			<div class="wcb-settings-card wcb-getting-started-card">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Getting Started', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Getting started', 'wp-career-board' ); ?></h2>
 				</div>
 				<ul class="wcb-getting-started-list">
 					<li class="wcb-gs-item wcb-gs-done">
@@ -675,7 +675,7 @@ class Admin {
 		<?php /* ── Quick actions ── */ ?>
 			<div class="wcb-settings-card wcb-dashboard-actions-card">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Quick Actions', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Quick actions', 'wp-career-board' ); ?></h2>
 				</div>
 				<div class="wcb-dashboard-actions">
 					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-action-item">
@@ -708,7 +708,7 @@ class Admin {
 		<?php if ( ! $wcb_pro_active && ! $wcb_banner_hidden ) : ?>
 			<div class="wcb-settings-card wcb-pro-upgrade-card" id="wcb-pro-upgrade-banner">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Unlock Pro Features', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Unlock Pro features', 'wp-career-board' ); ?></h2>
 					<button type="button" class="wcb-pro-banner-dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'wp-career-board' ); ?>">
 						<i data-lucide="x" class="wcb-icon--sm"></i>
 					</button>

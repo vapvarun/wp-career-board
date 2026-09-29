@@ -446,7 +446,7 @@ class AdminSettings {
 			?>
 			<div class="wcb-settings-card" id="wcb-install-sample-block">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample data', 'wp-career-board' ); ?></h2>
 				</div>
 				<div class="wcb-settings-row wcb-settings-row--block">
 					<p class="description wcb-settings-intro"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
@@ -464,7 +464,7 @@ class AdminSettings {
 			?>
 			<div class="wcb-settings-card" id="wcb-sample-data-block">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample Data', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample data', 'wp-career-board' ); ?></h2>
 				</div>
 				<div class="wcb-settings-row wcb-settings-row--block">
 					<p class="description wcb-settings-intro"><?php esc_html_e( 'Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample.', 'wp-career-board' ); ?></p>

@@ -107,7 +107,7 @@ class EmailSettings {
 		?>
 		<div class="wcb-settings-card">
 			<div class="wcb-settings-card-header">
-				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Look', 'wp-career-board' ); ?></h2>
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email look', 'wp-career-board' ); ?></h2>
 			</div>
 			<form method="post">
 		<?php wp_nonce_field( 'wcb_email_settings_save', 'wcb_email_nonce' ); ?>
@@ -137,7 +137,7 @@ class EmailSettings {
 
 		<div class="wcb-settings-card">
 			<div class="wcb-settings-card-header">
-				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Templates', 'wp-career-board' ); ?></h2>
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email templates', 'wp-career-board' ); ?></h2>
 			</div>
 			<div style="padding: 0 24px 16px;">
 				<div class="wcb-email-templates-wrap">
@@ -247,7 +247,7 @@ class EmailSettings {
 		?>
 		<div class="wcb-settings-card wcb-email-log-card" id="wcb-email-activity-log">
 			<div class="wcb-settings-card-header">
-				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email Activity Log', 'wp-career-board' ); ?></h2>
+				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email activity log', 'wp-career-board' ); ?></h2>
 				<p class="wcb-settings-card-desc">
 		<?php esc_html_e( 'Recent transactional emails dispatched by Career Board. Helps verify whether emails are firing under live conditions and which recipients received them.', 'wp-career-board' ); ?>
 				</p>

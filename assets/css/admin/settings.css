@@ -168,6 +168,8 @@
 .wcb-settings-section__footer {
 	padding: 16px 0 0;
 	margin-top: 16px;
+	/* A card after the form (Emails, Job Alerts) starts one card step below. */
+	margin-bottom: 24px;
 	border-top: 1px solid var(--wcb-border, #e2e8f0);
 }
 
