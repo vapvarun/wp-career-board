@@ -344,3 +344,18 @@ button[class*="wcb-"].wcb-btn--danger {
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
 	--bx-radius-form: var(--wcb-radius-md);
 }
+
+/*
+ * Content edge: flush with the theme's own. BuddyX wraps the shell in its
+ * .container, which already carries the gutter, so the shell adds none.
+ * BuddyX Pro has no wrapper, so the shell mirrors that container (1170px
+ * wide, 15px gutter) and lands on the same left edge as a plain page.
+ */
+.container .wcb-archive-shell {
+	padding-inline: 0;
+}
+
+#page > .wcb-archive-shell {
+	max-width: 1170px !important;
+	padding-inline: 15px;
+}

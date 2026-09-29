@@ -519,7 +519,7 @@
 	/* Breathing room before the toolbar / archive-layout so the search
 	 * bar doesn't crash into the results count. Matches the spacing used
 	 * by `.wcb-ca-search-row` on Companies. */
-	margin-bottom: var(--wcb-space-2xl);
+	margin-bottom: var(--wcb-space-lg);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-search-wrap,
@@ -605,7 +605,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wcb-space-lg);
-	margin-bottom: var(--wcb-space-xl);
+	margin-bottom: var(--wcb-space-lg);
 	flex-wrap: wrap;
 }
 
