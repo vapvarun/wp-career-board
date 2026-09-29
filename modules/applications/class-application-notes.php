@@ -46,14 +46,27 @@ final class ApplicationNotes {
 	 * @return array<int, array{id:string, author:int, author_name:string, text:string, at:string}>
 	 */
 	public static function notes( int $app_id ): array {
-		$notes = get_post_meta( $app_id, self::NOTES, true );
+		// One meta row per note. A pre-1.8 install stored them as one row
+		// holding the whole list: flatten that shape on read.
+		$notes = array();
+		foreach ( (array) get_post_meta( $app_id, self::NOTES, false ) as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			if ( isset( $row['id'] ) ) {
+				$notes[] = $row;
+			} else {
+				array_push( $notes, ...array_values( array_filter( $row, 'is_array' ) ) );
+			}
+		}
+		usort( $notes, static fn ( array $a, array $b ): int => strcmp( (string) $a['at'], (string) $b['at'] ) );
 		return array_map(
 			static function ( array $note ): array {
 				$user                = get_userdata( (int) $note['author'] );
 				$note['author_name'] = $user instanceof \WP_User ? $user->display_name : __( 'Former member', 'wp-career-board' );
 				return $note;
 			},
-			is_array( $notes ) ? array_values( $notes ) : array()
+			$notes
 		);
 	}
 
@@ -73,25 +86,10 @@ final class ApplicationNotes {
 			'at'     => gmdate( 'c' ),
 		);
 
-		// Read-modify-write on one meta array loses a note when two POSTs land
-		// at once (Basecamp 10350213909). add_option()'s UNIQUE KEY serializes
-		// concurrent writers to the same application; short-lived, released
-		// right after the write.
-		$lock_key = 'wcb_note_lock_' . $app_id;
-		$wait     = 0;
-		while ( ! add_option( $lock_key, time(), '', false ) && $wait < 20 ) {
-			usleep( 50000 );
-			++$wait;
-		}
-
-		try {
-			$notes   = get_post_meta( $app_id, self::NOTES, true );
-			$notes   = is_array( $notes ) ? $notes : array();
-			$notes[] = $note;
-			update_post_meta( $app_id, self::NOTES, $notes );
-		} finally {
-			delete_option( $lock_key );
-		}
+		// Its own meta row: a plain INSERT, so concurrent adds can't overwrite
+		// each other the way a read-modify-write of one list did
+		// (Basecamp 10350213909).
+		add_post_meta( $app_id, self::NOTES, $note );
 
 		return $note;
 	}
@@ -106,14 +104,29 @@ final class ApplicationNotes {
 	 * @return bool
 	 */
 	public static function delete( int $app_id, string $note_id, int $user, bool $staff ): bool {
-		$notes = get_post_meta( $app_id, self::NOTES, true );
-		$notes = is_array( $notes ) ? $notes : array();
-		$kept  = array_values( array_filter( $notes, static fn ( array $n ): bool => $n['id'] !== $note_id || ( ! $staff && (int) $n['author'] !== $user ) ) );
-		if ( count( $kept ) === count( $notes ) ) {
-			return false;
+		$allowed = static fn ( array $n ): bool => $n['id'] === $note_id && ( $staff || (int) $n['author'] === $user );
+		foreach ( (array) get_post_meta( $app_id, self::NOTES, false ) as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			if ( isset( $row['id'] ) ) {
+				if ( $allowed( $row ) ) {
+					return delete_post_meta( $app_id, self::NOTES, $row );
+				}
+				continue;
+			}
+			// Legacy list row: split it into one row per remaining note.
+			$list = array_values( array_filter( $row, 'is_array' ) );
+			$kept = array_values( array_filter( $list, static fn ( array $n ): bool => ! $allowed( $n ) ) );
+			if ( count( $kept ) !== count( $list ) ) {
+				delete_post_meta( $app_id, self::NOTES, $row );
+				foreach ( $kept as $n ) {
+					add_post_meta( $app_id, self::NOTES, $n );
+				}
+				return true;
+			}
 		}
-		update_post_meta( $app_id, self::NOTES, $kept );
-		return true;
+		return false;
 	}
 
 	/**

@@ -303,13 +303,15 @@ final class ApplicationsEndpoint extends RestController {
 			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_u' . $candidate_id;
 		}
 
-		// Atomic lock: wp_options' UNIQUE KEY makes add_option() fail if a
-		// concurrent request already holds this job+candidate key, closing
-		// the check-then-insert race below (Basecamp 10350213909).
-		if ( ! add_option( $wcb_lock_key, time(), '', false ) ) {
+		// MySQL named lock around check-then-insert: a racer waits here, then
+		// sees the first request's row. Released on connection close too, so a
+		// crashed request can't leave it stuck (Basecamp 10350213909).
+		global $wpdb;
+		$wcb_lock_key = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $wcb_lock_key );
+		if ( 1 !== (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 10 )', $wcb_lock_key ) ) ) {
 			return new \WP_Error(
-				'wcb_already_applied',
-				__( 'You have already applied to this job.', 'wp-career-board' ),
+				'wcb_apply_busy',
+				__( 'Your application is still being submitted. Please wait a moment and check your applications.', 'wp-career-board' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -420,12 +422,18 @@ final class ApplicationsEndpoint extends RestController {
 			if ( is_wp_error( $app_id ) ) {
 				return $app_id;
 			}
-		} finally {
-			delete_option( $wcb_lock_key );
-		}
 
-		update_post_meta( $app_id, '_wcb_job_id', $job_id );
-		update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
+			// The keys the duplicate check above queries on must exist before
+			// the lock is released, or a racer in the gap finds nothing.
+			update_post_meta( $app_id, '_wcb_job_id', $job_id );
+			update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
+			update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
+			if ( $is_guest ) {
+				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+			}
+		} finally {
+			$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_lock_key ) );
+		}
 
 		// Snapshot the job title + company at apply time so the candidate's
 		// history stays readable if the job post is deleted later.
