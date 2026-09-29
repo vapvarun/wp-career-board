@@ -371,15 +371,16 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					?>
 					<div class="wcb-ca-card-body">
 						<div class="wcb-ca-name-row">
-							<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
-							<span
+							<?php /* The tick sits inside the heading, after the text, so it follows the last word of a wrapped name. */ ?>
+							<?php /* &#8288; (word joiner) keeps the tick on the last word's line. */ ?>
+							<h2 class="wcb-ca-name"><span data-wp-text="context.company.name"></span>&#8288;<span
 								class="wcb-ca-trust-tick"
 								role="img"
 								aria-label="<?php esc_attr_e( 'Verified', 'wp-career-board' ); ?>"
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
 								data-wp-bind--title="context.company.trust_label"
-							><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+							></span></h2>
 						</div>
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"

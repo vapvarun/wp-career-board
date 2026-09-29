@@ -835,7 +835,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 									data-wp-class--wcb-shown="context.job.verified"
 									data-wp-bind--data-trust="context.job.trust"
 									data-wp-bind--title="context.job.trust_label"
-								><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+								></span>
 							</p>
 						</div>
 						<?php

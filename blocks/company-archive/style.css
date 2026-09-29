@@ -205,7 +205,8 @@
 	align-content: center;
 	column-gap: var(--wcb-space-2xl);
 	row-gap: var(--wcb-space-xs);
-	min-height: 7.5rem; /* ≈ 120px */
+	/* Rows size to their content: a fixed height left a name-only company
+	   with an empty band under its name. */
 	padding-block: var(--wcb-space-lg);
 	padding-inline: var(--wcb-space-xl);
 	height: auto;
@@ -219,7 +220,6 @@
 	gap: 0;
 	display: flex;
 	flex-direction: column;
-	align-self: end;
 }
 
 /* Chip row sits directly under the body in the second grid row, scoped

@@ -696,29 +696,33 @@
 
 .wcb-ca-trust-tick {
 	display: none;
-	align-items: center;
-	justify-content: center;
-	width: 16px;
-	height: 16px;
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success, #16a34a);
 	color: #ffffff;
 	font-size: 10px;
 	font-weight: var(--wcb-font-bold);
 	line-height: 1;
-	flex-shrink: 0;
 	cursor: help;
 }
 
+/* A text glyph in an inline pill, not an SVG: a glyph has no line-break
+ * opportunity before it, so the tick always stays on the last word's line
+ * (an SVG is an atomic inline, and Chromium broke before it). */
 .wcb-ca-trust-tick.wcb-shown {
-	display: inline-flex;
+	display: inline;
+	padding: 0.2em 0.4em;
+	margin-inline-start: var(--wcb-space-xs);
+	vertical-align: 0.1em;
+}
+
+.wcb-ca-trust-tick::before {
+	content: "\2713";
 }
 
 .wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
 .wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
 
 /* Lucide check sized to sit inside the 16px circular tick. */
-.wcb-ca-trust-tick svg { width: 10px; height: 10px; }
 
 /* Inline icon + label utility — aligns a leading Lucide icon with its text
  * for success confirmations (Saved, Profile saved, Job posted, etc.). The
