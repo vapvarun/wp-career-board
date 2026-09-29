@@ -361,8 +361,10 @@
 	outline-offset: -2px;
 }
 
+/* The accent's own tint with accent text: one hue on every theme (an info-blue
+ * tint under a red BuddyX accent read as two unrelated colours). */
 .wcb-apps-job-item.wcb-active {
-	background: var(--wcb-info-bg);
+	background: var(--wcb-primary-soft);
 	color: var(--wcb-primary-text, #1d4ed8);
 	font-weight: var(--wcb-font-semibold);
 }

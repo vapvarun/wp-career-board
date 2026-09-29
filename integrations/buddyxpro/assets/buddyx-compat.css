@@ -285,7 +285,7 @@ button[class*="wcb-"].wcb-btn--secondary:is(:hover, :focus-visible) {
    row. Keeps the same info-tint the non-BuddyX design already uses instead
    of falling back to a plain surface, so BuddyX isn't a third look. */
 button[class*="wcb-"].wcb-apps-job-item.wcb-active {
-	background-color: var( --wcb-info-bg, #dbeafe ) !important;
+	background-color: var( --wcb-primary-soft ) !important;
 }
 
 /* Link-style + active-toggle buttons carry the primary accent on their label. */
