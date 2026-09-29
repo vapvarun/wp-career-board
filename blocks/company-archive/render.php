@@ -92,9 +92,9 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	}
 	$wcb_initials = $wcb_initials ? $wcb_initials : '?';
 
-	// Jobs count label.
+	// Jobs count label, nothing when zero: "No open positions" on every card was noise.
 	$wcb_jobs_label = ( 0 === $wcb_job_cnt )
-		? __( 'No open positions', 'wp-career-board' )
+		? ''
 		: sprintf(
 			/* translators: %s: number of open positions, already localised. */
 			_n( '%s open position', '%s open positions', $wcb_job_cnt, 'wp-career-board' ),
@@ -406,7 +406,6 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 					<div class="wcb-ca-card-footer">
 						<span class="wcb-ca-jobs-count" data-wp-text="context.company.jobs_label"></span>
-						<span class="wcb-btn wcb-btn--outline wcb-btn--sm"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
 					</div>
 
 				</a>

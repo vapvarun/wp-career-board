@@ -463,7 +463,7 @@ final class CompaniesEndpoint extends RestController {
 
 
 	/**
-	 * Plural label for an open positions count.
+	 * Plural label for an open positions count, empty when there are none.
 	 *
 	 * @since 1.0.0
 	 *
@@ -472,7 +472,7 @@ final class CompaniesEndpoint extends RestController {
 	 */
 	private function jobs_label( int $count ): string {
 		if ( 0 === $count ) {
-			return __( 'No open positions', 'wp-career-board' );
+			return '';
 		}
 		return sprintf(
 			/* translators: %s: number of open positions, already localised. */

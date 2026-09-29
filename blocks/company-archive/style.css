@@ -181,7 +181,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
-.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; display: flex; flex-wrap: wrap; gap: var(--wcb-space-xs); }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; min-width: 0; }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
@@ -195,10 +195,14 @@
  * brings parity with Find Jobs' card height. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
 	grid-template-columns: auto minmax(0, 1fr) auto;
+	/* Two content-sized rows centred in the min-height. The grid's 1fr
+	   middle row pinned a card with no meta line to the top. */
+	grid-template-rows: auto auto;
 	grid-template-areas:
 		"avatar body footer"
 		"avatar chips footer";
 	align-items: center;
+	align-content: center;
 	column-gap: var(--wcb-space-2xl);
 	row-gap: var(--wcb-space-xs);
 	min-height: 7.5rem; /* ≈ 120px */
@@ -210,6 +214,8 @@
 .wcb-ca-container.wcb-list .wcb-ca-card-body {
 	flex: 1;
 	min-width: 0;
+	/* The grid's reserved two-line height would gap the meta line here. */
+	min-height: 0;
 	gap: 0;
 	display: flex;
 	flex-direction: column;
@@ -220,9 +226,6 @@
  * to the body column so it doesn't drift back under the avatar. */
 .wcb-ca-container.wcb-list .wcb-ca-card-chips {
 	grid-area: chips;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-xs);
 	align-self: start;
 }
 
@@ -250,11 +253,9 @@
 	align-items: flex-end;
 	padding-top: 0;
 	border-top: none;
-	border-inline-start: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-	padding-inline-start: var(--wcb-space-xl);
 	/* Right-padding clears the absolute-positioned bookmark button (32px
-	 * wide at 12px from card edge) so the "N open positions" text and
-	 * View Profile button can't slide underneath the bookmark icon. */
+	 * wide at 12px from card edge) so the "N open positions" text can't
+	 * slide underneath the bookmark icon. */
 	padding-inline-end: var(--wcb-space-4xl);
 	margin-top: 0;
 	gap: var(--wcb-space-xs);
@@ -333,7 +334,14 @@
 .wcb-ca-avatar {
 	--wcb-avatar-size: var(--wcb-avatar-lg);
 	border: 2px solid transparent;
-	box-shadow: var(--wcb-shadow-sm);
+}
+
+/* Light brand tint, not the solid dark tile: initials are a fallback and
+   shouldn't outweigh the company name. Scoped through the wrap because this
+   file loads before wcb-ui.css, whose .wcb-avatar would win a tie. */
+.wcb-ca-avatar-wrap .wcb-ca-avatar {
+	background: var(--wcb-primary-soft);
+	color: var(--wcb-primary-text);
 }
 
 /* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -
@@ -389,37 +397,38 @@
 	display: -webkit-box;
 }
 
-/* -- Chips -- */
-.wcb-ca-chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-xs);
-	margin-top: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
-}
-
-/* Chips: hidden by default; shown when non-empty */
-.wcb-ca-chip {
-	display: none;
-	align-items: center;
-	max-width: 100%;
-	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
-	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-xs);
+/* Meta: one plain line (industry · size · HQ), not three pills. It
+ * truncates rather than wrapping, so a separator never starts a line. */
+.wcb-ca-card-chips {
+	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
-	font-weight: var(--wcb-font-medium);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-/* inline-block, not inline-flex: text-overflow: ellipsis doesn't apply
- * to a flex container, so a long HQ was clipped mid-word. */
+.wcb-ca-card-chips:not(:has(.wcb-shown)),
+.wcb-ca-chip {
+	display: none;
+}
+
 .wcb-ca-chip.wcb-shown {
-	display: inline-block;
+	display: inline;
+}
+
+.wcb-ca-chip.wcb-shown ~ .wcb-ca-chip.wcb-shown::before {
+	content: "\00B7";
+	/* xs, not sm, before: the markup's own whitespace supplies the rest. */
+	margin-inline: var(--wcb-space-xs) var(--wcb-space-sm);
 }
 
 /* -- Card footer -- */
+/* Only the open-jobs count lives here; no count, no footer. The whole
+ * card is the link, so there is no View Profile button. */
+.wcb-ca-card-footer:has(.wcb-ca-jobs-count:empty) {
+	display: none;
+}
+
 .wcb-ca-card-footer {
 	display: flex;
 	align-items: center;
@@ -432,13 +441,9 @@
 
 .wcb-ca-jobs-count {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary);
-	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-primary-text);
+	font-weight: var(--wcb-font-semibold);
 }
-
-/* Company card CTA reuses the shared `.wcb-btn .wcb-btn--outline
- * .wcb-btn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
- * No per-block override here. */
 
 /* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
  * `assets/css/frontend-components.css`. */
@@ -493,9 +498,7 @@
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
-		border-inline-start: none;
 		border-top: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-		padding-inline-start: 0;
 		padding-inline-end: 0;
 		padding-top: var(--wcb-space-md);
 		width: 100%;
