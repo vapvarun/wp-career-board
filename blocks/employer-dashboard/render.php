@@ -83,6 +83,10 @@ $wcb_company_url        = $wcb_company_id ? (string) get_permalink( $wcb_company
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_apps_job_id   = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
+// A bell link to a job deleted since opens the overview, not an empty Applications view.
+if ( $wcb_apps_job_id && ( 'wcb_job' !== get_post_type( $wcb_apps_job_id ) || 'trash' === get_post_status( $wcb_apps_job_id ) ) ) {
+	$wcb_apps_job_id = 0;
+}
 $wcb_dashboard_url = (string) get_permalink();
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_edit_job_id = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
