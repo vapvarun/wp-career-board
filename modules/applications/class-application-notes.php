@@ -66,16 +66,33 @@ final class ApplicationNotes {
 	 * @return array Note.
 	 */
 	public static function add( int $app_id, int $author, string $text ): array {
-		$notes   = get_post_meta( $app_id, self::NOTES, true );
-		$notes   = is_array( $notes ) ? $notes : array();
-		$note    = array(
+		$note = array(
 			'id'     => wp_generate_password( 8, false, false ),
 			'author' => $author,
 			'text'   => $text,
 			'at'     => gmdate( 'c' ),
 		);
-		$notes[] = $note;
-		update_post_meta( $app_id, self::NOTES, $notes );
+
+		// Read-modify-write on one meta array loses a note when two POSTs land
+		// at once (Basecamp 10350213909). add_option()'s UNIQUE KEY serializes
+		// concurrent writers to the same application; short-lived, released
+		// right after the write.
+		$lock_key = 'wcb_note_lock_' . $app_id;
+		$wait     = 0;
+		while ( ! add_option( $lock_key, time(), '', false ) && $wait < 20 ) {
+			usleep( 50000 );
+			++$wait;
+		}
+
+		try {
+			$notes   = get_post_meta( $app_id, self::NOTES, true );
+			$notes   = is_array( $notes ) ? $notes : array();
+			$notes[] = $note;
+			update_post_meta( $app_id, self::NOTES, $notes );
+		} finally {
+			delete_option( $lock_key );
+		}
+
 		return $note;
 	}
 

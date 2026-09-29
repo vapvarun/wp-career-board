@@ -297,111 +297,131 @@ final class ApplicationsEndpoint extends RestController {
 				return new \WP_Error( 'wcb_guest_email_invalid', __( 'A valid email address is required.', 'wp-career-board' ), array( 'status' => 400 ) );
 			}
 
-			// Duplicate guard: one pending application per guest email + job within 24 h.
-			$cutoff   = gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
-			$existing = get_posts(
-				array(
-					'post_type'      => 'wcb_application',
-					'post_status'    => 'any',
-					'posts_per_page' => 1,
-					'date_query'     => array( array( 'after' => $cutoff ) ),
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-							'relation' => 'AND',
-							array(
-								'key'   => '_wcb_job_id',
-								'value' => $job_id,
-					),
-					array(
-					'key'   => '_wcb_guest_email',
-					'value' => $guest_email,
-					),
-					),
-				)
-			);
-
-			if ( $existing ) {
-				return new \WP_Error(
-					'wcb_already_applied',
-					__( 'You have already applied to this job recently.', 'wp-career-board' ),
-					array( 'status' => 409 )
-				);
-			}
-
-			/* translators: 1: guest name, 2: job post ID */
-			$post_title = sprintf( __( 'Application: %1$s → Job %2$d', 'wp-career-board' ), $guest_name, $job_id );
+			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_g' . md5( $guest_email );
 		} else {
 			$candidate_id = get_current_user_id();
+			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_u' . $candidate_id;
+		}
 
-			// Prevent duplicate applications for logged-in candidates.
-			$existing = get_posts(
-				array(
-					'post_type'      => 'wcb_application',
-					'post_status'    => 'any',
-					'posts_per_page' => 1,
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'AND',
-					array(
-					'key'   => '_wcb_job_id',
-					'value' => $job_id,
-							),
-							array(
-								'key'   => '_wcb_candidate_id',
-								'value' => $candidate_id,
-							),
-							// A withdrawn application does not block applying again.
-							array(
-								'key'     => '_wcb_status',
-								'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
-								'compare' => '!=',
-							),
-					),
-				)
+		// Atomic lock: wp_options' UNIQUE KEY makes add_option() fail if a
+		// concurrent request already holds this job+candidate key, closing
+		// the check-then-insert race below (Basecamp 10350213909).
+		if ( ! add_option( $wcb_lock_key, time(), '', false ) ) {
+			return new \WP_Error(
+				'wcb_already_applied',
+				__( 'You have already applied to this job.', 'wp-career-board' ),
+				array( 'status' => 409 )
 			);
+		}
 
-			if ( $existing ) {
-				// If this is a Position closed row under a job that has been reopened,
-				// give it back its status so the candidate's dashboard is right.
-				\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( (int) $existing[0]->ID );
-				return new \WP_Error(
-					'wcb_already_applied',
-					__( 'You have already applied to this job.', 'wp-career-board' ),
-					array( 'status' => 409 )
+		try {
+			if ( $is_guest ) {
+				// Duplicate guard: one pending application per guest email + job within 24 h.
+				$cutoff   = gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
+				$existing = get_posts(
+					array(
+						'post_type'      => 'wcb_application',
+						'post_status'    => 'any',
+						'posts_per_page' => 1,
+						'date_query'     => array( array( 'after' => $cutoff ) ),
+						'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+								'relation' => 'AND',
+								array(
+									'key'   => '_wcb_job_id',
+									'value' => $job_id,
+						),
+						array(
+						'key'   => '_wcb_guest_email',
+						'value' => $guest_email,
+						),
+						),
+					)
 				);
+
+				if ( $existing ) {
+					return new \WP_Error(
+						'wcb_already_applied',
+						__( 'You have already applied to this job recently.', 'wp-career-board' ),
+						array( 'status' => 409 )
+					);
+				}
+
+				/* translators: 1: guest name, 2: job post ID */
+				$post_title = sprintf( __( 'Application: %1$s → Job %2$d', 'wp-career-board' ), $guest_name, $job_id );
+			} else {
+				// Prevent duplicate applications for logged-in candidates.
+				$existing = get_posts(
+					array(
+						'post_type'      => 'wcb_application',
+						'post_status'    => 'any',
+						'posts_per_page' => 1,
+						'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						array(
+						'key'   => '_wcb_job_id',
+						'value' => $job_id,
+								),
+								array(
+									'key'   => '_wcb_candidate_id',
+									'value' => $candidate_id,
+								),
+								// A withdrawn application does not block applying again.
+								array(
+									'key'     => '_wcb_status',
+									'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+									'compare' => '!=',
+								),
+						),
+					)
+				);
+
+				if ( $existing ) {
+					// If this is a Position closed row under a job that has been reopened,
+					// give it back its status so the candidate's dashboard is right.
+					\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( (int) $existing[0]->ID );
+					return new \WP_Error(
+						'wcb_already_applied',
+						__( 'You have already applied to this job.', 'wp-career-board' ),
+						array( 'status' => 409 )
+					);
+				}
+
+				/* translators: 1: candidate user ID, 2: job post ID */
+				$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
 			}
 
-			/* translators: 1: candidate user ID, 2: job post ID */
-			$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
-		}
+			$wcb_app_data = array(
+				'post_type'   => 'wcb_application',
+				'post_title'  => $post_title,
+				'post_status' => 'publish',
+				'post_author' => $is_guest ? 0 : $candidate_id,
+			);
 
-		$wcb_app_data = array(
-			'post_type'   => 'wcb_application',
-			'post_title'  => $post_title,
-			'post_status' => 'publish',
-			'post_author' => $is_guest ? 0 : $candidate_id,
-		);
+			/**
+			 * Filter — abort or modify an application-create write before it happens.
+			 *
+			 * Return WP_Error to abort (e.g. fail anti-spam check). Return the
+			 * (possibly modified) post-data array to continue.
+			 *
+			 * @since 1.1.1
+			 *
+			 * @param array            $post_data    wp_insert_post arg array.
+			 * @param int              $job_id       The job being applied to.
+			 * @param int              $candidate_id The applying user (0 for guest).
+			 * @param \WP_REST_Request $request      The originating REST request.
+			 */
+			$wcb_app_data = apply_filters( 'wcb_before_create_application', $wcb_app_data, $job_id, $is_guest ? 0 : $candidate_id, $request );
+			if ( is_wp_error( $wcb_app_data ) ) {
+				return $wcb_app_data;
+			}
 
-		/**
-		 * Filter — abort or modify an application-create write before it happens.
-		 *
-		 * Return WP_Error to abort (e.g. fail anti-spam check). Return the
-		 * (possibly modified) post-data array to continue.
-		 *
-		 * @since 1.1.1
-		 *
-		 * @param array            $post_data    wp_insert_post arg array.
-		 * @param int              $job_id       The job being applied to.
-		 * @param int              $candidate_id The applying user (0 for guest).
-		 * @param \WP_REST_Request $request      The originating REST request.
-		 */
-		$wcb_app_data = apply_filters( 'wcb_before_create_application', $wcb_app_data, $job_id, $is_guest ? 0 : $candidate_id, $request );
-		if ( is_wp_error( $wcb_app_data ) ) {
-			return $wcb_app_data;
-		}
+			$app_id = wp_insert_post( $wcb_app_data, true );
 
-		$app_id = wp_insert_post( $wcb_app_data, true );
-
-		if ( is_wp_error( $app_id ) ) {
-			return $app_id;
+			if ( is_wp_error( $app_id ) ) {
+				return $app_id;
+			}
+		} finally {
+			delete_option( $wcb_lock_key );
 		}
 
 		update_post_meta( $app_id, '_wcb_job_id', $job_id );
