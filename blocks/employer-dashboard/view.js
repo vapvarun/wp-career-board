@@ -1124,14 +1124,25 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! appId || ! state.noteDraft.trim() ) {
 				return;
 			}
-			const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
-				body: JSON.stringify( { text: state.noteDraft } ),
-			} );
-			if ( response.ok ) {
-				state.appNotes  = yield response.json();
-				state.noteDraft = '';
+			// Guard against a double-click firing two concurrent POSTs (this
+			// yields on wcbFetch, so a second click during that wait used to
+			// re-enter before the first resolved) - Basecamp 10350213909.
+			if ( state.addingNote ) {
+				return;
+			}
+			state.addingNote = true;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+					body: JSON.stringify( { text: state.noteDraft } ),
+				} );
+				if ( response.ok ) {
+					state.appNotes  = yield response.json();
+					state.noteDraft = '';
+				}
+			} finally {
+				state.addingNote = false;
 			}
 		},
 

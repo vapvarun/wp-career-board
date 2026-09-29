@@ -652,9 +652,25 @@ const { state } = store(
 
 			prevStep() {
 				const { state } = store( 'wcb-job-form' );
-				setValidation( state, '', '' );
-				if ( state.step > 1 ) {
-					state.step--;
+
+				// Same guard + deferred release as nextStep(): no yield here, so
+				// this runs start-to-finish inside one synchronous click dispatch
+				// and would otherwise clear before a second same-tick click is
+				// processed (Basecamp 10350213909).
+				if ( state.stepping ) {
+					return;
+				}
+				state.stepping = true;
+
+				try {
+					setValidation( state, '', '' );
+					if ( state.step > 1 ) {
+						state.step--;
+					}
+				} finally {
+					requestAnimationFrame( () => {
+						state.stepping = false;
+					} );
 				}
 			},
 

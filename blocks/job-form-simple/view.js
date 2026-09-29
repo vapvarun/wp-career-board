@@ -226,44 +226,47 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		* submitJob() {
+			// Set before the first yield (the CAPTCHA wait below): a second
+			// click during that wait used to pass this check because the flag
+			// wasn't set until after it resolved (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
-
-			// Honeypot — bots that fill all fields trigger a fake success.
-			const hpEl = document.getElementById( 'wcb-hp-simple' );
-			if ( hpEl && hpEl.value ) {
-				state.submitted = true;
-				return;
-			}
-
-			// Required field gate (matches markup `required` attributes).
-			if ( ! state.title.trim() ) {
-				state.error = t( 'errorTitleRequired', 'Job title is required.' );
-				return;
-			}
-			if ( ! state.description.trim() ) {
-				state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
-				return;
-			}
-
-			// Credit gate.
-			if ( state.hasInsufficientCredits ) {
-				state.error = t( 'errorInsufficientCredits', 'Insufficient credits. This board requires %1$s but your balance is %2$s.' )
-					.replace( '%1$s', state.creditNoun || '' )
-					.replace( '%2$s', nf( state.creditBalance ) );
-				return;
-			}
-
-			// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
-			const captchaToken = window.wcbCaptchaGetToken
-				? yield window.wcbCaptchaGetToken()
-				: '';
-
 			state.submitting = true;
-			state.error      = '';
 
 			try {
+
+				// Honeypot — bots that fill all fields trigger a fake success.
+				const hpEl = document.getElementById( 'wcb-hp-simple' );
+				if ( hpEl && hpEl.value ) {
+					state.submitted = true;
+					return;
+				}
+
+				// Required field gate (matches markup `required` attributes).
+				if ( ! state.title.trim() ) {
+					state.error = t( 'errorTitleRequired', 'Job title is required.' );
+					return;
+				}
+				if ( ! state.description.trim() ) {
+					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
+					return;
+				}
+
+				// Credit gate.
+				if ( state.hasInsufficientCredits ) {
+					state.error = t( 'errorInsufficientCredits', 'Insufficient credits. This board requires %1$s but your balance is %2$s.' )
+						.replace( '%1$s', state.creditNoun || '' )
+						.replace( '%2$s', nf( state.creditBalance ) );
+					return;
+				}
+
+				// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
+				const captchaToken = window.wcbCaptchaGetToken
+					? yield window.wcbCaptchaGetToken()
+					: '';
+
+				state.error = '';
 				const tagSlugs = state.tags
 					? state.tags.split( ',' ).map( ( t ) => t.trim() ).filter( Boolean )
 					: [];
