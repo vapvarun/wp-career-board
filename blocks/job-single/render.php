@@ -703,18 +703,14 @@ wp_interactivity_state(
 					<div class="wcb-detail-row">
 						<dt><?php esc_html_e( 'Work Mode', 'wp-career-board' ); ?></dt>
 						<dd>
-							<?php if ( $wcb_remote ) : ?>
-								<span class="wcb-badge wcb-badge--remote wcb-badge--sm"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
-							<?php else : ?>
-								<?php esc_html_e( 'On-site', 'wp-career-board' ); ?>
-							<?php endif; ?>
+							<?php echo $wcb_remote ? esc_html__( 'Remote', 'wp-career-board' ) : esc_html__( 'On-site', 'wp-career-board' ); ?>
 						</dd>
 					</div>
 
 					<?php if ( $wcb_salary_str ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Salary', 'wp-career-board' ); ?></dt>
-							<dd class="wcb-salary-highlight"><?php echo esc_html( $wcb_salary_str ); ?></dd>
+							<dd><?php echo esc_html( $wcb_salary_str ); ?></dd>
 						</div>
 					<?php endif; ?>
 
@@ -820,7 +816,6 @@ wp_interactivity_state(
 					<?php esc_html_e( 'Share', 'wp-career-board' ); ?>
 				</h3>
 			<div class="wcb-share-bar">
-				<span class="wcb-share-label"><?php esc_html_e( 'Share:', 'wp-career-board' ); ?></span>
 				<a
 					href="<?php echo esc_url( $wcb_twitter_url ); ?>"
 					class="wcb-share-btn"

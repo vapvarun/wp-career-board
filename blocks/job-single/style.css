@@ -384,13 +384,8 @@ a.wcb-tag:hover {
 	font-weight: var(--wcb-font-medium);
 	text-align: end;
 	margin: 0;
-}
-
-/* Specificity bump to (0,2,1) so it beats theme `.entry-content
- * strong` typography rules without `!important`. */
-[class*="wp-block-wp-career-board"] .wcb-salary-highlight {
-	color: var(--wcb-contrast, #0f172a);
-	font-weight: var(--wcb-font-bold);
+	flex: 1;
+	min-width: 0;
 }
 
 /* ── Company card ────────────────────────────────────────────────────────── */
