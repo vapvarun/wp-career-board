@@ -484,7 +484,7 @@ textarea.wcb-field {
 	align-items: center;
 	gap: var(--wcb-space-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border-radius: var(--wcb-radius-md);
+	border-radius: var(--wcb-radius-xl); /* same shape as the dashboard credit banners */
 	font-size: var(--wcb-text-sm);
 	margin-bottom: var(--wcb-space-xl);
 	background: var(--wcb-info-bg-soft);

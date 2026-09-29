@@ -84,8 +84,8 @@
 .wcb-card {
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-lg);
-	box-shadow: var(--wcb-shadow-sm);
+	/* One card shape everywhere: r12, a border and no resting shadow. */
+	border-radius: var(--wcb-radius-xl);
 	overflow: hidden;
 }
 
@@ -1399,8 +1399,8 @@ textarea.wcb-input {
 .wcb-stat-card {
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-lg);
-	padding: var(--wcb-space-xl) var(--wcb-space-2xl);
+	border-radius: var(--wcb-radius-xl);
+	padding: var(--wcb-space-xl);
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
@@ -1782,6 +1782,11 @@ textarea.wcb-input {
 
 	.wcb-detail-hero    { padding: var(--wcb-space-xl); }
 	.wcb-detail-section { padding: var(--wcb-space-lg); }
+
+	/* Sidebar cards step down with the sections beside them. */
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) :is(.wcb-sidebar-card, .wcb-cp-side-card, .wcb-rs-aside-card) {
+		padding: var(--wcb-space-lg);
+	}
 }
 
 /* ── Reduced motion ───────────────────────────────────────────────────────── */

@@ -19,7 +19,7 @@
 /* ── Main content area ────────────────────────────────────────────────────── */
 .wcb-main {
 	flex: 1;
-	background: var(--wcb-bg-subtle);
+	background: var(--wcb-base);
 	padding: var(--wcb-space-3xl);
 	overflow-y: auto;
 	min-width: 0;
@@ -44,19 +44,11 @@
 	display: none;
 }
 
+/* Tab content sits directly in the shell (UI guideline: the shell is the
+ * only frame; no grey canvas, no white card around the tab). Cards inside a
+ * tab (stat tiles, lists) are the only level below it. */
 .wcb-view-panel.wcb-view-active {
 	display: block;
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-lg);
-	box-shadow: var(--wcb-shadow-sm);
-	padding: var(--wcb-space-xl);
-}
-
-@media (max-width: 640px) {
-	.wcb-view-panel.wcb-view-active {
-		padding: var(--wcb-space-md);
-	}
 }
 
 /* Inner .wcb-panel cards inside an active tab lose their own card chrome
@@ -103,8 +95,7 @@
 	display: none;
 	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-lg);
-	box-shadow: var(--wcb-shadow-sm);
+	border-radius: var(--wcb-radius-xl);
 	overflow: hidden;
 	margin-bottom: var(--wcb-space-xl);
 }
