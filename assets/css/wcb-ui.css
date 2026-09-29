@@ -719,6 +719,12 @@
 	content: "\2713";
 }
 
+/* Beside the company name the row's gap spaces it; it never shrinks. */
+.wcb-ca-name-row > .wcb-ca-trust-tick {
+	margin-inline-start: 0;
+	flex-shrink: 0;
+}
+
 .wcb-ca-trust-tick[data-trust="trusted"] { background: var(--wcb-info, #2563eb); }
 .wcb-ca-trust-tick[data-trust="premium"] { background: var(--wcb-warning, #d97706); }
 
