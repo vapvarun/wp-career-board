@@ -131,19 +131,21 @@ class EmailDeadlineReminder extends AbstractEmail {
 			return;
 		}
 
-		$deadline_raw  = (string) get_post_meta( $job_id, '_wcb_deadline', true );
-		$deadline_date = '' !== $deadline_raw
-			? (string) mysql2date( (string) get_option( 'date_format', 'F j, Y' ), $deadline_raw )
-			: '';
+		$deadline_raw = (string) get_post_meta( $job_id, '_wcb_deadline', true );
 
 		$this->send(
 			$user->user_email,
-			array(
+			// A closure: mysql2date() translates month names using whichever
+			// locale is active when it runs, so it must run after send()
+			// switches to the recipient's own locale, not the site's.
+			static fn(): array => array(
 				'job_title'     => $job->post_title,
 				'job_url'       => (string) get_permalink( $job_id ),
 				'days_left'     => $days_left,
 				'deadline_iso'  => $deadline_raw,
-				'deadline_date' => $deadline_date,
+				'deadline_date' => '' !== $deadline_raw
+					? (string) mysql2date( (string) get_option( 'date_format', 'F j, Y' ), $deadline_raw )
+					: '',
 				'company_name'  => (string) get_post_meta( $job_id, '_wcb_company_name', true ),
 			),
 			$user->ID,
