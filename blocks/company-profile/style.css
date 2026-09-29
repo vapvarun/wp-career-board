@@ -53,7 +53,9 @@
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-xl);
-	padding-inline-end: var(--wcb-space-4xl);
+	/* Clears the absolutely-positioned Save pill (~91px, longer when
+	 * translated, plus its 16px inset) - 48px let long names run under it. */
+	padding-inline-end: 8rem;
 }
 
 /* -- Avatar / Logo -- */
