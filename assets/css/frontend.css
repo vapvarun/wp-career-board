@@ -222,6 +222,14 @@ html[data-bn-theme="dark"],
 	line-height: 1.2;
 }
 
+/* Block themes zero our blocks' margin-block-end and put their own blockGap
+   (TT25 19.2px) between them, so stacked Career Board blocks (search, filters,
+   listings) got the theme's gap instead of ours. One plugin gap between two
+   of our blocks; the theme's gap still applies next to its own blocks. */
+body :is(.is-layout-constrained, .is-layout-flow) > :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) {
+	margin-block-start: var(--wcb-space-lg);
+}
+
 /* Block themes (Twenty Twenty-Five) print their own title and an author/date byline
    above our single templates. A job and a company already render their own H1, so
    the theme's title is a second H1; the byline is an empty "Written by" band on all

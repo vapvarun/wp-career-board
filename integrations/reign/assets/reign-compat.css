@@ -121,15 +121,15 @@
  * of specificity - measured 23.375px, an off-scale value, on job-search,
  * job-filters and job-listings (the plugin's own block-root margins never
  * applied on Reign at all). Only the plugin's own top-level block wrappers
- * are reset; anything else inside .entry-content keeps Reign's rhythm. This
- * file loads after every block's own stylesheet, so the value a block wants
- * (matching its own CSS) is set directly here, not left to cascade order. */
+ * are reset; anything else inside .entry-content keeps Reign's rhythm. */
 [class*="wp-block-wp-career-board"],
 [class*="wp-block-wcb-"] {
 	margin-block-end: 0 !important;
 }
 
-.wp-block-wp-career-board-job-search,
-.wp-block-wp-career-board-job-filters {
-	margin-block-end: var(--wcb-space-lg) !important;
+/* One plugin gap between any two stacked plugin blocks (search + filters +
+ * listings, resume search hero + archive), instead of a per-block list that
+ * missed Find Candidates and left its seam at 0. */
+.entry-content > :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
+	margin-block-start: var(--wcb-space-lg) !important;
 }
