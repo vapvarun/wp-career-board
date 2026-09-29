@@ -999,7 +999,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wcb-space-sm);
-	margin: 0 0 var(--wcb-space-lg);
+	margin: 0; /* the column gap spaces it */
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -1016,7 +1016,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-similar-jobs {
-	margin-block-start: var(--wcb-space-xl);
+	margin: 0; /* the column gap spaces it */
 }
 
 .wcb-similar-jobs__list {
