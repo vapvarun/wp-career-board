@@ -84,6 +84,7 @@
 	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #ffffff);
 	border: none;
+	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
@@ -108,12 +109,22 @@
 }
 
 .wcb-search-button:focus-visible {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-search-button:active {
+	background: var(--wcb-primary-dark);
+	color: var(--wcb-on-primary, #ffffff);
+	border: none;
 	transform: scale(0.97);
+}
+
+/* One disabled treatment plugin-wide, matching .wcb-btn's own (this had
+ * none at all before - Basecamp 10345889841). */
+.wcb-search-button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -147,7 +158,6 @@
 	}
 
 	.wcb-search-button {
-		border-radius: var(--wcb-radius-md);
 		text-align: center;
 	}
 }

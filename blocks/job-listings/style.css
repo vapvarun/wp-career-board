@@ -422,7 +422,7 @@
 /* `.wcb-sort-select` base styles live in `assets/css/frontend-components.css`. */
 [class*="wp-block-wp-career-board"] .wcb-sort-select:focus-visible,
 [class*="wp-block-wcb-"] .wcb-sort-select:focus-visible {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }

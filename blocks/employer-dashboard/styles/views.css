@@ -24,7 +24,7 @@
 	border-color: var(--wcb-border);
 }
 .wcb-dashboard .wcb-filter-pill:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 }
 .wcb-dashboard .wcb-filter-pill:focus-visible {
 	outline: 2px solid var(--wcb-primary);
@@ -184,7 +184,7 @@
 }
 
 .wcb-filter-pill:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 }
 
 .wcb-filter-pill:focus-visible {
@@ -237,7 +237,7 @@
 }
 
 .wcb-job-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -341,7 +341,7 @@
 }
 
 .wcb-apps-job-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -388,7 +388,7 @@
 }
 
 .wcb-apps-job-item:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 }
 
 .wcb-apps-job-item:focus-visible {

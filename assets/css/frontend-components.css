@@ -159,7 +159,7 @@
 }
 
 .wcb-field:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -395,7 +395,7 @@ select.wcb-field {
 
 [class*="wp-block-wp-career-board"] .wcb-field-input:focus,
 [class*="wp-block-wcb-"] .wcb-field-input:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -756,7 +756,7 @@ select.wcb-field {
 
 [class*="wp-block-wp-career-board"] .wcb-listings-search:focus,
 [class*="wp-block-wcb-"] .wcb-listings-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
