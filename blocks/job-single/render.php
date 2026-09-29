@@ -766,12 +766,8 @@ wp_interactivity_state(
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
-				<?php elseif ( $wcb_deadline_passed ) : ?>
-					<p class="wcb-applications-closed wcb-applications-closed--center">
-					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					<?php echo esc_html( $wcb_closed_text ); ?>
-					</p>
-				<?php elseif ( $wcb_show_apply ) : ?>
+				<?php elseif ( $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
+					<?php // A closed job says so once, in the hero and the body notice. ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a
 							href="<?php echo esc_url( $wcb_apply_url ); ?>"

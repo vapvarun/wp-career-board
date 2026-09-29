@@ -846,6 +846,12 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	padding: 0;
 }
 
+/* The copy button wraps its icons in spans; inline, they sat on the text
+ * baseline and pushed the icon ~3px high against X and LinkedIn. */
+.wcb-share-btn > span:not([hidden]) {
+	display: flex;
+}
+
 .wcb-share-btn:hover {
 	border-color: var(--wcb-text-tertiary);
 	color: var(--wcb-contrast);
@@ -1035,11 +1041,6 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-similar-jobs__company {
 	color: var(--wcb-text-secondary);
 	font-size: var(--wcb-text-sm);
-}
-
-.wcb-applications-closed--center {
-	justify-content: center;
-	text-align: center;
 }
 
 .wcb-applications-closed svg {
