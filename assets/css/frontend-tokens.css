@@ -83,9 +83,12 @@
 	/* A 1px border for a control that needs to read against the page
 	   without relying on fill alone (WCAG 1.4.11, 3:1 non-text contrast) —
 	   --wcb-border alone is a subtle hairline (~1.2:1) meant for dividers,
-	   not this. Aliases the already dark/light-mode-aware secondary text
-	   tone rather than adding a second token to keep in sync. */
-	--wcb-border-strong: var(--wcb-text-secondary);
+	   not this. A 62% mix of the mode-aware secondary text tone measures
+	   ~3.3-4.4:1 (light/dark) rather than --wcb-text-secondary's own
+	   ~5-9:1, which
+	   read heavier than a "not yet reached" step should (Basecamp
+	   10348178594: the todo step pill outlined stronger than the done one). */
+	--wcb-border-strong: color-mix(in srgb, var(--wcb-text-secondary) 62%, transparent);
 
 	/* Foreground color for elements painted with --wcb-primary as
 	 * background (filled buttons, badges, banners). Always-white in
@@ -106,7 +109,13 @@
 	--wcb-success-fg:      #166534;
 	--wcb-success-bg:      #dcfce7;
 	--wcb-success-bg-soft: #f0fdf4;
-	--wcb-success-border:  #bbf7d0;
+	/* Mid-tone, not the pale #bbf7d0 this used to be (~1.1-1.2:1 against
+	 * the page, failing WCAG 1.4.11's 3:1) - a 72% mix of --wcb-success-fg
+	 * measures ~3.7-5.2:1 (light/dark) and tracks that token's own
+	 * dark-mode value automatically, same pattern as --wcb-danger-border.
+	 * Kept a shade stronger than --wcb-border-strong's 62% so "done" still
+	 * reads heavier than "todo" (Basecamp 10348178594). */
+	--wcb-success-border:  color-mix(in srgb, var(--wcb-success-fg) 72%, transparent);
 
 	--wcb-warning:         #d97706;
 	--wcb-warning-fg:      #92400e;
