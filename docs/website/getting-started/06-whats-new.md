@@ -1,10 +1,47 @@
-# What's New in 1.7.0
+# What's New in 1.8.0
 
-WP Career Board and WP Career Board Pro ship in lockstep at 1.7.0.
+WP Career Board and WP Career Board Pro ship in lockstep at 1.8.0.
 Install both updates together. This page highlights the
-customer-facing changes across the 1.5.0-1.7.0 and 1.3.0-1.4.x
+customer-facing changes across the 1.5.0-1.8.0 and 1.3.0-1.4.x
 cycles. For the full line-by-line history, see the changelog in
 `readme.txt`.
+
+## 1.8.0
+
+A presentation and consistency pass across every page, plus fixes for the
+Post a Job form, the notification bell, custom fields and resume printing
+found while preparing it.
+
+* New      - A warning when a theme's own copy of a Career Board template
+  is older than the plugin's, so a customization does not silently fall
+  behind.
+* Improve  - One shared page container on every theme (Reign, BuddyX,
+  Twenty Twenty-Five): job, company and resume pages and the three
+  listing archives now measure the same width, instead of falling back
+  to whichever theme wrapper happened to apply.
+* Improve  - One heading scale, card style, form field size and admin
+  spacing scale across the plugin, replacing several near-duplicate
+  versions that had drifted apart.
+* Improve  - Company logos display uncropped; a long company name wraps
+  to two lines instead of stretching its card taller than its
+  neighbours.
+* Improve  - Primary button hover is always darker than the button's own
+  fill, on every theme, instead of sometimes computing lighter on a
+  light accent.
+* Improve  - The notification bell shows a relative time ("2 hours ago")
+  instead of a raw database timestamp.
+* Improve  - Emails now build dates and status names in the recipient's
+  own language, not the language of whoever triggered the email.
+* Fix      - Post a Job: the description editor's last edit is saved
+  before Next or Publish act on it, and a double-click no longer creates
+  two jobs or skips a step.
+* Fix      - Admin dashboard totals, Candidates and Employers counts no
+  longer slow down or cap out on a large site.
+* Dev      - A theme resolving to its own generic single.php no longer
+  blocks the plugin's canonical template; only a theme file matching the
+  exact page name counts as an intentional override.
+* Compat   - Aligned with WP Career Board Pro 1.8.0. Install both
+  updates together.
 
 ## 1.7.0
 
