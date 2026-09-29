@@ -889,21 +889,22 @@
  * `.wcb-cp-job-title a` for the same reason.
  */
 
-[class*="wp-block-wp-career-board"] .wcb-job-card a,
-[class*="wp-block-wp-career-board"] .wcb-cp-job-title a,
-[class*="wp-block-wp-career-board"] .wcb-card-title a,
-[class*="wp-block-wp-career-board"] .wcb-listing-title a,
+/* Buttons styled as links keep the shared focus ring (.wcb-btn:focus-visible). */
+[class*="wp-block-wp-career-board"] .wcb-job-card a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-cp-job-title a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-card-title a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-listing-title a:not(.wcb-btn),
 [class*="wp-block-wp-career-board"] [role="tab"],
 [class*="wp-block-wp-career-board"] .wcb-role-card,
-[class*="wp-block-wp-career-board"] .wcb-sidebar a,
+[class*="wp-block-wp-career-board"] .wcb-sidebar a:not(.wcb-btn),
 [class*="wp-block-wp-career-board"] .wcb-nav-item,
-[class*="wp-block-wcb-"] .wcb-job-card a,
-[class*="wp-block-wcb-"] .wcb-cp-job-title a,
-[class*="wp-block-wcb-"] .wcb-card-title a,
-[class*="wp-block-wcb-"] .wcb-listing-title a,
+[class*="wp-block-wcb-"] .wcb-job-card a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-cp-job-title a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-card-title a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-listing-title a:not(.wcb-btn),
 [class*="wp-block-wcb-"] [role="tab"],
 [class*="wp-block-wcb-"] .wcb-role-card,
-[class*="wp-block-wcb-"] .wcb-sidebar a,
+[class*="wp-block-wcb-"] .wcb-sidebar a:not(.wcb-btn),
 [class*="wp-block-wcb-"] .wcb-nav-item {
 	text-decoration: none !important;
 	box-shadow: none;
