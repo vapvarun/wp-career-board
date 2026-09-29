@@ -863,9 +863,16 @@
 	gap: var(--wcb-space-xs);
 }
 
-.wcb-alert-me input.wcb-alert-guest-email {
-	width: 14rem;
+/* Same specificity as the shared field rule in wcb-ui.css (which sets
+ * width:100%), so the email stays compact and sits inline with its button. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-alert-me input.wcb-alert-guest-email {
+	width: 224px;
 	max-width: 100%;
+}
+
+/* The button sits beside a field here, so it takes the field's height. */
+.wcb-alert-me--guest button {
+	min-height: var(--wcb-control-h);
 }
 
 /* Phones: the guest sees just the button (two toolbar rows saved); the first tap reveals the field. */
