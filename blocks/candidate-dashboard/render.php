@@ -169,9 +169,9 @@ wp_interactivity_state(
 					'tabSettings'            => __( 'Settings', 'wp-career-board' ),
 					'tabNotifications'       => __( 'Notifications', 'wp-career-board' ),
 					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. */
-					'resumeCapOne'           => __( '%1$s/%2$s resume', 'wp-career-board' ),
+					'resumeCapOne'           => __( '%1$s of %2$s resume', 'wp-career-board' ),
 					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. */
-					'resumeCapOther'         => __( '%1$s/%2$s resumes', 'wp-career-board' ),
+					'resumeCapOther'         => __( '%1$s of %2$s resumes', 'wp-career-board' ),
 					/* translators: %1$s: job-match score as a whole number, e.g. 85. */
 					'scoreFormat'            => __( '%1$s%', 'wp-career-board' ),
 					'filterRemote'           => __( 'Remote', 'wp-career-board' ),

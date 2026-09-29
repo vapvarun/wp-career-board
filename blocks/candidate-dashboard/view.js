@@ -337,13 +337,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			if ( state.maxResumes <= 0 ) {
 				return '';
 			}
-			// The noun agrees with resumeCount, which is mutated CLIENT-SIDE as the
-			// candidate creates/deletes resumes. A PHP `_n()` frozen at render against
-			// the cap would show the wrong form once the count changes, so the plural
-			// is resolved here against the live count via Intl.PluralRules.
-			const template = ( 'one' === pluralCategory( state.resumeCount ) )
-				? t( 'resumeCapOne', '%1$s/%2$s resume' )
-				: t( 'resumeCapOther', '%1$s/%2$s resumes' );
+			// "1 of 2 resumes": the noun agrees with the cap, not the count
+			// ("1/2 resume" read wrong), resolved via Intl.PluralRules.
+			const template = ( 'one' === pluralCategory( state.maxResumes ) )
+				? t( 'resumeCapOne', '%1$s of %2$s resume' )
+				: t( 'resumeCapOther', '%1$s of %2$s resumes' );
 			return template
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );

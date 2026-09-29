@@ -1380,14 +1380,47 @@ textarea.wcb-input {
 	cursor: pointer;
 }
 
+/* Narrow: six tracks so every row fills without a lone stretched tile.
+   Default 2 per row (4 tiles = 2+2); 3 tiles go 3 across; 5 tiles go 3+2. */
 @container wcb-stats (max-width: 720px) {
 	.wcb-stats-row {
 		grid-auto-flow: row;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(6, minmax(0, 1fr));
 	}
 
-	.wcb-stat-card:last-child:nth-child(odd) {
+	.wcb-stat-card {
+		grid-column: span 3;
+	}
+
+	.wcb-stat-card:first-child:nth-last-child(3),
+	.wcb-stat-card:first-child:nth-last-child(3) ~ .wcb-stat-card,
+	.wcb-stat-card:first-child:nth-last-child(5),
+	.wcb-stat-card:first-child:nth-last-child(5) ~ .wcb-stat-card:nth-child(-n+3) {
+		grid-column: span 2;
+	}
+}
+
+/* Phone: three tiles no longer fit a label ("Applications" broke mid-word),
+   so every tile becomes a full-width compact row, label left, count right. */
+@container wcb-stats (max-width: 480px) {
+	.wcb-stats-row {
+		gap: var(--wcb-space-sm);
+	}
+
+	.wcb-stat-card,
+	.wcb-stat-card:first-child:nth-last-child(3),
+	.wcb-stat-card:first-child:nth-last-child(3) ~ .wcb-stat-card,
+	.wcb-stat-card:first-child:nth-last-child(5),
+	.wcb-stat-card:first-child:nth-last-child(5) ~ .wcb-stat-card:nth-child(-n+3) {
 		grid-column: 1 / -1;
+		flex-direction: row-reverse;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--wcb-space-md) var(--wcb-space-lg);
+	}
+
+	.wcb-stat-value {
+		font-size: var(--wcb-text-xl);
 	}
 }
 
