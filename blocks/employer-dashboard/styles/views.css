@@ -862,12 +862,10 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-}
-
-@media (pointer: coarse), (max-width: 640px) {
-	.wcb-db-link-btn {
-		min-height: 2.5rem;
-	}
+	/* Match .wcb-btn's tap target (was 2.5rem/40px only under a coarse-pointer
+	 * or narrow-viewport query, so a mouse user on desktop got a 31px row
+	 * action). */
+	min-height: 40px;
 }
 
 .wcb-db-link-btn:hover {

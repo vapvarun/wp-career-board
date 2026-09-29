@@ -232,12 +232,10 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 	$wcb_cost = (int) $wcb_cost;
 
 	if ( $wcb_cost <= 0 ) {
-		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
-			/* translators: %s: employer's current credit balance. Shown when the selected board has no credit cost. */
-			__( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
-			number_format_i18n( $wcb_credit_balance )
-		);
-		$wcb_credit_errors[ (string) $wcb_bid ] = '';
+		// The balance is irrelevant to a free posting - showing it (often "0")
+		// next to "Free" reads like a warning rather than the good news it is.
+		$wcb_credit_messages[ (string) $wcb_bid ] = __( 'Free to post on this board.', 'wp-career-board' );
+		$wcb_credit_errors[ (string) $wcb_bid ]   = '';
 		continue;
 	}
 

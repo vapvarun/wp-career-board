@@ -295,7 +295,7 @@ $wcb_state = apply_filters(
 			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
 			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
-			'creditFree'               => __( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
+			'creditFree'               => __( 'Free to post on this board.', 'wp-career-board' ),
 
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */

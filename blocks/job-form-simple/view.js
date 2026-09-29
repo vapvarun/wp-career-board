@@ -86,8 +86,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				return t( 'creditFree', 'Free to post on this board. Your balance: %s.' )
-					.replace( '%s', nf( balance ) );
+				// Balance is irrelevant to a free posting - see render.php's creditFree string.
+				return t( 'creditFree', 'Free to post on this board.' );
 			}
 			// Plural form resolved in PHP by _n() against the real count — see
 			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.
