@@ -111,8 +111,8 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 
 .wcb-section-title {
 	margin: 0 0 var(--wcb-space-lg);
-	font-size: var(--wcb-text-xl);
-	font-weight: 600;
+	font-size: var(--wcb-text-lg);
+	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-text-primary);
 }
 

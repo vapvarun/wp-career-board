@@ -87,10 +87,9 @@
 	flex-wrap: wrap;
 }
 
+/* Size, weight and colour come from the shared .wcb-page-title (2xl, like
+ * every other page H1); only the gap to the subtitle is set here. */
 .wcb-page-title {
-	font-size: var(--wcb-text-xl);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-contrast);
 	margin: 0 0 var(--wcb-space-xs);
 }
 

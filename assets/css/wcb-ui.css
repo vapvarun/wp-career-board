@@ -520,25 +520,28 @@ textarea.wcb-input {
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
-/* Eyebrow variant — small uppercase tracked label, kept only for the
- * sidebar widget h3 headings (SKILLS / LANGUAGES / CERTIFICATIONS), which
- * this card's bounce didn't name. Same specificity pattern, distinct
- * visual style; drops the hairline divider since the widget card itself
- * already has a border. */
+/* Aside heading: one style for every detail-page sidebar card title (job
+ * Job Details / Share, company side cards, resume Skills / Languages).
+ * Owner decision: uniform, so the resume's uppercase eyebrow is gone. No
+ * divider: the sidebar card already has a border. */
 [class*="wp-block-wp-career-board"] h3.wcb-rs-aside-heading,
-[class*="wp-block-wcb-"] h3.wcb-rs-aside-heading {
+[class*="wp-block-wcb-"] h3.wcb-rs-aside-heading,
+[class*="wp-block-wp-career-board"] .wcb-sidebar-card .wcb-card-title,
+[class*="wp-block-wp-career-board"] .wcb-cp-side-card__title,
+[class*="wp-block-wp-career-board"] .wcb-cp-sidebar .wcb-widget-title {
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	font-family: inherit;
-	font-size: var(--wcb-text-xs);
+	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--wcb-text-secondary, #6b7280);
-	line-height: 1.2;
+	text-transform: none;
+	letter-spacing: 0;
+	color: var(--wcb-contrast, #0f172a);
+	line-height: 1.3;
 	margin: 0 0 var(--wcb-space-lg);
 	padding: 0;
+	border: 0;
 }
 
 /* Sub-heading variant (sections inside sections). */

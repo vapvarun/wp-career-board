@@ -36,7 +36,7 @@ wp_interactivity_state(
 wp_enqueue_script_module( '@wcb/email-prefs' );
 ?>
 <div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
-	<h2 class="wcb-page-title"><?php esc_html_e( 'Email Notifications', 'wp-career-board' ); ?></h2>
+	<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Email Notifications', 'wp-career-board' ); ?></h2>
 </div>
 <div class="wcb-panel wcb-panel--form wcb-shown" data-wp-interactive="wcb-email-prefs">
 	<div class="wcb-settings-row">

@@ -247,23 +247,9 @@
 	padding: var(--wcb-space-2xl);
 }
 
-.wcb-cp-side-card__title,
-.wcb-cp-sidebar .wcb-widget-title {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-contrast);
-	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-md);
-	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-}
-
+/* Side-card titles use the shared aside heading in wcb-ui.css. */
 .wcb-cp-sidebar .wcb-widget-header {
 	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-md);
-	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
 }
 
 .wcb-cp-sidebar .wcb-widget-header .wcb-widget-title {
@@ -335,9 +321,10 @@
 	line-height: 1.35;
 }
 
-.wcb-cp-desc h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); }
-.wcb-cp-desc h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-semibold); } /* lighter weight than h2 (was 700, same as h2) so the two are visually distinct */
-.wcb-cp-desc h4 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-semibold); }
+/* Same content-heading ramp as the job description. */
+.wcb-cp-desc h2 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-bold); }
+.wcb-cp-desc h3 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-semibold); }
+.wcb-cp-desc h4 { font-size: var(--wcb-text-base); font-weight: var(--wcb-font-semibold); }
 
 .wcb-cp-desc ul,
 .wcb-cp-desc ol {
