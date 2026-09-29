@@ -230,8 +230,11 @@ body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-grou
 }
 
 /* ── Page heading — rendered inside listing blocks ───────────────────────── */
-/* Two selectors: the block-scope reset in frontend-components.css zeroes h1 margins. */
+/* The block-scope reset in frontend-components.css zeroes h1 margins. The
+   .wp-block-heading form covers the Find Jobs page H1, a core heading placed
+   outside our blocks, where a theme's `.entry-content h1` would otherwise win. */
 .wcb-page-heading,
+.wp-block-heading.wcb-page-heading,
 [class*="wp-block-wp-career-board"] .wcb-page-heading,
 [class*="wp-block-wcb-"] .wcb-page-heading {
 	font-size: var(--wcb-text-2xl);
@@ -245,7 +248,7 @@ body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-grou
    (TT25 19.2px) between them, so stacked Career Board blocks (search, filters,
    listings) got the theme's gap instead of ours. One plugin gap between two
    of our blocks; the theme's gap still applies next to its own blocks. */
-body :is(.is-layout-constrained, .is-layout-flow) > :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) {
+body :is(.is-layout-constrained, .is-layout-flow) > :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"], .wcb-page-heading) + :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) {
 	margin-block-start: var(--wcb-space-lg);
 }
 
@@ -274,6 +277,7 @@ body.single-wcb_resume .wp-block-post-title ~ .wp-block-group.is-layout-flex {
    titles and the dashboard titles. */
 @media (max-width: 640px) {
 	.wcb-page-heading,
+	.wp-block-heading.wcb-page-heading,
 	[class*="wp-block-wp-career-board"] .wcb-page-heading,
 	[class*="wp-block-wcb-"] .wcb-page-heading {
 		font-size: var(--wcb-text-xl);

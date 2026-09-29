@@ -800,7 +800,8 @@
  * a narrower parent, so a block dropped into a small group keeps inheriting it.
  */
 .is-layout-constrained > [class*="wp-block-wp-career-board"],
-.is-layout-constrained > [class*="wp-block-wcb-"] {
+.is-layout-constrained > [class*="wp-block-wcb-"],
+.is-layout-constrained > .wcb-page-heading {
 	max-width: var(--wcb-container-max-width, 1280px);
 }
 
