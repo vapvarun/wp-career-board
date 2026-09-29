@@ -1469,6 +1469,15 @@ textarea.wcb-input {
 	}
 }
 
+/* Member-written text (a resume summary, a job description, a company about)
+   can hold a long unbroken URL. Themes that don't set overflow-wrap (Twenty
+   Twenty-Four / Twenty-Five) let it push the page 2000px+ wide. break-word,
+   not anywhere, so ordinary labels never split mid-word in a narrow tile. */
+[class*="wp-block-wp-career-board"],
+[class*="wp-block-wcb-"] {
+	overflow-wrap: break-word;
+}
+
 /* ── Dashboard sidebar (candidate + employer) ──────────────────────────────
    One copy for both dashboards; the two per-block sidebar.css files drifted.
    Order: who you are (links to Profile), one nav-item style, quiet sentence-
