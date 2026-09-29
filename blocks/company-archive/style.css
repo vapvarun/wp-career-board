@@ -336,14 +336,6 @@
 	border: 2px solid transparent;
 }
 
-/* Light brand tint, not the solid dark tile: initials are a fallback and
-   shouldn't outweigh the company name. Scoped through the wrap because this
-   file loads before wcb-ui.css, whose .wcb-avatar would win a tie. */
-.wcb-ca-avatar-wrap .wcb-ca-avatar {
-	background: var(--wcb-primary-soft);
-	color: var(--wcb-primary-text);
-}
-
 /* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -
  * small green checkmark inline AFTER the company name. The old
  * `.wcb-ca-trust-badge` pill (`"✓ Verified"` text) was retired because
