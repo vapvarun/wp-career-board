@@ -389,8 +389,10 @@
 }
 
 @media ( max-width: 640px ) {
+	/* Matches Find Candidates' card padding at the same width (was
+	 * space-lg/16px against their space-xl/20px - Basecamp 10348288572). */
 	.wcb-job-card {
-		padding: var(--wcb-space-lg);
+		padding: var(--wcb-space-xl);
 		gap: var(--wcb-space-md);
 	}
 

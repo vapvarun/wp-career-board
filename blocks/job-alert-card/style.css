@@ -6,10 +6,13 @@
  * across the sidebar makes the whole column read as one card stack.
  */
 
+/* radius-xl, matching every other sidebar/aside card - was its own
+ * hardcoded radius-2xl copy instead of actually matching .wcb-cp-side-
+ * card (Basecamp 10348288572, owner: uniform). */
 .wcb-job-alert-card {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
+	border-radius: var(--wcb-radius-xl);
 	padding: var(--wcb-space-2xl) var(--wcb-space-2xl);
 }
 

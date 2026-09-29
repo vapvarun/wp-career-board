@@ -233,12 +233,15 @@
  * cohesive layout instead of a main column + visually-different
  * sidebar.
  */
+/* radius-xl (12px), matching job's .wcb-sidebar-card and resume's
+ * .wcb-rs-aside-card - was radius-2xl (16px), the aside/sidebar card's own
+ * 4th inconsistent radius value (Basecamp 10348288572, owner: uniform). */
 .wcb-cp-side-card,
 .wcb-cp-sidebar > .wcb-recent-jobs,
 .wcb-cp-sidebar > .wp-block-wp-career-board-recent-jobs {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
+	border-radius: var(--wcb-radius-xl);
 	padding: var(--wcb-space-2xl);
 }
 

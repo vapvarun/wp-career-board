@@ -560,12 +560,14 @@ textarea.wcb-input {
  * its own component class (`.wcb-job-hero`, `.wcb-rs-section`, ...) for
  * layout/print rules and adds this class alongside it for the shared
  * shape. */
+/* Border only, no shadow - matches the flat listing cards (a border AND
+ * a resting shadow read as two competing signals for the same edge;
+ * Basecamp 10348288572). */
 .wcb-detail-hero,
 .wcb-detail-section {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-xl);
-	box-shadow: var(--wcb-shadow-sm);
 }
 
 .wcb-detail-hero {
@@ -648,7 +650,7 @@ textarea.wcb-input {
 	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-lg);
+	border-radius: var(--wcb-radius-xl); /* matches every other card - was radius-lg */
 	text-align: center;
 	color: var(--wcb-text-secondary, #6b7280);
 	font-size: var(--wcb-text-sm);
@@ -995,14 +997,15 @@ textarea.wcb-input {
 	outline-offset: 2px;
 }
 
+/* radius-xl + border-only, matching every other card on the page (was
+ * radius-lg with a resting shadow - Basecamp 10348288572, owner: uniform). */
 .wcb-filter-panel {
 	position: sticky;
 	top: var(--wcb-space-2xl);
 	background: var(--wcb-base, #ffffff);
 	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-lg);
+	border-radius: var(--wcb-radius-xl);
 	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	box-shadow: var(--wcb-shadow-sm);
 	/* Each long list (.wcb-filter-panel__list) caps its own height with its
 	 * own internal scroll, so the panel itself never needs to scroll.
 	 * Previously we stacked panel-wide `max-height + overflow-y: auto` on
