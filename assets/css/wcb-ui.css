@@ -575,12 +575,54 @@ textarea.wcb-input {
 
 .wcb-detail-hero {
 	padding: var(--wcb-space-3xl);
-	margin-bottom: var(--wcb-space-2xl);
 }
 
 .wcb-detail-section {
 	padding: var(--wcb-space-2xl);
-	margin-bottom: var(--wcb-space-xl);
+}
+
+/* Detail-page rhythm is set by gap on the parents; the cards carry no block
+ * margins (UI guideline: section stack 32 / 24 / 24, cards stacked in a
+ * column 16 / 16 / 12). Screen only: the resume's print layout keeps its own
+ * flow. The resume aside's flex is :where()-scoped so its tablet grid still
+ * wins. */
+@media screen {
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wcb-space-3xl);
+	}
+
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) :is(.wcb-job-main, .wcb-cp-main, .wcb-rs-main) {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wcb-space-lg);
+	}
+
+	:where(.wcb-rs) .wcb-rs-aside {
+		display: flex;
+		flex-direction: column;
+	}
+
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) :is(.wcb-job-sidebar, .wcb-cp-sidebar, .wcb-rs-aside) {
+		gap: var(--wcb-space-lg);
+	}
+
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) :is(.wcb-detail-hero, .wcb-detail-section, .wcb-sidebar-card, .wcb-cp-side-card, .wcb-rs-aside-card, .wcb-job-report) {
+		margin-block: 0;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) {
+		gap: var(--wcb-space-2xl);
+	}
+}
+
+@media screen and (max-width: 640px) {
+	:is(.wcb-job-single, .wcb-company-profile, .wcb-rs) :is(.wcb-job-main, .wcb-cp-main, .wcb-rs-main, .wcb-job-sidebar, .wcb-cp-sidebar, .wcb-rs-aside) {
+		gap: var(--wcb-space-md);
+	}
 }
 
 /* ── Trust tick — shared paint across all archive cards ──────────────────

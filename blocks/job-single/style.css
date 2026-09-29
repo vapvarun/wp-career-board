@@ -1104,4 +1104,10 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	.wcb-job-title {
 		font-size: var(--wcb-text-xl);
 	}
+
+	/* Logo above the title, left-aligned, like the company and resume heroes. */
+	.wcb-job-hero-brand {
+		flex-direction: column;
+		gap: var(--wcb-space-md);
+	}
 }

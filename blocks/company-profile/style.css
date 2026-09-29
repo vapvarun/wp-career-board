@@ -531,15 +531,11 @@
 
 /* -- Responsive -- */
 @media (max-width: 640px) {
-	/* Centered profile-card layout - matches the Single Resume hero
-	 * because the Company single page is also a "profile" surface with
-	 * lots of meta (industry, size, location, website). Big logo on
-	 * top, name + tagline + chip row + website button all centered
-	 * under it. Same visual rhythm a customer gets on /resume/<slug>/. */
+	/* Phone hero: logo above the name, left-aligned like the job and resume
+	 * heroes (owner decision on Basecamp 10348287589). */
 	.wcb-cp-hero-body {
 		flex-direction: column;
-		align-items: center;
-		text-align: center;
+		align-items: flex-start;
 		gap: var(--wcb-space-md);
 		padding-inline-end: 0;
 	}
@@ -549,24 +545,8 @@
 		width: 100%;
 	}
 
-	.wcb-cp-name-row {
-		justify-content: center;
-	}
-
 	.wcb-cp-name {
 		font-size: var(--wcb-text-xl);
-	}
-
-	.wcb-cp-tagline {
-		margin-inline: auto;
-	}
-
-	.wcb-cp-meta-chips {
-		justify-content: center;
-	}
-
-	.wcb-cp-links {
-		justify-content: center;
 	}
 
 	.wcb-cp-details-grid {

@@ -978,7 +978,8 @@ select.wcb-field {
 	width: 100%;
 	max-width: var(--wcb-container-max-width, 1280px) !important;
 	margin: 0 auto !important;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
+	/* Bottom is the "last block, then theme footer" step: 32 / 32 / 24. */
+	padding: var(--wcb-space-2xl) var(--wcb-space-lg) var(--wcb-space-3xl);
 	box-sizing: border-box;
 }
 
@@ -1001,7 +1002,14 @@ select.wcb-field {
 @media (max-width: 1024px) {
 
 	.wcb-archive-shell {
-		padding: var(--wcb-space-xl) var(--wcb-space-md);
+		padding: var(--wcb-space-xl) var(--wcb-space-md) var(--wcb-space-3xl);
+	}
+}
+
+@media (max-width: 640px) {
+
+	.wcb-archive-shell {
+		padding-bottom: var(--wcb-space-2xl);
 	}
 }
 
