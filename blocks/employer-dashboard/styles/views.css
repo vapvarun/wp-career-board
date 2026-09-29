@@ -843,36 +843,12 @@
 }
 
 /* Dashboard buttons use the canonical .wcb-btn ladder (assets/css/wcb-ui.css).
-   The former per-block .wcb-db-btn duplicate was removed in the design-system
-   consolidation so buttons render identically across every block/page. */
-
-/* -- Job action link buttons -- */
-.wcb-db-link-btn {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-text-secondary);
-	text-decoration: none;
-	padding: var(--wcb-space-xs) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
-	background: var(--wcb-base);
-	white-space: nowrap;
-	transition: background 0.1s, border-color 0.1s;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	/* Match .wcb-btn's tap target (was 2.5rem/40px only under a coarse-pointer
-	 * or narrow-viewport query, so a mouse user on desktop got a 31px row
-	 * action). */
-	min-height: 40px;
-}
-
-.wcb-db-link-btn:hover {
-	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-secondary);
-	border-color: var(--wcb-text-tertiary);
-}
+   The row actions render as wcb-btn wcb-btn--secondary directly (owner
+   decision 2026-09-29: "uniform wins" — the same component and 40px height
+   as every other secondary button in the product, no compact desktop
+   variant of its own). The wcb-db-link-btn--* modifiers below now layer an
+   accent on top of that shared base; they no longer carry their own box
+   model. */
 
 /* One accent for the actions that move a job forward (Edit, Publish, Reopen). */
 .wcb-db-link-btn--edit,
@@ -1041,7 +1017,15 @@
 		white-space: normal;
 	}
 
+	/* flex-wrap left an uneven 3+1 row (button widths vary, so 4 actions could
+	   wrap 3-then-1) — a 2-column grid keeps action rows even. */
 	.wcb-job-actions {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		width: 100%;
+	}
+
+	.wcb-job-actions .wcb-btn {
 		width: 100%;
 	}
 
@@ -1066,7 +1050,6 @@
 @media (prefers-reduced-motion: reduce) {
 	.wcb-filter-pill,
 	.wcb-job-row,
-	.wcb-db-link-btn,
 	.wcb-job-search,
 	.wcb-apps-job-search,
 	.wcb-apps-job-item,

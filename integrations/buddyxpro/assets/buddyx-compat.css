@@ -280,6 +280,17 @@ button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-her
 	-webkit-text-fill-color: currentColor !important;
 }
 
+/* The employer dashboard's row actions mix <button> (Feature, Close, Publish,
+   Reopen — the blanket rule above already neutralises these to one text
+   colour, their accent border still shows through) and <a> (View, Edit,
+   Pipeline — never reached by a button-only selector). Edit is the one
+   anchor carrying an accent-text modifier, so it alone kept a coloured
+   label while every other action read as the same neutral tone. */
+a[class*="wcb-"].wcb-db-link-btn--edit {
+	color: var( --wcb-text-primary, #111111 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
 /* Surface (outline-on-white) variants keep a solid light background. The extra
    [class*="wcb-"] qualifier lifts these above the blanket rule's specificity. */
 button[class*="wcb-"].wcb-btn--secondary,
