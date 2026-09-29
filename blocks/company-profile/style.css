@@ -176,7 +176,7 @@
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);

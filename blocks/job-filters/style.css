@@ -114,7 +114,7 @@
 	height: auto;
 	min-height: var(--wcb-control-h);
 	padding: var(--wcb-space-sm) var(--wcb-space-md); /* 0.625rem ≈ 10px → sm */
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	font-family: inherit;

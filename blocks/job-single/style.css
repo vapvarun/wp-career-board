@@ -578,7 +578,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-cover-letter {
 	width: 100%;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;

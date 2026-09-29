@@ -548,7 +548,7 @@
 	min-height: 44px;
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
 	padding-inline-start: 2.25rem;
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	line-height: 1.5;
@@ -706,7 +706,7 @@
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-md);
 	background: var(--wcb-base, #fff);
 	color: var(--wcb-text-secondary);

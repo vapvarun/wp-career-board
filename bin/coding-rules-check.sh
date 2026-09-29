@@ -20,6 +20,7 @@
 #  10. One button system: no legacy `.wcb-cbtn` class
 #  11. No tracked generated assets (-rtl.css, .min.css/.js outside vendored code)
 #  12. No native browser dialogs (window.confirm/alert/prompt)
+#  13. One border width - no 1.5px borders (UI guideline: 1px; 2px only for focus/selected)
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -288,6 +289,17 @@ if [ -n "$NATIVE" ]; then
 	report "Rule 12: native browser dialog - use wcbConfirm() (depend on the wcb-confirm-modal script) or wcbToast()"
 else
 	ok "Rule 12: no native browser dialogs"
+fi
+
+# --- Rule 13: one border width ---
+# The UI guideline is 1px everywhere; 2px is only the focus ring and the
+# selected/active indicator. A 1.5px border drifted into eleven components.
+BORDER=$(grep -nE '1\.5px[[:space:]]+solid' $(printf '%s\n' $CSS_FILES | grep -v -- '-rtl\.css') 2>/dev/null | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(/\*|\*)' | grep -vE '/\*.*1\.5px' || true)
+if [ -n "$BORDER" ]; then
+	echo "$BORDER" | sed 's/^/    /'
+	report "Rule 13: 1.5px border - the guideline is 1px (2px only for focus or the selected state)"
+else
+	ok "Rule 13: one border width (no 1.5px)"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

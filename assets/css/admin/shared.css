@@ -134,7 +134,7 @@
 .wcb-admin .search-box input[type="text"] {
     height: 32px;
     padding: 0 10px;
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-md, 6px);
     font-size: 13px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
@@ -191,7 +191,7 @@
 .wcb-admin .wcb-settings-row-control input[type="password"],
 .wcb-admin .wcb-settings-row-control select,
 .wcb-admin .wcb-settings-row-control textarea {
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-md, 6px);
     padding: 6px 12px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
@@ -250,7 +250,7 @@
     border-radius: var(--wcb-radius-sm, 6px);
 }
 .wcb-admin .tablenav-pages .current-page {
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-sm, 6px);
 }
 
