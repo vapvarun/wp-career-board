@@ -213,16 +213,15 @@ $wcb_state = array(
 	 */
 	'resultsLabel' => $wcb_ca_results_label,
 	/*
-	 * No `i18n` bag: view.js renders no strings of its own. Every user-facing
-	 * string in this block is either painted by this template (already run
-	 * through __()/esc_html_e()) or arrives pre-translated on the REST payload
-	 * (`jobs_label`, `size_label`, `trust_label`, `results_label`). Seeding an
-	 * empty bag plus a `t()` reader would be dead code. If a future change
-	 * makes view.js render a literal, re-add `'i18n' => array( … )` here and a
-	 * `t( key, fallback )` reader there — script modules cannot load JED
-	 * translation files (wp_set_script_module_translations is WP 7.0+; this
-	 * plugin's floor is 6.9), so state seeding is the only channel.
+	 * The one string view.js builds: each card's bookmark label, "Save
+	 * <company>", so a screen reader hears which company it saves. Seeded here
+	 * because script modules cannot load JED translation files
+	 * (wp_set_script_module_translations is WP 7.0+; this plugin's floor is
+	 * 6.9). Every other string is painted by this template or arrives
+	 * pre-translated on the REST payload.
 	 */
+	/* translators: %s: company name. */
+	'saveCompanyLabel' => __( 'Save %s', 'wp-career-board' ),
 );
 
 
@@ -343,6 +342,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				<?php
 				$wcb_bookmark = array(
 					'aria_label'            => __( 'Save company', 'wp-career-board' ),
+					'aria_label_bind'       => 'state.saveCompanyAria',
 					'bookmarked_class_bind' => 'context.company.bookmarked',
 				);
 				require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
