@@ -256,14 +256,17 @@ class AdminCompanies extends \WP_List_Table {
 		if ( ! $user_ids ) {
 			return;
 		}
+		// cache_users() primes users + usermeta in two queries, so the
+		// get_edit_user_link() call in column_employer() reads from cache
+		// instead of loading each employer row by row.
+		$user_ids = array_map( 'intval', $user_ids );
+		cache_users( $user_ids );
 		$names = array();
-		foreach ( get_users(
-			array(
-				'include' => array_map( 'intval', $user_ids ),
-				'fields'  => array( 'ID', 'display_name' ),
-			)
-		) as $user ) {
-			$names[ (int) $user->ID ] = $user->display_name;
+		foreach ( $user_ids as $user_id ) {
+			$user = get_userdata( $user_id );
+			if ( $user ) {
+				$names[ $user_id ] = $user->display_name;
+			}
 		}
 		foreach ( (array) $meta_rows as $row ) {
 			$company_id = (int) $row->company_id;
