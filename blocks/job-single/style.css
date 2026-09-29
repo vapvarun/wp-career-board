@@ -781,7 +781,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
+/* 1024, not 768: at 800-1023 the two-column hero/body was still forced
+   into two cramped columns (a squeezed Apply button in the hero), while
+   resume-single (before its own fix) collapsed at a different width
+   entirely. One tablet breakpoint for every detail page. */
+@media (max-width: 1024px) {
 	.wcb-job-hero {
 		grid-template-columns: minmax(0, 1fr);
 		grid-template-rows: auto auto auto;

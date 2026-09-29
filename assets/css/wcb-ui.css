@@ -888,7 +888,9 @@ textarea.wcb-input {
 	align-items: start;
 }
 
-@media (max-width: 900px) {
+/* 1024, not 900 — the standard tablet breakpoint, so the filter panel
+   stacks at the same width every other detail/listing page collapses at. */
+@media (max-width: 1024px) {
 	.wcb-archive-layout {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -993,7 +995,11 @@ textarea.wcb-input {
 	 * scrollbar on Find Jobs once the Job Board list landed (20+ items). */
 }
 
-@media (max-width: 900px) {
+/* Matches .wcb-archive-layout's own stacking breakpoint above — this
+   panel is only ever static once the layout itself has already stacked
+   to one column; a mismatched breakpoint here would leave it static
+   while still sitting side-by-side with results. */
+@media (max-width: 1024px) {
 	.wcb-filter-panel {
 		position: static;
 	}
@@ -1111,13 +1117,13 @@ textarea.wcb-input {
 }
 
 /* ── Tablet / mobile collapse for the filter panel ───────────────────────
- * Wherever the archive layout stacks (≤900px, see .wcb-archive-layout) the
+ * Wherever the archive layout stacks (≤1024px, see .wcb-archive-layout) the
  * open filter panel pushed the first result ~1,800px down on an iPad.
  * Collapsed by default there - a chevron in the panel header expands it on
  * tap. The checkbox-as-state pattern keeps this purely CSS so the existing
  * Interactivity stores on the three archives don't need to learn a new
  * "filtersOpen" piece of state. */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.wcb-filter-panel {
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
 	}

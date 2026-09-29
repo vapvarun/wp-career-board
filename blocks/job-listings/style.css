@@ -380,8 +380,8 @@
 /* ── Responsive ladder ──────────────────────────────────────────────────────
  * Mirrors Companies + Find Candidates so the 3 archives reflow together.
  * 3-col default → 2-col at tablet → 1-col at mobile. Filter panel stacks
- * above at <900px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
-@media ( max-width: 1023px ) {
+ * above at ≤1024px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
+@media ( max-width: 1024px ) {
 	.wcb-jobs-container.wcb-grid,
 	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
