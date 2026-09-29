@@ -83,12 +83,13 @@
 	/* A 1px border for a control that needs to read against the page
 	   without relying on fill alone (WCAG 1.4.11, 3:1 non-text contrast) —
 	   --wcb-border alone is a subtle hairline (~1.2:1) meant for dividers,
-	   not this. A 62% mix of the mode-aware secondary text tone measures
-	   ~3.3-4.4:1 (light/dark) rather than --wcb-text-secondary's own
-	   ~5-9:1, which
-	   read heavier than a "not yet reached" step should (Basecamp
-	   10348178594: the todo step pill outlined stronger than the done one). */
-	--wcb-border-strong: color-mix(in srgb, var(--wcb-text-secondary) 62%, transparent);
+	   not this. Mixed from --wcb-contrast (the primary text tone, not
+	   secondary): --wcb-text-secondary is itself too light on some themes
+	   (BuddyX/BuddyX Pro/TT25) for any mix of it to reach 3:1
+	   (Basecamp 10348178594). 55% of --wcb-contrast measures 3.54:1 on
+	   Reign, clearing 3:1 with margin while staying below
+	   --wcb-success-border's own contrast (todo stays lighter than done). */
+	--wcb-border-strong: color-mix(in srgb, var(--wcb-contrast) 55%, transparent);
 
 	/* Foreground color for elements painted with --wcb-primary as
 	 * background (filled buttons, badges, banners). Always-white in
