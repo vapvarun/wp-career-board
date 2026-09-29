@@ -221,7 +221,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
