@@ -25,15 +25,14 @@
 .wcb-card {
     background: var(--wcb-base, #ffffff); border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-lg, 8px); box-shadow: var(--wcb-shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
-    margin-bottom: 16px; overflow: hidden;
+    margin-bottom: 24px; overflow: hidden; /* same stack as .wcb-settings-card */
 }
 .wcb-card__head {
     padding: 14px 20px 12px; border-bottom: 1px solid var(--wcb-border, #e2e8f0);
     background: var(--wcb-surface, #f1f5f9);
 }
 .wcb-card__title {
-    font-size: 13px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.04em; color: var(--wcb-contrast, #1e293b); margin: 0 0 2px;
+    font-size: 14px; font-weight: 600; color: var(--wcb-contrast, #1e293b); margin: 0 0 2px;
 }
 .wcb-card__desc { font-size: 13px; color: var(--wcb-text-secondary, #475569); margin: 0; }
 .wcb-card__body { padding: 20px; }

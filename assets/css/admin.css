@@ -481,11 +481,10 @@
 	background: var(--wcb-surface, #f1f5f9);
 }
 
+/* One card title across Settings, list cards and integrations. */
 .wcb-settings-card-title {
-	font-size: var(--wcb-text-sm, 0.8125rem);
+	font-size: 14px;
 	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	color: var(--wcb-contrast, #1e293b);
 	margin: 0;
 }
@@ -609,8 +608,16 @@
 }
 
 /* Save button footer */
+/* The Save row between cards: one 24px step above and below, like the card
+ * stack, so it never touches the next card. */
 .wcb-settings-footer {
-	padding: 14px 24px;
+	margin: 24px 0;
+	padding: 0;
+}
+
+.wcb-settings-footer p.submit {
+	margin: 0;
+	padding: 0;
 }
 
 /* Test email section */
@@ -1528,4 +1535,10 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	.wcb-meta-grid {
 		grid-template-columns: minmax(0, 1fr);
 	}
+}
+
+/* List-table search matches the page header's buttons (this stylesheet only
+ * loads on Career Board screens, so core's other list tables are untouched). */
+#wpbody .search-box :is( input[type="search"], input[type="submit"], .button ) {
+	min-height: 42px;
 }
