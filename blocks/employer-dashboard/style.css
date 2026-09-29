@@ -26,12 +26,7 @@
 	color: var(--wcb-contrast);
 }
 
-/* -- Shell -- sidebar + main -- */
-.wcb-dashboard-shell {
-	display: flex;
-	min-height: 600px;
-	align-items: stretch;
-}
+/* The shell (.wcb-dashboard-shell) is shared: assets/css/wcb-ui.css. */
 
 /* -- Interactivity API show/hide utilities -- */
 .wcb-shown  { display: block; }

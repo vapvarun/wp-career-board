@@ -1742,6 +1742,247 @@ textarea.wcb-input {
 	}
 }
 
+/* ── Dashboard shell (candidate + employer) ────────────────────────────────
+   One copy for both dashboards, which carried drifting duplicates (the
+   candidate shell was framed, the employer one was not; panel titles, links
+   and the notification rows used different tokens). The shell is the only
+   frame; tab content sits directly in it and cards are the level below. */
+.wcb-dashboard-shell {
+	display: flex;
+	min-height: 600px;
+	align-items: stretch;
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+	overflow: hidden;
+}
+
+.wcb-dashboard .wcb-main {
+	flex: 1;
+	min-width: 0;
+	padding: var(--wcb-space-3xl);
+	background: var(--wcb-base);
+	overflow-y: auto;
+}
+
+/* An inline-size container, so grids inside a tab respond to the width they
+   actually get (a theme sidebar can leave .wcb-main ~610px on a wide screen). */
+.wcb-dashboard .wcb-view-panel {
+	display: none;
+	container-type: inline-size;
+	container-name: wcb-panel;
+}
+
+.wcb-dashboard .wcb-view-panel.wcb-view-active {
+	display: block;
+}
+
+.wcb-dashboard .wcb-page-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+/* Size, weight and colour come from the shared .wcb-page-title. */
+.wcb-dashboard .wcb-page-title {
+	margin: 0 0 var(--wcb-space-xs);
+}
+
+.wcb-dashboard .wcb-page-sub {
+	margin: 0 0 var(--wcb-space-2xl);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-dashboard .wcb-two-col {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: var(--wcb-space-xl);
+}
+
+.wcb-dashboard .wcb-panel {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+	overflow: hidden;
+}
+
+/* A panel inside the active tab drops its own frame (no box in a box). */
+.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-panel {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin-bottom: 0;
+}
+
+.wcb-dashboard .wcb-panel--form {
+	padding: var(--wcb-space-xl);
+}
+
+.wcb-dashboard .wcb-panel-title {
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast);
+}
+
+/* (0,3,0): beats the block-scope link reset in frontend-components.css. */
+.wcb-dashboard .wcb-main .wcb-panel-link {
+	padding: 0;
+	border: none;
+	background: none;
+	font: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-medium);
+	color: var(--wcb-primary);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.wcb-dashboard .wcb-main .wcb-panel-link:hover {
+	text-decoration: underline;
+}
+
+/* Notifications tab: an action bar, then divider rows. */
+.wcb-notifications__bar {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--wcb-space-sm);
+	margin-bottom: var(--wcb-space-md);
+}
+
+.wcb-bell-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 8px;
+	border: none;
+	border-radius: var(--wcb-radius-sm);
+	background: none;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-primary);
+	cursor: pointer;
+}
+
+.wcb-bell-action:hover {
+	background: var(--wcb-surface);
+}
+
+.wcb-bell-action svg {
+	width: 15px;
+	height: 15px;
+}
+
+.wcb-bell-clear-all {
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+.wcb-bell-list {
+	overflow: hidden;
+}
+
+.wcb-bell-item {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-bell-item:last-child {
+	border-bottom: none;
+}
+
+.wcb-bell-item:hover {
+	background: var(--wcb-surface);
+}
+
+.wcb-bell-unread {
+	background: var(--wcb-info-bg-soft);
+}
+
+.wcb-bell-item__link {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: block;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	text-decoration: none;
+	color: inherit;
+}
+
+.wcb-bell-item__delete {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	margin-inline-end: var(--wcb-space-sm);
+	border: none;
+	border-radius: var(--wcb-radius-sm);
+	background: none;
+	color: var(--wcb-text-secondary);
+	cursor: pointer;
+	transition: color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
+}
+
+.wcb-bell-item__delete:hover,
+.wcb-bell-item__delete:focus-visible {
+	color: var(--wcb-danger-fg, #991b1b);
+	background: var(--wcb-surface);
+}
+
+.wcb-bell-item__delete svg {
+	flex: 0 0 auto;
+	width: 16px;
+	height: 16px;
+}
+
+.wcb-bell-msg {
+	display: block;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-contrast);
+}
+
+.wcb-bell-time {
+	display: block;
+	margin-top: 2px;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-notifications__empty {
+	padding: var(--wcb-space-xl);
+	text-align: center;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 1024px) {
+	.wcb-dashboard .wcb-main {
+		padding: var(--wcb-space-xl);
+	}
+
+	/* Stacks with the sidebar-to-dropdown collapse (same breakpoint). */
+	.wcb-dashboard .wcb-two-col {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 640px) {
+	/* The tab content is no longer inside its own padded card, so the main
+	   area keeps a side gutter. */
+	.wcb-dashboard .wcb-main {
+		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+	}
+
+	.wcb-dashboard .wcb-panel--form {
+		padding: var(--wcb-space-lg);
+	}
+}
+
 /* ── Touch targets ────────────────────────────────────────────────────────── */
 /* The responsive contract is a 40px minimum tap target. Small controls keep their
    look on a pointer device and gain height (not size) on touch and on phones. */

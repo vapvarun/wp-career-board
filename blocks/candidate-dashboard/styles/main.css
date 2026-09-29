@@ -1,102 +1,16 @@
 /**
- * Candidate Dashboard — Main content area styles.
+ * Candidate Dashboard — candidate-only main-area rules.
  *
- * Main wrapper, view-panel frame, page header, panel base, two-column
- * grid, and the @media (max-width: 640px) rules that target these
- * selectors. Co-locating responsive overrides with their base rules
- * keeps the cascade order correct independent of block.json file
- * declaration order.
- *
- * Extracted from style.css (was 1356 LOC) per the upscale stabilization
- * plan (plan/upscale-stabilization-plan-2026-05-07.md F4 / Task 5.2).
- * Tokens are inherited from frontend-tokens.css via cascade — no
- * duplication.
+ * The shared shell (main area, view panels, page header, panels, two-column
+ * grid) lives once in assets/css/wcb-ui.css for both dashboards.
  *
  * @package WP_Career_Board
  * @since   1.2.2
  */
 
-/* ── Main content area ────────────────────────────────────────────────────── */
-.wcb-main {
-	flex: 1;
-	background: var(--wcb-base);
-	padding: var(--wcb-space-3xl);
-	overflow-y: auto;
-	min-width: 0;
-}
-
-/* Matches the employer dashboard's tablet step. */
-@media (max-width: 1024px) {
-	.wcb-main {
-		padding: var(--wcb-space-xl);
-	}
-}
-
-/* ── View panels ──────────────────────────────────────────────────────────── */
-
-/* Every dashboard tab content sits inside a consistent card wrapper so the
- * Overview, My Applications, Saved Jobs, Profile, Settings, etc. all look
- * the same regardless of what's inside (stat cards, list rows, form fields,
- * loading / empty states). The .wcb-page-header h1 lives INSIDE this card
- * as the title bar, and inner .wcb-panel blocks switch to a flush (chrome-
- * less) modifier so nested cards don't double-frame. */
-.wcb-view-panel {
-	display: none;
-}
-
-/* Tab content sits directly in the shell (UI guideline: the shell is the
- * only frame; no grey canvas, no white card around the tab). Cards inside a
- * tab (stat tiles, lists) are the only level below it. */
-.wcb-view-panel.wcb-view-active {
-	display: block;
-}
-
-/* Inner .wcb-panel cards inside an active tab lose their own card chrome
- * so the outer wrapper doesn't double-frame them. They keep their own
- * row hairlines for visual separation between list items. */
-.wcb-view-panel.wcb-view-active .wcb-panel,
-.wcb-view-panel.wcb-view-active .wcb-resume-builder {
-	background: transparent;
-	border: 0;
-	border-radius: 0;
-	box-shadow: none;
-	margin-bottom: 0;
-}
-
-/* The resume-builder block also brings its own padding; strip that too so the
- * outer .wcb-view-panel provides the single padding (.wcb-panel keeps its own). */
-.wcb-view-panel.wcb-view-active .wcb-resume-builder {
-	padding: 0;
-}
-
-/* ── Page header ──────────────────────────────────────────────────────────── */
-.wcb-page-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--wcb-space-md);
-	margin-bottom: var(--wcb-space-2xl);
-	flex-wrap: wrap;
-}
-
-/* Size, weight and colour come from the shared .wcb-page-title (2xl, like
- * every other page H1); only the gap to the subtitle is set here. */
-.wcb-page-title {
-	margin: 0 0 var(--wcb-space-xs);
-}
-
-/* ── Panel wrapper — visually matches `.wcb-card` from `wcb-ui.css` so every
- * tab panel reads as the same card primitive even though it keeps its own
- * `.wcb-shown` visibility class for the Interactivity API. Inner content
- * gets its own padding via `.wcb-panel--form` (Profile/Settings) or via
- * row classes (`.wcb-cd-app-row`, `.wcb-alert-row` etc.) so list rows can
- * still butt up against the card edge with their own hairline dividers. */
+/* Candidate panels are toggled with .wcb-shown by the Interactivity store. */
 .wcb-panel {
 	display: none;
-	background: var(--wcb-base, var(--wp--preset--color--wcb-base));
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	overflow: hidden;
 	margin-bottom: var(--wcb-space-xl);
 }
 
@@ -104,66 +18,12 @@
 	display: block;
 }
 
-/* Form-shaped panels (Profile, Settings) need internal padding because their
- * children are form fields, not row primitives. Lists keep the wrapper edge-
- * flush so per-row padding gives the visual rhythm. */
-.wcb-panel--form {
-	padding: var(--wcb-space-xl);
-}
-
-@media (max-width: 640px) {
-	.wcb-panel--form { padding: var(--wcb-space-lg); }
-}
-
-/* ── Overview: Two-column grid ────────────────────────────────────────────── */
-.wcb-two-col {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--wcb-space-xl);
-}
-
-/* Stacks in lockstep with the sidebar-to-dropdown collapse (sidebar.css,
- * same 1024 breakpoint) - before this fix, .wcb-two-col only collapsed at
- * 640, so between 641-1024 the sidebar was already gone (main full width)
- * but the grid stayed two cramped columns (Basecamp 10348289393). */
-@media (max-width: 1024px) {
-	.wcb-two-col {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
-/* ── Overview: Panel title / link / empty (panel-header lives globally) ──── */
-.wcb-panel-title {
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-primary);
-}
-
-.wcb-panel-link {
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	font-family: inherit;
-	color: var(--wcb-blue);
-	background: none;
-	border: none;
+/* The embedded resume builder drops its own frame and padding inside a tab. */
+.wcb-view-panel.wcb-view-active .wcb-resume-builder {
 	padding: 0;
-	cursor: pointer;
-	text-decoration: none;
-}
-
-.wcb-panel-link:hover {
-	text-decoration: underline;
-}
-
-/* ── Responsive: tighten main padding and stack two-col on narrow screens ─ */
-@media (max-width: 640px) {
-	/* Drop horizontal padding on `.wcb-main` so the active view panel
-	 * extends the full content width — matches the nav dropdown above it
-	 * (the dropdown lives in `.wcb-sidebar` which has no horizontal
-	 * padding, so it always spans the full content width). Keeping the
-	 * panel narrower than the dropdown above it looked broken at 390px
-	 * and crushed the stat-tile grid to ~110px columns. */
-	.wcb-main {
-		padding: var(--wcb-space-xl) 0;
-	}
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin-bottom: 0;
 }
