@@ -117,7 +117,7 @@ if ( empty( $wcb_companies ) ) {
 					<?php if ( $wcb_loc ) : ?>
 						<span class="wcb-similar-companies-card__meta">
 							<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-							<?php echo esc_html( $wcb_loc ); ?>
+							<span class="wcb-similar-companies-card__loc"><?php echo esc_html( $wcb_loc ); ?></span>
 						</span>
 					<?php endif; ?>
 				</span>
