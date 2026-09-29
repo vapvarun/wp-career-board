@@ -86,7 +86,7 @@
 	border: none;
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
-	font-weight: var(--wcb-font-medium);
+	font-weight: var(--wcb-font-semibold);
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;

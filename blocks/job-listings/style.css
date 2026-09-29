@@ -706,11 +706,11 @@
 	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
 	padding: var(--wcb-space-xs) var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
 	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
+	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-muted, var(--wp--preset--color--wcb-muted));
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
+	border-radius: var(--wcb-radius-md);
 	cursor: pointer;
 	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background-color var(--wcb-transition-snappy);
 	white-space: nowrap;

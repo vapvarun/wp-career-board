@@ -840,8 +840,8 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	height: 30px;
 	min-width: 40px;
 	min-height: 40px;
-	border-radius: var(--wcb-radius-sm);
-	border: 1.5px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	border: 1px solid var(--wcb-border);
 	background: var(--wcb-base);
 	color: var(--wcb-text-secondary);
 	text-decoration: none;
