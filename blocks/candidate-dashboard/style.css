@@ -86,38 +86,9 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 }
 
 /* ── Shared loading / error ───────────────────────────────────────────────── */
-.wcb-cd-loading {
-	display: none;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-	padding: var(--wcb-space-md) 0;
-}
-
-.wcb-cd-loading.wcb-shown {
-	display: flex;
-}
-
-.wcb-cd-spinner {
-	display: inline-block;
-	width: 14px;
-	height: 14px;
-	border: 2px solid var( --wcb-border );
-	border-top-color: var( --wcb-blue );
-	border-radius: 50%;
-	animation: wcb-cd-spin 0.7s linear infinite;
-}
-
-@keyframes wcb-cd-spin {
-	to { transform: rotate( 360deg ); }
-}
-
-.wcb-cd-error {
-	color: var(--wcb-danger-fg, #b91c1c);
-	font-size: var(--wcb-text-base);
-	margin: 0 0 var(--wcb-space-lg);
-}
+/* .wcb-cd-loading, .wcb-cd-spinner and .wcb-cd-error paint is shared in
+ * assets/css/wcb-ui.css (moved there so the employer dashboard could reuse
+ * the same markup); this was a leftover duplicate of the exact same rules. */
 
 /* Button system (.wcb-btn / --primary / --outline / --danger) is owned
  * by `assets/css/wcb-ui.css`. That file ships parent-prefixed selectors

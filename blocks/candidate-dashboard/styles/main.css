@@ -25,6 +25,14 @@
 	min-width: 0;
 }
 
+/* Matches the employer dashboard's tablet step - without it .wcb-main kept
+ * its full 32px padding down to 640px, where employer already narrows it. */
+@media (max-width: 768px) {
+	.wcb-main {
+		padding: var(--wcb-space-xl);
+	}
+}
+
 /* ── View panels ──────────────────────────────────────────────────────────── */
 
 /* Every dashboard tab content sits inside a consistent card wrapper so the
@@ -83,8 +91,8 @@
 .wcb-page-title {
 	font-size: var(--wcb-text-xl);
 	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-primary);
-	margin: 0;
+	color: var(--wcb-contrast);
+	margin: 0 0 var(--wcb-space-xs);
 }
 
 /* ── Panel wrapper — visually matches `.wcb-card` from `wcb-ui.css` so every

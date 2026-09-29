@@ -125,8 +125,8 @@
 	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, var( --wcb-surface, #ffffff ) 100% );
 	border: 1px solid var( --wcb-primary, #4f46e5 );
 	border-radius: var( --wcb-radius-lg, 12px );
-	padding: var( --wcb-space-lg, 24px );
-	margin-bottom: var( --wcb-space-lg, 24px );
+	padding: var( --wcb-space-lg, 16px );
+	margin-bottom: var( --wcb-space-lg, 16px );
 }
 
 .wcb-welcome-card.wcb-shown {
@@ -134,7 +134,7 @@
 }
 
 .wcb-welcome-card__header {
-	margin-bottom: var( --wcb-space-md, 16px );
+	margin-bottom: var( --wcb-space-md, 12px );
 }
 
 .wcb-welcome-card__title {
