@@ -48,6 +48,7 @@ class Admin {
 		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'enable_job_expiry' ) );
+		( new \WCB\Core\TemplateVersionCheck() )->boot();
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.

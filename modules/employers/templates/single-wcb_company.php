@@ -25,6 +25,8 @@
  * may override this template via `single_template`; this file is the
  * universal fallback.
  *
+ * Template version: 1.0
+ *
  * @package WP_Career_Board
  * @since   1.2.0
  */

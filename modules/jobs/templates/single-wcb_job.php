@@ -21,6 +21,8 @@
  * (BuddyX Pro, Reign) may load their own version of this template; this
  * file is the universal fallback.
  *
+ * Template version: 1.0
+ *
  * @package WP_Career_Board
  * @since   1.0.0
  */
