@@ -548,27 +548,27 @@ class Admin {
 			<div class="wcb-stats-grid">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="briefcase"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_jobs; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_jobs ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Active Jobs', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-applications' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="clipboard-list"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_apps; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_apps ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-employers' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="building-2"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_emp; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_emp ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Employers', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-candidates' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="users"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_cand; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_cand ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box<?php echo $pending_jobs > 0 ? ' wcb-stat-alert' : ''; ?>">
 					<span class="wcb-stat-icon"><i data-lucide="flag"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $pending_jobs; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $pending_jobs ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Pending Review', 'wp-career-board' ); ?></span>
 				</a>
 			</div>
