@@ -12,9 +12,9 @@ A presentation and consistency pass across every page, plus fixes for the
 Post a Job form, the notification bell, custom fields and resume printing
 found while preparing it.
 
-* New      - A warning when a theme's own copy of a Career Board template
-  is older than the plugin's, so a customization does not silently fall
-  behind.
+* New      - A Site Health check flags a theme's own copy of a Career
+  Board template once it falls behind the plugin's, so a customization
+  does not silently go stale.
 * Improve  - One shared page container on every theme (Reign, BuddyX,
   Twenty Twenty-Five): job, company and resume pages and the three
   listing archives now measure the same width, instead of falling back

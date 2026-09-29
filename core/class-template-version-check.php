@@ -8,8 +8,10 @@
  * markup our template relies on and the theme's copy is never updated,
  * the site silently keeps rendering the stale version with no signal to
  * the owner. WooCommerce solves this with a version comment in each
- * template plus an admin notice comparing it to the theme's copy; this is
- * the same idea, scoped to our three CPT single templates.
+ * template plus a status check; this is the same idea, scoped to our
+ * three CPT single templates and surfaced as a Site Health test — it
+ * re-evaluates live every time, so there's no dismissal state to go
+ * stale after a plugin update.
  *
  * @package WP_Career_Board
  * @since   1.8.0
@@ -31,22 +33,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TemplateVersionCheck {
 
 	/**
-	 * Option storing basenames the owner has dismissed the notice for.
-	 *
-	 * @since 1.8.0
-	 * @var   string
-	 */
-	private const DISMISSED_OPTION = 'wcb_template_version_dismissed';
-
-	/**
 	 * Boot the check.
 	 *
 	 * @since  1.8.0
 	 * @return void
 	 */
 	public function boot(): void {
-		add_action( 'admin_notices', array( $this, 'notice' ) );
-		add_action( 'admin_init', array( $this, 'handle_dismiss' ) );
+		add_filter( 'site_status_tests', array( $this, 'register_test' ) );
+	}
+
+	/**
+	 * Register this class's direct test with Site Health.
+	 *
+	 * @since  1.8.0
+	 * @param  array<string,array<string,array<string,mixed>>> $tests Existing tests.
+	 * @return array<string,array<string,array<string,mixed>>>
+	 */
+	public function register_test( array $tests ): array {
+		$tests['direct']['wcb_template_versions'] = array(
+			'label' => __( 'WP Career Board template overrides', 'wp-career-board' ),
+			'test'  => array( $this, 'run_test' ),
+		);
+		return $tests;
 	}
 
 	/**
@@ -94,7 +102,7 @@ class TemplateVersionCheck {
 	 * Find every theme copy that is missing a version, or behind the plugin's.
 	 *
 	 * @since  1.8.0
-	 * @return array<int,array{basename:string,theme_file:string}> Outdated copies.
+	 * @return array<int,array{basename:string,theme_file:string,theme_version:string,plugin_version:string}> Outdated copies.
 	 */
 	public static function outdated(): array {
 		$outdated = array();
@@ -114,8 +122,10 @@ class TemplateVersionCheck {
 
 			if ( '' === $theme_version || version_compare( $theme_version, $plugin_version, '<' ) ) {
 				$outdated[] = array(
-					'basename'   => $basename,
-					'theme_file' => $theme_file,
+					'basename'       => $basename,
+					'theme_file'     => $theme_file,
+					'theme_version'  => $theme_version,
+					'plugin_version' => $plugin_version,
 				);
 			}
 		}
@@ -124,74 +134,57 @@ class TemplateVersionCheck {
 	}
 
 	/**
-	 * Show one dismissible notice naming every outdated theme copy.
+	 * Run the Site Health test.
 	 *
 	 * @since  1.8.0
-	 * @return void
+	 * @return array<string,mixed> Site Health test result.
 	 */
-	public function notice(): void {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
-		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
-			return;
-		}
-
-		$outdated  = self::outdated();
-		$dismissed = (array) get_option( self::DISMISSED_OPTION, array() );
-		$outdated  = array_values(
-			array_filter(
-				$outdated,
-				static fn( array $row ): bool => ! in_array( $row['basename'], $dismissed, true )
-			)
+	public function run_test(): array {
+		$result = array(
+			'test'        => 'wcb_template_versions',
+			'label'       => __( 'Your theme\'s WP Career Board template copies are current', 'wp-career-board' ),
+			'status'      => 'good',
+			'badge'       => array(
+				'label' => __( 'WP Career Board', 'wp-career-board' ),
+				'color' => 'blue',
+			),
+			'description' => sprintf(
+				'<p>%s</p>',
+				esc_html__( 'When your theme copies one of WP Career Board\'s overridable templates, this compares it against the version the plugin ships so a plugin update does not silently go unused.', 'wp-career-board' )
+			),
+			'actions'     => '',
 		);
 
+		$outdated = self::outdated();
 		if ( ! $outdated ) {
-			return;
+			return $result;
 		}
 
-		$names = wp_list_pluck( $outdated, 'basename' );
-		$url   = wp_nonce_url( add_query_arg( 'wcb_dismiss_template_notice', implode( ',', $names ) ), 'wcb_dismiss_template_notice' );
-		?>
-		<div class="notice notice-warning is-dismissible">
-			<p>
-				<?php
-				printf(
-					esc_html(
-						/* translators: %s: comma-separated list of template filenames. */
-						_n(
-							'Your theme has its own copy of %s, and it looks older than the version WP Career Board now ships. Compare it against the plugin\'s file and update your copy to keep the page working as intended.',
-							'Your theme has its own copy of %s, and they look older than the versions WP Career Board now ships. Compare them against the plugin\'s files and update your copies to keep those pages working as intended.',
-							count( $outdated ),
-							'wp-career-board'
-						)
-					),
-					'<code>' . esc_html( implode( '</code>, <code>', $names ) ) . '</code>'
-				);
-				?>
-			</p>
-			<p><a href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Dismiss', 'wp-career-board' ); ?></a></p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Persist a dismissal so the notice doesn't reappear for the same files.
-	 *
-	 * @since  1.8.0
-	 * @return void
-	 */
-	public function handle_dismiss(): void {
-		if ( ! isset( $_GET['wcb_dismiss_template_notice'], $_GET['_wpnonce'] )
-			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'wcb_dismiss_template_notice' )
-		) {
-			return;
-		}
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
-		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
-			return;
+		$items = '';
+		foreach ( $outdated as $row ) {
+			$items .= sprintf(
+				'<li><code>%1$s</code> — %2$s</li>',
+				esc_html( $row['basename'] ),
+				esc_html(
+					sprintf(
+						/* translators: 1: theme's template version (or "none"), 2: plugin's current template version. */
+						__( 'yours: %1$s, current: %2$s', 'wp-career-board' ),
+						'' !== $row['theme_version'] ? $row['theme_version'] : __( 'none', 'wp-career-board' ),
+						$row['plugin_version']
+					)
+				)
+			);
 		}
 
-		$names     = array_filter( array_map( 'sanitize_file_name', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_dismiss_template_notice'] ) ) ) ) );
-		$dismissed = array_unique( array_merge( (array) get_option( self::DISMISSED_OPTION, array() ), $names ) );
-		update_option( self::DISMISSED_OPTION, array_values( $dismissed ), false );
+		$result['status'] = 'recommended';
+		$result['label']  = __( 'Your theme has outdated WP Career Board template copies', 'wp-career-board' );
+
+		$result['description'] = sprintf(
+			'<p>%s</p><ul>%s</ul>',
+			esc_html__( 'Your theme has its own copy of the following WP Career Board templates, and they look older than the version the plugin now ships. Compare them against the plugin\'s files and update your copies to keep those pages working as intended.', 'wp-career-board' ),
+			$items
+		);
+
+		return $result;
 	}
 }
