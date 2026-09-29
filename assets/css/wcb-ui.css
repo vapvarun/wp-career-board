@@ -412,7 +412,7 @@
  * element, (0,2,1), so a theme's input[type="text"] (0,1,1) can't restyle it.
  * UI guideline: field 44px, radius md, 1px border; label then field 4; field
  * then field 16, set by gap on the wrapper and its container, not margins. */
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	box-sizing: border-box;
 	width: 100%;
 	height: var(--wcb-control-h);
@@ -454,27 +454,27 @@
 	background-position: left var(--wcb-space-md) center;
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):hover {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):hover {
 	border-color: var(--wcb-text-tertiary);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):focus {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):focus {
 	outline: 2px solid transparent;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)::placeholder {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)::placeholder {
 	color: var(--wcb-text-tertiary);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):is([readonly], :disabled) {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):is([readonly], :disabled) {
 	background-color: var(--wcb-bg-subtle);
 	color: var(--wcb-text-secondary);
 	cursor: default;
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)[aria-invalid="true"] {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)[aria-invalid="true"] {
 	border-color: var(--wcb-danger);
 }
 

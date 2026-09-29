@@ -95,7 +95,9 @@ final class FormCustomFields {
 				continue;
 			}
 			foreach ( $group['fields'] as $field ) {
-				$field_type = is_array( $field ) ? self::normalise_type( (string) ( $field['type'] ?? $field['field_type'] ?? '' ) ) : '';
+				// normalise_field(), not normalise_type(): a checkbox with choices
+				// is a multi-choice field and needs the pre-fill too.
+				$field_type = is_array( $field ) ? self::normalise_field( $field )['type'] : '';
 				if ( 'radio' === $field_type || 'multiselect' === $field_type ) {
 					$needs_prefill = true;
 					break 2;
@@ -305,9 +307,13 @@ final class FormCustomFields {
 		// above an empty checkbox reads as broken. Radio renders a group
 		// label as a <span> (a <label for> can only target one input, not a
 		// radio group). Every other type keeps the standard <label for>.
+		// A choice group (radio, multi-choice) is named by a span its group
+		// element points at with aria-labelledby: a <label for> can only
+		// target one input.
+		$is_group = 'radio' === $type || 'multiselect' === $type;
 		if ( ! empty( $field['label'] ) && 'checkbox' !== $type ) {
-			if ( 'radio' === $type ) {
-				echo '<span class="wcb-form-label">';
+			if ( $is_group ) {
+				echo '<span class="wcb-form-label" id="' . esc_attr( $dom_id . '-label' ) . '">';
 			} else {
 				echo '<label class="wcb-form-label" for="' . esc_attr( $dom_id ) . '">';
 			}
@@ -315,7 +321,7 @@ final class FormCustomFields {
 			if ( ! empty( $field['required'] ) ) {
 				echo ' <span class="wcb-required" aria-hidden="true">*</span>';
 			}
-			echo 'radio' === $type ? '</span>' : '</label>';
+			echo $is_group ? '</span>' : '</label>';
 		}
 
 		$value_bind = 'data-wp-bind--value="state.customFields.' . $key . '"';
@@ -374,7 +380,7 @@ final class FormCustomFields {
 			// value into state.customFields via updateCustomField (radio hits
 			// the same target.value path as text/select), and the saved
 			// option's `checked` is set server-side from $current_value.
-			echo '<div class="wcb-radio-group" role="radiogroup">';
+			echo '<div class="wcb-radio-group" role="radiogroup" aria-labelledby="' . esc_attr( $dom_id . '-label' ) . '">';
 			$radio_index = 0;
 			foreach ( $field['options'] as $val => $label ) {
 				$radio_id      = $dom_id . '-' . $radio_index;
@@ -400,7 +406,7 @@ final class FormCustomFields {
 			// save_values() stores the result back as a CSV string, keeping
 			// the single-meta-value model intact.
 			$ms_selected = '' !== $current_value ? explode( ',', $current_value ) : array();
-			echo '<div class="wcb-multiselect-group" role="group">';
+			echo '<div class="wcb-multiselect-group" role="group" aria-labelledby="' . esc_attr( $dom_id . '-label' ) . '">';
 			$ms_index = 0;
 			foreach ( $field['options'] as $val => $label ) {
 				$ms_id      = $dom_id . '-' . $ms_index;

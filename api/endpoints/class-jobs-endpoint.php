@@ -1291,8 +1291,11 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		// The questions this job asked, looked up once for every row.
+		$wcb_question_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
+
 		$items = array_map(
-			static function ( \WP_Post $p ): array {
+			static function ( \WP_Post $p ) use ( $wcb_question_groups ): array {
 				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
 				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
@@ -1307,6 +1310,8 @@ final class JobsEndpoint extends RestController {
 						? $candidate_user->user_email
 						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
 					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+					// Answers to the job's questions, labelled, for the applicant detail.
+					'custom_fields'      => \WCB\Core\FormCustomFields::labelled_values( $wcb_question_groups, $p->ID, 'post_meta', \WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX ),
 					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
 					'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
 					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
