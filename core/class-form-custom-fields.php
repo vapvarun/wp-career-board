@@ -188,15 +188,6 @@ final class FormCustomFields {
 			$raw_options = array();
 		}
 
-		// The Pro Field Builder stores options as a flat list (['Alpha','Beta']),
-		// while the filter contract uses a value => label map. Convert a flat
-		// list to value => value so the rendered <option value> is the choice
-		// itself, not its numeric array index.
-		if ( array_is_list( $raw_options ) && array() !== $raw_options ) {
-			$flat        = array_map( 'strval', $raw_options );
-			$raw_options = array_combine( $flat, $flat );
-		}
-
 		return array(
 			'key'         => sanitize_key( $key ),
 			'type'        => self::normalise_type( $type ),
@@ -204,8 +195,32 @@ final class FormCustomFields {
 			'required'    => ! empty( $field['required'] ),
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
-			'options'     => array_map( 'strval', $raw_options ),
+			'options'     => self::normalise_options( $raw_options ),
 		);
+	}
+
+	/**
+	 * Convert a field's raw options to a value => label map.
+	 *
+	 * The Pro Field Builder stores choices as a flat list (['Alpha','Beta']),
+	 * while the filter contract documented above uses a value => label map.
+	 * Every renderer of a `select`/`radio`/`multiselect` field — including
+	 * blocks/job-single/render.php's own apply-form loop, which doesn't go
+	 * through render_field() — must call this first, or a flat list's
+	 * numeric array index ends up as the stored answer instead of the
+	 * choice itself.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<int|string,mixed> $raw_options Raw options from a field's filter/DB row.
+	 * @return array<string,string> Value => label.
+	 */
+	public static function normalise_options( array $raw_options ): array {
+		if ( array_is_list( $raw_options ) && array() !== $raw_options ) {
+			$flat = array_map( 'strval', $raw_options );
+			return array_combine( $flat, $flat );
+		}
+		return array_map( 'strval', $raw_options );
 	}
 
 	/**

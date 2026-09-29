@@ -1221,7 +1221,11 @@ wp_interactivity_state(
 							echo '<textarea id="' . esc_attr( $wcb_id ) . '" class="wcb-field" rows="4" data-wp-on--input="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_placeholder . $wcb_required . '></textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attrs already escaped.
 					} elseif ( 'select' === $wcb_type && ! empty( $wcb_field['options'] ) && is_array( $wcb_field['options'] ) ) {
 							echo '<select id="' . esc_attr( $wcb_id ) . '" class="wcb-field" data-wp-on--change="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_required . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						foreach ( $wcb_field['options'] as $wcb_val => $wcb_label ) {
+						echo '<option value="">' . esc_html__( 'Select…', 'wp-career-board' ) . '</option>';
+						// A flat Field Builder option list (['Alpha','Beta']) would
+						// otherwise submit its numeric array index as the answer —
+						// see FormCustomFields::normalise_options().
+						foreach ( \WCB\Core\FormCustomFields::normalise_options( $wcb_field['options'] ) as $wcb_val => $wcb_label ) {
 							echo '<option value="' . esc_attr( (string) $wcb_val ) . '">' . esc_html( (string) $wcb_label ) . '</option>';
 						}
 						echo '</select>';
