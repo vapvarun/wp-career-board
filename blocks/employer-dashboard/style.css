@@ -100,11 +100,6 @@
 	display: block;
 }
 
-/* Mobile nav toggle -- hidden on desktop */
-.wcb-nav-toggle {
-	display: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.wcb-skeleton-row {
 		animation: none;
