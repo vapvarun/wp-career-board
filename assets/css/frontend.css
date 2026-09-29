@@ -128,6 +128,12 @@ html[data-bn-theme="dark"],
 	--wcb-primary-text:    var( --wcb-primary );
 	--wcb-info-fg:         #93c5fd;
 	--wcb-purple-fg:       #c4b5fd;
+
+	/* --wcb-danger-border never had a dark value, so an outlined danger
+	   control (Withdraw, Clear all) kept the light-mode pink and glowed on a
+	   dark surface. Same translucent-tint pattern as --wcb-primary-border
+	   above, derived from the already dark-appropriate -fg red. */
+	--wcb-danger-border:   color-mix( in srgb, var( --wcb-danger-fg, #f87171 ) 40%, transparent );
 }
 
 /*
@@ -177,6 +183,9 @@ html[data-bn-theme="dark"],
 	--wcb-primary-text:    var( --wcb-primary );
 		--wcb-info-fg:         #93c5fd;
 		--wcb-purple-fg:       #c4b5fd;
+
+		/* Mirror of the explicit-dark block above. */
+		--wcb-danger-border:   color-mix( in srgb, var( --wcb-danger-fg, #f87171 ) 40%, transparent );
 	}
 }
 

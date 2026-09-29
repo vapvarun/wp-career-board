@@ -288,11 +288,32 @@ button[class*="wcb-"].wcb-layout-btn.wcb-active {
 	background-color: var( --wcb-base, #ffffff ) !important;
 }
 
+/* The selected row in the applications picker: the blanket strip above was
+   also stripping its .wcb-active tint, leaving it identical to every other
+   row. Keeps the same info-tint the non-BuddyX design already uses instead
+   of falling back to a plain surface, so BuddyX isn't a third look. */
+button[class*="wcb-"].wcb-apps-job-item.wcb-active {
+	background-color: var( --wcb-info-bg, #dbeafe ) !important;
+}
+
 /* Link-style + active-toggle buttons carry the primary accent on their label. */
 button[class*="wcb-"].wcb-filter-panel__clear,
 button[class*="wcb-"].wcb-salary-popover__reset,
-button[class*="wcb-"].wcb-layout-btn.wcb-active {
-	color: var( --wcb-primary, #2563eb ) !important;
+button[class*="wcb-"].wcb-layout-btn.wcb-active,
+button[class*="wcb-"].wcb-apps-job-item.wcb-active {
+	color: var( --wcb-primary-text, #1d4ed8 ) !important;
+}
+
+/* Rating stars: the blanket strip's forced --wcb-text-primary made an
+   unrated (off) star the same brightness as a filled (on) one in BuddyX dark
+   mode (measured #f5f5f5 — an unrated applicant read as 5 stars). Restore
+   each state's own token. */
+button[class*="wcb-"].wcb-rating__star:not(.wcb-rating__star--on) {
+	color: var( --wcb-text-secondary, #667085 ) !important;
+}
+
+button[class*="wcb-"].wcb-rating__star--on {
+	color: var( --wcb-warning, #d97706 ) !important;
 }
 
 /* Danger buttons keep their danger label tone. */

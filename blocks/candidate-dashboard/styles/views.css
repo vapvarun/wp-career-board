@@ -452,7 +452,7 @@
 .wcb-cd-withdraw-btn {
 	display: none;
 	background: transparent;
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	border: 1px solid var(--wcb-danger-border, #fca5a5);
 	border-radius: var(--wcb-radius);
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
