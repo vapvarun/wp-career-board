@@ -2111,3 +2111,42 @@
 		transition: none !important;
 	}
 }
+
+/* ── Application row bits shared by both dashboards ─────────────────────────
+ * Name, job line and status badge in the overview and applications lists.
+ * One definition; the dashboard styles/ trees carry layout only. */
+.wcb-app-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-app-name {
+	display: block;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.wcb-app-job {
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-status-badge {
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	padding: 2px var(--wcb-space-sm);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-text-secondary);
+	text-transform: capitalize;
+	white-space: nowrap;
+	flex-shrink: 0;
+}

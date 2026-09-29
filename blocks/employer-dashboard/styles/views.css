@@ -55,29 +55,6 @@
 	--wcb-avatar-size: var(--wcb-space-3xl);
 }
 
-.wcb-app-info {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-app-name {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.wcb-app-job {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-}
-
 .wcb-app-email {
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-secondary);
@@ -89,22 +66,10 @@
 }
 
 /* Status badge (overview panels) */
-.wcb-status-badge {
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-semibold);
-	padding: 2px var(--wcb-space-sm);
-	border-radius: var(--wcb-radius-full);
-	background: var(--wcb-bg-hover);
-	color: var(--wcb-text-secondary);
-	text-transform: capitalize;
-	white-space: nowrap;
-	flex-shrink: 0;
-}
-
 .wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="draft"]       { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); color: var(--wcb-text-secondary); }
 .wcb-status-badge[data-status="pending"]     { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge--featured                  { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
+.wcb-status-badge.wcb-status-badge--featured                { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 
 /* Status dot */
 .wcb-status-dot {
@@ -628,7 +593,7 @@
 .wcb-board-card-move {
 	width: 100%;
 	margin-top: var(--wcb-space-xs);
-	padding: var(--wcb-space-2xs, 4px) var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-xs);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	background: var(--wcb-base);
@@ -1033,12 +998,12 @@
 /* ── Hiring-team rating and notes (W19) ────────────────────────────────── */
 .wcb-rating {
 	display: flex;
-	gap: var(--wcb-space-2xs, 2px);
+	gap: var(--wcb-space-xs);
 	margin-bottom: var(--wcb-space-sm);
 }
 
 .wcb-rating__star {
-	padding: 0 var(--wcb-space-2xs, 2px);
+	padding: 0 var(--wcb-space-xs);
 	border: 0;
 	background: none;
 	color: var(--wcb-text-secondary);

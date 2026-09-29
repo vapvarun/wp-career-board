@@ -301,47 +301,11 @@
 	border-bottom: none;
 }
 
-.wcb-app-info {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-app-name {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	text-decoration: none;
-}
-
 .wcb-app-name:hover {
 	text-decoration: underline;
 }
 
-.wcb-app-job {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
-}
-
 /* ── Status badge (overview panels) ─────────────────────────────────────── */
-.wcb-status-badge {
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-semibold);
-	padding: 2px var(--wcb-space-sm);
-	border-radius: var(--wcb-radius-full);
-	background: var(--wcb-bg-hover);
-	color: var(--wcb-text-secondary);
-	text-transform: capitalize;
-	white-space: nowrap;
-	flex-shrink: 0;
-}
-
 /* ── Job Alerts tab ────────────────────────────────────────────────────── */
 .wcb-alert-row {
 	display: flex;
