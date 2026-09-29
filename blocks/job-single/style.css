@@ -4,12 +4,12 @@
 	   sets the page's canonical content width. A local 1100px cap here made
 	   the job page narrower than the company page, which fills the shell
 	   fully — the two read as different container widths on the same site. */
-	/* No side padding of its own either: the shell already insets the page,
-	 * and a local 16px here stacked on top of it (double inset vs.
-	 * company-profile, which has none). Vertical padding stays — it's page
-	 * rhythm, not the shell's job. */
+	/* No padding of its own at all: the shell already provides the page's
+	 * vertical rhythm (24px top/bottom), and this block's own 24/48 was
+	 * stacking on top of it - header-to-hero and last-content-to-footer
+	 * measured 24-48px further than company-profile, which has none
+	 * (Basecamp 10348287589/10348287376). */
 	margin: 0 auto;
-	padding: var(--wcb-space-2xl) 0 var(--wcb-space-4xl);
 	font-family: inherit;
 	color: var(--wcb-contrast);
 }
@@ -1079,5 +1079,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	.wcb-job-details__row {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-xs);
+	}
+
+	/* Same phone step-down as company/resume's hero title - was the only
+	 * one of the three that never shrank (Basecamp 10348287589). */
+	.wcb-job-title {
+		font-size: var(--wcb-text-xl);
 	}
 }

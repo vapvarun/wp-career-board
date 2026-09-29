@@ -485,9 +485,14 @@ textarea.wcb-input {
 
 /* ── Detail-page section heading — shared across all detail surfaces ──────
  * Used by `wcb/job-single` (`.wcb-section-heading`),
- * `wcb/company-profile` (`.wcb-cp-section-title`), Pro resume-form
- * (`.wcb-rf-section-title`) — display-style heading with optional icon
- * and hairline divider.
+ * `wcb/company-profile` (`.wcb-cp-section-title`), Pro resume-single
+ * (`.wcb-rs-section-heading`) and Pro resume-form (`.wcb-rf-section-title`)
+ * — display-style heading with optional icon and hairline divider.
+ *
+ * resume-single's h2 headings used to carry a distinct small-caps
+ * "eyebrow" style instead of this one. Owner decision: uniform wins over
+ * per-page variety here too, same as the card/hero shape (Basecamp
+ * 10348287589) — no kept exceptions.
  *
  * Reign / Astra apply `.entry-content h2/h3 { margin-bottom: 0 }` at
  * specificity (0,2,1). The selectors below use `[class*="wp-block-*"]`
@@ -496,9 +501,11 @@ textarea.wcb-input {
  * reaching for `!important`. */
 [class*="wp-block-wp-career-board"] h2.wcb-section-heading,
 [class*="wp-block-wp-career-board"] h2.wcb-cp-section-title,
+[class*="wp-block-wp-career-board"] h2.wcb-rs-section-heading,
 [class*="wp-block-wp-career-board"] h2.wcb-rf-section-title,
 [class*="wp-block-wcb-"] h2.wcb-section-heading,
 [class*="wp-block-wcb-"] h2.wcb-cp-section-title,
+[class*="wp-block-wcb-"] h2.wcb-rs-section-heading,
 [class*="wp-block-wcb-"] h2.wcb-rf-section-title {
 	display: flex;
 	align-items: center;
@@ -513,29 +520,11 @@ textarea.wcb-input {
 	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
-/* Eyebrow variant — small uppercase tracked label. Used by `wcb/resume-
- * single` section headings (h2 — ABOUT / WORK EXPERIENCE / EDUCATION)
- * AND sidebar widget headings (h3 — SKILLS / LANGUAGES / CERTIFICATIONS).
- * Same specificity pattern, distinct visual style. The h3 sidebar
- * variant drops the hairline divider since the widget card itself
+/* Eyebrow variant — small uppercase tracked label, kept only for the
+ * sidebar widget h3 headings (SKILLS / LANGUAGES / CERTIFICATIONS), which
+ * this card's bounce didn't name. Same specificity pattern, distinct
+ * visual style; drops the hairline divider since the widget card itself
  * already has a border. */
-[class*="wp-block-wp-career-board"] h2.wcb-rs-section-heading,
-[class*="wp-block-wcb-"] h2.wcb-rs-section-heading {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	font-family: inherit;
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--wcb-text-secondary, #6b7280);
-	line-height: 1.2;
-	margin: 0 0 var(--wcb-space-lg);
-	padding-bottom: var(--wcb-space-md);
-	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
-}
-
 [class*="wp-block-wp-career-board"] h3.wcb-rs-aside-heading,
 [class*="wp-block-wcb-"] h3.wcb-rs-aside-heading {
 	display: flex;

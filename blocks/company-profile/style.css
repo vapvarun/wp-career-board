@@ -203,21 +203,24 @@
 .wcb-cp-body {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 320px;
-	gap: var(--wcb-space-xl);
+	gap: var(--wcb-space-2xl); /* matches job/resume's body column gap */
 	align-items: start;
 }
 
+/* No gap here: .wcb-detail-section already supplies the vertical rhythm
+ * via its own margin-bottom (same single-source approach job/resume use)
+ * - a flex gap here stacked on top of it, so sections measured 40px apart
+ * instead of 20 (Basecamp 10348287589). */
 .wcb-cp-main {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-space-xl);
 	min-width: 0;
 }
 
 .wcb-cp-sidebar {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-space-lg);
+	gap: var(--wcb-space-xl); /* matches job/resume's sidebar-card stack */
 	min-width: 0;
 }
 
