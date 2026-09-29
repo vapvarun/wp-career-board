@@ -60,10 +60,14 @@
 	color: var(--wcb-contrast, #0f172a);
 }
 
-.wcb-page-subtitle {
+/* Used as the dashboard Settings section headings (h2). The .wcb-dashboard
+ * form outranks a theme's `.entry-content h2` weight. */
+.wcb-page-subtitle,
+.wcb-dashboard .wcb-page-subtitle {
 	margin: 0;
 	font-size: var(--wcb-text-md);
-	color: var(--wcb-text-secondary, #6b7280);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-contrast, #0f172a);
 }
 
 .wcb-page-actions {
@@ -678,7 +682,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wcb-space-xs);
-	max-width: 100%;
+	/* Keep clear of the 40px save button pinned in the card's top corner, so a
+	 * long name and its tick never sit under it. */
+	max-width: calc(100% - 40px - var(--wcb-space-xs));
 	/* nowrap + a shrinkable name keeps the tick beside a long (clamped)
 	 * name instead of dropping onto its own line. */
 	flex-wrap: nowrap;
