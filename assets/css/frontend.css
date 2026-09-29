@@ -93,7 +93,8 @@ html[data-bn-theme="dark"],
 	--wcb-muted:           #94a3b8;
 	--wcb-surface:         #2a2d36;
 	--wcb-border:          #3a3d46;
-	--wcb-avatar-bg:       #0f172a;
+	/* Lifted off the dark card (#0f172a was ~1.1:1 against it). */
+	--wcb-avatar-bg:       #334155;
 
 	/* Semantic palette (frontend-tokens.css). */
 	--wcb-bg-subtle:       #16181d;
@@ -151,7 +152,7 @@ html[data-bn-theme="dark"],
 		--wcb-muted:           #94a3b8;
 		--wcb-surface:         #2a2d36;
 		--wcb-border:          #3a3d46;
-		--wcb-avatar-bg:       #0f172a;
+		--wcb-avatar-bg:       #334155;
 
 		/* Semantic palette (frontend-tokens.css). */
 		--wcb-bg-subtle:       #16181d;

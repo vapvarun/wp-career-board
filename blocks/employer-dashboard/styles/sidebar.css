@@ -170,7 +170,7 @@
  * theme/mode and went invisible on Reign dark and unfilled on BuddyX -
  * Basecamp 10345889841). */
 .wcb-sidebar-cta {
-	display: block;
+	display: flex;
 	width: calc( 100% - ( var( --wcb-space-lg ) * 2 ) );
 	margin: var(--wcb-space-lg);
 }
@@ -263,7 +263,8 @@
 	}
 
 	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
-		display: block;
+		display: flex;
+		width: calc( 100% - ( var( --wcb-space-md ) * 2 ) );
 		margin: var(--wcb-space-sm) var(--wcb-space-md);
 	}
 

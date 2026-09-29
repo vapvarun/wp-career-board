@@ -1132,7 +1132,9 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noSavedJobs">
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved jobs yet. Bookmark a job to find it here.', 'wp-career-board' ); ?></p>
+			<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved jobs', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Bookmark a job to find it here.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( home_url( '/find-jobs/' ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?></a>
 		</div>
 	</div>
@@ -1170,7 +1172,9 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noSavedCompanies">
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved companies yet. Bookmark a company to find it here.', 'wp-career-board' ); ?></p>
+			<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved companies', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Bookmark a company to find it here.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( home_url( '/companies/' ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Browse Companies', 'wp-career-board' ); ?></a>
 		</div>
 	</div>
@@ -1209,7 +1213,9 @@ wp_interactivity_state(
 		</div>
 
 		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noSavedResumes">
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'No saved resumes yet. Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
+			<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'users' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved resumes', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Bookmark a candidate to find it here.', 'wp-career-board' ); ?></p>
 			<?php if ( \WCB\Admin\Pages::url( 'resume_archive_page' ) ) : ?>
 			<a href="<?php echo esc_url( \WCB\Admin\Pages::url( 'resume_archive_page' ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Browse Candidates', 'wp-career-board' ); ?></a>
 			<?php endif; ?>

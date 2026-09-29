@@ -536,18 +536,24 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-panel-title {
+/* Scoped: the block heading reset in frontend-components.css (0,1,1)
+ * zeroed a bare .wcb-panel-title margin, so the title touched the job name. */
+.wcb-apply-panel .wcb-panel-title {
 	font-size: var(--wcb-text-2xl); /* 1.375rem ≈ 22px → 2xl (24px) */
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast);
 	margin: 0 0 var(--wcb-space-xs);
 }
 
-.wcb-panel-subtitle {
+.wcb-apply-panel .wcb-panel-subtitle {
 	font-size: 1rem; /* base body size */
 	color: var(--wcb-contrast);
 	font-weight: var(--wcb-font-semibold);
-	margin: 0 0 var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
+	margin: 0 0 var(--wcb-space-2xl);
+}
+
+.wcb-apply-panel .wcb-panel-subtitle:has(+ .wcb-panel-company) {
+	margin-bottom: var(--wcb-space-xs);
 }
 
 .wcb-panel-company {
@@ -771,10 +777,19 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-apply-or-divider {
-	text-align: center;
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
 	margin: var(--wcb-space-lg) 0 var(--wcb-space-md);
+}
+
+.wcb-apply-or-divider::before,
+.wcb-apply-or-divider::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var(--wcb-border);
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

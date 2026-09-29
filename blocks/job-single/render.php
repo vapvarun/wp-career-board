@@ -1092,7 +1092,7 @@ wp_interactivity_state(
 							</p>
 						<?php endif; ?>
 
-						<p class="wcb-apply-or-divider"><?php esc_html_e( ' -  or upload a file  - ', 'wp-career-board' ); ?></p>
+						<p class="wcb-apply-or-divider"><?php esc_html_e( 'or upload a file', 'wp-career-board' ); ?></p>
 					<?php else : ?>
 						<label class="wcb-field-label" for="wcb-resume-file">
 						<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
