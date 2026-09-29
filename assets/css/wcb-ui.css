@@ -1756,6 +1756,12 @@ textarea.wcb-input {
    candidate shell was framed, the employer one was not; panel titles, links
    and the notification rows used different tokens). The shell is the only
    frame; tab content sits directly in it and cards are the level below. */
+.wcb-dashboard {
+	font-family: inherit;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast);
+}
+
 .wcb-dashboard-shell {
 	display: flex;
 	min-height: 600px;
@@ -1853,6 +1859,22 @@ textarea.wcb-input {
 
 .wcb-dashboard .wcb-main .wcb-panel-link:hover {
 	text-decoration: underline;
+}
+
+/* Account and password save feedback. */
+.wcb-account-msg {
+	margin: 0 0 var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border-radius: var(--wcb-radius-md);
+	font-size: var(--wcb-text-sm);
+}
+.wcb-account-msg[data-type="success"] {
+	background: var(--wcb-success-bg, #f0fdf4);
+	color: var(--wcb-success-fg, #166534);
+}
+.wcb-account-msg[data-type="error"] {
+	background: var(--wcb-danger-bg-soft, #fef2f2);
+	color: var(--wcb-danger-fg, #991b1b);
 }
 
 /* Notifications tab: an action bar, then divider rows. */

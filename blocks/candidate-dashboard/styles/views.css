@@ -48,7 +48,7 @@
 	display: block;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 	margin: 0;
 	white-space: nowrap;
 	overflow: hidden;
@@ -61,7 +61,7 @@
 }
 
 .wcb-cd-app-title a:hover {
-	color: var( --wcb-blue );
+	color: var(--wcb-primary);
 	text-decoration: underline;
 }
 
@@ -73,7 +73,7 @@
 
 .wcb-cd-app-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-muted);
+	color: var(--wcb-text-tertiary);
 }
 
 /* ── Status badge ─────────────────────────────────────────────────────────── */
@@ -120,7 +120,7 @@
 .wcb-cd-bookmark-title {
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 	margin: 0;
 }
 
@@ -130,7 +130,7 @@
 }
 
 .wcb-cd-bookmark-title a:hover {
-	color: var( --wcb-blue );
+	color: var(--wcb-primary);
 	text-decoration: underline;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .wcb-cd-bookmark-meta-sep {
-	color: var( --wcb-text-muted );
+	color: var(--wcb-text-tertiary);
 }
 
 .wcb-cd-bookmark-actions {
@@ -189,7 +189,7 @@
 
 .wcb-resume-cap-info {
 	font-size: var(--wcb-text-sm);
-	color: var( --wcb-text-muted );
+	color: var(--wcb-text-tertiary);
 }
 
 @media (max-width: 640px) {
@@ -242,7 +242,7 @@
 	display: block;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -250,7 +250,7 @@
 
 .wcb-resume-card-date {
 	font-size: var(--wcb-text-xs);
-	color: var( --wcb-text-muted );
+	color: var(--wcb-text-tertiary);
 }
 
 .wcb-resume-card-actions {
@@ -313,7 +313,7 @@
 	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -326,7 +326,7 @@
 
 .wcb-app-job {
 	font-size: var(--wcb-text-xs);
-	color: var( --wcb-text-muted );
+	color: var(--wcb-text-tertiary);
 }
 
 /* ── Status badge (overview panels) ─────────────────────────────────────── */
@@ -413,7 +413,7 @@
 	display: block;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 	margin-bottom: var(--wcb-space-xs);
 }
 
@@ -454,7 +454,7 @@
 	background: transparent;
 	color: var(--wcb-danger-fg, #991b1b);
 	border: 1px solid var(--wcb-danger-border, #fca5a5);
-	border-radius: var(--wcb-radius);
+	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);

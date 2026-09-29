@@ -17,16 +17,9 @@
  * @since   1.2.2
  */
 
-/* -- Design tokens --
-   No wrapper font-size: the dashboard inherits the theme's body size like every
-   other WCB page (components set their own size via --wcb-text-* tokens). The
-   logged-out gate is styled by the shared .wcb-db-gate in frontend-components.css. */
-.wcb-dashboard {
-	font-family: inherit;
-	color: var(--wcb-contrast);
-}
-
-/* The shell (.wcb-dashboard-shell) is shared: assets/css/wcb-ui.css. */
+/* The base (.wcb-dashboard) and the shell are shared with the candidate
+   dashboard: assets/css/wcb-ui.css. The logged-out gate is the shared
+   .wcb-db-gate in frontend-components.css. */
 
 /* -- Interactivity API show/hide utilities -- */
 .wcb-shown  { display: block; }
@@ -76,7 +69,7 @@
 .wcb-db-onboard__title {
 	margin: 0;
 	font-weight: 600;
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 }
 
 .wcb-db-onboard__msg {

@@ -42,25 +42,6 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	display: none !important;
 }
 
-/*
- * Local aliases used throughout this block. --wcb-bg-subtle, --wcb-text-secondary
- * and --wcb-bg-hover are NOT re-declared here — they cascade from the :root
- * definitions in frontend-tokens.css and the html.dark-mode overrides in
- * frontend.css, so both dashboards flip colors consistently in dark mode.
- */
-.wcb-dashboard {
-	--wcb-text-primary: var(--wcb-contrast, var(--wp--preset--color--wcb-contrast));
-	--wcb-text-muted:   var(--wcb-text-tertiary);
-	--wcb-blue:         var(--wcb-primary, var(--wp--preset--color--wcb-primary));
-	--wcb-radius:       var(--wcb-radius-md);
-	font-family: inherit;
-	/* Match the shared block base (var(--wcb-text-base)) used by every other WCB
-	   block, incl. the employer dashboard, so the two dashboards are pixel-for-pixel
-	   uniform. Was `1rem`, which overrode the global base and caused a font-size jump. */
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-primary);
-}
-
 /* `[hidden]` toggle for data-wp-bind--hidden. (0,2,1) wins over the
  * (0,1,0) `display: flex` rules below on specificity alone. */
 .wp-block-wp-career-board-candidate-dashboard [hidden] {
@@ -98,7 +79,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	margin: 0 0 var(--wcb-space-lg);
 	font-size: var(--wcb-text-lg);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 }
 
 .wcb-recommends-grid {
@@ -140,7 +121,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 .wcb-rec-title {
 	font-size: var(--wcb-text-md);
 	font-weight: 600;
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 }
 
 .wcb-rec-company,

@@ -897,11 +897,9 @@
 }
 
 /* -- Company profile form -- */
+/* The form sits directly in the tab; the shell is the only frame. */
 .wcb-profile-form {
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-3xl);
+	padding: 0;
 }
 
 .wcb-profile-form-title {
