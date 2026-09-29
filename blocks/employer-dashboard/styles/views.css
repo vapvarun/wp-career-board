@@ -812,7 +812,7 @@
 	overflow-wrap: anywhere;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	.wcb-app-answer {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-xs);
@@ -985,7 +985,7 @@
 	display: inline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.wcb-split-panel.wcb-shown {
 		display: flex;
 		flex-direction: column;

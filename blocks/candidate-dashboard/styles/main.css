@@ -25,9 +25,8 @@
 	min-width: 0;
 }
 
-/* Matches the employer dashboard's tablet step - without it .wcb-main kept
- * its full 32px padding down to 640px, where employer already narrows it. */
-@media (max-width: 768px) {
+/* Matches the employer dashboard's tablet step. */
+@media (max-width: 1024px) {
 	.wcb-main {
 		padding: var(--wcb-space-xl);
 	}
@@ -133,6 +132,16 @@
 	gap: var(--wcb-space-xl);
 }
 
+/* Stacks in lockstep with the sidebar-to-dropdown collapse (sidebar.css,
+ * same 1024 breakpoint) - before this fix, .wcb-two-col only collapsed at
+ * 640, so between 641-1024 the sidebar was already gone (main full width)
+ * but the grid stayed two cramped columns (Basecamp 10348289393). */
+@media (max-width: 1024px) {
+	.wcb-two-col {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* ── Overview: Panel title / link / empty (panel-header lives globally) ──── */
 .wcb-panel-title {
 	font-size: var(--wcb-text-base);
@@ -166,9 +175,5 @@
 	 * and crushed the stat-tile grid to ~110px columns. */
 	.wcb-main {
 		padding: var(--wcb-space-xl) 0;
-	}
-
-	.wcb-two-col {
-		grid-template-columns: minmax(0, 1fr);
 	}
 }

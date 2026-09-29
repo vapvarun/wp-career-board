@@ -137,7 +137,12 @@
 	text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+	/* Stacks in lockstep with the sidebar-to-dropdown collapse (sidebar.css,
+	 * same 1024 breakpoint) — before this fix, .wcb-two-col only collapsed
+	 * at 768, so between 769-1024 the sidebar was already gone (main full
+	 * width) but the grid stayed two cramped ~332px columns with wrapped
+	 * titles (Basecamp 10348289393). */
 	.wcb-two-col {
 		grid-template-columns: minmax(0, 1fr);
 	}

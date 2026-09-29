@@ -241,7 +241,7 @@ textarea.wcb-field {
 	align-items: stretch;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1024px) {
 	.wcb-salary-row {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
@@ -601,7 +601,7 @@ textarea.wcb-field {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.wcb-step__label {
 		display: none;
 	}

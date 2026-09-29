@@ -998,7 +998,7 @@ select.wcb-field {
 	max-width: var(--wcb-container-max-width, 1280px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 
 	.wcb-archive-shell {
 		padding: var(--wcb-space-xl) var(--wcb-space-md);

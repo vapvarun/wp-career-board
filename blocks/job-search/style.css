@@ -124,7 +124,7 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	/* Stacked: drop the joined-pill chrome (single border + overflow clip)
 	 * so the field and the Search button read as two distinct controls with
 	 * a gap between them, rather than one fused two-tone slab. */
