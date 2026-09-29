@@ -1992,6 +1992,10 @@
 	color: inherit;
 }
 
+.wcb-bell-item__link[hidden] {
+	display: none;
+}
+
 .wcb-bell-item__delete {
 	flex: 0 0 auto;
 	display: inline-flex;
