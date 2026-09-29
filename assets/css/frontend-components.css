@@ -583,7 +583,7 @@
 	width: auto;
 	max-width: 240px;
 	flex-shrink: 0;
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-contrast);
