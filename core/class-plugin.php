@@ -115,6 +115,7 @@ final class Plugin {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
+		add_action( 'init', array( $this, 'register_block_templates' ) );
 		add_action( 'init', array( $this, 'register_patterns' ) );
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
@@ -382,6 +383,58 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
+		}
+	}
+
+	/**
+	 * Archive templates for block themes.
+	 *
+	 * On a classic or hybrid theme the jobs and companies archives use the PHP
+	 * templates in templates/. A block theme renders its own canvas instead, and
+	 * its generic archive.html printed a blog-style loop of full job posts under
+	 * "Archives: Jobs" (Basecamp 10348287376). A theme file with the same slug
+	 * (archive-wcb_job.html) still takes priority over these.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function register_block_templates(): void {
+		if ( ! function_exists( 'register_block_template' ) || ! \WCB\Core\TemplateOverride::block_theme() ) {
+			return;
+		}
+
+		// Start from the theme's own page.html so the archive gets exactly the
+		// spacing and chrome of the Find Jobs / Companies pages on that theme.
+		// Its post title and featured image go: on an archive they would print
+		// the first job's.
+		$page   = get_block_template( get_stylesheet() . '//page' );
+		$canvas = $page && str_contains( $page->content, '<!-- wp:post-content' )
+			? (string) preg_replace( '#<!-- wp:post-(?:title|featured-image)\b[^>]*/-->#', '', $page->content )
+			: '<!-- wp:template-part {"slug":"header","tagName":"header"} /-->'
+				. '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group"><!-- wp:post-content /--></main><!-- /wp:group -->'
+				. '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->';
+
+		$archives = array(
+			'archive-wcb_job'     => array( __( 'Job Archive', 'wp-career-board' ), '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' ),
+			'archive-wcb_company' => array( __( 'Company Archive', 'wp-career-board' ), '<!-- wp:wp-career-board/company-archive /-->' ),
+		);
+
+		// The block goes where post-content was, inside a group with the same
+		// attributes and classes, so it keeps that wrapper's padding and width.
+		preg_match( '#<!-- wp:post-content\b\s*(\{.*?\})?\s*/-->#', $canvas, $match );
+		$attrs              = isset( $match[1] ) ? (array) json_decode( $match[1], true ) : array();
+		$attrs['className'] = 'entry-content wp-block-post-content';
+		$classes            = 'wp-block-group entry-content wp-block-post-content' . ( empty( $attrs['align'] ) ? '' : ' align' . $attrs['align'] );
+
+		foreach ( $archives as $slug => list( $title, $block ) ) {
+			$wrapped = '<!-- wp:group ' . wp_json_encode( $attrs ) . ' --><div class="' . esc_attr( $classes ) . '">' . $block . '</div><!-- /wp:group -->';
+			register_block_template(
+				'wp-career-board//' . $slug,
+				array(
+					'title'   => $title,
+					'content' => (string) preg_replace( '#<!-- wp:post-content\b[^>]*/-->#', $wrapped, $canvas, 1 ),
+				)
+			);
 		}
 	}
 

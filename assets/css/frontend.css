@@ -200,6 +200,13 @@ html[data-bn-theme="dark"],
 	display: none !important;
 }
 
+/* A display:none title still counts as the first child, so a block theme's
+ * blockGap stayed on the content under it (19px more than the same page's
+ * archive on Twenty Twenty-Five). */
+.wcb-page .wp-block-post-title:not(.wp-block-post-template .wp-block-post-title) + * {
+	margin-block-start: 0;
+}
+
 /* Suppress the theme sidebar on WCB app / archive pages. */
 .wcb-page #secondary,
 .wcb-page .widget-area,
@@ -228,6 +235,15 @@ html[data-bn-theme="dark"],
    of our blocks; the theme's gap still applies next to its own blocks. */
 body :is(.is-layout-constrained, .is-layout-flow) > :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) {
 	margin-block-start: var(--wcb-space-lg);
+}
+
+/* Block themes also append post meta, previous/next links and a "More posts"
+   query after the content of any single. On a job, company or resume page
+   those point at unrelated blog posts, so everything the theme adds after the
+   post content is hidden (the site footer is outside main and unaffected). */
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-post-content ~ *,
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) main > :has(.wp-block-post-content) ~ * {
+	display: none;
 }
 
 /* Block themes (Twenty Twenty-Five) print their own title and an author/date byline
