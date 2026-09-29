@@ -637,7 +637,16 @@ const { state } = store(
 						state.step++;
 					}
 				} finally {
-					state.stepping = false;
+					// Every step but 1 has no yield above, so this generator would
+					// otherwise run start-to-finish inside one synchronous click
+					// dispatch and clear the guard before a second, same-tick
+					// click is even processed (Basecamp 10348706675 follow-up:
+					// two clicks at step 2 skipped straight to Preview). Defer
+					// the release past the current script/microtask queue so it
+					// still catches that case.
+					requestAnimationFrame( () => {
+						state.stepping = false;
+					} );
 				}
 			},
 
