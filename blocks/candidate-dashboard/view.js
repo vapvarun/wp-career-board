@@ -103,6 +103,49 @@ function formatNumber( value ) {
 }
 
 /**
+ * Format a UTC MySQL datetime ("2026-09-28 17:24:41") as a short relative
+ * time ("2h ago", "3d ago") against the SITE locale, falling back to a
+ * localised absolute date once it's more than a week old. Bell notifications
+ * bound the raw string directly with no formatting at all.
+ *
+ * @param {string} mysqlUtc UTC datetime as returned by current_time('mysql', true).
+ * @return {string} Human-readable relative or absolute time, '' if unparsable.
+ */
+function formatRelativeTime( mysqlUtc ) {
+	if ( ! mysqlUtc ) {
+		return '';
+	}
+	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
+	if ( Number.isNaN( then.getTime() ) ) {
+		return '';
+	}
+	const seconds = ( Date.now() - then.getTime() ) / 1000;
+	const locale  = state.locale || 'en-US';
+	if ( seconds < 7 * 86400 ) {
+		const units = [ [ 60, 'second' ], [ 60, 'minute' ], [ 24, 'hour' ], [ 7, 'day' ] ];
+		let value = seconds;
+		let unit  = 'second';
+		for ( const [ size, name ] of units ) {
+			if ( Math.abs( value ) < size ) {
+				break;
+			}
+			value /= size;
+			unit   = name;
+		}
+		try {
+			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		} catch {
+			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		}
+	}
+	try {
+		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
+	} catch {
+		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
+	}
+}
+
+/**
  * Resolve the CLDR plural category ('one', 'other', …) for a count against the
  * SITE locale. Used so plural nouns agree with a number that changes after
  * render (e.g. the resume count), which a PHP-frozen `_n()` cannot track.
@@ -1252,7 +1295,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				} );
 				if ( res.ok ) {
 					const data              = yield res.json();
-					state.bellNotifications = data.notifications || [];
+					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: formatRelativeTime( n.created_at ) } ) );
 					state.bellUnreadCount   = data.unread_count  || 0;
 				}
 			} finally {
