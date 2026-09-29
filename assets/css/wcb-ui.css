@@ -427,7 +427,8 @@
 	resize: vertical;
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
 	-webkit-appearance: none;
 	appearance: none;
 	padding-inline-end: var(--wcb-space-3xl);
@@ -438,7 +439,8 @@
 	cursor: pointer;
 }
 
-[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
+[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
 	background-position: left var(--wcb-space-md) center;
 }
 
