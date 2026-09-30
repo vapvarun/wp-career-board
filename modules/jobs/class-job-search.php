@@ -247,23 +247,12 @@ final class JobSearch {
 				'value' => '1',
 			);
 		}
-		// A range overlaps the job's pay: its top reaches the minimum asked for,
-		// its bottom is under the maximum.
+		// Salary range: applied in clauses() on yearly amounts (see salary_sql()).
 		if ( ! empty( $params['salary_min'] ) ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_salary_max',
-				'value'   => (int) $params['salary_min'],
-				'compare' => '>=',
-				'type'    => 'NUMERIC',
-			);
+			$args['wcb_salary_min'] = (int) $params['salary_min'];
 		}
 		if ( ! empty( $params['salary_max'] ) ) {
-			$args['meta_query'][] = array(
-				'key'     => '_wcb_salary_min',
-				'value'   => (int) $params['salary_max'],
-				'compare' => '<=',
-				'type'    => 'NUMERIC',
-			);
+			$args['wcb_salary_max'] = (int) $params['salary_max'];
 		}
 		if ( ! empty( $params['company'] ) ) {
 			$args['meta_query'][] = array(
@@ -355,13 +344,18 @@ final class JobSearch {
 	 * @return array<string, string>
 	 */
 	public static function clauses( array $clauses, \WP_Query $query ): array {
-		$term = (string) $query->get( 'wcb_search_term' );
-		$sort = (string) $query->get( 'wcb_sort' );
-		if ( ( '' === $term && '' === $sort ) || 'wcb_job' !== $query->get( 'post_type' ) ) {
+		$term       = (string) $query->get( 'wcb_search_term' );
+		$sort       = (string) $query->get( 'wcb_sort' );
+		$salary_min = (int) $query->get( 'wcb_salary_min' );
+		$salary_max = (int) $query->get( 'wcb_salary_max' );
+		if ( ( '' === $term && '' === $sort && ! $salary_min && ! $salary_max ) || 'wcb_job' !== $query->get( 'post_type' ) ) {
 			return $clauses;
 		}
 		global $wpdb;
 		$posts = $wpdb->posts;
+		if ( $salary_min || $salary_max ) {
+			$clauses = self::salary_clauses( $clauses, $salary_min, $salary_max );
+		}
 		$score = array();
 		$words = self::words( $term );
 		// A keyword with no word of 2+ characters ("C", "R") is nothing to search
@@ -394,13 +388,93 @@ final class JobSearch {
 			// Compared per year: $150-200 an hour is more than $50k a year.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_su ON ( wcb_su.post_id = {$posts}.ID AND wcb_su.meta_key = '_wcb_salary_type' )";
-			$clauses['orderby'] = "CAST( wcb_sal.meta_value AS DECIMAL(12,2) ) * CASE wcb_su.meta_value WHEN 'hourly' THEN 2080 WHEN 'monthly' THEN 12 ELSE 1 END DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['orderby'] = self::yearly_sql( 'wcb_sal.meta_value', 'wcb_su.meta_value' ) . " DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'closing' === $sort ) {
 			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
 			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'Y-m-d' ) );
 		}
 		return $clauses;
+	}
+
+	/**
+	 * SQL for a pay figure as a yearly amount, from SalaryFormat::PERIOD_FACTORS.
+	 *
+	 * @param string $value_col Column holding the figure.
+	 * @param string $type_col  Column holding the pay period.
+	 * @return string
+	 */
+	private static function yearly_sql( string $value_col, string $type_col ): string {
+		$cases = '';
+		foreach ( \WCB\Core\SalaryFormat::PERIOD_FACTORS as $type => $factor ) {
+			$cases .= " WHEN '" . esc_sql( $type ) . "' THEN " . (int) $factor;
+		}
+		return "( CAST( {$value_col} AS DECIMAL(14,2) ) * CASE {$type_col}{$cases} ELSE 1 END )";
+	}
+
+	/**
+	 * Salary range on yearly amounts: the job's pay overlaps the range (its top
+	 * reaches the minimum, its bottom is under the maximum). A job with only
+	 * one figure uses it for both ends; a job with no figure is left out.
+	 * Only jobs paid in the site's default currency match, because the
+	 * sliders are in that currency and there are no exchange rates to convert
+	 * with.
+	 *
+	 * @param array<string, string> $clauses Clauses.
+	 * @param int                   $min     Yearly minimum, or 0.
+	 * @param int                   $max     Yearly maximum, or 0.
+	 * @return array<string, string>
+	 */
+	private static function salary_clauses( array $clauses, int $min, int $max ): array {
+		global $wpdb;
+		$posts = $wpdb->posts;
+		foreach ( array(
+			'wcb_fmin' => '_wcb_salary_min',
+			'wcb_fmax' => '_wcb_salary_max',
+			'wcb_ftyp' => '_wcb_salary_type',
+			'wcb_fcur' => '_wcb_salary_currency',
+		) as $alias => $key ) {
+			$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} {$alias} ON ( {$alias}.post_id = {$posts}.ID AND {$alias}.meta_key = '{$key}' )";
+		}
+		$top    = self::yearly_sql( "COALESCE( NULLIF( wcb_fmax.meta_value, '' ), NULLIF( wcb_fmin.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
+		$bottom = self::yearly_sql( "COALESCE( NULLIF( wcb_fmin.meta_value, '' ), NULLIF( wcb_fmax.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
+
+		$clauses['where'] .= " AND {$top} > 0";
+		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) );
+		if ( $min ) {
+			$clauses['where'] .= $wpdb->prepare( " AND {$top} >= %d", $min ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $top is built from fixed aliases and constants.
+		}
+		if ( $max ) {
+			$clauses['where'] .= $wpdb->prepare( " AND {$bottom} <= %d", $max ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $bottom is built from fixed aliases and constants.
+		}
+		return $clauses;
+	}
+
+	/**
+	 * Whether one job passes a salary range, by the same rules as the list
+	 * (salary_clauses()). Used where a single job is matched, e.g. job alerts.
+	 *
+	 * @since 1.8.0
+	 * @param int $job_id Job.
+	 * @param int $min    Yearly minimum, or 0.
+	 * @param int $max    Yearly maximum, or 0.
+	 * @return bool
+	 */
+	public static function salary_matches( int $job_id, int $min, int $max ): bool {
+		if ( ! $min && ! $max ) {
+			return true;
+		}
+		$lo       = (string) get_post_meta( $job_id, '_wcb_salary_min', true );
+		$hi       = (string) get_post_meta( $job_id, '_wcb_salary_max', true );
+		$type     = (string) get_post_meta( $job_id, '_wcb_salary_type', true );
+		$currency = strtoupper( (string) get_post_meta( $job_id, '_wcb_salary_currency', true ) );
+		if ( '' !== $currency && strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) !== $currency ) {
+			return false;
+		}
+		$top    = \WCB\Core\SalaryFormat::yearly( (float) ( '' !== $hi ? $hi : $lo ), $type );
+		$bottom = \WCB\Core\SalaryFormat::yearly( (float) ( '' !== $lo ? $lo : $hi ), $type );
+
+		return $top > 0 && ( ! $min || $top >= $min ) && ( ! $max || $bottom <= $max );
 	}
 
 	/**

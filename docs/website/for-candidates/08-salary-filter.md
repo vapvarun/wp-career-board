@@ -17,6 +17,8 @@ A job matches when its pay range overlaps yours: its top figure reaches your min
 
 ## Periods and currency
 
-The filter compares the numbers employers entered, without converting between yearly, monthly and hourly pay or between currencies. A job listed at 25 per hour is not compared as a yearly figure. The **Highest salary** sort does convert pay to a yearly amount, so use it to compare jobs with different pay periods.
+The filter compares pay per year, the same way the **Highest salary** sort does: hourly pay counts as 2,080 hours a year and monthly pay as 12 months. A job paying 40 per hour (about 83,000 a year) matches a minimum of 80,000; a job paying 3,000 a month (36,000 a year) does not.
 
-The slider labels use the site's default currency, set under **Career Board → Settings → Jobs → Default Salary Currency**. Each job card still shows the job's own currency.
+The slider labels use the site's default currency, set under **Career Board → Settings → Jobs → Default Salary Currency**. While a salary filter is on, only jobs paid in that currency match, because the plugin has no exchange rates to convert with. Each job card still shows the job's own currency.
+
+Job alerts that include a salary range use the same rules, so an alert sends the same jobs the saved search showed.

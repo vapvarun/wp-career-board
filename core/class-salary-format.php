@@ -32,6 +32,31 @@ defined( 'ABSPATH' ) || exit;
 final class SalaryFormat {
 
 	/**
+	 * Pay periods as a yearly multiple: 40 hours x 52 weeks, 12 months. The
+	 * one place pay is converted, for the salary filter, the salary sort and
+	 * job-alert matching alike.
+	 *
+	 * @since 1.8.0
+	 */
+	public const PERIOD_FACTORS = array(
+		'hourly'  => 2080,
+		'monthly' => 12,
+		'yearly'  => 1,
+	);
+
+	/**
+	 * A pay figure as a yearly amount. An unknown period counts as yearly.
+	 *
+	 * @since 1.8.0
+	 * @param float  $amount Figure the employer entered.
+	 * @param string $type   Pay period: hourly, monthly or yearly.
+	 * @return float
+	 */
+	public static function yearly( float $amount, string $type ): float {
+		return $amount * ( self::PERIOD_FACTORS[ $type ] ?? 1 );
+	}
+
+	/**
 	 * Resolve a currency code to its display symbol.
 	 *
 	 * Falls back to the uppercased code plus a space (e.g. "PLN ") when the

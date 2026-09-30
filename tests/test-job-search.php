@@ -201,6 +201,19 @@ $wcb_yearly = wcb_jsx_job( "{$wcb_t2} Yearly", 'x', array( '_wcb_salary_max' => 
 $wcb_hourly = wcb_jsx_job( "{$wcb_t2} Hourly", 'x', array( '_wcb_salary_max' => 200, '_wcb_salary_type' => 'hourly' ) );
 wcb_assert( array( $wcb_hourly, $wcb_yearly ) === array_values( array_intersect( $wcb_ids( array( 'search' => $wcb_t2, 'sort' => 'salary' ) ), array( $wcb_hourly, $wcb_yearly ) ) ), 'Highest salary: $200 an hour ranks above $50k a year' );
 
+// The salary filter compares per year too, in the site's currency only (card 10354651508).
+$wcb_site_cur = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
+$wcb_monthly  = wcb_jsx_job( "{$wcb_t2} Monthly", 'x', array( '_wcb_salary_min' => 3000, '_wcb_salary_max' => 4000, '_wcb_salary_type' => 'monthly' ) );
+$wcb_foreign  = wcb_jsx_job( "{$wcb_t2} Foreign", 'x', array( '_wcb_salary_min' => 90000, '_wcb_salary_max' => 95000, '_wcb_salary_type' => 'yearly', '_wcb_salary_currency' => 'EUR' === $wcb_site_cur ? 'GBP' : 'EUR' ) );
+$wcb_in       = static fn ( array $params ): array => array_values( array_intersect( $wcb_ids( $params + array( 'search' => $wcb_t2 ) ), array( $wcb_hourly, $wcb_yearly, $wcb_monthly, $wcb_foreign ) ) );
+wcb_assert( array( $wcb_hourly ) === $wcb_in( array( 'salary_min' => 80000 ) ), 'salary filter: $200 an hour passes a $80k-a-year minimum; $50k a year and $4k a month do not' );
+wcb_assert( array( $wcb_monthly ) === $wcb_in( array( 'salary_max' => 45000 ) ), 'salary filter: $3k-4k a month ($36k-48k a year) passes a $45k maximum' );
+wcb_assert( ! in_array( $wcb_foreign, $wcb_in( array( 'salary_min' => 1 ) ), true ), 'salary filter: a job paid in another currency is left out' );
+wcb_assert( \WCB\Modules\Jobs\JobSearch::salary_matches( $wcb_hourly, 80000, 0 ) && ! \WCB\Modules\Jobs\JobSearch::salary_matches( $wcb_foreign, 1, 0 ), 'salary_matches() (job alerts) agrees with the list' );
+foreach ( array( $wcb_monthly, $wcb_foreign ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+
 // The REST list uses the owner's Jobs per page when the client sends none.
 $wcb_settings = get_option( 'wcb_settings', array() );
 update_option( 'wcb_settings', array_merge( (array) $wcb_settings, array( 'jobs_per_page' => 7 ) ) );
