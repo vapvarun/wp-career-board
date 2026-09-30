@@ -102,6 +102,12 @@ A large reliability, safety and presentation release: one rule per job, applicat
 * Security - Employers cannot apply to jobs, required questions are enforced on the server, and apply and notes are protected against double submission.
 * Security - Banned employers' listings stay hidden, suspended candidates and hidden companies are off the REST API, and only established reporters count toward auto-hide.
 * Security - Personal data export and erasure cover every Career Board record, and deleted accounts anonymise their applications.
+* Security - Signed-out visitors can no longer list guest applications through the candidate applications endpoint.
+* Security - Employers can no longer publish a job past moderation by closing and reopening it.
+* Security - Guest applications move to a new account only after that account confirms its email address.
+* Security - The private file link serves only candidate files, not other attachments.
+* Security - The job and company blocks no longer show unpublished posts named in a shortcode.
+* Security - Bulk Approve on the Jobs screen only acts on jobs.
 * Dev      - Community notification contract so a notification center gets one signal per event, and every status change fires wcb_application_status_updated.
 * Dev      - Hooks for custom field details and filter chips.
 * Dev      - RTL stylesheets are generated at build time.
