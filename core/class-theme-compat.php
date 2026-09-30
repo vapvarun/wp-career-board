@@ -89,7 +89,10 @@ final class ThemeCompat {
 		add_action(
 			'init',
 			static function () use ( $handle, $src, $deps ): void {
-				wp_register_style( $handle, $src, $deps, WCB_VERSION );
+				// $deps only orders this after the theme's frontend stylesheet. The
+				// block and site editors never register that handle, so there the
+				// dependency is dropped instead of logging a missing-dependency notice.
+				wp_register_style( $handle, $src, is_admin() ? array() : $deps, WCB_VERSION );
 
 				foreach ( array_keys( \WP_Block_Type_Registry::get_instance()->get_all_registered() ) as $block_name ) {
 					if ( ! self::is_wcb_block( (string) $block_name ) ) {
