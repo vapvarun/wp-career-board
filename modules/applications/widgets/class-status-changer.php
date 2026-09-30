@@ -50,7 +50,7 @@ final class StatusChanger extends AbstractWidget {
 	 * @return string
 	 */
 	public function ability(): string {
-		return 'wcb_view_applications';
+		return 'wcb/view-applications';
 	}
 
 	/**
