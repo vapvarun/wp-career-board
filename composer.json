@@ -43,10 +43,15 @@
             "@dead-code",
             "@manifest-consistency",
             "@qa-coverage",
-            "@qa-portability"
+            "@qa-portability",
+            "@rest-reachability",
+            "@openapi-fresh"
         ],
         "journeys": "bin/run-journeys.sh --priority=critical",
         "journeys:routes": "wp eval-file bin/check-journey-routes.php",
+        "rest-reachability": "wp eval-file tests/audit/rest-reachability.php",
+        "openapi": "wp eval-file bin/gen-openapi.php",
+        "openapi-fresh": "wp eval-file bin/gen-openapi.php && git diff --exit-code -- docs/api/openapi.json",
         "journeys:dry-run": "bin/run-journeys.sh --dry-run",
         "journeys:list": "bin/run-journeys.sh --list",
         "journeys:stale": "bin/run-journeys.sh --audit-stale",

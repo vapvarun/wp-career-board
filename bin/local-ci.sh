@@ -108,6 +108,18 @@ else
 	printf "  ${DIM}skip   ${RESET} qa-portability (bin/check-qa-portability.sh missing)\n"
 fi
 
+# 6. REST API (runtime; needs this checkout inside a live WP install with the
+#    plugin active - run on the free + pro combo install). 6a dispatches every
+#    GET this plugin owns (no 5xx) and asserts a permission_callback on every
+#    route; 6b regenerates docs/api/openapi.json and fails if the committed
+#    catalogue is stale.
+if command -v wp > /dev/null 2>&1 && wp core is-installed > /dev/null 2>&1; then
+	run_step "rest-reachability" 'wp eval-file tests/audit/rest-reachability.php' || failed=$((failed+1))
+	run_step "openapi-fresh" 'wp eval-file bin/gen-openapi.php && git diff --exit-code -- docs/api/openapi.json' || failed=$((failed+1))
+else
+	printf "  ${DIM}skip   ${RESET} rest-reachability + openapi-fresh (no live WP install reachable)\n"
+fi
+
 printf "\n"
 if [ "$failed" -eq 0 ]; then
 	printf "${GREEN}${BOLD}ALL GREEN${RESET} — safe to push\n"
