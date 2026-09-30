@@ -1,0 +1,125 @@
+{
+  "mode": "combo",
+  "release_version": "1.8.0",
+  "pro_version": "1.8.0",
+  "ran_at": "2026-09-30T08:35:31Z",
+  "walked_heads": {
+    "free": "b520001 (walk began on 19244f4; c2453ed, a089f71, b520001 landed mid-walk and were live in the served tree)",
+    "pro": "557bfba (walk began on 69eda3e; c24f320, 648ef21, 557bfba landed mid-walk)"
+  },
+  "environment": {
+    "site": "http://wp-career-board.local (Local, reign-theme, PHP 8.2 web / wp-cli on PHP 8.5)",
+    "browser": "claude-in-chrome (Playwright MCP disconnected); window was not foregrounded, so requestAnimationFrame and CSS animations were throttled - 390px checks ran in a same-origin 390x844 iframe",
+    "wp_debug": "WP_DEBUG + WP_DEBUG_LOG enabled for the walk, wp-config.php restored afterwards",
+    "contract_audit": "0 errors, 34 warnings, 39 info, 16 baselined (exit 0)"
+  },
+  "sections": {
+    "A_fresh_install":     { "pass": 2, "fail": 0, "skipped": 1 },
+    "B_upgrade":           { "pass": 0, "fail": 0, "skipped": 1 },
+    "C_core_flows":        { "pass": 14, "fail": 1, "skipped": 3 },
+    "D_regression_guards": { "pass": 14, "fail": 0, "skipped": 10 },
+    "E_extensions":        { "pass": 5, "fail": 0, "skipped": 9 },
+    "F_cross_browser":     { "pass": 1, "fail": 0, "skipped": 3 }
+  },
+  "results": [
+    { "id": "A.activation.first-request", "result": "pass", "evidence": "home + /find-jobs/ 200 on first request; rewrite_rules contain wcb_job" },
+    { "id": "A.db.tables-and-version", "result": "pass", "evidence": "15 wcb tables = 3 Free + 9 Pro + 2 SDK + legacy wcb_job_boards residue; wcb_db_version 1.3.7 = Install::DB_VERSION, wcbp_db_version 1.13 = ProInstall::DB_VERSION" },
+    { "id": "A.pro.pairs-cleanly", "result": "skipped", "reason": "Free deactivation not run on a site shared with a concurrent agent; lockstep verified (WCB_VERSION = WCBP_VERSION = 1.8.0)" },
+    { "id": "B.migration.silent", "result": "skipped", "reason": "no prior-version zip install in this env" },
+    { "id": "C.anon.home", "result": "pass", "evidence": "13 jobs listed, Login + Employer Registration CTAs, no horizontal scroll" },
+    { "id": "C.anon.search", "result": "pass", "evidence": "'Engineer' -> 7 matching titles; gibberish -> 'No jobs match your filters' empty state; category=Design -> 1 job (Product Designer) with removable chip" },
+    { "id": "C.anon.single-job", "result": "pass", "evidence": "title, company, deadline, company tagline/industry/size/HQ render; guest apply panel opens (apply_require_login=false) with name/email/resume fields" },
+    { "id": "C.anon.company", "result": "pass", "evidence": "/companies/acme-corp/ shows only open positions, no emails, no drafts" },
+    { "id": "C.candidate.register", "result": "skipped", "reason": "account creation through the browser not performed by this agent; needs a human or a wp-cli seeded run" },
+    { "id": "C.candidate.apply", "result": "pass", "evidence": "sarah.chen applied to smk18 job with saved resume + cover letter via UI; 'Application Submitted' + post-apply 'Get notified about similar jobs' prompt shown; app row persisted (_wcb_status submitted, _wcb_resume_id 99, _wcb_stage_id 7); bell rows for employer and candidate; re-apply -> 409 wcb_already_applied" },
+    { "id": "C.candidate.profile", "result": "pass", "evidence": "location saved via Save Profile, persisted in _wcb_resume_data, survived reload, restored to empty" },
+    { "id": "C.candidate.save-job", "result": "pass", "evidence": "Save Job -> Saved; appears in Saved Jobs (count 2); Remove -> count 1 and removed from _wcb_bookmark" },
+    { "id": "C.candidate.mobile", "result": "pass", "evidence": "390px iframe: /find-jobs/ and single job scrollWidth 390, apply panel full-width 390, Submit 40px, close 32px" },
+    { "id": "C.employer.post-job", "result": "pass", "evidence": "4-step form as employer.figma on Main Board ('Free to post on this board'); job 9156 persisted pending with company 97, salary, deadline, terms; 'Job submitted for review' state" },
+    { "id": "C.employer.edit-job", "result": "pass", "evidence": "PATCH status=closed -> 200; dashboard shows Closed with Reopen; single job shows 'no longer taking applications'; apply as marcus -> 400 wcb_job_unavailable" },
+    { "id": "C.employer.applications", "result": "pass", "evidence": "application detail with rating/notes/cover letter; status -> Shortlisted persisted (REST reads shortlisted); stage move to Interview persisted across re-read" },
+    { "id": "C.mod.queue-and-actions", "result": "pass", "evidence": "morgan_moderator: menu shows Jobs only; pending smk18 row has Approve/Reject, bulk has Approve/Dismiss flags, no Trash; Approve modal -> job published; wcb-settings/applications/companies/employers/candidates return 403" },
+    { "id": "C.admin.pages", "result": "fail", "evidence": "51 admin links 200 with no PHP notice markers, but the Import tab 'Download Sample CSV' action fails - see failures[]" },
+    { "id": "C.admin.crud", "result": "skipped", "reason": "no settings or taxonomy writes performed on a shared site; Advanced-tab forms not submitted by rule" },
+    { "id": "C.admin.user-management", "result": "skipped", "reason": "role changes on shared personas not performed" },
+    { "id": "C.notifications", "result": "pass", "evidence": "job_approved, application_submitted (employer + candidate) and status-change rows written to wcb_notifications and wcb_notifications_log" },
+    { "id": "C.cron", "result": "pass", "evidence": "9 wcb_/wcbp_ events scheduled; events not force-run on a shared site" },
+    { "id": "D.wcb-closed-status", "result": "pass", "evidence": "closed job stays in employer My Jobs labelled Closed" },
+    { "id": "D.apply-email-scraped", "result": "pass", "evidence": "anon GET /wcb/v1/jobs/95 has no apply_email key" },
+    { "id": "D.company-tagline-missing", "result": "pass", "evidence": "GET /companies?search=Acme -> tagline, industry, size_label, hq all non-empty" },
+    { "id": "D.location-dropdown-scope", "result": "pass", "evidence": "employer location select offers only Remote / Other / custom, no other companies' terms" },
+    { "id": "D.ability-slug-format", "result": "pass", "evidence": "employer create via UI succeeded; no ability notices in debug.log" },
+    { "id": "D.pwa-icon-404", "result": "pass", "evidence": "/wcb-manifest.json 200 with icons absent" },
+    { "id": "D.lucide-hydration-mismatch", "result": "pass", "evidence": "zero console errors on /find-jobs/, single job, /find-companies/" },
+    { "id": "D.setup-wizard-centering", "result": "pass", "evidence": ".wcb-wizard-wrap 760px wide, 541.5px margins each side (768px case not checkable, window resize ineffective)" },
+    { "id": "D.company-cards-alignment", "result": "pass", "evidence": "row-2 cards chip rows both at y=584" },
+    { "id": "D.active-filter-spacing", "result": "pass", "evidence": ".wcb-active-filters margin-bottom 12px = --wcb-space-md 12px; 12px gap to first card" },
+    { "id": "D.kanban-default-stage", "result": "pass", "evidence": "board 4 kanban has 5 columns (Screening/Interview/Offer/Hired/Rejected); new app in column 1" },
+    { "id": "H.employers-admin-role", "result": "pass", "evidence": "admin varundubey listed on Employers admin" },
+    { "id": "H.search-no-match", "result": "pass", "evidence": "clean empty state" },
+    { "id": "H.credit-history-empty", "result": "pass", "evidence": "Credits tab shows balance 0, purchase note and collapsible history with 2 ledger rows" },
+    { "id": "D.test-email-bridge", "result": "skipped", "reason": "did not trigger outbound test mail" },
+    { "id": "D.meta-filter-default-allow", "result": "skipped", "reason": "needs _wcb_partner_id fixture on a published job" },
+    { "id": "D.orphan-company-link-on-post", "result": "skipped", "reason": "requires deleting a shared persona's user meta" },
+    { "id": "D.application-custom-answers", "result": "skipped", "reason": "needs mu-plugin fixture" },
+    { "id": "D.admin-job-geocodes", "result": "skipped", "reason": "external geocoder call" },
+    { "id": "D.resume-map-pins", "result": "skipped", "reason": "external geocoder call" },
+    { "id": "D.employer-active-job-limit", "result": "skipped", "reason": "needs mu-plugin fixture" },
+    { "id": "D.vector-column-mariadb-11-7", "result": "skipped", "reason": "needs MariaDB 11.7+/MySQL 9; wcb_ai_vectors exists here" },
+    { "id": "D.public-chevron-lucide", "result": "skipped", "reason": "covered only by console check, chevrons not inspected at 390" },
+    { "id": "H.desc-empty", "result": "skipped", "reason": "adversarial fixtures not seeded" },
+    { "id": "E.pro.resume", "result": "pass", "evidence": "saved resume picker in apply panel, resume attachment linked to application" },
+    { "id": "E.pro.notifications-bell", "result": "pass", "evidence": "bell rows created for both parties; unread counts shown in dashboards" },
+    { "id": "E.pro.boards", "result": "pass", "evidence": "board selector on post form; paid board shows 'requires 1 credit, balance 0', Main Board free" },
+    { "id": "E.pro.credits", "result": "pass", "evidence": "GET /employers/15/credits balance 0 + ledger; zero-balance notice on paid board; other employer -> 403" },
+    { "id": "E.pro.pipeline", "result": "pass", "evidence": "PUT /applications/9164/stage -> 200 and persisted; non-owner employer 403 on kanban/app/stage/job PATCH" }
+  ],
+  "failures": [
+    {
+      "id": "C.admin.pages.import-sample-csv",
+      "origin": "from",
+      "invariant": "no-fatal (PHP warnings) + button does what it says",
+      "role": "administrator",
+      "viewport": "desktop",
+      "triage_note": "Pro streams the sample CSV from inside the settings-tab render callback, after wp-admin has already sent HTML. header() fails and the CSV is echoed into the page. Handler: wp-career-board-pro/admin/class-pro-admin.php:1946 (render_csv_import_card) calls download_sample_csv() at :2078, header() calls at :2083-2085 (logged as 2085-2087 on the live tree). Present since the CSV importer rebuild (ab9cd41), not a 1.8.0 regression. Fix direction: handle wcb_csv_sample on admin_init or admin_post before output.",
+      "repro": "Log in as admin -> Career Board > Settings > Import tab -> click 'Download Sample CSV'.",
+      "expected": "Browser downloads wcb-jobs-sample.csv (Content-Disposition: attachment).",
+      "actual": "No download and no Content-Disposition header. The settings page content area renders blank because the CSV text is dumped into the HTML and exit() truncates the page. debug.log gets 3x 'PHP Warning: Cannot modify header information - headers already sent' per click.",
+      "url": "http://wp-career-board.local/wp-admin/admin.php?page=wcb-settings&tab=import&wcb_csv_sample=1",
+      "screenshot": null
+    }
+  ],
+  "soft_findings": [
+    {
+      "id": "C.employer.post-job.work-mode",
+      "note": "A job posted with Location = Remote but the 'Remote-friendly position' box unticked shows 'Location: Remote' next to 'Work Mode: On-site' in Job Details on the single job page. The saved-jobs row says Remote. This is contradictory copy, but it comes from the data the employer entered. UX call, does not block."
+    }
+  ],
+  "debug_log_issues": [
+    {
+      "section": "C.admin.pages",
+      "level": "warning",
+      "line": "PHP Warning: Cannot modify header information - headers already sent by (output started at wp-includes/script-loader.php:2458)",
+      "file": "wp-content/plugins/wp-career-board-pro/admin/class-pro-admin.php:2085-2087"
+    }
+  ],
+  "untested": [
+    { "id": "C.candidate.register", "reason": "env: no browser account creation", "needs": "human or wp-cli seeded signup check" },
+    { "id": "A.pro.pairs-cleanly / P2", "reason": "env: shared site with a concurrent agent", "needs": "Free deactivate/reactivate on an isolated site" },
+    { "id": "F.dark-mode", "reason": "env: no emulateMedia in claude-in-chrome", "needs": "Playwright MCP" }
+  ],
+  "coverage": {
+    "multisite": "na: single-site",
+    "rtl": "deferred: WPLANG change on shared site not performed",
+    "concurrency": "partial: second employer + second candidate ownership checks run",
+    "uninstall": "deferred",
+    "mid_walk_commits": "a089f71 (confirm dialog Cancel focus), c24f320 (Pro credits shop URL), 557bfba (Pro deactivation cron) landed during the walk and were not specifically exercised"
+  },
+  "manual_required": [
+    "F.firefox-desktop: date picker on Post a Job deadline, apply panel",
+    "F.safari-ios: resume file upload in apply panel, long job list scroll",
+    "F.rtl: Arabic locale pass on job archive, single job, dashboards",
+    "P5: updater routing with valid vs cleared license"
+  ],
+  "cleanup": "Deleted smk18 job 9156, application 9164, 5 wcb_notifications rows, 6 wcb_notifications_log rows; bookmark and profile location restored; wp-config.php restored; walk-created debug.log removed (copy in app/qa-artifacts/smoke-1.8.0/)."
+}
