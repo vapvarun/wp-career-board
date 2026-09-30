@@ -60,8 +60,23 @@ add_action(
 // The EDD SL SDK is bundled (built) in /libs — not /vendor — so it survives
 // release packaging (which strips /vendor) and is the single shared copy that
 // WP Career Board Pro loads too, rather than duplicating the SDK.
-if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
+// Load it only when its classes are there too: an incomplete upload that lost
+// src/ would otherwise fatal every page on the loader's first class call.
+// Without it the plugin works; only automatic updates stop.
+if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
 	require_once __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php';
+} else {
+	add_action(
+		'admin_notices',
+		static function (): void {
+			if ( ! function_exists( 'wp_is_ability_granted' ) || ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+				return;
+			}
+			echo '<div class="notice notice-error"><p>' .
+				esc_html__( 'WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them.', 'wp-career-board' ) .
+				'</p></div>';
+		}
+	);
 }
 
 /*
