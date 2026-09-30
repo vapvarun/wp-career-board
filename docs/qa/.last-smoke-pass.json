@@ -2,7 +2,7 @@
   "mode": "combo",
   "release_version": "1.8.0",
   "pro_version": "1.8.0",
-  "ran_at": "2026-09-30T10:49:06Z",
+  "ran_at": "2026-09-30T11:02:34Z",
   "walked_heads": {
     "free": "3646ce5",
     "pro": "32fe86a"
@@ -138,8 +138,8 @@
     },
     {
       "id": "C.admin.pages",
-      "result": "fail",
-      "evidence": "Every Career Board admin page, all 23 wcb-settings tabs, taxonomy screens and the Resumes list returned 200 with no PHP error text, and the 4 Pro legacy slugs redirect to their tabs; BUT the wcb_application edit screen writes 2 PHP notices per load (see failures[0])"
+      "result": "pass",
+      "evidence": "Re-walked at Free bd5c71d as admin with WP_DEBUG_LOG on. All returned 200 with no fatal text: the Career Board dashboard, Jobs, Applications, Candidates, Companies and Employers pages, all 24 wcb-settings tabs, the 5 wcb taxonomy screens, the Resumes list, the Applications list, new job, a job edit and an application edit screen. Each page was loaded 2s apart and matched to debug.log timestamps. No log line came from any Career Board admin page. Lines from core screens are recorded in debug_log_issues and are not part of this row."
     },
     {
       "id": "C.admin.pages.import-sample-csv",
@@ -193,8 +193,8 @@
     },
     {
       "id": "D.ability-slug-format",
-      "result": "fail",
-      "evidence": "Post-a-job as employer succeeded (ability wcb/post-jobs granted), but debug.log recorded 'Ability \"wcb_view_applications\" not found' notices from the application widgets (see failures[0])"
+      "result": "pass",
+      "evidence": "Re-walked at Free bd5c71d: every wp_is_ability_granted() / check_ability() string literal and widget ability() return in Free and Pro (dist/, vendor/, tests/ excluded) uses the namespace/slug form. The 16 distinct slugs, plus the two widget returns (both wcb/view-applications), all match wp_get_abilities() at runtime (17 wcb abilities registered, 0 missing). The only non-literal callers are the wrappers in AbstractWidget, RestController and AbstractCliCommand, and their callers pass literals. With WP_DEBUG_LOG on, the application edit screen (2 loads, a Save status change and a Quick-action Shortlist) wrote nothing to debug.log."
     },
     {
       "id": "D.pwa-icon-404",
@@ -423,35 +423,23 @@
   ],
   "verdict": "WARN",
   "top3": [
-    "Opening an application in wp-admin writes 2 PHP notices: two widgets pass the bare cap 'wcb_view_applications' as an ability slug",
+    "The application-widget ability notice is fixed in bd5c71d and re-walked clean. Still open: the Free Reign compat stylesheet logs a notice in the core block editor, and the bundled EDD SDK logs a warning on update-core",
     "Every customer journey (browse, apply, save, profile, post, close, review, moderate, credits, pipeline, alerts, resume builder) passed with server-side proof",
     "SDK guard verified: both SDKs load with no notice on the dev site; the degrade path was proven on the pristine Docker install"
   ],
-  "failures": [
-    {
-      "id": "D.ability-slug-format / C.admin.pages",
-      "origin": "from",
-      "invariant": "soft: debug.log notice from plugin code, no functional break",
-      "triage_note": "Two Free application widgets declare a bare cap slug as their ability. AbstractWidget::user_can_render() passes it to wp_is_ability_granted(), whose polyfill calls wp_get_ability('wcb_view_applications'); WP 6.9 has no ability by that name (registered one is 'wcb/view-applications'), so core logs _doing_it_wrong, then the polyfill falls back to current_user_can() and the widgets still render. Present since the widget registry landed (473c9f8, 1.1.0), not introduced by the SDK-guard commits. Previous 1.8.0 walks did not catch it because WP_DEBUG was actually off on this site (wp-config had WP_DEBUG false; debug.log never existed).",
-      "expected": "Opening a wcb_application edit screen in wp-admin writes nothing to debug.log (runbook D.ability-slug-format: ZERO wp_get_ability / wp_is_ability_granted notices).",
-      "actual": "Each load of wp-admin/post.php?post=<application>&action=edit as admin writes 2x 'PHP Notice: Function WP_Abilities_Registry::get_registered was called incorrectly. Ability \"wcb_view_applications\" not found' (reproduced twice: 10:45:05Z and 10:47:41Z).",
-      "files": [
-        "wp-career-board/modules/applications/widgets/class-status-changer.php:53",
-        "wp-career-board/modules/applications/widgets/class-quick-actions.php:53",
-        "wp-career-board/core/widgets/class-abstract-widget.php:86",
-        "wp-career-board/core/abilities-api-polyfill.php:50"
-      ],
-      "repro": "WP_DEBUG + WP_DEBUG_LOG on, Free+Pro 1.8.0 active, WP 6.9+. As admin open wp-admin/post.php?post=<any wcb_application id>&action=edit. debug.log gains two 'Ability \"wcb_view_applications\" not found' notices, one per widget (application/status-changer, application/quick-actions).",
-      "url": "http://wp-career-board.local/wp-admin/post.php?post=9768&action=edit",
-      "screenshot": null
-    }
-  ],
+  "failures": [],
   "debug_log_issues": [
     {
-      "section": "C.admin.pages",
+      "section": "C.admin.pages (core screens, outside the row)",
       "level": "notice",
-      "line": "PHP Notice:  Function WP_Abilities_Registry::get_registered was called incorrectly. Ability \"wcb_view_applications\" not found. (x2 per application edit screen load, 4 total)",
-      "file": "wp-career-board/core/widgets/class-abstract-widget.php:86 via core/abilities-api-polyfill.php:50"
+      "line": "PHP Notice: Function WP_Styles::add was called incorrectly. The style with the handle \"wcb-reign-compat\" was enqueued with dependencies that are not registered: reign_main_style. (x2 per load of post-new.php, post-new.php?post_type=page, site-editor.php and widgets.php with reign-theme active)",
+      "file": "wp-career-board/integrations/reign/class-reign-integration.php:34 via core/class-theme-compat.php:98 (wp_enqueue_block_style in the block editor, where Reign's reign_main_style is not registered)"
+    },
+    {
+      "section": "C.admin.pages (core screens, outside the row)",
+      "level": "warning",
+      "line": "PHP Warning: Undefined property: stdClass::$requires / $requires_php (2 each, update-core.php load, when the update check refreshes)",
+      "file": "wp-career-board/libs/edd-sl-sdk/src/Updaters/Plugin.php:284-285 (bundled EDD SL SDK)"
     }
   ],
   "manual_required": [
@@ -461,5 +449,6 @@
     "P5: updater routing with valid vs cleared license",
     "P2: Free deactivate/reactivate with Pro active on an isolated site"
   ],
-  "cleanup": "Deleted smk18c jobs 9766/9767/9770/9772, application 9768, resume 9769 (and their meta), wcb_notifications 5425-5428, wcb_notifications_log 3615-3622, credit ledger 965-968 (employer.figma balance back to 0), job-view rows for those jobs, job alert 64 (deleted through the UI), sarah.chen's _wcb_bookmark 9766 and _wcb_resume_data restored to {phone:'',location:''}, wcb_close_job_applications + wcbp_geocode_post events for the deleted jobs. wp-config.php restored byte-for-byte (WP_DEBUG false). Berlin location term pre-existed and was kept."
+  "cleanup": "Deleted smk18c jobs 9766/9767/9770/9772, application 9768, resume 9769 (and their meta), wcb_notifications 5425-5428, wcb_notifications_log 3615-3622, credit ledger 965-968 (employer.figma balance back to 0), job-view rows for those jobs, job alert 64 (deleted through the UI), sarah.chen's _wcb_bookmark 9766 and _wcb_resume_data restored to {phone:'',location:''}, wcb_close_job_applications + wcbp_geocode_post events for the deleted jobs. wp-config.php restored byte-for-byte (WP_DEBUG false). Berlin location term pre-existed and was kept.",
+  "rewalk_note": "2026-09-30T11:02:34Z: rows D.ability-slug-format and C.admin.pages were re-walked after bd5c71d (Free HEAD bd5c71d, Pro unchanged at 32fe86a code) with WP_DEBUG and WP_DEBUG_LOG on. Both now pass, and the ability-notice entries are removed from failures[] and debug_log_issues[]. The rest of the report is from the full walk at 10:49Z on 3646ce5/32fe86a. bd5c71d only changes the ability strings in two widgets and one docblock. Card 10355662032 was verified independently and moved to Done."
 }
