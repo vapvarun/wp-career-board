@@ -193,6 +193,10 @@ while IFS= read -r match; do
 	src="${match%%:*}"          # path/to/file.php
 	code="${match#*:*:}"        # the require/include line
 
+	# Only shipped files can break an install: a require inside a dev-only
+	# file that .distignore keeps out of the zip (bin/, tests/) is not payload.
+	grep -qxF "$SLUG/$src" <<< "$ENTRIES" || continue
+
 	if grep -qE "[^A-Z_]${OWN_CONST}[[:space:]]*\." <<< "$code"; then
 		# OWN_CONST . 'relpath'  → SLUG/relpath
 		rel="$(printf '%s' "$code" | sed -nE "s/.*${OWN_CONST}[[:space:]]*\.[[:space:]]*'([^']+)'.*/\1/p")"
