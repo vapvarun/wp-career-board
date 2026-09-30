@@ -500,7 +500,7 @@ wp_interactivity_state(
 					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
-				<?php if ( ! $wcb_apply_external && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
+				<?php if ( ! $wcb_apply_external && is_user_logged_in() && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
 				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
 					<button
 						type="button"

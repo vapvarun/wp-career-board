@@ -3,7 +3,8 @@
  * Canonical bookmark button for archive cards.
  *
  * Shared across Find Jobs, Companies, Find Candidates. Emits a single
- * <button> with the bookmark SVG + Interactivity API click handler.
+ * <button> with the bookmark SVG + Interactivity API click handler, or, for
+ * a guest, a sign-in link styled the same way.
  * Bookmark state is signalled either reactively (data-wp-class binding
  * against a per-card context value, used by Jobs + Companies) or via a
  * pre-rendered class on first paint (used by Find Candidates while its
@@ -47,6 +48,25 @@ $wcb_bookmark = wp_parse_args(
 		'extra_attrs'           => '',
 	)
 );
+
+// Saving needs an account. A guest gets a sign-in link in the same spot
+// instead of a button whose request can only fail and revert. The return URL
+// is the current request, not get_permalink(): on the job archive template
+// the global post is the first job in the loop.
+if ( ! is_user_logged_in() ) :
+	$wcb_bookmark_login = __( 'Sign in to save', 'wp-career-board' );
+	?>
+<a
+	class="wcb-bookmark-btn"
+	href="<?php echo esc_url( wp_login_url( home_url( (string) ( $GLOBALS['wp']->request ?? '' ) ) ) ); ?>"
+	aria-label="<?php echo esc_attr( $wcb_bookmark_login ); ?>"
+	title="<?php echo esc_attr( $wcb_bookmark_login ); ?>"
+>
+	<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+</a>
+	<?php
+	return;
+endif;
 
 $wcb_bookmark_static_class = '' === (string) $wcb_bookmark['bookmarked_class_bind'] && ! empty( $wcb_bookmark['bookmarked_ssr'] )
 	? ' wcb-bookmarked'
