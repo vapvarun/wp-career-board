@@ -2,7 +2,7 @@
   "mode": "combo",
   "release_version": "1.8.0",
   "pro_version": "1.8.0",
-  "ran_at": "2026-09-30T11:02:34Z",
+  "ran_at": "2026-09-30T11:15:14Z",
   "walked_heads": {
     "free": "3646ce5",
     "pro": "32fe86a"
@@ -84,7 +84,7 @@
     {
       "id": "C.anon.single-job",
       "result": "pass",
-      "evidence": "smk18c single page: title, company Smoke Co Alpha, Remote chip, $50k-$70k/yr, description; anon Apply Now opens the guest apply panel (name, email, required resume)"
+      "evidence": "smk18c single page: title, company Smoke Co Alpha, Remote chip, $50k-$70k/yr, description; anon Apply Now opens the guest apply panel (name, email, required resume) | Re-walk at 1a7ffd3: logged-out /find-jobs/ listed the qav8 fixture and the existing job with wcb-reign-compat-css loaded after reign_main_style, no horizontal scroll; the single job page rendered with the same card and button styles at 1440 and 390 (same-origin iframes)."
     },
     {
       "id": "C.anon.company",
@@ -99,7 +99,7 @@
     {
       "id": "C.candidate.apply",
       "result": "pass",
-      "evidence": "sarah.chen applied via the real Apply panel with saved 'Smoke Resume 1' + cover letter; 'Application Submitted' shown; app 9768 persisted (status submitted, resume 99, stage 7 Screening, cover letter stored); employer + candidate bell rows and application-received / application-confirmation emails logged"
+      "evidence": "sarah.chen applied via the real Apply panel with saved 'Smoke Resume 1' + cover letter; 'Application Submitted' shown; app 9768 persisted (status submitted, resume 99, stage 7 Screening, cover letter stored); employer + candidate bell rows and application-received / application-confirmation emails logged | Re-walk at 1a7ffd3: sarah.chen applied to the qav8 fixture job through the Apply panel (saved Smoke Resume 1 + cover letter); 'Application Submitted' shown; application 9788 persisted (resume 99, cover letter stored), employer + candidate bell rows and both emails logged. debug.log 0 plugin lines."
     },
     {
       "id": "C.candidate.profile",
@@ -129,7 +129,7 @@
     {
       "id": "C.employer.applications",
       "result": "pass",
-      "evidence": "As owner: GET /jobs/9766/applications 200 with the application; GET /applications/9768 200 with cover letter + resume; POST notes 200 (note persisted); POST status reviewing 200 {changed:true, notified:true}; candidate got application_status_changed bell row"
+      "evidence": "As owner: GET /jobs/9766/applications 200 with the application; GET /applications/9768 200 with cover letter + resume; POST notes 200 (note persisted); POST status reviewing 200 {changed:true, notified:true}; candidate got application_status_changed bell row | Re-walk at 1a7ffd3: as wcb_demo_employer the employer dashboard (Overview, My Jobs) loaded with wcb-reign-compat-css, no horizontal scroll; the qav8 job listed as Published with '1 applicant'. debug.log 0 plugin lines."
     },
     {
       "id": "C.mod.queue-and-actions",
@@ -139,7 +139,7 @@
     {
       "id": "C.admin.pages",
       "result": "pass",
-      "evidence": "Re-walked at Free bd5c71d as admin with WP_DEBUG_LOG on. All returned 200 with no fatal text: the Career Board dashboard, Jobs, Applications, Candidates, Companies and Employers pages, all 24 wcb-settings tabs, the 5 wcb taxonomy screens, the Resumes list, the Applications list, new job, a job edit and an application edit screen. Each page was loaded 2s apart and matched to debug.log timestamps. No log line came from any Career Board admin page. Lines from core screens are recorded in debug_log_issues and are not part of this row."
+      "evidence": "Re-walked at Free 1a7ffd3 as admin with WP_DEBUG_LOG on from a 0-byte log (11:10:39Z-11:12Z). All returned 200 with no fatal/warning/notice text: the Career Board dashboard, Jobs, Applications, Candidates, Companies and Employers pages, the wcb-settings page and all 22 settings sections, the 5 wcb taxonomy screens, the Resumes list, the Applications list, new job, a job edit (95) and an application edit (9338). debug.log stayed at 0 lines. The core editor screens (post-new.php, post-new.php?post_type=page, site-editor.php, widgets.php) also logged 0 lines with Reign active, so the wcb-reign-compat notice is gone (card 10355693766, Done)."
     },
     {
       "id": "C.admin.pages.import-sample-csv",
@@ -423,23 +423,18 @@
   ],
   "verdict": "WARN",
   "top3": [
-    "The application-widget ability notice is fixed in bd5c71d and re-walked clean. Still open: the Free Reign compat stylesheet logs a notice in the core block editor, and the bundled EDD SDK logs a warning on update-core",
+    "The application-widget ability notice (bd5c71d) and the Reign compat editor notice (1a7ffd3) are fixed and re-walked clean. The only remaining log entry is the bundled EDD SDK warning on update-core, moved to vendor_notices (card 10355693868)",
     "Every customer journey (browse, apply, save, profile, post, close, review, moderate, credits, pipeline, alerts, resume builder) passed with server-side proof",
     "SDK guard verified: both SDKs load with no notice on the dev site; the degrade path was proven on the pristine Docker install"
   ],
   "failures": [],
-  "debug_log_issues": [
+  "debug_log_issues": [],
+  "vendor_notices": [
     {
-      "section": "C.admin.pages (core screens, outside the row)",
-      "level": "notice",
-      "line": "PHP Notice: Function WP_Styles::add was called incorrectly. The style with the handle \"wcb-reign-compat\" was enqueued with dependencies that are not registered: reign_main_style. (x2 per load of post-new.php, post-new.php?post_type=page, site-editor.php and widgets.php with reign-theme active)",
-      "file": "wp-career-board/integrations/reign/class-reign-integration.php:34 via core/class-theme-compat.php:98 (wp_enqueue_block_style in the block editor, where Reign's reign_main_style is not registered)"
-    },
-    {
-      "section": "C.admin.pages (core screens, outside the row)",
-      "level": "warning",
-      "line": "PHP Warning: Undefined property: stdClass::$requires / $requires_php (2 each, update-core.php load, when the update check refreshes)",
-      "file": "wp-career-board/libs/edd-sl-sdk/src/Updaters/Plugin.php:284-285 (bundled EDD SL SDK)"
+      "source": "libs/edd-sl-sdk/src/Updaters/Plugin.php:284-285",
+      "message": "PHP Warning: Undefined property: stdClass::$requires (line 284) and stdClass::$requires_php (line 285), 2 each per update-core.php load when the update check refreshes. Reproduced at 2026-09-30T11:09:57Z on Free 1a7ffd3 via wp-admin/update-core.php?force-check=1 as admin with WP_DEBUG_LOG on.",
+      "card": "10355693868",
+      "note": "vendored third-party library, runtime unaffected, fixed upstream"
     }
   ],
   "manual_required": [
@@ -450,5 +445,5 @@
     "P2: Free deactivate/reactivate with Pro active on an isolated site"
   ],
   "cleanup": "Deleted smk18c jobs 9766/9767/9770/9772, application 9768, resume 9769 (and their meta), wcb_notifications 5425-5428, wcb_notifications_log 3615-3622, credit ledger 965-968 (employer.figma balance back to 0), job-view rows for those jobs, job alert 64 (deleted through the UI), sarah.chen's _wcb_bookmark 9766 and _wcb_resume_data restored to {phone:'',location:''}, wcb_close_job_applications + wcbp_geocode_post events for the deleted jobs. wp-config.php restored byte-for-byte (WP_DEBUG false). Berlin location term pre-existed and was kept.",
-  "rewalk_note": "2026-09-30T11:02:34Z: rows D.ability-slug-format and C.admin.pages were re-walked after bd5c71d (Free HEAD bd5c71d, Pro unchanged at 32fe86a code) with WP_DEBUG and WP_DEBUG_LOG on. Both now pass, and the ability-notice entries are removed from failures[] and debug_log_issues[]. The rest of the report is from the full walk at 10:49Z on 3646ce5/32fe86a. bd5c71d only changes the ability strings in two widgets and one docblock. Card 10355662032 was verified independently and moved to Done."
+  "rewalk_note": "2026-09-30T11:15:14Z: re-walked after 1a7ffd3 (Free HEAD 1a7ffd3, Pro unchanged at 32fe86a code) with WP_DEBUG and WP_DEBUG_LOG on: the four core editor screens with Reign active (0 log lines, reign-compat notice entry removed from debug_log_issues), a Job Listings block in the page editor (styled), rows C.admin.pages, C.anon.single-job, C.candidate.apply and C.employer.applications (frontend listing, single job, apply as candidate, employer dashboard). The EDD SL SDK warning was reproduced on update-core.php?force-check=1 and moved to vendor_notices. 1a7ffd3 only changes the compat style's dependency list in wp-admin. Test data used prefix qav8 and was deleted. BuddyX Pro editor screens were not re-walked. Earlier: 2026-09-30T11:02:34Z: rows D.ability-slug-format and C.admin.pages were re-walked after bd5c71d (Free HEAD bd5c71d, Pro unchanged at 32fe86a code) with WP_DEBUG and WP_DEBUG_LOG on. Both now pass, and the ability-notice entries are removed from failures[] and debug_log_issues[]. The rest of the report is from the full walk at 10:49Z on 3646ce5/32fe86a. bd5c71d only changes the ability strings in two widgets and one docblock. Card 10355662032 was verified independently and moved to Done."
 }
