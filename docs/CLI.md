@@ -203,7 +203,7 @@ wp wcb job expire 42 --user=1
 
 ### `wp wcb job run-expiry`
 
-Trigger the daily expiry cron manually. Expires all published jobs whose `_wcb_deadline` has passed.
+Trigger the hourly expiry cron manually. Expires all published jobs whose `_wcb_deadline` has passed.
 Respects the **Deadline auto-close** setting in WP Career Board → Settings.
 Requires: `wcb_manage_settings`.
 

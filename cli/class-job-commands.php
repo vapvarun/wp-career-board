@@ -313,10 +313,11 @@ class JobCommands extends AbstractCliCommand {
 	}
 
 	/**
-	 * Run the job expiry check (same as the daily cron).
+	 * Run the job expiry check (same as the hourly cron).
 	 *
 	 * Expires all published jobs whose deadline has passed, identical to the
-	 * automatic daily WP-Cron run. Respects the deadline_auto_close setting.
+	 * automatic hourly WP-Cron run. Respects the deadline_auto_close setting
+	 * (Settings > Jobs > End jobs at their deadline).
 	 *
 	 * ## EXAMPLES
 	 *
@@ -337,8 +338,8 @@ class JobCommands extends AbstractCliCommand {
 		// print "complete" over a no-op. Say so instead: a command that reports
 		// success without doing anything is how people stop trusting it.
 		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
-			\WP_CLI::warning( 'Deadline Auto-Close is off, so no jobs were expired.' );
-			\WP_CLI::log( 'Turn it on under Career Board > Settings > Job Listings and run this again.' );
+			\WP_CLI::warning( 'Ending jobs at their deadline is off, so no jobs were expired.' );
+			\WP_CLI::log( 'Turn it on under Career Board > Settings > Jobs > End jobs at their deadline, then run this again.' );
 			return;
 		}
 

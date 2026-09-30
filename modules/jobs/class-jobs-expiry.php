@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the wcb_expired post status and schedules a daily cron to
+ * Registers the wcb_expired post status and schedules an hourly cron to
  * transition past-deadline jobs from publish to expired.
  *
  * @since 1.0.0

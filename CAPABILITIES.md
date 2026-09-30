@@ -58,7 +58,7 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 ## Platform, data & compliance
 | Can it… | Status | How / evidence |
 |---|---|---|
-| Expose a documented REST API (headless-ready, App-Password auth)? | YES | 44 routes under `wcb/v1`; `docs/website/developer-guide/03-rest-api.md`; `GET /settings/app-config` |
+| Expose a documented REST API (headless-ready, App-Password auth)? | YES | routes under `wcb/v1`, listed in `docs/website/developer-guide/03-rest-api.md`; `GET /settings/app-config` |
 | Ship block-native UI with no page builder required? | YES | 17 Interactivity-API blocks; all also shortcodes + `[wcb_widget]` |
 | Migrate from WP Job Manager (+ WPJM Resumes)? | YES | `wcb migrate` CLI; `class-wpjm-importer.php` (non-destructive) |
 | Import jobs from CSV/XML? | YES·partial | CSV importer present; Pro adds board XML feed import |
