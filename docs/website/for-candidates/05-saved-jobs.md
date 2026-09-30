@@ -1,52 +1,35 @@
-# Saved Jobs
+# Saved jobs
 
-Save any job listing to your personal list so you can come back to apply when ready.
+You can save jobs, companies and (with Pro) candidate resumes to come back to later. Saving needs a signed-in account.
 
-![Candidate Dashboard - Saved Jobs Tab](../images/candidate-dashboard-saved-jobs.png)
+## Save a job
 
-## Saving a job
+- On the job board, click the **bookmark icon** on a job card.
+- On a job page, click **Save Job**.
 
-You can bookmark a job from two places:
+Click again to unsave. Any signed-in user can save jobs, and you do not need the Candidate role unless the site owner turned on **Require Candidate Role**.
 
-**From the job listings grid:**
-- Click the **bookmark icon** in the top-right corner of any job card
+## See your saved jobs
 
-**From the job detail page:**
-- Click the **Save Job** button on the listing page
+1. Open the **Candidate Dashboard**.
+2. Click **Saved Jobs** in the sidebar.
 
-Both require you to be logged in. Any logged-in user can save jobs - a dedicated Candidate role is not required. If you are not logged in, clicking the bookmark will prompt you to register or log in.
+Each saved job shows the job title, company, location and job type, with a **View Job** button and a **Remove** button. A job that was deleted is no longer listed.
 
-## Viewing your saved jobs
+## Remove a saved job
 
-1. Open the **Candidate Dashboard**
-2. Click the **Saved Jobs** tab
+Click **Remove** on the job. Any application you already sent is not affected.
 
-You will see all your bookmarked jobs listed with:
-- Job title and company name
-- Location and job type
-- Date saved
-- A **Remove** button
+## Deadline reminders
 
-## Removing a saved job
-
-Click **Remove** on any saved job to delete it from your list. This does not affect any application you may have already submitted.
-
-## Applying from saved jobs
-
-Saved jobs include a direct **Apply Now** link so you can apply without going back to the main listings page.
-
-> **Tip:** Use Saved Jobs as your personal shortlist. Browse the board first, bookmark the ones that interest you, then review your list and apply to the best matches.
+If a job you saved has an application deadline and you have not applied, you get a reminder email 3 days and 1 day before the deadline. You can turn this off under **Candidate Dashboard > Settings > Email Notifications**. See [Profile, account and notifications](./11-profile-and-account.md).
 
 ## Saved companies and saved resumes
 
-The dashboard groups all your bookmarks under a **MY SAVES** section in the sidebar:
+The **Saved** section of the sidebar lists your bookmarks:
 
-- **Saved Jobs** - jobs you bookmarked (covered above).
-- **Saved Companies** - bookmark a company from its profile to follow it. They appear under **Candidate Dashboard → Saved Companies**.
-- **Saved Resumes** - when WP Career Board Pro is active and public resumes exist, you can bookmark other candidates' resumes. This tab is hidden on Free-only sites.
+- **Saved Jobs** - jobs you saved.
+- **Saved Companies** - companies you bookmarked from the company directory.
+- **Saved Resumes** - with WP Career Board Pro, resumes you bookmarked from a resume page. This tab appears only when Pro is active.
 
-All three lists are available to any logged-in user.
-
-## Limit
-
-There is no limit to how many jobs, companies, or resumes you can save.
+Each list has a **Remove** button for every item.

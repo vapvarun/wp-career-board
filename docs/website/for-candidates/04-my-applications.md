@@ -1,73 +1,50 @@
-# My Applications
+# My applications
 
-The **My Applications** tab in the Candidate Dashboard shows every job you have applied for and its current status.
+You can see every job you applied for, its current status, and withdraw an application you no longer want to pursue.
 
-![Candidate Dashboard - My Applications Tab](../images/candidate-dashboard-applications.png)
+## Open your applications
 
-## Accessing my applications
+1. Go to the **Candidate Dashboard** page.
+2. Click **My Applications** in the sidebar.
 
-1. Go to the **Candidate Dashboard** page
-2. The **My Applications** tab is active by default
-3. You will see your applications listed newest first, 50 at a time. Click **Load more applications** for older ones. The counts on the Overview cover all of them
-
-## Table format
-
-The My Applications list renders as a semantic table with column headers, so the data is screen-reader friendly and copy/paste-able into a spreadsheet without losing structure. The list is part of the **Candidate Dashboard** block (shortcode `[wcb_candidate_dashboard]`); there is no separate applications-only shortcode.
-
-![My Applications table - candidate view](../images/my-applications-table-candidate.png)
-
-| Column | What it shows |
-|---|---|
-| **Job** | Job title (linked to the listing) and company name |
-| **Status** | Coloured status badge - see the table below for each badge's meaning |
-| **Submitted** | Application date in your site's date format |
-
-On narrow viewports (under 480px container width) the table collapses to a card layout - each row's cells stack vertically with their column label in-place, so phones get the same data without a horizontal scrollbar.
-
-## What you see per application
+The list shows newest first, 50 at a time. Click **Load more applications** for older ones. The counts on the Overview cover all your applications.
 
 Each row shows:
 
-- **Job title** and company name
-- **Application date**
-- **Current status** - updated by the employer
-- A link to view the original job listing
+- The job title, linked to the job page, and the company name
+- The application date
+- A status badge
+- A **Withdraw** button, when withdrawing is allowed for that application
 
 ## Application statuses
 
-| Status | What It Means |
+| Status | What it means |
 |---|---|
-| **Submitted** | Your application was received; the employer hasn't reviewed it yet |
-| **Reviewing** | The employer is actively looking at your application |
-| **Shortlisted** | You're being considered - the employer is interested |
-| **Not selected** | The employer is no longer considering your application (employers see this as "Rejected") |
-| **Hired** | Congratulations - you got the job |
-| **Withdrawn** | You withdrew this application; it is no longer active |
-| **Position closed** | The employer closed the job before deciding (for example the role was filled). You got an email when it happened |
-| **Job removed** | The job posting was taken down. Your application is preserved in your history, but no further action is expected. |
+| **Submitted** | The employer received your application and has not reviewed it yet |
+| **Reviewing** | The employer is looking at your application |
+| **Shortlisted** | The employer is interested |
+| **Not selected** | The employer is no longer considering your application |
+| **Hired** | You got the job |
+| **Withdrawn** | You withdrew this application |
+| **Position closed** | The employer closed the job before deciding |
+| **Job removed** | The job was deleted. Your application stays in your history, and a **Remove** button lets you delete the row |
 
-> **Status updates:** You will receive an email notification whenever your application status changes.
+You get an email when the status changes to Reviewing, Shortlisted, Not selected, Hired or Position closed.
 
-## Withdrawing an application
+## Withdraw an application
 
-To withdraw from a role you are no longer interested in:
+1. Find the application in the list.
+2. Click **Withdraw**.
 
-1. Find the application in the list
-2. Click the **Withdraw** button
-3. Confirm in the prompt
+The application stays in your list marked **Withdrawn**, and the employer gets an email. You can withdraw until the application has an outcome: hired, not selected, or position closed. After you withdraw you can apply to the same job again.
 
-Withdrawing keeps the application in your list marked **Withdrawn**, and the employer gets an email so they stop reviewing it. You can withdraw until the employer hires or declines you. After withdrawing you can apply to the same job again.
+The button only appears when the site allows withdrawing. The site owner can turn it off with **Allow Withdraw** under **Career Board > Settings > Applications**.
 
-> The Withdraw button only appears when the site allows it. Site owners can disable withdrawals under **Career Board → Settings → Applications → Allow Withdraw** (on by default).
+## Overview tab
 
-## Overview panel
+**Overview** is the first tab of the dashboard. It shows:
 
-The **Overview** tab at the top of the dashboard shows a summary of your recent activity:
-
-- Total applications submitted
-- Number of shortlisted applications
-- Most recent applications
-- Recently saved jobs
-- Counts for Saved Jobs, and (with Pro) Resumes and Job Alerts, as clickable stat cards that jump to the matching tab
-
-This gives you a quick snapshot without switching between tabs.
+- Cards with your number of applications, shortlisted applications and saved jobs, plus your resume count
+- With Pro, a **Job Alerts** card that opens the alerts tab
+- Your recent applications and recently saved jobs, each with a **View all** link
+- With Pro AI matching, a **Recommended for you** list

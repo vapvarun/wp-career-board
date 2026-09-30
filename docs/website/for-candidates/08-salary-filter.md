@@ -1,21 +1,20 @@
-# Salary Range Filter
+# Salary range filter
 
-The Find Jobs page (`/find-jobs/`) has a salary filter so candidates can narrow listings to roles that pay within a range.
+You can narrow the job board to jobs whose pay falls inside a range you set.
 
-## Where it lives
+## Where it is
 
-On the Find Jobs page, in the filter panel, under **Salary**. It has a **Minimum** and a **Maximum** slider and a **Reset** link.
+On the Find Jobs page, open the **Filters** panel and go to **Salary**. It has a **Minimum** slider, a **Maximum** slider and a **Reset** button.
 
-## How it works
+If your site uses the separate Job Filters block, salary is two number fields instead: **Minimum salary** and **Maximum salary**.
 
-- Move **Minimum** to set the lowest pay you want.
-- Move **Maximum** to set the highest. The right end means "Any", so no upper limit.
-- The active range shows as a pill above the listings. Click the pill's ✕ to clear it.
-- The listings update without a page reload.
+## Use it
 
-A job matches when its pay range overlaps yours: its top figure reaches your minimum and its bottom figure is under your maximum. Jobs with no salary are left out while a salary filter is active. Clear the filter to see them again.
+1. Move **Minimum** to the lowest pay you want. The sliders run from 0 to 500,000 in steps of 5,000.
+2. Move **Maximum** to the highest pay you want. The far right end reads **Any**, which means no upper limit.
+3. The listings update without a page reload.
 
-## Periods and currency
+Your range shows as a pill above the results, such as "$80k+" or "Up to $120k". Click the pill's close button, or **Reset**, to clear it.
 
 The filter compares pay per year, the same way the **Highest salary** sort does: hourly pay counts as 2,080 hours a year and monthly pay as 12 months. A job paying 40 per hour (about 83,000 a year) matches a minimum of 80,000; a job paying 3,000 a month (36,000 a year) does not.
 

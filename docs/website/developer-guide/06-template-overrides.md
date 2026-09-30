@@ -17,7 +17,7 @@ over the plugin's.
 
 ## Block themes
 
-A block theme does not use PHP page templates. WordPress renders the theme's own block templates, so edit the job and company pages in **Appearance → Editor → Templates**, or ship a template file with the slug WordPress looks for (for example `single-wcb_job.html`). The PHP copies described here apply to classic themes.
+A block theme does not use PHP page templates. WordPress renders the theme's own block templates, so edit the job and company pages in **Appearance > Editor > Templates**. The PHP copies described here apply to classic themes.
 
 For the archives, the plugin registers these block templates so a block theme shows the plugin's listing instead of its generic blog loop. A file with the same slug in your theme takes priority.
 
@@ -48,10 +48,9 @@ To bring a copy up to date:
 1. Open the plugin file listed in Site Health next to your copy.
 2. Carry your customisations over to a fresh copy of the plugin file
    (or merge the plugin's changes into your copy).
-3. Set the `Template version` line in your copy to the plugin's version.
+3. Set the `Template version` line in your copy to the version in the plugin file's header.
 
-Site Health re-checks on every visit, so the item clears as soon as the
-versions match.
+The check runs each time Site Health runs its tests, so the item clears as soon as the versions match.
 
 ## Registering another template
 

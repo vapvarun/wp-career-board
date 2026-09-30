@@ -1,65 +1,65 @@
-# Profile, Account & Notifications
+# Profile, account and notifications
 
-Beyond applications and saved jobs, the Candidate Dashboard gives you three account items in the sidebar under **Account**: **Profile**, **Settings** (the page is titled Account Settings), and (when the site enables the notification bell) **Notifications**. The block at the top of the sidebar, with your name and role, also opens Profile. They are part of the same Candidate Dashboard block (shortcode `[wcb_candidate_dashboard]`).
+You can edit your profile, change your login details, choose which optional emails you get, and request your data or delete your account, all from the Candidate Dashboard.
+
+The sidebar has an **Account** section with **Profile**, **Settings** (the page is titled **Account Settings**) and, with Pro, **Notifications**. The block with your name at the top of the sidebar also opens **Profile**.
 
 ## Profile
 
-Open the **Profile** tab to control how you appear to employers. Your profile is **Public by default**. With WP Career Board Pro it is listed in the Find Candidates archive as soon as you have an account.
-
-The Profile tab lets you edit:
+Open **Profile** to edit what you share with employers:
 
 | Field | Notes |
 |---|---|
-| **Email** | Read-only here. Change it from Account Settings (below). |
-| **Phone** | Optional contact number shown on your profile and resume. |
-| **Location** | City and country, e.g. "Bengaluru, India". |
-| **Bio / About Me** | A short rich-text introduction for employers. |
+| **Email** | Read-only here. Change it in Settings |
+| **Phone** | Optional contact number |
+| **Location** | For example "Bengaluru, India" |
+| **Bio / About Me** | A short introduction |
 
-If the site runs add-ons or WP Career Board Pro's Field Builder, extra custom fields can appear on this tab as well. Click **Save Profile** to store your changes; a "Saved" confirmation appears when it succeeds.
+Sites with extra candidate fields show them here too. Click **Save Profile**. A confirmation appears when it saves.
 
 ## Account settings
 
-Open **Settings** for the parts of your account tied to login, not to your public profile.
+Open **Settings** to manage login details.
 
 ### Account details
 
-- **Display Name** - the name shown across the site.
-- **Email** - your login and notification address. Editable here. Changing it asks for your **Current password**.
-
-Click **Save changes** to apply.
+1. Change your **Display Name** or **Email**.
+2. If you change your email, enter your **Current password**.
+3. Click **Save changes**.
 
 ### Change password
-
-A dedicated panel lets you change your password without leaving the dashboard:
 
 1. Enter your **Current Password**.
 2. Enter and confirm a **New Password**.
 3. Click **Update password**.
 
-If you are locked out instead, use the WordPress "Lost password" link on the login page.
+If you are locked out, use the **Lost password** link on the login page.
 
 ### Email notifications
 
-A panel below the password form lists the optional emails you can turn off, such as deadline reminders. Untick one and it stops. Emails about your account, applications and payments are always sent. Changes save as you tick.
+This panel, below the password form, lists the optional emails you can turn off. Untick an email to stop it, tick it to get it again. Changes save as you click. It can include:
 
-### Privacy & my data (GDPR self-service)
+- **Application Deadline Reminder** - a reminder before the deadline of a job you saved and did not apply to.
+- **Job Alert Digest** (Pro) - your job alert emails.
 
-The same tab includes a **Privacy & My Data** panel with two self-service controls:
+Emails about your account and applications are always sent. The panel does not appear when the site has no optional emails turned on.
 
-- **Request data export** - asks the site to compile a copy of your personal data. You receive an email when it is ready.
-- **Delete my account** - confirm your password and type DELETE. Your account is locked straight away and deleted after a grace period (14 days by default); signing back in before then cancels it. The same option is in the mobile app.
+### Privacy and my data
 
-When your account is deleted, your profile, resumes, uploaded files, saved jobs and companies, and alerts are removed. Employers keep the applications you sent, but with your name, email, cover letter, answers and files removed: they see "Deleted candidate". You get an email when you request the deletion, if you cancel it, and when it runs.
+- **Request data export** - asks the site for a copy of your personal data. The site emails you to confirm the request, then sends the file once it has prepared it.
+- **Delete my account** - enter your password and type DELETE. Your account is locked at once and deleted after a grace period, 14 days by default. Sign back in before then and click **Keep my account** to cancel.
 
-## Notifications
+When the account is deleted, your profile, saved items and uploaded files are removed. With Pro, your resumes and job alerts are removed too. Employers keep the applications you sent, with your name, email, cover letter, answers and files removed. They see "Deleted candidate". You get an email when you request the deletion, when you cancel it, and when it runs.
 
-When the site owner enables the in-dashboard notification bell, a **Notifications** tab appears with an unread badge. It lists your Career Board notifications (for example application status changes) inside the dashboard, so you don't have to rely on email alone.
+## Notifications (Pro)
 
-The Notifications tab and the bell are provided by WP Career Board Pro. On Free-only installs you still receive email notifications, but the in-dashboard Notifications tab is not shown.
+With WP Career Board Pro, a **Notifications** tab with an unread badge appears in the sidebar. It lists your Career Board notifications, such as a confirmation that your application was submitted and status changes. Click a notification to open it. Use **Mark all read** to clear the unread badge, or **Clear all** to empty the list.
+
+Without Pro you still get the emails, but there is no Notifications tab.
 
 ## Related
 
-- [Candidate Overview](./01-overview.md) - all the dashboard tabs at a glance
-- [My Applications](./04-my-applications.md) - tracking application statuses
-- [Saved Jobs](./05-saved-jobs.md) - bookmarking jobs, companies, and resumes
-- [Troubleshooting](./10-troubleshooting.md) - profile visibility, account deletion, and password help
+- [Candidate overview](./01-overview.md)
+- [My applications](./04-my-applications.md)
+- [Saved jobs](./05-saved-jobs.md)
+- [Troubleshooting](./10-troubleshooting.md)

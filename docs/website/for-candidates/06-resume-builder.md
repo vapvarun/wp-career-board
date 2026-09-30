@@ -1,90 +1,53 @@
-# Resume Builder
+# Resume builder
 
 > **Pro feature** - Requires WP Career Board Pro.
 
-The Resume Builder lets candidates create structured, multi-section resumes directly on your WordPress site - no PDF uploads, no external tools required.
+You can build one or more resumes on the site, make them public or private, and pick one when you apply for a job.
 
-![Resume Builder - Full View](../images/resume-builder-full.png)
+## Manage your resumes
 
-## What candidates can build
+Open **Candidate Dashboard > My Resumes**.
 
-A resume is made up of sections. Each section holds structured entries:
+From this tab you can:
 
-| Section | What it stores |
+- Click **+ New Resume**, enter a title and click **Create**.
+- Click **Upload CV** to add a PDF, DOC or DOCX file as a resume.
+- Click **Edit** to open a built resume in the resume builder.
+- Click **View** to see a built resume, or **Open PDF** to open an uploaded one.
+- Click **Re-upload PDF** to replace an uploaded PDF.
+- Click **Delete**, then **Confirm**, to remove a resume.
+
+The number of resumes you can keep is limited. The site owner sets the limit in **Max Resumes Per Candidate** under **Career Board > Settings > Resumes**, and the default is 2. The tab shows the limit and disables **+ New Resume** when you reach it.
+
+## Build a resume
+
+The builder is a set of sections you open and close by clicking the section header. At the top you can:
+
+- Switch the **Public** checkbox. A public resume appears in the candidate directory and search. A private resume is visible only to you and to employers you apply to.
+- Click **Save Resume** to save your changes. A "Resume saved!" message confirms it.
+
+Below that, fill in:
+
+- **Professional Summary**
+- **Years of experience**, which the candidate directory uses for its experience filter
+- **Open to new opportunities**, which puts you in the directory's "Open to work" filter
+
+Then add entries in these sections:
+
+| Section | Fields |
 |---|---|
-| **Professional Summary** | A free-text overview paragraph |
-| **Work Experience** | Job title, company, dates, description |
-| **Education** | Degree, institution, dates |
-| **Skills** | Skill name and optional proficiency level |
-| **Languages** | Language name and proficiency |
-| **Certifications** | Certificate name, issuing body, date |
-| **Links** | Portfolio, GitHub, LinkedIn, etc. |
+| **School** | School name, certificate or qualification, field of study, start and end date, grade, description |
+| **College / University** | Institution, degree type, field of study, start and end date, GPA, description, achievements |
+| **Work Experience** | Company, job title, employment type, location, start and end date, **Currently Working Here**, description, skills used |
+| **Certifications** | Certificate name, issuing body, issue and expiry date, credential ID, credential URL |
+| **Skills** | Skill and proficiency level (Beginner, Intermediate, Advanced or Expert) |
+| **Languages** | Language and proficiency level (Basic, Conversational, Fluent or Native) |
+| **Portfolio / Links** | Label and URL |
 
-## Admin setup
+To add an entry, open a section, click **Add Entry**, fill in the fields and click **Done**. Use the edit and remove icons on an entry to change or delete it. Click **Save Resume** when you finish.
 
-Before candidates can use the Resume Builder, set it up in two steps:
+## Use a resume when you apply
 
-1. Create a page and add the **Resume Builder** block to it
-2. Go to **WP Career Board → Settings → Pages** and assign that page to the **Resume Builder Page** field
+When you apply for a job, pick a saved resume in **Select Resume**, or choose **Upload a different file instead**. If the resume has no uploaded PDF, Pro creates one and attaches it.
 
-Once assigned, the Candidate Dashboard's **My Resumes** tab will link to this page automatically.
-
-## My resumes tab
-
-Candidates access their resumes from **Candidate Dashboard → My Resumes**.
-
-![My Resumes Tab - Dashboard](../images/candidate-dashboard-resumes.png)
-
-From this tab, candidates can:
-- See all saved resumes with their last-updated date
-- Click **Edit** to open a resume in the builder
-- Click **Create New Resume** to start a new one
-- Click **Delete** to permanently remove a resume
-
-## Using the resume builder
-
-The builder is organized into collapsible sections. Click any section header to expand it.
-
-![Resume Builder - Sections](../images/resume-builder-sections.png)
-
-### Adding entries
-
-1. Open any section (e.g., Work Experience)
-2. Click **+ Add Entry**
-3. Fill in the fields
-4. Click **Save** on the entry
-
-The entry appears as a compact row. Click it to expand and edit again.
-
-### Entry fields
-
-**Work Experience:** Job Title, Company, Start Date, End Date, "Currently working here" toggle, Description
-
-**Education:** Degree / Qualification, Institution, Start Year, End Year, Field of Study
-
-**Skills:** Skill name, Proficiency level (Beginner / Intermediate / Advanced / Expert)
-
-**Languages:** Language name, Proficiency (Native / Fluent / Conversational)
-
-**Certifications:** Certificate name, Issuing organization, Issue date
-
-**Links:** URL, Label (e.g., "Portfolio", "GitHub")
-
-### Auto-save
-
-The Resume Builder saves each entry individually when you click **Save** on that entry. There is no global save button. A "Saved" confirmation briefly appears after each save.
-
-## Multiple resumes
-
-Candidates can create more than one resume - for example, one for engineering roles and one for management roles. The dashboard lists all resumes with their last-updated date.
-
-## Attaching a resume to an application
-
-When a candidate applies for a job, they can select one of their saved resumes to attach. The employer sees the full structured resume on the application - not a PDF attachment.
-
-## Resume visibility
-
-- **Private** (default) - visible only to the candidate and employers who receive applications from them
-- **Public** - visible in the Find Resumes employer archive
-
-Candidates toggle visibility in the Resume Builder header.
+To let employers find you, turn on **Public** in the builder. Public resumes appear on the site's **Find Candidates** page. The site owner chooses who can browse that page.

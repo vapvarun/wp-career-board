@@ -1,76 +1,80 @@
-# Finding Jobs
+# Finding jobs
 
-The job board gives candidates a fast, reactive way to browse and narrow down listings - no page reloads, no waiting.
+You can search, filter and sort the job board without reloading the page, then open any job to read it and apply.
 
-![Job Listings Page](../images/job-listings-page.png)
+## Browse the job board
 
-## Browsing the job board
-
-Visit the **Find Jobs** page on your site (`/find-jobs/`). You will see a grid of all jobs that are currently taking applications, featured jobs first, each showing:
+Open the **Find Jobs** page (`/find-jobs/` on a default install). It lists published jobs as cards. Each card can show:
 
 - Job title
 - Company name and logo
-- Location
-- Job type (Full-time, Part-time, etc.)
-- Posted date
-- Salary (if provided by the employer)
+- Badges for Featured, Remote, job type, experience level and location
+- A short excerpt
+- Salary, if the employer entered one
+- The application deadline, or a closed label
+- How long ago the job was posted
 
-Click any card to open the full job detail page.
+Click a card or **View Job** to open the full job page. Use the layout buttons above the results to switch between list and grid view. The site owner sets how many jobs load at a time.
 
-## Searching by keyword
+## Search by keyword
 
-Use the **Search** bar at the top of the job board to find jobs by keyword. The search looks through job titles, descriptions and company names. Every word you type must appear (up to six words; words of one letter are ignored), and jobs with the words in the title come first. Featured jobs lead the results. Results update without a page reload.
+Type in the **Search jobs** box. Jobs must contain every word you type in the title, the description or the company name. Words of one letter are ignored, and only the first six different words are used. Results update without a reload.
 
-![Job Search Bar](../images/job-search-bar.png)
+## Filter jobs
 
-## Filtering jobs
+The **Filters** panel sits beside the results. Depending on how the site owner set it up, it can include:
 
-Use the **Filter** dropdowns to narrow results by:
-
-| Filter | Options |
+| Filter | What it does |
 |---|---|
-| **Category** | Industry or function (e.g., Engineering, Marketing, Design) |
-| **Job Type** | Full-time, Part-time, Contract, Freelance, Internship |
-| **Location** | Country, state, or city |
-| **Experience Level** | Entry, Mid, Senior, Lead, Executive |
-| **Salary Range** | Sliders to set a minimum and maximum pay. See [Salary Range Filter](./08-salary-filter.md). |
-| **Remote only** | Only jobs marked remote |
+| **Job type** | Shows jobs of the types you tick |
+| **Experience** | Shows jobs at the experience levels you tick |
+| **Category** | Shows jobs in the categories you tick |
+| **Tags** | Shows jobs with the tags you tick |
+| **Location** | **Remote only** shows only jobs marked remote |
+| **Job board** | Shows jobs from the boards you tick, when the site has more than one board |
+| **Salary** | Two sliders for a minimum and maximum. See [Salary range filter](./08-salary-filter.md) |
 
-You can pick several values in one filter (for example two job types) and combine filters. A job matches if it has any of the values you picked in a filter, and all of the filters together. Results update instantly after each selection, and each active filter shows as a removable pill above the results. Links shared with filters in the address bar open with those filters already applied.
+The options in each list are the ones your site has set up. If the site uses the separate Job Filters block instead, it shows drop-down lists for category, job type, location and experience, and two number fields for salary.
 
-To remove all filters at once, click **Clear all**. On tablets and phones the filters collapse behind a **Filters** button that shows how many are active.
+You can tick several values in one filter. A job matches if it has any value you ticked in a filter, and it must match every filter you use. Each active filter appears as a removable pill above the results. Click **Clear all** to remove them all. Links that carry filters in the address bar open with those filters already applied.
 
-## Sorting
+On small screens the filter panel collapses. Use its toggle to open it.
 
-Use the **Sort jobs** menu above the results: **Recommended** (best match while you are searching, otherwise the site's default order), **Newest first**, **Closing soonest** (jobs already past their deadline come last), **Highest salary** (compared per year) or **Oldest first**.
+## Sort
 
-## Loading more jobs
+Use the **Sort jobs** menu above the results:
 
-The job board loads a set number of jobs at a time (set by your admin). When you reach the bottom, click **Load more** to see additional listings.
+- **Recommended** - best match while you are searching, otherwise the site's default order
+- **Newest first**
+- **Closing soonest** - jobs already past their deadline come last
+- **Highest salary** - each job's top salary figure converted to a yearly amount
+- **Oldest first**
 
-## Browsing by category, type, tag, location or experience
+Featured jobs come first with **Newest first** and when you are searching.
 
-Clicking a category, job type, tag, location or experience level on a job opens a page that lists only the jobs with that term, titled with the term's name. The filters and Load more on that page stay within the term.
+## Load more
 
-## Viewing a job
+Click **Load more jobs** at the bottom to show the next set.
 
-Click any job card to open the full detail page. You will see:
+## Browse by tag or category
 
-- Full job description
-- Company information with a link to the company profile
-- Application deadline (if set). A job past its deadline shows a notice that it has expired, with similar open jobs, and no **Apply** button
-- Salary range
-- Job type, location, and experience level
-- An **Apply Now** button to start the application
+Tags on a job page link to a page that lists only jobs with that tag. Categories, job types, locations and experience levels have the same kind of page.
 
-![Job Single Page](../images/job-single-page.png)
+## Read a job
+
+The job page shows:
+
+- The full description
+- Job details such as work mode, salary, and the **Apply By** date when the employer set a deadline
+- Company information
+- **Apply Now**, or **Apply on Company Site** when the employer applies through their own site
+
+A job that has expired or was closed shows a notice, no apply button, and up to three open jobs you might like instead.
 
 ## Recommended for you (Pro)
 
-When the site runs WP Career Board Pro with AI matching enabled, your **Candidate Dashboard → Overview** shows a **Recommended for you** list - jobs matched to the resume on your profile, labelled "AI-matched to your resume". This is in addition to browsing and searching the full board. The recommendations are hidden on Free-only installs and when AI matching is not configured.
+With WP Career Board Pro and AI matching set up, your **Candidate Dashboard > Overview** shows a **Recommended for you** list. Each card shows a match percentage, the job title, the company and the location.
 
-## Saving a job for later
+## Save a job
 
-Click the **bookmark icon** on any job card or job detail page to save it. Saved jobs appear in your **Candidate Dashboard → Saved Jobs** tab. Bookmarking works for any logged-in user (a dedicated Candidate role is not required).
-
-You can remove a saved job at any time from the dashboard. You can also bookmark companies - those appear under **Candidate Dashboard → Saved Companies**.
+Sign in, then click the bookmark icon on a job card, or **Save Job** on the job page. Saved jobs appear under **Candidate Dashboard > Saved Jobs**. See [Saved jobs](./05-saved-jobs.md).

@@ -1,24 +1,22 @@
 # Setup Wizard
 
-The Setup Wizard is the fastest way to get your job board up and running. It walks you through pages, sign-ups, jobs, emails, and spam protection, then offers sample data.
-
-![Setup Wizard - Welcome Screen](../images/setup-wizard-welcome.png)
+You can set up your job board in the Setup Wizard. It creates your pages, sets your basic options for sign-ups, jobs, emails and spam protection, and can add sample data.
 
 ## How it works
 
-A stepper runs across the top of the wizard showing every step and your progress. The WordPress admin menu is hidden while the wizard runs, so you finish the task instead of wandering off half configured - click **Exit setup** in the wizard header to leave at any time. Every finished step stays reachable: click it in the stepper to reopen and change what you entered.
+A stepper runs across the top of the wizard. The WordPress admin menu is hidden while the wizard runs. Click **Exit setup** in the wizard header to leave at any time. You can click a step you have already reached in the stepper to reopen it.
 
-Every settings step has two ways forward: **Save & Continue** to save your answer and move on, or **Skip for now** to move on without saving. Nothing here is final - every answer can be changed later in **Settings**.
+The Sign-ups, Jobs, Emails and Spam Protection steps have **Save & Continue** and **Skip for now**. Every answer can be changed later in **Settings**.
 
 ## The steps
 
 ### 1. Pages
 
-Creates the pages your board needs, each with the correct block already placed. A page that already exists with the right block is reused, not duplicated - the wizard is safe to run again.
+Creates the pages your board needs, each with the correct block already placed. Pages you already have are kept. The step lists each page as "Already set up" or "Will be created".
 
 | Page | Block(s) | Purpose |
 |---|---|---|
-| Find Jobs | Heading + Job Search + Job Filters + Job Listings | Main job board browse page |
+| Find Jobs | Heading + Job Search + Job Listings | Main job board browse page |
 | Post a Job | Job Form | Multi-step form for employers to submit listings |
 | Employer Registration | Employer Registration | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
 | Employer Dashboard | Employer Dashboard | Employer manages jobs + applications |
@@ -32,7 +30,7 @@ Creates the pages your board needs, each with the correct block already placed. 
 
 ### 3. Jobs
 
-- **Publish jobs without review** - off by default; every new job waits for your approval under Career Board → Jobs before candidates see it.
+- **Publish jobs without review** - when off, every new job waits for your approval under **Career Board > Jobs** before candidates see it.
 - **Default listing length** - how long a job stays open when the employer sets no deadline.
 - **Salary currency** - pre-selected on the job form; employers can still pick another.
 
@@ -44,30 +42,24 @@ Creates the pages your board needs, each with the correct block already placed. 
 
 ### 5. Spam protection
 
-Choose a CAPTCHA provider (None, Cloudflare Turnstile, Google reCAPTCHA v3 invisible, or Google reCAPTCHA v2 invisible badge) and enter its site key and secret key. See [Settings → Anti-Spam](../admin-guide/01-settings.md#anti-spam) for provider details. A honeypot field protects every form regardless of this choice.
+Choose a CAPTCHA option and enter its site key and secret key. The options are None (hidden honeypot only), Cloudflare Turnstile, Google reCAPTCHA v3 and Google reCAPTCHA v2 (invisible badge). A hidden honeypot always protects the sign-up, apply and post-a-job forms. See [Settings > Anti-spam](../admin-guide/01-settings.md#anti-spam).
 
-### 6. License (Pro only)
+### 6. Sample data
 
-Activate your WP Career Board Pro license key.
+Optionally install sample categories, job types, companies and demo jobs, so you can see how the board looks before you add real data. Click **Finish Setup** to complete.
 
-### 7. How employers pay (Pro only)
+### Extra steps with Pro
 
-Configure how employers pay for job posts (credits, connected payment provider).
-
-### 8. Sample data
-
-Optionally install demo content - companies, published jobs across multiple categories, and taxonomy terms. This lets you see how the board looks with real content before going live. Click **Finish Setup** to complete.
-
-![Setup Wizard - Pages Created](../images/setup-wizard-complete.png)
+WP Career Board Pro adds steps named License, How Employers Pay and Pro Pages.
 
 ## Running the wizard again
 
 If you dismissed the wizard or need to create missing pages:
 
-1. Go to **Career Board → Settings**
-2. Click **Re-run Setup Wizard** at the bottom of the page
+1. Go to **Career Board > Settings**.
+2. Click **Re-run Setup Wizard** at the bottom of the page.
 
-Pages you already have are kept and reused. The wizard never overwrites them.
+Pages you already have are kept and reused.
 
 ## After the wizard
 

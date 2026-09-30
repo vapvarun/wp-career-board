@@ -1,71 +1,26 @@
-# Installing & Activating WP Career Board Pro
+# Install and activate Pro
 
-> **Pro feature** - Requires a WP Career Board Pro license from [wbcomdesigns.com](https://wbcomdesigns.com).
+You can add WP Career Board Pro to a site that already runs WP Career Board. Pro is a separate plugin.
 
-WP Career Board Pro is an add-on plugin. It requires the free **WP Career Board** plugin to be installed and active first.
+## Install the Pro plugin
 
-## Step 1: install the Pro plugin
+1. Install and activate WP Career Board (Free) first. Pro needs it and shows an admin error notice when Free is not active.
+2. In wp-admin, go to **Plugins > Add New > Upload Plugin**.
+3. Select the `wp-career-board-pro.zip` file and click **Install Now**.
+4. Click **Activate Plugin**.
 
-1. Log in to your account at wbcomdesigns.com
-2. Go to **My Account → Downloads**
-3. Download `wp-career-board-pro.zip`
-4. In your WordPress admin, go to **Plugins → Add New → Upload Plugin**
-5. Select the downloaded zip and click **Install Now**
-6. Click **Activate Plugin**
+Pro also needs a Free version that is new enough. If yours is too old, an admin notice asks you to update Free first.
 
-If the free plugin is not active, activation will be blocked with an error message. Install and activate WP Career Board (free) first, then retry.
+## Activate your license
 
-## Step 2: activate your license
+Go to **Career Board > Settings > License** and enter your license key. The key keeps automatic updates working. The Pro features on your website do not depend on it.
 
-1. Go to **Career Board → Settings → License**
-2. Paste your license key in the **License Key** field
-3. Click **Activate License**
+For statuses, moving a license to another site and renewals, see the WP Career Board Pro docs, page named **License activation**.
 
-A confirmation shows your license status, expiry date, and how many sites are using this license.
+## What Pro adds
 
-## License statuses
+- Extra tabs under **Career Board > Settings**, including Analytics, Boards, Field Builder, Credits, AI Settings, Job Feed, Integrations and License.
+- Extra blocks in the block inserter.
+- Extra setup wizard steps named License, How Employers Pay and Pro Pages.
 
-| Status | Meaning |
-|---|---|
-| **Active** | Valid license, updates available |
-| **Expired** | License period ended - plugin still works but no updates |
-| **Inactive** | Key entered but not yet activated on this site |
-| **Invalid** | Key does not match any license |
-| **No activations left** | All license slots used - deactivate from another site first |
-
-## License tiers
-
-| Tier | Sites |
-|---|---|
-| Single Site | 1 site |
-| Business | 5 sites |
-| Agency | Unlimited sites |
-
-## Deactivating
-
-To move your license to a different site:
-
-1. Go to **Career Board → Settings → License**
-2. Click **Deactivate License**
-3. Activate on the new site
-
-You can also manage all site activations from your account at wbcomdesigns.com.
-
-## Renewing
-
-The plugin continues to work after expiry - you just stop receiving updates. To renew, log in to wbcomdesigns.com → **My Account → Licenses → Renew**.
-
-## What activates with Pro
-
-On activation, WP Career Board Pro:
-
-- Creates additional Pro database tables
-- Adds Pro settings tabs to **Career Board → Settings**
-- Registers additional Pro blocks in the block inserter
-- Enables the Resume Builder, Field Builder, Application Pipeline, Credit System, Multi-Board, Job Alerts, Job Map, and AI modules
-
-## Pro setup wizard
-
-After activating the Pro plugin, a **Pro Setup Wizard** runs automatically to configure Pro-specific settings (pipeline stages, credits, resume page, etc.). This wizard appends its own steps to the standard wizard using the `wcb_wizard_steps` filter.
-
-If the Free wizard already ran, the Pro wizard renders as a focused mini-wizard that handles only the Pro steps. You can re-run it any time from the **Re-run Setup Wizard** link at the bottom of **Career Board → Settings**.
+To run the wizard again, click **Re-run Setup Wizard** at the bottom of **Career Board > Settings**.

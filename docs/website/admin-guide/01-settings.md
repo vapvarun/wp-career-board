@@ -1,8 +1,6 @@
 # Settings
 
-Configure WP Career Board from **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save Changes** button. Saving keeps you on the same tab.
-
-![Settings Page - Jobs Tab](../images/settings-job-listings.png)
+You can set how jobs are reviewed and listed, who can sign up, how emails look and which pages hold each feature. Open **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save Changes** button. Saving keeps you on the same tab.
 
 The defaults below are what a fresh install uses. A few defaults are safer on sites created from 1.8.0 on; those are marked "new sites". Sites that existed before 1.8.0 keep their settings and see one notice listing the safer defaults.
 
@@ -12,12 +10,10 @@ The defaults below are what a fresh install uses. A few defaults are safer on si
 |---|---|
 | **Jobs** | Review, listing length, order, salary currency, featured duration, Google for Jobs and sharing |
 | **Applications** | Resume rules and withdrawing |
-| **Boards** (Pro) | Multi-board engine: create and manage independent job boards |
-| **Field Builder** (Pro) | Custom fields for jobs, companies, and candidates |
-| **Pipeline** (Pro) | Application pipeline stages |
-| **Job Feed** (Pro) | RSS/JSON feed settings for job listing aggregators |
 | **Industries** | The industries offered on company profiles, registration and the company directory filter |
-| **Import** | One-click migration from WP Job Manager. See [Import & Migration](./18-import.md) |
+| **Import** | Migrate from WP Job Manager. See [Import & Migration](./18-import.md) |
+
+WP Career Board Pro adds more tabs to this group (Boards, Field Builder and Job Feed). Read them in the Pro documentation.
 
 ### Jobs
 
@@ -26,7 +22,7 @@ The defaults below are what a fresh install uses. A few defaults are safer on si
 | **Auto-Publish Jobs** | Off | On: submitted jobs go live at once. Off: new jobs wait as Pending until approved under Career Board → Jobs |
 | **Hide a job after this many reports** | 3 | When this many members with standing report a job, it is taken off the site as Pending until you review it under Jobs → Flagged. 0 turns auto-hide off (0-50). See [Moderation](./03-moderation.md#reported-jobs-flagged) |
 | **Default listing length (days)** | 30 | How long a job stays open when the employer sets no deadline. A board's own listing length, if set, wins |
-| **When a job ends** | - | Not a switch. At its deadline a job stops taking applications and leaves listings, feeds and the sitemap within the hour (hourly WP-Cron). Its page stays up as an expired page (noindex, similar open jobs) so shared links keep working. Employers reopen it with a new deadline. On sites created before 1.8.0 that had this off, past-deadline jobs keep listing until you click **End jobs at their deadline** here. Only jobs that ended in the last 7 days email their employer, so switching on does not email a backlog |
+| **When a job ends** | - | Not a switch. At its deadline a job stops taking applications and leaves listings, feeds and the sitemap within the hour. Its page stays up as an expired page (noindex, similar open jobs) so shared links keep working. Employers reopen it with a new deadline. On sites created before 1.8.0 that had this off, past-deadline jobs keep listing until you click **End jobs at their deadline** here. Only jobs that ended in the last 7 days email their employer, so switching on does not email a backlog |
 | **Jobs Per Page** | 10 | Jobs per page in the job listings block (1-100) |
 | **Default order** | Featured, then newest | How job lists are ordered before a visitor picks a sort: Featured then newest, Closing soonest, Highest salary, or Oldest first. A keyword search always shows the best matches first |
 | **Default Salary Currency** | USD | Pre-selected on the job form; employers can pick another per job |
@@ -47,9 +43,9 @@ The **Search engines and sharing** card on the same tab holds four more settings
 | Tab | What it controls |
 |---|---|
 | **Sign-ups** | Open sign-up status, email confirmation, candidate role, login to apply |
-| **Resumes** (Pro) | Resume visibility, file upload, and resume builder settings |
-| **Credits** (Pro) | Credit settings, product-to-credit mappings, detected payment providers |
 | **Privacy** | Pending account deletions and the personal-data request log |
+
+WP Career Board Pro adds Resumes and Credits tabs here. Read them in the Pro documentation.
 
 ### Sign-ups
 
@@ -66,7 +62,7 @@ Sign-ups from one connection are limited to 5 an hour. Developers can change tha
 
 The **Privacy** tab shows two lists:
 
-- **Pending account deletions** - members who asked to delete their account, with the date it runs and a **Keep account** button to cancel it for them. The grace period is 14 days.
+- **Pending account deletions** - members who asked to delete their account, with the date it runs and a **Keep account** button to cancel it for them. The grace period is 14 days by default.
 - **Privacy request log** - every personal-data export and erase request the plugin processed, kept as evidence. Visitor IP addresses are stored only as a one-way hash.
 
 See [GDPR & Privacy](./04-gdpr.md).
@@ -99,17 +95,14 @@ See [GDPR & Privacy](./04-gdpr.md).
 |---|---|
 | **Pages** | Assigns the WordPress pages that hold each Career Board block |
 | **Anti-Spam** | Honeypot plus an optional CAPTCHA provider |
-| **AI Settings** (Pro) | AI provider key for AI Chat Search and job description generation |
-| **Analytics** (Pro) | Analytics and reporting settings |
 | **Integrations** | Install and activate other Wbcom plugins that work with Career Board |
 | **Advanced** | Content width, email history retention, Remove Data on Delete |
-| **License** (Pro) | Pro license key activation and management |
 
-On phones the sidebar collapses and every tab is listed under its group label, so the grouping stays the same at any screen size.
+WP Career Board Pro adds AI Settings, Analytics, Job Alerts and License tabs here. Read them in the Pro documentation.
 
 ### Pages
 
-Links each feature to its page. If the Setup Wizard ran, these are filled in for you. If a page is missing, a banner names it, and **Create Missing Pages** creates only what is missing: it keeps pages you already have and adopts a page that already contains the right block, so it never makes a duplicate.
+You can choose which WordPress page holds each feature. If the Setup Wizard ran, these are filled in for you. If a page is missing, a banner names it, and **Create Missing Pages** creates only what is missing: it keeps pages you already have and adopts a page that already contains the right block, so it never makes a duplicate.
 
 | Setting | Slug | Purpose |
 |---|---|---|
@@ -119,7 +112,7 @@ Links each feature to its page. If the Setup Wizard ran, these are filled in for
 | **Company Directory Page** | `/find-companies/` | The public company directory |
 | **Post a Job Page** | `/post-a-job/` | The standalone job-submission page |
 | **Employer Registration Page** | `/employer-registration/` | The sign-up page for both employers and candidates |
-| **Find Candidates Page** (Pro) | `/find-candidates/` | The candidate directory. Older `/find-resumes/` pages from before 1.8.0 still work |
+| **Find Candidates Page** (Pro) | `/find-candidates/` | The candidate directory. An older `/find-resumes/` page still works |
 | **Job Map Page** (Pro) | `/job-map/` | Jobs plotted on a map with a radius filter |
 
 The browse pages use `/find-jobs/` and `/find-companies/` because `/jobs/` and `/companies/` belong to the job and company archives.

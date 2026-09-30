@@ -1,92 +1,63 @@
 # Post a Job
 
-Post a job from the **Employer Dashboard**: click **Post a Job** in the sidebar (under Jobs), the **+ Post a Job** button pinned at the bottom of the sidebar, or **Post Your First Job** on the Overview. The setup wizard also creates a standalone **Post a Job** page (`/post-a-job/`) with the same form.
-
-![Job Form - Step 1](../images/job-form-step1.png)
+You can post a job in a few minutes from the **Employer Dashboard**. Click **Post a Job** in the sidebar (under Jobs), the **+ Post a Job** button pinned at the bottom of the sidebar, or **Post Your First Job** on the Overview. The setup wizard also creates a standalone **Post a Job** page (`/post-a-job/`) with the same form.
 
 ## Before you post
 
-Make sure you are logged in as a user with the **Employer** role. If you are not logged in, the dashboard will show a prompt to register or log in.
+Log in as a user with the **Employer** role. If you are not logged in, the form asks you to sign in. If you are logged in without the Employer role, it links to the employer registration page. You need a company profile before you can post a new job.
 
-## Step-by-step: posting a job
+## Post a job step by step
 
-The job form is a 4-step wizard that walks you through each section of the listing.
+The job form is a 4-step wizard.
 
-### Step 1 - Basics
+### Step 1 - Job Basics
 
-Enter the core information about the role:
+- **Post to Board** - shown only when the site has more than one board.
+- **Job Title** - the position name (required).
+- **Job Description** - the role, responsibilities and requirements (required). When the site has AI description tools, a **Generate with AI** button appears here.
 
-- **Job Title** - the position name (required)
-- **Job Description** - full description of the role, responsibilities, and requirements
+### Step 2 - Job Details
 
-### Step 2 - Details
+- **Salary Range** - optional. Pick a currency, enter a minimum and maximum, and choose the period (Year, Month or Hour). Leave it blank to hide the salary from candidates.
+- **Remote-friendly position** - tick this for a remote job.
+- **Application Deadline** - filled in for you from the board's listing length. You cannot edit it in the form. Ask your site admin if you need a longer listing window.
+- **Apply URL** - optional. A full link starting with `http://` or `https://` where candidates apply on your own site. The public job page then shows an **Apply on Company Site** button in place of the on-site apply form.
+- **Apply Email** - optional. Shown as an **Apply Email** link on the public job page.
 
-Provide the specifics:
+### Step 3 - Classify Your Job
 
-- **Location** - city, state/country, or Remote. When the site requires a location (the default on new sites), a job needs a location or the Remote option before it can be posted
-- **Salary** - optional; enter a min and max range, with currency and period (yearly / monthly / hourly)
-- **Job Type** - Full-time, Part-time, Contract, Freelance, or Internship
-- **Experience Level** - Entry, Mid, Senior, Lead, or Executive
-- **Application Deadline** - optional; date after which the job closes automatically
-- **Apply URL** - optional; an external link where candidates apply on your own site. When set, the public job page shows an "Apply on Company Site" button instead of the on-site apply form. The URL must start with `http://` or `https://`.
-- **Apply Email** - optional; an address candidates can email to apply
+- **Category** - the industry or function.
+- **Job Type** and **Experience Level** - pick from the lists your site offers.
+- **Location** - pick a location, or choose **Other (enter manually)**. When the site requires a location (the default on new sites), a job needs a location or the Remote option before you can post it.
+- **Skills / Tags** - comma-separated. They help candidates find your job by keyword.
 
-### Step 3 - Categories
+### Step 4 - Preview & Submit
 
-Classify the job so candidates can find it:
+Review the details, then click **Post Job**. When you edit an existing job, the button reads **Update Job**.
 
-- **Job Category** - select the industry or function category
-- **Tags** - add relevant tags for better discoverability
+When the site sells featured placement (Pro), this step also shows a checkbox such as "Feature this job: it lists first for 30 days (2 credits)". See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
 
-### Step 4 - Preview
+## After you submit
 
-Review all the information you entered across the previous steps. If everything looks correct, click **Post Job** to submit. (When editing an existing job, this button reads **Update Job**.)
+- **Moderation on (the default):** you see "Job submitted for review. You'll be notified once it's approved." The job goes live when a moderator approves it.
+- **Moderation off:** the job is published straight away and you see "Job posted successfully!" with a link to the listing.
 
-When the site sells featured placement (needs Pro), this step also shows a checkbox such as "Feature this job: it lists first for 30 days (2 credits)". See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
+You get an email when a moderator approves or rejects a job. If the site charges credits and your balance is too short when the moderator approves, the job stays Pending and shows **Awaiting payment** in My Jobs until your balance covers it.
 
-![Job Form - Review Step](../images/job-form-review.png)
+## Edit a job
 
-## After submitting
+Open **My Jobs** and click **Edit** on the job. The form opens with the current details. Change what you need and click **Update Job**. A published job stays live while you edit it.
 
-**If moderation is ON** (default): your job is submitted for admin review. You will see a "Pending review" message. The job goes live after the admin approves it.
+## When a job ends
 
-**If moderation is OFF**: your job is published immediately and appears on the job board.
+A job runs until its deadline. That is the site's listing length, 30 days by default, unless the board sets its own length.
 
-You will receive an email when a moderator approves or rejects a job that was held for review. If the site charges credits and your balance is too short when the moderator approves, the job stays Pending and shows **Awaiting payment** in My Jobs until your balance covers it.
+On sites that end jobs at their deadline (the default on new sites), the job then leaves the job listings. Its page stays up and tells visitors it has expired, so links you shared keep working. Your dashboard shows it as **Expired** with a **Reopen** button, which starts a new listing period with a fresh deadline (the site may charge credits for it). You get a **Job Ending Soon** email 3 days before the deadline. On any site, a job stops taking applications once its deadline has passed. Applications you already received stay as they are, so you can keep reviewing them.
 
-Validation messages appear under the field they belong to. Clicking **Next** or **Post Job** twice quickly does not create two jobs.
+## Close a job early
 
-## Editing a submitted job
+Use **Close** in **My Jobs** when the role is filled or cancelled. The job leaves the listings and stops taking applications. Every applicant you have not hired or rejected moves to **Closed** and gets one email saying the position is closed. You can reopen the job later, and the closed applications return to their earlier status.
 
-You can edit a pending or published job from your **Employer Dashboard → My Jobs → Edit**. Changes to a published job may require re-approval depending on your admin's settings.
+## Use a single-page form instead
 
-## Job expiry
-
-Every job runs until its deadline (the date you set, or the site's listing length, 30 days by default). At the deadline it stops taking applications and leaves the job listings. Its page stays up and tells visitors it has expired, so links you shared keep working. You get an email 3 days before, and your dashboard shows it as **Expired** with a **Reopen** button, which starts a new listing period with a fresh deadline (paid boards charge for it). Applications you already received stay as they are, so you can keep reviewing them.
-
-## Closing a job early
-
-Use **Close** in **My Jobs** when the role is filled or cancelled. The job leaves the listings and stops taking applications, and every applicant you have not hired or rejected is moved to **Closed** and gets one email saying the position is closed. You can reopen a closed job later; the closed applications stay closed.
-
-## Single-page form - When the 4-step wizard is overkill
-
-The default post-a-job experience is a 4-step wizard. For some embed points the wizard is too tall: sidebars, modal overlays, partner pages, single-page sites, and classic themes with limited vertical real estate. WP Career Board ships a second block, **Job Form (Single-Page)**, that puts every field on one screen.
-
-It submits to the same `/wcb/v1/jobs` endpoint, honours the same `wcb_job_form_fields` filter for custom fields, and respects the same employer-role gate. The only thing it does not support is edit mode - editing a job always routes through the wizard from the Employer Dashboard.
-
-### Block settings
-
-- **Board** - target a specific board (multi-board sites only)
-- **Show Company Field** - toggle the company name field on or off (on by default)
-- **Compact** - tighter vertical rhythm for narrow embed contexts
-
-### Adding the single-page form
-
-In Gutenberg, search for **Job Form (Single-Page)** in the block inserter. In classic editors or page builders, use the shortcode:
-
-```
-[wcb_job_form_simple]
-[wcb_job_form_simple boardId="42" showCompanyField="false" compact="true"]
-```
-
-> When to use which: keep the wizard on your primary "Post a Job" page - the dashboard already places it for you. Reach for the single-page form when you need a job form alongside other content - homepage hero, partner page, sidebar widget, or modal overlay.
+If you want the whole form on one screen, use the **Job Form (Single-Page)** block or the `[wcb_job_form_simple]` shortcode. See [Quick Job Form](./08-quick-job-form.md).

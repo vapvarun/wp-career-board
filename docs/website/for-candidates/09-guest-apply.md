@@ -1,78 +1,47 @@
-# Apply as a Guest
+# Apply as a guest
 
-You can apply to a job without creating an account first, unless the
-site turned on **Require login to apply** (then the job page shows
-**Sign in to apply**). The apply form on every job page accepts:
+You can apply to a job with just your name, email and a resume, without creating an account. This works unless the site turned on **Require login to apply**. In that case the job page shows **Sign in to apply**.
 
-- Your name + email
-- A cover letter (optional)
-- A resume file upload (PDF / DOC / DOCX)
+## Apply as a guest
 
-This makes it easy to apply on the spot - no signup wall.
-
-## How to apply as a guest
-
-1. Open any job page (e.g. `/jobs/senior-backend-engineer/`).
+1. Open a job page.
 2. Click **Apply Now**.
-3. The apply panel opens - fill in your name + email.
-4. Drop a resume file into the **Click to upload resume** zone, or
-   pick one with the file picker. PDF, DOC, and DOCX accepted, up to
-   the size cap configured by the site (default 5 MB, sites can raise
-   to 20 MB).
-5. (Optional) Write a cover letter in the **Cover Letter (optional)**
-   textarea.
+3. Enter **Your Name** and **Your Email**.
+4. Click **Click to upload resume** and choose a PDF, DOC or DOCX file. The default size limit is 5 MB, and the site owner can raise it up to 20 MB.
+5. Optional: write a cover letter.
 6. Click **Submit Application**.
 
-The employer receives the application instantly. They see your
-name, email, cover letter, and resume preview from their dashboard.
+The employer sees your name, email, cover letter and resume file in their dashboard.
 
-## Required vs optional resume
+## Is a resume required?
 
-Whether a resume is required depends on the site's settings:
+It depends on the site. By default a resume is required, and you cannot submit without a file. If the site owner turned the requirement off, the field is marked **(optional)** and you can submit without one.
 
-- **Resume required** (the default for new sites) - you must
-  attach a file to submit.
-- **Resume optional** - you can submit without a file. The employer
-  may follow up via email.
+## Emails you get
 
-If a site requires a resume but you try to submit without one, you'll
-see a clear error message: "A resume is required to apply for this
-job." Drop a file and resubmit.
+- A confirmation email when you apply.
+- An email when the employer changes your status, including a "not selected" email if you are not chosen.
 
-## Privacy and linking to an account later
+## Limits
 
-Your application is stored against your email address. If you later
-create an account with the same email, your earlier guest applications
-are linked to the new account automatically at the moment it is created,
-and they appear in **My Applications**. There is nothing to request or
-claim.
+- You cannot apply to the same job again with the same email within 24 hours.
+- One connection can send 10 guest applications an hour.
+- You cannot withdraw a guest application, and you have no dashboard to track it.
 
-Linking happens only when the account is created, and only for the exact
-email you applied with. If you already had an account when you applied as
-a guest, or you register with a different email, those applications are
-not moved. Sign in first next time to keep everything in one place.
+## Link guest applications to an account
 
-To get a copy of your data or have it deleted, use the
-[Privacy & My Data](../admin-guide/04-gdpr.md) controls in the candidate
-dashboard, or ask the site owner to run a personal-data request for your
-email address. Guest applications are found by email.
+Your application is stored against your email address. If you later create an account with the same email, your earlier guest applications are linked to the new account when it is created, and they appear in **My Applications**. There is nothing to request.
 
-## File format support
+Linking happens only at account creation and only for the exact email you applied with. If you already had an account when you applied as a guest, or you register with a different email, those applications are not moved. Sign in before you apply to keep everything in one place.
 
-| Format | Accepted | Note |
-|---|---|---|
-| PDF | Yes | Recommended - preserves layout for the employer |
-| DOC | Yes | Older Word format |
-| DOCX | Yes | Modern Word format |
-| ODT, RTF, TXT | No | Not currently supported. Save as PDF first. |
-| Image (JPG / PNG) | No | Photos of resumes are rejected - convert to PDF |
+To get a copy of your data or have it deleted, ask the site owner to run a personal-data request for your email address. Guest applications are found by email. The site owner can follow [GDPR and privacy](../admin-guide/04-gdpr.md).
 
-## What happens after submit
+## Accepted files
 
-You'll see a confirmation message inline, and you get a confirmation
-email. When the employer changes your status you get an email too,
-including a respectful "not selected" message if you are not chosen. Two
-limits apply: you cannot apply to the same job again with the same
-email within 24 hours, and one connection can send 10 applications an
-hour. No further account-creation steps are needed unless you want to
-track applications in a dashboard.
+| Format | Accepted |
+|---|---|
+| PDF | Yes |
+| DOC | Yes |
+| DOCX | Yes |
+| ODT, RTF, TXT | No. Save as PDF first |
+| Images (JPG, PNG) | No. Convert to PDF |

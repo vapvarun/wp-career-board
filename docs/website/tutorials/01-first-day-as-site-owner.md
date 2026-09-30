@@ -1,300 +1,173 @@
-# Your First Day as a Site Owner
+# Your first day as a site owner
 
-A complete walkthrough from "I just installed the plugin" to "my first
-employer posted their first job and a candidate applied." Plan ~60-90
-minutes for a thorough run. If you want to skim, the section
-headings below let you jump.
+You can go from a fresh install to a live job board with a test employer, a published job and a submitted application. This walkthrough covers each step in order. Set aside about an hour.
 
-## What you'll have at the end
+## What you will have at the end
 
-- A working job board at `/find-jobs/` and `/find-companies/` (a public
-  `/find-candidates/` directory is a Pro feature).
+- A working job board at `/find-jobs/` and a company directory at `/find-companies/`.
 - One employer account that can post jobs.
 - One candidate account that can apply.
-- Email notifications wired and tested.
-- A real test job published and a test application submitted.
+- Email notifications tested.
+- A published test job and a test application.
 
 ## Before you start
 
 You need:
 
-- WordPress 6.9+ on PHP 8.1+ (the plugin checks this on activation).
+- WordPress 6.9 or newer on PHP 8.1 or newer.
 - An admin account on the site.
-- The ability to send email from the site (SMTP plugin, host SMTP, or
-  the site already sending email reliably).
-- A theme that doesn't aggressively override `.entry-content` styles.
-  Most modern themes work; some opinionated ones (Astra Pro, certain
-  GeneratePress configs) need a custom CSS sweep - that's covered
-  later.
+- A way to send email from the site, such as an SMTP plugin or your host's mail.
 
-If you want to test Pro features (AI, advanced credits, application
-pipeline, multi-board), install Pro too. The flow below assumes
-Free-only first, since Pro adds onto the same foundation.
+If you also want to try Pro features, install Pro after this walkthrough. The steps below use Free only.
 
-## Step 1 - Install
+## Step 1 - Install and activate
 
-1. **Plugins → Add New → Upload Plugin.** Pick the `wp-career-board.zip`
-   you downloaded.
-2. Activate. The plugin spins up:
-   - 3 database tables (jobs aren't a table - they're a CPT). Free
-     creates its own tables; the credit ledger is a Pro table, not a
-     Free one.
-   - 3 custom roles: Employer, Candidate, and Job Moderator (the
-     internal slug for Job Moderator stays `wcb_board_moderator` for
-     back-compat). Banning an employer is a flag on the account, not a
-     separate role.
-   - 13 custom capabilities (see
-     [admin-guide/14-capabilities-and-roles.md](../admin-guide/14-capabilities-and-roles.md)).
-   - Five CPTs: `wcb_job`, `wcb_company`, `wcb_application`,
-     `wcb_resume`, and the admin-only `wcb_board`.
-3. The Setup Wizard launches automatically. Don't dismiss it - walk it.
+1. Go to **Plugins > Add New > Upload Plugin** and upload the `wp-career-board.zip` file.
+2. Click **Activate**.
+3. The Setup Wizard opens. Walk through it rather than dismissing it.
 
-If you can't see the Setup Wizard, navigate to
-**WP Admin → Career Board → Setup**.
+If you do not see the wizard, open **Career Board > Settings** and click **Run Setup Wizard**.
 
-## Step 2 - Walk the setup wizard
+The plugin adds three roles: Employer, Candidate and Job Moderator. Learn what each can do in [Capabilities and roles](../admin-guide/14-capabilities-and-roles.md).
 
-A stepper across the top shows every step. The WordPress admin menu is
-hidden while the wizard runs - click **Exit setup** in the header if you
-need to leave early - and every step you finish stays reachable from the
-stepper if you want to go back and change an answer. Free's steps are:
+## Step 2 - Walk through the setup wizard
 
-1. **Pages** - the wizard creates the pages your board needs and maps them
-   in Settings. The pages created are:
-   - **Find Jobs** (search + filters + listings).
-   - **Find Companies** (the company directory).
-   - **Employer Registration** (sign-up form for new employers).
-   - **Employer Dashboard** (includes Post a Job).
-   - **Candidate Dashboard** (includes the resume builder and account
-     settings).
-   - **Post a Job** (the standalone job form).
+The admin menu is hidden while the wizard runs. Click **Exit setup** at the top if you need to leave early. A stepper across the top lets you go back to any finished step. The steps are:
 
-   If a matching page already exists (it already contains the relevant
-   Career Board block), the wizard reuses it instead of creating a
-   duplicate.
-2. **Sign-ups** - whether candidates and employers can create their own
-   accounts, and whether new accounts must confirm their email first.
-3. **Jobs** - whether jobs publish immediately or wait for your review,
-   the default listing length, and the default salary currency.
-4. **Emails** - sender name, sender email, and where admin alerts go.
-5. **Spam Protection** - pick a CAPTCHA provider (or stick with the
-   honeypot-only default) and enter its keys.
-6. **Sample Data** - optionally install demo companies and jobs so the
-   board isn't empty while you test. You can remove the sample data
-   later from **Career Board → Settings → Import** without re-running
-   the wizard.
+1. **Pages** - creates the pages your board needs and assigns them in Settings:
+   - Find Jobs
+   - Employer Dashboard
+   - Candidate Dashboard
+   - Find Companies
+   - Post a Job
+   - Employer Registration
 
-Every settings step has **Save & Continue** and **Skip for now** - nothing
-is final, and every answer can be changed later in **Career Board →
-Settings**.
+   If a page that already contains the matching Career Board block exists, the wizard reuses it.
+2. **Sign-ups** - turn on **Let people sign up** so candidates and employers can create their own accounts, and turn on **Confirm email addresses** to hold new accounts until they click a link in their inbox.
+3. **Jobs** - choose whether jobs publish immediately and set the default listing length in days.
+4. **Emails** - set the sender name, sender email and the address for admin alerts.
+5. **Spam Protection** - keep the hidden honeypot only, or add Cloudflare Turnstile or Google reCAPTCHA and enter its keys.
+6. **Sample Data** - install demo categories, job types, companies and jobs so the board is not empty while you test.
 
-Finish the wizard. You land on the Career Board settings screen.
+Each settings step has **Save & Continue** and **Skip for now**. You can change every answer later under **Career Board > Settings**.
+
+To remove the sample data later, go to **Career Board > Settings > Import** and click **Remove Sample Data**.
 
 ## Step 3 - Test email sending
 
-Career Board sends eighteen emails covering the application and job
-lifecycle and the member account: application confirmation (candidate
-and guest), application received, status changed, not selected,
-withdrawn, deadline reminder, job approved, pending review, rejected,
-ending soon, expired, report received, confirm your email, welcome, and
-the three account deletion emails. Password-reset mail stays with
-WordPress core. If your site can't send email, everything downstream
-breaks silently.
+If your site cannot send email, employers never hear about applications. Test this first.
 
-1. **Career Board → Settings → Emails.** Each template row has a
-   **Send test** button that emails the current admin a preview. Click
-   it on any template.
-2. If you receive it within 30 seconds: green light, move on.
-3. If you don't: install **WP Mail SMTP** or **Fluent SMTP**, configure
-   your provider (SendGrid, Mailgun, Postmark, Amazon SES, your host's
-   SMTP), and retest.
+1. Go to **Career Board > Settings > Emails**.
+2. In the **Email templates** table, click **Send test** on any row. The test goes to your admin email address.
+3. If it does not arrive, install an SMTP plugin such as WP Mail SMTP or Fluent SMTP, connect your mail provider, and test again.
 
-This is the single most-overlooked step. Customers report "no
-applications coming in" - 70% of the time it's "applications came in,
-the email failed, employer never knew." Fix this on day one.
+Every test send is recorded in the **Email activity log** on the same tab, with a Sent or Failed status.
 
-## Step 4 - Set up email sender details
+## Step 4 - Set the sender details
 
-**Career Board → Settings → Emails.** The **Sender** card at the top of
-this tab holds the three sender settings:
+On **Career Board > Settings > Emails**, the **Sender** card holds three settings:
 
-- **From Name** - usually your site name, not "WordPress." Defaults to
-  your site name.
-- **From Email** - must match your sending domain (DMARC / DKIM /
-  SPF). If your site is `example.com`, the from email should be
-  `noreply@example.com` or similar. Defaults to the site admin email.
-- **Admin Notification Email** - where new-application alerts go when
-  the posting employer hasn't set a custom address. Defaults to the
-  site admin email.
+- **From Name** - the name shown on Career Board emails. Defaults to your site name.
+- **From Email** - the sender address. Use an address on your own domain so mail passes SPF, DKIM and DMARC checks. Defaults to the site admin email.
+- **Admin Notification Email** - where admin alerts go, such as a new job waiting for review or a reported job. Defaults to the site admin email.
 
-The individual email templates (application received, application
-status changed, job approved, etc.) and their enable/disable toggles
-live further down the same **Emails** tab, below the Sender card. Open
-each there to review the copy, toggle it on or off, and send yourself a
-test.
+Below the Sender card, the **Email templates** table lists every email with its recipient, subject and an **Enabled** checkbox. Click **Edit** on a row to change the message. Keep **Application Status Changed** enabled, because it is how candidates hear about progress.
 
-- **Application status changed** - to the candidate. Keep enabled. This
-  is the single most important candidate touchpoint after submission.
+## Step 5 - Add the pages to your menu
 
-## Step 5 - Add a Find Jobs link to your menu
+The wizard creates the pages but does not change your menu.
 
-The plugin created the pages but didn't wire your menu.
+1. Go to **Appearance > Menus**.
+2. Add Find Jobs, Find Companies, Candidate Dashboard, Employer Dashboard and Post a Job.
+3. Save the menu.
 
-1. **Appearance → Menus.**
-2. Add: Find Jobs, Companies, Candidate Dashboard, Employer Dashboard,
-   Post a Job. (A public Find Candidates directory is a Pro feature - add
-   it only if Pro is installed.)
-3. The Employer Dashboard / Post a Job links can be in the menu OR
-   accessible only via the employer dashboard once they log in -
-   your choice based on whether employers self-register or you onboard
-   them manually.
-4. Save.
+## Step 6 - Create a test employer
 
-## Step 6 - Create your first test employer
+Test as a real employer instead of posting from your admin account. Admin accounts skip role checks, which hides problems.
 
-Don't post a job from your admin account - that hides bugs. Create
-an actual employer and test the flow.
+1. Open a private browser window so you stay logged in as admin in your main window.
+2. Visit `/employer-registration/`.
+3. Choose **Hire Talent**, then fill in your name, email, password and company details. Use an email address you can read.
+4. If **Email Verification** is on, open the confirmation link in the email, then sign in. If it is off, you are signed in straight away and receive a Welcome email.
 
-1. **Open a private window** so you stay logged in as admin in the main
-   browser.
-2. Visit `/employer-registration/` (or whatever you mapped the
-   employer-registration page to).
-3. Register with a real email you can check (e.g. your-name+test@gmail.com).
-   The account is created with the Employer role.
-4. If **Email Verification** is on (the default on new sites), open the
-   confirmation link from the email first, then sign in as that employer.
-   With it off you are signed in straight away and get a Welcome email.
+Registration creates the account with the Employer role and creates the company for it.
 
 ## Step 7 - Post the first test job
 
 Still as the test employer:
 
-1. Click **Post a Job** from the employer dashboard.
-2. Fill in:
-   - Title: "Test Job - Senior Frontend Engineer"
-   - Description: a paragraph or two.
-   - Category: any (or create one inline).
-   - Location: any city.
-   - Type: Full-time.
-   - Application: leave as "Apply through this site" (not "External
-     URL"). External-URL testing comes later.
+1. Open the Employer Dashboard and click **Post a Job**.
+2. Complete the four steps: **Job Basics**, **Job Details**, **Classify Your Job** and **Preview & Submit**. Give the job a title and description, choose a category, job type and location, and leave **Apply URL** and **Apply Email** empty so candidates apply on your site.
 3. Submit.
 
-If you set the posting cost to free, the job goes straight to **Published**.
-If you set "requires admin approval," it sits at **Pending Review** - go
-back to your admin window and approve it from **WP Admin → Career Board →
-Jobs**.
+If **Auto-Publish Jobs** is on under **Settings > Jobs**, the job is published straight away. If it is off, the job waits as Pending. Approve it from **Career Board > Jobs** in your admin window. The employer is emailed when the job is approved.
 
-The same Jobs screen is also where you handle reported listings: when a
-logged-in visitor reports a job (scam, spam, expired, misleading, or
-offensive), a **Flagged** filter appears at the top of the list. Open it,
-review the flagged job and the reasons in the Flags column, then either
-**Dismiss flag** (the listing is fine) or **Unpublish** (the listing is
-bad) from the row or bulk actions.
+Check the job on `/find-jobs/`. If it does not appear:
 
-Verify the job appears on `/find-jobs/`. If it doesn't:
+- Confirm its status is Published.
+- Confirm its deadline is not in the past.
+- Confirm your theme is not redirecting the page.
 
-- Check the job's status (Published, not Draft).
-- Check the deadline isn't in the past.
-- Check your theme isn't redirecting `/find-jobs/` somewhere.
+### Handle reported jobs
 
-## Step 8 - Create your first test candidate
+When a logged-in visitor reports a job, a **Flagged** filter appears at the top of **Career Board > Jobs**. The visitor picks one reason: scam or fraudulent, spam or advertisement, expired or already filled, inaccurate or misleading, or offensive or inappropriate. Open the Flagged list and read the reasons in the **Flags** column. Then click **Dismiss flag** if the job is fine, or **Unpublish** if it is not.
 
-1. Private window (or a different browser / incognito).
-2. There is no separate candidate-registration page. Open the Candidate
-   Dashboard while logged out - it shows a **Log in** button that links
-   to the standard WordPress login/registration screen. Register a
-   normal WordPress account there.
-3. Log in. By default any logged-in member can use the candidate
-   experience (apply, save jobs, build a resume) without a dedicated
-   Candidate role. If you turned on **Settings → Sign-ups → Require
-   Candidate Role**, assign the Candidate role to the account first.
-4. Fill in profile: name, headline ("Senior Frontend Engineer"),
-   skills, location.
-5. Upload a resume PDF (any sample resume works).
+## Step 8 - Create a test candidate
+
+1. Open another private window.
+2. Visit `/employer-registration/` again and choose **Find a Job**. The Candidate Dashboard also shows **Sign In** and **Create an account** buttons when you are logged out.
+3. Sign in. By default any logged-in member can apply, save jobs and build a resume, without needing the Candidate role. If you turn on **Require Candidate Role** under **Settings > Sign-ups**, only accounts with the Candidate role can.
+4. In the Candidate Dashboard, open **My Resumes**, click **+ New Resume** or **Upload CV**, and add a resume.
 
 ## Step 9 - Apply to the test job
 
 As the candidate:
 
-1. Open `/find-jobs/` from the candidate's logged-in browser.
-2. Click the test job.
-3. Click **Apply**.
-4. The application form pre-fills from the candidate's profile + resume.
-5. Add a cover-letter paragraph.
-6. Submit.
+1. Open `/find-jobs/` and click the test job.
+2. Click **Apply Now**.
+3. Choose a saved resume or upload a file, and write a cover letter. The cover letter is optional.
+4. Click **Submit Application**.
 
-You should see a "thanks - application submitted" confirmation.
+The button changes to **Application Submitted**.
 
-## Step 10 - Verify the employer side
+## Step 10 - Check the employer side
 
 Back in the employer window:
 
-1. **Employer Dashboard → Applications.** The test application should
-   be visible.
-2. Click into the application. The candidate's resume should be
-   attached and downloadable.
-3. **Email check** - did the new-application email arrive at the
-   employer's inbox? If not, return to Step 3 and fix email sending.
-4. Move the application's status to "Reviewing." Save.
-5. **Candidate email check** - did the candidate receive a
-   "your application status changed" email? If not, status-change
-   notifications are off - re-check the template toggle on **Settings →
-   Emails**.
-6. Move the application to "Shortlisted," then "Hired." Each one fires
-   an email to the candidate.
+1. Open the Employer Dashboard and go to **Applications**. Select the job, then select the applicant.
+2. Confirm the resume is available to view or download.
+3. Check the employer's inbox for the **New application for your job** email. If it is missing, go back to Step 3.
+4. Set the status to **Reviewing**.
+5. Check the candidate's inbox for the status email. If it is missing, check that **Application Status Changed** is enabled under **Settings > Emails**.
+6. Set the status to **Shortlisted**, then **Hired**. Each change emails the candidate.
 
-## Step 11 - Verify the candidate dashboard
+## Step 11 - Check the candidate dashboard
 
-Candidate window:
+In the candidate window:
 
-1. **Candidate Dashboard → My Applications.**
-2. The test application should show status "Hired."
-3. **Saved Jobs** - bookmark another job from `/find-jobs/`. Confirm
-   it appears here.
-4. **Profile** - verify the profile is editable and changes save.
+1. Open **My Applications**. The test application shows the status Hired.
+2. Bookmark another job on `/find-jobs/`, then open **Saved Jobs** to confirm it appears.
+3. Open **Profile** and confirm your changes save.
 
-## Step 12 - Clean up your test data
+## Step 12 - Clean up
 
-Once you're satisfied:
+When you are done:
 
-1. Delete the test job from **WP Admin → Career Board → Jobs.**
-2. Delete the test application from **WP Admin → Career Board →
-   Applications**.
-3. Delete the test candidate account from **WP Admin → Users.**
-4. Delete the test employer account.
+1. Delete the test job from **Career Board > Jobs**.
+2. Delete the test application from **Career Board > Applications**.
+3. Delete the test candidate and employer accounts from **Users**.
 
-Or keep them and move them to a "test" status so you can iterate. Up
-to you.
+## What to do next
 
-## What's next
+- [Employer end to end](02-employer-end-to-end.md) - the full employer flow.
+- [Candidate end to end](03-candidate-end-to-end.md) - the full candidate flow.
+- [Monetizing your board](04-monetizing-your-board.md) - charge for job posts.
+- [Capabilities and roles](../admin-guide/14-capabilities-and-roles.md) - give staff the right access.
 
-You have a working board. Now you'd usually pick a direction:
+## Common day-one mistakes
 
-- **[02-employer-end-to-end.md](02-employer-end-to-end.md)** - what the
-  real employer flow looks like (you've already done this once).
-- **[04-monetizing-your-board.md](04-monetizing-your-board.md)** - if
-  you want to charge for postings, get this set up early.
-- **[../admin-guide/14-capabilities-and-roles.md](../admin-guide/14-capabilities-and-roles.md)**
-  - granting `wcb_post_jobs` to specific staff or a third-party HR
-  role.
-- **[../ai-features/01-overview.md](../ai-features/01-overview.md)** -
-  if you've also installed Pro and want to enable AI features.
-
-## Common day-one mistakes to avoid
-
-- **Skipping the email test.** Everything breaks silently if email
-  doesn't send. Always test before you announce the board.
-- **Posting jobs from the admin account.** Your admin sees everything
-  and skips role gates. Always test as a real employer / candidate.
-- **Skipping the deadline.** Newly posted jobs default to the listing
-  length set under **Settings → Jobs → Default listing length (days)**
-  (default 30, range 1-365). Once a job passes its deadline it leaves
-  the listings within the hour and its page becomes an expired page.
-- **Not wiring the menu.** Employers and candidates can't navigate
-  if the menu doesn't link to dashboards. Easy to forget; users
-  notice immediately.
-- **Forgetting Pro's license activation.** If you also installed Pro,
-  activate the license under **Settings → License**. The license drives
-  automatic updates only - Pro features keep working without it, but you
-  won't receive update notifications until it is activated.
+- **Skipping the email test.** Without working email, employers are not told about new applications.
+- **Posting jobs from the admin account.** Test as a real employer and candidate.
+- **Forgetting the listing length.** A new job runs for the length set under **Settings > Jobs > Default listing length (days)**, which is 30 by default. A board can set its own length, which wins over this one. When ending jobs at their deadline is on, a job leaves the listings within the hour of its deadline. New sites have this on. Older sites can turn it on with the **End jobs at their deadline** button under **Settings > Jobs**.
+- **Not adding the pages to the menu.** Visitors cannot reach the dashboards without links.
+- **Not activating the Pro license.** If you installed Pro, activate the license under **Settings > License**. It controls updates and the mobile app connection. Pro's web features keep working without it.

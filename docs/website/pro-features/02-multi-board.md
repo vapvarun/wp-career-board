@@ -1,63 +1,12 @@
-# Multi-Board Engine
+# Multiple job boards
 
-> **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
+You can run several separate job boards from one WordPress site, for example "Tech Jobs" and "Marketing Jobs". This needs WP Career Board Pro.
 
-The Multi-Board Engine lets you segment one WordPress install into multiple independent job boards (for example "Tech Jobs", "Marketing Jobs", "Remote Only"). Each board carries its own per-board configuration and scopes the jobs assigned to it.
+## What you can do
 
-Boards are administrator-only configuration. They are created and managed from wp-admin; they are not a per-employer or front-end self-service feature.
+- Create boards under **Career Board > Settings > Boards**.
+- Set options per board, such as credit cost, moderation, listing length and currency.
 
-## What you get
+## Where to read the full guide
 
-- **Multiple boards** - create as many boards as you need
-- **Board scoping** - a job is linked to a board via its `_wcb_board_id` meta, so listings can be filtered to a single board
-- **Per-board settings** - each board has its own credit cost, moderation mode, listing length, and currency
-- **Board-scoped listings** - the Job Listings block accepts a `boardId` attribute (or `[wcb_job_listings boardId="42"]` shortcode) to render only one board's jobs anywhere on the site
-
-## Where boards live
-
-Boards are managed at **Career Board -> Settings -> Boards**. The free plugin creates one board automatically on activation, named **Main Board**, which becomes the default.
-
-## Creating a board
-
-1. Go to **Career Board -> Settings -> Boards**
-2. Click **Add Board** (this opens the standard WordPress editor for the board)
-3. Enter the board **Title** - this is the board name
-4. Configure the **Board Settings** meta box (see below)
-5. Click **Publish**
-
-The Boards list shows each board's job count, number of pipeline stages, and credit cost, with Edit and Delete actions. Deleting a board removes its pipeline stages and unlinks (but does not delete) any jobs assigned to it - those jobs stay visible but are no longer board-restricted.
-
-## Board settings
-
-Open a board and use the **Board Settings** meta box on the board edit screen:
-
-| Setting | Description |
-|---|---|
-| **Credit Cost Per Job** | Credits deducted when an employer posts to this board. 0 means free. |
-| **Moderation** | "Use global default", "Auto-publish", or "Requires approval" for jobs posted to this board. |
-| **Listing length (days)** | How long a job on this board stays open when the employer sets no deadline. 0 follows "Default listing length (days)" under Settings > Jobs. |
-| **Currency** | Salary currency for this board (from the plugin currency catalog). |
-
-The Job Map's map provider is a single site-wide setting under **Settings -> Integrations**; there is no per-board override. AI features are configured under **Settings -> AI Settings** and are not toggled per board.
-
-## Assigning jobs to a board
-
-A job's board is stored in its `_wcb_board_id` meta. Jobs can be assigned a board through the posting flow, through the CSV importer (the `board_id` column), or by an integration that sets the meta. A job posted without a board falls back to the default board (`wcb_default_board_id`).
-
-## Default board
-
-The first board created on activation ("Main Board") is stored in the `wcb_default_board_id` option and is used for any job that is posted without an explicit board. There is no separate "set as default" control in the Boards list - the default is the board recorded in that option.
-
-## Per-board pipeline stages
-
-Each board can carry its own application pipeline stages, stored in the `wcb_application_stages` table keyed by `board_id`. The Boards list shows how many stages each board has. The stages drive the status columns shown on the employer dashboard's Applications board (the List / Board Kanban toggle).
-
-## Rendering a single board's jobs
-
-To show one board's jobs on a page, set the **Board** attribute on the Job Listings block, or use the shortcode form:
-
-```
-[wcb_job_listings boardId="42" perPage="6"]
-```
-
-Replace `42` with the board's post ID. Without a `boardId`, the Job Listings block shows jobs across all boards.
+See the WP Career Board Pro docs, page named **Multi-Board Engine**.

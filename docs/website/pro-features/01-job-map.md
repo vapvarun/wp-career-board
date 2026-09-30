@@ -1,59 +1,13 @@
-# Job Map
+# Job map
 
-> **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
+You can show your job locations on a map, with a place search and a radius filter, using the Job Map block. This needs WP Career Board Pro.
 
-The Job Map block displays an interactive map of job locations alongside your listings. As candidates filter jobs, the map updates in real time - no page reload.
+## What you can do
 
-## How it works
+- Add the **Job Map** block (`wcb/job-map`) to any page.
+- Let visitors click a pin to open the job.
+- Pick a map provider under **Career Board > Settings > Integrations**. Leaflet with OpenStreetMap is the default and needs no key. Google Maps and Mapbox need their own key.
 
-The Job Map shares the same search state as the Job Listings and Job Filters blocks. When a visitor searches by keyword, filters by category, or selects a job type, the map instantly updates to show only matching pins.
+## Where to read the full guide
 
-Clicking a pin on the map opens a small popup with the job title and a "View Job" link.
-
-## Requirements
-
-- Jobs must have a **Location** set (the `wcb_location` taxonomy term, e.g. city, region, or country)
-- Locations are geocoded to latitude/longitude automatically when the job is created
-
-A job's coordinates are stored in the `_wcb_lat` and `_wcb_lng` post meta. You can also set these directly when importing jobs from CSV (the `lat` and `lng` columns).
-
-## Map providers
-
-The Job Map supports three providers. The default is **Leaflet** with OpenStreetMap tiles, which works out of the box with no API key.
-
-| Provider | API key needed | Notes |
-|---|---|---|
-| **Leaflet / OpenStreetMap** | No | Default. Zero configuration. Uses OpenStreetMap tiles and Nominatim geocoding. |
-| **Google Maps** | Yes (API key) | Set the key under Map Settings. Get one at console.cloud.google.com. |
-| **Mapbox** | Yes (access token) | Set the token under Map Settings. Get one at account.mapbox.com. |
-
-### Choosing a provider
-
-1. Go to **Career Board -> Settings -> Integrations**
-2. Find the **Map Settings** card
-3. Pick a **Map Provider** from the dropdown
-4. If you chose Google Maps or Mapbox, paste the API key / access token in the matching field
-5. Click **Save Integrations**
-
-This provider applies site-wide, including for every board's Job Map - there is no per-board override.
-
-## Adding the Job Map
-
-1. Open your jobs page in the WordPress editor
-2. Click **+** and search for "Job Map" (block name `wcb/job-map`)
-3. Insert the block
-
-**Recommended layout** - two columns with Map on the left, Listings on the right:
-
-```
-[ Job Search ] [ Job Filters ]
-[ Job Map     ] [ Job Listings ]
-```
-
-This gives candidates both a spatial view and a list view simultaneously.
-
-## Block settings
-
-| Setting | Default | Description |
-|---|---|---|
-| **Map Height** | 480 | Height of the map canvas in pixels |
+See the WP Career Board Pro docs, page named **Job Map**.

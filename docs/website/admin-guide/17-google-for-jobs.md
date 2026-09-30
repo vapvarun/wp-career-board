@@ -1,9 +1,6 @@
-# Google for Jobs and Social Sharing
+# Google for Jobs and social sharing
 
-WP Career Board adds the details Google needs to show your open jobs in
-Google for Jobs, and the tags social networks use when a job or company
-is shared. Everything is under **Career Board → Settings → Jobs →
-Search engines and sharing**.
+You can get your open jobs into Google for Jobs and control how jobs and companies look when shared on social networks. The settings are under **Career Board > Settings > Jobs > Search engines and sharing**.
 
 ## What is added
 
@@ -24,13 +21,13 @@ Search engines and sharing**.
 | Setting | Default | What it does |
 |---|---|---|
 | Google for Jobs | On | Adds the job and company markup. It stays on with Yoast SEO or Rank Math, which do not add job markup. Turn off only if another plugin already adds JobPosting. |
-| Require a location | On for new sites, off for sites created before 1.8.0 | The job form asks for a location unless the job is marked Remote. Google leaves out jobs with no location unless they are remote. Older jobs without a location can still be edited. |
+| Require a location | On for new installs, off for existing sites | The job form asks for a location unless the job is marked Remote. Google for Jobs leaves out jobs with no location unless they are remote. |
 | Default country | The country of your site language (for example US for English (United States)) | Used in job addresses and as the country remote applicants may live in. A country name or 2-letter code both work. |
 | Social sharing tags | On | Adds sharing tags. Skipped automatically when Yoast SEO or Rank Math is active, since they add their own. |
 
 ## Boards with jobs in several countries
 
-Open **Career Board → Job Locations**, edit a location, and fill in
+Open **Career Board > Job Locations**, edit a location, and fill in
 **Country**. Jobs in that location use it; jobs in locations without a
 country use the default country.
 

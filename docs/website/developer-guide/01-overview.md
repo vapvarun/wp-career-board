@@ -1,81 +1,41 @@
 # Developer Guide - Overview
 
-WP Career Board is built to be extended. The plugin fires 181
-unique hooks (60 actions and 121 filters), registers 56 REST routes,
-5 WP-CLI command groups, and ships a JSON manifest that lets your
-code (or another plugin) reach into every part of the job-board
-flow without forking the source.
-
-> Version note: this guide tracks WP Career Board 1.8.0. Counts come
-> from the source: literal `do_action()` / `apply_filters()` calls and
-> `register_rest_route()` calls. If a count here disagrees with the
-> code, the code wins.
+You can extend WP Career Board without editing its source. Use actions and filters to change behavior, the `wcb/v1` REST API to read and write data, WP-CLI to automate tasks, and theme template overrides to change the markup of job and company pages.
 
 **Use this guide when:**
 
-- You're building a custom job-board theme or feature.
-- You're writing a companion plugin that integrates with Career
-  Board (e.g. a Slack notifier, a Salesforce sync, a custom apply
-  flow).
-- You're auditing the plugin's surface area before going live.
+- You are building a custom job-board theme or feature.
+- You are writing a companion plugin that integrates with Career Board, such as a Slack notifier, a CRM sync or a custom apply flow.
 
-For **customers** running a job board: use the for-employers,
-for-candidates, and admin-guide directories instead. This section
-assumes you read code.
+If you run a job board and do not write code, use the for-employers, for-candidates and admin-guide sections instead.
 
-## Architecture at a glance
+## How the plugin is organized
 
 | Layer | Where | Purpose |
 |---|---|---|
-| **Blocks** | `blocks/<name>/render.php` + `view.js` | Customer-facing UI - server-rendered, hydrated by the Interactivity API |
-| **Shortcodes** | `core/class-plugin.php::register_shortcodes()` | 18 shortcode tags wrapping the 17 frontend blocks (one block has an alias), plus `[wcb_widget]` for application widgets |
-| **REST API** | `api/endpoints/class-*-endpoint.php` | 56 routes under `wcb/v1/*` - all extending `WCB\Api\RestController` |
-| **Modules** | `modules/<area>/` | Feature modules: account, antispam, applications, boards, candidates, employers, gdpr, jobs, moderation, notifications, search, seo |
-| **Core services** | `core/class-*.php` | Cross-cutting: Settings, Abilities, Locations, Pro coordination, Theme accent bridge |
-| **CLI** | `cli/class-*.php` | `wp wcb *` command groups - status and abilities, job, application, migrate, scale |
+| Blocks | `blocks/<name>/render.php` and `view.js` | Customer-facing UI, rendered on the server and hydrated by the Interactivity API |
+| Shortcodes | `core/class-plugin.php` | Shortcode wrappers around the frontend blocks |
+| REST API | `api/endpoints/class-*-endpoint.php` | Routes under `wcb/v1`, all extending `WCB\Api\RestController` |
+| Modules | `modules/<area>/` | Feature areas: account, antispam, applications, boards, candidates, employers, gdpr, jobs, moderation, notifications, search, seo |
+| Core services | `core/class-*.php` | Shared services such as settings, abilities, locations and the theme accent bridge |
+| CLI | `cli/class-*.php` | The `wp wcb` commands |
 
-Every layer follows the same conventions:
+Conventions:
 
-- All globals prefixed `wcb_`.
-- All abilities use `wcb/<slug>` (kebab-case, namespaced).
-- All REST routes register through `WCB\Api\RestController`.
-- All DB writes go through `$wpdb->prepare()`.
+- Functions, hooks, options and meta keys are prefixed `wcb_`.
+- Abilities use the `wcb/<slug>` format, for example `wcb/post-jobs`.
+- REST routes register through `WCB\Api\RestController`.
 
 ## Contents
 
 | Doc | What's inside |
 |---|---|
-| [02-hooks-reference.md](02-hooks-reference.md) | Every action and filter the plugin fires, grouped by area |
-| [03-rest-api.md](03-rest-api.md) | The full REST endpoint catalog with auth, params, response shape |
-| [04-wp-cli.md](04-wp-cli.md) | WP-CLI commands and arguments |
-| [05-extension-cookbook.md](05-extension-cookbook.md) | Recipes for common extension tasks |
+| [02-hooks-reference.md](02-hooks-reference.md) | The actions and filters the plugin fires, grouped by area |
+| [03-rest-api.md](03-rest-api.md) | The REST routes with permissions, parameters and response fields |
+| [04-wp-cli.md](04-wp-cli.md) | WP-CLI commands and options |
+| [05-extension-cookbook.md](05-extension-cookbook.md) | Short recipes for common extension tasks |
 | [06-template-overrides.md](06-template-overrides.md) | Copying a plugin template into a theme, and the Site Health check that keeps it current |
 
 ## Companion plugin development
 
-If you're building a Pro-like companion plugin, also read:
-
-- `wp-career-board-pro/docs/website/developer-guide/02-extending-free.md`
-  - the canonical contract for extending Free, including the
-  dependency guard, REST namespace sharing, and lockstep version
-  requirements.
-- `plan/INVARIANTS.yaml` in either repo - machine-enforceable
-  architectural invariants the local-CI gate checks on every commit.
-
-## Where the source of truth lives
-
-For introspecting the plugin programmatically:
-
-- **`audit/manifest.json`** - canonical inventory of every block,
-  REST endpoint, hook, CPT, taxonomy, capability, service, and CLI
-  command. Generated by `/wp-plugin-onboard`. Refreshed on every
-  release.
-- **`audit/journeys/`** - customer-flow regression sentinels. Each
-  journey is a Markdown file that the smoke skill walks before a
-  release tag.
-- **`audit/qa-coverage.json`** - coverage gate tracking which
-  REST/CLI/hook surfaces have regression tests. Pre-commit hook
-  blocks reductions in coverage.
-
-If you're building tooling that reads any of these, do so via the
-manifest's `$schema` - it's stable and versioned.
+If you are building a companion plugin like Pro, read the Pro developer guide page "Extending Free - The Canonical Pro Contract". It shows how an add-on extends Free's hooks, blocks and credit flow without forking it.

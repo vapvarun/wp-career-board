@@ -1,47 +1,42 @@
 # Installation
 
-WP Career Board is distributed exclusively via [wbcomdesigns.com](https://wbcomdesigns.com). It is not available on WordPress.org.
+You can install WP Career Board by uploading the plugin zip in wp-admin.
 
 ## Before you begin
 
-Make sure your site meets these requirements:
+Check that your site has:
 - WordPress 6.9 or higher
 - PHP 8.1 or higher
-- A modern block theme or classic theme (Reign or BuddyX Pro recommended)
 
 ## Install the plugin
 
-1. Log in to your WordPress admin (`/wp-admin`)
-2. Go to **Plugins → Add New → Upload Plugin**
-3. Click **Choose File** and select the `wp-career-board.zip` file you downloaded from wbcomdesigns.com
-4. Click **Install Now**
-5. Click **Activate Plugin**
+1. Log in to your WordPress admin (`/wp-admin`).
+2. Go to **Plugins > Add New > Upload Plugin**.
+3. Click **Choose File** and select the `wp-career-board.zip` file.
+4. Click **Install Now**.
+5. Click **Activate Plugin**.
 
-![Plugin Upload Screen](../images/install-upload.png)
+After activation, the **Career Board** menu appears in your admin sidebar.
 
-After activation, you will see the **Career Board** menu item in your admin sidebar.
+## What you get on activation
 
-## What gets created on activation
-
-When you activate the plugin for the first time, WP Career Board automatically:
-
-- Creates five custom post types: **Jobs**, **Companies**, **Applications**, **Resumes**, and **Boards**
-- Registers five job taxonomies: Category, Job Type, Location, Experience Level, and Tag
-- Creates three user roles: **Employer**, **Candidate**, and **Job Moderator**
-- Adds the **Career Board** top-level menu to wp-admin (with Jobs, Applications, Candidates, Companies, Employers, and Settings)
-- Launches the **Setup Wizard** to help you create your pages
+- Custom post types for jobs, companies, applications, resumes and boards.
+- Job taxonomies: category, job type, location, experience level and tag.
+- Three user roles: Employer, Candidate and Job Moderator.
+- The **Career Board** menu, with Jobs, Applications, Candidates, Companies, Employers and Settings.
+- A redirect to the Setup Wizard the first time you activate.
 
 ## After activation
 
-You will be redirected to the Setup Wizard. The wizard creates all required pages with the correct blocks in about 30 seconds. See [Setup Wizard](./03-setup-wizard.md) for the full walkthrough.
+The Setup Wizard creates your pages and asks for your basic settings. See [Setup wizard](./03-setup-wizard.md).
 
-If you dismiss the wizard, you can run it again any time from **Career Board → Settings → Re-run Setup Wizard** (the link at the bottom of the page).
+To run the wizard again, go to **Career Board > Settings** and click **Re-run Setup Wizard** at the bottom of the page.
 
 ## Updating the plugin
 
-1. Download the latest version from your account at wbcomdesigns.com
-2. Go to **Plugins → Add New → Upload Plugin**
-3. Upload the new zip - WordPress will ask if you want to replace the current version
-4. Click **Replace current with uploaded**
+1. Download the new zip.
+2. Go to **Plugins > Add New > Upload Plugin**.
+3. Upload the zip. WordPress asks if you want to replace the current version.
+4. Click **Replace current with uploaded**.
 
-> **Note:** Your settings, jobs, applications, and user data are preserved on updates.
+Your jobs, applications and settings stay in place.

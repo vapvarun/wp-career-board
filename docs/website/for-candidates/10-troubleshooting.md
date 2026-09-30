@@ -1,188 +1,99 @@
-# Troubleshooting (Candidates)
+# Troubleshooting (candidates)
 
-Common things candidates run into, with the practical fix for each.
-If you're an employer, see `for-employers/12-troubleshooting.md`.
+Fixes for common candidate problems. If you are an employer, see the [employer troubleshooting guide](../for-employers/12-troubleshooting.md).
 
-## "I applied but never heard anything back"
+## I applied but heard nothing
 
-That's almost always normal - most employers review applications in
-batches. Check **Candidate Dashboard → My Applications** to verify
-your application is there.
+Open **Candidate Dashboard > My Applications** and check the status:
 
-- **Status "Submitted"** - the employer has it, hasn't acted yet.
-  No action from you needed.
-- **Status "Reviewing"** - they've looked at it.
-- **Status "Shortlisted"** - you're under consideration. Expect
-  follow-up.
-- **Status "Hired"** - congratulations, you got the job.
-- **Status "Not selected"** - not a fit for this role; the application
-  is closed.
-- **Status "Withdrawn"** - you withdrew it.
-- **Status "Position closed"** - the employer closed the job before
-  deciding. You got an email when it happened.
-- **Status "Job Removed"** - the job posting was taken down. Your
-  application is preserved in your history but no further action
-  is expected.
+- **Submitted** - the employer has your application and has not acted yet.
+- **Reviewing** - the employer is looking at it.
+- **Shortlisted** - you are under consideration.
+- **Hired** - you got the job.
+- **Not selected** - the employer is no longer considering you.
+- **Withdrawn** - you withdrew it.
+- **Position closed** - the employer closed the job before deciding. You get an email when this happens.
+- **Job removed** - the job was deleted. Your application stays in your history.
 
-If you don't see the application at all in your dashboard, it
-didn't submit successfully - try again.
+If a signed-in application is not in the list, it did not submit. Apply again.
 
-## "The Apply button is missing from a job"
+## The Apply button is missing
 
-A few reasons this happens:
+- **The job has expired or was closed.** The page shows a notice instead of the button.
+- **The site requires an account.** If the page shows **Sign in to apply**, sign in or register first.
+- **The site requires the Candidate role.** Register or sign in with a candidate account.
+- **You are signed in as an employer.** Members who post jobs cannot apply. Use a separate candidate account.
+- **The job applies through the employer's own site.** The page shows **Apply on Company Site** instead.
 
-1. **The job's deadline has passed.** Expired jobs hide the apply
-   button. Look for the deadline date on the job page.
-2. **The job was filled or unpublished.** If the employer closed
-   the posting, the apply button is removed.
-3. **The site requires an account.** If the job page shows **Sign
-   in to apply**, the site turned on "Require login to apply" -
-   register or sign in first.
-4. **The site requires the Candidate role.** Most sites let any
-   logged-in member apply, but some turn on "Require Candidate
-   Role" - on those, register or sign in with a candidate account
-   first.
-5. **You are signed in as an employer.** A member who posts jobs
-   cannot apply to jobs. Use a separate candidate account.
+Most sites also allow guest applications. See [Apply as a guest](./09-guest-apply.md).
 
-You usually do not need an account at all: most sites also allow
-guest applications. See [Apply as a Guest](09-guest-apply.md).
+## It says I have already applied
 
-## "I can't apply - it says 'You have already applied'"
+- **As a signed-in member,** you can have one open application per job. Withdraw the existing one from **My Applications** to apply again.
+- **As a guest,** the same email cannot apply to the same job again within 24 hours.
 
-You already submitted to this job. Two ways this happens:
+## My resume upload failed
 
-- **You applied as a guest with the same email.** The system blocks
-  duplicate guest applications to the same job within 24 hours. If
-  you really want to send a different application, register an
-  account and apply from there.
-- **You applied as a logged-in candidate.** Each candidate can
-  apply once while an application is open. Withdraw the existing
-  application (from your dashboard) if you want to apply again with
-  a different resume.
+- **File too large.** The message reads "File must be under X MB". The default limit is 5 MB, and the site owner can raise it up to 20 MB. Save a smaller file and try again.
+- **Wrong format.** Only PDF, DOC and DOCX are accepted. Convert other formats and images to PDF.
 
-## "My resume upload failed"
+## I cannot find a job I saw earlier
 
-- **File too large.** The default limit is 5 MB. The site admin
-  can raise it up to 20 MB, but if your file is over the limit
-  you'll see "File must be under X MB." Re-export your PDF with
-  smaller image embeds.
-- **Wrong format.** Only PDF, DOC, and DOCX are accepted. ODT,
-  RTF, TXT, and images are rejected - convert to PDF first.
-- **Network blip.** Re-try the upload. Don't hit "Apply" again
-  until the upload completes.
+- **It expired or was closed.** A saved link still opens the job page, with a notice and similar open jobs.
+- **It was deleted.** A deleted job no longer opens.
+- **You saved it.** Check **Candidate Dashboard > Saved Jobs**. Deleted jobs are not listed there.
 
-## "I can't find a job I saw earlier"
+## My saved jobs are missing
 
-- **It might have expired.** Jobs leave the listings once their
-  deadline passes. If you saved the link, it still opens: the page
-  says the job has expired and suggests similar open roles.
-- **It might have been deleted.** If the employer pulled the
-  posting, it's gone.
-- **You bookmarked it.** Check **Candidate Dashboard → Saved
-  Jobs** - bookmarks survive even if the job changes status.
+- **Sign in.** Saving needs a signed-in account.
+- **Check the bookmark.** A saved job shows a highlighted bookmark. Click the bookmark again if it is not highlighted.
 
-## "My saved jobs aren't showing up"
+## I did not get the confirmation email
 
-- **Make sure you're logged in.** Bookmarks are tied to your
-  account; they don't survive logout if you're using a guest
-  session.
-- **The bookmark might not have saved.** Try clicking the bookmark
-  button again. The button highlights when the job is saved.
+- **Check your spam or promotions folder.**
+- **Check that your application is recorded.** Signed-in members can see it in **My Applications**. If it is there, the site has a problem sending email, and the site owner needs to fix it.
+- **Check the email address.** If you applied as a guest with a typo, the email went to the wrong address. Apply again with the right address.
 
-## "I didn't get the confirmation email after applying"
+## One of my applications shows "Job no longer available"
 
-- **Check your spam / promotions folder.** Most missing emails
-  are spam-flagged.
-- **The site might have email-sending issues.** This is a
-  site-admin problem, not yours - your application IS still
-  recorded (verify in your dashboard).
-- **Wrong email on file.** If you applied as a guest with a typo
-  in your email, the confirmation went to the wrong address.
-  The application is recorded but you have no way to track it.
-  Register an account and apply again with the right email.
+The employer or a site admin deleted the job after you applied. The application stays in your history and its status becomes **Job removed**. Click **Remove** on the row if you want to delete it from your list.
 
-## "I see 'Job no longer available' on one of my applications"
+## I get too many job alerts, or too few
 
-The employer (or a site admin) deleted that job posting after you
-applied. Your application is preserved in your history - that's
-intentional, so you have a record of having applied. The status
-moves to "Job Removed" so you know it's no longer in flight.
+- Open **Candidate Dashboard > Job Alerts**. Change each alert's frequency or delete it.
+- Alerts with overlapping searches send separate emails. Delete the ones you do not need.
+- Every alert email has an **Unsubscribe from this alert** link.
+- To stop all alert emails, untick **Job Alert Digest** under **Candidate Dashboard > Settings > Email Notifications**.
+- A guest alert sends nothing until you click the link in the confirmation email.
 
-If you'd been hired or shortlisted before the deletion, the
-employer typically reaches out separately. If you weren't yet,
-the role won't move forward through this posting - they may
-re-post later, or they may have filled it through another
-channel.
+## Employers cannot find me
 
-## "I'm getting too many job alerts (or too few)"
+With Pro, public resumes appear on the site's **Find Candidates** page.
 
-- **Manage your alerts** at **Candidate Dashboard → Job Alerts**.
-  Each alert has saved search filters and a frequency you can edit
-  or delete.
-- **Email frequency** is per-alert: Instant, Daily, or Weekly. If
-  you set up multiple alerts with overlapping filters, you'll get
-  multiple emails - consolidate them or lower the frequency.
+1. Build a resume under **Candidate Dashboard > My Resumes**.
+2. Turn on **Public** in the resume builder and click **Save Resume**.
+3. Turn on **Open to new opportunities** to appear in the "Open to work" filter.
 
-## "Employers aren't finding my profile"
+## I forgot my password
 
-Your profile is **Public by default**. With WP Career Board Pro, employers can browse public profiles and resumes in the Find Candidates archive. Without Pro there is no candidate directory. Profiles can be made private, in which case only you and admins can see them. To improve your discoverability:
+Use the **Lost password** link on the login page. A reset email goes to the address you registered with.
 
-- **Complete your profile.** Open **Candidate Dashboard → Profile**
-  and add a bio, phone, and location. Empty profiles are easy to
-  skip past.
-- **Keep your account details current** under **Candidate Dashboard
-  → Settings** (display name and email).
-- **Build a resume.** With WP Career Board Pro, use the Resume
-  Builder so employers see your structured experience and
-  education, and can download a PDF.
+If you are signed in and want a new password, use **Candidate Dashboard > Settings > Change Password**.
 
-> Some themes (for example BuddyX Pro) also show an "#OpenToWork"
-> badge on member profiles. That badge is a theme integration and
-> is separate from the Find Candidates archive.
+## I want to delete my account
 
-## "I forgot my password"
+Go to **Candidate Dashboard > Settings > Privacy & My Data** and click **Delete my account**. Enter your password and type DELETE. Your account is locked at once and deleted after a grace period, 14 days by default. Sign back in before then and click **Keep my account** to cancel.
 
-Use the standard WordPress "Lost password" link on the login page.
-You'll get a reset email at the address you registered with.
+When the account is deleted, your profile, saved items, uploaded files and, with Pro, resumes and alerts are removed. Employers keep the applications you sent, with your name, email, cover letter, answers and files removed. They see "Deleted candidate". This cannot be undone. The same panel has **Request data export** if you only want a copy of your data.
 
-If you are already signed in and just want to change your password,
-use **Candidate Dashboard → Account Settings → Change Password**
-instead.
+## I still need help
 
-## "I want to delete my account"
-
-Go to **Candidate Dashboard → Settings → Privacy & My Data** and click
-**Delete my account**. Confirm your password and type DELETE. Your account
-is locked at once and deleted after a grace period (14 days by default).
-Sign back in before then and click **Keep my account** to cancel.
-
-When it is deleted, your profile, resumes, uploaded files, saved jobs and
-companies, and alerts are removed. Employers keep the applications you
-sent, with your name, email, cover letter, answers and files removed: they
-see "Deleted candidate". This cannot be undone. The same panel has
-**Request data export** if you only want a copy of your data.
-
-## I'm stuck - Who do I contact?
-
-Look on the site for a "Contact" link, usually in the footer.
-When you reach out, include:
-
-1. The URL of the page where the problem happens.
-2. A screenshot of what you see.
-3. The time and date.
-4. The email address tied to your account.
-
-Don't include passwords, payment info, or sensitive personal
-data - just descriptive details.
+Contact the site owner. Include the page address, a screenshot, the time and date, and the email address on your account. Never send your password.
 
 ## Related
 
-- [02-finding-jobs.md](02-finding-jobs.md) - Browsing and searching
-- [03-applying-for-jobs.md](03-applying-for-jobs.md) - The apply
-  flow
-- [04-my-applications.md](04-my-applications.md) - Tracking
-  applications
-- [07-job-alerts.md](07-job-alerts.md) - Managing alerts (Pro)
-- [11-profile-and-account.md](11-profile-and-account.md) - Profile,
-  account settings, privacy, and notifications
+- [Finding jobs](./02-finding-jobs.md)
+- [Applying for jobs](./03-applying-for-jobs.md)
+- [My applications](./04-my-applications.md)
+- [Job alerts](./07-job-alerts.md)
+- [Profile, account and notifications](./11-profile-and-account.md)

@@ -1,60 +1,51 @@
 # Introduction to WP Career Board
 
-WP Career Board is a job board plugin for WordPress. It lets employers post jobs, candidates search and apply, and you review and manage it all from wp-admin. Search, filters and applying update in place without a page reload.
+WP Career Board turns a WordPress site into a job board. Employers post jobs, candidates search and apply, and you review and manage everything from wp-admin. Search, filters and applying update in place without a page reload.
 
-![WP Career Board - Job Board Overview](../images/intro-overview.png)
+## What you can do
 
-## What you get
+**As a site owner:**
+- Control jobs, applications, employers and candidates from wp-admin.
+- Hold new jobs in a moderation queue until you approve them.
+- Set the emails sent for key events.
+- Export or erase a person's data with the GDPR tools.
 
-**For your site visitors:**
-- A fast, reactive job board that updates without page reloads
-- Search and filter jobs by keyword, category, job type, location, and experience level
-- Bookmark jobs to apply later
-- Full job detail pages with company information
+**As an employer:**
+- Post jobs with a guided multi-step form.
+- Manage your jobs and applications from the employer dashboard.
+- Publish a company profile that candidates can see.
 
-**For employers:**
-- Self-service job posting with a guided multi-step form
-- Employer dashboard to manage all posted jobs and applications
-- Company profile page visible to all candidates
-
-**For candidates:**
-- Candidate dashboard to track all applications in one place
-- Saved jobs list (bookmarks)
-- Apply as any logged-in member - no dedicated Candidate role required (set "Require Candidate Role" in Settings if you want stricter separation)
-- Resume builder and resume management (with WP Career Board Pro)
-
-**For admins:**
-- Full admin control over jobs, applications, employers, and candidates
-- Moderation queue to approve jobs before they go live
-- Email notification system for all key events
-- GDPR-compliant data export and erasure tools
+**As a candidate:**
+- Search and filter jobs by keyword, category, job type, location and experience level.
+- Save jobs to apply later.
+- Track your applications in the candidate dashboard.
+- Apply as any logged-in member. No Candidate role is needed unless you turn on **Require Candidate Role** in **Career Board > Settings > Sign-ups**.
 
 ## How it is built
 
-- Every page is a block, and every block also works as a shortcode for page builders and the classic editor. See [Adding Blocks](./04-adding-blocks.md).
+- Every page is a block, and every block also works as a shortcode for page builders and the classic editor. See [Adding blocks](./04-adding-blocks.md).
 - Front-end updates use the WordPress Interactivity API instead of jQuery.
-- Pages and dashboards follow your theme. Reign and BuddyX Pro have dedicated support.
 
 ## Requirements
 
-- **WordPress:** 6.9 or higher
-- **PHP:** 8.1 or higher
-- **Browser:** Any modern browser (Chrome, Firefox, Safari, Edge)
+- WordPress 6.9 or higher
+- PHP 8.1 or higher
 
-## Free vs Pro
+## Free and Pro
 
-WP Career Board is free and fully functional as a standalone job board. **WP Career Board Pro** extends it with:
+WP Career Board is a complete job board on its own. WP Career Board Pro is an add-on that adds:
 
-- Resume builder with structured sections
-- Custom field builder for jobs, companies, and candidates
-- Application pipeline with custom hiring stages on top of the built-in Kanban board
-- Credit system to sell job-posting credits to employers
-- Multi-board engine
-- Job alerts (saved searches sent by email)
-- AI job descriptions (auto-generate job posts with AI)
-- AI hiring tools: applicant ranking, fit-score and TL;DR summaries, candidate "Recommended for you" matches, and "Write with AI" cover letters (each requires an AI provider configured in Pro)
-- Job map (interactive map with geocoded pins)
-- Job feed (RSS/XML for aggregators)
-- Priority support from the Wbcom Designs team
+- Resume builder
+- Field builder for custom fields
+- Application pipeline with custom hiring stages
+- Credit system to charge employers for job posts
+- Multiple job boards
+- Job alerts
+- AI tools for descriptions, applicant ranking, recommended jobs and cover letters (you add your own AI provider key)
+- Job map
+- Job feed in XML format for job aggregators
+- CSV job import
+- Analytics
+- Installable web app (PWA)
 
-> **Start free.** You can install WP Career Board and run a complete job board at no cost. Upgrade to Pro when you need advanced features.
+See [Pro features](../pro-features/01-job-map.md) and [Installing Pro](./06-pro-license.md).
