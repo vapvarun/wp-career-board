@@ -256,6 +256,18 @@ $wcb_left = $wpdb->get_col( "SELECT event_type FROM {$wpdb->prefix}wcb_notificat
 wcb_assert( array( 'pd_new' ) === $wcb_left, 'rows past the retention window go, recent rows stay' );
 wcb_assert( ! $wcb_pro || 0 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_notifications WHERE event_type = 'pd_old'" ), 'Pro bell prunes with the same cutoff' );
 
+// Guest job alerts (Pro): stored by email with user_id 0, so a privacy
+// request by email must find and erase them (card 10354651641).
+if ( $wcb_pro ) {
+	$wcb_guest_email = 'pd-guest-alert-' . wp_rand() . '@example.test';
+	$wpdb->insert( $wpdb->prefix . 'wcb_job_alerts', array( 'user_id' => 0, 'email' => $wcb_guest_email, 'confirmed' => 1, 'search_query' => 'PD guest alert', 'frequency' => 'daily' ) );
+	$wcb_guest_alert = (int) $wpdb->insert_id;
+	$wcb_guest_json  = wp_json_encode( wcb_pd_pages( array( $wcb_module, 'export_user_data' ), $wcb_guest_email ) );
+	wcb_assert( str_contains( $wcb_guest_json, 'PD guest alert' ), 'a guest\'s job alert is exported by email' );
+	wcb_pd_pages( array( $wcb_module, 'erase_user_data' ), $wcb_guest_email );
+	wcb_assert( 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_job_alerts WHERE id = %d", $wcb_guest_alert ) ), 'a guest\'s job alert is erased by email' );
+}
+
 // Teardown.
 $wpdb->query( "DELETE FROM {$wpdb->prefix}wcb_notifications_log WHERE event_type LIKE 'pd\_%'" );
 $wpdb->query( "DELETE FROM {$wpdb->prefix}wcb_gdpr_log WHERE user_id IN (0, " . (int) $wcb_candidate . ') AND created_at >= ' . "'" . gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ) . "'" );
