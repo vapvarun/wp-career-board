@@ -83,8 +83,9 @@
 			overlay.appendChild( box );
 			document.body.appendChild( overlay );
 
-			// Focus trap — focus confirm initially, cycle between cancel/confirm only.
-			confirmBtn.focus();
+			// Focus trap between cancel/confirm. A destructive dialog opens on
+			// Cancel so a stray Enter or double-click cannot delete.
+			( opts.destructive ? cancelBtn : confirmBtn ).focus();
 
 			function close() {
 				document.removeEventListener( 'keydown', onKey );
