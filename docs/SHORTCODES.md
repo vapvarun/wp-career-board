@@ -70,7 +70,6 @@ honours the same field hooks (`wcb_job_form_fields`).
 | Name | Type | Default | What it does |
 |------|------|---------|--------------|
 | `boardId` | int | `0` | Scope the form to a specific board (`wcb_board` post id). When set, the new job is created on that board. `0` means "no board". |
-| `showCompanyField` | bool | `true` | Show the company-selection dropdown. Set `false` if your site posts on behalf of a single company. |
 | `compact` | bool | `false` | Render the dense layout (smaller paddings, closer field rhythm) — good for sidebar embeds. |
 
 ### Examples
@@ -78,7 +77,7 @@ honours the same field hooks (`wcb_job_form_fields`).
 ```text
 [wcb_job_form_simple]
 [wcb_job_form_simple boardId="42"]
-[wcb_job_form_simple boardId="42" showCompanyField="false" compact="true"]
+[wcb_job_form_simple boardId="42" compact="true"]
 ```
 
 ### Hooks
@@ -185,7 +184,6 @@ Multi-step job-posting wizard. Same submission contract as
 | Attribute | Type | Default | What it does |
 |-----------|------|---------|--------------|
 | `boardId` | int | `0` | Scope the new job to a board. |
-| `showCompanyField` | bool | `true` | Show the company-selection step. |
 
 ```text
 [wcb_job_form]

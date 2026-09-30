@@ -13,10 +13,6 @@
       "type": "integer",
       "default": 0
     },
-    "showCompanyField": {
-      "type": "boolean",
-      "default": true
-    },
     "compact": {
       "type": "boolean",
       "default": false

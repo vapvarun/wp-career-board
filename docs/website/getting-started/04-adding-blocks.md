@@ -112,4 +112,4 @@ If you use the Classic Editor or a page builder without block support, use short
 | `[wcb_similar_companies]` | Similar Companies |
 | `[wcb_job_alert_card]` | Job Alerts CTA |
 
-Paste the shortcode into any page or post. It shows the same output as the block. A shortcode also accepts the block's attributes, for example `[wcb_job_listings boardId="42" perPage="6"]`. Other examples are `[wcb_job_form_simple boardId="42" showCompanyField="false" compact="true"]` and `[wcb_company_archive perPage="12" layout="list"]`.
+Paste the shortcode into any page or post. It shows the same output as the block. A shortcode also accepts the block's attributes, for example `[wcb_job_listings boardId="42" perPage="6"]`. Other examples are `[wcb_job_form_simple boardId="42" compact="true"]` and `[wcb_company_archive perPage="12" layout="list"]`.

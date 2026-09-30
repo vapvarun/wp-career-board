@@ -530,7 +530,6 @@ final class Plugin {
 			'showjobs'           => 'showJobs',
 			'showcandidates'     => 'showCandidates',
 			'showcompanies'      => 'showCompanies',
-			'showcompanyfield'   => 'showCompanyField',
 			'showcategoryfilter' => 'showCategoryFilter',
 			'showjobtypefilter'  => 'showJobTypeFilter',
 			'showlocationfilter' => 'showLocationFilter',

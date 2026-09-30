@@ -43,9 +43,8 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	return;
 }
 
-$wcb_board_id_attr     = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
-$wcb_show_company_attr = ! isset( $attributes['showCompanyField'] ) || (bool) $attributes['showCompanyField'];
-$wcb_compact_attr      = ! empty( $attributes['compact'] );
+$wcb_board_id_attr = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+$wcb_compact_attr  = ! empty( $attributes['compact'] );
 
 // ── Board picker options — mirrors blocks/job-form/render.php so multi-board
 // sites (Pro) get a dropdown and the employer can target the post at a
