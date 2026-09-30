@@ -888,7 +888,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Let candidates withdraw their own applications', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'On by default. Withdrawn applications are removed from the employer\'s applicant list. Turn off for boards that want apply-once-final flows (compliance, regulated hiring).', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'On by default. A withdrawn application stays on the employer\'s applicant list with the status Withdrawn, and the employer can no longer change it. Turn off for boards that want apply-once-final flows (compliance, regulated hiring).', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 								</div>

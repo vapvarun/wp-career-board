@@ -413,7 +413,7 @@ wp_interactivity_state(
 
 	<?php
 	/*
-	Sidebar: always renders the same three plugin blocks for shape
+	Sidebar: always renders the same two plugin blocks for shape
 	 * consistency. The previous behavior swapped in admin-placed widgets
 	 * from a `wcb-company-sidebar` widget area when any were assigned,
 	 * but admins routinely misassigned footer / generic widgets there
@@ -425,7 +425,7 @@ wp_interactivity_state(
 	 *   do_action( 'wcb_company_sidebar_before', int $company_id )
 	 *   do_action( 'wcb_company_sidebar_after',  int $company_id )
 	 *     - Echo any markup; runs inside `<aside class="wcb-cp-sidebar">`
-	 *       before or after the three default cards.
+	 *       before or after the two default cards.
 	 *
 	 *   apply_filters( 'wcb_company_sidebar_blocks', array $blocks, int $company_id )
 	 *     - Replace, reorder, or append to the default two blocks (the
