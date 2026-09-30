@@ -340,6 +340,16 @@ final class Plugin {
 			WCB_VERSION
 		);
 
+		// Block assets carry the plugin version so every release busts browser
+		// and CDN caches; asset.php files hold dependencies only.
+		$stamp_version = static function ( array $metadata ): array {
+			if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), 'wp-career-board/' ) ) {
+				$metadata['version'] = WCB_VERSION;
+			}
+			return $metadata;
+		};
+		add_filter( 'block_type_metadata', $stamp_version );
+
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
 			if ( ! is_dir( $block_dir ) ) {
