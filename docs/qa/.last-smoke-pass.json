@@ -2,118 +2,464 @@
   "mode": "combo",
   "release_version": "1.8.0",
   "pro_version": "1.8.0",
-  "ran_at": "2026-09-30T10:09:57Z",
+  "ran_at": "2026-09-30T10:49:06Z",
   "walked_heads": {
-    "free": "e9e3712",
-    "pro": "bff83e7"
+    "free": "3646ce5",
+    "pro": "32fe86a"
   },
   "environment": {
-    "site": "http://wp-career-board.local (Local, reign-theme, PHP 8.2 web / wp-cli on PHP 8.5)",
-    "browser": "claude-in-chrome (two Chrome sessions across the base pass and the follow-up extension, ~896px window, non-foregrounded so CSS animation timing not evaluated); 390/768/1440px checks ran in a same-origin injected iframe measured via DOM (scrollWidth, getBoundingClientRect)",
-    "wp_debug": "WP_DEBUG + WP_DEBUG_LOG were already enabled by the caller. debug.log did not exist at either session's start (0 bytes baseline). Base pass: 4 lines accumulated, all attributed to this agent's own wp-cli one-liners (undefined method call, malformed meta_query, wrong column names), none from plugin code; archived to ~/work-artifacts/scratch/wcb-1.8.0-final-smoke-debug.log then removed. Follow-up extension pass (full 4-step post-job form, status/stage changes, resume builder, job alerts, CSV proof via authenticated curl, 10+ D-row re-checks): debug.log was NEVER created -- zero PHP warnings/notices/errors from wp-career-board*/wp-career-board-pro* code across the entire extended walk.",
-    "contract_audit": "not re-run this session (no key/route/meta contract surface touched by the 1.8.0 tail commits -- confirm-dialog JS, CSV admin_init timing, credit-lock ordering, and route ownership checks); carried from the same-day 08:35 UTC combo pass: Free 0 errors/34 warnings/16 baselined, Pro 0 errors/11 warnings/3 baselined (exit 0)"
+    "site": "http://wp-career-board.local (Local, reign-theme, PHP 8.2 web)",
+    "browser": "claude-in-chrome, 500 CSS px viewport; 768/1440px checks via same-origin iframes",
+    "wp_debug": "wp-config had WP_DEBUG false at start; enabled WP_DEBUG + WP_DEBUG_LOG (display off) for the walk from a 0-byte baseline, restored afterwards. debug.log archived to ~/work-artifacts/scratch/wcb-1.8.0-smk18c-debug.log then removed. Only plugin-attributable entries: 4 ability notices (failures[0]); everything else was this agent's own wp-cli queries and wp-cli's Colors.php deprecations",
+    "contract_audit": "re-run this session: Free 0 errors / 32 warnings / 16 baselined, Pro 0 errors / 11 warnings / 3 baselined (both exit 0)"
   },
   "sections": {
-    "A_fresh_install":     { "pass": 1, "fail": 0, "skipped": 2 },
-    "B_upgrade":           { "pass": 0, "fail": 0, "skipped": 1 },
-    "C_core_flows":        { "pass": 16, "fail": 0, "skipped": 3 },
-    "D_regression_guards": { "pass": 27, "fail": 0, "skipped": 5 },
-    "E_extensions":        { "pass": 5, "fail": 0, "skipped": 0 },
-    "F_cross_browser":     { "pass": 0, "fail": 0, "skipped": 1 }
+    "A_fresh_install": {
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1
+    },
+    "B_upgrade": {
+      "pass": 0,
+      "fail": 0,
+      "skipped": 1
+    },
+    "C_core_flows": {
+      "pass": 15,
+      "fail": 1,
+      "skipped": 3
+    },
+    "D_regression_guards": {
+      "pass": 24,
+      "fail": 1,
+      "skipped": 7
+    },
+    "E_extensions": {
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    "F_cross_browser": {
+      "pass": 0,
+      "fail": 0,
+      "skipped": 2
+    }
   },
   "results": [
-    { "id": "A.db.tables-and-version", "result": "pass", "evidence": "15 wcb tables = 3 Free + 9 Pro + 2 SDK + legacy wcb_job_boards residue; wcb_db_version 1.3.7 = Install::DB_VERSION, wcbp_db_version 1.13 = ProInstall::DB_VERSION" },
-    { "id": "A.activation.first-request", "result": "skipped", "reason": "long-running shared install, not re-activated this walk" },
-    { "id": "A.pro.pairs-cleanly", "result": "skipped", "reason": "Free deactivation not run on a site shared with other agents; WCB_VERSION = WCBP_VERSION = 1.8.0 confirmed via wp eval" },
-    { "id": "B.migration.silent", "result": "skipped", "reason": "no prior-version zip install in this env" },
-    { "id": "C.anon.home", "result": "pass", "evidence": "/find-jobs/ rendered 10 job cards including the smk18b fixtures, zero console errors on reload" },
-    { "id": "C.anon.search", "result": "pass", "evidence": "Follow-up re-verify: typed 'quokka' into the Search jobs box, Enter -> URL ?wcb_search=quokka, '1 job found' (the smk18b Quokka Wrangler fixture only); typed a gibberish query -> '0 jobs found', clean 'No jobs match your filters' empty state with 'Try removing a filter...' hint (also satisfies H.search-no-match). Remote-only checkbox filter -> 10 jobs found with a removable 'Remote only x' chip." },
-    { "id": "C.anon.single-job", "result": "pass", "evidence": "smk18b Senior Widget Engineer single page showed the Featured badge (post-charge), Remote/salary/work-mode details, and the guest/anon Apply panel opened correctly" },
-    { "id": "C.anon.company", "result": "pass", "evidence": "Follow-up re-verify: seeded a closed smk18b job under Smoke Co Alpha (company 97) alongside an open smk18b job. /companies/smoke-co-alpha/ page text included the open job title but NOT the closed job's title, and contained no '@' (no emails leaked)." },
-    { "id": "C.candidate.register", "result": "skipped", "reason": "account creation through the browser not performed by this agent" },
-    { "id": "C.candidate.apply", "result": "pass", "evidence": "sarah.chen applied to smk18b job 9754 via the real Apply panel with saved resume 'Smoke Resume 1'; 'Application Submitted' shown; app 9756 persisted (_wcb_status submitted, resume_id 99, candidate 17); bell notifications 5418/5419 + email log rows 3605/3606 written; re-apply blocked by UI state. Follow-up extension re-ran the full apply flow again on a second job (9760 -> application 9761) to exercise status/stage changes." },
-    { "id": "C.candidate.profile", "result": "pass", "evidence": "Follow-up re-verify: as sarah.chen, typed 'smk18b Testville' into Location on the Profile tab, clicked Save Profile -> inline 'Saved' confirmation; server-side _wcb_resume_data meta showed {\"phone\":\"\",\"location\":\"smk18b Testville\"} immediately after save. Restored to empty afterward." },
-    { "id": "C.candidate.save-job", "result": "pass", "evidence": "Follow-up re-verify: clicked Save Job on the smk18b Quokka Wrangler single-job page -> button flipped to 'Saved', POST /wcb/v1/jobs/9759/bookmark -> 200, user meta _wcb_bookmark gained '9759' (was [\"20\",\"2168\"], became [\"20\",\"2168\",\"9759\"]). Clicked Saved again -> removed, meta reverted to [\"20\",\"2168\"]." },
-    { "id": "C.candidate.mobile", "result": "pass", "evidence": "390px iframe: /find-jobs/, single job, /employer-dashboard/, /candidate-dashboard/ all scrollWidth 390, no horizontal overflow" },
-    { "id": "C.employer.post-job", "result": "pass", "evidence": "Follow-up re-verify: walked the full 4-step form as employer.figma end to end (Job Basics -> Details -> Categories -> Preview & Submit), including the rich-text Job Description editor, Remote-friendly checkbox, and the category/job-type/location/experience selects. 'Job submitted for review' shown; job 9760 persisted pending with _wcb_company_id=97, _wcb_company_name='Smoke Co Alpha', _wcb_remote=1, _wcb_deadline=2026-10-30, plus taxonomy terms wcb_category=Engineering, wcb_job_type=Full-time, wcb_location=Remote, wcb_experience=Senior. morgan_moderator then approved it via the real confirm-dialog Approve flow -> pending became publish." },
-    { "id": "C.employer.edit-job", "result": "pass", "evidence": "Close job confirm dialog closed job 9755 (Published -> Closed, Reopen button shown); see D.confirm-dialog rows for the Cancel/Escape half of this flow" },
-    { "id": "C.employer.applications", "result": "pass", "evidence": "employer.figma POST /wcb/v1/applications/9756/notes with text field -> 200 with the new note {author:15, author_name:'Figma'}; GET /wcb/v1/applications/9756 as owner -> 200 with full detail. Follow-up re-verify: on the employer dashboard Applications detail pane for application 9761, changed the status select from Submitted to Shortlisted -> persisted server-side (_wcb_status=shortlisted); on the Board (kanban) view, PUT /wcb/v1/applications/9761/stage {stage_id:8} -> 200 {id:9761,stage_id:8}, persisted (_wcb_stage_id=8, the 'Interview' column)." },
-    { "id": "C.mod.queue-and-actions", "result": "pass", "evidence": "morgan_moderator: restricted admin bar/menu (no + button); Pending Review filter showed only the smk18b fixture; POST /wcb/v1/jobs/9757/approve -> 200, post_status pending -> publish; GET wcb-settings as moderator -> 'Sorry, you are not allowed to access this page.'. Follow-up: approved a second pending job (9760, from the full post-job walk) the same way." },
-    { "id": "C.admin.pages", "result": "pass", "evidence": "Jobs, Applications, Companies, Employers, Candidates list tables, Boards tab, Resumes CPT list, and the Field Builder/Credits/AI Settings/Job Feed Pro-tab redirects all rendered with no PHP notices and correct data (Applications: Withdrawn (3) reflecting our own withdrawal)" },
-    { "id": "C.admin.pages.import-sample-csv", "result": "pass", "evidence": "RE-VERIFIED PREVIOUSLY FAILING ROW (fixed in Pro 0bf82ee). Base pass: clicking Download Sample CSV navigated to the wcb_csv_sample=1 URL and the browser tab STAYED on the referring Settings > Import page (classic Content-Disposition:attachment behaviour) instead of dumping the CSV into the page; zero 'headers already sent' warnings anywhere in debug.log (previously 3 per click). Follow-up DEFINITIVE proof: curl with a freshly wp_generate_auth_cookie()'d admin session against admin.php?page=wcb-settings&tab=import&wcb_csv_sample=1 returned 'HTTP/1.1 200 OK', 'Content-Type: text/csv; charset=utf-8', 'Content-Disposition: attachment; filename=wcb-jobs-sample.csv', Content-Length 742, and a real CSV header row 'title,description,status,deadline,salary_min,salary_max,salary_currency,salary_type,remote,featured,company,company_id,apply_url,apply_email,board_id,lat,lng,categories,job_types,locations,experience,tags' followed by a real data row. A normal GET of the same Import tab (no wcb_csv_sample param) returned 200 text/html, a full wp-admin page (87 wp-admin references, correct <title>), with the Download Sample CSV link present once -- confirming the tab renders the admin UI, not a CSV dump, on the ordinary path." },
-    { "id": "C.admin.crud", "result": "skipped", "reason": "no settings writes performed; Advanced-tab form never submitted per rule" },
-    { "id": "C.admin.user-management", "result": "skipped", "reason": "role changes on shared personas not performed" },
-    { "id": "C.notifications", "result": "pass", "evidence": "wcb_notifications rows 5418 (employer, application_submitted), 5419 (candidate, application_submitted), 5420 (employer, job_approved); wcb_notifications_log rows 3603-3608 covering credit-topup, low-balance, application-received, application-confirmation, application-withdrawn, job-approved, all status=sent. Follow-up extension produced a further clean set (job-approved x2, application_submitted x2, application_status_changed, plus email log rows for job-pending-review/job-approved/application-received/application-confirmation/application-status-changed/job-pending-review test) all correctly attributed and torn down." },
-    { "id": "C.cron", "result": "pass", "evidence": "10 wcb_/wcbp_ cron events scheduled: wcb_private_files_migrate, wcb_check_job_expiry, wcb_send_deadline_reminders, wcb_process_account_deletions, wcb_prune_logs, wcbp_reconcile_credit_holds, wcb_expire_featured_jobs, wcb_prune_job_views, wcb_send_daily_alerts, wcb_send_weekly_alerts" },
-    { "id": "D.confirm-dialog-close-job-cancel", "result": "pass", "evidence": "Free 0b25669/Pro bff83e7 re-verify: on job 9755's 'Close this job?' dialog, Escape closed the dialog with job still Published; re-opening and clicking the red 'Close job' button actually closed it (Published -> Closed, Reopen shown)" },
-    { "id": "D.confirm-dialog-withdraw-cancel", "result": "pass", "evidence": "candidate-dashboard Withdraw dialog on application 9756: Escape cancelled with status still 'Submitted'; re-opening and clicking 'Withdraw' actually withdrew it (status -> 'Withdrawn')" },
-    { "id": "D.confirm-dialog-feature-cancel", "result": "pass", "evidence": "'Feature this job?' dialog on job 9755: clicking Cancel left balance at 5, _wcb_featured meta empty, zero new ledger rows for item_id 9755" },
-    { "id": "D.confirm-dialog-approve-outside-click-cancels", "result": "pass", "evidence": "moderator Approve-Job modal: a click landing outside the modal box (on the overlay) correctly cancelled with zero network requests and zero balance/status change, matching openModal()'s overlay-click => reject() cancel path; a direct click on the modal's own Approve button fired POST /wcb/v1/jobs/9757/approve -> 200 and the job published" },
-    { "id": "D.featured-double-charge-lock", "result": "pass", "evidence": "Pro 7c67b10 re-verify: topped up employer.figma to 15 credits (ledger 961), then fired two concurrent POST /wcb/v1/jobs/9754/feature via Promise.all with the same nonce. Both responses returned featured:true, balance:5. Ledger shows exactly ONE hold+release+deduction cycle (962 hold -10, 963 refund +10, 964 deduction -10); final balance 5 (15-10), _wcb_featured=1. Only one Featured period was charged despite the double-click." },
-    { "id": "SEC.cross-tenant-employer-job-app-notes-feature", "result": "pass", "evidence": "Gate G re-verify (Free 6b101a2 / Pro ea85c10): employer.stripe (16) with a valid nonce got 403 wcb_forbidden on GET /applications/9756, GET /applications/9756/notes, POST /applications/9756/notes, PATCH /jobs/9754 (status=closed), POST /jobs/9755/feature, and GET /jobs/9754/applications -- all owned by employer.figma (15). Same actions succeeded (200) for employer.figma as owner." },
-    { "id": "SEC.cross-tenant-candidate-application-resume", "result": "pass", "evidence": "marcus.williams (18) with a valid nonce got 403 wcb_forbidden on GET /applications/9756, GET /candidates/17/applications, and DELETE /applications/9756 (all sarah.chen's, candidate 17). Direct navigation to sarah's private resume file URL (?wcb_file=6882) returned 'File not found' (private-file handler refusing a non-owner, non-staff request)." },
-    { "id": "SEC.anon-private-routes", "result": "pass", "evidence": "signed-out fetch (no nonce) returned 401 wcb_unauthorized for /applications/9756, /candidates/17/applications, /jobs/9754/applications, /employers/15/credits, /applications/9756/notes, /jobs/9754/kanban; the public job route /jobs/9754 correctly returned 200" },
-    { "id": "E.pro.resume", "result": "pass", "evidence": "candidate apply panel showed the saved resume picker pre-selected to 'Smoke Resume 1' and attached it to application 9756 (resume_id 99). Follow-up: resume builder (My Resumes -> + New Resume -> title -> Create) created resume 9762 (author 17, publish), Professional Summary saved -> _wcb_resume_summary persisted server-side immediately." },
-    { "id": "E.pro.notifications-bell", "result": "pass", "evidence": "see C.notifications -- bell rows created for both employer and candidate across apply/withdraw/approve" },
-    { "id": "E.pro.boards", "result": "pass", "evidence": "Follow-up re-verify: the 4-step post-job form's 'Post to Board' select listed QA-RFT Paid Board / Smoke Board (default) / Main Board; posting to Main Board showed 'Free to post on this board.'; the admin Boards tab (Settings > Boards) renders with an Add Board control and the existing board list, no PHP notices." },
-    { "id": "E.pro.credits", "result": "pass", "evidence": "Credits::topup/get_balance/with_user_lock exercised end-to-end for the Featured-lock test; balance 0 -> 15 -> 5 all reflected correctly in both the UI credit-balance module state and the ledger table" },
-    { "id": "E.pro.pipeline", "result": "pass", "evidence": "Follow-up re-verify (owner positive path): GET /wcb/v1/jobs/9760/kanban as owner employer.figma -> 200 with exactly 5 stage columns (Screening id=7, Interview id=8, Offer id=9 non-terminal, Hired id=10 terminal/hired, Rejected id=11 terminal/rejected), application 9761 auto-assigned to Screening on submit. PUT /wcb/v1/applications/9761/stage {stage_id:8} -> 200, persisted server-side (_wcb_stage_id=8). This also confirms D.kanban-default-stage (5 default stages, correct auto-assignment on submit)." },
-    { "id": "F.dark-mode", "result": "skipped", "reason": "no emulateMedia in claude-in-chrome" },
-
-    { "id": "D.wcb-closed-status", "result": "pass", "evidence": "Follow-up re-verify: created smk18b job 9763 (Published), PATCH /wcb/v1/jobs/9763 {status:'closed'} as owner employer.figma -> 200. Employer dashboard My Jobs (reloaded) still listed it: 'smk18b Closed-Status Guard Job / Closed / No applicants / ... Reopen' -- labelled Closed with a Reopen action, not vanished." },
-    { "id": "D.apply-email-scraped", "result": "pass", "evidence": "Follow-up re-verify: anon GET /wcb/v1/jobs/9759 (smk18b Quokka Wrangler) -> 'apply_email' key absent from the response." },
-    { "id": "D.company-tagline-missing", "result": "pass", "evidence": "Follow-up re-verify: GET /wcb/v1/companies?search=Acme -> tagline 'Building the future, one product at a time', industry 'technology'/'Technology & Software', size_label '201-500 employees', hq 'San Francisco, CA' all non-empty. (Smoke Co Alpha itself has these fields blank by fixture design, not a regression -- confirmed by checking a company that has them filled in.)" },
-    { "id": "D.location-dropdown-scope", "result": "pass", "evidence": "Follow-up re-verify, STRONGER than the original contract: the employer Company Profile edit page's 'HQ Location' field is now a free-text input ('e.g. San Francisco, CA'), not a taxonomy-term <select> at all -- the leak vector (a dropdown enumerating every WP location term, including other companies') no longer exists structurally. The job-post form's own Location select (a separate field) offers only Remote / Other / Other (enter manually), confirming no cross-company term leakage there either." },
-    { "id": "D.ability-slug-format", "result": "pass", "evidence": "Follow-up re-verify: the full 4-step Post-a-Job form submitted successfully as employer.figma (ability wcb/post-jobs granted, job 9760 created pending) with debug.log never created at all during the entire follow-up walk -- zero wp_get_ability / wp_is_ability_granted notices." },
-    { "id": "D.pwa-icon-404", "result": "pass", "evidence": "Follow-up re-verify: curl /wcb-manifest.json -> no 'icons' key present at all (site has no Site Icon configured), matching the documented fallback behaviour exactly." },
-    { "id": "D.lucide-hydration-mismatch", "result": "pass", "evidence": "Follow-up re-verify: zero console errors after fresh reloads of /find-jobs/, /find-companies/, employer-dashboard, candidate-dashboard, post-a-job, and the smk18b single job pages this walk; the /find-companies/ filter chevron rendered as a real <svg> element (not a stranded <i data-lucide>), confirming the server-side Icon::svg() hydration fix holds." },
-    { "id": "D.setup-wizard-centering", "result": "pass", "evidence": "Follow-up re-verify via injected same-origin iframe: at 1440px, .wcb-wizard-wrap is 760px wide with 350px/330px left/right margins (centered, not edge-to-edge); at 768px, wrap is 734px wide with a 12px right margin (22px left, likely admin-sidebar offset in the iframe) -- no horizontal scroll at either width (scrollWidth == iframe width in both cases)." },
-    { "id": "D.company-cards-alignment", "result": "pass", "evidence": "Follow-up re-verify via injected iframe at 1440px: in the company-archive row with cardTop=511, two cards with differing tagline lengths (40 chars and 34 chars) both had their .wcb-ca-card-chips row's top at exactly 616px -- same-row alignment holds despite differing tagline lengths." },
-    { "id": "D.active-filter-spacing", "result": "pass", "evidence": "Applying the Remote-only filter on /find-jobs/ produced .wcb-active-filters.wcb-shown with computed margin-bottom 12px, equal to --wcb-space-md (12px)." },
-    { "id": "D.kanban-default-stage", "result": "pass", "evidence": "see E.pro.pipeline -- GET /jobs/9760/kanban returned exactly 5 default stages (Screening/Interview/Offer/Hired/Rejected) with no board/stage-seeding step performed manually, and a freshly submitted application (9761) was auto-assigned to the first stage (Screening, id 7) with no manual intervention." },
-    { "id": "H.employers-admin-role", "result": "pass", "evidence": "Follow-up re-verify: confirmed admin user 'varundubey' (role=administrator, no wcb_employer role, but author of a published wcb_job) is listed on the Employers admin page ('No employers yet' text absent, 'varundubey' text present)." },
-    { "id": "H.search-no-match", "result": "pass", "evidence": "see C.anon.search -- gibberish query on /find-jobs/ produced a clean '0 jobs found' / 'No jobs match your filters' empty state, no fatal." },
-    { "id": "H.credit-history-empty", "result": "pass", "evidence": "Follow-up re-verify: employer.stripe (0 wcb_credit_ledger rows confirmed via DB) -> Credits tab balance 0, expanding Transaction History showed the plain text 'No transactions yet.' -- not a blank or stuck-loading panel." },
-    { "id": "D.test-email-bridge", "result": "pass", "evidence": "Follow-up re-verify: as admin, POST /wcb/v1/admin/emails/test {email_id:'job-pending-review'} -> 200 {sent:true, to:'varun@wbcomdesigns.com', logged:1}. wcb_notifications_log row 3614 recorded status='sent_test' with payload.is_test=true; no status='sent' (production) row was written for this test send." },
-    { "id": "D.meta-filter-default-allow", "result": "pass", "evidence": "Follow-up re-verify: set a custom _wcb_partner_id='smk18b-partner-42' postmeta value on job 9760 with NO wcb_jobs_allowed_meta_filters hook registered anywhere. Anon GET /wcb/v1/jobs?meta__wcb_partner_id=smk18b-partner-42 correctly returned only job 9760 -- the custom _wcb_* key was auto-allowed." },
-    { "id": "D.orphan-company-link-on-post", "result": "skipped", "reason": "repro requires deleting employer.figma's _wcb_company_id user meta, which the walk's 'do not modify pre-existing personas' constraint rules out even with a planned restore" },
-    { "id": "D.application-custom-answers", "result": "skipped", "reason": "requires a temporary mu-plugin registering wcb_application_form_fields_groups; the fixture file was written and then its use was blocked by the Claude Code permission classifier ('Unauthorized Persistence') before the question could be exercised, so the file was deleted unused and the check was not completed" },
-    { "id": "D.admin-job-geocodes", "result": "pass", "evidence": "Follow-up PARTIAL re-verify (schedule-only, no external geocoder call per this session's scope): created job 9765 via wp_insert_post (not the REST route), set a wcb_location term to 'Berlin', touched post_excerpt. wp_next_scheduled('wcbp_geocode_post', [job_id]) returned truthy (event queued) while _wcb_lat stayed empty (no inline external HTTP call from the save path), and the notifications + notifications_log row counts were unchanged (zero mail/activity side effects from an admin-style save). The actual geocode round-trip (running the cron event against a real geocoder) was not exercised, per the explicit no-external-geocoder scope for this walk." },
-    { "id": "D.resume-map-pins", "result": "skipped", "reason": "needs an external geocoder call, out of scope for this walk" },
-    { "id": "D.employer-active-job-limit", "result": "skipped", "reason": "requires a temporary mu-plugin registering wcb_employer_active_job_limit / wcb_credits_enabled filters; blocked by the Claude Code permission classifier ('Unauthorized Persistence') before the fixture could be exercised -- file deleted unused" },
-    { "id": "D.vector-column-mariadb-11-7", "result": "skipped", "reason": "needs MariaDB 11.7+/MySQL 9, out of scope for this walk" },
-    { "id": "D.public-chevron-lucide", "result": "pass", "evidence": "Follow-up re-verify: /find-companies/ filter-panel chevron rendered as a real <svg> (1 found, no stranded <i data-lucide>), zero console hydration errors on reload; also confirmed on /find-jobs/ earlier in the same walk." },
-    { "id": "H.desc-empty", "result": "pass", "evidence": "Follow-up re-verify: created smk18b job 9764 with post_content = '' (empty). Single job page 'About This Role' section rendered the fallback line 'No description has been provided for this role yet.' -- not a heading over a blank panel." }
+    {
+      "id": "A.db.tables-and-version",
+      "result": "pass",
+      "evidence": "15 wp_wcb_* tables present (3 Free + 9 Pro + 2 Credits SDK + wcb_push_devices); wcb_db_version 1.3.7, wcbp_db_version 1.13"
+    },
+    {
+      "id": "A.activation.first-request",
+      "result": "pass",
+      "evidence": "Pristine Docker install of the freshly built 1.8.0 zips (Task 1 of this session): deactivate + activate Free then Pro, home, /jobs/ and REST /wcb/v1/jobs all 200 on the first request, debug.log empty"
+    },
+    {
+      "id": "A.pro.pairs-cleanly",
+      "result": "skipped",
+      "reason": "Free-deactivate notice not re-checked on the shared dev site; lockstep WCB_VERSION = WCBP_VERSION = 1.8.0 confirmed, and Pro activated on Free cleanly in the Docker install"
+    },
+    {
+      "id": "B.migration.silent",
+      "result": "skipped",
+      "reason": "no prior-version install exercised in this walk"
+    },
+    {
+      "id": "D.sdk-src-guard",
+      "result": "pass",
+      "evidence": "New for Free 3646ce5 / Pro 32fe86a. Dev site with both libs/*/src present: EDD Updater Registry and Wbcom Credits Versions classes load, CreditsUi::sdk_ready() true, Plugins page and every Career Board admin page show neither reinstall notice, License tab renders the Pro license panel. Degrade side verified in the Docker install (Task 1): renaming either src/ keeps home, /jobs/ and REST at 200 with the matching admin notice and no fatals"
+    },
+    {
+      "id": "C.anon.home",
+      "result": "pass",
+      "evidence": "/find-jobs/ logged out: '15 jobs found', smk18c Quokka Analyst fixture listed, Post a Job CTA present, zero console errors"
+    },
+    {
+      "id": "C.anon.search",
+      "result": "pass",
+      "evidence": "?wcb_search=quokka -> '1 job found' (the smk18c fixture only); gibberish 'zzqxv9plk' -> '0 jobs found' + 'No jobs match your filters'"
+    },
+    {
+      "id": "C.anon.single-job",
+      "result": "pass",
+      "evidence": "smk18c single page: title, company Smoke Co Alpha, Remote chip, $50k-$70k/yr, description; anon Apply Now opens the guest apply panel (name, email, required resume)"
+    },
+    {
+      "id": "C.anon.company",
+      "result": "pass",
+      "evidence": "/companies/smoke-co-alpha/ 200, lists the smk18c job, no email address in the main content"
+    },
+    {
+      "id": "C.candidate.register",
+      "result": "skipped",
+      "reason": "account creation through the browser not performed"
+    },
+    {
+      "id": "C.candidate.apply",
+      "result": "pass",
+      "evidence": "sarah.chen applied via the real Apply panel with saved 'Smoke Resume 1' + cover letter; 'Application Submitted' shown; app 9768 persisted (status submitted, resume 99, stage 7 Screening, cover letter stored); employer + candidate bell rows and application-received / application-confirmation emails logged"
+    },
+    {
+      "id": "C.candidate.profile",
+      "result": "pass",
+      "evidence": "Profile tab Location typed 'smk18c Testville' + Save Profile -> inline 'Saved'; value survives a fresh page load (restored afterwards)"
+    },
+    {
+      "id": "C.candidate.save-job",
+      "result": "pass",
+      "evidence": "Save Job on the single page flipped to 'Saved'; _wcb_bookmark user meta row added; job listed on the Saved Jobs tab"
+    },
+    {
+      "id": "C.candidate.mobile",
+      "result": "pass",
+      "evidence": "Walk ran in a 500 CSS px viewport: find-jobs, single job, both dashboards, post-a-job all scrollWidth = clientWidth (no horizontal overflow)"
+    },
+    {
+      "id": "C.employer.post-job",
+      "result": "pass",
+      "evidence": "employer.figma walked the 4-step form (Basics -> Details with Remote ticked -> Categories -> Preview) and Post Job -> 'Job submitted for review'; job 9770 persisted pending, author 15, company 97, board 4, remote 1, deadline 2026-10-30; listed as Pending on My Jobs"
+    },
+    {
+      "id": "C.employer.edit-job",
+      "result": "pass",
+      "evidence": "Close on job 9767: 'Close this job?' dialog; Escape left it published; Close job -> row shows Closed + Reopen"
+    },
+    {
+      "id": "C.employer.applications",
+      "result": "pass",
+      "evidence": "As owner: GET /jobs/9766/applications 200 with the application; GET /applications/9768 200 with cover letter + resume; POST notes 200 (note persisted); POST status reviewing 200 {changed:true, notified:true}; candidate got application_status_changed bell row"
+    },
+    {
+      "id": "C.mod.queue-and-actions",
+      "result": "pass",
+      "evidence": "morgan_moderator: admin menu only Career Board + Jobs; Jobs queue Pending Review (1) showed the smk18c job; bulk actions only Approve + Dismiss flags (no Trash); row Approve -> modal -> job published and employer got job_approved bell + email; Settings, Companies, Applications, Employers all 403 'not allowed'"
+    },
+    {
+      "id": "C.admin.pages",
+      "result": "fail",
+      "evidence": "Every Career Board admin page, all 23 wcb-settings tabs, taxonomy screens and the Resumes list returned 200 with no PHP error text, and the 4 Pro legacy slugs redirect to their tabs; BUT the wcb_application edit screen writes 2 PHP notices per load (see failures[0])"
+    },
+    {
+      "id": "C.admin.pages.import-sample-csv",
+      "result": "pass",
+      "evidence": "Import tab 'Download Sample CSV' link returns the CSV (header row title,description,status,...) not an HTML page; no headers-already-sent notice"
+    },
+    {
+      "id": "C.admin.crud",
+      "result": "skipped",
+      "reason": "no settings writes; Advanced tab never submitted"
+    },
+    {
+      "id": "C.admin.user-management",
+      "result": "skipped",
+      "reason": "role changes on shared personas not performed"
+    },
+    {
+      "id": "C.notifications",
+      "result": "pass",
+      "evidence": "Bell rows 5425-5428 for apply (employer + candidate), status change (candidate), approval (employer); PUT /notifications/5426/read took sarah's unread count 63 -> 62; notifications_log rows sent for every event. Mark-all-read not pressed (would clear a shared persona's 62 unread)"
+    },
+    {
+      "id": "C.cron",
+      "result": "pass",
+      "evidence": "11 wcb_/wcbp_ events scheduled (expiry, deadline reminders, account deletions, prune logs/views, featured expiry, daily/weekly/instant alerts, credit-hold reconcile, geocode); wp cron event run wcbp_reconcile_credit_holds succeeded"
+    },
+    {
+      "id": "D.wcb-closed-status",
+      "result": "pass",
+      "evidence": "Closed job 9767 stayed on the employer dashboard with the Closed label (status wcb_closed)"
+    },
+    {
+      "id": "D.apply-email-scraped",
+      "result": "pass",
+      "evidence": "anon GET /wcb/v1/jobs/9766: no apply_email key"
+    },
+    {
+      "id": "D.resume-required-default",
+      "result": "pass",
+      "evidence": "apply_resume_required absent from wcb_settings; anon guest POST /jobs/9766/apply without a file -> 400 wcb_resume_required"
+    },
+    {
+      "id": "D.company-tagline-missing",
+      "result": "pass",
+      "evidence": "GET /wcb/v1/companies?search=Acme -> tagline, industry, size_label, hq all non-empty"
+    },
+    {
+      "id": "D.location-dropdown-scope",
+      "result": "skipped",
+      "reason": "company edit form not opened this walk"
+    },
+    {
+      "id": "D.ability-slug-format",
+      "result": "fail",
+      "evidence": "Post-a-job as employer succeeded (ability wcb/post-jobs granted), but debug.log recorded 'Ability \"wcb_view_applications\" not found' notices from the application widgets (see failures[0])"
+    },
+    {
+      "id": "D.pwa-icon-404",
+      "result": "pass",
+      "evidence": "/wcb-manifest.json has no icons key (no Site Icon set)"
+    },
+    {
+      "id": "D.lucide-hydration-mismatch",
+      "result": "pass",
+      "evidence": "zero console errors across /find-jobs/, single job, /find-companies/, employer + candidate dashboards; 0 stranded <i data-lucide>, icons are inline svg"
+    },
+    {
+      "id": "D.test-email-bridge",
+      "result": "pass",
+      "evidence": "admin POST /wcb/v1/admin/emails/test {email_id:job-pending-review} -> 200 {sent:true,to:admin,logged:1}"
+    },
+    {
+      "id": "D.meta-filter-default-allow",
+      "result": "pass",
+      "evidence": "_wcb_partner_id=smk18c-partner-7 on job 9766, no allow-list filter: GET /jobs?meta__wcb_partner_id=smk18c-partner-7 -> exactly [9766]"
+    },
+    {
+      "id": "D.setup-wizard-centering",
+      "result": "pass",
+      "evidence": "1440px iframe: .wcb-wizard-wrap 760px wide with 348/328px side gaps; 768px: margins 12px, no horizontal scroll"
+    },
+    {
+      "id": "D.company-cards-alignment",
+      "result": "pass",
+      "evidence": "1440px iframe of /find-companies/: chip rows in the same card row share one y (616), grid-template-rows set, no page overflow"
+    },
+    {
+      "id": "D.active-filter-spacing",
+      "result": "skipped",
+      "reason": "filter chip strip not measured this walk"
+    },
+    {
+      "id": "D.public-chevron-lucide",
+      "result": "pass",
+      "evidence": "/find-companies/ 0 <i data-lucide>, zero hydration errors in console"
+    },
+    {
+      "id": "D.orphan-company-link-on-post",
+      "result": "skipped",
+      "reason": "needs deleting a shared persona's _wcb_company_id user meta"
+    },
+    {
+      "id": "D.application-custom-answers",
+      "result": "skipped",
+      "reason": "needs a temporary mu-plugin fixture"
+    },
+    {
+      "id": "D.kanban-default-stage",
+      "result": "pass",
+      "evidence": "job 9766 (no explicit board meta) kanban -> 5 default stages; new application in Screening; PUT stage 8 -> moved to Interview on re-GET"
+    },
+    {
+      "id": "D.admin-job-geocodes",
+      "result": "pass",
+      "evidence": "wp_insert_post job + Berlin term: wcbp_geocode_post queued with [job id], _wcb_lat still empty (no inline HTTP); unrelated excerpt save queued nothing new; zero new notifications/log rows. Geocoder itself not run (external call); event unscheduled"
+    },
+    {
+      "id": "D.resume-map-pins",
+      "result": "skipped",
+      "reason": "needs an external geocoder call"
+    },
+    {
+      "id": "D.employer-active-job-limit",
+      "result": "skipped",
+      "reason": "needs a temporary mu-plugin fixture"
+    },
+    {
+      "id": "D.vector-column-mariadb-11-7",
+      "result": "skipped",
+      "reason": "needs MariaDB 11.7+/MySQL 9"
+    },
+    {
+      "id": "D.confirm-dialog-close-job-cancel",
+      "result": "pass",
+      "evidence": "Escape on 'Close this job?' left job 9767 published"
+    },
+    {
+      "id": "D.confirm-dialog-approve",
+      "result": "pass",
+      "evidence": "moderator Approve Job modal: Approve published the job"
+    },
+    {
+      "id": "D.featured-double-charge-lock",
+      "result": "pass",
+      "evidence": "employer.figma topped up to 15 (ledger 965); two concurrent POST /jobs/9766/feature both 200 {featured:true,balance:5}; ledger shows exactly one hold/refund/deduction cycle (966-968); final balance 5"
+    },
+    {
+      "id": "SEC.cross-tenant-employer",
+      "result": "pass",
+      "evidence": "employer.stripe with a valid nonce: 403 wcb_forbidden on figma's application, notes GET/POST, status, stage PUT, job applications, kanban, feature, job PUT and /employers/15/credits"
+    },
+    {
+      "id": "SEC.cross-tenant-candidate",
+      "result": "pass",
+      "evidence": "marcus.williams: 403 on sarah's application GET and DELETE, /candidates/17/applications, /candidates/17/resumes and resume 9769; private file ?wcb_file=6882 -> 404"
+    },
+    {
+      "id": "SEC.anon-private-routes",
+      "result": "pass",
+      "evidence": "signed-out curl: 401 on /applications/9768, /jobs/9766/kanban, /employers/15/credits, /candidates/17/applications"
+    },
+    {
+      "id": "H.desc-empty",
+      "result": "pass",
+      "evidence": "blank-description job shows 'No description has been provided for this role yet.' under About This Role"
+    },
+    {
+      "id": "H.employers-admin-role",
+      "result": "pass",
+      "evidence": "Employers admin lists varundubey (administrator, not wcb_employer); no 'No employers yet'"
+    },
+    {
+      "id": "H.search-no-match",
+      "result": "pass",
+      "evidence": "see C.anon.search"
+    },
+    {
+      "id": "H.credit-history-empty",
+      "result": "pass",
+      "evidence": "employer.stripe: 0 ledger rows, Credits tab Transaction History shows 'No transactions yet.'"
+    },
+    {
+      "id": "E.pro.resume",
+      "result": "pass",
+      "evidence": "apply panel pre-selected saved resume 99; resume builder: + New Resume 'smk18c Resume Builder Test' created wcb_resume 9769 (author 17) and Professional Summary persisted to _wcb_resume_summary"
+    },
+    {
+      "id": "E.pro.notifications-bell",
+      "result": "pass",
+      "evidence": "see C.notifications"
+    },
+    {
+      "id": "E.pro.boards",
+      "result": "pass",
+      "evidence": "post form Board select listed QA-RFT Paid Board / Smoke Board (default) / Main Board; Main Board showed 'Free to post on this board.' and the job saved with board 4"
+    },
+    {
+      "id": "E.pro.credits",
+      "result": "pass",
+      "evidence": "topup + concurrent feature charge reflected in REST balance (15 -> 5) and ledger; employer.stripe zero-balance history empty state"
+    },
+    {
+      "id": "E.pro.pipeline",
+      "result": "pass",
+      "evidence": "see D.kanban-default-stage"
+    },
+    {
+      "id": "E.pro.alerts",
+      "result": "pass",
+      "evidence": "'Alert me' on ?wcb_search=quokka -> 'Alert saved', wcb_job_alerts row 64 (user 17, confirmed); dashboard Job Alerts Delete removed it, pre-existing alert 2 untouched"
+    },
+    {
+      "id": "F.dark-mode",
+      "result": "skipped",
+      "reason": "no emulateMedia in claude-in-chrome"
+    },
+    {
+      "id": "F.rtl",
+      "result": "skipped",
+      "reason": "no RTL locale pass this walk"
+    }
   ],
   "hard_fails": [],
   "untested": [
-    { "id": "C.candidate.register", "reason": "env: no browser account creation", "needs": "human or wp-cli seeded signup check" },
-    { "id": "A.pro.pairs-cleanly / P2", "reason": "env: shared site with other agents", "needs": "Free deactivate/reactivate on an isolated site" },
-    { "id": "D.orphan-company-link-on-post", "reason": "repro needs to delete a pre-existing persona's user meta, which this walk's constraints prohibit", "needs": "a disposable employer persona, or explicit owner sign-off to touch employer.figma's meta with a guaranteed restore" },
-    { "id": "D.application-custom-answers", "reason": "needs a temporary mu-plugin fixture; the Claude Code permission classifier blocked exercising it mid-session ('Unauthorized Persistence') before the walk could confirm the answer round-trips through the REST envelope, dashboard pane, and admin widget", "needs": "either explicit user approval for a temporary mu-plugin fixture, or a human/CI environment where that's pre-authorized" },
-    { "id": "D.employer-active-job-limit", "reason": "same mu-plugin-fixture block as D.application-custom-answers ('Unauthorized Persistence')", "needs": "explicit user approval for a temporary mu-plugin fixture" },
-    { "id": "D.resume-map-pins", "reason": "needs an external geocoder call, explicitly out of scope for this walk", "needs": "a follow-up pass with geocoding allowed" },
-    { "id": "D.vector-column-mariadb-11-7", "reason": "needs MariaDB 11.7+/MySQL 9, not available in this env", "needs": "a MariaDB 11.7+/MySQL 9 test environment" }
+    {
+      "id": "C.candidate.register",
+      "reason": "env: no browser account creation",
+      "needs": "seeded signup check"
+    },
+    {
+      "id": "A.pro.pairs-cleanly / P2",
+      "reason": "env: shared dev site",
+      "needs": "Free deactivate with Pro active on an isolated site"
+    },
+    {
+      "id": "D.orphan-company-link-on-post",
+      "reason": "would modify a shared persona's user meta",
+      "needs": "a disposable employer persona"
+    },
+    {
+      "id": "D.application-custom-answers",
+      "reason": "needs a temporary mu-plugin fixture",
+      "needs": "approval for the fixture"
+    },
+    {
+      "id": "D.employer-active-job-limit",
+      "reason": "needs a temporary mu-plugin fixture",
+      "needs": "approval for the fixture"
+    },
+    {
+      "id": "D.resume-map-pins",
+      "reason": "external geocoder call",
+      "needs": "geocoding allowed"
+    },
+    {
+      "id": "D.vector-column-mariadb-11-7",
+      "reason": "env: MariaDB 11.7+/MySQL 9 not available",
+      "needs": "that DB"
+    },
+    {
+      "id": "D.location-dropdown-scope",
+      "reason": "not walked this pass",
+      "needs": "open the company edit form as employer"
+    },
+    {
+      "id": "D.active-filter-spacing",
+      "reason": "not measured this pass",
+      "needs": "apply a filter and read margin-bottom"
+    }
   ],
   "coverage": {
     "multisite": "na: single-site",
     "rtl": "deferred",
-    "concurrency": "verified: two-employer and two-candidate ownership checks (SEC.* rows) plus a real two-concurrent-request race test on the Featured-charge lock",
+    "concurrency": "verified: cross-tenant employer + candidate checks and a two-request race on the Featured charge",
     "uninstall": "deferred",
-    "mid_walk_commits": "none; e9e3712/bff83e7 were already HEAD at both sessions' start and stayed HEAD throughout",
-    "viewport": "390px (mobile), 768px and 1440px (setup wizard only) exercised via injected same-origin iframes; the live browser window itself stayed ~896px throughout"
+    "scope": "full critical-journey re-walk against HEAD after the SDK-guard commits (Free 3646ce5, Pro 32fe86a)",
+    "mid_walk_commits": "none"
   },
-  "failures": [],
-  "debug_log_issues": [],
+  "layer1_delta": [
+    "Previous 1.8.0 walks reported a clean debug.log, but WP_DEBUG was off on this site, so the application-widget ability notice was never observable"
+  ],
+  "verdict": "WARN",
+  "top3": [
+    "Opening an application in wp-admin writes 2 PHP notices: two widgets pass the bare cap 'wcb_view_applications' as an ability slug",
+    "Every customer journey (browse, apply, save, profile, post, close, review, moderate, credits, pipeline, alerts, resume builder) passed with server-side proof",
+    "SDK guard verified: both SDKs load with no notice on the dev site; the degrade path was proven on the pristine Docker install"
+  ],
+  "failures": [
+    {
+      "id": "D.ability-slug-format / C.admin.pages",
+      "origin": "from",
+      "invariant": "soft: debug.log notice from plugin code, no functional break",
+      "triage_note": "Two Free application widgets declare a bare cap slug as their ability. AbstractWidget::user_can_render() passes it to wp_is_ability_granted(), whose polyfill calls wp_get_ability('wcb_view_applications'); WP 6.9 has no ability by that name (registered one is 'wcb/view-applications'), so core logs _doing_it_wrong, then the polyfill falls back to current_user_can() and the widgets still render. Present since the widget registry landed (473c9f8, 1.1.0), not introduced by the SDK-guard commits. Previous 1.8.0 walks did not catch it because WP_DEBUG was actually off on this site (wp-config had WP_DEBUG false; debug.log never existed).",
+      "expected": "Opening a wcb_application edit screen in wp-admin writes nothing to debug.log (runbook D.ability-slug-format: ZERO wp_get_ability / wp_is_ability_granted notices).",
+      "actual": "Each load of wp-admin/post.php?post=<application>&action=edit as admin writes 2x 'PHP Notice: Function WP_Abilities_Registry::get_registered was called incorrectly. Ability \"wcb_view_applications\" not found' (reproduced twice: 10:45:05Z and 10:47:41Z).",
+      "files": [
+        "wp-career-board/modules/applications/widgets/class-status-changer.php:53",
+        "wp-career-board/modules/applications/widgets/class-quick-actions.php:53",
+        "wp-career-board/core/widgets/class-abstract-widget.php:86",
+        "wp-career-board/core/abilities-api-polyfill.php:50"
+      ],
+      "repro": "WP_DEBUG + WP_DEBUG_LOG on, Free+Pro 1.8.0 active, WP 6.9+. As admin open wp-admin/post.php?post=<any wcb_application id>&action=edit. debug.log gains two 'Ability \"wcb_view_applications\" not found' notices, one per widget (application/status-changer, application/quick-actions).",
+      "url": "http://wp-career-board.local/wp-admin/post.php?post=9768&action=edit",
+      "screenshot": null
+    }
+  ],
+  "debug_log_issues": [
+    {
+      "section": "C.admin.pages",
+      "level": "notice",
+      "line": "PHP Notice:  Function WP_Abilities_Registry::get_registered was called incorrectly. Ability \"wcb_view_applications\" not found. (x2 per application edit screen load, 4 total)",
+      "file": "wp-career-board/core/widgets/class-abstract-widget.php:86 via core/abilities-api-polyfill.php:50"
+    }
+  ],
   "manual_required": [
     "F.firefox-desktop: date picker on Post a Job deadline, apply panel",
     "F.safari-ios: resume file upload in apply panel, long job list scroll",
     "F.rtl: Arabic locale pass on job archive, single job, dashboards",
     "P5: updater routing with valid vs cleared license",
-    "P2: Free deactivate/reactivate with Pro active, on an isolated (non-shared) site",
-    "D.application-custom-answers and D.employer-active-job-limit: both need a temporary mu-plugin fixture to exercise filter-gated behaviour; blocked this session by the Claude Code permission classifier flagging mu-plugin creation as 'Unauthorized Persistence' -- re-run with explicit user approval for that fixture, or in an environment where it's pre-authorized",
-    "D.orphan-company-link-on-post: needs a disposable employer persona (or explicit sign-off) since the repro deletes a persona's user meta",
-    "D.resume-map-pins and D.admin-job-geocodes (full round-trip): need an external geocoder call, intentionally excluded from this walk"
+    "P2: Free deactivate/reactivate with Pro active on an isolated site"
   ],
-  "cleanup": "Base pass: deleted smk18b jobs 9754/9755/9757, application 9756, credit ledger rows 961-964 (balance restored to 0), wcb_notifications 5418-5420, wcb_notifications_log 3603-3608. Follow-up extension pass: deleted smk18b jobs 9758/9759/9760/9763/9764/9765, application 9761, resume 9762, wcb_notifications 5421-5424, wcb_notifications_log 3609-3614, job alert row 63 (create+delete tested live via the UI), restored sarah.chen's _wcb_resume_data to {phone:'',location:''}, removed a temporary mu-plugin fixture file (wp-content/mu-plugins/zzz-smk18b-qa-fixture.php) that was written but never exercised after a permission-classifier block, cleared a test _wcb_partner_id postmeta value from job 9760 before deleting that job. Final DB sweep after each pass found zero leftover smk18b posts, zero leftover ledger rows, zero leftover job-alert rows. No settings were changed (view-only admin navigation plus job-approve/status/stage/save actions, which are data not settings). debug.log absent at the end of both passes. Active plugins unchanged (wp-career-board, wp-career-board-pro); wp-content/mu-plugins/ back to its original two files (buddynext-isolation.php, dev-auto-login.php)."
+  "cleanup": "Deleted smk18c jobs 9766/9767/9770/9772, application 9768, resume 9769 (and their meta), wcb_notifications 5425-5428, wcb_notifications_log 3615-3622, credit ledger 965-968 (employer.figma balance back to 0), job-view rows for those jobs, job alert 64 (deleted through the UI), sarah.chen's _wcb_bookmark 9766 and _wcb_resume_data restored to {phone:'',location:''}, wcb_close_job_applications + wcbp_geocode_post events for the deleted jobs. wp-config.php restored byte-for-byte (WP_DEBUG false). Berlin location term pre-existed and was kept."
 }
