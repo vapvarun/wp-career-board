@@ -92,6 +92,7 @@ A large reliability, safety and presentation release: one rule per job, applicat
 * Fix      - Salaries are never rounded, including values in the millions.
 * Fix      - Guests see a sign-in link for saving jobs, and apply follows the Require login to apply setting everywhere.
 * Fix      - Candidates see the post-apply job alert prompt again.
+* Fix      - Cancel or Escape on a confirm dialog no longer carries out the action, and destructive dialogs open with Cancel focused.
 * Fix      - Legacy featured jobs without a start date now expire.
 * Fix      - Resume import requires Pro on REST and WP-CLI, matching the admin screen.
 * Fix      - Shortcode attributes map to the block's settings correctly.
