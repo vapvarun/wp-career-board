@@ -182,8 +182,27 @@ do_action( 'wcb_expire_featured_jobs' );
 wcb_assert( '1' !== (string) get_post_meta( $wcb_was_featured, '_wcb_featured', true ), 'an elapsed featured job is demoted' );
 wcb_assert( '1' === (string) get_post_meta( $wcb_still_featured, '_wcb_featured', true ), 'a current featured job keeps its flag' );
 
+// A job featured before the since-stamp existed has no _wcb_featured_since.
+// The sweep must start its window instead of leaving it featured forever.
+$wcb_legacy_featured = wcb_cron_make_job( array( '_wcb_featured' => '1' ) );
+delete_post_meta( $wcb_legacy_featured, '_wcb_featured_since' );
+
+do_action( 'wcb_expire_featured_jobs' );
+$wcb_legacy_since = (string) get_post_meta( $wcb_legacy_featured, '_wcb_featured_since', true );
+
+wcb_assert( '' !== $wcb_legacy_since, 'a legacy featured job without a since-stamp gets one' );
+wcb_assert( '1' === (string) get_post_meta( $wcb_legacy_featured, '_wcb_featured', true ), 'a legacy featured job keeps its flag for a full window' );
+
+do_action( 'wcb_expire_featured_jobs' );
+wcb_assert( get_post_meta( $wcb_legacy_featured, '_wcb_featured_since', true ) === $wcb_legacy_since, 'a second sweep leaves the legacy since-stamp unchanged' );
+
+update_post_meta( $wcb_legacy_featured, '_wcb_featured_since', gmdate( 'Y-m-d H:i:s', time() - ( ( $wcb_feature_days + 1 ) * DAY_IN_SECONDS ) ) );
+do_action( 'wcb_expire_featured_jobs' );
+wcb_assert( '1' !== (string) get_post_meta( $wcb_legacy_featured, '_wcb_featured', true ), 'a legacy featured job expires once its window passes' );
+
 wp_delete_post( $wcb_was_featured, true );
 wp_delete_post( $wcb_still_featured, true );
+wp_delete_post( $wcb_legacy_featured, true );
 
 // ---------------------------------------------------------------------------
 // wcb_send_deadline_reminders — runs without fatal and does not re-notify a job

@@ -91,6 +91,51 @@ final class FeaturedExpiry {
 	}
 
 	/**
+	 * Start the featured window now for jobs featured before the since-stamp
+	 * existed (or by a direct meta write that bypassed the hooks above).
+	 *
+	 * Without a stamp the sweep's date query never matches them, so they
+	 * stayed featured forever. Stamping "now" rather than the post date gives
+	 * each one a full window instead of demoting a paid listing on upgrade.
+	 * Stamped jobs drop out of the NOT EXISTS query, so repeat runs are no-ops.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	private function stamp_legacy_featured(): void {
+		$now = gmdate( 'Y-m-d H:i:s' );
+
+		do {
+			$jobs = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => array( 'publish', 'pending' ),
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- ID-only batches; the loop repeats until none are left.
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						array(
+							'key'   => '_wcb_featured',
+							'value' => '1',
+						),
+						array(
+							'key'     => self::SINCE_META,
+							'compare' => 'NOT EXISTS',
+						),
+					),
+				)
+			);
+
+			foreach ( $jobs as $job_id ) {
+				update_post_meta( (int) $job_id, self::SINCE_META, $now );
+			}
+			$full_batch = 500 === count( $jobs );
+		} while ( $full_batch );
+	}
+
+	/**
 	 * Clear `_wcb_featured` on jobs whose featured-since timestamp is older
 	 * than the configured window.
 	 *
@@ -98,6 +143,8 @@ final class FeaturedExpiry {
 	 * @return void
 	 */
 	public function sweep(): void {
+		$this->stamp_legacy_featured();
+
 		$days = max( 1, min( 365, \WCB\Admin\Settings::int( 'apply_featured_days', 30 ) ) );
 
 		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
