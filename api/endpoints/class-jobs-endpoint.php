@@ -621,11 +621,11 @@ final class JobsEndpoint extends RestController {
 			update_post_meta( $job_id, '_wcb_apply_email', $wcb_apply_email );
 		}
 
-		// Link employer's company CPT to the job so the single page can render
-		// description and website. Resolve through CompanyMetaShape rather than
-		// reading `_wcb_company_id` user meta directly: an employer whose company
-		// was created by import/admin/migration has the post-side link only, and
-		// a raw read left the job orphaned. The dashboard later self-heals the
+		// Link the employer's company to the job so the single page can show its
+		// description and website. Resolve it through CompanyMetaShape rather than
+		// the company id stored on the user: an employer whose company came from
+		// an import, an admin or a migration has only the link on the company
+		// post, and reading the user's copy left the job orphaned. The dashboard later self-heals the
 		// user meta, at which point My Jobs switches to the company-scoped query
 		// and the orphaned job disappears from the employer's own list.
 		$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
@@ -1243,9 +1243,9 @@ final class JobsEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response|\WP_Error
+	 * @return \WP_REST_Response
 	 */
-	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+	public function get_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		$job_id   = (int) $request['id'];
 		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
 		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?: 1 ) );

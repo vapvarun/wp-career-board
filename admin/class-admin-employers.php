@@ -526,7 +526,7 @@ class AdminEmployers extends \WP_List_Table {
 				esc_html__( 'Edit', 'wp-career-board' )
 			),
 		);
-		$company_id = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
+		$company_id  = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
 		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) ) {
 			$row_actions['view'] = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',

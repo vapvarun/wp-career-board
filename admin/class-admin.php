@@ -748,6 +748,17 @@ class Admin {
 	}
 
 	/**
+	 * The old Emails screen now lives in Settings > Emails.
+	 *
+	 * @since 1.8.0
+	 * @return void Redirects and exits.
+	 */
+	public function redirect_emails_page(): void {
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&tab=emails' ) );
+		exit;
+	}
+
+	/**
 	 * Register the Emails submenu page (redirects to the Settings emails tab).
 	 *
 	 * Keeps old URL working while consolidating Emails into Settings > Emails tab.
@@ -761,20 +772,14 @@ class Admin {
 			'',
 			'wcb_manage_settings',
 			'wcb-emails',
-			static function (): void {
-				wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&tab=emails' ) );
-				exit;
-			}
+			array( $this, 'redirect_emails_page' )
 		);
 
 		// Remove from visible menu — page remains accessible for backward-compat redirect.
-		global $submenu;
-		if ( isset( $submenu['wp-career-board'] ) ) {
-			foreach ( $submenu['wp-career-board'] as $wcb_key => $wcb_item ) {
-				if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
-					unset( $submenu['wp-career-board'][ $wcb_key ] );
-					break;
-				}
+		foreach ( (array) ( $GLOBALS['submenu']['wp-career-board'] ?? array() ) as $wcb_key => $wcb_item ) {
+			if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
+				unset( $GLOBALS['submenu']['wp-career-board'][ $wcb_key ] );
+				break;
 			}
 		}
 	}

@@ -166,7 +166,12 @@ function wcb_get_captcha_driver(): string {
 register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );
 register_deactivation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'deactivate' ) );
 
-add_action( 'plugins_loaded', array( 'WCB\\Core\\Plugin', 'instance' ) );
+add_action(
+	'plugins_loaded',
+	static function (): void {
+		\WCB\Core\Plugin::instance();
+	}
+);
 
 // Runtime DB-version self-heal — covers WP-CLI / managed-host auto-updates
 // that bypass register_activation_hook. Runs at init@5 so Pro's

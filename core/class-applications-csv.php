@@ -41,7 +41,7 @@ final class ApplicationsCsv {
 	 */
 	public static function stream( array $query_args, ?callable $can_export = null ): void {
 		$can_export = $can_export ?? static fn ( int $app_id ): bool => current_user_can( 'edit_post', $app_id ); // phpcs:ignore WordPress.WP.Capabilities -- admin screen default, as before.
-		$filename = 'wcb-applications-' . gmdate( 'Y-m-d-His' ) . '.csv';
+		$filename   = 'wcb-applications-' . gmdate( 'Y-m-d-His' ) . '.csv';
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );

@@ -77,9 +77,9 @@ class EmailDeletionRequested extends AbstractEmail {
 	 */
 	public function get_merge_tags(): array {
 		return array(
-			'user_name' => __( 'Member name', 'wp-career-board' ),
+			'user_name'   => __( 'Member name', 'wp-career-board' ),
 			'delete_date' => __( 'Deletion date', 'wp-career-board' ),
-			'login_url' => __( 'Sign-in URL', 'wp-career-board' ),
+			'login_url'   => __( 'Sign-in URL', 'wp-career-board' ),
 		);
 	}
 

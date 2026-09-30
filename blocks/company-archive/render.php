@@ -181,21 +181,21 @@ $wcb_ca_results_label = sprintf(
 );
 
 $wcb_state = array(
-	'companies'    => $wcb_companies_state,
-	'page'         => 1,
-	'perPage'      => $wcb_per_page,
-	'layout'       => $wcb_layout,
-	'loading'      => false,
-	'hasMore'      => count( $wcb_companies_raw ) < $wcb_companies_total,
-	'apiBase'      => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industries'   => array(),
-	'sizes'        => array(),
-	'searchQuery'  => '',
+	'companies'        => $wcb_companies_state,
+	'page'             => 1,
+	'perPage'          => $wcb_per_page,
+	'layout'           => $wcb_layout,
+	'loading'          => false,
+	'hasMore'          => count( $wcb_companies_raw ) < $wcb_companies_total,
+	'apiBase'          => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+	'industries'       => array(),
+	'sizes'            => array(),
+	'searchQuery'      => '',
 	// Sort order pinned to the same option set as jobs + resumes
 	// (date_desc | date_asc). View.js piping sets ?orderby=date&order=ASC|DESC
 	// on the REST call so the server-side query matches the UI choice.
-	'sortBy'       => 'date_desc',
-	'restNonce'    => wp_create_nonce( 'wp_rest' ),
+	'sortBy'           => 'date_desc',
+	'restNonce'        => wp_create_nonce( 'wp_rest' ),
 	/*
 	 * Results-count label, fully resolved server-side.
 	 *
@@ -211,7 +211,7 @@ $wcb_state = array(
 	 * likewise _n()-resolved server-side — after every filter / search / sort /
 	 * load-more round trip. No plural resolution happens in JS.
 	 */
-	'resultsLabel' => $wcb_ca_results_label,
+	'resultsLabel'     => $wcb_ca_results_label,
 	/*
 	 * The one string view.js builds: each card's bookmark label, "Save
 	 * <company>", so a screen reader hears which company it saves. Seeded here

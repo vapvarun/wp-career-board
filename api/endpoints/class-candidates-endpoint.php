@@ -183,7 +183,7 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),

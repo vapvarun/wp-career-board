@@ -182,9 +182,9 @@ final class AdminEndpoint extends RestController {
 	 * @since 1.0.0
 	 *
 	 * @param  \WP_REST_Request $request Full REST request.
-	 * @return \WP_REST_Response|\WP_Error
+	 * @return \WP_REST_Response
 	 */
-	public function dismiss_banner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+	public function dismiss_banner( \WP_REST_Request $request ): \WP_REST_Response {
 		$banner   = (string) $request->get_param( 'banner' );
 		$meta_key = 'wcb_' . $banner . '_dismissed';
 

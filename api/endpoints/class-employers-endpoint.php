@@ -237,7 +237,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),
@@ -914,28 +914,30 @@ final class EmployersEndpoint extends RestController {
 		$company_id = (int) $company->ID;
 		// Owner viewing their own company's applications — same status allowlist
 		// as the other employer views (R1: single source of truth).
-		$wcb_status_in = "'" . implode( "','", self::owner_visible_statuses( true ) ) . "'";
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$from = "FROM {$wpdb->posts} app
+		$wcb_statuses = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
+		$from = $wpdb->prepare(
+			"FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
 			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . " )
 			 INNER JOIN {$wpdb->postmeta} pm_co
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
 			   AND app.post_status = 'publish'
-			   AND pm_co.meta_value = %s";
+			   AND pm_co.meta_value = %s",
+			...array_merge( $wcb_statuses, array( (string) $company_id ) )
+		);
 
-		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", (string) $company_id ) );
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
-				(string) $company_id,
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)
@@ -961,27 +963,29 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		global $wpdb;
-		$user_id       = get_current_user_id();
-		$wcb_status_in = "'" . implode( "','", self::owner_visible_statuses( true ) ) . "'";
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$from = "FROM {$wpdb->posts} app
+		$user_id      = get_current_user_id();
+		$wcb_statuses = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
+		$from = $wpdb->prepare(
+			"FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
 			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )
 			       AND job.post_author = %d
-			 WHERE app.post_type   = 'wcb_application'
-			   AND app.post_status = 'publish'";
+			 WHERE app.post_type   = \'wcb_application\'
+			   AND app.post_status = \'publish\'',
+			...array_merge( $wcb_statuses, array( $user_id ) )
+		);
 
-		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", $user_id ) );
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
-				$user_id,
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)

@@ -1109,9 +1109,8 @@ wp_interactivity_state(
 		<!-- VIEW: Post a Job -->
 		<div class="wcb-view-panel" id="wcb-panel-postjob" role="tabpanel" aria-labelledby="wcb-tab-postjob" data-wp-class--wcb-view-active="state.isViewPostJob">
 			<?php
-			if ( is_user_logged_in() ) {
-				echo do_blocks( '<!-- wp:wp-career-board/job-form /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			}
+			// Logged-out visitors never reach this point (see the check at the top).
+			echo do_blocks( '<!-- wp:wp-career-board/job-form /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 

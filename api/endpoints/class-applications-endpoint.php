@@ -67,7 +67,7 @@ final class ApplicationsEndpoint extends RestController {
 							'meta_key'    => '_wcb_job_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 							'meta_value'  => (string) (int) $r['id'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 						),
-						static fn ( int $app_id ): bool => true
+						'__return_true' // Every row of the job: the permission check below already gates it.
 					);
 				},
 				'permission_callback' => function ( \WP_REST_Request $r ): bool|\WP_Error {

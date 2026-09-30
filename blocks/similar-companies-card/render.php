@@ -90,9 +90,9 @@ if ( empty( $wcb_companies ) ) {
 	<ul class="wcb-similar-companies-card__list">
 	<?php
 	foreach ( $wcb_companies as $wcb_company ) :
-		$wcb_logo    = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
-		$wcb_loc     = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
-		$wcb_perma   = (string) get_permalink( $wcb_company->ID );
+		$wcb_logo  = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
+		$wcb_loc   = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
+		$wcb_perma = (string) get_permalink( $wcb_company->ID );
 		// Prefer mb_strtoupper over byte-based strtoupper so non-ASCII initials
 		// uppercase correctly ("ärzte" -> "Ä", not "ä"). mb_substr is always
 		// available (WordPress polyfills it in wp-includes/compat.php), but

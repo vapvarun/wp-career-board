@@ -41,10 +41,9 @@ class EmailSettings {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param  string $hook_suffix Current admin page hook.
 	 * @return void
 	 */
-	public function enqueue_assets( string $hook_suffix ): void {
+	public function enqueue_assets(): void {
 		// Enqueue on the Career Board settings page. The settings UI uses
 		// hash-based client-side tabs (#emails), so the server can't see which
 		// tab is active — a `?tab=emails` gate (the old check) never matched and

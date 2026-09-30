@@ -155,7 +155,7 @@ wcb_pages_assert(
 	'get_id() returns 0 for unknown key'
 );
 
-// 6. known_keys(): Free's six, plus Pro's two when Pro is active.
+// 6. known_keys(): Free's six, plus Pro's three when Pro is active.
 $wcb_expected_keys = array(
 	'post_job_page',
 	'employer_dashboard_page',
@@ -167,6 +167,7 @@ $wcb_expected_keys = array(
 if ( defined( 'WCBP_VERSION' ) ) {
 	$wcb_expected_keys[] = 'resume_archive_page';
 	$wcb_expected_keys[] = 'job_map_page';
+	$wcb_expected_keys[] = 'pipeline_page';
 }
 wcb_pages_assert(
 	count( array_diff( $wcb_expected_keys, Pages::known_keys() ) ) === 0

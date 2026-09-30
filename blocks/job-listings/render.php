@@ -391,33 +391,33 @@ $wcb_results_label = sprintf(
 $wcb_salary_js_strings = \WCB\Core\SalaryFormat::js_strings();
 
 $wcb_state = array(
-	'jobs'           => $wcb_jobs_state,
-	'page'           => 1,
-	'perPage'        => $wcb_per_page,
-	'layout'         => $wcb_layout,
-	'loading'        => false,
+	'jobs'              => $wcb_jobs_state,
+	'page'              => 1,
+	'perPage'           => $wcb_per_page,
+	'layout'            => $wcb_layout,
+	'loading'           => false,
 	// Render Load More only when there are actually more rows beyond what we
 	// just rendered. The previous heuristic (count >= per_page) showed the
 	// button even when the first batch was the only batch (count == total).
 	// Saved tab participates in Load More now that it paginates instead
 	// of returning every bookmark in one shot.
-	'hasMore'        => count( $wcb_jobs_raw ) < $wcb_total_count,
-	'apiBase'        => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
-	'nonce'          => wp_create_nonce( 'wp_rest' ),
-	'totalCount'     => $wcb_total_count,
-	'resultsLabel'   => $wcb_results_label,
+	'hasMore'           => count( $wcb_jobs_raw ) < $wcb_total_count,
+	'apiBase'           => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
+	'nonce'             => wp_create_nonce( 'wp_rest' ),
+	'totalCount'        => $wcb_total_count,
+	'resultsLabel'      => $wcb_results_label,
 	// Site locale as a BCP-47 tag. Root-level sibling of `i18n` (not inside it):
 	// it is not a translatable string, it is the argument view.js hands to
 	// Intl.NumberFormat so digit grouping follows the SITE locale rather than
 	// whatever locale the visitor's browser happens to run in.
-	'locale'         => \WCB\Core\SalaryFormat::locale(),
-	'searchQuery'    => (string) ( $wcb_url_params['search'] ?? '' ),
+	'locale'            => \WCB\Core\SalaryFormat::locale(),
+	'searchQuery'       => (string) ( $wcb_url_params['search'] ?? '' ),
 	// User-controlled filters (type chips, exp chips, remote, salary,
 	// external filter block keys). Removable pills + "Clear all" only
 	// touch this map - never the shortcode-baked scope.
 	// Seeded from the URL, under the keys the filter blocks use, so the
 	// pills show and every later fetch keeps them.
-	'activeFilters'  => (object) array_filter(
+	'activeFilters'     => (object) array_filter(
 		array(
 			'wcb_category'   => (string) ( $wcb_url_params['category'] ?? '' ),
 			'wcb_job_type'   => (string) ( $wcb_url_params['type'] ?? '' ),
@@ -439,31 +439,31 @@ $wcb_state = array(
 	// the integrator's baked-in scope (e.g. [wcb_job_listings
 	// metaFilter="department:engineering"]) intact across user
 	// interactions and Load more.
-	'baseFilters'    => (object) array_filter(
+	'baseFilters'       => (object) array_filter(
 		array(
 			'board_' . $wcb_board_id_attr  => $wcb_board_id_attr > 0 ? (string) $wcb_board_id_attr : '',
 			'meta_' . $wcb_meta_filter_key => ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) ? $wcb_meta_filter_val : '',
 		)
 	),
 	// '' = the server's default (best match for a keyword, else Settings).
-	'sortBy'         => in_array( $wcb_url_params['sort'] ?? '', \WCB\Modules\Jobs\JobSearch::SORTS, true ) ? (string) $wcb_url_params['sort'] : '',
-	'alertSaved'     => false,
-	'alertEmailOpen' => false,
-	'alertSaving'    => false,
+	'sortBy'            => in_array( $wcb_url_params['sort'] ?? '', \WCB\Modules\Jobs\JobSearch::SORTS, true ) ? (string) $wcb_url_params['sort'] : '',
+	'alertSaved'        => false,
+	'alertEmailOpen'    => false,
+	'alertSaving'       => false,
 	'alertNeedsConfirm' => false,
-	'alertError'     => '',
-	'authorId'       => $wcb_author_id_attr,
-	'savedBy'        => $wcb_saved_by_attr,
-	'boardId'        => $wcb_board_id_attr,
-	'metaFilter'     => $wcb_meta_filter_attr,
-	'salaryMin'      => 0,
-	'salaryMax'      => 0,
+	'alertError'        => '',
+	'authorId'          => $wcb_author_id_attr,
+	'savedBy'           => $wcb_saved_by_attr,
+	'boardId'           => $wcb_board_id_attr,
+	'metaFilter'        => $wcb_meta_filter_attr,
+	'salaryMin'         => 0,
+	'salaryMax'         => 0,
 	// Symbol used for the salary-filter chip + slider tooltips. Salary
 	// filtering is currency-agnostic (compares raw min/max numbers across
 	// jobs of any currency), so we surface the SITE default currency's
 	// symbol to label the slider — site owners on INR/EUR sites should
 	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
-	'currencySymbol' => (
+	'currencySymbol'    => (
 		static function (): string {
 			$wcb_settings_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
 			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
@@ -472,7 +472,7 @@ $wcb_state = array(
 				: '$';
 		}
 	)(),
-	'filterOptions'  => array(
+	'filterOptions'     => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
 		'categories'  => $wcb_cat_opts,
@@ -488,7 +488,7 @@ $wcb_state = array(
 	// t( 'key', 'English fallback' ). Keys seeded here and keys read there are
 	// a bijection: a key read but not seeded silently renders English forever,
 	// a key seeded but not read is dead weight in the POT file.
-	'i18n'           => array_merge(
+	'i18n'              => array_merge(
 		// Canonical money-format strings, shared verbatim with the PHP
 		// formatter so the sliders and each card's `salary_label` cannot
 		// drift. Only the keys view.js reads are seeded — the pay-period
