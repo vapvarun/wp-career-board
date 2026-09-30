@@ -27,6 +27,11 @@
  * @package WP_Career_Board
  */
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 // No declare(strict_types=1) here: this script is executed with `wp eval-file`,
 // which eval()s the file contents, and a strict_types declaration is only legal
 // as the first statement of a real file. Declaring it here makes the script

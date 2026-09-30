@@ -752,13 +752,27 @@ final class JobsEndpoint extends RestController {
 			$data['post_status'] = 'closed' === $status ? 'wcb_closed' : $status;
 
 			// Only moderators publish a listing that has not been approved yet.
-			// An employer asking to publish a pending or draft job gets the same
+			// Live, expired and closed jobs have been through review; anything
+			// else (pending, draft, rejected, trash) has not. Closing is limited
+			// to reviewed jobs too: a pending job closed and then reopened used
+			// to count as a "republish" and went live past the moderation queue.
+			$wcb_reviewed  = array( 'publish', 'wcb_expired', 'wcb_closed' );
+			$wcb_moderator = $this->check_ability( 'wcb/moderate-jobs' );
+			if ( 'closed' === $status && ! $wcb_moderator && ! in_array( $post->post_status, $wcb_reviewed, true ) ) {
+				return new \WP_Error(
+					'wcb_job_not_live',
+					__( 'Only a live job can be closed. Save it as a draft instead.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+
+			// An employer asking to publish an unreviewed job gets the same
 			// status a brand-new submission would (so auto-publish boards still
 			// go live), and a rejected job always goes back to review.
 			if (
 				'publish' === $status
-				&& in_array( $post->post_status, array( 'pending', 'draft' ), true )
-				&& ! $this->check_ability( 'wcb/moderate-jobs' )
+				&& ! in_array( $post->post_status, $wcb_reviewed, true )
+				&& ! $wcb_moderator
 			) {
 				if ( EmployersEndpoint::is_rejected_job( $post ) ) {
 					// Rejection refunded the job, so going back to review costs

@@ -185,6 +185,18 @@ class EmailVerification {
 		}
 
 		delete_user_meta( $user_id, self::META );
+
+		/**
+		 * Fires when a member proves they own their email address.
+		 *
+		 * Guest applications sent from that address are claimed here.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param int $user_id Account ID.
+		 */
+		do_action( 'wcb_email_verified', $user_id );
+
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, false );
 

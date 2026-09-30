@@ -63,6 +63,23 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Whether a stored owner id is the signed-in user.
+	 *
+	 * A signed-out visitor is user 0, and so is every guest application's
+	 * candidate and any post with no author. A bare `get_current_user_id() ===
+	 * $owner` therefore made the visitor the owner of all of them:
+	 * GET /candidates/0/applications listed every guest application to anyone.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $owner_id Owner user ID read from the object or the route.
+	 * @return bool
+	 */
+	protected function is_current_user( int $owner_id ): bool {
+		return $owner_id > 0 && get_current_user_id() === $owner_id;
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.

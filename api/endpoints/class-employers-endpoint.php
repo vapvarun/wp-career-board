@@ -1185,7 +1185,7 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_applications_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		$post     = get_post( (int) $request['id'] );
-		$is_owner = $post && get_current_user_id() === (int) $post->post_author
+		$is_owner = $post && $this->is_current_user( (int) $post->post_author )
 		&& $this->check_ability( 'wcb/view-applications' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
@@ -1273,7 +1273,7 @@ final class EmployersEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = get_current_user_id() === (int) $post->post_author
+		$is_owner = $this->is_current_user( (int) $post->post_author )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();

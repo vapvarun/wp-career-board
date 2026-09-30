@@ -23,6 +23,13 @@ echo "=== REST Exposure Contract ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/audit/rest-exposure.php
 echo ""
 
+echo "=== Route Authority (Gate G2) ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-route-authority.php
+if [ -f wp-content/plugins/wp-career-board-pro/tests/test-route-authority.php ]; then
+	wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-route-authority.php
+fi
+echo ""
+
 echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""

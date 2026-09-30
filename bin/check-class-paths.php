@@ -23,6 +23,11 @@
 
 declare( strict_types=1 );
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 $root = dirname( __DIR__ );
 
 // Detect the autoloader namespace prefix the plugin actually uses (Free: WCB\,

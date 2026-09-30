@@ -1,0 +1,465 @@
+{
+  "_doc": [
+    "Declared authority for every REST route this plugin registers under wcb/v1.",
+    "tests/test-route-authority.php walks the live registry and fails when a route is missing here,",
+    "when an entry has no live route, or when the code's permission_callback differs from the one declared.",
+    "audience: public = anyone, signed out included | member = any logged-in user, self-scoped |",
+    "owner = the object's owner (or staff) | admin = a staff ability | guarded = a feature or ability gate resolved in the callback.",
+    "A public route carries `reason` and `observed` (what a signed-out dispatch actually returned).",
+    "A public GET route with an object id carries `probe`: the private fixture it is dispatched against, or `none: <why>`.",
+    "An entry that exists only while a feature is on carries `conditional_on`: the setting key that mounts it.",
+    "Closures are named Closure@<file> relative to the plugin root; Pro's pro_check() wrapper is unwrapped to its inner check."
+  ],
+  "standard": "~/.claude/skills/wp-plugin-release/references/authorization-guards.md",
+  "routes": {
+    "DELETE /wcb/v1/applications/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::withdraw_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "DELETE /wcb/v1/applications/(?P<id>\\d+)/notes/(?P<note>[A-Za-z0-9]+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::update_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "DELETE /wcb/v1/auth/app-password": {
+      "audience": "member",
+      "permission_callback": "Closure@api/endpoints/class-auth-endpoint.php",
+      "object_id": false,
+      "writes": true,
+      "check": "Logged in; revokes the current user's own app password."
+    },
+    "DELETE /wcb/v1/jobs/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\JobsEndpoint::delete_item_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "DELETE /wcb/v1/me": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\AccountDeletionEndpoint::is_logged_in",
+      "object_id": false,
+      "writes": true
+    },
+    "DELETE /wcb/v1/me/deletion": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\AccountDeletionEndpoint::is_logged_in",
+      "object_id": false,
+      "writes": true
+    },
+    "DELETE /wcb/v1/users/(?P<id>\\d+)/block": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\MembersEndpoint::is_logged_in",
+      "object_id": true,
+      "writes": true
+    },
+    "GET /wcb/v1/account": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\AccountEndpoint::logged_in_check",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/admin/emails/log": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\AdminEndpoint::admin_check",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/admin/industries": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\AdminEndpoint::admin_check",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/applications/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::get_item_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/applications/(?P<id>\\d+)/notes": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::update_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/candidates/(?P<id>\\d+)": {
+      "audience": "public",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::get_item_permissions_check",
+      "object_id": true,
+      "writes": false,
+      "reason": "A public candidate profile. The permission check returns true; visibility is enforced in the callback.",
+      "observed": "Signed out: a private-visibility candidate answers 403 with no name, a non-candidate user id answers 404, and contact details (resume_data) are stripped unless the viewer is an employer the candidate applied to.",
+      "probe": "candidate"
+    },
+    "GET /wcb/v1/candidates/(?P<id>\\d+)/applications": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::candidate_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/candidates/(?P<id>\\d+)/bookmarks": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::self_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/candidates/(?P<id>\\d+)/saved-companies": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::self_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/candidates/(?P<id>\\d+)/saved-resumes": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::self_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/companies": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": false,
+      "reason": "The public company directory.",
+      "observed": "Signed out search for a draft company's title: 200, 0 companies."
+    },
+    "GET /wcb/v1/employers/(?P<id>\\d+)": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": true,
+      "writes": false,
+      "reason": "A published company profile.",
+      "observed": "Signed out: a draft company answers 404 with no title in the body.",
+      "probe": "company"
+    },
+    "GET /wcb/v1/employers/(?P<id>\\d+)/applications": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_applications_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/employers/(?P<id>\\d+)/jobs": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": true,
+      "writes": false,
+      "reason": "A company's live jobs, shown on its public profile.",
+      "observed": "Signed out: only the live job is listed (X-WCB-Total 1); the company's pending jobs are not. Applicant counts (appCount) are included for every viewer, logged as a pre-existing LOW.",
+      "probe": "company"
+    },
+    "GET /wcb/v1/employers/me/applications": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_my_jobs_permissions_check",
+      "object_id": false,
+      "writes": false,
+      "check": "Scoped to applications on the current user's own jobs."
+    },
+    "GET /wcb/v1/employers/me/jobs": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_my_jobs_permissions_check",
+      "object_id": false,
+      "writes": false,
+      "check": "Scoped to the current user's own jobs."
+    },
+    "GET /wcb/v1/files/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "Closure@api/endpoints/class-applications-endpoint.php",
+      "object_id": true,
+      "writes": false,
+      "check": "PrivateFiles::can_download(): only files stored privately; the uploader, staff, or the two sides of an application carrying the file."
+    },
+    "GET /wcb/v1/import/status": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\ImportEndpoint::admin_check",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/jobs": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": false,
+      "reason": "The public job board listing.",
+      "observed": "Signed out with a live, pending, draft and private job carrying one marker: 200, X-WCB-Total 1, only the live job in the body."
+    },
+    "GET /wcb/v1/jobs/(?P<id>\\d+)": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": true,
+      "writes": false,
+      "reason": "A single public job page's data.",
+      "observed": "Signed out: pending, draft, private and trashed jobs answer 404; a live job answers 200.",
+      "probe": "job"
+    },
+    "GET /wcb/v1/jobs/(?P<id>\\d+)/applications": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\JobsEndpoint::view_applications_permissions_check",
+      "object_id": true,
+      "writes": false
+    },
+    "GET /wcb/v1/jobs/(?P<id>\\d+)/applications/export": {
+      "audience": "owner",
+      "permission_callback": "Closure@api/endpoints/class-applications-endpoint.php",
+      "object_id": true,
+      "writes": false,
+      "check": "The job's author with wcb/view-applications, or wcb/manage-settings."
+    },
+    "GET /wcb/v1/me/blocked": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\MembersEndpoint::is_logged_in",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/me/deletion": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\AccountDeletionEndpoint::is_logged_in",
+      "object_id": false,
+      "writes": false
+    },
+    "GET /wcb/v1/search": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": false,
+      "reason": "Site search across public jobs.",
+      "observed": "Signed out search for a marker shared with pending/draft jobs: 200 and none of the unpublished titles."
+    },
+    "GET /wcb/v1/settings/app-config": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": false,
+      "reason": "Branding and feature switches the mobile app needs before sign-in.",
+      "observed": "Signed out: site name, URL, feature toggles, colours; plugin versions and licence state are blank for non-admins, no secrets."
+    },
+    "POST /wcb/v1/admin/dismiss-banner": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\AdminEndpoint::admin_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/admin/emails/test": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\AdminEndpoint::admin_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/admin/industries": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\AdminEndpoint::admin_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/applications/(?P<id>\\d+)/notes": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::update_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/auth/app-password": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": true,
+      "reason": "The app's sign-in: exchanges a username and password for an application password.",
+      "observed": "Signed out with a wrong password while app sign-in is off: 403 wcb_app_passwords_off. When on, it authenticates through core and the per-IP limit."
+    },
+    "POST /wcb/v1/auth/verify-email/resend": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": true,
+      "reason": "Resend the confirmation link to an unconfirmed sign-up.",
+      "observed": "Signed out for an existing and a non-existent address: the same 200 message, so it does not reveal accounts; rate-limited per address."
+    },
+    "POST /wcb/v1/candidates/me/privacy/(?P<action>export|erase)": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::me_logged_in_check",
+      "object_id": false,
+      "writes": true,
+      "check": "Creates a core privacy request for the caller's own email only."
+    },
+    "POST /wcb/v1/candidates/register": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": true,
+      "reason": "Self-service candidate sign-up.",
+      "observed": "Signed out with registration disabled: 403 wcb_registration_disabled. Enabled, registration_guard applies the CAPTCHA/honeypot filter, a per-IP limit and core registration_errors."
+    },
+    "POST /wcb/v1/candidates/resume-upload": {
+      "audience": "guarded",
+      "permission_callback": "Closure@api/endpoints/class-applications-endpoint.php",
+      "object_id": false,
+      "writes": true,
+      "check": "wcb/manage-resume ability."
+    },
+    "POST /wcb/v1/companies/(?P<id>\\d+)/bookmark": {
+      "audience": "member",
+      "permission_callback": "Closure@api/endpoints/class-companies-endpoint.php",
+      "object_id": true,
+      "writes": true,
+      "check": "Logged in; toggles the current user's own saved company."
+    },
+    "POST /wcb/v1/companies/(?P<id>\\d+)/trust": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\CompaniesEndpoint::manage_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/employers": {
+      "audience": "guarded",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::create_item_permissions_check",
+      "object_id": false,
+      "writes": true,
+      "check": "wcb/manage-company ability."
+    },
+    "POST /wcb/v1/employers/(?P<id>\\d+)/logo": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/employers/register": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": false,
+      "writes": true,
+      "reason": "Self-service employer sign-up.",
+      "observed": "Signed out with registration disabled: 403 wcb_registration_disabled. Same registration_guard as candidates."
+    },
+    "POST /wcb/v1/import/run": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Api\\Endpoints\\ImportEndpoint::admin_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/jobs": {
+      "audience": "guarded",
+      "permission_callback": "WCB\\Api\\Endpoints\\JobsEndpoint::create_item_permissions_check",
+      "object_id": false,
+      "writes": true,
+      "check": "wcb/post-jobs ability."
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/apply": {
+      "audience": "guarded",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::submit_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Guests may apply unless apply_require_login is on; members need wcb/apply-jobs. Guests cannot attach an existing attachment id."
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/approve": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Modules\\Moderation\\ModerationModule::moderate_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/bookmark": {
+      "audience": "member",
+      "permission_callback": "Closure@api/endpoints/class-jobs-endpoint.php",
+      "object_id": true,
+      "writes": true,
+      "check": "Logged in; toggles the current user's own bookmark."
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/reject": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Modules\\Moderation\\ModerationModule::moderate_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/report": {
+      "audience": "guarded",
+      "permission_callback": "WCB\\Modules\\Moderation\\ModerationModule::report_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Logged in with the reporting feature on."
+    },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/resolve-flag": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Modules\\Moderation\\ModerationModule::moderate_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/users/(?P<id>\\d+)/block": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\MembersEndpoint::is_logged_in",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/users/(?P<id>\\d+)/report": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\MembersEndpoint::is_logged_in",
+      "object_id": true,
+      "writes": true
+    },
+    "POST /wcb/v1/wizard/complete": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Admin\\SetupWizard::wizard_permission_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/wizard/create-pages": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Admin\\SetupWizard::wizard_permission_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/wizard/remove-sample-data": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Admin\\SetupWizard::wizard_permission_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/wizard/sample-data": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Admin\\SetupWizard::wizard_permission_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST /wcb/v1/wizard/settings": {
+      "audience": "admin",
+      "permission_callback": "WCB\\Admin\\SetupWizard::wizard_permission_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/account": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\AccountEndpoint::logged_in_check",
+      "object_id": false,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/applications/(?P<id>\\d+)/rating": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::update_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/applications/(?P<id>\\d+)/status": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\ApplicationsEndpoint::update_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/candidates/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\CandidatesEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/employers/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": true
+    },
+    "POST,PUT,PATCH /wcb/v1/jobs/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\JobsEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": true
+    }
+  }
+}

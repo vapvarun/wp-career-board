@@ -10,6 +10,11 @@
  * @package WP_Career_Board
  */
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 // phpcs:ignoreFile -- analysis stubs, never loaded by WordPress.
 
 /**

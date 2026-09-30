@@ -30,14 +30,46 @@ final class ApplicationsModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_widgets' ) );
-		// Link a new account's matching guest applications so they surface in the
+		// Link an account's matching guest applications so they surface in the
 		// candidate's My Applications instead of staying orphaned as post_author 0.
-		add_action( 'user_register', array( $this, 'claim_guest_applications' ) );
+		// Only once the account has proven it owns the address: registering with
+		// someone else's email used to hand over their applications and CV.
+		add_action( 'user_register', array( $this, 'claim_on_register' ) );
+		add_action( 'wcb_email_verified', array( $this, 'claim_guest_applications' ) );
+		add_action(
+			'after_password_reset',
+			function ( \WP_User $user ): void {
+				$this->claim_guest_applications( (int) $user->ID );
+			}
+		);
 		( new ApplicationLifecycle() )->boot();
 	}
 
 	/**
-	 * Reassign a newly-registered user's guest applications to their account.
+	 * `user_register`: claim straight away only when the address is vouched for.
+	 *
+	 * A self-service sign-up has not proven it owns the email yet (the REST
+	 * register route signs the member in with a password they chose), so its
+	 * claim waits for `wcb_email_verified` or a password reset, both of which
+	 * need the mailbox. An account created by a site admin or over WP-CLI is
+	 * vouched for by whoever created it.
+	 *
+	 * Core's own wp-login.php sign-up has the member set a password from an
+	 * emailed link, so it claims on that password reset.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $user_id The newly-registered user ID.
+	 * @return void
+	 */
+	public function claim_on_register( int $user_id ): void {
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			$this->claim_guest_applications( $user_id );
+		}
+	}
+
+	/**
+	 * Reassign a user's guest applications to their account.
 	 *
 	 * Guest applications are stored with post_author 0 + _wcb_guest_email. A
 	 * visitor who applied as a guest and later registers with that same email
@@ -45,8 +77,9 @@ final class ApplicationsModule {
 	 * post_author). On registration, claim every wcb_application whose
 	 * _wcb_guest_email matches the new account so its history surfaces.
 	 *
-	 * WordPress enforces unique user emails, so a match unambiguously belongs to
-	 * this user. Idempotent: only guest-owned (post_author 0) rows are reassigned,
+	 * Callers run it only once the account has proven it owns the address (see
+	 * claim_on_register()); WordPress enforces unique user emails, so a match
+	 * then belongs to this user. Idempotent: only guest-owned (post_author 0) rows are reassigned,
 	 * never a row already owned by a real candidate.
 	 *
 	 * @since 1.7.0

@@ -433,6 +433,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return Boolean( ctx.job?.isClosed || ctx.job?.isExpired );
 		},
 
+		// Only a live job can be closed; the REST route refuses the rest (a
+		// pending job closed and reopened used to skip moderation).
+		get isJobNotClosable() {
+			const ctx = getContext();
+			return 'publish' !== ctx.job?.status;
+		},
+
 		// Applications.
 		get totalApps() {
 			// Server total, never the loaded page (capped at 50).

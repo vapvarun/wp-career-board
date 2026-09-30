@@ -696,6 +696,11 @@ class AdminJobs extends \WP_List_Table {
 		$can_approve = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 		$can_trash   = wp_is_ability_granted( 'wcb/manage-settings' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 		foreach ( $job_ids as $job_id ) {
+			// The IDs come from the request: a moderator's approve used to
+			// publish any post on the site, not only jobs.
+			if ( 'wcb_job' !== get_post_type( $job_id ) ) {
+				continue;
+			}
 			if ( 'approve' === $action ) {
 				if ( ! $can_approve ) {
 					continue;

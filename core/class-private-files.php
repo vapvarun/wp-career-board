@@ -278,7 +278,10 @@ final class PrivateFiles {
 	 */
 	public static function can_download( int $attachment_id ): bool {
 		$file = get_post( $attachment_id );
-		if ( ! $file instanceof \WP_Post || 'attachment' !== $file->post_type ) {
+		// Only files this class stores privately. Any other attachment keeps its
+		// own URL, and serving it here let the staff branch below stream every
+		// attachment on the site by walking ids.
+		if ( ! $file instanceof \WP_Post || 'attachment' !== $file->post_type || ! get_post_meta( $attachment_id, self::META, true ) ) {
 			return false;
 		}
 

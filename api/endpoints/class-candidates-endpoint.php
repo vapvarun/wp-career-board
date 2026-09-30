@@ -648,7 +648,7 @@ final class CandidatesEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function update_item_permissions_check( $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
@@ -662,7 +662,7 @@ final class CandidatesEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function self_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}

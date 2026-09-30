@@ -25,6 +25,19 @@ if ( ! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
 	return;
 }
 
+// A job named by attribute (block or shortcode, which employers can put in
+// their own descriptions) renders only once it has been published, unless the
+// viewer is its owner or staff. The single-job template keeps core's rules.
+$wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+if (
+	! empty( $attributes['jobId'] )
+	&& ! in_array( $wcb_job->post_status, array( 'publish', 'wcb_expired', 'wcb_closed' ), true )
+	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_job->post_author )
+	&& ! $wcb_is_staff
+) {
+	return;
+}
+
 // ── Taxonomies — full term objects for link generation ───────────────────────
 $wcb_location_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_location' );
 $wcb_type_terms       = wp_get_object_terms( $wcb_job_id, 'wcb_job_type' );

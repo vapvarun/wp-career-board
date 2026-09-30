@@ -72,7 +72,7 @@ final class ApplicationsEndpoint extends RestController {
 				},
 				'permission_callback' => function ( \WP_REST_Request $r ): bool|\WP_Error {
 					$job = get_post( (int) $r['id'] );
-					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( (int) $job->post_author === get_current_user_id() || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
+					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( ( $this->is_current_user( (int) $job->post_author ) && $this->check_ability( 'wcb/view-applications' ) ) || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
 				},
 			)
 		);
@@ -1042,7 +1042,7 @@ final class ApplicationsEndpoint extends RestController {
 		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
-		$is_employer     = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_employer     = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
@@ -1073,7 +1073,7 @@ final class ApplicationsEndpoint extends RestController {
 		}
 		$job_id   = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 		$job      = get_post( $job_id );
-		$is_owner = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_owner = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
 		return $is_owner ? true : $this->permission_error();
 	}
 
@@ -1119,7 +1119,7 @@ final class ApplicationsEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
-		$is_owner = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
+		$is_owner = $this->is_current_user( (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
@@ -1135,7 +1135,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function candidate_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}

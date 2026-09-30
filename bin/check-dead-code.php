@@ -18,6 +18,11 @@
 
 declare( strict_types=1 );
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 if ( 'cli' !== PHP_SAPI ) {
 	exit( 1 );
 }

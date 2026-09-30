@@ -112,7 +112,7 @@ A ban (the `_wcb_employer_banned` user meta, from any writer) hides the member's
 | `wcb_close_job_applications` | Action | A background batch that moves a closing job's undecided applications to `job_removed` or `position_closed`. Scheduled by the plugin; listen, do not fire. Args: `$job_id, $status`. |
 | `wcb_application_form_fields` | Action | Inside the apply panel on the job page. Print extra markup here. It is not validated or saved for you. Args: `$job_id`. |
 | `wcb_application_form_fields_groups` | Filter | Add field groups to the apply form. The plugin renders, validates and saves them as `_wcb_application_field_<key>`. Args: `$groups, $job_id`. |
-| `wcb_guest_applications_claimed` | Action | A new account took over the guest applications sent from the same email address. Args: `$user_id, $claimed_application_ids`. |
+| `wcb_guest_applications_claimed` | Action | An account took over the guest applications sent from its email address. This happens once the address is proven (email confirmed, or a password set from an emailed link), or at once for an account an admin or WP-CLI created. Args: `$user_id, $claimed_application_ids`. |
 | `wcb_resume_pdf_attachment_id` | Filter | The attachment ID used as a candidate's resume PDF. Args: `$id` (0), `$resume_id, $candidate_id`. |
 
 Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`, `withdrawn`, `job_removed` and `position_closed`.
@@ -126,6 +126,7 @@ Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `h
 | `wcb_candidate_registered` | Action | After a candidate signs up. Args: `$user_id`. |
 | `wcb_employer_registered` | Action | After an employer signs up. Args: `$user_id, $company_id`. |
 | `wcb_email_verification_requested` | Action | A new account needs to confirm its email. The confirmation email listens here. Args: `$user_id, $verify_url`. |
+| `wcb_email_verified` | Action | A member confirmed their email address from the link. Guest applications from that address are claimed here. Args: `$user_id`. |
 | `wcb_employer_login_redirect_enabled` | Filter | Return `false` to stop the redirect to the employer dashboard after login. Args: `$enabled, $user, $redirect_to, $requested_redirect_to`. |
 | `wcb_candidate_requires_role` | Filter | Return `true` to require the `wcb_candidate` capability (or `manage_options`) for candidate actions instead of allowing any logged-in member. Default follows the `candidate_requires_role` setting, which is off. |
 | `wcb_candidate_form_fields` | Filter | Add fields to the candidate profile form. Args: `$fields, $user_id`. |

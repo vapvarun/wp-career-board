@@ -25,7 +25,19 @@ if ( ! $wcb_company_id ) {
 }
 
 $wcb_company = $wcb_company_id ? get_post( $wcb_company_id ) : null;
-if ( ! $wcb_company instanceof \WP_Post ) {
+if ( ! $wcb_company instanceof \WP_Post || 'wcb_company' !== $wcb_company->post_type ) {
+	return;
+}
+
+// A company named by attribute renders only once published, unless the viewer
+// is its owner or staff (the attribute is reachable from employer content).
+$wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+if (
+	! empty( $attributes['companyId'] )
+	&& 'publish' !== $wcb_company->post_status
+	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_company->post_author )
+	&& ! $wcb_is_staff
+) {
 	return;
 }
 
@@ -43,7 +55,6 @@ $wcb_founded  = (string) get_post_meta( $wcb_company_id, '_wcb_founded', true );
 $wcb_hq       = (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true );
 $wcb_trust    = (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true );
 $wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
-$wcb_is_owner = get_current_user_id() === (int) $wcb_company->post_author;
 
 // ── Initials avatar ───────────────────────────────────────────────────────────
 $wcb_words    = array_filter( explode( ' ', trim( $wcb_name ) ) );
