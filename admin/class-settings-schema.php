@@ -129,6 +129,11 @@ final class SettingsSchema {
 			'recaptcha_threshold'        => array( 0.5, static fn ( $v ): float => max( 0.0, min( 1.0, (float) $v ) ) ),
 			'recaptcha_v2_site_key'      => array( '', $text ),
 			'recaptcha_v2_secret_key'    => array( '', $text ),
+			// Which request header carries the visitor's IP (behind a proxy/CDN).
+			'client_ip_header'           => array(
+				'',
+				static fn ( $v ): string => in_array( (string) $v, array( '', 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP' ), true ) ? (string) $v : '',
+			),
 			// Data.
 			'remove_data_on_uninstall'   => array( false, $bool ),
 			'log_retention_days'         => array( 180, $range( 0, 3650 ) ),

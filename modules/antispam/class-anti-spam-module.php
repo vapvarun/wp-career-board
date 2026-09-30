@@ -315,6 +315,37 @@ class AntiSpamModule {
 				</div>
 			</div>
 
+			<?php
+			$wcb_ip_header  = (string) ( $settings['client_ip_header'] ?? '' );
+			$wcb_ip_options = array(
+				''                      => __( 'Direct connection (no proxy or CDN)', 'wp-career-board' ),
+				'HTTP_CF_CONNECTING_IP' => __( 'Cloudflare (CF-Connecting-IP)', 'wp-career-board' ),
+				'HTTP_X_FORWARDED_FOR'  => __( 'Load balancer or proxy (X-Forwarded-For)', 'wp-career-board' ),
+				'HTTP_X_REAL_IP'        => __( 'Nginx proxy (X-Real-IP)', 'wp-career-board' ),
+			);
+			?>
+			<div class="wcb-card">
+				<div class="wcb-card__head">
+					<p class="wcb-card__title"><?php esc_html_e( 'Visitor IP address', 'wp-career-board' ); ?></p>
+					<p class="wcb-card__desc"><?php esc_html_e( 'Sign-ups, guest applications and sign-ins are limited per visitor IP address. Behind a proxy or CDN every visitor arrives from the proxy\'s address, so tell the plugin where the real address is.', 'wp-career-board' ); ?></p>
+				</div>
+				<div class="wcb-card__body">
+					<div class="wcb-settings-row">
+						<div class="wcb-settings-row-label">
+							<label for="wcb-client-ip-header"><?php esc_html_e( 'Your site runs behind', 'wp-career-board' ); ?></label>
+						</div>
+						<div class="wcb-settings-row-control">
+							<select id="wcb-client-ip-header" name="wcb_settings[client_ip_header]">
+								<?php foreach ( $wcb_ip_options as $wcb_ip_value => $wcb_ip_label ) : ?>
+									<option value="<?php echo esc_attr( $wcb_ip_value ); ?>" <?php selected( $wcb_ip_header, $wcb_ip_value ); ?>><?php echo esc_html( $wcb_ip_label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Choose a proxy only if your site really is behind it. Anyone can send these headers, so on a direct connection they would let a visitor dodge the limits.', 'wp-career-board' ); ?></p>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="wcb-settings-footer">
 			<?php submit_button( __( 'Save Anti-Spam Settings', 'wp-career-board' ), 'primary', 'submit', false ); ?>
 			</div>

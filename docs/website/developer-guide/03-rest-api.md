@@ -321,7 +321,7 @@ Public routes that cost something also have hourly per-IP limits, answered with 
 | `POST /auth/verify-email/resend` | 5 | - |
 | `POST /auth/app-password` | 20 attempts, 5 failures per bucket | `wcb_app_password_max_attempts_per_ip`, `wcb_app_password_max_failures` |
 
-The limits use `REMOTE_ADDR`. Behind a proxy or CDN that is the proxy's address, so every visitor shares one bucket unless the proxy restores the real address before PHP runs. The app-password limiter can read a named header through `wcb_app_password_client_ip_header`.
+Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Anti-Spam > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The leftmost address in the header is used, and an invalid one falls back to `REMOTE_ADDR`.
 
 Both sign-up routes also run `wcb_pre_registration` and core's `registration_errors` filter before an account is created.
 

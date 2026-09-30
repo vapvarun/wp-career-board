@@ -46,9 +46,9 @@ Each entry gives the symptom, the cause and the fix.
 
 **Symptom.** New members get a 429 error "Too many sign-ups from your network. Please try again in an hour." even though few people are signing up.
 
-**Cause.** Sign-ups are limited to 5 an hour per IP address. The limit reads the connection's address. Behind a proxy or CDN that is the proxy's address, so every visitor shares one count.
+**Cause.** Sign-ups are limited to 5 an hour per IP address. Behind a proxy or CDN every visitor arrives from the proxy's address, so they all share one count.
 
-**Fix.** Make your proxy pass the real address to PHP (for example the web server's real-IP setting), or change the limit in code with the `wcb_registration_rate_limit` filter (0 turns it off). Guest applications have a similar limit of 10 an hour. See [Abuse prevention](../developer-guide/03-rest-api.md#abuse-prevention).
+**Fix.** Go to **Settings > Anti-Spam > Visitor IP address** and choose your proxy (for example Cloudflare). You can also change the limit in code with the `wcb_registration_rate_limit` filter (0 turns it off). Guest applications have a similar limit of 10 an hour. See [Abuse prevention](../developer-guide/03-rest-api.md#abuse-prevention).
 
 ## A candidate cannot open a resume file
 

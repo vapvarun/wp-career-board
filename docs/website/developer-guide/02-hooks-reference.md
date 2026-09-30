@@ -411,7 +411,8 @@ Listeners registered with one accepted argument are unaffected. An email whose s
 | `wcb_app_password_login_enabled` | Filter | `$on` | Whether password sign-in is available. Backs the **App Password Sign-In** setting, off by default. |
 | `wcb_app_password_max_failures` | Filter | `$max` | Failed sign-ins per bucket before lockout. Default 5. |
 | `wcb_app_password_max_attempts_per_ip` | Filter | `$max` | Attempts per IP per hour. Default 20. |
-| `wcb_app_password_client_ip_header` | Filter | `$header` | The `$_SERVER` key that carries the real client IP behind a proxy. Empty by default. |
+| `wcb_client_ip_header` | Filter | `$header` | The `$_SERVER` key that carries the real client IP behind a proxy, for every per-IP limit and count. Defaults to the **Visitor IP address** setting (empty means `REMOTE_ADDR`). |
+| `wcb_app_password_client_ip_header` | Filter | `$header` | Older name, still applied after `wcb_client_ip_header`. Use `wcb_client_ip_header` in new code. |
 | `wcb_app_credential_issued` | Action | `$user_id, $app_id, $app_name` | A member traded their password for a credential. The credential itself is never passed. |
 | `wcb_app_credential_revoked` | Action | `$user_id, $uuid` | A member signed out of the app and revoked their credential. |
 | `wcb_app_connect_schemes` | Filter | `$schemes` | URL schemes the app-connect flow may hand a credential to. Add only schemes for an app you ship. |

@@ -646,9 +646,7 @@ class GdprModule {
 	private static function log_action( int $user_id, string $action ): void {
 		global $wpdb;
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: '';
+		$ip = \WCB\Auth\AppCredentials::client_ip();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_gdpr_log table; no caching needed for write-only audit log.
 		$wpdb->insert(

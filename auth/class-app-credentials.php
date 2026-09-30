@@ -344,9 +344,10 @@ final class AppCredentials {
 	 * Forwarded headers are NOT read by default, because anyone can send one and
 	 * a spoofed header makes the limiter trivially bypassable — the opposite
 	 * mistake. So the owner names their trusted header, which is the only party
-	 * that knows the proxy in front of their own site:
+	 * that knows the proxy in front of their own site: Settings > Anti-Spam >
+	 * Visitor IP address, or in code:
 	 *
-	 *     add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
+	 *     add_filter( 'wcb_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
 	 *
 	 * The leftmost address is taken (the original client; later hops are
 	 * appended by each proxy) and validated, so a malformed header degrades to
@@ -368,7 +369,18 @@ final class AppCredentials {
 		 *
 		 * @param string $header A `$_SERVER` key, e.g. `HTTP_CF_CONNECTING_IP`.
 		 */
-		$header = (string) apply_filters( 'wcb_app_password_client_ip_header', '' );
+		/**
+		 * Filter which `$_SERVER` key carries the real client IP, for every
+		 * per-IP limit and count in the plugin. Defaults to the owner's choice
+		 * in Settings > Anti-Spam > Visitor IP address.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param string $header A `$_SERVER` key, or '' for REMOTE_ADDR only.
+		 */
+		$header = (string) apply_filters( 'wcb_client_ip_header', \WCB\Admin\Settings::string( 'client_ip_header', '' ) );
+		// Kept for sites that set it before 1.8.0; runs after the general filter.
+		$header = (string) apply_filters( 'wcb_app_password_client_ip_header', $header );
 
 		if ( '' !== $header && ! empty( $_SERVER[ $header ] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by rest_is_ip_address below; sanitize_text_field would not make a bad IP good.

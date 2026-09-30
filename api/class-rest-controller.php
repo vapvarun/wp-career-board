@@ -102,7 +102,7 @@ abstract class RestController extends \WP_REST_Controller {
 			return false;
 		}
 		global $wpdb;
-		$ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip   = \WCB\Auth\AppCredentials::client_ip();
 		$key  = $bucket . md5( wp_salt() . $ip );
 		$lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $key );
 
@@ -196,9 +196,7 @@ abstract class RestController extends \WP_REST_Controller {
 
 		global $wpdb;
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: '';
+		$ip = \WCB\Auth\AppCredentials::client_ip();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_job_views table; no caching needed for write-only analytics.
 		$wpdb->insert(

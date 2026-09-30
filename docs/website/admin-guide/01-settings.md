@@ -137,6 +137,8 @@ A honeypot field protects every submission form automatically. For a stronger se
 
 A CAPTCHA runs only once the chosen provider has both a site key and a secret key saved. Switching providers keeps the keys you entered for the others, so you can switch back without retyping. The provider guards the sign-up, job-submission and job-application forms, and the mobile app is told whether a CAPTCHA is required.
 
+**Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers.
+
 ### Advanced
 
 | Setting | Default | Description |
