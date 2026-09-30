@@ -185,6 +185,15 @@ wcb_assert( 0 === $wcb_again['imported'] && $wcb_again['skipped'] >= 1, 're-runn
 $wcb_jobs_again = $wcb_importer->migrate_jobs_batch( 0, 500 );
 wcb_assert( 0 === $wcb_jobs_again['imported'], 're-running the jobs import does not duplicate a closed job' );
 
+// Resume import writes Pro's wcb_resume type, so the REST route refuses it without Pro, like the admin card.
+wp_set_current_user( 1 );
+add_filter( 'wcb_pro_active', '__return_false', 999 );
+$wcb_resume_req = new WP_REST_Request( 'POST', '/wcb/v1/import/run' );
+$wcb_resume_req->set_body_params( array( 'type' => 'wpjm-resumes' ) );
+$wcb_resume_res = rest_do_request( $wcb_resume_req );
+remove_filter( 'wcb_pro_active', '__return_false', 999 );
+wcb_assert( 403 === $wcb_resume_res->get_status() && 'wcb_pro_required' === ( $wcb_resume_res->get_data()['code'] ?? '' ), 'resume import over REST returns 403 wcb_pro_required without Pro' );
+
 // Teardown.
 $wcb_extra = array_filter( array( $wcb_una, $wcb_hal, $wcb_eve ) );
 $wcb_depot = (int) get_post_meta( $wcb_job_expired, '_wcb_company_id', true );

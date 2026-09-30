@@ -148,6 +148,14 @@ final class ImportEndpoint extends RestController {
 			$result = $importer->migrate_applications_batch( $offset, $limit );
 			$total  = $importer->applications_total();
 		} else {
+			// Resumes import into Pro's wcb_resume type; the admin card is Pro-gated the same way.
+			if ( ! apply_filters( 'wcb_pro_active', false ) ) {
+				return new \WP_Error(
+					'wcb_pro_required',
+					__( 'Resume import requires WP Career Board Pro.', 'wp-career-board' ),
+					array( 'status' => 403 )
+				);
+			}
 			if ( ! post_type_exists( 'resume' ) ) {
 				return new \WP_Error(
 					'wcb_source_inactive',

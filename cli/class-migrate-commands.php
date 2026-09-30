@@ -34,7 +34,9 @@ class MigrateCommands extends AbstractCliCommand {
 	 * Migrate jobs from WP Job Manager (job_listing CPT) into WP Career Board.
 	 *
 	 * Reads every published or expired `job_listing` post and creates a matching `wcb_job`.
-	 * Company meta is copied as inline meta (no wcb_company CPT post created).
+	 * Each job is linked to a wcb_company post: an existing one matching the
+	 * WPJM company website or name, else a new one built from the WPJM company
+	 * meta. The job keeps its company name as inline meta too.
 	 * Taxonomies are mapped: job_listing_category → wcb_category,
 	 * job_listing_type → wcb_job_type.
 	 *
@@ -217,6 +219,9 @@ class MigrateCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function wpjm_resumes( array $args, array $assoc_args ): void {
+		if ( ! apply_filters( 'wcb_pro_active', false ) ) {
+			\WP_CLI::error( 'Resume import requires WP Career Board Pro.' );
+		}
 		if ( ! post_type_exists( 'resume' ) ) {
 			\WP_CLI::error( 'WP Job Manager Resumes is not active. Install and activate it before running this command.' );
 		}
