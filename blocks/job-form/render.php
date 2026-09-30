@@ -220,7 +220,7 @@ if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
  */
 $wcb_credit_noun = static function ( int $wcb_n ): string {
 	return sprintf(
-		/* translators: %s: number of credits, already localised. */
+		/* translators: %s: number of credits, already formatted for the locale. */
 		_n( '%s credit', '%s credits', $wcb_n, 'wp-career-board' ),
 		number_format_i18n( $wcb_n )
 	);
@@ -422,7 +422,7 @@ $wcb_initial_state = apply_filters(
 				'submitLabelUpdate'        => __( 'Update Job', 'wp-career-board' ),
 
 				// Listing window banner.
-				/* translators: 1: localized date the listing expires on. */
+				/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
 				'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
 
 				// Preview card meta row.

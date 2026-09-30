@@ -126,7 +126,7 @@ class AdminSettings {
 		 * @param array<string,array{name:string,symbol:string}> $catalog Base catalog.
 		 */
 		/** @var array<mixed,mixed> $catalog Filtered output may be anything. */
-		$catalog = (array) apply_filters( 'wcb_currency_catalog', self::CURRENCIES );
+		$catalog = (array) apply_filters( 'wcb_currency_catalog', self::translated_currencies() );
 		$out     = array();
 		foreach ( $catalog as $code => $entry ) {
 			if ( ! is_string( $code ) || ! is_array( $entry ) ) {
@@ -143,6 +143,31 @@ class AdminSettings {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * The base catalog with its names translated. A class constant cannot hold
+	 * a __() call, so the names are mapped here for every consumer at once.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @return array<string,array{name:string,symbol:string}>
+	 */
+	private static function translated_currencies(): array {
+		$names   = array(
+			'USD' => __( 'US Dollar', 'wp-career-board' ),
+			'EUR' => __( 'Euro', 'wp-career-board' ),
+			'GBP' => __( 'British Pound', 'wp-career-board' ),
+			'CAD' => __( 'Canadian Dollar', 'wp-career-board' ),
+			'AUD' => __( 'Australian Dollar', 'wp-career-board' ),
+			'INR' => __( 'Indian Rupee', 'wp-career-board' ),
+			'SGD' => __( 'Singapore Dollar', 'wp-career-board' ),
+		);
+		$catalog = self::CURRENCIES;
+		foreach ( $names as $code => $name ) {
+			$catalog[ $code ]['name'] = $name;
+		}
+		return $catalog;
 	}
 
 	/**

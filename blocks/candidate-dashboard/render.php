@@ -172,7 +172,7 @@ wp_interactivity_state(
 					'resumeCapOne'           => __( '%1$s of %2$s resume', 'wp-career-board' ),
 					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. */
 					'resumeCapOther'         => __( '%1$s of %2$s resumes', 'wp-career-board' ),
-					/* translators: %1$s: job-match score as a whole number, e.g. 85. */
+					/* translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
 					'scoreFormat'            => __( '%1$s%', 'wp-career-board' ),
 					'filterRemote'           => __( 'Remote', 'wp-career-board' ),
 					/* translators: currency symbol shown on salary pills when the site has no configured currency symbol. */
@@ -190,6 +190,8 @@ wp_interactivity_state(
 					'errRemoveBookmark'      => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
 					'errCreateResume'        => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
 					'errDeleteResume'        => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
+					'errDelete'              => __( 'Could not schedule deletion. Please try again.', 'wp-career-board' ),
+					'errDeleteCancel'        => __( 'Could not cancel the deletion. Please try again.', 'wp-career-board' ),
 					'errSaveProfile'         => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
 					'errSaveAccount'         => __( 'Could not save your account.', 'wp-career-board' ),
 					'errPwRequired'          => __( 'Enter your current and new password.', 'wp-career-board' ),

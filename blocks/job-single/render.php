@@ -517,7 +517,7 @@ wp_interactivity_state(
 				<?php if ( $wcb_deadline_formatted ) : ?>
 					<p class="wcb-deadline-note">
 					<?php
-					/* translators: %s: deadline date */
+					/* translators: %s: localized application deadline date. */
 					printf( esc_html__( 'Apply by %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
 					?>
 					</p>
@@ -748,7 +748,7 @@ wp_interactivity_state(
 								>
 										<?php
 										printf(
-										/* translators: %s: hostname of the external application site, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+										/* translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales. */
 											esc_html__( '%s ↗', 'wp-career-board' ),
 											esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) )
 										);
@@ -928,7 +928,7 @@ wp_interactivity_state(
 					<?php
 					$wcb_host = (string) wp_parse_url( $wcb_company_site, PHP_URL_HOST );
 					printf(
-						/* translators: %s: company website hostname. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+						/* translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales. */
 						esc_html__( '%s ↗', 'wp-career-board' ),
 						esc_html( $wcb_host ? $wcb_host : $wcb_company_site )
 					);

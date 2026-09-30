@@ -609,7 +609,7 @@ class AdminJobs extends \WP_List_Table {
 		return sprintf(
 			'<span class="wcb-badge wcb-badge--danger" title="%s">%s</span>',
 			esc_attr( $top ),
-			esc_html( sprintf( /* translators: %d: number of reports */ _n( '%d report', '%d reports', $count, 'wp-career-board' ), $count ) )
+			esc_html( sprintf( /* translators: %d: number of reports. */ _n( '%d report', '%d reports', $count, 'wp-career-board' ), $count ) )
 		);
 	}
 

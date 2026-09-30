@@ -315,6 +315,14 @@
 			var offset   = 0;
 			var limit    = 20;
 
+			// Fill %1$s, %2$s... in a translated format string; %% is a literal %.
+			function fmt( str ) {
+				var args = Array.prototype.slice.call( arguments, 1 );
+				return String( str ).replace( /%(\d+)\$s|%%/g, function ( m, n ) {
+					return n ? String( args[ n - 1 ] ) : '%';
+				} );
+			}
+
 			function appendLog( text, extraClass ) {
 				if ( ! log ) { return; }
 				var line = document.createElement( 'p' );
@@ -351,16 +359,16 @@
 					var pct = total > 0 ? Math.min( 100, Math.round( ( processed / total ) * 100 ) ) : 100;
 					updateBar( pct );
 					if ( label ) {
-						label.textContent = pct + '% \u2014 ' + imported + ' imported, ' + skipped + ' skipped';
+						label.textContent = fmt( wcbAdmin.i18n.importProgress, pct, imported, skipped );
 					}
 
 					if ( res.done ) {
 						appendLog(
-							'Done. Imported: ' + imported + '  Skipped: ' + skipped + '  Errors: ' + errors,
+							fmt( wcbAdmin.i18n.importDone, imported, skipped, errors ),
 							'wcb-import-log-done'
 						);
 						updateBar( 100 );
-						if ( label ) { label.textContent = '100% \u2014 complete'; }
+						if ( label ) { label.textContent = wcbAdmin.i18n.importComplete; }
 
 						var remaining = card.querySelector( '.wcb-import-stat-remaining' );
 						var migrated  = card.querySelector( '.wcb-import-stat-migrated' );
@@ -370,8 +378,8 @@
 						runBatch();
 					}
 				} ).catch( function ( err ) {
-					var msg = ( err && err.message ) ? err.message : 'Request failed.';
-					appendLog( 'Error: ' + msg, 'wcb-import-log-line--error' );
+					var msg = ( err && err.message ) ? err.message : wcbAdmin.i18n.requestFailed;
+					appendLog( fmt( wcbAdmin.i18n.importError, msg ), 'wcb-import-log-line--error' );
 					btn.disabled    = false;
 					btn.textContent = ( wcbAdmin.i18n && wcbAdmin.i18n.import ) || 'Import';
 				} );

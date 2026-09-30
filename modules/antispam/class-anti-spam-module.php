@@ -262,7 +262,7 @@ class AntiSpamModule {
 							<p class="description">
 								<?php
 								printf(
-									/* translators: %s: URL to the Google reCAPTCHA admin console. */
+									/* translators: %s: link to the provider's key dashboard. */
 									esc_html__( 'Get your keys at %s.', 'wp-career-board' ),
 									'<a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer">google.com/recaptcha/admin</a>'
 								);

@@ -121,24 +121,6 @@ $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_pos
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
-// Currency names live in a hardcoded English const (AdminSettings::CURRENCIES),
-// so on their own they never reach wp-career-board.pot. Give the known base-catalog
-// names a __() home here so a localised site can render "US-Dollar" instead of the
-// English source. Pro-added currencies (via the wcb_currency_catalog filter) fall
-// back to their raw catalog name — Pro owns those translations.
-$wcb_currency_name = static function ( string $code, string $fallback ): string {
-	$wcb_names = array(
-		'USD' => __( 'US Dollar', 'wp-career-board' ),
-		'EUR' => __( 'Euro', 'wp-career-board' ),
-		'GBP' => __( 'British Pound', 'wp-career-board' ),
-		'CAD' => __( 'Canadian Dollar', 'wp-career-board' ),
-		'AUD' => __( 'Australian Dollar', 'wp-career-board' ),
-		'INR' => __( 'Indian Rupee', 'wp-career-board' ),
-		'SGD' => __( 'Singapore Dollar', 'wp-career-board' ),
-	);
-	return $wcb_names[ $code ] ?? $fallback;
-};
-
 $wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
@@ -290,9 +272,9 @@ $wcb_state = apply_filters(
 		'i18n'              => array(
 			// Credit banner. JS interpolates the pre-resolved credit noun and the
 			// live balance (formatted with Intl.NumberFormat against state.locale).
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'creditInsufficient'       => __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
 			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
 			'creditFree'               => __( 'Free to post on this board.', 'wp-career-board' ),
@@ -308,7 +290,7 @@ $wcb_state = apply_filters(
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'errorInsufficientCredits' => __( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),
 			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'errorGeneric'             => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
@@ -533,7 +515,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 									/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
 									esc_html__( '%1$s  -  %2$s (%3$s)', 'wp-career-board' ),
 									esc_html( (string) $wcb_code ),
-									esc_html( $wcb_currency_name( (string) $wcb_code, (string) $wcb_meta['name'] ) ),
+									esc_html( (string) $wcb_meta['name'] ),
 									esc_html( (string) $wcb_meta['symbol'] )
 								);
 								?>

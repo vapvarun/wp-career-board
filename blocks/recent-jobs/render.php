@@ -135,7 +135,7 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 							<span class="wcb-job-widget-age">
 								<?php
 								printf(
-									/* translators: %s: human-readable time difference e.g. "3 days" */
+									/* translators: %s: human-readable time difference, e.g. "3 days". */
 									esc_html__( '%s ago', 'wp-career-board' ),
 									esc_html( $wcb_posted_ago )
 								);

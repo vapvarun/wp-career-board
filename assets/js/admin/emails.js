@@ -6,7 +6,7 @@
  *   - Activity Log filtering / pagination / refresh
  *
  * Localized config arrives via the wcbAdminEmails global (see wp_localize_script):
- *   { restBase, nonce, i18n: { sending, sent, failed, empty, fail, page, records } }
+ *   { restBase, nonce, i18n: { sending, sent, failed, empty, fail, pageInfo } }
  *
  * @package WP_Career_Board
  * @since   1.1.1
@@ -269,9 +269,10 @@
 				}
 				var info = document.getElementById( 'wcb-log-pageinfo' );
 				if ( info ) {
-					info.textContent = ( i18n.page || 'Page' ) + ' ' + ( data.page || 1 ) +
-						' / ' + ( data.pages || 1 ) +
-						' — ' + ( data.total || 0 ) + ' ' + ( i18n.records || 'records' );
+					info.textContent = String( i18n.pageInfo || 'Page %1$s of %2$s (total: %3$s)' )
+						.replace( '%1$s', data.page || 1 )
+						.replace( '%2$s', data.pages || 1 )
+						.replace( '%3$s', data.total || 0 );
 				}
 				var prevBtn = document.getElementById( 'wcb-log-prev' );
 				var nextBtn = document.getElementById( 'wcb-log-next' );

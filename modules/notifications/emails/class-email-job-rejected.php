@@ -72,7 +72,7 @@ class EmailJobRejected extends AbstractEmail {
 				'<strong>{job_title}</strong>'
 			) . '</p>'
 			. '<p>' . sprintf(
-				/* translators: %s: rejection reason */
+				/* translators: %s: rejection reason provided by admin */
 				esc_html__( 'Reason: %s', 'wp-career-board' ),
 				'{reason}'
 			) . '</p>';

@@ -84,8 +84,8 @@ class EmailSettings {
 					'failed'           => __( 'Failed', 'wp-career-board' ),
 					'empty'            => __( 'No emails logged for the current filters.', 'wp-career-board' ),
 					'fail'             => __( 'Failed to load activity log.', 'wp-career-board' ),
-					'page'             => __( 'Page', 'wp-career-board' ),
-					'records'          => __( 'records', 'wp-career-board' ),
+					/* translators: 1: current page, 2: total pages, 3: total number of log entries. */
+					'pageInfo'         => __( 'Page %1$s of %2$s (total: %3$s)', 'wp-career-board' ),
 					'statusSent'       => _x( 'Sent', 'email-log status pill', 'wp-career-board' ),
 					'statusFailed'     => _x( 'Failed', 'email-log status pill', 'wp-career-board' ),
 					'statusSentTest'   => _x( 'Sent (test)', 'email-log status pill for admin Send Test rows', 'wp-career-board' ),

@@ -184,17 +184,17 @@ final class SalaryFormat {
 	 */
 	public static function js_strings(): array {
 		return array(
-			/* translators: 1: currency symbol, 2: localised amount. */
+			/* translators: 1: currency symbol, 2: localised amount. Swap the order (and add a space) for locales that place the symbol after the amount, e.g. "%2$s %1$s". */
 			'moneyFormat'      => _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 			/* translators: 1: salary figure, 2: pay-period suffix such as "/yr". */
 			'salaryJoinFormat' => _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
-			/* translators: %s: number of thousands. */
+			/* translators: %s: number of thousands, already localised. Abbreviation for thousands appended to a salary figure. */
 			'salaryThousand'   => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
-			/* translators: %s: number of millions. */
+			/* translators: %s: number of millions, already localised. Abbreviation for millions appended to a salary figure. */
 			'salaryMillion'    => _x( '%sM', 'millions abbreviation', 'wp-career-board' ),
-			/* translators: 1: minimum salary, 2: maximum salary. */
+			/* translators: 1: minimum salary, 2: maximum salary. En dash separator; change it if your locale uses another range mark. */
 			'salaryRange'      => _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ),
-			/* translators: %s: minimum salary. */
+			/* translators: %s: minimum salary. Trailing marker meaning "and above". */
 			'salaryOpenMin'    => _x( '%s+', 'open-ended salary minimum', 'wp-career-board' ),
 			/* translators: %s: maximum salary. */
 			'salaryUpTo'       => __( 'Up to %s', 'wp-career-board' ),

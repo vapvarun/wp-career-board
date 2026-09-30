@@ -82,7 +82,7 @@ $wcb_company_dir_url    = $wcb_company_archive_id > 0
 $wcb_company_url        = $wcb_company_id ? (string) get_permalink( $wcb_company_id ) : $wcb_company_dir_url;
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
-$wcb_apps_job_id   = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
+$wcb_apps_job_id = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
 // A bell link to a job deleted since opens the overview, not an empty Applications view.
 if ( $wcb_apps_job_id && ( 'wcb_job' !== get_post_type( $wcb_apps_job_id ) || 'trash' === get_post_status( $wcb_apps_job_id ) ) ) {
 	$wcb_apps_job_id = 0;
@@ -397,7 +397,7 @@ wp_interactivity_state(
 			// AI ranking.
 			'aiRankButton'             => __( 'Rank by AI fit', 'wp-career-board' ),
 			'aiRankingLabel'           => __( 'Ranking…', 'wp-career-board' ),
-			/* translators: %1$s: AI fit score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
+			/* translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
 			'aiScorePercent'           => __( '%1$s%', 'wp-career-board' ),
 			'aiNotScored'              => __( 'Not scored', 'wp-career-board' ),
 

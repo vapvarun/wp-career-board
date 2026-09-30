@@ -813,18 +813,26 @@ class Admin {
 				'restUrl'   => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
-					'approveTitle' => __( 'Approve Job', 'wp-career-board' ),
-					'approveMsg'   => __( 'This job will be published and the employer will be notified.', 'wp-career-board' ),
-					'approveBtn'   => __( 'Approve', 'wp-career-board' ),
-					'rejectTitle'  => __( 'Reject Job', 'wp-career-board' ),
-					'rejectMsg'    => __( 'This job will be moved to Draft and the employer will be notified.', 'wp-career-board' ),
-					'rejectBtn'    => __( 'Reject', 'wp-career-board' ),
-					'reasonLabel'  => __( 'Reason (optional):', 'wp-career-board' ),
-					'confirm'      => __( 'Confirm', 'wp-career-board' ),
-					'cancel'       => __( 'Cancel', 'wp-career-board' ),
-					'saveFailed'   => __( 'Could not update. Please try again.', 'wp-career-board' ),
-					'importing'    => __( 'Importing…', 'wp-career-board' ),
-					'import'       => __( 'Import', 'wp-career-board' ),
+					'approveTitle'   => __( 'Approve Job', 'wp-career-board' ),
+					'approveMsg'     => __( 'This job will be published and the employer will be notified.', 'wp-career-board' ),
+					'approveBtn'     => __( 'Approve', 'wp-career-board' ),
+					'rejectTitle'    => __( 'Reject Job', 'wp-career-board' ),
+					'rejectMsg'      => __( 'This job will be moved to Draft and the employer will be notified.', 'wp-career-board' ),
+					'rejectBtn'      => __( 'Reject', 'wp-career-board' ),
+					'reasonLabel'    => __( 'Reason (optional):', 'wp-career-board' ),
+					'confirm'        => __( 'Confirm', 'wp-career-board' ),
+					'cancel'         => __( 'Cancel', 'wp-career-board' ),
+					'saveFailed'     => __( 'Could not update. Please try again.', 'wp-career-board' ),
+					'importing'      => __( 'Importing…', 'wp-career-board' ),
+					'import'         => __( 'Import', 'wp-career-board' ),
+					/* translators: 1: percent complete, 2: rows imported so far, 3: rows skipped so far. %% is a literal percent sign. */
+					'importProgress' => __( '%1$s%% - imported: %2$s, skipped: %3$s', 'wp-career-board' ),
+					/* translators: 1: rows imported, 2: rows skipped, 3: rows that failed. */
+					'importDone'     => __( 'Done. Imported: %1$s, skipped: %2$s, errors: %3$s', 'wp-career-board' ),
+					'importComplete' => __( 'Import complete.', 'wp-career-board' ),
+					/* translators: %1$s: error message. */
+					'importError'    => __( 'Error: %1$s', 'wp-career-board' ),
+					'requestFailed'  => __( 'Request failed.', 'wp-career-board' ),
 				),
 			)
 		);
