@@ -2,14 +2,14 @@
 
 WP Career Board is distributed exclusively via [wbcomdesigns.com](https://wbcomdesigns.com). It is not available on WordPress.org.
 
-## Before You Begin
+## Before you begin
 
 Make sure your site meets these requirements:
 - WordPress 6.9 or higher
 - PHP 8.1 or higher
 - A modern block theme or classic theme (Reign or BuddyX Pro recommended)
 
-## Install the Plugin
+## Install the plugin
 
 1. Log in to your WordPress admin (`/wp-admin`)
 2. Go to **Plugins → Add New → Upload Plugin**
@@ -21,7 +21,7 @@ Make sure your site meets these requirements:
 
 After activation, you will see the **Career Board** menu item in your admin sidebar.
 
-## What Gets Created on Activation
+## What gets created on activation
 
 When you activate the plugin for the first time, WP Career Board automatically:
 
@@ -31,13 +31,13 @@ When you activate the plugin for the first time, WP Career Board automatically:
 - Adds the **Career Board** top-level menu to wp-admin (with Jobs, Applications, Candidates, Companies, Employers, and Settings)
 - Launches the **Setup Wizard** to help you create your pages
 
-## After Activation
+## After activation
 
 You will be redirected to the Setup Wizard. The wizard creates all required pages with the correct blocks in about 30 seconds. See [Setup Wizard](./03-setup-wizard.md) for the full walkthrough.
 
-If you dismiss the wizard, you can run it again any time from **Career Board → Settings → Run Setup Wizard** (the button in the page header).
+If you dismiss the wizard, you can run it again any time from **Career Board → Settings → Re-run Setup Wizard** (the link at the bottom of the page).
 
-## Updating the Plugin
+## Updating the plugin
 
 1. Download the latest version from your account at wbcomdesigns.com
 2. Go to **Plugins → Add New → Upload Plugin**

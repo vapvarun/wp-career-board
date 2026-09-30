@@ -12,8 +12,8 @@ one place.
 | **Applicant card** | Avatar, name, email, phone (if collected), location |
 | **Cover letter** | Full text, formatted |
 | **Resume preview** | Inline preview with **Open** + **Download** buttons |
-| **Status changer** | Submitted / Reviewing / Shortlisted / Rejected / Hired - instant save on change |
-| **Quick action buttons** | Shortlist / Mark Hired / Reject / Message |
+| **Status changer** | Submitted / Reviewing / Shortlisted / Rejected / Hired - instant save on change. Withdrawn, Closed and removed-job applications are final and cannot be changed |
+| **Quick action buttons** | Shortlist / Mark Hired / Reject / Message (a mail link) |
 | **Status history** | Full audit trail - who changed status, when, from / to |
 | **Custom fields** | Whatever the site has registered via [`wcb_application_form_fields_groups`](12-custom-fields.md) |
 
@@ -26,21 +26,7 @@ plugin redirects native post-edit URLs to the new admin screen).
 
 ## Quick actions
 
-The four quick-action buttons (Shortlist / Mark Hired / Reject /
-Message) each fire the corresponding workflow:
-
-- **Shortlist** - sets status to `shortlisted`, sends the
-  configured shortlist email to the applicant, posts a status-change
-  history entry.
-- **Mark Hired** - sets status to `hired`, sends hire email, posts
-  to BuddyPress activity stream (Pro), and triggers the candidate-
-  side "congratulations" notification.
-- **Reject** - sets status to `rejected`, sends rejection email
-  (templated, customizable), records history.
-- **Message** - opens an inline reply composer that uses the same
-  `wp_mail()` chokepoint as automated emails. Uses the configured
-  email-template merge tags (`{{candidate_name}}`, `{{job_title}}`,
-  etc.).
+**Shortlist**, **Mark Hired** and **Reject** set the status through the same single status writer the employer dashboard uses, so the change is logged once and the candidate gets the matching email: the generic status email for Shortlisted and Hired, and the "not selected" email for Reject. Setting a status the application already has changes nothing and sends nothing. **Message** opens your mail program with a message to the applicant's address, using the job title as the subject. It is hidden when the applicant left no email.
 
 ## Status history
 
@@ -69,6 +55,7 @@ anywhere. Widget IDs are namespaced with an `application/` prefix:
 [wcb_widget id="application/status-timeline" application_id="987"]
 [wcb_widget id="application/status-changer" application_id="987"]
 [wcb_widget id="application/quick-actions" application_id="987"]
+[wcb_widget id="application/custom-answers" application_id="987"]
 ```
 
 This is useful for:

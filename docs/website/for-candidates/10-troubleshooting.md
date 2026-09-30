@@ -17,7 +17,9 @@ your application is there.
 - **Status "Hired"** - congratulations, you got the job.
 - **Status "Not selected"** - not a fit for this role; the application
   is closed.
-- **Status "Withdrawn"** - you (or the system) withdrew it.
+- **Status "Withdrawn"** - you withdrew it.
+- **Status "Position closed"** - the employer closed the job before
+  deciding. You got an email when it happened.
 - **Status "Job Removed"** - the job posting was taken down. Your
   application is preserved in your history but no further action
   is expected.
@@ -33,10 +35,15 @@ A few reasons this happens:
    button. Look for the deadline date on the job page.
 2. **The job was filled or unpublished.** If the employer closed
    the posting, the apply button is removed.
-3. **The site requires the Candidate role.** Most sites let any
+3. **The site requires an account.** If the job page shows **Sign
+   in to apply**, the site turned on "Require login to apply" -
+   register or sign in first.
+4. **The site requires the Candidate role.** Most sites let any
    logged-in member apply, but some turn on "Require Candidate
    Role" - on those, register or sign in with a candidate account
    first.
+5. **You are signed in as an employer.** A member who posts jobs
+   cannot apply to jobs. Use a separate candidate account.
 
 You usually do not need an account at all: most sites also allow
 guest applications. See [Apply as a Guest](09-guest-apply.md).
@@ -50,8 +57,9 @@ You already submitted to this job. Two ways this happens:
   you really want to send a different application, register an
   account and apply from there.
 - **You applied as a logged-in candidate.** Each candidate can
-  apply once. Withdraw the existing application (from your
-  dashboard) if you want to re-apply with a different resume.
+  apply once while an application is open. Withdraw the existing
+  application (from your dashboard) if you want to apply again with
+  a different resume.
 
 ## "My resume upload failed"
 
@@ -118,17 +126,13 @@ channel.
 
 ## "Employers aren't finding my profile"
 
-Employers browse candidates through the Find Candidates archive.
-Your profile is **Public by default**, so it appears there as soon
-as you have an account. (Profiles can be made Private, in which case
-only you and admins can see them - that switch is API-driven and is
-exposed in WP Career Board Pro.) To improve your discoverability:
+Your profile is **Public by default**. With WP Career Board Pro, employers can browse public profiles and resumes in the Find Candidates archive. Without Pro there is no candidate directory. Profiles can be made private, in which case only you and admins can see them. To improve your discoverability:
 
-- **Complete your profile.** Open **Candidate Dashboard -> Profile**
+- **Complete your profile.** Open **Candidate Dashboard → Profile**
   and add a bio, phone, and location. Empty profiles are easy to
   skip past.
 - **Keep your account details current** under **Candidate Dashboard
-  -> Account Settings** (display name and email).
+  → Settings** (display name and email).
 - **Build a resume.** With WP Career Board Pro, use the Resume
   Builder so employers see your structured experience and
   education, and can download a PDF.
@@ -148,23 +152,18 @@ instead.
 
 ## "I want to delete my account"
 
-Go to **Candidate Dashboard → Account Settings → Privacy & My
-Data** and click **Request account deletion**. This sends a
-confirmation email to your registered address. After you click the
-link in that email, the site administrator processes the erasure,
-which permanently removes:
+Go to **Candidate Dashboard → Settings → Privacy & My Data** and click
+**Delete my account**. Confirm your password and type DELETE. Your account
+is locked at once and deleted after a grace period (14 days by default).
+Sign back in before then and click **Keep my account** to cancel.
 
-- Your account
-- All your applications (employers see "Anonymous candidate" on
-  archived applications, not your details)
-- Your resume(s)
-- Your saved jobs, saved companies, and alerts
+When it is deleted, your profile, resumes, uploaded files, saved jobs and
+companies, and alerts are removed. Employers keep the applications you
+sent, with your name, email, cover letter, answers and files removed: they
+see "Deleted candidate". This cannot be undone. The same panel has
+**Request data export** if you only want a copy of your data.
 
-This is a GDPR / privacy compliant erasure and cannot be undone.
-The same panel also has **Request data export** if you just want a
-copy of your data.
-
-## I'm stuck - who do I contact?
+## I'm stuck - Who do I contact?
 
 Look on the site for a "Contact" link, usually in the footer.
 When you reach out, include:

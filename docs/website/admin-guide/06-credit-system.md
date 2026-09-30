@@ -1,20 +1,20 @@
 # Credit System (Pro)
 
-> **Pro feature** — Requires WP Career Board Pro.
+> **Pro feature** - Requires WP Career Board Pro.
 
-The Credit System lets you charge employers credits to post jobs. Credits are purchased through your existing e-commerce plugin — WooCommerce, Paid Memberships Pro, MemberPress, or WooCommerce Subscriptions — and deducted automatically when jobs go live.
+The Credit System lets you charge employers credits to post jobs. Credits are purchased through your existing e-commerce plugin - WooCommerce, Paid Memberships Pro, MemberPress, or WooCommerce Subscriptions - and deducted automatically when jobs go live.
 
-## How It Works
+## How it works
 
-1. **Admin creates a product** — create a WooCommerce product (or PMPro plan, MemberPress membership) that represents a credit package
-2. **Admin maps product to credits** — in Settings → Credits, map that product to a credit amount (e.g., "10 Job Posting Credits" product = 10 credits)
-3. **Employer buys credits** — purchases the product through your shop using any payment gateway (Stripe, PayPal, Square, etc.)
-4. **Credits added on purchase** — when the order completes, credits are automatically added to the employer's balance
-5. **Credits held on submit** — when the employer submits a job, the required credits are reserved
-6. **Credits deducted on approval** — when the job goes live, credits are consumed
-7. **Refund on rejection** — if the admin rejects a job, held credits are returned
+1. **Admin creates a product** - create a WooCommerce product (or PMPro plan, MemberPress membership) that represents a credit package
+2. **Admin maps product to credits** - in Settings → Credits, map that product to a credit amount (e.g., "10 Job Posting Credits" product = 10 credits)
+3. **Employer buys credits** - purchases the product through your shop using any payment gateway (Stripe, PayPal, Square, etc.)
+4. **Credits added on purchase** - when the order completes, credits are automatically added to the employer's balance
+5. **Credits held on submit** - when the employer submits a job, the required credits are reserved
+6. **Credits deducted on approval** - when the job goes live, credits are consumed
+7. **Refund on rejection** - if the admin rejects a job, held credits are returned
 
-## Credit Ledger
+## Credit ledger
 
 Every transaction is logged in an append-only audit trail:
 
@@ -25,7 +25,7 @@ Every transaction is logged in an append-only audit trail:
 | **Deduct** | Credits consumed (job approved and live) |
 | **Refund** | Credits returned (job rejected or cancelled) |
 
-## Supported Payment Providers
+## Supported payment providers
 
 WP Career Board Pro uses the **Wbcom Credits SDK** with adapters for each payment provider. The Credits tab automatically detects which plugins are active on your site:
 
@@ -36,9 +36,9 @@ WP Career Board Pro uses the **Wbcom Credits SDK** with adapters for each paymen
 | **Paid Memberships Pro** | Paid Memberships Pro | Credits added when a membership level is activated |
 | **MemberPress** | MemberPress | Credits added when a membership transaction completes |
 
-You can use any payment gateway supported by your chosen provider — Stripe, PayPal, bank transfer, or anything else the provider supports. WP Career Board does not process payments directly.
+You can use any payment gateway supported by your chosen provider - Stripe, PayPal, bank transfer, or anything else the provider supports. WP Career Board does not process payments directly.
 
-## Step 1: Create a Credit Product
+## Step 1: create a credit product
 
 ### WooCommerce (recommended)
 
@@ -53,9 +53,9 @@ Repeat for each credit tier you want to offer:
 
 | Product Name | Price | Credits (mapped in Step 2) |
 |---|---|---|
-| Starter — 3 Credits | $29 | 3 |
-| Growth — 10 Credits | $79 | 10 |
-| Agency — 25 Credits | $149 | 25 |
+| Starter - 3 Credits | $29 | 3 |
+| Growth - 10 Credits | $79 | 10 |
+| Agency - 25 Credits | $149 | 25 |
 
 For **WooCommerce Subscriptions**, create a subscription product instead. Credits will be added on each renewal, giving employers a recurring credit allowance.
 
@@ -67,7 +67,7 @@ Create a membership level that represents a credit tier. When an employer activa
 
 Create a membership that represents a credit tier. When the membership transaction completes, credits are added based on your mapping in Step 2.
 
-## Step 2: Map Products to Credits
+## Step 2: map products to credits
 
 1. Go to **WP Career Board → Settings → Credits**
 2. Under **Credit Mappings**, click **Add Mapping**
@@ -77,7 +77,7 @@ Create a membership that represents a credit tier. When the membership transacti
 
 Each product can map to a different credit amount. When an employer purchases that product and the order completes, the mapped number of credits is automatically added to their balance.
 
-## Step 3: Configure Credit Settings
+## Step 3: configure credit settings
 
 In **WP Career Board → Settings → Credits**, configure:
 
@@ -87,11 +87,11 @@ In **WP Career Board → Settings → Credits**, configure:
 | **Low Balance Alert Threshold** | When an employer's balance drops to this number, they see a warning. |
 | **Credits Purchase URL** | The URL where employers are sent to buy more credits (typically your WooCommerce shop page or a dedicated credits page). |
 
-### Detected Providers
+### Detected providers
 
-The bottom of the Credits tab shows **Detected Providers** — a list of which payment plugins are currently active. If a provider is not shown, activate its plugin and refresh the page.
+The bottom of the Credits tab shows **Detected Providers** - a list of which payment plugins are currently active. If a provider is not shown, activate its plugin and refresh the page.
 
-## Employer Experience
+## Employer experience
 
 Employers see their credit balance in:
 - The **Employer Dashboard** header
@@ -99,17 +99,17 @@ Employers see their credit balance in:
 
 When their balance is too low, they see a "Buy Credits" prompt linking to your configured Credits Purchase URL. The employer completes the purchase through your WooCommerce checkout (or PMPro/MemberPress registration) using whatever payment method you have configured.
 
-![Employer Dashboard — Credit Balance](../images/credits-employer-balance.png)
+![Employer Dashboard - Credit Balance](../images/credits-employer-balance.png)
 
-### The Hold → Deduct → Refund Cycle
+### The hold → deduct → refund cycle
 
-1. **Hold** — When an employer submits a job, the required credits are immediately reserved from their available balance. The employer cannot spend held credits on another job.
-2. **Deduct** — When the admin approves the job (or it auto-publishes), the held credits are permanently consumed.
-3. **Refund** — If the admin rejects the job, the held credits are returned to the employer's available balance.
+1. **Hold** - When an employer submits a job, the required credits are immediately reserved from their available balance. The employer cannot spend held credits on another job.
+2. **Deduct** - When the admin approves the job (or it auto-publishes), the held credits are permanently consumed.
+3. **Refund** - If the admin rejects the job, the held credits are returned to the employer's available balance.
 
 This ensures employers are never charged for jobs that don't go live.
 
-## Admin Credit Adjustment
+## Admin credit adjustment
 
 Admins can manually add or deduct credits for any employer:
 
@@ -121,6 +121,6 @@ Admins can manually add or deduct credits for any employer:
 
 Manual adjustments are recorded in the credit ledger with the admin's note, so there is always a clear audit trail.
 
-## Viewing the Credit Ledger
+## Viewing the credit ledger
 
-The full transaction history for any employer is visible from their admin profile — every top-up, hold, deduction, refund, and manual adjustment with timestamps and notes.
+The full transaction history for any employer is visible from their admin profile - every top-up, hold, deduction, refund, and manual adjustment with timestamps and notes.

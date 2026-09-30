@@ -1,20 +1,19 @@
 # Hooks Reference - Actions and Filters
 
-WP Career Board fires **134 unique `wcb_`-prefixed hooks** (49
-actions and 85 filters, Free only - Pro adds its own; see the Pro
-developer guide), ground-truth verified by grepping every
-`do_action()`/`apply_filters()` call site in the plugin source. The
-most useful integration hooks are grouped by area below; the full
-file:line inventory is in `audit/manifest.json#/hooks_fired` (that
-inventory is a representative sample, not exhaustive - it currently
-lists fewer entries than actually exist in code; verify by `grep`
-when a hook isn't listed there).
+WP Career Board fires **181 unique `wcb_`-prefixed hooks** (60
+actions and 121 filters, Free only - Pro adds its own; see the Pro
+developer guide), plus 2 deprecated filters that still apply. The
+count comes from every literal `do_action()` / `apply_filters()` call
+site in the plugin source; dynamic hooks such as
+`wcb_settings_tab_{slug}` are listed once. The most useful
+integration hooks are grouped by area below. Section "New in 1.8.0"
+at the end covers the rest. Signatures for anything not listed can be
+read at the call site (see the last section).
 
 > **How to use this list:** every hook is fired with `do_action()`
-> or `apply_filters()` somewhere in the plugin source. The full
-> file:line is in `audit/manifest.json#/hooks_fired`. The arg
-> signature for any hook can be found by `grep` against the
-> hook name in the codebase.
+> or `apply_filters()` somewhere in the plugin source. A longer
+> narrative for the 1.8.0 hooks, with the reasoning behind each, is in
+> the plugin's `docs/HOOKS.md`.
 
 ## Lifecycle / job posting
 
@@ -27,15 +26,15 @@ when a hook isn't listed there).
 | `wcb_job_updated` | Action | After a job update completes. Args: `$job_id, $request`. |
 | `wcb_before_delete_job` | Filter | Return false to abort the delete. |
 | `wcb_job_deleted` | Action | After job is removed. Args: `$job_id`. |
-| `wcb_job_republished` | Action | When a job is republished after expiry. Args: `$job_id`. |
+| `wcb_job_republished` | Action | When an expired or closed job is republished. Args: `$job_id, $previous_status`. |
 | `wcb_job_approved` | Action | When admin approves a pending job. Args: `$job_id`. |
 | `wcb_job_rejected` | Action | When admin rejects a job. Args: `$job_id, $reason`. |
-| `wcb_job_expired` | Action | When a job's expiry date passes during the daily sweep. Args: `$job_id`. |
-| `wcb_check_job_expiry` | Action | Cron schedule hook - the daily WP-Cron event that runs the job-expiry sweep. |
+| `wcb_job_expired` | Action | When a job passes its deadline during the hourly sweep (or `wp wcb job expire`). Args: `$job_id`. |
+| `wcb_check_job_expiry` | Action | Cron schedule hook - the hourly WP-Cron event that runs the job-expiry sweep. |
 | `wcb_deadline_reminder` | Action | Fires once per candidate while sending a deadline reminder. Args: `$user_id, $job_id, $days_left`. (The cron schedule hook that drives this is `wcb_send_deadline_reminders`.) |
-| `wcb_featured_expired` | Action | When a featured job's promotion window ends. Args: `$job_id`. (Driven by the `wcb_expire_featured_jobs` daily cron event.) |
+| `wcb_featured_expired` | Action | When a featured job's promotion window ends. Args: `$job_id`. Fires right after `wcb_job_featured_expired`, which is the same event added in 1.8.0 (driven by the `wcb_expire_featured_jobs` daily cron event). |
 
-## Moderation / Report a Job
+## Moderation / report a job
 
 The Report-a-Job flow (any logged-in user can flag a listing; a
 moderator dismisses or unpublishes it) fires these:
@@ -46,7 +45,7 @@ moderator dismisses or unpublishes it) fires these:
 | `wcb_job_flag_resolved` | Action | A moderator resolves a job's flags (dismiss or unpublish). Args: `$job_id, $action`. |
 | `wcb_moderate_jobs_ability_check` | Filter | Return a bool to override the moderation permission check. |
 
-## Moderation / Member safety (1.7.0)
+## Moderation / member safety (1.7.0)
 
 The member report/block surface backing `MembersEndpoint`
 (`POST /users/{id}/report`, `POST`/`DELETE /users/{id}/block`) and
@@ -94,8 +93,8 @@ Self-service account deletion (`AccountDeletionEndpoint` /
 
 | Hook | Type | Fires when |
 |---|---|---|
-| `wcb_candidate_registered` | Action | After a candidate signup completes. Args: `$user_id, $request`. |
-| `wcb_employer_registered` | Action | After an employer signup completes. Args: `$user_id, $request`. |
+| `wcb_candidate_registered` | Action | After a candidate signup completes. Args: `$user_id` (one argument). |
+| `wcb_employer_registered` | Action | After an employer signup completes. Args: `$user_id, $company_id`. |
 | `wcb_employer_banned` | Action | After an admin bans an employer from the admin Employers screen. Args: `$user_id`. |
 | `wcb_employer_unbanned` | Action | After an admin lifts an employer ban. Args: `$user_id`. |
 | `wcb_candidate_form_fields` | Filter | Add fields to the candidate registration form. |
@@ -125,7 +124,7 @@ meaningful values when Pro is active. In Free they default to
 | `wcb_employer_active_job_statuses` | Filter | Post statuses that occupy a slot. Default `array( 'publish' )`. Args: `$statuses, $user_id`. |
 | `wcb_employer_active_job_limit_message` | Filter | Copy shown when the cap blocks a post. Args: `$message, $limit, $count`. |
 
-Cap the number of live listings one employer may hold at once — the
+Cap the number of live listings one employer may hold at once - the
 usual shape for a site that gives away a few free posts and sells
 volume on top:
 
@@ -150,7 +149,7 @@ with code `wcb_active_job_limit`; `data.limit` and `data.count` carry
 the numbers, and the job form surfaces `message` directly.
 
 **The cap is skipped entirely when `wcb_credits_enabled` returns
-true.** Paid posting already meters volume — charging an employer a
+true.** Paid posting already meters volume - charging an employer a
 credit and then refusing the post would be the worst of both models.
 The quota is the free-board mechanism; credits replace it.
 
@@ -242,7 +241,7 @@ document.addEventListener( 'wcb:results', ( event ) => {
 | `wcb_settings_tab_<slug>` | Action | Render content for a custom tab (the slug becomes the suffix). |
 | `wcb_settings_tab_antispam` | Action | The built-in Anti-Spam tab. Hook to add additional anti-spam controls. |
 | `wcb_settings_tab_emails` | Action | The Emails tab - extend with custom email templates. |
-| `wcb_page_settings` | Filter | Modify which pages are mapped for "Career Board page" detection. |
+| `wcb_page_settings` | Filter | Deprecated in 1.8.0, still applied. Use `wcb_page_definitions`. |
 | `wcb_app_page_ids` | Filter | Add page IDs that should get the `wcb-page` body class. |
 | `wcb_apply_page_class` | Filter | Opt out a page from the `wcb-page` body class entirely. |
 | `wcb_container_max_width` | Filter | Override the 1200px content-column default. |
@@ -260,7 +259,7 @@ document.addEventListener( 'wcb:results', ( event ) => {
 | Hook | Type | Use it to |
 |---|---|---|
 | `wcb_wizard_steps` | Filter | Add a step to the setup wizard. Each entry: `title`, `template` (absolute path), `button_text`, keyed by a unique slug. |
-| `wcb_wizard_required_pages` | Filter | Add a page (title + content) the wizard's "Create Pages" step and Settings "Create Missing Pages" action will create. Keyed by the `wcb_settings` option key that stores the resulting page ID. |
+| `wcb_wizard_required_pages` | Filter | Deprecated in 1.8.0, still applied. Use `wcb_page_definitions`. |
 | `wcb_wizard_completed` | Action | After the wizard's last step. |
 | `wcb_wizard_force_render` | Filter | Force the wizard to render even when `is_setup_complete()` is true. |
 | `wcb_wizard_complete_redirect` | Filter | Override the URL the wizard redirects to on finish. |
@@ -275,7 +274,7 @@ hooks them to return true / version / license status.
 |---|---|
 | `wcb_pro_active` | bool - is Pro plugin running? |
 | `wcb_pro_licensed` | bool - is the Pro license valid? |
-| `wcb_pro_version` | string - Pro version, e.g. "1.4.3" |
+| `wcb_pro_version` | string - Pro version, e.g. "1.8.0" |
 | `wcb_pro_ai_enabled` | bool - is the Pro AI bundle enabled? |
 | `wcb_pro_upsell_url` | string - where the "Upgrade to Pro" CTA points |
 | `wcb_pro_settings_saved_notice` | Filter - message for the post-save admin notice |
@@ -318,6 +317,113 @@ enabled. In Free they default to `false`.
 | `wcb_sample_data_removed` | Action | After sample content is removed (wizard or uninstall). |
 | `wcb_notification_created` | Action | Fires after a notification is created so a centralised notification center (e.g. BuddyNext) can mirror it without re-deriving the message. Free has no in-app bell, so it fires once per real email send (admin test sends are skipped). Single arg: an array `{ user_id, event_type, message, link, id }` - `message` is the rendered email subject, `link` is a best-effort deep link, `id` is `0` on Free. Pro fires the same hook from its notification bell with the inserted row id. Since 1.8.0 each event fires it once: when Pro's bell records an event (status changed, application received, job approved/rejected/expired, featured expired) the bell fires it and the email does not. |
 | `wcb_email_announces_notification` | Filter | Whether an email fires `wcb_notification_created`. Args: `$announce, $email_id, $user_id`. Return false when your own channel records the event and fires the signal itself, so listeners (push, BuddyNext) get it once. |
+
+## New in 1.8.0
+
+### Settings, pages and setup
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_settings_schema` | Filter | `$fields` | Add setting keys: `$fields['my_key'] = array( 'default' => false, 'sanitize' => 'rest_sanitize_boolean' )`. A key outside the schema is never written by a settings form. |
+| `wcb_settings_tab_groups` | Filter | `$groups` | Change the Settings sidebar groups: group key => `label` and `tabs` (slugs, in order). A tab not listed lands in "Site". |
+| `wcb_page_definitions` | Filter | `$defs` | Add a page: `title`, `slug`, `content` (block markup), `label`, `desc`, optional `aliases`. Register the key in `wcb_settings_schema` too. `wcb_wizard_required_pages` and `wcb_page_settings` are deprecated and still applied. |
+| `wcb_safer_defaults_notice` | Filter | `$items` | The list shown once to owners of sites that predate the 1.8.0 defaults. |
+| `wcb_apply_ai_notice` | Filter | `$text, $job_id` | Notice above **Submit Application** when applications may be screened with AI. Empty shows nothing. |
+| `wcb_template_override_docs_url` | Filter | `$url` | The "Learn how template overrides work" link in Site Health. |
+| `wcb_overridable_templates` | Filter | `$templates` | Add a theme-overridable template to the Site Health version check. See [Template Overrides](./06-template-overrides.md). |
+
+### Jobs, payment and search
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_job_payment` | Filter | `$paid, $job_id, $event` | Return `true` when the job is paid or free, or a `WP_Error` (402) when not. `$event` is `create`, `resubmit`, `republish`, `board_change` or `feature`. Pro's credits answer it. |
+| `wcb_featured_upgrade_cost` | Filter | `$cost` | What featuring a job costs. 0 hides the job-form checkbox and the My Jobs **Feature** action. |
+| `wcb_job_featured_expired` | Action | `$job_id` | A job's featured period ended. |
+| `wcb_job_allow_new_terms` | Filter | `$allow, $request` | Whether a submission may create new category, type, location or experience terms. Default: moderators only. Tags are always free-form. |
+| `wcb_job_search_args` | Filter | `$args, $params` | Change the `WP_Query` args of every job search (REST, the listing's first paint, alerts). Put every result-changing value in `$args`: the REST cache key is built from them. |
+| `wcb_job_deadline_passed` | Filter | `$passed, $job_id, $deadline` | Keep applications open past the stored deadline, or close them early. |
+| `wcb_job_pipeline_url` | Filter | `$url, $job_id` | URL for the **Pipeline** button on a My Jobs row. Empty hides it. Pro's Application Pipeline supplies it. |
+| `wcb_job_single_after_description` | Action | `$job_id` | Right after the job description on the job page. Pro prints custom-field "Additional details" here. |
+| `wcb_job_posting_schema` | Filter | `$schema, $job, $data` | Change a job's Google for Jobs JobPosting, or return `[]` to leave the job out. |
+| `wcb_job_imported` | Action | `$new_id` | After a job is imported from WP Job Manager, once meta and terms are written. |
+
+Listing filter chips for custom fields toggle `meta_<key>` in the listing's `activeFilters` (`actions.toggleMetaChip` with context `{ metaKey, metaValue }`). A `meta_<key>` URL parameter is applied on first paint.
+
+### Applications
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_employer_actionable_statuses` | Filter | `$statuses` | The statuses an employer may set. Default: submitted, reviewing, shortlisted, rejected, hired. |
+| `wcb_close_job_applications` | Action | `$job_id, $status` | Background batch that moves a closing job's undecided applications. Scheduled by the plugin; listen, do not fire. |
+
+### Accounts, sign-up and files
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_pre_registration` | Filter | `$error, $request` | Return a `WP_Error` to refuse a sign-up before the account exists. |
+| `wcb_registration_rate_limit` | Filter | `$limit` | Sign-ups one IP may make per hour. Default 5, 0 disables. |
+| `wcb_email_verification_requested` | Action | `$user_id, $verify_url` | A new account needs to confirm its email. The confirmation email listens here. |
+| `wcb_employer_login_redirect_enabled` | Filter | `$enabled, $user, $redirect_to, $requested_redirect_to` | Return `false` to stop the employer-dashboard redirect after login. |
+| `wcb_can_view_public_resume` | Filter | `$allowed, $post_id, $viewer_id` | Whether a viewer may open a public resume. Pro applies the owner's access setting. |
+| `wcb_private_file_can_download` | Filter | `$allowed, $attachment_id, $user_id` | Grant a private resume file to another audience. |
+| `wcb_personal_data_providers` | Filter | `$providers` | Register personal data once for the WordPress exporter, eraser and account deletion. Add `'key' => array( 'label' => string, 'export' => callable, 'erase' => callable )`. Both callables receive `array( 'user_id' => int, 'email' => string )` (`user_id` is 0 for a guest). `erase` returns `array( 'removed' => int, 'retained' => int, 'messages' => string[] )`. |
+| `wcb_logs_pruned` | Action | `$cutoff` | After the daily prune of email history older than **Keep Email History**. `$cutoff` is UTC `Y-m-d H:i:s`. |
+| `wcb_resume_rest_query_args` | Filter | `$args, $request` | Change the resume REST query. |
+| `wcb_resume_sitemap_query_args` | Filter | `$args` | Change the resume sitemap query. |
+| `wcb_employer_credit_has_history` | Filter | `$has_history, $employer_id` | Whether the employer has held credits before, so a zero balance shows the low-balance warning. |
+
+### Moderation
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_member_flags_resolved` | Action | `$user_id` | Reports on a member were dismissed from the Candidates or Employers list. |
+| `wcb_reporter_has_standing` | Filter | `$standing, $user_id` | Whether a reporter's report counts toward the auto-hide. Default: account at least a week old, or a member with an application or a published job. |
+
+A ban (the `_wcb_employer_banned` user meta, from any writer) hides the member's live and pending jobs, company and resume, and removing it restores them. Hidden posts carry `_wcb_hidden_by` (`ban` or `reports`) and `_wcb_hidden_status`.
+
+### Community notification contract
+
+`wcb_notification_created` carries a second argument, the contract payload, so a notification center (BuddyNext or another add-on) can show one row per event with the plugin's own words and link:
+
+```php
+add_action( 'wcb_notification_created', function ( array $legacy, ?array $contract ) {
+    if ( null === $contract ) {
+        return; // A transactional or admin-only email: no community object.
+    }
+    // $contract: recipient_id, type, actor_id, object_type ('job'|'application'),
+    // object_id, message, url, group_key, notification_id.
+}, 10, 2 );
+```
+
+Listeners registered with one accepted argument are unaffected. An email whose send call names no `object_type` (email verification, admin alerts) gets `null`.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_community_notification_types` | Filter | `$types` | Declares every type Free's emails can fire: `slug => array( label, description, default_on )`. |
+| `wcb_community_notification_visible` | Filter | `$visible, $viewer_id, $targets` | Whether the viewer may still see a row about a `job` or `application`. Hidden once trashed, and for the employer once the candidate withdraws. |
+| `wcb_community_notification_removed` | Action | `$object_type, $object_id` | A job or application was permanently deleted. Not fired on trash. |
+| `wcb_email_announces_notification` | Filter | `$announce, $email_id, $user_id` | Return `false` when an add-on records the same event itself, so listeners never get it twice. |
+
+### Mobile app sign-in
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_app_password_login_enabled` | Filter | `$on` | Whether password sign-in is available. Backs the **App Password Sign-In** setting, off by default. |
+| `wcb_app_password_max_failures` | Filter | `$max` | Failed sign-ins per bucket before lockout. Default 5. |
+| `wcb_app_password_max_attempts_per_ip` | Filter | `$max` | Attempts per IP per hour. Default 20. |
+| `wcb_app_password_client_ip_header` | Filter | `$header` | The `$_SERVER` key that carries the real client IP behind a proxy. Empty by default. |
+| `wcb_app_credential_issued` | Action | `$user_id, $app_id, $app_name` | A member traded their password for a credential. The credential itself is never passed. |
+| `wcb_app_credential_revoked` | Action | `$user_id, $uuid` | A member signed out of the app and revoked their credential. |
+| `wcb_app_connect_schemes` | Filter | `$schemes` | URL schemes the app-connect flow may hand a credential to. Add only schemes for an app you ship. |
+| `wcb_app_connect_bridge` | Filter | `$info` | The resolved app-connect bridge for this site: `owner`, `connect_url`, `connect_schemes`. |
+| `wcb_app_scheme` | Filter | `$scheme` | The mobile app's deep-link scheme. |
+
+### WP-CLI
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_scale_budgets` | Filter | `$budgets` | Per-query time budgets (ms) for `wp wcb scale benchmark`. |
+| `wcb_scale_ops` | Filter | `$ops, $per_page` | Add a named callable (`name => callable`) for the benchmark to time. Add a matching entry in `wcb_scale_budgets`; an operation without a budget is timed but never fails the run. |
 
 ## Listening pattern (example)
 

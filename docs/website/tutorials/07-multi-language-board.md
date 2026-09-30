@@ -9,7 +9,7 @@ apply if you ever decide to expand.
 
 ## Two valid strategies
 
-### Strategy 1: Mirror jobs across languages
+### Strategy 1: mirror jobs across languages
 
 Each job exists once per language. A "Senior Engineer" post in
 English has a French counterpart "Ingénieur Senior" - same role,
@@ -21,7 +21,7 @@ different translation.
 - **Cost:** the employer (or you) maintain both copies. Mismatched
   copies - common because translations drift - confuse candidates.
 
-### Strategy 2: Bilingual single listings
+### Strategy 2: bilingual single listings
 
 Each job exists once, in the employer's language. Candidates browse
 in their chosen language but see the original-language listing if no
@@ -217,7 +217,7 @@ is missing, the default-language template is used as fallback.
 - Avoid translating the same job into too many languages if quality
   suffers - Google penalises auto-translated thin content.
 
-### Pro Boards (Multi-Board) and languages
+### Pro boards (multi-board) and languages
 
 If you use Pro's Multi-Board feature, each board is a separate
 container. You can:

@@ -7,9 +7,9 @@
 > surfaces so Pro - or an add-on shipping its own AI driver - can flip
 > them on.
 
-This page documents the AI surface that ships in 1.4.3.
+This page documents the AI surface that ships today.
 
-## AI Chat Search block
+## AI chat search block
 
 The candidate-facing natural-language search bar (chat-style).
 
@@ -58,7 +58,7 @@ Server-side, the block:
    `wp_rest` nonce. It reads `data.jobs` from the response and renders
    the matched job cards (title + company).
 
-## AI Description Writer (Free hook, Pro behaviour)
+## AI description writer (Free hook, Pro behaviour)
 
 The post-a-job form (full and simple) has a "Generate with AI" button
 next to the description editor, gated behind `wcb_ai_description_enabled`:

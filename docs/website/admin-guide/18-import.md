@@ -10,13 +10,13 @@ The importer reads data from WP Job Manager's post types (`job_listing`, `resume
 
 The import uses REST API calls (`POST /wcb/v1/import/run`) batched in groups, with a live progress bar so large imports don't time out.
 
-## Idempotent — Safe to Re-Run
+## Idempotent - Safe to re-run
 
 Every migration checks for an existing WCB record before importing. Records already imported are automatically skipped. You can run the import multiple times without creating duplicates.
 
-## Available Migrations
+## Available migrations
 
-### WP Job Manager → Jobs (Free)
+### WP Job Manager → jobs (Free)
 
 Migrates `job_listing` posts to `wcb_job`. Available in the free plugin.
 
@@ -49,7 +49,7 @@ WP Job Manager does not need to remain active after the import is complete.
 
 From the command line, `wp wcb migrate wpjm --dry-run` prints the same preview without writing anything.
 
-### WP Job Manager Applications → Applications (Free)
+### WP Job Manager applications → applications (Free)
 
 When the WP Job Manager Applications add-on is active, a second card moves its applications onto the imported jobs. Import the jobs first.
 
@@ -62,9 +62,9 @@ When the WP Job Manager Applications add-on is active, a second card moves its a
 
 No emails are sent to candidates or employers during the import. Command line: `wp wcb migrate wpjm-applications [--dry-run]`.
 
-### WP Job Manager Resumes → Resumes (Pro)
+### WP Job Manager resumes → resumes (Pro)
 
-> **Pro feature** — Requires WP Career Board Pro.
+> **Pro feature** - Requires WP Career Board Pro.
 
 Migrates `resume` posts to `wcb_resume`. Only available when WP Career Board Pro is active.
 
@@ -93,11 +93,11 @@ Migrates `resume` posts to `wcb_resume`. Only available when WP Career Board Pro
 3. Click **Import All Resumes**
 4. Monitor the progress bar until complete
 
-## What Happens with Duplicates
+## What happens with duplicates
 
-Each import run checks whether a WCB record already exists for a given WP Job Manager post ID (tracked via the `_wcb_migrated_from` meta key). If it does, that record is skipped and counted as "already imported" — not re-imported or overwritten.
+Each import run checks whether a WCB record already exists for a given WP Job Manager post ID (tracked via the `_wcb_migrated_from` meta key). If it does, that record is skipped and counted as "already imported" - not re-imported or overwritten.
 
-## Progress Display
+## Progress display
 
 The Import page shows live stats for each migration:
 
@@ -107,14 +107,14 @@ The Import page shows live stats for each migration:
 | **Already imported** | Records already migrated to WCB |
 | **Remaining** | Records that will be processed on the next run |
 
-## After Importing
+## After importing
 
-1. Go to **WP Career Board → Jobs** to review imported jobs — check statuses and verify key fields
+1. Go to **WP Career Board → Jobs** to review imported jobs - check statuses and verify key fields
 2. Go to **WP Career Board → Settings → Pages** and confirm page assignments are correct
 3. Flush your permalink structure via **Settings → Permalinks → Save Changes**
 4. If WP Job Manager had categories or job types that don't map cleanly, review them in **WP Career Board → Job Categories** and **WP Career Board → Job Types**
 
 ## Limitations
 
-- Custom fields added by WP Job Manager extensions are not automatically mapped — you will need to re-enter those manually
-- The importer does not delete WP Job Manager data after migration — you can deactivate and delete WP Job Manager separately once you are satisfied with the results
+- Custom fields added by WP Job Manager extensions are not automatically mapped - you will need to re-enter those manually
+- The importer does not delete WP Job Manager data after migration - you can deactivate and delete WP Job Manager separately once you are satisfied with the results

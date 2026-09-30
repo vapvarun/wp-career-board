@@ -2,7 +2,7 @@
 
 Moderation controls whether jobs need admin approval before they go live. It prevents spam and low-quality listings on your board.
 
-## How Moderation Works
+## How moderation works
 
 When **Auto-Publish Jobs** is turned **off** (the default), every job submitted by an employer goes to a **Pending** state and must be approved by an admin before it appears on the job board.
 
@@ -10,7 +10,7 @@ When **Auto-Publish Jobs** is turned **on**, submitted jobs go live immediately 
 
 To toggle moderation: **WP Career Board → Settings → Jobs → Auto-Publish Jobs**
 
-## Reviewing Pending Jobs
+## Reviewing pending jobs
 
 1. Go to **WP Career Board → Jobs** in wp-admin
 2. Click the **Pending** filter at the top of the list
@@ -18,7 +18,7 @@ To toggle moderation: **WP Career Board → Settings → Jobs → Auto-Publish J
 
 ![Admin Jobs - Pending Filter](../images/admin-jobs-pending.png)
 
-## Approving a Job
+## Approving a job
 
 **Quick approval (from the list):**
 1. Hover over the job in the list
@@ -32,21 +32,21 @@ To toggle moderation: **WP Career Board → Settings → Jobs → Auto-Publish J
 
 When a job is approved, the employer receives an email notification.
 
-## Rejecting a Job
+## Rejecting a job
 
 1. Open the job in the wp-admin editor
 2. Change the status to **Draft** or **Trash**
 3. Optionally email the employer with a reason (done manually outside the plugin)
 
-## Managing Existing Jobs
+## Managing existing jobs
 
 Admins have full control over all jobs from **WP Career Board → Jobs**:
 
 - **Edit** any job (correct errors, add missing info)
 - **Close** a job that is running too long
-- **Delete** spam or low-quality listings
+- **Delete** spam or low-quality listings. Deleting a job with many applicants finishes quickly: its open applications are marked **Job removed** in background batches of 200, and candidates are still told, using the job title saved with their application. The applications stay in the candidate's history
 
-## Reported Jobs (Flagged) {#reported-jobs-flagged}
+## Reported jobs (flagged) {#reported-jobs-flagged}
 
 Any logged-in user can report a published job from its single page
 ("Report this job", with a reason). Reports are stored on the job and
@@ -67,7 +67,10 @@ Moderators and admins review reports from **WP Career Board → Jobs**:
 
 **Auto-hide.** When a set number of different members report the same
 job (3 by default), it is taken off the site as **Pending** until you
-review it; the Jobs list shows it as **Hidden: reported**. Change the
+review it. Only reports from members with standing count toward the
+number: an account at least a week old, or a member who has applied to a
+job or has a published job. Every report is still recorded so you can
+see it; the Jobs list shows it as **Hidden: reported**. Change the
 number, or set 0 to turn this off, under **Settings → Jobs → Hide a job
 after this many reports**. You are emailed on a job's first report and
 again when it is hidden, not on every report.
@@ -75,7 +78,7 @@ again when it is hidden, not on every report.
 Resolving flags requires the **Moderate Jobs** capability
 (`wcb_moderate_jobs`), the same gate as approving and rejecting jobs.
 
-## Member Moderation (Reporting, Blocking, Suspending)
+## Member moderation (reporting, blocking, suspending)
 
 New in 1.7.0 - moderation now covers members, not just job listings.
 This layer is separate from Reported Jobs above: it deals with a
@@ -134,6 +137,6 @@ is left as you set it. Suspending a candidate hides their public
 resume the same way. In the Jobs list a hidden job shows as **Hidden:
 employer banned**.
 
-## Admin Notifications
+## Admin notifications
 
 Admins receive a **New Job Pending Review** email when an employer submits a job for approval, and a **Report Received** email when a job or member is first reported (and when a job is hidden by reports). With Pro, administrators also get a bell notification for reports. Notification content can be customized in **Settings → Emails**.

@@ -4,22 +4,36 @@ WP Career Board sends automatic emails for key events. All emails use WordPress'
 
 ![Email Notifications Settings](../images/settings-notifications.png)
 
-## Notification Events
+## Notification events
 
-| Email | Sent To | Trigger |
+Free sends these emails. Each one can be switched off and edited under **Career Board → Settings → Emails**.
+
+| Email | Sent to | When |
 |---|---|---|
-| **New Job Pending Review** | Admin | Employer submits a new job |
-| **Job Approved** | Employer | Admin approves a pending job |
-| **Job Rejected** | Employer | Admin rejects a pending job |
+| **New Job Pending Review** | Admin | An employer submits a job that needs approval |
+| **Report Received** | Admin | A job or member is reported for the first time, and when reports hide a job |
+| **Job Approved** | Employer | A moderator approves a pending job |
+| **Job Rejected** | Employer | A moderator rejects a pending job |
 | **Job Ending Soon (Employer)** | Employer | 3 days before a job's deadline, once per deadline, with a link to extend it |
-| **Job Expired** | Employer | Job passes its deadline (only for jobs that ended in the last 7 days, so switching expiry on for an older site does not email a backlog) |
-| **Application Received** | Employer | Candidate applies to their job |
-| **Application Confirmation (Candidate)** | Candidate | Registered candidate submits an application |
-| **Application Confirmation (Guest)** | Guest | Guest applicant submits an application |
-| **Application Status Changed** | Candidate | Employer updates application status (Reviewing, Shortlisted, Not selected, Hired). Saving the same status again sends nothing. |
-| **Application Withdrawn (Employer)** | Employer | A candidate withdraws their application |
+| **Job Expired** | Employer | A job passes its deadline (only jobs that ended in the last 7 days, so turning expiry on for an old site does not email a backlog) |
+| **Application Received (Employer)** | Employer | A candidate or guest applies |
+| **Application Withdrawn (Employer)** | Employer | A candidate withdraws an application |
+| **Application Confirmation (Candidate)** | Candidate | A registered candidate applies |
+| **Application Confirmation (Guest)** | Guest | A guest applies |
+| **Application Status Changed** | Candidate or guest | The employer sets Reviewing, Shortlisted or Hired, or a job closes (Position closed). Saving the same status again sends nothing. |
+| **Application Not Selected** | Candidate or guest | The employer sets Rejected. A gentler message than the generic status email. |
+| **Application Deadline Reminder** | Candidate | 3 days and 1 day before the deadline of a job they saved. See [Deadline reminders](#deadline-reminders). |
+| **Confirm Your Email** | New member | Sign-up while **Email Verification** is on. Also sent again from the sign-in message or the expired-link page (one a minute). |
+| **Welcome** | New member | After sign-up. Skipped when Email Verification is on, because the confirmation email comes first. |
+| **Account Deletion Requested** | Member | They ask to delete their account. The email states the deletion date. |
+| **Account Deletion Cancelled** | Member | They (or an admin) cancel the deletion |
+| **Account Deleted** | Member | Just before the account is deleted, at the end of the grace period |
 
-## Managing Notifications
+Guests who applied with an email address get the guest confirmation, status and not-selected emails. A guest who left no email cannot be notified.
+
+Every email is written in the recipient's own language: dates and status names follow the recipient's locale, not the locale of whoever triggered it.
+
+## Managing notifications
 
 Go to **WP Career Board → Settings → Emails**.
 
@@ -40,7 +54,15 @@ edit from there instead of writing from scratch. If a template's body
 is left empty, the email still sends with its sensible default rather
 than going out blank.
 
-## Send Test Email
+### Preview
+
+Each email has a **Preview** button next to **Load default**. It renders the subject and body you have typed, including unsaved edits, inside the branded email wrapper without sending anything. Order of precedence for the message body: the body you save here, then a theme file at `{theme}/wp-career-board/emails/{email-id}.php`, then the shipped default.
+
+### Members can turn off optional emails
+
+Deadline reminders and Job Ending Soon are optional. Members switch them off under **Settings → Email Notifications** in their own dashboard. Emails about accounts, applications and payments always send.
+
+## Send test email
 
 Each template ships with a **Send test** button on the right of the row. Clicking it dispatches a one-shot copy of that email to the admin user's address with sample merge-tag values, so you can preview the rendered template before any real applicant sees it.
 
@@ -53,70 +75,79 @@ If the button shows "Failed", check:
 - The admin user has a valid email address on their profile
 - The Email Activity Log row says `sent_test` for the most recent attempt - if the row is missing, see the [self-heal note](#email-activity-log) below
 
-## Email Placeholders
+## Email placeholders
 
-Use these placeholders in email subjects and bodies - they are replaced with real values when the email sends:
+Use placeholders in subjects and bodies. They are replaced when the email sends. The **Insert tag** buttons in the editor show exactly the tags each email supports.
 
-| Placeholder | Value |
+| Email | Placeholders |
 |---|---|
-| `{job_title}` | The job listing title |
-| `{company_name}` | The employer's company name |
-| `{candidate_name}` | The applicant's full name |
-| `{application_status}` | Current status of the application |
-| `{dashboard_url}` | Link to the employer or candidate dashboard |
-| `{job_url}` | Link to the job listing page |
-| `{site_name}` | Your WordPress site name |
+| Application Confirmation, Application Received, Application Withdrawn | `{candidate_name}` `{job_title}` `{dashboard_url}` |
+| Application Confirmation (Guest) | `{guest_name}` `{job_title}` `{job_url}` |
+| Application Status Changed | `{candidate_name}` `{job_title}` `{new_status}` `{dashboard_url}` |
+| Application Not Selected | `{candidate_name}` `{job_title}` `{jobs_url}` `{dashboard_url}` |
+| Application Deadline Reminder | `{job_title}` `{company_name}` `{days_left}` `{deadline_date}` `{job_url}` |
+| Job Approved | `{job_title}` `{job_url}` |
+| Job Rejected | `{job_title}` `{reason}` |
+| Job Ending Soon | `{job_title}` `{deadline_date}` `{days_left}` `{edit_url}` `{job_url}` |
+| Job Expired | `{job_title}` `{repost_url}` |
+| New Job Pending Review | `{job_title}` `{approve_url}` |
+| Report Received | `{item}` `{reason}` `{report_count}` `{hidden_note}` `{review_url}` |
+| Confirm Your Email | `{display_name}` `{verify_url}` |
+| Welcome, Account Deletion Cancelled, Account Deleted | `{user_name}` `{site_name}` `{login_url}` |
+| Account Deletion Requested | `{user_name}` `{delete_date}` `{login_url}` |
 
-## Email From Name and Address
+## Email from name and address
 
 Go to **WP Career Board → Settings → Emails**, in the **Sender** card at the top of the tab, to set:
 - **From Name** - the sender name shown in inboxes (e.g. "Career Board")
-- **From Email** - the reply-to address for all WCB emails
+- **From Email** - the address all Career Board emails are sent from
 - **Admin Notification Email** - where admin alerts (e.g. new job pending review) are sent
 
-## SMTP / Deliverability
+The header colour and logo come from **Settings → Brand**, shared with the mobile app. The **Email look** card on the Emails tab holds the **Footer Text**.
+
+## SMTP / deliverability
 
 For reliable email delivery, use an SMTP plugin (WP Mail SMTP, FluentSMTP, or similar). WordPress's built-in mail function can land in spam without SMTP configuration.
 
-## Email Activity Log {#email-activity-log}
+## Email activity log {#email-activity-log}
 
-Every dispatched email writes a row to `wp_wcb_notifications_log` and surfaces on the **Activity Log** tab at the bottom of Settings → Emails. Rows show the event type, channel, recipient, status (`sent` / `failed` / `sent_test` / `failed_test`), and timestamp.
+Every dispatched email writes a row to `wp_wcb_notifications_log` and surfaces on the **Activity Log** tab at the bottom of Settings → Emails. Rows show the template, recipient, subject, status (`sent` / `failed` / `sent_test` / `failed_test`), and timestamp. You can filter by template and status. Rows older than **Settings → Advanced → Keep Email History** (180 days by default, 0 keeps them forever) are deleted daily.
 
 The log table is created on plugin activation. If for any reason the table is missing (e.g. a database migration dropped it, or the plugin was installed pre-1.0.x and skipped the activation routine), the dispatch path self-heals the table on first send rather than failing silently - your previously missing log entries will start populating from the next dispatch onward.
 
 ---
 
-## Pro Email Notifications (Pro)
+## Pro email notifications (Pro)
 
 WP Career Board Pro extends the email system with three additional transactional emails. You can customise the subject line and enable or disable each one from **Career Board -> Settings -> Emails**.
 
-### Job Alert Digest
+### Job alert digest
 
 - **Recipient:** Candidate
 - **Trigger:** Fired when the Job Alerts module finds new jobs matching a candidate's saved search
 - **Content:** A list of matching job titles with direct links
 
-### Credit Top-Up Confirmation
+### Credit top-up confirmation
 
 - **Recipient:** Employer
 - **Trigger:** When a credit purchase completes via a supported payment gateway (WooCommerce, Paid Memberships Pro, or MemberPress)
 - **Content:** Confirmation of the purchase and updated balance
 
-### Low Credit Balance Warning
+### Low credit balance warning
 
 - **Recipient:** Employer
 - **Trigger:** Fired when an employer's credit balance reaches zero
 - **Content:** Balance warning and a link to the Employer Dashboard to purchase more credits
 
-### Email Template Customisation
+### Email template customisation
 
 All Pro emails use the same templating system as Free emails. To override a template, copy the relevant file into your theme's `wp-career-board/emails/` folder (the same override location Free uses), or register a custom template directory with the `wcb_email_template_dirs` filter.
 
-## In-App Notification Bell (Pro)
+## In-app notification bell (Pro)
 
 The notification bell appears in the Employer Dashboard and Candidate Dashboard. It shows a live unread count and drops down to display a list of recent notifications, each with a message and a link to the relevant page.
 
-### Events That Trigger Bell Notifications
+### Events that trigger bell notifications
 
 | Event | Who Receives It | Message Example |
 |-------|----------------|----------------|
@@ -131,7 +162,7 @@ All notifications are stored in the `wcb_notifications` database table. The `is_
 
 ## Deadline reminders {#deadline-reminders}
 
-New in 1.1.0 - candidates who saved a job but haven't applied get
+Candidates who saved a job but haven't applied get
 automated reminders before the application deadline closes.
 
 ### Reminder schedule
@@ -192,19 +223,6 @@ mainly useful when the plugin is also being deactivated.
 
 ### Email template
 
-Standard plugin email format with the configured logo, header/footer.
-Subject line: "Your saved job '{{job_title}}' closes in {{days}} days".
+The email uses the Brand colour and logo. The default subject is "Application deadline approaching for {job_title}". Placeholders: `{job_title}`, `{company_name}`, `{days_left}`, `{deadline_date}`, `{job_url}`.
 
-Custom merge tags available:
-
-| Tag | Value |
-|---|---|
-| `{{candidate_name}}` | Candidate first name |
-| `{{job_title}}` | Title of the saved job |
-| `{{company_name}}` | Company that posted the job |
-| `{{deadline_date}}` | Localized deadline date |
-| `{{days}}` | Days until deadline |
-| `{{job_url}}` | Direct link to the job page |
-
-Override the template by copying `modules/notifications/templates/emails/deadline-reminder.php`
-into your theme's `wp-career-board/emails/` folder.
+Edit the wording under **Settings → Emails**. To replace the markup instead, copy `modules/notifications/templates/emails/deadline-reminder.php` into your theme's `wp-career-board/emails/` folder. A body saved under Settings → Emails wins over the theme file.

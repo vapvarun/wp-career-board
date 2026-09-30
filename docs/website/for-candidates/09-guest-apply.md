@@ -1,7 +1,8 @@
 # Apply as a Guest
 
-You can now apply to a job without creating an account first. The
-apply form on every job page accepts:
+You can apply to a job without creating an account first, unless the
+site turned on **Require login to apply** (then the job page shows
+**Sign in to apply**). The apply form on every job page accepts:
 
 - Your name + email
 - A cover letter (optional)
@@ -38,22 +39,23 @@ If a site requires a resume but you try to submit without one, you'll
 see a clear error message: "A resume is required to apply for this
 job." Drop a file and resubmit.
 
-## Privacy
+## Privacy and linking to an account later
 
 Your application is stored against your email address. If you later
-create an account using the same email, the system will link your
-historical guest applications to the new account automatically - your
-"My Applications" page will show them.
+create an account with the same email, your earlier guest applications
+are linked to the new account automatically at the moment it is created,
+and they appear in **My Applications**. There is nothing to request or
+claim.
 
-This linking happens automatically the moment your account is
-created (1.7.0) - there's nothing to request or claim manually. Just
-register with the same email address you applied with, and every
-guest application on file for that email becomes part of your
-application history.
+Linking happens only when the account is created, and only for the exact
+email you applied with. If you already had an account when you applied as
+a guest, or you register with a different email, those applications are
+not moved. Sign in first next time to keep everything in one place.
 
-If you'd like a copy of your data or want it deleted, the
-[Privacy & My Data](../admin-guide/04-gdpr.md) controls in the
-candidate dashboard handle GDPR self-service requests.
+To get a copy of your data or have it deleted, use the
+[Privacy & My Data](../admin-guide/04-gdpr.md) controls in the candidate
+dashboard, or ask the site owner to run a personal-data request for your
+email address. Guest applications are found by email.
 
 ## File format support
 
@@ -67,6 +69,10 @@ candidate dashboard handle GDPR self-service requests.
 
 ## What happens after submit
 
-You'll see a confirmation message inline: "Application submitted -
-the employer will be in touch." That's it. No further account-creation
-steps unless you want to track applications going forward.
+You'll see a confirmation message inline, and you get a confirmation
+email. When the employer changes your status you get an email too,
+including a respectful "not selected" message if you are not chosen. Two
+limits apply: you cannot apply to the same job again with the same
+email within 24 hours, and one connection can send 10 applications an
+hour. No further account-creation steps are needed unless you want to
+track applications in a dashboard.

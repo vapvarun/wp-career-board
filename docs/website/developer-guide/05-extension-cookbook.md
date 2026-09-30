@@ -6,32 +6,30 @@ here forks the source.
 
 ## Add a field to the apply form
 
-You want candidates to fill in (say) a "LinkedIn URL" when applying.
+You want candidates to answer (say) a "LinkedIn URL" question when applying. Return a field group from `wcb_application_form_fields_groups`. The plugin renders the control, validates it (required questions are checked on the server too), saves it, and shows the answer to the employer, in the admin application screen, in the REST API and in the CSV export. See [Custom Fields](../admin-guide/12-custom-fields.md) for the schema and field types.
 
 ```php
-// 1. Render the input inside the apply panel.
-add_action( 'wcb_application_form_fields', function ( $job_id ) {
-    ?>
-    <label class="wcb-form-label">
-        <span><?php esc_html_e( 'LinkedIn URL', 'my-addon' ); ?></span>
-        <input type="url" name="my_addon_linkedin" class="wcb-field" />
-    </label>
-    <?php
-});
-
-// 2. Allow the field through the apply endpoint.
 add_filter( 'wcb_application_form_fields_groups', function ( $groups, $job_id ) {
-    $groups['my_addon'] = array(
-        'fields' => array(
-            'linkedin' => array( 'type' => 'url', 'sanitize' => 'esc_url_raw' ),
+    $groups[] = array(
+        'group_id'    => 'my_addon',
+        'group_label' => __( 'Extra questions', 'my-addon' ),
+        'fields'      => array(
+            array(
+                'key'      => 'linkedin',
+                'label'    => __( 'LinkedIn URL', 'my-addon' ),
+                'type'     => 'url',
+                'required' => false,
+            ),
         ),
     );
     return $groups;
 }, 10, 2 );
 
-// 3. Read the saved value later - it's stored as `_wcb_application_field_linkedin`.
+// Read the saved answer later. It is stored as `_wcb_application_field_linkedin`.
 $url = get_post_meta( $app_id, '_wcb_application_field_linkedin', true );
 ```
+
+Use the `wcb_application_form_fields` action only for markup a field group cannot express; anything you print there is not validated or saved for you.
 
 ## Add a column to the admin applications table
 
@@ -63,7 +61,7 @@ add_action( 'wcb_job_created', function ( $job_id, $request ) {
 }, 10, 2 );
 ```
 
-## Add a tab to the Settings page
+## Add a tab to the settings page
 
 ```php
 add_filter( 'wcb_settings_tabs', function ( $tabs ) {
@@ -198,11 +196,11 @@ class My_Welcome_Email extends AbstractEmail {
     }
 
     public function boot(): void {
-        // Trigger off any Career Board action hook.
-        add_action( 'wcb_candidate_registered', array( $this, 'handle' ), 10, 2 );
+        // Trigger off any Career Board action hook. wcb_candidate_registered passes one argument.
+        add_action( 'wcb_candidate_registered', array( $this, 'handle' ), 10, 1 );
     }
 
-    public function handle( int $user_id, $request ): void {
+    public function handle( int $user_id ): void {
         $user = get_userdata( $user_id );
         if ( ! $user ) {
             return;
@@ -219,10 +217,107 @@ add_filter( 'wcb_registered_emails', function ( array $emails ): array {
 ```
 
 The base class gives you `is_enabled()`, `get_subject()` (with the
-admin override), and the protected `send( $to, $vars, $user_id )`
-helper that dispatches and logs. Read
+admin override), and the protected `send( $to, $vars, $user_id, $context )`
+helper that dispatches and logs. The five methods above are the only
+abstract ones. Override `get_default_body()` (merge tags in `{braces}`)
+and `get_merge_tags()` to ship a default message and the tag chips in
+the editor, and `is_optional()` to let members turn the email off. Pass
+a `$context` with `object_type`, `object_id` and `actor_id` when the
+email is about a job or application, so notification centers get a row
+(see the community notification contract in the hooks reference). Read
 `modules/notifications/emails/class-email-job-approved.php` for a
 complete working example.
+
+## Change which jobs a search returns
+
+`wcb_job_search_args` runs for every job search: the REST list, the listing block's first paint, the archive and alert matching. Put every value that changes the result in the query args, because the REST cache key is built from them.
+
+```php
+add_filter( 'wcb_job_search_args', function ( array $args, array $params ): array {
+    // Show only remote jobs everywhere.
+    $args['meta_query'][] = array(
+        'key'   => '_wcb_remote',
+        'value' => '1',
+    );
+    return $args;
+}, 10, 2 );
+```
+
+## React to an application status change
+
+`wcb_application_status_changed` fires once per real change, from every writer (dashboard, admin, REST, WP-CLI, withdrawing, closing a job). A save that keeps the same status fires nothing.
+
+```php
+add_action( 'wcb_application_status_changed', function ( $app_id, $old, $new, $reason, $actor ) {
+    if ( 'hired' === $new ) {
+        my_crm_mark_hired( (int) get_post_meta( $app_id, '_wcb_candidate_id', true ) );
+    }
+}, 10, 5 );
+```
+
+Use `wcb_application_status_updated` to keep data in step with the status, including silent changes such as a job closing. Never send a message from it.
+
+## Add a step to the setup wizard
+
+Add an entry with a `title`, a `template` path and a `button_text`. A step template that renders inputs named after settings-schema keys, plus the shared footer, saves with no JavaScript of its own. Register the key in `wcb_settings_schema` so it has a default and a cleaning rule.
+
+```php
+add_filter( 'wcb_settings_schema', function ( array $fields ): array {
+    $fields['my_addon_flag'] = array(
+        'default'  => false,
+        'sanitize' => 'rest_sanitize_boolean',
+    );
+    return $fields;
+} );
+
+add_filter( 'wcb_wizard_steps', function ( array $steps ): array {
+    $steps['my-addon'] = array(
+        'title'       => __( 'My add-on', 'my-addon' ),
+        'template'    => MY_ADDON_DIR . 'wizard-step.php',
+        'button_text' => __( 'Save & Continue', 'my-addon' ),
+    );
+    return $steps;
+} );
+```
+
+In `wizard-step.php`, print `<input type="checkbox" name="my_addon_flag">` and then `require WCB_DIR . 'admin/views/wizard-steps/_footer.php';`.
+
+## Show extra details on the job page
+
+`wcb_job_single_after_description` fires right after the description:
+
+```php
+add_action( 'wcb_job_single_after_description', function ( int $job_id ) {
+    $note = get_post_meta( $job_id, '_my_addon_note', true );
+    if ( $note ) {
+        printf( '<p>%s</p>', esc_html( $note ) );
+    }
+} );
+```
+
+## Include your data in privacy exports and erasure
+
+Register a provider once. It is used by Tools → Export/Erase Personal Data and by account deletion.
+
+```php
+add_filter( 'wcb_personal_data_providers', function ( array $providers ): array {
+    $providers['my_addon'] = array(
+        'label'  => __( 'My add-on', 'my-addon' ),
+        'export' => function ( array $who ): array {
+            // $who: array( 'user_id' => int, 'email' => string ); user_id is 0 for a guest.
+            return array(); // WordPress export items.
+        },
+        'erase'  => function ( array $who ): array {
+            return array( 'removed' => 0, 'retained' => 0, 'messages' => array() );
+        },
+    );
+    return $providers;
+} );
+```
+
+## Replace an email's message
+
+Edit the body under **Settings → Emails**, or ship a file at `{theme}/wp-career-board/emails/{email-id}.php`. A body saved in Settings wins over a theme file, and a theme file wins over the shipped default. Add another template folder with the `wcb_email_template_dirs` filter.
 
 ## Where to find the rest
 

@@ -4,17 +4,17 @@ The CSV importer lets you bulk-import jobs from a CSV file. Imported jobs defaul
 
 > **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
 
-## CSV Import
+## CSV import
 
-### Finding the Import Screen
+### Finding the import screen
 
 Go to **Career Board -> Import** and look for the **CSV → Jobs** card (marked Pro). The card is added to the free plugin's Import page by Pro.
 
-### Download the Sample File
+### Download the sample file
 
 Click **Download Sample CSV** to get a correctly structured template with two example rows. Use it as a starting point for your data.
 
-### CSV Column Reference
+### CSV column reference
 
 #### Required
 
@@ -74,7 +74,7 @@ Separate multiple values with commas or pipes. Terms are created automatically i
 | `experience` | Experience level |
 | `tags` | Job tags |
 
-#### Geo and Board
+#### Geo and board
 
 | Column | Description |
 |--------|-------------|
@@ -82,18 +82,18 @@ Separate multiple values with commas or pipes. Terms are created automatically i
 | `lng` | Longitude (decimal) |
 | `board_id` | WordPress post ID of the target job board (Multi-Board) |
 
-#### Custom Fields
+#### Custom fields
 
 Add any field key from the **Field Builder** as a column header. The importer matches each non-standard column against the custom field keys defined in the Field Builder (the `wcb_field_definitions` table); recognized keys are stored on the imported job. Columns that do not match a known field key are ignored.
 
-### Running the Import
+### Running the import
 
 1. Select your CSV file using the file picker
 2. Click **Import**
 3. A results summary shows how many jobs were imported, skipped, and whether any warnings occurred
 4. Go to **Career Board -> Jobs** and review the Pending listings before publishing
 
-### Error Handling
+### Error handling
 
 | Condition | Result |
 |-----------|--------|

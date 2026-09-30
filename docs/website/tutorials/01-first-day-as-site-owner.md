@@ -52,7 +52,7 @@ Free-only first, since Pro adds onto the same foundation.
 If you can't see the Setup Wizard, navigate to
 **WP Admin → Career Board → Setup**.
 
-## Step 2 - Walk the Setup Wizard
+## Step 2 - Walk the setup wizard
 
 A stepper across the top shows every step. The WordPress admin menu is
 hidden while the wizard runs - click **Exit setup** in the header if you
@@ -92,14 +92,14 @@ Finish the wizard. You land on the Career Board settings screen.
 
 ## Step 3 - Test email sending
 
-Career Board sends nine transactional emails covering the application
-and job lifecycle: application confirmation (to the candidate),
-application received (to the employer/admin), application status
-changed, guest application, deadline reminder, job approved, job
-pending review, job rejected, and job expired. It does not send its own
-welcome, email-verification, or password-reset emails - those are
-handled by WordPress core. If your site can't send email, everything
-downstream breaks silently.
+Career Board sends eighteen emails covering the application and job
+lifecycle and the member account: application confirmation (candidate
+and guest), application received, status changed, not selected,
+withdrawn, deadline reminder, job approved, pending review, rejected,
+ending soon, expired, report received, confirm your email, welcome, and
+the three account deletion emails. Password-reset mail stays with
+WordPress core. If your site can't send email, everything downstream
+breaks silently.
 
 1. **Career Board → Settings → Emails.** Each template row has a
    **Send test** button that emails the current admin a preview. Click
@@ -161,8 +161,9 @@ an actual employer and test the flow.
    employer-registration page to).
 3. Register with a real email you can check (e.g. your-name+test@gmail.com).
    The account is created with the Employer role.
-4. Log in as that employer (registration uses the standard WordPress
-   account flow; Career Board does not send a separate welcome email).
+4. If **Email Verification** is on (the default on new sites), open the
+   confirmation link from the email first, then sign in as that employer.
+   With it off you are signed in straight away and get a Welcome email.
 
 ## Step 7 - Post the first test job
 

@@ -15,6 +15,20 @@ the copy, and WordPress uses yours instead.
 A child theme's copy wins over its parent theme's copy, and either wins
 over the plugin's.
 
+## Block themes
+
+A block theme does not use PHP page templates. WordPress renders the theme's own block templates, so edit the job and company pages in **Appearance → Editor → Templates**, or ship a template file with the slug WordPress looks for (for example `single-wcb_job.html`). The PHP copies described here apply to classic themes.
+
+For the archives, the plugin registers these block templates so a block theme shows the plugin's listing instead of its generic blog loop. A file with the same slug in your theme takes priority.
+
+| Template | Slug | Shows |
+|---|---|---|
+| Job Archive | `archive-wcb_job` | The job listings |
+| Company Archive | `archive-wcb_company` | The company directory |
+| Job Category, Job Type, Job Tag, Job Location, Experience Level Archive | `taxonomy-wcb_category`, `taxonomy-wcb_job_type`, `taxonomy-wcb_tag`, `taxonomy-wcb_location`, `taxonomy-wcb_experience` | The job listings for the term, titled with the term name |
+
+On classic themes the taxonomy archives use the plugin's own template and show the same term-scoped listing.
+
 ## Keep your copy up to date
 
 Each template carries a version line in its header:

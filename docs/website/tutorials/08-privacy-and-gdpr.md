@@ -69,7 +69,7 @@ template paragraph to add to yours:
 > show your profile / jobs / applications to relevant parties on
 > the board. We do not sell this data. You can request a full
 > export or deletion of your data at any time from
-> **Candidate Dashboard → Settings** (Export my data / Delete my
+> **Candidate Dashboard → Settings** (Privacy & My Data: export or delete my
 > account). When you delete your account, your past applications stay
 > with the employer without your name or contact details.
 >
@@ -102,14 +102,14 @@ explicit consent at registration or apply time, add it yourself:
 
 Always link your privacy policy from wherever you collect data.
 
-## Step 3 - Handling data export requests (Right of Access)
+## Step 3 - Handling data export requests (right of access)
 
 Career Board uses WordPress's standard privacy request flow for both
 export and erasure - it does not generate its own instant ZIP download.
 
 **Option A - User requests it from the dashboard**
 
-1. **Candidate Dashboard → Settings → Export my data → Request data
+1. **Candidate Dashboard → Settings → Privacy & My Data → Request data
    export.**
 2. This calls WordPress's `wp_create_user_request()` with the
    `export_personal_data` type, sends a confirmation email to the
@@ -131,7 +131,7 @@ export and erasure - it does not generate its own instant ZIP download.
 Career Board's exporter is paginated, so it works on large accounts
 without a single timeout-prone query.
 
-## Step 4 - Handling data deletion requests (Right to Erasure)
+## Step 4 - Handling data deletion requests (right to erasure)
 
 **For candidates:**
 
@@ -223,7 +223,7 @@ If you have Pro AI enabled, additional disclosure is needed:
    Ollama on your server. See
    [../ai-features/02-setup-and-providers.md](../ai-features/02-setup-and-providers.md).
 
-## Step 8 - Data Processing Agreement (DPA)
+## Step 8 - Data processing agreement (DPA)
 
 For GDPR compliance, your DPA needs to cover:
 

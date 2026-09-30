@@ -4,7 +4,7 @@ Common issues and how to resolve them.
 
 ---
 
-## Setup Wizard
+## Setup wizard
 
 ### The wizard says "Failed to create pages" and won't advance
 
@@ -14,7 +14,7 @@ The wizard calls the WordPress REST API to create pages. This can fail when:
 - **REST API is blocked** - a security plugin, firewall, or hosting rule is blocking `/wp-json/`. Temporarily deactivate security plugins and try again.
 - **Auth cookie not sent** - if your site uses basic HTTP auth (common on staging), the REST request won't carry your session. Disable basic auth temporarily or add an exception for `/wp-json/`.
 
-After fixing the underlying issue, go to **WP Career Board → Setup Wizard** to run the wizard again.
+After fixing the underlying issue, go to **Career Board → Settings** and click **Re-run Setup Wizard** at the bottom of the page. Pages that already exist are kept.
 
 ---
 
@@ -28,13 +28,13 @@ The pages were created but may not have the correct block assigned. Edit each pa
 | Employer Registration | **Employer Registration** |
 | Employer Dashboard | **Employer Dashboard** |
 | Candidate Dashboard | **Candidate Dashboard** |
-| Companies | **Company Archive** |
+| Find Companies | **Company Archive** |
 
 Then go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
 ---
 
-## Jobs Not Appearing
+## Jobs not appearing
 
 ### The Job Listings block shows "No jobs found"
 
@@ -45,11 +45,16 @@ Then go to **Settings → Permalinks** and click **Save Changes** to flush rewri
 
 ### Jobs appear in wp-admin but not on the frontend
 
-This is almost always a permalink flush issue. Go to **Settings → Permalinks** and click **Save Changes**.
+Check these in order:
+
+1. **Status.** Only Published jobs list. Pending, Draft, Closed and Expired jobs do not.
+2. **Deadline.** A job past its deadline is Expired within the hour and leaves the listings. Its page still opens and says it has expired.
+3. **Hidden by moderation.** The Jobs list shows **Hidden: reported** or **Hidden: employer banned** on such jobs. See [Moderation](./03-moderation.md).
+4. **Permalinks.** If the job page returns a 404, go to **Settings → Permalinks** and click **Save Changes**.
 
 ---
 
-## Application Form
+## Application form
 
 ### The "Apply" button does nothing / the application form doesn't open
 
@@ -60,12 +65,14 @@ This is almost always a permalink flush issue. Go to **Settings → Permalinks**
 ### Candidates can't submit the application form
 
 - The job may have a **deadline** that has already passed. Check the job listing's deadline field.
-- If the job requires a resume upload and the candidate has no resume, the form will block submission. Check if **Require Resume** is enabled for that job type.
+- If **Resume Required** is on (**Settings → Applications**) and the candidate attached no resume, the form blocks submission.
+- If **Require login to apply** is on (**Settings → Sign-ups**), guests see **Sign in to apply** instead of the form.
+- A member who posts jobs cannot apply, and nobody can apply to their own job.
 - Make sure file upload limits in your hosting's `php.ini` (`upload_max_filesize`, `post_max_size`) are large enough for resume files (recommend at least 5 MB).
 
 ---
 
-## Email Notifications
+## Email notifications
 
 ### Emails are not being sent
 
@@ -82,14 +89,14 @@ Admin notification emails go to the address set in **Settings → Emails → Adm
 
 ---
 
-## Employer & Candidate Accounts
+## Employer & candidate accounts
 
-### A user registered but isn't showing up as an Employer or Candidate
+### A user registered but isn't showing up as an employer or candidate
 
 The role is assigned at registration based on which form the user used:
 
 - Employers register via the **Employer Registration** page (which contains the **Employer Registration** block) and get the **Employer** (`wcb_employer`) role.
-- Candidates register via the **register** tab on the **Candidate Dashboard** page and get the **Candidate** (`wcb_candidate`) role.
+- Candidates register on the same **Employer Registration** page by choosing **Find a Job**, and get the **Candidate** (`wcb_candidate`) role.
 
 If a user registered via the standard WordPress registration page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and assign the user, or assign the relevant capabilities with a role manager (see [Capabilities & Roles](./14-capabilities-and-roles.md)).
 
@@ -101,7 +108,7 @@ If a user registered via the standard WordPress registration page, they won't ha
 
 ---
 
-## Credit System (Pro)
+## Credit system (Pro)
 
 ### Credits were purchased but not added to the employer's balance
 
@@ -119,7 +126,7 @@ The employer's browser may be showing a cached page. Ask them to refresh the Emp
 
 ---
 
-## Block Issues
+## Block issues
 
 ### The block editor shows "Your block contains unexpected or invalid content"
 
@@ -141,7 +148,7 @@ WP Career Board enqueues its CSS only on pages that contain its blocks. If you a
 
 ---
 
-## Still Stuck?
+## Still stuck?
 
 If none of the above resolves your issue:
 

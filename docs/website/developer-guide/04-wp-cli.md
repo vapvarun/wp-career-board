@@ -13,17 +13,19 @@ Operate on `wcb_job` posts.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb job list` | List jobs, with filters such as `--status=pending` |
+| `wp wcb job list [--status=<status>] [--company=<slug>] [--format=<format>]` | List jobs. `--status` is `publish`, `pending`, `draft`, `wcb_expired` or `any` (default). `--format` is `table`, `csv`, `json` or `ids` |
 | `wp wcb job approve <id>` | Approve a pending job |
-| `wp wcb job reject <id> --reason="..."` | Reject a job with a reason |
-| `wp wcb job expire [<id>]` | Run the expiry sweep manually (same as the hourly cron); pass an ID to expire one job |
-| `wp wcb job run-expiry` | Run the scheduled expiry cron callback directly |
+| `wp wcb job reject <id> [--reason="..."]` | Reject a job with an optional reason |
+| `wp wcb job expire <id>` | Expire one job now, whatever its deadline, and fire `wcb_job_expired` |
+| `wp wcb job run-expiry` | Run the expiry sweep now, the same one the hourly cron runs |
+
+`run-expiry` only does something on sites where jobs end at their deadline. On a site that kept the pre-1.8.0 "past-deadline jobs keep listing" behaviour, it prints a warning and expires nothing until you click **End jobs at their deadline** under **Settings → Jobs**.
 
 **Example - bulk reject:**
 
 ```bash
-wp post list --post_type=wcb_job --post_status=pending --field=ID \
-  | xargs -I{} wp wcb job reject {} --reason="Duplicate posting"
+wp wcb job list --status=pending --format=ids \
+  | xargs -n1 -I{} wp wcb job reject {} --reason="Duplicate posting"
 ```
 
 ## `wp wcb application`
@@ -32,17 +34,19 @@ Operate on applications.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb application list` | List applications (filter with `--candidate_id=<id>` or `--job_id=<id>`) |
-| `wp wcb application update <id> --to=<status>` | Update an application's status (fires `wcb_application_status_changed`) |
+| `wp wcb application list [--job=<id>] [--status=<status>] [--per-page=<n>] [--page=<n>] [--format=<format>]` | List applications, newest first. `--per-page` is 1-500 (default 100). `--format` is `table`, `csv`, `json`, `ids` or `count` (a count needs no paging) |
+| `wp wcb application update <id> --status=<status>` | Set an application's status: `submitted`, `reviewing`, `shortlisted`, `hired` or `rejected`. Goes through the one status writer, so the change is logged and the candidate is emailed once. Setting the same status changes nothing |
 
 ## `wp wcb migrate`
 
-Import legacy job-board content into Career Board.
+Import legacy job-board content into Career Board, and move files.
 
 | Subcommand | Purpose |
 |---|---|
-| `wp wcb migrate wpjm` | Import jobs from WP Job Manager |
-| `wp wcb migrate wpjm-resumes` | Import resumes from WP Job Manager Resume Manager (Pro features consume the imported resumes) |
+| `wp wcb migrate wpjm [--dry-run] [--limit=<n>] [--offset=<n>] [--status=<status>]` | Import jobs from WP Job Manager, with company pages. `--status` is `publish`, `pending`, `expired` or `any`. Safe to re-run |
+| `wp wcb migrate wpjm-applications [--dry-run]` | Import WP Job Manager Applications onto the imported jobs. No emails are sent. Run the jobs import first |
+| `wp wcb migrate wpjm-resumes [--dry-run] [--limit=<n>] [--offset=<n>] [--status=<status>]` | Import resumes from WP Job Manager Resume Manager (needs Pro) |
+| `wp wcb migrate files` | Move existing candidate files (resumes, generated CVs) into private storage now. The 1.8.0 upgrade does this in the background, 50 files per cron pass |
 
 ## `wp wcb scale`
 
@@ -77,7 +81,7 @@ Utility subcommands on the root `wcb` command:
 
 | Command | Purpose |
 |---|---|
-| `wp wcb status` | Print a health summary (page mappings, capabilities, cron schedule, version) |
+| `wp wcb status` | Print content counts by status for jobs, companies, applications and resumes, and user totals |
 | `wp wcb abilities` | List the registered Career Board abilities and whether a user is granted each (`--user-id=<id>`) |
 
 ## Ability gating

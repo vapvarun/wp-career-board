@@ -1,6 +1,6 @@
 # AI Troubleshooting
 
-What can go wrong with AI features in 1.4.3, in order of how often it
+What can go wrong with AI features, in order of how often it
 actually happens.
 
 If you're on Free and don't see the AI Settings tab at all - that's
@@ -86,7 +86,7 @@ is wrong.
    AND Ollama needs to bind to that interface
    (`OLLAMA_HOST=0.0.0.0:11434 systemctl restart ollama`).
 
-## AI Chat Search returns no results
+## AI chat search returns no results
 
 Several possibilities:
 
@@ -123,7 +123,7 @@ not useful. Tell candidates to type at least a phrase.
 provider error, and the block shows "Search failed. Please try again."
 Check `wp-content/debug.log` for entries around the failed search.
 
-## AI Description Writer button is missing
+## AI description writer button is missing
 
 1. **Pro inactive.** Check that Pro is active.
 2. **No provider configured.** AI Settings -> at least one provider must
@@ -133,7 +133,7 @@ Check `wp-content/debug.log` for entries around the failed search.
 4. **`wcb_ai_description_enabled` filter is returning false.** An add-on
    may be overriding it.
 
-## Description Writer returns gibberish / wrong language
+## Description writer returns gibberish / wrong language
 
 1. **Provider quality.** Ollama / llama3 is the weakest writer. Switch
    the analysis provider to OpenAI or Claude for production.

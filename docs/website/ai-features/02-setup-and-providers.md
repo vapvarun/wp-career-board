@@ -56,7 +56,7 @@ re-bill. For a large board (10x the above), expect **$15-$25 / month**.
 Set a monthly cap on your OpenAI billing dashboard - that's the surest
 way to catch a runaway loop. Ollama is free but uses your CPU / GPU.
 
-## Step 1 - choose providers
+## Step 1 - Choose providers
 
 1. Go to **WP Admin -> Career Board -> Settings -> AI Settings**.
 2. **Analysis & ranking provider** - choose **Anthropic Claude**,
@@ -66,7 +66,7 @@ way to catch a runaway loop. Ollama is free but uses your CPU / GPU.
 
 If you can't see the AI Settings tab, check that Pro is active.
 
-## Step 2 - enter keys (or base URL) and models
+## Step 2 - Enter keys (or base URL) and models
 
 Each field on the tab links out to where to get the key, and the Ollama
 field notes that it is free and self-hosted.
@@ -118,7 +118,7 @@ field notes that it is free and self-hosted.
    GPU or use a smaller quantised variant
    (`llama3:8b-instruct-q4_K_M`).
 
-## Step 3 - save
+## Step 3 - Save
 
 Click **Save AI Settings**. Configuration is stored in these options:
 

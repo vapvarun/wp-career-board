@@ -8,12 +8,12 @@ defines the gate filters (`wcb_ai_description_enabled`,
 `wcb_ai_ranking_available`, `wcb_ai_matching_available`) and the UI
 surfaces, so Pro wires the AI in without changes elsewhere.
 
-This page summarises what's in the current release (1.4.3), what's
+This page summarises what's in the current release, what's
 gated behind an AI provider being configured, and how the pieces fit
 together. If you're on Free, treat this as a feature preview: the flows
 here are what you get when you upgrade.
 
-## What ships today (1.4.3)
+## What ships today
 
 The AI feature set matured in Pro 1.3.0 and has shipped in every
 release since. All of the following are live in code:

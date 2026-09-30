@@ -8,40 +8,43 @@ cycles. For the full line-by-line history, see the changelog in
 
 ## 1.8.0
 
-A presentation and consistency pass across every page, plus fixes for the
-Post a Job form, the notification bell, custom fields and resume printing
-found while preparing it.
+A large release: a rebuilt employer and candidate experience, safer defaults for new sites, one rule for when a job ends, Google for Jobs markup, and a consistent look on every theme.
 
-* New      - A Site Health check flags a theme's own copy of a Career
-  Board template once it falls behind the plugin's, so a customization
-  does not silently go stale.
-* Improve  - One shared page container on every theme (Reign, BuddyX,
-  Twenty Twenty-Five): job, company and resume pages and the three
-  listing archives now measure the same width, instead of falling back
-  to whichever theme wrapper happened to apply.
-* Improve  - One heading scale, card style, form field size and admin
-  spacing scale across the plugin, replacing several near-duplicate
-  versions that had drifted apart.
-* Improve  - Company logos display uncropped; a long company name wraps
-  to two lines instead of stretching its card taller than its
-  neighbours.
-* Improve  - Primary button hover is always darker than the button's own
-  fill, on every theme, instead of sometimes computing lighter on a
-  light accent.
-* Improve  - The notification bell shows a relative time ("2 hours ago")
-  instead of a raw database timestamp.
-* Improve  - Emails now build dates and status names in the recipient's
-  own language, not the language of whoever triggered the email.
-* Fix      - Post a Job: the description editor's last edit is saved
-  before Next or Publish act on it, and a double-click no longer creates
-  two jobs or skips a step.
-* Fix      - Admin dashboard totals, Candidates and Employers counts no
-  longer slow down or cap out on a large site.
-* Dev      - A theme resolving to its own generic single.php no longer
-  blocks the plugin's canonical template; only a theme file matching the
-  exact page name counts as an intentional override.
-* Compat   - Aligned with WP Career Board Pro 1.8.0. Install both
-  updates together.
+* New      - Employer and candidate dashboards have a new sidebar: your name and role on top, an Overview item, grouped links, and a Post a Job button pinned at the bottom.
+* New      - The Credits tab in the employer dashboard shows the balance, purchases, receipts and history. A failed post for lack of credits offers a Buy credits button. Employers can pay to feature a job at posting time or from My Jobs, and featured jobs list first everywhere. Credits and featuring need Pro.
+* New      - With Pro, each job row in My Jobs has a Pipeline link to that job's applicants.
+* New      - Employers can rate an applicant from 1 to 5 stars and keep private team notes. Candidates never see either.
+* New      - The applications Board works with the keyboard and on touch screens. Every card has a Move to menu, so dragging is optional.
+* New      - Employers can export the selected job's applicants to CSV from the dashboard. Administrators can export everything that matches their filters.
+* New      - A candidate who is not selected gets a respectful "not selected" email instead of the generic status email. Guests who applied with an email now receive status emails too.
+* New      - Withdrawing keeps the application as Withdrawn and emails the employer. Closing a job moves undecided applicants to Position closed and emails each one.
+* New      - Jobs end at their deadline. An ended job keeps its page as an expired page with similar open jobs instead of a 404, and employers get a Job Ending Soon email 3 days before.
+* New      - Company pages and the directory count only open positions.
+* New      - Google for Jobs markup built from each job's own data, with controls under Settings > Jobs: Require a location, Default country and Social sharing tags. Each Job Location can carry its own country.
+* New      - One job search everywhere: every word of a keyword must match, title matches come first, filters accept several values, and Settings > Jobs has a Default order.
+* New      - Alert me saves the whole search, including category, location, tags, remote, salary, board and custom-field filters. Guests type an email address next to the button. Needs Pro.
+* New      - New emails: Welcome, Account deletion requested, cancelled and completed, Application not selected, Application withdrawn, Job ending soon, Report received and Confirm your email address. The email editor has a Preview button.
+* New      - Members can turn off optional emails (deadline reminders and job ending soon) from the Settings tab of their dashboard. Every email is written in the recipient's language.
+* New      - Settings > Brand: one colour and one logo for emails, the mobile app and the installable app.
+* New      - Settings > Advanced adds Keep Email History (days) and Remove Data on Delete. Deleting the plugin removes nothing unless Remove Data on Delete is on.
+* New      - Setup wizard has a stepper, an Exit setup link and steps for Pages, Sign-ups, Jobs, Emails and Spam Protection. Settings are regrouped by task in the sidebar.
+* New      - Job category, type, tag, location and experience archives list that term's jobs with the term name as the title, on block themes and classic themes.
+* New      - Site Health flags a theme's own copy of a Career Board template once it falls behind the plugin's. See Template Overrides in the Developer Guide.
+* New      - Import from WP Job Manager now brings closed and expired jobs, hourly, monthly and yearly pay, company pages, tags and (with the new Applications import) applications.
+* Improve  - New sites start with safer defaults: email confirmation on sign-up, jobs end at their deadline and a location is required. Existing sites keep their settings and see one notice.
+* Improve  - Deleting an account or erasing personal data anonymises applications ("Deleted candidate") instead of removing the employer's record. Guests are found by email.
+* Improve  - A banned employer's jobs, company and resume leave the site until unbanned. A job hides itself as Pending after 3 reports from members with standing (Settings > Jobs).
+* Improve  - Application lists, counts and the admin Applications screen stay fast with thousands of applicants. Dashboards load 50 applications at a time with a Load more button. Deleting a job with many applicants finishes in the background.
+* Improve  - One shared page container, heading scale, card, button, form field and empty-state style on Reign, BuddyX and block themes.
+* Improve  - Company logos display uncropped, a long company name wraps to two lines, and the notification bell shows relative times.
+* Fix      - Post a Job: the description editor's last edit is saved before Next or Publish, and a double-click no longer creates two jobs or skips a step.
+* Fix      - Admin dashboard totals, Candidates and Employers counts no longer slow down or cap out on a large site.
+* Security - Candidate resumes and generated CVs are stored in private storage and downloaded only by the candidate, staff and the employer they applied to.
+* Security - Job fields are validated and cleaned the same way on every path, and an employer can no longer publish a job past moderation.
+* Security - Only members allowed to see a candidate can open their profile. Sign-ups are rate limited and checked by the anti-spam gate, and changing an account email needs the current password.
+* Dev      - New hooks for custom-field details on the job page, listing filter chips, personal data providers, the settings schema, page definitions and the community notification contract. See the Hooks Reference.
+* Dev      - A theme resolving to its own generic single.php no longer blocks the plugin's canonical template; only a theme file matching the exact page name counts as an override.
+* Compat   - Aligned with WP Career Board Pro 1.8.0. Install both updates together.
 
 ## 1.7.0
 
@@ -173,11 +176,11 @@ Any logged-in member can now apply to jobs, save jobs, build a resume
 (Pro), and use the candidate dashboard without being given a separate
 Candidate role - ideal when the job board is part of a community site.
 If you want stricter separation, turn on **Require Candidate Role**
-under **Career Board -> Settings -> Job Listings** (or use the
+under **Career Board -> Settings -> Sign-ups** (or use the
 `wcb_candidate_requires_role` filter) to reserve the candidate
 experience for the Candidate role.
 
-### List / Board toggle on the employer dashboard
+### List / board toggle on the employer dashboard
 
 The Employer Dashboard Applications tab now has a **List / Board**
 toggle. The Board groups applicants into status columns - Submitted,
@@ -220,7 +223,7 @@ instead of bouncing to the home page.
 
 ## 1.3.0 - Account self-service and clearer moderation
 
-### Account Settings in the dashboard
+### Account settings in the dashboard
 
 Candidates and employers can update their display name and email and
 change their password directly in the dashboard, instead of being
@@ -228,13 +231,13 @@ sent off to wp-login.
 
 ![Candidate dashboard overview](../images/candidate-dashboard-overview.png)
 
-### Rejected jobs and Resubmit
+### Rejected jobs and resubmit
 
 Rejected job listings now show as "Rejected" (not "Draft") in the
 employer dashboard, with a **Resubmit** action. Resubmitting sends
 the job back for admin approval instead of publishing it directly.
 
-### My Jobs and applications fixes
+### My jobs and applications fixes
 
 * A newly posted job appears in My Jobs immediately, without a manual
   page reload.
@@ -254,8 +257,7 @@ delivery metrics.
 
 ## Upgrade notes
 
-* Lockstep: install Free 1.4.3 and Pro 1.4.3 together. The Pro
-  dependency check refuses to load against an older Free.
-* Versions: the `WCB_VERSION` and `WCBP_VERSION` constants both move
-  to `1.4.3`. The stable tag in `readme.txt` matches.
-* No data migration is required for the 1.4.x updates.
+* Lockstep: install Free and Pro 1.8.0 together. Pro will not load against a Free version older than 1.8.0.
+* Existing sites keep their current settings. A one-time notice under Career Board lists the safer defaults new sites start with.
+* Candidate files move to private storage in the background after the update. Nothing needs to be done.
+* No data migration is required.

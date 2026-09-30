@@ -1,11 +1,15 @@
-# Bulk Applicant CSV Export
+# Applicant CSV Export
 
-Export applications from the admin list table to a UTF-8 CSV
-spreadsheet - one row per applicant, ready to drop into Google Sheets,
-Excel, or your ATS. Export everything your filters match, or only the
-rows you tick.
+Export applications to a UTF-8 CSV spreadsheet - one row per applicant, ready for Google Sheets, Excel, or your ATS. Employers export from their dashboard. Site admins can also export from wp-admin.
 
-## Where to find it
+## Employers: export from your dashboard
+
+1. Open **Employer Dashboard → Applications** and select a job.
+2. Click **Export CSV** above the applicants.
+
+The browser downloads every applicant for that job, not just the 50 loaded on screen. Only the job's owner and site staff can export it.
+
+## Admins: export from wp-admin
 
 In `wp-admin`, navigate to **Career Board → Applications**. The list
 table ships a **Bulk actions** dropdown with an **Export to CSV**
@@ -30,7 +34,7 @@ The browser downloads `wcb-applications-YYYY-MM-DD-HHMMSS.csv`.
 
 ## Columns in the export
 
-The CSV has these columns, in this order:
+The CSV has these columns, in this order (the same for employers and admins):
 
 | Column | Source |
 |---|---|
@@ -39,10 +43,11 @@ The CSV has these columns, in this order:
 | `Job Title` | Linked `wcb_job` post title |
 | `Applicant Name` | Candidate display name, or the guest name for guest applications |
 | `Applicant Email` | Candidate user email, or the guest email |
-| `Status` | Application status as shown in admin (Submitted, Reviewing, Shortlisted, Rejected, Hired, Withdrawn, Job removed) |
+| `Status` | Application status as shown in admin (Submitted, Reviewing, Shortlisted, Rejected, Hired, Withdrawn, Closed, Job removed) |
 | `Submitted` | Application post date |
 | `Cover Letter` | The cover letter text (multi-line preserved using CSV quoted-string semantics) |
-| `Resume URL` | Direct link to the uploaded resume file, when one was attached |
+| `Resume URL` | Link to the uploaded resume file, when one was attached. The link works only for people allowed to open the file |
+| `Screening Answers` | The applicant's answers to the job's screening questions, one `Question: answer` per line |
 
 ## Encoding
 

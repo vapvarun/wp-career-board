@@ -4,7 +4,7 @@ Save any job listing to your personal list so you can come back to apply when re
 
 ![Candidate Dashboard - Saved Jobs Tab](../images/candidate-dashboard-saved-jobs.png)
 
-## Saving a Job
+## Saving a job
 
 You can bookmark a job from two places:
 
@@ -16,7 +16,7 @@ You can bookmark a job from two places:
 
 Both require you to be logged in. Any logged-in user can save jobs - a dedicated Candidate role is not required. If you are not logged in, clicking the bookmark will prompt you to register or log in.
 
-## Viewing Your Saved Jobs
+## Viewing your saved jobs
 
 1. Open the **Candidate Dashboard**
 2. Click the **Saved Jobs** tab
@@ -27,17 +27,17 @@ You will see all your bookmarked jobs listed with:
 - Date saved
 - A **Remove** button
 
-## Removing a Saved Job
+## Removing a saved job
 
 Click **Remove** on any saved job to delete it from your list. This does not affect any application you may have already submitted.
 
-## Applying from Saved Jobs
+## Applying from saved jobs
 
 Saved jobs include a direct **Apply Now** link so you can apply without going back to the main listings page.
 
 > **Tip:** Use Saved Jobs as your personal shortlist. Browse the board first, bookmark the ones that interest you, then review your list and apply to the best matches.
 
-## Saved Companies and Saved Resumes
+## Saved companies and saved resumes
 
 The dashboard groups all your bookmarks under a **MY SAVES** section in the sidebar:
 

@@ -1,12 +1,12 @@
 # Resume Builder
 
-> **Pro feature** — Requires WP Career Board Pro.
+> **Pro feature** - Requires WP Career Board Pro.
 
-The Resume Builder lets candidates create structured, multi-section resumes directly on your WordPress site — no PDF uploads, no external tools required.
+The Resume Builder lets candidates create structured, multi-section resumes directly on your WordPress site - no PDF uploads, no external tools required.
 
-![Resume Builder — Full View](../images/resume-builder-full.png)
+![Resume Builder - Full View](../images/resume-builder-full.png)
 
-## What Candidates Can Build
+## What candidates can build
 
 A resume is made up of sections. Each section holds structured entries:
 
@@ -20,7 +20,7 @@ A resume is made up of sections. Each section holds structured entries:
 | **Certifications** | Certificate name, issuing body, date |
 | **Links** | Portfolio, GitHub, LinkedIn, etc. |
 
-## Admin Setup
+## Admin setup
 
 Before candidates can use the Resume Builder, set it up in two steps:
 
@@ -29,11 +29,11 @@ Before candidates can use the Resume Builder, set it up in two steps:
 
 Once assigned, the Candidate Dashboard's **My Resumes** tab will link to this page automatically.
 
-## My Resumes Tab
+## My resumes tab
 
 Candidates access their resumes from **Candidate Dashboard → My Resumes**.
 
-![My Resumes Tab — Dashboard](../images/candidate-dashboard-resumes.png)
+![My Resumes Tab - Dashboard](../images/candidate-dashboard-resumes.png)
 
 From this tab, candidates can:
 - See all saved resumes with their last-updated date
@@ -41,13 +41,13 @@ From this tab, candidates can:
 - Click **Create New Resume** to start a new one
 - Click **Delete** to permanently remove a resume
 
-## Using the Resume Builder
+## Using the resume builder
 
 The builder is organized into collapsible sections. Click any section header to expand it.
 
-![Resume Builder — Sections](../images/resume-builder-sections.png)
+![Resume Builder - Sections](../images/resume-builder-sections.png)
 
-### Adding Entries
+### Adding entries
 
 1. Open any section (e.g., Work Experience)
 2. Click **+ Add Entry**
@@ -56,7 +56,7 @@ The builder is organized into collapsible sections. Click any section header to 
 
 The entry appears as a compact row. Click it to expand and edit again.
 
-### Entry Fields
+### Entry fields
 
 **Work Experience:** Job Title, Company, Start Date, End Date, "Currently working here" toggle, Description
 
@@ -70,21 +70,21 @@ The entry appears as a compact row. Click it to expand and edit again.
 
 **Links:** URL, Label (e.g., "Portfolio", "GitHub")
 
-### Auto-Save
+### Auto-save
 
 The Resume Builder saves each entry individually when you click **Save** on that entry. There is no global save button. A "Saved" confirmation briefly appears after each save.
 
-## Multiple Resumes
+## Multiple resumes
 
-Candidates can create more than one resume — for example, one for engineering roles and one for management roles. The dashboard lists all resumes with their last-updated date.
+Candidates can create more than one resume - for example, one for engineering roles and one for management roles. The dashboard lists all resumes with their last-updated date.
 
-## Attaching a Resume to an Application
+## Attaching a resume to an application
 
-When a candidate applies for a job, they can select one of their saved resumes to attach. The employer sees the full structured resume on the application — not a PDF attachment.
+When a candidate applies for a job, they can select one of their saved resumes to attach. The employer sees the full structured resume on the application - not a PDF attachment.
 
-## Resume Visibility
+## Resume visibility
 
-- **Private** (default) — visible only to the candidate and employers who receive applications from them
-- **Public** — visible in the Find Resumes employer archive
+- **Private** (default) - visible only to the candidate and employers who receive applications from them
+- **Public** - visible in the Find Resumes employer archive
 
 Candidates toggle visibility in the Resume Builder header.

@@ -1,7 +1,7 @@
 # Custom Fields (declarative filters)
 
-Add custom fields to any plugin form — Job Form, Company Form,
-Candidate Profile, Application Form — with one `add_filter` call.
+Add custom fields to any plugin form - Job Form, Company Form,
+Candidate Profile, Application Form - with one `add_filter` call.
 The filter takes a single field-group schema; the plugin handles
 rendering, validation, persistence, REST exposure, and admin display.
 
@@ -14,7 +14,7 @@ rendering, validation, persistence, REST exposure, and admin display.
 | `wcb_candidate_form_fields` | Candidate profile editor |
 | `wcb_application_form_fields_groups` | Apply to a job |
 
-All four use the same field-group schema — once you've learned one,
+All four use the same field-group schema - once you've learned one,
 you've learned all four.
 
 ## Schema
@@ -73,7 +73,7 @@ A field group looks like this:
 | `multi-checkbox` | Multiple checkboxes | array of option keys |
 | `date` | Date picker | YYYY-MM-DD string |
 
-## Example: Add a "Portfolio URL" field to the candidate profile
+## Example: add a "Portfolio URL" field to the candidate profile
 
 ```php
 add_filter( 'wcb_candidate_form_fields', function( $groups ) {
@@ -108,7 +108,7 @@ After this filter is in place:
 - They appear in the candidate's REST response on
   `GET /wcb/v1/candidates/{id}`.
 
-## Example: Add a screening question to the application form
+## Example: add a screening question to the application form
 
 ```php
 add_filter( 'wcb_application_form_fields_groups', function( $groups, $job_id ) {
@@ -142,7 +142,7 @@ specific jobs, branch on `$job_id` inside the callback.
 The above filter applies globally. For per-job configuration without
 writing PHP, install Pro and use the
 [Field Builder](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/field-builder/01-overview/)
-admin page — the builder writes the same data structure to the
+admin page - the builder writes the same data structure to the
 `wcb_field_groups` / `wcb_field_definitions` Pro tables and contributes
 to the same filters automatically.
 
@@ -150,12 +150,24 @@ to the same filters automatically.
 
 Custom field values appear:
 
-- **In the admin Edit Application screen** — under a "Custom fields"
+- **In the employer dashboard** - an applicant's answers show under
+  "Application answers" when the employer opens the applicant.
+- **In the admin Edit Application screen** - under a "Custom fields"
   section per group.
-- **In the bulk CSV export** — one column per field key.
-- **In the REST API** — under the `custom_fields` key of the job /
+- **In the CSV export** - the `Screening Answers` column, one
+  `Question: answer` line per answer.
+- **On the job page** - Pro prints a job's custom-field details right
+  after the description, through the `wcb_job_single_after_description`
+  action. Public fields show to everyone, "Employer only" fields to the
+  job's employer and "Admin only" fields to staff.
+- **As listing filter chips** - a custom field marked filterable adds a
+  chip to the job listings filters. Selecting a chip applies a
+  `meta_<key>` filter, described in [REST Meta Filters](./11-rest-meta-filters.md),
+  and pills read "Label: value". A `meta_<key>` value in the page
+  address is applied when the page first loads.
+- **In the REST API** - under the `custom_fields` key of the job /
   company / candidate / application response.
-- **In templates** — via the `Icon::svg()` style helpers and direct
+- **In templates** - via the `Icon::svg()` style helpers and direct
   postmeta reads (`get_post_meta($id, '_wcb_application_field_<key>', true)`).
 
 ## Persistence keys

@@ -1,29 +1,29 @@
 # Custom Field Builder
 
-> **Pro feature** — Requires WP Career Board Pro.
+> **Pro feature** - Requires WP Career Board Pro.
 
-The Field Builder lets you add custom fields to job listings, company profiles, and candidate profiles — no code required. Fields appear automatically in the relevant forms and public pages.
+The Field Builder lets you add custom fields to job listings, company profiles, and candidate profiles - no code required. Fields appear automatically in the relevant forms and public pages.
 
-![Field Builder — Admin Interface](../images/field-builder-admin.png)
+![Field Builder - Admin Interface](../images/field-builder-admin.png)
 
-## What You Can Add
+## What you can add
 
-- Fields to **job listings** — e.g., Remote Policy, Visa Sponsorship, Tech Stack
-- Fields to **company profiles** — e.g., Funding Stage, Team Size, Benefits
-- Fields to **candidate profiles** — e.g., Notice Period, Preferred Work Style, Portfolio URL
+- Fields to **job listings** - e.g., Remote Policy, Visa Sponsorship, Tech Stack
+- Fields to **company profiles** - e.g., Funding Stage, Team Size, Benefits
+- Fields to **candidate profiles** - e.g., Notice Period, Preferred Work Style, Portfolio URL
 
 ## Accessing the Field Builder
 
 Go to **Career Board → Settings → Field Builder** in wp-admin.
 
 You will see three tabs:
-- **Job Fields** — fields added to job listings
-- **Company Fields** — fields added to company profiles
-- **Candidate Fields** — fields added to candidate profiles
+- **Job Fields** - fields added to job listings
+- **Company Fields** - fields added to company profiles
+- **Candidate Fields** - fields added to candidate profiles
 
-## Creating a Field Group
+## Creating a field group
 
-Fields are organized into groups — collapsible sections with a label (e.g., "Compensation Details").
+Fields are organized into groups - collapsible sections with a label (e.g., "Compensation Details").
 
 1. Click **Add Group**
 2. Enter a group label
@@ -31,7 +31,7 @@ Fields are organized into groups — collapsible sections with a label (e.g., "C
 
 You can create multiple groups to organize related fields.
 
-## Adding a Field
+## Adding a field
 
 1. Expand the group where you want to add the field
 2. Click **+ Add Field**
@@ -50,37 +50,37 @@ You can create multiple groups to organize related fields.
 
 ![Adding a Custom Field](../images/field-builder-add-field.png)
 
-## Field Types
+## Field types
 
 | Type | Use for |
 |---|---|
-| **Text** | Short values — tech stack, notice period, LinkedIn URL |
-| **Textarea** | Longer text — benefits overview, culture note |
+| **Text** | Short values - tech stack, notice period, LinkedIn URL |
+| **Textarea** | Longer text - benefits overview, culture note |
 | **Number** | Salary, team size, years of experience |
-| **Select** | Single-choice dropdown — Remote Policy, Visa Sponsorship |
-| **Checkbox Group** | Multiple choices — Benefits, required skills |
-| **Toggle** | Single on/off — "Visa sponsorship available?" |
+| **Select** | Single-choice dropdown - Remote Policy, Visa Sponsorship |
+| **Checkbox Group** | Multiple choices - Benefits, required skills |
+| **Toggle** | Single on/off - "Visa sponsorship available?" |
 | **Date** | Application deadline, estimated start date |
 | **URL** | Portfolio, GitHub, external job link |
 | **File Upload** | Attach a PDF, document, or image |
 
-## Visibility Rules
+## Visibility rules
 
 Each field can be set to:
-- **Public** — visible to all visitors including guests
-- **Logged in only** — visible to registered users only
-- **Employer only** — visible only to employers (e.g., on the job form)
-- **Candidate only** — visible only to candidates
+- **Public** - visible to all visitors including guests
+- **Logged in only** - visible to registered users only
+- **Employer only** - visible only to employers (e.g., on the job form)
+- **Candidate only** - visible only to candidates
 
 ## Reordering
 
 Drag and drop fields within a group to reorder them. Drag and drop groups to change their order. Changes save automatically.
 
-## Deleting a Field
+## Deleting a field
 
 Click **Delete** on any field. This permanently removes the field **and all stored values** across all posts. This cannot be undone.
 
-## Where Fields Appear
+## Where fields appear
 
 | Field Type | Appears in | Displayed on |
 |---|---|---|

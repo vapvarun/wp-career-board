@@ -4,11 +4,11 @@ The **My Applications** tab in the Candidate Dashboard shows every job you have 
 
 ![Candidate Dashboard - My Applications Tab](../images/candidate-dashboard-applications.png)
 
-## Accessing My Applications
+## Accessing my applications
 
 1. Go to the **Candidate Dashboard** page
 2. The **My Applications** tab is active by default
-3. You will see all your applications listed newest first
+3. You will see your applications listed newest first, 50 at a time. Click **Load more applications** for older ones. The counts on the Overview cover all of them
 
 ## Table format
 
@@ -24,7 +24,7 @@ The My Applications list renders as a semantic table with column headers, so the
 
 On narrow viewports (under 480px container width) the table collapses to a card layout - each row's cells stack vertically with their column label in-place, so phones get the same data without a horizontal scrollbar.
 
-## What You See per Application
+## What you see per application
 
 Each row shows:
 
@@ -33,7 +33,7 @@ Each row shows:
 - **Current status** - updated by the employer
 - A link to view the original job listing
 
-## Application Statuses
+## Application statuses
 
 | Status | What It Means |
 |---|---|
@@ -44,11 +44,11 @@ Each row shows:
 | **Hired** | Congratulations - you got the job |
 | **Withdrawn** | You withdrew this application; it is no longer active |
 | **Position closed** | The employer closed the job before deciding (for example the role was filled). You got an email when it happened |
-| **Job Removed** | The job posting was taken down. Your application is preserved in your history, but no further action is expected. |
+| **Job removed** | The job posting was taken down. Your application is preserved in your history, but no further action is expected. |
 
 > **Status updates:** You will receive an email notification whenever your application status changes.
 
-## Withdrawing an Application
+## Withdrawing an application
 
 To withdraw from a role you are no longer interested in:
 
@@ -58,9 +58,9 @@ To withdraw from a role you are no longer interested in:
 
 Withdrawing keeps the application in your list marked **Withdrawn**, and the employer gets an email so they stop reviewing it. You can withdraw until the employer hires or declines you. After withdrawing you can apply to the same job again.
 
-> The Withdraw button only appears when the site allows it. Site owners can disable withdrawals under **Career Board → Settings → Listings → Allow Withdraw** (on by default).
+> The Withdraw button only appears when the site allows it. Site owners can disable withdrawals under **Career Board → Settings → Applications → Allow Withdraw** (on by default).
 
-## Overview Panel
+## Overview panel
 
 The **Overview** tab at the top of the dashboard shows a summary of your recent activity:
 

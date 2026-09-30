@@ -12,7 +12,7 @@ https://yoursite.com/wcb-jobs.xml
 
 The feed is disabled by default. Enable it in **Career Board -> Settings -> Job Feed**.
 
-## Feed Format
+## Feed format
 
 The feed uses the Indeed XML format, which is also accepted by Glassdoor, LinkedIn, and most other major job aggregators. The document opens with a `<source>` element carrying `<publisher>` (your site name) and `<publisherurl>` (your site URL), followed by one `<job>` entry per listing.
 
@@ -37,17 +37,17 @@ The salary uses the job's own currency symbol from the plugin currency catalog (
 
 ## Setup
 
-### Step 1: Enable the Feed
+### Step 1: enable the feed
 
 1. Go to **Career Board -> Settings -> Job Feed**
 2. Toggle **Enable Feed** on
 3. The feed URL appears immediately below the toggle
 
-### Step 2: Set the Contact Email
+### Step 2: set the contact email
 
 Enter the email address to include in the `<email>` field of every job entry. This is the address aggregators and candidates use to contact you about listings. It defaults to the WordPress admin email.
 
-### Step 3: Submit to Indeed
+### Step 3: submit to Indeed
 
 1. Log in to the [Indeed Employer Portal](https://employers.indeed.com)
 2. Go to **Integrations -> Job Feed**
@@ -68,6 +68,6 @@ https://yoursite.com/wcb-jobs.xml?start=400  <- jobs 401-600
 
 Each feed page is cached for one hour using WordPress transients. The cache key includes a version number stored in the `wcbp_feed_version` option, and that version is bumped every time a job is saved. The next request after a save therefore reads a fresh feed (its key no longer matches the old cached copy), and stale per-page caches expire naturally within the hour. The feed also sends a `Cache-Control: public, max-age=3600` header for CDN edge caching.
 
-## Disabling the Feed
+## Disabling the feed
 
 Toggle **Enable Feed** off. The URL returns a 404 response instead of XML. Aggregators that poll the URL will stop receiving new listings.

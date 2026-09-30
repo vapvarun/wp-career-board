@@ -86,8 +86,10 @@ The plugin's registration flow creates accounts with these roles:
   user with the **Employer** (`wcb_employer`) role, which already
   carries `wcb_post_jobs`, `wcb_manage_company`,
   `wcb_view_applications`, and `wcb_access_employer_dashboard`.
-- **Candidate registration** - the Candidate Dashboard register tab
-  creates a user with the **Candidate** (`wcb_candidate`) role.
+- **Candidate registration** - the same Employer Registration page,
+  when the visitor chooses **Find a Job**, creates a user with the
+  **Candidate** (`wcb_candidate`) role. Signing up while already logged
+  in adds the member role and keeps any role you already have.
 
 By default any logged-in member can apply to jobs and manage a resume
 even without the Candidate role - jobs and resumes are commonly a
@@ -112,12 +114,13 @@ Effects:
 
 - They lose every WCB ability - cannot post jobs, apply, manage a
   resume, or reach the dashboards.
-- Existing published jobs stay live. If you want them down, change the
-  job's status to pending or draft separately.
+- Their live and pending jobs, their company page and their resume leave
+  the site until you unban them. Nobody is emailed and no credits are
+  charged. See [Moderation](./03-moderation.md#banning-employers).
 - They can still log in (they keep `read`).
 
 To unban, use the **Unban** row or bulk action on the same screen,
-which deletes the meta flag.
+which deletes the meta flag and puts back exactly what was hidden.
 
 ## How the plugin actually checks permissions
 

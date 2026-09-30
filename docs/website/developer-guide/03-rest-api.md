@@ -1,6 +1,6 @@
 # REST API Reference
 
-WP Career Board registers **46 REST routes** under the `wcb/v1`
+WP Career Board registers **56 REST routes** under the `wcb/v1`
 namespace. Every endpoint extends `WCB\Api\RestController`, which
 owns the shared response envelope and the abilities-aware
 permission helper.
@@ -31,9 +31,10 @@ ability. Guest endpoints use the `__return_true` permission_callback
 
 Abuse prevention on submission endpoints comes from the anti-spam
 module (an always-on honeypot field plus an optional CAPTCHA
-provider - Google reCAPTCHA v3 or Cloudflare Turnstile), which
+provider - Cloudflare Turnstile, Google reCAPTCHA v3 or v2), which
 hooks `rest_pre_dispatch` and rejects spammy requests before they
-reach the handler. There is no per-IP request-rate limiter.
+reach the handler. Some public routes also have hourly per-IP limits -
+see [Abuse prevention](#abuse-prevention).
 
 ## Response envelope
 
@@ -60,21 +61,26 @@ All routes below are relative to `/wp-json/wcb/v1`.
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/jobs` | guest OK | List jobs with filters: `s`, `category`, `location`, `type`, `experience`, `remote`, `salary_min`, `salary_max`, `board_id`, `per_page`, `page` |
+| `GET` | `/jobs` | guest OK | List jobs with filters: `search` (alias `s`), `category`, `location`, `type`, `experience`, `tag` (each takes one slug or a comma list, any of), `remote`, `salary_min`, `salary_max`, `board` (alias `board_id`), `company`, `author`, `open` (only jobs taking applications), `sort` (`relevance`, `newest`, `oldest`, `salary`, `closing`), `per_page` (1-100; unset uses **Jobs Per Page**), `page` |
 | `GET` | `/jobs/{id}` | guest OK | Single job (full detail) |
-| `POST` | `/jobs` | employer | Create a job |
-| `PUT` | `/jobs/{id}` | author or admin | Update a job |
+| `POST` | `/jobs` | employer | Create a job. Send `featured: true` to ask for featured placement: the job is still created if that charge fails, and the response carries `feature_error`. A 402 `wcb_insufficient_credits` carries `cost`, `balance` and `purchase_url` |
+| `PUT` `PATCH` | `/jobs/{id}` | author or admin | Update a job. Moderators can set `featured` here |
 | `DELETE` | `/jobs/{id}` | author or admin | Delete a job |
 | `POST` | `/jobs/{id}/approve` | moderator | Approve a pending job |
 | `POST` | `/jobs/{id}/reject` | moderator | Reject a pending job (requires `reason`) |
 | `POST` | `/jobs/{id}/bookmark` | logged-in | Toggle a saved/bookmarked job |
+| `POST` | `/jobs/{id}/feature` | job owner | Pay to feature a job. Added by WP Career Board Pro, not listed in the Free route count |
 | `POST` | `/jobs/{id}/report` | logged-in | Report a job for moderation (deduped per user) |
 | `POST` | `/jobs/{id}/resolve-flag` | moderator | Dismiss or unpublish a flagged job |
 | `GET` | `/jobs/{id}/applications` | author or admin | List applications for a job. `page`, `per_page` (max 100), optional `status`. Returns `counts` (`total`, `by_status`) for the whole job, not just the page. |
+| `GET` | `/jobs/{id}/applications/export` | job owner or `wcb/manage-settings` | Stream the job's applicants as a CSV file. Send the REST nonce as `_wpnonce` when calling from a link. |
 
-Republishing an expired job is available via WP-CLI
-(`wp wcb job ...`) and the admin Jobs screen, not as a dedicated
-REST route.
+Reopening or republishing an expired or closed job is a status
+update, not a dedicated route: `PATCH /jobs/{id}` with
+`{ "status": "publish" }`, which is what the employer dashboard's
+**Reopen** button sends. It gives the job a fresh deadline, charges
+a paid board through the `wcb_job_payment` filter, and fires
+`wcb_job_republished`.
 
 Since 1.7.0, every job card returned by `GET /jobs` and
 `GET /jobs/{id}` carries viewer-relative fields for a logged-in
@@ -96,7 +102,11 @@ requesters. A guest or a request with no matching user gets
 | `DELETE` | `/applications/{id}` | candidate owner | Withdraw: keeps the application as `withdrawn` (409 once it has an outcome). A row whose job is gone is deleted instead. |
 | `PUT` | `/applications/{id}/status` | employer/admin | Change status (submitted/reviewing/shortlisted/rejected/hired). Returns `changed` (false for a same-status save, nothing is sent) and `notified`; 409 on a withdrawn or job-removed application. |
 | `GET` | `/candidates/{id}/applications` | self or admin | Candidate's application history, paginated, with `counts` for all of them. |
-| `POST` | `/candidates/resume-upload` | candidate | Upload a resume PDF |
+| `PUT` | `/applications/{id}/rating` | job owner or staff | Set a 1-5 rating (0 clears it). Never shown to candidates. |
+| `GET` `POST` | `/applications/{id}/notes` | job owner or staff | List or add private hiring notes |
+| `DELETE` | `/applications/{id}/notes/{note}` | note author, or staff | Delete a note |
+| `GET` | `/files/{id}` | file owner, staff, or either side of an application | Download a private resume file. The website uses `?wcb_file=<id>`; the app uses this route |
+| `POST` | `/candidates/resume-upload` | candidate | Upload a resume file |
 
 ### Candidates
 
@@ -110,12 +120,20 @@ requesters. A guest or a request with no matching user gets
 | `GET` | `/candidates/{id}/saved-resumes` | self or admin | List saved resumes (read-only) |
 | `POST` | `/candidates/me/privacy/{action}` | self | GDPR self-service: `export` or `erase` personal data |
 
+### Account sign-in and verification
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `POST` | `/auth/app-password` | guest | Trade a website login for a WordPress Application Password. Off unless **App Password Sign-In** is on; requires HTTPS. |
+| `DELETE` | `/auth/app-password` | credential holder | Revoke the credential making the request (app sign-out) |
+| `POST` | `/auth/verify-email/resend` | guest | Send a new confirmation link to an unconfirmed account (5 an hour per IP) |
+
 ### Account
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/account` | logged-in | Read the current user's Career Board account profile |
-| `PUT` | `/account` | logged-in | Update the current user's account profile |
+| `GET` | `/account` | logged-in | Read `display_name`, `email` and `email_optout` (the optional emails the member turned off) |
+| `PUT` | `/account` | logged-in | Update `display_name`, `email`, `new_password` and `email_optout`. Changing the email or the password needs `current_password` |
 
 ### Account deletion
 
@@ -141,7 +159,7 @@ is not a one-way door.
 Administrator accounts (`manage_options`) cannot be deleted through
 this route.
 
-### Member safety - report and block
+### Member safety - Report and block
 
 Member-to-member report/block surface for user-generated-content app
 review (Apple 1.2). Added in 1.7.0 - `MembersEndpoint`. Reports
@@ -174,6 +192,7 @@ reference.
 | `GET` | `/employers/{id}/applications` | self or admin | Applications across the employer's jobs |
 | `POST` | `/employers/{id}/logo` | self or admin | Upload the company logo |
 | `GET` | `/employers/me/jobs` | employer | The current employer's own jobs |
+| `GET` | `/employers/me/applications` | employer | Applications across the current employer's jobs |
 | `GET` | `/companies` | guest OK | List companies with filters (single company is read from this collection) |
 | `POST` | `/companies/{id}/bookmark` | logged-in | Toggle a saved company |
 | `POST` | `/companies/{id}/trust` | admin (`wcb/manage-settings`) | Cast a trust signal on a company |
@@ -213,7 +232,8 @@ renamed or retyped.
 |---|---|---|---|
 | `GET` | `/admin/emails/log` | admin | Paginated transactional-email send log |
 | `POST` | `/admin/emails/test` | admin | Fire a test send for a named email template |
-| `POST` | `/admin/dismiss-banner` | logged-in | Mark an admin banner dismissed for the current user |
+| `POST` | `/admin/dismiss-banner` | admin | Mark an admin banner dismissed for the current user |
+| `GET` `POST` | `/admin/industries` | admin | Read or save the industries list (Settings → Industries) |
 
 ### Import and setup wizard
 
@@ -222,6 +242,7 @@ renamed or retyped.
 | `GET` | `/import/status` | admin | Poll a running import's progress |
 | `POST` | `/import/run` | admin | Start or step a content import |
 | `POST` | `/wizard/create-pages` | admin | Create the required Career Board pages |
+| `POST` | `/wizard/settings` | admin | Save any settings-schema key (and WordPress's `users_can_register`) through the same cleaning rules as the Settings screen |
 | `POST` | `/wizard/sample-data` | admin | Install demo content |
 | `POST` | `/wizard/remove-sample-data` | admin | Remove the demo content |
 | `POST` | `/wizard/complete` | admin | Mark the setup wizard finished |
@@ -289,13 +310,20 @@ in Pro's INVARIANTS.yaml).
 
 ## Abuse prevention
 
-There is no per-IP request-rate limiter. Submission endpoints are
-protected by the anti-spam module instead: an always-on honeypot
-field plus an optional CAPTCHA provider (Google reCAPTCHA v3 or
-Cloudflare Turnstile), configured under Settings -> Anti-Spam. The
-module validates on the `rest_pre_dispatch` filter and rejects
-spammy submissions before the route handler runs.
+Submission endpoints are protected by the anti-spam module: an always-on honeypot field plus an optional CAPTCHA provider (Cloudflare Turnstile, Google reCAPTCHA v3 or v2), configured under Settings → Anti-Spam. The module validates on the `rest_pre_dispatch` filter and rejects spammy submissions before the route handler runs.
 
+Public routes that cost something also have hourly per-IP limits, answered with `429 wcb_rate_limited`:
+
+| Route | Limit per hour | Change with |
+|---|---|---|
+| `POST /candidates/register`, `POST /employers/register` | 5 | `wcb_registration_rate_limit` (0 turns it off) |
+| `POST /jobs/{id}/apply` as a guest | 10 | - |
+| `POST /auth/verify-email/resend` | 5 | - |
+| `POST /auth/app-password` | 20 attempts, 5 failures per bucket | `wcb_app_password_max_attempts_per_ip`, `wcb_app_password_max_failures` |
+
+The limits use `REMOTE_ADDR`. Behind a proxy or CDN that is the proxy's address, so every visitor shares one bucket unless the proxy restores the real address before PHP runs. The app-password limiter can read a named header through `wcb_app_password_client_ip_header`.
+
+Both sign-up routes also run `wcb_pre_registration` and core's `registration_errors` filter before an account is created.
 
 ## Job lifecycle fields
 

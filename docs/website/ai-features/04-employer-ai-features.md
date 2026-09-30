@@ -5,11 +5,11 @@
 > review. The AI-assisted shortcuts below appear when the site has Pro
 > active and the relevant provider configured.
 
-This page covers what employers can do with AI in 1.4.3: the **Job
+This page covers what employers can do with AI: the **Job
 Description Writer** during posting, and **AI applicant ranking** with
 fit scores, reasons, and TL;DR summaries on the Employer Dashboard.
 
-## AI Job Description Writer
+## AI job description writer
 
 A button on the post-a-job form that turns a few form fields into a job
 description draft. Employers always review and edit the output before
@@ -97,7 +97,7 @@ Under the hood the dashboard calls
 `GET /wcb/v1/ai/ranked-applications/{job_id}`, which returns each
 application's `{application_id, score, reason, summary}` sorted by score.
 
-### Caching - you are not re-billed
+### Caching - You are not re-billed
 
 Fit score, reason, and summary are cached per application in post meta
 (`_wcbp_ai_fit_score`, `_wcbp_ai_fit_reason`, `_wcbp_ai_summary`,
@@ -157,7 +157,7 @@ Ollama** to keep everything on your server.
 
 ## What employers get without Pro
 
-| Capability | Free | Pro 1.4.3 |
+| Capability | Free | Pro |
 |---|---|---|
 | Post a job | Yes | Yes |
 | Manual job description editor | Yes | Yes |

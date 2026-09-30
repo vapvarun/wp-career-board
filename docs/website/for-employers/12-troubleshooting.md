@@ -38,7 +38,7 @@ Posting alone doesn't bring traffic. Check:
 ## "I keep getting 'Insufficient credits' when I try to post"
 
 The site charges credits per posting. Your balance is on the
-Employer Dashboard → Credits panel.
+Employer Dashboard → Credits tab.
 
 - **You need to buy more.** Click "Buy Credits" and complete the
   checkout. Once the order completes, your balance updates and
@@ -88,9 +88,11 @@ You set an external Apply URL but it isn't showing? Two things:
 
 ## "Candidates report the apply form is broken"
 
-- **They might not be logged in.** If your site requires login to
-  apply, the Apply button shows but the form short-circuits. Tell
-  candidates to register or log in first.
+- **They might not be logged in.** If your site has **Require login
+  to apply** turned on, the job page shows **Sign in to apply**
+  instead of the form. Tell candidates to register or log in first.
+- **They might be an employer.** A member who posts jobs cannot
+  apply to jobs, and nobody can apply to their own job.
 - **The site might have anti-spam (Turnstile/reCAPTCHA) enabled.**
   Adblockers or strict browser settings can block the captcha
   script. If a candidate reports this, ask them to try in a
@@ -109,7 +111,7 @@ You set an external Apply URL but it isn't showing? Two things:
   Maps API key, AI needs an OpenAI/Anthropic key, alerts need
   cron working. Site admin handles all this.
 
-## I'm stuck - what should I send my site admin?
+## I'm stuck - What should I send my site admin?
 
 Send them:
 

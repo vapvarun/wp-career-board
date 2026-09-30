@@ -208,7 +208,7 @@ Most real boards run a hybrid. Examples:
   doesn't ship this out of the box - you'd need a tiny custom plugin
   that grants 1 credit on first registration.
 
-## Pricing - what to actually charge
+## Pricing - What to actually charge
 
 There's no universal right number, but anchors:
 

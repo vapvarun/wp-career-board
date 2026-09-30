@@ -4,7 +4,7 @@ The Analytics module gives you a snapshot of your job board's activity -- jobs, 
 
 > **Pro feature** - Requires the WP Career Board Pro plugin to be installed and active. Every Pro feature works as soon as the plugin is active; the license key only powers automatic updates, it never gates functionality.
 
-## What Is Tracked
+## What is tracked
 
 | Metric | Description |
 |--------|-------------|
@@ -20,11 +20,11 @@ The Analytics module gives you a snapshot of your job board's activity -- jobs, 
 
 Job view tracking is provided by WP Career Board (free). All other metrics are computed directly from WordPress post counts, user roles, and the credit ledger table.
 
-## Where to Find Analytics
+## Where to find analytics
 
 Go to **Career Board -> Analytics** in your WordPress admin.
 
-## CSV Export
+## CSV export
 
 You can export the full credit ledger as a CSV file for accounting or auditing purposes. The export is served by a REST endpoint (`GET /wp-json/wcb/v1/analytics/credits.csv`) gated on the credit-management ability.
 
@@ -32,7 +32,7 @@ You can export the full credit ledger as a CSV file for accounting or auditing p
 2. Click the credit ledger export control
 3. A file named `wcb-credits-YYYY-MM-DD.csv` downloads immediately
 
-### CSV Columns
+### CSV columns
 
 | Column | Description |
 |--------|-------------|

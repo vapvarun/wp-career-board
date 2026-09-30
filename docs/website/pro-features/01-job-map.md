@@ -4,7 +4,7 @@
 
 The Job Map block displays an interactive map of job locations alongside your listings. As candidates filter jobs, the map updates in real time - no page reload.
 
-## How It Works
+## How it works
 
 The Job Map shares the same search state as the Job Listings and Job Filters blocks. When a visitor searches by keyword, filters by category, or selects a job type, the map instantly updates to show only matching pins.
 
@@ -17,7 +17,7 @@ Clicking a pin on the map opens a small popup with the job title and a "View Job
 
 A job's coordinates are stored in the `_wcb_lat` and `_wcb_lng` post meta. You can also set these directly when importing jobs from CSV (the `lat` and `lng` columns).
 
-## Map Providers
+## Map providers
 
 The Job Map supports three providers. The default is **Leaflet** with OpenStreetMap tiles, which works out of the box with no API key.
 
@@ -27,7 +27,7 @@ The Job Map supports three providers. The default is **Leaflet** with OpenStreet
 | **Google Maps** | Yes (API key) | Set the key under Map Settings. Get one at console.cloud.google.com. |
 | **Mapbox** | Yes (access token) | Set the token under Map Settings. Get one at account.mapbox.com. |
 
-### Choosing a Provider
+### Choosing a provider
 
 1. Go to **Career Board -> Settings -> Integrations**
 2. Find the **Map Settings** card
@@ -52,7 +52,7 @@ This provider applies site-wide, including for every board's Job Map - there is 
 
 This gives candidates both a spatial view and a list view simultaneously.
 
-## Block Settings
+## Block settings
 
 | Setting | Default | Description |
 |---|---|---|

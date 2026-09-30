@@ -2,7 +2,7 @@
 
 WP Career Board includes built-in support for the **Reign** theme by Wbcom Designs. When Reign is active, the job board uses Reign-tuned page templates, adds its links to Reign's navigation, and inherits Reign's accent color.
 
-## What You Get
+## What you get
 
 - A Reign-compatible single job template for `wcb_job` posts
 - A Reign-compatible archive template for the jobs post-type archive
@@ -13,7 +13,7 @@ WP Career Board includes built-in support for the **Reign** theme by Wbcom Desig
 ## Requirements
 
 - Reign theme active (template slug `reign-theme`)
-- WP Career Board 1.4.3
+- WP Career Board (this plugin) active
 
 The integration is selected by the active theme's template slug and boots automatically on `after_setup_theme`.
 
@@ -21,7 +21,7 @@ The integration is selected by the active theme's template slug and boots automa
 
 Activate Reign and WP Career Board. No additional settings are required; the integration activates automatically when Reign is the active theme.
 
-## Accent Color Bridge
+## Accent color bridge
 
 WP Career Board reads Reign's accent color from the Customizer and injects it as the plugin's `--wcb-primary` color so buttons, links, and highlights match the theme. Reign stores the accent color per color scheme (the active scheme plus `reign_accent_color`), with a fallback to the legacy single-key setting; the integration reads whichever is set. The color is only injected when a WP Career Board stylesheet is actually on the page.
 
@@ -31,7 +31,7 @@ Developers can override or disable the resolved color with the `wcb_theme_primar
 add_filter( 'wcb_theme_primary_color', '__return_empty_string' );
 ```
 
-## Reign Navigation Links
+## Reign navigation links
 
 The integration appends WP Career Board links to Reign's navigation through the `reign_nav_items` filter:
 
@@ -41,7 +41,7 @@ The integration appends WP Career Board links to Reign's navigation through the 
 
 The Employer Dashboard and My Applications links are gated by the WP Career Board abilities `wcb/post-jobs` and `wcb/apply-jobs`, so each member sees only the links relevant to their role.
 
-## Compatibility Stylesheet
+## Compatibility stylesheet
 
 WP Career Board enqueues `reign-compat.css` (after Reign's main stylesheet) on:
 
@@ -52,10 +52,14 @@ WP Career Board enqueues `reign-compat.css` (after Reign's main stylesheet) on:
 
 The stylesheet is token-driven and follows Reign's dark mode, so WP Career Board components re-color cleanly when Reign's dark mode is active.
 
-## Reign Add-Ons Compatibility
+## Reign add-ons compatibility
 
-WP Career Board works alongside Reign's add-ons (such as the BuddyPress and LearnDash add-ons). Running those add-ons does not affect the job board. If you run the BuddyPress add-on, WP Career Board's own BuddyPress integration also applies; see [BuddyPress Integration](./buddypress.md).
+WP Career Board works alongside Reign's add-ons (such as the BuddyPress and LearnDash add-ons). Running those add-ons does not affect the job board. If you run the BuddyPress add-on, WP Career Board's own BuddyPress integration also applies; see [BuddyPress Integration](./03-buddypress.md).
 
 ## Custom CSS
 
 Add overrides to your Reign child theme or via **Appearance > Customize > Additional CSS**. All WP Career Board styles use the `.wcb-*` prefix and `--wcb-*` CSS variables, so re-mapping a single variable restyles every block.
+
+## Page width
+
+Job, company and resume pages and the job, company and resume archives share one container width on every theme, so they line up with the rest of your Reign pages. A theme's generic `single.php` or `archive.php` no longer overrides it; only a theme file with the exact page name (for example `single-wcb_job.php`) counts as your own template. To force a specific width, set **Content Width (px)** under **Career Board → Settings → Advanced**. Leave it at 0 to follow the theme.

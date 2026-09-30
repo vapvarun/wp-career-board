@@ -9,12 +9,12 @@ to go next when each is done.
 ## 1 - Finish the setup wizard
 
 If you skipped the wizard during activation, re-run it from
-**Career Board → Settings** using the **Run Setup Wizard** button in
-the page header. The wizard:
+**Career Board → Settings** using the **Re-run Setup Wizard** link at
+the bottom of the page. The wizard:
 
 - Creates the six required pages (Find Jobs, Post a Job, Employer
   Registration, Employer Dashboard, Candidate Dashboard, and
-  Companies).
+  Find Companies). A page you already have is kept.
 - Optionally installs sample data (3 companies, 8 jobs, and all
   taxonomy terms) so you can see real-looking content before you
   start typing your own.
@@ -29,7 +29,7 @@ Open **Appearance → Menus** and add at least:
 - **For Jobs** → `/find-jobs/`
 - **For Employers** → `/post-a-job/` or `/employer-dashboard/`
 - **For Candidates** → `/candidate-dashboard/`
-- **Companies** → `/companies/`
+- **Companies** → `/find-companies/`
 
 A career-board site that doesn't surface these on the main navigation
 silently loses both candidates and employers - they can't find the
@@ -97,7 +97,7 @@ What comes next depends on what you're building:
 | An internal team hiring board | [admin-guide/01-settings.md](../admin-guide/01-settings.md) - auto-publish + role config |
 | A site with existing classic-editor pages | [for-employers/11-page-builder-embeds.md](../for-employers/11-page-builder-embeds.md) - shortcodes |
 
-## Troubleshooting Day-1 issues
+## Troubleshooting day-1 issues
 
 - **Pages 404 after wizard** - flush rewrite rules: **Settings →
   Permalinks → Save** (no changes, just save).

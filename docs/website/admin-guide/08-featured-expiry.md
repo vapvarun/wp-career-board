@@ -14,6 +14,12 @@ A daily cron event (`wcb_expire_featured_jobs`) runs every 24 hours,
 finds jobs whose featured-expiry timestamp is in the past, and
 clears the `_wcb_featured` flag on each. The job stays published - only its Featured boost ends.
 
+## Featured jobs list first
+
+Every job list puts featured jobs first, then the rest in the site's order, including the first page and every "Load more" page. A keyword search puts featured jobs first too.
+
+Employers can pay to feature a job when Pro prices it: a checkbox on the last step of the job form and a **Feature** button in My Jobs. The job is still posted when the featuring charge cannot be paid, and the employer is told why. Moderators can set Featured directly on a job. When the daily sweep ends a featured period, the `wcb_job_featured_expired` action fires with the job ID (Pro uses it to email the employer).
+
 ## Configuration
 
 Navigate to **Career Board → Settings → Jobs**, find the

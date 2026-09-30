@@ -1,54 +1,22 @@
 # Salary Range Filter
 
-The Find Jobs page (`/jobs/`) now ships a salary range slider so
-candidates can narrow listings to roles paying within a specific
-range - instead of scanning every salary line manually.
+The Find Jobs page (`/find-jobs/`) has a salary filter so candidates can narrow listings to roles that pay within a range.
 
 ## Where it lives
 
-On the Find Jobs page, in the filter panel below the search bar.
-The slider appears alongside the existing filters (location, job
-type, experience, category).
+On the Find Jobs page, in the filter panel, under **Salary**. It has a **Minimum** and a **Maximum** slider and a **Reset** link.
 
 ## How it works
 
-- Drag the **lower handle** to set a minimum salary.
-- Drag the **upper handle** to set a maximum salary.
-- The active range shows as a chip pill above the listings -
-  e.g. `$60k-$120k/yr ✕`. Click the ✕ to clear that filter.
-- Active range updates the listings live (no page reload).
+- Move **Minimum** to set the lowest pay you want.
+- Move **Maximum** to set the highest. The right end means "Any", so no upper limit.
+- The active range shows as a pill above the listings. Click the pill's ✕ to clear it.
+- The listings update without a page reload.
 
-The slider's range adapts to the salary distribution of currently
-listed jobs, so on a small board the slider tracks `$0-$100k` while
-on a senior-only board it might track `$80k-$300k`.
+A job matches when its pay range overlaps yours: its top figure reaches your minimum and its bottom figure is under your maximum. Jobs with no salary are left out while a salary filter is active. Clear the filter to see them again.
 
-## Periods
+## Periods and currency
 
-The slider respects whichever salary period each job is using -
-yearly, monthly, or hourly. Jobs without salary data are filtered
-out when the salary slider is active (set the slider to its widest
-range to include them again).
+The filter compares the numbers employers entered, without converting between yearly, monthly and hourly pay or between currencies. A job listed at 25 per hour is not compared as a yearly figure. The **Highest salary** sort does convert pay to a yearly amount, so use it to compare jobs with different pay periods.
 
-## Currency
-
-The slider currency follows the site's default currency
-(set under **Career Board → Settings → Listings**, the "Default
-currency" field). Multi-currency boards still display each job in
-its own currency, but the filter applies the comparison after a
-normalized conversion.
-
-## REST equivalent
-
-If you're driving listings programmatically:
-
-```
-GET /wp-json/wcb/v1/jobs?salary_min=60000&salary_max=120000
-```
-
-Both bounds are optional. Omit `salary_max` for "$60k+" listings;
-omit `salary_min` for "up to $120k" listings.
-
-## On mobile
-
-The slider stacks below the search bar and uses a touch-friendly
-grip. The chip pill remains tap-to-clear.
+The slider labels use the site's default currency, set under **Career Board → Settings → Jobs → Default Salary Currency**. Each job card still shows the job's own currency.

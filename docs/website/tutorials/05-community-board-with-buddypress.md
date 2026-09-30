@@ -104,7 +104,7 @@ For each BP group that should have its own job board:
 A new board exists, ready to receive postings. Group members navigating
 to the group's Jobs tab see the listing.
 
-## Step 3 - Add a Jobs tab to each group
+## Step 3 - Add a jobs tab to each group
 
 The Career Board integration registers a **Jobs** tab on each
 group automatically. To customise:
@@ -258,7 +258,7 @@ Board visibility is set too permissively. Check:
 
 ## Where to go next
 
-- [../integrations/buddypress.md](../integrations/buddypress.md) - full
+- [../integrations/03-buddypress.md](../integrations/03-buddypress.md) - full
   integration reference.
 - [04-monetizing-your-board.md](04-monetizing-your-board.md) - if you're
   pairing BP with paid memberships.

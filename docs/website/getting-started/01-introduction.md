@@ -1,10 +1,10 @@
 # Introduction to WP Career Board
 
-WP Career Board is a complete job board plugin for WordPress built natively on the **WordPress Interactivity API**. It lets you launch a full-featured job marketplace on any WordPress site - no shortcodes, no page reloads, no jQuery.
+WP Career Board is a job board plugin for WordPress. It lets employers post jobs, candidates search and apply, and you review and manage it all from wp-admin. Search, filters and applying update in place without a page reload.
 
 ![WP Career Board - Job Board Overview](../images/intro-overview.png)
 
-## What You Get
+## What you get
 
 **For your site visitors:**
 - A fast, reactive job board that updates without page reloads
@@ -29,15 +29,11 @@ WP Career Board is a complete job board plugin for WordPress built natively on t
 - Email notification system for all key events
 - GDPR-compliant data export and erasure tools
 
-## Key Differences From Other Job Board Plugins
+## How it is built
 
-| Feature | WP Career Board | Traditional plugins |
-|---|---|---|
-| Page reloads on filter/apply | No | Yes |
-| Built on WordPress Interactivity API | Yes | No |
-| BuddyX Pro + Reign first-class support | Yes | No |
-| No shortcodes required | Yes | Rarely |
-| PHP 8.1 + WP 6.9 native | Yes | No |
+- Every page is a block, and every block also works as a shortcode for page builders and the classic editor. See [Adding Blocks](./04-adding-blocks.md).
+- Front-end updates use the WordPress Interactivity API instead of jQuery.
+- Pages and dashboards follow your theme. Reign and BuddyX Pro have dedicated support.
 
 ## Requirements
 

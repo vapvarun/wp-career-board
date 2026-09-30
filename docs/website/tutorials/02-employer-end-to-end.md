@@ -32,13 +32,14 @@ Email them - registration is open but unlinked.
 Fill in:
 
 - Your name and email.
-- A password (or a magic-link if the site uses that).
-- Your company name (used to create your company profile).
-- Optional: phone, role at the company.
+- A password (at least 8 characters).
+- Your company name (used to create your company profile), and
+  optionally its website, industry, size and headquarters.
 
-You'll get a welcome email. Some sites require you to verify your
-email by clicking the link before you can post - if so, do that
-first. Then log in.
+If the site asks new members to confirm their email (the default on new
+sites), you get a "Confirm your email address" message first. Click the
+link, then sign in. Otherwise you are signed in straight away and get a
+Welcome email.
 
 ## Step 2 - Complete your company profile
 

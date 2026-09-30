@@ -4,7 +4,7 @@ Every employer gets a public Company Profile page that candidates can browse. It
 
 ![Company Profile - Public Page](../images/company-profile-public.png)
 
-## What the Company Profile Shows
+## What the company profile shows
 
 - Company name, logo, and tagline
 - Industry, company size, and company type
@@ -15,7 +15,7 @@ Every employer gets a public Company Profile page that candidates can browse. It
 
 Candidates can click through to any individual job listing directly from your company page.
 
-## Setting Up Your Profile
+## Setting up your profile
 
 Edit your company profile from the **Employer Dashboard**:
 
@@ -28,7 +28,7 @@ To view the published page, use the **Public Page** link in the sidebar, which o
 
 ![Company Profile - Edit](../images/company-profile-edit.png)
 
-## Profile Fields
+## Profile fields
 
 | Field | Required | Notes |
 |---|---|---|
@@ -47,12 +47,12 @@ To view the published page, use the **Public Page** link in the sidebar, which o
 
 > Only **Company Name** is required. You can save with just the name and fill in the rest later.
 
-## Company Profile URL
+## Company profile URL
 
 Your company profile URL is automatically generated from your company name:
 `yourdomain.com/company/your-company-name/`
 
-## Who Sees the Company Profile
+## Who sees the company profile
 
 The Company Profile page is public - any visitor can see it, even without an account. The **Company Archive** page (if enabled) lets visitors browse all companies on your board.
 

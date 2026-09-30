@@ -8,21 +8,20 @@ setup is covered in [admin-guide/06-credit-system.md](../admin-guide/06-credit-s
 Credit System and you, as an employer, are required to spend credits
 to post jobs.
 
-## Where to See Your Balance
+## Where to see your balance
 
 Open your **Employer Dashboard**. When the Credit System is enabled, a
-**CREDITS** section appears in the dashboard sidebar showing:
-
-- **Balance** - your current credit balance.
-- **Buy Credits** - a link that appears only when the admin has set up
-  a purchase page.
+**Credits** item appears in the sidebar with your balance as its badge.
+Click it to open the Credits tab, where you can see your balance, buy
+credits, and read your receipts and history. The Credits tab is part of
+WP Career Board Pro. Without it the sidebar shows only the balance.
 
 The balance also appears as a banner on the **Post a Job** form when
 you're about to submit, so you don't have to leave the form to check.
-A low-balance notice shows when your balance dips below the threshold
-the admin set.
+A low-balance notice shows on the Overview when your balance dips below
+the threshold the admin set.
 
-## How Credits Are Spent
+## How credits are spent
 
 The cost depends on which **Board** you're posting to. Different
 boards can have different per-post prices (admin sets this up).
@@ -40,28 +39,24 @@ boards can have different per-post prices (admin sets this up).
 7. **If rejected** - held credits are released back to your balance.
 8. If you withdraw the job before approval, held credits are released.
 
-## Insufficient Credits
+## Insufficient credits
 
 If your balance is below the cost when you try to submit:
 
-- The submit button is disabled.
-- The banner shows: "This board requires N credits. Your balance: M.
-  Please purchase more credits."
-- A "Buy Credits" link appears (when the admin has configured a
-  purchase page).
+- The form does not submit. The message reads: "Insufficient credits.
+  This board requires N credits but your balance is M."
+- A **Buy credits** button appears under the message and opens the
+  Credits tab. The banner at the top of the form also links to it.
 
 You can save the form as a **Draft** in this state - your job won't
 post, but the form contents are preserved so you don't have to
 re-type when you top up.
 
-## Buying Credits
+## Buying credits
 
-The **Buy Credits** link sends you to whatever purchase page your
-admin configured (the admin sets this URL). It could be a checkout
-page, a pricing page, or any page the admin points it at. The link
-only appears when that purchase page has been set up.
-
-Complete the purchase the way your admin's page asks. Once the
+The **Buy credits** button and the Credits tab send you to the purchase
+page or checkout your admin set up. Complete the purchase the way that
+page asks. Once the
 purchase clears, credits are added to your balance and you can go
 back to posting your job.
 
@@ -69,19 +64,26 @@ If a payment is still pending (for example a bank transfer), credits
 are not added until the payment clears - check with your admin if
 you've paid but credits haven't appeared after a few minutes.
 
-## Featured Job Upgrades
+## Featured job upgrades
 
-If the admin has enabled featured upgrades, you can pay extra credits
-to promote your job to the top of search results for a configurable
-duration. The "Featured" toggle appears on the Post a Job form with
-the credit cost shown next to it.
+If your admin sells featured placement, you can pay credits to make a job
+list first. Featured jobs come before all others on every job list, then
+the rest follow by the site's order. You can feature a job two ways:
 
-Featured listings expire automatically after the duration the admin
-configured (30 days by default). Once a featured job's window expires,
-the listing stays - it just loses the boost. To feature it again, post
-or edit the job and re-enable the Featured toggle.
+- **At posting time** - on the last step of the job form, tick "Feature
+  this job: it lists first for N days (X credits)". If the featuring
+  charge fails (for example a short balance), the job is still posted
+  and you are told why it was not featured.
+- **Later** - click **Feature** on a live job in **My Jobs**. You
+  confirm the cost ("Featured jobs list first. This uses N credits from
+  your balance.") and the job gets a **Featured** badge.
 
-## Transaction Types
+The checkbox and the **Feature** button appear only when the site prices
+featuring. Featured status ends by itself after the duration your admin
+set (30 days by default). The job stays live and only loses the boost.
+Click **Feature** again to renew it.
+
+## Transaction types
 
 Behind your balance, the Credit System tracks each movement:
 
@@ -105,7 +107,7 @@ they can grant credits back to your account manually. Auto-refund of
 deducted credits is not available because the job has been live and
 received exposure.
 
-## Frequently Asked
+## Frequently asked
 
 **Do credits expire?**
 

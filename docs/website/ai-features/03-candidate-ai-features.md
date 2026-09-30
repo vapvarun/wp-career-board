@@ -4,11 +4,11 @@
 > is active and the relevant AI provider is configured. On Free the
 > keyword search and standard apply flow still work.
 
-This page covers what candidates experience with AI on (1.4.3): the
+This page covers what candidates experience with AI: the
 **AI Chat Search**, **AI candidate matches** ("Recommended for you"),
 and the **AI cover-letter writer** in the apply panel.
 
-## AI Chat Search
+## AI chat search
 
 A chat-style natural-language search box that returns semantically
 relevant jobs - not just keyword matches.
@@ -135,7 +135,7 @@ structured data is what feeds the AI.
 
 ## What candidates get without Pro
 
-| Capability | Free | Pro 1.4.3 |
+| Capability | Free | Pro |
 |---|---|---|
 | Browse all jobs | Yes | Yes |
 | Keyword search + filters | Yes | Yes |

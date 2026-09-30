@@ -2,16 +2,16 @@
 
 WP Career Board uses WordPress blocks to display everything on the frontend. Each block handles a specific part of the job board experience.
 
-## Available Blocks
+## Available blocks
 
 WP Career Board includes 17 blocks. Search the block inserter for "Career Board" or the block name to find them. (There is also a **WP Career Board** category in the pattern inserter for the bundled page patterns - Full Job Board, Post a Job Form, Employer Dashboard, Candidate Dashboard, and Company Directory.)
 
 | Block | What It Does |
 |---|---|
-| **Candidate Dashboard** | Tabbed candidate dashboard: Overview, My Applications, Saved Jobs, and Account Settings. My Resumes and Job Alerts tabs are added by Pro. |
+| **Candidate Dashboard** | Candidate dashboard with a sidebar: Overview, My Applications, Saved Jobs, Saved Companies, Profile and Settings. My Resumes, Job Alerts and Notifications are added by Pro. |
 | **Company Archive** | Interactive company directory with grid/list toggle and industry/size filters. |
 | **Company Profile** | Public company profile with owner inline-edit and active job listings. |
-| **Employer Dashboard** | Tabbed employer dashboard with 6 tabs: Overview, My Jobs, Post a Job, Applications, Company Profile, and Settings. The Applications tab has a List / Board (Kanban) toggle - the Board groups applicants into Submitted, Reviewing, Shortlisted, Hired, and Rejected columns, and dragging a card changes the applicant's status. |
+| **Employer Dashboard** | Employer dashboard with a sidebar: Overview, My Jobs, Post a Job, Applications, Company Profile, Saved Jobs, Saved Companies and Settings, plus Credits when the Credit System is on. Applications has a List / Board (Kanban) toggle - the Board groups applicants into status columns, and dragging a card or using its Move to menu changes the applicant's status. |
 | **Employer Registration** | Unified registration form for both employers and candidates. Users choose "Find a Job" (candidate) or "Hire Talent" (employer) on the same form. |
 | **Featured Jobs** | Static server-rendered grid of featured (flagged) jobs. Good for homepages. |
 | **Job Alerts CTA** | A call-to-action card prompting candidates to create a job alert. The alert creation itself is a Pro feature. |
@@ -28,7 +28,7 @@ WP Career Board includes 17 blocks. Search the block inserter for "Career Board"
 
 > **WP Career Board Pro** adds more blocks, including AI Chat Search, Application Kanban, Credit Balance, Featured Candidates, Featured Companies, Job Alerts, Job Map, My Applications, Open to Work, Resume Builder, Resume Map, Resume Search Hero, and Resume Single. See the Pro documentation for the full Pro blocks reference.
 
-## Adding a Block to a Page
+## Adding a block to a page
 
 1. Open any page in the WordPress editor (Gutenberg)
 2. Click the **+** button to add a block
@@ -37,7 +37,7 @@ WP Career Board includes 17 blocks. Search the block inserter for "Career Board"
 
 ![Block Inserter - Career Board Blocks](../images/block-inserter.png)
 
-## The Job Board Page (Recommended Layout)
+## The job board page (recommended layout)
 
 For the main jobs page, use this block arrangement in order:
 
@@ -49,7 +49,7 @@ All three blocks are connected - they automatically coordinate with each other o
 
 ![Jobs Page Layout](../images/jobs-page-layout.png)
 
-## Configuring Block Settings
+## Configuring block settings
 
 Some blocks have settings you can adjust in the block sidebar:
 
@@ -88,7 +88,7 @@ Some blocks have settings you can adjust in the block sidebar:
 
 To access these settings, click the block in the editor and look at the **Block** panel in the right sidebar.
 
-## The Setup Wizard vs Manual Setup
+## The setup wizard vs manual setup
 
 The Setup Wizard creates pages with the correct blocks already placed. You only need to add blocks manually if:
 - You want to embed the job board on an existing page
@@ -97,7 +97,7 @@ The Setup Wizard creates pages with the correct blocks already placed. You only 
 
 > **Tip:** If the Setup Wizard already created your pages, you don't need to add blocks manually. Check **Career Board → Settings → Pages** to see which pages are currently assigned.
 
-## Using Shortcodes (Classic Editor)
+## Using shortcodes (classic editor)
 
 If you're using the Classic Editor or a page builder that doesn't support Gutenberg blocks, you can use shortcodes instead. Every Free block has a shortcode equivalent:
 

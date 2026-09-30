@@ -1,15 +1,15 @@
 # Developer Guide - Overview
 
-WP Career Board is built to be extended. The plugin fires 134
-unique hooks (actions and filters), registers 46 REST routes,
+WP Career Board is built to be extended. The plugin fires 181
+unique hooks (60 actions and 121 filters), registers 56 REST routes,
 5 WP-CLI command groups, and ships a JSON manifest that lets your
 code (or another plugin) reach into every part of the job-board
 flow without forking the source.
 
-> Version note: this guide tracks WP Career Board 1.7.0. Exact
-> counts are re-enumerated on every release in
-> `audit/manifest.summary.json` - treat that file as the canonical
-> number if it ever disagrees with this prose.
+> Version note: this guide tracks WP Career Board 1.8.0. Counts come
+> from the source: literal `do_action()` / `apply_filters()` calls and
+> `register_rest_route()` calls. If a count here disagrees with the
+> code, the code wins.
 
 **Use this guide when:**
 
@@ -28,11 +28,11 @@ assumes you read code.
 | Layer | Where | Purpose |
 |---|---|---|
 | **Blocks** | `blocks/<name>/render.php` + `view.js` | Customer-facing UI - server-rendered, hydrated by the Interactivity API |
-| **Shortcodes** | `core/class-plugin.php::register_shortcodes()` | 18 shortcode tags wrapping the frontend blocks (page builders, classic editor) |
-| **REST API** | `api/endpoints/class-*-endpoint.php` | 41 routes under `wcb/v1/*` - all extending `WCB\Api\RestController` |
-| **Modules** | `modules/<area>/` | Feature modules: jobs, applications, candidates, employers, boards, antispam, gdpr, moderation, notifications, themeintegration |
+| **Shortcodes** | `core/class-plugin.php::register_shortcodes()` | 18 shortcode tags wrapping the 17 frontend blocks (one block has an alias), plus `[wcb_widget]` for application widgets |
+| **REST API** | `api/endpoints/class-*-endpoint.php` | 56 routes under `wcb/v1/*` - all extending `WCB\Api\RestController` |
+| **Modules** | `modules/<area>/` | Feature modules: account, antispam, applications, boards, candidates, employers, gdpr, jobs, moderation, notifications, search, seo |
 | **Core services** | `core/class-*.php` | Cross-cutting: Settings, Abilities, Locations, Pro coordination, Theme accent bridge |
-| **CLI** | `cli/class-*.php` | `wp wcb *` command groups - jobs, applications, migrate, scale benchmark |
+| **CLI** | `cli/class-*.php` | `wp wcb *` command groups - status and abilities, job, application, migrate, scale |
 
 Every layer follows the same conventions:
 
@@ -49,6 +49,7 @@ Every layer follows the same conventions:
 | [03-rest-api.md](03-rest-api.md) | The full REST endpoint catalog with auth, params, response shape |
 | [04-wp-cli.md](04-wp-cli.md) | WP-CLI commands and arguments |
 | [05-extension-cookbook.md](05-extension-cookbook.md) | Recipes for common extension tasks |
+| [06-template-overrides.md](06-template-overrides.md) | Copying a plugin template into a theme, and the Site Health check that keeps it current |
 
 ## Companion plugin development
 

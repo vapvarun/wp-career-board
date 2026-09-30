@@ -6,18 +6,18 @@ The Multi-Board Engine lets you segment one WordPress install into multiple inde
 
 Boards are administrator-only configuration. They are created and managed from wp-admin; they are not a per-employer or front-end self-service feature.
 
-## What You Get
+## What you get
 
 - **Multiple boards** - create as many boards as you need
 - **Board scoping** - a job is linked to a board via its `_wcb_board_id` meta, so listings can be filtered to a single board
 - **Per-board settings** - each board has its own credit cost, moderation mode, listing length, and currency
 - **Board-scoped listings** - the Job Listings block accepts a `boardId` attribute (or `[wcb_job_listings boardId="42"]` shortcode) to render only one board's jobs anywhere on the site
 
-## Where Boards Live
+## Where boards live
 
 Boards are managed at **Career Board -> Settings -> Boards**. The free plugin creates one board automatically on activation, named **Main Board**, which becomes the default.
 
-## Creating a Board
+## Creating a board
 
 1. Go to **Career Board -> Settings -> Boards**
 2. Click **Add Board** (this opens the standard WordPress editor for the board)
@@ -27,7 +27,7 @@ Boards are managed at **Career Board -> Settings -> Boards**. The free plugin cr
 
 The Boards list shows each board's job count, number of pipeline stages, and credit cost, with Edit and Delete actions. Deleting a board removes its pipeline stages and unlinks (but does not delete) any jobs assigned to it - those jobs stay visible but are no longer board-restricted.
 
-## Board Settings
+## Board settings
 
 Open a board and use the **Board Settings** meta box on the board edit screen:
 
@@ -40,19 +40,19 @@ Open a board and use the **Board Settings** meta box on the board edit screen:
 
 The Job Map's map provider is a single site-wide setting under **Settings -> Integrations**; there is no per-board override. AI features are configured under **Settings -> AI Settings** and are not toggled per board.
 
-## Assigning Jobs to a Board
+## Assigning jobs to a board
 
 A job's board is stored in its `_wcb_board_id` meta. Jobs can be assigned a board through the posting flow, through the CSV importer (the `board_id` column), or by an integration that sets the meta. A job posted without a board falls back to the default board (`wcb_default_board_id`).
 
-## Default Board
+## Default board
 
 The first board created on activation ("Main Board") is stored in the `wcb_default_board_id` option and is used for any job that is posted without an explicit board. There is no separate "set as default" control in the Boards list - the default is the board recorded in that option.
 
-## Per-Board Pipeline Stages
+## Per-board pipeline stages
 
 Each board can carry its own application pipeline stages, stored in the `wcb_application_stages` table keyed by `board_id`. The Boards list shows how many stages each board has. The stages drive the status columns shown on the employer dashboard's Applications board (the List / Board Kanban toggle).
 
-## Rendering a Single Board's Jobs
+## Rendering a single board's jobs
 
 To show one board's jobs on a page, set the **Board** attribute on the Job Listings block, or use the shortcode form:
 

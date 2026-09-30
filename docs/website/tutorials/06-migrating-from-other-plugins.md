@@ -5,7 +5,7 @@ Simple Job Board, WP Jobster, or a similar plugin, you can migrate to
 WP Career Board without losing data or breaking your existing URLs.
 This page walks through the path.
 
-## Before you migrate - make these decisions
+## Before you migrate - Make these decisions
 
 1. **Same URL structure or new one?**
    Career Board registers its jobs CPT at the `jobs` slug, so single
