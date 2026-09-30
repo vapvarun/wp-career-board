@@ -501,7 +501,7 @@ wp_interactivity_state(
 					</p>
 				<?php endif; ?>
 				<?php if ( ! $wcb_apply_external && is_user_logged_in() && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
-				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
+				<div class="wcb-post-apply-alert" data-wp-class--wcb-shown="state.submitted">
 					<button
 						type="button"
 						class="wcb-post-apply-alert-btn"
@@ -509,7 +509,7 @@ wp_interactivity_state(
 						data-wp-bind--disabled="state.alertFromJobSaving"
 						data-wp-class--wcb-hidden="state.alertFromJobSaved"
 					><?php echo \WCB\Core\Icon::svg( 'bell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
-					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
+					<span class="wcb-post-apply-alert-done" data-wp-class--wcb-shown="state.alertFromJobSaved">
 					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'You will be notified about similar jobs', 'wp-career-board' ); ?>
 					</span>
 				</div>

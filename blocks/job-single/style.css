@@ -700,6 +700,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 /* ── Post-apply alert prompt ───────────────────────────────────────────── */
 .wcb-post-apply-alert {
+	display: none;
 	margin-top: var(--wcb-space-sm);
 }
 
@@ -710,7 +711,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 [class*="wp-block-wp-career-board"] .wcb-post-apply-alert-done.wcb-shown {
-	display: inline;
+	display: inline-flex;
 }
 
 .wcb-post-apply-alert-btn {
@@ -740,7 +741,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-post-apply-alert-done {
-	display: inline-flex;
+	display: none;
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
