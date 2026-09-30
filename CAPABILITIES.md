@@ -13,7 +13,7 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | Let employers post jobs from the frontend (guest + logged-in) with preview? | YES | `job-form` 4-step wizard + `job-form-simple`; `POST/PUT /jobs` |
 | Show searchable, filterable listings (grid/list/single)? | YES | `job-listings` block; `job-filters` reorderable sidebar; `GET /search` |
 | Filter by type, category, location, tag, experience, salary range, board? | YES | 5 taxonomies + salary-range slider; `wcb_default_filter_order` |
-| Auto-expire jobs + send deadline reminders? | YES | daily cron `wcb_check_job_expiry`, `wcb_send_deadline_reminders` |
+| Auto-expire jobs + send deadline reminders? | YES | hourly cron `wcb_check_job_expiry`, daily cron `wcb_send_deadline_reminders` |
 | Pre-moderate jobs (pending → approve/reject → resubmit)? | YES | `POST /jobs/{id}/approve\|reject`; Flagged queue + report-a-job |
 | Emit Google for Jobs JobPosting JSON-LD automatically? | YES·partial | `modules/seo/class-seo-module.php` (datePosted, validThrough, employmentType, hiringOrganization, baseSalary, remote `jobLocationType`) — **not validated against Rich Results; no physical `jobLocation` address block confirmed** |
 | Publish a jobs RSS feed? | YES | `/jobs/feed/` with full job fields |
