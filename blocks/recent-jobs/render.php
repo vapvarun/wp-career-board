@@ -16,7 +16,7 @@ $wcb_show_all     = (bool) ( $attributes['showViewAll'] ?? true );
 $wcb_view_all_url = trim( (string) ( $attributes['viewAllUrl'] ?? '' ) );
 
 if ( ! $wcb_view_all_url ) {
-	$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+	$wcb_archive_page_id = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 	$wcb_view_all_url    = $wcb_archive_page_id > 0
 		? (string) get_permalink( $wcb_archive_page_id )
 		: '';
@@ -36,9 +36,9 @@ if ( empty( $wcb_jobs ) ) {
 	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate; no Abilities API equivalent for "can edit posts in general".
 		?>
 		<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-recent-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<div class="wcb-recent-empty">
-				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<p><?php esc_html_e( 'No recent jobs to display.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No recent jobs to display.', 'wp-career-board' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -113,11 +113,11 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 			?>
 			<li class="wcb-job-widget-item">
 				<a class="wcb-job-widget-link" href="<?php echo esc_url( get_permalink( $wcb_job->ID ) ); ?>">
-					<span class="wcb-job-widget-logo" aria-hidden="true">
+					<span class="wcb-avatar<?php echo $wcb_thumb_url ? ' wcb-avatar--logo' : ''; ?> wcb-job-widget-logo" aria-hidden="true">
 						<?php if ( $wcb_thumb_url ) : ?>
 							<img src="<?php echo esc_url( $wcb_thumb_url ); ?>" alt="" width="16" height="16" loading="lazy" />
 						<?php else : ?>
-							<span class="wcb-job-widget-initial"><?php echo esc_html( $wcb_initial ); ?></span>
+							<?php echo esc_html( $wcb_initial ); ?>
 						<?php endif; ?>
 					</span>
 					<span class="wcb-job-widget-body">
@@ -135,7 +135,7 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 							<span class="wcb-job-widget-age">
 								<?php
 								printf(
-									/* translators: %s: human-readable time difference e.g. "3 days" */
+									/* translators: %s: human-readable time difference, e.g. "3 days". */
 									esc_html__( '%s ago', 'wp-career-board' ),
 									esc_html( $wcb_posted_ago )
 								);

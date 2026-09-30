@@ -28,6 +28,42 @@
   {
    "id": "post_meta-read-never-written:_wcb_location_text",
    "reason": "Written by WP Job Manager, not by us - it is WPJM's flat location key, and the job-map block reads it only as an import fallback (wp-career-board-pro/blocks/job-map/render.php:48). The primary source is the wcb_location taxonomy, read first at :45 so the SSR pin matches what the radius search swaps in. The auditor's scope is our two plugins, so the external writer is invisible to it. Reading only the importer key is the bug this fallback ordering fixed."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_close_job_applications",
+   "reason": "Background job hook. Registered and fired through the scheduler by the class constant ApplicationLifecycle::CLOSE_HOOK, so the literal never appears in a do_action call; covered by tests/test-application-lifecycle.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_reopen_job_applications",
+   "reason": "Background job hook. Registered and fired through the scheduler by the class constant ApplicationLifecycle::REOPEN_HOOK, so the literal never appears in a do_action call; covered by tests/test-application-lifecycle.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_index_job_search_text",
+   "reason": "Background job hook. Registered and fired through the scheduler by the class constant JobSearch::INDEX_HOOK, so the literal never appears in a do_action call; covered by tests/test-job-search.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_private_files_migrate",
+   "reason": "Background job hook. Registered and fired through the scheduler by the class constant PrivateFiles::MIGRATE_HOOK, so the literal never appears in a do_action call; covered by tests/test-private-files.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_prune_logs",
+   "reason": "Background job hook. Registered and fired through the scheduler by the class constant GdprModule::PRUNE_HOOK (listed in CronRegistry::all()), so the literal never appears in a do_action call; covered by tests/test-personal-data.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_community_notification_types",
+   "reason": "Public contract for an external notification center (e.g. BuddyNext): the consumer calls apply_filters, Free and Pro answer it. Nothing in this pair fires it by design; Pro's tests/test-community-notification-contract.php fires it."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_community_notification_visible",
+   "reason": "Public contract for an external notification center: the consumer asks whether a notification's object is still visible, Free answers. Fired outside this pair by design."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_location_add_form_fields",
+   "reason": "Core dynamic hook {$taxonomy}_add_form_fields for the wcb_location taxonomy, fired by wp-admin/edit-tags.php."
+  },
+  {
+   "id": "hook-consumed-never-fired:wcb_location_edit_form_fields",
+   "reason": "Core dynamic hook {$taxonomy}_edit_form_fields for the wcb_location taxonomy, fired by wp-admin/term.php."
   }
  ]
 }

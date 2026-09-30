@@ -10,34 +10,83 @@
 	flex: 1;
 	min-width: auto;
 	height: auto;
+	min-height: var(--wcb-control-h);
 	/* Logical padding so RTL mirrors without a generated rtl variant (block CSS is not run through rtlcss). */
 	padding-block: var(--wcb-space-sm); /* 0.625rem ≈ 10px → sm */
 	padding-inline-start: var(--wcb-space-md); /* 0.875rem ≈ 14px → md: text inset */
 	padding-inline-end: var(--wcb-space-3xl); /* 2.25rem ≈ 36px → 3xl (32px): caret gutter */
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	font-family: inherit;
 	color: var(--wcb-contrast);
-	background: var(--wcb-base);
+	background-color: var(--wcb-base);
 	cursor: pointer;
 	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	/* background-position has no logical-property equivalent; caret sits at the inline-end.
-	   Default LTR = right; the [dir="rtl"] override below mirrors it (block CSS is not run through rtlcss). */
-	background-position: right var(--wcb-space-md) center;
+	/* The chevron (and its RTL mirror) comes from the shared select rule in wcb-ui.css. */
 	transition: border-color var(--wcb-transition-snappy);
 }
 
-[dir="rtl"] .wcb-filter-select {
-	background-position: left var(--wcb-space-md) center;
-}
-
 .wcb-filter-select:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
+}
+
+/* ── Tablet / phone: collapse behind a "Filters (n)" button ───────────────── */
+.wcb-filters-toggle-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.wcb-filters-toggle {
+	display: none;
+}
+
+@media (max-width: 1024px) {
+	.wcb-filters-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--wcb-space-xs);
+		padding: var(--wcb-space-sm) var(--wcb-space-lg);
+		border: 1px solid var(--wcb-border); /* was 1.5px - the guideline is 1px */
+		border-radius: var(--wcb-radius-md);
+		background: var(--wcb-base);
+		color: var(--wcb-contrast);
+		font-size: var(--wcb-text-base);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.wcb-filters-toggle-input:focus-visible + .wcb-filters-toggle {
+		outline: 2px solid var(--wcb-primary);
+		outline-offset: 2px;
+	}
+
+	.wcb-filters-toggle-input:checked + .wcb-filters-toggle {
+		border-color: var(--wcb-primary);
+		margin-bottom: var(--wcb-space-md);
+	}
+
+	.wcb-filters-toggle__count {
+		display: none;
+		min-width: 1.4em;
+		padding: 0 var(--wcb-space-xs);
+		border-radius: 999px;
+		background: var(--wcb-primary-strong);
+		color: var(--wcb-on-primary);
+		font-size: var(--wcb-text-xs);
+		text-align: center;
+	}
+
+	.wcb-filters-toggle__count.wcb-shown {
+		display: inline-block;
+	}
+
+	.wcb-filters-toggle-input:not(:checked) ~ .wcb-filters-row {
+		display: none;
+	}
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
@@ -63,8 +112,9 @@
 .wcb-filter-input {
 	width: min(120px, 100%); /* component-specific salary-input width */
 	height: auto;
+	min-height: var(--wcb-control-h);
 	padding: var(--wcb-space-sm) var(--wcb-space-md); /* 0.625rem ≈ 10px → sm */
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	font-family: inherit;
@@ -74,7 +124,7 @@
 }
 
 .wcb-filter-input:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -85,7 +135,7 @@
 	align-items: center;
 	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-contrast);
+	color: var(--wcb-canvas-fg, #0f172a);
 	cursor: pointer;
 	white-space: nowrap;
 }

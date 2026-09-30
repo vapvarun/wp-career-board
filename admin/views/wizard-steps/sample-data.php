@@ -11,15 +11,17 @@ defined( 'ABSPATH' ) || exit;
 <div class="wcb-settings-row">
 	<div class="wcb-settings-row-label"><?php esc_html_e( 'Demo Content', 'wp-career-board' ); ?></div>
 	<div class="wcb-settings-row-control">
-		<label class="wcb-toggle">
-			<input type="checkbox" id="wcb-install-sample" checked>
-			<span class="wcb-toggle-slider"></span>
+		<label class="wcb-toggle-label">
+			<span class="wcb-toggle">
+				<input type="checkbox" id="wcb-install-sample" checked>
+				<span class="wcb-toggle-slider"></span>
+			</span>
+			<?php esc_html_e( 'Install sample categories, job types, companies, and demo jobs', 'wp-career-board' ); ?>
 		</label>
-		<span style="margin-left:10px;vertical-align:middle"><?php esc_html_e( 'Install sample categories, job types, companies, and demo jobs', 'wp-career-board' ); ?></span>
-		<p class="description" style="margin-top:6px"><?php esc_html_e( 'Helps you see how everything looks before adding real data.', 'wp-career-board' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Helps you see how everything looks before adding real data.', 'wp-career-board' ); ?></p>
 	</div>
 </div>
-<div class="wcb-settings-footer">
+<div class="wcb-settings-footer wcb-wizard-footer">
 	<button type="button" class="wcb-btn wcb-btn--primary" id="wcb-finish-wizard" data-wcb-wizard-action="sample-data">
 		<?php esc_html_e( 'Finish Setup', 'wp-career-board' ); ?>
 	</button>

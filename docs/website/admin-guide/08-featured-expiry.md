@@ -1,65 +1,28 @@
 # Featured Listing Expiry
 
-Featured listings now expire automatically after a configurable
-duration. The previous behavior - "once Featured, always Featured" - made it hard to sell Featured as a paid SKU. Auto-expiry sets up
-Featured as a real time-bound boost.
+You can feature a job so it lists first, and it stops being featured on its own after a set number of days. The job stays published. Only the Featured boost ends.
 
-## How it works
+## Set the duration
 
-When a job is marked Featured (manually by an admin, or via the
-[Featured-upgrade credit consumer](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/credit-system/04-featured-upgrade/)
-in Pro), the plugin records the expiry timestamp on the job.
+Go to **Career Board → Settings → Jobs** and set **Featured Duration (days)**. The default is 30 and the range is 1 to 365. There is no setting for permanent Featured status. To keep a job featured longer, set a larger number or feature it again after it ends.
 
-A daily cron event (`wcb_expire_featured_jobs`) runs every 24 hours,
-finds jobs whose featured-expiry timestamp is in the past, and
-clears the `_wcb_featured` flag on each. The job stays published - only its Featured boost ends.
+The length is counted from the day the job was marked Featured, using the value in Settings at the time of the daily check.
 
-## Configuration
+## Feature a job
 
-Navigate to **Career Board → Settings → Job Listings**, find the
-**Featured Duration (days)** field. Set the number of days a
-Featured boost lasts after activation.
+- **As an administrator or moderator:** tick **Featured listing** on the job's edit screen.
+- **As an employer, when Pro prices it:** tick the Feature checkbox on the job form, or use the **Feature** button on the job in **My Jobs**. If the featuring charge cannot be paid, the job is still posted and the employer is told why.
 
-Default: **30 days**. The value is clamped to the 1-365 range, so the
-minimum boost is one day - there is no `0` setting for permanent
-Featured status. If you need a Featured listing to persist longer,
-set a larger value (up to 365) or re-feature the job after it
-expires.
+## Where featured jobs list
 
-## Cron schedule
+Featured jobs list first when the job order is **Featured, then newest**. That is the default order, and it applies to every page of results including "Load more". A keyword search shows the best matches first, and the **Closing soonest**, **Highest salary** and **Oldest first** orders do not put featured jobs first.
 
-The cleanup cron runs daily, registered as `wcb_expire_featured_jobs`.
-WordPress's wp-cron triggers it on the next page load after the
-scheduled time - for low-traffic sites, install a real cron job that
-hits `wp-cron.php` to keep timing accurate.
+## When the boost ends
 
-If you ever need to manually trigger expiry:
+A daily check ends the Featured status of every job whose featured period is over. Developers can react to it with the `wcb_job_featured_expired` action, which receives the job ID. Pro uses it to email the employer.
 
-```bash
-wp cron event run wcb_expire_featured_jobs
-```
+The check runs on WordPress's scheduled tasks, which fire when someone visits the site. On a low-traffic site, run a real cron job that requests `wp-cron.php` to keep the timing accurate.
 
-## Per-job override
+## With Pro
 
-Site admins can extend a specific job's Featured duration via the
-job's edit screen, **Featured** meta box. Changing the value updates
-the per-job expiry without affecting other jobs.
-
-## With Pro: pay-to-renew
-
-Pro's [Featured-upgrade credit consumer](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/credit-system/04-featured-upgrade/)
-lets the same job pay for Featured status more than once over its
-life. After auto-expiry, the employer can spend more credits to
-re-feature.
-
-## What stays the same
-
-- Already-featured jobs at upgrade time get a default expiry of
-  `now + 30 days` (or whatever the site default is at upgrade
-  time). They're not back-dated.
-- The `wcb_featured` taxonomy / query parameter still works
-  identically - only the `_wcb_featured` postmeta gets cleared on
-  expiry.
-- Templates that filter on Featured (`is_featured` block attribute,
-  REST `?featured=true`) automatically respect expired status with
-  no template changes.
+Pro lets the same job pay for Featured status more than once. After it ends, the employer can spend credits to feature the job again. Read **Featured upgrade** in the Pro documentation.

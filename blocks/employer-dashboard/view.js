@@ -5,6 +5,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -22,6 +23,8 @@ const VALID_VIEWS = [
 	'saved-companies',
 	'saved-resumes',
 	'settings',
+	'notifications',
+	'credits',
 ];
 
 function readHashView() {
@@ -75,6 +78,49 @@ const fmtNumber = ( n ) => {
 };
 
 /**
+ * Format a UTC MySQL datetime ("2026-09-28 17:24:41") as a short relative
+ * time ("2h ago", "3d ago") against the SITE locale, falling back to a
+ * localised absolute date once it's more than a week old. Bell notifications
+ * bound the raw string directly with no formatting at all.
+ *
+ * @param {string} mysqlUtc UTC datetime as returned by current_time('mysql', true).
+ * @return {string} Human-readable relative or absolute time, '' if unparsable.
+ */
+function formatRelativeTime( mysqlUtc ) {
+	if ( ! mysqlUtc ) {
+		return '';
+	}
+	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
+	if ( Number.isNaN( then.getTime() ) ) {
+		return '';
+	}
+	const seconds = ( Date.now() - then.getTime() ) / 1000;
+	const locale  = state.locale || 'en-US';
+	if ( seconds < 7 * 86400 ) {
+		const units = [ [ 60, 'second' ], [ 60, 'minute' ], [ 24, 'hour' ], [ 7, 'day' ] ];
+		let value = seconds;
+		let unit  = 'second';
+		for ( const [ size, name ] of units ) {
+			if ( Math.abs( value ) < size ) {
+				break;
+			}
+			value /= size;
+			unit   = name;
+		}
+		try {
+			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		} catch {
+			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		}
+	}
+	try {
+		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
+	} catch {
+		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
+	}
+}
+
+/**
  * Render an AI fit score as a percentage. The percent sign's position is a
  * translatable format string, not a hardcoded suffix, and the digits run
  * through the site locale.
@@ -92,6 +138,9 @@ const aiScoreLabel = ( score ) =>
  * @param {number} n Count.
  * @return {string} Localised count or ''.
  */
+// Applicants fetched per page (endpoint maximum is 100).
+const APPS_PER_PAGE = 50;
+
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
 /**
@@ -108,6 +157,11 @@ const jobStatusLabel = ( job ) => {
 	// must be checked before the plain draft case.
 	if ( job.rejected ) {
 		return t( 'jobStatusRejected', 'Rejected' );
+	}
+	// Approved, waiting for enough credits: it goes live on its own once
+	// the balance covers it.
+	if ( job.awaiting_payment ) {
+		return t( 'jobStatusAwaitingPayment', 'Awaiting payment' );
 	}
 	switch ( job.status ) {
 		case 'closed':
@@ -185,6 +239,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isViewSettings() {
 			return state.currentView === 'settings';
 		},
+		get isViewCredits() {
+			return state.currentView === 'credits';
+		},
 		get isViewNotifications() {
 			return state.currentView === 'notifications';
 		},
@@ -248,7 +305,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return false;
 			}
 			const threshold = Number( state.creditLowThreshold || 0 );
-			if ( threshold <= 0 ) {
+			if ( threshold <= 0 || ! state.creditHasHistory ) {
 				return false;
 			}
 			return Number( state.creditBalance || 0 ) <= threshold;
@@ -282,7 +339,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
 		get totalJobs() {
-			return fmtNumber( state.jobs.length || state.ssrTotalJobs || 0 );
+			// Server total (render time, then every reload), never the loaded page.
+			return fmtNumber( state.ssrTotalJobs || 0 );
 		},
 		get publishedJobs() {
 			return fmtNumber(
@@ -375,14 +433,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return Boolean( ctx.job?.isClosed || ctx.job?.isExpired );
 		},
 
+		// Only a live job can be closed; the REST route refuses the rest (a
+		// pending job closed and reopened used to skip moderation).
+		get isJobNotClosable() {
+			const ctx = getContext();
+			return 'publish' !== ctx.job?.status;
+		},
+
 		// Applications.
 		get totalApps() {
-			if ( state.allApplications.length > 0 ) {
-				return fmtNumber( state.allApplications.length );
-			}
-			if ( state.jobs.length > 0 ) {
-				return fmtNumber( state.jobs.reduce( ( sum, j ) => sum + j.appCount, 0 ) );
-			}
+			// Server total, never the loaded page (capped at 50).
 			return fmtNumber( state.ssrTotalApps || 0 );
 		},
 		get hasApplications() {
@@ -392,7 +452,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ! state.appsJobId;
 		},
 		get noApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && state.applications.length === 0;
+			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
 		},
 
 		// Application filter.
@@ -435,6 +495,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get isStarOn() {
+			return ( getContext().star?.value || 0 ) <= ( state.selectedApp?.rating || 0 );
+		},
+		get appsExportUrl() {
+			return state.appsJobId
+				? state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications/export?_wpnonce=' + state.nonce
+				: '';
+		},
+		get isBoardOptSelected() {
+			const ctx = getContext();
+			return ctx.opt?.key === ctx.app?.status;
+		},
 		get isAppsBoardLayout() {
 			return state.appsLayout === 'board';
 		},
@@ -456,30 +528,47 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( state.aiRanked ) {
 					apps = [ ...apps ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
 				}
-				return { key: d.key, label: d.label, count: countLabel( apps.length ), apps };
+				return { key: d.key, label: d.label, count: countLabel( state.appsCounts.by_status[ d.key ] ), apps };
 			} );
+		},
+
+		// The board has one column per live status, so closed, withdrawn and removed
+		// applications are in the total but on no column: say so instead of letting the
+		// column counts disagree with "All".
+		get appsNotOnBoard() {
+			const by = state.appsCounts.by_status || {};
+			const onBoard = [ 'submitted', 'reviewing', 'shortlisted', 'hired', 'rejected' ]
+				.reduce( ( sum, key ) => sum + Number( by[ key ] || 0 ), 0 );
+			return Math.max( 0, Number( state.appsCounts.total || 0 ) - onBoard );
+		},
+		get showBoardNote() {
+			return state.isAppsBoardLayout && state.appsNotOnBoard > 0;
+		},
+		get boardNoteLabel() {
+			return t( 'boardNotShown', 'Not on the board (closed, withdrawn or removed): %s' )
+				.replace( '%s', fmtNumber( state.appsNotOnBoard ) );
 		},
 
 		// Per-status counts — computed from already-loaded applications, no extra
 		// REST calls. Zero renders as an empty pill, anything else as a
 		// site-locale-formatted number.
 		get appsCountAll() {
-			return countLabel( state.applications.length );
+			return countLabel( state.appsCounts.total );
 		},
 		get appsCountSubmitted() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'submitted' ).length );
+			return countLabel( state.appsCounts.by_status.submitted );
 		},
 		get appsCountReviewing() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'reviewing' ).length );
+			return countLabel( state.appsCounts.by_status.reviewing );
 		},
 		get appsCountShortlisted() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'shortlisted' ).length );
+			return countLabel( state.appsCounts.by_status.shortlisted );
 		},
 		get appsCountRejected() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'rejected' ).length );
+			return countLabel( state.appsCounts.by_status.rejected );
 		},
 		get appsCountHired() {
-			return countLabel( state.applications.filter( ( a ) => a.status === 'hired' ).length );
+			return countLabel( state.appsCounts.by_status.hired );
 		},
 
 		// Selected applicant detail.
@@ -504,8 +593,19 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppStatus() {
 			return state.selectedApp?.status ?? '';
 		},
+		// Withdrawn / job removed: an outcome the employer cannot change.
+		get selectedAppClosed() {
+			const status = state.selectedApp?.status;
+			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
+		},
+		get selectedAppStatusLabel() {
+			return state.selectedApp?.statusLabel ?? '';
+		},
 		get selectedAppCoverLetter() {
 			return state.selectedApp?.cover_letter ?? '';
+		},
+		get selectedAppHasCoverLetter() {
+			return '' !== state.selectedAppCoverLetter.trim();
 		},
 		get selectedAppCustomFields() {
 			return state.selectedApp?.custom_fields ?? [];
@@ -545,6 +645,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get isSelectedApp() {
 			const ctx = getContext();
 			return ctx.app?.id === state.selectedAppId;
+		},
+		get isAppClosed() {
+			const status = getContext().app?.status;
+			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
 		},
 		get isUnread() {
 			const ctx = getContext();
@@ -598,9 +702,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Company helpers.
 		// Sidebar identity falls back to the user's display name when no company
 		// name is set yet, so the sidebar never shows a lone "?" with no label.
-		get sidebarName() {
-			return state.companyName || state.displayName || '';
-		},
+
 		get companyInitials() {
 			const n = state.companyName || state.displayName;
 			return n
@@ -697,6 +799,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				if ( appsResp.ok ) {
 					const appsData = yield appsResp.json();
 					state.allApplications = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
+					if ( typeof appsData?.total === 'number' ) {
+						state.ssrTotalApps = appsData.total;
+					}
 				}
 			} catch {
 				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
@@ -766,6 +871,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const jobsData = yield resp.json();
 			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
+			if ( typeof jobsData?.total === 'number' ) {
+				state.ssrTotalJobs = jobsData.total;
+			}
 			// "closed" = employer-closed, "expired" = past-deadline (cron); both
 			// render as finished listings. "pending" = awaiting moderation, "draft" = unsaved.
 			state.jobs = jobs.map( ( j ) => ( {
@@ -781,22 +889,26 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				isExpired: j.status === 'expired',
 				isRejected: !! j.rejected,
 				isDraft:   j.status === 'draft' && ! j.rejected,
+				canFeature: Number( state.featuredCost ) > 0 && j.status === 'publish' && ! j.featured,
 			} ) );
 		},
 
-		*switchToJobs() {
+		// Called by the embedded Post-a-Job form after a successful post: the
+		// badges, the Overview figures and My Jobs update now, not on the next
+		// visit to My Jobs.
+		*afterJobPosted( balance ) {
+			if ( typeof balance === 'number' ) {
+				state.creditBalance = balance;
+			}
+			yield actions.loadJobs();
+		},
+
+		switchToJobs() {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
 			writeHashView( 'jobs' );
-
-			// The embedded Post-a-Job form flags a refresh after a successful
-			// submit; reload the list silently so the new job appears.
-			if ( state._needsJobsRefresh ) {
-				state._needsJobsRefresh = false;
-				yield actions.loadJobs();
-			}
 		},
 
 		switchToApplications() {
@@ -821,6 +933,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.navOpen     = false;
 			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
 			writeHashView( 'settings' );
+		},
+
+		switchToCredits() {
+			state.currentView = 'credits';
+			state.error       = '';
+			state.navOpen     = false;
+			sessionStorage.setItem( 'wcb_employer_view', 'credits' );
+			writeHashView( 'credits' );
 		},
 
 		*switchToNotifications() {
@@ -1001,6 +1121,88 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.jobSearch = event.target.value;
 		},
 
+		setNoteDraft( event ) {
+			state.noteDraft = event.target.value;
+		},
+
+		*addNote() {
+			const appId = state.selectedAppId;
+			if ( ! appId || ! state.noteDraft.trim() ) {
+				return;
+			}
+			// Guard against a double-click firing two concurrent POSTs (this
+			// yields on wcbFetch, so a second click during that wait used to
+			// re-enter before the first resolved) - Basecamp 10350213909.
+			if ( state.addingNote ) {
+				return;
+			}
+			state.addingNote = true;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+					body: JSON.stringify( { text: state.noteDraft } ),
+				} );
+				if ( response.ok ) {
+					state.appNotes  = yield response.json();
+					state.noteDraft = '';
+				}
+			} finally {
+				state.addingNote = false;
+			}
+		},
+
+		*deleteNote() {
+			const appId = state.selectedAppId;
+			const note  = getContext().note;
+			const response = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes/' + note.id, {
+				method: 'DELETE',
+				headers: { 'X-WP-Nonce': state.nonce },
+			} );
+			if ( response.ok ) {
+				state.appNotes = yield response.json();
+			}
+		},
+
+		*setRating() {
+			const app   = state.selectedApp;
+			const value = getContext().star.value;
+			if ( ! app ) {
+				return;
+			}
+			// Clicking the current rating again clears it.
+			const rating   = app.rating === value ? 0 : value;
+			const response = yield wcbFetch( state.apiBase + '/applications/' + String( app.id ) + '/rating', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+				body: JSON.stringify( { rating } ),
+			} );
+			if ( response.ok ) {
+				const data = yield response.json();
+				const idx  = state.applications.findIndex( ( a ) => a.id === app.id );
+				if ( idx !== -1 ) {
+					state.applications[ idx ].rating = data.rating;
+				}
+			}
+		},
+
+		// Board card: open the applicant's details (the list view shows them).
+		openFromBoard( event ) {
+			if ( event.target.closest( 'select' ) ) {
+				return;
+			}
+			state.selectedAppId = Number( getContext().app.id );
+			state.appsLayout    = 'list';
+		},
+
+		openFromBoardKey( event ) {
+			if ( event.target === event.currentTarget && ( event.key === 'Enter' || event.key === ' ' ) ) {
+				event.preventDefault();
+				state.selectedAppId = Number( getContext().app.id );
+				state.appsLayout    = 'list';
+			}
+		},
+
 		selectApplicant( event ) {
 			const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
 			state.selectedAppId = Number.isNaN( id ) ? null : id;
@@ -1014,10 +1216,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		setAppsFilter( event ) {
-			const f = event.target.dataset.wcbFilter;
-			if ( f ) {
+		*setAppsFilter( event ) {
+			const f = event.target.closest( '[data-wcb-filter]' )?.dataset.wcbFilter;
+			if ( f && f !== state.appsFilter ) {
 				state.appsFilter = f;
+				yield actions.loadApplications();
 			}
 		},
 
@@ -1038,19 +1241,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.appsJobSearch = event.target.value;
 		},
 
-		*loadApplications() {
+		// One page of the selected job's applicants (server-side status
+		// filter), plus per-status totals for the whole job. `append` adds the
+		// next page for Load more.
+		*loadApplications( append = false ) {
 			if ( ! state.appsJobId ) {
 				return;
 			}
 
-			state.appsLoading = true;
-			state.appsError   = '';
+			const flag = append ? 'appsLoadingMore' : 'appsLoading';
+			state[ flag ]   = true;
+			state.appsError = '';
 
 			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
+				const url = new URL( state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications' );
+				url.searchParams.set( 'per_page', String( APPS_PER_PAGE ) );
+				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
+				if ( state.appsFilter !== 'all' ) {
+					url.searchParams.set( 'status', state.appsFilter );
+				}
+
+				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
 
 				if ( ! response.ok ) {
 					state.appsError = t( 'errorLoadApps', 'Could not load applications.' );
@@ -1058,8 +1269,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				}
 
 				const appsData = yield response.json();
-				const apps     = Array.isArray( appsData ) ? appsData : ( appsData?.applications ?? [] );
-				state.applications = apps.map( ( a ) => ( {
+				const apps     = ( appsData?.applications ?? [] ).map( ( a ) => ( {
 					...a,
 					initials: a.applicant_name
 						? a.applicant_name.split( ' ' ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase()
@@ -1073,6 +1283,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						}
 						: {} ),
 				} ) );
+				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				state.appsPage     = append ? state.appsPage + 1 : 1;
+				state.appsHasMore  = !! appsData?.has_more;
+				state.appsCounts   = appsData?.counts ?? { total: 0, by_status: {} };
 				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
 					state.aiRanked = true;
 				}
@@ -1083,8 +1297,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} catch {
 				state.appsError = t( 'errorConnectionApps', 'Connection error loading applications.' );
 			} finally {
-				state.appsLoading = false;
+				state[ flag ] = false;
 			}
+		},
+
+		*loadMoreApps() {
+			yield actions.loadApplications( true );
 		},
 
 		// Rank the loaded applications by AI fit score (Pro /ai/ranked-applications).
@@ -1109,9 +1327,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				state.applications = state.applications.map( ( a ) => {
 					const r = byId[ a.id ];
-					return r
-						? { ...a, aiScore: Number( r.score ), aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: aiScoreLabel( Number( r.score ) ) }
-						: a;
+					if ( ! r ) {
+						return a;
+					}
+					// A provider failure is "Not scored" (retried later), never 0%.
+					if ( typeof r.score !== 'number' ) {
+						return { ...a, aiScore: undefined, aiScoreLabel: t( 'aiNotScored', 'Not scored' ) };
+					}
+					return { ...a, aiScore: r.score, aiReason: String( r.reason || '' ), aiSummary: String( r.summary || '' ), aiScoreLabel: aiScoreLabel( r.score ) };
 				} );
 				state.aiRanked = true;
 			} catch {
@@ -1142,11 +1365,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				);
 				if ( response.ok ) {
-					const idx = state.applications.findIndex( ( a ) => a.id === appId );
-					if ( idx !== -1 ) {
-						state.applications[ idx ].status = newStatus;
+					// The server's label and tone win: one wording everywhere (ApplicationStatus).
+					const data = yield response.json();
+					const idx  = state.applications.findIndex( ( a ) => a.id === appId );
+					if ( idx !== -1 && data.changed ) {
+						const by = state.appsCounts.by_status;
+						const was = state.applications[ idx ].status;
+						by[ was ] = Math.max( 0, ( by[ was ] || 0 ) - 1 );
+						by[ data.status ] = ( by[ data.status ] || 0 ) + 1;
 					}
-					state.statusMsg = t( 'statusSaved', 'Status updated. The candidate has been notified.' );
+					if ( idx !== -1 ) {
+						state.applications[ idx ].status      = data.status || newStatus;
+						state.applications[ idx ].statusLabel = data.status_label || state.applications[ idx ].statusLabel;
+						state.applications[ idx ].status_tone = data.status_tone || '';
+					}
+					if ( ! data.changed ) {
+						state.statusMsg = t( 'statusUnchanged', 'No change. The candidate was not notified.' );
+					} else {
+						state.statusMsg = data.notified
+							? t( 'statusSaved', 'Status updated. The candidate has been notified.' )
+							: t( 'statusSavedGuest', 'Status updated. This applicant left no email address, so they were not notified.' );
+					}
 				} else {
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}
@@ -1187,6 +1426,46 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
+		*featureJob( event ) {
+			const jobId = Number( event.target.dataset.wcbJobId );
+			if ( ! jobId ) {
+				return;
+			}
+			try {
+				yield window.wcbConfirm( {
+					title:       t( 'confirmFeatureTitle', 'Feature this job?' ),
+					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. This uses %s credits from your balance.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
+					confirmText: t( 'confirmFeatureConfirm', 'Feature job' ),
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			state.error = '';
+			try {
+				const response = yield wcbFetch( state.apiBase + '/jobs/' + String( jobId ) + '/feature', {
+					method:  'POST',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				const data = yield response.json();
+				if ( ! response.ok ) {
+					// 402 carries the Credits tab link; the low-balance banner and
+					// the Credits nav item offer it too.
+					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					return;
+				}
+				const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
+				if ( idx !== -1 ) {
+					state.jobs[ idx ].featured   = true;
+					state.jobs[ idx ].canFeature = false;
+				}
+				if ( typeof data.balance === 'number' ) {
+					state.creditBalance = data.balance;
+				}
+			} catch {
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			}
+		},
+
 		*closeJob( event ) {
 			const jobId = Number( event.target.dataset.wcbJobId );
 			if ( ! jobId ) {
@@ -1197,7 +1476,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield window.wcbConfirm( {
 					title:        t( 'confirmCloseTitle', 'Close this job?' ),
-					message:      t( 'confirmCloseJob', 'Are you sure you want to close this job? It will no longer be visible to candidates.' ),
+					message:      t( 'confirmCloseJob', 'It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed.' ),
 					confirmText:  t( 'confirmCloseConfirm', 'Close job' ),
 					destructive:  true,
 				} );
@@ -1290,13 +1569,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify( {
-							display_name: state.accountName,
-							email:        state.accountEmail,
+							display_name:     state.accountName,
+							email:            state.accountEmail,
+							current_password: state.accountEmailPassword,
 						} ),
 					}
 				);
 				const data = yield response.json();
 				if ( response.ok ) {
+					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
 					state.displayName    = data.display_name;
@@ -1371,19 +1652,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			const target = event.target;
-			let value;
-			if ( target.dataset.wcbMulti ) {
-				// multiselect — collect every checked box sharing this field key.
-				value = Array.from(
-					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
-				)
-					.filter( ( el ) => el.checked )
-					.map( ( el ) => el.value );
-			} else if ( target.type === 'checkbox' ) {
-				value = target.checked;
-			} else {
-				value = target.value;
-			}
+			const value = customFieldValue( target );
 			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
@@ -1408,12 +1677,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						body:    fd,
 					}
 				);
+				const data = yield response.json();
 				if ( response.ok ) {
-					const data          = yield response.json();
 					state.companyLogoUrl = data.logo_url;
+				} else {
+					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 				}
 			} catch {
-				// Upload failed — user can retry.
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.logoUploading = false;
 			}
@@ -1497,7 +1768,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				if ( res.ok ) {
 					const data              = yield res.json();
-					state.bellNotifications = data.notifications || [];
+					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: formatRelativeTime( n.created_at ) } ) );
 					state.bellUnreadCount   = data.unread_count  || 0;
 				}
 			} finally {
@@ -1564,6 +1835,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} );
 			state.bellNotifications = [];
 			state.bellUnreadCount   = 0;
+		},
+	},
+
+	callbacks: {
+		// Notes for the applicant in the detail panel; re-runs when another
+		// applicant is selected (reads state.selectedAppId).
+		loadNotes() {
+			const id = state.selectedAppId;
+			state.noteDraft = '';
+			if ( ! id ) {
+				state.appNotes = [];
+				return;
+			}
+			wcbFetch( state.apiBase + '/applications/' + String( id ) + '/notes', { headers: { 'X-WP-Nonce': state.nonce } } )
+				.then( ( r ) => ( r.ok ? r.json() : [] ) )
+				.then( ( notes ) => {
+					if ( state.selectedAppId === id ) {
+						state.appNotes = Array.isArray( notes ) ? notes : [];
+					}
+				} )
+				.catch( () => {} );
 		},
 	},
 } );

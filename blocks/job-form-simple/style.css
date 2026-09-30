@@ -44,86 +44,10 @@
 	margin: 0 0 var(--wcb-space-xs);
 }
 
-/* ── Field primitives ────────────────────────────────────────────────── */
-
-.wcb-form-simple .wcb-form-field {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	min-width: 0;
-}
-
-.wcb-form-simple .wcb-form-label {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-form-simple .wcb-form-hint {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-}
-
 .wcb-form-simple .wcb-required {
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
 	margin-left: 2px; /* hairline gap */
-}
-
-.wcb-form-simple .wcb-field {
-	width: 100%;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	font-size: var(--wcb-text-base);
-	line-height: var(--wcb-leading-tight);
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	box-sizing: border-box;
-	appearance: none;
-}
-
-.wcb-form-simple textarea.wcb-field {
-	min-height: 140px; /* component-specific textarea height */
-	resize: vertical;
-	line-height: var(--wcb-leading-normal);
-}
-
-.wcb-form-simple select.wcb-field {
-	background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; /* arrow caret offsets */
-	background-size: 5px 5px, 5px 5px;
-	background-repeat: no-repeat;
-	padding-right: var(--wcb-space-3xl);
-}
-
-.wcb-form-simple .wcb-field:hover {
-	border-color: var(--wcb-text-tertiary);
-}
-
-/* No `outline: none` on plain `:focus` - browsers omit the ring on
- * mouse focus by default, and `:focus-visible` below adds the
- * keyboard-only outline. Older browsers keep the default outline as
- * a graceful fallback. */
-.wcb-form-simple .wcb-field:focus {
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-form-simple .wcb-field:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-form-simple .wcb-field::placeholder {
-	color: var(--wcb-text-tertiary);
-	opacity: 0.7;
 }
 
 /* ── Two-column grid (Apply URL/Email pair, Classification 2×2) ─────── */
@@ -145,7 +69,7 @@
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--wcb-space-lg);
 }
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	.wcb-form-simple__tax-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -157,12 +81,12 @@
 	gap: var(--wcb-space-sm);
 	align-items: stretch;
 }
-@media (max-width: 720px) {
+@media (max-width: 1024px) {
 	.wcb-form-simple .wcb-salary-row {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
-@media (max-width: 420px) {
+@media (max-width: 640px) {
 	.wcb-form-simple .wcb-salary-row {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -208,7 +132,7 @@
 	display: none;
 	background: var(--wcb-danger-bg);
 	border: 1px solid var(--wcb-danger);
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border-radius: var(--wcb-radius-md);
 	margin: 0;
@@ -309,7 +233,7 @@
 }
 
 .wcb-form-simple .wcb-btn--primary {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	box-shadow: var(--wcb-shadow-sm);
 }

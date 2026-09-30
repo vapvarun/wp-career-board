@@ -53,6 +53,84 @@ final class ApplicationsEndpoint extends RestController {
 			)
 		);
 
+		// CSV of one job's applicants, for its employer (and staff).
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/applications/export',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static function ( \WP_REST_Request $r ): void {
+					\WCB\Core\ApplicationsCsv::stream(
+						array(
+							'post_type'   => 'wcb_application',
+							'post_status' => 'any',
+							'meta_key'    => '_wcb_job_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+							'meta_value'  => (string) (int) $r['id'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						),
+						'__return_true' // Every row of the job: the permission check below already gates it.
+					);
+				},
+				'permission_callback' => function ( \WP_REST_Request $r ): bool|\WP_Error {
+					$job = get_post( (int) $r['id'] );
+					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( ( $this->is_current_user( (int) $job->post_author ) && $this->check_ability( 'wcb/view-applications' ) ) || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
+				},
+			)
+		);
+
+		// Hiring-team notes and rating: the job's employer and staff only.
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/notes',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static fn ( \WP_REST_Request $r ): \WP_REST_Response => rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) ),
+					'permission_callback' => array( $this, 'update_permissions_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => static function ( \WP_REST_Request $r ): \WP_REST_Response|\WP_Error {
+						$text = trim( sanitize_textarea_field( (string) $r->get_param( 'text' ) ) );
+						if ( '' === $text ) {
+							return new \WP_Error( 'wcb_note_empty', __( 'Write a note first.', 'wp-career-board' ), array( 'status' => 400 ) );
+						}
+						\WCB\Modules\Applications\ApplicationNotes::add( (int) $r['id'], get_current_user_id(), mb_substr( $text, 0, 5000 ) );
+						return rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) );
+					},
+					'permission_callback' => array( $this, 'update_permissions_check' ),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/notes/(?P<note>[A-Za-z0-9]+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => function ( \WP_REST_Request $r ): \WP_REST_Response|\WP_Error {
+					$done = \WCB\Modules\Applications\ApplicationNotes::delete( (int) $r['id'], (string) $r['note'], get_current_user_id(), $this->check_ability( 'wcb/manage-settings' ) );
+					return $done ? rest_ensure_response( \WCB\Modules\Applications\ApplicationNotes::notes( (int) $r['id'] ) ) : new \WP_Error( 'wcb_note_not_found', __( 'That note was already removed, or is not yours.', 'wp-career-board' ), array( 'status' => 404 ) );
+				},
+				'permission_callback' => array( $this, 'update_permissions_check' ),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/applications/(?P<id>\d+)/rating',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => static fn ( \WP_REST_Request $r ): \WP_REST_Response => rest_ensure_response( array( 'rating' => \WCB\Modules\Applications\ApplicationNotes::set_rating( (int) $r['id'], (int) $r->get_param( 'rating' ) ) ) ),
+				'permission_callback' => array( $this, 'update_permissions_check' ),
+				'args'                => array(
+					'rating' => array(
+						'type'     => 'integer',
+						'minimum'  => 0,
+						'maximum'  => 5,
+						'required' => true,
+					),
+				),
+			)
+		);
+
 		// Single application — candidate or employer owning the job.
 		register_rest_route(
 			$this->namespace,
@@ -90,6 +168,29 @@ final class ApplicationsEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_candidate_applications' ),
 				'permission_callback' => array( $this, 'candidate_permissions_check' ),
+			)
+		);
+
+		// Download a private candidate file. The website links to the
+		// `?wcb_file=` handler (cookie session); the app authenticates only on
+		// REST, so it uses this route. Same check either way.
+		register_rest_route(
+			$this->namespace,
+			'/files/(?P<id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static function ( \WP_REST_Request $request ): void {
+					\WCB\Core\PrivateFiles::send( (int) $request['id'] );
+				},
+				'permission_callback' => static function ( \WP_REST_Request $request ): bool {
+					return \WCB\Core\PrivateFiles::can_download( (int) $request['id'] );
+				},
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 
@@ -154,7 +255,34 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		if ( ! $is_guest && (int) $job->post_author === get_current_user_id() ) {
+			return new \WP_Error( 'wcb_own_job', __( 'You cannot apply to your own job.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+
+		// Required screening questions, checked here and not only in the
+		// browser (a request without JavaScript skipped them).
+		$wcb_missing = \WCB\Core\FormCustomFields::missing_required(
+			(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
+			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
+		);
+		if ( $wcb_missing ) {
+			return new \WP_Error(
+				'wcb_required_fields',
+				/* translators: %s: comma-separated field labels. */
+				sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $wcb_missing ) ),
+				array(
+					'status' => 400,
+					'fields' => array_keys( $wcb_missing ),
+				)
+			);
+		}
+
 		if ( $is_guest ) {
+			// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
+			if ( $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
+				return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
+			}
+
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
 			$guest_email = sanitize_email( (string) ( $request->get_param( 'guest_email' ) ?? '' ) );
@@ -166,176 +294,217 @@ final class ApplicationsEndpoint extends RestController {
 				return new \WP_Error( 'wcb_guest_email_invalid', __( 'A valid email address is required.', 'wp-career-board' ), array( 'status' => 400 ) );
 			}
 
-			// Duplicate guard: one pending application per guest email + job within 24 h.
-			$cutoff   = gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
-			$existing = get_posts(
-				array(
-					'post_type'      => 'wcb_application',
-					'post_status'    => 'any',
-					'posts_per_page' => 1,
-					'date_query'     => array( array( 'after' => $cutoff ) ),
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-							'relation' => 'AND',
-							array(
-								'key'   => '_wcb_job_id',
-								'value' => $job_id,
-					),
-					array(
-					'key'   => '_wcb_guest_email',
-					'value' => $guest_email,
-					),
-					),
-				)
-			);
-
-			if ( $existing ) {
-				return new \WP_Error(
-					'wcb_already_applied',
-					__( 'You have already applied to this job recently.', 'wp-career-board' ),
-					array( 'status' => 409 )
-				);
-			}
-
-			/* translators: 1: guest name, 2: job post ID */
-			$post_title = sprintf( __( 'Application: %1$s → Job %2$d', 'wp-career-board' ), $guest_name, $job_id );
+			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_g' . md5( $guest_email );
 		} else {
 			$candidate_id = get_current_user_id();
+			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_u' . $candidate_id;
+		}
 
-			// Prevent duplicate applications for logged-in candidates.
-			$existing = get_posts(
-				array(
-					'post_type'      => 'wcb_application',
-					'post_status'    => 'any',
-					'posts_per_page' => 1,
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'AND',
-					array(
-					'key'   => '_wcb_job_id',
-					'value' => $job_id,
-							),
-							array(
-								'key'   => '_wcb_candidate_id',
-								'value' => $candidate_id,
-							),
-					),
-				)
+		// MySQL named lock around check-then-insert: a racer waits here, then
+		// sees the first request's row. Released on connection close too, so a
+		// crashed request can't leave it stuck (Basecamp 10350213909).
+		global $wpdb;
+		$wcb_lock_key = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $wcb_lock_key );
+		if ( 1 !== (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 10 )', $wcb_lock_key ) ) ) {
+			return new \WP_Error(
+				'wcb_apply_busy',
+				__( 'Your application is still being submitted. Please wait a moment and check your applications.', 'wp-career-board' ),
+				array( 'status' => 409 )
 			);
+		}
 
-			if ( $existing ) {
-				return new \WP_Error(
-					'wcb_already_applied',
-					__( 'You have already applied to this job.', 'wp-career-board' ),
-					array( 'status' => 409 )
+		try {
+			if ( $is_guest ) {
+				// Duplicate guard: one pending application per guest email + job within 24 h.
+				$cutoff   = gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
+				$existing = get_posts(
+					array(
+						'post_type'      => 'wcb_application',
+						'post_status'    => 'any',
+						'posts_per_page' => 1,
+						'date_query'     => array( array( 'after' => $cutoff ) ),
+						'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+								'relation' => 'AND',
+								array(
+									'key'   => '_wcb_job_id',
+									'value' => $job_id,
+						),
+						array(
+						'key'   => '_wcb_guest_email',
+						'value' => $guest_email,
+						),
+						),
+					)
 				);
+
+				if ( $existing ) {
+					return new \WP_Error(
+						'wcb_already_applied',
+						__( 'You have already applied to this job recently.', 'wp-career-board' ),
+						array( 'status' => 409 )
+					);
+				}
+
+				/* translators: 1: guest name, 2: job post ID */
+				$post_title = sprintf( __( 'Application: %1$s → Job %2$d', 'wp-career-board' ), $guest_name, $job_id );
+			} else {
+				// Prevent duplicate applications for logged-in candidates.
+				$existing = get_posts(
+					array(
+						'post_type'      => 'wcb_application',
+						'post_status'    => 'any',
+						'posts_per_page' => 1,
+						'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'AND',
+						array(
+						'key'   => '_wcb_job_id',
+						'value' => $job_id,
+								),
+								array(
+									'key'   => '_wcb_candidate_id',
+									'value' => $candidate_id,
+								),
+								// A withdrawn application does not block applying again.
+								array(
+									'key'     => '_wcb_status',
+									'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+									'compare' => '!=',
+								),
+						),
+					)
+				);
+
+				if ( $existing ) {
+					// If this is a Position closed row under a job that has been reopened,
+					// give it back its status so the candidate's dashboard is right.
+					\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( (int) $existing[0]->ID );
+					return new \WP_Error(
+						'wcb_already_applied',
+						__( 'You have already applied to this job.', 'wp-career-board' ),
+						array( 'status' => 409 )
+					);
+				}
+
+				/* translators: 1: candidate user ID, 2: job post ID */
+				$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
 			}
 
-			/* translators: 1: candidate user ID, 2: job post ID */
-			$post_title = sprintf( __( 'Application: User %1$d → Job %2$d', 'wp-career-board' ), $candidate_id, $job_id );
-		}
+			$wcb_app_data = array(
+				'post_type'   => 'wcb_application',
+				'post_title'  => $post_title,
+				'post_status' => 'publish',
+				'post_author' => $is_guest ? 0 : $candidate_id,
+			);
 
-		$wcb_app_data = array(
-			'post_type'   => 'wcb_application',
-			'post_title'  => $post_title,
-			'post_status' => 'publish',
-			'post_author' => $is_guest ? 0 : $candidate_id,
-		);
+			/**
+			 * Filter — abort or modify an application-create write before it happens.
+			 *
+			 * Return WP_Error to abort (e.g. fail anti-spam check). Return the
+			 * (possibly modified) post-data array to continue.
+			 *
+			 * @since 1.1.1
+			 *
+			 * @param array            $post_data    wp_insert_post arg array.
+			 * @param int              $job_id       The job being applied to.
+			 * @param int              $candidate_id The applying user (0 for guest).
+			 * @param \WP_REST_Request $request      The originating REST request.
+			 */
+			$wcb_app_data = apply_filters( 'wcb_before_create_application', $wcb_app_data, $job_id, $is_guest ? 0 : $candidate_id, $request );
+			if ( is_wp_error( $wcb_app_data ) ) {
+				return $wcb_app_data;
+			}
 
-		/**
-		 * Filter — abort or modify an application-create write before it happens.
-		 *
-		 * Return WP_Error to abort (e.g. fail anti-spam check). Return the
-		 * (possibly modified) post-data array to continue.
-		 *
-		 * @since 1.1.1
-		 *
-		 * @param array            $post_data    wp_insert_post arg array.
-		 * @param int              $job_id       The job being applied to.
-		 * @param int              $candidate_id The applying user (0 for guest).
-		 * @param \WP_REST_Request $request      The originating REST request.
-		 */
-		$wcb_app_data = apply_filters( 'wcb_before_create_application', $wcb_app_data, $job_id, $is_guest ? 0 : $candidate_id, $request );
-		if ( is_wp_error( $wcb_app_data ) ) {
-			return $wcb_app_data;
-		}
+			$app_id = wp_insert_post( $wcb_app_data, true );
 
-		$app_id = wp_insert_post( $wcb_app_data, true );
+			if ( is_wp_error( $app_id ) ) {
+				return $app_id;
+			}
 
-		if ( is_wp_error( $app_id ) ) {
-			return $app_id;
-		}
+			// The keys the duplicate check above queries on must exist before
+			// the lock is released, or a racer in the gap finds nothing.
+			update_post_meta( $app_id, '_wcb_job_id', $job_id );
+			update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
+			update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
+			if ( $is_guest ) {
+				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+			}
 
-		update_post_meta( $app_id, '_wcb_job_id', $job_id );
-		update_post_meta( $app_id, '_wcb_candidate_id', $is_guest ? 0 : $candidate_id );
+			// Resume checks run inside the lock too: a request that fails them
+			// deletes its row before the lock is released, so a valid retry never
+			// sees it as 'already applied' (Basecamp 10352603157).
 
-		// Snapshot the job title + company at apply time so the candidate's
-		// history stays readable if the job post is deleted later.
-		$snapshot_job = get_post( $job_id );
-		if ( $snapshot_job instanceof \WP_Post ) {
-			update_post_meta( $app_id, '_wcb_job_title_snapshot', (string) $snapshot_job->post_title );
-			update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
-		}
-		update_post_meta(
-			$app_id,
-			'_wcb_cover_letter',
-			sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
-		);
+			// Snapshot the job title + company at apply time so the candidate's
+			// history stays readable if the job post is deleted later.
+			$snapshot_job = get_post( $job_id );
+			if ( $snapshot_job instanceof \WP_Post ) {
+				update_post_meta( $app_id, '_wcb_job_title_snapshot', (string) $snapshot_job->post_title );
+				update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
+			}
+			update_post_meta(
+				$app_id,
+				'_wcb_cover_letter',
+				sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
+			);
 
-		$resume_id = 0;
+			$resume_id = 0;
 
-		if ( $is_guest ) {
-			update_post_meta( $app_id, '_wcb_guest_name', $guest_name );
-			update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
-		} else {
-			// Validate resume belongs to the current candidate before storing.
-			$resume_id = (int) $request->get_param( 'resume_id' );
-			if ( $resume_id > 0 ) {
-				$resume = get_post( $resume_id );
-				if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+			if ( $is_guest ) {
+				update_post_meta( $app_id, '_wcb_guest_name', $guest_name );
+				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+			} else {
+				// Validate resume belongs to the current candidate before storing.
+				$resume_id = (int) $request->get_param( 'resume_id' );
+				if ( $resume_id > 0 ) {
+					$resume = get_post( $resume_id );
+					if ( ! $resume || 'wcb_resume' !== $resume->post_type || $candidate_id !== (int) $resume->post_author ) {
+						wp_delete_post( $app_id, true );
+						return new \WP_Error(
+							'wcb_invalid_resume',
+							__( 'Invalid resume.', 'wp-career-board' ),
+							array( 'status' => 400 )
+						);
+					}
+				}
+				update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
+			}
+
+			// Resume file attachment — accepted from both guests and logged-in users
+			// either as a multipart upload on this request or as a pre-uploaded
+			// attachment id from the legacy /candidates/resume-upload flow.
+			$attachment_id = $this->resolve_resume_attachment( $request, $is_guest ? 0 : $candidate_id, $app_id );
+			if ( is_wp_error( $attachment_id ) ) {
+				wp_delete_post( $app_id, true );
+				return $attachment_id;
+			}
+			if ( $attachment_id > 0 ) {
+				update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
+			} elseif ( $resume_id > 0 ) {
+				// Candidate picked a saved resume with no uploaded PDF — common when
+				// the resume was built in the manual builder. Auto-generate the PDF so
+				// applying stays one tap: Pro renders the structured resume to a PDF and
+				// caches it on the resume. Falls back to the upload/export error only
+				// when generation isn't available (e.g. Pro inactive).
+				$generated_id = (int) apply_filters( 'wcb_resume_pdf_attachment_id', 0, $resume_id, $candidate_id );
+				if ( $generated_id > 0 ) {
+					update_post_meta( $app_id, '_wcb_resume_attachment_id', $generated_id );
+				} elseif ( $this->resume_required() ) {
 					wp_delete_post( $app_id, true );
 					return new \WP_Error(
-						'wcb_invalid_resume',
-						__( 'Invalid resume.', 'wp-career-board' ),
+						'wcb_resume_no_pdf',
+						__( "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying.", 'wp-career-board' ),
 						array( 'status' => 400 )
 					);
 				}
-			}
-			update_post_meta( $app_id, '_wcb_resume_id', $resume_id );
-		}
-
-		// Resume file attachment — accepted from both guests and logged-in users
-		// either as a multipart upload on this request or as a pre-uploaded
-		// attachment id from the legacy /candidates/resume-upload flow.
-		$attachment_id = $this->resolve_resume_attachment( $request, $is_guest ? 0 : $candidate_id, $app_id );
-		if ( is_wp_error( $attachment_id ) ) {
-			wp_delete_post( $app_id, true );
-			return $attachment_id;
-		}
-		if ( $attachment_id > 0 ) {
-			update_post_meta( $app_id, '_wcb_resume_attachment_id', $attachment_id );
-		} elseif ( $resume_id > 0 ) {
-			// Candidate picked a saved resume with no uploaded PDF — common when
-			// the resume was built in the manual builder. Auto-generate the PDF so
-			// applying stays one tap: Pro renders the structured resume to a PDF and
-			// caches it on the resume. Falls back to the upload/export error only
-			// when generation isn't available (e.g. Pro inactive).
-			$generated_id = (int) apply_filters( 'wcb_resume_pdf_attachment_id', 0, $resume_id, $candidate_id );
-			if ( $generated_id > 0 ) {
-				update_post_meta( $app_id, '_wcb_resume_attachment_id', $generated_id );
 			} elseif ( $this->resume_required() ) {
 				wp_delete_post( $app_id, true );
 				return new \WP_Error(
-					'wcb_resume_no_pdf',
-					__( "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying.", 'wp-career-board' ),
+					'wcb_resume_required',
+					__( 'A resume is required to apply for this job.', 'wp-career-board' ),
 					array( 'status' => 400 )
 				);
 			}
-		} elseif ( $this->resume_required() ) {
-			wp_delete_post( $app_id, true );
-			return new \WP_Error(
-				'wcb_resume_required',
-				__( 'A resume is required to apply for this job.', 'wp-career-board' ),
-				array( 'status' => 400 )
-			);
+		} finally {
+			$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_lock_key ) );
 		}
 
 		update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
@@ -418,26 +587,49 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
-		$old_status = (string) get_post_meta( $post->ID, '_wcb_status', true );
-		update_post_meta( $post->ID, '_wcb_status', $new_status );
+		// Withdrawn, position-closed and job-removed are final outcomes; the
+		// employer sees them but cannot reopen them.
+		$current = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
+		if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {
+			return new \WP_Error(
+				'wcb_application_closed',
+				__( 'This application is closed (withdrawn, position closed or job removed), so its status can no longer change.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
 
-		$log   = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
-		$log[] = array(
-			'from' => $old_status,
-			'to'   => $new_status,
-			'by'   => get_current_user_id(),
-			'at'   => gmdate( 'Y-m-d H:i:s' ),
-		);
-		update_post_meta( $post->ID, '_wcb_status_log', $log );
-
-		do_action( 'wcb_application_status_changed', $post->ID, $old_status, $new_status );
+		$note    = sanitize_textarea_field( (string) $request->get_param( 'note' ) );
+		$changed = \WCB\Modules\Applications\ApplicationLifecycle::transition( $post->ID, $new_status, 'employer_update', get_current_user_id(), $note );
 
 		return rest_ensure_response(
-			array(
-				'id'     => $post->ID,
-				'status' => $new_status,
+			array_merge(
+				array(
+					'id'       => $post->ID,
+					'changed'  => $changed,
+					// Guests have no account, so the status email never reaches them.
+					'notified' => $changed && null !== \WCB\Modules\Notifications\Emails\EmailAppStatus::recipient( $post->ID ),
+				),
+				\WCB\Modules\Applications\ApplicationStatus::payload( $new_status, $this->audience_for( $post ) )
 			)
 		);
+	}
+
+	/**
+	 * Which wording the current user should read for this application.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $post Application post.
+	 * @return string ApplicationStatus::AUDIENCE_* constant.
+	 */
+	private function audience_for( \WP_Post $post ): string {
+		$user_id = get_current_user_id();
+		if ( $user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $user_id ) {
+			return \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE;
+		}
+		return $this->check_ability( 'wcb/manage-settings' )
+			? \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN
+			: \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER;
 	}
 
 	/**
@@ -482,8 +674,7 @@ final class ApplicationsEndpoint extends RestController {
 		foreach ( $query->posts as $app ) {
 			$job_id      = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 			$job         = $job_id ? get_post( $job_id ) : null;
-			$status      = (string) get_post_meta( $app->ID, '_wcb_status', true );
-			$status      = $status ? $status : \WCB\Modules\Applications\ApplicationStatus::SUBMITTED;
+			$status      = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app->ID );
 			$job_removed = \WCB\Modules\Applications\ApplicationStatus::JOB_REMOVED === $status;
 
 			// Snapshot meta (saved at apply-time) preserves the title/company
@@ -500,14 +691,14 @@ final class ApplicationsEndpoint extends RestController {
 				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
 				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
 				'jobRemoved'   => $job_removed || ! $job_exists,
-				'status'       => $status,
-				'statusLabel'  => \WCB\Modules\Applications\ApplicationStatus::label( $status ),
+				// Withdraw is offered until the application has an outcome.
+				'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
 				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
 				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
 				// Legacy `date` key, still rendered by the candidate dashboard.
 				// Use the site's configured date format, not a hardcoded ISO string.
 				'date'         => get_the_date( (string) get_option( 'date_format' ), $app ),
-			);
+			) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
 			$items[] = (array) apply_filters( 'wcb_rest_prepare_application', $row, $app, $request, 'candidate' );
@@ -521,6 +712,7 @@ final class ApplicationsEndpoint extends RestController {
 				'total'        => $total,
 				'pages'        => $pages,
 				'has_more'     => $paged < $pages,
+				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $candidate_id ),
 			)
 		);
 		$response->header( 'X-WCB-Total', (string) $total );
@@ -529,12 +721,16 @@ final class ApplicationsEndpoint extends RestController {
 	}
 
 	/**
-	 * Withdraw (delete) an application — candidate owner only.
+	 * Withdraw an application — candidate owner only.
 	 *
-	 * Respects the allow_withdraw site setting. Fires wcb_application_withdrawn
-	 * so other modules (e.g. notifications) can react.
+	 * Since 1.8.0 the application is kept with status `withdrawn` instead of
+	 * being deleted, so the employer's list and the candidate's history both
+	 * stay truthful. Allowed until the application reaches an outcome (hired,
+	 * rejected, job removed). Fires wcb_application_withdrawn, which emails
+	 * the employer.
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 Keeps the application as `withdrawn`.
 	 *
 	 * @param  \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -549,20 +745,55 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		$status = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
+		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+
+		// The job is gone: nobody else sees this row, so "Remove" really deletes
+		// it and the candidate can tidy their history.
+		if ( \WCB\Modules\Applications\ApplicationStatus::JOB_REMOVED === $status || 'wcb_job' !== get_post_type( $job_id ) ) {
+			wp_delete_post( $post->ID, true );
+			return rest_ensure_response(
+				array(
+					'id'        => $post->ID,
+					'withdrawn' => false,
+					'deleted'   => true,
+				)
+			);
+		}
+
+		if ( in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ) ) {
+			return new \WP_Error(
+				'wcb_withdraw_closed',
+				__( 'This application already has an outcome and can no longer be withdrawn.', 'wp-career-board' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		$app_id       = $post->ID;
 		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-		$job_id       = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
-		wp_delete_post( $app_id, true );
-		// Allow add-ons to clean up when an application is permanently deleted.
-		do_action( 'wcb_application_deleted', $app_id );
+		\WCB\Modules\Applications\ApplicationLifecycle::transition( $app_id, \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, 'candidate_withdrew', get_current_user_id() );
 
+		/**
+		 * Fires after a candidate withdraws an application.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int $app_id       Application post ID (kept, status withdrawn, since 1.8.0).
+		 * @param int $job_id       Job post ID.
+		 * @param int $candidate_id Candidate user ID.
+		 */
 		do_action( 'wcb_application_withdrawn', $app_id, $job_id, $candidate_id );
 
 		return rest_ensure_response(
-			array(
-				'deleted' => true,
-				'id'      => $app_id,
+			array_merge(
+				array(
+					'id'        => $app_id,
+					'withdrawn' => true,
+					// Legacy key: clients before 1.8.0 treated `deleted` as success.
+					'deleted'   => true,
+				),
+				\WCB\Modules\Applications\ApplicationStatus::payload( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE )
 			)
 		);
 	}
@@ -610,6 +841,16 @@ final class ApplicationsEndpoint extends RestController {
 
 		$pre_uploaded = (int) $request->get_param( 'resume_attachment_id' );
 		if ( $pre_uploaded > 0 ) {
+			// A guest has no uploads of their own to point at: any id they send
+			// belongs to someone else, and attaching it handed that person's CV
+			// to the job's employer. Guests upload the file on this request.
+			if ( $author_id <= 0 ) {
+				return new \WP_Error(
+					'wcb_invalid_resume',
+					__( 'Invalid resume attachment.', 'wp-career-board' ),
+					array( 'status' => 400 )
+				);
+			}
 			$attachment = get_post( $pre_uploaded );
 			if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
 				return new \WP_Error(
@@ -618,7 +859,7 @@ final class ApplicationsEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			if ( $author_id > 0 && (int) $attachment->post_author !== $author_id ) {
+			if ( (int) $attachment->post_author !== $author_id ) {
 				return new \WP_Error(
 					'wcb_invalid_resume',
 					__( 'Invalid resume attachment.', 'wp-career-board' ),
@@ -628,20 +869,11 @@ final class ApplicationsEndpoint extends RestController {
 			return $pre_uploaded;
 		}
 
-		// Fall back to the attachment stored on the selected resume CPT post.
-		// Without this, picking a saved resume leaves the application's
-		// _wcb_resume_attachment_id empty and the preview renders blank.
-		$resume_id = (int) $request->get_param( 'resume_id' );
-		if ( $resume_id > 0 && $author_id > 0 ) {
-			$resume = get_post( $resume_id );
-			if ( $resume && 'wcb_resume' === $resume->post_type && (int) $resume->post_author === $author_id ) {
-				$resume_attachment_id = (int) get_post_meta( $resume_id, '_wcb_resume_attachment_id', true );
-				if ( $resume_attachment_id > 0 && get_post( $resume_attachment_id ) ) {
-					return $resume_attachment_id;
-				}
-			}
-		}
-
+		// A saved resume's PDF is resolved by the `wcb_resume_pdf_attachment_id`
+		// filter in the caller, which returns the candidate's uploaded PDF or a
+		// generated one that still matches the resume. Reading the stored
+		// attachment here instead skipped that check and kept sending employers
+		// the CV as it was before the candidate edited it.
 		return 0;
 	}
 
@@ -710,11 +942,14 @@ final class ApplicationsEndpoint extends RestController {
 			),
 		);
 
-		$attachment_id = media_handle_upload( 'resume_file', $parent_id, array(), $overrides );
+		$attachment_id = \WCB\Core\PrivateFiles::in_private_dir(
+			static fn () => media_handle_upload( 'resume_file', $parent_id, array(), $overrides )
+		);
 
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}
+		\WCB\Core\PrivateFiles::protect( (int) $attachment_id );
 
 		if ( $author_id > 0 ) {
 			wp_update_post(
@@ -766,9 +1001,11 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function submit_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		// Guests can always apply (no account needed).
+		// Guests can apply unless Settings > Applications requires an account.
 		if ( ! is_user_logged_in() ) {
-			return true;
+			return \WCB\Admin\Settings::bool( 'apply_require_login', false )
+				? new \WP_Error( 'wcb_login_required', __( 'Please sign in to apply for this job.', 'wp-career-board' ), array( 'status' => 401 ) )
+				: true;
 		}
 
 		// Logged-in users must have the wcb_apply_jobs ability/cap.
@@ -805,7 +1042,7 @@ final class ApplicationsEndpoint extends RestController {
 		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
-		$is_employer     = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_employer     = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
@@ -836,7 +1073,7 @@ final class ApplicationsEndpoint extends RestController {
 		}
 		$job_id   = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 		$job      = get_post( $job_id );
-		$is_owner = $job instanceof \WP_Post && get_current_user_id() === (int) $job->post_author;
+		$is_owner = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
 		return $is_owner ? true : $this->permission_error();
 	}
 
@@ -882,7 +1119,7 @@ final class ApplicationsEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
-		$is_owner = (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === get_current_user_id();
+		$is_owner = $this->is_current_user( (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
@@ -898,7 +1135,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function candidate_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
@@ -924,6 +1161,7 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_application( \WP_Post $post, ?\WP_REST_Request $request = null ): array {
+		\WCB\Modules\Applications\ApplicationLifecycle::heal_reopened( $post->ID );
 		$current_user_id = get_current_user_id();
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		$viewer_role     = 'candidate';
@@ -949,6 +1187,8 @@ final class ApplicationsEndpoint extends RestController {
 				$data = $this->prepare_for_candidate( $post );
 			}
 		}
+
+		$data = array_merge( $data, \WCB\Modules\Applications\ApplicationStatus::payload( (string) ( $data['status'] ?? '' ), $viewer_role ) );
 
 		/**
 		 * Canonical wcb_rest_prepare_* filter for the application resource.
@@ -1011,7 +1251,7 @@ final class ApplicationsEndpoint extends RestController {
 				self::FIELD_META_PREFIX
 			),
 			'resume_id'        => $resume_id,
-			'resume_url'       => $resume_attachment_id ? wp_get_attachment_url( $resume_attachment_id ) : '',
+			'resume_url'       => $resume_attachment_id ? \WCB\Core\PrivateFiles::url( (int) $resume_attachment_id ) : '',
 			'resume_permalink' => $resume_permalink,
 			'status'           => '' !== $status ? $status : 'submitted',
 			'submitted_at'     => $post->post_date,
@@ -1073,17 +1313,14 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<int, array<string, string>>
 	 */
 	private function status_history_for_employer( \WP_Post $post ): array {
-		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log = \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID );
 		return array_map(
-			static function ( $entry ): array {
-				$entry = is_array( $entry ) ? $entry : array();
-				return array(
-					'status'    => isset( $entry['to'] ) ? (string) $entry['to'] : '',
-					'from'      => isset( $entry['from'] ) ? (string) $entry['from'] : '',
-					'timestamp' => isset( $entry['at'] ) ? (string) $entry['at'] : '',
-					'reviewer'  => __( 'Hiring team', 'wp-career-board' ),
-				);
-			},
+			static fn( array $entry ): array => array(
+				'status'    => $entry['to'],
+				'from'      => $entry['from'],
+				'timestamp' => $entry['at'],
+				'reviewer'  => __( 'Hiring team', 'wp-career-board' ),
+			),
 			$log
 		);
 	}
@@ -1097,17 +1334,14 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function status_history_for_admin( \WP_Post $post ): array {
-		$log = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log = \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID );
 		return array_map(
-			static function ( $entry ): array {
-				$entry = is_array( $entry ) ? $entry : array();
-				return array(
-					'status'           => isset( $entry['to'] ) ? (string) $entry['to'] : '',
-					'from'             => isset( $entry['from'] ) ? (string) $entry['from'] : '',
-					'timestamp'        => isset( $entry['at'] ) ? (string) $entry['at'] : '',
-					'reviewer_user_id' => isset( $entry['by'] ) ? (int) $entry['by'] : 0,
-				);
-			},
+			static fn( array $entry ): array => array(
+				'status'           => $entry['to'],
+				'from'             => $entry['from'],
+				'timestamp'        => $entry['at'],
+				'reviewer_user_id' => $entry['by'],
+			),
 			$log
 		);
 	}

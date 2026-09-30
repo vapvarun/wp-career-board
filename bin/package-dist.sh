@@ -16,7 +16,7 @@
 # allowlist needs a human to remember every new folder; a denylist does not.
 #
 # Usage: bin/package-dist.sh [--output DIR]
-# Exit:  0 ok | 2 bad flag | 10 cannot resolve version | 40 verify-zip failed
+# Exit:  0 ok | 2 bad flag | 10 cannot resolve version | 40 verify-zip failed | 41 rtl build failed
 
 set -euo pipefail
 
@@ -42,6 +42,13 @@ esac
 VERSION=$(grep -oE "define\(\s*'${VAR}',\s*'[0-9.]+'" "$ROOT/$SLUG.php" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 [ -z "$VERSION" ] && { echo "FAIL: cannot read $VAR from $SLUG.php" >&2; exit 10; }
 echo "Packaging $SLUG v$VERSION"
+
+# RTL twins are generated from the current sources, never hand-kept: clear any
+# left over, rebuild, so the zip cannot carry stale or missing ones.
+echo "  generating RTL stylesheets (grunt rtl)"
+find "$ROOT/assets" "$ROOT/blocks" "$ROOT/integrations" -name '*-rtl.css' -type f -delete 2>/dev/null || true
+[ -x "$ROOT/node_modules/.bin/grunt" ] || (cd "$ROOT" && npm install --no-package-lock --ignore-scripts --no-audit --no-fund --silent)
+(cd "$ROOT" && node_modules/.bin/grunt rtl --no-color) >/dev/null || { echo "FAIL: grunt rtl failed" >&2; exit 41; }
 
 # Clean staging dir.
 mkdir -p "$OUTPUT_DIR"

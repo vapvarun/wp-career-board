@@ -23,11 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * apply endpoint accepted the submission, so candidates wrote applications for
  * roles that had closed.
  *
- * Deliberately independent of the `deadline_auto_close` setting. That setting
- * decides whether the post status also flips to `wcb_expired`; it should not
- * decide whether the UI tells the truth. With auto-close off — the default —
- * the listing stays reachable and simply shows that applications have closed,
- * which is the state the settings screen always described but never had.
+ * has_passed() is the date alone. accepts_applications() is the full rule
+ * (published and not past the deadline) that every "open" surface uses; the
+ * hourly sweep in JobsExpiry then moves ended jobs to `wcb_expired`, where
+ * their page stays up as an expired page (owner decision D5).
  *
  * @since 1.7.1
  */
@@ -82,14 +81,63 @@ class JobDeadline {
 	}
 
 	/**
-	 * Whether the job is still taking applications.
+	 * Whether the job is still taking applications: the one "is this job
+	 * open" rule (owner decision D5).
+	 *
+	 * Open means published and not past its deadline. Expired (deadline
+	 * passed, swept to `wcb_expired`) and closed (the employer closed it) are
+	 * both ended. Every surface that says "open" or counts open positions
+	 * asks this, or open_jobs_meta_query() for a query.
 	 *
 	 * @since  1.7.1
+	 * @since  1.8.0 Also requires the job to be published.
 	 * @param  int $job_id Job post ID.
 	 * @return bool
 	 */
 	public static function accepts_applications( int $job_id ): bool {
-		return ! self::has_passed( $job_id );
+		return 'publish' === get_post_status( $job_id ) && ! self::has_passed( $job_id );
+	}
+
+	/**
+	 * How a job ended, for the page and labels.
+	 *
+	 * @since  1.8.0
+	 * @param  int $job_id Job post ID.
+	 * @return string 'closed' (the employer closed it), 'expired' (deadline
+	 *                passed) or '' while it is open.
+	 */
+	public static function ended( int $job_id ): string {
+		if ( 'wcb_closed' === get_post_status( $job_id ) ) {
+			return 'closed';
+		}
+		return self::accepts_applications( $job_id ) ? '' : 'expired';
+	}
+
+	/**
+	 * Meta query clause that keeps only jobs whose deadline has not passed.
+	 *
+	 * Pair with `post_status => publish`. Jobs with no deadline stay in.
+	 *
+	 * @since  1.8.0
+	 * @return array<int|string, mixed>
+	 */
+	public static function open_jobs_meta_query(): array {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_wcb_deadline',
+				'value'   => current_time( 'Y-m-d' ),
+				'compare' => '>=',
+			),
+			array(
+				'key'     => '_wcb_deadline',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'   => '_wcb_deadline',
+				'value' => '',
+			),
+		);
 	}
 
 	/**
@@ -100,5 +148,41 @@ class JobDeadline {
 	 */
 	public static function closed_label(): string {
 		return __( 'Applications closed', 'wp-career-board' );
+	}
+
+	/**
+	 * Deadline for a job with none given: today plus the listing length
+	 * (the board's own length when set, else Settings > Jobs, else 30 days).
+	 *
+	 * Used when a job is created without a deadline and when an ended job is
+	 * republished (REST, admin Approve, CLI: see JobsExpiry::renew_deadline_on_republish), so a republished job gets a full new listing period instead
+	 * of expiring again at the next sweep.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request The originating request (board resolution).
+	 * @return string Y-m-d date.
+	 */
+	public static function default_end( \WP_REST_Request $request ): string {
+		$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+
+		/**
+		 * Filter the default expiry window (in days) for a newly submitted
+		 * job when the request did not supply an explicit deadline.
+		 *
+		 * Pro hooks this to honor the per-board <code>expiry_days</code>
+		 * setting so each board can run its own posting cadence (e.g. a
+		 * "weekend gigs" board with 7-day listings vs a "permanent roles"
+		 * board with 60-day listings).
+		 *
+		 * @since 1.2.5
+		 *
+		 * @param int              $expire_days Resolved default (positive integer).
+		 * @param \WP_REST_Request $request     The originating REST request.
+		 */
+		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
+		$expire_days = $expire_days > 0 ? $expire_days : 30;
+		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 	}
 }

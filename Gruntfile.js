@@ -10,7 +10,7 @@
  *   grunt i18n         — sync + AI-translate + compile locale .po/.mo/.json
  *                        (see @wbcom/i18n-ai + .wbcom-i18n.json)
  *   grunt dist         — clean, copy release files, create zip
- *   grunt rtl          — generate RTL variants of admin.css and frontend.css
+ *   grunt rtl          — generate -rtl.css twins of every stylesheet with direction rules
  *   grunt release      — build + pot + textdomain + rtl + dist (full pipeline)
  *   grunt version      — bump version: grunt version --ver=1.0.0
  */
@@ -67,13 +67,25 @@ module.exports = function ( grunt ) {
 		// ── RTL CSS ──────────────────────────────────────────────────────────
 		rtlcss: {
 			options: {
+				// A twin is written only where a stylesheet has direction-
+				// dependent rules; core\Rtl opts a style in only when its twin
+				// exists. Twins are build output (gitignored), never hand-kept.
 				saveUnmodified: false,
 			},
 			dist: {
 				expand: true,
-				cwd:    'assets/css/',
-				src:    [ 'admin.css', 'frontend.css' ],
-				dest:   'assets/css/',
+				cwd:    '.',
+				src:    [
+					'assets/**/*.css',
+					'blocks/**/*.css',
+					'integrations/**/*.css',
+					'!**/*-rtl.css',
+					'!**/*.min.css',
+					// Vendored third-party CSS keeps its own direction handling.
+					'!**/vendor/**',
+					'!**/leaflet/**',
+				],
+				dest:   './',
 				ext:    '-rtl.css',
 			},
 		},

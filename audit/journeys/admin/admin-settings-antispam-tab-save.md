@@ -3,13 +3,14 @@ id: admin-settings-antispam-tab-save
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-09-27
+bug_ref: Basecamp 10326835396
 needs: cli
 ---
 
 # Admin cycles CAPTCHA provider on Antispam tab; each switch persists; prior keys survive
 
-**Why this journey exists:** The Antispam tab uses a SEPARATE save mechanism (`admin-post.php?action=wcb_save_antispam`) that directly calls `update_option('wcb_settings', ...)`. This journey verifies: (a) each provider switch persists correctly, (b) switching away from Turnstile does NOT delete the Turnstile site/secret keys from the option — they must survive for when the admin switches back, and (c) the `wcb_settings_tab_antispam` action fires cleanly.
+**Why this journey exists:** The Antispam tab used its own admin-post handler whose write was stripped by the Settings API sanitizer, so keys never saved (card 10326835396). Since 1.8.0 it posts to `options.php` like every other tab and every key is in `SettingsSchema`. This journey verifies: (a) each provider switch persists correctly, (b) switching away from Turnstile does NOT delete the Turnstile site/secret keys from the option — they must survive for when the admin switches back, and (c) the `wcb_settings_tab_antispam` action fires cleanly.
 
 ## Steps
 
@@ -19,9 +20,9 @@ needs: cli
    ORIG_PROVIDER=$(echo "$BEFORE" | python3 -c "import json,sys; d=json.load(sys.stdin); c=d.get('captcha_provider','none'); print(c)")
    echo "Current captcha_provider: $ORIG_PROVIDER"
    ```
-2. Navigate to `/wp-admin/admin.php?page=wcb-settings&tab=antispam&autologin=1` → expect 200, Anti-Spam section renders with CAPTCHA Provider dropdown; three options: "None (Honeypot only)", "Cloudflare Turnstile", "Google reCAPTCHA v3"
+2. Navigate to `/wp-admin/admin.php?page=wcb-settings&tab=antispam&autologin=1` → expect 200, Anti-Spam section renders with CAPTCHA Provider dropdown; four options: "None (Honeypot only)", "Cloudflare Turnstile", "Google reCAPTCHA v3 (invisible, score)", "Google reCAPTCHA v2 (invisible badge)"
 3. Switch provider to `turnstile`: select "Cloudflare Turnstile" in the dropdown, enter fake keys `ts_site_key_smoke` and `ts_secret_key_smoke`, submit the form
-4. Expect redirect back to `?tab=antispam&wcb-antispam-saved=1`; verify the success notice "Anti-Spam settings saved." is visible
+4. Expect redirect back to `?tab=antispam&settings-updated=true` with the standard settings-saved notice
 5. Verify persistence in `wcb_settings`:
    ```bash
    wp option get wcb_settings --format=json | python3 -c "
@@ -73,6 +74,6 @@ wp option patch update wcb_settings recaptcha_secret_key "" 2>/dev/null || true
 
 ## Notes
 
-- The Antispam save path is `admin-post.php?action=wcb_save_antispam` → `AntiSpamModule::save_settings()`. It reads the full existing `wcb_settings` array, overlays only the captcha keys, and calls `update_option('wcb_settings', ...)` directly — NOT through the Settings API. This is intentional (the form doesn't use `options.php`) but means the merge guarantee is manually implemented in `save_settings()`.
+- The Antispam form posts to `options.php` with the `_wcb_form` marker, so `AdminSettings::sanitize()` merges only the posted keys over the stored option. `AntiSpamModule::active()` is the one answer to "which CAPTCHA is in force" (provider chosen AND both keys set) for the web forms and `GET /settings/app-config` (`captcha_required`, `captcha.provider`, `captcha.site_key`).
 - Fake API keys are fine for this journey — no live Cloudflare or Google verification is expected. The keys are stored as plain text strings; no encryption is applied on the Free side for captcha keys.
-- `wcb-antispam-saved` query param is checked inside `render_settings_tab()` to show the success notice (not `settings-updated`).
+- Success notice comes from the Settings API (`settings-updated=true`).

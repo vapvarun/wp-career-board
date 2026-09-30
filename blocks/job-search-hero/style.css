@@ -27,7 +27,7 @@
 .wcb-search-hero__input,
 .wcb-search-hero__select {
 	width: 100%;
-	height: 48px;
+	height: var(--wcb-control-h);
 	padding: 0 var(--wcb-space-lg);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -37,7 +37,7 @@
 	color: var(--wcb-contrast);
 	appearance: auto;
 	min-width: 0;
-	min-height: 44px;
+	min-height: var(--wcb-control-h);
 }
 
 .wcb-search-hero__input:focus,
@@ -47,10 +47,10 @@
 }
 
 .wcb-search-hero__button {
-	height: 48px;
+	height: var(--wcb-control-h);
 	padding: 0 var(--wcb-space-2xl);
-	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	background: var(--wcb-primary-strong);
+	color: var(--wcb-on-primary, #ffffff);
 	border: none;
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
@@ -58,17 +58,21 @@
 	font-family: inherit;
 	cursor: pointer;
 	white-space: nowrap;
-	min-height: 44px;
-	transition: opacity var(--wcb-transition-snappy) ease;
+	min-height: var(--wcb-control-h);
+	transition: background var(--wcb-transition-snappy) ease;
 }
 
 .wcb-search-hero__button:hover {
-	opacity: 0.9;
+	background: var(--wcb-primary-dark);
 }
 
 .wcb-search-hero__button:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
+	outline: 2px solid transparent !important;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-search-hero__button:active {
+	transform: scale(0.97);
 }
 
 .wcb-search-hero--vertical .wcb-search-hero__button {

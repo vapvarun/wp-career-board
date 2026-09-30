@@ -39,8 +39,10 @@ $wcb_industry = $wcb_current_id
 $wcb_query_args = array(
 	'post_type'      => 'wcb_company',
 	'post_status'    => 'publish',
-	'posts_per_page' => $wcb_count,
-	'orderby'        => 'rand',
+	// A small newest-first pool (served by the type/status/date index), varied in PHP below.
+	// orderby => rand would sort every matching company on each page view.
+	'posts_per_page' => 30,
+	'orderby'        => 'date',
 	'no_found_rows'  => true,
 );
 
@@ -58,6 +60,8 @@ if ( '' !== $wcb_industry ) {
 }
 
 $wcb_companies = get_posts( $wcb_query_args );
+shuffle( $wcb_companies );
+$wcb_companies = array_slice( $wcb_companies, 0, $wcb_count );
 
 // Empty state: keep the sidebar slot visible for admins (so they know the
 // block rendered and can fix the lack of matching companies). Front-end
@@ -65,11 +69,11 @@ $wcb_companies = get_posts( $wcb_query_args );
 if ( empty( $wcb_companies ) ) {
 	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate.
 		?>
-		<aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card wcb-similar-companies-card--empty' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<aside <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-cp-side-card wcb-similar-companies-card' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<h3 class="wcb-cp-side-card__title"><?php echo esc_html( $wcb_title ); ?></h3>
-			<div class="wcb-similar-companies-card__empty">
-				<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<p><?php esc_html_e( 'No similar companies found yet.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No similar companies found yet.', 'wp-career-board' ); ?></p>
 			</div>
 		</aside>
 		<?php
@@ -86,9 +90,9 @@ if ( empty( $wcb_companies ) ) {
 	<ul class="wcb-similar-companies-card__list">
 	<?php
 	foreach ( $wcb_companies as $wcb_company ) :
-		$wcb_logo    = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
-		$wcb_loc     = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
-		$wcb_perma   = (string) get_permalink( $wcb_company->ID );
+		$wcb_logo  = (string) get_the_post_thumbnail_url( $wcb_company->ID, 'thumbnail' );
+		$wcb_loc   = (string) get_post_meta( $wcb_company->ID, '_wcb_hq_location', true );
+		$wcb_perma = (string) get_permalink( $wcb_company->ID );
 		// Prefer mb_strtoupper over byte-based strtoupper so non-ASCII initials
 		// uppercase correctly ("ärzte" -> "Ä", not "ä"). mb_substr is always
 		// available (WordPress polyfills it in wp-includes/compat.php), but
@@ -101,17 +105,19 @@ if ( empty( $wcb_companies ) ) {
 		?>
 		<li class="wcb-similar-companies-card__item">
 			<a class="wcb-similar-companies-card__link" href="<?php echo esc_url( $wcb_perma ); ?>">
-				<?php if ( $wcb_logo ) : ?>
-					<img class="wcb-similar-companies-card__logo" src="<?php echo esc_url( $wcb_logo ); ?>" alt="" loading="lazy" />
-				<?php else : ?>
-					<span class="wcb-similar-companies-card__initial" aria-hidden="true"><?php echo esc_html( $wcb_initial ); ?></span>
-				<?php endif; ?>
+				<span class="wcb-avatar<?php echo $wcb_logo ? ' wcb-avatar--logo' : ''; ?> wcb-similar-companies-card__avatar" aria-hidden="true">
+					<?php if ( $wcb_logo ) : ?>
+						<img src="<?php echo esc_url( $wcb_logo ); ?>" alt="" loading="lazy" />
+					<?php else : ?>
+						<?php echo esc_html( $wcb_initial ); ?>
+					<?php endif; ?>
+				</span>
 				<span class="wcb-similar-companies-card__body">
 					<span class="wcb-similar-companies-card__name"><?php echo esc_html( $wcb_company->post_title ); ?></span>
 					<?php if ( $wcb_loc ) : ?>
 						<span class="wcb-similar-companies-card__meta">
 							<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-							<?php echo esc_html( $wcb_loc ); ?>
+							<span class="wcb-similar-companies-card__loc"><?php echo esc_html( $wcb_loc ); ?></span>
 						</span>
 					<?php endif; ?>
 				</span>

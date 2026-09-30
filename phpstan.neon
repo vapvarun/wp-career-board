@@ -1,6 +1,5 @@
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
     level: 5
@@ -18,13 +17,23 @@ parameters:
     excludePaths:
         analyseAndScan:
             - vendor/ (?)
-            - libs/ (?)
             - node_modules/ (?)
+        # Vendored SDKs are scanned (so their classes resolve) but not analysed.
+        analyse:
+            - libs/ (?)
     bootstrapFiles:
         - phpstan-bootstrap.php
     scanFiles:
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
         - vendor/php-stubs/wp-cli-stubs/wp-cli-tools-stubs.php
+        - phpstan-buddypress-stubs.php
+    scanDirectories:
+        - libs/edd-sl-sdk/src/
+    # BuddyPress objects carry dynamic properties.
+    universalObjectCratesClasses:
+        - BP_Groups_Group
+        - BP_Notifications_Notification
+        - BP_User_Query
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
     ignoreErrors:

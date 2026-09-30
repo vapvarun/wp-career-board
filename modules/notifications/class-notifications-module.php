@@ -29,6 +29,7 @@ class NotificationsModule {
 	public function boot(): void {
 		add_filter( 'wcb_registered_emails', array( $this, 'register_emails' ) );
 		add_action( 'init', array( $this, 'boot_emails' ) );
+		CommunityNotificationContract::register();
 	}
 
 	/**
@@ -45,11 +46,20 @@ class NotificationsModule {
 			Emails\EmailJobApproved::class,
 			Emails\EmailJobRejected::class,
 			Emails\EmailJobExpired::class,
+			Emails\EmailJobExpiring::class,
 			Emails\EmailAppReceived::class,
 			Emails\EmailAppConfirmation::class,
 			Emails\EmailAppGuest::class,
 			Emails\EmailAppStatus::class,
+			Emails\EmailAppRejected::class,
+			Emails\EmailAppWithdrawn::class,
 			Emails\EmailDeadlineReminder::class,
+			Emails\EmailVerifyAccount::class,
+			Emails\EmailWelcome::class,
+			Emails\EmailDeletionRequested::class,
+			Emails\EmailDeletionCancelled::class,
+			Emails\EmailDeletionCompleted::class,
+			Emails\EmailReportReceived::class,
 		);
 
 		foreach ( $classes as $class ) {

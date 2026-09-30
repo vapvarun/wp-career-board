@@ -34,6 +34,11 @@
  * @package WP_Career_Board
  */
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.Security.EscapeOutput
 
 $root   = dirname( __DIR__ );
@@ -87,6 +92,7 @@ $cmd = sprintf(
 				':(exclude)bin/**',
 				':(exclude).githooks/**',
 				':(exclude)dist/**',
+				':(exclude).distignore', // packaging only; bin/verify-zip.sh gates the zip.
 				':(exclude)*.md',
 				':(exclude)readme.txt',
 				// Tooling config. composer.json and package.json are safe to drop:

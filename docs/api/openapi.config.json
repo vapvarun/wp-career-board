@@ -1,0 +1,33 @@
+{
+  "title": "WP Career Board REST API",
+  "description": "REST API for WP Career Board (Free). Namespaced under `wcb/v1`. WP Career Board Pro adds its own routes to the same namespace; those are catalogued in the Pro plugin's own spec.\n\nThis document is generated from the live route registrations and scoped to the routes this plugin registers, so it never includes routes from Pro or any other plugin on the same install.",
+  "namespaces": ["wcb/v1"],
+  "version_constant": "WCB_VERSION",
+  "servers": [
+    { "url": "https://your-site.com/wp-json", "description": "Your WordPress site (replace with your domain)" }
+  ],
+  "contact": { "name": "Wbcom Designs", "url": "https://wbcomdesigns.com/" },
+  "license": { "name": "GPL-2.0-or-later" },
+  "security_schemes": {
+    "appPassword": {
+      "type": "http",
+      "scheme": "basic",
+      "description": "A WordPress Application Password (issue one with POST /wcb/v1/auth/app-password, or Users -> Profile -> Application Passwords). Send it as HTTP Basic auth."
+    },
+    "cookieNonce": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-WP-Nonce",
+      "description": "For same-origin browser requests using the logged-in WordPress cookie: send the wp_rest nonce in the X-WP-Nonce header."
+    }
+  },
+  "default_security": [ { "appPassword": [] }, { "cookieNonce": [] } ],
+  "tags": {
+    "jobs": "Jobs", "search": "Jobs",
+    "applications": "Applications", "files": "Applications",
+    "candidates": "Candidates",
+    "employers": "Employers", "companies": "Employers",
+    "account": "Account", "me": "Account", "users": "Account", "auth": "Account",
+    "admin": "Admin", "import": "Admin", "settings": "Admin", "wizard": "Admin"
+  }
+}

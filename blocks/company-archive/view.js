@@ -40,6 +40,10 @@ const { state } = store( 'wcb-company-archive', {
 		get hasNoCompanies() {
 			return ! state.loading && state.companies.length === 0;
 		},
+		get saveCompanyAria() {
+			const { company } = getContext() || {};
+			return ( state.saveCompanyLabel || 'Save %s' ).replace( '%s', company?.name || '' );
+		},
 	},
 
 	callbacks: {

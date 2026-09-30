@@ -55,34 +55,9 @@ $wcb_company_ids = $wcb_companies_raw
 	)
 	: array();
 
-// Open-positions counter — one aggregate SQL keyed on the (meta_key, meta_value)
-// postmeta index instead of materialising every wcb_job into PHP just to count
-// it. At 100k jobs the previous numberposts=-1 path allocated 100k WP_Post
-// objects per archive render; this is an index-only scan grouped in MySQL.
-$wcb_jobs_by_company = array();
-if ( $wcb_company_ids ) {
-	global $wpdb;
-	$wcb_co_ids   = array_map( 'intval', $wcb_company_ids );
-	$placeholders = implode( ',', array_fill( 0, count( $wcb_co_ids ), '%d' ) );
-	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wcb_rows = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT pm.meta_value AS company_id, COUNT(*) AS c
-			 FROM {$wpdb->postmeta} pm
-			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			 WHERE pm.meta_key = '_wcb_company_id'
-			   AND p.post_type = 'wcb_job'
-			   AND p.post_status = 'publish'
-			   AND pm.meta_value IN ({$placeholders})
-			 GROUP BY pm.meta_value",
-			...$wcb_co_ids
-		)
-	);
-	// phpcs:enable
-	foreach ( (array) $wcb_rows as $wcb_row ) {
-		$wcb_jobs_by_company[ (int) $wcb_row->company_id ] = (int) $wcb_row->c;
-	}
-}
+// Open positions per company: one grouped query (published, deadline not
+// passed), the same count GET /companies returns.
+$wcb_jobs_by_company = \WCB\Core\CompanyMetaShape::open_job_counts( (array) $wcb_company_ids );
 
 // ── Current user's bookmarked companies (for initial card state). ────────────
 $wcb_current_user_id = get_current_user_id();
@@ -117,9 +92,9 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	}
 	$wcb_initials = $wcb_initials ? $wcb_initials : '?';
 
-	// Jobs count label.
+	// Jobs count label, nothing when zero: "No open positions" on every card was noise.
 	$wcb_jobs_label = ( 0 === $wcb_job_cnt )
-		? __( 'No open positions', 'wp-career-board' )
+		? ''
 		: sprintf(
 			/* translators: %s: number of open positions, already localised. */
 			_n( '%s open position', '%s open positions', $wcb_job_cnt, 'wp-career-board' ),
@@ -206,21 +181,21 @@ $wcb_ca_results_label = sprintf(
 );
 
 $wcb_state = array(
-	'companies'    => $wcb_companies_state,
-	'page'         => 1,
-	'perPage'      => $wcb_per_page,
-	'layout'       => $wcb_layout,
-	'loading'      => false,
-	'hasMore'      => count( $wcb_companies_raw ) < $wcb_companies_total,
-	'apiBase'      => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
-	'industries'   => array(),
-	'sizes'        => array(),
-	'searchQuery'  => '',
+	'companies'        => $wcb_companies_state,
+	'page'             => 1,
+	'perPage'          => $wcb_per_page,
+	'layout'           => $wcb_layout,
+	'loading'          => false,
+	'hasMore'          => count( $wcb_companies_raw ) < $wcb_companies_total,
+	'apiBase'          => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
+	'industries'       => array(),
+	'sizes'            => array(),
+	'searchQuery'      => '',
 	// Sort order pinned to the same option set as jobs + resumes
 	// (date_desc | date_asc). View.js piping sets ?orderby=date&order=ASC|DESC
 	// on the REST call so the server-side query matches the UI choice.
-	'sortBy'       => 'date_desc',
-	'restNonce'    => wp_create_nonce( 'wp_rest' ),
+	'sortBy'           => 'date_desc',
+	'restNonce'        => wp_create_nonce( 'wp_rest' ),
 	/*
 	 * Results-count label, fully resolved server-side.
 	 *
@@ -236,21 +211,19 @@ $wcb_state = array(
 	 * likewise _n()-resolved server-side — after every filter / search / sort /
 	 * load-more round trip. No plural resolution happens in JS.
 	 */
-	'resultsLabel' => $wcb_ca_results_label,
+	'resultsLabel'     => $wcb_ca_results_label,
 	/*
-	 * No `i18n` bag: view.js renders no strings of its own. Every user-facing
-	 * string in this block is either painted by this template (already run
-	 * through __()/esc_html_e()) or arrives pre-translated on the REST payload
-	 * (`jobs_label`, `size_label`, `trust_label`, `results_label`). Seeding an
-	 * empty bag plus a `t()` reader would be dead code. If a future change
-	 * makes view.js render a literal, re-add `'i18n' => array( … )` here and a
-	 * `t( key, fallback )` reader there — script modules cannot load JED
-	 * translation files (wp_set_script_module_translations is WP 7.0+; this
-	 * plugin's floor is 6.9), so state seeding is the only channel.
+	 * The one string view.js builds: each card's bookmark label, "Save
+	 * <company>", so a screen reader hears which company it saves. Seeded here
+	 * because script modules cannot load JED translation files
+	 * (wp_set_script_module_translations is WP 7.0+; this plugin's floor is
+	 * 6.9). Every other string is painted by this template or arrives
+	 * pre-translated on the REST payload.
 	 */
+	/* translators: %s: company name. */
+	'saveCompanyLabel' => __( 'Save %s', 'wp-career-board' ),
 );
 
-$wcb_ca_page_heading = \WCB\Core\ArchiveHeading::resolve( 'wcb_company', 'company_archive_page' );
 
 wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 ?>
@@ -259,9 +232,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	data-wp-interactive="wcb-company-archive"
 >
 
-	<?php if ( $wcb_ca_page_heading ) : ?>
-	<h1 class="wcb-page-heading"><?php echo esc_html( $wcb_ca_page_heading ); ?></h1>
-	<?php endif; ?>
+	<?php echo \WCB\Core\ArchiveHeading::render( 'wcb_company', 'company_archive_page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 
 	<?php
 	$wcb_toolbar = array(
@@ -313,12 +284,12 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			?>
 			<?php
 			/* Only render the group when it has options. The list is the
-			   intersection of the registry with what companies actually store,
-			   so it is legitimately empty on a site with no companies yet, or
-			   one where every stored value has been retired from the registry -
-			   and an unguarded wrapper painted a bare "Industry" heading and
-			   divider above nothing. Company size below is a fixed list and
-			   cannot empty out. */
+				intersection of the registry with what companies actually store,
+				so it is legitimately empty on a site with no companies yet, or
+				one where every stored value has been retired from the registry -
+				and an unguarded wrapper painted a bare "Industry" heading and
+				divider above nothing. Company size below is a fixed list and
+				cannot empty out. */
 			?>
 			<?php if ( ! empty( $wcb_filter_industries ) ) : ?>
 			<div class="wcb-filter-panel__group">
@@ -371,6 +342,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				<?php
 				$wcb_bookmark = array(
 					'aria_label'            => __( 'Save company', 'wp-career-board' ),
+					'aria_label_bind'       => 'state.saveCompanyAria',
 					'bookmarked_class_bind' => 'context.company.bookmarked',
 				);
 				require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
@@ -381,7 +353,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 						<div class="wcb-ca-avatar-wrap">
 							<img class="wcb-ca-logo" alt="" data-wp-class--wcb-shown="context.company.has_logo" data-wp-bind--src="context.company.logo" data-wp-bind--alt="context.company.name" />
 							<div
-								class="wcb-ca-avatar"
+								class="wcb-avatar wcb-ca-avatar"
 								data-wp-class--wcb-shown="context.company.no_logo"
 								data-wp-text="context.company.initials"
 								aria-hidden="true"
@@ -399,6 +371,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 					?>
 					<div class="wcb-ca-card-body">
 						<div class="wcb-ca-name-row">
+							<?php /* The tick is a sibling of the (2-line clamped) name, so a clamp never hides it. */ ?>
 							<h2 class="wcb-ca-name" data-wp-text="context.company.name"></h2>
 							<span
 								class="wcb-ca-trust-tick"
@@ -407,7 +380,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 								data-wp-class--wcb-shown="context.company.verified"
 								data-wp-bind--data-trust="context.company.trust"
 								data-wp-bind--title="context.company.trust_label"
-							><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+							></span>
 						</div>
 						<p class="wcb-ca-tagline"
 							data-wp-class--wcb-shown="context.company.tagline"
@@ -434,7 +407,6 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 
 					<div class="wcb-ca-card-footer">
 						<span class="wcb-ca-jobs-count" data-wp-text="context.company.jobs_label"></span>
-						<span class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></span>
 					</div>
 
 				</a>

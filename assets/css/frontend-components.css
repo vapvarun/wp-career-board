@@ -121,10 +121,10 @@
 	vertical-align: middle;
 }
 
-.wcb-badge--success  { background: var(--wcb-success-bg); color: var(--wcb-success); }
+.wcb-badge--success  { background: var(--wcb-success-bg); color: var(--wcb-success-fg, #166534); }
 .wcb-badge--warning  { background: var(--wcb-warning-bg); color: var(--wcb-warning); }
-.wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger); }
-.wcb-badge--info     { background: var(--wcb-info-bg);    color: var(--wcb-info); }
+.wcb-badge--danger   { background: var(--wcb-danger-bg);  color: var(--wcb-danger-fg, #991b1b); }
+.wcb-badge--info     { background: var(--wcb-info-bg);    color: var(--wcb-info-fg); }
 .wcb-badge--muted    { background: var(--wcb-bg-subtle, #f3f4f6); color: var(--wcb-text-secondary); }
 .wcb-badge--featured { background: var(--wcb-warning-bg);  color: var(--wcb-warning-fg); }
 
@@ -139,119 +139,13 @@
    .wcb-btn remain in this file. */
 
 
-/* ── Form Fields ─────────────────────────────────────────────────────── */
-
-.wcb-field {
-	width: 100%;
-	height: 44px;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-normal);
-	line-height: var(--wcb-leading-normal);
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
-	appearance: none;
-	-webkit-appearance: none;
-}
-
-.wcb-field:focus {
-	outline: 2px solid transparent;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field::placeholder {
-	color: var(--wcb-text-tertiary);
-}
-
-.wcb-field:disabled {
-	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-tertiary);
-	cursor: not-allowed;
-}
-
-textarea.wcb-field {
-	height: auto;
-	min-height: 100px;
-	resize: vertical;
-}
-
-select.wcb-field {
-	padding-right: 2.5rem;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right var(--wcb-space-md) center;
-	background-size: 16px;
-}
-
-/* Error state */
-.wcb-field--error {
-	border-color: var(--wcb-danger);
-}
-
-.wcb-field--error:focus {
-	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
-}
-
-/* Label */
-.wcb-label {
-	display: block;
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast);
-	margin-bottom: var(--wcb-space-xs);
-}
-
-/* Helper text */
-.wcb-helper {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-	margin-top: var(--wcb-space-xs);
-}
+/* ── Form fields, labels and field rhythm: wcb-ui.css ("Forms"). ── */
 
 /* Error message */
 .wcb-error-msg {
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-danger);
 	margin-top: var(--wcb-space-xs);
-}
-
-/* ── Empty State ─────────────────────────────────────────────────────── */
-
-.wcb-empty-state {
-	text-align: center;
-	padding: var(--wcb-space-4xl) var(--wcb-space-xl);
-}
-
-.wcb-empty-state__icon {
-	display: block;
-	width: var(--wcb-icon-2xl);
-	height: var(--wcb-icon-2xl);
-	color: var(--wcb-text-secondary);
-	margin: 0 auto var(--wcb-space-lg);
-	stroke-width: 1.5;
-}
-
-.wcb-empty-state__title {
-	font-family: inherit;
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	margin: 0 0 var(--wcb-space-sm);
-}
-
-.wcb-empty-state__desc {
-	font-family: inherit;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-	margin: 0 0 var(--wcb-space-xl);
-	max-width: 360px;
-	margin-inline: auto;
 }
 
 /* ── Grid Layouts ────────────────────────────────────────────────────── */
@@ -316,9 +210,9 @@ select.wcb-field {
 }
 
 .wcb-pagination__btn--active {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary, #fff);
-	border-color: var(--wcb-primary);
+	border-color: var(--wcb-primary-strong);
 }
 
 .wcb-pagination__btn:disabled {
@@ -352,102 +246,6 @@ select.wcb-field {
 }
 
 /* ── Form Primitives — shared across blocks ──────────────────────────── */
-
-/*
- * `.wcb-field-*` is the canonical form-primitive set. Every block that renders
- * a label + input pair (registration, dashboard profile, post-a-job, candidate
- * profile, etc.) uses these classes. Defining them globally — scoped under
- * the WCB block wrappers — means a page with only ONE block enqueued still
- * gets the full set, fixing the historical bug where the registration page
- * rendered raw browser-default inputs because only `employer-dashboard/style.css`
- * carried the rules.
- *
- * Block-specific layout overrides (e.g. dashboard wraps two field-groups in a
- * 2-col `.wcb-field-row` grid that should NOT apply on registration) live
- * inside that block's stylesheet, scoped under the block's root class.
- */
-
-[class*="wp-block-wp-career-board"] .wcb-field-group,
-[class*="wp-block-wcb-"] .wcb-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	margin-bottom: var(--wcb-space-xl);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-row,
-[class*="wp-block-wcb-"] .wcb-field-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--wcb-space-lg);
-}
-
-@media (max-width: 640px) {
-
-	[class*="wp-block-wp-career-board"] .wcb-field-row,
-	[class*="wp-block-wcb-"] .wcb-field-row {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-label,
-[class*="wp-block-wcb-"] .wcb-field-label {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-hint,
-[class*="wp-block-wcb-"] .wcb-field-hint {
-	font-weight: var(--wcb-font-normal);
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-sm);
-	margin-inline-start: var(--wcb-space-xs);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-input,
-[class*="wp-block-wcb-"] .wcb-field-input {
-	width: 100%;
-	min-height: 44px;
-	padding: var(--wcb-space-sm) var(--wcb-space-md);
-	border: 1.5px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-md);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	transition: border-color var(--wcb-transition-fast);
-	box-sizing: border-box;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-input:focus,
-[class*="wp-block-wcb-"] .wcb-field-input:focus {
-	outline: 2px solid transparent;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-textarea,
-[class*="wp-block-wcb-"] .wcb-field-textarea {
-	resize: vertical;
-	line-height: 1.6;
-}
-
-[class*="wp-block-wp-career-board"] .wcb-field-select,
-[class*="wp-block-wcb-"] .wcb-field-select {
-	cursor: pointer;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right var(--wcb-space-md) center;
-	appearance: none;
-	padding-inline-end: 2.5rem;
-}
-
-[dir="rtl"] [class*="wp-block-wp-career-board"] .wcb-field-select,
-[dir="rtl"] [class*="wp-block-wcb-"] .wcb-field-select {
-	background-position: left var(--wcb-space-md) center;
-}
 
 /* ── Panel — shared dashboard / detail panel structure ──────────────── */
 
@@ -544,6 +342,25 @@ select.wcb-field {
 	margin: 0;
 }
 
+
+
+/* A bare <p> with no margin of its own inherits whatever the theme gives a
+ * paragraph (Reign: 1.375rem, an off-scale value) instead of the plugin's
+ * own rhythm. */
+.wcb-form-help {
+	margin: var(--wcb-space-xs) 0 0 !important;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
+/* Dashboard email preferences: a fieldset for grouping, without the browser frame. */
+.wcb-email-prefs {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	min-width: 0;
+}
+
 /* ── Radio group — shared custom-field primitive ───────────────────────
  *
  * Used by the FormCustomFields renderer's `radio` field type. The group
@@ -591,7 +408,7 @@ select.wcb-field {
 
 /*
  * Layout primitive only - the button itself inherits the unified
- * .wcb-cbtn--ghost system from wcb-ui.css so the visual contract matches
+ * .wcb-btn--outline system from wcb-ui.css so the visual contract matches
  * the in-card View Job / View Profile / View Company CTAs. The wrap is
  * hidden via display:none until state.hasMore flips wcb-shown on.
  *
@@ -632,6 +449,19 @@ select.wcb-field {
  * is truthy. Defined here once so every block doesn't redefine it.
  */
 .wcb-hidden {
+	display: none !important;
+}
+
+/*
+ * `data-wp-bind--hidden` sets the `hidden` attribute. The browser's own
+ * `[hidden] { display: none }` loses to any class that sets `display`, and a
+ * theme without a global `[hidden]` rule (block themes such as Twenty
+ * Twenty-Five) lets that class win, so a hidden message shows. Reign and
+ * BuddyX carry that global rule, which is why it only broke elsewhere.
+ * Scoped to our blocks so it never touches the theme's own markup.
+ */
+[class*="wp-block-wp-career-board"] [hidden],
+[class*="wp-block-wcb-"] [hidden] {
 	display: none !important;
 }
 
@@ -689,7 +519,7 @@ select.wcb-field {
 	/* Breathing room before the toolbar / archive-layout so the search
 	 * bar doesn't crash into the results count. Matches the spacing used
 	 * by `.wcb-ca-search-row` on Companies. */
-	margin-bottom: var(--wcb-space-2xl);
+	margin-bottom: var(--wcb-space-lg);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-search-wrap,
@@ -718,7 +548,7 @@ select.wcb-field {
 	min-height: 44px;
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
 	padding-inline-start: 2.25rem;
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	line-height: 1.5;
@@ -731,7 +561,7 @@ select.wcb-field {
 
 [class*="wp-block-wp-career-board"] .wcb-listings-search:focus,
 [class*="wp-block-wcb-"] .wcb-listings-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -748,10 +578,12 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-sort-select,
 [class*="wp-block-wcb-"] .wcb-sort-select {
 	min-height: 44px;
-	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	padding-block: var(--wcb-space-sm);
+	padding-inline: var(--wcb-space-md) var(--wcb-space-3xl); /* room for the theme's caret, or the label clips ("Newest firs t") */
 	width: auto;
-	max-width: 220px;
-	border: 1.5px solid var(--wcb-border);
+	max-width: 240px;
+	flex-shrink: 0;
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-contrast);
@@ -773,7 +605,7 @@ select.wcb-field {
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wcb-space-lg);
-	margin-bottom: var(--wcb-space-xl);
+	margin-bottom: var(--wcb-space-lg);
 	flex-wrap: wrap;
 }
 
@@ -807,7 +639,8 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-results-count,
 [class*="wp-block-wcb-"] .wcb-results-count {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary, var(--wp--preset--color--wcb-muted));
+	/* On the theme's canvas, so it follows the theme's text colour. */
+	color: var(--wcb-canvas-fg, #475569);
 	font-weight: var(--wcb-font-medium);
 	margin: 0;
 	flex: 0 0 auto;
@@ -873,7 +706,7 @@ select.wcb-field {
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border, #e2e8f0);
+	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: var(--wcb-radius-md);
 	background: var(--wcb-base, #fff);
 	color: var(--wcb-text-secondary);
@@ -888,14 +721,14 @@ select.wcb-field {
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:hover,
 [class*="wp-block-wcb-"] .wcb-bookmark-hero-btn:hover {
 	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-info-bg-soft);
 }
 
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn.wcb-bookmarked,
 [class*="wp-block-wcb-"] .wcb-bookmark-hero-btn.wcb-bookmarked {
 	border-color: var(--wcb-primary, #2563eb);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-bg-subtle);
 }
 
@@ -950,18 +783,48 @@ select.wcb-field {
 	width: 100%;
 	max-width: var(--wcb-container-max-width, 1280px) !important;
 	margin: 0 auto !important;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg);
+	/* Bottom is the "last block, then theme footer" step: 32 / 32 / 24. */
+	padding: var(--wcb-space-2xl) var(--wcb-space-lg) var(--wcb-space-3xl);
 	box-sizing: border-box;
+}
+
+/* Inside a theme's own .container (Reign, BuddyX and most classic themes), the
+ * container already sets the width and the gutter. The shell fills it and adds
+ * no inset of its own, so Career Board content starts on the same edge as a
+ * plain page (owner decision: flush with the theme's content edge). */
+.container .wcb-archive-shell {
+	max-width: none !important;
+	padding-inline: 0;
 }
 
 .wcb-archive-main {
 	width: 100%;
 }
 
-@media (max-width: 768px) {
+/*
+ * Block themes have no shell (TemplateOverride::block_theme() leaves the theme's
+ * own template alone), so the theme's constrained layout is the page container,
+ * and that is a reading column (about 645px on Twenty Twenty-Five). A Career Board
+ * screen placed straight in it gets the canonical width instead; it still fills
+ * a narrower parent, so a block dropped into a small group keeps inheriting it.
+ */
+.is-layout-constrained > [class*="wp-block-wp-career-board"],
+.is-layout-constrained > [class*="wp-block-wcb-"],
+.is-layout-constrained > .wcb-page-heading {
+	max-width: var(--wcb-container-max-width, 1280px);
+}
+
+@media (max-width: 1024px) {
 
 	.wcb-archive-shell {
-		padding: var(--wcb-space-xl) var(--wcb-space-md);
+		padding: var(--wcb-space-xl) var(--wcb-space-md) var(--wcb-space-3xl);
+	}
+}
+
+@media (max-width: 640px) {
+
+	.wcb-archive-shell {
+		padding-bottom: var(--wcb-space-2xl);
 	}
 }
 
@@ -1026,21 +889,22 @@ select.wcb-field {
  * `.wcb-cp-job-title a` for the same reason.
  */
 
-[class*="wp-block-wp-career-board"] .wcb-job-card a,
-[class*="wp-block-wp-career-board"] .wcb-cp-job-title a,
-[class*="wp-block-wp-career-board"] .wcb-card-title a,
-[class*="wp-block-wp-career-board"] .wcb-listing-title a,
+/* Buttons styled as links keep the shared focus ring (.wcb-btn:focus-visible). */
+[class*="wp-block-wp-career-board"] .wcb-job-card a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-cp-job-title a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-card-title a:not(.wcb-btn),
+[class*="wp-block-wp-career-board"] .wcb-listing-title a:not(.wcb-btn),
 [class*="wp-block-wp-career-board"] [role="tab"],
 [class*="wp-block-wp-career-board"] .wcb-role-card,
-[class*="wp-block-wp-career-board"] .wcb-sidebar a,
+[class*="wp-block-wp-career-board"] .wcb-sidebar a:not(.wcb-btn),
 [class*="wp-block-wp-career-board"] .wcb-nav-item,
-[class*="wp-block-wcb-"] .wcb-job-card a,
-[class*="wp-block-wcb-"] .wcb-cp-job-title a,
-[class*="wp-block-wcb-"] .wcb-card-title a,
-[class*="wp-block-wcb-"] .wcb-listing-title a,
+[class*="wp-block-wcb-"] .wcb-job-card a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-cp-job-title a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-card-title a:not(.wcb-btn),
+[class*="wp-block-wcb-"] .wcb-listing-title a:not(.wcb-btn),
 [class*="wp-block-wcb-"] [role="tab"],
 [class*="wp-block-wcb-"] .wcb-role-card,
-[class*="wp-block-wcb-"] .wcb-sidebar a,
+[class*="wp-block-wcb-"] .wcb-sidebar a:not(.wcb-btn),
 [class*="wp-block-wcb-"] .wcb-nav-item {
 	text-decoration: none !important;
 	box-shadow: none;
@@ -1112,3 +976,17 @@ select.wcb-field {
 .wcb-db-gate .wcb-btn + .wcb-btn {
 	margin-inline-start: var(--wcb-space-sm);
 }
+
+/* ── Application status badges ─────────────────────────────────────────
+ * One palette for every status badge (candidate dashboard, employer
+ * dashboard, My Applications, the kanban). Colours follow
+ * ApplicationStatus::tone(): info, warning, accent, success, danger, and a
+ * neutral grey for outcomes the candidate or the system set (withdrawn,
+ * job removed). The badge text is ApplicationStatus::label().
+ */
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="reviewing"]   { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge)[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
+:is(.wcb-status-badge, .wcb-cd-status-badge, .wcb-app-status-badge):is([data-status="withdrawn"], [data-status="job_removed"], [data-status="position_closed"]) { background: var(--wcb-bg-hover); color: var(--wcb-text-secondary); }

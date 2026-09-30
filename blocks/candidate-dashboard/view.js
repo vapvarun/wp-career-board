@@ -10,7 +10,7 @@
  *   createResume          — POST to /candidates/{id}/resumes to create a new resume.
  *   openResumeEditor      — navigate to resume builder for the current resume.
  *   deleteResume          — DELETE /resumes/{id}.
- *   withdrawApplication   — DELETE /applications/{id}; removes from list.
+ *   withdrawApplication   — DELETE /applications/{id}; marks Withdrawn (or removes a dead row).
  *
  * @package WP_Career_Board
  */
@@ -99,6 +99,49 @@ function formatNumber( value ) {
 		// function exists to avoid). A constant tag keeps output identical for
 		// every visitor regardless of their browser.
 		return new Intl.NumberFormat( 'en-US' ).format( n );
+	}
+}
+
+/**
+ * Format a UTC MySQL datetime ("2026-09-28 17:24:41") as a short relative
+ * time ("2h ago", "3d ago") against the SITE locale, falling back to a
+ * localised absolute date once it's more than a week old. Bell notifications
+ * bound the raw string directly with no formatting at all.
+ *
+ * @param {string} mysqlUtc UTC datetime as returned by current_time('mysql', true).
+ * @return {string} Human-readable relative or absolute time, '' if unparsable.
+ */
+function formatRelativeTime( mysqlUtc ) {
+	if ( ! mysqlUtc ) {
+		return '';
+	}
+	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
+	if ( Number.isNaN( then.getTime() ) ) {
+		return '';
+	}
+	const seconds = ( Date.now() - then.getTime() ) / 1000;
+	const locale  = state.locale || 'en-US';
+	if ( seconds < 7 * 86400 ) {
+		const units = [ [ 60, 'second' ], [ 60, 'minute' ], [ 24, 'hour' ], [ 7, 'day' ] ];
+		let value = seconds;
+		let unit  = 'second';
+		for ( const [ size, name ] of units ) {
+			if ( Math.abs( value ) < size ) {
+				break;
+			}
+			value /= size;
+			unit   = name;
+		}
+		try {
+			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		} catch {
+			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		}
+	}
+	try {
+		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
+	} catch {
+		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
 	}
 }
 
@@ -294,13 +337,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			if ( state.maxResumes <= 0 ) {
 				return '';
 			}
-			// The noun agrees with resumeCount, which is mutated CLIENT-SIDE as the
-			// candidate creates/deletes resumes. A PHP `_n()` frozen at render against
-			// the cap would show the wrong form once the count changes, so the plural
-			// is resolved here against the live count via Intl.PluralRules.
-			const template = ( 'one' === pluralCategory( state.resumeCount ) )
-				? t( 'resumeCapOne', '%1$s/%2$s resume' )
-				: t( 'resumeCapOther', '%1$s/%2$s resumes' );
+			// "1 of 2 resumes": the noun agrees with the cap, not the count
+			// ("1/2 resume" read wrong), resolved via Intl.PluralRules.
+			const template = ( 'one' === pluralCategory( state.maxResumes ) )
+				? t( 'resumeCapOne', '%1$s of %2$s resume' )
+				: t( 'resumeCapOther', '%1$s of %2$s resumes' );
 			return template
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );
@@ -316,10 +357,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		// Nav badges.
 		get appsCount() {
-			return state.applications.length;
+			return state.appsCounts.total;
 		},
+		// One count for the sidebar badge and the overview tile: the server's count until the
+		// list has loaded (so neither flashes 0), the live list after (so a removal is reflected).
 		get bookmarksCount() {
-			return state.bookmarks.length;
+			return state.bookmarksLoaded ? state.bookmarks.length : Number( state.savedJobsCount ) || 0;
 		},
 		// `savedCompaniesCountSeed` + `savedResumesCountSeed` are bootstrapped
 		// from PHP at render time so the sidebar badges show the correct
@@ -361,8 +404,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get hasResumes() {
 			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
 		},
+		// Only "none" once the list has actually loaded: resumes are fetched when the tab opens,
+		// and the empty initial array must not read as "no resumes" (it contradicts the N/max count).
 		get noResumes() {
-			return ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
+			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
 		// Bell notification getters.
@@ -396,7 +441,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				&& ( ! state.alertsCount || Number( state.alertsCount ) === 0 );
 		},
 		get overviewShortlistedCount() {
-			return state.applications.filter( ( a ) => a.status === 'shortlisted' ).length;
+			return state.appsCounts.by_status.shortlisted || 0;
 		},
 		get overviewRecentSavedJobs() {
 			return state.bookmarks.slice( 0, 3 );
@@ -436,28 +481,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 			} );
 
-			state.loading = true;
-			state.error   = '';
-
-			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-
-				if ( ! response.ok ) {
-					state.error = t( 'errLoadApplications', 'Could not load your applications.' );
-					return;
-				}
-
-				const data = yield response.json();
-				// Envelope since 1.1.0; tolerate the legacy bare-array shape.
-				state.applications = Array.isArray( data ) ? data : ( data?.applications ?? [] );
-			} catch {
-				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.loading = false;
-			}
+			yield actions.fetchApplications();
 
 			// Prefetch bookmarks so the Overview panel can display recent saved jobs.
 			try {
@@ -468,6 +492,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				if ( bmResponse.ok ) {
 					const bmData = yield bmResponse.json();
 					state.bookmarks = Array.isArray( bmData ) ? bmData : ( bmData?.bookmarks ?? [] );
+					state.bookmarksLoaded = true;
 				}
 			} catch {
 				// Non-critical — overview saved jobs panel will show empty state.
@@ -563,6 +588,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 				const data = yield response.json();
 				state.bookmarks = Array.isArray( data ) ? data : ( data?.bookmarks ?? [] );
+				state.bookmarksLoaded = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
@@ -835,13 +861,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify( {
-							display_name: state.accountName,
-							email:        state.accountEmail,
+							display_name:     state.accountName,
+							email:            state.accountEmail,
+							current_password: state.accountEmailPassword,
 						} ),
 					}
 				);
 				const data = yield response.json();
 				if ( response.ok ) {
+					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
 					state.profileEmail   = data.email;
@@ -1024,6 +1052,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 
 				state.resumes = yield response.json();
+				state.resumesLoaded = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
@@ -1264,7 +1293,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				} );
 				if ( res.ok ) {
 					const data              = yield res.json();
-					state.bellNotifications = data.notifications || [];
+					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: formatRelativeTime( n.created_at ) } ) );
 					state.bellUnreadCount   = data.unread_count  || 0;
 				}
 			} finally {
@@ -1333,6 +1362,41 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.bellUnreadCount   = 0;
 		},
 
+		// One page of the candidate's applications plus per-status totals for
+		// all of them; `append` adds the next page for Load more.
+		*fetchApplications( append = false ) {
+			const flag = append ? 'appsLoadingMore' : 'loading';
+			state[ flag ] = true;
+			state.error   = '';
+
+			try {
+				const url = new URL( state.apiBase + '/candidates/' + String( state.candidateId ) + '/applications' );
+				url.searchParams.set( 'per_page', '50' );
+				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
+				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+
+				if ( ! response.ok ) {
+					state.error = t( 'errLoadApplications', 'Could not load your applications.' );
+					return;
+				}
+
+				const data = yield response.json();
+				const rows = data?.applications ?? [];
+				state.applications = append ? [ ...state.applications, ...rows ] : rows;
+				state.appsPage     = append ? state.appsPage + 1 : 1;
+				state.appsHasMore  = !! data?.has_more;
+				state.appsCounts   = data?.counts ?? { total: rows.length, by_status: {} };
+			} catch {
+				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state[ flag ] = false;
+			}
+		},
+
+		*loadMoreApplications() {
+			yield actions.fetchApplications( true );
+		},
+
 		*withdrawApplication() {
 			const ctx         = getContext();
 			const application = ctx.application;
@@ -1362,9 +1426,21 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return;
 				}
 
-				state.applications = state.applications.filter( function( a ) {
-					return a.id !== application.id;
-				} );
+				const data = yield response.json();
+				const by = state.appsCounts.by_status;
+				by[ application.status ] = Math.max( 0, ( by[ application.status ] || 0 ) - 1 );
+				if ( data.withdrawn ) {
+					// Kept as Withdrawn: show the server's label, hide the button.
+					by.withdrawn = ( by.withdrawn || 0 ) + 1;
+					application.status      = data.status;
+					application.statusLabel = data.status_label;
+					application.canWithdraw = false;
+				} else {
+					state.appsCounts.total = Math.max( 0, state.appsCounts.total - 1 );
+					state.applications = state.applications.filter( function( a ) {
+						return a.id !== application.id;
+					} );
+				}
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			}

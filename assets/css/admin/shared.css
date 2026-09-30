@@ -25,15 +25,14 @@
 .wcb-card {
     background: var(--wcb-base, #ffffff); border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-lg, 8px); box-shadow: var(--wcb-shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
-    margin-bottom: 16px; overflow: hidden;
+    margin-bottom: 24px; overflow: hidden; /* same stack as .wcb-settings-card */
 }
 .wcb-card__head {
     padding: 14px 20px 12px; border-bottom: 1px solid var(--wcb-border, #e2e8f0);
     background: var(--wcb-surface, #f1f5f9);
 }
 .wcb-card__title {
-    font-size: 13px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.04em; color: var(--wcb-contrast, #1e293b); margin: 0 0 2px;
+    font-size: 14px; font-weight: 600; color: var(--wcb-contrast, #1e293b); margin: 0 0 2px;
 }
 .wcb-card__desc { font-size: 13px; color: var(--wcb-text-secondary, #475569); margin: 0; }
 .wcb-card__body { padding: 20px; }
@@ -50,11 +49,6 @@
 .wcb-badge--danger { background: rgba(224,62,62,.1); color: var(--wcb-danger-fg, #991b1b); }
 .wcb-badge--muted { background: #f0f0f1; color: #9ca3af; }
 .wcb-badge--info { background: #dff0fa; color: #007cba; }
-.wcb-pro-badge {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
-    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
-    text-transform: uppercase; letter-spacing: 0.04em; margin-left: auto;
-}
 
 /* ── Buttons ── */
 .wcb-btn {
@@ -79,6 +73,7 @@
     text-align: center; padding: 48px 20px;
 }
 .wcb-empty-state__icon { width: 48px; height: 48px; color: var(--wcb-text-tertiary, #94a3b8); margin: 0 auto 16px; display: block; }
+.wcb-empty-state__icon.dashicons { font-size: 48px; }
 .wcb-empty-state__title { font-size: 16px; font-weight: 600; color: var(--wcb-contrast, #1e293b); margin: 0 0 8px; }
 .wcb-empty-state__desc { font-size: 13px; color: var(--wcb-text-secondary, #475569); margin: 0 0 16px; }
 
@@ -138,7 +133,7 @@
 .wcb-admin .search-box input[type="text"] {
     height: 32px;
     padding: 0 10px;
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-md, 6px);
     font-size: 13px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
@@ -148,6 +143,7 @@
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     outline: 2px solid transparent;
 }
+/* Search is a secondary action: the screen's one primary is "Add New". */
 .wcb-admin .search-box .button {
     display: inline-flex;
     align-items: center;
@@ -156,17 +152,16 @@
     font-size: 13px;
     font-weight: 600;
     border-radius: var(--wcb-radius-md, 6px);
-    border: 1px solid var(--wcb-primary, #2563eb);
-    background: var(--wcb-primary, #2563eb);
-    color: #fff;
+    border: 1px solid var(--wcb-border, #e2e8f0);
+    background: var(--wcb-base, #ffffff);
+    color: var(--wcb-contrast, #1e293b);
     cursor: pointer;
     transition: all 0.12s ease;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
 }
 .wcb-admin .search-box .button:hover {
-    background: var(--wcb-primary-dark, #1d4ed8);
-    border-color: var(--wcb-primary-dark, #1d4ed8);
-    color: #fff;
+    background: var(--wcb-bg-hover, #f1f5f9);
+    border-color: var(--wcb-text-tertiary, #94a3b8);
+    color: var(--wcb-contrast, #1e293b);
 }
 
 /* ── Premium Form Inputs (Settings + Form Tables) ── */
@@ -195,7 +190,7 @@
 .wcb-admin .wcb-settings-row-control input[type="password"],
 .wcb-admin .wcb-settings-row-control select,
 .wcb-admin .wcb-settings-row-control textarea {
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-md, 6px);
     padding: 6px 12px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
@@ -243,13 +238,18 @@
     background: transparent;
     font-weight: 600;
 }
+.wcb-admin button.nav-tab {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+}
 
 /* ── Premium Pagination ── */
 .wcb-admin .tablenav-pages .button {
     border-radius: var(--wcb-radius-sm, 6px);
 }
 .wcb-admin .tablenav-pages .current-page {
-    border: 1.5px solid var(--wcb-border, #e2e8f0);
+    border: 1px solid var(--wcb-border, #e2e8f0);
     border-radius: var(--wcb-radius-sm, 6px);
 }
 

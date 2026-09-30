@@ -34,7 +34,7 @@ class BpIntegration {
 	 */
 	public function boot(): void {
 		add_action( 'bp_init', array( $this, 'register_member_types' ) );
-		add_action( 'wcb_job_created', array( $this, 'activity_job_posted' ), 10, 2 );
+		add_action( 'wcb_job_created', array( $this, 'activity_job_posted' ) );
 	}
 
 	/**

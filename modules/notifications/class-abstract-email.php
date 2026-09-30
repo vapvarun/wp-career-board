@@ -23,6 +23,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class AbstractEmail {
 
 	/**
+	 * Whether the email being rendered goes to someone with no account here
+	 * (a guest applicant). Read by the footer partial for its wording.
+	 *
+	 * @since 1.8.0
+	 * @var bool
+	 */
+	private static bool $to_guest = false;
+
+	/**
+	 * Whether the email being rendered is addressed to a guest.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public static function is_to_guest(): bool {
+		return self::$to_guest;
+	}
+
+	/**
 	 * Returns the unique email ID (used as settings key and log event_type).
 	 *
 	 * @return string
@@ -112,6 +131,45 @@ abstract class AbstractEmail {
 	}
 
 	/**
+	 * Whether members may turn this email off for themselves. Alerts and
+	 * reminders are optional; transactional and security emails are not.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public function is_optional(): bool {
+		return false;
+	}
+
+	/**
+	 * IDs of the optional emails a member has turned off.
+	 *
+	 * @since 1.8.0
+	 * @param int $user_id Member.
+	 * @return string[]
+	 */
+	public static function opted_out( int $user_id ): array {
+		return array_values( array_filter( (array) get_user_meta( $user_id, '_wcb_email_optout', true ), 'is_string' ) );
+	}
+
+	/**
+	 * Optional emails, keyed by ID, for one recipient type or all of them.
+	 *
+	 * @since 1.8.0
+	 * @param string $recipient 'candidate', 'employer', or '' for all.
+	 * @return array<string, string> ID => title.
+	 */
+	public static function optional_emails( string $recipient = '' ): array {
+		$list = array();
+		foreach ( (array) apply_filters( 'wcb_registered_emails', array() ) as $email ) {
+			if ( $email instanceof self && $email->is_optional() && $email->is_enabled() && ( '' === $recipient || $recipient === $email->get_recipient() ) ) {
+				$list[ $email->get_id() ] = $email->get_title();
+			}
+		}
+		return $list;
+	}
+
+	/**
 	 * Returns the active subject line, falling back to get_default_subject().
 	 *
 	 * @return string
@@ -160,16 +218,28 @@ abstract class AbstractEmail {
 	 *
 	 * No-ops when the template is disabled in settings.
 	 *
-	 * @param string               $to      Recipient email address.
-	 * @param array<string, mixed> $vars    Template variables passed to render_template().
-	 * @param int                  $user_id Optional WP user ID for the log row.
+	 * @param string                                   $to      Recipient email address.
+	 * @param array<string, mixed>|\Closure            $vars    Template variables passed to render_template(). Pass a closure
+	 *                                                          to build values that depend on the language (dates, labels,
+	 *                                                          numbers): it runs after the switch to the recipient's locale.
+	 * @param int                                      $user_id Optional WP user ID for the log row.
+	 * @param array<string, mixed>                     $context Optional community-notification context
+	 *                                      (object_type, object_id, actor_id, group_key).
+	 *                                      Omit for a transactional or admin-only email —
+	 *                                      no `object_type` means no bell row.
 	 * @return void
 	 */
-	protected function send( string $to, array $vars, int $user_id = 0 ): void {
-		if ( ! $this->is_enabled() ) {
+	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array() ): void {
+		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
-		$this->dispatch( $to, $vars, $user_id );
+		// A member gets the email in their own language, not the language of
+		// whoever triggered it (an admin, a cron run).
+		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
+		$this->dispatch( $to, $vars instanceof \Closure ? $vars() : $vars, $user_id, false, $context );
+		if ( $switched ) {
+			restore_previous_locale();
+		}
 	}
 
 	/**
@@ -189,6 +259,26 @@ abstract class AbstractEmail {
 	 */
 	public function test_send( string $to, array $vars, int $user_id = 0 ): bool {
 		return $this->dispatch( $to, $vars, $user_id, true );
+	}
+
+	/**
+	 * Render the email without sending it, for the editor's preview. Unsaved
+	 * subject/body edits win over the saved ones so the admin sees what they typed.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<string, mixed> $vars    Sample merge values.
+	 * @param string               $subject Unsaved subject, '' for the saved one.
+	 * @param string               $body    Unsaved body, '' for the saved one.
+	 * @return array{subject: string, html: string}
+	 */
+	public function preview( array $vars, string $subject = '', string $body = '' ): array {
+		return array(
+			'subject' => self::render_string( '' !== trim( $subject ) ? $subject : $this->get_subject(), $vars ),
+			'html'    => '' !== trim( $body )
+				? self::wrap_body( self::render_string( wp_kses_post( $body ), $this->body_vars( $vars ) ) )
+				: $this->render_body( $vars ),
+		);
 	}
 
 	/**
@@ -244,9 +334,10 @@ abstract class AbstractEmail {
 	 *                                       writes a *_test status so admin
 	 *                                       previews don't pollute production
 	 *                                       delivery metrics.
+	 * @param array<string, mixed> $context  Optional community-notification context, see send().
 	 * @return bool True when wp_mail() reported a successful handoff.
 	 */
-	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false ): bool {
+	private function dispatch( string $to, array $vars, int $user_id, bool $is_test = false, array $context = array() ): bool {
 		// Subject placeholders (both {key} and {{key}} forms) get substituted
 		// from $vars here. The body template already runs through
 		// render_template() which extracts $vars into PHP scope and the
@@ -254,9 +345,11 @@ abstract class AbstractEmail {
 		// same result. Without this line, subjects like "Application deadline
 		// approaching for {job_title}" reach recipients verbatim, both in
 		// production and via AdminEndpoint::test_send_email (same code path).
-		$subject = self::render_string( $this->get_subject(), $vars );
-		$body    = $this->render_body( $vars );
-		$sent    = wp_mail( $to, $subject, $body, self::headers() );
+		$subject        = self::render_string( $this->get_subject(), $vars );
+		self::$to_guest = ! $is_test && false === get_user_by( 'email', $to );
+		$body           = $this->render_body( $vars );
+		self::$to_guest = false;
+		$sent           = wp_mail( $to, $subject, $body, self::headers() );
 
 		$status = $sent ? 'sent' : 'failed';
 		if ( $is_test ) {
@@ -289,8 +382,21 @@ abstract class AbstractEmail {
 		 * test previews). Free has no in-app bell, so the email-trigger point is
 		 * the notification-worthy moment - this gives BuddyNext parity with Pro's
 		 * bell hook on Free-only sites. Additive: the email itself is unaffected.
+		 *
+		 * One domain event must announce once: when something else (Pro's bell)
+		 * records this event and fires the signal itself, it returns false here,
+		 * otherwise push and BuddyNext received every such event twice.
 		 */
-		if ( ! $is_test ) {
+		/**
+		 * Filter whether this email announces `wcb_notification_created`.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param bool   $announce Whether the email fires the signal.
+		 * @param string $email_id Email ID (e.g. application-status-changed).
+		 * @param int    $user_id  Recipient user ID.
+		 */
+		if ( ! $is_test && apply_filters( 'wcb_email_announces_notification', true, $this->get_id(), $user_id ) ) {
 			$link = '';
 			foreach ( array( 'dashboard_url', 'job_url', 'approve_url', 'repost_url', 'link' ) as $wcb_link_key ) {
 				if ( ! empty( $vars[ $wcb_link_key ] ) && is_scalar( $vars[ $wcb_link_key ] ) ) {
@@ -300,12 +406,21 @@ abstract class AbstractEmail {
 			}
 
 			/**
-			 * Fires after a Career Board notification is created (Free fires this
-			 * at the email-trigger point; Pro also fires it from the bell insert).
+			 * Fires once per notification-worthy event: from the email on Free,
+			 * from the bell insert when Pro's bell records the same event.
+			 *
+			 * The second argument is the community notification contract payload
+			 * (recipient_id, type, actor_id, object_type, object_id, message, url,
+			 * group_key, notification_id) for a centralised notification center —
+			 * null when $context carries no object_type (a transactional or
+			 * admin-only email). Existing listeners registered with
+			 * accepted_args = 1 never receive it.
 			 *
 			 * @since 1.4.3
+			 * @since 1.8.0 Added the contract payload as a second argument.
 			 *
 			 * @param array{user_id:int,event_type:string,message:string,link:string,id:int} $notification Notification payload.
+			 * @param array<string, mixed>|null                                              $contract     Community notification contract payload, or null.
 			 */
 			do_action(
 				'wcb_notification_created',
@@ -315,7 +430,8 @@ abstract class AbstractEmail {
 					'message'    => $subject,
 					'link'       => $link,
 					'id'         => 0,
-				)
+				),
+				CommunityNotificationContract::build( $user_id, $this->get_id(), $subject, $link, $context )
 			);
 		}
 

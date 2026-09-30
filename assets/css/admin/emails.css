@@ -70,7 +70,10 @@
 .wcb-email-log-table-wrap {
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	border-radius: 8px;
-	overflow: hidden;
+	/* Scroll, never clip: a long subject makes the table wider than the panel,
+	   and `hidden` cut the Status column off with no way to reach it. */
+	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 .wcb-email-log-table {
@@ -171,6 +174,8 @@
 .wcb-email-templates-wrap {
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
+	/* The editor and preview are sized to this box (cqw), not to the table's full width. */
+	container-type: inline-size;
 }
 
 .wcb-email-body-row > td {
@@ -187,7 +192,7 @@
 
 .wcb-email-body-textarea {
 	width: 100%;
-	max-width: 640px;
+	max-width: min(640px, calc(100cqw - 40px));
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 13px;
 	line-height: 1.5;
@@ -256,4 +261,23 @@
 	.wcb-email-body-row > td { background: var(--wcb-surface-subtle, #1e293b); }
 	.wcb-email-body-textarea,
 	.wcb-email-tag-chip { background: var(--wcb-surface, #0f172a); border-color: var(--wcb-border, #334155); }
+}
+
+/* Editor preview: the rendered email, sandboxed. */
+.wcb-email-preview {
+	margin-top: var(--wcb-space-md, 12px);
+}
+
+.wcb-email-preview__subject {
+	font-weight: 600;
+	margin: 0 0 var(--wcb-space-sm, 8px);
+}
+
+.wcb-email-preview__frame {
+	width: 100%;
+	max-width: calc(100cqw - 40px);
+	height: 480px;
+	border: 1px solid var(--wcb-border, #dcdcde);
+	border-radius: 6px;
+	background: #fff;
 }

@@ -31,7 +31,10 @@ html.dark-mode {
 	   Legacy BuddyX Pro used `--bbg-primary` / `--buddyx-primary-color`; kept as
 	   fallbacks so older theme builds still bridge. */
 	--wcb-primary: var( --bx-color-primary, var( --bx-color-accent, var( --bbg-primary, var( --buddyx-primary-color, #2563eb ) ) ) );
-	--wcb-primary-dark: var( --bx-color-accent-hover, var( --button-background-hover-color, var( --bbg-primary-hover, #1d4ed8 ) ) );
+	/* No --wcb-primary-dark remap: BuddyX's own hover token isn't reliably
+	   darker than the (possibly capped) fill on every accent/mode. The
+	   plugin's own frontend.css derives it from --wcb-primary-strong, which
+	   is always darker, so hover is guaranteed to read as pressed-in. */
 
 	/* Theme-aware primary tints — older browsers fall back to the static
 	   rgba on the first declaration; modern browsers use color-mix below. */
@@ -69,41 +72,22 @@ html.dark-mode {
 	--wcb-danger:  var( --bbg-danger-color, #dc2626 );
 	--wcb-info:    var( --wcb-primary );
 
-	/* Avatar background — heading tone so initials read against theme contrast. */
-	--wcb-avatar-bg: var( --bx-color-text-primary, var( --bbg-headings-color, #1e293b ) );
-}
-
-/*
- * Ensure WCB blocks respect BuddyX Pro's content width.
- * `--buddyx-content-width` is set inline by the integration when the site owner
- * picks a custom width; 1200px mirrors BuddyX Pro's default content container.
- * `margin-inline: auto` centres the block when it's narrower than the viewport.
- */
-.wcb-job-single,
-.wcb-job-listings,
-.wcb-resume-archive,
-.wcb-resume-single,
-.wcb-dashboard,
-.wcb-company-archive,
-.wcb-company-profile {
-	max-width: var( --buddyx-content-width, 1200px );
-	margin-inline: auto;
-	box-sizing: border-box;
+	/* No --wcb-avatar-bg here: it is a surface, and the theme's text colour is
+	   light in dark mode. The plugin's own light and dark values apply. */
 }
 
 /*
  * WCB's brand pill buttons (apply / primary / save) sit on the saturated
- * `--wcb-primary`. BuddyX's own `--button-text-color` varies per palette
- * (some Customizer presets use a dark value that fails contrast against
- * the saturated background), so we force the theme's button text — falling
- * back to white — instead of letting it pick a too-dark token.
+ * `--wcb-primary`. The label is `--wcb-on-primary`, which is derived from that
+ * same accent (white on a dark one, near-black on a light one), so it passes
+ * contrast whatever palette the Customizer picks. BuddyX's own button text
+ * colour is chosen for BuddyX's fill, not ours, so it is not used here.
  */
-.wcb-cbtn--apply,
-.wcb-cbtn--primary,
+.wcb-btn--primary,
 .wcb-btn-primary,
 .wcb-apply-btn,
 .wcb-save-btn {
-	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
 	transition: filter var( --wcb-transition-snappy, 0.15s ease );
 }
 
@@ -128,10 +112,15 @@ html.dark-mode {
 	-webkit-text-fill-color: currentColor !important;
 }
 
-.wcb-dashboard .wcb-nav-item:hover,
+.wcb-dashboard .wcb-nav-item:hover {
+	color: var( --wcb-contrast ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* Active tab: brand text on the brand tint, same as every other theme. */
 .wcb-dashboard .wcb-nav-item.wcb-nav-active,
 .wcb-dashboard .wcb-nav-item.wcb-view-active {
-	color: var( --wcb-contrast ) !important;
+	color: var( --wcb-primary-text ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
 
@@ -139,14 +128,6 @@ html.dark-mode {
 	background: none !important;
 	color: var( --wcb-blue, var( --wcb-primary, #2563eb ) ) !important;
 	-webkit-text-fill-color: currentColor !important;
-}
-
-/* Dark pill CTAs ("Browse Jobs" / "Post a Job") — <a> styled as a solid button;
- * BuddyX paints links with its body color, washing the white label into the
- * dark pill. Force the bridged light surface token for the label. */
-.wcb-dashboard .wcb-sidebar-cta {
-	color: var( --wcb-base, #ffffff ) !important;
-	-webkit-text-fill-color: var( --wcb-base, #ffffff ) !important;
 }
 
 /* #OpenToWork badge shown on BuddyX Pro member profiles — uses the WCB
@@ -217,14 +198,49 @@ html.dark-mode {
  * token-driven transparent/surface background with readable token text.
  */
 
-/* Filled CTAs — keep the brand fill + a legible label. */
+/* Filled CTAs — keep the brand fill + a legible label. Also covers the
+   Pro <button>s (job-map/resume-map location search) BuddyX's
+   blanket strip below used to catch unfilled — same allowlist, both sides. */
 button.wcb-btn--primary,
-button.wcb-cbtn--primary,
 button.wcb-search-button,
-button.wcb-search-hero__button {
-	background-color: var( --wcb-primary, #2563eb ) !important;
-	color: var( --bbg-button-text-color, var( --bx-color-button-fg, #ffffff ) ) !important;
+button.wcb-search-hero__button,
+button.wcb-jm-location-btn {
+	background-color: var(--wcb-primary-strong) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
+}
+
+button.wcb-btn--primary:hover,
+button.wcb-btn--primary:focus-visible,
+button.wcb-btn--primary:active,
+button.wcb-search-button:hover,
+button.wcb-search-button:focus-visible,
+button.wcb-search-button:active,
+button.wcb-search-hero__button:hover,
+button.wcb-search-hero__button:focus-visible,
+button.wcb-search-hero__button:active,
+button.wcb-jm-location-btn:hover,
+button.wcb-jm-location-btn:focus-visible,
+button.wcb-jm-location-btn:active {
+	background-color: var(--wcb-primary-dark, var(--wcb-primary-strong)) !important;
+	color: var( --wcb-on-primary, #ffffff ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* The alert-card CTA is an <a>, not a <button> — BuddyX's own anchor-as-button
+   styling paints it with a dark label (#111 light / #ff6b6b dark) that the
+   button-only rules above never reach. */
+a.wcb-job-alert-card__btn,
+a.wcb-job-alert-card__btn:hover,
+a.wcb-job-alert-card__btn:focus-visible {
+	color: var( --wcb-on-primary, #ffffff ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+a.wcb-job-alert-card__btn:hover,
+a.wcb-job-alert-card__btn:focus-visible,
+a.wcb-job-alert-card__btn:active {
+	background-color: var(--wcb-primary-dark, var(--wcb-primary-strong)) !important;
 }
 
 /* Every other WCB <button>: strip BuddyX's blanket accent fill back to a
@@ -233,8 +249,19 @@ button.wcb-search-hero__button {
    future WCB buttons — ladder pills, view toggles, bookmark/filter/reset icon
    buttons, dashboard chips/pills, bell and db-link actions — without having to
    enumerate every class as new widgets are added. */
-button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-cbtn--primary, .wcb-search-button, .wcb-search-hero__button) {
+button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn) {
 	background-color: transparent !important;
+	color: var( --wcb-text-primary, #111111 ) !important;
+	-webkit-text-fill-color: currentColor !important;
+}
+
+/* The employer dashboard's row actions mix <button> (Feature, Close, Publish,
+   Reopen — the blanket rule above already neutralises these to one text
+   colour, their accent border still shows through) and <a> (View, Edit,
+   Pipeline — never reached by a button-only selector). Edit is the one
+   anchor carrying an accent-text modifier, so it alone kept a coloured
+   label while every other action read as the same neutral tone. */
+a[class*="wcb-"].wcb-db-link-btn--edit {
 	color: var( --wcb-text-primary, #111111 ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
@@ -242,20 +269,67 @@ button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-cbtn--primary, .wcb-search-but
 /* Surface (outline-on-white) variants keep a solid light background. The extra
    [class*="wcb-"] qualifier lifts these above the blanket rule's specificity. */
 button[class*="wcb-"].wcb-btn--secondary,
-button[class*="wcb-"].wcb-cbtn--danger,
+button[class*="wcb-"].wcb-btn--danger,
 button[class*="wcb-"].wcb-layout-btn.wcb-active {
 	background-color: var( --wcb-base, #ffffff ) !important;
+}
+
+/* ...and keep the shared hover tint, which the !important surface above
+   would otherwise cancel for <button> actions (Reopen, Close) but not <a>. */
+button[class*="wcb-"].wcb-btn--secondary:is(:hover, :focus-visible) {
+	background-color: var( --wcb-bg-hover, #f1f5f9 ) !important;
+}
+
+/* The selected row in the applications picker: the blanket strip above was
+   also stripping its .wcb-active tint, leaving it identical to every other
+   row. Keeps the same info-tint the non-BuddyX design already uses instead
+   of falling back to a plain surface, so BuddyX isn't a third look. */
+button[class*="wcb-"].wcb-apps-job-item.wcb-active {
+	background-color: var( --wcb-primary-soft ) !important;
 }
 
 /* Link-style + active-toggle buttons carry the primary accent on their label. */
 button[class*="wcb-"].wcb-filter-panel__clear,
 button[class*="wcb-"].wcb-salary-popover__reset,
-button[class*="wcb-"].wcb-layout-btn.wcb-active {
-	color: var( --wcb-primary, #2563eb ) !important;
+button[class*="wcb-"].wcb-layout-btn.wcb-active,
+button[class*="wcb-"].wcb-apps-job-item.wcb-active {
+	color: var( --wcb-primary-text, #1d4ed8 ) !important;
 }
 
-/* Danger buttons keep their danger label tone. */
-button[class*="wcb-"].wcb-cbtn--danger,
-button[class*="wcb-"].wcb-btn--danger {
+/* Rating stars: the blanket strip's forced --wcb-text-primary made an
+   unrated (off) star the same brightness as a filled (on) one in BuddyX dark
+   mode (measured #f5f5f5 — an unrated applicant read as 5 stars). Restore
+   each state's own token. */
+button[class*="wcb-"].wcb-rating__star:not(.wcb-rating__star--on) {
+	color: var( --wcb-text-secondary, #667085 ) !important;
+}
+
+button[class*="wcb-"].wcb-rating__star--on {
+	color: var( --wcb-warning, #d97706 ) !important;
+}
+
+/* Danger actions keep their danger label tone. */
+button[class*="wcb-"].wcb-btn--danger,
+button[class*="wcb-"].wcb-bell-clear-all,
+button[class*="wcb-"].wcb-cd-withdraw-btn {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
+}
+
+/* BuddyX paints every input with `input:not(...)x5` (0,5,1) using
+ * --bx-radius-form, which outranks the shared field rule. Inside Career Board
+ * blocks that token resolves to the plugin's field radius instead, so inputs,
+ * selects and textareas share one corner. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
+	--bx-radius-form: var(--wcb-radius-md);
+}
+
+/*
+ * Content edge: flush with the theme's own. BuddyX wraps the shell in its
+ * .container (see the shared rule in frontend-components.css). BuddyX Pro has
+ * no wrapper, so the shell mirrors that container (1270px wide, 15px gutter)
+ * and lands on the same left edge as a plain page.
+ */
+#page > .wcb-archive-shell {
+	max-width: 1270px !important; /* the theme's own .container width */
+	padding-inline: 15px;
 }

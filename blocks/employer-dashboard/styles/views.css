@@ -52,40 +52,7 @@
 }
 
 .wcb-app-avatar {
-	flex-shrink: 0;
-	width: var(--wcb-space-3xl);
-	height: var(--wcb-space-3xl);
-	border-radius: 50%;
-	background: var(--wcb-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-app-info {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-app-name {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.wcb-app-job {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
+	--wcb-avatar-size: var(--wcb-space-3xl);
 }
 
 .wcb-app-email {
@@ -99,27 +66,10 @@
 }
 
 /* Status badge (overview panels) */
-.wcb-status-badge {
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-semibold);
-	padding: 2px var(--wcb-space-sm);
-	border-radius: var(--wcb-radius-full);
-	background: var(--wcb-bg-hover);
-	color: var(--wcb-text-secondary);
-	text-transform: capitalize;
-	white-space: nowrap;
-	flex-shrink: 0;
-}
-
-.wcb-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
-.wcb-status-badge[data-status="hired"],
-.wcb-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
 .wcb-status-badge[data-status="publish"]     { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
 .wcb-status-badge[data-status="draft"]       { background: var(--wcb-surface, var(--wp--preset--color--wcb-surface)); color: var(--wcb-text-secondary); }
 .wcb-status-badge[data-status="pending"]     { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
+.wcb-status-badge.wcb-status-badge--featured                { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
 
 /* Status dot */
 .wcb-status-dot {
@@ -252,7 +202,7 @@
 }
 
 .wcb-job-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -271,7 +221,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -283,14 +233,11 @@
 	background: var(--wcb-bg-subtle);
 }
 
-.wcb-job-row.wcb-job-closed,
-.wcb-job-row.wcb-job-expired {
-	opacity: 0.55;
-}
-
+/* A closed or expired job stays readable and keeps usable actions (Reopen): the status
+   badge says what it is, a muted title says it is not live. No fade, no strike-through. */
 .wcb-job-row.wcb-job-closed .wcb-job-title,
 .wcb-job-row.wcb-job-expired .wcb-job-title {
-	text-decoration: line-through;
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-job-actions {
@@ -359,7 +306,7 @@
 }
 
 .wcb-apps-job-search:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -414,9 +361,11 @@
 	outline-offset: -2px;
 }
 
+/* The accent's own tint with accent text: one hue on every theme (an info-blue
+ * tint under a red BuddyX accent read as two unrelated colours). */
 .wcb-apps-job-item.wcb-active {
-	background: var(--wcb-info-bg);
-	color: var(--wcb-primary);
+	background: var(--wcb-primary-soft);
+	color: var(--wcb-primary-text, #1d4ed8);
 	font-weight: var(--wcb-font-semibold);
 }
 
@@ -571,6 +520,12 @@
 }
 
 /* -- Board (Kanban) layout -- */
+.wcb-apps-board-note {
+	margin: 0 0 var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
 .wcb-apps-board {
 	display: none;
 	gap: var(--wcb-space-md);
@@ -632,6 +587,22 @@
 	transform: translateY(-1px);
 }
 
+.wcb-board-card:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-board-card-move {
+	width: 100%;
+	margin-top: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-xs);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font-size: var(--wcb-text-xs);
+}
+
 .wcb-board-card:active {
 	cursor: grabbing;
 	transform: none;
@@ -645,11 +616,7 @@
 }
 
 .wcb-board-card .wcb-app-avatar {
-	width: 26px;
-	height: 26px;
-	font-size: 11px;
-	background: var(--wcb-primary-bg, #eef2ff);
-	color: var(--wcb-primary);
+	--wcb-avatar-size: 26px;
 }
 
 .wcb-board-card .wcb-app-name {
@@ -701,50 +668,24 @@
 	color: var(--wcb-text-secondary);
 }
 
-/* Avatar (generic) */
-.wcb-avatar,
-.wcb-detail-avatar {
-	flex-shrink: 0;
-	border-radius: 50%;
-	background: var(--wcb-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-avatar--sm { width: var(--wcb-space-3xl); height: var(--wcb-space-3xl); }
-.wcb-avatar--lg { width: 44px; height: 44px; font-size: var(--wcb-text-base); }
-
-.wcb-detail-avatar {
-	width: 44px;
-	height: 44px;
-	font-size: var(--wcb-text-base);
-}
-
 /* Applicant detail column */
 .wcb-applicant-detail {
 	padding: var(--wcb-space-2xl);
 	overflow-y: auto;
 }
 
-.wcb-no-selection {
-	display: none;
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-}
-
-.wcb-no-selection.wcb-shown {
-	display: block;
-}
-
 .wcb-detail-header {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: flex-start;
 	gap: var(--wcb-space-lg);
 	margin-bottom: var(--wcb-space-xl);
+}
+
+/* The status control drops under the name when the panel is narrow. */
+.wcb-detail-header > div:not(.wcb-detail-avatar) {
+	flex: 1 1 8rem;
+	min-width: 0;
 }
 
 .wcb-detail-name {
@@ -838,7 +779,7 @@
 	overflow-wrap: anywhere;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
 	.wcb-app-answer {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-xs);
@@ -869,71 +810,12 @@
 }
 
 /* Dashboard buttons use the canonical .wcb-btn ladder (assets/css/wcb-ui.css).
-   The former per-block .wcb-db-btn duplicate was removed in the design-system
-   consolidation so buttons render identically across every block/page. */
-
-/* -- Job action link buttons -- */
-.wcb-db-link-btn {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-text-secondary);
-	text-decoration: none;
-	padding: var(--wcb-space-xs) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
-	background: var(--wcb-base);
-	white-space: nowrap;
-	transition: background 0.1s, border-color 0.1s;
-	cursor: pointer;
-}
-
-.wcb-db-link-btn:hover {
-	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-secondary);
-	border-color: var(--wcb-text-tertiary);
-}
-
-.wcb-db-link-btn--edit {
-	color: var(--wcb-primary);
-	border-color: var(--wcb-primary);
-}
-
-.wcb-db-link-btn--edit:hover {
-	background: var(--wcb-primary);
-	color: var(--wcb-base);
-}
-
-.wcb-db-link-btn--close {
-	color: var(--wcb-warning-fg, #b45309);
-	border-color: var(--wcb-warning-border, #fde68a);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--close:hover {
-	background: var(--wcb-warning-bg);
-	border-color: var(--wcb-warning);
-}
-
-.wcb-db-link-btn--publish {
-	color: var(--wcb-primary);
-	border-color: var(--wcb-info-border, #bfdbfe);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--publish:hover {
-	background: var(--wcb-info-bg);
-}
-
-.wcb-db-link-btn--reopen {
-	color: var(--wcb-success-fg);
-	border-color: var(--wcb-success-border);
-	cursor: pointer;
-}
-
-.wcb-db-link-btn--reopen:hover {
-	background: var(--wcb-success-bg);
-	border-color: var(--wcb-success-border, #4ade80);
-}
+   Row actions render as plain wcb-btn wcb-btn--secondary (owner decision
+   2026-09-29: "uniform wins" - one look per variant, no per-action accent
+   colour). The wcb-db-link-btn--* modifiers this used to layer an accent
+   on top were leaking a second colour on BuddyX where the shared
+   secondary button itself gets an accent border (10350124316) - removed
+   from markup and dropped here. */
 
 /* -- Job status badge -- */
 .wcb-job-status-badge {
@@ -963,13 +845,6 @@
 	white-space: nowrap;
 }
 
-.wcb-app-status-badge[data-status="submitted"]   { background: var(--wcb-info-bg); color: var(--wcb-info); }
-.wcb-app-status-badge[data-status="reviewing"]   { background: var(--wcb-warning-bg, #fef9c3); color: var(--wcb-warning-fg, #854d0e); }
-.wcb-app-status-badge[data-status="shortlisted"] { background: var(--wcb-purple-bg); color: var(--wcb-purple-fg); }
-.wcb-app-status-badge[data-status="hired"]       { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-app-status-badge[data-status="accepted"]    { background: var(--wcb-success-bg); color: var(--wcb-success-fg); }
-.wcb-app-status-badge[data-status="rejected"]    { background: var(--wcb-danger-bg); color: var(--wcb-danger-fg); }
-
 /* -- Application status select -- */
 .wcb-app-status-select {
 	font-size: var(--wcb-text-sm);
@@ -988,11 +863,9 @@
 }
 
 /* -- Company profile form -- */
+/* The form sits directly in the tab; the shell is the only frame. */
 .wcb-profile-form {
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-3xl);
+	padding: 0;
 }
 
 .wcb-profile-form-title {
@@ -1049,7 +922,7 @@
 	display: inline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.wcb-split-panel.wcb-shown {
 		display: flex;
 		flex-direction: column;
@@ -1061,7 +934,9 @@
 		max-height: 240px;
 	}
 
-	.wcb-field-row {
+	/* The dashboard main area is narrower than the viewport, so its field
+	   rows stack at tablet width, earlier than the shared 640 step. */
+	.wcb-dashboard .wcb-field-row {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
@@ -1081,7 +956,15 @@
 		white-space: normal;
 	}
 
+	/* flex-wrap left an uneven 3+1 row (button widths vary, so 4 actions could
+	   wrap 3-then-1) — a 2-column grid keeps action rows even. */
 	.wcb-job-actions {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		width: 100%;
+	}
+
+	.wcb-job-actions .wcb-btn {
 		width: 100%;
 	}
 
@@ -1106,11 +989,80 @@
 @media (prefers-reduced-motion: reduce) {
 	.wcb-filter-pill,
 	.wcb-job-row,
-	.wcb-db-link-btn,
 	.wcb-job-search,
 	.wcb-apps-job-search,
 	.wcb-apps-job-item,
 	.wcb-field-input {
 		transition: none;
 	}
+}
+
+/* ── Hiring-team rating and notes (W19) ────────────────────────────────── */
+.wcb-rating {
+	display: flex;
+	gap: var(--wcb-space-xs);
+	margin-bottom: var(--wcb-space-sm);
+}
+
+.wcb-rating__star {
+	padding: 0 var(--wcb-space-xs);
+	border: 0;
+	background: none;
+	color: var(--wcb-text-secondary);
+	font-size: 1.4rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.wcb-rating__star--on {
+	color: var(--wcb-warning, #d97706);
+}
+
+.wcb-rating__star:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-notes-list {
+	margin: 0 0 var(--wcb-space-sm);
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-note {
+	position: relative;
+	padding: var(--wcb-space-xs) var(--wcb-space-xl) var(--wcb-space-xs) 0;
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-note__text {
+	margin: 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.wcb-note__meta {
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-xs);
+}
+
+.wcb-note__delete {
+	position: absolute;
+	inset-inline-end: 0;
+	top: var(--wcb-space-xs);
+	border: 0;
+	background: none;
+	color: var(--wcb-text-secondary);
+	cursor: pointer;
+}
+
+.wcb-app-notes textarea {
+	width: 100%;
+	margin-bottom: var(--wcb-space-xs);
+}
+
+/* A detail section that is shown only when it has content stays hidden
+   until then (AI fit, answers, resume printed empty headings). */
+.wcb-detail-section[data-wp-class--wcb-shown]:not(.wcb-shown) {
+	display: none;
 }

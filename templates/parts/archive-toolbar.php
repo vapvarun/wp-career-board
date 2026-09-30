@@ -147,7 +147,7 @@ if ( (bool) $wcb_toolbar['show_sort'] ) {
 		</p>
 		<?php
 		if ( '' !== (string) $wcb_toolbar['inject_slot_key'] ) {
-			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array() );
+			$wcb_module_renders = (array) apply_filters( 'wcb_module_renders', array(), 'archive-toolbar' );
 			$wcb_slot_html      = (string) ( $wcb_module_renders[ (string) $wcb_toolbar['inject_slot_key'] ] ?? '' );
 			if ( '' !== $wcb_slot_html ) {
 				// Module-generated markup (escaped internally — text via esc_html_e,
@@ -174,6 +174,7 @@ if ( (bool) $wcb_toolbar['show_sort'] ) {
 			type="button"
 			class="wcb-layout-btn"
 			data-wp-class--wcb-active="<?php echo esc_attr( (string) $wcb_toolbar['switcher_list_active'] ); ?>"
+			data-wp-bind--aria-pressed="<?php echo esc_attr( (string) $wcb_toolbar['switcher_list_active'] ); ?>"
 			data-wp-on--click="<?php echo esc_attr( (string) $wcb_toolbar['switcher_list_action'] ); ?>"
 			aria-label="<?php echo esc_attr( (string) $wcb_toolbar['switcher_list_label'] ); ?>"
 		>
@@ -183,6 +184,7 @@ if ( (bool) $wcb_toolbar['show_sort'] ) {
 			type="button"
 			class="wcb-layout-btn"
 			data-wp-class--wcb-active="<?php echo esc_attr( (string) $wcb_toolbar['switcher_grid_active'] ); ?>"
+			data-wp-bind--aria-pressed="<?php echo esc_attr( (string) $wcb_toolbar['switcher_grid_active'] ); ?>"
 			data-wp-on--click="<?php echo esc_attr( (string) $wcb_toolbar['switcher_grid_action'] ); ?>"
 			aria-label="<?php echo esc_attr( (string) $wcb_toolbar['switcher_grid_label'] ); ?>"
 		>

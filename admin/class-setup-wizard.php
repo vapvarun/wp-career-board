@@ -68,6 +68,22 @@ class SetupWizard extends \WCB\Api\RestController {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wizard_assets' ) );
 		add_action( 'admin_post_wcb_install_demo', array( $this, 'handle_install_demo' ) );
+		add_filter( 'admin_body_class', array( $this, 'focus_mode_class' ) );
+	}
+
+	/**
+	 * Hide the admin menu while the wizard runs, so the owner finishes one
+	 * task instead of wandering off half configured. "Exit setup" in the
+	 * wizard header is the way out.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $classes Space-separated body classes.
+	 * @return string
+	 */
+	public function focus_mode_class( string $classes ): string {
+		$screen = get_current_screen();
+		return $screen && 'admin_page_wcb-setup' === $screen->id ? $classes . ' wcb-wizard-focus' : $classes;
 	}
 
 	/**
@@ -162,9 +178,29 @@ class SetupWizard extends \WCB\Api\RestController {
 			'wcb_wizard_steps',
 			array(
 				'create-pages' => array(
-					'title'       => __( 'Create Pages', 'wp-career-board' ),
+					'title'       => __( 'Pages', 'wp-career-board' ),
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/create-pages.php',
 					'button_text' => __( 'Create Pages & Continue', 'wp-career-board' ),
+				),
+				'registration' => array(
+					'title'       => __( 'Sign-ups', 'wp-career-board' ),
+					'template'    => WCB_DIR . 'admin/views/wizard-steps/registration.php',
+					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
+				),
+				'jobs'         => array(
+					'title'       => __( 'Jobs', 'wp-career-board' ),
+					'template'    => WCB_DIR . 'admin/views/wizard-steps/jobs.php',
+					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
+				),
+				'emails'       => array(
+					'title'       => __( 'Emails', 'wp-career-board' ),
+					'template'    => WCB_DIR . 'admin/views/wizard-steps/emails.php',
+					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
+				),
+				'anti-spam'    => array(
+					'title'       => __( 'Spam Protection', 'wp-career-board' ),
+					'template'    => WCB_DIR . 'admin/views/wizard-steps/anti-spam.php',
+					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
 				),
 				'sample-data'  => array(
 					'title'       => __( 'Sample Data', 'wp-career-board' ),
@@ -205,6 +241,9 @@ class SetupWizard extends \WCB\Api\RestController {
 				'restUrl'    => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1/wizard' ) ) ),
 				'steps'      => array_keys( $steps ),
 				'totalSteps' => count( $steps ),
+				'i18n'       => array(
+					'saveFailed' => __( 'Could not save. Check your connection and try again.', 'wp-career-board' ),
+				),
 			)
 		);
 	}
@@ -223,6 +262,22 @@ class SetupWizard extends \WCB\Api\RestController {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_pages_handler' ),
 				'permission_callback' => array( $this, 'wizard_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/wizard/settings',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'settings_handler' ),
+				'permission_callback' => array( $this, 'wizard_permission_check' ),
+				'args'                => array(
+					'settings' => array(
+						'type'     => 'object',
+						'required' => true,
+					),
+				),
 			)
 		);
 
@@ -286,8 +341,36 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_pages_handler( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {   // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
-		$created = $this->create_required_pages();
+		$created = Pages::create_missing();
 		return rest_ensure_response( $created );
+	}
+
+	/**
+	 * REST handler - save the answers of a settings step.
+	 *
+	 * Accepts any key in the settings schema plus WordPress's own
+	 * `users_can_register`, and saves through the same sanitizer as the
+	 * Settings screen, merged over what is stored.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param  \WP_REST_Request $request REST request; `settings` is key => value.
+	 * @return \WP_REST_Response
+	 */
+	public function settings_handler( \WP_REST_Request $request ): \WP_REST_Response {
+		$input = (array) $request->get_param( 'settings' );
+
+		if ( array_key_exists( 'users_can_register', $input ) ) {
+			update_option( 'users_can_register', rest_sanitize_boolean( $input['users_can_register'] ) ? 1 : 0 );
+		}
+
+		$input = array_intersect_key( $input, SettingsSchema::fields() );
+		if ( $input ) {
+			$input['_wcb_form'] = 1;
+			update_option( 'wcb_settings', ( new AdminSettings() )->sanitize( $input ) );
+		}
+
+		return rest_ensure_response( array( 'saved' => true ) );
 	}
 
 	/**
@@ -379,125 +462,6 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		$steps = $this->get_steps(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- template variable, not a global.
 		include_once WCB_DIR . 'admin/views/setup-wizard.php';
-	}
-
-	/**
-	 * Create the four required WCB pages and persist their IDs in wcb_settings.
-	 *
-	 * Skips any page whose setting key already has a non-zero value.
-	 *
-	 * @since  1.0.0
-	 * @return array Map of setting_key => page_id for each page that was created.
-	 */
-	private function create_required_pages(): array {
-		$settings = Settings::all();
-		$created  = array();
-
-		/**
-		 * Filters the pages the setup wizard will create.
-		 *
-		 * Each entry is keyed by the wcb_settings option key and contains
-		 * 'title' and 'content' for the page to insert. Pro (and other add-ons)
-		 * use this filter to append their own required pages.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param array<string, array{title: string, content: string}> $pages Pages to create.
-		 */
-		$pages = apply_filters(
-			'wcb_wizard_required_pages',
-			array(
-				// Titled + slugged to match the Settings "Create Missing Pages"
-				// path and the published docs (/employer-registration/), so the
-				// wizard-created page and the doc URLs never diverge. The block
-				// itself is a dual role-picker (Find a Job / Hire Talent); the key
-				// stays `employer_registration_page` for back-compat.
-				'employer_registration_page' => array(
-					'title'   => __( 'Employer Registration', 'wp-career-board' ),
-					'slug'    => 'employer-registration',
-					'content' => '<!-- wp:wp-career-board/employer-registration /-->',
-				),
-				'employer_dashboard_page'    => array(
-					'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
-				),
-				'candidate_dashboard_page'   => array(
-					'title'   => __( 'Candidate Dashboard', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/candidate-dashboard /-->',
-				),
-				'jobs_archive_page'          => array(
-					'title'   => __( 'Find Jobs', 'wp-career-board' ),
-					'content' => '<!-- wp:heading {"level":1,"className":"wcb-page-heading"} --><h1 class="wp-block-heading wcb-page-heading">' . esc_html__( 'Find Jobs', 'wp-career-board' ) . '</h1><!-- /wp:heading --><!-- wp:wp-career-board/job-search /--><!-- wp:wp-career-board/job-listings /-->',
-				),
-				'company_archive_page'       => array(
-					// "Find Companies", not "Companies": the wcb_company CPT
-					// registers has_archive => 'companies', so a page titled
-					// "Companies" takes slug `companies`, collides, and WP serves
-					// the archive instead - the page and its block were
-					// unreachable. Same dodge jobs_archive_page already uses with
-					// "Find Jobs" vs the /jobs/ archive, and it matches the slug
-					// Pages::CANONICAL_SLUGS already expects for this key.
-					'title'   => __( 'Find Companies', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/company-archive /-->',
-				),
-				'post_job_page'              => array(
-					'title'   => __( 'Post a Job', 'wp-career-board' ),
-					'content' => '<!-- wp:wp-career-board/job-form /-->',
-				),
-			)
-		);
-
-		foreach ( $pages as $setting_key => $page_data ) {
-			if ( ! empty( $settings[ $setting_key ] ) && get_post( (int) $settings[ $setting_key ] ) ) {
-				continue;
-			}
-
-			// Re-use an existing published page that already contains this block.
-			// Match the plugin's OWN block, not the first block: some pages (e.g.
-			// Find Jobs) now lead with a wp:heading title block, and keying reuse
-			// off "heading" grabbed any unrelated page that had a heading. Fall
-			// back to the first block only when no wp-career-board block exists.
-			$block_name = '';
-			if ( preg_match( '/<!-- wp:(wp-career-board\/[a-z0-9-]+)/', $page_data['content'], $m )
-				|| preg_match( '/<!-- wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)/', $page_data['content'], $m ) ) {
-				$block_name = $m[1];
-			}
-			if ( $block_name ) {
-				$existing = get_posts(
-					array(
-						'post_type'      => 'page',
-						'post_status'    => 'publish',
-						'posts_per_page' => 1,
-						'fields'         => 'ids',
-						's'              => $block_name,
-						'no_found_rows'  => true,
-					)
-				);
-				if ( $existing ) {
-						$settings[ $setting_key ] = $existing[0];
-						$created[ $setting_key ]  = $existing[0];
-						continue;
-				}
-			}
-
-			$page_id = wp_insert_post(
-				array(
-					'post_title'   => $page_data['title'],
-					'post_name'    => $page_data['slug'] ?? '',
-					'post_content' => $page_data['content'],
-					'post_status'  => 'publish',
-					'post_type'    => 'page',
-				)
-			);
-
-			if ( $page_id && ! is_wp_error( $page_id ) ) {
-					$settings[ $setting_key ] = $page_id;
-					$created[ $setting_key ]  = $page_id;
-			}
-		}
-
-		update_option( 'wcb_settings', $settings );
-		return $created;
 	}
 
 	/**

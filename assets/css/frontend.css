@@ -41,7 +41,13 @@
 	   BuddyX red primary must not get a blue hover). Hex fallback first for
 	   browsers without color-mix(). */
 	--wcb-primary-dark: #1d4ed8;
-	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
+	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary-strong ) 85%, #000 );
+
+	/* Accent used as TEXT (small links, pills on a tint): the raw accent is chosen
+	   for fills and often misses 4.5:1 on white, so text uses this darker shade.
+	   Dark mode overrides it back to the accent. */
+	--wcb-primary-text: #1d4ed8;
+	--wcb-primary-text: color-mix( in srgb, var( --wcb-primary ) 78%, #000 );
 
 	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
 
@@ -51,7 +57,12 @@
 	   (too varied; risk of clashing with the plugin's card UI). */
 	--wcb-base:         var( --bx-color-bg-elevated, var( --surface, var( --bg, var( --wp--preset--color--wcb-base, var( --wp--preset--color--base, #ffffff ) ) ) ) );
 	--wcb-contrast:     var( --bx-color-fg, var( --text-1,  var( --wp--preset--color--wcb-contrast, var( --wp--preset--color--contrast, #0f172a ) ) ) );
-	--wcb-muted:        var( --bx-color-fg-muted, var( --text-2,  var( --wp--preset--color--wcb-muted,        #6b7280 ) ) );
+	/* Text that sits directly on the theme's own background (page heading,
+	   result count, the Remote toggle), not on a plugin surface. It follows
+	   the theme's text colour, so a dark block-theme style stays readable;
+	   --wcb-contrast stays the text colour for the plugin's own cards. */
+	--wcb-canvas-fg:    var( --bx-color-fg, var( --text-1, var( --wp--preset--color--contrast, var( --wp--preset--color--wcb-contrast, #0f172a ) ) ) );
+	--wcb-muted:        var( --bx-color-fg-muted, var( --text-2,  var( --wp--preset--color--wcb-muted,        #667085 ) ) );
 	--wcb-surface:      var( --bx-color-bg, var( --canvas,  var( --wp--preset--color--wcb-surface,      #f1f5f9 ) ) );
 	--wcb-border:       var( --bx-color-border, var( --line,    var( --wp--preset--color--wcb-border,       #e2e8f0 ) ) );
 	--wcb-featured:     var( --wp--preset--color--wcb-featured,     #f59e0b );
@@ -78,10 +89,12 @@ html[data-bn-theme="dark"],
 	/* Core palette. */
 	--wcb-base:            #1e1f24;
 	--wcb-contrast:        #f1f5f9;
+		--wcb-canvas-fg:       #f1f5f9;
 	--wcb-muted:           #94a3b8;
 	--wcb-surface:         #2a2d36;
 	--wcb-border:          #3a3d46;
-	--wcb-avatar-bg:       #0f172a;
+	/* Lifted off the dark card (#0f172a was ~1.1:1 against it). */
+	--wcb-avatar-bg:       #334155;
 
 	/* Semantic palette (frontend-tokens.css). */
 	--wcb-bg-subtle:       #16181d;
@@ -113,8 +126,15 @@ html[data-bn-theme="dark"],
 	--wcb-success-fg:      #4ade80;
 	--wcb-warning-fg:      #fbbf24;
 	--wcb-danger-fg:       #f87171;
+	--wcb-primary-text:    var( --wcb-primary );
 	--wcb-info-fg:         #93c5fd;
 	--wcb-purple-fg:       #c4b5fd;
+
+	/* --wcb-danger-border never had a dark value, so an outlined danger
+	   control (Withdraw, Clear all) kept the light-mode pink and glowed on a
+	   dark surface. Same translucent-tint pattern as --wcb-primary-border
+	   above, derived from the already dark-appropriate -fg red. */
+	--wcb-danger-border:   color-mix( in srgb, var( --wcb-danger-fg, #f87171 ) 40%, transparent );
 }
 
 /*
@@ -128,10 +148,11 @@ html[data-bn-theme="dark"],
 		/* Core palette. */
 		--wcb-base:            #1e1f24;
 		--wcb-contrast:        #f1f5f9;
+		--wcb-canvas-fg:       #f1f5f9;
 		--wcb-muted:           #94a3b8;
 		--wcb-surface:         #2a2d36;
 		--wcb-border:          #3a3d46;
-		--wcb-avatar-bg:       #0f172a;
+		--wcb-avatar-bg:       #334155;
 
 		/* Semantic palette (frontend-tokens.css). */
 		--wcb-bg-subtle:       #16181d;
@@ -160,17 +181,42 @@ html[data-bn-theme="dark"],
 		--wcb-success-fg:      #4ade80;
 		--wcb-warning-fg:      #fbbf24;
 		--wcb-danger-fg:       #f87171;
+	--wcb-primary-text:    var( --wcb-primary );
 		--wcb-info-fg:         #93c5fd;
 		--wcb-purple-fg:       #c4b5fd;
+
+		/* Mirror of the explicit-dark block above. */
+		--wcb-danger-border:   color-mix( in srgb, var( --wcb-danger-fg, #f87171 ) 40%, transparent );
 	}
 }
 
-/* Suppress the theme's page title on WCB app / archive pages. */
+/* Suppress the theme's page title on WCB app / archive pages. The block-theme
+ * title is `.wp-block-post-title`, which a Query Loop also uses for every
+ * entry it lists, so leave the ones inside `.wp-block-post-template` alone. */
 .wcb-page .entry-title,
 .wcb-page .page-title,
 .wcb-page h1.post-title,
-.wcb-page .wp-block-post-title {
+.wcb-page .wp-block-post-title:not(.wp-block-post-template .wp-block-post-title) {
 	display: none !important;
+}
+
+/* A display:none title still counts as the first child, so a block theme's
+ * blockGap stayed on the content under it (19px more than the same page's
+ * archive on Twenty Twenty-Five). */
+.wcb-page .wp-block-post-title:not(.wp-block-post-template .wp-block-post-title) ~ .wp-block-post-content,
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-post-title ~ .wp-block-post-content {
+	margin-block-start: 0;
+}
+
+/* Some block themes (Twenty Twenty-Four) put the title and byline in their own
+ * padded group above the content. With both hidden it was an empty 130px band,
+ * so the group goes too, along with the gap it left on the content. */
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-group:has(> .wp-block-post-title):not(:has(.wp-block-post-content)) {
+	display: none;
+}
+
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-group:has(> .wp-block-post-title):not(:has(.wp-block-post-content)) + .wp-block-post-content {
+	margin-block-start: 0;
 }
 
 /* Suppress the theme sidebar on WCB app / archive pages. */
@@ -184,10 +230,56 @@ html[data-bn-theme="dark"],
 }
 
 /* ── Page heading — rendered inside listing blocks ───────────────────────── */
-.wcb-page-heading {
+/* The block-scope reset in frontend-components.css zeroes h1 margins. The
+   .wp-block-heading form covers the Find Jobs page H1, a core heading placed
+   outside our blocks, where a theme's `.entry-content h1` would otherwise win. */
+.wcb-page-heading,
+.wp-block-heading.wcb-page-heading,
+[class*="wp-block-wp-career-board"] .wcb-page-heading,
+[class*="wp-block-wcb-"] .wcb-page-heading {
 	font-size: var(--wcb-text-2xl);
 	font-weight: var( --wcb-font-bold, 700 );
-	color: var( --wcb-contrast, #0f172a );
-	margin: 0 0 var(--wcb-space-2xl);
+	color: var( --wcb-canvas-fg, #0f172a );
+	margin: 0 0 var(--wcb-space-lg);
 	line-height: 1.2;
+}
+
+/* Block themes zero our blocks' margin-block-end and put their own blockGap
+   (TT25 19.2px) between them, so stacked Career Board blocks (search, filters,
+   listings) got the theme's gap instead of ours. One plugin gap between two
+   of our blocks; the theme's gap still applies next to its own blocks. */
+body :is(.is-layout-constrained, .is-layout-flow) > :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"], .wcb-page-heading) + :is([class*="wp-block-wp-career-board-"], [class*="wp-block-wcb-"]) {
+	margin-block-start: var(--wcb-space-lg);
+}
+
+/* Block themes also append post meta, previous/next links and a "More posts"
+   query after the content of any single. On a job, company or resume page
+   those point at unrelated blog posts, so everything the theme adds after the
+   post content is hidden (the site footer is outside main and unaffected). */
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-post-content ~ *,
+body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) main > :has(.wp-block-post-content) ~ * {
+	display: none;
+}
+
+/* Block themes (Twenty Twenty-Five) print their own title and an author/date byline
+   above our single templates. A job and a company already render their own H1, so
+   the theme's title is a second H1; the byline is an empty "Written by" band on all
+   three. A resume renders no H1 of its own, so its theme title stays. */
+body.single-wcb_job .wp-block-post-title,
+body.single-wcb_company .wp-block-post-title,
+body.single-wcb_job .wp-block-post-title ~ .wp-block-group.is-layout-flex,
+body.single-wcb_company .wp-block-post-title ~ .wp-block-group.is-layout-flex,
+body.single-wcb_resume .wp-block-post-title ~ .wp-block-group.is-layout-flex {
+	display: none;
+}
+
+/* Phone: every page H1 steps down to xl, like the job, company and resume
+   titles and the dashboard titles. */
+@media (max-width: 640px) {
+	.wcb-page-heading,
+	.wp-block-heading.wcb-page-heading,
+	[class*="wp-block-wp-career-board"] .wcb-page-heading,
+	[class*="wp-block-wcb-"] .wcb-page-heading {
+		font-size: var(--wcb-text-xl);
+	}
 }

@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
+	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	echo '<p class="wcb-form-simple__gate">';
 	if ( ! is_user_logged_in() ) {
 		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );
@@ -43,9 +43,8 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	return;
 }
 
-$wcb_board_id_attr     = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
-$wcb_show_company_attr = ! isset( $attributes['showCompanyField'] ) || (bool) $attributes['showCompanyField'];
-$wcb_compact_attr      = ! empty( $attributes['compact'] );
+$wcb_board_id_attr = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+$wcb_compact_attr  = ! empty( $attributes['compact'] );
 
 // ── Board picker options — mirrors blocks/job-form/render.php so multi-board
 // sites (Pro) get a dropdown and the employer can target the post at a
@@ -120,24 +119,6 @@ $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
-
-// Currency names live in a hardcoded English const (AdminSettings::CURRENCIES),
-// so on their own they never reach wp-career-board.pot. Give the known base-catalog
-// names a __() home here so a localised site can render "US-Dollar" instead of the
-// English source. Pro-added currencies (via the wcb_currency_catalog filter) fall
-// back to their raw catalog name — Pro owns those translations.
-$wcb_currency_name = static function ( string $code, string $fallback ): string {
-	$wcb_names = array(
-		'USD' => __( 'US Dollar', 'wp-career-board' ),
-		'EUR' => __( 'Euro', 'wp-career-board' ),
-		'GBP' => __( 'British Pound', 'wp-career-board' ),
-		'CAD' => __( 'Canadian Dollar', 'wp-career-board' ),
-		'AUD' => __( 'Australian Dollar', 'wp-career-board' ),
-		'INR' => __( 'Indian Rupee', 'wp-career-board' ),
-		'SGD' => __( 'Singapore Dollar', 'wp-career-board' ),
-	);
-	return $wcb_names[ $code ] ?? $fallback;
-};
 
 $wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
@@ -270,6 +251,9 @@ $wcb_state = apply_filters(
 		'boardCurrencies'   => array_map( 'strval', $wcb_board_currencies ),
 		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		'buyUrl'            => '',
+		'featured'          => false,
+		'featureError'      => '',
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
 		'customFields'      => (object) array(),
 
@@ -287,12 +271,12 @@ $wcb_state = apply_filters(
 		'i18n'              => array(
 			// Credit banner. JS interpolates the pre-resolved credit noun and the
 			// live balance (formatted with Intl.NumberFormat against state.locale).
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'creditInsufficient'       => __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
 			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
-			'creditFree'               => __( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
+			'creditFree'               => __( 'Free to post on this board.', 'wp-career-board' ),
 
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
@@ -305,7 +289,7 @@ $wcb_state = apply_filters(
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
-			/* translators: 1: pluralised credits ("1 credit" / "5 credits"), 2: current credit balance. */
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'errorInsufficientCredits' => __( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),
 			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'errorGeneric'             => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
@@ -313,6 +297,10 @@ $wcb_state = apply_filters(
 	),
 	$attributes
 );
+
+// Paid Featured upgrade (Pro prices it; 0 means not offered).
+$wcb_featured_cost = (int) apply_filters( 'wcb_featured_upgrade_cost', 0 );
+$wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 
 wp_interactivity_state( 'wcb-job-form-simple', $wcb_state );
 
@@ -337,6 +325,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			data-wp-class--wcb-hidden="!state.hasListingWindow"
 			data-wp-text="state.listingWindowMessage"
 		></p>
+		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
 		<p data-wp-class--wcb-hidden="!state.jobUrl">
 			<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
@@ -349,6 +338,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 		<!-- Error banner -->
 		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+		<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
 		<!-- Credit + listing window banners -->
 		<p
@@ -524,7 +514,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 									/* translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($). */
 									esc_html__( '%1$s  -  %2$s (%3$s)', 'wp-career-board' ),
 									esc_html( (string) $wcb_code ),
-									esc_html( $wcb_currency_name( (string) $wcb_code, (string) $wcb_meta['name'] ) ),
+									esc_html( (string) $wcb_meta['name'] ),
 									esc_html( (string) $wcb_meta['symbol'] )
 								);
 								?>
@@ -603,6 +593,22 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<?php
 		endif;
 		?>
+
+<?php if ( $wcb_featured_cost > 0 ) : ?>
+		<label class="wcb-form-feature">
+			<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
+			<span>
+			<?php
+			printf(
+				/* translators: 1: number of days, 2: number of credits */
+				esc_html( _n( 'Feature this job: it lists first for %1$d days (%2$s credit).', 'Feature this job: it lists first for %1$d days (%2$s credits).', $wcb_featured_cost, 'wp-career-board' ) ),
+				(int) $wcb_featured_days,
+				esc_html( number_format_i18n( $wcb_featured_cost ) )
+			);
+			?>
+			</span>
+		</label>
+		<?php endif; ?>
 
 		<!-- Submit -->
 		<div class="wcb-form-simple__nav">

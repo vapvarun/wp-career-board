@@ -103,13 +103,18 @@ function wcbFormatSalaryShort( value, symbol ) {
 	if ( n <= 0 ) {
 		return '';
 	}
-	if ( n >= 1_000_000 ) {
+	// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule.
+	if ( n >= 1_000_000 && n % 100_000 === 0 ) {
 		// Match PHP's round( $value / 1000000, 1 ): one decimal, ".0" dropped.
 		const millions = Math.round( ( n / 1_000_000 ) * 10 ) / 10;
 		return wcbMoney( s, wcbFill( t( 'salaryMillion', '%sM' ), '%s', wcbNumber( millions ) ) );
 	}
 	if ( n >= 1_000 ) {
-		return wcbMoney( s, wcbFill( t( 'salaryThousand', '%sk' ), '%s', wcbNumber( Math.round( n / 1_000 ) ) ) );
+		// Match PHP: abbreviate only when exact at one decimal (4,500 -> 4.5k), else the full figure.
+		if ( n % 100 !== 0 ) {
+			return wcbMoney( s, wcbNumber( n ) );
+		}
+		return wcbMoney( s, wcbFill( t( 'salaryThousand', '%sk' ), '%s', wcbNumber( n / 1_000 ) ) );
 	}
 	return wcbMoney( s, wcbNumber( n ) );
 }
@@ -136,6 +141,58 @@ function wcbApplyResultsLabel( data ) {
 }
 
 /**
+ * Active filters as REST params. In-block chip keys (type_*, exp_*, cat_*,
+ * tag_*) and external filter-block keys (wcb_category, …) join into one
+ * comma list per filter (any of): repeated ?type=a&type=b keeps only the
+ * last in PHP. Shared by the job search and "Alert me", so an alert saves
+ * exactly the search the visitor is looking at.
+ *
+ * @param {Object<string,string>} merged activeFilters + baseFilters.
+ * @return {Object<string,string>} Param => value.
+ */
+function wcbFilterParams( merged ) {
+	const params   = {};
+	const multi    = { type: [], experience: [], category: [], tag: [], location: [] };
+	const prefixes = { type_: 'type', exp_: 'experience', cat_: 'category', tag_: 'tag' };
+	const external = { wcb_job_type: 'type', wcb_experience: 'experience', wcb_category: 'category', wcb_tag: 'tag', wcb_location: 'location' };
+	for ( const [ key, value ] of Object.entries( merged ) ) {
+		const prefix = Object.keys( prefixes ).find( ( p ) => key.startsWith( p ) );
+		if ( prefix ) {
+			multi[ prefixes[ prefix ] ].push( value );
+		} else if ( external[ key ] && value ) {
+			multi[ external[ key ] ].push( ...String( value ).split( ',' ) );
+		} else if ( key === 'remote' || key === 'wcb_remote' ) {
+			params.remote = '1';
+		} else if ( ( key === 'salary_min' || key === 'salary_max' ) && value ) {
+			params[ key ] = value;
+		} else if ( key.startsWith( 'board_' ) ) {
+			params.board = value;
+		} else if ( key.startsWith( 'meta_' ) && value ) {
+			// REST checks meta_<key> against its allowlist.
+			params[ key ] = value;
+		}
+	}
+	for ( const [ param, values ] of Object.entries( multi ) ) {
+		const unique = [ ...new Set( values.filter( Boolean ) ) ];
+		if ( unique.length ) {
+			params[ param ] = unique.join( ',' );
+		}
+	}
+	return params;
+}
+
+/**
+ * Maximum-salary slider value: the right end means "Any" (0).
+ *
+ * @param {HTMLInputElement} input Range input.
+ * @return {number} Maximum, or 0 for no limit.
+ */
+function wcbSliderMax( input ) {
+	const value = parseInt( input.value, 10 ) || 0;
+	return value >= parseInt( input.max, 10 ) ? 0 : value;
+}
+
+/**
  * Reset the standalone job-filters block, when a page still carries one.
  *
  * job-filters is a separate block that filters by navigating with query args,
@@ -147,11 +204,14 @@ function wcbApplyResultsLabel( data ) {
  * New sites no longer get both blocks provisioned together, but pages created
  * before that change still do, so put the visible controls and the address bar
  * back in step with the results. No-ops when the block is not on the page.
+ *
+ * @param {string[]|null} only Filter names to reset, or null for all.
  */
-function clearLegacyFilterBar() {
+function clearLegacyFilterBar( only = null ) {
 	if ( typeof document === 'undefined' ) return;
 
-	const NAMES = [ 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'salary_min', 'salary_max', 'wcb_remote' ];
+	const ALL   = [ 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag', 'salary_min', 'salary_max', 'wcb_remote', 'remote' ];
+	const NAMES = only ? ALL.filter( ( name ) => only.includes( name ) ) : ALL;
 
 	NAMES.forEach( ( name ) => {
 		document.querySelectorAll( `[name="${ name }"]` ).forEach( ( el ) => {
@@ -178,6 +238,9 @@ function clearLegacyFilterBar() {
 	} catch ( e ) {
 		// A malformed location is not worth breaking the clear over.
 	}
+
+	// The job-filters block keeps its own copy (for its "Filters (n)" count).
+	document.dispatchEvent( new CustomEvent( 'wcb:filters-cleared', { detail: { keys: NAMES } } ) );
 }
 
 const { state, actions } = store( 'wcb-job-listings', {
@@ -249,8 +312,17 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : t( 'anyLabel', 'Any' );
 		},
 
+		/** The max handle sits at the right end while no maximum is set. */
+		get salaryMaxSlider() {
+			return state.salaryMax > 0 ? state.salaryMax : 500000;
+		},
 		get salaryMaxDisplay() {
 			return state.salaryMax > 0 ? wcbFormatSalaryShort( state.salaryMax, state.currencySymbol ) : t( 'anyLabel', 'Any' );
+		},
+
+		get isMetaChipActive() {
+			const { metaKey, metaValue } = getContext();
+			return state.activeFilters[ 'meta_' + metaKey ] === metaValue;
 		},
 
 		/** Array of { key, label } for active filter pills. */
@@ -277,21 +349,23 @@ const { state, actions } = store( 'wcb-job-listings', {
 					const id = parseInt( key.slice( 6 ), 10 );
 					const match = ( state.filterOptions.boards || [] ).find( ( b ) => b.id === id );
 					label = match ? match.name : value;
-				} else if ( key === 'wcb_category' ) {
-					// External filter-block keys (job-filters) carry a term slug.
-					// Resolve each to its human name via the same option lists the
-					// in-block chips use, else the pill shows a bare slug.
-					const match = ( state.filterOptions.categories || [] ).find( ( c ) => c.slug === value );
-					label = match ? match.name : value;
-				} else if ( key === 'wcb_job_type' ) {
-					const match = ( state.filterOptions.types || [] ).find( ( ty ) => ty.slug === value );
-					label = match ? match.name : value;
-				} else if ( key === 'wcb_experience' ) {
-					const match = ( state.filterOptions.experiences || [] ).find( ( ex ) => ex.slug === value );
-					label = match ? match.name : value;
-				} else if ( key === 'wcb_location' ) {
-					const match = ( state.filterOptions.locations || [] ).find( ( loc ) => loc.slug === value );
-					label = match ? match.name : value;
+				} else if ( [ 'wcb_category', 'wcb_job_type', 'wcb_experience', 'wcb_location', 'wcb_tag' ].includes( key ) ) {
+					// External filter-block and URL keys carry one slug or a
+					// comma list; show each as its human name.
+					const lists = {
+						wcb_category: state.filterOptions.categories,
+						wcb_job_type: state.filterOptions.types,
+						wcb_experience: state.filterOptions.experiences,
+						wcb_location: state.filterOptions.locations,
+						wcb_tag: state.filterOptions.tags,
+					};
+					label = String( value )
+						.split( ',' )
+						.map( ( slug ) => ( lists[ key ] || [] ).find( ( o ) => o.slug === slug )?.name || slug )
+						.join( ', ' );
+				} else if ( key.startsWith( 'meta_' ) && state.metaLabels && state.metaLabels[ key ] ) {
+					// Custom fields (Pro seeds metaLabels): "Label: value", "Yes" for a checkbox.
+					label = state.metaLabels[ key ] + ': ' + ( value === '1' && state.metaYes ? state.metaYes : value );
 				} else if ( key === 'salary_min' ) {
 					label = wcbFill(
 						t( 'salaryOpenMin', '%s+' ),
@@ -339,17 +413,23 @@ const { state, actions } = store( 'wcb-job-listings', {
 			if ( state.alertSaved || state.alertSaving ) {
 				return;
 			}
+			// Guests (when the owner allows it) type an email next to the button.
+			const emailInput = document.querySelector( '.wcb-alert-guest-email' );
+			// On phones the email field is collapsed behind the button: the first tap opens it.
+			if ( emailInput && null === emailInput.offsetParent ) {
+				state.alertEmailOpen = true;
+				yield Promise.resolve();
+				emailInput.focus();
+				return;
+			}
+			if ( emailInput && ! emailInput.reportValidity() ) {
+				return;
+			}
 
 			state.alertSaving = true;
-
-			const filters = {};
-			Object.keys( state.activeFilters ).forEach( ( key ) => {
-				if ( key.startsWith( 'type_' ) ) {
-					filters.type = key.replace( 'type_', '' );
-				} else if ( key.startsWith( 'exp_' ) ) {
-					filters.experience = key.replace( 'exp_', '' );
-				}
-			} );
+			const params  = wcbFilterParams( { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) } );
+			const boardId = parseInt( params.board || '0', 10 ) || 0;
+			delete params.board;
 
 			try {
 				const response = yield wcbFetch(
@@ -362,17 +442,22 @@ const { state, actions } = store( 'wcb-job-listings', {
 						},
 						body: JSON.stringify( {
 							search_query: state.searchQuery || '',
-							filters,
+							filters:      params,
+							board_id:     boardId,
 							frequency:    'daily',
+							email:        emailInput ? emailInput.value.trim() : '',
 						} ),
 					}
 				);
-
+				const data = yield response.json();
 				if ( response.ok ) {
-					state.alertSaved = true;
+					state.alertSaved        = true;
+					state.alertNeedsConfirm = !! data?.needsConfirm;
+				} else {
+					state.alertError = data?.message || '';
 				}
 			} catch {
-				// Silent failure — button stays enabled.
+				// Network failure: the button stays enabled to retry.
 			} finally {
 				state.alertSaving = false;
 			}
@@ -395,6 +480,22 @@ const { state, actions } = store( 'wcb-job-listings', {
 			searchDebounceTimer = setTimeout( () => {
 				store( 'wcb-job-listings' ).actions.applyFilters();
 			}, 400 );
+		},
+
+		// ── Custom-field chip (Pro filterable fields) ─────────────────
+		// One value per field: picking another value of the same field
+		// replaces it, picking the same one clears it.
+		* toggleMetaChip() {
+			const { metaKey, metaValue } = getContext();
+			const key  = 'meta_' + metaKey;
+			const next = { ...state.activeFilters };
+			if ( next[ key ] === metaValue ) {
+				delete next[ key ];
+			} else {
+				next[ key ] = metaValue;
+			}
+			state.activeFilters = next;
+			yield actions.applyFilters();
 		},
 
 		// ── Sort ──────────────────────────────────────────────────────
@@ -508,6 +609,9 @@ const { state, actions } = store( 'wcb-job-listings', {
 			const next = { ...state.activeFilters };
 			delete next[ key ];
 			state.activeFilters = next;
+			// A pill that came from the filter dropdowns or the URL: reset that
+			// control and URL param too, so the two never disagree.
+			clearLegacyFilterBar( [ key ] );
 			yield actions.applyFilters();
 		},
 
@@ -521,7 +625,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		previewSalaryMax( event ) {
-			state.salaryMax = parseInt( event.target.value, 10 ) || 0;
+			state.salaryMax = wcbSliderMax( event.target );
 		},
 
 		* updateSalaryMin( event ) {
@@ -535,7 +639,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		* updateSalaryMax( event ) {
-			state.salaryMax = parseInt( event.target.value, 10 ) || 0;
+			state.salaryMax = wcbSliderMax( event.target );
 			if ( state.salaryMax > 0 ) {
 				state.activeFilters.salary_max = String( state.salaryMax );
 			} else {
@@ -600,13 +704,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 				url.searchParams.set( 'saved_by', state.savedBy );
 			}
 
-			// Sort
-			if ( state.sortBy === 'date_asc' ) {
-				url.searchParams.set( 'orderby', 'date' );
-				url.searchParams.set( 'order', 'ASC' );
-			} else {
-				url.searchParams.set( 'orderby', 'date' );
-				url.searchParams.set( 'order', 'DESC' );
+			// Sort: '' leaves it to the server (best match for a keyword,
+			// else the owner's default order).
+			if ( state.sortBy ) {
+				url.searchParams.set( 'sort', state.sortBy );
 			}
 
 			// Merge immutable shortcode/block scope (baseFilters: boardId,
@@ -615,37 +716,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 			// integrator can pin a scope the user can't override from the UI.
 			const merged = { ...( state.activeFilters || {} ), ...( state.baseFilters || {} ) };
 
-			// Active filters — handles both in-block chip keys (type_*, exp_*) and
-			// external filter block keys (wcb_category, wcb_location, etc.).
-			for ( const [ key, value ] of Object.entries( merged ) ) {
-				if ( key.startsWith( 'type_' ) ) {
-					url.searchParams.append( 'type', value );
-				} else if ( key.startsWith( 'exp_' ) ) {
-					url.searchParams.append( 'experience', value );
-				} else if ( key.startsWith( 'cat_' ) ) {
-					url.searchParams.append( 'category', value );
-				} else if ( key.startsWith( 'tag_' ) ) {
-					url.searchParams.append( 'tag', value );
-				} else if ( key === 'remote' || key === 'wcb_remote' ) {
-					url.searchParams.set( 'remote', '1' );
-				} else if ( key === 'wcb_category' ) {
-					url.searchParams.set( 'category', value );
-				} else if ( key === 'wcb_location' ) {
-					url.searchParams.set( 'location', value );
-				} else if ( key === 'wcb_experience' ) {
-					url.searchParams.set( 'experience', value );
-				} else if ( key === 'wcb_job_type' ) {
-					url.searchParams.set( 'type', value );
-				} else if ( key === 'salary_min' && value ) {
-					url.searchParams.set( 'salary_min', value );
-				} else if ( key === 'salary_max' && value ) {
-					url.searchParams.set( 'salary_max', value );
-				} else if ( key.startsWith( 'board_' ) ) {
-					url.searchParams.set( 'board', value );
-				} else if ( key.startsWith( 'meta_' ) && value ) {
-					// Forward as ?meta_<key>=<value>; REST endpoint validates against allowlist.
-					url.searchParams.set( key, value );
-				}
+			for ( const [ param, value ] of Object.entries( wcbFilterParams( merged ) ) ) {
+				url.searchParams.set( param, value );
 			}
 
 			try {
@@ -737,19 +809,9 @@ const { state, actions } = store( 'wcb-job-listings', {
 					state.layout = saved;
 				}
 			} catch {}
-			// Hydrate search state from URL so reloads and shared links survive.
-			// Mirrors the ?wcb_search=… param written by job-search/view.js.
-			// Only refetch when a value was actually present, to avoid an
-			// unnecessary REST round-trip on a clean page load (the SSR
-			// already rendered the unfiltered first page).
-			try {
-				const urlParams = new URLSearchParams( window.location.search );
-				const initialQuery = urlParams.get( 'wcb_search' );
-				if ( initialQuery !== null && initialQuery !== '' ) {
-					state.searchQuery = initialQuery;
-					store( 'wcb-job-listings' ).actions.applyFilters();
-				}
-			} catch {}
+			// URL filters (keyword, hero category/location, shared links) are
+			// applied by the server on first paint and seeded into
+			// state.searchQuery / state.activeFilters, so no refetch here.
 
 			// `wcb:search` event contract (dispatched by job-search and
 			// job-filters blocks): { detail: { query: string, filters: object } }

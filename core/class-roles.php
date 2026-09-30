@@ -172,4 +172,29 @@ final class Roles {
 			}
 		}
 	}
+
+	/**
+	 * Give an existing user a plugin role when they sign up from the frontend.
+	 *
+	 * A plain member (only the site's default role, e.g. subscriber) is
+	 * switched to the plugin role, matching wp-admin's replace semantics so
+	 * they don't end up as subscriber + employer, and BuddyPress member types
+	 * follow set_role(). Anyone holding another role keeps it and gets the
+	 * plugin role added: set_role() used to turn a logged-in administrator or
+	 * editor into a plain employer/candidate.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_User $user User signing up.
+	 * @param string   $role wcb_employer or wcb_candidate.
+	 * @return void
+	 */
+	public static function grant_member_role( \WP_User $user, string $role ): void {
+		$plain = array( (string) get_option( 'default_role', 'subscriber' ), 'subscriber' );
+		if ( array() === array_diff( (array) $user->roles, $plain ) ) {
+			$user->set_role( $role );
+			return;
+		}
+		$user->add_role( $role );
+	}
 }

@@ -1,55 +1,61 @@
 # Troubleshooting & FAQ
 
-Common issues and how to resolve them.
+You can use this page to find the cause of common problems and fix them.
 
 ---
 
-## Setup Wizard
+## Setup wizard
 
-### The wizard says "Failed to create pages" and won't advance
+### The setup wizard shows an error and won't advance
 
-The wizard calls the WordPress REST API to create pages. This can fail when:
+The wizard uses the WordPress REST API to create pages. This can fail when:
 
 - **Pretty permalinks are off** - go to **Settings → Permalinks**, select any option other than Plain, and save.
 - **REST API is blocked** - a security plugin, firewall, or hosting rule is blocking `/wp-json/`. Temporarily deactivate security plugins and try again.
 - **Auth cookie not sent** - if your site uses basic HTTP auth (common on staging), the REST request won't carry your session. Disable basic auth temporarily or add an exception for `/wp-json/`.
 
-After fixing the underlying issue, go to **WP Career Board → Setup Wizard** to run the wizard again.
+After fixing the underlying issue, go to **Career Board → Settings** and click **Re-run Setup Wizard** at the bottom of the page. Pages that already exist are kept.
 
 ---
 
 ### Pages were created but they're blank or show a 404
 
-The pages were created but may not have the correct block assigned. Edit each page in the block editor and insert the matching block:
+If a page is blank, it may not hold the right block. Edit the page in the block editor and insert the matching block:
 
 | Page | Block to insert |
 |---|---|
-| Find Jobs | **Job Search** + **Job Filters** + **Job Listings** |
+| Find Jobs | **Job Search** + **Job Listings** |
+| Post a Job | **Job Form** |
 | Employer Registration | **Employer Registration** |
 | Employer Dashboard | **Employer Dashboard** |
 | Candidate Dashboard | **Candidate Dashboard** |
-| Companies | **Company Archive** |
+| Find Companies | **Company Archive** |
 
 Then go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
 ---
 
-## Jobs Not Appearing
+## Jobs not appearing
 
 ### The Job Listings block shows "No jobs found"
 
 1. Confirm you have published jobs - go to **WP Career Board → Jobs** and check the status column.
-2. If jobs are pending review, go to **WP Career Board → Settings → Job Listings** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
-3. Check your active filters in the block - the **Job Type**, **Category**, or **Location** filters may be set to a value that returns no results.
+2. If jobs are pending review, go to **WP Career Board → Settings → Jobs** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
+3. Check the active filters on the page - a filter may be set to a value that returns no results.
 4. Go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
 
 ### Jobs appear in wp-admin but not on the frontend
 
-This is almost always a permalink flush issue. Go to **Settings → Permalinks** and click **Save Changes**.
+Check these in order:
+
+1. **Status.** Only Published jobs list. Pending, Draft, Closed and Expired jobs do not.
+2. **Deadline.** When **End jobs at their deadline** is in effect (see [Settings](./01-settings.md)), a job past its deadline is Expired within the hour and leaves the listings. Its page still opens and says it has expired.
+3. **Hidden by moderation.** The Jobs list shows **Hidden: reported** or **Hidden: employer banned** on such jobs. See [Moderation](./03-moderation.md).
+4. **Permalinks.** If the job page returns a 404, go to **Settings → Permalinks** and click **Save Changes**.
 
 ---
 
-## Application Form
+## Application form
 
 ### The "Apply" button does nothing / the application form doesn't open
 
@@ -59,75 +65,61 @@ This is almost always a permalink flush issue. Go to **Settings → Permalinks**
 
 ### Candidates can't submit the application form
 
-- The job may have a **deadline** that has already passed. Check the job listing's deadline field.
-- If the job requires a resume upload and the candidate has no resume, the form will block submission. Check if **Require Resume** is enabled for that job type.
-- Make sure file upload limits in your hosting's `php.ini` (`upload_max_filesize`, `post_max_size`) are large enough for resume files (recommend at least 5 MB).
+- The job may have a **deadline** that has already passed. Applications for it are closed.
+- If **Resume Required** is on (**Settings → Applications**) and the candidate attached no resume, the form blocks submission.
+- If **Require login to apply** is on (**Settings → Sign-ups**), guests see **Sign in to apply** instead of the form.
+- Nobody can apply to their own job.
+- Make sure file upload limits in your hosting's `php.ini` (`upload_max_filesize`, `post_max_size`) are large enough for resume files (at least as large as **Settings → Applications → Application Resume File Size**).
 
 ---
 
-## Email Notifications
+## Email notifications
 
 ### Emails are not being sent
 
-WP Career Board uses `wp_mail()` to send emails. If emails aren't arriving:
+If emails aren't arriving:
 
 1. **Check spam** - the notification emails from a local WordPress install often land in spam.
 2. **Install an SMTP plugin** - the default `wp_mail()` uses PHP's `mail()` function, which most shared hosts reject. Install an SMTP plugin (e.g. WP Mail SMTP, FluentSMTP) and connect it to a transactional email service (Mailgun, SendGrid, Postmark).
-3. **Verify the sender address** - go to **WP Career Board → Settings → Notifications** and confirm the From email matches your domain. Some hosts reject mail from mismatched domains.
-4. **Check notification toggles** - each notification type can be enabled or disabled on the **Settings → Emails** tab. Confirm the relevant notification is enabled.
+3. **Verify the sender address** - go to **WP Career Board → Settings → Emails** and confirm the From Email in the Sender card matches your domain. Some hosts reject mail from mismatched domains.
+4. **Check notification toggles** - each notification type can be enabled or disabled further down the **Settings → Emails** tab. Confirm the relevant notification is enabled.
 
 ### The wrong email address is receiving notifications
 
-Admin notification emails go to the address set in **Settings → Notifications → Admin Email**. This defaults to the WordPress admin email but can be overridden.
+Admin notification emails go to the address set in **Settings → Emails → Admin Notification Email** (in the Sender card). This defaults to the WordPress admin email but can be overridden.
 
 ---
 
-## Employer & Candidate Accounts
+## Employer & candidate accounts
 
-### A user registered but isn't showing up as an Employer or Candidate
+### A user registered but isn't showing up as an employer or candidate
 
 The role is assigned at registration based on which form the user used:
 
 - Employers register via the **Employer Registration** page (which contains the **Employer Registration** block) and get the **Employer** (`wcb_employer`) role.
-- Candidates register via the **register** tab on the **Candidate Dashboard** page and get the **Candidate** (`wcb_candidate`) role.
+- Candidates register on the same **Employer Registration** page by choosing **Find a Job**, and get the **Candidate** (`wcb_candidate`) role.
 
-If a user registered via the standard WordPress registration page, they won't have a job board role. Go to **WP Career Board → Employers** or **Candidates** and assign the user, or assign the relevant capabilities with a role manager (see [Capabilities & Roles](./14-capabilities-and-roles.md)).
+If a user registered via the standard WordPress registration page, they won't have a job board role. Edit the user under **Users** and set their role to Employer or Candidate, or assign the relevant capabilities with a role manager (see [Capabilities & Roles](./14-capabilities-and-roles.md)).
 
 ### An employer can't post jobs
 
 1. Check the employer's account in **WP Career Board → Employers** - confirm they have the Employer role.
-2. If the Credit System is active (Pro), confirm the employer has available credits. A zero balance blocks job posting.
+2. If a board charges credits (Pro), confirm the employer has enough credits. The Pro documentation explains how credits are held and spent.
 3. Confirm the employer can access the **Employer Dashboard**, where job posting is done.
 
 ---
 
-## Credit System (Pro)
+## Credit system (Pro)
 
-### Credits were purchased but not added to the employer's balance
-
-Credits are added when the WooCommerce order status changes to "completed" (or the equivalent event for PMPro/MemberPress). If credits are missing after a purchase:
-
-1. **Check order status** - go to **WooCommerce → Orders** and confirm the order is marked "Completed", not "Processing" or "On Hold". Some payment gateways (e.g., bank transfer) leave orders in a non-completed state until manually updated.
-2. **Check the credit mapping** - go to **WP Career Board → Settings → Credits → Credit Mappings** and confirm the purchased product is mapped to a credit amount. If the product is not mapped, no credits are granted.
-3. **Check Detected Providers** - at the bottom of the Credits tab, confirm your payment plugin (WooCommerce, PMPro, or MemberPress) is listed as detected. If it is not shown, activate the plugin and refresh.
-4. **Check the debug log** - enable `WP_DEBUG_LOG` in `wp-config.php` and look for `wcb_credits` entries in `wp-content/debug.log`. The Wbcom Credits SDK logs all credit operations.
-5. **Manual fix** - go to **WP Career Board → Employers**, click the employer's name, and use **Admin Credit Adjustment** to manually add the missing credits with a note explaining the reason.
-
-### Employer says "Insufficient credits" but they just purchased
-
-The employer's browser may be showing a cached page. Ask them to refresh the Employer Dashboard. If the issue persists, check the order status and credit mapping as described above.
+For missing credits after a purchase, a wrong balance or a payment gateway that does not grant credits, see the Pro documentation: **Credit system - overview** and **Manual Credit Adjustments & Refunds**.
 
 ---
 
-## Block Issues
+## Block issues
 
 ### The block editor shows "Your block contains unexpected or invalid content"
 
 This usually means the block's HTML was hand-edited or copied incorrectly. Click **Attempt Block Recovery** when prompted - this will restore the block from its saved attributes.
-
-### The block renders but looks completely unstyled
-
-WP Career Board enqueues its CSS only on pages that contain its blocks. If you are embedding a shortcode or pasting raw HTML outside a block, styles won't load. Use the block editor and insert the correct block instead.
 
 ---
 
@@ -135,13 +127,12 @@ WP Career Board enqueues its CSS only on pages that contain its blocks. If you a
 
 ### The jobs page is slow
 
-- Enable **object caching** on your server (Redis or Memcached) - WP Career Board caches job queries.
-- If using a page caching plugin, configure it to **exclude** the Candidate Dashboard and Employer Dashboard pages (they are user-specific and must not be served from cache).
-- The job search uses a live REST API call on every keystroke (with debounce). If the REST API is slow, check for slow database queries using **Query Monitor**.
+- If you use a page caching plugin, exclude the Candidate Dashboard and Employer Dashboard pages. They are specific to each member and must not be served from cache.
+- Use **Query Monitor** to find slow database queries.
 
 ---
 
-## Still Stuck?
+## Still stuck?
 
 If none of the above resolves your issue:
 

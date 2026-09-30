@@ -63,6 +63,23 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Whether a stored owner id is the signed-in user.
+	 *
+	 * A signed-out visitor is user 0, and so is every guest application's
+	 * candidate and any post with no author. A bare `get_current_user_id() ===
+	 * $owner` therefore made the visitor the owner of all of them:
+	 * GET /candidates/0/applications listed every guest application to anyone.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $owner_id Owner user ID read from the object or the route.
+	 * @return bool
+	 */
+	protected function is_current_user( int $owner_id ): bool {
+		return $owner_id > 0 && get_current_user_id() === $owner_id;
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.
@@ -87,6 +104,99 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Count one request from the caller's IP against an hourly limit.
+	 *
+	 * For public routes that cost something per call (account creation,
+	 * outgoing email, paid upstream APIs).
+	 *
+	 * @since 1.8.0
+	 * @param string $bucket Transient prefix naming the limit.
+	 * @param int    $limit  Requests per hour; 0 disables the limit.
+	 * @return bool True when the caller is over the limit (the request is not counted).
+	 */
+	protected function ip_limit_reached( string $bucket, int $limit ): bool {
+		if ( $limit <= 0 ) {
+			return false;
+		}
+		global $wpdb;
+		$ip   = \WCB\Auth\AppCredentials::client_ip();
+		$key  = $bucket . md5( wp_salt() . $ip );
+		$lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $key );
+
+		// The count is read-modify-write: a burst from one IP would otherwise
+		// read the same value and undercount. A short named lock serialises it.
+		// ponytail: if the lock can't be had in 2s the request is counted
+		// without it, so a stuck lock never blocks sign-ups.
+		$locked = 1 === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 2 )', $lock ) );
+		try {
+			$count = (int) get_transient( $key );
+			if ( $count >= $limit ) {
+				return true;
+			}
+			set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+			return false;
+		} finally {
+			if ( $locked ) {
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $lock ) );
+			}
+		}
+	}
+
+	/**
+	 * Spam gate shared by both registration routes.
+	 *
+	 * Registration used to create accounts with no honeypot, CAPTCHA or rate
+	 * limit, and skipped core's `registration_errors`, so third-party anti-spam
+	 * plugins never saw these sign-ups either. Runs `wcb_pre_registration`
+	 * (the anti-spam module's honeypot + CAPTCHA), a per-IP limit, then
+	 * `registration_errors`.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_REST_Request $request  Registration request.
+	 * @param string           $username Login about to be created.
+	 * @param string           $email    Email about to be used.
+	 * @return \WP_Error|null Error to return, or null to continue.
+	 */
+	protected function registration_guard( \WP_REST_Request $request, string $username, string $email ): ?\WP_Error {
+		/**
+		 * Filter - reject a registration before the account is created.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param \WP_Error|null   $error   Null to allow.
+		 * @param \WP_REST_Request $request Registration request.
+		 */
+		$error = apply_filters( 'wcb_pre_registration', null, $request );
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		/**
+		 * Filter the number of registrations one IP may make per hour.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param int $limit Default 5. 0 disables the limit.
+		 */
+		if ( $this->ip_limit_reached( 'wcb_reg_', (int) apply_filters( 'wcb_registration_rate_limit', 5 ) ) ) {
+			return new \WP_Error(
+				'wcb_rate_limited',
+				__( 'Too many sign-ups from your network. Please try again in an hour.', 'wp-career-board' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, so third-party anti-spam plugins see these sign-ups.
+		$errors = apply_filters( 'registration_errors', new \WP_Error(), $username, $email );
+		if ( $errors instanceof \WP_Error && $errors->has_errors() ) {
+			return new \WP_Error( 'wcb_registration_rejected', $errors->get_error_message(), array( 'status' => 400 ) );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Record a job view in the wcb_job_views table.
 	 *
 	 * IP is hashed (SHA-256) for GDPR compliance — not stored in plaintext.
@@ -103,9 +213,7 @@ abstract class RestController extends \WP_REST_Controller {
 
 		global $wpdb;
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: '';
+		$ip = \WCB\Auth\AppCredentials::client_ip();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_job_views table; no caching needed for write-only analytics.
 		$wpdb->insert(

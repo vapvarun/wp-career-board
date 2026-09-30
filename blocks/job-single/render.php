@@ -25,6 +25,19 @@ if ( ! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
 	return;
 }
 
+// A job named by attribute (block or shortcode, which employers can put in
+// their own descriptions) renders only once it has been published, unless the
+// viewer is its owner or staff. The single-job template keeps core's rules.
+$wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+if (
+	! empty( $attributes['jobId'] )
+	&& ! in_array( $wcb_job->post_status, array( 'publish', 'wcb_expired', 'wcb_closed' ), true )
+	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_job->post_author )
+	&& ! $wcb_is_staff
+) {
+	return;
+}
+
 // ── Taxonomies — full term objects for link generation ───────────────────────
 $wcb_location_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_location' );
 $wcb_type_terms       = wp_get_object_terms( $wcb_job_id, 'wcb_job_type' );
@@ -95,7 +108,9 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 	$wcb_company_name = $wcb_company_post->post_title;
 }
 
-$wcb_company_url     = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+$wcb_company_url = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+// Same logo the company page and directory show (the company's featured image).
+$wcb_company_logo    = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'thumbnail' ) : '';
 $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true ) : '';
 // Company "bio" prefers the post body, falls back to the marketing tagline so
 // the sidebar card never shows an empty space when an employer skipped the
@@ -137,8 +152,9 @@ $wcb_days_ago = (int) round( ( time() - $wcb_post_ts ) / DAY_IN_SECONDS );
 // ── Apply permission ──────────────────────────────────────────────────────────
 $wcb_can_apply = is_user_logged_in() && wp_is_ability_granted( 'wcb/apply-jobs' );
 
-// Guests may always apply — the endpoint accepts unauthenticated submissions.
-$wcb_show_apply = $wcb_can_apply || ! is_user_logged_in();
+// Guests may apply unless Settings > Applications requires an account.
+$wcb_login_to_apply = ! is_user_logged_in() && \WCB\Admin\Settings::bool( 'apply_require_login', false );
+$wcb_show_apply     = $wcb_can_apply || ( ! is_user_logged_in() && ! $wcb_login_to_apply );
 
 // ── Job owner check — employers see "View Applications" instead of "Apply Now" ─
 $wcb_is_job_owner = is_user_logged_in()
@@ -157,19 +173,51 @@ if ( $wcb_show_apply && is_user_logged_in() ) {
 	}
 }
 
-// Applications close once the advertised deadline has passed. Independent of
-// the deadline_auto_close setting: that decides whether the post status flips
-// to wcb_expired, not whether this page tells the candidate the truth. The
-// endpoint refuses these submissions too, so showing the form here would only
-// send someone to write a cover letter for a role that has closed.
-$wcb_deadline_passed = \WCB\Core\JobDeadline::has_passed( $wcb_job_id );
+// An ended job (deadline passed, expired or closed by the employer) keeps its
+// page but takes no applications (owner decision D5). The endpoint refuses
+// them too, so showing the form would only send someone to write a cover
+// letter for a role that has closed.
+$wcb_ended           = \WCB\Core\JobDeadline::ended( $wcb_job_id );
+$wcb_deadline_passed = '' !== $wcb_ended;
 if ( $wcb_deadline_passed ) {
 	$wcb_show_apply = false;
+}
+$wcb_closed_text = ( 'closed' === $wcb_ended || '' === $wcb_deadline_formatted )
+	? __( 'This job is no longer taking applications', 'wp-career-board' )
+	/* translators: %s: the date applications closed. */
+	: sprintf( __( 'Applications closed on %s', 'wp-career-board' ), $wcb_deadline_formatted );
+
+// Up to three open jobs to offer instead: same category first, then the latest.
+$wcb_similar_jobs = array();
+if ( $wcb_deadline_passed ) {
+	$wcb_similar_args = array(
+		'post_type'      => 'wcb_job',
+		'post_status'    => 'publish',
+		'posts_per_page' => 3,
+		'post__not_in'   => array( $wcb_job_id ),
+		'no_found_rows'  => true,
+		'meta_query'     => \WCB\Core\JobDeadline::open_jobs_meta_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+	);
+	if ( ! is_wp_error( $wcb_category_terms ) && $wcb_category_terms ) {
+		$wcb_similar_jobs = get_posts(
+			$wcb_similar_args + array(
+				'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy' => 'wcb_category',
+						'terms'    => wp_list_pluck( $wcb_category_terms, 'term_id' ),
+					),
+				),
+			)
+		);
+	}
+	if ( ! $wcb_similar_jobs ) {
+		$wcb_similar_jobs = get_posts( $wcb_similar_args );
+	}
 }
 
 $wcb_dashboard_url = '';
 if ( $wcb_is_job_owner ) {
-	$wcb_employer_dash_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+	$wcb_employer_dash_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 	if ( $wcb_employer_dash_id > 0 ) {
 		$wcb_dashboard_url = (string) get_permalink( $wcb_employer_dash_id );
 	}
@@ -194,6 +242,12 @@ if ( $wcb_current_user_id && $wcb_show_apply ) {
 					array(
 						'key'   => '_wcb_candidate_id',
 						'value' => $wcb_current_user_id,
+					),
+					// A withdrawn application does not block applying again.
+					array(
+						'key'     => '_wcb_status',
+						'value'   => \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN,
+						'compare' => '!=',
 					),
 			),
 		)
@@ -245,7 +299,7 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	// to their dashboard's resume tab so a no-resume applicant always has a place
 	// to add one instead of a dead-end message.
 	if ( '' === $wcb_resume_page_url ) {
-		$wcb_cand_dash_page = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$wcb_cand_dash_page = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		if ( $wcb_cand_dash_page > 0 ) {
 			$wcb_resume_page_url = get_permalink( $wcb_cand_dash_page ) . '#resumes';
 		}
@@ -274,7 +328,8 @@ wp_interactivity_state(
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
 		'coverLetter'          => '',
-		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		// Only members who may apply can draft a letter (the route checks the same ability).
+		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		'coverLoading'         => false,
 		'error'                => '',
 		'userResumes'          => $wcb_user_resumes,
@@ -330,11 +385,15 @@ wp_interactivity_state(
 >
 
 	<?php /* ── Hero banner ──────────────────────────────────────────────── */ ?>
-	<div class="wcb-job-hero">
+	<div class="wcb-job-hero wcb-detail-hero">
 
 		<div class="wcb-job-hero-brand">
-			<div class="wcb-company-avatar">
-				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name ? $wcb_company_name : $wcb_job->post_title, 0, 2 ) ) ); ?>
+			<div class="wcb-avatar wcb-avatar--xl<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
+				<?php if ( $wcb_company_logo ) : ?>
+					<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="<?php echo esc_attr( $wcb_company_name ); ?>" width="64" height="64" />
+				<?php else : ?>
+					<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name ? $wcb_company_name : $wcb_job->post_title, 0, 2 ) ) ); ?>
+				<?php endif; ?>
 			</div>
 			<div class="wcb-hero-titles">
 				<h1 class="wcb-job-title"><?php echo esc_html( $wcb_job->post_title ); ?></h1>
@@ -425,11 +484,12 @@ wp_interactivity_state(
 			<?php elseif ( $wcb_deadline_passed ) : ?>
 				<p class="wcb-applications-closed">
 				<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<?php
-				/* translators: %s: the date applications closed. */
-				printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
-				?>
+				<?php echo esc_html( $wcb_closed_text ); ?>
 				</p>
+			<?php elseif ( $wcb_login_to_apply ) : ?>
+				<a href="<?php echo esc_url( wp_login_url( (string) get_permalink( $wcb_job_id ) ) ); ?>" class="wcb-btn wcb-btn--primary">
+				<?php esc_html_e( 'Sign in to apply', 'wp-career-board' ); ?>
+				</a>
 			<?php elseif ( $wcb_show_apply ) : ?>
 				<?php if ( $wcb_apply_external ) : ?>
 					<a
@@ -453,8 +513,8 @@ wp_interactivity_state(
 					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
-				<?php if ( ! $wcb_apply_external && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
-				<div class="wcb-post-apply-alert" style="display:none" data-wp-class--wcb-shown="state.submitted" data-wp-class--wcb-alert-done="state.alertFromJobSaved">
+				<?php if ( ! $wcb_apply_external && is_user_logged_in() && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
+				<div class="wcb-post-apply-alert" data-wp-class--wcb-shown="state.submitted">
 					<button
 						type="button"
 						class="wcb-post-apply-alert-btn"
@@ -462,7 +522,7 @@ wp_interactivity_state(
 						data-wp-bind--disabled="state.alertFromJobSaving"
 						data-wp-class--wcb-hidden="state.alertFromJobSaved"
 					><?php echo \WCB\Core\Icon::svg( 'bell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Get notified about similar jobs', 'wp-career-board' ); ?></button>
-					<span class="wcb-post-apply-alert-done" style="display:none" data-wp-class--wcb-shown="state.alertFromJobSaved">
+					<span class="wcb-post-apply-alert-done" data-wp-class--wcb-shown="state.alertFromJobSaved">
 					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'You will be notified about similar jobs', 'wp-career-board' ); ?>
 					</span>
 				</div>
@@ -470,7 +530,7 @@ wp_interactivity_state(
 				<?php if ( $wcb_deadline_formatted ) : ?>
 					<p class="wcb-deadline-note">
 					<?php
-					/* translators: %s: deadline date */
+					/* translators: %s: localized application deadline date. */
 					printf( esc_html__( 'Apply by %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
 					?>
 					</p>
@@ -500,7 +560,19 @@ wp_interactivity_state(
 
 		<?php /* Main content */ ?>
 		<div class="wcb-job-main">
-			<div class="wcb-section">
+			<?php if ( $wcb_deadline_passed ) : ?>
+				<p class="wcb-job-ended" role="status">
+					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					<?php
+					echo esc_html(
+						'closed' === $wcb_ended
+							? __( 'This job is closed and no longer taking applications.', 'wp-career-board' )
+							: __( 'This job has expired and is no longer taking applications.', 'wp-career-board' )
+					);
+					?>
+				</p>
+			<?php endif; ?>
+			<div class="wcb-detail-section">
 				<h2 class="wcb-section-heading"><?php esc_html_e( 'About This Role', 'wp-career-board' ); ?></h2>
 				<div class="wcb-job-description">
 					<?php
@@ -548,7 +620,7 @@ wp_interactivity_state(
 					if ( '' === trim( wp_strip_all_tags( (string) $wcb_job->post_content ) ) ) {
 						// No description yet — an honest fallback instead of a
 						// blank "About This Role" panel that reads as broken.
-						echo '<p class="wcb-job-description__empty">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
+						echo '<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
 					} else {
 						echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
 					}
@@ -556,8 +628,19 @@ wp_interactivity_state(
 				</div>
 			</div>
 
+			<?php
+			/**
+			 * Fires after the job description (Pro: the job's custom field Details).
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param int $job_id Job post ID.
+			 */
+			do_action( 'wcb_job_single_after_description', $wcb_job_id );
+			?>
+
 			<?php if ( ! empty( $wcb_categories ) ) : ?>
-				<div class="wcb-section">
+				<div class="wcb-detail-section">
 					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job Categories', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_categories as $wcb_cat ) : ?>
@@ -569,7 +652,7 @@ wp_interactivity_state(
 				</div>
 			<?php endif; ?>
 			<?php if ( ! empty( $wcb_tags ) ) : ?>
-				<div class="wcb-section">
+				<div class="wcb-detail-section">
 					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Skills & Tags', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_tags as $wcb_tag_item ) : ?>
@@ -579,6 +662,23 @@ wp_interactivity_state(
 				<?php endforeach; ?>
 					</div>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( $wcb_similar_jobs ) : ?>
+				<section class="wcb-similar-jobs" aria-labelledby="wcb-similar-jobs-heading">
+					<h2 id="wcb-similar-jobs-heading" class="wcb-section-heading"><?php esc_html_e( 'Open roles you might like', 'wp-career-board' ); ?></h2>
+					<ul class="wcb-similar-jobs__list">
+						<?php foreach ( $wcb_similar_jobs as $wcb_similar ) : ?>
+							<?php $wcb_similar_company = (string) get_post_meta( $wcb_similar->ID, '_wcb_company_name', true ); ?>
+							<li>
+								<a href="<?php echo esc_url( (string) get_permalink( $wcb_similar ) ); ?>"><?php echo esc_html( get_the_title( $wcb_similar ) ); ?></a>
+								<?php if ( '' !== $wcb_similar_company ) : ?>
+									<span class="wcb-similar-jobs__company"><?php echo esc_html( $wcb_similar_company ); ?></span>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</section>
 			<?php endif; ?>
 		</div>
 
@@ -616,18 +716,14 @@ wp_interactivity_state(
 					<div class="wcb-detail-row">
 						<dt><?php esc_html_e( 'Work Mode', 'wp-career-board' ); ?></dt>
 						<dd>
-							<?php if ( $wcb_remote ) : ?>
-								<span class="wcb-badge wcb-badge--remote wcb-badge--sm"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
-							<?php else : ?>
-								<?php esc_html_e( 'On-site', 'wp-career-board' ); ?>
-							<?php endif; ?>
+							<?php echo $wcb_remote ? esc_html__( 'Remote', 'wp-career-board' ) : esc_html__( 'On-site', 'wp-career-board' ); ?>
 						</dd>
 					</div>
 
 					<?php if ( $wcb_salary_str ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Salary', 'wp-career-board' ); ?></dt>
-							<dd class="wcb-salary-highlight"><?php echo esc_html( $wcb_salary_str ); ?></dd>
+							<dd><?php echo esc_html( $wcb_salary_str ); ?></dd>
 						</div>
 					<?php endif; ?>
 
@@ -638,7 +734,7 @@ wp_interactivity_state(
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $wcb_apply_email ) : ?>
+					<?php if ( $wcb_apply_email && ! $wcb_deadline_passed ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
 							<dd>
@@ -650,7 +746,7 @@ wp_interactivity_state(
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $wcb_apply_external ) : ?>
+					<?php if ( $wcb_apply_external && ! $wcb_deadline_passed ) : ?>
 						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply Via', 'wp-career-board' ); ?></dt>
 							<dd>
@@ -665,7 +761,7 @@ wp_interactivity_state(
 								>
 										<?php
 										printf(
-										/* translators: %s: hostname of the external application site, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+										/* translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales. */
 											esc_html__( '%s ↗', 'wp-career-board' ),
 											esc_html( $wcb_apply_host ? $wcb_apply_host : __( 'External site', 'wp-career-board' ) )
 										);
@@ -683,15 +779,8 @@ wp_interactivity_state(
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
-				<?php elseif ( $wcb_deadline_passed ) : ?>
-					<p class="wcb-applications-closed wcb-applications-closed--center">
-					<?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					<?php
-					/* translators: %s: the date applications closed. */
-					printf( esc_html__( 'Applications closed on %s', 'wp-career-board' ), esc_html( $wcb_deadline_formatted ) );
-					?>
-					</p>
-				<?php elseif ( $wcb_show_apply ) : ?>
+				<?php elseif ( $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
+					<?php // A closed job says so once, in the hero and the body notice. ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a
 							href="<?php echo esc_url( $wcb_apply_url ); ?>"
@@ -736,7 +825,6 @@ wp_interactivity_state(
 					<?php esc_html_e( 'Share', 'wp-career-board' ); ?>
 				</h3>
 			<div class="wcb-share-bar">
-				<span class="wcb-share-label"><?php esc_html_e( 'Share:', 'wp-career-board' ); ?></span>
 				<a
 					href="<?php echo esc_url( $wcb_twitter_url ); ?>"
 					class="wcb-share-btn"
@@ -779,8 +867,12 @@ wp_interactivity_state(
 						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
 					</h3>
 					<div class="wcb-company-card-header">
-						<div class="wcb-company-avatar wcb-company-avatar--sm">
-				<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>
+						<div class="wcb-avatar wcb-avatar--sm<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
+							<?php if ( $wcb_company_logo ) : ?>
+								<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="" width="44" height="44" />
+							<?php else : ?>
+								<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>
+							<?php endif; ?>
 						</div>
 						<div>
 				<?php if ( $wcb_company_url ) : ?>
@@ -802,17 +894,17 @@ wp_interactivity_state(
 				<?php endif; ?>
 
 				<?php if ( $wcb_company_industry || $wcb_company_size || $wcb_company_hq ) : ?>
-						<dl class="wcb-company-facts">
+						<dl class="wcb-detail-list">
 					<?php if ( $wcb_company_industry ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value"><?php echo esc_html( \WCB\Core\Industries::label( $wcb_company_industry ) ); ?></dd>
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Industry', 'wp-career-board' ); ?></dt>
+									<dd><?php echo esc_html( \WCB\Core\Industries::label( $wcb_company_industry ) ); ?></dd>
 								</div>
 					<?php endif; ?>
 					<?php if ( $wcb_company_size ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value">
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></dt>
+									<dd>
 									<?php
 									// Canonical translated size-bucket label (e.g. "501-1,000 employees"), shared
 										// with the companies/jobs REST size_label. The stored value is a SLUG
@@ -823,9 +915,9 @@ wp_interactivity_state(
 								</div>
 					<?php endif; ?>
 					<?php if ( $wcb_company_hq ) : ?>
-								<div class="wcb-company-fact">
-									<dt class="wcb-company-fact__label"><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
-									<dd class="wcb-company-fact__value"><?php echo esc_html( $wcb_company_hq ); ?></dd>
+								<div class="wcb-detail-row">
+									<dt><?php esc_html_e( 'Headquarters', 'wp-career-board' ); ?></dt>
+									<dd><?php echo esc_html( $wcb_company_hq ); ?></dd>
 								</div>
 					<?php endif; ?>
 						</dl>
@@ -849,7 +941,7 @@ wp_interactivity_state(
 					<?php
 					$wcb_host = (string) wp_parse_url( $wcb_company_site, PHP_URL_HOST );
 					printf(
-						/* translators: %s: company website hostname. The ↗ marks a link that opens in a new tab — move it before the hostname for RTL locales. */
+						/* translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales. */
 						esc_html__( '%s ↗', 'wp-career-board' ),
 						esc_html( $wcb_host ? $wcb_host : $wcb_company_site )
 					);
@@ -1013,7 +1105,7 @@ wp_interactivity_state(
 							</p>
 						<?php endif; ?>
 
-						<p class="wcb-apply-or-divider"><?php esc_html_e( ' -  or upload a file  - ', 'wp-career-board' ); ?></p>
+						<p class="wcb-apply-or-divider"><?php esc_html_e( 'or upload a file', 'wp-career-board' ); ?></p>
 					<?php else : ?>
 						<label class="wcb-field-label" for="wcb-resume-file">
 						<?php esc_html_e( 'Resume', 'wp-career-board' ); ?>
@@ -1110,48 +1202,9 @@ wp_interactivity_state(
 			echo '<div class="wcb-apply-custom-fields" data-wp-context="' . esc_attr(
 				(string) wp_json_encode( array( 'fieldGroups' => $wcb_app_field_groups ) )
 			) . '">';
-			foreach ( $wcb_app_field_groups as $wcb_group ) {
-				if ( ! is_array( $wcb_group ) || empty( $wcb_group['fields'] ) ) {
-					continue;
-				}
-				if ( ! empty( $wcb_group['label'] ) ) {
-					echo '<h3 class="wcb-apply-custom-fields__heading">' . esc_html( (string) $wcb_group['label'] ) . '</h3>';
-				}
-				foreach ( (array) $wcb_group['fields'] as $wcb_field ) {
-					if ( ! is_array( $wcb_field ) || empty( $wcb_field['key'] ) || empty( $wcb_field['type'] ) ) {
-						continue;
-					}
-					$wcb_key = sanitize_key( (string) $wcb_field['key'] );
-					$wcb_id  = 'wcb-apply-' . $wcb_key;
-					echo '<div class="wcb-form-field">';
-					if ( ! empty( $wcb_field['label'] ) ) {
-						echo '<label class="wcb-field-label" for="' . esc_attr( $wcb_id ) . '">' . esc_html( (string) $wcb_field['label'] );
-						if ( ! empty( $wcb_field['required'] ) ) {
-							echo ' <span class="wcb-field-required" aria-hidden="true">*</span>';
-						}
-						echo '</label>';
-					}
-							$wcb_type        = (string) $wcb_field['type'];
-							$wcb_required    = ! empty( $wcb_field['required'] ) ? ' required aria-required="true"' : '';
-							$wcb_placeholder = isset( $wcb_field['placeholder'] ) ? ' placeholder="' . esc_attr( (string) $wcb_field['placeholder'] ) . '"' : '';
-					if ( 'textarea' === $wcb_type ) {
-							echo '<textarea id="' . esc_attr( $wcb_id ) . '" class="wcb-field" rows="4" data-wp-on--input="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_placeholder . $wcb_required . '></textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attrs already escaped.
-					} elseif ( 'select' === $wcb_type && ! empty( $wcb_field['options'] ) && is_array( $wcb_field['options'] ) ) {
-							echo '<select id="' . esc_attr( $wcb_id ) . '" class="wcb-field" data-wp-on--change="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_required . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						foreach ( $wcb_field['options'] as $wcb_val => $wcb_label ) {
-							echo '<option value="' . esc_attr( (string) $wcb_val ) . '">' . esc_html( (string) $wcb_label ) . '</option>';
-						}
-						echo '</select>';
-					} else {
-						$wcb_input_type = in_array( $wcb_type, array( 'text', 'email', 'tel', 'url', 'number', 'date' ), true ) ? $wcb_type : 'text';
-						echo '<input type="' . esc_attr( $wcb_input_type ) . '" id="' . esc_attr( $wcb_id ) . '" class="wcb-field" data-wp-on--input="actions.updateCustomField" data-wcb-field="' . esc_attr( $wcb_key ) . '"' . $wcb_placeholder . $wcb_required . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					}
-					if ( ! empty( $wcb_field['description'] ) ) {
-						echo '<span class="wcb-field-hint">' . esc_html( (string) $wcb_field['description'] ) . '</span>';
-					}
-							echo '</div>';
-				}
-			}
+			// One renderer for every custom-field form: radio, checkbox and
+			// multi-choice questions get real controls here too, not a text box.
+			\WCB\Core\FormCustomFields::render_groups( $wcb_app_field_groups, 'updateCustomField', 'wcb-apply' );
 			echo '</div>';
 		}
 
@@ -1166,7 +1219,22 @@ wp_interactivity_state(
 		 * @param int $wcb_job_id The job being applied to.
 		 */
 		do_action( 'wcb_application_form_fields', $wcb_job_id );
+
+		/**
+		 * Filter the notice shown above "Submit Application" when applications
+		 * may be screened with AI ('' shows nothing). Pro fills it when AI is
+		 * configured and the site owner keeps the notice on.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param string $notice Notice text.
+		 * @param int    $job_id Job being applied to.
+		 */
+		$wcb_ai_notice = (string) apply_filters( 'wcb_apply_ai_notice', '', $wcb_job_id );
 		?>
+		<?php if ( '' !== $wcb_ai_notice ) : ?>
+				<p class="wcb-field-hint wcb-apply-ai-notice"><?php echo esc_html( $wcb_ai_notice ); ?></p>
+		<?php endif; ?>
 
 				<button
 					type="button"

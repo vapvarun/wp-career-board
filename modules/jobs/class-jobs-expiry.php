@@ -15,12 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the wcb_expired post status and schedules a daily cron to
+ * Registers the wcb_expired post status and schedules an hourly cron to
  * transition past-deadline jobs from publish to expired.
  *
  * @since 1.0.0
  */
 final class JobsExpiry {
+
+	/**
+	 * Job statuses that still have a public page: open, expired and closed
+	 * jobs are all served at /jobs/{slug}/ (an ended job shows a notice).
+	 *
+	 * @since 1.8.0
+	 */
+	public const PAGE_STATUSES = array( 'publish', 'wcb_expired', 'wcb_closed' );
 
 	/**
 	 * Boot the expiry handler.
@@ -32,10 +40,100 @@ final class JobsExpiry {
 		add_action( 'init', array( $this, 'register_expired_status' ) );
 		add_action( 'init', array( $this, 'register_closed_status' ) );
 		add_action( 'wcb_check_job_expiry', array( $this, 'expire_jobs' ) );
+		add_action( 'transition_post_status', array( $this, 'renew_deadline_on_republish' ), 10, 3 );
+		add_action( 'pre_get_posts', array( $this, 'serve_ended_job' ) );
+		add_filter( 'post_type_link', array( $this, 'ended_job_link' ), 10, 2 );
+		add_filter( 'wp_robots', array( $this, 'noindex_ended_job' ) );
 
-		if ( ! wp_next_scheduled( 'wcb_check_job_expiry' ) ) {
-			wp_schedule_event( time(), 'daily', 'wcb_check_job_expiry' );
+		// Hourly, so a job leaves listings within the hour after its last day
+		// (was daily, which left it listed for up to a day after it closed).
+		if ( 'hourly' !== wp_get_schedule( 'wcb_check_job_expiry' ) ) {
+			wp_clear_scheduled_hook( 'wcb_check_job_expiry' );
+			wp_schedule_event( time(), 'hourly', 'wcb_check_job_expiry' );
 		}
+	}
+
+	/**
+	 * Bringing an ended job back is a new listing period, whoever does it.
+	 *
+	 * The employer's Reopen sets a fresh deadline itself; an administrator's
+	 * Approve (bulk, row action, edit screen, WP-CLI) did not, so the job went
+	 * live with its old deadline still in the past: published, but accepting no
+	 * applications and due to expire again at the next sweep.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Previous status.
+	 * @param \WP_Post $post       Job.
+	 * @return void
+	 */
+	public function renew_deadline_on_republish( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'wcb_job' !== $post->post_type || 'publish' !== $new_status || ! in_array( $old_status, array( 'wcb_expired', 'wcb_closed' ), true ) || ! \WCB\Core\JobDeadline::has_passed( $post->ID ) ) {
+			return;
+		}
+		$request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $post->ID );
+		$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+		update_post_meta( $post->ID, '_wcb_deadline', \WCB\Core\JobDeadline::default_end( $request ) );
+	}
+
+	/**
+	 * Keep an ended job's URL working (owner decision D5).
+	 *
+	 * Expired and closed jobs are non-public statuses, so they stay out of
+	 * listings, feeds, search and the sitemap. Only the job's own page asks
+	 * for them explicitly, which core allows for a single post; the page then
+	 * shows "This job has expired" with similar jobs instead of a 404, so
+	 * links people shared keep working.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Query $query Query being prepared.
+	 * @return void
+	 */
+	public function serve_ended_job( \WP_Query $query ): void {
+		if ( is_admin() || ! $query->is_main_query() || '' === (string) $query->get( 'wcb_job' ) ) {
+			return;
+		}
+		$query->set( 'post_status', self::PAGE_STATUSES );
+	}
+
+	/**
+	 * Give an ended job the same /jobs/{slug}/ link it had while open.
+	 *
+	 * Core falls back to ?post_type=wcb_job&p=ID for any non-public status,
+	 * so emails, dashboards and "similar jobs" would link somewhere different
+	 * from the URL people already shared.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string   $link Permalink core built.
+	 * @param \WP_Post $post Post.
+	 * @return string
+	 */
+	public function ended_job_link( string $link, \WP_Post $post ): string {
+		if ( 'wcb_job' !== $post->post_type || '' === $post->post_name || ! in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
+			return $link;
+		}
+		$open              = clone $post;
+		$open->post_status = 'publish';
+		return (string) get_post_permalink( $open );
+	}
+
+	/**
+	 * Ask search engines to drop an ended job's page.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<string, bool|string> $robots Robots directives.
+	 * @return array<string, bool|string>
+	 */
+	public function noindex_ended_job( array $robots ): array {
+		if ( is_singular( 'wcb_job' ) && ! \WCB\Core\JobDeadline::accepts_applications( (int) get_queried_object_id() ) ) {
+			$robots['noindex'] = true;
+			$robots['follow']  = true;
+		}
+		return $robots;
 	}
 
 	/**
@@ -124,6 +222,11 @@ final class JobsExpiry {
 			)
 		);
 
+		// Only a job that ended in the last week is announced. Turning expiry on
+		// for an older site moves its whole backlog at once, and emailing every
+		// employer about listings that ended months ago helps no one.
+		$announce_from = gmdate( 'Y-m-d', (int) strtotime( current_time( 'Y-m-d' ) . ' -7 days' ) );
+
 		foreach ( $jobs as $job_id ) {
 			wp_update_post(
 				array(
@@ -132,7 +235,9 @@ final class JobsExpiry {
 				)
 			);
 
-			do_action( 'wcb_job_expired', (int) $job_id );
+			if ( \WCB\Core\JobDeadline::get( (int) $job_id ) >= $announce_from ) {
+				do_action( 'wcb_job_expired', (int) $job_id );
+			}
 		}
 
 		// Full batch means more past-deadline jobs remain. Each pass flips rows

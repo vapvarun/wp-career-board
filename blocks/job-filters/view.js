@@ -12,6 +12,12 @@
 import { store } from '@wordpress/interactivity';
 
 const { state } = store( 'wcb-search', {
+	state: {
+		/** Active filters, for the "Filters (n)" button on tablet and phone. */
+		get activeFilterCount() {
+			return Object.values( state.filters || {} ).filter( Boolean ).length;
+		},
+	},
 	actions: {
 		updateFilter( event ) {
 			const key   = event.target.dataset.wcbFilter;
@@ -53,4 +59,11 @@ const { state } = store( 'wcb-search', {
 			);
 		},
 	},
+} );
+
+// The listing cleared some filters (a pill's ×, "Clear all"): drop them here.
+document.addEventListener( 'wcb:filters-cleared', ( event ) => {
+	const filters = Object.assign( {}, state.filters );
+	( event.detail?.keys || [] ).forEach( ( key ) => delete filters[ key ] );
+	state.filters = filters;
 } );

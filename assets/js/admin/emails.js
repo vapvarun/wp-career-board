@@ -6,7 +6,7 @@
  *   - Activity Log filtering / pagination / refresh
  *
  * Localized config arrives via the wcbAdminEmails global (see wp_localize_script):
- *   { restBase, nonce, i18n: { sending, sent, failed, empty, fail, page, records } }
+ *   { restBase, nonce, i18n: { sending, sent, failed, empty, fail, pageInfo } }
  *
  * @package WP_Career_Board
  * @since   1.1.1
@@ -90,6 +90,46 @@
 			} );
 		} );
 	}
+
+	/* ── Preview (renders unsaved edits, sends nothing) ──────────────────── */
+
+	document.addEventListener( 'click', function ( event ) {
+		var btn = event.target.closest( '.wcb-email-preview-btn' );
+		if ( ! btn ) {
+			return;
+		}
+		var id      = btn.getAttribute( 'data-email-id' );
+		var cell    = btn.closest( 'td' );
+		var box     = cell.querySelector( '.wcb-email-preview' );
+		var subject = document.querySelector( 'input[name="wcb_email[' + id + '][subject]"]' );
+		var body    = document.getElementById( 'wcb-email-body-field-' + id );
+
+		btn.disabled = true;
+		fetch( cfg.restBase + '/admin/emails/test', {
+			method:      'POST',
+			credentials: 'same-origin',
+			headers:     { 'X-WP-Nonce': cfg.nonce, 'Content-Type': 'application/json' },
+			body:        JSON.stringify( {
+				email_id: id,
+				preview:  true,
+				subject:  subject ? subject.value : '',
+				body:     body ? body.value : ''
+			} )
+		} )
+			.then( function ( r ) { return r.json(); } )
+			.then( function ( data ) {
+				box.querySelector( '.wcb-email-preview__subject' ).textContent = data.subject || data.message || '';
+				box.querySelector( '.wcb-email-preview__frame' ).srcdoc = data.html || '';
+				box.hidden = false;
+			} )
+			.catch( function () {
+				box.querySelector( '.wcb-email-preview__subject' ).textContent = i18n.failed || 'Failed';
+				box.hidden = false;
+			} )
+			.finally( function () {
+				btn.disabled = false;
+			} );
+	} );
 
 	/* ── Activity log ─────────────────────────────────────────────────────── */
 
@@ -229,9 +269,10 @@
 				}
 				var info = document.getElementById( 'wcb-log-pageinfo' );
 				if ( info ) {
-					info.textContent = ( i18n.page || 'Page' ) + ' ' + ( data.page || 1 ) +
-						' / ' + ( data.pages || 1 ) +
-						' — ' + ( data.total || 0 ) + ' ' + ( i18n.records || 'records' );
+					info.textContent = String( i18n.pageInfo || 'Page %1$s of %2$s (total: %3$s)' )
+						.replace( '%1$s', data.page || 1 )
+						.replace( '%2$s', data.pages || 1 )
+						.replace( '%3$s', data.total || 0 );
 				}
 				var prevBtn = document.getElementById( 'wcb-log-prev' );
 				var nextBtn = document.getElementById( 'wcb-log-next' );

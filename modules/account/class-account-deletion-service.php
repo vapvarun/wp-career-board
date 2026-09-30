@@ -36,6 +36,15 @@ class AccountDeletionService {
 	public const META_SCHEDULED = '_wcb_deletion_scheduled_at';
 
 	/**
+	 * Lock applied for the grace window. Separate from an administrator's ban
+	 * (`_wcb_employer_banned`) so cancelling a deletion can never lift a ban.
+	 *
+	 * @since 1.8.0
+	 * @var string
+	 */
+	public const META_LOCKED = '_wcb_deletion_locked';
+
+	/**
 	 * Daily cron hook that finalises due deletions.
 	 *
 	 * @var string
@@ -111,8 +120,7 @@ class AccountDeletionService {
 
 		$when = time() + ( $grace * DAY_IN_SECONDS );
 		update_user_meta( $user->ID, self::META_SCHEDULED, $when );
-		// Reuse the one ban flag so the account is locked during the window.
-		update_user_meta( $user->ID, '_wcb_employer_banned', '1' );
+		update_user_meta( $user->ID, self::META_LOCKED, '1' );
 		$this->revoke_credentials( $user->ID );
 
 		do_action( 'wcb_account_deletion_requested', $user->ID, $when );
@@ -166,8 +174,14 @@ class AccountDeletionService {
 			return array( 'status' => 'active' );
 		}
 
+		// Requests made before 1.8.0 locked the account through the ban flag
+		// itself; only those carry no lock key, and only for them is the ban
+		// ours to lift.
+		if ( ! metadata_exists( 'user', $user->ID, self::META_LOCKED ) ) {
+			delete_user_meta( $user->ID, '_wcb_employer_banned' );
+		}
 		delete_user_meta( $user->ID, self::META_SCHEDULED );
-		delete_user_meta( $user->ID, '_wcb_employer_banned' );
+		delete_user_meta( $user->ID, self::META_LOCKED );
 
 		do_action( 'wcb_account_deletion_cancelled', $user->ID );
 

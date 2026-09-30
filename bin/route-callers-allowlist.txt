@@ -39,3 +39,8 @@
 # session already has cookies + nonces. Gated on the site's password_login
 # switch, which /settings/app-config advertises to the app.
 /auth/app-password
+
+# Private candidate-file download for the native app, which authenticates only
+# on REST. The website links to the ?wcb_file= handler instead (cookie session),
+# so no JS calls this route. Same PrivateFiles::can_download() gate either way.
+/files/(?P<id>\d+)

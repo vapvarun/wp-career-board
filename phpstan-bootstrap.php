@@ -16,6 +16,7 @@ if ( ! defined( 'DB_NAME' ) ) {
 // Plugin constants.
 define( 'WCB_VERSION', '1.2.0' );
 define( 'WCB_FILE', __DIR__ . '/wp-career-board.php' );
+define( 'WCB_BASENAME', 'wp-career-board/wp-career-board.php' );
 define( 'WCB_PLUGIN_FILE', WCB_FILE );
 define( 'WCB_DIR', __DIR__ . '/' );
 define( 'WCB_URL', 'https://example.com/wp-content/plugins/wp-career-board/' );

@@ -96,8 +96,19 @@ foreach ( $job_posts as $wcb_candidate_job ) {
 		break;
 	}
 }
-if ( ! $job_id && ! empty( $job_posts ) ) {
-	$job_id = (int) $job_posts[0];
+// No open job on the site (every seeded deadline has passed): make one.
+$wcb_own_job = 0;
+if ( ! $job_id ) {
+	$wcb_own_job = (int) wp_insert_post(
+		array(
+			'post_type'   => 'wcb_job',
+			'post_status' => 'publish',
+			'post_title'  => 'REST test open job',
+			'post_author' => 1,
+			'meta_input'  => array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+30 days' ) ) ),
+		)
+	);
+	$job_id      = $wcb_own_job;
 }
 
 // A job whose deadline has passed, for the guard assertions further down.
@@ -112,7 +123,22 @@ foreach ( $job_posts as $wcb_candidate_job ) {
 $pending_jobs   = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'numberposts' => 1, 'fields' => 'ids' ) );
 $pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
 
-$app_posts = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids' ) );
+// An application the employer can still act on (not withdrawn or closed).
+$app_posts = get_posts(
+	array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'any',
+		'numberposts' => 1,
+		'fields'      => 'ids',
+		'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			array(
+				'key'     => '_wcb_status',
+				'value'   => \WCB\Modules\Applications\ApplicationStatus::employer_actionable(),
+				'compare' => 'IN',
+			),
+		),
+	)
+);
 $app_id    = ! empty( $app_posts ) ? (int) $app_posts[0] : 0;
 
 WP_CLI::log( "Seed IDs => admin:{$admin_id} candidate:{$candidate_id} employer:{$employer_id} company:{$company_id} job:{$job_id} pending_job:{$pending_job_id} app:{$app_id}" );
@@ -269,6 +295,44 @@ if ( $job_id ) {
 		wp_delete_post( $test_app_id, true );
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Require login to apply: app-config and job cards must agree with the apply
+// permission check, so no client offers an Apply button that 401s.
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Require login to apply: guest_apply + viewer_can_apply ---' );
+$wcb_guest_apply_flag = static function (): ?bool {
+	$data = wcb_rest( 'GET', '/wcb/v1/settings/app-config', array(), 0 )->get_data();
+	return isset( $data['feature_toggles']['guest_apply'] ) ? (bool) $data['feature_toggles']['guest_apply'] : null;
+};
+$wcb_guest_card_can_apply = static function (): ?bool {
+	foreach ( (array) ( wcb_rest( 'GET', '/wcb/v1/jobs', array(), 0 )->get_data()['jobs'] ?? array() ) as $wcb_card ) {
+		if ( isset( $wcb_card['viewer_can_apply'] ) ) {
+			return (bool) $wcb_card['viewer_can_apply'];
+		}
+	}
+	return null;
+};
+
+update_option( 'wcb_settings', array_merge( $wcb_relaxed_settings, array( 'apply_require_login' => false ) ) );
+\WCB\Admin\Settings::flush_cache();
+
+wcb_assert( true === $wcb_guest_apply_flag(), 'app-config guest_apply is true when login is not required' );
+wcb_assert( true === $wcb_guest_card_can_apply(), 'guest job card viewer_can_apply is true when login is not required' );
+
+update_option( 'wcb_settings', array_merge( $wcb_relaxed_settings, array( 'apply_require_login' => true ) ) );
+\WCB\Admin\Settings::flush_cache();
+
+wcb_assert( false === $wcb_guest_apply_flag(), 'app-config guest_apply is false when login is required' );
+wcb_assert( false === $wcb_guest_card_can_apply(), 'guest job card viewer_can_apply is false when login is required' );
+if ( $job_id ) {
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/apply", array( 'guest_name' => 'Test Guest', 'guest_email' => 'wcb_test_login@example.com' ), 0 );
+	wcb_assert( 401 === $r->get_status(), 'guest apply returns 401 when login is required' );
+}
+
+update_option( 'wcb_settings', $wcb_relaxed_settings );
+\WCB\Admin\Settings::flush_cache();
 
 // ---------------------------------------------------------------------------
 // Applications close once the deadline has passed (1.7.1)
@@ -982,6 +1046,13 @@ if ( is_wp_error( $wcb_probe_user ) ) {
 // ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
+
+if ( $wcb_own_job ) {
+	foreach ( get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'fields' => 'ids', 'numberposts' => -1, 'meta_key' => '_wcb_job_id', 'meta_value' => $wcb_own_job ) ) as $wcb_app_id ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		wp_delete_post( (int) $wcb_app_id, true );
+	}
+	wp_delete_post( $wcb_own_job, true );
+}
 
 WP_CLI::log( '' );
 WP_CLI::log( '========================================' );

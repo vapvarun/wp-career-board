@@ -32,6 +32,31 @@ defined( 'ABSPATH' ) || exit;
 final class SalaryFormat {
 
 	/**
+	 * Pay periods as a yearly multiple: 40 hours x 52 weeks, 12 months. The
+	 * one place pay is converted, for the salary filter, the salary sort and
+	 * job-alert matching alike.
+	 *
+	 * @since 1.8.0
+	 */
+	public const PERIOD_FACTORS = array(
+		'hourly'  => 2080,
+		'monthly' => 12,
+		'yearly'  => 1,
+	);
+
+	/**
+	 * A pay figure as a yearly amount. An unknown period counts as yearly.
+	 *
+	 * @since 1.8.0
+	 * @param float  $amount Figure the employer entered.
+	 * @param string $type   Pay period: hourly, monthly or yearly.
+	 * @return float
+	 */
+	public static function yearly( float $amount, string $type ): float {
+		return $amount * ( self::PERIOD_FACTORS[ $type ] ?? 1 );
+	}
+
+	/**
 	 * Resolve a currency code to its display symbol.
 	 *
 	 * Falls back to the uppercased code plus a space (e.g. "PLN ") when the
@@ -70,7 +95,8 @@ final class SalaryFormat {
 	 * @return string
 	 */
 	public static function abbreviate( int $value ): string {
-		if ( $value >= 1000000 ) {
+		// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule below.
+		if ( $value >= 1000000 && 0 === $value % 100000 ) {
 			$n = round( $value / 1000000, 1 );
 			$n = floor( $n ) === $n ? (string) (int) $n : number_format_i18n( $n, 1 );
 			/* translators: %s: number of millions, already localised. Abbreviation for millions appended to a salary figure. */
@@ -78,8 +104,14 @@ final class SalaryFormat {
 		}
 
 		if ( $value >= 1000 ) {
+			// A published salary is a fact, not an estimate: abbreviate only when the
+			// short form is exact (4,500 -> 4.5k), else show the full figure.
+			if ( 0 !== $value % 100 ) {
+				return number_format_i18n( $value );
+			}
+			$n = 0 === $value % 1000 ? number_format_i18n( intdiv( $value, 1000 ) ) : number_format_i18n( $value / 1000, 1 );
 			/* translators: %s: number of thousands, already localised. Abbreviation for thousands appended to a salary figure. */
-			return sprintf( _x( '%sk', 'thousands abbreviation', 'wp-career-board' ), number_format_i18n( (int) round( $value / 1000 ) ) );
+			return sprintf( _x( '%sk', 'thousands abbreviation', 'wp-career-board' ), $n );
 		}
 
 		return number_format_i18n( $value );
@@ -145,7 +177,10 @@ final class SalaryFormat {
 
 		$fmt = static fn ( int $n ): string => self::money( $symbol, self::abbreviate( $n ) );
 
-		if ( $min && $max ) {
+		if ( $min && $max && $min === $max ) {
+			// One figure entered (an importer copies a single salary to both ends).
+			$body = $fmt( $min );
+		} elseif ( $min && $max ) {
 			/* translators: 1: minimum salary, 2: maximum salary. En dash separator; change it if your locale uses another range mark. */
 			$body = sprintf( _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ), $fmt( $min ), $fmt( $max ) );
 		} elseif ( $min ) {
@@ -174,23 +209,23 @@ final class SalaryFormat {
 	 */
 	public static function js_strings(): array {
 		return array(
-			/* translators: 1: currency symbol, 2: localised amount. */
+			/* translators: 1: currency symbol, 2: localised amount. Swap the order (and add a space) for locales that place the symbol after the amount, e.g. "%2$s %1$s". */
 			'moneyFormat'      => _x( '%1$s%2$s', 'currency symbol then amount', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
 			/* translators: 1: salary figure, 2: pay-period suffix such as "/yr". */
 			'salaryJoinFormat' => _x( '%1$s%2$s', 'salary figure then period', 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings -- Reorder-only format string kept translatable for locale ordering.
-			/* translators: %s: number of thousands. */
-			'salaryThousand'  => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
-			/* translators: %s: number of millions. */
-			'salaryMillion'   => _x( '%sM', 'millions abbreviation', 'wp-career-board' ),
-			/* translators: 1: minimum salary, 2: maximum salary. */
-			'salaryRange'     => _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ),
-			/* translators: %s: minimum salary. */
-			'salaryOpenMin'   => _x( '%s+', 'open-ended salary minimum', 'wp-career-board' ),
+			/* translators: %s: number of thousands, already localised. Abbreviation for thousands appended to a salary figure. */
+			'salaryThousand'   => _x( '%sk', 'thousands abbreviation', 'wp-career-board' ),
+			/* translators: %s: number of millions, already localised. Abbreviation for millions appended to a salary figure. */
+			'salaryMillion'    => _x( '%sM', 'millions abbreviation', 'wp-career-board' ),
+			/* translators: 1: minimum salary, 2: maximum salary. En dash separator; change it if your locale uses another range mark. */
+			'salaryRange'      => _x( '%1$s–%2$s', 'salary range', 'wp-career-board' ),
+			/* translators: %s: minimum salary. Trailing marker meaning "and above". */
+			'salaryOpenMin'    => _x( '%s+', 'open-ended salary minimum', 'wp-career-board' ),
 			/* translators: %s: maximum salary. */
-			'salaryUpTo'      => __( 'Up to %s', 'wp-career-board' ),
-			'salaryPerYear'   => self::period_suffix( 'yearly' ),
-			'salaryPerMonth'  => self::period_suffix( 'monthly' ),
-			'salaryPerHour'   => self::period_suffix( 'hourly' ),
+			'salaryUpTo'       => __( 'Up to %s', 'wp-career-board' ),
+			'salaryPerYear'    => self::period_suffix( 'yearly' ),
+			'salaryPerMonth'   => self::period_suffix( 'monthly' ),
+			'salaryPerHour'    => self::period_suffix( 'hourly' ),
 		);
 	}
 }

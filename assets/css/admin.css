@@ -28,7 +28,7 @@
 
 .wcb-version-badge {
 	display: inline-block;
-	background: #f0f0f1;
+	background: var(--wcb-surface, #f1f5f9);
 	color: var(--wcb-text-secondary, #475569);
 	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
@@ -38,8 +38,9 @@
 
 .wcb-pro-badge {
 	display: inline-block;
-	background: linear-gradient(135deg, #6366f1, #8b5cf6);
-	color: #fff;
+	background: linear-gradient(135deg, var(--wcb-pro-from, #6366f1), var(--wcb-pro-to, #8b5cf6));
+	color: var(--wcb-on-primary, #ffffff);
+	margin-inline-start: auto;
 	border-radius: var(--wcb-radius-sm, 6px);
 	padding: 1px 7px;
 	font-size: 9px;
@@ -241,7 +242,7 @@
 	border-radius: var( --wcb-radius-md, 8px );
 	border: 1px solid var( --wcb-primary, #2563eb );
 	background: var( --wcb-primary, #2563eb );
-	color: #fff;
+	color: var( --wcb-on-primary, #ffffff );
 	cursor: pointer;
 	text-decoration: none;
 	transition: all 0.12s ease;
@@ -249,7 +250,7 @@
 
 #section-license .edd-sl-sdk__action:hover {
 	background: var( --wcb-primary-dark, #1d4ed8 );
-	color: #fff;
+	color: var( --wcb-on-primary, #ffffff );
 }
 
 #section-license .edd-sl-sdk__action:focus-visible {
@@ -258,11 +259,15 @@
 }
 
 
-@media (max-width: 1100px) {
-	.wcb-dashboard-columns {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
+/* ── Job edit screen: salary and details grid ───────────────────────────── */
+.wcb-meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px 20px; padding:8px 0; }
+.wcb-meta-full { grid-column:1/-1; }
+.wcb-meta-grid label { display:block; font-weight:600; margin-bottom:4px; }
+.wcb-meta-grid input[type=text],
+.wcb-meta-grid input[type=number],
+.wcb-meta-grid input[type=date] { width:100%; }
+.wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
+.wcb-salary-prefix span { font-size:13px; line-height:1; }
 
 .wcb-dashboard-panel {
 	background: var(--wcb-base, #ffffff);
@@ -328,7 +333,7 @@
 .wcb-admin-table td {
 	padding: 8px 12px;
 	text-align: left;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
 }
 
 .wcb-admin-table th {
@@ -476,13 +481,19 @@
 	background: var(--wcb-surface, #f1f5f9);
 }
 
+/* One card title across Settings, list cards and integrations. */
 .wcb-settings-card-title {
-	font-size: var(--wcb-text-sm, 0.8125rem);
+	font-size: 14px;
 	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	color: var(--wcb-contrast, #1e293b);
 	margin: 0;
+}
+
+/* Generic card content wrapper for a card that is not a row-based form:
+   description text, tables, key/value lists, provider status. */
+.wcb-settings-card-body {
+	padding: var(--wcb-space-xl, 20px) var(--wcb-space-2xl, 24px);
+	font-size: var(--wcb-text-sm, 0.8125rem);
 }
 
 /* Settings row: 240px label + flex control */
@@ -496,6 +507,20 @@
 
 .wcb-settings-row:last-child {
 	border-bottom: none;
+}
+
+/* Row that is not label + control (intro copy above a form or list, status
+   pills): full width but keeps the card's row rhythm. Pro cards use it too. */
+.wcb-settings-row--block {
+	display: block;
+}
+
+.wcb-settings-row .wcb-settings-intro {
+	margin: 0 0 12px;
+}
+
+.wcb-settings-status {
+	margin-inline-start: 0.75rem;
 }
 
 .wcb-settings-row-label {
@@ -554,7 +579,7 @@
 	width: 18px;
 	inset-inline-start: 3px;
 	bottom: 3px;
-	background: #fff;
+	background: var(--wcb-base, #ffffff);
 	border-radius: 50%;
 	transition: inset-inline-start 0.2s;
 	box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.2 );
@@ -583,8 +608,16 @@
 }
 
 /* Save button footer */
+/* The Save row between cards: one 24px step above and below, like the card
+ * stack, so it never touches the next card. */
 .wcb-settings-footer {
-	padding: 14px 24px;
+	margin: 24px 0;
+	padding: 0;
+}
+
+.wcb-settings-footer p.submit {
+	margin: 0;
+	padding: 0;
 }
 
 /* Test email section */
@@ -611,45 +644,6 @@
 }
 
 /* Mobile */
-@media ( max-width: 782px ) {
-	.wcb-settings-header {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
-	.wcb-settings-header-actions {
-		flex-wrap: wrap;
-	}
-
-	.wcb-settings-tabs-nav {
-		overflow-x: auto;
-	}
-
-	.wcb-settings-row {
-		grid-template-columns: minmax(0, 1fr);
-		gap: 8px;
-	}
-
-	.wcb-settings-row-label {
-		padding-right: 0;
-		padding-top: 0;
-	}
-
-	.wcb-stats-grid {
-		gap: 8px;
-	}
-
-	.wcb-stat-box {
-		flex: 1 1 calc( 50% - 4px );
-		min-width: 0;
-	}
-
-	.wcb-dashboard-actions {
-		padding: 12px 16px;
-		gap: 8px;
-	}
-}
-
 /* No items message */
 .wcb-no-items {
 	color: var(--wcb-text-secondary, #475569);
@@ -973,18 +967,130 @@
 	margin-inline: auto;
 }
 
-@media (max-width: 960px) {
-	.wcb-wizard-wrap {
-		margin-inline: 12px;
-	}
-}
-
 .wcb-wizard-step {
 	display: none;
 }
 
 .wcb-wizard-step.active {
 	display: block;
+}
+
+/* Focus mode: no admin menu while the wizard runs ("Exit setup" leaves). */
+body.wcb-wizard-focus #adminmenumain {
+	display: none;
+}
+
+body.wcb-wizard-focus #wpcontent,
+body.wcb-wizard-focus #wpfooter {
+	margin-inline-start: 0;
+}
+
+body.wcb-wizard-focus #wpbody-content > .notice,
+body.wcb-wizard-focus #wpbody-content > .update-nag {
+	display: none;
+}
+
+.wcb-wizard-progress {
+	display: flex;
+	gap: 4px;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-wizard-progress li {
+	flex: 1 1 0;
+	min-width: 0;
+	margin: 0;
+}
+
+.wcb-wizard-progress button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+	height: 100%;
+	padding: 8px 4px;
+	border: 0;
+	border-block-end: 3px solid var(--wcb-border, #e2e8f0);
+	background: none;
+	color: var(--wcb-text-secondary, #475569);
+	font: inherit;
+	font-size: 12px;
+	line-height: 1.3;
+	text-align: center;
+	cursor: pointer;
+}
+
+.wcb-wizard-progress button:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+.wcb-wizard-progress button:focus-visible {
+	outline: 2px solid var(--wcb-primary, #2563eb);
+	outline-offset: 2px;
+}
+
+.wcb-wizard-progress__num {
+	display: inline-grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: var(--wcb-border, #e2e8f0);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.wcb-wizard-progress .is-done button {
+	border-block-end-color: var(--wcb-success-fg, #15803d);
+}
+
+.wcb-wizard-progress .is-done .wcb-wizard-progress__num {
+	background: var(--wcb-success-bg, #dcfce7);
+	color: var(--wcb-success-fg, #15803d);
+}
+
+.wcb-wizard-progress .is-current button {
+	border-block-end-color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-contrast, #1e293b);
+	font-weight: 600;
+	opacity: 1;
+}
+
+.wcb-wizard-progress .is-current .wcb-wizard-progress__num {
+	background: var(--wcb-primary, #2563eb);
+	color: var(--wcb-base, #ffffff);
+}
+
+.wcb-wizard-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.wcb-wizard-error {
+	color: var(--wcb-danger, #dc2626);
+	font-size: 13px;
+}
+
+.wcb-wizard-pages {
+	margin: 8px 0 0;
+	padding-inline-start: 18px;
+	list-style: disc;
+}
+
+.wcb-wizard-pages__state {
+	margin-inline-start: 6px;
+	color: var(--wcb-text-secondary, #475569);
+	font-size: 12px;
+}
+
+.wcb-wizard-pages__state.is-ready {
+	color: var(--wcb-success-fg, #15803d);
 }
 
 /* ── Import page ─────────────────────────────────────────────────────────── */
@@ -1212,22 +1318,6 @@
 	text-decoration: underline;
 }
 
-@media (max-width: 782px) {
-	.wcb-getting-started-list {
-		padding: 8px 16px;
-	}
-}
-
-@media (max-width: 782px) {
-	.wcb-import-stats {
-		flex-direction: column;
-		gap: 8px;
-	}
-	.wcb-import-card-head {
-		flex-wrap: wrap;
-	}
-}
-
 /* ── Import card locked (Pro teaser) ─────────────────────────────── */
 
 .wcb-import-card--locked {
@@ -1326,7 +1416,109 @@
 	flex-shrink: 0;
 }
 
-@media (max-width: 782px) {
+/* Applications list: active job filter + Export all matching. */
+.wcb-applications-toolbar {
+	clear: both;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm, 8px);
+}
+
+.wcb-filter-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs, 4px);
+	padding-block: 2px;
+	padding-inline: var(--wcb-space-sm, 8px);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-full, 999px);
+	background: var(--wcb-bg-hover, #f1f5f9);
+}
+
+.wcb-filter-chip a {
+	text-decoration: none;
+	font-size: 1.2em;
+	line-height: 1;
+	min-width: 24px;
+	text-align: center;
+}
+
+
+/*
+ * Responsive contract: two blocks, at the bottom, so the cascade reads top to
+ * bottom and a later rule cannot silently beat an earlier one at the same width.
+ * Tablet is 1024px and phone is 640px; nothing else.
+ */
+@media (max-width: 1024px) {
+	.wcb-dashboard-columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.wcb-wizard-wrap {
+		margin-inline: 12px;
+	}
+}
+
+@media (max-width: 640px) {
+	.wcb-settings-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.wcb-settings-header-actions {
+		flex-wrap: wrap;
+	}
+
+	.wcb-settings-tabs-nav {
+		overflow-x: auto;
+	}
+
+	.wcb-settings-row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+	}
+
+	.wcb-settings-row-label {
+		padding-right: 0;
+		padding-top: 0;
+	}
+
+	.wcb-stats-grid {
+		gap: 8px;
+	}
+
+	.wcb-stat-box {
+		flex: 1 1 calc( 50% - 4px );
+		min-width: 0;
+	}
+
+	.wcb-dashboard-actions {
+		padding: 12px 16px;
+		gap: 8px;
+	}
+
+	.wcb-wizard-progress__label {
+		display: none;
+	}
+
+	.wcb-wizard-progress .is-current .wcb-wizard-progress__label {
+		display: inline;
+	}
+
+	.wcb-getting-started-list {
+		padding: 8px 16px;
+	}
+
+	.wcb-import-stats {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.wcb-import-card-head {
+		flex-wrap: wrap;
+	}
+
 	.wcb-pro-upgrade-body {
 		padding: 12px 16px 16px;
 	}
@@ -1338,4 +1530,15 @@
 	.wcb-nav-lock-icon {
 		display: none;
 	}
+
+	/* Job edit screen: details grid, one column. */
+	.wcb-meta-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* List-table search matches the page header's buttons (this stylesheet only
+ * loads on Career Board screens, so core's other list tables are untouched). */
+#wpbody .search-box :is( input[type="search"], input[type="submit"], .button ) {
+	min-height: 42px;
 }

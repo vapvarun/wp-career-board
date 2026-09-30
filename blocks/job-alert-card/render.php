@@ -41,7 +41,7 @@ if ( '' === $wcb_cta ) {
 }
 
 if ( '' === $wcb_url ) {
-	$wcb_dashboard_id = (int) \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+	$wcb_dashboard_id = (int) \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 	if ( $wcb_dashboard_id > 0 ) {
 		$wcb_dashboard_url = (string) get_permalink( $wcb_dashboard_id );
 		if ( $wcb_dashboard_url ) {

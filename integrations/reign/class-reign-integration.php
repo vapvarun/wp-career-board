@@ -30,7 +30,6 @@ class ReignIntegration {
 	public function boot(): void {
 		add_filter( 'single_template', array( $this, 'single_template' ) );
 		add_filter( 'archive_template', array( $this, 'archive_template' ) );
-		add_action( 'customize_register', array( $this, 'customizer_section' ) );
 		add_filter( 'reign_nav_items', array( $this, 'add_nav_items' ) );
 		\WCB\Core\ThemeCompat::register(
 			'wcb-reign-compat',
@@ -46,22 +45,20 @@ class ReignIntegration {
 	 * @return string
 	 */
 	public function single_template( string $template ): string {
-		// A theme shipping its own WCB template outranks the bundled
-		// integration. This handler runs on single_template/archive_template,
-		// which receive the template WordPress's hierarchy already resolved -
-		// so returning ours unconditionally threw the theme's file away and
-		// made a documented override impossible.
-		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
 
-		if ( is_singular( 'wcb_job' ) ) {
-			$reign_tpl = WCB_DIR . 'integrations/reign/templates/single-wcb_job.php';
-			if ( file_exists( $reign_tpl ) ) {
-				return $reign_tpl;
-			}
+		// A theme shipping its OWN single-wcb_job.php outranks the bundled
+		// integration. This handler runs on single_template, which receives
+		// whatever WordPress's hierarchy already resolved - a theme's generic
+		// single.php does not count, only a file matching this exact slot.
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template, 'single-wcb_job.php' ) ) {
+			return $template;
 		}
-		return $template;
+
+		$reign_tpl = WCB_DIR . 'integrations/reign/templates/single-wcb_job.php';
+		return file_exists( $reign_tpl ) ? $reign_tpl : $template;
 	}
 
 	/**
@@ -71,56 +68,18 @@ class ReignIntegration {
 	 * @return string
 	 */
 	public function archive_template( string $template ): string {
-		// A theme shipping its own WCB template outranks the bundled
-		// integration. This handler runs on single_template/archive_template,
-		// which receive the template WordPress's hierarchy already resolved -
-		// so returning ours unconditionally threw the theme's file away and
-		// made a documented override impossible.
-		if ( \WCB\Core\TemplateOverride::is_theme_template( $template ) ) {
+		if ( ! is_post_type_archive( 'wcb_job' ) ) {
 			return $template;
 		}
 
-		if ( is_post_type_archive( 'wcb_job' ) ) {
-			$reign_tpl = WCB_DIR . 'integrations/reign/templates/archive-wcb_job.php';
-			if ( file_exists( $reign_tpl ) ) {
-				return $reign_tpl;
-			}
+		// A theme shipping its OWN archive-wcb_job.php outranks the bundled
+		// integration; its generic archive.php does not count. See single_template().
+		if ( \WCB\Core\TemplateOverride::is_theme_template( $template, 'archive-wcb_job.php' ) ) {
+			return $template;
 		}
-		return $template;
-	}
 
-	/**
-	 * Register WP Career Board Customizer section and colour control.
-	 *
-	 * @param \WP_Customize_Manager $wp_customize WordPress Customizer instance.
-	 */
-	public function customizer_section( \WP_Customize_Manager $wp_customize ): void {
-		$wp_customize->add_section(
-			'wcb_reign',
-			array(
-				'title'    => __( 'WP Career Board', 'wp-career-board' ),
-				'priority' => 200,
-			)
-		);
-
-		$wp_customize->add_setting(
-			'wcb_reign_primary_color',
-			array(
-				'default'           => '#4f46e5',
-				'sanitize_callback' => 'sanitize_hex_color',
-			)
-		);
-
-		$wp_customize->add_control(
-			new \WP_Customize_Color_Control(
-				$wp_customize,
-				'wcb_reign_primary_color',
-				array(
-					'label'   => __( 'Primary Color', 'wp-career-board' ),
-					'section' => 'wcb_reign',
-				)
-			)
-		);
+		$reign_tpl = WCB_DIR . 'integrations/reign/templates/archive-wcb_job.php';
+		return file_exists( $reign_tpl ) ? $reign_tpl : $template;
 	}
 
 	/**
@@ -130,25 +89,15 @@ class ReignIntegration {
 	 * @return array<int,array<string,string>>
 	 */
 	public function add_nav_items( array $items ): array {
-		$jobs_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
-		$jobs_url     = $jobs_page_id > 0
-			? (string) get_permalink( $jobs_page_id )
-			: home_url( '/jobs/' );
-
-		$items[] = array(
+		$jobs_url = \WCB\Admin\Pages::url( 'jobs_archive_page' );
+		$items[]  = array(
 			'label' => __( 'Browse Jobs', 'wp-career-board' ),
-			'url'   => $jobs_url,
+			'url'   => '' !== $jobs_url ? $jobs_url : (string) get_post_type_archive_link( 'wcb_job' ),
 			'icon'  => 'dashicons-portfolio',
 		);
 
-		$wcb_can_post = wp_is_ability_granted( 'wcb/post-jobs' );
-
-		if ( $wcb_can_post ) {
-			$employer_page_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
-			$employer_url     = $employer_page_id > 0
-				? (string) get_permalink( $employer_page_id )
-				: '#';
-
+		$employer_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+		if ( '' !== $employer_url && wp_is_ability_granted( 'wcb/post-jobs' ) ) {
 			$items[] = array(
 				'label' => __( 'Employer Dashboard', 'wp-career-board' ),
 				'url'   => $employer_url,
@@ -156,14 +105,8 @@ class ReignIntegration {
 			);
 		}
 
-		$wcb_can_apply = wp_is_ability_granted( 'wcb/apply-jobs' );
-
-		if ( $wcb_can_apply ) {
-			$candidate_page_id = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
-			$candidate_url     = $candidate_page_id > 0
-				? (string) get_permalink( $candidate_page_id )
-				: '#';
-
+		$candidate_url = \WCB\Admin\Pages::url( 'candidate_dashboard_page' );
+		if ( '' !== $candidate_url && wp_is_ability_granted( 'wcb/apply-jobs' ) ) {
 			$items[] = array(
 				'label' => __( 'My Applications', 'wp-career-board' ),
 				'url'   => $candidate_url,

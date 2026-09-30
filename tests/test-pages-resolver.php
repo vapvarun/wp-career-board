@@ -155,7 +155,7 @@ wcb_pages_assert(
 	'get_id() returns 0 for unknown key'
 );
 
-// 6. known_keys() returns all seven expected keys.
+// 6. known_keys(): Free's six, plus Pro's three when Pro is active.
 $wcb_expected_keys = array(
 	'post_job_page',
 	'employer_dashboard_page',
@@ -163,13 +163,25 @@ $wcb_expected_keys = array(
 	'jobs_archive_page',
 	'company_archive_page',
 	'employer_registration_page',
-	'resume_archive_page',
 );
+if ( defined( 'WCBP_VERSION' ) ) {
+	$wcb_expected_keys[] = 'resume_archive_page';
+	$wcb_expected_keys[] = 'job_map_page';
+	$wcb_expected_keys[] = 'pipeline_page';
+}
 wcb_pages_assert(
 	count( array_diff( $wcb_expected_keys, Pages::known_keys() ) ) === 0
 		&& count( array_diff( Pages::known_keys(), $wcb_expected_keys ) ) === 0,
-	'known_keys() returns the seven canonical keys'
+	'known_keys() returns exactly the defined pages'
 );
+
+// 6b. Every definition carries a title, slug and block content, so the
+// wizard, Create Missing Pages and the Pages tab can all use it.
+$wcb_complete = true;
+foreach ( Pages::definitions() as $wcb_def ) {
+	$wcb_complete = $wcb_complete && '' !== $wcb_def['title'] && '' !== $wcb_def['slug'] && str_contains( $wcb_def['content'], '<!-- wp:' );
+}
+wcb_pages_assert( $wcb_complete, 'every page definition has title, slug and block content' );
 
 // 7. canonical_slug() returns the expected slug for a known key.
 wcb_pages_assert(
@@ -210,6 +222,52 @@ wcb_pages_assert(
 	! isset( $wcb_written_second['resume_archive_page'] ),
 	'backfill_from_slugs() is idempotent — second run no-ops keys it wrote on first run'
 );
+
+// 11-13 use a throwaway definition so they run on any install.
+$wcb_tag = 'wcb-test-' . wp_rand( 10000, 99999 );
+$wcb_def = static function ( array $defs ) use ( $wcb_tag ): array {
+	$defs['wcb_test_page'] = array(
+		'title'   => 'WCB Test Page',
+		'slug'    => $wcb_tag,
+		'aliases' => array( $wcb_tag . '-old' ),
+		'content' => '<!-- wp:wp-career-board/' . $wcb_tag . ' /-->',
+	);
+	return $defs;
+};
+add_filter( 'wcb_page_definitions', $wcb_def );
+Pages::flush();
+wcb_pages_test_set_settings( array() );
+
+// 11. An alias slug resolves.
+$wcb_alias_id = wcb_pages_test_insert_page( $wcb_tag . '-old', 'WCB Test Alias' );
+wcb_pages_assert( $wcb_alias_id === Pages::get_id( 'wcb_test_page' ), 'get_id() resolves a definition alias slug' );
+wp_delete_post( $wcb_alias_id, true );
+
+// 12. create_missing() adopts a published page that already carries the
+// block, instead of inserting a duplicate.
+$wcb_own_page = wp_insert_post(
+	array(
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'WCB Test Own Page',
+		'post_name'    => $wcb_tag . '-mine',
+		'post_content' => '<!-- wp:wp-career-board/' . $wcb_tag . ' /-->',
+	)
+);
+$wcb_made = Pages::create_missing( array( 'wcb_test_page' ) );
+wcb_pages_assert( (int) $wcb_own_page === ( $wcb_made['wcb_test_page'] ?? 0 ), 'create_missing() adopts the page that already has the block' );
+wcb_pages_assert( (int) $wcb_own_page === (int) ( get_option( 'wcb_settings' )['wcb_test_page'] ?? 0 ), 'create_missing() stores the adopted ID' );
+wp_delete_post( (int) $wcb_own_page, true );
+
+// 13. create_missing() inserts at the canonical slug when nothing resolves.
+wcb_pages_test_set_settings( array() );
+$wcb_made = Pages::create_missing( array( 'wcb_test_page' ) );
+$wcb_new  = (int) ( $wcb_made['wcb_test_page'] ?? 0 );
+wcb_pages_assert( $wcb_new > 0 && $wcb_tag === get_post_field( 'post_name', $wcb_new ), 'create_missing() creates the page at its canonical slug' );
+wp_delete_post( $wcb_new, true );
+
+remove_filter( 'wcb_page_definitions', $wcb_def );
+Pages::flush();
 
 // Cleanup fixtures.
 wp_delete_post( $wcb_assigned_post_id, true );

@@ -13,6 +13,7 @@
  */
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -62,7 +63,7 @@ const { state } = store( 'wcb-job-single', {
 			if ( ! key ) {
 				return;
 			}
-			state.customFields = { ...state.customFields, [ key ]: target.value };
+			state.customFields = { ...state.customFields, [ key ]: customFieldValue( target ) };
 		},
 
 		openPanel( event ) {
@@ -236,40 +237,43 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		*submitApplication() {
+			// Set before the first yield (the CAPTCHA wait below): a second
+			// click during that wait used to pass this check because the flag
+			// wasn't set until after it resolved (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
-
-			// Honeypot — bots that autofill all fields trigger a fake success.
-			const hpEl = document.getElementById( 'wcb-hp-apply' );
-			if ( hpEl && hpEl.value ) {
-				state.submitted = true;
-				return;
-			}
-
-			// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
-			const captchaToken = window.wcbCaptchaGetToken
-				? yield window.wcbCaptchaGetToken()
-				: '';
-
-			// Guest validation — require name + email before submitting.
-			if ( ! state.isLoggedIn ) {
-				if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
-					state.error = t( 'guestFieldsRequired', 'Please enter your name and email to apply.' );
-					return;
-				}
-			}
-
-			// Resume requirement check (server enforces too).
-			if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
-				state.error = t( 'resumeRequiredError', 'Please attach your resume to apply.' );
-				return;
-			}
-
 			state.submitting = true;
-			state.error      = '';
 
 			try {
+				// Honeypot — bots that autofill all fields trigger a fake success.
+				const hpEl = document.getElementById( 'wcb-hp-apply' );
+				if ( hpEl && hpEl.value ) {
+					state.submitted = true;
+					return;
+				}
+
+				// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
+				const captchaToken = window.wcbCaptchaGetToken
+					? yield window.wcbCaptchaGetToken()
+					: '';
+
+				// Guest validation — require name + email before submitting.
+				if ( ! state.isLoggedIn ) {
+					if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
+						state.error = t( 'guestFieldsRequired', 'Please enter your name and email to apply.' );
+						return;
+					}
+				}
+
+				// Resume requirement check (server enforces too).
+				if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
+					state.error = t( 'resumeRequiredError', 'Please attach your resume to apply.' );
+					return;
+				}
+
+				state.error = '';
+
 				const formData = new FormData();
 				formData.append( 'cover_letter', state.coverLetter );
 				formData.append( 'hp', hpEl ? hpEl.value : '' );
@@ -295,10 +299,13 @@ const { state } = store( 'wcb-job-single', {
 				// filter's active output before persisting.
 				for ( const customKey in state.customFields ) {
 					if ( Object.prototype.hasOwnProperty.call( state.customFields, customKey ) ) {
-						formData.append(
-							'custom_fields[' + customKey + ']',
-							String( state.customFields[ customKey ] ?? '' )
-						);
+						const customValue = state.customFields[ customKey ];
+						if ( Array.isArray( customValue ) ) {
+							// Multi-choice: one entry per checked choice.
+							customValue.forEach( ( choice ) => formData.append( 'custom_fields[' + customKey + '][]', String( choice ) ) );
+						} else {
+							formData.append( 'custom_fields[' + customKey + ']', String( customValue ?? '' ) );
+						}
 					}
 				}
 

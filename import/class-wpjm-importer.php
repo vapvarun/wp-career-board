@@ -13,6 +13,9 @@ declare( strict_types=1 );
 
 namespace WCB\Import;
 
+use WCB\Modules\Applications\ApplicationLifecycle;
+use WCB\Modules\Applications\ApplicationStatus;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -24,24 +27,197 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WpjmImporter {
 
+	/**
+	 * WPJM pay unit => WP Career Board salary type.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SALARY_UNITS = array(
+		'HOUR'  => 'hourly',
+		'MONTH' => 'monthly',
+		'YEAR'  => 'yearly',
+	);
+
+	/**
+	 * WPJM application status => WP Career Board application status.
+	 *
+	 * @var array<string, string>
+	 */
+	private const APPLICATION_STATUSES = array(
+		'new'         => 'submitted',
+		'interviewed' => 'shortlisted',
+		'offer'       => 'shortlisted',
+		'hired'       => 'hired',
+		'rejected'    => 'rejected',
+		'archived'    => 'rejected',
+	);
+
+	/**
+	 * WPJM job statuses the import brings across by default. Expired is listed
+	 * on purpose: WPJM registers it excluded from search, so neither 'any' nor a
+	 * default query would ever return it.
+	 *
+	 * @var string[]
+	 */
+	public const JOB_STATUSES = array( 'publish', 'expired' );
+
+	/**
+	 * Every post status. 'any' skips statuses excluded from search, and our
+	 * Closed and Expired jobs are: an already-imported closed job then read
+	 * as not imported (re-imported on every run) and its applications as
+	 * orphans.
+	 *
+	 * @return string[]
+	 */
+	private static function all_statuses(): array {
+		return array_keys( get_post_stati() );
+	}
+
+	/**
+	 * WPJM statuses a job import reads: none named = the default list, 'any' =
+	 * the default list plus jobs awaiting approval, else just the one named.
+	 *
+	 * @param string $status Status, 'any' or '' for the default.
+	 * @return string[]
+	 */
+	public static function job_statuses( string $status = '' ): array {
+		return match ( $status ) {
+			''      => self::JOB_STATUSES,
+			'any'   => array( 'publish', 'pending', 'expired' ),
+			default => array( $status ),
+		};
+	}
+
+	/**
+	 * Status for an imported job: a filled job is closed, an expired one is
+	 * expired, a live one stays live, anything else waits for review.
+	 *
+	 * @param \WP_Post $source WPJM job.
+	 * @return string
+	 */
+	private static function job_status( \WP_Post $source ): string {
+		if ( 'expired' === $source->post_status ) {
+			return 'wcb_expired';
+		}
+		if ( 'publish' !== $source->post_status ) {
+			return 'pending';
+		}
+		return get_post_meta( $source->ID, '_filled', true ) ? 'wcb_closed' : 'publish';
+	}
+
+	/**
+	 * The WP Career Board company for a WPJM job: an existing one with the
+	 * same website or name, else a new company page with WPJM's details.
+	 *
+	 * @param \WP_Post $source WPJM job.
+	 * @return int Company post ID, or 0 when the job names no company.
+	 */
+	private function company_for( \WP_Post $source ): int {
+		$name = trim( (string) get_post_meta( $source->ID, '_company_name', true ) );
+		if ( '' === $name ) {
+			return 0;
+		}
+		$website  = esc_url_raw( (string) get_post_meta( $source->ID, '_company_website', true ) );
+		$existing = '' !== $website ? get_posts(
+			array(
+				'post_type'      => 'wcb_company',
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+				'meta_key'       => '_wcb_website', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => $website, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		) : array();
+		if ( ! $existing ) {
+			$existing = get_posts(
+				array(
+					'post_type'      => 'wcb_company',
+					'post_status'    => 'any',
+					'fields'         => 'ids',
+					'posts_per_page' => 1,
+					'title'          => $name,
+				)
+			);
+		}
+		$company_id = (int) ( $existing[0] ?? 0 );
+
+		// Matched by name alone: adopt the website WPJM knows (structured data uses it).
+		if ( $company_id && '' !== $website && '' === (string) get_post_meta( $company_id, '_wcb_website', true ) ) {
+			update_post_meta( $company_id, '_wcb_website', $website );
+		}
+
+		if ( ! $company_id ) {
+			$company_id = (int) wp_insert_post(
+				array(
+					'post_type'   => 'wcb_company',
+					'post_status' => 'publish',
+					'post_title'  => $name,
+					'post_author' => $this->resolve_author( $source ),
+					'meta_input'  => array_filter(
+						array(
+							'_wcb_website'           => $website,
+							'_wcb_tagline'           => sanitize_text_field( (string) get_post_meta( $source->ID, '_company_tagline', true ) ),
+							'_wcb_twitter'           => sanitize_text_field( (string) get_post_meta( $source->ID, '_company_twitter', true ) ),
+							'_wcb_migrated_source'   => 'wp-job-manager',
+						)
+					),
+				)
+			);
+			$logo = get_post_meta( $source->ID, '_company_logo', true );
+			$logo = is_numeric( $logo ) ? (int) $logo : attachment_url_to_postid( (string) $logo );
+			if ( $company_id && $logo > 0 ) {
+				set_post_thumbnail( $company_id, $logo );
+			}
+		}
+
+		// An employer without a company adopts the one their jobs name.
+		$author = (int) $source->post_author;
+		if ( $company_id && $author > 0 && ! get_user_meta( $author, '_wcb_company_id', true ) ) {
+			update_user_meta( $author, '_wcb_company_id', $company_id );
+		}
+		return $company_id;
+	}
+
+	/**
+	 * What an import would do, without writing anything (the admin preview).
+	 *
+	 * @return array{jobs:int, filled:int, companies_new:int, applications:int}
+	 */
+	public function preview(): array {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- admin preview, read only.
+		$filled = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_filled' AND m.meta_value = '1' WHERE p.post_type = 'job_listing' AND p.post_status = 'publish'" );
+		$in     = implode( ', ', array_fill( 0, count( self::JOB_STATUSES ), '%s' ) );
+		$names  = (array) $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT TRIM(m.meta_value) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_company_name' WHERE p.post_type = 'job_listing' AND p.post_status IN ( {$in} ) AND m.meta_value <> '' LIMIT 5000", self::JOB_STATUSES ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the status constant.
+		$have   = (array) $wpdb->get_col( "SELECT post_title FROM {$wpdb->posts} WHERE post_type = 'wcb_company' AND post_status NOT IN ( 'trash', 'auto-draft' )" );
+		// phpcs:enable
+		return array(
+			'jobs'          => max( 0, $this->wpjm_jobs_total() - $this->wcb_jobs_migrated() ),
+			'filled'        => $filled,
+			'companies_new' => count( array_diff( array_map( 'strtolower', $names ), array_map( 'strtolower', $have ) ) ),
+			'applications'  => max( 0, $this->applications_total() - $this->wcb_applications_migrated() ),
+		);
+	}
+
 	// ── Jobs ─────────────────────────────────────────────────────────────────
 
 	/**
 	 * Total WPJM job_listing posts with the given status.
 	 *
 	 * @since 1.0.0
+	 * @since 1.8.0 The default is publish plus expired; see job_statuses().
 	 *
-	 * @param string $status Post status (default 'publish').
+	 * @param string $status Post status, 'any', or '' for the default list.
 	 * @return int
 	 */
-	public function wpjm_jobs_total( string $status = 'publish' ): int {
+	public function wpjm_jobs_total( string $status = '' ): int {
 		if ( ! post_type_exists( 'job_listing' ) ) {
 			return 0;
 		}
 		$q = new \WP_Query(
 			array(
 				'post_type'              => 'job_listing',
-				'post_status'            => $status,
+				'post_status'            => self::job_statuses( $status ),
 				'posts_per_page'         => 1,
 				'fields'                 => 'ids',
 				'no_found_rows'          => false,
@@ -62,7 +238,7 @@ class WpjmImporter {
 		$q = new \WP_Query(
 			array(
 				'post_type'              => 'wcb_job',
-				'post_status'            => 'any',
+				'post_status'            => self::all_statuses(),
 				'meta_key'               => '_wcb_migrated_source',
 				'meta_value'             => 'wp-job-manager',
 				'posts_per_page'         => 1,
@@ -82,14 +258,14 @@ class WpjmImporter {
 	 *
 	 * @param int    $offset Number of jobs to skip.
 	 * @param int    $limit  Maximum jobs to process in this batch.
-	 * @param string $status WPJM post status to query.
+	 * @param string $status WPJM post status, 'any', or '' for the default list.
 	 * @return array{imported:int, skipped:int, errors:string[]}
 	 */
-	public function migrate_jobs_batch( int $offset, int $limit, string $status = 'publish' ): array {
+	public function migrate_jobs_batch( int $offset, int $limit, string $status = '' ): array {
 		$ids = get_posts(
 			array(
 				'post_type'      => 'job_listing',
-				'post_status'    => $status,
+				'post_status'    => self::job_statuses( $status ),
 				'posts_per_page' => $limit,
 				'offset'         => $offset,
 				'orderby'        => 'ID',
@@ -132,10 +308,10 @@ class WpjmImporter {
 			array(
 				'post_type'      => 'wcb_job',
 				'meta_key'       => '_wcb_migrated_from',
-				'meta_value'     => $source_id,
+				'meta_value'     => (string) $source_id,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-				'post_status'    => 'any',
+				'post_status'    => self::all_statuses(),
 			)
 		);
 		if ( ! empty( $existing ) ) {
@@ -153,8 +329,8 @@ class WpjmImporter {
 				'post_title'    => $source->post_title,
 				'post_content'  => $source->post_content,
 				'post_excerpt'  => $source->post_excerpt,
-				'post_status'   => 'publish' === $source->post_status ? 'publish' : 'pending',
-				'post_author'   => $source->post_author,
+				'post_status'   => self::job_status( $source ),
+				'post_author'   => (int) $source->post_author,
 				'post_date'     => $source->post_date,
 				'post_date_gmt' => $source->post_date_gmt,
 			),
@@ -169,7 +345,6 @@ class WpjmImporter {
 		$meta_map = array(
 			'_job_salary'          => '_wcb_salary_min',
 			'_job_salary_currency' => '_wcb_salary_currency',
-			'_job_salary_unit'     => '_wcb_salary_type',
 			'_job_expires'         => '_wcb_deadline',
 			'_featured'            => '_wcb_featured',
 			'_remote_position'     => '_wcb_remote',
@@ -181,6 +356,14 @@ class WpjmImporter {
 			if ( '' !== $value && false !== $value ) {
 				update_post_meta( $new_id, $wcb_key, $value );
 			}
+		}
+
+		// WPJM pay units are HOUR / DAY / WEEK / MONTH / YEAR; ours are hourly,
+		// monthly, yearly. Units we have no match for are left unset (yearly
+		// display) rather than guessed.
+		$unit = self::SALARY_UNITS[ strtoupper( (string) get_post_meta( $source_id, '_job_salary_unit', true ) ) ] ?? '';
+		if ( '' !== $unit ) {
+			update_post_meta( $new_id, '_wcb_salary_type', $unit );
 		}
 
 		// Set location as taxonomy term (not postmeta).
@@ -214,15 +397,10 @@ class WpjmImporter {
 			}
 		}
 
-		// Filled → close the job.
-		if ( get_post_meta( $source_id, '_filled', true ) ) {
-			update_post_meta( $new_id, '_wcb_status', 'closed' );
-		}
-
-		// Company logo (attachment ID).
-		$logo_id = (int) get_post_meta( $source_id, '_company_logo', true );
-		if ( $logo_id > 0 ) {
-			set_post_thumbnail( $new_id, $logo_id );
+		// Company page: find or create, and link the job to it.
+		$company_id = $this->company_for( $source );
+		if ( $company_id > 0 ) {
+			update_post_meta( $new_id, '_wcb_company_id', $company_id );
 		}
 
 		// Provenance tracking.
@@ -232,6 +410,7 @@ class WpjmImporter {
 		// ── Taxonomies ────────────────────────────────────────────────────────
 		$this->migrate_taxonomy( $source_id, $new_id, 'job_listing_category', 'wcb_category' );
 		$this->migrate_taxonomy( $source_id, $new_id, 'job_listing_type', 'wcb_job_type' );
+		$this->migrate_taxonomy( $source_id, $new_id, 'job_listing_tag', 'wcb_tag' );
 
 		/**
 		 * Fires after a job has been imported from another job board.
@@ -365,7 +544,7 @@ class WpjmImporter {
 			array(
 				'post_type'      => 'wcb_resume',
 				'meta_key'       => '_wcb_migrated_from',
-				'meta_value'     => $source_id,
+				'meta_value'     => (string) $source_id,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'post_status'    => 'any',
@@ -457,6 +636,172 @@ class WpjmImporter {
 	}
 
 	// ── Shared helpers ────────────────────────────────────────────────────────
+
+	// ── Applications (WP Job Manager Applications add-on) ─────────────────────
+
+	/**
+	 * WPJM applications waiting to be imported (all statuses).
+	 *
+	 * @since 1.8.0
+	 * @return int
+	 */
+	public function applications_total(): int {
+		if ( ! post_type_exists( 'job_application' ) ) {
+			return 0;
+		}
+		$counts = wp_count_posts( 'job_application' );
+		return (int) array_sum( array_map( 'intval', (array) $counts ) ) - (int) ( $counts->trash ?? 0 ) - (int) ( $counts->{'auto-draft'} ?? 0 );
+	}
+
+	/**
+	 * Applications already imported from WPJM.
+	 *
+	 * @since 1.8.0
+	 * @return int
+	 */
+	public function wcb_applications_migrated(): int {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => self::all_statuses(),
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => '_wcb_migrated_source', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => 'wp-job-manager-applications', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+		return (int) $query->found_posts;
+	}
+
+	/**
+	 * Import one batch of WPJM applications (import jobs first).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $offset Offset.
+	 * @param int $limit  Batch size.
+	 * @return array{imported:int, skipped:int, errors:array<int,string>}
+	 */
+	public function migrate_applications_batch( int $offset, int $limit ): array {
+		$result = array(
+			'imported' => 0,
+			'skipped'  => 0,
+			'errors'   => array(),
+		);
+		$ids    = get_posts(
+			array(
+				'post_type'      => 'job_application',
+				'post_status'    => 'any',
+				'posts_per_page' => $limit,
+				'offset'         => $offset,
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+			)
+		);
+		foreach ( $ids as $id ) {
+			$outcome = $this->migrate_single_application( (int) $id );
+			if ( 'imported' === $outcome || 'skipped' === $outcome ) {
+				++$result[ $outcome ];
+			} else {
+				$result['errors'][] = sprintf( '#%d: %s', (int) $id, $outcome );
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Import one WPJM application onto its imported job, without emails.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $source_id WPJM job_application post ID.
+	 * @return string 'imported' | 'skipped' | error message.
+	 */
+	private function migrate_single_application( int $source_id ): string {
+		$already = get_posts(
+			array(
+				'post_type'      => 'wcb_application',
+				'post_status'    => self::all_statuses(),
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+				'meta_key'       => '_wcb_migrated_from', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => (string) $source_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+		if ( $already ) {
+			return 'skipped';
+		}
+		$source = get_post( $source_id );
+		if ( ! $source instanceof \WP_Post ) {
+			return 'source post not found';
+		}
+		$job = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => self::all_statuses(),
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+				'meta_key'       => '_wcb_migrated_from', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => (string) $source->post_parent, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+		$job_id = (int) ( $job[0] ?? 0 );
+		if ( ! $job_id ) {
+			return __( 'its job has not been imported yet; import the jobs first', 'wp-career-board' );
+		}
+
+		$email   = sanitize_email( (string) get_post_meta( $source_id, '_candidate_email', true ) );
+		$user_id = (int) get_post_meta( $source_id, '_candidate_user_id', true );
+		if ( ! $user_id && '' !== $email ) {
+			$user    = get_user_by( 'email', $email );
+			$user_id = $user instanceof \WP_User ? (int) $user->ID : 0;
+		}
+		$name   = sanitize_text_field( $source->post_title );
+		$letter = (string) $source->post_content;
+		// Files stay where WPJM stored them; list them in the application.
+		foreach ( array_filter( (array) get_post_meta( $source_id, '_attachment', true ) ) as $file ) {
+			$letter .= "\n\n" . esc_url_raw( (string) $file );
+		}
+
+		$app_id = wp_insert_post(
+			array(
+				'post_type'   => 'wcb_application',
+				'post_status' => 'publish',
+				'post_title'  => sprintf(
+					/* translators: %s: candidate name. */
+					__( 'Application: %s', 'wp-career-board' ),
+					$name
+				),
+				'post_author' => $user_id,
+				'post_date'   => $source->post_date,
+			),
+			true
+		);
+		if ( is_wp_error( $app_id ) ) {
+			return $app_id->get_error_message();
+		}
+		update_post_meta( $app_id, '_wcb_job_id', $job_id );
+		update_post_meta( $app_id, '_wcb_candidate_id', $user_id );
+		update_post_meta( $app_id, '_wcb_status', self::APPLICATION_STATUSES[ $source->post_status ] ?? 'submitted' );
+		update_post_meta( $app_id, '_wcb_cover_letter', sanitize_textarea_field( $letter ) );
+		update_post_meta( $app_id, '_wcb_job_title_snapshot', get_the_title( $job_id ) );
+		update_post_meta( $app_id, '_wcb_company_name_snapshot', (string) get_post_meta( $job_id, '_wcb_company_name', true ) );
+		if ( ! $user_id ) {
+			update_post_meta( $app_id, '_wcb_guest_name', $name );
+			update_post_meta( $app_id, '_wcb_guest_email', $email );
+		}
+		update_post_meta( $app_id, '_wcb_migrated_from', $source_id );
+		update_post_meta( $app_id, '_wcb_migrated_source', 'wp-job-manager-applications' );
+		// The close rule (undecided applicants on a closed job become Position
+		// closed) queues on the job's import, so it may run before or after this
+		// application exists. Apply it here, silently, so the outcome does not
+		// depend on cron timing and nobody is emailed about an old application.
+		if ( 'wcb_closed' === get_post_status( $job_id ) && ! in_array( (string) get_post_meta( $app_id, '_wcb_status', true ), ApplicationStatus::terminal(), true ) ) {
+			ApplicationLifecycle::transition( (int) $app_id, ApplicationStatus::POSITION_CLOSED, 'job_closed', 0, '', false );
+		}
+		return 'imported';
+	}
 
 	/**
 	 * Copy terms from a WPJM taxonomy to the matching WCB taxonomy.

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 <?php if ( ! empty( $reason ) ) : ?>
 <p>
 	<?php
-	/* translators: %s: rejection reason */
+	/* translators: %s: rejection reason provided by admin */
 	printf( esc_html__( 'Reason: %s', 'wp-career-board' ), esc_html( $reason ) );
 	?>
 </p>

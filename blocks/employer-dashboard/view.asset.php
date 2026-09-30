@@ -1,6 +1,5 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 return array(
-	'dependencies' => array( '@wordpress/interactivity', '@wcb/fetch' ),
-	'version'      => '1.3.1-ai2-sum1-board2',
+	'dependencies' => array( '@wordpress/interactivity', '@wcb/fetch', '@wcb/fields' ),
 );

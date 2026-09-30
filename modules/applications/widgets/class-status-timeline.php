@@ -73,7 +73,7 @@ final class StatusTimeline extends AbstractWidget {
 		if ( '' === $current ) {
 			$current = 'submitted';
 		}
-		$log    = (array) get_post_meta( $post->ID, '_wcb_status_log', true );
+		$log    = \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID );
 		$labels = self::status_labels();
 
 		ob_start();
@@ -91,14 +91,11 @@ final class StatusTimeline extends AbstractWidget {
 				<ol class="wcb-app-timeline">
 					<?php
 					foreach ( array_reverse( $log ) as $entry ) :
-						if ( ! is_array( $entry ) ) {
-							continue;
-						}
-						$user      = isset( $entry['by'] ) ? get_userdata( (int) $entry['by'] ) : false;
+						$user      = $entry['by'] > 0 ? get_userdata( $entry['by'] ) : false;
 						$user_name = $user instanceof \WP_User ? $user->display_name : __( 'System', 'wp-career-board' );
-						$from      = (string) ( $entry['from'] ?? '' );
-						$to        = (string) ( $entry['to'] ?? '' );
-						$at        = (string) ( $entry['at'] ?? '' );
+						$from      = $entry['from'];
+						$to        = $entry['to'];
+						$at        = '' !== $entry['at'] ? (string) wp_date( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), (int) strtotime( $entry['at'] ) ) : '';
 						?>
 						<li class="wcb-app-timeline__item">
 							<span class="wcb-app-timeline__when"><?php echo esc_html( $at ); ?></span>
@@ -118,18 +115,13 @@ final class StatusTimeline extends AbstractWidget {
 	}
 
 	/**
-	 * Map of status keys to human labels.
+	 * Map of status keys to admin labels.
 	 *
 	 * @since 1.1.0
+	 * @since 1.8.0 Reads ApplicationStatus, the one label source.
 	 * @return array<string, string>
 	 */
 	public static function status_labels(): array {
-		return array(
-			'submitted'   => __( 'Submitted', 'wp-career-board' ),
-			'reviewing'   => __( 'Reviewing', 'wp-career-board' ),
-			'shortlisted' => __( 'Shortlisted', 'wp-career-board' ),
-			'rejected'    => __( 'Rejected', 'wp-career-board' ),
-			'hired'       => __( 'Hired', 'wp-career-board' ),
-		);
+		return \WCB\Modules\Applications\ApplicationStatus::labels( \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN );
 	}
 }

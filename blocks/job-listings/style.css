@@ -5,16 +5,10 @@
 }
 
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
+/* No width of its own: the page shell, or on a block theme the shared
+ * constrained-layout rule in frontend-components.css, sets it. */
 .wcb-job-listings {
-	max-width: 1200px;
-	margin: 0 auto;
 	font-family: inherit;
-}
-
-.wp-block-wp-career-board-job-listings .wcb-page-heading {
-	/* Sit close to its toolbar — the 2xl gap left the heading floating in
-	 * dead space above the (now unified) results toolbar. */
-	margin: 0 0 var(--wcb-space-md);
 }
 
 /* Canonical `.wcb-listings-toolbar`, `.wcb-results-count`,
@@ -166,19 +160,9 @@
  * row direction so the two card views render with identical anatomy. */
 
 /* ── Card avatar ─────────────────────────────────────────────────────────── */
+/* Paint, logo tile and image fit come from `.wcb-avatar` (wcb-ui.css). */
 .wcb-card-avatar {
-	width: var(--wcb-avatar-lg); /* 56px - matches Companies + Candidates */
-	height: var(--wcb-avatar-lg);
-	flex-shrink: 0;
-	border-radius: var(--wcb-radius-lg);
-	background: var( --wcb-avatar-bg, #1e293b );
-	color: var(--wcb-on-primary);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
+	--wcb-avatar-size: var(--wcb-avatar-lg); /* 56px - matches Companies + Candidates */
 }
 
 /* ── Card body ───────────────────────────────────────────────────────────── */
@@ -313,9 +297,9 @@
 	color: var(--wcb-text-secondary);
 }
 
-/* `.wcb-cbtn` base + `.wcb-cbtn--ghost` modifier + `.wcb-cbtn--sm` sizing
+/* `.wcb-btn` base + `.wcb-btn--outline` modifier + `.wcb-btn--sm` sizing
  * all live in `assets/css/wcb-ui.css`. Find Jobs uses
- * `<a class="wcb-cbtn wcb-cbtn--ghost wcb-cbtn--sm">View Job</a>` on
+ * `<a class="wcb-btn wcb-btn--outline wcb-btn--sm">View Job</a>` on
  * its card CTA, same as Companies (View Profile) and Find Candidates
  * (View Resume). No per-block button styles are needed here. */
 
@@ -346,7 +330,7 @@
 	display: none;
 }
 
-.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-cbtn {
+.wcb-jobs-container.wcb-grid .wcb-card-footer .wcb-btn {
 	margin-inline-start: auto;
 }
 
@@ -396,8 +380,8 @@
 /* ── Responsive ladder ──────────────────────────────────────────────────────
  * Mirrors Companies + Find Candidates so the 3 archives reflow together.
  * 3-col default → 2-col at tablet → 1-col at mobile. Filter panel stacks
- * above at <900px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
-@media ( max-width: 1023px ) {
+ * above at ≤1024px via the shared `.wcb-archive-layout` rule in wcb-ui.css. */
+@media ( max-width: 1024px ) {
 	.wcb-jobs-container.wcb-grid,
 	.wcb-jobs-container.wcb-grid.wcb-cols-4 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -405,16 +389,15 @@
 }
 
 @media ( max-width: 640px ) {
+	/* Matches Find Candidates' card padding at the same width (was
+	 * space-lg/16px against their space-xl/20px - Basecamp 10348288572). */
 	.wcb-job-card {
-		padding: var(--wcb-space-lg);
+		padding: var(--wcb-space-xl);
 		gap: var(--wcb-space-md);
 	}
 
 	.wcb-card-avatar {
-		width: 44px;
-		height: 44px;
-		font-size: var(--wcb-text-base);
-		border-radius: var(--wcb-radius-md);
+		--wcb-avatar-size: var(--wcb-avatar-sm);
 	}
 
 	.wcb-card-title {
@@ -441,7 +424,7 @@
 /* `.wcb-sort-select` base styles live in `assets/css/frontend-components.css`. */
 [class*="wp-block-wp-career-board"] .wcb-sort-select:focus-visible,
 [class*="wp-block-wcb-"] .wcb-sort-select:focus-visible {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -530,19 +513,19 @@
 .wcb-chip:hover {
 	border-color: var(--wcb-primary);
 	background: var(--wcb-info-bg);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 }
 
 .wcb-chip.wcb-chip-active:hover {
 	background: var(--wcb-primary-dark);
 	border-color: var(--wcb-primary-dark);
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-chip.wcb-chip-active {
 	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
 	background: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var(--wcb-base);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-chip:focus-visible {
@@ -645,7 +628,9 @@
 	border: 1px solid var(--wcb-info-border, #bfdbfe);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-info);
+	/* -fg, not the raw theme-mapped --wcb-info: on the tint background,
+	   the plain accent measured 2.84-3.0:1 depending on theme. */
+	color: var(--wcb-info-fg);
 }
 
 .wcb-active-chip-remove {
@@ -721,11 +706,11 @@
 	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
 	padding: var(--wcb-space-xs) var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
 	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
+	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-muted, var(--wp--preset--color--wcb-muted));
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
+	border-radius: var(--wcb-radius-md);
 	cursor: pointer;
 	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background-color var(--wcb-transition-snappy);
 	white-space: nowrap;
@@ -733,13 +718,13 @@
 
 .wcb-alert-me-btn:hover {
 	border-color: var(--wcb-primary);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-info-bg);
 }
 
 .wcb-alert-me-btn.wcb-alert-saved {
 	border-color: var(--wcb-success);
-	color: var(--wcb-success);
+	color: var(--wcb-success-fg, #166534);
 	background: var(--wcb-success-bg-soft);
 	cursor: default;
 }
@@ -767,7 +752,7 @@
 
 /* ── Notice + error ───────────────────────────────────────────────────────── */
 .wcb-notice-error {
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	background: var(--wcb-danger-bg);
 	border: 1px solid var(--wcb-danger-border, #fecaca);
 	border-radius: var(--wcb-radius-md);
@@ -786,29 +771,10 @@
 	margin: 0;
 }
 
-/* ── Empty state ─────────────────────────────────────────────────────────── */
-.wcb-empty-state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
-	text-align: center;
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-empty-state [data-lucide],
-.wcb-empty-state .wcb-icon {
-	width: var(--wcb-icon-2xl);
-	height: var(--wcb-icon-2xl);
-}
-
-.wcb-empty-state-text {
-	margin: 0;
-	font-size: var(--wcb-text-base);
-	color: var(--wcb-text-secondary);
-}
+/* Empty state paint (.wcb-empty-state) is shared in assets/css/wcb-ui.css so
+ * Find Jobs, Companies and Find Candidates all show the same bordered card -
+ * this block used to redefine it unscoped, quietly stripping the border/
+ * background/radius wherever this file loaded. */
 
 /* ── View switcher ───────────────────────────────────────────────────────── */
 .wcb-view-switcher {
@@ -860,7 +826,7 @@
 	.wcb-layout-btn,
 	.wcb-view-btn,
 	.wcb-bookmark-btn,
-	.wcb-cbtn,
+	.wcb-btn,
 	.wcb-load-more-btn,
 	.wcb-chip,
 	.wcb-alert-me-btn,
@@ -887,4 +853,41 @@
 .wcb-card-closed.wcb-shown {
 	display: inline-flex;
 	align-items: center;
+}
+
+/* "Alert me" with the guest email field (Pro) */
+.wcb-alert-me {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+}
+
+/* Same specificity as the shared field rule in wcb-ui.css (which sets
+ * width:100%), so the email stays compact and sits inline with its button. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-alert-me input.wcb-alert-guest-email {
+	width: 224px;
+	max-width: 100%;
+}
+
+/* The button sits beside a field here, so it takes the field's height. */
+.wcb-alert-me--guest button {
+	min-height: var(--wcb-control-h);
+}
+
+/* Phones: the guest sees just the button (two toolbar rows saved); the first tap reveals the field. */
+@media (max-width: 640px) {
+	.wcb-alert-me--guest:not(.wcb-alert-open) input.wcb-alert-guest-email {
+		display: none;
+	}
+}
+
+.wcb-alert-me__error {
+	flex-basis: 100%;
+	color: var(--wcb-danger, #b91c1c);
+	font-size: var(--wcb-text-xs);
+}
+
+.wcb-alert-me__error:empty {
+	display: none;
 }

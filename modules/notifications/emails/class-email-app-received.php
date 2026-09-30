@@ -112,7 +112,7 @@ class EmailAppReceived extends AbstractEmail {
 			return;
 		}
 
-		$dashboard     = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+		$dashboard     = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
 		if ( $candidate_id > 0 ) {
@@ -130,7 +130,12 @@ class EmailAppReceived extends AbstractEmail {
 				'candidate_name' => $candidate_name,
 				'dashboard_url'  => $dashboard_url,
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $candidate_id,
+			)
 		);
 	}
 }

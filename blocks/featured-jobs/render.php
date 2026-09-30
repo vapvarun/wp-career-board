@@ -23,7 +23,7 @@ $wcb_show_all     = (bool) ( $attributes['showViewAll'] ?? true );
 $wcb_view_all_url = trim( (string) ( $attributes['viewAllUrl'] ?? '' ) );
 
 if ( ! $wcb_view_all_url ) {
-	$wcb_archive_page_id = \WCB\Admin\Settings::int( 'jobs_archive_page', 0 );
+	$wcb_archive_page_id = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 	$wcb_view_all_url    = $wcb_archive_page_id > 0
 		? (string) get_permalink( $wcb_archive_page_id )
 		: '';
@@ -43,9 +43,9 @@ if ( empty( $wcb_featured_posts ) ) {
 	if ( current_user_can( 'edit_posts' ) ) { // phpcs:ignore -- admin-UI empty-state hint, not a security gate; no Abilities API equivalent for "can edit posts in general".
 		?>
 		<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-featured-jobs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<div class="wcb-featured-empty">
-				<?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				<p><?php esc_html_e( 'No featured jobs to display. Mark jobs as featured in the editor.', 'wp-career-board' ); ?></p>
+			<div class="wcb-empty-state wcb-empty-state--plain">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No featured jobs to display. Mark jobs as featured in the editor.', 'wp-career-board' ); ?></p>
 			</div>
 		</div>
 		<?php

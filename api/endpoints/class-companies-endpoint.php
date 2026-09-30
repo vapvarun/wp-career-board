@@ -284,7 +284,7 @@ final class CompaniesEndpoint extends RestController {
 				$query->posts
 			)
 		);
-		$job_counts      = $this->job_counts_by_company( $wcb_company_ids );
+		$job_counts      = \WCB\Core\CompanyMetaShape::open_job_counts( $wcb_company_ids );
 
 		$companies = array_map(
 			function ( \WP_Post $post ) use ( $job_counts ): array {
@@ -463,78 +463,7 @@ final class CompaniesEndpoint extends RestController {
 
 
 	/**
-	 * Build a map of company_id → published job count.
-	 *
-	 * Scoped to the company IDs on the current page to avoid counting all jobs.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int[] $company_ids Company post IDs to count for.
-	 * @return array<int, int>
-	 */
-	private function job_counts_by_company( array $company_ids ): array {
-		if ( empty( $company_ids ) ) {
-			return array();
-		}
-
-		// Count through the company LINK (_wcb_company_id postmeta), which is
-		// how a job is actually attached to a company — the same relationship
-		// /employers/{id}/jobs and CompanyMetaShape::resolve_company_id() use.
-		//
-		// This previously grouped by post_author and keyed the result on the
-		// COMPANY's author, so it answered "how many jobs did the user who
-		// created this company post publish?". Wherever one admin, importer or
-		// the setup wizard created the company posts, every company inherited
-		// that one user's entire job count — six companies on a seeded site all
-		// reported 24 while really having 5, 4, 5, 3, 7 and 2.
-		//
-		// Still one aggregate query rather than materialising job rows. The
-		// value is bound as a string so the wcb_meta_key_value composite index
-		// stays eligible; an unquoted %d would make MySQL convert the column.
-		global $wpdb;
-		$company_ids  = array_map( 'intval', $company_ids );
-		$placeholders = implode( ',', array_fill( 0, count( $company_ids ), '%s' ) );
-		$cache_key    = 'wcb_job_counts_by_company_' . md5( implode( ',', $company_ids ) );
-		$cached       = wp_cache_get( $cache_key, 'wcb_companies' );
-		if ( false !== $cached && is_array( $cached ) ) {
-			return $cached;
-		}
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT pm.meta_value AS company_id, COUNT(*) AS c
-					FROM {$wpdb->postmeta} pm
-					INNER JOIN {$wpdb->posts} p
-					        ON p.ID = pm.post_id
-					       AND p.post_type = 'wcb_job'
-					       AND p.post_status = 'publish'
-					WHERE pm.meta_key = '_wcb_company_id'
-					  AND pm.meta_value IN ({$placeholders})
-					GROUP BY pm.meta_value",
-				...array_map( 'strval', $company_ids )
-			)
-		);
-		// phpcs:enable
-
-		$counts = array();
-		foreach ( (array) $rows as $row ) {
-			$counts[ (int) $row->company_id ] = (int) $row->c;
-		}
-		// TTL-only cache (CACHING §4b): no write-time invalidation. The key is
-		// an md5 of the author-id SET, so a single save_post_wcb_job can't
-		// cheaply target the right entry — only a full-group flush would, which
-		// costs more than the staleness is worth. A company's "open positions"
-		// count tolerates up to 5 minutes of lag (a newly published job appears
-		// within one TTL window); we accept that bounded staleness rather than
-		// bust on every job write.
-		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
-		return $counts;
-	}
-
-
-	/**
-	 * Plural label for an open positions count.
+	 * Plural label for an open positions count, empty when there are none.
 	 *
 	 * @since 1.0.0
 	 *
@@ -543,7 +472,7 @@ final class CompaniesEndpoint extends RestController {
 	 */
 	private function jobs_label( int $count ): string {
 		if ( 0 === $count ) {
-			return __( 'No open positions', 'wp-career-board' );
+			return '';
 		}
 		return sprintf(
 			/* translators: %s: number of open positions, already localised. */

@@ -24,7 +24,7 @@ to `/jobs/{id}/bookmark` and the id landed under `_wcb_bookmark` instead of `_wc
    → `<job-id>`.
 3. `POST /wp-json/wcb/v1/jobs/<job-id>/bookmark` with `X-WP-Nonce` and empty body → expect HTTP 200,
    `{ "bookmarked": true }` (`api/endpoints/class-jobs-endpoint.php:79` CREATABLE → `toggle_bookmark()`
-   `:1002-1020`). This is the same route the job card's `.wcb-cbtn--danger` Remove and the single-job bookmark
+   `:1002-1020`). This is the same route the job card's `.wcb-btn--danger` Remove and the single-job bookmark
    control drive.
 4. Verify persistence: `GET /wp-json/wcb/v1/candidates/<sarah-id>/bookmarks` → expect the array to contain an
    entry with `job_id` = `<job-id>` (route `class-candidates-endpoint.php:56`, `self_permissions_check`; stored

@@ -29,6 +29,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CompanyMetaShape {
 
 	/**
+	 * The company a job belongs to.
+	 *
+	 * The job's own `_wcb_company_id` (stored at create time) wins; the
+	 * author's user meta is only the fallback for legacy rows. The reverse
+	 * order would brand an admin-posted or imported job with the admin's own
+	 * company. A plain read: it runs once per row in job lists.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param \WP_Post $job Job post.
+	 * @return int Company post ID, or 0.
+	 */
+	public static function for_job( \WP_Post $job ): int {
+		$company_id = (int) get_post_meta( $job->ID, '_wcb_company_id', true );
+		return $company_id ? $company_id : (int) get_user_meta( (int) $job->post_author, '_wcb_company_id', true );
+	}
+
+	/**
 	 * Serialize a company's brand meta for a REST response.
 	 *
 	 * @since 1.2.1
@@ -184,5 +202,96 @@ final class CompanyMetaShape {
 		}
 
 		return $found;
+	}
+
+	/**
+	 * Open positions per company: published jobs whose deadline has not
+	 * passed (the same rule as JobDeadline::accepts_applications()).
+	 *
+	 * One grouped query for a page of companies, through the job's
+	 * `_wcb_company_id` link (not the company owner's authored jobs: an
+	 * admin, a second recruiter or an importer can post for a company).
+	 * Used by the company directory block and GET /companies so both count
+	 * the same thing. Cached for 5 minutes (TTL only; see CACHING section 4b).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<int> $company_ids Company post IDs.
+	 * @return array<int, int> company ID => open job count (absent = 0).
+	 */
+	public static function open_job_counts( array $company_ids ): array {
+		$company_ids = array_values( array_filter( array_map( 'intval', $company_ids ) ) );
+		if ( ! $company_ids ) {
+			return array();
+		}
+
+		$today     = current_time( 'Y-m-d' );
+		$cache_key = 'wcb_open_job_counts_' . md5( implode( ',', $company_ids ) . '|' . $today );
+		$cached    = wp_cache_get( $cache_key, 'wcb_companies' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+		$placeholders = implode( ',', array_fill( 0, count( $company_ids ), '%s' ) );
+
+		// Values bound as strings so the (meta_key, meta_value) index stays usable.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS company_id, COUNT(*) AS c
+				FROM {$wpdb->postmeta} pm
+				INNER JOIN {$wpdb->posts} p
+				        ON p.ID = pm.post_id AND p.post_type = 'wcb_job' AND p.post_status = 'publish'
+				LEFT JOIN {$wpdb->postmeta} dl
+				       ON dl.post_id = p.ID AND dl.meta_key = '_wcb_deadline'
+				WHERE pm.meta_key = '_wcb_company_id'
+				  AND pm.meta_value IN ({$placeholders})
+				  AND ( dl.meta_value IS NULL OR dl.meta_value = '' OR dl.meta_value >= %s )
+				GROUP BY pm.meta_value",
+				...array_merge( array_map( 'strval', $company_ids ), array( $today ) )
+			)
+		);
+		// phpcs:enable
+
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->company_id ] = (int) $row->c;
+		}
+		wp_cache_set( $cache_key, $counts, 'wcb_companies', 5 * MINUTE_IN_SECONDS );
+		return $counts;
+	}
+
+	/**
+	 * A company's logo URL for a card ('' when it has none).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $company_id Company post ID (0 for no company).
+	 * @return string
+	 */
+	public static function logo_url( int $company_id ): string {
+		return $company_id > 0 ? (string) get_the_post_thumbnail_url( $company_id, 'thumbnail' ) : '';
+	}
+
+	/**
+	 * Load the logos of a page of companies in a few queries instead of a few
+	 * per card: the companies' meta, then their images.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int[] $company_ids Company post IDs (repeats and zeros are fine).
+	 * @return void
+	 */
+	public static function prime_logos( array $company_ids ): void {
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $company_ids ) ) ) );
+		if ( ! $ids ) {
+			return;
+		}
+		update_postmeta_cache( $ids );
+		$images = array_values( array_filter( array_map( 'get_post_thumbnail_id', $ids ) ) );
+		if ( $images ) {
+			_prime_post_caches( $images, false, true );
+		}
 	}
 }

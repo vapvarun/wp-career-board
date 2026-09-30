@@ -28,7 +28,7 @@ money/conversion path.
 3. In the filter sidebar `.wcb-filter-panel`, tick a Job type checkbox `.wcb-filter-panel__option input`
    (`data-wp-on--change="actions.toggleTypeChip"`) → expect an active-filter chip `.wcb-active-chip` to appear
    and the result set to narrow (`blocks/job-listings/render.php:502-516,685-695`).
-4. Click a job card title link `a.wcb-card-title-link` (or its "View Job" button `a.wcb-cbtn--ghost`,
+4. Click a job card title link `a.wcb-card-title-link` (or its "View Job" button `a.wcb-btn--outline`,
    `data-wp-bind--href="context.job.permalink"`) → expect navigation to the single job at `/jobs/<slug>/`,
    HTTP 200, hero `h1.wcb-job-title` + `.wcb-job-single` wrapper (`blocks/job-listings/render.php:723,776`;
    CPT rewrite slug `jobs`, `modules/jobs/class-jobs-module.php:210-214`).
@@ -92,7 +92,7 @@ CAND_APP=$(wp post list --post_type=wcb_application --meta_key=_wcb_candidate_id
   Body is multipart `FormData`: `cover_letter`, `guest_name`+`guest_email` (guests only), `resume_id`
   (Pro saved resume) and/or `resume_file` upload, plus `custom_fields[<key>]` — `blocks/job-single/view.js:264-303`.
   Success response: `{ id, job_id, status: "submitted" }` (`class-applications-endpoint.php:368-374`).
-- Selectors grounded in: archive cards `.wcb-job-card` / `.wcb-card-title-link` / `a.wcb-cbtn--ghost`
+- Selectors grounded in: archive cards `.wcb-job-card` / `.wcb-card-title-link` / `a.wcb-btn--outline`
   (`blocks/job-listings/render.php:714,723,776`); search `#wcb-search-input` (`blocks/job-search/render.php:44`);
   apply trigger `.wcb-apply-trigger`, panel `.wcb-apply-panel`, guest fields `#wcb-guest-name`/`#wcb-guest-email`,
   upload `#wcb-resume-file`, cover `#wcb-cover-letter`, submit `actions.submitApplication`, applied badge

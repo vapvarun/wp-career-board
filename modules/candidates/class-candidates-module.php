@@ -30,7 +30,6 @@ final class CandidatesModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'maybe_flush_rewrites' ), 999 );
-		add_action( 'update_option_wcb_settings', array( $this, 'on_settings_updated' ), 10, 2 );
 
 		// wcb_resume registers public + show_in_rest so the block editor and the
 		// single profile template work. That also hands WordPress core two
@@ -43,28 +42,56 @@ final class CandidatesModule {
 		add_filter( 'rest_wcb_resume_query', array( $this, 'restrict_rest_query_to_listed' ), 10, 2 );
 		add_filter( 'wp_sitemaps_posts_query_args', array( $this, 'restrict_sitemap_to_listed' ), 10, 2 );
 		add_action( 'template_redirect', array( $this, 'guard_single_resume' ) );
+
+		// Applications and resumes are not "posts" that make someone a public
+		// author: counting them let anonymous /wp/v2/users list every
+		// applicant, and author archives showed their names.
+		add_filter( 'rest_user_query', array( $this, 'hide_applicants_from_user_rest' ), 10, 2 );
+		add_action( 'template_redirect', array( $this, 'guard_candidate_author_archive' ), 0 );
 	}
 
 	/**
-	 * Flag a rewrite-rule flush when `resume_archive_enabled` toggles.
+	 * Keep application and resume authors out of core's public user list.
 	 *
-	 * Re-registering the CPT alone isn't enough — rewrite rules are cached and
-	 * must be flushed for `/resume/{slug}` to resolve (or stop resolving). We
-	 * defer the flush until the next request's init so the new CPT args are
-	 * already in place when WordPress rebuilds the rules.
+	 * Core lists users who have published posts in any REST-visible type.
+	 * Admins keep the full list.
 	 *
-	 * @since 1.2.0
+	 * @since 1.8.0
+	 * @param array<string,mixed> $args    WP_User_Query args.
+	 * @param \WP_REST_Request    $request Request.
+	 * @return array<string,mixed>
+	 */
+	public function hide_applicants_from_user_rest( array $args, \WP_REST_Request $request ): array {
+		unset( $request );
+		if ( empty( $args['has_published_posts'] ) || wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			return $args;
+		}
+		$types                       = true === $args['has_published_posts'] ? get_post_types( array( 'show_in_rest' => true ) ) : (array) $args['has_published_posts'];
+		$args['has_published_posts'] = array_values( array_diff( $types, array( 'wcb_application', 'wcb_resume' ) ) );
+		return $args;
+	}
+
+	/**
+	 * 404 the author archive of a member who is only a candidate.
 	 *
-	 * @param  array<string,mixed> $old_settings Previous settings array.
-	 * @param  array<string,mixed> $new_settings New settings array.
+	 * Candidates publish nothing that belongs on an author page; the archive
+	 * only confirmed the account exists and printed its name.
+	 *
+	 * @since 1.8.0
 	 * @return void
 	 */
-	public function on_settings_updated( $old_settings, $new_settings ): void {
-		$old_value = (bool) ( is_array( $old_settings ) ? ( $old_settings['resume_archive_enabled'] ?? false ) : false );
-		$new_value = (bool) ( is_array( $new_settings ) ? ( $new_settings['resume_archive_enabled'] ?? false ) : false );
-		if ( $old_value !== $new_value ) {
-			update_option( 'wcb_flush_rewrite_rules', 1 );
+	public function guard_candidate_author_archive(): void {
+		if ( ! is_author() ) {
+			return;
 		}
+		$author = get_queried_object();
+		if ( ! $author instanceof \WP_User || array_diff( (array) $author->roles, array( 'wcb_candidate', 'subscriber' ) ) ) {
+			return;
+		}
+		global $wp_query;
+		$wp_query->set_404();
+		status_header( 404 );
+		nocache_headers();
 	}
 
 	/**
@@ -157,17 +184,83 @@ final class CandidatesModule {
 	 * @return bool
 	 */
 	public static function resume_is_readable( int $post_id ): bool {
-		if ( '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) {
+		$viewer = get_current_user_id();
+		$owner  = (int) get_post_field( 'post_author', $post_id );
+
+		if ( $viewer > 0 && $viewer === $owner ) {
 			return true;
 		}
-
 		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return true;
 		}
+		// A resume moderation took down (a suspended candidate's) is private, listed or not.
+		if ( '' !== \WCB\Modules\Moderation\HiddenContent::reason( $post_id ) ) {
+			return false;
+		}
+		// A block hides the candidate from the blocker (and back), whatever the
+		// resume's visibility.
+		if ( $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner ) ) {
+			return false;
+		}
 
-		$viewer = get_current_user_id();
+		if ( '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) {
+			/**
+			 * Filter whether the current viewer may open a public resume.
+			 *
+			 * Pro applies the owner's "Who can open a resume" setting here.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param bool $allowed   Default true.
+			 * @param int  $post_id   Resume post ID.
+			 * @param int  $viewer_id Current user ID (0 when logged out).
+			 */
+			if ( (bool) apply_filters( 'wcb_can_view_public_resume', true, $post_id, $viewer ) ) {
+				return true;
+			}
+		}
 
-		return $viewer > 0 && $viewer === (int) get_post_field( 'post_author', $post_id );
+		// An employer always sees the resume of someone who applied to them.
+		return self::has_applied_to( $owner, $viewer );
+	}
+
+	/**
+	 * Whether a candidate has applied to a job owned by this employer.
+	 *
+	 * Owned = the job's author, or the job's company is the employer's company.
+	 * One indexed query, no cap (the previous check stopped at the candidate's
+	 * first 100 applications and ran a query per row).
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int $candidate_id Candidate user ID.
+	 * @param int $employer_id  Employer user ID.
+	 * @return bool
+	 */
+	public static function has_applied_to( int $candidate_id, int $employer_id ): bool {
+		if ( $candidate_id <= 0 || $employer_id <= 0 ) {
+			return false;
+		}
+		global $wpdb;
+		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $employer_id );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- indexed existence check; cached per request by callers' call frequency.
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 1 FROM {$wpdb->postmeta} cand
+				INNER JOIN {$wpdb->posts} app ON app.ID = cand.post_id AND app.post_type = 'wcb_application'
+				INNER JOIN {$wpdb->postmeta} jm ON jm.post_id = app.ID AND jm.meta_key = '_wcb_job_id'
+				INNER JOIN {$wpdb->posts} job ON job.ID = jm.meta_value
+				LEFT JOIN {$wpdb->postmeta} jc ON jc.post_id = job.ID AND jc.meta_key = '_wcb_company_id'
+				WHERE cand.meta_key = '_wcb_candidate_id' AND cand.meta_value = %s
+				AND ( job.post_author = %d OR ( %d > 0 AND jc.meta_value = %s ) )
+				LIMIT 1",
+				(string) $candidate_id,
+				$employer_id,
+				$company_id,
+				(string) $company_id
+			)
+		);
 	}
 
 	/**
@@ -190,7 +283,13 @@ final class CandidatesModule {
 
 		$post_id = (int) get_queried_object_id();
 
-		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) ) {
+		// A public resume the viewer may not open (e.g. "logged-in members
+		// only") is left to the resume block, which shows a sign-in wall, unless
+		// the candidate blocked this viewer: then it does not exist for them.
+		$viewer  = get_current_user_id();
+		$owner   = (int) get_post_field( 'post_author', $post_id );
+		$blocked = $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner );
+		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) ) {
 			return;
 		}
 

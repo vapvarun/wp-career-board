@@ -1,12 +1,12 @@
 /* ── Directory wrapper ───────────────────────────────────────────────────── */
+/* No width of its own: the page shell (or a block theme's layout) sets it, as
+ * for every other Career Board block. */
 .wcb-company-archive {
-	max-width: 1200px;
-	margin: 0 auto;
 	font-family: inherit;
 }
 
 .wp-block-wp-career-board-company-archive .wcb-page-heading {
-	margin: 0 0 var(--wcb-space-2xl);
+	margin: 0 0 var(--wcb-space-lg);
 }
 
 /* ── Search row ──────────────────────────────────────────────────────────
@@ -181,7 +181,7 @@
 
 .wcb-ca-card-link > .wcb-ca-card-top    { grid-area: avatar; }
 .wcb-ca-card-link > .wcb-ca-card-body   { grid-area: body; }
-.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; display: flex; flex-wrap: wrap; gap: var(--wcb-space-xs); }
+.wcb-ca-card-link > .wcb-ca-card-chips  { grid-area: chips; align-self: start; min-width: 0; }
 .wcb-ca-card-link > .wcb-ca-card-footer { grid-area: footer; }
 
 .wcb-ca-card-link:hover {
@@ -195,13 +195,18 @@
  * brings parity with Find Jobs' card height. */
 .wcb-ca-container.wcb-list .wcb-ca-card-link {
 	grid-template-columns: auto minmax(0, 1fr) auto;
+	/* Two content-sized rows centred in the min-height. The grid's 1fr
+	   middle row pinned a card with no meta line to the top. */
+	grid-template-rows: auto auto;
 	grid-template-areas:
 		"avatar body footer"
 		"avatar chips footer";
 	align-items: center;
+	align-content: center;
 	column-gap: var(--wcb-space-2xl);
 	row-gap: var(--wcb-space-xs);
-	min-height: 7.5rem; /* ≈ 120px */
+	/* Rows size to their content: a fixed height left a name-only company
+	   with an empty band under its name. */
 	padding-block: var(--wcb-space-lg);
 	padding-inline: var(--wcb-space-xl);
 	height: auto;
@@ -210,19 +215,17 @@
 .wcb-ca-container.wcb-list .wcb-ca-card-body {
 	flex: 1;
 	min-width: 0;
-	gap: var(--wcb-space-xs);
+	/* The grid's reserved two-line height would gap the meta line here. */
+	min-height: 0;
+	gap: 0;
 	display: flex;
 	flex-direction: column;
-	align-self: end;
 }
 
 /* Chip row sits directly under the body in the second grid row, scoped
  * to the body column so it doesn't drift back under the avatar. */
 .wcb-ca-container.wcb-list .wcb-ca-card-chips {
 	grid-area: chips;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-xs);
 	align-self: start;
 }
 
@@ -250,11 +253,9 @@
 	align-items: flex-end;
 	padding-top: 0;
 	border-top: none;
-	border-inline-start: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-	padding-inline-start: var(--wcb-space-xl);
 	/* Right-padding clears the absolute-positioned bookmark button (32px
-	 * wide at 12px from card edge) so the "N open positions" text and
-	 * View Profile button can't slide underneath the bookmark icon. */
+	 * wide at 12px from card edge) so the "N open positions" text can't
+	 * slide underneath the bookmark icon. */
 	padding-inline-end: var(--wcb-space-4xl);
 	margin-top: 0;
 	gap: var(--wcb-space-xs);
@@ -307,36 +308,32 @@
 /* Logo and avatar are hidden by default; shown via .wcb-shown added by IA */
 .wcb-ca-logo,
 .wcb-ca-avatar {
+	position: absolute;
+	inset: 0;
+}
+
+.wcb-ca-logo:not(.wcb-shown),
+.wcb-ca-avatar:not(.wcb-shown) {
+	display: none;
+}
+
+.wcb-ca-logo {
 	width: 56px;
 	height: 56px;
 	border-radius: var(--wcb-radius-lg);
-	position: absolute;
-	inset: 0;
-	display: none;
 }
 
 .wcb-ca-logo.wcb-shown {
 	display: block;
-	object-fit: cover;
+	object-fit: contain;
 	background: var(--wcb-base);
 	border: 2px solid var(--wcb-base);
 	box-shadow: var(--wcb-shadow-sm);
 }
 
 .wcb-ca-avatar {
-	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-on-primary, #ffffff);
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-lg);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
+	--wcb-avatar-size: var(--wcb-avatar-lg);
 	border: 2px solid transparent;
-	box-shadow: var(--wcb-shadow-sm);
-}
-
-.wcb-ca-avatar.wcb-shown {
-	display: flex;
 }
 
 /* Trust mark moved to `.wcb-ca-trust-tick` in `assets/css/wcb-ui.css` -
@@ -350,7 +347,9 @@
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wcb-space-xs);
+	/* No gap: the shared archive title already carries its own 4px bottom
+	 * margin, so a gap here doubled it to 8 vs 4 on job/candidate cards. */
+	gap: 0;
 	/* Reserve room for the company name plus a two-line tagline so cards
 	 * without a tagline still occupy the same body height as cards that
 	 * do. Keeps the chip row anchored at the same y-position across every
@@ -364,6 +363,14 @@
 	color: var(--wcb-contrast);
 	margin: 0;
 	line-height: 1.3;
+	/* A long name clamps to 2 lines instead of growing the card taller than
+	   its row neighbours, and stays in flow with the trust tick beside it
+	   instead of pushing it onto its own line. */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	max-width: 100%;
 }
 
 /* Tagline: hidden by default; shown when non-empty */
@@ -382,32 +389,38 @@
 	display: -webkit-box;
 }
 
-/* -- Chips -- */
-.wcb-ca-chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-xs);
-	margin-top: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
+/* Meta: one plain line (industry · size · HQ), not three pills. It
+ * truncates rather than wrapping, so a separator never starts a line. */
+.wcb-ca-card-chips {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-/* Chips: hidden by default; shown when non-empty */
+.wcb-ca-card-chips:not(:has(.wcb-shown)),
 .wcb-ca-chip {
 	display: none;
-	align-items: center;
-	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
-	background: var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-	font-weight: var(--wcb-font-medium);
-	white-space: nowrap;
 }
 
 .wcb-ca-chip.wcb-shown {
-	display: inline-flex;
+	display: inline;
+}
+
+.wcb-ca-chip.wcb-shown ~ .wcb-ca-chip.wcb-shown::before {
+	content: "\00B7";
+	/* xs, not sm, before: the markup's own whitespace supplies the rest. */
+	margin-inline: var(--wcb-space-xs) var(--wcb-space-sm);
 }
 
 /* -- Card footer -- */
+/* Only the open-jobs count lives here; no count, no footer. The whole
+ * card is the link, so there is no View Profile button. */
+.wcb-ca-card-footer:has(.wcb-ca-jobs-count:empty) {
+	display: none;
+}
+
 .wcb-ca-card-footer {
 	display: flex;
 	align-items: center;
@@ -420,23 +433,8 @@
 
 .wcb-ca-jobs-count {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary);
-	font-weight: var(--wcb-font-medium);
-}
-
-/* Company card CTA reuses the shared `.wcb-cbtn .wcb-cbtn--ghost
- * .wcb-cbtn--sm` token-driven outlined pill from `assets/css/wcb-ui.css`.
- * No per-block override here. */
-
-/* -- Empty state -- */
-.wcb-ca-empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
-	color: var(--wcb-text-secondary);
-	text-align: center;
+	color: var(--wcb-primary-text);
+	font-weight: var(--wcb-font-semibold);
 }
 
 /* `.wcb-load-more-*` and `.wcb-loading-label` live globally in
@@ -445,18 +443,16 @@
 /* -- Utilities -- */
 
 /* -- Responsive ladder --
- * Desktop (≥1024px viewport / ≥720px content): 3-col forced.
- * Tablet  (768-1023): 2-col so cards stay legible.
- * Mobile  (<768):     1-col, filter panel stacks above (handled in
- *                     wcb-ui.css via the .wcb-archive-layout @900px rule).
+ * Desktop (>1024px viewport / ≥720px content): 3-col forced.
+ * Tablet  (641-1024): 2-col so cards stay legible.
+ * Mobile  (≤640):     1-col, filter panel stacks above (handled in
+ *                     wcb-ui.css via the .wcb-archive-layout @1024px rule).
  */
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
 	.wcb-ca-container.wcb-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-}
 
-@media (max-width: 768px) {
 	.wcb-ca-filter-bar {
 		flex: 1 1 100%;
 		order: 3;
@@ -494,9 +490,7 @@
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
-		border-inline-start: none;
 		border-top: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-		padding-inline-start: 0;
 		padding-inline-end: 0;
 		padding-top: var(--wcb-space-md);
 		width: 100%;

@@ -11,6 +11,7 @@
 
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -86,8 +87,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				return t( 'creditFree', 'Free to post on this board. Your balance: %s.' )
-					.replace( '%s', nf( balance ) );
+				// Balance is irrelevant to a free posting - see render.php's creditFree string.
+				return t( 'creditFree', 'Free to post on this board.' );
 			}
 			// Plural form resolved in PHP by _n() against the real count — see
 			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.
@@ -197,6 +198,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 		},
 
+		toggleFeatured( event ) {
+			state.featured = !! event.target.checked;
+		},
+
 		toggleRemote( event ) {
 			state.remote = !! event.target.checked;
 		},
@@ -205,66 +210,58 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( ! key ) return;
 			const target = event.target;
-			let value;
-			if ( target.dataset.wcbMulti ) {
-				// multiselect — collect every checked box sharing this field key.
-				value = Array.from(
-					document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
-				)
-					.filter( ( el ) => el.checked )
-					.map( ( el ) => el.value );
-			} else if ( target.type === 'checkbox' ) {
-				value = target.checked;
-			} else {
-				value = target.value;
-			}
+			const value = customFieldValue( target );
 			state.customFields = { ...state.customFields, [ key ]: value };
 		},
 
 		* submitJob() {
+			// Set before the first yield (the CAPTCHA wait below): a second
+			// click during that wait used to pass this check because the flag
+			// wasn't set until after it resolved (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
-
-			// Honeypot — bots that fill all fields trigger a fake success.
-			const hpEl = document.getElementById( 'wcb-hp-simple' );
-			if ( hpEl && hpEl.value ) {
-				state.submitted = true;
-				return;
-			}
-
-			// Required field gate (matches markup `required` attributes).
-			if ( ! state.title.trim() ) {
-				state.error = t( 'errorTitleRequired', 'Job title is required.' );
-				return;
-			}
-			if ( ! state.description.trim() ) {
-				state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
-				return;
-			}
-
-			// Credit gate.
-			if ( state.hasInsufficientCredits ) {
-				state.error = t( 'errorInsufficientCredits', 'Insufficient credits. This board requires %1$s but your balance is %2$s.' )
-					.replace( '%1$s', state.creditNoun || '' )
-					.replace( '%2$s', nf( state.creditBalance ) );
-				return;
-			}
-
-			// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
-			const captchaToken = window.wcbCaptchaGetToken
-				? yield window.wcbCaptchaGetToken()
-				: '';
-
 			state.submitting = true;
-			state.error      = '';
 
 			try {
+
+				// Honeypot — bots that fill all fields trigger a fake success.
+				const hpEl = document.getElementById( 'wcb-hp-simple' );
+				if ( hpEl && hpEl.value ) {
+					state.submitted = true;
+					return;
+				}
+
+				// Required field gate (matches markup `required` attributes).
+				if ( ! state.title.trim() ) {
+					state.error = t( 'errorTitleRequired', 'Job title is required.' );
+					return;
+				}
+				if ( ! state.description.trim() ) {
+					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
+					return;
+				}
+
+				// Credit gate.
+				if ( state.hasInsufficientCredits ) {
+					state.error = t( 'errorInsufficientCredits', 'Insufficient credits. This board requires %1$s but your balance is %2$s.' )
+						.replace( '%1$s', state.creditNoun || '' )
+						.replace( '%2$s', nf( state.creditBalance ) );
+					return;
+				}
+
+				// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
+				const captchaToken = window.wcbCaptchaGetToken
+					? yield window.wcbCaptchaGetToken()
+					: '';
+
+				state.error = '';
 				const tagSlugs = state.tags
 					? state.tags.split( ',' ).map( ( t ) => t.trim() ).filter( Boolean )
 					: [];
 
 				const body = {
+					featured:        state.featured,
 					title:             state.title,
 					description:       state.description,
 					salary_min:        state.salaryMin,
@@ -300,11 +297,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = ( err && err.message )
 						? err.message
 						: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
+					// Not enough credits: offer the Credits tab right there.
+					state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
 					return;
 				}
 
 				const json = yield response.json();
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
+				state.featureError = ( json && json.feature_error ) || '';
 				state.submitted = true;
 
 				if ( window.wcbCaptchaReset ) {

@@ -234,35 +234,38 @@ class AdminMetaBoxes {
 			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
 		}
 
-		$wcb_companies = get_posts(
-			array(
-				'post_type'      => 'wcb_company',
-				'post_status'    => 'publish',
-				'posts_per_page' => 200,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-				'fields'         => 'ids',
-			)
-		);
+		// Every published company, 100 a page, so a site with thousands still
+		// lists them all (a fixed cap silently hid the rest). Titles come from
+		// the fetched rows, not one query per option.
+		$wcb_companies = array();
+		for ( $wcb_page = 1; ; $wcb_page++ ) {
+			$wcb_batch = get_posts(
+				array(
+					'post_type'              => 'wcb_company',
+					'post_status'            => 'publish',
+					'posts_per_page'         => 100,
+					'paged'                  => $wcb_page,
+					'orderby'                => 'title',
+					'order'                  => 'ASC',
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+				)
+			);
+			foreach ( $wcb_batch as $wcb_company_post ) {
+				$wcb_companies[ (int) $wcb_company_post->ID ] = $wcb_company_post->post_title;
+			}
+			if ( count( $wcb_batch ) < 100 ) {
+				break;
+			}
+		}
 
 		// The list is published-only, so a job linked to a pending/draft company
 		// would render with "- Select a company -" selected and lose the link on
 		// the next Update. Keep the linked company selectable.
-		$wcb_companies = array_map( 'intval', $wcb_companies );
-		if ( $wcb_company_id && ! in_array( $wcb_company_id, $wcb_companies, true ) ) {
-			$wcb_companies[] = $wcb_company_id;
+		if ( $wcb_company_id && ! isset( $wcb_companies[ $wcb_company_id ] ) ) {
+			$wcb_companies[ $wcb_company_id ] = get_the_title( $wcb_company_id );
 		}
 		?>
-		<style>
-			.wcb-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; padding:8px 0; }
-			.wcb-meta-full { grid-column:1/-1; }
-			.wcb-meta-grid label { display:block; font-weight:600; margin-bottom:4px; }
-			.wcb-meta-grid input[type=text],
-			.wcb-meta-grid input[type=number],
-			.wcb-meta-grid input[type=date] { width:100%; }
-			.wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
-			.wcb-salary-prefix span { font-size:13px; line-height:1; }
-		</style>
 		<div class="wcb-meta-grid">
 			<div>
 				<label for="wcb_salary_currency"><?php esc_html_e( 'Currency', 'wp-career-board' ); ?></label>
@@ -271,7 +274,7 @@ class AdminMetaBoxes {
 						<option value="<?php echo esc_attr( $wcb_code ); ?>" <?php selected( $wcb_salary_currency, $wcb_code ); ?>>
 							<?php
 							printf(
-								/* translators: 1: code (USD), 2: symbol ($). */
+								/* translators: 1: currency code, for example USD. 2: currency symbol, for example the dollar sign. */
 								esc_html__( '%1$s (%2$s)', 'wp-career-board' ),
 								esc_html( (string) $wcb_code ),
 								esc_html( (string) $wcb_meta['symbol'] )
@@ -327,9 +330,9 @@ class AdminMetaBoxes {
 				<?php if ( $wcb_companies ) : ?>
 					<select id="wcb_company_id" name="wcb_company_id">
 						<option value="0"><?php esc_html_e( ' -  Select a company  - ', 'wp-career-board' ); ?></option>
-						<?php foreach ( $wcb_companies as $wcb_cid ) : ?>
+						<?php foreach ( $wcb_companies as $wcb_cid => $wcb_company_title ) : ?>
 							<option value="<?php echo esc_attr( (string) $wcb_cid ); ?>" <?php selected( $wcb_company_id, $wcb_cid ); ?>>
-								<?php echo esc_html( (string) get_the_title( $wcb_cid ) ); ?>
+								<?php echo esc_html( (string) $wcb_company_title ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>

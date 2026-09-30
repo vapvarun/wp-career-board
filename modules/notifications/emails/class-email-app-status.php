@@ -96,46 +96,85 @@ class EmailAppStatus extends AbstractEmail {
 	 * @return void
 	 */
 	public function boot(): void {
-		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 3 );
+		add_action( 'wcb_application_status_changed', array( $this, 'handle' ), 10, 5 );
 	}
 
 	/**
-	 * Sends the status-change notification to the candidate.
+	 * Who hears about an application: the member, or the guest by email.
 	 *
-	 * @param int    $app_id     Application post ID.
-	 * @param string $old_status Previous application status.
-	 * @param string $new_status New application status.
+	 * @since 1.8.0
+	 *
+	 * @param int $app_id Application ID.
+	 * @return array{email:string, name:string, user_id:int}|null
+	 */
+	public static function recipient( int $app_id ): ?array {
+		$candidate = get_userdata( (int) get_post_meta( $app_id, '_wcb_candidate_id', true ) );
+		if ( $candidate instanceof \WP_User ) {
+			return array(
+				'email'   => $candidate->user_email,
+				'name'    => $candidate->display_name,
+				'user_id' => (int) $candidate->ID,
+			);
+		}
+		$email = (string) get_post_meta( $app_id, '_wcb_guest_email', true );
+		return is_email( $email ) ? array(
+			'email'   => $email,
+			'name'    => (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
+			'user_id' => 0,
+		) : null;
+	}
+
+	/**
+	 * Merge values shared by the status emails.
+	 *
+	 * @param int                 $app_id Application ID.
+	 * @param array{name:string} $to     Recipient.
+	 * @return array<string, string>|null Null when the job title is gone.
+	 */
+	public static function vars( int $app_id, array $to ): ?array {
+		// The job may already be deleted (job_removed runs after the delete).
+		$job_title = \WCB\Modules\Applications\ApplicationLifecycle::job_title( $app_id );
+		if ( '' === $job_title ) {
+			return null;
+		}
+		$dashboard = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
+		return array(
+			'candidate_name' => $to['name'],
+			'job_title'      => $job_title,
+			'dashboard_url'  => $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' ),
+		);
+	}
+
+	/**
+	 * Tell the candidate (member or guest) about a new status.
+	 *
+	 * @param int    $app_id     Application ID.
+	 * @param string $old_status Previous status.
+	 * @param string $new_status New status.
+	 * @param string $reason     Machine-readable reason (unused in this email).
+	 * @param int    $actor      User who made the change, 0 = system.
 	 * @return void
 	 */
-	public function handle( int $app_id, string $old_status, string $new_status ): void {
-		$candidate_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-		if ( $candidate_id <= 0 ) {
+	public function handle( int $app_id, string $old_status, string $new_status, string $reason = '', int $actor = 0 ): void {
+		// Withdrawn: the employer gets EmailAppWithdrawn. Rejected: its own,
+		// gentler email (EmailAppRejected).
+		if ( in_array( $new_status, array( \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN, \WCB\Modules\Applications\ApplicationStatus::REJECTED ), true ) ) {
 			return;
 		}
-
-		$candidate = get_userdata( $candidate_id );
-		if ( ! $candidate instanceof \WP_User ) {
+		$to   = self::recipient( $app_id );
+		$vars = $to ? self::vars( $app_id, $to ) : null;
+		if ( ! $to || ! $vars ) {
 			return;
 		}
-
-		$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
-		$job    = $job_id > 0 ? get_post( $job_id ) : null;
-		if ( ! $job instanceof \WP_Post ) {
-			return;
-		}
-
-		$dashboard     = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
-		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
-
 		$this->send(
-			$candidate->user_email,
+			$to['email'],
+			static fn(): array => $vars + array( 'new_status' => \WCB\Modules\Applications\ApplicationStatus::label( $new_status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE ) ),
+			$to['user_id'],
 			array(
-				'candidate_name' => $candidate->display_name,
-				'job_title'      => $job->post_title,
-				'new_status'     => $new_status,
-				'dashboard_url'  => $dashboard_url,
-			),
-			$candidate_id
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $actor,
+			)
 		);
 	}
 }

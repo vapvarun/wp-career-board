@@ -119,7 +119,7 @@ final class EmployersModule {
 			return $redirect_to;
 		}
 
-		$dashboard_id = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+		$dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 
 		if ( ! $dashboard_id ) {
 			return $redirect_to;
@@ -206,7 +206,7 @@ final class EmployersModule {
 	 * @return string Overridden or original template path.
 	 */
 	public function archive_template( string $template ): string {
-		if ( ! is_post_type_archive( 'wcb_company' ) ) {
+		if ( ! is_post_type_archive( 'wcb_company' ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}
 
@@ -245,7 +245,7 @@ final class EmployersModule {
 		}
 		// Theme integrations (Reign, BuddyX Pro) set their own template via single_template.
 		// See TemplateOverride - theme templates and the bundled integrations both win.
-		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
+		if ( \WCB\Core\TemplateOverride::keep( $template, 'single-wcb_company.php' ) ) {
 			return $template;
 		}
 		$override = WCB_DIR . 'modules/employers/templates/single-wcb_company.php';

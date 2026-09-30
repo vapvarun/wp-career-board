@@ -17,21 +17,9 @@
  * @since   1.2.2
  */
 
-/* -- Design tokens --
-   No wrapper font-size: the dashboard inherits the theme's body size like every
-   other WCB page (components set their own size via --wcb-text-* tokens). The
-   logged-out gate is styled by the shared .wcb-db-gate in frontend-components.css. */
-.wcb-dashboard {
-	font-family: inherit;
-	color: var(--wcb-contrast);
-}
-
-/* -- Shell -- sidebar + main -- */
-.wcb-dashboard-shell {
-	display: flex;
-	min-height: 600px;
-	align-items: stretch;
-}
+/* The base (.wcb-dashboard) and the shell are shared with the candidate
+   dashboard: assets/css/wcb-ui.css. The logged-out gate is the shared
+   .wcb-db-gate in frontend-components.css. */
 
 /* -- Interactivity API show/hide utilities -- */
 .wcb-shown  { display: block; }
@@ -60,28 +48,6 @@
 	100% { background-position: -200% 0; }
 }
 
-/* -- Empty and error states -- */
-.wcb-db-empty {
-	display: none;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: var(--wcb-space-lg);
-	padding: 2.5rem;
-	background: var(--wcb-bg-subtle);
-	border: 1px dashed var(--wcb-text-tertiary);
-	border-radius: var(--wcb-radius-lg);
-}
-
-.wcb-db-empty.wcb-shown {
-	display: flex;
-}
-
-.wcb-db-empty-msg {
-	color: var(--wcb-text-secondary);
-	margin: 0;
-	font-size: var(--wcb-text-md);
-}
-
 /* -- Onboarding banner (overview) -- */
 .wcb-db-onboard {
 	display: none;
@@ -103,7 +69,7 @@
 .wcb-db-onboard__title {
 	margin: 0;
 	font-weight: 600;
-	color: var(--wcb-text-primary);
+	color: var(--wcb-contrast);
 }
 
 .wcb-db-onboard__msg {
@@ -121,7 +87,7 @@
 
 .wcb-db-error {
 	display: none;
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	background: var(--wcb-danger-bg);
 	border: 1px solid var(--wcb-danger-border, #fecaca);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -132,11 +98,6 @@
 
 .wcb-db-error.wcb-shown {
 	display: block;
-}
-
-/* Mobile nav toggle -- hidden on desktop */
-.wcb-nav-toggle {
-	display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

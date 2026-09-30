@@ -37,7 +37,7 @@
                 { "slug": "wcb-primary",      "color": "#2563eb", "name": "WCB Primary" },
                 { "slug": "wcb-primary-dark", "color": "#1d4ed8", "name": "WCB Primary Dark" },
                 { "slug": "wcb-avatar-bg",    "color": "#1e293b", "name": "WCB Avatar BG" },
-                { "slug": "wcb-muted",        "color": "#6b7280", "name": "WCB Muted" },
+                { "slug": "wcb-muted",        "color": "#667085", "name": "WCB Muted" },
                 { "slug": "wcb-surface",      "color": "#f1f5f9", "name": "WCB Surface" },
                 { "slug": "wcb-border",       "color": "#e2e8f0", "name": "WCB Border" },
                 { "slug": "wcb-featured",     "color": "#f59e0b", "name": "WCB Featured" }

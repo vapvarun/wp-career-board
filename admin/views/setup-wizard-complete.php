@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="wcb-settings-card">
 		<div class="wcb-settings-card-header">
-			<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Setup Already Completed', 'wp-career-board' ); ?></h2>
+			<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Setup already completed', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-settings-row">
 			<div class="wcb-settings-row-label"><?php esc_html_e( 'Status', 'wp-career-board' ); ?></div>

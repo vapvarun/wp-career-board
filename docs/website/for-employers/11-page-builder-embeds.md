@@ -1,23 +1,17 @@
-# Page-builder Embeds (Elementor, Divi, Bricks, Beaver Builder)
+# Page-builder embeds
 
-Every WP Career Board block has a matching shortcode, and every
-shortcode now accepts the same attributes the block does. So if you
-build pages with Elementor, Divi, Bricks, Beaver Builder, or the
-classic editor, you can scope blocks the same way you would in the
-block editor.
+You can place any WP Career Board block in Elementor, Divi, Bricks, Beaver Builder or the classic editor with a shortcode. Each shortcode takes the same attributes as its block, so you can scope it the same way you would in the block editor.
 
 ## Shortcode reference
 
-Every WP Career Board block has a shortcode wrapper that accepts the
-same attributes. Use these in Elementor, Divi, Bricks, Beaver Builder,
-the classic editor, or anywhere a shortcode is accepted.
+Every WP Career Board (Free) block has a shortcode.
 
 | Block | Shortcode |
 |---|---|
 | Job Listings | `[wcb_job_listings]` |
 | Job Search Hero | `[wcb_job_search_hero]` |
-| Job Form (multi-step) | `[wcb_job_form]` |
-| Job Form (single-page) | `[wcb_job_form_simple]` |
+| Job Form | `[wcb_job_form]` |
+| Job Form (Single-Page) | `[wcb_job_form_simple]` |
 | Job Search | `[wcb_job_search]` |
 | Job Single | `[wcb_job_single]` |
 | Job Filters | `[wcb_job_filters]` |
@@ -30,77 +24,59 @@ the classic editor, or anywhere a shortcode is accepted.
 | Employer Dashboard | `[wcb_employer_dashboard]` |
 | Employer Registration | `[wcb_employer_registration]` |
 | Similar Companies | `[wcb_similar_companies]` |
-| Job Alert Card | `[wcb_job_alert_card]` |
-| Modular Widgets | `[wcb_widget id="..."]` |
+| Job Alerts CTA | `[wcb_job_alert_card]` |
+| Application widgets | `[wcb_widget id="..."]` |
 
-> **Back-compat alias:** `[wcb_registration]` still works as a synonym
-> for `[wcb_employer_registration]` - sites that already embedded the
-> short form keep rendering. New pages should use the canonical tag.
+`[wcb_registration]` also works as an older name for `[wcb_employer_registration]`. Use `[wcb_employer_registration]` on new pages.
 
-## Attribute passthrough
+## Pass attributes
 
-All shortcode attributes match the block attribute name (camelCase
-becomes lowercase-with-no-separator in some cases). For example:
+Use the block's attribute names. Shortcode attributes are lowercased by WordPress, and the plugin maps them back to the block's names. For example:
 
 ```
 [wcb_job_listings perPage="6" boardId="42" layout="list"]
 ```
 
-Renders the same thing as the Job Listings block with `perPage=6`,
-`boardId=42`, `layout=list`.
+This gives the same result as the Job Listings block with `perPage` 6, `boardId` 42 and `layout` list.
 
-## Common scoping patterns
+## Common patterns
 
-### Show a board-scoped listing
+### Show one board's jobs
 
 ```
 [wcb_job_listings boardId="42" perPage="10"]
 ```
 
-Only jobs assigned to board `42`. Used on board-specific landing
-pages or partner pages.
+This lists only jobs on board `42`. Use it on a board-specific landing page.
 
 ### Filter by custom meta
 
-If you've registered a custom meta key via the
-[`wcb_jobs_allowed_meta_filters`](../admin-guide/11-rest-meta-filters.md)
-filter, you can scope a listing by that meta:
+Register the meta key with the [`wcb_jobs_allowed_meta_filters`](../admin-guide/11-rest-meta-filters.md) filter first. Then scope a listing by it:
 
 ```
 [wcb_job_listings metaFilter="industry:fintech" perPage="6"]
 ```
 
-### Embed a form on a marketing page
+### Embed a compact job form
 
 ```
-[wcb_job_form_simple showCompanyField="false" compact="true"]
+[wcb_job_form_simple compact="true"]
 ```
 
-A compact single-page job form with the company-name field hidden -
-handy in a narrow column or modal. See [Quick Job Form](08-quick-job-form.md)
-for the full attribute list.
+See [Quick Job Form](./08-quick-job-form.md) for the settings.
 
-### Render a single widget from the application screen
+### Show one application widget
 
-The new modular widget system on the [Application Editor](../admin-guide/13-application-editor.md)
-exposes its widgets as shortcodes too, so you can embed e.g. an
-applicant card on a partner profile page:
+The widgets on the [Application Editor](../admin-guide/13-application-editor.md) also work as shortcodes. Widget IDs start with `application/`. For example, to show an applicant card:
 
 ```
-[wcb_widget id="applicant_card" application_id="987"]
+[wcb_widget id="application/applicant-card" application_id="987"]
 ```
 
-## Tips for page-builder users
+## Where to paste the shortcode
 
-- **Elementor** - use the **Shortcode** widget, not "HTML". The HTML
-  widget escapes shortcodes.
-- **Divi** - drop a **Code** module and paste the shortcode. The
-  Visual Builder renders the live block.
-- **Bricks** - use the **Shortcode** element under Basic.
-- **Beaver Builder** - use the **HTML** module; Beaver Builder runs
-  shortcodes through `do_shortcode()` automatically.
-- **Classic editor** - paste the shortcode anywhere. Works in posts,
-  pages, custom post types, widgets.
-
-All blocks render identically across these surfaces - same CSS,
-same Interactivity API behavior, same REST data flow.
+- **Elementor** - use the **Shortcode** widget.
+- **Divi** - use a **Code** module.
+- **Bricks** - use the **Shortcode** element.
+- **Beaver Builder** - use the **HTML** module.
+- **Classic editor** - paste it into the content.

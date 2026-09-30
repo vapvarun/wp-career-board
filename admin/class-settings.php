@@ -60,48 +60,22 @@ final class Settings {
 	 * @return mixed
 	 */
 	/**
-	 * Canonical default for every setting that has one.
-	 *
-	 * The accessors below used to require a fallback at every call site, so the
-	 * default for a key lived in as many places as it was read - and they drifted.
-	 * `allow_withdraw` was documented and read as ON in the dashboard and the
-	 * applications endpoint, but FALSE in the app-config endpoint, so the mobile
-	 * app was told withdrawal was disabled while the website allowed it.
-	 * `jobs_per_page` was 10 in the block and 15 in the REST collection, so an
-	 * unconfigured site paginated differently depending on which surface asked.
-	 *
-	 * Values here match the documented defaults in class-admin-settings.php.
-	 * Pass a fallback explicitly only when a call site genuinely needs to differ.
-	 *
-	 * @since 1.7.1
-	 * @var array<string,mixed>
-	 */
-	public const DEFAULTS = array(
-		'auto_publish_jobs'     => false,
-		'jobs_per_page'         => 10,
-		'jobs_expire_days'      => 30,
-		'deadline_auto_close'   => false,
-		'allow_withdraw'        => true,
-		'salary_currency'       => 'USD',
-		'apply_resume_required' => true,
-		'max_resumes'           => 2,
-		'resume_archive_page'   => 0,
-	);
-
-	/**
-	 * The canonical default for a key, or $given when the caller supplied one.
+	 * The canonical default for a key (SettingsSchema), or $given when the
+	 * caller supplied one.
 	 *
 	 * @since 1.7.1
 	 *
 	 * @param  string $key   Setting key.
-	 * @param  mixed  $given Caller-supplied fallback, or null to use DEFAULTS.
+	 * @param  mixed  $given Caller-supplied fallback, or null for the schema default.
 	 * @return mixed
 	 */
 	private static function fallback_for( string $key, mixed $given ): mixed {
 		if ( null !== $given ) {
 			return $given;
 		}
-		return self::DEFAULTS[ $key ] ?? null;
+		// One source for defaults: the schema (it replaced a DEFAULTS list here
+		// that covered 9 keys and drifted from the sanitizer's own copy).
+		return SettingsSchema::default_for( $key );
 	}
 
 	public static function get( string $key, mixed $fallback = null ): mixed {

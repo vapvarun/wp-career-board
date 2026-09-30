@@ -45,6 +45,9 @@ class Admin {
 		// so the redirect is silent — the old in-render redirect fired after
 		// output had begun and threw "headers already sent".
 		add_action( 'admin_init', array( $this, 'redirect_moderator_to_queue' ) );
+		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
+		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
+		add_action( 'admin_init', array( $this, 'enable_job_expiry' ) );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -60,6 +63,122 @@ class Admin {
 		// Editor.js surface — matches the simplified admin pattern from Learnomy.
 		( new AdminJobEditor() )->boot();
 	}
+	/**
+	 * Once, on sites that existed before 1.8.0: the safer defaults new sites
+	 * get, which this site keeps off until the owner chooses (owner decision
+	 * D4), and the one behaviour that changed for everyone.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function notice_safer_defaults(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( (string) $screen->id, 'wcb' ) || '1.8.0' === get_option( 'wcb_defaults_version' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			return;
+		}
+
+		$settings = admin_url( 'admin.php?page=wcb-settings' );
+		$items    = array(
+			array(
+				__( 'Deleting the plugin now keeps your jobs, applications and credits. To remove everything on delete, turn on "Remove Data on Delete" under Advanced.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'advanced', $settings ),
+			),
+			array(
+				__( 'New sign-ups can be asked to confirm their email before they can sign in (Email Verification, under Sign-ups).', 'wp-career-board' ),
+				add_query_arg( 'tab', 'signups', $settings ),
+			),
+			array(
+				__( 'Emails, the mobile app and the installable app now share one Brand colour and logo. Yours was taken from your email header, so emails look the same.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'brand', $settings ),
+			),
+		);
+		// New sites end every job at its deadline (owner decisions D4/D5). This
+		// site kept its old behaviour, so say what that means and how to switch.
+		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
+			$items[] = array(
+				__( 'Jobs past their deadline still appear in your listings and feeds. New sites now end every job at its deadline: it leaves the listings and keeps its page as an expired page.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'listings', $settings ),
+			);
+		}
+
+		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
+			$items[] = array(
+				__( 'New sites ask employers for a location on every job that is not remote, which Google for Jobs needs to list it. Turn on "Require a location" under Jobs to do the same here.', 'wp-career-board' ),
+				add_query_arg( 'tab', 'listings', $settings ),
+			);
+		}
+
+		/**
+		 * Filter the "safer defaults" listed to sites that existed before 1.8.0.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param array<int, array{0: string, 1: string}> $items Text and settings URL.
+		 */
+		$items = (array) apply_filters( 'wcb_safer_defaults_notice', $items );
+		?>
+		<div class="notice notice-info">
+			<p><strong><?php esc_html_e( 'WP Career Board 1.8.0: new sites start with safer defaults. Yours kept its settings. Review these when you have a minute:', 'wp-career-board' ); ?></strong></p>
+			<ul class="ul-disc">
+				<?php foreach ( $items as $item ) : ?>
+				<li><?php echo esc_html( (string) $item[0] ); ?> <a href="<?php echo esc_url( (string) $item[1] ); ?>"><?php esc_html_e( 'Open setting', 'wp-career-board' ); ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+			<p><a class="button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wcb_dismiss_defaults', '1' ), 'wcb_dismiss_defaults' ) ); ?>"><?php esc_html_e( 'Got it', 'wp-career-board' ); ?></a></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Dismiss the safer-defaults notice for the site.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function dismiss_safer_defaults(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
+		if ( ! isset( $_GET['wcb_dismiss_defaults'] ) || ! check_admin_referer( 'wcb_dismiss_defaults' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			update_option( 'wcb_defaults_version', '1.8.0', false );
+		}
+		wp_safe_redirect( remove_query_arg( array( 'wcb_dismiss_defaults', '_wpnonce' ) ) );
+		exit;
+	}
+
+	/**
+	 * Turn on "end jobs at their deadline" for a site that had it off.
+	 *
+	 * The one-click switch offered on Settings > Jobs and in the 1.8.0
+	 * defaults notice. There is no switch back: owner decision D5 makes the
+	 * deadline the end of every job.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function enable_job_expiry(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
+		if ( ! isset( $_GET['wcb_enable_expiry'] ) || ! check_admin_referer( 'wcb_enable_expiry' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			$settings                        = \WCB\Admin\Settings::all();
+			$settings['deadline_auto_close'] = true;
+			update_option( 'wcb_settings', $settings );
+			// Move the backlog now instead of waiting for the next hourly run.
+			wp_schedule_single_event( time(), 'wcb_check_job_expiry' );
+		}
+		wp_safe_redirect( remove_query_arg( array( 'wcb_enable_expiry', '_wpnonce' ) ) );
+		exit;
+	}
+
 
 	/**
 	 * Register the top-level Career Board menu and its sub-menus.
@@ -144,6 +263,14 @@ class Admin {
 			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
 			'wcb_tag'        => __( 'Job Tags', 'wp-career-board' ),
 		);
+		// Written straight into $submenu, these skip the capability check
+		// add_submenu_page() does - and a non-empty submenu keeps the top-level
+		// menu, so subscribers and candidates saw a Career Board menu of
+		// taxonomy links. Only settings managers get them.
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( ! wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			return;
+		}
 		foreach ( $wcb_tax_links as $wcb_tax => $wcb_label ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- documented WP idiom for appending taxonomy edit links to a custom top-level menu.
 			$submenu['wp-career-board'][] = array(
@@ -307,24 +434,16 @@ class Admin {
 			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => \WCB\Admin\Settings::int( $k, 0 ), $wcb_page_keys ) ) );
 			$wcb_total_pages   = count( $wcb_page_keys );
 		}
-		$total_emp  = count(
-			get_users(
-				array(
-					'role'   => 'wcb_employer',
-					'fields' => 'ID',
-					'number' => 9999,
-				)
+		$count_role = static fn ( string $role ): int => ( new \WP_User_Query(
+			array(
+				'role'        => $role,
+				'fields'      => 'ID',
+				'number'      => 1,
+				'count_total' => true,
 			)
-		); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_number
-		$total_cand = count(
-			get_users(
-				array(
-					'role'   => 'wcb_candidate',
-					'fields' => 'ID',
-					'number' => 9999,
-				)
-			)
-		); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_number
+		) )->get_total();
+		$total_emp  = $count_role( 'wcb_employer' );
+		$total_cand = $count_role( 'wcb_candidate' );
 
 		// Pending jobs for inline moderation queue.
 		$pending_posts = get_posts(
@@ -379,7 +498,7 @@ class Admin {
 		<?php if ( $wcb_show_gs ) : ?>
 			<div class="wcb-settings-card wcb-getting-started-card">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Getting Started', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Getting started', 'wp-career-board' ); ?></h2>
 				</div>
 				<ul class="wcb-getting-started-list">
 					<li class="wcb-gs-item wcb-gs-done">
@@ -428,27 +547,27 @@ class Admin {
 			<div class="wcb-stats-grid">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="briefcase"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_jobs; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_jobs ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Active Jobs', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-applications' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="clipboard-list"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_apps; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_apps ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-employers' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="building-2"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_emp; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_emp ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Employers', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-candidates' ) ); ?>" class="wcb-stat-box">
 					<span class="wcb-stat-icon"><i data-lucide="users"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $total_cand; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $total_cand ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Candidates', 'wp-career-board' ); ?></span>
 				</a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-jobs' ) ); ?>" class="wcb-stat-box<?php echo $pending_jobs > 0 ? ' wcb-stat-alert' : ''; ?>">
 					<span class="wcb-stat-icon"><i data-lucide="flag"></i></span>
-					<span class="wcb-stat-number"><?php echo (int) $pending_jobs; ?></span>
+					<span class="wcb-stat-number"><?php echo esc_html( number_format_i18n( $pending_jobs ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Pending Review', 'wp-career-board' ); ?></span>
 				</a>
 			</div>
@@ -540,19 +659,7 @@ class Admin {
 												</small>
 											</td>
 											<td>
-								<?php
-								$wcb_badge_map = array(
-									'submitted'   => 'info',
-									'reviewing'   => 'warn',
-									'shortlisted' => 'success',
-									'rejected'    => 'danger',
-									'hired'       => 'success',
-								);
-								$wcb_badge_var = $wcb_badge_map[ $wcb_status ] ?? 'default';
-								?>
-												<span class="wcb-badge wcb-badge--<?php echo esc_attr( $wcb_badge_var ); ?>">
-								<?php echo esc_html( ucfirst( $wcb_status ) ); ?>
-												</span>
+								<?php echo \WCB\Modules\Applications\ApplicationStatus::admin_badge( $wcb_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 											</td>
 										</tr>
 							<?php endforeach; ?>
@@ -568,7 +675,7 @@ class Admin {
 		<?php /* ── Quick actions ── */ ?>
 			<div class="wcb-settings-card wcb-dashboard-actions-card">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Quick Actions', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Quick actions', 'wp-career-board' ); ?></h2>
 				</div>
 				<div class="wcb-dashboard-actions">
 					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-action-item">
@@ -601,7 +708,7 @@ class Admin {
 		<?php if ( ! $wcb_pro_active && ! $wcb_banner_hidden ) : ?>
 			<div class="wcb-settings-card wcb-pro-upgrade-card" id="wcb-pro-upgrade-banner">
 				<div class="wcb-settings-card-header">
-					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Unlock Pro Features', 'wp-career-board' ); ?></h2>
+					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Unlock Pro features', 'wp-career-board' ); ?></h2>
 					<button type="button" class="wcb-pro-banner-dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'wp-career-board' ); ?>">
 						<i data-lucide="x" class="wcb-icon--sm"></i>
 					</button>
@@ -641,6 +748,17 @@ class Admin {
 	}
 
 	/**
+	 * The old Emails screen now lives in Settings > Emails.
+	 *
+	 * @since 1.8.0
+	 * @return void Redirects and exits.
+	 */
+	public function redirect_emails_page(): void {
+		wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&tab=emails' ) );
+		exit;
+	}
+
+	/**
 	 * Register the Emails submenu page (redirects to the Settings emails tab).
 	 *
 	 * Keeps old URL working while consolidating Emails into Settings > Emails tab.
@@ -654,20 +772,14 @@ class Admin {
 			'',
 			'wcb_manage_settings',
 			'wcb-emails',
-			static function (): void {
-				wp_safe_redirect( admin_url( 'admin.php?page=wcb-settings&tab=emails' ) );
-				exit;
-			}
+			array( $this, 'redirect_emails_page' )
 		);
 
 		// Remove from visible menu — page remains accessible for backward-compat redirect.
-		global $submenu;
-		if ( isset( $submenu['wp-career-board'] ) ) {
-			foreach ( $submenu['wp-career-board'] as $wcb_key => $wcb_item ) {
-				if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
-					unset( $submenu['wp-career-board'][ $wcb_key ] );
-					break;
-				}
+		foreach ( (array) ( $GLOBALS['submenu']['wp-career-board'] ?? array() ) as $wcb_key => $wcb_item ) {
+			if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
+				unset( $GLOBALS['submenu']['wp-career-board'][ $wcb_key ] );
+				break;
 			}
 		}
 	}
@@ -693,7 +805,6 @@ class Admin {
 		wp_enqueue_style( 'wcb-shared', WCB_URL . 'assets/css/admin/shared.css', array( 'wcb-tokens' ), WCB_VERSION );
 		wp_enqueue_style( 'wcb-toast-css', WCB_URL . 'assets/css/admin/toast.css', array( 'wcb-tokens' ), WCB_VERSION );
 		wp_enqueue_style( 'wcb-admin', WCB_URL . 'assets/css/admin.css', array( 'wcb-tokens' ), WCB_VERSION );
-		wp_style_add_data( 'wcb-admin', 'rtl', 'replace' );
 
 		wp_enqueue_script( 'lucide', WCB_URL . 'assets/js/vendor/lucide.min.js', array(), '0.460.0', true );
 		wp_enqueue_script( 'wcb-icons', WCB_URL . 'assets/js/admin/icons.js', array( 'lucide' ), WCB_VERSION, true );
@@ -707,18 +818,26 @@ class Admin {
 				'restUrl'   => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
-					'approveTitle' => __( 'Approve Job', 'wp-career-board' ),
-					'approveMsg'   => __( 'This job will be published and the employer will be notified.', 'wp-career-board' ),
-					'approveBtn'   => __( 'Approve', 'wp-career-board' ),
-					'rejectTitle'  => __( 'Reject Job', 'wp-career-board' ),
-					'rejectMsg'    => __( 'This job will be moved to Draft and the employer will be notified.', 'wp-career-board' ),
-					'rejectBtn'    => __( 'Reject', 'wp-career-board' ),
-					'reasonLabel'  => __( 'Reason (optional):', 'wp-career-board' ),
-					'confirm'      => __( 'Confirm', 'wp-career-board' ),
-					'cancel'       => __( 'Cancel', 'wp-career-board' ),
-					'saveFailed'   => __( 'Could not update. Please try again.', 'wp-career-board' ),
-					'importing'    => __( 'Importing…', 'wp-career-board' ),
-					'import'       => __( 'Import', 'wp-career-board' ),
+					'approveTitle'   => __( 'Approve Job', 'wp-career-board' ),
+					'approveMsg'     => __( 'This job will be published and the employer will be notified.', 'wp-career-board' ),
+					'approveBtn'     => __( 'Approve', 'wp-career-board' ),
+					'rejectTitle'    => __( 'Reject Job', 'wp-career-board' ),
+					'rejectMsg'      => __( 'This job will be moved to Draft and the employer will be notified.', 'wp-career-board' ),
+					'rejectBtn'      => __( 'Reject', 'wp-career-board' ),
+					'reasonLabel'    => __( 'Reason (optional):', 'wp-career-board' ),
+					'confirm'        => __( 'Confirm', 'wp-career-board' ),
+					'cancel'         => __( 'Cancel', 'wp-career-board' ),
+					'saveFailed'     => __( 'Could not update. Please try again.', 'wp-career-board' ),
+					'importing'      => __( 'Importing…', 'wp-career-board' ),
+					'import'         => __( 'Import', 'wp-career-board' ),
+					/* translators: 1: percent complete, 2: rows imported so far, 3: rows skipped so far. %% is a literal percent sign. */
+					'importProgress' => __( '%1$s%% - imported: %2$s, skipped: %3$s', 'wp-career-board' ),
+					/* translators: 1: rows imported, 2: rows skipped, 3: rows that failed. */
+					'importDone'     => __( 'Done. Imported: %1$s, skipped: %2$s, errors: %3$s', 'wp-career-board' ),
+					'importComplete' => __( 'Import complete.', 'wp-career-board' ),
+					/* translators: %1$s: error message. */
+					'importError'    => __( 'Error: %1$s', 'wp-career-board' ),
+					'requestFailed'  => __( 'Request failed.', 'wp-career-board' ),
 				),
 			)
 		);
@@ -726,8 +845,61 @@ class Admin {
 		// Settings page — sidebar layout CSS + hash-router JS.
 		if ( str_contains( $hook, 'wcb-settings' ) ) {
 			wp_enqueue_style( 'wcb-settings-css', WCB_URL . 'assets/css/admin/settings.css', array( 'wcb-tokens' ), WCB_VERSION );
+			wp_enqueue_media();
+			wp_enqueue_script( 'wcb-admin-brand', WCB_URL . 'assets/js/admin/brand.js', array(), WCB_VERSION, true );
+			wp_localize_script( 'wcb-admin-brand', 'wcbBrand', array( 'i18n' => array( 'selectLogo' => __( 'Select Logo', 'wp-career-board' ) ) ) );
 			wp_enqueue_style( 'wcb-integrations-css', WCB_URL . 'assets/css/admin/integrations.css', array( 'wcb-tokens', 'wcb-settings-css' ), WCB_VERSION );
 			wp_enqueue_script( 'wcb-settings-nav', WCB_URL . 'assets/js/admin/settings-nav.js', array( 'lucide' ), WCB_VERSION, true );
+
+			// Companies > Industries editor and Advanced > Remove Sample Data: each
+			// script null-checks its own root, so both load with the page.
+			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_localize_script(
+				'wcb-admin-industries',
+				'wcbIndustries',
+				array(
+					'i18n' => array(
+						/* translators: %d: number of companies using this industry. */
+						'used'        => __( '%d companies', 'wp-career-board' ),
+						'usedOne'     => __( '1 company', 'wp-career-board' ),
+						'unused'      => __( 'not in use', 'wp-career-board' ),
+						'remove'      => __( 'Remove', 'wp-career-board' ),
+						/* translators: %s: industry name. */
+						'removeAria'  => __( 'Remove %s', 'wp-career-board' ),
+						'keep'        => __( 'Keep', 'wp-career-board' ),
+						'settle'      => __( 'Move those companies to:', 'wp-career-board' ),
+						'clear'       => __( 'Clear the industry', 'wp-career-board' ),
+						'pendingKeep' => __( 'Will be removed on save.', 'wp-career-board' ),
+						'addFirst'    => __( 'Enter a name first.', 'wp-career-board' ),
+						'duplicate'   => __( 'That industry already exists.', 'wp-career-board' ),
+						'saving'      => __( 'Saving…', 'wp-career-board' ),
+						'saved'       => __( 'Industries saved.', 'wp-career-board' ),
+						/* translators: %d: number of companies moved to another industry. */
+						'savedMoved'  => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
+						'error'       => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
+						'loadError'   => __( 'Could not load industries.', 'wp-career-board' ),
+						'emptyList'   => __( 'Keep at least one industry.', 'wp-career-board' ),
+					),
+				)
+			);
+			wp_enqueue_style( 'wcb-confirm-modal' );
+			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
+			wp_localize_script(
+				'wcb-admin-sample-data',
+				'wcbSampleData',
+				array(
+					'i18n' => array(
+						'removing'       => __( 'Removing…', 'wp-career-board' ),
+						'confirmTitle'   => __( 'Remove Sample Data', 'wp-career-board' ),
+						'confirmMessage' => __( 'Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone.', 'wp-career-board' ),
+						'confirmCta'     => __( 'Delete Sample Data', 'wp-career-board' ),
+						'cancel'         => __( 'Cancel', 'wp-career-board' ),
+						'success'        => __( 'Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms.', 'wp-career-board' ),
+						'emptyNotice'    => __( 'Nothing to remove - no sample data was found.', 'wp-career-board' ),
+						'error'          => __( 'Could not remove sample data. Please try again.', 'wp-career-board' ),
+					),
+				)
+			);
 		}
 
 		// Application edit screen — composite widget assets.

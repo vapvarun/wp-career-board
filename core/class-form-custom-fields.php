@@ -59,8 +59,7 @@ final class FormCustomFields {
 	/**
 	 * Output Interactivity-API-bound markup for an array of field groups.
 	 *
-	 * Mirrors the rendering loop in blocks/job-single/render.php (the apply
-	 * form), which is the canonical reference implementation since 1.0.0.
+	 * The one renderer for every custom-field form, the apply form included.
 	 *
 	 * @since 1.1.1
 	 *
@@ -96,7 +95,9 @@ final class FormCustomFields {
 				continue;
 			}
 			foreach ( $group['fields'] as $field ) {
-				$field_type = is_array( $field ) ? self::normalise_type( (string) ( $field['type'] ?? $field['field_type'] ?? '' ) ) : '';
+				// normalise_field(), not normalise_type(): a checkbox with choices
+				// is a multi-choice field and needs the pre-fill too.
+				$field_type = is_array( $field ) ? self::normalise_field( $field )['type'] : '';
 				if ( 'radio' === $field_type || 'multiselect' === $field_type ) {
 					$needs_prefill = true;
 					break 2;
@@ -132,6 +133,63 @@ final class FormCustomFields {
 	}
 
 	/**
+	 * Required fields left empty, as key => label.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<int, array<string, mixed>> $groups Field groups.
+	 * @param array<string, mixed>             $values Submitted values.
+	 * @return array<string, string>
+	 */
+	public static function missing_required( array $groups, array $values ): array {
+		$missing = array();
+		foreach ( $groups as $group ) {
+			foreach ( (array) ( is_array( $group ) ? ( $group['fields'] ?? array() ) : array() ) as $field ) {
+				if ( ! is_array( $field ) || empty( $field['required'] ) ) {
+					continue;
+				}
+				$field = self::normalise_field( $field );
+				$key   = $field['key'];
+				if ( '' === $key ) {
+					continue;
+				}
+				$value = $values[ $key ] ?? ( $values[ $key . '__from' ] ?? ( $values[ $key . '__min' ] ?? '' ) );
+				$value = self::choice_value( $field, $value );
+				$empty = is_array( $value ) ? ! array_filter( $value, static fn ( $v ): bool => '' !== trim( (string) $v ) ) : '' === trim( (string) $value ) || ( 'checkbox' === $field['type'] && in_array( strtolower( (string) $value ), array( '0', 'false', 'off' ), true ) );
+				if ( $empty ) {
+					$missing[ $key ] = '' !== $field['label'] ? $field['label'] : $key;
+				}
+			}
+		}
+		return $missing;
+	}
+
+	/**
+	 * Drop answers that are not one of a choice field's options.
+	 *
+	 * Select, radio and multi-choice answers must be one of the field's own
+	 * choices; anything else (a hand-crafted request, a stale form) is
+	 * treated as unanswered. Other field types pass through unchanged.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array{type:string,options:array<string,string>} $field Normalised field.
+	 * @param mixed                                          $value Submitted value.
+	 * @return mixed
+	 */
+	private static function choice_value( array $field, mixed $value ): mixed {
+		if ( ! in_array( $field['type'], array( 'select', 'radio', 'multiselect' ), true ) || ! $field['options'] ) {
+			return $value;
+		}
+		$choices = array_map( 'strval', array_keys( $field['options'] ) );
+		if ( 'multiselect' === $field['type'] ) {
+			$items = is_array( $value ) ? $value : explode( ',', is_scalar( $value ) ? (string) $value : '' );
+			return array_values( array_intersect( array_map( static fn ( $v ): string => trim( (string) $v ), $items ), $choices ) );
+		}
+		return is_scalar( $value ) && in_array( (string) $value, $choices, true ) ? (string) $value : '';
+	}
+
+	/**
 	 * Coerce a field definition to the canonical {key,type,label,...}
 	 * shape regardless of source. Accepts both the apply-form's
 	 * documented contract (`key`/`type`) and Pro Field Builder's
@@ -157,24 +215,45 @@ final class FormCustomFields {
 			$raw_options = array();
 		}
 
-		// The Pro Field Builder stores options as a flat list (['Alpha','Beta']),
-		// while the filter contract uses a value => label map. Convert a flat
-		// list to value => value so the rendered <option value> is the choice
-		// itself, not its numeric array index.
-		if ( array_is_list( $raw_options ) && array() !== $raw_options ) {
-			$flat        = array_map( 'strval', $raw_options );
-			$raw_options = array_combine( $flat, $flat );
+		$options = self::normalise_options( $raw_options );
+		$type    = self::normalise_type( $type );
+		// A Field Builder "checkbox" with choices is a multi-choice question
+		// (tick any of Day / Night), not a single on/off box.
+		if ( 'checkbox' === $type && $options ) {
+			$type = 'multiselect';
 		}
 
 		return array(
 			'key'         => sanitize_key( $key ),
-			'type'        => self::normalise_type( $type ),
+			'type'        => $type,
 			'label'       => (string) ( $field['label'] ?? '' ),
 			'required'    => ! empty( $field['required'] ),
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
-			'options'     => array_map( 'strval', $raw_options ),
+			'options'     => $options,
 		);
+	}
+
+	/**
+	 * Convert a field's raw options to a value => label map.
+	 *
+	 * The Pro Field Builder stores choices as a flat list (['Alpha','Beta']),
+	 * while the filter contract documented above uses a value => label map.
+	 * Every renderer of a `select`/`radio`/`multiselect` field must call this
+	 * first, or a flat list's numeric array index ends up as the stored
+	 * answer instead of the choice itself.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array<int|string,mixed> $raw_options Raw options from a field's filter/DB row.
+	 * @return array<string,string> Value => label.
+	 */
+	public static function normalise_options( array $raw_options ): array {
+		if ( array_is_list( $raw_options ) && array() !== $raw_options ) {
+			$flat = array_map( 'strval', $raw_options );
+			return array_combine( $flat, $flat );
+		}
+		return array_map( 'strval', $raw_options );
 	}
 
 	/**
@@ -228,9 +307,13 @@ final class FormCustomFields {
 		// above an empty checkbox reads as broken. Radio renders a group
 		// label as a <span> (a <label for> can only target one input, not a
 		// radio group). Every other type keeps the standard <label for>.
+		// A choice group (radio, multi-choice) is named by a span its group
+		// element points at with aria-labelledby: a <label for> can only
+		// target one input.
+		$is_group = 'radio' === $type || 'multiselect' === $type;
 		if ( ! empty( $field['label'] ) && 'checkbox' !== $type ) {
-			if ( 'radio' === $type ) {
-				echo '<span class="wcb-form-label">';
+			if ( $is_group ) {
+				echo '<span class="wcb-form-label" id="' . esc_attr( $dom_id . '-label' ) . '">';
 			} else {
 				echo '<label class="wcb-form-label" for="' . esc_attr( $dom_id ) . '">';
 			}
@@ -238,7 +321,7 @@ final class FormCustomFields {
 			if ( ! empty( $field['required'] ) ) {
 				echo ' <span class="wcb-required" aria-hidden="true">*</span>';
 			}
-			echo 'radio' === $type ? '</span>' : '</label>';
+			echo $is_group ? '</span>' : '</label>';
 		}
 
 		$value_bind = 'data-wp-bind--value="state.customFields.' . $key . '"';
@@ -297,7 +380,7 @@ final class FormCustomFields {
 			// value into state.customFields via updateCustomField (radio hits
 			// the same target.value path as text/select), and the saved
 			// option's `checked` is set server-side from $current_value.
-			echo '<div class="wcb-radio-group" role="radiogroup">';
+			echo '<div class="wcb-radio-group" role="radiogroup" aria-labelledby="' . esc_attr( $dom_id . '-label' ) . '">';
 			$radio_index = 0;
 			foreach ( $field['options'] as $val => $label ) {
 				$radio_id      = $dom_id . '-' . $radio_index;
@@ -323,7 +406,7 @@ final class FormCustomFields {
 			// save_values() stores the result back as a CSV string, keeping
 			// the single-meta-value model intact.
 			$ms_selected = '' !== $current_value ? explode( ',', $current_value ) : array();
-			echo '<div class="wcb-multiselect-group" role="group">';
+			echo '<div class="wcb-multiselect-group" role="group" aria-labelledby="' . esc_attr( $dom_id . '-label' ) . '">';
 			$ms_index = 0;
 			foreach ( $field['options'] as $val => $label ) {
 				$ms_id      = $dom_id . '-' . $ms_index;
@@ -442,6 +525,7 @@ final class FormCustomFields {
 		}
 
 		$allowed_keys = array();
+		$fields       = array();
 		foreach ( $groups as $group ) {
 			if ( ! is_array( $group ) || empty( $group['fields'] ) ) {
 				continue;
@@ -453,6 +537,7 @@ final class FormCustomFields {
 				$normalised = self::normalise_field( $field );
 				if ( '' !== $normalised['key'] ) {
 					$allowed_keys[ $normalised['key'] ] = $normalised['type'];
+					$fields[ $normalised['key'] ]       = $normalised;
 				}
 			}
 		}
@@ -465,7 +550,7 @@ final class FormCustomFields {
 			}
 
 			$type      = $allowed_keys[ $key ];
-			$sanitised = self::sanitise_value( $type, $raw_value );
+			$sanitised = self::sanitise_value( $type, self::choice_value( $fields[ $key ], $raw_value ) );
 
 			/**
 			 * Filter a single custom-field value before it's written to meta.

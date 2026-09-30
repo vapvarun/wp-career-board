@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.7.2
+ * Version:     1.8.0
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.7.2' );
+define( 'WCB_VERSION', '1.8.0' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -60,8 +60,23 @@ add_action(
 // The EDD SL SDK is bundled (built) in /libs — not /vendor — so it survives
 // release packaging (which strips /vendor) and is the single shared copy that
 // WP Career Board Pro loads too, rather than duplicating the SDK.
-if ( file_exists( __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php' ) ) {
+// Load it only when its classes are there too: an incomplete upload that lost
+// src/ would otherwise fatal every page on the loader's first class call.
+// Without it the plugin works; only automatic updates stop.
+if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
 	require_once __DIR__ . '/libs/edd-sl-sdk/edd-sl-sdk.php';
+} else {
+	add_action(
+		'admin_notices',
+		static function (): void {
+			if ( ! function_exists( 'wp_is_ability_granted' ) || ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+				return;
+			}
+			echo '<div class="notice notice-error"><p>' .
+				esc_html__( 'WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them.', 'wp-career-board' ) .
+				'</p></div>';
+		}
+	);
 }
 
 /*
@@ -153,44 +168,25 @@ function wcb_get_email_settings(): array {
 }
 
 /**
- * Read the captcha driver slug.
- *
- * Same F-5 consolidation as wcb_get_email_settings().
+ * The CAPTCHA provider in force, or '' when only the honeypot runs (no
+ * provider chosen, or its keys are missing).
  *
  * @since  1.2.0
  * @return string
  */
 function wcb_get_captcha_driver(): string {
-	// The Anti-Spam settings screen writes the flat `captcha_provider` key
-	// (AntiSpamModule::save_settings), and that is what the verifier reads. This
-	// accessor only knew the nested `captcha.driver` shape, which is written by
-	// nothing except the one-time pre-1.2 legacy migration - so on any site that
-	// never held the old wcb_captcha_driver option, an owner could configure
-	// Turnstile or reCAPTCHA and this still returned ''. The only consumer is
-	// GET /settings/app-config, which therefore told the mobile app
-	// captcha_required: false while the web forms enforced a captcha, and the
-	// app's submissions were rejected for a missing token.
-	// Present-and-authoritative: once the key exists, the current screen owns the
-	// answer. 'none' has to win over any legacy value, or an owner turning the
-	// captcha OFF would silently keep the old driver.
-	$provider = \WCB\Admin\Settings::get( 'captcha_provider' );
-	if ( is_string( $provider ) && '' !== $provider ) {
-		return 'none' === $provider ? '' : $provider;
-	}
-
-	// Legacy nested shape, still written by the pre-1.2 migration.
-	$captcha = \WCB\Admin\Settings::get( 'captcha' );
-	if ( is_array( $captcha ) && ! empty( $captcha['driver'] ) ) {
-		return (string) $captcha['driver'];
-	}
-
-	return (string) get_option( 'wcb_captcha_driver', '' );
+	return \WCB\Modules\AntiSpam\AntiSpamModule::active()['provider'] ?? '';
 }
 
 register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );
 register_deactivation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'deactivate' ) );
 
-add_action( 'plugins_loaded', array( 'WCB\\Core\\Plugin', 'instance' ) );
+add_action(
+	'plugins_loaded',
+	static function (): void {
+		\WCB\Core\Plugin::instance();
+	}
+);
 
 // Runtime DB-version self-heal — covers WP-CLI / managed-host auto-updates
 // that bypass register_activation_hook. Runs at init@5 so Pro's

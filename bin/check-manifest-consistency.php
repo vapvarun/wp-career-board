@@ -40,6 +40,11 @@
  * @package WP_Career_Board
  */
 
+// Dev tooling, not shipped: runs from the command line or inside WordPress, never over the web.
+if ( ! defined( 'ABSPATH' ) && 'cli' !== PHP_SAPI ) {
+	exit;
+}
+
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.Security.EscapeOutput
 
 $root     = dirname( __DIR__ );

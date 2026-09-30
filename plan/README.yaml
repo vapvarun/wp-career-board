@@ -52,6 +52,13 @@ living:
 
 dated:
 
+  - id: 1.8.0-implementation-plan
+    path: 1.8.0-implementation-plan.md
+    status: in-progress
+    scope: 1.8.0 release plan from the 2026-09-26/27 fresh audit - owner decisions, 30 work items by seam, every surface mapped, definition of done.
+    owner: TBD
+    format: markdown
+
   - id: 1.2.0-stability
     path: 1.2.0-stability.md
     status: in-progress

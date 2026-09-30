@@ -1,8 +1,15 @@
 /* ── Reset / shared ────────────────────────────────────────────────────────── */
 .wp-block-wp-career-board-job-single {
-	max-width: 1100px;
+	/* No max-width of its own: the shell (.wcb-archive-shell, 1200px) already
+	   sets the page's canonical content width. A local 1100px cap here made
+	   the job page narrower than the company page, which fills the shell
+	   fully — the two read as different container widths on the same site. */
+	/* No padding of its own at all: the shell already provides the page's
+	 * vertical rhythm (24px top/bottom), and this block's own 24/48 was
+	 * stacking on top of it - header-to-hero and last-content-to-footer
+	 * measured 24-48px further than company-profile, which has none
+	 * (Basecamp 10348287589/10348287376). */
 	margin: 0 auto;
-	padding: var(--wcb-space-2xl) var(--wcb-space-lg) var(--wcb-space-4xl);
 	font-family: inherit;
 	color: var(--wcb-contrast);
 }
@@ -29,7 +36,7 @@
 	color: inherit;
 }
 .wcb-badge--featured  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
-.wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success); }
+.wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success-fg, #166534); }
 .wcb-badge--type      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-badge--exp       { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-badge--salary    { background: var(--wcb-surface); color: var(--wcb-text-secondary); font-weight: var(--wcb-font-semibold); }
@@ -59,17 +66,14 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 /* ── Hero banner ─────────────────────────────────────────────────────────── */
+/* Card shape (background/border/radius/shadow/padding/margin) comes from
+ * the shared `.wcb-detail-hero` primitive in wcb-ui.css. */
 .wcb-job-hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-rows: auto auto;
 	gap: var(--wcb-space-lg) var(--wcb-space-3xl);
 	align-items: start;
-	padding: var(--wcb-space-3xl);
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	margin-bottom: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
 }
 
 .wcb-job-hero-brand {
@@ -79,28 +83,6 @@ a.wcb-badge:hover { opacity: 0.8; }
 	align-items: flex-start;
 	gap: var(--wcb-space-lg);
 	min-width: 0;
-}
-
-.wcb-company-avatar {
-	width: 64px;
-	height: 64px;
-	flex-shrink: 0;
-	background: var(--wcb-avatar-bg, #1e293b);
-	color: var(--wcb-on-primary);
-	border-radius: var(--wcb-radius-xl);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: var(--wcb-text-xl);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.02em;
-}
-
-.wcb-company-avatar--sm {
-	width: 44px;
-	height: 44px;
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-base);
 }
 
 .wcb-hero-titles {
@@ -174,7 +156,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 	display: none;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-success);
+	color: var(--wcb-success-fg, #166534);
 	background: var(--wcb-success-bg-soft);
 	border: 1px solid var(--wcb-success-border, #bbf7d0);
 	border-radius: var(--wcb-radius-md);
@@ -213,13 +195,9 @@ a.wcb-badge:hover { opacity: 0.8; }
 	min-width: 0;
 }
 
-.wcb-section {
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	padding: var(--wcb-space-2xl); /* 1.75rem ≈ 28px → 2xl */
-	margin-bottom: var(--wcb-space-xl);
-}
+/* Card shape now comes from the shared `.wcb-detail-section` primitive
+ * in wcb-ui.css (render.php uses that class directly in place of a
+ * local `.wcb-section`). */
 
 .wcb-section-heading {
 	font-size: var(--wcb-text-lg);
@@ -253,12 +231,6 @@ a.wcb-badge:hover { opacity: 0.8; }
 	margin-bottom: 0;
 }
 
-.wcb-job-description__empty {
-	margin: 0;
-	color: var(--wcb-text-secondary, #6b7280);
-	font-style: italic;
-}
-
 .wcb-job-description p {
 	margin: 0 0 var(--wcb-space-md);
 }
@@ -271,9 +243,11 @@ a.wcb-badge:hover { opacity: 0.8; }
 	line-height: 1.35;
 }
 
-.wcb-job-description h2 { font-size: var(--wcb-text-xl); font-weight: var(--wcb-font-bold); } /* 1.25rem */
-.wcb-job-description h3 { font-size: var(--wcb-text-lg); font-weight: var(--wcb-font-bold); } /* 1.0625rem ≈ 17px → lg (18px) */
-.wcb-job-description h4 { font-size: 1rem; font-weight: var(--wcb-font-semibold); } /* base body size */
+/* Content headings sit below the card's section heading (lg), never at or
+ * above it. */
+.wcb-job-description h2 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-bold); }
+.wcb-job-description h3 { font-size: var(--wcb-text-md); font-weight: var(--wcb-font-semibold); }
+.wcb-job-description h4 { font-size: var(--wcb-text-base); font-weight: var(--wcb-font-semibold); }
 
 .wcb-job-description ul,
 .wcb-job-description ol {
@@ -412,13 +386,8 @@ a.wcb-tag:hover {
 	font-weight: var(--wcb-font-medium);
 	text-align: end;
 	margin: 0;
-}
-
-/* Specificity bump to (0,2,1) so it beats theme `.entry-content
- * strong` typography rules without `!important`. */
-[class*="wp-block-wp-career-board"] .wcb-salary-highlight {
-	color: var(--wcb-primary);
-	font-weight: var(--wcb-font-bold);
+	flex: 1;
+	min-width: 0;
 }
 
 /* ── Company card ────────────────────────────────────────────────────────── */
@@ -480,7 +449,7 @@ a.wcb-company-card-name:hover {
 	display: none;
 	background: var(--wcb-danger-bg-soft);
 	border: 1px solid var(--wcb-danger-border, #fecaca);
-	color: var(--wcb-danger, #b91c1c);
+	color: var(--wcb-danger-fg, #991b1b);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg); /* 0.65rem ≈ 10px → sm */
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-base);
@@ -569,32 +538,36 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-panel-title {
+/* The apply drawer pairs a label and its control without a wrapper, so the
+ * shared 4px label-to-field step is a margin here. */
+.wcb-job-single .wcb-apply-panel .wcb-field-label {
+	margin-bottom: var(--wcb-space-xs);
+}
+
+/* Scoped: the block heading reset in frontend-components.css (0,1,1)
+ * zeroed a bare .wcb-panel-title margin, so the title touched the job name. */
+.wcb-apply-panel .wcb-panel-title {
 	font-size: var(--wcb-text-2xl); /* 1.375rem ≈ 22px → 2xl (24px) */
 	font-weight: var(--wcb-font-bold);
 	color: var(--wcb-contrast);
 	margin: 0 0 var(--wcb-space-xs);
 }
 
-.wcb-panel-subtitle {
+.wcb-apply-panel .wcb-panel-subtitle {
 	font-size: 1rem; /* base body size */
 	color: var(--wcb-contrast);
 	font-weight: var(--wcb-font-semibold);
-	margin: 0 0 var(--wcb-space-xs); /* 0.15rem ≈ 2px → xs */
+	margin: 0 0 var(--wcb-space-2xl);
+}
+
+.wcb-apply-panel .wcb-panel-subtitle:has(+ .wcb-panel-company) {
+	margin-bottom: var(--wcb-space-xs);
 }
 
 .wcb-panel-company {
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-secondary);
 	margin: 0 0 var(--wcb-space-2xl);
-}
-
-.wcb-field-label {
-	display: block;
-	font-size: var(--wcb-text-base);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	margin-bottom: var(--wcb-space-xs); /* 0.4rem ≈ 6px → xs */
 }
 
 .wcb-field-hint {
@@ -605,7 +578,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 .wcb-cover-letter {
 	width: 100%;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	font-size: var(--wcb-text-md);
 	font-family: inherit;
@@ -638,7 +611,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-cover-letter:focus {
-	outline: 2px solid transparent;
+	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
 }
@@ -649,18 +622,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-apply-resume-select {
-	display: block;
 	width: 100%;
-	padding: var(--wcb-space-sm) var(--wcb-space-md);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-sm);
-	font-size: var(--wcb-text-md);
-	font-family: inherit;
-	/* background-color, not the `background` shorthand: the shorthand resets
-	   background-image, which wipes the caret a theme supplies for an
-	   appearance:none select. On Reign that left a bordered box with no
-	   arrow and no affordance at all (Basecamp 10300196743). */
-	background-color: var(--wcb-base);
 }
 
 .wcb-apply-resume-select:focus {
@@ -738,6 +700,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 
 /* ── Post-apply alert prompt ───────────────────────────────────────────── */
 .wcb-post-apply-alert {
+	display: none;
 	margin-top: var(--wcb-space-sm);
 }
 
@@ -748,7 +711,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 [class*="wp-block-wp-career-board"] .wcb-post-apply-alert-done.wcb-shown {
-	display: inline;
+	display: inline-flex;
 }
 
 .wcb-post-apply-alert-btn {
@@ -759,7 +722,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	font-family: inherit;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text, #1d4ed8);
 	background: var(--wcb-info-bg-soft);
 	border: 1px solid var(--wcb-primary);
 	border-radius: var(--wcb-radius-sm);
@@ -768,8 +731,8 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-post-apply-alert-btn:hover {
-	background: var(--wcb-primary);
-	color: var(--wcb-base);
+	background: var(--wcb-primary-strong);
+	color: var(--wcb-on-primary, #ffffff);
 }
 
 .wcb-post-apply-alert-btn:disabled {
@@ -778,7 +741,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-post-apply-alert-done {
-	display: inline-flex;
+	display: none;
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
@@ -804,14 +767,27 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-apply-or-divider {
-	text-align: center;
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
 	margin: var(--wcb-space-lg) 0 var(--wcb-space-md);
 }
 
+.wcb-apply-or-divider::before,
+.wcb-apply-or-divider::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var(--wcb-border);
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
+/* 1024, not 768: at 800-1023 the two-column hero/body was still forced
+   into two cramped columns (a squeezed Apply button in the hero), while
+   resume-single (before its own fix) collapsed at a different width
+   entirely. One tablet breakpoint for every detail page. */
+@media (max-width: 1024px) {
 	.wcb-job-hero {
 		grid-template-columns: minmax(0, 1fr);
 		grid-template-rows: auto auto auto;
@@ -865,14 +841,20 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	height: 30px;
 	min-width: 40px;
 	min-height: 40px;
-	border-radius: var(--wcb-radius-sm);
-	border: 1.5px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	border: 1px solid var(--wcb-border);
 	background: var(--wcb-base);
 	color: var(--wcb-text-secondary);
 	text-decoration: none;
 	cursor: pointer;
 	transition: border-color var(--wcb-transition-fast), color var(--wcb-transition-fast);
 	padding: 0;
+}
+
+/* The copy button wraps its icons in spans; inline, they sat on the text
+ * baseline and pushed the icon ~3px high against X and LinkedIn. */
+.wcb-share-btn > span:not([hidden]) {
+	display: flex;
 }
 
 .wcb-share-btn:hover {
@@ -1014,13 +996,106 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin: 0;
 }
 
-.wcb-applications-closed--center {
-	justify-content: center;
-	text-align: center;
+.wcb-job-ended {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wcb-space-sm);
+	margin: 0; /* the column gap spaces it */
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-contrast);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-job-ended svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-block-start: 3px;
+}
+
+.wcb-similar-jobs {
+	margin: 0; /* the column gap spaces it */
+}
+
+.wcb-similar-jobs__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-similar-jobs__list li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--wcb-space-xs) var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+}
+
+.wcb-similar-jobs__list a {
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-similar-jobs__company {
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-sm);
 }
 
 .wcb-applications-closed svg {
 	width: 16px;
 	height: 16px;
 	flex-shrink: 0;
+}
+
+/* ── Details (custom fields, printed on wcb_job_single_after_description) ── */
+.wcb-job-details__list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--wcb-space-sm);
+	margin: 0;
+}
+
+.wcb-job-details__row {
+	display: grid;
+	grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+	gap: var(--wcb-space-md);
+	padding-block: var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border);
+}
+
+.wcb-job-details__row dt {
+	color: var(--wcb-text-secondary);
+	font-weight: 600;
+}
+
+.wcb-job-details__row dd {
+	margin: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+	.wcb-job-details__row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--wcb-space-xs);
+	}
+
+	/* Same phone step-down as company/resume's hero title - was the only
+	 * one of the three that never shrank (Basecamp 10348287589). */
+	.wcb-job-title {
+		font-size: var(--wcb-text-xl);
+	}
+
+	/* Logo above the title, left-aligned, like the company and resume heroes. */
+	.wcb-job-hero-brand {
+		flex-direction: column;
+		gap: var(--wcb-space-md);
+	}
 }

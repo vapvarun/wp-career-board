@@ -167,12 +167,10 @@ final class CandidatesEndpoint extends RestController {
 					array( 'status' => 409 )
 				);
 			}
-			// Replace existing roles, not stack. See same note in
-			// EmployersEndpoint::register_employer().
-			$user->set_role( 'wcb_candidate' );
+			\WCB\Core\Roles::grant_member_role( $user, 'wcb_candidate' );
 			do_action( 'wcb_candidate_registered', $user->ID );
 
-			$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+			$dashboard_id  = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 			$dashboard_url = $dashboard_id > 0
 				? (string) get_permalink( $dashboard_id )
 				: home_url( '/' );
@@ -185,7 +183,7 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),
@@ -247,6 +245,11 @@ final class CandidatesEndpoint extends RestController {
 			$username = $username . wp_rand( 100, 999 );
 		}
 
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => $username,
@@ -267,20 +270,28 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		wp_set_current_user( $user_id );
-		wp_set_auth_cookie( $user_id, false );
+		// With verification on, the account stays signed out until the
+		// emailed link is opened (EmailVerification handles it).
+		$wcb_verify = \WCB\Modules\Account\EmailVerification::is_required();
+		if ( $wcb_verify ) {
+			\WCB\Modules\Account\EmailVerification::start( (int) $user_id );
+		} else {
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id, false );
+		}
 
 		do_action( 'wcb_candidate_registered', $user_id );
 
-		$dashboard_id  = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$dashboard_id  = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		$dashboard_url = $dashboard_id > 0
 			? (string) get_permalink( $dashboard_id )
 			: home_url( '/' );
 
 		return rest_ensure_response(
 			array(
-				'user_id'       => $user_id,
-				'dashboard_url' => $dashboard_url,
+				'user_id'               => $user_id,
+				'dashboard_url'         => $dashboard_url,
+				'verification_required' => $wcb_verify,
 			)
 		);
 	}
@@ -320,7 +331,34 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		return rest_ensure_response( $this->prepare_candidate( $user ) );
+		// A suspended candidate is off the site (moderation), as their resume page is.
+		if ( ! $is_self && ! $is_admin && get_user_meta( $user_id, '_wcb_employer_banned', true ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Only candidates have a candidate profile: an admin's or employer's ID
+		// answered here too, confirming the account and its name.
+		if ( ! $is_self && ! $is_admin && ! in_array( 'wcb_candidate', (array) $user->roles, true ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$data = $this->prepare_candidate( $user );
+
+		// Contact details (phone, location, email…) go to the candidate, admins
+		// and employers the candidate applied to - not to anyone who asks.
+		if ( ! $is_self && ! $is_admin && ! \WCB\Modules\Candidates\CandidatesModule::has_applied_to( $user_id, get_current_user_id() ) ) {
+			$data['resume_data'] = array();
+		}
+
+		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -539,7 +577,10 @@ final class CandidatesEndpoint extends RestController {
 
 			foreach ( $resume_ids as $resume_id ) {
 				$post = get_post( $resume_id );
-				if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type ) {
+				// A bookmark keeps no right to a resume that has since gone
+				// private (or never was readable): show only what this viewer
+				// could open.
+				if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type || ! \WCB\Modules\Candidates\CandidatesModule::resume_is_readable( $post->ID ) ) {
 					continue;
 				}
 
@@ -607,7 +648,7 @@ final class CandidatesEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function update_item_permissions_check( $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}
@@ -621,7 +662,7 @@ final class CandidatesEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function self_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		$same_user = get_current_user_id() === (int) $request['id'];
+		$same_user = $this->is_current_user( (int) $request['id'] );
 		$is_admin  = $this->check_ability( 'wcb/manage-settings' );
 		return ( $same_user || $is_admin ) ? true : $this->permission_error();
 	}

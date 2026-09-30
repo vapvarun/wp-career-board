@@ -26,18 +26,6 @@
 	text-decoration: underline;
 }
 
-.wcb-reg-form {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-lg);
-}
-
-.wcb-reg-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: var(--wcb-space-lg);
-}
-
 .wcb-reg-error {
 	color: var(--wcb-danger);
 	font-size: var(--wcb-text-base);
@@ -59,6 +47,33 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
+}
+
+/* Registration-closed state: was a single bare line with no card or icon,
+ * unlike every other login-gated screen in the plugin. */
+.wcb-reg-closed {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	max-width: 360px;
+	margin: var(--wcb-space-3xl) auto;
+	padding: var(--wcb-space-3xl) var(--wcb-space-xl);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+	text-align: center;
+}
+
+.wcb-reg-closed svg {
+	width: var(--wcb-icon-2xl);
+	height: var(--wcb-icon-2xl);
+	color: var(--wcb-text-tertiary, #94a3b8);
+}
+
+.wcb-reg-closed__text {
+	margin: 0;
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-reg-success {
@@ -96,6 +111,8 @@
 	border-radius: var(--wcb-radius-xl);
 	background: var(--wcb-base);
 	cursor: pointer;
+	/* A <button>: without its own colour it takes the theme's white button text, which blanks the icon. */
+	color: var(--wcb-contrast);
 	transition: border-color var(--wcb-transition-fast), background-color var(--wcb-transition-fast), transform var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 	text-align: center;
 }
@@ -179,10 +196,6 @@
 }
 
 @media (max-width: 640px) {
-	.wcb-reg-row {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
 	.wcb-role-options {
 		grid-template-columns: minmax(0, 1fr);
 	}

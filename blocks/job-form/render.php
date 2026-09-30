@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Settings::int( 'employer_registration_page', 0 );
+	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	?>
 	<div class="wcb-job-form-gate">
 	<?php if ( ! is_user_logged_in() ) : ?>
@@ -220,7 +220,7 @@ if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
  */
 $wcb_credit_noun = static function ( int $wcb_n ): string {
 	return sprintf(
-		/* translators: %s: number of credits, already localised. */
+		/* translators: %s: number of credits, already formatted for the locale. */
 		_n( '%s credit', '%s credits', $wcb_n, 'wp-career-board' ),
 		number_format_i18n( $wcb_n )
 	);
@@ -232,12 +232,10 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 	$wcb_cost = (int) $wcb_cost;
 
 	if ( $wcb_cost <= 0 ) {
-		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
-			/* translators: %s: employer's current credit balance. Shown when the selected board has no credit cost. */
-			__( 'Free to post on this board. Your balance: %s.', 'wp-career-board' ),
-			number_format_i18n( $wcb_credit_balance )
-		);
-		$wcb_credit_errors[ (string) $wcb_bid ] = '';
+		// The balance is irrelevant to a free posting - showing it (often "0")
+		// next to "Free" reads like a warning rather than the good news it is.
+		$wcb_credit_messages[ (string) $wcb_bid ] = __( 'Free to post on this board.', 'wp-career-board' );
+		$wcb_credit_errors[ (string) $wcb_bid ]   = '';
 		continue;
 	}
 
@@ -296,6 +294,7 @@ $wcb_initial_state = apply_filters(
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// Application deadline is admin-controlled, not employer-editable. For
 		// new submissions we compute the deadline using the same filter chain
@@ -330,6 +329,7 @@ $wcb_initial_state = apply_filters(
 		'jobUrl'            => '',
 		'error'             => '',
 		'validationError'   => '',
+		'validationField'   => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
 		'creditCost'        => (int) $wcb_board_credit_costs[ $wcb_board_id ],
@@ -351,6 +351,9 @@ $wcb_initial_state = apply_filters(
 		'creditMessages'    => (object) $wcb_credit_messages,
 		'creditErrors'      => (object) $wcb_credit_errors,
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
+		'buyUrl'            => '',
+		'featured'          => false,
+		'featureError'      => '',
 		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
@@ -407,6 +410,7 @@ $wcb_initial_state = apply_filters(
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
+				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
 				'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
 				// Count-free fallback for the credit gate; the numbered,
@@ -418,7 +422,7 @@ $wcb_initial_state = apply_filters(
 				'submitLabelUpdate'        => __( 'Update Job', 'wp-career-board' ),
 
 				// Listing window banner.
-				/* translators: 1: localized date the listing expires on. */
+				/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
 				'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
 
 				// Preview card meta row.
@@ -429,6 +433,10 @@ $wcb_initial_state = apply_filters(
 	),
 	$attributes
 );
+
+// Paid Featured upgrade (Pro prices it; 0 means not offered).
+$wcb_featured_cost = (int) apply_filters( 'wcb_featured_upgrade_cost', 0 );
+$wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 
 wp_interactivity_state( 'wcb-job-form', $wcb_initial_state );
 
@@ -468,15 +476,6 @@ $wcb_step_labels = array(
 		<?php endforeach; ?>
 	</nav>
 
-	<!-- ── Validation error banner ───────────────────────────────────────── -->
-	<p
-		id="wcb-form-validation-error"
-		class="wcb-form-error"
-		role="alert"
-		data-wp-class--wcb-form-error--show="state.hasValidation"
-		data-wp-text="state.validationError"
-	></p>
-
 	<!-- ── Credit info banner ────────────────────────────────────────────── -->
 	<div
 		class="wcb-credit-banner"
@@ -498,7 +497,7 @@ $wcb_step_labels = array(
 
 	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->
 	<p
-		class="wcb-form-help wcb-listing-window"
+		class="wcb-listing-window"
 		data-wp-class--wcb-hidden="!state.hasListingWindow"
 		data-wp-text="state.listingWindowMessage"
 	></p>
@@ -520,6 +519,7 @@ $wcb_step_labels = array(
 				data-wp-class--wcb-hidden="!state.hasListingWindow"
 				data-wp-text="state.listingWindowMessage"
 			></p>
+			<p class="wcb-form-success__meta" hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
 			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
@@ -574,9 +574,11 @@ $wcb_step_labels = array(
 					data-wp-on--input="actions.updateField"
 					required
 					aria-required="true"
-					aria-describedby="wcb-form-validation-error"
+					aria-describedby="wcb-job-title-error"
+					data-wp-bind--aria-invalid="state.titleInvalid"
 					autocomplete="off"
 				/>
+				<p class="wcb-field-error" id="wcb-job-title-error" role="alert" hidden data-wp-bind--hidden="!state.titleInvalid" data-wp-text="state.validationError"></p>
 			</div>
 
 			<div class="wcb-form-field">
@@ -596,7 +598,7 @@ $wcb_step_labels = array(
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
-					<div class="wcb-editor-holder" id="wcb-editor-job-desc"></div>
+					<div class="wcb-editor-holder" id="wcb-editor-job-desc" aria-describedby="wcb-job-desc-error" data-wp-bind--aria-invalid="state.descriptionInvalid"></div>
 					<textarea
 						id="wcb-job-desc"
 						class="wcb-editor-source"
@@ -610,6 +612,7 @@ $wcb_step_labels = array(
 						aria-required="true"
 					><?php echo esc_textarea( $wcb_edit_job ? (string) $wcb_edit_job->post_content : '' ); ?></textarea>
 				</div>
+				<p class="wcb-field-error" id="wcb-job-desc-error" role="alert" hidden data-wp-bind--hidden="!state.descriptionInvalid" data-wp-text="state.validationError"></p>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
 				</span>
@@ -868,10 +871,15 @@ $wcb_step_labels = array(
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-location">
 						<?php esc_html_e( 'Location', 'wp-career-board' ); ?>
+						<?php if ( \WCB\Admin\Settings::bool( 'require_job_location', false ) ) : ?>
+							<span class="wcb-form-hint"><?php esc_html_e( '(required unless the job is remote)', 'wp-career-board' ); ?></span>
+						<?php endif; ?>
 					</label>
 					<select
 						id="wcb-location"
 						class="wcb-field"
+						aria-describedby="wcb-location-error"
+						data-wp-bind--aria-invalid="state.locationInvalid"
 						data-wcb-field="locationSlug"
 						data-wp-bind--value="state.locationSlug"
 						data-wp-on--change="actions.updateField"
@@ -896,6 +904,7 @@ $wcb_step_labels = array(
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
+					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>
 				</div>
 
 				<div class="wcb-form-field">
@@ -1030,7 +1039,24 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
+<?php if ( $wcb_featured_cost > 0 ) : ?>
+			<label class="wcb-form-feature">
+				<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
+				<span>
+				<?php
+				printf(
+					/* translators: 1: number of days, 2: number of credits */
+					esc_html( _n( 'Feature this job: it lists first for %1$d days (%2$s credit).', 'Feature this job: it lists first for %1$d days (%2$s credits).', $wcb_featured_cost, 'wp-career-board' ) ),
+					(int) $wcb_featured_days,
+					esc_html( number_format_i18n( $wcb_featured_cost ) )
+				);
+				?>
+				</span>
+			</label>
+			<?php endif; ?>
+
 			<p class="wcb-form-error" role="alert" data-wp-class--wcb-form-error--show="state.hasError" data-wp-text="state.error"></p>
+			<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
 			<div class="wcb-form-nav">
 				<button

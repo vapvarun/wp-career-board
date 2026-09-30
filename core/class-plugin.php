@@ -115,13 +115,26 @@ final class Plugin {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
+		add_action( 'init', array( $this, 'register_block_templates' ) );
 		add_action( 'init', array( $this, 'register_patterns' ) );
 
 		( new \WCB\Core\Widgets\WidgetShortcode() )->boot();
 
+		// Site Health test: registered on every request, not only in wp-admin, so
+		// WordPress's weekly background check (WP-Cron) counts it too.
+		( new \WCB\Core\TemplateVersionCheck() )->boot();
+
 		// Enum guard for `_wcb_industry`, registered where every write path
 		// converges rather than repeated at each of the six call sites.
 		\WCB\Core\Industries::boot();
+
+		// Candidate files (resumes, generated CVs) live in private storage and
+		// download only through the gated handler.
+		\WCB\Core\PrivateFiles::boot();
+
+		// Generated -rtl stylesheets: on RTL sites, each style of ours switches to
+		// its build-generated twin when one exists.
+		\WCB\Core\Rtl::boot();
 
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
@@ -190,6 +203,8 @@ final class Plugin {
 			\WCB\Modules\Seo\RssFeedEnrichment::class,
 			\WCB\Modules\Gdpr\GdprModule::class,
 			\WCB\Modules\Account\AccountDeletionService::class,
+			\WCB\Modules\Account\EmailVerification::class,
+			\WCB\Modules\Account\CredentialGuard::class,
 		);
 
 		foreach ( $module_classes as $class ) {
@@ -263,6 +278,21 @@ final class Plugin {
 				array(),
 				WCB_VERSION
 			);
+			wp_register_script_module(
+				'@wcb/fields',
+				WCB_URL . 'assets/js/modules/wcb-fields.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/email-prefs',
+				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/fetch' ),
+				),
+				WCB_VERSION
+			);
 		}
 
 		$blocks = array(
@@ -309,6 +339,16 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
+
+		// Block assets carry the plugin version so every release busts browser
+		// and CDN caches; asset.php files hold dependencies only.
+		$stamp_version = static function ( array $metadata ): array {
+			if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), 'wp-career-board/' ) ) {
+				$metadata['version'] = WCB_VERSION;
+			}
+			return $metadata;
+		};
+		add_filter( 'block_type_metadata', $stamp_version );
 
 		foreach ( $blocks as $block ) {
 			$block_dir = WCB_DIR . 'blocks/' . $block;
@@ -363,6 +403,71 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
+		}
+	}
+
+	/**
+	 * Archive templates for block themes.
+	 *
+	 * On a classic or hybrid theme the jobs and companies archives use the PHP
+	 * templates in templates/. A block theme renders its own canvas instead, and
+	 * its generic archive.html printed a blog-style loop of full job posts under
+	 * "Archives: Jobs" (Basecamp 10348287376). A theme file with the same slug
+	 * (archive-wcb_job.html) still takes priority over these.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function register_block_templates(): void {
+		if ( ! function_exists( 'register_block_template' ) || ! \WCB\Core\TemplateOverride::block_theme() ) {
+			return;
+		}
+
+		// Start from the theme's own page.html so the archive gets exactly the
+		// spacing and chrome of the Find Jobs / Companies pages on that theme.
+		// Its post title and featured image go: on an archive they would print
+		// the first job's.
+		$page   = get_block_template( get_stylesheet() . '//page' );
+		$canvas = $page && str_contains( $page->content, '<!-- wp:post-content' )
+			? (string) preg_replace( '#<!-- wp:post-(?:title|featured-image)\b[^>]*/-->#', '', $page->content )
+			: '<!-- wp:template-part {"slug":"header","tagName":"header"} /-->'
+				. '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group"><!-- wp:post-content /--></main><!-- /wp:group -->'
+				. '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->';
+
+		$archives = array(
+			'archive-wcb_job'     => array( __( 'Job Archive', 'wp-career-board' ), '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' ),
+			'archive-wcb_company' => array( __( 'Company Archive', 'wp-career-board' ), '<!-- wp:wp-career-board/company-archive /-->' ),
+		);
+
+		// Job taxonomy archives show the listing scoped to the term; the scoping
+		// itself is JobsModule::scope_listing_to_term(), which runs on any theme.
+		$taxonomy_titles = array(
+			'wcb_category'   => __( 'Job Category Archive', 'wp-career-board' ),
+			'wcb_job_type'   => __( 'Job Type Archive', 'wp-career-board' ),
+			'wcb_tag'        => __( 'Job Tag Archive', 'wp-career-board' ),
+			'wcb_location'   => __( 'Job Location Archive', 'wp-career-board' ),
+			'wcb_experience' => __( 'Experience Level Archive', 'wp-career-board' ),
+		);
+		foreach ( $taxonomy_titles as $taxonomy => $title ) {
+			$archives[ 'taxonomy-' . $taxonomy ] = array( $title, '<!-- wp:wp-career-board/job-listings {"showHeading":true} /-->' );
+		}
+
+		// The block goes where post-content was, inside a group with the same
+		// attributes and classes, so it keeps that wrapper's padding and width.
+		preg_match( '#<!-- wp:post-content\b\s*(\{.*?\})?\s*/-->#', $canvas, $match );
+		$attrs              = isset( $match[1] ) ? (array) json_decode( $match[1], true ) : array();
+		$attrs['className'] = 'entry-content wp-block-post-content';
+		$classes            = 'wp-block-group entry-content wp-block-post-content' . ( empty( $attrs['align'] ) ? '' : ' align' . $attrs['align'] );
+
+		foreach ( $archives as $slug => list( $title, $block ) ) {
+			$wrapped = '<!-- wp:group ' . wp_json_encode( $attrs ) . ' --><div class="' . esc_attr( $classes ) . '">' . $block . '</div><!-- /wp:group -->';
+			register_block_template(
+				'wp-career-board//' . $slug,
+				array(
+					'title'   => $title,
+					'content' => (string) preg_replace( '#<!-- wp:post-content\b[^>]*/-->#', $wrapped, $canvas, 1 ),
+				)
+			);
 		}
 	}
 
@@ -435,7 +540,6 @@ final class Plugin {
 			'showjobs'           => 'showJobs',
 			'showcandidates'     => 'showCandidates',
 			'showcompanies'      => 'showCompanies',
-			'showcompanyfield'   => 'showCompanyField',
 			'showcategoryfilter' => 'showCategoryFilter',
 			'showjobtypefilter'  => 'showJobTypeFilter',
 			'showlocationfilter' => 'showLocationFilter',
@@ -476,14 +580,20 @@ final class Plugin {
 					 */
 					$attrs_json = '';
 					if ( ! empty( $atts ) ) {
+						// Shortcode attribute names arrive lowercased; map each to the
+						// block's own camelCase attribute, so a new block attribute
+						// works in its shortcode without a hand-kept alias.
+						$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+						$by_lower   = array();
+						foreach ( array_keys( (array) ( $block_type->attributes ?? array() ) ) as $attr ) {
+							$by_lower[ strtolower( (string) $attr ) ] = (string) $attr;
+						}
 						$cast = array();
 						foreach ( (array) $atts as $key => $value ) {
 							if ( ! is_string( $key ) ) {
 								continue;
 							}
-							// Map known lowercase aliases back to the camelCase
-							// keys block.json declares.
-							$key = $camel_aliases[ $key ] ?? $key;
+							$key = $camel_aliases[ $key ] ?? $by_lower[ $key ] ?? $key;
 							// Auto-cast numeric and boolean strings so block.json type checks pass.
 							if ( is_numeric( $value ) && (string) (int) $value === (string) $value ) {
 								$cast[ $key ] = (int) $value;
@@ -648,16 +758,7 @@ final class Plugin {
 		$is_wcb_page = false;
 
 		// Path 1 — explicit Settings mapping (cheapest).
-		$mapped_keys = array(
-			'jobs_archive_page',
-			'employer_dashboard_page',
-			'candidate_dashboard_page',
-			'company_archive_page',
-			'employer_registration_page',
-			'post_job_page',
-			'find_candidates_page',
-			'resume_archive_page',
-		);
+		$mapped_keys = \WCB\Admin\Pages::known_keys();
 		$mapped_ids  = array();
 		foreach ( $mapped_keys as $key ) {
 			$id = \WCB\Admin\Settings::int( $key, 0 );
@@ -894,6 +995,11 @@ final class Plugin {
 	 * @return string Plugin-shipped template path or original.
 	 */
 	public function use_wcb_archive_template( string $template ): string {
+		// A block theme renders its own template; see TemplateOverride::block_theme().
+		if ( \WCB\Core\TemplateOverride::block_theme() ) {
+			return $template;
+		}
+
 		$context = $this->resolve_page_context();
 		if ( ! $context['is_wcb_page'] ) {
 			return $template;
@@ -932,7 +1038,6 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend', 'rtl', 'replace' );
 
 		wp_enqueue_style(
 			'wcb-frontend-tokens',
@@ -940,7 +1045,6 @@ final class Plugin {
 			array(),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend-tokens', 'rtl', 'replace' );
 
 		wp_enqueue_style(
 			'wcb-frontend-components',
@@ -948,7 +1052,6 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-frontend-components', 'rtl', 'replace' );
 
 		$this->enqueue_editor_assets();
 
@@ -1008,7 +1111,6 @@ final class Plugin {
 			array( 'wcb-frontend-tokens' ),
 			WCB_VERSION
 		);
-		wp_style_add_data( 'wcb-editor', 'rtl', 'replace' );
 
 		wp_enqueue_script(
 			'wcb-editor',

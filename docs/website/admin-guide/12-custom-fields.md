@@ -1,173 +1,112 @@
-# Custom Fields (declarative filters)
+# Custom fields
 
-Add custom fields to any plugin form — Job Form, Company Form,
-Candidate Profile, Application Form — with one `add_filter` call.
-The filter takes a single field-group schema; the plugin handles
-rendering, validation, persistence, REST exposure, and admin display.
+You can add your own fields to the job form, company profile, candidate profile and apply form with one `add_filter` call. The plugin renders the field, checks required fields, and saves the value.
 
 ## The four filters
 
-| Filter | Form |
-|---|---|
-| `wcb_job_form_fields` | Post a Job (multi-step + single-page forms) |
-| `wcb_company_form_fields` | Company profile editor |
-| `wcb_candidate_form_fields` | Candidate profile editor |
-| `wcb_application_form_fields_groups` | Apply to a job |
+| Filter | Form | Arguments |
+|---|---|---|
+| `wcb_job_form_fields` | Post a Job | `$groups`, `$board_id` |
+| `wcb_company_form_fields` | Company profile editor | `$groups`, `$company_id` |
+| `wcb_candidate_form_fields` | Candidate profile editor | `$groups`, `$user_id` |
+| `wcb_application_form_fields_groups` | Apply form | `$groups`, `$job_id` |
 
-All four use the same field-group schema — once you've learned one,
-you've learned all four.
+Each callback receives the current list of groups and returns it with your group added. All four use the same group shape.
 
-## Schema
-
-A field group looks like this:
+## Group shape
 
 ```php
-[
-    'group_id'    => 'employer_screening',
-    'group_label' => __( 'Screening Questions', 'wp-career-board' ),
-    'fields'      => [
-        [
-            'key'         => 'years_experience',
-            'label'       => __( 'Years of relevant experience', 'wp-career-board' ),
-            'type'        => 'number',
+array(
+    'id'     => 'partner',
+    'label'  => 'Partner association',
+    'fields' => array(
+        array(
+            'key'         => 'partner_id',
+            'label'       => 'Partner',
+            'type'        => 'text',
             'required'    => true,
-            'min'         => 0,
-            'max'         => 60,
-        ],
-        [
-            'key'         => 'visa_status',
-            'label'       => __( 'Current visa status', 'wp-career-board' ),
-            'type'        => 'select',
-            'required'    => true,
-            'options'     => [
-                'us-citizen'    => 'US Citizen',
-                'green-card'    => 'Green Card',
-                'h1b'           => 'H-1B',
-                'opt'           => 'OPT',
-                'needs-sponsor' => 'Needs sponsorship',
-            ],
-        ],
-        [
-            'key'         => 'portfolio_url',
-            'label'       => __( 'Portfolio URL', 'wp-career-board' ),
-            'type'        => 'url',
-            'required'    => false,
-            'placeholder' => 'https://',
-        ],
-    ],
-]
+            'placeholder' => 'Optional',
+            'description' => 'Optional hint shown under the field',
+            'options'     => array( 'value' => 'Label' ),
+        ),
+    ),
+)
 ```
+
+The group `label` shows as a heading above its fields. `options` applies to `select`, `radio` and `multiselect`.
 
 ## Field types
 
-| Type | Renders | Stored as |
-|---|---|---|
-| `text` | Single-line input | string |
-| `textarea` | Multi-line textarea | string |
-| `email` | Email input + validation | string |
-| `url` | URL input + validation | string |
-| `number` | Numeric input with min/max | int / float |
-| `select` | Dropdown | string (option key) |
-| `radio` | Radio button group | string (option key) |
-| `checkbox` | Single boolean checkbox | `'1'` / `''` |
-| `multi-checkbox` | Multiple checkboxes | array of option keys |
-| `date` | Date picker | YYYY-MM-DD string |
+| Type | Shows |
+|---|---|
+| `text`, `email`, `tel`, `url`, `number`, `date` | Matching single-line input |
+| `textarea` | Multi-line text box |
+| `select` | Dropdown |
+| `radio` | Radio buttons |
+| `multiselect` | Checkboxes, saved as a comma-separated list |
+| `checkbox` | One on/off checkbox |
+| `repeater` | Text box with one entry per line |
 
-## Example: Add a "Portfolio URL" field to the candidate profile
+## Example: add a portfolio link to the candidate profile
 
 ```php
-add_filter( 'wcb_candidate_form_fields', function( $groups ) {
-    $groups[] = [
-        'group_id'    => 'links',
-        'group_label' => __( 'Online presence', 'wp-career-board' ),
-        'fields'      => [
-            [
+add_filter( 'wcb_candidate_form_fields', function ( $groups ) {
+    $groups[] = array(
+        'id'     => 'links',
+        'label'  => __( 'Online presence', 'wp-career-board' ),
+        'fields' => array(
+            array(
                 'key'      => 'portfolio_url',
                 'label'    => __( 'Portfolio URL', 'wp-career-board' ),
                 'type'     => 'url',
                 'required' => false,
-            ],
-            [
-                'key'      => 'github_url',
-                'label'    => __( 'GitHub profile URL', 'wp-career-board' ),
-                'type'     => 'url',
-                'required' => false,
-            ],
-        ],
-    ];
+            ),
+        ),
+    );
     return $groups;
 } );
 ```
 
-After this filter is in place:
-
-- The candidate profile editor renders both fields.
-- The fields validate on save (URL format).
-- Values persist as user meta `_wcb_candidate_field_portfolio_url`
-  and `_wcb_candidate_field_github_url`.
-- They appear in the candidate's REST response on
-  `GET /wcb/v1/candidates/{id}`.
-
-## Example: Add a screening question to the application form
+## Example: add a question to the apply form
 
 ```php
-add_filter( 'wcb_application_form_fields_groups', function( $groups, $job_id ) {
-    $groups[] = [
-        'group_id'    => 'screening',
-        'group_label' => __( 'Quick screen', 'wp-career-board' ),
-        'fields'      => [
-            [
+add_filter( 'wcb_application_form_fields_groups', function ( $groups, $job_id ) {
+    $groups[] = array(
+        'id'     => 'screening',
+        'label'  => __( 'Quick screen', 'wp-career-board' ),
+        'fields' => array(
+            array(
                 'key'      => 'years_relevant',
                 'label'    => __( 'Years of relevant experience', 'wp-career-board' ),
                 'type'     => 'number',
                 'required' => true,
-            ],
-            [
-                'key'      => 'salary_expectation',
-                'label'    => __( 'Salary expectation (USD/yr)', 'wp-career-board' ),
-                'type'     => 'number',
-                'required' => false,
-            ],
-        ],
-    ];
+            ),
+        ),
+    );
     return $groups;
 }, 10, 2 );
 ```
 
-This adds the screening group to every job's apply form. To scope to
-specific jobs, branch on `$job_id` inside the callback.
+This adds the group to every job's apply form. To limit it to some jobs, check `$job_id` in the callback.
 
-## Per-job custom fields (Pro field builder)
+## Where values are saved
 
-The above filter applies globally. For per-job configuration without
-writing PHP, install Pro and use the
-[Field Builder](https://docs.wbcomdesigns.com/docs/wp-career-board-pro/field-builder/01-overview/)
-admin page — the builder writes the same data structure to the
-`wcb_field_groups` / `wcb_field_definitions` Pro tables and contributes
-to the same filters automatically.
-
-## Where the data appears
-
-Custom field values appear:
-
-- **In the admin Edit Application screen** — under a "Custom fields"
-  section per group.
-- **In the bulk CSV export** — one column per field key.
-- **In the REST API** — under the `custom_fields` key of the job /
-  company / candidate / application response.
-- **In templates** — via the `Icon::svg()` style helpers and direct
-  postmeta reads (`get_post_meta($id, '_wcb_application_field_<key>', true)`).
-
-## Persistence keys
-
-Per surface:
-
-| Filter | Stored where | Meta key prefix |
+| Filter | Saved as | Meta key |
 |---|---|---|
-| `wcb_job_form_fields` | `wp_postmeta` (job) | `_wcb_job_field_<key>` |
-| `wcb_company_form_fields` | `wp_postmeta` (company) | `_wcb_company_field_<key>` |
-| `wcb_candidate_form_fields` | `wp_usermeta` (candidate) | `_wcb_candidate_field_<key>` |
-| `wcb_application_form_fields_groups` | `wp_postmeta` (application) | `_wcb_application_field_<key>` |
+| `wcb_job_form_fields` | Job post meta | The field `key` |
+| `wcb_company_form_fields` | Company post meta | The field `key` |
+| `wcb_candidate_form_fields` | User meta | The field `key` |
+| `wcb_application_form_fields_groups` | Application post meta | `_wcb_application_field_` plus the field `key` |
 
-A bundle of all field values also lives at the corresponding
-`_wcb_*_fields_bundle` key for one-shot reads.
+To change or reject a value before it is saved, use the `wcb_save_custom_field` filter. It receives the sanitized value, the field key and the owner ID. Return `null` to skip saving.
+
+## Where answers show
+
+- The employer dashboard shows an applicant's answers under "Application answers".
+- The applications CSV export has a "Screening Answers" column.
+- The job page fires the `wcb_job_single_after_description` action after the description, with the job ID. Use it to print your own job fields.
+- The application REST response includes a `custom_fields` entry.
+
+## Pro
+
+WP Career Board Pro adds a field builder that lets you create these fields without code. See the Pro documentation for the field builder guide.

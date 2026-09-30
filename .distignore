@@ -66,3 +66,4 @@ package-lock.json
 phpunit.xml*
 *.md
 !readme.txt
+/phpstan-buddypress-stubs.php

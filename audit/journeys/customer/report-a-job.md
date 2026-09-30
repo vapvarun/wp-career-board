@@ -3,7 +3,7 @@ id: report-a-job
 priority: high
 personas: sarah.chen, morgan_moderator
 requires: mu:autologin, seed:jobs
-last_verified: 2026-06-09
+last_verified: 2026-09-27
 needs: cli
 ---
 
@@ -24,7 +24,8 @@ needs: cli
 9. Resolve the flag: POST `/wp-json/wcb/v1/jobs/<job-id>/resolve-flag` body `{"action":"dismiss"}` → expect HTTP 200
 10. Verify cleared: `wp post meta get <job-id> _wcb_flag_status` → expect `resolved` (or empty); `wp post meta get <job-id> _wcb_flag_count` → expect `0` or unset
 11. As a plain candidate (no `wcb_moderate_jobs`), POST `/wp-json/wcb/v1/jobs/<job-id>/resolve-flag` → expect HTTP 403 (only moderators resolve)
-12. tail debug.log diff → expect ZERO new fatal/warning lines
+12. Auto-hide (1.8.0): with **Settings → Jobs → Hide a job after this many reports** at 3, have three different members report one live job → after the third, `get_post_status` is `pending`, the Jobs list shows **Hidden: reported**, the job URL returns 404, and Mailpit has exactly two "[Report]" emails (first report, hide). **Dismiss flag** → the job is `publish` again and its page loads.
+13. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

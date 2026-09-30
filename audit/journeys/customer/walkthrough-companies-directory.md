@@ -59,7 +59,7 @@ in one pass.
    `.wcb-load-more-wrap` shown via `state.hasMore`) → expect `page` to increment, the next page to append to the
    existing `.wcb-ca-card` list (no page reload), and the button to hide once `has_more` is false.
    (`view.js:170`-`195`; `templates/parts/archive-load-more.php`.)
-9. Click a company card link `a.wcb-ca-card-link` (or its "View Profile" `.wcb-cbtn`) → expect navigation to
+9. Click a company card link `a.wcb-ca-card-link` (or its "View Profile" `.wcb-btn`) → expect navigation to
    `/companies/<slug>/` HTTP 200 rendering `div.wcb-company-profile.wcb-cp-wrap[data-wp-interactive="wcb-company-profile"]`
    with hero `.wcb-cp-name` (matching the card's company), meta chips `.wcb-cp-meta-chips`, and a "Company Details"
    section `.wcb-cp-details-grid`. (Single template `single_company_template()` `:180`-`190`; markup

@@ -72,6 +72,8 @@ const { state } = store( 'wcb-company-profile', {
 				// meta key - this used to send ?author= and could pull in
 				// another company's jobs from page 2 onward.
 				url.searchParams.set( 'company', String( state.companyId ) );
+				// Same rule as page 1: only jobs still taking applications.
+				url.searchParams.set( 'open', '1' );
 				url.searchParams.set( 'page', String( state.page ) );
 				url.searchParams.set( 'per_page', String( state.perPage ) );
 

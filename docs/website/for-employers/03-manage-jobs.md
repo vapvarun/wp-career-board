@@ -1,68 +1,60 @@
-# Manage Your Jobs
+# Manage your jobs
 
-The **My Jobs** tab in the Employer Dashboard shows all the jobs you have posted, with quick actions to manage each one.
+You can see every job you have posted in **My Jobs** and edit, close, reopen, resubmit or feature each one from there.
 
-![Employer Dashboard - My Jobs Tab](../images/employer-dashboard-jobs.png)
+## Open your jobs
 
-## Accessing Your Jobs
+1. Open the **Employer Dashboard** page.
+2. Click **My Jobs** in the sidebar (under Jobs). The badge shows your total job count.
+3. Use the search box to find a job by title.
 
-1. Go to the **Employer Dashboard** page (created by the Setup Wizard)
-2. Click **My Jobs** in the sidebar (under the JOBS section). Its badge shows your total job count.
-3. You will see a list of all your jobs with their current status
+My Jobs and Applications work as soon as you have jobs on file, even without a company profile. You still need a company profile before you can post a new job.
 
-Since 1.7.0, My Jobs and your Applications are available as soon as
-you have jobs on file, even if you haven't created a company profile
-yet. The dashboard no longer nags you to "set up your company profile
-first" while you're staring at a list of jobs you've already posted -
-that prompt only appears once, before you have any jobs, and you'll
-still need a company profile before posting a *new* job.
+Each row shows the job title, location, a status badge, a **Featured** badge when the job is featured, and an applicant count such as "3 applicants". Click the count to open that job's applications.
 
-## Filtering by Status
+## Filter by status
 
-A row of filter pills at the top of My Jobs lets you narrow the list:
+The pills at the top narrow the list: **All**, **Live**, **Draft**, **Pending**, **Closed** and **Rejected**. The **Closed** pill also includes expired jobs.
 
-**All**, **Live**, **Draft**, **Pending**, **Closed**, **Rejected**
-
-## Job Statuses
+## Job statuses
 
 | Status | Meaning |
 |---|---|
-| **Published** (Live) | Live on the job board, visible to candidates |
-| **Draft** | Saved but not yet submitted for review |
-| **Pending** | Submitted, waiting for admin approval |
-| **Rejected** | The admin declined the job; you can edit and resubmit it |
-| **Closed** | No longer accepting applications; hidden from the board |
-| **Expired** | Passed the expiry date; same as Closed |
+| **Published** (Live) | The job is live on the board and visible to candidates |
+| **Draft** | Saved but not yet submitted |
+| **Pending** | Submitted and waiting for a moderator |
+| **Awaiting payment** | Approved, but your credit balance did not cover it. It goes live once you top up |
+| **Rejected** | A moderator declined the job. You can edit it and resubmit |
+| **Closed** | You closed it. It no longer takes applications and is hidden from the board |
+| **Expired** | It passed its deadline and no longer takes applications. Where the site ends jobs at their deadline, it also left the listings and its page says it has expired |
 
-## Actions per Job
+## Actions for each job
 
-Each job row shows quick-action buttons that change based on the job's status:
+The buttons on each row change with the job's status:
 
-- **View ↗** - opens the public job listing in a new tab
-- **Edit** - opens the job for editing in the job form
-- **Close** - closes the job and stops accepting applications (active jobs only)
-- **Publish** - submits a saved draft for approval (draft jobs only)
-- **Resubmit** - sends a rejected job back for admin approval (rejected jobs only). It does not publish directly; it returns to Pending.
-- **Reopen** - puts a closed or expired job back on the board (inactive jobs only)
+- **View ↗** - opens the public job page in a new tab.
+- **Edit** - opens the job in the job form.
+- **Pipeline** - with Pro's Application Pipeline, opens that job's applicants in the pipeline. Hidden otherwise.
+- **Feature** - features a job so it lists first. It appears only when the site sells featured placement and the job is live and not already featured. You confirm the credit cost first. See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
+- **Close** - closes the job. You are asked to confirm.
+- **Publish** - sends a saved draft live, or to review when the site moderates jobs (drafts only).
+- **Resubmit** - sends a rejected job back for moderator approval (rejected jobs only). It returns to Pending. It does not publish directly.
+- **Reopen** - puts a closed or expired job back on the board with a fresh deadline. The site may charge credits for it.
 
-![Job Card Actions](../images/job-card-actions.png)
+## Edit a job
 
-## Editing a Job
+1. Click **Edit** on the job.
+2. The job form opens with the current details filled in.
+3. Make your changes and click **Update Job**.
 
-1. Click **Edit** on any job
-2. The multi-step Job Form opens pre-filled with the current data
-3. Make your changes and click **Update Job**
+A published job stays live while you edit it.
 
-> **Note:** If moderation is enabled, edits to a published job may require re-approval. The job stays live while under review.
+## Close a job
 
-## Closing a Job
+Click **Close** when the role is filled or you want to pause. The job leaves the listings and stops taking applications. Every applicant you have not hired or rejected moves to **Closed** and gets one email saying the position is closed. Applicants you already decided on keep their status. When you reopen the job, the applicants that closing moved go back to their earlier status without another email.
 
-Click **Close** to stop accepting new applications. The job is removed from the job board listing but the data is preserved. You can reopen it later.
+## When a job reaches its deadline
 
-Use this when:
-- You have filled the position
-- You want to temporarily pause applications
+A job that passes its deadline stops taking applications. Applications you already received stay as they are.
 
-## Application Count
-
-Each job card shows the number of applications received. Click the count to jump directly to the Applications view for that job.
+On sites that end jobs at their deadline (the default on new sites), the job moves to **Expired** within the hour. Its page keeps working for people who saved or shared the link, and shows that the job has expired. You get a **Job Ending Soon** email 3 days before the deadline and a **Job Expired** email afterwards. Reopen the job to set a new deadline.

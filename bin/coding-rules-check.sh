@@ -17,6 +17,10 @@
 #      dir/namespace mismatch, no class whose file .distignore strips)
 #   8. Design-system contracts: (a) single canonical token namespace, no legacy
 #      --wcb-accent/text/bg/warn aliases; (b) dual-context CSS keeps hex fallbacks
+#  10. One button system: no legacy `.wcb-cbtn` class
+#  11. No tracked generated assets (-rtl.css, .min.css/.js outside vendored code)
+#  12. No native browser dialogs (window.confirm/alert/prompt)
+#  13. One border width - no 1.5px borders (UI guideline: 1px; 2px only for focus/selected)
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -50,9 +54,9 @@ else
 		-not -path './vendor/*' -not -path './node_modules/*' -not -path './tests/*' \
 		-not -path './build/*' -not -path './dist/*' -not -path './libs/*' 2>/dev/null | tr '\n' ' ')
 	JS_FILES=$(find . -path '*/assets/js/*.js' -o -path '*/blocks/*/view.js' 2>/dev/null \
-		| grep -v '\.min\.js$' | grep -v node_modules | tr '\n' ' ')
+		| grep -v '\.min\.js$' | grep -vE 'node_modules|^\./(dist|build)/' | tr '\n' ' ')
 	CSS_FILES=$(find . \( -path '*/assets/css/*.css' -o -path '*/blocks/*/style.css' -o -path '*/blocks/*/styles/*.css' \) \
-		-not -path './node_modules/*' -not -path './vendor/*' 2>/dev/null | tr '\n' ' ')
+		-not -path './node_modules/*' -not -path './vendor/*' -not -path './dist/*' -not -path './build/*' 2>/dev/null | tr '\n' ' ')
 fi
 
 FAILED=0
@@ -66,16 +70,6 @@ if [ -n "$PHP_FILES" ]; then
 		case "$f" in
 			vendor/*|node_modules/*|tests/*|build/*|dist/*) continue ;;
 			*templates/emails/*) continue ;; # email templates are exempt
-			# R10 — pre-existing 1.1.0 tech debt, queued for refactor.
-			# These admin sites use wp.media (Email Settings logo upload),
-			# settings-nav UI scripts that depend on i18n strings inlined
-			# via esc_js(), or board-form drag-handle JS. Migrating to
-			# enqueued + wp_localize_script is non-trivial and out of scope
-			# for 1.1.0. Tracked in docs/qa/REFACTOR_NEEDED.md § R10.
-			*admin/class-email-settings.php) continue ;;
-			*admin/class-admin-meta-boxes.php) continue ;;
-			*admin/class-admin-settings.php) continue ;;
-			*admin/class-admin-boards.php) continue ;;
 		esac
 		hits=$(grep -nE '^[[:space:]]*<(script|style)([[:space:]]|>)' "$f" 2>/dev/null \
 			| grep -vE 'application/(ld\+json|json)' || true)
@@ -258,6 +252,54 @@ if [ -f "$ABSTRACT_EMAIL" ]; then
 	else
 		ok "Rule 9: AbstractEmail abstract contract frozen at the 1.5.0 five"
 	fi
+fi
+
+# --- Rule 10: one button system - no legacy `.wcb-cbtn` class ---
+# `.wcb-btn` (--primary|--secondary|--outline|--ghost|--danger) is the only
+# button ladder; `.wcb-cbtn` is retired and no block may bring it back or
+# redefine its own button.
+CBTN=$(grep -nE 'wcb-cbtn' $PHP_FILES $JS_FILES $CSS_FILES 2>/dev/null || true)
+if [ -n "$CBTN" ]; then
+	echo "$CBTN" | sed 's/^/    /'
+	report "Rule 10: legacy .wcb-cbtn class - use .wcb-btn (--outline replaces --ghost on archive cards)"
+else
+	ok "Rule 10: single .wcb-btn button system"
+fi
+
+# --- Rule 11: generated assets are never hand-kept ---
+# -rtl.css twins are written by `grunt rtl` and (later) minified files by the
+# build. A tracked copy drifts from its source: Free's admin-rtl.css sat 450
+# lines behind admin.css until RTL sites got a different, older admin. Vendored
+# third-party files (assets/js/vendor/*.min.js, libs/) are exempt.
+HANDKEPT=$(git ls-files 2>/dev/null | grep -E '(-rtl\.css|\.min\.(css|js))$' | grep -vE '(^|/)(vendor|libs|node_modules)/' || true)
+if [ -n "$HANDKEPT" ]; then
+	echo "$HANDKEPT" | sed 's/^/    /'
+	report "Rule 11: tracked generated file - delete it; -rtl.css comes from 'npm run rtl' (grunt rtl) and is gitignored"
+else
+	ok "Rule 11: no hand-kept generated assets"
+fi
+
+# --- Rule 12: no native browser dialogs ---
+# Confirmations go through the shared wcbConfirm() modal (wcb-confirm-modal,
+# a script dependency) and toasts through wcbToast(). A window.confirm fallback
+# hid in an inline script until 2026-09-28.
+NATIVE=$(grep -nE 'window\.(confirm|alert|prompt)[[:space:]]*\(' $PHP_FILES $(printf '%s\n' $JS_FILES | grep -v 'wcb-confirm-modal\.js') 2>/dev/null | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(//|\*|/\*)' || true)
+if [ -n "$NATIVE" ]; then
+	echo "$NATIVE" | sed 's/^/    /'
+	report "Rule 12: native browser dialog - use wcbConfirm() (depend on the wcb-confirm-modal script) or wcbToast()"
+else
+	ok "Rule 12: no native browser dialogs"
+fi
+
+# --- Rule 13: one border width ---
+# The UI guideline is 1px everywhere; 2px is only the focus ring and the
+# selected/active indicator. A 1.5px border drifted into eleven components.
+BORDER=$(grep -nE '1\.5px[[:space:]]+solid' $(printf '%s\n' $CSS_FILES | grep -v -- '-rtl\.css') 2>/dev/null | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(/\*|\*)' | grep -vE '/\*.*1\.5px' || true)
+if [ -n "$BORDER" ]; then
+	echo "$BORDER" | sed 's/^/    /'
+	report "Rule 13: 1.5px border - the guideline is 1px (2px only for focus or the selected state)"
+else
+	ok "Rule 13: one border width (no 1.5px)"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

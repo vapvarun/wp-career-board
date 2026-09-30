@@ -22,6 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobsModule {
 
 	/**
+	 * Job taxonomies that get a term archive showing the scoped listing.
+	 *
+	 * @var string[]
+	 */
+	public const TAXONOMIES = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
+
+	/**
+	 * Taxonomy => job-listings REST filter param. wcb_tag has none.
+	 *
+	 * @var array<string,string>
+	 */
+	private const REST_PARAMS = array(
+		'wcb_category'   => 'category',
+		'wcb_job_type'   => 'type',
+		'wcb_location'   => 'location',
+		'wcb_experience' => 'experience',
+	);
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -32,9 +51,20 @@ final class JobsModule {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_filter( 'template_include', array( $this, 'single_job_template' ) );
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
+		add_action( 'wp', array( $this, 'scope_listing_to_term' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
+		JobSearch::boot();
+		// Any job save (REST, wp-admin, cron, CLI) invalidates the cached REST
+		// job lists. Registered here, not with the REST routes, which only
+		// load on REST requests.
+		add_action(
+			'save_post_wcb_job',
+			static function (): void {
+				update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
+			}
+		);
 		// Member blocking on the SSR frontend. REST already excludes blocked
 		// authors (class-jobs-endpoint.php author__not_in / is_hidden); mirror it
 		// on the server-rendered listings + single job so a blocked employer's
@@ -209,11 +239,50 @@ final class JobsModule {
 		// A theme's own single-wcb_job.php wins, as do the bundled Reign /
 		// BuddyX Pro integration templates. See TemplateOverride: the old check
 		// was a plugin-path sniff, so a theme template was silently replaced.
-		if ( \WCB\Core\TemplateOverride::keep( $template ) ) {
+		if ( \WCB\Core\TemplateOverride::keep( $template, 'single-wcb_job.php' ) ) {
 			return $template;
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/single-wcb_job.php';
 		return file_exists( $override ) ? $override : $template;
+	}
+
+	/**
+	 * Scope the job-listings block to the queried term on a taxonomy archive.
+	 *
+	 * Runs for classic and block themes alike: the block renders the first page
+	 * from the filtered query args, and "Load more" and the filters reuse the
+	 * REST base URL, so both carry the term.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function scope_listing_to_term(): void {
+		$term = is_tax( self::TAXONOMIES ) ? get_queried_object() : null;
+		if ( ! $term instanceof \WP_Term ) {
+			return;
+		}
+
+		add_filter(
+			'wcb_job_listings_query_args',
+			static function ( array $args ) use ( $term ): array {
+				$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy' => $term->taxonomy,
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
+				);
+				return $args;
+			}
+		);
+
+		$param = self::REST_PARAMS[ $term->taxonomy ] ?? '';
+		if ( $param ) {
+			add_filter(
+				'wcb_job_listings_api_base',
+				static fn ( string $url ): string => add_query_arg( $param, $term->slug, $url )
+			);
+		}
 	}
 
 	/**
@@ -225,7 +294,7 @@ final class JobsModule {
 	 * @return string
 	 */
 	public function taxonomy_archive_template( string $template ): string {
-		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) ) {
+		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/archive-tax.php';
@@ -280,6 +349,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Categories', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Job Categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
@@ -293,6 +363,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Types', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job Type', 'wp-career-board' ), false ),
 				'hierarchical'      => false,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),
@@ -306,6 +377,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'        => __( 'Job Tags', 'wp-career-board' ),
+				'labels'       => self::taxonomy_labels( __( 'Job Tags', 'wp-career-board' ), __( 'Job Tag', 'wp-career-board' ), false ),
 				'hierarchical' => false,
 				'show_in_rest' => true,
 				'rewrite'      => array( 'slug' => 'job-tag' ),
@@ -317,6 +389,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Locations', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Locations', 'wp-career-board' ), __( 'Location', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-location' ),
@@ -330,10 +403,71 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'        => __( 'Experience Levels', 'wp-career-board' ),
+				'labels'       => self::taxonomy_labels( __( 'Experience Levels', 'wp-career-board' ), __( 'Experience Level', 'wp-career-board' ), false ),
 				'hierarchical' => false,
 				'show_in_rest' => true,
 				'rewrite'      => array( 'slug' => 'job-experience' ),
 			)
 		);
+	}
+
+	/**
+	 * The full label set for a job taxonomy. Passing only `label` leaves every
+	 * other label at WordPress's generic "Category" / "Tag" text (Edit Category,
+	 * Add New Tag) on all five screens.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $plural       Plural name, e.g. "Job Types".
+	 * @param string $singular     Singular name, e.g. "Job Type".
+	 * @param bool   $hierarchical Whether terms have parents.
+	 * @return array<string, string>
+	 */
+	private static function taxonomy_labels( string $plural, string $singular, bool $hierarchical ): array {
+		$labels = array(
+			'name'                  => $plural,
+			'singular_name'         => $singular,
+			'menu_name'             => $plural,
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'search_items'          => sprintf( __( 'Search %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'all_items'             => sprintf( __( 'All %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'edit_item'             => sprintf( __( 'Edit %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'view_item'             => sprintf( __( 'View %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'update_item'           => sprintf( __( 'Update %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'add_new_item'          => sprintf( __( 'Add New %s', 'wp-career-board' ), $singular ),
+			/* translators: %s: singular name, e.g. "Job Type". */
+			'new_item_name'         => sprintf( __( 'New %s Name', 'wp-career-board' ), $singular ),
+			/* translators: %s: plural name, lower case, e.g. "job types". */
+			'not_found'             => sprintf( __( 'No %s found.', 'wp-career-board' ), mb_strtolower( $plural ) ),
+			/* translators: %s: plural name, lower case, e.g. "job types". */
+			'no_terms'              => sprintf( __( 'No %s', 'wp-career-board' ), mb_strtolower( $plural ) ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'back_to_items'         => sprintf( __( '&larr; Go to %s', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'items_list'            => sprintf( __( '%s list', 'wp-career-board' ), $plural ),
+			/* translators: %s: plural name, e.g. "Job Types". */
+			'items_list_navigation' => sprintf( __( '%s list navigation', 'wp-career-board' ), $plural ),
+		);
+		if ( $hierarchical ) {
+			/* translators: %s: singular name, e.g. "Job Category". */
+			$labels['parent_item'] = sprintf( __( 'Parent %s', 'wp-career-board' ), $singular );
+			/* translators: %s: singular name, e.g. "Job Category". */
+			$labels['parent_item_colon'] = sprintf( __( 'Parent %s:', 'wp-career-board' ), $singular );
+		} else {
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['popular_items'] = sprintf( __( 'Popular %s', 'wp-career-board' ), $plural );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['separate_items_with_commas'] = sprintf( __( 'Separate %s with commas', 'wp-career-board' ), mb_strtolower( $plural ) );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['add_or_remove_items'] = sprintf( __( 'Add or remove %s', 'wp-career-board' ), mb_strtolower( $plural ) );
+			/* translators: %s: plural name, lower case, e.g. "job tags". */
+			$labels['choose_from_most_used'] = sprintf( __( 'Choose from the most used %s', 'wp-career-board' ), mb_strtolower( $plural ) );
+		}
+		return $labels;
 	}
 }

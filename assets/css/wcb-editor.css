@@ -9,7 +9,7 @@
 
 .wcb-editor {
 	display: block;
-	border: 1.5px solid var(--wcb-border);
+	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	background: var(--wcb-base);
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);

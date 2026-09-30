@@ -5,10 +5,13 @@
  * and main columns read as one cohesive layout.
  */
 
+/* radius-xl, matching every other sidebar/aside card - was its own
+ * hardcoded radius-2xl copy instead of actually matching .wcb-cp-side-
+ * card (Basecamp 10348288572, owner: uniform). */
 .wcb-similar-companies-card {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
+	border-radius: var(--wcb-radius-xl);
 	padding: var(--wcb-space-2xl) var(--wcb-space-2xl);
 }
 
@@ -55,22 +58,8 @@
 	text-decoration: none;
 }
 
-.wcb-similar-companies-card__logo,
-.wcb-similar-companies-card__initial {
-	flex: 0 0 36px;
-	width: 36px;
-	height: 36px;
-	border-radius: var(--wcb-radius-sm, 6px);
-	object-fit: cover;
-}
-
-.wcb-similar-companies-card__initial {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	background: var(--wcb-accent-bg, #eef2ff);
-	color: var(--wcb-accent-strong, #4338ca);
-	font-weight: 600;
+.wcb-similar-companies-card__avatar {
+	--wcb-avatar-size: 36px;
 }
 
 .wcb-similar-companies-card__body {
@@ -90,27 +79,26 @@
 }
 
 .wcb-similar-companies-card__meta {
-	display: inline-flex;
+	display: flex;
+	min-width: 0;
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-muted);
 }
 
+/* One line with an ellipsis, like the name above it. */
+.wcb-similar-companies-card__loc {
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 .wcb-similar-companies-card__meta [data-lucide],
 .wcb-similar-companies-card__meta .wcb-icon {
 	width: 12px;
 	height: 12px;
-}
-
-.wcb-similar-companies-card--empty .wcb-similar-companies-card__empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-lg) 0;
-	color: var(--wcb-muted);
-	text-align: center;
 }
 
 @media (max-width: 640px) {

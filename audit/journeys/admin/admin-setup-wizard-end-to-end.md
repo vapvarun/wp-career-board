@@ -3,7 +3,7 @@ id: admin-setup-wizard-end-to-end
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-15
+last_verified: 2026-09-27
 needs: cli
 bug_ref: Basecamp 9890815047
 ---
@@ -20,7 +20,7 @@ bug_ref: Basecamp 9890815047
 >
 > `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
 
-**Why this journey exists:** Guards the full wizard lifecycle: page renders, each step's REST endpoint responds correctly, the "Create Pages" step persists page IDs into `wcb_settings`, and the completion step sets `wcb_setup_complete = true` so the wizard does not relaunch on the next admin visit.
+**Why this journey exists:** Guards the full wizard lifecycle: page renders without the admin menu (focus mode), each step's REST endpoint responds correctly, the Pages step creates every page in `Pages::definitions()` (Pro's Find Candidates and Job Map included), each settings step saves through the settings schema without wiping other keys, and the completion step sets `wcb_setup_complete = true` so the wizard does not relaunch on the next admin visit.
 
 ## Steps
 
@@ -48,7 +48,15 @@ bug_ref: Basecamp 9890815047
    "
    ```
    → both values are > 0 (page IDs were created and saved)
-6. Execute Step 2 (Sample Data — skip sample data install):
+6. Save a settings step (Sign-ups + Jobs) exactly as the wizard buttons do:
+   ```bash
+   curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/settings" \
+     -H "X-WP-Nonce: $NONCE" -H "Content-Type: application/json" \
+     -d '{"settings":{"users_can_register":1,"require_email_verification":1,"jobs_expire_days":45,"salary_currency":"EUR","not_a_setting":"x"}}'
+   ```
+   → `{"saved": true}`; `wp option get users_can_register` = 1; `wcb_settings` has `jobs_expire_days` 45, `salary_currency` EUR, `require_email_verification` true, no `not_a_setting`, and every key present before the call (e.g. `max_resumes`, page IDs) is unchanged.
+   In the browser: the stepper marks finished steps done, a finished step can be reopened from the stepper with its saved value shown, "Skip for now" advances without saving, and the CAPTCHA step shows only the chosen provider's key fields.
+7. Execute the Sample Data step — skip sample data install):
    ```bash
    curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/sample-data" \
      -H "X-WP-Nonce: $NONCE" \
@@ -56,19 +64,19 @@ bug_ref: Basecamp 9890815047
      -d '{"install_sample": 0}' | python3 -m json.tool
    ```
    → expect `{"installed": false}`
-7. Execute the completion step:
+8. Execute the completion step:
    ```bash
    curl -s -X POST "$WCB_SITE/wp-json/wcb/v1/wizard/complete" \
      -H "X-WP-Nonce: $NONCE" | python3 -m json.tool
    ```
    → expect JSON with `redirect` key pointing to `admin.php?page=wp-career-board`
-8. Verify the completion flag is set:
+9. Verify the completion flag is set:
    ```bash
    wp option get wcb_setup_complete
    ```
    → output is `1`
-9. Verify the wizard does NOT relaunch: navigate to `admin.php?page=wp-career-board&autologin=1` → expect the Career Board dashboard, NOT a redirect to the wizard
-10. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
+10. Verify the wizard does NOT relaunch: navigate to `admin.php?page=wp-career-board&autologin=1` → expect the Career Board dashboard, NOT a redirect to the wizard
+11. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown
 
@@ -81,7 +89,7 @@ wp option update wcb_setup_complete 1
 
 ## Notes
 
-- In v1.1.0 the wizard has 2 steps: `create-pages` and `sample-data`. Pro injects additional steps via the `wcb_wizard_steps` filter (`class-pro-setup-wizard.php`). If Pro is active, the step list will be longer — enumerate via `wcbWizard.steps` in the page source.
+- Since 1.8.0 Free has 6 steps: `create-pages`, `registration`, `jobs`, `emails`, `anti-spam`, `sample-data`. Pro inserts `license` and `credits` ("How Employers Pay") before `sample-data` via `wcb_wizard_steps`. Enumerate via `wcbWizard.steps` in the page source.
 - The "Skip" path for each step is handled in the frontend JS (user clicks "Skip" → still calls the step endpoint but ignores the response). For this journey, the REST calls simulate "Skip" behavior (steps execute with minimal side effects).
 - The wizard page slug is `wcb-setup` (registered under `options.php` parent to hide from the submenu), not `wcb-setup-wizard`.
 - `SetupWizard::is_setup_complete()` checks the `wcb_setup_complete` flag AND falls back to checking if any core page IDs are set. Setting the flag to 0 is enough to reopen the wizard only if no pages are configured.

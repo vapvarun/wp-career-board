@@ -121,7 +121,7 @@ class EmailAppConfirmation extends AbstractEmail {
 			return;
 		}
 
-		$dashboard     = \WCB\Admin\Settings::int( 'candidate_dashboard_page', 0 );
+		$dashboard     = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
 		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
 		$this->send(
@@ -131,7 +131,12 @@ class EmailAppConfirmation extends AbstractEmail {
 				'job_title'      => $job->post_title,
 				'dashboard_url'  => $dashboard_url,
 			),
-			$candidate_id
+			$candidate_id,
+			array(
+				'object_type' => 'application',
+				'object_id'   => $app_id,
+				'actor_id'    => $candidate_id, // Self-action: not a community notification.
+			)
 		);
 	}
 }

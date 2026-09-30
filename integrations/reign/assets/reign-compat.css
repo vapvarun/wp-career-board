@@ -33,8 +33,6 @@
 	--wcb-primary-ring: color-mix( in srgb, var( --wcb-primary ) 16%, transparent );
 
 	/* Darker shade for hover/active — tracks whatever accent resolved. */
-	--wcb-primary-dark: #1d4ed8;
-	--wcb-primary-dark: color-mix( in srgb, var( --wcb-primary ) 85%, #000 );
 
 	/* Text — Reign's heading colour for strong titles, body colour for copy,
 	   the lighter alternate colour for tertiary/meta. */
@@ -59,23 +57,9 @@
 	--wcb-danger:  var( --reign-color-error, #dc2626 );
 	--wcb-info:    var( --reign-color-info, #2563eb );
 
-	/* Avatar background — uses Reign's heading colour so initials read
-	   correctly against the theme's preferred contrast tone. */
-	--wcb-avatar-bg: var( --reign-site-headings-color, #1e293b );
-}
-
-/* Honour the Customizer primary colour on WCB interactive elements */
-.wcb-btn-primary,
-.wcb-apply-btn,
-.wcb-save-btn {
-	background-color: var( --wcb-primary );
-	border-color: var( --wcb-primary );
-}
-
-.wcb-btn-primary:hover,
-.wcb-apply-btn:hover,
-.wcb-save-btn:hover {
-	filter: brightness( 1.1 );
+	/* No --wcb-avatar-bg here: it is a surface, and Reign's heading colour is
+	   text, which is light in dark mode (a white chip with white initials).
+	   The plugin's own light and dark values apply. */
 }
 
 /* Strip double padding that Reign adds to .entry-content inside its content canvas */
@@ -101,9 +85,9 @@
 }
 
 .wcb-chip.wcb-chip-active {
-	border-color: var( --wcb-primary );
-	background: var( --wcb-primary );
-	color: var( --reign-site-button-text-color, #ffffff );
+	border-color: var(--wcb-primary-strong);
+	background: var(--wcb-primary-strong);
+	color: var( --wcb-on-primary, #ffffff );
 }
 
 .wcb-clear-all:hover {
@@ -122,18 +106,38 @@
 	transition: outline-color var( --wcb-transition-snappy, 0.15s ease );
 }
 
-/* Load more button - retired in 1.2.x. The unified .wcb-cbtn--ghost rule
+/* Load more button - retired in 1.2.x. The unified .wcb-btn--outline rule
    in assets/css/wcb-ui.css now scopes the Load more button alongside the
    in-card View Job / View Profile / View Company CTAs, so a Reign-specific
    override is no longer needed. */
 
-/* Reign uses box-shadows for card depth — match WCB job cards */
-.wcb-job-card {
-	box-shadow: var( --wcb-shadow-sm, 0 1px 3px rgba( 0, 0, 0, 0.08 ) );
-	border-radius: var( --wcb-radius-sm, 6px );
-}
-
 /* Status badges inside Reign tables */
 .wcb-status-badge {
 	font-size: 0.78em;
+}
+
+/* Reign forces `.entry-content > * { margin-bottom: 1.375rem !important }` on
+ * every direct child, which wins over a plugin block's own margin regardless
+ * of specificity - measured 23.375px, an off-scale value, on job-search,
+ * job-filters and job-listings (the plugin's own block-root margins never
+ * applied on Reign at all). Only the plugin's own top-level block wrappers
+ * are reset; anything else inside .entry-content keeps Reign's rhythm. */
+[class*="wp-block-wp-career-board"],
+[class*="wp-block-wcb-"] {
+	margin-block-end: 0 !important;
+}
+
+/* One plugin gap between any two stacked plugin blocks (search + filters +
+ * listings, resume search hero + archive), instead of a per-block list that
+ * missed Find Candidates and left its seam at 0. */
+.entry-content > :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) + :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) {
+	margin-block-start: var(--wcb-space-lg) !important;
+}
+
+/* Reign 8.0.8 sets `textarea { border-radius: 6px !important }` on everything
+ * outside its $plugin-ui exclusion list (which names only BuddyNext), so the
+ * shared field radius can't win without !important. Same mirror-the-keyword
+ * pattern as the block margin reset above. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea {
+	border-radius: var(--wcb-radius-md) !important;
 }

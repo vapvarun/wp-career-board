@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,59 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.0 - September 2026 =
+
+A large reliability, safety and presentation release: one rule per job, application and candidate, safer accounts and files, paid Featured, a setup wizard, and one consistent look on every theme.
+
+* New      - Setup wizard with safer defaults, regrouped settings and a clean uninstall.
+* New      - Credits tab with buy links wherever a job needs credits, paid Featured jobs, and featured jobs listed first everywhere.
+* New      - Private hiring notes and a 1-5 rating on each application, plus an employer CSV export of applications.
+* New      - Rejection email, guest status emails, welcome and account-deletion emails, and per-member email preferences.
+* New      - Email editor preview, and every email is built in the recipient's own language.
+* New      - One Brand setting for emails, the app and the PWA.
+* New      - Google for Jobs markup built from the job's own data, with admin controls.
+* New      - Expired jobs show a closed page instead of a 404, and employers are warned before a job ends.
+* New      - WP Job Manager import brings closed jobs, pay units, company pages and applications.
+* New      - Alert me saves the whole search, including the guest email.
+* New      - Pipeline link on each dashboard job row.
+* New      - A Site Health check flags a theme's copy of a Career Board template once it falls behind the plugin's.
+* New      - Visitor IP address setting, so per-IP limits see the real visitor behind a proxy or CDN.
+* Improve  - One job search for every surface; filters no longer bury results, featured jobs lead a keyword search, and the salary filter compares pay per year.
+* Improve  - Application lists, counts and the applications board work at any size and with keyboard and touch.
+* Improve  - One shared page container, heading scale, card, button, form field and control height across every theme, including block themes.
+* Improve  - Status, danger and small text pass WCAG AA contrast on every theme, and every tap target is at least 40px.
+* Improve  - The notification bell shows a relative time instead of a raw timestamp.
+* Improve  - Admin dashboard totals, candidate and employer counts and the companies list stay fast on large sites.
+* Improve  - Translation ready: currency names, the import log, the email pager and every admin string are translatable.
+* Fix      - Block scripts and styles now load with the plugin version, so browsers pick up changes after an update.
+* Fix      - Post a Job saves the description editor before Next or Publish, and a double-click no longer creates two jobs or skips a step.
+* Fix      - Screening questions render real controls, store the chosen answer and show it to the employer.
+* Fix      - Salaries are never rounded, including values in the millions.
+* Fix      - Guests see a sign-in link for saving jobs, and apply follows the Require login to apply setting everywhere.
+* Fix      - Candidates see the post-apply job alert prompt again.
+* Fix      - A copy missing its bundled update library no longer takes the site down; automatic updates pause and admins are told to reinstall.
+* Fix      - The application edit screen and the block editor no longer write notices to the debug log.
+* Fix      - Cancel or Escape on a confirm dialog no longer carries out the action, and destructive dialogs open with Cancel focused.
+* Fix      - Legacy featured jobs without a start date now expire.
+* Fix      - Resume import requires Pro on REST and WP-CLI, matching the admin screen.
+* Fix      - Shortcode attributes map to the block's settings correctly.
+* Security - Candidate CVs and files live in private storage behind a gated download.
+* Security - Changing a member's email or password requires the current password, including on the REST user route.
+* Security - A wrong password no longer reveals whether an unconfirmed account exists, and a lost confirmation email can be re-sent.
+* Security - Uploads accept images only where images are expected, with shared per-IP limits and a private app config.
+* Security - Employers cannot apply to jobs, required questions are enforced on the server, and apply and notes are protected against double submission.
+* Security - Banned employers' listings stay hidden, suspended candidates and hidden companies are off the REST API, and only established reporters count toward auto-hide.
+* Security - Personal data export and erasure cover every Career Board record, and deleted accounts anonymise their applications.
+* Security - Signed-out visitors can no longer list guest applications through the candidate applications endpoint.
+* Security - Employers can no longer publish a job past moderation by closing and reopening it.
+* Security - Guest applications move to a new account only after that account confirms its email address.
+* Security - The private file link serves only candidate files, not other attachments.
+* Security - The job and company blocks no longer show unpublished posts named in a shortcode.
+* Security - Bulk Approve on the Jobs screen only acts on jobs.
+* Dev      - Community notification contract so a notification center gets one signal per event, and every status change fires wcb_application_status_updated.
+* Dev      - Hooks for custom field details and filter chips.
+* Dev      - RTL stylesheets are generated at build time.
 
 = 1.7.2 - September 2026 =
 

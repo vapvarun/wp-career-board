@@ -22,7 +22,7 @@ partial per shared building block."
 | Layer | Where | Notes |
 |---|---|---|
 | Tokens | `assets/css/frontend-tokens.css` | `--wcb-primary / --wcb-on-primary / --wcb-radius-* / --wcb-space-* / --wcb-shadow-* / --wcb-success / --wcb-warning / --wcb-danger`. Theme-override-aware via `var(--wcb-primary, fallback)`. |
-| Buttons | `assets/css/wcb-ui.css` | `.wcb-cbtn / --ghost / --primary / --danger` at (0,3,1) parent-prefix specificity. |
+| Buttons | `assets/css/wcb-ui.css` | `.wcb-btn / --ghost / --primary / --danger` at (0,3,1) parent-prefix specificity. |
 | Bookmark | `assets/css/wcb-ui.css` | `.wcb-bookmark-btn` absolute top-right + `.wcb-bookmarked` filled state. |
 | Empty state | `assets/css/wcb-ui.css` | `.wcb-empty-state` + `.wcb-empty-state__icon / __title / __body`. |
 | Load more | `assets/css/frontend-components.css` | `.wcb-load-more-wrap / .wcb-load-more-btn` + `.wcb-load-more-loading` toggle. |

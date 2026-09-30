@@ -63,14 +63,24 @@
 	</custom-fields>
 
 	<admin-texts>
+		<!--
+			Everything lives in the one wcb_settings option. Email subjects and
+			bodies are stored per email id (emails.{id}.subject|body), so the
+			wildcard covers emails added by Pro or add-ons too.
+		-->
 		<key name="wcb_settings">
 			<key name="from_name" />
 			<key name="from_email" />
 			<key name="notification_email" />
-		</key>
-		<key name="wcb_email_settings">
-			<key name="footer_text" />
-			<key name="primary_color" />
+			<key name="emails">
+				<key name="brand">
+					<key name="footer_text" />
+				</key>
+				<key name="*">
+					<key name="subject" />
+					<key name="body" />
+				</key>
+			</key>
 		</key>
 	</admin-texts>
 </wpml-config>

@@ -50,7 +50,7 @@ final class StatusChanger extends AbstractWidget {
 	 * @return string
 	 */
 	public function ability(): string {
-		return 'wcb_view_applications';
+		return 'wcb/view-applications';
 	}
 
 	/**
@@ -79,12 +79,20 @@ final class StatusChanger extends AbstractWidget {
 			return '';
 		}
 
-		$current = (string) get_post_meta( $post->ID, '_wcb_status', true );
+		$current = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $post->ID );
 		if ( '' === $current ) {
 			$current = 'submitted';
 		}
-		$labels = StatusTimeline::status_labels();
-		$nonce  = wp_create_nonce( 'wp_rest' );
+		// Employers and admins pick from the actionable set; a withdrawn or
+		// job-removed application shows its outcome instead of a picker.
+		$labels = array_intersect_key(
+			StatusTimeline::status_labels(),
+			array_flip( \WCB\Modules\Applications\ApplicationStatus::employer_actionable() )
+		);
+		if ( ! isset( $labels[ $current ] ) ) {
+			return '';
+		}
+		$nonce = wp_create_nonce( 'wp_rest' );
 
 		ob_start();
 		?>

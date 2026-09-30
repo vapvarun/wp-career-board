@@ -133,7 +133,11 @@ class EmailJobApproved extends AbstractEmail {
 				'job_title' => $job->post_title,
 				'job_url'   => (string) get_permalink( $job_id ),
 			),
-			$employer->ID
+			$employer->ID,
+			array(
+				'object_type' => 'job',
+				'object_id'   => $job_id,
+			)
 		);
 	}
 }

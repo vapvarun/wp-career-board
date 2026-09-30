@@ -23,9 +23,27 @@ defined( 'ABSPATH' ) || exit;
 				<i data-lucide="briefcase" class="wcb-icon--lg"></i>
 				<?php esc_html_e( 'WP Career Board', 'wp-career-board' ); ?>
 			</h2>
-			<p class="wcb-page-header__desc"><?php esc_html_e( 'Quick setup  -  takes about 2 minutes', 'wp-career-board' ); ?></p>
+			<p class="wcb-page-header__desc"><?php esc_html_e( 'Quick setup  -  takes about 2 minutes. Every answer can be changed later in Settings.', 'wp-career-board' ); ?></p>
 		</div>
+		<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=wp-career-board' ) ); ?>"><?php esc_html_e( 'Exit setup', 'wp-career-board' ); ?></a>
 	</div>
+
+	<nav aria-label="<?php esc_attr_e( 'Setup steps', 'wp-career-board' ); ?>">
+		<ol class="wcb-wizard-progress" id="wcb-wizard-progress">
+			<?php
+			$wcb_step_num = 0;
+			foreach ( $steps as $wcb_step ) :
+				++$wcb_step_num;
+				?>
+				<li class="<?php echo 1 === $wcb_step_num ? 'is-current' : ''; ?>" data-step="<?php echo (int) $wcb_step_num; ?>" <?php echo 1 === $wcb_step_num ? 'aria-current="step"' : ''; ?>>
+					<button type="button" data-wcb-wizard-goto="<?php echo (int) $wcb_step_num; ?>" <?php disabled( 1 !== $wcb_step_num ); ?>>
+						<span class="wcb-wizard-progress__num"><?php echo (int) $wcb_step_num; ?></span>
+						<span class="wcb-wizard-progress__label"><?php echo esc_html( $wcb_step['title'] ); ?></span>
+					</button>
+				</li>
+			<?php endforeach; ?>
+		</ol>
+	</nav>
 
 	<div class="wcb-wizard-steps" id="wcb-wizard-steps">
 

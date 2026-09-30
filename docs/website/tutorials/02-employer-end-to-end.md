@@ -1,325 +1,134 @@
-# Employer End-to-End: Hiring with WP Career Board
+# Employer end to end
 
-A complete walkthrough of one hiring round from the employer's
-perspective: register, set up your company, post the role, review
-applicants, hire, and close out. This is what you'd hand to a new
-employer joining your board.
-
-Free flow throughout. Pro-only steps are flagged inline.
-
-## What a typical hiring round looks like
-
-| Phase | Time | What you do |
-|---|---|---|
-| Setup | Day 0 | Register, set up company profile, buy credits if needed |
-| Post | Day 0 | Draft the role, publish |
-| Promote | Day 0-3 | Share on socials, internal channels |
-| Review | Day 3-14 | Read applications, shortlist, interview |
-| Decision | Day 14-21 | Make offers, mark hired, close the role |
-| Close out | Day 21+ | Archive the role, manage company profile for next round |
+You can run a full hiring round from the employer dashboard: register, set up your company, post a job, review applicants, hire, and close the role. This walkthrough covers each step.
 
 ## Step 1 - Register as an employer
 
-Most boards have a public registration link. Look for one of these:
+Open the employer registration page, usually at `/employer-registration/`. Your site owner may also link it from the menu or from a **Post a Job** button. If you cannot find a link, ask the site owner for the address.
 
-- A button on the main job board (`/find-jobs/`) saying "Post a Job."
-- A link in the site menu to "Employers" or "Hire Talent."
-- A direct URL like `/employer-registration/`.
+1. Choose **Hire Talent**.
+2. Enter your name, email and a password of at least 8 characters.
+3. Enter your company name. You can also add its website, industry, size and headquarters.
+4. Submit.
 
-If you can't find it, your site admin may not have wired the link.
-Email them - registration is open but unlinked.
+If the site asks new members to confirm their email, open the link in the message you receive, then sign in. Otherwise you are signed in straight away and receive a Welcome email.
 
-Fill in:
-
-- Your name and email.
-- A password (or a magic-link if the site uses that).
-- Your company name (used to create your company profile).
-- Optional: phone, role at the company.
-
-You'll get a welcome email. Some sites require you to verify your
-email by clicking the link before you can post - if so, do that
-first. Then log in.
+Registration creates your company profile from the company name.
 
 ## Step 2 - Complete your company profile
 
-You're now in the **Employer Dashboard**. Before posting your first
-job, complete the company profile - applicants see it on every job.
+Applicants see your company profile on every job. Open the **Employer Dashboard** and go to **Company > Profile**. You can set:
 
-**Employer Dashboard → Company.**
+- **Company Logo** - a JPEG, PNG, WebP or GIF image. Save the profile first, then upload the logo.
+- **Company Name** and **Tagline** - the tagline is a one-line description shown on listings.
+- **About the Company**
+- **Industry**, **Company Size** and **Company Type**
+- **HQ Location**
+- **Website**, **LinkedIn** and **X (Twitter)**
+- **Founded Year**
 
-- **Logo** - square or rectangular, at least 200×200, max 2 MB. PNG /
-  JPG. Most boards display 120-200 px.
-- **Banner** - optional, 1200×400 or similar wide format.
-- **Tagline** - one sentence (under 100 chars). "Building open source
-  developer tools" is good; "We are a leading provider of innovative
-  solutions" is filler.
-- **About** - two or three paragraphs. What you do, who you serve,
-  what's the team like. Specifics beat marketing copy.
-- **Website** - full URL including `https://`.
-- **Locations** - at least one city. Multi-location companies can list
-  several.
-- **Size** - 1-10, 11-50, 51-200, etc. Helps candidates pre-filter.
-- **Founded** - year. Optional but adds trust signal.
-- **Industry** - pick the closest match.
+The **Live Preview** beside the form shows how the profile looks. Click **Save Profile**. Your public company page lives under `/companies/` on the site. Use **Company > Public Page** to open it.
 
-Save. Open your company in a private window - you should see a public
-company page at `/company/your-slug/`. If it looks empty or wrong, go
-back and fix.
+## Step 3 - Get posting credits, if your board charges for jobs
 
-## Step 3 - Acquire posting credits (if your board uses them)
+Free boards post jobs without charge. Charging for job posts and featured listings with credits is a Pro feature. If your board uses credits, your balance shows on the dashboard overview, and the **Credits** section of the dashboard is where you manage it. When your balance is too low to post, the job form shows a **Buy Credits** link if the site owner has set up a purchase page.
 
-**If posting is free on this board,** skip this step.
+For how credits are set up and bought, see the Pro docs page **Credit system**.
 
-**Credit-based posting requires WP Career Board Pro.** Free posts are
-always free; the credit balance, ledger, and checkout flow ship in Pro
-(powered by the Wbcom Credits SDK). If the board uses credits:
+## Step 4 - Post your first job
 
-1. **Employer Dashboard.** Your current credit balance shows on the
-   overview stat cards.
-2. When a board has a per-post credit cost and your balance is too low,
-   the job form shows a **Buy Credits** link. (The link only appears
-   when the site owner has configured a purchase URL via the
-   `wcb_credit_purchase_url` filter / Pro settings.)
-3. Complete the checkout your site owner set up.
-4. After payment, your balance updates and the post deducts the
-   required credits.
+Open **Employer Dashboard > Post a Job**. The form has four steps.
 
-If your balance doesn't update:
+### Job Basics
 
-- Refresh the dashboard.
-- Confirm the payment completed on whatever checkout your site uses.
-- Contact the site admin if it still doesn't show.
+- **Job Title** - write the title a candidate would search for. "Senior Frontend Engineer" works better than a clever title.
+- **Job Description** - open with what the role is, then list responsibilities and requirements. Use the inline toolbar and the block menu for headings, lists and links.
 
-## Step 4 - Draft and post your first job
+### Job Details
 
-**Employer Dashboard → Post a Job.**
+- **Salary Range** - choose the currency, a minimum and maximum, and the period (year, month or hour). Leave it blank to hide salary from candidates.
+- **Remote-friendly position** - tick this for remote roles.
+- **Application Deadline** - shown for information. It is filled in from the board's listing length and you cannot edit it. Ask the site owner if you need a longer listing.
+- **Apply URL** and **Apply Email** - both are optional. Leave them empty to receive applications inside the dashboard. Fill in **Apply URL** to send candidates to your own application system. The job page then shows **Apply on Company Site**. Fill in **Apply Email** to show an address candidates can apply to.
 
-### Fill the basic info
+### Classify Your Job
 
-- **Title** - write the title a candidate would search for. "Senior
-  Frontend Engineer" beats "Software Engineer III" beats "Code
-  Wizard." Be specific without being clever.
-- **Company** - auto-filled from your profile. Verify it's right.
-- **Job type** - Full-time / Part-time / Contract / Internship /
-  Temporary.
-- **Category** - one or more. Don't dump everything in "Other."
-- **Location** - city, state, country. If remote, set both a "Remote"
-  flag AND a primary city (helps with time-zone matching).
-- **Deadline / Apply by** - the date the listing expires. Default 30
-  days from posting. Leave blank for "until filled" if your board
-  supports it.
+- **Category**, **Job Type** and **Location**. Location is required unless the job is remote. Choose **Other (enter manually)** if your city is not in the list.
+- **Experience Level**
+- **Skills / Tags** - comma-separated. These help candidates find your job by keyword.
 
-### Write the description
+### Preview & Submit
 
-The description is the single most important thing about the listing.
-A few principles:
+Review the job, go back to fix anything, then submit.
 
-- **Open with what the role is**, not what your company does. A
-  candidate skims this in 8 seconds - anchor them in the role first.
-- **List 5-8 responsibilities** as bullets.
-- **List 4-6 requirements** as bullets. Split nice-to-have from must-
-  have if relevant.
-- **Be honest about expectations.** Time zones, on-call, travel,
-  in-office days - say it up front, save time on both sides.
-- **Salary range.** If your jurisdiction requires posting salary (NYC,
-  parts of EU, California for certain roles), include it. Even where
-  not required, posting a range improves application quality
-  dramatically.
-- **About us / why work here** - last, three or four bullets max.
-  Don't repeat the company profile.
+If you have Pro with AI features enabled, the description field has a **Generate with AI** button. Always edit the result. See the Pro docs page **AI features**.
 
-> **Pro tip:** if you have Pro installed and AI Description Writer
-> enabled, you can paste 4-6 key bullets and click **Generate with AI**.
-> Always edit the output - it's a starting point, not a final draft.
-> See [../ai-features/04-employer-ai-features.md](../ai-features/04-employer-ai-features.md).
+## Step 5 - Approval
 
-### Application settings
+Whether a new job publishes at once depends on the site's **Auto-Publish Jobs** setting.
 
-The job form has two optional apply-routing fields. Leave both blank to
-use the on-site flow:
-
-- **On-site (default)** - leave the Apply URL and Apply Email fields
-  blank. Applications come into the Employer Dashboard and run through
-  Career Board's email + status tracking.
-- **Apply URL** - an external URL. Candidates click out to your
-  applicant tracking system (Greenhouse, Lever, Workable, etc.). When
-  set, the single-job page routes Apply Now to this URL.
-- **Apply Email** - applicants send straight to this address. When set,
-  the single-job page surfaces the apply email.
-
-If you're new to the board, leave both blank and use the on-site flow.
-It's the only way Career Board's email + status tracking + AI scoring
-(Pro) all work together.
-
-Click **Submit Job.**
-
-## Step 5 - Wait for approval (if applicable)
-
-Some boards require admin approval for new postings. If yours does:
-
-- Status reads **Pending Review.**
-- Site admin gets an email + admin notice.
-- Approval typically arrives within 24 hours on a moderated board.
-
-Once approved (or immediately, on auto-approve boards), status flips
-to **Published** and the job goes live at `/job/your-job-slug/`.
-
-If it's been more than 48 hours with no movement, follow up with the
-site admin - sometimes the approval queue gets missed.
+- If it is on, the job is published as soon as you submit.
+- If it is off, the job waits as Pending until the site owner or a moderator approves it. You get a **Your job has been approved** email, or **Your job was not approved** if it is rejected. A rejected job shows a **Resubmit** button in **My Jobs**.
 
 ## Step 6 - Promote the listing
 
-Posting alone gets you maybe 5% of the applicants you should get.
-Promotion gets you the other 95%.
+- Share the job address on your social accounts and in your company channels.
+- The site publishes a job feed at `/jobs/feed/`. Each item carries the company, salary, location, job type, category, tags, experience level, deadline, remote flag and apply link or email. Aggregators that read RSS can use it.
 
-- **Share the URL** on LinkedIn, Twitter, your company's Slack /
-  Discord, internal company channels.
-- **Set up a job alert** so candidates who match the criteria get
-  notified automatically - if the board has alerts enabled,
-  candidates do this on their side.
-- **Cross-post to one or two niche boards.** Hacker News Who's Hiring,
-  WeWorkRemotely, a Slack jobs channel, etc. Career Board exposes an
-  enriched RSS feed at `/jobs/feed/` that some aggregators consume
-  automatically (it carries company, salary, location, type, category,
-  tags, experience, deadline, and apply URL).
+## Step 7 - Review applications
 
-## Step 7 - Watch applications come in
+Open **Employer Dashboard > Applications**. Pick a job from the list, then pick an applicant. You see:
 
-**Employer Dashboard → Applications.**
+- The applicant's name and submitted date.
+- The current status, which starts as Submitted.
+- The cover letter, and answers to any screening questions.
+- **View Resume** and **Download Resume**.
+- Your private notes and rating. Only your hiring team sees them.
 
-Each application shows:
+You receive a **New application for your job** email for each application.
 
-- **Candidate name** and current role / headline.
-- **Submitted date.**
-- **Status** (defaults to "Submitted").
-- **Resume** download link.
-- **Cover letter / answers** to any custom questions you added.
-- **(Pro)** AI Fit Score 0-100 + one-line reason.
+Use the **List** and **Board** buttons to switch layout. The Board groups applicants into status columns. Drag a card to change its status, or use the **Move to** menu on the card. Click **Export CSV** to download the applications for the selected job. The file has the application ID, job ID, job title, applicant name and email, status, submitted date, cover letter, resume URL and screening answers.
 
-Click into an application to see the full detail and the candidate's
-public profile (if they made it public).
+## Step 8 - Triage
 
-You'll get an email per application (as long as the admin has
-notifications wired correctly). If applications are arriving faster
-than you can read them in real time, set yourself a 9 AM / 4 PM block
-to triage rather than reacting to each email.
+1. Use the filter buttons at the top (**All**, Submitted, **Reviewing**, **Shortlisted**, **Rejected**, **Hired**) to focus on one group. Submitted hides everything you have already moved.
+2. Read each application.
+3. Set the status with the status menu: **Reviewing** if you might talk to them, **Shortlisted** for a clear yes, **Rejected** for a clear no.
 
-## Step 8 - Triage applications
+The candidate gets an email for **Reviewing**, **Shortlisted** and **Hired**. **Rejected** sends a separate, gentler email titled with the job name. Candidates see Rejected as **Not selected**. The site owner can edit these emails under **Career Board > Settings > Emails**.
 
-A simple triage pass:
+If Pro's AI ranking is on, you can sort by the fit score. Treat it as a guide and read the applications yourself. See the Pro docs page **AI features**.
 
-1. **Status filter to "Submitted."** Hides applications you've already
-   triaged.
-2. **Read each in 30-60 seconds.** Focus on resume + cover letter.
-   Don't read every detail yet.
-3. **Move to "Reviewing"** if you'd consider talking to them - even
-   if not yet sure.
-4. **Move to "Rejected"** if it's clearly not a fit (wrong role, no
-   right-to-work, etc.).
-5. **Move to "Shortlisted"** if it's an obvious "yes, let's interview."
+## Step 9 - Interview
 
-Each status move fires the "application status changed" email to the
-candidate (good - keeps them informed). You can edit that template
-(and every other email) in **WP Admin → Career Board → Settings →
-Emails** (admin-only).
+Interviews happen outside the board. Use the five statuses (Submitted, Reviewing, Shortlisted, Rejected, Hired) to track where each candidate is. With Pro, the **Application Pipeline** adds custom stages. See the Pro docs page **Application pipeline**.
 
-> **Pro tip:** if AI Fit Score is enabled, sort by it. Read top 10
-> first. Don't auto-reject by score - see
-> [../ai-features/04-employer-ai-features.md](../ai-features/04-employer-ai-features.md).
+## Step 10 - Decide
 
-## Step 9 - Interview shortlisted candidates
+1. Set the chosen candidate to **Hired**. They get the status email.
+2. Send your offer yourself. The status email tells the candidate the status only, not the terms.
+3. Set the remaining candidates to **Rejected**.
 
-The board doesn't run interviews - you do that externally. The board
-helps you stay organised:
+## Step 11 - Close the role
 
-- **Move applications through the five statuses** (Submitted,
-  Reviewing, Shortlisted, Hired, Rejected) to track where each
-  candidate is.
-- **(Pro)** Use the **List / Board** toggle on the Applications view.
-  The Board is a Kanban that groups applicants into status columns
-  (Submitted, Reviewing, Shortlisted, Hired, Rejected); drag a card to
-  change status, and the list, board, status emails, and AI ranking
-  stay in sync.
-- **(Pro)** Use the **Application Pipeline** module and the **Field
-  Builder** to add custom application fields and tags.
+1. Go to **Employer Dashboard > My Jobs** and click **Close** on the job. The job leaves the listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed.
+2. To reopen it later, click **Reopen**.
+3. Export the applications with **Export CSV** before you close the role if you want a spreadsheet.
 
-## Step 10 - Make a decision
+## Step 12 - Find candidates with Pro
 
-When you've picked your candidate:
-
-1. **Move to "Hired."** Email fires to the candidate.
-2. **Email the candidate directly** with the offer - the board's
-   "Hired" email is informational, not the offer letter. Always send
-   the formal offer separately with details.
-3. **Reject the rest.** Move remaining shortlist candidates to
-   "Rejected" with a courteous message. Some employers send a short
-   personal email instead of relying on the template - your call.
-
-## Step 11 - Close out the role
-
-Once filled:
-
-1. **Close the job** from **Employer Dashboard → My Jobs** (the Close
-   action). This takes it out of the public listing while your existing
-   applications stay visible to you. (There is no separate "Filled"
-   status; closing or letting the deadline pass removes it from the
-   board.)
-2. **(Optional)** Export applications to CSV. The bulk CSV export lives
-   on the admin side: **WP Admin → Career Board → Applications**, select
-   the rows, and use the export action. The spreadsheet includes
-   applicant name, email, job, status, applied date, cover letter, and
-   resume URL.
-3. **(Optional)** Update your company profile with the new hire's
-   role / team if you list staff.
-4. **Refresh credits (Pro)** - top up if you have another role coming up.
-
-## Step 12 - Build a candidate bench (Pro)
-
-If you've installed Pro, the **Find Candidates** feature lets you
-search the candidate directory directly:
-
-- **Employer Dashboard → Find Candidates.**
-- Search by skill, location, headline, "Open to Work" flag.
-- Save candidates to a private list to revisit when a new role opens.
-- Send a short message asking if they'd be interested in your next
-  role.
-
-Free doesn't include outbound candidate search - only inbound (i.e.
-candidates apply to you).
+With Pro, a public **Find Candidates** page lets employers search candidate resumes. See the Pro docs page **Resume builder**, and its Find candidates section, for how it works. Free does not include a candidate directory.
 
 ## Common employer mistakes
 
-- **Posting and walking away.** The first 48 hours after posting is
-  when most quality applications come in. Be ready to review.
-- **No salary range.** You're competing for attention with listings
-  that do disclose. Most candidates filter you out without one.
-- **Slow status updates.** Candidates check the dashboard for status
-  changes. A week of "Submitted" feels like a no - they assume
-  rejection. Move to "Reviewing" within 48 hours even if you haven't
-  read them fully yet.
-- **Rejecting silently.** Sending a "Rejected" status with the default
-  email is better than ghosting. Candidates remember employers who
-  closed the loop and apply again for future roles.
-- **Posting the same job twice.** Confusing for candidates. Edit and
-  republish the existing posting instead of creating a duplicate.
-
-## What you should walk away with
-
-After one full hiring round you'll know:
-
-- How long applications take to start arriving on your specific board.
-- The ratio of applications to quality matches (helps you decide
-  whether to widen or narrow next time).
-- What questions you wish you'd added to the application form (Pro:
-  field builder).
-- Whether the board's defaults work for you or you need to adjust
-  (notification settings, default deadline, etc.).
+- **Posting and not checking in.** Review applications as they arrive.
+- **Leaving out salary.** A stated range helps candidates decide to apply.
+- **Slow status updates.** Move applications to Reviewing soon after you start reading, so candidates know you have seen them.
+- **Rejecting without a message.** The default Rejected email is better than silence.
+- **Posting the same job twice.** Edit the existing job instead. Use **Edit** in **My Jobs**.
 
 ## Where to go next
 
-- [03-candidate-end-to-end.md](03-candidate-end-to-end.md) - see the
-  other side of every step you just took.
-- [04-monetizing-your-board.md](04-monetizing-your-board.md) - if you
-  ARE the site owner deciding how postings get paid for.
-- [../for-employers/12-troubleshooting.md](../for-employers/12-troubleshooting.md) -
-  the troubleshooting reference for when something doesn't behave.
+- [Candidate end to end](03-candidate-end-to-end.md) - the other side of every step.
+- [Monetizing your board](04-monetizing-your-board.md) - for site owners deciding how postings are paid for.
+- [Employer troubleshooting](../for-employers/12-troubleshooting.md) - when something does not behave.

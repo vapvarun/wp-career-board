@@ -193,13 +193,7 @@ final class EmployersEndpoint extends RestController {
 					array( 'status' => 400 )
 				);
 			}
-			// Replace existing roles, not stack on top. wp-admin role
-			// assignment uses replace semantics (set_role); frontend
-			// self-registration must match so a logged-in subscriber who
-			// converts to Employer ends up with just wcb_employer, not
-			// subscriber + wcb_employer. BuddyPress member-type sync hangs
-			// off set_role() too.
-			$user->set_role( 'wcb_employer' );
+			\WCB\Core\Roles::grant_member_role( $user, 'wcb_employer' );
 			$user_id = $user->ID;
 
 			$company_id = wp_insert_post(
@@ -229,7 +223,7 @@ final class EmployersEndpoint extends RestController {
 			$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 			do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
 
-			$dashboard_id  = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+			$dashboard_id  = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 			$dashboard_url = $dashboard_id > 0
 				? (string) get_permalink( $dashboard_id )
 				: home_url( '/' );
@@ -243,7 +237,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! ( defined( 'MULTISITE' ) && MULTISITE ) ) {
+		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),
@@ -306,6 +300,11 @@ final class EmployersEndpoint extends RestController {
 			$username = $username . wp_rand( 100, 999 );
 		}
 
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => $username,
@@ -355,22 +354,30 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Authenticate the new user immediately.
-		wp_set_current_user( $user_id );
-		wp_set_auth_cookie( $user_id, false );
+		// With verification on, the account stays signed out until the
+		// emailed link is opened (EmailVerification handles it).
+		$wcb_verify = \WCB\Modules\Account\EmailVerification::is_required();
+		if ( $wcb_verify ) {
+			\WCB\Modules\Account\EmailVerification::start( (int) $user_id );
+		} else {
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id, false );
+		}
 
 		$resolved_company_id = ( $company_id && ! is_wp_error( $company_id ) ) ? (int) $company_id : 0;
 		do_action( 'wcb_employer_registered', $user_id, $resolved_company_id );
 
-		$dashboard_id  = \WCB\Admin\Settings::int( 'employer_dashboard_page', 0 );
+		$dashboard_id  = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 		$dashboard_url = $dashboard_id > 0
 			? (string) get_permalink( $dashboard_id )
 			: home_url( '/' );
 
 		return rest_ensure_response(
 			array(
-				'user_id'       => $user_id,
-				'company_id'    => $resolved_company_id,
-				'dashboard_url' => $dashboard_url,
+				'user_id'               => $user_id,
+				'company_id'            => $resolved_company_id,
+				'dashboard_url'         => $dashboard_url,
+				'verification_required' => $wcb_verify,
 			)
 		);
 	}
@@ -454,7 +461,9 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_item( $request ): \WP_REST_Response|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+		// A company that is not published (a draft, or hidden by a ban) is its owner's and the admin's only.
+		if ( ! $post || 'wcb_company' !== $post->post_type
+			|| ( 'publish' !== $post->post_status && get_current_user_id() !== (int) $post->post_author && ! $this->check_ability( 'wcb/manage-settings' ) ) ) {
 			return new \WP_Error(
 				'wcb_not_found',
 				__( 'Company not found.', 'wp-career-board' ),
@@ -561,12 +570,16 @@ final class EmployersEndpoint extends RestController {
 	 *
 	 * Single source of truth (R1) — a new lifecycle status is added here, not in
 	 * each query. Previously this allowlist was duplicated across three sites in
-	 * this endpoint, so a new status silently missed some views.
+	 * this endpoint, so a new status silently missed some views. Public + static
+	 * since 1.8.0 so `CommunityNotificationContract::job_visible()` answers the
+	 * same way instead of carrying a second copy of this allowlist.
+	 *
+	 * @since 1.8.0 Public + static (was private).
 	 *
 	 * @param bool $is_owner_or_admin Viewer owns the company or is an admin.
 	 * @return string[]
 	 */
-	private function owner_visible_statuses( bool $is_owner_or_admin ): array {
+	public static function owner_visible_statuses( bool $is_owner_or_admin ): array {
 		return $is_owner_or_admin
 			? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
 			: array( 'publish' );
@@ -582,8 +595,11 @@ final class EmployersEndpoint extends RestController {
 	 * @return bool
 	 */
 	public static function is_rejected_job( \WP_Post $post ): bool {
+		// The marker's presence is the signal, not its text: the reject dialog's
+		// reason is optional, and an empty reason used to read as "never
+		// rejected", letting the employer republish straight past moderation.
 		return 'draft' === $post->post_status
-			&& '' !== (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
+			&& metadata_exists( 'post', $post->ID, '_wcb_rejection_reason' );
 	}
 
 	/**
@@ -664,7 +680,7 @@ final class EmployersEndpoint extends RestController {
 			array(
 				'post_type'      => 'wcb_job',
 				'author'         => (int) $user_id,
-				'post_status'    => $this->owner_visible_statuses( true ),
+				'post_status'    => self::owner_visible_statuses( true ),
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 			)
@@ -715,25 +731,33 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'expired',
 					default       => $p->post_status,
 				};
+				// Past its deadline but not swept yet (or expiry is paused on this
+				// site): it takes no applications, so it is not "Published".
+				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
+					$public_status = 'expired';
+				}
 				return array(
-					'id'          => $p->ID,
-					'title'       => $p->post_title,
-					'status'      => $rejected ? 'rejected' : $public_status,
-					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
-					'rejected'    => $rejected,
-					'permalink'   => get_permalink( $p->ID ),
-					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'appCount'    => $wcb_app_counts[ $p->ID ] ?? 0,
-					'appLabel'    => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+					'id'               => $p->ID,
+					'title'            => $p->post_title,
+					'status'           => $rejected ? 'rejected' : $public_status,
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+					'rejected'         => $rejected,
+					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+					'permalink'        => get_permalink( $p->ID ),
+					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
+					'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
 						? sprintf(
 							/* translators: %s: number of applicants, already localised. */
 							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
 							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
 						)
 						: __( 'No applicants', 'wp-career-board' ),
-					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
-					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
 			$query->posts
@@ -763,7 +787,7 @@ final class EmployersEndpoint extends RestController {
 		// Public endpoint — only expose published jobs; owner/admin also see pending/draft.
 		$is_owner    = is_user_logged_in() && \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() ) === (int) $company->ID;
 		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
-		$post_status = $this->owner_visible_statuses( $is_owner || $is_admin );
+		$post_status = self::owner_visible_statuses( $is_owner || $is_admin );
 
 		$per_page = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
 		$paged    = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
@@ -824,26 +848,34 @@ final class EmployersEndpoint extends RestController {
 					'wcb_expired' => 'expired',
 					default       => $p->post_status,
 				};
+				// Past its deadline but not swept yet (or expiry is paused on this
+				// site): it takes no applications, so it is not "Published".
+				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
+					$public_status = 'expired';
+				}
 
 				return array(
-					'id'          => $p->ID,
-					'title'       => $p->post_title,
-					'status'      => $rejected ? 'rejected' : $public_status,
-					'statusLabel' => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ),
-					'rejected'    => $rejected,
-					'permalink'   => get_permalink( $p->ID ),
-					'editUrl'     => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
-					'appCount'    => $app_count,
-					'appLabel'    => $app_count > 0
+					'id'               => $p->ID,
+					'title'            => $p->post_title,
+					'status'           => $rejected ? 'rejected' : $public_status,
+					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+					'rejected'         => $rejected,
+					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+					'permalink'        => get_permalink( $p->ID ),
+					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
+					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+					'appCount'         => $app_count,
+					'appLabel'         => $app_count > 0
 					? sprintf(
 						/* translators: %s: number of applicants, already localised. */
 						_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
 						number_format_i18n( $app_count )
 					)
 					: __( 'No applicants', 'wp-career-board' ),
-					'location'    => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'        => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
-					'deadline'    => '' !== $deadline_raw ? $deadline_raw : null,
+					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
+					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
 			$query->posts
@@ -882,28 +914,30 @@ final class EmployersEndpoint extends RestController {
 		$company_id = (int) $company->ID;
 		// Owner viewing their own company's applications — same status allowlist
 		// as the other employer views (R1: single source of truth).
-		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$from = "FROM {$wpdb->posts} app
+		$wcb_statuses = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
+		$from = $wpdb->prepare(
+			"FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
 			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . " )
 			 INNER JOIN {$wpdb->postmeta} pm_co
 			        ON pm_co.post_id = job.ID AND pm_co.meta_key = '_wcb_company_id'
 			 WHERE app.post_type   = 'wcb_application'
 			   AND app.post_status = 'publish'
-			   AND pm_co.meta_value = %s";
+			   AND pm_co.meta_value = %s",
+			...array_merge( $wcb_statuses, array( (string) $company_id ) )
+		);
 
-		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", (string) $company_id ) );
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
-				(string) $company_id,
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)
@@ -929,27 +963,29 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
 		global $wpdb;
-		$user_id       = get_current_user_id();
-		$wcb_status_in = "'" . implode( "','", $this->owner_visible_statuses( true ) ) . "'";
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$from = "FROM {$wpdb->posts} app
+		$user_id      = get_current_user_id();
+		$wcb_statuses = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
+		$from = $wpdb->prepare(
+			"FROM {$wpdb->posts} app
 			 INNER JOIN {$wpdb->postmeta} pm_job
 			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
 			 INNER JOIN {$wpdb->posts} job
 			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ({$wcb_status_in})
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )
 			       AND job.post_author = %d
-			 WHERE app.post_type   = 'wcb_application'
-			   AND app.post_status = 'publish'";
+			 WHERE app.post_type   = \'wcb_application\'
+			   AND app.post_status = \'publish\'',
+			...array_merge( $wcb_statuses, array( $user_id ) )
+		);
 
-		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from}", $user_id ) );
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT app.ID, app.post_date {$from} ORDER BY app.post_date DESC LIMIT %d OFFSET %d",
-				$user_id,
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)
@@ -1019,7 +1055,7 @@ final class EmployersEndpoint extends RestController {
 				$app_id         = (int) $row->ID;
 				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = (string) get_post_meta( $app_id, '_wcb_status', true );
+				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app_id );
 				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				$prepared = array(
@@ -1032,9 +1068,6 @@ final class EmployersEndpoint extends RestController {
 					'applicant_email'    => $candidate_user
 					? $candidate_user->user_email
 					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					'status'             => '' !== $status_raw ? $status_raw : 'submitted',
-					// Localised label for display, alongside the raw slug for CSS/logic.
-					'statusLabel'        => \WCB\Modules\Applications\ApplicationStatus::label( '' !== $status_raw ? $status_raw : 'submitted' ),
 					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
 					// dashboard sorts and date-filters it with new Date() in JS. The
 					// localised display string is a SEPARATE sibling so a translated
@@ -1042,7 +1075,7 @@ final class EmployersEndpoint extends RestController {
 					// silently break the recency sort + "new this week" stat).
 					'submitted_at'       => get_the_date( 'c', $app_id ),
 					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
-				);
+				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 
 				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
 					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
@@ -1152,7 +1185,7 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_applications_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		$post     = get_post( (int) $request['id'] );
-		$is_owner = $post && get_current_user_id() === (int) $post->post_author
+		$is_owner = $post && $this->is_current_user( (int) $post->post_author )
 		&& $this->check_ability( 'wcb/view-applications' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
@@ -1199,11 +1232,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		include_once ABSPATH . 'wp-admin/includes/image.php';
-		include_once ABSPATH . 'wp-admin/includes/file.php';
-		include_once ABSPATH . 'wp-admin/includes/media.php';
-
-		$attachment_id = media_handle_upload( 'logo', $post->ID );
+		$attachment_id = \WCB\Core\ImageUpload::handle( 'logo', $post->ID );
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}
@@ -1244,7 +1273,7 @@ final class EmployersEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = get_current_user_id() === (int) $post->post_author
+		$is_owner = $this->is_current_user( (int) $post->post_author )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
@@ -1262,7 +1291,7 @@ final class EmployersEndpoint extends RestController {
 	 * @return string Absolute URL.
 	 */
 	private function get_job_form_page_url(): string {
-		$post_job_page_id = \WCB\Admin\Settings::int( 'post_job_page', 0 );
+		$post_job_page_id = \WCB\Admin\Pages::get_id( 'post_job_page' );
 		if ( $post_job_page_id > 0 ) {
 			return (string) get_permalink( $post_job_page_id );
 		}

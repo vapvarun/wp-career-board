@@ -50,6 +50,25 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 	return;
 }
 
+// WordPress ships with "Anyone can register" off. The form used to render
+// anyway and only failed after the visitor had filled every field.
+if ( ! $wcb_user && ! get_option( 'users_can_register' ) && ! is_multisite() ) {
+	?>
+	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<div class="wcb-reg-closed">
+			<?php echo \WCB\Core\Icon::svg( 'user-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+			<p class="wcb-reg-closed__text">
+				<?php esc_html_e( 'New account registration is closed on this site.', 'wp-career-board' ); ?>
+			</p>
+			<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
+				<?php esc_html_e( 'Sign in', 'wp-career-board' ); ?>
+			</a>
+		</div>
+	</div>
+	<?php
+	return;
+}
+
 $wcb_login_url    = wp_login_url( get_permalink() ?? '' );
 $wcb_is_logged_in = (bool) $wcb_user;
 $wcb_first_name   = $wcb_user ? (string) $wcb_user->first_name : '';
@@ -102,6 +121,9 @@ wp_interactivity_state(
 		'submitted'       => false,
 		'error'           => '',
 		'dashboardUrl'    => '',
+		'verifyPending'   => false,
+		'resendSent'      => false,
+		'resendMessage'   => '',
 		/*
 		 * Strings consumed by view.js. view.js is a script module and cannot load
 		 * JED translation files, so every user-facing string it renders must be
@@ -115,6 +137,7 @@ wp_interactivity_state(
 			'errorMissingFields' => __( 'Please fill in all required fields.', 'wp-career-board' ),
 			'errorRegistration'  => __( 'Registration failed. Please try again.', 'wp-career-board' ),
 			'errorConnection'    => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'resendDone'         => __( 'We sent you a new link. It can take a minute to arrive.', 'wp-career-board' ),
 		),
 	)
 );
@@ -126,6 +149,14 @@ wp_interactivity_state(
 	<?php /* ── Success state ── */ ?>
 	<div class="wcb-reg-success wcb-hidden" data-wp-class--wcb-hidden="!state.submitted">
 		<h2 class="wcb-reg-success-title"><?php esc_html_e( 'Account created!', 'wp-career-board' ); ?></h2>
+		<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.verifyPending">
+			<p><?php esc_html_e( 'Check your inbox: we sent you a link to confirm your email address. Open it to sign in.', 'wp-career-board' ); ?></p>
+			<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.resendVerification" data-wp-bind--disabled="state.resendSent">
+				<?php esc_html_e( 'Resend the link', 'wp-career-board' ); ?>
+			</button>
+			<p class="wcb-field-hint" role="status" data-wp-text="state.resendMessage"></p>
+		</div>
+		<div data-wp-class--wcb-hidden="state.verifyPending">
 		<p data-wp-class--wcb-hidden="state.isCandidate">
 			<?php esc_html_e( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?>
 		</p>
@@ -140,6 +171,7 @@ wp_interactivity_state(
 			?>
 			<span aria-hidden="true"><?php echo is_rtl() ? '&#8592;' : '&#8594;'; ?></span>
 		</a>
+		</div>
 	</div>
 
 	<?php /* ── Step 1: Role picker ── */ ?>

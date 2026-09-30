@@ -17,12 +17,13 @@
  *   salaryDisplay              — formatted salary string for preview.
  *   hasCompany, isRemote, hasType, hasExp, hasLocation, hasCategory — preview card conditionals.
  *   hasSalary, hasDeadline, hasApplyUrl, hasApplyEmail              — preview meta conditionals.
- *   hasError, hasValidation                                          — error banner conditionals.
+ *   hasError, titleInvalid, descriptionInvalid, locationInvalid      — error banner / per-field error conditionals.
  *
  * @package WP_Career_Board
  */
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { customFieldValue } from '@wcb/fields';
 
 /**
  * Translation reader.
@@ -88,13 +89,38 @@ const locale = () => {
 const num = ( value, options ) => new Intl.NumberFormat( locale(), options ).format( value );
 
 /**
+ * Attach a validation message to one field ('' clears it).
+ *
+ * @param {Object} state   Store state.
+ * @param {string} field   title | description | location, or '' to clear.
+ * @param {string} message Message shown under that field.
+ */
+const setValidation = ( state, field, message ) => {
+	state.validationField = field;
+	state.validationError = message;
+};
+
+/**
+ * Move focus to the offending field. Focusing scrolls it into view; the field's
+ * scroll-margin-top keeps a theme's sticky header from covering it.
+ *
+ * @param {string} id Element id, or the id of a wrapper holding a focusable editor.
+ */
+const focusField = ( id ) => {
+	const el = document.getElementById( id );
+	const target = el?.matches( 'input, select, textarea' ) ? el : el?.querySelector( '[contenteditable], input, textarea' ) ?? el;
+	target?.focus( { preventScroll: false } );
+};
+
+/**
  * Abbreviate a figure, mirroring \WCB\Core\SalaryFormat::abbreviate().
  *
  * @param {number} value Raw amount.
  * @return {string} Abbreviated, localised amount.
  */
 const abbreviate = ( value ) => {
-	if ( value >= 1000000 ) {
+	// Exact at one decimal only (1.5M); 1,250,000 falls through to the thousands rule.
+	if ( value >= 1000000 && value % 100000 === 0 ) {
 		const n = Math.round( ( value / 1000000 ) * 10 ) / 10;
 		const amount = Number.isInteger( n )
 			? num( n )
@@ -102,7 +128,11 @@ const abbreviate = ( value ) => {
 		return fill( t( 'salaryMillion', '%sM' ), '%s', amount );
 	}
 	if ( value >= 1000 ) {
-		return fill( t( 'salaryThousand', '%sk' ), '%s', num( Math.round( value / 1000 ) ) );
+		// Match PHP: abbreviate only when exact at one decimal (4,500 -> 4.5k), else the full figure.
+		if ( value % 100 !== 0 ) {
+			return num( value );
+		}
+		return fill( t( 'salaryThousand', '%sk' ), '%s', num( value / 1000, { maximumFractionDigits: 1 } ) );
 	}
 	return num( value );
 };
@@ -152,6 +182,38 @@ const formatDate = ( iso ) => {
 		// Fall through to the raw ISO date.
 	}
 	return iso;
+};
+
+/**
+ * Put a value into the job description's rich editor.
+ *
+ * The editor only repaints from its source textarea on `wcb:editor:hydrate`
+ * (assets/js/wcb-editor.js), so setting state.description alone leaves the
+ * old text visible. Targets this form's own textarea by id: on the employer
+ * dashboard the Company Profile editor comes first in the page, and a
+ * page-wide lookup wiped the company description instead of the job's.
+ *
+ * @param {string} value HTML to show; '' clears the editor.
+ */
+const showDescription = ( value ) => {
+	const source = document.getElementById( 'wcb-job-desc' );
+	if ( source ) {
+		source.value = value;
+		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
+	}
+};
+
+/**
+ * Make the description textarea current. The rich editor saves asynchronously, so
+ * a click right after typing would otherwise read the text from before the last
+ * edit and see an empty or stale description.
+ *
+ * @return {Promise<void>} Resolves when the description state is up to date.
+ */
+const flushDescription = () => {
+	const holder = document.getElementById( 'wcb-editor-job-desc' );
+	const editor = holder && holder.closest( '.wcb-editor' );
+	return editor && editor.wcbFlush ? editor.wcbFlush().catch( () => {} ) : Promise.resolve();
 };
 
 const { state } = store(
@@ -251,6 +313,9 @@ const { state } = store(
 						? t( 'salaryPerHour', '/hr' )
 						: t( 'salaryPerYear', '/yr' );
 				const fmt = ( v ) => money( symbol, abbreviate( v ) );
+				if ( min && max && min === max ) {
+					return fmt( min ) + suffix;
+				}
 				if ( min && max ) {
 					const range = fill(
 						fill( t( 'salaryRange', '%1$s–%2$s' ), '%1$s', fmt( min ) ),
@@ -318,9 +383,18 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return ! ! state.error;
 			},
-			get hasValidation() {
+			// A validation message belongs to one field: shown under it, flagged on it.
+			get titleInvalid() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.validationError;
+				return 'title' === state.validationField && ! ! state.validationError;
+			},
+			get descriptionInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'description' === state.validationField && ! ! state.validationError;
+			},
+			get locationInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'location' === state.validationField && ! ! state.validationError;
 			},
 
 			// ── Edit mode ─────────────────────────────────────────────────────────
@@ -434,8 +508,8 @@ const { state } = store(
 				const field     = event.target.dataset.wcbField;
 				if ( field ) {
 					state[ field ] = event.target.value;
-					if ( field === 'title' && state.validationError ) {
-						state.validationError = '';
+					if ( field === state.validationField && state.validationError ) {
+						setValidation( state, '', '' );
 					}
 					// When the employer switches boards, re-derive the
 					// credit cost AND currency from the seeded per-board
@@ -463,20 +537,12 @@ const { state } = store(
 					return;
 				}
 				const target = event.target;
-				let value;
-				if ( target.dataset.wcbMulti ) {
-					// multiselect — collect every checked box sharing this field key.
-					value = Array.from(
-						document.querySelectorAll( '[data-wcb-field="' + key + '"][data-wcb-multi]' )
-					)
-						.filter( ( el ) => el.checked )
-						.map( ( el ) => el.value );
-				} else if ( target.type === 'checkbox' ) {
-					value = target.checked;
-				} else {
-					value = target.value;
-				}
+				const value = customFieldValue( target );
 				state.customFields = { ...state.customFields, [ key ]: value };
+			},
+
+			toggleFeatured( event ) {
+				state.featured = !! event.target.checked;
 			},
 
 			toggleRemote() {
@@ -488,7 +554,8 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				if ( state._aiGenerating || ! state.title ) {
 					if ( ! state.title ) {
-						state.validationError = t( 'errorAiNoTitle', 'Enter a job title first so AI can generate a description.' );
+						setValidation( state, 'title', t( 'errorAiNoTitle', 'Enter a job title first so AI can generate a description.' ) );
+						focusField( 'wcb-job-title' );
 					}
 					return;
 				}
@@ -512,19 +579,7 @@ const { state } = store(
 					const data = yield response.json();
 					if ( data.description ) {
 						state.description = data.description;
-						// The rich editor only re-reads its source textarea on the
-						// wcb:editor:hydrate event (see assets/js/wcb-editor.js). The
-						// data-wp-bind--value update alone won't repaint the visible
-						// editor, so push the value and fire the hydrate event.
-						const source = document.querySelector(
-							'.wcb-editor textarea.wcb-editor-source'
-						);
-						if ( source ) {
-							source.value = data.description;
-							source.dispatchEvent(
-								new Event( 'wcb:editor:hydrate', { bubbles: true } )
-							);
-						}
+						showDescription( data.description );
 					} else if ( data.message ) {
 						state.error = data.message;
 					}
@@ -535,40 +590,93 @@ const { state } = store(
 				}
 			},
 
-			nextStep() {
+			* nextStep() {
 				const { state } = store( 'wcb-job-form' );
 
-				if ( state.step === 1 ) {
-					if ( ! state.title.trim() ) {
-						state.validationError = t( 'errorTitleRequired', 'Job title is required before you can continue.' );
-						return;
-					}
-					if ( ! state.description.trim() ) {
-						state.validationError = t( 'errorDescriptionRequired', 'Job description is required before you can continue.' );
-						return;
-					}
+				// Guards a real gap now: flushDescription() below yields, so a
+				// second click in the same tick used to re-enter before this ran
+				// (Basecamp 10348706675).
+				if ( state.stepping ) {
+					return;
 				}
+				state.stepping = true;
 
-				state.validationError = '';
-				if ( state.step < 4 ) {
-					state.step++;
+				try {
+					if ( state.step === 1 ) {
+						yield flushDescription();
+						if ( ! state.title.trim() ) {
+							setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
+							focusField( 'wcb-job-title' );
+							return;
+						}
+						if ( ! state.description.trim() ) {
+							setValidation( state, 'description', t( 'errorDescriptionRequired', 'Job description is required before you can continue.' ) );
+							focusField( 'wcb-editor-job-desc' );
+							return;
+						}
+					}
+					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
+						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
+						focusField( 'wcb-location' );
+						return;
+					}
+
+					setValidation( state, '', '' );
+					if ( state.step < 4 ) {
+						state.step++;
+					}
+				} finally {
+					// Every step but 1 has no yield above, so this generator would
+					// otherwise run start-to-finish inside one synchronous click
+					// dispatch and clear the guard before a second, same-tick
+					// click is even processed (Basecamp 10348706675 follow-up:
+					// two clicks at step 2 skipped straight to Preview). Defer
+					// the release past the current script/microtask queue so it
+					// still catches that case.
+					requestAnimationFrame( () => {
+						state.stepping = false;
+					} );
 				}
 			},
 
 			prevStep() {
-				const { state }       = store( 'wcb-job-form' );
-				state.validationError = '';
-				if ( state.step > 1 ) {
-					state.step--;
+				const { state } = store( 'wcb-job-form' );
+
+				// Same guard + deferred release as nextStep(): no yield here, so
+				// this runs start-to-finish inside one synchronous click dispatch
+				// and would otherwise clear before a second same-tick click is
+				// processed (Basecamp 10350213909).
+				if ( state.stepping ) {
+					return;
+				}
+				state.stepping = true;
+
+				try {
+					setValidation( state, '', '' );
+					if ( state.step > 1 ) {
+						state.step--;
+					}
+				} finally {
+					requestAnimationFrame( () => {
+						state.stepping = false;
+					} );
 				}
 			},
 
 			* submitJob() {
 				const { state } = store( 'wcb-job-form' );
 
+				// Set before the first yield: flushDescription() below yields, so a
+				// second click in the same tick used to re-enter before this ran
+				// (Basecamp 10348706675).
 				if ( state.submitting ) {
 					return;
 				}
+				state.submitting = true;
+
+				try {
+
+				yield flushDescription();
 
 				// Honeypot check — bots filling all fields get a fake success response.
 				const hpEl = document.getElementById( 'wcb-hp' );
@@ -592,8 +700,7 @@ const { state } = store(
 					? yield window.wcbCaptchaGetToken()
 					: '';
 
-				state.submitting = true;
-				state.error      = '';
+				state.error = '';
 
 				try {
 					// Parse comma-separated tags into a slug array.
@@ -602,6 +709,7 @@ const { state } = store(
 					: [];
 
 					const body = {
+						featured:        state.featured,
 						title:           state.title,
 						description:     state.description,
 						salary_min:      state.salaryMin,
@@ -652,21 +760,24 @@ const { state } = store(
 								? err.message
 								: t( 'errorSubmitFailed', 'Job could not be posted. Please try again.' );
 						}
+						// Not enough credits: offer the Credits tab right there.
+						state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
 						return;
 					}
 
 					const data      = yield response.json();
 					state.jobUrl    = data.permalink || '';
+					state.featureError = data.feature_error || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
 
-					// Signal the embedded employer dashboard (if present) to refresh
-					// its My Jobs list when the user navigates there. try/catch: the
-					// form also runs standalone (shortcode) where that store is absent.
+					// Refresh the embedded employer dashboard (if present) right away:
+					// badges, Overview and My Jobs. try/catch: the form also runs
+					// standalone (shortcode) where that store is absent.
 					try {
 						const dash = store( 'wcb-employer-dashboard' );
-						if ( dash && dash.state ) {
-							dash.state._needsJobsRefresh = true;
+						if ( dash?.actions?.afterJobPosted ) {
+							dash.actions.afterJobPosted( data.balance );
 						}
 					} catch {}
 
@@ -685,6 +796,7 @@ const { state } = store(
 					}, 8000 );
 				} catch {
 					state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+				}
 				} finally {
 					state.submitting = false;
 				}
@@ -697,7 +809,7 @@ const { state } = store(
 				state.submitted        = false;
 				state.step             = 1;
 				state.error            = '';
-				state.validationError  = '';
+				setValidation( state, '', '' );
 				state.jobUrl           = '';
 				state.jobStatus        = '';
 				state.editJobId        = 0;
@@ -717,19 +829,7 @@ const { state } = store(
 				state.remote           = false;
 				state.customFields     = {};
 
-				// The rich editor mirrors a source textarea and only repaints on
-				// the wcb:editor:hydrate event; clearing state.description alone
-				// leaves the just-submitted text visible. Sync the source to empty
-				// and fire hydrate (mirrors the AI-description handler above).
-				const source = document.querySelector(
-					'.wcb-editor textarea.wcb-editor-source'
-				);
-				if ( source ) {
-					source.value = '';
-					source.dispatchEvent(
-						new Event( 'wcb:editor:hydrate', { bubbles: true } )
-					);
-				}
+				showDescription( '' );
 			},
 		},
 	}

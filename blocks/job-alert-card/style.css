@@ -6,10 +6,13 @@
  * across the sidebar makes the whole column read as one card stack.
  */
 
+/* radius-xl, matching every other sidebar/aside card - was its own
+ * hardcoded radius-2xl copy instead of actually matching .wcb-cp-side-
+ * card (Basecamp 10348288572, owner: uniform). */
 .wcb-job-alert-card {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-2xl);
+	border-radius: var(--wcb-radius-xl);
 	padding: var(--wcb-space-2xl) var(--wcb-space-2xl);
 }
 
@@ -38,24 +41,39 @@
 	box-sizing: border-box;
 	min-height: 40px;
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	font-weight: 600;
 	font-size: var(--wcb-text-base);
 	text-align: center;
 	text-decoration: none;
 	border: 0;
-	border-radius: var(--wcb-radius-sm, 6px);
+	border-radius: var(--wcb-radius-md, 8px);
 	cursor: pointer;
 	transition: background 0.15s ease;
 }
 
 .wcb-job-alert-card__btn:hover,
 .wcb-job-alert-card__btn:focus {
-	background: var(--wcb-primary-hover, var(--wcb-primary));
+	background: var(--wcb-primary-dark);
 	color: var(--wcb-on-primary);
+	border: 0;
 	text-decoration: none;
-	filter: brightness(0.95);
+}
+
+/* Same ring and press feedback every other filled WCB control uses. */
+.wcb-job-alert-card__btn:focus-visible {
+	outline: 2px solid transparent !important;
+	box-shadow: var(--wcb-shadow-focus);
+	color: var(--wcb-on-primary);
+	border: 0;
+}
+
+.wcb-job-alert-card__btn:active {
+	background: var(--wcb-primary-dark);
+	color: var(--wcb-on-primary);
+	border: 0;
+	transform: scale(0.97);
 }
 
 @media (max-width: 640px) {

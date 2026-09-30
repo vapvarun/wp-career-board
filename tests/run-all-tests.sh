@@ -23,6 +23,13 @@ echo "=== REST Exposure Contract ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/audit/rest-exposure.php
 echo ""
 
+echo "=== Route Authority (Gate G2) ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-route-authority.php
+if [ -f wp-content/plugins/wp-career-board-pro/tests/test-route-authority.php ]; then
+	wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-route-authority.php
+fi
+echo ""
+
 echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""
@@ -43,6 +50,14 @@ echo "=== Pages Resolver Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-pages-resolver.php
 echo ""
 
+echo "=== Template Override Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-template-override.php
+echo ""
+
+echo "=== Apply and Notes Concurrency Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-apply-concurrency.php
+echo ""
+
 echo "=== App Auth Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-app-auth.php
 echo ""
@@ -55,8 +70,51 @@ echo "=== Cron Event Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cron-events.php
 echo ""
 
+echo "=== Application Lifecycle Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-application-lifecycle.php
+echo ""
+
+echo "=== Community Notification Contract Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-community-notification-contract.php
+echo ""
+
+echo "=== Job Lifecycle Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-lifecycle.php
+echo ""
+
+echo "=== Personal Data Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-personal-data.php
+echo ""
+
+echo "=== Trust and Safety Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-trust-safety.php
+echo ""
+
+echo "=== Job Schema Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-schema.php
+echo ""
+
+echo "=== Job Search Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search.php
+echo ""
+
+echo "=== WPJM Import Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-wpjm-import.php
+echo ""
+
 echo "=== Scale Harness Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-scale-harness.php
+echo ""
+
+echo "=== Credential Guard Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-credential-guard.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-salary-format.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-text-excerpt.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-email-locale.php
+echo ""
+
+echo "=== RTL Style Opt-in Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-rtl-styles.php
 echo ""
 
 echo "=== ALL SUITES COMPLETE ==="

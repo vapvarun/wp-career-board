@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.2';
+	const DB_VERSION = '1.3.7';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -48,6 +48,11 @@ final class Install {
 	public static function activate(): void {
 		self::check_requirements();
 		self::maybe_upgrade();
+		// Deactivation clears the file-migration job; re-arm it so a site that
+		// was switched off mid-migration finishes. One pass is a no-op when done.
+		if ( ! wp_next_scheduled( PrivateFiles::MIGRATE_HOOK ) ) {
+			wp_schedule_single_event( time() + 30, PrivateFiles::MIGRATE_HOOK );
+		}
 		( new Roles() )->register();
 		// DEFER the rewrite flush — do NOT call flush_rewrite_rules() here. The
 		// wcb_job / wcb_company / wcb_resume CPTs register on `init`, which has
@@ -194,7 +199,8 @@ final class Install {
 				PRIMARY KEY  (id),
 				KEY user_id  (user_id),
 				KEY event_type  (event_type),
-				KEY status  (status)
+				KEY status  (status),
+				KEY sent_at  (sent_at)
 			) ENGINE=InnoDB {$charset};"
 		);
 
@@ -236,21 +242,31 @@ final class Install {
 		if ( version_compare( (string) $installed, self::DB_VERSION, '<' ) ) {
 			self::create_tables();
 			self::seed_default_settings();
+
+			// Safer defaults for brand-new sites only (owner decision, 1.8.0).
+			// Existing sites keep their behaviour: the key stays absent there,
+			// so Settings falls back to off.
+			if ( '0' === (string) $installed ) {
+				// New sites start on the 1.8.0 defaults and never see the
+				// "safer defaults" notice existing sites get.
+				update_option( 'wcb_defaults_version', '1.8.0', false );
+				$settings = \WCB\Admin\Settings::all();
+				// D4/D5: a job ends at its deadline.
+				$new_site = array(
+					'require_email_verification' => true,
+					'deadline_auto_close'        => true,
+					'require_job_location'       => true,
+				);
+				if ( array_diff_key( $new_site, $settings ) ) {
+					update_option( 'wcb_settings', $settings + $new_site );
+				}
+			}
 			// Reserved location terms ('remote', 'other') are seeded by
 			// Plugin::init on init@20 — taxonomy registration happens on
 			// init@10 and is unavailable during activation. Idempotent.
 
-			// 1.2 — F-3: resume CPT visibility moved from Pro filter to Free
-			// setting. Pre-existing sites with Pro active expect the resume
-			// archive to stay public, so seed the setting from the install
-			// state rather than letting the new default flip URLs to 404.
 			if ( version_compare( (string) $installed, '1.2', '<' ) ) {
 				$settings = \WCB\Admin\Settings::all();
-				if ( ! array_key_exists( 'resume_archive_enabled', $settings ) ) {
-					$settings['resume_archive_enabled'] = (bool) apply_filters( 'wcb_pro_active', false );
-					update_option( 'wcb_settings', $settings );
-					update_option( 'wcb_flush_rewrite_rules', 1 );
-				}
 
 				// 1.2 — F-4: allow_withdraw setting → wcb_withdraw_application
 				// ability. Default ability grant covers true; only the false case
@@ -392,7 +408,12 @@ final class Install {
 			}
 
 			if ( version_compare( (string) $installed, '1.2.9', '<' ) ) {
-				self::migrate_add_notifications_status_index();
+				self::ensure_notifications_log_key( 'status' );
+			}
+
+			// 1.3.7 — the retention prune (`WHERE sent_at < cutoff`) scanned the whole email log.
+			if ( version_compare( (string) $installed, '1.3.7', '<' ) ) {
+				self::ensure_notifications_log_key( 'sent_at' );
 			}
 
 			// 1.3.0 — adopt jobs that were created while the poster's reciprocal
@@ -422,6 +443,43 @@ final class Install {
 				self::migrate_company_archive_page_slug();
 			}
 
+			// 1.3.3 — move existing candidate files (resumes, generated CVs)
+			// into private storage. File moves are slow, so a cron job does
+			// it in batches instead of this request.
+			if ( version_compare( (string) $installed, '1.3.3', '<' ) && ! wp_next_scheduled( PrivateFiles::MIGRATE_HOOK ) ) {
+				wp_schedule_single_event( time() + 30, PrivateFiles::MIGRATE_HOOK );
+			}
+
+			// 1.3.4 - one Brand (owner decision D14): the email header colour
+			// and logo become the site Brand, so existing emails look the same
+			// and the app and PWA follow them.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.4', '<' ) ) {
+				self::migrate_email_brand();
+			}
+
+			// 1.3.5 - members banned before 1.8.0 still have live listings: hide
+			// them now (a ban set from here on hides them as it is set).
+			// ponytail: in the request; bans are a handful per site.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.5', '<' ) ) {
+				$wcb_banned = get_users(
+					array(
+						'meta_key'   => '_wcb_employer_banned', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'fields'     => 'ID',
+						'number'     => -1,
+					)
+				);
+				foreach ( $wcb_banned as $wcb_banned_id ) {
+					\WCB\Modules\Moderation\HiddenContent::on_ban_set( 0, (int) $wcb_banned_id, '_wcb_employer_banned', '1' );
+				}
+			}
+
+			// 1.3.6 - keyword search matches a plain-text copy of each job (no block
+			// markup); index the jobs saved before it existed, in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.6', '<' ) && ! wp_next_scheduled( \WCB\Modules\Jobs\JobSearch::INDEX_HOOK ) ) {
+				wp_schedule_single_event( time() + 30, \WCB\Modules\Jobs\JobSearch::INDEX_HOOK );
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -433,6 +491,32 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Move the email header colour and logo into the site Brand
+	 * (`accent_color`, `logo_id`), then drop them from the email settings.
+	 * Idempotent: a second run finds nothing to move.
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public static function migrate_email_brand(): void {
+		$settings = (array) get_option( 'wcb_settings', array() );
+		$brand    = (array) ( $settings['emails']['brand'] ?? array() );
+		if ( ! array_key_exists( 'header_color', $brand ) && ! array_key_exists( 'logo_id', $brand ) ) {
+			return;
+		}
+
+		$color = sanitize_hex_color( (string) ( $brand['header_color'] ?? '' ) );
+		if ( $color ) {
+			$settings['accent_color'] = strtoupper( $color );
+		}
+		if ( ! empty( $brand['logo_id'] ) ) {
+			$settings['logo_id'] = (int) $brand['logo_id'];
+		}
+		unset( $settings['emails']['brand']['header_color'], $settings['emails']['brand']['logo_id'] );
+		update_option( 'wcb_settings', $settings );
 	}
 
 	/**
@@ -592,7 +676,7 @@ final class Install {
 		/**
 		 * Filter the default wcb_settings values written on plugin install/upgrade.
 		 *
-		 * Pro hooks this to seed Pro-specific defaults (e.g. resume_archive_enabled).
+		 * Add-ons hook this to seed their own defaults.
 		 * Free's installer merges the filter output onto the existing option using
 		 * key-absence as the gate, so user-configured values are never overwritten.
 		 *
@@ -761,22 +845,18 @@ final class Install {
 	}
 
 	/**
-	 * Add an index on `wcb_notifications_log.status` for existing installs.
+	 * Add a single-column index to `wcb_notifications_log` on existing installs.
 	 *
-	 * The admin email-log endpoint (`AdminEndpoint::get_email_log()`) filters
-	 * this table by `status = %s`, but the column shipped without a key while
-	 * its sibling filter `event_type` had one. The table grows one row per
-	 * email sent, so on a busy install an admin filtering the log by status
-	 * (e.g. "failed") triggered a full-table scan. Fresh installs get the key
-	 * from `create_tables()`; this migration back-fills existing ones.
+	 * The table grows one row per email sent, so every column it is filtered or
+	 * pruned by needs a key: `status` (the admin email-log filter, 1.2.9) and
+	 * `sent_at` (the retention prune, 1.3.7). Fresh installs get both from
+	 * `create_tables()`. Guarded on `information_schema`, so re-runs are no-ops.
 	 *
-	 * Guarded on `information_schema` so re-runs are no-ops (idempotent),
-	 * mirroring {@see migrate_add_postmeta_key_value_index()}.
-	 *
-	 * @since  1.2.9
+	 * @since  1.3.7
+	 * @param  string $column Column to index; the key takes the same name.
 	 * @return void
 	 */
-	private static function migrate_add_notifications_status_index(): void {
+	private static function ensure_notifications_log_key( string $column ): void {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'wcb_notifications_log';
@@ -787,11 +867,11 @@ final class Install {
 				'SELECT COUNT(1) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s',
 				DB_NAME,
 				$table,
-				'status'
+				$column
 			)
 		);
 		if ( 0 === $exists ) {
-			$wpdb->query( "ALTER TABLE {$table} ADD KEY status (status)" );
+			$wpdb->query( "ALTER TABLE {$table} ADD KEY {$column} ({$column})" );
 		}
 		// phpcs:enable
 	}

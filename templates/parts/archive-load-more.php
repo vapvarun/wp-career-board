@@ -35,7 +35,7 @@ $wcb_load_more = wp_parse_args(
 <div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
 	<button
 		type="button"
-		class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
+		class="wcb-btn wcb-btn--outline wcb-load-more-btn"
 		data-wp-on--click="<?php echo esc_attr( (string) $wcb_load_more['action'] ); ?>"
 		data-wp-bind--disabled="state.loading"
 	>

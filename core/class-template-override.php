@@ -47,23 +47,53 @@ class TemplateOverride {
 	 * @param  string $template Template path.
 	 * @return bool
 	 */
-	public static function is_theme_template( string $template ): bool {
+	public static function is_theme_template( string $template, string $expected_basename = '' ): bool {
 		if ( '' === $template ) {
 			return false;
 		}
 
-		$resolved = wp_normalize_path( $template );
+		$resolved     = wp_normalize_path( $template );
+		$in_theme_dir = false;
 
 		foreach ( array_unique( array( get_stylesheet_directory(), get_template_directory() ) ) as $theme_dir ) {
 			if ( ! is_string( $theme_dir ) || '' === $theme_dir ) {
 				continue;
 			}
 			if ( str_starts_with( $resolved, trailingslashit( wp_normalize_path( $theme_dir ) ) ) ) {
-				return true;
+				$in_theme_dir = true;
+				break;
 			}
 		}
 
-		return false;
+		if ( ! $in_theme_dir ) {
+			return false;
+		}
+
+		// A generic fallback the hierarchy had nothing more specific to serve
+		// (single.php, page.php, archive.php, singular.php, index.php…) is not
+		// the theme opting in to a WCB page; only a file matching the exact slot
+		// name is, e.g. single-wcb_job.php for a wcb_job single. Without this,
+		// every theme lacking a CPT-specific template silently loses the
+		// canonical container/hero to its own generic wrapper (Basecamp
+		// 10348287376 / 10348287177 / 10348287589 / 10348289393).
+		return '' === $expected_basename || basename( $resolved ) === $expected_basename;
+	}
+
+	/**
+	 * Whether the active theme is a block theme (templates/*.html).
+	 *
+	 * A block theme renders through WordPress's block template canvas, where our
+	 * blocks already reach the page (the `the_content` injection and the block
+	 * markup in each page). A plugin PHP template on top of it calls
+	 * `get_header()` (a bare fallback there) and skips the script-module import
+	 * map, so the page is blank or dead. Hybrid themes (Reign, BuddyX: theme.json
+	 * plus PHP templates) are not block themes and are unaffected.
+	 *
+	 * @since 1.8.0
+	 * @return bool
+	 */
+	public static function block_theme(): bool {
+		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
 	}
 
 	/**
@@ -77,23 +107,40 @@ class TemplateOverride {
 	 * @param  string $template Template path from `template_include`.
 	 * @return bool
 	 */
-	public static function keep( string $template ): bool {
+	public static function keep( string $template, string $expected_basename = '' ): bool {
 		if ( '' === $template ) {
 			return false;
+		}
+
+		// On a block theme WordPress resolved the block template canvas: keep it.
+		if ( self::block_theme() ) {
+			return true;
 		}
 
 		// A theme shipping its own template wins. WordPress's hierarchy already
 		// chose it. Parent as well as child, so a child theme need not copy a
 		// parent's template just to keep it.
-		if ( self::is_theme_template( $template ) ) {
+		if ( self::is_theme_template( $template, $expected_basename ) ) {
 			return true;
 		}
 
 		$resolved = wp_normalize_path( $template );
 
 		// The bundled integrations (Reign, BuddyX Pro) set their own template via
-		// single_template and live inside the plugin directory. Preserved so this
-		// change is purely additive to the behaviour that already worked.
-		return str_contains( $resolved, 'wp-career-board' );
+		// single_template and live inside one of the two plugin directories.
+		// Compared against the actual directory, not a substring of the path -
+		// an install path that happens to contain the plugin slug (a demo
+		// folder, a site named after the plugin) otherwise falsely matches a
+		// theme's own generic template (Basecamp 10350370251).
+		foreach ( array( WCB_DIR, defined( 'WCBP_DIR' ) ? WCBP_DIR : null ) as $plugin_dir ) {
+			if ( ! is_string( $plugin_dir ) || '' === $plugin_dir ) {
+				continue;
+			}
+			if ( str_starts_with( $resolved, trailingslashit( wp_normalize_path( $plugin_dir ) ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

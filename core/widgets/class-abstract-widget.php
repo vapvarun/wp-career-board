@@ -63,7 +63,7 @@ abstract class AbstractWidget {
 	}
 
 	/**
-	 * Capability/ability required to render this widget. Empty = public.
+	 * Ability slug (namespace/slug, e.g. wcb/view-applications) required to render this widget. Empty = public.
 	 *
 	 * @since 1.1.0
 	 * @return string

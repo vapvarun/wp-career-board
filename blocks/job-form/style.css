@@ -10,6 +10,35 @@
  *   - Primary CTA with shadow ramp + translateY(-1px) lift on hover
  */
 
+/* ── Field validation ────────────────────────────────────────────────── */
+/* The message sits under its field, in the AA-safe danger text colour. Fields
+   keep a scroll margin so a theme's sticky header does not cover the one that
+   was just focused. */
+.wcb-field,
+.wcb-editor-holder {
+	scroll-margin-top: 7.5rem;
+}
+
+.wcb-field-error {
+	margin: var(--wcb-space-xs) 0 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+/* The invalid border uses the plugin's own dark red (a theme's error colour can be
+   under 3:1 on white) and stays red while the field has focus. The description's
+   border is on the .wcb-editor wrapper, not on its holder. !important because a
+   theme's bare `input:not(...)` rule out-ranks any single-class selector. */
+.wcb-field[aria-invalid="true"],
+.wcb-editor:has( > .wcb-editor-holder[aria-invalid="true"] ) {
+	border-color: var(--wcb-danger-fg, #991b1b) !important;
+}
+
+.wcb-field[aria-invalid="true"]:focus,
+.wcb-editor:has( > .wcb-editor-holder[aria-invalid="true"] ):focus-within {
+	box-shadow: 0 0 0 3px color-mix( in srgb, var(--wcb-danger-fg, #991b1b) 18%, transparent );
+}
+
 /* ── Step indicator (chip-style, kept functional + clean) ────────────── */
 .wcb-steps {
 	display: flex;
@@ -26,13 +55,14 @@
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border-strong);
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-text-secondary);
+	color: var(--wcb-contrast);
 	background: transparent;
 	white-space: nowrap;
-	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
+	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy), border-color var(--wcb-transition-snappy);
 }
 
 .wcb-step__num {
@@ -45,30 +75,43 @@
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-bold);
 	background: var(--wcb-bg-subtle);
-	color: var(--wcb-text-secondary);
+	color: var(--wcb-contrast);
 	flex-shrink: 0;
 	transition: background var(--wcb-transition-snappy), color var(--wcb-transition-snappy);
 }
 
 .wcb-step--active {
-	background: var(--wcb-primary);
+	background: var(--wcb-primary-strong);
+	border-color: var(--wcb-primary-strong);
 	color: var(--wcb-on-primary);
 	font-weight: var(--wcb-font-semibold);
 }
 
+/* A solid white disc with a coloured numeral, not a translucent white ring
+   with a white numeral on it — the ring only ever showed 20% white over the
+   pill's own fill, 3.4-4.1:1 depending on theme accent. Contrast is the same
+   either way round, and --wcb-primary-strong is capped precisely so its
+   pairing with white clears AA (see its own definition above). */
 .wcb-step--active .wcb-step__num {
-	background: rgba(255, 255, 255, 0.2);
-	color: var(--wcb-on-primary);
+	background: var(--wcb-on-primary);
+	color: var(--wcb-primary-strong);
 }
 
 .wcb-step--done {
 	background: var(--wcb-success-bg-soft);
+	border-color: var(--wcb-success-border);
 	color: var(--wcb-success-fg);
 }
 
+/* --wcb-success-strong is capped the same way --wcb-primary-strong is (see
+   above), so white always reads on it regardless of theme or mode — the
+   theme-mapped --wcb-success alone measured 1.84:1 on Reign. Not
+   --wcb-success-border/-fg: that pair has no dark-mode values of its own, so
+   in dark mode the "border" fill and the "fg" check landed on nearly the
+   same light green. */
 .wcb-step--done .wcb-step__num {
-	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	background: var(--wcb-success-strong);
+	color: var(--wcb-on-primary, #ffffff);
 	font-size: 0;
 }
 
@@ -84,11 +127,19 @@
 	background: var(--wcb-border);
 }
 
+/* The listing-window notice sits between the stepper and the step panel. Not
+   .wcb-form-help: that class forces margin with !important and would pin the
+   notice against the panel title. */
+[class*="wp-block-wp-career-board"] .wcb-listing-window {
+	margin: 0 0 var(--wcb-space-lg);
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-contrast);
+}
+
 /* ── Form step panel — transparent, no card chrome ───────────────────── */
 .wcb-form-step {
 	display: none;
 	flex-direction: column;
-	gap: var(--wcb-space-3xl);
 	padding: 0;
 	background: transparent;
 	border: 0;
@@ -117,53 +168,10 @@
 	border: 0;
 }
 
-/* ── Fields ──────────────────────────────────────────────────────────── */
-.wcb-form-field {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	min-width: 0;
-}
-
-.wcb-form-label {
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
 .wcb-required {
 	color: var(--wcb-danger);
 	font-weight: var(--wcb-font-bold);
 	margin-inline-start: 2px; /* hairline gap */
-}
-
-.wcb-form-hint {
-	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-field {
-	width: 100%;
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	font-size: var(--wcb-text-base);
-	line-height: var(--wcb-leading-tight);
-	font-family: inherit;
-	color: var(--wcb-contrast);
-	background: var(--wcb-base);
-	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast), background var(--wcb-transition-fast);
-	-webkit-appearance: none;
-	appearance: none;
-	box-sizing: border-box;
-	min-width: 0;
-}
-
-.wcb-field:hover {
-	border-color: var(--wcb-text-tertiary);
 }
 
 /* No `outline: none` on plain `:focus` - modern browsers default to no
@@ -174,24 +182,6 @@
 .wcb-field:focus {
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
-}
-
-.wcb-field::placeholder {
-	color: var(--wcb-text-tertiary);
-	opacity: 0.7;
-}
-
-textarea.wcb-field {
-	resize: vertical;
-	min-height: 200px; /* component-specific dimension */
-	line-height: var(--wcb-leading-normal);
 }
 
 /* ── 2-col grid for paired fields / taxonomy selects ─────────────────── */
@@ -210,19 +200,11 @@ textarea.wcb-field {
 	align-items: stretch;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1024px) {
 	.wcb-salary-row {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
-
-.wcb-field-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-	min-width: 0;
-}
-
 .wcb-field-group__label {
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
@@ -401,7 +383,7 @@ textarea.wcb-field {
 
 .wcb-form-error {
 	display: none;
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg, #991b1b);
 	background: var(--wcb-danger-bg);
 	border: 1px solid var(--wcb-danger-border);
 	border-radius: var(--wcb-radius-md);
@@ -453,7 +435,7 @@ textarea.wcb-field {
 	align-items: center;
 	gap: var(--wcb-space-md);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	border-radius: var(--wcb-radius-md);
+	border-radius: var(--wcb-radius-xl); /* same shape as the dashboard credit banners */
 	font-size: var(--wcb-text-sm);
 	margin-bottom: var(--wcb-space-xl);
 	background: var(--wcb-info-bg-soft);
@@ -503,7 +485,7 @@ textarea.wcb-field {
 	height: var(--wcb-space-3xl);
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 	font-size: var(--wcb-text-md);
 	font-weight: var(--wcb-font-bold);
 	flex-shrink: 0;
@@ -536,7 +518,7 @@ textarea.wcb-field {
 	padding: var(--wcb-space-sm) var(--wcb-space-lg);
 	margin-top: var(--wcb-space-sm);
 	background: transparent;
-	border: 1.5px solid var(--wcb-success-border);
+	border: 1px solid var(--wcb-success-border);
 	border-radius: var(--wcb-radius-md);
 	color: var(--wcb-success-fg);
 	font-size: var(--wcb-text-base);
@@ -547,12 +529,12 @@ textarea.wcb-field {
 
 .wcb-form-success__reset:hover {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 }
 
 .wcb-form-success__reset:focus-visible {
 	background: var(--wcb-success);
-	color: var(--wcb-on-primary);
+	color: #ffffff;
 	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 }
@@ -570,7 +552,7 @@ textarea.wcb-field {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.wcb-step__label {
 		display: none;
 	}

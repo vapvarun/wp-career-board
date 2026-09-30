@@ -12,8 +12,12 @@ $wcb_email_s     = function_exists( 'wcb_get_email_settings' ) ? wcb_get_email_s
 $wcb_footer_text = ! empty( $wcb_email_s['brand']['footer_text'] )
 	? $wcb_email_s['brand']['footer_text']
 	: sprintf(
-		/* translators: %s: site name */
-		__( 'You are receiving this email because you have an account on %s.', 'wp-career-board' ),
+		// A guest (applicant or alert subscriber) has no account, so they get the reason that fits.
+		\WCB\Modules\Notifications\AbstractEmail::is_to_guest()
+			/* translators: %s: site name */
+			? __( 'You are receiving this email because you gave us your email address on %s.', 'wp-career-board' )
+			/* translators: %s: site name */
+			: __( 'You are receiving this email because you have an account on %s.', 'wp-career-board' ),
 		get_bloginfo( 'name' )
 	);
 ?>

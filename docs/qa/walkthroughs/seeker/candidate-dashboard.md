@@ -44,7 +44,7 @@ human-runnable pass, including the data-isolation guard that one candidate can't
    `#wcb-profile-email`, editable `#wcb-profile-phone`, `#wcb-profile-location`, and bio textarea
    `#wcb-profile-bio` (`render.php:370-375,960-1015`).
 9. Type a new value into `#wcb-profile-location` (e.g. "Bengaluru, India") via `actions.updateProfileLocation`,
-   then click "Save Profile" `.wcb-cbtn--primary` (`actions.saveProfile`) → expect a
+   then click "Save Profile" `.wcb-btn--primary` (`actions.saveProfile`) → expect a
    `PUT {apiBase}/candidates/{candidateId}` with JSON `{ bio, resume_data:{ phone, location }, custom_fields }`
    and the `.wcb-save-confirm` "Saved" badge to flash (`render.php:990-998,1026-1034`;
    `blocks/candidate-dashboard/view.js:627-650`; `api/endpoints/class-candidates-endpoint.php:47` EDITABLE).

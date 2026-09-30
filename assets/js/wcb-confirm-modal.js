@@ -43,6 +43,15 @@
 		var defaults = defaultStrings();
 
 		return new Promise( function ( resolve, reject ) {
+			// Reject with a truthy, flagged Error: the Interactivity API resumes a
+			// generator with gen.throw() only for a truthy rejection, so an empty
+			// reject() let `yield wcbConfirm()` carry on as if confirmed.
+			function cancelled() {
+				var err = new Error( 'wcb-confirm-cancelled' );
+				err.cancelled = true;
+				return err;
+			}
+
 			var overlay = document.createElement( 'div' );
 			overlay.className = 'wcb-modal-overlay';
 
@@ -83,8 +92,9 @@
 			overlay.appendChild( box );
 			document.body.appendChild( overlay );
 
-			// Focus trap — focus confirm initially, cycle between cancel/confirm only.
-			confirmBtn.focus();
+			// Focus trap between cancel/confirm. A destructive dialog opens on
+			// Cancel so a stray Enter or double-click cannot delete.
+			( opts.destructive ? cancelBtn : confirmBtn ).focus();
 
 			function close() {
 				document.removeEventListener( 'keydown', onKey );
@@ -96,7 +106,7 @@
 			function onKey( e ) {
 				if ( 'Escape' === e.key ) {
 					close();
-					reject();
+					reject( cancelled() );
 					return;
 				}
 				if ( 'Tab' === e.key ) {
@@ -116,13 +126,13 @@
 
 			cancelBtn.addEventListener( 'click', function () {
 				close();
-				reject();
+				reject( cancelled() );
 			} );
 
 			overlay.addEventListener( 'click', function ( e ) {
 				if ( e.target === overlay ) {
 					close();
-					reject();
+					reject( cancelled() );
 				}
 			} );
 

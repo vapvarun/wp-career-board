@@ -63,15 +63,21 @@ final class SettingsEndpoint extends RestController {
 		// salary_currency → currency, auto_publish_jobs → moderation_mode).
 		// Reads use \WCB\Admin\Settings so internal callers and this endpoint
 		// share one source of truth for canonical keys.
-		$is_pro_active  = (bool) apply_filters( 'wcb_pro_active', false );
-		$captcha_driver = wcb_get_captcha_driver();
+		$is_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
+		$captcha       = \WCB\Modules\AntiSpam\AntiSpamModule::active();
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled Abilities API check, see core/abilities-api-polyfill.php.
+		$can_manage = wp_is_ability_granted( 'wcb/manage-settings' );
 
 		$data = array(
 			'site_name'             => (string) get_bloginfo( 'name' ),
 			'site_url'              => (string) home_url( '/' ),
-			'plugin_version'        => defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
-			'pro_version'           => (string) apply_filters( 'wcb_pro_version', '' ),
+			// Exact versions only for the site's admins: this route is public, and
+			// a version string tells an attacker which known bugs to try.
+			'plugin_version'        => $can_manage && defined( 'WCB_VERSION' ) ? WCB_VERSION : '',
+			'pro_version'           => $can_manage ? (string) apply_filters( 'wcb_pro_version', '' ) : '',
 			'is_pro_active'         => $is_pro_active,
+			// Shown on the app's apply screen, same text as the website ('' = none).
+			'apply_ai_notice'       => (string) apply_filters( 'wcb_apply_ai_notice', '', 0 ),
 			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
 			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page' ),
 			'currency'              => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
@@ -81,7 +87,9 @@ final class SettingsEndpoint extends RestController {
 			// letting the candidate submit and hit a 400.
 			'apply_resume_required' => \WCB\Admin\Settings::bool( 'apply_resume_required', true ),
 			'feature_toggles'       => array(
-				'guest_apply'          => true,
+				// Mirrors the apply permission check: guests may apply unless
+				// Settings > Applications requires an account.
+				'guest_apply'          => ! \WCB\Admin\Settings::bool( 'apply_require_login' ),
 				'bookmarks'            => true,
 				'job_alerts'           => $is_pro_active,
 				'application_pipeline' => $is_pro_active,
@@ -101,8 +109,8 @@ final class SettingsEndpoint extends RestController {
 			// defaults); Pro overrides from its white-label option via the
 			// wcb_rest_app_config filter. Never restate site name/icon here —
 			// those come from the core /wp-json/ index.
-			'accent_color'          => \WCB\Admin\Settings::string( 'accent_color', '#2563EB' ),
-			'logo_url'              => \WCB\Admin\Settings::string( 'logo_url', '' ),
+			'accent_color'          => \WCB\Core\Brand::color(),
+			'logo_url'              => \WCB\Core\Brand::logo_url(),
 			'login_bg_url'          => \WCB\Admin\Settings::string( 'login_bg_url', '' ),
 			'dark_mode_default'     => \WCB\Admin\Settings::bool( 'dark_mode_default', false ),
 			// Per-site legal surface (Apple 1.2 / 5.1.1). Each site owns its own
@@ -114,7 +122,9 @@ final class SettingsEndpoint extends RestController {
 				'terms_url'                => \WCB\Admin\Settings::string( 'terms_url', '' ) ?: null,
 				'eula_url'                 => \WCB\Admin\Settings::string( 'eula_url', '' ) ?: null,
 				'community_guidelines_url' => \WCB\Admin\Settings::string( 'guidelines_url', '' ) ?: null,
-				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: (string) get_option( 'admin_email' ),
+				// Never the admin email: WordPress doesn't publish it anywhere, and
+				// the app falls back to the privacy page when this is null.
+				'abuse_contact_email'      => \WCB\Admin\Settings::string( 'abuse_contact_email', '' ) ?: null,
 			),
 			// The statuses an employer may set on an application, slug + label in
 			// the site's locale. Published because a client that offers a status
@@ -150,7 +160,13 @@ final class SettingsEndpoint extends RestController {
 			'timezone'              => (string) wp_timezone_string(),
 			'locale'                => (string) get_locale(),
 			'rest_namespace'        => 'wcb/v1',
-			'captcha_required'      => '' !== $captcha_driver,
+			'captcha_required'      => null !== $captcha,
+			// The app renders the same widget the website does. The site key is
+			// public by design (it is in every page's HTML); the secret never leaves.
+			'captcha'               => null === $captcha ? null : array(
+				'provider' => $captcha['provider'],
+				'site_key' => $captcha['site_key'],
+			),
 		);
 
 		/**

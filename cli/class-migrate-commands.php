@@ -33,8 +33,10 @@ class MigrateCommands extends AbstractCliCommand {
 	/**
 	 * Migrate jobs from WP Job Manager (job_listing CPT) into WP Career Board.
 	 *
-	 * Reads every published `job_listing` post and creates a matching `wcb_job`.
-	 * Company meta is copied as inline meta (no wcb_company CPT post created).
+	 * Reads every published or expired `job_listing` post and creates a matching `wcb_job`.
+	 * Each job is linked to a wcb_company post: an existing one matching the
+	 * WPJM company website or name, else a new one built from the WPJM company
+	 * meta. The job keeps its company name as inline meta too.
 	 * Taxonomies are mapped: job_listing_category → wcb_category,
 	 * job_listing_type → wcb_job_type.
 	 *
@@ -52,12 +54,12 @@ class MigrateCommands extends AbstractCliCommand {
 	 * : Skip the first N jobs. Useful for resuming a partial migration.
 	 *
 	 * [--status=<status>]
-	 * : Which WPJM post status to migrate.
+	 * : Which WPJM post status to migrate. Default: published and expired jobs.
 	 * ---
-	 * default: publish
 	 * options:
 	 *   - publish
 	 *   - pending
+	 *   - expired
 	 *   - any
 	 * ---
 	 *
@@ -82,14 +84,14 @@ class MigrateCommands extends AbstractCliCommand {
 		$dry_run = (bool) \WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false );
 		$limit   = (int) \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit', -1 );
 		$offset  = (int) \WP_CLI\Utils\get_flag_value( $assoc_args, 'offset', 0 );
-		$status  = \WP_CLI\Utils\get_flag_value( $assoc_args, 'status', 'publish' );
+		$status  = (string) \WP_CLI\Utils\get_flag_value( $assoc_args, 'status', '' );
 
 		if ( $dry_run ) {
 			\WP_CLI::log( \WP_CLI::colorize( '%YDRY RUN — no data will be written.%n' ) );
 		}
 
 		$importer = new WpjmImporter();
-		$total    = $importer->wpjm_jobs_total( 'any' === $status ? 'publish' : $status );
+		$total    = $importer->wpjm_jobs_total( $status );
 
 		if ( 0 === $total ) {
 			\WP_CLI::success( 'No WP Job Manager jobs found to migrate.' );
@@ -103,7 +105,7 @@ class MigrateCommands extends AbstractCliCommand {
 			$ids = get_posts(
 				array(
 					'post_type'      => 'job_listing',
-					'post_status'    => $status,
+					'post_status'    => WpjmImporter::job_statuses( $status ),
 					'posts_per_page' => $limit > 0 ? $limit : -1,
 					'offset'         => $offset,
 					'orderby'        => 'ID',
@@ -115,6 +117,8 @@ class MigrateCommands extends AbstractCliCommand {
 				$post = get_post( (int) $id );
 				\WP_CLI::log( sprintf( '  [dry-run] Would import: "%s" (ID %d)', $post ? $post->post_title : '?', $id ) );
 			}
+			$preview = $importer->preview();
+			\WP_CLI::log( sprintf( 'Filled jobs that will be closed: %d | New company pages: %d | Applications to import afterwards: %d', $preview['filled'], $preview['companies_new'], $preview['applications'] ) );
 			\WP_CLI::success( sprintf( 'Dry run complete. %d job(s) would be processed.', count( $ids ) ) );
 			return;
 		}
@@ -215,6 +219,9 @@ class MigrateCommands extends AbstractCliCommand {
 	 * @return void
 	 */
 	public function wpjm_resumes( array $args, array $assoc_args ): void {
+		if ( ! apply_filters( 'wcb_pro_active', false ) ) {
+			\WP_CLI::error( 'Resume import requires WP Career Board Pro.' );
+		}
 		if ( ! post_type_exists( 'resume' ) ) {
 			\WP_CLI::error( 'WP Job Manager Resumes is not active. Install and activate it before running this command.' );
 		}
@@ -308,5 +315,92 @@ class MigrateCommands extends AbstractCliCommand {
 				$errors
 			)
 		);
+	}
+
+	/**
+	 * Import WP Job Manager Applications onto the imported jobs (no emails).
+	 *
+	 * Import the jobs first (`wp wcb migrate wpjm`). Safe to re-run: already
+	 * imported applications are skipped.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 * : Count what would be imported without writing anything.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *   wp wcb migrate wpjm-applications --dry-run
+	 *   wp wcb migrate wpjm-applications
+	 *
+	 * @subcommand wpjm-applications
+	 * @since 1.8.0
+	 *
+	 * @param array                $args       Positional arguments (unused).
+	 * @param array<string,string> $assoc_args Named arguments.
+	 * @return void
+	 */
+	public function wpjm_applications( array $args, array $assoc_args ): void {
+		if ( ! post_type_exists( 'job_application' ) ) {
+			\WP_CLI::error( 'WP Job Manager Applications is not active.' );
+		}
+		$importer  = new WpjmImporter();
+		$remaining = max( 0, $importer->applications_total() - $importer->wcb_applications_migrated() );
+		if ( \WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false ) ) {
+			\WP_CLI::success( sprintf( 'Dry run complete. %d application(s) would be imported.', $remaining ) );
+			return;
+		}
+		$totals = array(
+			'imported' => 0,
+			'skipped'  => 0,
+			'errors'   => 0,
+		);
+		for ( $offset = 0; ; $offset += 50 ) {
+			$result = $importer->migrate_applications_batch( $offset, 50 );
+			foreach ( $result['errors'] as $error ) {
+				\WP_CLI::warning( $error );
+			}
+			$totals['imported'] += $result['imported'];
+			$totals['skipped']  += $result['skipped'];
+			$totals['errors']   += count( $result['errors'] );
+			if ( $result['imported'] + $result['skipped'] + count( $result['errors'] ) < 50 ) {
+				break;
+			}
+		}
+		\WP_CLI::success( sprintf( 'Done. Imported: %d | Skipped: %d | Errors: %d', $totals['imported'], $totals['skipped'], $totals['errors'] ) );
+	}
+
+	/**
+	 * Move existing candidate files (resumes, generated CVs) into private storage.
+	 *
+	 * Upgrading to 1.8.0 already does this in the background, 50 files per
+	 * cron pass. Run this to finish at once, e.g. on a site with WP-Cron off.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *   wp wcb migrate files
+	 *
+	 * @subcommand files
+	 * @since 1.8.0
+	 *
+	 * @param array                $args       Positional arguments (unused).
+	 * @param array<string,string> $assoc_args Named arguments (unused).
+	 * @return void
+	 */
+	public function files( array $args, array $assoc_args ): void {
+		$total = 0;
+		// Run by hand usually means "I just fixed the folder": skip the retry cool-down.
+		\WCB\Core\PrivateFiles::retry_now();
+		do {
+			$done   = \WCB\Core\PrivateFiles::migrate_batch();
+			$total += $done;
+		} while ( $done > 0 );
+		$left = \WCB\Core\PrivateFiles::left_behind_count();
+		if ( 0 === $left ) {
+			wp_clear_scheduled_hook( \WCB\Core\PrivateFiles::MIGRATE_HOOK );
+		} else {
+			\WP_CLI::warning( sprintf( '%d candidate file(s) could not be moved and are still in the public uploads folder. Check that the web server user can write to and delete from it, then run this again.', $left ) );
+		}
+		\WP_CLI::success( sprintf( '%d candidate file(s) processed.', $total ) );
 	}
 }

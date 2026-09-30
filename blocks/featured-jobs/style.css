@@ -73,16 +73,6 @@
 	text-decoration: underline;
 }
 
-.wcb-featured-empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
-	color: var(--wcb-text-secondary);
-	text-align: center;
-}
-
 @media (max-width: 640px) {
 	.wcb-featured-grid {
 		grid-template-columns: minmax(0, 1fr);

@@ -31,6 +31,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ArchiveHeading {
 
 	/**
+	 * Whether this request has already printed its page heading.
+	 *
+	 * @var bool
+	 */
+	private static bool $printed = false;
+
+	/**
+	 * The page's H1, once per request, from the first block that asks.
+	 *
+	 * A listing page can open with a search or filter block and carry the
+	 * results block further down, so the heading must come from whichever of
+	 * them renders first; the later ones get '' and never add a second H1.
+	 *
+	 * @since 1.8.0
+	 * @param string $cpt_slug    Post type slug (e.g. 'wcb_job').
+	 * @param string $setting_key Settings key for the admin-configured archive page.
+	 * @return string The `<h1>` markup (already escaped), or '' when there is none to print.
+	 */
+	public static function render( string $cpt_slug, string $setting_key ): string {
+		if ( self::$printed ) {
+			return '';
+		}
+		// A page built with its own H1 (the setup wizard's pages start with a heading block)
+		// already has one: do not add a second.
+		$page = get_queried_object();
+		if ( $page instanceof \WP_Post && preg_match( '/<h1[\s>]|wp:heading \{[^}]*"level":1/', $page->post_content ) ) {
+			self::$printed = true;
+			return '';
+		}
+		$title = self::resolve( $cpt_slug, $setting_key );
+		if ( '' === $title ) {
+			return '';
+		}
+		self::$printed = true;
+
+		return '<h1 class="wcb-page-heading">' . esc_html( $title ) . '</h1>';
+	}
+
+	/**
 	 * Resolve the directory heading.
 	 *
 	 * @since 1.1.1
@@ -49,6 +88,9 @@ final class ArchiveHeading {
 		}
 		if ( is_post_type_archive( $cpt_slug ) ) {
 			return (string) post_type_archive_title( '', false );
+		}
+		if ( is_tax( \WCB\Modules\Jobs\JobsModule::TAXONOMIES ) ) {
+			return single_term_title( '', false );
 		}
 		return '';
 	}

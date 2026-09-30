@@ -25,7 +25,19 @@ if ( ! $wcb_company_id ) {
 }
 
 $wcb_company = $wcb_company_id ? get_post( $wcb_company_id ) : null;
-if ( ! $wcb_company instanceof \WP_Post ) {
+if ( ! $wcb_company instanceof \WP_Post || 'wcb_company' !== $wcb_company->post_type ) {
+	return;
+}
+
+// A company named by attribute renders only once published, unless the viewer
+// is its owner or staff (the attribute is reachable from employer content).
+$wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+if (
+	! empty( $attributes['companyId'] )
+	&& 'publish' !== $wcb_company->post_status
+	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_company->post_author )
+	&& ! $wcb_is_staff
+) {
 	return;
 }
 
@@ -43,7 +55,6 @@ $wcb_founded  = (string) get_post_meta( $wcb_company_id, '_wcb_founded', true );
 $wcb_hq       = (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true );
 $wcb_trust    = (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true );
 $wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
-$wcb_is_owner = get_current_user_id() === (int) $wcb_company->post_author;
 
 // ── Initials avatar ───────────────────────────────────────────────────────────
 $wcb_words    = array_filter( explode( ' ', trim( $wcb_name ) ) );
@@ -136,7 +147,7 @@ wp_interactivity_state(
 >
 
 	<?php /* ── Hero ── */ ?>
-	<div class="wcb-cp-hero">
+	<div class="wcb-cp-hero wcb-detail-hero">
 		<div class="wcb-cp-cover" aria-hidden="true"></div>
 
 		<?php
@@ -169,7 +180,7 @@ wp_interactivity_state(
 				<?php if ( $wcb_logo_url ) : ?>
 					<img class="wcb-cp-logo" src="<?php echo esc_url( $wcb_logo_url ); ?>" alt="<?php echo esc_attr( $wcb_name ); ?>" />
 				<?php else : ?>
-					<div class="wcb-cp-avatar" aria-hidden="true">
+					<div class="wcb-avatar wcb-cp-avatar" aria-hidden="true">
 						<?php echo esc_html( $wcb_initials ); ?>
 					</div>
 				<?php endif; ?>
@@ -256,7 +267,7 @@ wp_interactivity_state(
 
 		<?php /* About */ ?>
 		<?php if ( $wcb_desc ) : ?>
-			<section class="wcb-cp-section">
+			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'About', 'wp-career-board' ); ?></h2>
 				<div class="wcb-cp-desc">
 					<?php echo wp_kses_post( wpautop( $wcb_desc ) ); ?>
@@ -266,7 +277,7 @@ wp_interactivity_state(
 
 		<?php /* Company Details */ ?>
 		<?php if ( $wcb_industry || $wcb_size || $wcb_type || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
-			<section class="wcb-cp-section">
+			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Company Details', 'wp-career-board' ); ?></h2>
 				<dl class="wcb-cp-details-grid">
 					<?php if ( $wcb_industry ) : ?>
@@ -318,20 +329,24 @@ wp_interactivity_state(
 		$wcb_cp_per_page  = 10;
 		$wcb_cp_author_id = (int) $wcb_company->post_author;
 
-		$wcb_open_jobs = get_posts(
+		// Open Positions = jobs still taking applications (JobDeadline's rule),
+		// not every published job: past-deadline ones read "Applications
+		// closed" on their own page, so they are not open positions.
+		$wcb_open_query = new WP_Query(
 			array(
-				'post_type'     => 'wcb_job',
-				'post_status'   => 'publish',
-				'numberposts'   => $wcb_cp_per_page,
-				'no_found_rows' => true,
-				'meta_query'    => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'publish',
+				'posts_per_page' => $wcb_cp_per_page,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
 						'key'   => '_wcb_company_id',
-						'value' => $wcb_company->ID,
+						'value' => (string) $wcb_company->ID,
 					),
+					\WCB\Core\JobDeadline::open_jobs_meta_query(),
 				),
 			)
 		);
+		$wcb_open_jobs  = $wcb_open_query->posts;
 
 		$wcb_cp_jobs_state = array();
 		foreach ( $wcb_open_jobs as $wcb_jpost ) {
@@ -355,7 +370,7 @@ wp_interactivity_state(
 				'author'      => $wcb_cp_author_id,
 				'companyId'   => (int) $wcb_company->ID,
 				'loading'     => false,
-				'hasMore'     => count( $wcb_open_jobs ) >= $wcb_cp_per_page,
+				'hasMore'     => $wcb_open_query->found_posts > count( $wcb_open_jobs ),
 				'hasNoJobs'   => empty( $wcb_cp_jobs_state ),
 				// Distinct key from the companies `apiBase` set above — both calls
 				// merge into the same store, so reusing `apiBase` here clobbered the
@@ -364,7 +379,7 @@ wp_interactivity_state(
 			)
 		);
 		?>
-		<section class="wcb-cp-section">
+		<section class="wcb-cp-section wcb-detail-section">
 			<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Open Positions', 'wp-career-board' ); ?></h2>
 
 			<p class="wcb-cp-no-jobs" data-wp-bind--hidden="!state.hasNoJobs">
@@ -394,7 +409,7 @@ wp_interactivity_state(
 			<div class="wcb-load-more-wrap" data-wp-class--wcb-shown="state.hasMore">
 				<button
 					type="button"
-					class="wcb-cbtn wcb-cbtn--ghost wcb-load-more-btn"
+					class="wcb-btn wcb-btn--outline wcb-load-more-btn"
 					data-wp-on--click="actions.loadMore"
 					data-wp-bind--disabled="state.loading"
 				>
@@ -409,7 +424,7 @@ wp_interactivity_state(
 
 	<?php
 	/*
-	Sidebar: always renders the same three plugin blocks for shape
+	Sidebar: always renders the same two plugin blocks for shape
 	 * consistency. The previous behavior swapped in admin-placed widgets
 	 * from a `wcb-company-sidebar` widget area when any were assigned,
 	 * but admins routinely misassigned footer / generic widgets there
@@ -421,10 +436,12 @@ wp_interactivity_state(
 	 *   do_action( 'wcb_company_sidebar_before', int $company_id )
 	 *   do_action( 'wcb_company_sidebar_after',  int $company_id )
 	 *     - Echo any markup; runs inside `<aside class="wcb-cp-sidebar">`
-	 *       before or after the three default cards.
+	 *       before or after the two default cards.
 	 *
 	 *   apply_filters( 'wcb_company_sidebar_blocks', array $blocks, int $company_id )
-	 *     - Replace, reorder, or append to the default three blocks.
+	 *     - Replace, reorder, or append to the default two blocks (the
+	 *       site-wide Recent Jobs block was dropped in 1.8.0: on a company
+	 *       page it listed other companies' jobs; Open Positions covers it).
 	 *       Each entry is a Gutenberg block-comment string passed to
 	 *       `do_blocks()`. Return an empty array to render nothing.
 	 */
@@ -432,7 +449,6 @@ wp_interactivity_state(
 		'wcb_company_sidebar_blocks',
 		array(
 			'<!-- wp:wp-career-board/similar-companies-card /-->',
-			'<!-- wp:wp-career-board/recent-jobs {"count":5,"showViewAll":true} /-->',
 			'<!-- wp:wp-career-board/job-alert-card /-->',
 		),
 		(int) $wcb_company_id

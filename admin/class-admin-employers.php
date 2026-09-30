@@ -26,6 +26,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminEmployers extends \WP_List_Table {
 
+	use ReportedMembers;
+
 	/**
 	 * Memoized employer user-ID set (role holders ∪ job authors).
 	 *
@@ -33,6 +35,13 @@ class AdminEmployers extends \WP_List_Table {
 	 * @var int[]|null
 	 */
 	private ?array $employer_ids_cache = null;
+
+	/**
+	 * Live job counts for the employers on the current page, by user ID.
+	 *
+	 * @var array<int,int>
+	 */
+	private array $job_counts = array();
 
 	/**
 	 * Constructor — configure singular/plural labels.
@@ -163,7 +172,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	public function process_bulk_action(): void {
 		$action = $this->current_action();
-		if ( 'ban' !== $action && 'unban' !== $action ) {
+		if ( ! in_array( $action, array( 'ban', 'unban', 'resolve_flags' ), true ) ) {
 			return;
 		}
 
@@ -184,7 +193,10 @@ class AdminEmployers extends \WP_List_Table {
 			if ( $user_id <= 0 || $user_id === $current ) {
 				continue; // Never let an admin ban themselves.
 			}
-			if ( 'ban' === $action ) {
+			if ( 'resolve_flags' === $action ) {
+				\WCB\Modules\Moderation\ModerationModule::resolve_member_flags( $user_id );
+			} elseif ( 'ban' === $action ) {
+				// Hides their jobs and company page (HiddenContent, on the flag).
 				update_user_meta( $user_id, '_wcb_employer_banned', '1' );
 				do_action( 'wcb_employer_banned', $user_id );
 			} else {
@@ -206,16 +218,12 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ): string {
-		if ( '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true ) ) {
-			return sprintf(
-				'<span class="wcb-badge wcb-badge--danger">%s</span>',
-				esc_html__( 'Banned', 'wp-career-board' )
-			);
-		}
+		$banned = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 		return sprintf(
-			'<span class="wcb-badge wcb-badge--success">%s</span>',
-			esc_html__( 'Active', 'wp-career-board' )
-		);
+			'<span class="wcb-badge wcb-badge--%s">%s</span>',
+			$banned ? 'danger' : 'success',
+			$banned ? esc_html__( 'Banned', 'wp-career-board' ) : esc_html__( 'Active', 'wp-career-board' )
+		) . $this->reports_badge( $item->ID );
 	}
 
 	// -------------------------------------------------------------------------
@@ -252,17 +260,8 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$count    = count( $this->employer_user_ids() );
-		$base_url = admin_url( 'admin.php?page=wcb-employers' );
-
-		return array(
-			'all' => sprintf(
-				'<a href="%s" class="current">%s <span class="count">(%d)</span></a>',
-				esc_url( $base_url ),
-				esc_html__( 'All', 'wp-career-board' ),
-				$count
-			),
-		);
+		$ids = $this->employer_user_ids();
+		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ) ) : array();
 	}
 
 	// -------------------------------------------------------------------------
@@ -323,16 +322,19 @@ class AdminEmployers extends \WP_List_Table {
 			return;
 		}
 
-		$query       = new \WP_User_Query(
-			array(
-				'include' => $employer_ids,
-				'orderby' => $orderby,
-				'order'   => $order,
-				'number'  => $per_page,
-				'offset'  => ( $current_page - 1 ) * $per_page,
-			)
+		$query_args = array(
+			'include' => $employer_ids,
+			'orderby' => $orderby,
+			'order'   => $order,
+			'number'  => $per_page,
+			'offset'  => ( $current_page - 1 ) * $per_page,
 		);
+		if ( $this->reported_active() ) {
+			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+		$query       = new \WP_User_Query( $query_args );
 		$this->items = $query->get_results();
+		$this->prime_page( wp_list_pluck( $this->items, 'ID' ) );
 
 		$this->set_pagination_args(
 			array(
@@ -341,6 +343,35 @@ class AdminEmployers extends \WP_List_Table {
 				'total_pages' => (int) ceil( $query->get_total() / $per_page ),
 			)
 		);
+	}
+
+	/**
+	 * Live job counts and company posts for one page of employers, in two queries
+	 * instead of a query per row.
+	 *
+	 * @param int[] $user_ids Employers on this page.
+	 * @return void
+	 */
+	private function prime_page( array $user_ids ): void {
+		global $wpdb;
+		$this->job_counts = array();
+		if ( ! $user_ids ) {
+			return;
+		}
+
+		$user_ids = array_map( 'intval', $user_ids );
+		$in       = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped count for the page; post_author is indexed.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_author, COUNT(*) AS n FROM {$wpdb->posts} WHERE post_type = 'wcb_job' AND post_status = 'publish' AND post_author IN ( {$in} ) GROUP BY post_author", $user_ids ) );
+		// phpcs:enable
+		foreach ( (array) $rows as $row ) {
+			$this->job_counts[ (int) $row->post_author ] = (int) $row->n;
+		}
+
+		$company_ids = array_filter( array_map( static fn ( int $id ): int => (int) get_user_meta( $id, '_wcb_company_id', true ), $user_ids ) );
+		if ( $company_ids ) {
+			_prime_post_caches( array_unique( $company_ids ), false, true );
+		}
 	}
 
 	/**
@@ -437,12 +468,16 @@ class AdminEmployers extends \WP_List_Table {
 	private function get_matching_user_ids( string $search ): array {
 		// Not role-scoped: an employer may be a job author without the role.
 		// The caller intersects the result with the employer set.
+		$employer_ids = $this->employer_user_ids();
+		if ( ! $employer_ids ) {
+			return array(); // An empty `include` would match every user.
+		}
 		$q = new \WP_User_Query(
 			array(
 				'search'         => '*' . $search . '*',
 				'search_columns' => array( 'user_login', 'user_email', 'display_name' ),
 				'fields'         => 'ID',
-				'number'         => 9999,
+				'include'        => $employer_ids,
 			)
 		);
 		return array_map( 'intval', $q->get_results() );
@@ -490,12 +525,16 @@ class AdminEmployers extends \WP_List_Table {
 				esc_url( (string) get_edit_user_link( $item->ID ) ),
 				esc_html__( 'Edit', 'wp-career-board' )
 			),
-			'view' => sprintf(
-				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				esc_url( (string) get_author_posts_url( $item->ID ) ),
-				esc_html__( 'View', 'wp-career-board' )
-			),
 		);
+		$company_id  = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
+		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) ) {
+			$row_actions['view'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( (string) get_permalink( $company_id ) ),
+				esc_html__( 'View company', 'wp-career-board' )
+			);
+		}
+		$row_actions += $this->dismiss_reports_action( $item->ID, 'wcb-employers', 'bulk-employers' );
 
 		if ( $item->ID !== get_current_user_id() ) {
 			$is_banned              = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
@@ -578,15 +617,7 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_jobs( $item ): string {
-		$count = (int) ( new \WP_Query(
-			array(
-				'post_type'      => 'wcb_job',
-				'post_status'    => 'publish',
-				'author'         => $item->ID,
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-			)
-		) )->found_posts;
+		$count = $this->job_counts[ (int) $item->ID ] ?? 0;
 
 		if ( $count > 0 ) {
 			return sprintf(

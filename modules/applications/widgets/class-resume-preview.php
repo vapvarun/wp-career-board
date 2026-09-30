@@ -87,7 +87,7 @@ final class ResumePreview extends AbstractWidget {
 				<p class="wcb-app-section__empty"><?php esc_html_e( 'No resume uploaded with this application.', 'wp-career-board' ); ?></p>
 				<?php
 			else :
-				$url      = (string) wp_get_attachment_url( $attachment_id );
+				$url      = \WCB\Core\PrivateFiles::url( $attachment_id );
 				$path     = (string) get_attached_file( $attachment_id );
 				$filename = '' !== $path ? basename( $path ) : '';
 				$bytes    = ( '' !== $path && file_exists( $path ) ) ? (int) filesize( $path ) : 0;

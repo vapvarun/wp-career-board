@@ -177,9 +177,56 @@ Fire side effects on key plugin events:
 | `wcb_job_expired` | `(int $job_id)` |
 | `wcb_job_deleted` | `(int $job_id)` |
 | `wcb_application_submitted` | `(int $app_id, int $job_id, int $candidate_id)` |
-| `wcb_application_status_changed` | `(int $app_id, string $old_status, string $new_status)` |
+| `wcb_application_status_changed` | `(int $app_id, string $old_status, string $new_status, string $reason, int $actor)` - fired once per real change, only by `ApplicationLifecycle::transition()` (1.8.0: `$reason`, `$actor`) |
+| `wcb_application_withdrawn` | `(int $app_id, int $job_id, int $candidate_id)` - the application is kept with status `withdrawn` since 1.8.0 |
+| `wcb_application_deleted` | `(int $app_id, int $job_id)` - fires before an application post is permanently deleted |
 | `wcb_deadline_reminder` | `(int $user_id, int $job_id, int $days_left)` |
+| `wcb_job_expiring_soon` | `(int $job_id, int $days_left)` - once per deadline, 3 days before, for the job's employer (1.8.0) |
 | `wcb_featured_expired` | `(int $job_id)` |
+| `wcb_logs_pruned` | `(string $cutoff)` - daily, after email history older than the retention setting is deleted; prune your own history with the same UTC cutoff (1.8.0) |
+
+## One signal per notification
+
+`wcb_notification_created` fires once per notification-worthy event. Free
+fires it when an email is sent; an add-on that records the same event
+(Pro's bell) returns false from
+`wcb_email_announces_notification( bool $announce, string $email_id, int $user_id )`
+and fires the signal itself, so push and BuddyNext never receive an event
+twice.
+
+## Community notification contract
+
+For a centralised notification center (BuddyNext, or any add-on that wants
+one inbox across every plugin): `wcb_notification_created` carries the
+contract payload as its **second argument**, alongside the original payload
+array documented above. Existing listeners registered with
+`accepted_args = 1` (CB Pro's push module, BuddyNext's bridge) never receive
+it — PHP only passes as many arguments as a listener asks for.
+
+```php
+add_action( 'wcb_notification_created', function ( array $legacy, ?array $contract ) {
+    if ( null === $contract ) {
+        return; // A transactional or admin-only email — no community object.
+    }
+    // $contract: recipient_id, type, actor_id, object_type ('job'|'application'),
+    // object_id, message, url, group_key, notification_id.
+}, 10, 2 );
+```
+
+`CommunityNotificationContract::build()` (`modules/notifications/class-community-notification-contract.php`)
+is the one place the payload is assembled — every `AbstractEmail::send()` call
+site that names an `object_type` in its `$context` argument gets a contract
+payload; a call with no `object_type` (email verification, admin moderation
+alerts, the job-pending-review notice) gets `null` and is skipped, since
+those are not community-facing events.
+
+| Filter/action | Args | Purpose |
+|---|---|---|
+| `wcb_community_notification_types` | `( array $types )` returns `slug => array{label,description,default_on}` | Declares every type Free's emails can fire, for a settings screen with one switch per type. |
+| `wcb_community_notification_visible` | `( array $visible, int $viewer_id, array $targets )` returns `key => bool` | Answers whether the viewer may still see a bell row about a `job` or `application` object — hidden once trashed, or (for the employer's copy only) once the candidate withdraws. |
+| `wcb_community_notification_removed` | `( string $object_type, int $object_id )` | Fires once a `job` or `application` is **permanently** deleted (never on trash/unpublish — that is what `wcb_community_notification_visible` covers). |
+
+@since 1.8.0.
 
 ## Filter early-rejection on submission
 
@@ -203,6 +250,195 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
 |---|---|
 | `wcb_pre_job_submit` | Short-circuit job creation |
 | `wcb_pre_application_submit` | Short-circuit application submission |
+
+## Job fields and terms (1.8.0)
+
+Every job meta key (`_wcb_deadline`, `_wcb_salary_*`, `_wcb_board_id`,
+`_wcb_remote`, `_wcb_featured`, `_wcb_apply_*`, `_wcb_company_*`) has a
+registered `sanitize_callback` in `WCB\Modules\Jobs\JobsMeta`, so any
+writer (REST, admin editor, importers, your own code) gets the same rules.
+The create/update routes also validate input and answer `400` naming the
+field. An employer moving a pending or draft job to `publish` gets the
+status a new submission would (`wcb_job_default_status`); a rejected job
+always returns to review.
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_allow_new_terms` | `$allow, $request` | Whether a submission may create new category / type / location / experience terms. Default: moderators only. Tags are always free-form. |
+
+## Candidate files (1.8.0)
+
+Resumes, CVs and generated resume PDFs are stored under
+`uploads/wcb-private/<random>/` with `private` attachment status and are
+downloaded only through `?wcb_file=<id>` (website) or
+`GET /wcb/v1/files/{id}` (app), both gated by
+`WCB\Core\PrivateFiles::can_download()`: the uploader, admins/moderators,
+and both sides of an application that carries the file. Use
+`PrivateFiles::url( $attachment_id )` when you output a link, never
+`wp_get_attachment_url()`. Site Health reports when the web server serves
+the folder directly (nginx ignores its .htaccess).
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_private_file_can_download` | `$allowed, $attachment_id, $user_id` | Grant download to another audience (Pro: whoever may open the public resume the file belongs to). |
+
+## Job page (1.8.0)
+
+| Action | Args | When |
+|---|---|---|
+| `wcb_job_single_after_description` | `(int $job_id)` | Right after the job description; Pro prints the job's custom field "Additional details" (public fields to visitors, "Employer only" to the job's employer, "Admin only" to staff). |
+
+Job listing sidebar chips for custom fields toggle `meta_<key>` in the listing's `activeFilters` (`actions.toggleMetaChip` with context `{ metaKey, metaValue }`); a `meta_<key>` URL param is applied on first paint. Pro handles its "Filterable" fields through `wcb_job_search_args`.
+
+## Job search (1.8.0)
+
+`WCB\Modules\Jobs\JobSearch` builds every job list query: GET /jobs and /search, the job listings block's first paint, the `/jobs/` archive and alert keyword matching. Keyword: every word must appear in the title, description or company name; title matches rank first. Filters take one slug or a comma list (any of). `sort`: `relevance` (default with a keyword), `newest` (featured first), `oldest`, `salary`, `closing`; the default without a keyword is Settings > Jobs "Default order".
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_search_args` | `array $args, array $params` | Change the WP_Query args of a job search (Pro adds the radius bounding box). Put every result-changing value in `$args`: the REST cache key is built from them. |
+
+## Search engines (1.8.0)
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_job_posting_schema` | `array $schema, WP_Post $job, array $data` | Change a job's JobPosting (built from the job's REST data `$data`), or return `[]` to leave the job out of Google for Jobs. |
+
+`WCB\Modules\Seo\SeoModule::job_posting( $job )` and `::organization( $company_id )` return the markup arrays. Location country is term meta `_wcb_country` on `wcb_location` (REST-visible).
+
+## Moderation (1.8.0)
+
+A ban (`_wcb_employer_banned` user meta, from any writer) hides the
+member's published and pending jobs, company and resume; removing the
+meta restores them. Enough reports hide a job as pending. Hidden posts
+carry `_wcb_hidden_by` (`ban` or `reports`) and `_wcb_hidden_status`
+(the status to restore); read them with
+`WCB\Modules\Moderation\HiddenContent::reason( $post_id )`. The
+status change skips the transition hooks (no credit charge, emails or
+alerts) and fires `save_post_{post_type}` once so list caches refresh.
+
+| Hook | Args | When |
+|---|---|---|
+| `wcb_job_reported` | `(int $job_id, string $reason, int $user_id)` | After a report is stored and, at the threshold, the job hidden |
+| `wcb_member_reported` | `(int $user_id, string $reason, int $reporter_id)` | After a member report is stored |
+| `wcb_member_flags_resolved` | `(int $user_id)` | Reports dismissed from the Candidates or Employers list |
+
+`ModerationModule::alert_due( $count )` is the rule the owner email and
+Pro's bell share: alert on the first open report and on the one that
+reaches the auto-hide threshold.
+
+## Personal data (1.8.0)
+
+One registry drives the WordPress privacy exporter and eraser (Tools >
+Export/Erase Personal Data) and user deletion (`delete_user`), so an
+add-on that stores personal data registers once and is covered by all
+three.
+
+| Filter | Args | Purpose |
+|---|---|---|
+| `wcb_personal_data_providers` | `array $providers` | Add `'key' => [ 'label' => string, 'export' => callable, 'erase' => callable ]`. Both callables receive `[ 'user_id' => int, 'email' => string ]` (`user_id` is 0 for a guest). `export` returns WordPress export items; `erase` returns `[ 'removed' => int, 'retained' => int, 'messages' => string[] ]`. Providers run in key order, one per privacy-tool page. |
+
+## Sign-up and accounts (1.8.0)
+
+Both sign-up routes (`/candidates/register`, `/employers/register`) run one
+gate before an account is created: the plugin's anti-spam check (honeypot +
+CAPTCHA), a per-IP limit, then core's `registration_errors` filter so
+third-party anti-spam plugins see these sign-ups too. When the
+**Email Verification** setting is on (default for new installs), the new
+account stays signed out until the link in the "Confirm your email address"
+email is opened; sign-in is refused with `wcb_email_unverified` until then.
+Signing up while logged in adds the member role instead of replacing an
+existing one (administrators and editors keep theirs).
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_pre_registration` | filter | `$error, $request` | Return a `WP_Error` to refuse a sign-up before the account exists. |
+| `wcb_registration_rate_limit` | filter | `$limit` | Sign-ups one IP may make per hour. Default 5, 0 disables. |
+| `wcb_email_verification_requested` | action | `$user_id, $verify_url` | A new account needs to confirm its email. The confirmation email listens here. |
+
+## Job payment (1.8.0)
+
+Free has no prices. Every place a job starts costing calls
+`WCB\Modules\Jobs\JobPayment::charge( $job_id, $event )`, which applies
+`wcb_job_payment`; Pro's credits answer it. Events: `create` (after the job
+is inserted, before `wcb_job_created`, so a job that can't be paid for is
+removed before anyone is told), `resubmit` (a rejected job sent back),
+`republish` (an expired or closed job brought back) and `board_change`
+(before any other field changes; a refused move restores the old board).
+
+A failed charge is a 402 `wcb_insufficient_credits` whose `data` carries
+`cost`, `balance` and `purchase_url` (from `wcb_credit_purchase_url`), so the
+website and the app can send the employer straight to a purchase.
+
+A job a moderator approves that its employer can't pay for stays `pending`
+with post meta `_wcb_awaiting_payment` = `1` (the approve route answers 402
+`wcb_awaiting_payment`); job payloads expose it as `awaiting_payment`, the
+employer dashboard labels it "Awaiting payment" and wp-admin Jobs has an
+"Awaiting payment" view. Pro publishes it once the balance covers it.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_job_payment` | filter | `$paid, $job_id, $event` | Return true when the job is paid for or free, a WP_Error (402, see `JobPayment::insufficient()`) when not. |
+| `wcb_job_republish_credit_cost` | filter (applied by Pro since 1.8.0) | `$cost, $post, $previous` | Credits charged to bring an expired or closed job back. |
+| `wcb_featured_upgrade_cost` | filter | `$cost` | What featuring a job costs (Pro prices it). 0 hides the job-form checkbox and the My Jobs Feature action. |
+| `wcb_job_featured_expired` | action | `$job_id` | A job's featured period ended (daily sweep). Pro emails the employer and adds a bell notification. |
+
+**Featured (1.8.0).** A job asks to be featured with `featured: true` on
+`POST /jobs` (or Pro's `POST /jobs/{id}/feature`); both go through
+`JobPayment::charge( $job_id, 'feature' )`, and the handler that takes payment
+sets `_wcb_featured`. A job is still posted when the upgrade can't be paid for;
+the create response then carries `feature_error`. Moderators write `featured`
+directly on `PATCH /jobs/{id}`. Every listing orders featured first, then
+newest: `JobsMeta::featured_first( $args )` flags a query
+(`wcb_featured_first`) and one `posts_clauses` join does the ordering, so REST
+pages and the first server render agree.
+
+**Dashboard slots.** `wcb_module_renders` now receives the asking surface as a
+second argument (`employer-dashboard`, `candidate-dashboard`,
+`archive-toolbar`) so an extension renders only where its slot is shown. Pro
+fills `credits_panel` on the employer dashboard: the Credits tab
+(`#credits`), where every purchase link and gateway return lands.
+
+## Settings, pages and setup (1.8.0)
+
+Every key in the `wcb_settings` option is defined once in
+`WCB\Admin\SettingsSchema` with its default and its cleaning rule. Settings
+forms post a hidden `_wcb_form` marker, so a save merges only the keys that
+form posted over what is stored (an unticked checkbox posts `0` and saves
+false). A key that is not in the schema is never written by a form.
+
+Every Career Board page (title, slug, block content, Pages-tab copy) is
+defined once in `WCB\Admin\Pages::definitions()`. The setup wizard's Pages
+step, Settings > Pages "Create Missing Pages", the Pages tab and the page
+resolver all read it. `Pages::create_missing()` keeps a page that already
+resolves, adopts a published page that already carries the block, and only
+then creates one at the canonical slug.
+
+The setup wizard saves each settings step through
+`POST /wcb/v1/wizard/settings` (`settings` = key => value; any schema key plus
+WordPress's `users_can_register`), which uses the same sanitizer.
+
+| Hook | Type | Args | Purpose |
+|---|---|---|---|
+| `wcb_settings_schema` | filter | `$fields` | Add setting keys: `$fields['my_key'] = array( 'default' => false, 'sanitize' => 'rest_sanitize_boolean' )`. Pro registers its keys here. |
+| `wcb_settings_sanitize` | filter | `$output, $input` | Last look at the cleaned option before it is saved. |
+| `wcb_page_definitions` | filter | `$defs` | Add a page: `title`, `slug`, `content` (block markup), `label`, `desc`, optional `aliases` (older slugs still accepted). Register the key in `wcb_settings_schema` too. Pro adds Find Candidates (`resume_archive_page`, slug `find-candidates`, alias `find-resumes`) and Job Map (`job_map_page`). |
+| `wcb_wizard_required_pages` | filter, deprecated 1.8.0 | `$defs` | Use `wcb_page_definitions`. Still applied. |
+| `wcb_page_settings` | filter, deprecated 1.8.0 | `$rows` | Use `wcb_page_definitions`. Still applied (label and desc). |
+| `wcb_wizard_steps` | filter | `$steps` | Add wizard steps (`title`, `template`, `button_text`). A step template that renders inputs named after schema keys plus the shared footer (`admin/views/wizard-steps/_footer.php`) saves with no JavaScript of its own. |
+| `wcb_safer_defaults_notice` | filter | `$items` | The list shown once to owners of sites that predate the 1.8.0 defaults. |
+| `wcb_apply_ai_notice` | filter | `$text, $job_id` | Notice shown above Submit Application (and in app-config `apply_ai_notice`) when AI reads applications. Empty hides it. |
+
+**Brand.** One colour and logo (`accent_color`, `logo_id` in `wcb_settings`,
+set under Settings > Brand) for emails, app-config and Pro's PWA manifest.
+Read it with `WCB\Core\Brand::color()` and `WCB\Core\Brand::logo_url( $size )`
+rather than the raw keys. The 1.3.4 upgrade moves an existing site's email
+header colour and logo into the Brand.
+
+**CAPTCHA.** `WCB\Modules\AntiSpam\AntiSpamModule::active()` answers which
+provider is in force (chosen AND both keys set): Turnstile, reCAPTCHA v3 or
+reCAPTCHA v2 (invisible badge). The web forms and app-config
+(`captcha_required`, `captcha.provider`, `captcha.site_key`) both read it.
 
 ## Active-job quota (free tier)
 

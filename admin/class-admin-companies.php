@@ -27,6 +27,22 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class AdminCompanies extends \WP_List_Table {
 
 	/**
+	 * Employer for each company on the current page: company ID => {id, display_name}.
+	 *
+	 * @since 1.8.0
+	 * @var array<int,array{id:int,display_name:string}>
+	 */
+	private array $employers = array();
+
+	/**
+	 * Published job counts for the companies on the current page, by company ID.
+	 *
+	 * @since 1.8.0
+	 * @var array<int,int>
+	 */
+	private array $job_counts = array();
+
+	/**
 	 * Constructor — configure singular/plural labels.
 	 *
 	 * @since 1.0.0
@@ -188,6 +204,7 @@ class AdminCompanies extends \WP_List_Table {
 
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
+		$this->prime_page( wp_list_pluck( $this->items, 'ID' ) );
 
 		$this->set_pagination_args(
 			array(
@@ -203,6 +220,65 @@ class AdminCompanies extends \WP_List_Table {
 			$this->get_sortable_columns(),
 			'title', // Primary column.
 		);
+	}
+
+	/**
+	 * Preload each page's employer link and published-job count in two
+	 * grouped queries, replacing the get_users() + WP_Query that column_employer()
+	 * and column_jobs() used to run once per row.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param int[] $company_ids Company post IDs on the current page.
+	 * @return void
+	 */
+	private function prime_page( array $company_ids ): void {
+		global $wpdb;
+		$this->employers  = array();
+		$this->job_counts = array();
+		if ( ! $company_ids ) {
+			return;
+		}
+
+		$company_ids = array_map( 'intval', $company_ids );
+		$in          = implode( ',', array_fill( 0, count( $company_ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- two grouped lookups for the page; both meta_value columns are indexed as part of the usermeta/postmeta composite keys.
+		$meta_rows = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_value AS company_id FROM {$wpdb->usermeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( {$in} )", $company_ids ) );
+		$job_rows  = $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS company_id, COUNT(*) AS n FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_wcb_company_id' AND pm.meta_value IN ( {$in} ) AND p.post_type = 'wcb_job' AND p.post_status = 'publish' GROUP BY pm.meta_value", $company_ids ) );
+		// phpcs:enable
+
+		foreach ( (array) $job_rows as $row ) {
+			$this->job_counts[ (int) $row->company_id ] = (int) $row->n;
+		}
+
+		$user_ids = wp_list_pluck( (array) $meta_rows, 'user_id' );
+		if ( ! $user_ids ) {
+			return;
+		}
+		// cache_users() primes users + usermeta in two queries, so the
+		// get_edit_user_link() call in column_employer() reads from cache
+		// instead of loading each employer row by row.
+		$user_ids = array_map( 'intval', $user_ids );
+		cache_users( $user_ids );
+		$names = array();
+		foreach ( $user_ids as $user_id ) {
+			$user = get_userdata( $user_id );
+			if ( $user ) {
+				$names[ $user_id ] = $user->display_name;
+			}
+		}
+		foreach ( (array) $meta_rows as $row ) {
+			$company_id = (int) $row->company_id;
+			$user_id    = (int) $row->user_id;
+			// A company can only have one employer link in the UI; keep the first.
+			if ( isset( $names[ $user_id ] ) && ! isset( $this->employers[ $company_id ] ) ) {
+				$this->employers[ $company_id ] = array(
+					'id'           => $user_id,
+					'display_name' => $names[ $user_id ],
+				);
+			}
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -376,21 +452,13 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_employer( $item ): string {
-		$users = get_users(
-			array(
-				'meta_key'   => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => $item->ID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'number'     => 1,
-				'fields'     => array( 'ID', 'display_name' ),
-			)
-		);
+		$emp = $this->employers[ (int) $item->ID ] ?? null;
 
-		if ( ! empty( $users ) ) {
-			$emp = $users[0];
+		if ( null !== $emp ) {
 			return sprintf(
 				'<a href="%s">%s</a>',
-				esc_url( (string) get_edit_user_link( $emp->ID ) ),
-				esc_html( $emp->display_name )
+				esc_url( (string) get_edit_user_link( $emp['id'] ) ),
+				esc_html( $emp['display_name'] )
 			);
 		}
 
@@ -428,22 +496,7 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_jobs( $item ): string {
-		$count = (int) ( new \WP_Query(
-			array(
-				'post_type'      => 'wcb_job',
-				'post_status'    => 'publish',
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					array(
-						'key'   => '_wcb_company_id',
-						'value' => $item->ID,
-					),
-				),
-			)
-		) )->found_posts;
-
-		return (string) $count;
+		return (string) ( $this->job_counts[ (int) $item->ID ] ?? 0 );
 	}
 
 	/**
