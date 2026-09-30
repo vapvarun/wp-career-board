@@ -297,6 +297,44 @@ if ( $job_id ) {
 }
 
 // ---------------------------------------------------------------------------
+// Require login to apply: app-config and job cards must agree with the apply
+// permission check, so no client offers an Apply button that 401s.
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Require login to apply: guest_apply + viewer_can_apply ---' );
+$wcb_guest_apply_flag = static function (): ?bool {
+	$data = wcb_rest( 'GET', '/wcb/v1/settings/app-config', array(), 0 )->get_data();
+	return isset( $data['feature_toggles']['guest_apply'] ) ? (bool) $data['feature_toggles']['guest_apply'] : null;
+};
+$wcb_guest_card_can_apply = static function (): ?bool {
+	foreach ( (array) ( wcb_rest( 'GET', '/wcb/v1/jobs', array(), 0 )->get_data()['jobs'] ?? array() ) as $wcb_card ) {
+		if ( isset( $wcb_card['viewer_can_apply'] ) ) {
+			return (bool) $wcb_card['viewer_can_apply'];
+		}
+	}
+	return null;
+};
+
+update_option( 'wcb_settings', array_merge( $wcb_relaxed_settings, array( 'apply_require_login' => false ) ) );
+\WCB\Admin\Settings::flush_cache();
+
+wcb_assert( true === $wcb_guest_apply_flag(), 'app-config guest_apply is true when login is not required' );
+wcb_assert( true === $wcb_guest_card_can_apply(), 'guest job card viewer_can_apply is true when login is not required' );
+
+update_option( 'wcb_settings', array_merge( $wcb_relaxed_settings, array( 'apply_require_login' => true ) ) );
+\WCB\Admin\Settings::flush_cache();
+
+wcb_assert( false === $wcb_guest_apply_flag(), 'app-config guest_apply is false when login is required' );
+wcb_assert( false === $wcb_guest_card_can_apply(), 'guest job card viewer_can_apply is false when login is required' );
+if ( $job_id ) {
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/apply", array( 'guest_name' => 'Test Guest', 'guest_email' => 'wcb_test_login@example.com' ), 0 );
+	wcb_assert( 401 === $r->get_status(), 'guest apply returns 401 when login is required' );
+}
+
+update_option( 'wcb_settings', $wcb_relaxed_settings );
+\WCB\Admin\Settings::flush_cache();
+
+// ---------------------------------------------------------------------------
 // Applications close once the deadline has passed (1.7.1)
 // ---------------------------------------------------------------------------
 

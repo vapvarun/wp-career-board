@@ -339,11 +339,12 @@ final class JobsEndpoint extends RestController {
 		}
 
 		if ( 0 === $uid || empty( $job_ids ) ) {
+			$guest_can_apply = 0 === $uid && ! \WCB\Admin\Settings::bool( 'apply_require_login' );
 			foreach ( $jobs as &$job ) {
 				$job['is_bookmarked']      = false;
 				$job['has_applied']        = false;
 				$job['application_status'] = null;
-				$job['viewer_can_apply']   = 0 === $uid;
+				$job['viewer_can_apply']   = $guest_can_apply;
 			}
 			unset( $job );
 			return $jobs;

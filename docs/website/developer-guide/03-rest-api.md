@@ -65,7 +65,7 @@ update, not a dedicated route: `PATCH /jobs/{id}` with
 a paid board through the `wcb_job_payment` filter, and fires
 `wcb_job_republished`.
 
-Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relative fields: `is_bookmarked`, `has_applied`, `application_status` and `viewer_can_apply`. They are computed per request, so they stay correct for each requester. A guest gets `is_bookmarked: false`, `has_applied: false`, `application_status: null` and `viewer_can_apply: true`.
+Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relative fields: `is_bookmarked`, `has_applied`, `application_status` and `viewer_can_apply`. They are computed per request, so they stay correct for each requester. A guest gets `is_bookmarked: false`, `has_applied: false`, `application_status: null` and `viewer_can_apply: true`, or `viewer_can_apply: false` when Settings > Applications requires login to apply.
 
 ### Applications
 

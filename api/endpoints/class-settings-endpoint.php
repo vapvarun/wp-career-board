@@ -87,7 +87,9 @@ final class SettingsEndpoint extends RestController {
 			// letting the candidate submit and hit a 400.
 			'apply_resume_required' => \WCB\Admin\Settings::bool( 'apply_resume_required', true ),
 			'feature_toggles'       => array(
-				'guest_apply'          => true,
+				// Mirrors the apply permission check: guests may apply unless
+				// Settings > Applications requires an account.
+				'guest_apply'          => ! \WCB\Admin\Settings::bool( 'apply_require_login' ),
 				'bookmarks'            => true,
 				'job_alerts'           => $is_pro_active,
 				'application_pipeline' => $is_pro_active,
