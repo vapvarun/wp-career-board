@@ -70,8 +70,8 @@
 				}
 			} );
 		} ).catch( function ( err ) {
-			// User cancelled the modal — `err` is undefined; do nothing.
-			if ( ! err ) { return; }
+			// User cancelled the modal: do nothing.
+			if ( ! err || err.cancelled ) { return; }
 			var status = document.getElementById( 'wcb-remove-sample-status' );
 			if ( status ) { status.textContent = i18n.error; }
 			toast( i18n.error, 'error' );
