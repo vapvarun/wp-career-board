@@ -92,6 +92,7 @@ $cmd = sprintf(
 				':(exclude)bin/**',
 				':(exclude).githooks/**',
 				':(exclude)dist/**',
+				':(exclude).distignore', // packaging only; bin/verify-zip.sh gates the zip.
 				':(exclude)*.md',
 				':(exclude)readme.txt',
 				// Tooling config. composer.json and package.json are safe to drop:
