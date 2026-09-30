@@ -571,14 +571,20 @@ final class Plugin {
 					 */
 					$attrs_json = '';
 					if ( ! empty( $atts ) ) {
+						// Shortcode attribute names arrive lowercased; map each to the
+						// block's own camelCase attribute, so a new block attribute
+						// works in its shortcode without a hand-kept alias.
+						$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+						$by_lower   = array();
+						foreach ( array_keys( (array) ( $block_type->attributes ?? array() ) ) as $attr ) {
+							$by_lower[ strtolower( (string) $attr ) ] = (string) $attr;
+						}
 						$cast = array();
 						foreach ( (array) $atts as $key => $value ) {
 							if ( ! is_string( $key ) ) {
 								continue;
 							}
-							// Map known lowercase aliases back to the camelCase
-							// keys block.json declares.
-							$key = $camel_aliases[ $key ] ?? $key;
+							$key = $camel_aliases[ $key ] ?? $by_lower[ $key ] ?? $key;
 							// Auto-cast numeric and boolean strings so block.json type checks pass.
 							if ( is_numeric( $value ) && (string) (int) $value === (string) $value ) {
 								$cast[ $key ] = (int) $value;
