@@ -157,6 +157,24 @@ final class CompanyMetaShape {
 	}
 
 	/**
+	 * Up to two initials for a company badge: "Harbor & Pine Studio" is "HP".
+	 * Words without a letter or digit ("&", "-") are skipped.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $name Company name.
+	 * @return string '?' when there is nothing to use.
+	 */
+	public static function initials( string $name ): string {
+		$words = preg_grep( '/^[\p{L}\p{N}]/u', (array) preg_split( '/\s+/u', trim( $name ) ) );
+		$init  = '';
+		foreach ( array_slice( (array) $words, 0, 2 ) as $word ) {
+			$init .= mb_strtoupper( mb_substr( (string) $word, 0, 1 ) );
+		}
+		return '' !== $init ? $init : '?';
+	}
+
+	/**
 	 * Resolve the company an employer owns, self-healing the reciprocal link.
 	 *
 	 * Employers own a `wcb_company` post (its `post_author`) and carry a
@@ -180,7 +198,8 @@ final class CompanyMetaShape {
 		}
 
 		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
-		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) ) {
+		// A trashed company is not theirs to post for any more (1.8.1).
+		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) && in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
 			return $company_id;
 		}
 
@@ -189,7 +208,7 @@ final class CompanyMetaShape {
 			array(
 				'post_type'      => 'wcb_company',
 				'author'         => $user_id,
-				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'post_status'    => \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,

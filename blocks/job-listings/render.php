@@ -157,21 +157,6 @@ $wcb_format_salary = static function ( string $wcb_min, string $wcb_max, string 
 	return \WCB\Core\SalaryFormat::format( $wcb_min, $wcb_max, $wcb_currency, $wcb_type );
 };
 
-/**
- * Get company initials from name (up to 2 chars).
- *
- * @param string $wcb_name Company name.
- * @return string
- */
-$wcb_initials = static function ( string $wcb_name ): string {
-	$wcb_words = array_filter( explode( ' ', trim( $wcb_name ) ) );
-	$wcb_init  = '';
-	foreach ( array_slice( $wcb_words, 0, 2 ) as $wcb_word ) {
-		$wcb_init .= mb_strtoupper( mb_substr( $wcb_word, 0, 1 ) );
-	}
-	return $wcb_init ? $wcb_init : '?';
-};
-
 $wcb_trust_badges = array(
 	'verified' => array( 'label' => __( 'Verified', 'wp-career-board' ) ),
 	'trusted'  => array( 'label' => __( 'Trusted', 'wp-career-board' ) ),
@@ -212,7 +197,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'title'           => $wcb_job_post->post_title,
 		'permalink'       => get_permalink( $wcb_job_post->ID ),
 		'company'         => $wcb_company_name_val,
-		'initials'        => $wcb_initials( $wcb_company_name_val ),
+		'initials'        => \WCB\Core\CompanyMetaShape::initials( $wcb_company_name_val ),
 		'company_logo'    => \WCB\Core\CompanyMetaShape::logo_url( $wcb_company_post_id ),
 		'trust'           => $wcb_trust,
 		'trust_label'     => $wcb_trust_info['label'] ?? '',

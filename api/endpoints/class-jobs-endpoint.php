@@ -823,6 +823,11 @@ final class JobsEndpoint extends RestController {
 			// wcb_job_republish_credit_cost filter for renewal discounts).
 			if ( 'publish' === $status && in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
 				$wcb_charge = 'republish';
+				// Its company was removed: going live would list it under a page that is gone.
+				$wcb_cur_company = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+				if ( $wcb_cur_company > 0 && ! absint( $request->get_param( 'company_id' ) ) && ! in_array( get_post_status( $wcb_cur_company ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+					return new \WP_Error( 'wcb_company_removed', __( 'This job\'s company was removed. Edit the job to choose another company, then reopen it.', 'wp-career-board' ), array( 'status' => 409 ) );
+				}
 			}
 			// Reopening an ended job starts a new listing period: without a future
 			// deadline it would expire again at the next hourly sweep. Covers a
@@ -930,7 +935,8 @@ final class JobsEndpoint extends RestController {
 		$wcb_company_id = absint( $request->get_param( 'company_id' ) );
 		if ( $wcb_company_id ) {
 			update_post_meta( $post->ID, '_wcb_company_id', $wcb_company_id );
-			update_post_meta( $post->ID, '_wcb_company_name', get_the_title( $wcb_company_id ) );
+			// Raw title: get_the_title() turns '&' into '&#038;', which the cards print as text.
+			update_post_meta( $post->ID, '_wcb_company_name', (string) get_post_field( 'post_title', $wcb_company_id ) );
 		}
 
 		// Apply destination — sanitize identically to create_item().
@@ -1936,7 +1942,7 @@ final class JobsEndpoint extends RestController {
 			),
 			// One of the companies the employer runs; 0 or absent = their linked company (create) or no change (update).
 			'company_id'      => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_company' === get_post_type( absint( $v ) ), __( 'Unknown company.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || ( 'wcb_company' === get_post_type( absint( $v ) ) && 'trash' !== get_post_status( absint( $v ) ) ), __( 'Unknown company.', 'wp-career-board' ) ),
 			),
 			'apply_email'     => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => (bool) is_email( (string) $v ), __( 'Apply email is not a valid email address.', 'wp-career-board' ) ),

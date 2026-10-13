@@ -1442,6 +1442,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
 					}
+				} else {
+					yield actions.reportRefusal( response );
 				}
 			} catch {
 				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
@@ -1480,11 +1482,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isRejected  = false;
 						state.jobs[ idx ].isDraft     = false;
+						state.jobs[ idx ].closedNote  = '';
 					}
+				} else {
+					yield actions.reportRefusal( response );
 				}
 			} catch {
 				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
+		},
+
+		// The server said no (402 credits, 409 company removed): show its reason.
+		*reportRefusal( response ) {
+			const data = yield response.json().catch( () => ( {} ) );
+			showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 		},
 
 		updateField( event ) {

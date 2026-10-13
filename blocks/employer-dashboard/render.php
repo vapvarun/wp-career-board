@@ -690,6 +690,7 @@ wp_interactivity_state(
 						<div class="wcb-job-info">
 							<span class="wcb-job-title" data-wp-text="context.job.title"></span>
 							<span class="wcb-job-meta" data-wp-text="context.job.location"></span>
+							<span class="wcb-job-meta wcb-job-note" data-wp-class--wcb-hidden="!context.job.closedNote" data-wp-text="context.job.closedNote"></span>
 						</div>
 						<span class="wcb-status-badge" role="status" data-wp-text="context.job.statusLabel" data-wp-bind--data-status="context.job.status"></span>
 						<span class="wcb-status-badge wcb-status-badge--featured" data-wp-class--wcb-hidden="!context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>

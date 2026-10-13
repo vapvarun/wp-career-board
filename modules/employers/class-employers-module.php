@@ -62,6 +62,141 @@ final class EmployersModule {
 		);
 
 		add_action( 'delete_user', array( self::class, 'retire_owned_listings' ), 10, 2 );
+		add_action( 'transition_post_status', array( self::class, 'on_status_change' ), 10, 3 );
+		add_filter( 'wp_insert_post_data', array( self::class, 'plain_company_title' ), 10, 1 );
+		add_action( 'before_delete_post', array( self::class, 'on_company_deleted' ), 10, 2 );
+	}
+
+	/**
+	 * Meta key: why a job was closed for its owner ('company_removed').
+	 *
+	 * @since 1.8.1
+	 * @var string
+	 */
+	public const CLOSED_REASON = '_wcb_closed_reason';
+
+	/**
+	 * Statuses in which a company counts as running.
+	 *
+	 * @since 1.8.1
+	 * @var string[]
+	 */
+	public const LIVE_COMPANY = array( 'publish', 'pending', 'draft' );
+
+	/**
+	 * A company leaving the site closes its jobs; a job reopened loses its
+	 * "closed because" note.
+	 *
+	 * Trashing a company closes every job carrying it, whoever posted it, the
+	 * same way deleting an employer does: applicants are told and the history
+	 * stays. Restoring the company does not reopen them; the employer does
+	 * (owner decision, 1.8.1).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post       Post.
+	 * @return void
+	 */
+	public static function on_status_change( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'wcb_company' === $post->post_type && 'trash' === $new_status && 'trash' !== $old_status ) {
+			self::close_company_jobs( $post->ID );
+		} elseif ( 'wcb_job' === $post->post_type && 'wcb_closed' === $old_status && 'wcb_closed' !== $new_status ) {
+			delete_post_meta( $post->ID, self::CLOSED_REASON );
+		}
+	}
+
+	/**
+	 * Keep '&' in a company name as '&'.
+	 *
+	 * For users without unfiltered_html, WordPress stores "Smith & Co" as
+	 * "Smith &amp; Co". Themes print titles as HTML, but company names are
+	 * copied into job meta and printed as text (cards, REST, the picker),
+	 * where the entity showed. Only the ampersand is restored, so no markup
+	 * can come back.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param array<string, mixed> $data Slashed post data.
+	 * @return array<string, mixed>
+	 */
+	public static function plain_company_title( array $data ): array {
+		if ( 'wcb_company' === ( $data['post_type'] ?? '' ) && is_string( $data['post_title'] ?? null ) ) {
+			$data['post_title'] = str_replace( array( '&amp;', '&#038;' ), '&', $data['post_title'] );
+		}
+		return $data;
+	}
+
+	/**
+	 * A company deleted without going through the trash closes its jobs too.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post.
+	 * @return void
+	 */
+	public static function on_company_deleted( int $post_id, $post ): void {
+		if ( $post instanceof \WP_Post && 'wcb_company' === $post->post_type && 'trash' !== $post->post_status ) {
+			self::close_company_jobs( $post_id );
+		}
+	}
+
+	/**
+	 * Close every open job of a company and note why.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $company_id Company post ID.
+	 * @return void
+	 */
+	public static function close_company_jobs( int $company_id ): void {
+		self::move_posts(
+			array(
+				'post_type'   => 'wcb_job',
+				'post_status' => array( 'publish', 'pending', 'draft', 'future', 'wcb_expired' ),
+				'meta_key'    => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'  => (string) $company_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			),
+			'wcb_closed',
+			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
+		);
+	}
+
+	/**
+	 * Move every post a query matches to a new status, 100 at a time.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param array<string, mixed> $query      get_posts() args (must exclude $new_status).
+	 * @param string               $new_status Status to set.
+	 * @param callable|null        $before     Called with each post ID before it moves.
+	 * @return void
+	 */
+	private static function move_posts( array $query, string $new_status, ?callable $before = null ): void {
+		// Each pass moves rows out of the query, so page 1 always holds the next batch.
+		do {
+			$ids = get_posts(
+				$query + array(
+					'fields'         => 'ids',
+					'posts_per_page' => 100,
+					'no_found_rows'  => true,
+				)
+			);
+			foreach ( $ids as $id ) {
+				if ( $before ) {
+					$before( (int) $id );
+				}
+				wp_update_post(
+					array(
+						'ID'          => (int) $id,
+						'post_status' => $new_status,
+					)
+				);
+			}
+			$full = 100 === count( $ids );
+		} while ( $full );
 	}
 
 	/**
@@ -88,28 +223,14 @@ final class EmployersModule {
 			'wcb_company' => array( 'draft', array( 'publish', 'pending', 'future' ) ),
 		);
 		foreach ( $targets as $post_type => list( $new_status, $from ) ) {
-			// Each pass moves rows out of $from, so page 1 always holds the next batch.
-			do {
-				$ids = get_posts(
-					array(
-						'post_type'      => $post_type,
-						'post_status'    => $from,
-						'author'         => $user_id,
-						'fields'         => 'ids',
-						'posts_per_page' => 100,
-						'no_found_rows'  => true,
-					)
-				);
-				foreach ( $ids as $id ) {
-					wp_update_post(
-						array(
-							'ID'          => (int) $id,
-							'post_status' => $new_status,
-						)
-					);
-				}
-				$full = 100 === count( $ids );
-			} while ( $full );
+			self::move_posts(
+				array(
+					'post_type'   => $post_type,
+					'post_status' => $from,
+					'author'      => $user_id,
+				),
+				$new_status
+			);
 		}
 	}
 

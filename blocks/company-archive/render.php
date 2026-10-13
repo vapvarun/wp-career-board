@@ -84,13 +84,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 	$wcb_job_cnt    = $wcb_jobs_by_company[ $wcb_co_id ] ?? 0;
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
-	// Build up-to-2-letter initials.
-	$wcb_words    = array_filter( explode( ' ', trim( $wcb_co_name ) ) );
-	$wcb_initials = '';
-	foreach ( array_slice( $wcb_words, 0, 2 ) as $wcb_w ) {
-		$wcb_initials .= mb_strtoupper( mb_substr( $wcb_w, 0, 1 ) );
-	}
-	$wcb_initials = $wcb_initials ? $wcb_initials : '?';
+	$wcb_initials = \WCB\Core\CompanyMetaShape::initials( $wcb_co_name );
 
 	// Jobs count label, nothing when zero: "No open positions" on every card was noise.
 	$wcb_jobs_label = ( 0 === $wcb_job_cnt )

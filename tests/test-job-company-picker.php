@@ -130,6 +130,44 @@ wp_set_current_user( $wcb_agency );
 $wcb_slugs = wp_list_pluck( \WCB\Core\Locations::get_dropdown_terms( $wcb_agency ), 'term_id' );
 wcb_assert( in_array( (int) $wcb_hq['term_id'], array_map( 'intval', $wcb_slugs ), true ), "the location list offers the second company's HQ" );
 
+// 7. A name with '&' is stored as text, not '&#038;' (card 10400095876).
+$wcb_co_amp    = $wcb_company( 'Harbor & Pine Studio', $wcb_agency );
+$wcb_created[] = $wcb_co_amp;
+wcb_jcp_rest( 'PATCH', '/wcb/v1/jobs/' . $wcb_shift, array( 'company_id' => $wcb_co_amp ), $wcb_agency );
+wcb_assert( 'Harbor & Pine Studio' === get_post_meta( $wcb_shift, '_wcb_company_name', true ), "switching to 'Harbor & Pine Studio' stores the name as typed (got '" . get_post_meta( $wcb_shift, '_wcb_company_name', true ) . "')" );
+
+// 8. Trashing a company closes its jobs, says why, and they stay closed on restore (card 10400597851).
+$wcb_r         = wcb_jcp_rest( 'POST', '/wcb/v1/jobs', $wcb_job( 'Clinic Receptionist', array( 'company_id' => $wcb_co_b ) ), $wcb_agency );
+$wcb_desk      = (int) ( $wcb_r->get_data()['id'] ?? 0 );
+$wcb_created[] = $wcb_desk;
+wp_update_post( array( 'ID' => $wcb_nurse, 'post_status' => 'publish' ) );
+wp_set_current_user( $wcb_admin );
+wp_trash_post( $wcb_co_b );
+wcb_assert( 'wcb_closed' === get_post_status( $wcb_nurse ) && 'wcb_closed' === get_post_status( $wcb_desk ), 'trashing a company closes its live and pending jobs' );
+wcb_assert( 'publish' === get_post_status( $wcb_anim ) || 'pending' === get_post_status( $wcb_anim ), "another company's job is untouched" );
+$wcb_rows = (array) ( wcb_jcp_rest( 'GET', '/wcb/v1/employers/me/jobs', array( 'per_page' => 50 ), $wcb_agency )->get_data()['jobs'] ?? array() );
+$wcb_row  = current( wp_list_filter( $wcb_rows, array( 'id' => $wcb_nurse ) ) );
+wcb_assert( is_array( $wcb_row ) && '' !== ( $wcb_row['closedNote'] ?? '' ), 'My Jobs says the job closed because its company was removed' );
+
+$wcb_r = wcb_jcp_rest( 'PATCH', '/wcb/v1/jobs/' . $wcb_shift, array( 'company_id' => $wcb_co_b ), $wcb_agency );
+wcb_assert( 400 === $wcb_r->get_status(), "a trashed company can't be picked (got {$wcb_r->get_status()})" );
+$wcb_r = wcb_jcp_rest( 'PATCH', '/wcb/v1/jobs/' . $wcb_nurse, array( 'status' => 'publish' ), $wcb_agency );
+wcb_assert( 409 === $wcb_r->get_status() && 'wcb_closed' === get_post_status( $wcb_nurse ), "reopening a job whose company is gone is refused (got {$wcb_r->get_status()})" );
+$wcb_r = wcb_jcp_rest( 'PATCH', '/wcb/v1/jobs/' . $wcb_nurse, array( 'status' => 'publish', 'company_id' => $wcb_co_a ), $wcb_agency );
+wcb_assert( 200 === $wcb_r->get_status() && 'wcb_closed' !== get_post_status( $wcb_nurse ) && '' === get_post_meta( $wcb_nurse, \WCB\Modules\Employers\EmployersModule::CLOSED_REASON, true ), "moved to a live company it reopens, and the note goes (got {$wcb_r->get_status()})" );
+
+wp_set_current_user( $wcb_admin );
+wp_untrash_post( $wcb_co_b );
+wcb_assert( 'wcb_closed' === get_post_status( $wcb_desk ), 'restoring the company does not reopen its jobs' );
+
+// 9. A trashed main company is not offered or used.
+wp_trash_post( $wcb_co_a );
+wcb_assert( $wcb_co_a !== \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_agency ) && ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_agency )[ $wcb_co_a ] ), 'a trashed main company is not the main company any more' );
+$wcb_r         = wcb_jcp_rest( 'POST', '/wcb/v1/jobs', $wcb_job( 'Night Shift Porter' ), $wcb_agency );
+$wcb_porter    = (int) ( $wcb_r->get_data()['id'] ?? 0 );
+$wcb_created[] = $wcb_porter;
+wcb_assert( $wcb_co_a !== $wcb_company_of( $wcb_porter ), 'a new job does not go to the trashed main company' );
+
 // Teardown.
 foreach ( array_filter( $wcb_created ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );

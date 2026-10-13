@@ -108,13 +108,15 @@ if ( $wcb_edit_id > 0 ) {
 }
 
 // ── Company picker: the companies this employer runs. An edit keeps the
-// job's own company selected, even one outside that list (an admin editing).
+// job's own company selected, even one outside that list (an admin editing),
+// unless that company is gone: then the main company (set above) is offered.
 $wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id );
 $wcb_job_company = $wcb_edit_job ? (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true ) : 0;
-if ( $wcb_job_company > 0 ) {
+if ( $wcb_job_company > 0 && in_array( get_post_status( $wcb_job_company ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
 	$wcb_company_id = $wcb_job_company;
 	if ( ! isset( $wcb_companies[ $wcb_job_company ] ) ) {
-		$wcb_companies[ $wcb_job_company ] = get_the_title( $wcb_job_company );
+		// Raw title: companyNames feeds data-wp-text, which would print '&#038;'.
+		$wcb_companies[ $wcb_job_company ] = (string) get_post_field( 'post_title', $wcb_job_company );
 	}
 }
 $wcb_company_name = $wcb_companies[ $wcb_company_id ] ?? $wcb_company_name;

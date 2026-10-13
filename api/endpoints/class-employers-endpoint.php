@@ -587,6 +587,21 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
+	 * Why a closed job was closed for its owner, when it wasn't their doing.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post $job Job post.
+	 * @return string '' when there is nothing to explain.
+	 */
+	private static function closed_note( \WP_Post $job ): string {
+		if ( 'wcb_closed' !== $job->post_status || 'company_removed' !== get_post_meta( $job->ID, \WCB\Modules\Employers\EmployersModule::CLOSED_REASON, true ) ) {
+			return '';
+		}
+		return __( 'Closed because its company was removed. Edit it to choose another company, then reopen it.', 'wp-career-board' );
+	}
+
+	/**
 	 * Whether a job is a rejected listing — kept as a draft carrying a
 	 * rejection reason (set by the moderation reject endpoint). Single source
 	 * of truth so both My-Jobs builders label/flag it consistently.
@@ -751,6 +766,7 @@ final class EmployersEndpoint extends RestController {
 					'status'           => $rejected ? 'rejected' : $public_status,
 					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
+					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
@@ -869,6 +885,7 @@ final class EmployersEndpoint extends RestController {
 					'status'           => $rejected ? 'rejected' : $public_status,
 					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
+					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
