@@ -6,7 +6,7 @@ If your site charges credits to post jobs, you can see your balance in the Emplo
 
 ## See your balance
 
-When credits are on, the sidebar shows a **Credits** item with your balance as its badge. With Pro, click it to open the Credits tab. Without Pro the sidebar shows only the balance.
+When a board would charge you, or you hold credits, the sidebar shows a **Credits** item with your balance as its badge. On a site where every board is free and you hold no credits, there is no Credits item. With Pro, click it to open the Credits tab. Without Pro the sidebar shows only the balance.
 
 ## How credits are spent
 
@@ -14,7 +14,7 @@ When credits are on, the sidebar shows a **Credits** item with your balance as i
 - They are spent when the job goes live.
 - They come back if the job does not go live, for example when a moderator rejects it.
 
-If your balance is too short, the job is not created. You see "Insufficient credits. This board requires N credits but your balance is M." and a **Buy credits** button that opens the Credits tab.
+If your balance is too short, the job is not created. You see "This job costs N credits. Your balance: M credits." and a **Buy credits** button that opens the Credits tab. If the site owner switches credits off, no board charges anything.
 
 If a moderator approves your job while your balance is too short, the job stays Pending and shows **Awaiting payment** in My Jobs until your balance covers it.
 

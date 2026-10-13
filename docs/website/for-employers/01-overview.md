@@ -21,17 +21,18 @@ Register as an employer to get the **Employer** role. The role opens the **Emplo
 
 At the top of the sidebar is your identity: your avatar (or company logo), your name, and "Employer · Company name". Click it to open your company profile. Below it:
 
-- **Overview** - stat tiles (Total Jobs, Live, Total Applications, New This Week), your recent applications and your active jobs.
+- **Overview** - figures for Total Jobs, Live, Applications and New This Week (click one to open that list), a **Needs attention** list with applications waiting for review and jobs closing within 7 days, then your recent applications and active jobs.
 - **Jobs**
   - **My Jobs** - manage your job listings. The badge shows your total.
   - **Post a Job** - submit a new job.
 - **Hiring**
   - **Applications** - review applicants in List or Board view. The badge shows your total.
 - **Company**
+  - **Companies** - every company you run, if you run more than one. Your jobs and applications cover all of them, with a company filter.
   - **Profile** - set up your public employer page.
   - **Public Page** - opens your live company page in a new tab.
-- **Credits** - shown when the site charges credits. With WP Career Board Pro it is a tab for your balance, buying credits, receipts and history. Without Pro the sidebar shows only your balance.
-- **Saved** - Saved Jobs, Saved Companies and, when the site has resumes (Pro), Saved Resumes.
+- **Credits** - shown when a board would charge you or you hold credits. With WP Career Board Pro it is a tab for your balance, buying credits, receipts and history. Without Pro the sidebar shows only your balance.
+- **Saved resumes** - candidates you saved, when the site has resumes (Pro). Saved Jobs and Saved Companies appear too if the site lets employers save jobs.
 - **Account**
   - **Settings** - display name, email, password and optional email preferences.
   - **Notifications** - shown when the site has the notification bell (Pro).

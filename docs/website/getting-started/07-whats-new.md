@@ -4,6 +4,14 @@ You can use this page to see recent changes that affect how you set up and run y
 
 ## In 1.8.1
 
+* **Several companies per employer.** An employer can run more than one company. My Jobs, Applications and Post a Job cover all of them, with a company filter. See [Employer overview](../for-employers/01-overview.md).
+* **Several categories in a search.** Find Jobs and the search bar accept more than one job category at a time.
+* **Needs attention.** The employer Overview lists applications waiting for review and jobs closing within 7 days, and each figure opens the list it counts.
+* **Admins post for free.** Site admins post, move, republish and feature jobs without spending credits.
+* **Post a Job.** The description has a formatting toolbar, and the form looks the same on the dashboard and on any page you place it.
+* **Cleaner dashboards.** Each row shows one main action with the rest in a menu, empty lists say what to do next, and the applicant panel shows empty stars and "Not rated" until you rate someone.
+* **Credits only where they matter.** The Credits item shows when a board would charge the employer or they hold credits.
+* **Brand colour.** Links and labels in your brand colour stay readable whatever colour you pick, in light and dark mode.
 * **Employer deadlines.** Employers pick their own application deadline when they post, up to the board's listing length. See [Post a Job](../for-employers/02-post-a-job.md).
 * **Admin job editor.** The **Job Details** box has **Apply URL** and **Apply Email** fields and a **No expiry** option. See [Edit a job in wp-admin](../admin-guide/20-edit-a-job-in-admin.md).
 * **Term order.** Categories, job types, locations, experience levels and tags have an **Order** field, and child categories and locations nest under their parent. See [Categories, types, locations and experience levels](../admin-guide/19-job-terms.md).

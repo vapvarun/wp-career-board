@@ -64,18 +64,40 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 
 = 1.8.1 - October 2026 =
 
-Fixes from QA and our own review, safer defaults on every path, and checks that stop these bugs coming back.
+Employers can run several companies, a redesigned employer and candidate dashboard, and fixes from QA and our own review.
 
+* New      - Employers can run several companies; the dashboard, applications and Post a Job cover all of them.
+* New      - Find Jobs and the search bar accept several job categories at once.
+* New      - Employer Overview shows what needs attention: applications waiting for review and jobs closing within 7 days.
+* New      - Site admins post, move, republish and feature jobs for free.
+* New      - Post a Job has a formatting toolbar for the description.
+* New      - Moderators get a Review jobs link on their dashboard.
 * New      - Employers can pick their own application deadline, up to the board's listing length.
 * New      - Admin job editor: Apply URL and Apply Email fields, and a No expiry option.
 * New      - Order field for job categories, types, locations, experience levels and tags; experience levels default to seniority order.
 * New      - Child categories and locations nest under their parent in every filter and form, with a search box for long category lists.
 * New      - View resume link on the admin application screen and in the Applications list.
+* Improve  - Every Overview figure opens the list it counts, including this week's applications.
+* Improve  - Dashboard rows show one main action with the rest in a menu, and every empty list says what to do next.
+* Improve  - Applications opens the newest applicant on desktop, in one clean panel where an unrated applicant shows empty stars.
+* Improve  - Credits appear on the employer dashboard only when a board charges or the employer holds credits.
+* Improve  - Find Jobs filters stay in view while you scroll, long filter groups fold, and active filters sit beside Clear all.
+* Improve  - Links and labels in the site's brand colour stay readable on any accent colour, in light and dark mode.
+* Improve  - Employers only see the Saved tabs they can use.
+* Improve  - Members are shown by their name or "A candidate", never by their login, and candidates show their resume photo.
+* Improve  - Job pages show typed dash lists as bullet points and one main Apply button.
 * Improve  - Load More is a real next-page link, so job pages work without JavaScript and can be crawled. New sites show 12 jobs per page.
 * Improve  - Find Jobs filters are kept in the address bar: shared links open with the same filters and Back restores them.
 * Improve  - Saved Companies show the company logo and Saved Resumes show the candidate's photo.
 * Improve  - A job located Remote is always treated as remote, on the job page, in filters, search, feeds and Google for Jobs.
 * Improve  - Failed saves, removals and status changes now tell the member instead of failing silently.
+* Fix      - A company stored with a type label (such as Private) showed "Select type" on its profile.
+* Fix      - A row's menu on the last row of a list was cut off, so Withdraw, Delete and Remove could not be reached.
+* Fix      - Taking a company off the site now closes its jobs, and unreviewed jobs go to draft.
+* Fix      - Unfeatured jobs no longer sort below older jobs.
+* Fix      - Editing a live job no longer asks for credits.
+* Fix      - Job excerpts and Google job markup no longer show raw shortcode text.
+* Fix      - Text contrast on BuddyX, BuddyX Pro and Twenty Twenty-Five.
 * Fix      - Setup wizard was blank on Windows servers and symlinked installs.
 * Fix      - Request data export button on the candidate dashboard did nothing.
 * Fix      - Headers already sent warning when dismissing or unpublishing a reported job and when trashing companies in bulk.
@@ -93,13 +115,15 @@ Fixes from QA and our own review, safer defaults on every path, and checks that 
 * Fix      - Spacing on the Delete my account form and on settings cards.
 * Fix      - Saved Companies on the candidate dashboard did not show the industry.
 * Fix      - Updates screen warning from the bundled licensing library.
+* Security - Free posting for admins applies only when an admin acts, not when someone else acts on an admin's job.
 * Security - Job descriptions run shortcodes only for authors trusted with unfiltered HTML.
 * Security - The confirmation email link signs in only the browser that created the account.
 * Security - Visitor IP from a proxy header uses the address your own proxy added.
 * Security - Private job details, applicant counts, private profiles and repeat guest applications no longer reveal anything through REST answers.
 * Security - Private documents always download instead of opening in the browser.
+* Dev      - GET /wcb/v1/employers/me/applications accepts since_days, and the filter wcb_company_types sets the company type list.
 * Dev      - New filter wcb_candidate_resume_url and helper JobDeadline::default_end_for_board().
-* Dev      - Contract checks in local CI catch silent failures, unstyled classes, unbound actions and redirects inside admin screens.
+* Dev      - Contract checks in local CI catch silent failures, unstyled classes, unbound actions, redirects inside admin screens and brand colour used as text.
 
 = 1.8.0 - September 2026 =
 
