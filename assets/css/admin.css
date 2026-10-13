@@ -124,6 +124,12 @@
 	margin: 20px 0 24px;
 }
 
+/* A stats grid placed straight in a settings card (no card body) keeps the
+ * card's 24px inner edge instead of touching its border. */
+.wcb-settings-card > .wcb-stats-grid {
+	margin: var(--wcb-space-xl, 20px) var(--wcb-space-2xl, 24px);
+}
+
 .wcb-stat-box {
 	display: flex;
 	flex-direction: column;
@@ -613,6 +619,15 @@
 .wcb-settings-footer {
 	margin: 24px 0;
 	padding: 0;
+}
+
+/* A Save row inside a card lines up with the rows above it (the card itself
+ * has no padding; each row carries its own). */
+.wcb-settings-card > .wcb-settings-footer,
+.wcb-settings-card form > .wcb-settings-footer {
+	margin: 0;
+	padding: var(--wcb-space-lg, 16px) var(--wcb-space-2xl, 24px);
+	border-top: 1px solid var(--wcb-border, #e2e8f0);
 }
 
 .wcb-settings-footer p.submit {
