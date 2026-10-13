@@ -115,6 +115,7 @@ Employers can run several companies, a redesigned employer and candidate dashboa
 * Fix      - Spacing on the Delete my account form and on settings cards.
 * Fix      - Saved Companies on the candidate dashboard did not show the industry.
 * Fix      - Updates screen warning from the bundled licensing library.
+* Security - Through the WordPress REST API, only an admin can set a job's company, board or featured flag.
 * Security - Free posting for admins applies only when an admin acts, not when someone else acts on an admin's job.
 * Security - Job descriptions run shortcodes only for authors trusted with unfiltered HTML.
 * Security - The confirmation email link signs in only the browser that created the account.

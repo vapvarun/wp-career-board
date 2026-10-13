@@ -70,8 +70,13 @@ final class JobsMeta {
 					'single'            => true,
 					'type'              => $schema[0],
 					'sanitize_callback' => $schema[1],
-					'auth_callback'     => static function (): bool {
-						return wp_is_ability_granted( 'wcb/post-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+					// Company, board and featured decide ownership and price, so
+					// through core REST only an admin sets them; the wcb/v1 job
+					// routes write them with their own ownership and payment checks.
+					'auth_callback'     => static function ( $allowed, string $meta_key ): bool {
+						$admin_only = array( '_wcb_company_id', '_wcb_company_name', '_wcb_board_id', '_wcb_featured' );
+						// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+						return wp_is_ability_granted( in_array( $meta_key, $admin_only, true ) ? 'wcb/manage-settings' : 'wcb/post-jobs' );
 					},
 				)
 			);
