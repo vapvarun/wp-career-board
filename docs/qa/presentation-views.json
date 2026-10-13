@@ -27,6 +27,7 @@
 		{ "id": "cand-alerts", "path": "/candidate-dashboard/#alerts", "as": "alex.kumar" },
 		{ "id": "cand-profile", "path": "/candidate-dashboard/#profile", "as": "alex.kumar" },
 		{ "id": "cand-settings", "path": "/candidate-dashboard/#settings", "as": "alex.kumar" },
+		{ "id": "moderator-dashboard", "path": "/candidate-dashboard/#overview", "as": "morgan_moderator" },
 		{ "id": "pipeline", "path": "/hiring-pipeline/?job=56533", "as": "employer.vercel" },
 		{ "id": "pipeline-pick", "path": "/hiring-pipeline/", "as": "employer.vercel" },
 		{ "id": "post-a-job", "path": "/post-a-job/", "as": "employer.vercel" }

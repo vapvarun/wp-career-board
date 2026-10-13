@@ -9,6 +9,7 @@
  *   clipped   a control or heading cut by an overflow:hidden/clip ancestor
  *   contrast  text or placeholder under 4.5:1 (3:1 for large text)
  *   wpadmin   wp-admin classes (.form-table, .wp-list-table ...) in frontend markup
+ *   navgroup  a visible menu-group heading over fewer than 2 items (sidebar rule, 10400673345)
  *
  * Usage:
  *   node bin/presentation-gate.cjs               run against this install's site
@@ -45,6 +46,11 @@ function inPageChecks() {
 			return false;
 		}
 		const cs = getComputedStyle( el );
+		// Screen-reader-only text is clipped away (WordPress: clip rect(1px,1px,1px,1px)),
+		// whatever width the theme leaves on it.
+		if ( /^rect\((0|1)px,? (0|1)px,? (0|1)px,? (0|1)px\)$/.test( cs.clip ) || 'inset(50%)' === cs.clipPath ) {
+			return false;
+		}
 		return 'hidden' !== cs.visibility && '0' !== cs.opacity && ! el.closest( '[hidden], [aria-hidden="true"], details:not([open]) > :not(summary)' );
 	};
 	const roots = [ ...document.querySelectorAll( SCOPE ) ].filter( ( r ) => visible( r ) && ! r.parentElement.closest( SCOPE ) );
@@ -234,6 +240,18 @@ function inPageChecks() {
 			}
 		} );
 
+		// navgroup: a heading earns its place over 2+ items; one item gets a divider.
+		root.querySelectorAll( '[role="group"][aria-labelledby]' ).forEach( ( g ) => {
+			const label = document.getElementById( g.getAttribute( 'aria-labelledby' ) );
+			if ( ! visible( g ) || ! label || ! visible( label ) || label.getBoundingClientRect().width <= 2 ) {
+				return;
+			}
+			const items = [ ...g.querySelectorAll( 'a, button' ) ].filter( visible );
+			if ( items.length < 2 ) {
+				add( 'navgroup', g, `heading "${ label.innerText.trim() }" over ${ items.length } item` );
+			}
+		} );
+
 		// wpadmin
 		root.querySelectorAll( '.form-table, .wp-list-table, .button-primary, .button-secondary, .notice, .postbox, .widefat' ).forEach( ( el ) => add( 'wpadmin', el, 'wp-admin class in frontend markup' ) );
 	} );
@@ -260,7 +278,7 @@ async function selfTest( browser ) {
 	const page = await browser.newPage( { viewport: { width: 390, height: 900 } } );
 	await page.goto( 'file://' + path.join( ROOT, 'tests/presentation/planted.html' ) );
 	const { findings } = await page.evaluate( inPageChecks );
-	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin' ];
+	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin', 'navgroup' ];
 	const got = new Set( findings.map( ( f ) => f.check ) );
 	const missing = want.filter( ( c ) => ! got.has( c ) );
 	// Regressions guarded one by one: a fix for a false positive must not blind the check.
