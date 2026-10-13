@@ -252,7 +252,7 @@ wp_interactivity_state(
 					<?php endif; ?>
 					<?php if ( $wcb_twitter ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--twitter" href="<?php echo esc_url( $wcb_twitter ); ?>" target="_blank" rel="noopener noreferrer">
-							<?php echo \WCB\Core\Icon::svg( 'twitter' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+							<?php echo \WCB\Core\Icon::svg( 'brand-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php esc_html_e( 'X / Twitter', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
@@ -402,7 +402,7 @@ wp_interactivity_state(
 								</span>
 							</div>
 						</div>
-						<a class="wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					</article>
 				</template>
 			</div>
