@@ -1804,6 +1804,20 @@
 	padding: 0 var(--wcb-space-sm) var(--wcb-space-lg);
 }
 
+/* A labelled group of nav items (role="group"); same rhythm as the nav itself. */
+.wcb-nav-group {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+/* A one-item group: a divider instead of a heading that would repeat the item. */
+.wcb-nav-group--rule {
+	margin-block-start: var(--wcb-space-sm);
+	padding-block-start: var(--wcb-space-sm);
+	border-block-start: 1px solid var(--wcb-border);
+}
+
 .wcb-nav-section-label {
 	display: block;
 	padding: var(--wcb-space-lg) var(--wcb-space-md) var(--wcb-space-xs);
@@ -1958,6 +1972,12 @@
 	.wcb-sidebar.wcb-nav-open .wcb-sidebar-nav {
 		display: flex;
 		padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	}
+
+	/* Group headings stay in the open menu: "Jobs" under Saved needs its "Saved". */
+	.wcb-sidebar.wcb-nav-open .wcb-nav-section-label:not(.screen-reader-text) {
+		display: block;
+		padding-block-start: var(--wcb-space-sm);
 	}
 
 	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
