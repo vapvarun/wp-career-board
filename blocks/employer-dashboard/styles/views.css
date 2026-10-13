@@ -36,6 +36,42 @@
 	color: var(--wcb-base);
 }
 
+/* -- Needs attention -- */
+.wcb-attention {
+	margin-bottom: var(--wcb-space-xl);
+}
+
+.wcb-attention-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wcb-attention-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-attention-item:last-child {
+	border-bottom: none;
+}
+
+.wcb-attention-item__text {
+	min-width: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+.wcb-attention-empty {
+	margin: 0;
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	color: var(--wcb-text-secondary);
+}
+
 /* -- Overview rows -- */
 .wcb-overview-app-row,
 .wcb-overview-job-row {
@@ -950,6 +986,11 @@
 }
 
 @media (max-width: 640px) {
+	.wcb-attention-item,
+	.wcb-attention-empty {
+		padding-inline: var(--wcb-space-lg);
+	}
+
 	.wcb-app-answer {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-xs);

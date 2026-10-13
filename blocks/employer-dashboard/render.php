@@ -220,6 +220,16 @@ wp_interactivity_state(
 		'ssrPublishedJobs'      => $wcb_counts['live_jobs'],
 		'ssrTotalApps'          => $wcb_counts['total_apps'],
 		'ssrNewThisWeek'        => $wcb_counts['new_apps'],
+		// Needs attention: applications not reviewed yet, and live jobs whose
+		// deadline (a site-calendar Y-m-d) falls within the next 7 days.
+		'awaitingApps'          => $wcb_counts['awaiting_apps'],
+		'awaitingAppsLabel'     => sprintf(
+			/* translators: %s: number of applications, already localised. */
+			_n( '%s application waiting for review', '%s applications waiting for review', $wcb_counts['awaiting_apps'], 'wp-career-board' ),
+			number_format_i18n( $wcb_counts['awaiting_apps'] )
+		),
+		'siteToday'             => current_time( 'Y-m-d' ),
+		'siteSoon'              => gmdate( 'Y-m-d', (int) strtotime( current_time( 'Y-m-d' ) . ' +7 days' ) ),
 		// Company filter for My Jobs + Applications (0 = all companies). The
 		// select only renders when the employer runs more than one company.
 		'companyFilter'         => 0,
@@ -385,6 +395,8 @@ wp_interactivity_state(
 			/* translators: %s: job title */
 			'moreActionsFor'           => __( 'More actions for %s', 'wp-career-board' ),
 			'allJobs'                  => __( 'All jobs', 'wp-career-board' ),
+			/* translators: %s: a date, already formatted for the site. */
+			'closesOn'                 => __( 'Closes %s', 'wp-career-board' ),
 			'removeCompanyTitle'       => __( 'Remove this company?', 'wp-career-board' ),
 			'removeCompanyText'        => __( 'Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them.', 'wp-career-board' ),
 			'removeCompanyButton'      => __( 'Remove company', 'wp-career-board' ),
@@ -668,30 +680,51 @@ wp_interactivity_state(
 
 			<div class="wcb-stats">
 			<div class="wcb-stats-row">
-				<div class="wcb-stat-card">
+				<?php // Each figure opens the list it counts. ?>
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wcb-filter="all" data-wp-on--click="actions.openJobsFiltered">
 					<span class="wcb-stat-value" data-wp-text="state.totalJobs">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Total Jobs', 'wp-career-board' ); ?></span>
-				</div>
-				<div class="wcb-stat-card">
+				</button>
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wcb-filter="live" data-wp-on--click="actions.openJobsFiltered">
 					<span class="wcb-stat-value" data-wp-text="state.publishedJobs">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></span>
-				</div>
-				<div class="wcb-stat-card">
+				</button>
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToApplications">
 					<span class="wcb-stat-value" data-wp-text="state.totalApps">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
-				</div>
-				<div class="wcb-stat-card">
+				</button>
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToApplications">
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'New This Week', 'wp-career-board' ); ?></span>
-				</div>
+				</button>
 				<?php if ( $wcb_show_credits ) : ?>
-				<div class="wcb-stat-card" data-wp-bind--hidden="!state.creditsEnabled">
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-bind--hidden="!state.creditsEnabled" data-wp-on--click="actions.switchToCredits">
 					<span class="wcb-stat-value" data-wp-text="state.creditBalanceLabel">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
-				</div>
+				</button>
 				<?php endif; ?>
 			</div>
 			</div>
+
+			<?php // What an employer opens the Overview for: what needs doing now. ?>
+			<section class="wcb-panel wcb-attention" aria-labelledby="wcb-attention-title">
+				<div class="wcb-panel-header">
+					<h2 class="wcb-panel-title" id="wcb-attention-title"><?php esc_html_e( 'Needs attention', 'wp-career-board' ); ?></h2>
+				</div>
+				<ul class="wcb-attention-list">
+					<li class="wcb-attention-item" data-wp-bind--hidden="!state.awaitingApps">
+						<span class="wcb-attention-item__text" data-wp-text="state.awaitingAppsLabel"></span>
+						<button type="button" class="wcb-btn wcb-btn--secondary wcb-btn--sm" data-wp-on--click="actions.openAwaitingApps"><?php esc_html_e( 'Review', 'wp-career-board' ); ?></button>
+					</li>
+					<template data-wp-each--job="state.closingSoonJobs" data-wp-each-key="context.job.id">
+						<li class="wcb-attention-item">
+							<span class="wcb-attention-item__text"><strong data-wp-text="context.job.title"></strong> <span data-wp-text="context.job.closesLabel"></span></span>
+							<button type="button" class="wcb-btn wcb-btn--secondary wcb-btn--sm" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Manage', 'wp-career-board' ); ?></button>
+						</li>
+					</template>
+				</ul>
+				<p class="wcb-attention-empty" data-wp-bind--hidden="!state.nothingNeedsAttention"><?php esc_html_e( 'Nothing needs your attention right now.', 'wp-career-board' ); ?></p>
+			</section>
 
 			<div class="wcb-two-col">
 				<div class="wcb-panel">

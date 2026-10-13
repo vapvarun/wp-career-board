@@ -683,7 +683,7 @@ final class EmployersModule {
 	 * @since 1.8.1
 	 *
 	 * @param int $user_id Employer user ID.
-	 * @return array{total_jobs:int, live_jobs:int, total_apps:int, new_apps:int, jobs_with_apps:array<int,int>}
+	 * @return array{total_jobs:int, live_jobs:int, total_apps:int, new_apps:int, awaiting_apps:int, jobs_with_apps:array<int,int>}
 	 */
 	public static function dashboard_counts( int $user_id ): array {
 		global $wpdb;
@@ -697,7 +697,9 @@ final class EmployersModule {
 		$jobs = $wpdb->get_row( "SELECT COUNT(*) AS total, COALESCE( SUM( job.post_status = 'publish' ), 0 ) AS live FROM {$wpdb->posts} job WHERE {$jobs_where}" );
 		$apps = $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent ' . self::applications_scope_sql( $user_id ),
+				// awaiting: not reviewed yet (no status counts as submitted, as on the Applications chips).
+				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent,
+				        COALESCE( SUM( COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = 'submitted' ), 0 ) AS awaiting " . self::applications_scope_sql( $user_id ),
 				gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS )
 			)
 		);
@@ -722,6 +724,7 @@ final class EmployersModule {
 			'live_jobs'      => (int) ( $jobs->live ?? 0 ),
 			'total_apps'     => (int) ( $apps->total ?? 0 ),
 			'new_apps'       => (int) ( $apps->recent ?? 0 ),
+			'awaiting_apps'  => (int) ( $apps->awaiting ?? 0 ),
 			'jobs_with_apps' => $by_company,
 		);
 	}

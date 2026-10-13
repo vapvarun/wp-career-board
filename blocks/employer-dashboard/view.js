@@ -6,7 +6,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
+import { formatSiteDate, relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -736,6 +736,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noActiveJobs() {
 			return state.overviewActiveJobs.length === 0;
 		},
+		// Needs attention: live jobs closing within 7 days (site-calendar dates
+		// compared as Y-m-d), soonest first. shortcut: reads the loaded page of
+		// jobs (50); a job past that page is not listed until it is loaded.
+		get closingSoonJobs() {
+			return state.jobs
+				.filter( ( j ) => 'publish' === j.status && j.deadline && j.deadline >= state.siteToday && j.deadline <= state.siteSoon )
+				.sort( ( a, b ) => ( a.deadline < b.deadline ? -1 : 1 ) )
+				.slice( 0, 5 )
+				.map( ( j ) => ( {
+					...j,
+					closesLabel: t( 'closesOn', 'Closes %s' ).replace( '%s', formatSiteDate( j.deadline, state.locale ) ),
+				} ) );
+		},
+		get nothingNeedsAttention() {
+			return ! state.awaitingApps && 0 === state.closingSoonJobs.length;
+		},
 		get newThisWeek() {
 			// Server COUNT(*) over the whole scope, never the loaded page of applications.
 			return fmtNumber( state.ssrNewThisWeek || 0 );
@@ -929,6 +945,21 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.error       = '';
 			state.navOpen     = false;
 			views.go( 'jobs' );
+		},
+
+		// Overview tiles: open My Jobs on the filter the tile counts.
+		openJobsFiltered( event ) {
+			state.jobFilter = event.currentTarget.dataset.wcbFilter || 'all';
+			actions.switchToJobs();
+		},
+
+		// 'Review': every job's applications, narrowed to the unreviewed ones.
+		*openAwaitingApps() {
+			state.appsJobId     = 0;
+			state.selectedAppId = null;
+			state.appsFilter    = 'submitted';
+			actions.switchToApplications();
+			yield actions.loadApplications();
 		},
 
 		switchToApplications() {

@@ -77,6 +77,10 @@
 }
 
 /* My Resumes before the list arrives (never an empty pane under 'N of M'). */
+.wcb-resume-skeleton {
+	pointer-events: none; /* placeholder rows, nothing to press */
+}
+
 .wcb-resume-skeleton__row {
 	display: flex;
 	flex-direction: column;

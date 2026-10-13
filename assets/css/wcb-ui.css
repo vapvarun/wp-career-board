@@ -1679,8 +1679,24 @@
 	overflow-wrap: anywhere;
 }
 
+/* A tile that opens its list is a <button>: keep the card look, show it's
+   pressable (border tint on hover, the focus ring on keyboard focus). */
 .wcb-stat-card--link {
 	cursor: pointer;
+	width: 100%;
+	font: inherit;
+	text-align: start;
+	color: inherit;
+	transition: border-color var(--wcb-transition-fast);
+}
+
+.wcb-stat-card--link:hover {
+	border-color: var(--wcb-primary);
+}
+
+.wcb-stat-card--link:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
 }
 
 /* Narrow: six tracks so every row fills without a lone stretched tile.
