@@ -122,7 +122,31 @@ if ( $wcb_free_board ) {
 	wcb_assert( true === \WCB\Modules\Jobs\JobPayment::charge( $wcb_emp_job, 'feature' ), 'admin features a job for free' );
 }
 
-// 5. The exemption is filterable.
+// 5. Closed loopholes: an employer acting on an admin-posted job of their
+// company still pays, and an admin approving an employer's unpaid job does
+// not make it free.
+if ( $wcb_free_board ) {
+	wp_set_current_user( (int) $wcb_employer );
+	$wcb_company = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'Harbourline Logistics', 'post_author' => (int) $wcb_employer ) );
+	$wcb_created[] = $wcb_company;
+	wp_set_current_user( (int) $wcb_admin );
+	$wcb_admin_job = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'Fleet Operations Coordinator', 'post_author' => (int) $wcb_admin ) );
+	update_post_meta( $wcb_admin_job, '_wcb_board_id', $wcb_free_board );
+	update_post_meta( $wcb_admin_job, '_wcb_company_id', $wcb_company );
+	$wcb_created[] = $wcb_admin_job;
+	$wcb_r = wcb_afp_rest( 'PATCH', '/wcb/v1/jobs/' . $wcb_admin_job, array( 'board_id' => $wcb_paid_board ), (int) $wcb_employer );
+	wcb_assert( 402 === $wcb_r->get_status(), "an employer moving an admin-posted job of their company onto a paid board is not free (got {$wcb_r->get_status()})" );
+
+	wp_set_current_user( (int) $wcb_employer );
+	$wcb_unpaid = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'post_title' => 'Inventory Planning Analyst', 'post_author' => (int) $wcb_employer ) );
+	update_post_meta( $wcb_unpaid, '_wcb_board_id', $wcb_paid_board );
+	$wcb_created[] = $wcb_unpaid;
+	wp_set_current_user( (int) $wcb_admin );
+	wp_update_post( array( 'ID' => $wcb_unpaid, 'post_status' => 'publish' ) );
+	wcb_assert( 'pending' === get_post_status( $wcb_unpaid ) && '1' === get_post_meta( $wcb_unpaid, '_wcb_awaiting_payment', true ), "an admin approving an employer's unpaid job keeps it awaiting payment" );
+}
+
+// 6. The exemption is filterable.
 add_filter( 'wcb_job_payment_exempt', '__return_false' );
 wp_set_current_user( (int) $wcb_admin );
 wcb_assert( false === \WCB\Modules\Jobs\JobPayment::is_exempt(), 'wcb_job_payment_exempt can turn it off' );
