@@ -91,72 +91,28 @@ $wcb_dashboard_url = (string) get_permalink();
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_edit_job_id = absint( wp_unslash( $_GET['edit'] ?? '0' ) );
 
-// Pre-compute lightweight stats for instant render (avoids zero-flash before JS hydrates).
-$wcb_job_counts = (array) wp_count_posts( 'wcb_job' );
-if ( $wcb_employer_id ) {
-	// Stats count the employer's OWN jobs (by author) so the cards match the
-	// jobs/applications lists below, which also load by author.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- lightweight count for initial render only.
-	$wcb_total_employer_jobs = (int) $GLOBALS['wpdb']->get_var(
-		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts}
-			 WHERE post_type = 'wcb_job' AND post_status IN ('publish','pending','draft') AND post_author = %d",
-			$wcb_employer_id
-		)
-	);
-	$wcb_live_employer_jobs  = (int) $GLOBALS['wpdb']->get_var(
-		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts}
-			 WHERE post_type = 'wcb_job' AND post_status = 'publish' AND post_author = %d",
-			$wcb_employer_id
-		)
-	);
-	$wcb_total_apps          = (int) $GLOBALS['wpdb']->get_var(
-		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
-			 INNER JOIN {$GLOBALS['wpdb']->posts} j ON aj.meta_value = j.ID
-			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND j.post_author = %d",
-			$wcb_employer_id
-		)
-	);
-	$wcb_week_ago            = gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS );
-	$wcb_new_apps            = (int) $GLOBALS['wpdb']->get_var(
-		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(*) FROM {$GLOBALS['wpdb']->posts} a
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON a.ID = aj.post_id AND aj.meta_key = '_wcb_job_id'
-			 INNER JOIN {$GLOBALS['wpdb']->posts} j ON aj.meta_value = j.ID
-			 WHERE a.post_type = 'wcb_application' AND a.post_status = 'publish' AND j.post_author = %d AND a.post_date >= %s",
-			$wcb_employer_id,
-			$wcb_week_ago
-		)
-	);
-	/*
-	 * Number of the employer's jobs that carry at least one application. This is
-	 * the count behind the Applications job-selector hint. It MUST be resolved to
-	 * a single pre-pluralised sentence here: view.js is a script module and cannot
-	 * call _n(), and choosing between a seeded singular/plural pair with
-	 * `count === 1` is only correct in 2-form locales (pl needs 2/5/22, ru 1/2/5,
-	 * ar six). Counting server-side also reports matches FOUND rather than the
-	 * rows the client happened to load (the REST list is capped at per_page=50).
-	 */
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- lightweight count for initial render only.
-	$wcb_jobs_with_apps = (int) $GLOBALS['wpdb']->get_var(
-		$GLOBALS['wpdb']->prepare(
-			"SELECT COUNT(DISTINCT j.ID) FROM {$GLOBALS['wpdb']->posts} j
-			 INNER JOIN {$GLOBALS['wpdb']->postmeta} aj ON aj.meta_key = '_wcb_job_id' AND aj.meta_value = j.ID
-			 WHERE j.post_type = 'wcb_job'
-			   AND j.post_status IN ('publish','pending','draft','wcb_closed','wcb_expired')
-			   AND j.post_author = %d",
-			$wcb_employer_id
-		)
-	);
-} else {
-	$wcb_total_employer_jobs = 0;
-	$wcb_live_employer_jobs  = 0;
-	$wcb_total_apps          = 0;
-	$wcb_new_apps            = 0;
-	$wcb_jobs_with_apps      = 0;
+// Every header number, list and the company filter share one scope: jobs the
+// employer posted or that belong to a company they run (job_scope_sql()).
+$wcb_counts    = \WCB\Modules\Employers\EmployersModule::dashboard_counts( $wcb_employer_id );
+$wcb_companies = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_employer_id );
+
+/*
+ * Jobs carrying at least one application, behind the Applications job-selector
+ * hint. Each sentence MUST be pre-pluralised here: view.js is a script module and
+ * cannot call _n(), and choosing between a seeded singular/plural pair with
+ * `count === 1` is only correct in 2-form locales (pl needs 2/5/22, ru 1/2/5, ar
+ * six). One pair per company filter value ('0' = all companies) so the hint
+ * follows the filter; each counts matches FOUND, not the rows the client loaded.
+ */
+$wcb_apps_hint  = static fn ( int $n ): array => array(
+	/* translators: %1$s: number of jobs that have applications, already localised. */
+	'label'    => sprintf( _n( '%1$s job with applications', '%1$s jobs with applications', $n, 'wp-career-board' ), number_format_i18n( $n ) ),
+	/* translators: 1: number of jobs matching the search (filled in client-side). 2: total number of jobs, already localised. */
+	'filtered' => sprintf( _n( '%1$s of %2$s job', '%1$s of %2$s jobs', $n, 'wp-career-board' ), '%1$s', number_format_i18n( $n ) ),
+);
+$wcb_apps_hints = array( '0' => $wcb_apps_hint( (int) array_sum( $wcb_counts['jobs_with_apps'] ) ) );
+foreach ( array_keys( $wcb_companies ) as $wcb_cid ) {
+	$wcb_apps_hints[ (string) $wcb_cid ] = $wcb_apps_hint( $wcb_counts['jobs_with_apps'][ $wcb_cid ] ?? 0 );
 }
 
 // Credits — both figures are known at render time, so their plural sentences are
@@ -191,10 +147,14 @@ wp_interactivity_state(
 		'selectedAppId'         => null,
 		'allApplications'       => array(),
 		'jobs'                  => array(),
-		'ssrTotalJobs'          => $wcb_total_employer_jobs,
-		'ssrPublishedJobs'      => $wcb_live_employer_jobs,
-		'ssrTotalApps'          => $wcb_total_apps,
-		'ssrNewThisWeek'        => $wcb_new_apps,
+		'ssrTotalJobs'          => $wcb_counts['total_jobs'],
+		'ssrPublishedJobs'      => $wcb_counts['live_jobs'],
+		'ssrTotalApps'          => $wcb_counts['total_apps'],
+		'ssrNewThisWeek'        => $wcb_counts['new_apps'],
+		// Company filter for My Jobs + Applications (0 = all companies). The
+		// select only renders when the employer runs more than one company.
+		'companyFilter'         => 0,
+		'appsHints'             => $wcb_apps_hints,
 		'loading'               => true,
 		'error'                 => '',
 		'noCompany'             => 0 === (int) $wcb_company_id,
@@ -361,26 +321,6 @@ wp_interactivity_state(
 
 			/* translators: %1$s: applicant name. */
 			'viewApplicationFrom'      => __( 'View application from %1$s', 'wp-career-board' ),
-			// Pre-resolved plural: the real count is known here, so _n() picks the
-			// correct form for every locale (2-form, 3-form and 6-form alike).
-			// A seeded singular/plural pair chosen with `count === 1` in JS is only
-			// correct in 2-form locales, so no such pair may live in this array.
-			'jobsWithAppsLabel'        => sprintf(
-				/* translators: %1$s: number of jobs that have applications, already localised. */
-				_n( '%1$s job with applications', '%1$s jobs with applications', $wcb_jobs_with_apps, 'wp-career-board' ),
-				number_format_i18n( $wcb_jobs_with_apps )
-			),
-			// %2$s (the total) and the plural form of "job(s)" are resolved here
-			// from the COUNT(*) of jobs with applications, so every locale picks
-			// the right form. Only %1$s (the runtime search match count) is left
-			// for view.js to fill in — it never re-pluralises the noun client-side.
-			'jobsFilteredCount'        => sprintf(
-				/* translators: 1: number of jobs matching the search (filled in client-side). 2: total number of jobs, already localised. */
-				_n( '%1$s of %2$s job', '%1$s of %2$s jobs', $wcb_jobs_with_apps, 'wp-career-board' ),
-				'%1$s',
-				number_format_i18n( $wcb_jobs_with_apps )
-			),
-
 			// Credits banners — both counts are known at render time, so their
 			// plural forms are resolved here instead of guessed client-side.
 			'creditsAddedMessage'      => sprintf(
@@ -690,11 +630,30 @@ wp_interactivity_state(
 			</div>
 		</div>
 
+		<?php
+		// Company filter, shared by My Jobs and Applications; shown only to an
+		// employer who runs more than one company.
+		$wcb_company_filter = static function () use ( $wcb_companies ): void {
+			if ( count( $wcb_companies ) < 2 ) {
+				return;
+			}
+			?>
+			<select class="wcb-sort-select wcb-company-filter" aria-label="<?php esc_attr_e( 'Filter by company', 'wp-career-board' ); ?>" data-wp-bind--value="state.companyFilter" data-wp-on--change="actions.setCompanyFilter">
+				<option value="0"><?php esc_html_e( 'All companies', 'wp-career-board' ); ?></option>
+				<?php foreach ( $wcb_companies as $wcb_cid => $wcb_cname ) : ?>
+					<option value="<?php echo esc_attr( (string) $wcb_cid ); ?>"><?php echo esc_html( $wcb_cname ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<?php
+		};
+		?>
+
 		<!-- VIEW: My Jobs -->
 		<div class="wcb-view-panel" id="wcb-panel-jobs" role="tabpanel" aria-labelledby="wcb-tab-jobs" data-wp-class--wcb-view-active="state.isViewJobs">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Jobs', 'wp-career-board' ); ?></h1>
 				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
+				<?php $wcb_company_filter(); ?>
 			</div>
 
 			<div class="wcb-filter-bar">
@@ -755,6 +714,7 @@ wp_interactivity_state(
 		<div class="wcb-view-panel" id="wcb-panel-apps" role="tabpanel" aria-labelledby="wcb-tab-apps" data-wp-class--wcb-view-active="state.isViewApplications">
 			<div class="wcb-page-header">
 				<h1 class="wcb-page-title"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></h1>
+				<?php $wcb_company_filter(); ?>
 			</div>
 
 			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">

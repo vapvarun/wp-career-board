@@ -1412,8 +1412,8 @@ final class JobsEndpoint extends RestController {
 	/**
 	 * Check if the current user can update the given job.
 	 *
-	 * Allows the post author (if they have wcb_post_jobs) or an admin
-	 * (via wcb_manage_settings ability).
+	 * Allows an employer whose scope holds the job (EmployersModule::owns_job(),
+	 * with wcb_post_jobs) or an admin (via wcb_manage_settings ability).
 	 *
 	 * @since 1.0.0
 	 *
@@ -1425,16 +1425,10 @@ final class JobsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$user_id           = $this->current_user_id();
-		$is_author         = (int) $post->post_author === $user_id
+		$is_owner = \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $post )
 			&& $this->check_ability( 'wcb/post-jobs' );
-		$user_company      = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
-		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
-		$is_company_member = $user_company > 0
-			&& $user_company === $job_company
-			&& $this->check_ability( 'wcb/post-jobs' );
-		$is_admin          = $this->check_ability( 'wcb/manage-settings' );
-		return ( $is_author || $is_company_member || $is_admin ) ? true : $this->permission_error();
+		$is_admin = $this->check_ability( 'wcb/manage-settings' );
+		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
 	/**
@@ -1453,7 +1447,7 @@ final class JobsEndpoint extends RestController {
 	 * Check if the current user can view this job's applications.
 	 *
 	 * The ability says the role may view applications at all; it does not say
-	 * which job's. Scope it to the job's author, or any employer could read
+	 * which job's. Scope it to EmployersModule::owns_job(), or any employer could read
 	 * every other employer's applicants (name, email, cover letter, resume) —
 	 * the same IDOR the applications endpoint already guards against.
 	 *
@@ -1476,7 +1470,7 @@ final class JobsEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
-		return (int) $job->post_author === $this->current_user_id() ? true : $this->permission_error();
+		return \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $job ) ? true : $this->permission_error();
 	}
 
 	// --- Helpers ----------------------------------------------------------------

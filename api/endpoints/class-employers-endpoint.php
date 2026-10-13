@@ -137,6 +137,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+				'args'                => self::pagination_args() + self::company_filter_args(),
 			)
 		);
 
@@ -147,7 +148,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_applications' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
-				'args'                => self::pagination_args(),
+				'args'                => self::pagination_args() + self::company_filter_args(),
 			)
 		);
 	}
@@ -661,38 +662,46 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$user_id    = get_current_user_id();
-		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
-		if ( $company_id ) {
-			$company = get_post( $company_id );
-			if ( $company instanceof \WP_Post && 'wcb_company' === $company->post_type ) {
-				$request->set_param( 'id', $company_id );
-				return $this->get_jobs( $request );
-			}
+		$company_id = $this->requested_company( $request );
+		if ( is_wp_error( $company_id ) ) {
+			return $company_id;
 		}
 
-		// No company yet — return jobs authored by the current user.
-		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
-		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
-		$wcb_form_url = $this->get_job_form_page_url();
+		// Dashboard scope (EmployersModule::job_scope_sql()): jobs the employer
+		// posted or that belong to any company they run, not just the primary one.
+		global $wpdb;
+		list( $paged, $per_page ) = self::paging( $request );
+		$wcb_form_url             = $this->get_job_form_page_url();
+		$wcb_statuses             = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where is prepared; the page query adds only LIMIT/OFFSET.
+		$where = $wpdb->prepare(
+			"job.post_type = 'wcb_job' AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )',
+			...$wcb_statuses
+		) . ' AND ' . \WCB\Modules\Employers\EmployersModule::job_scope_sql( get_current_user_id(), 'job', $company_id );
 
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'wcb_job',
-				'author'         => (int) $user_id,
-				'post_status'    => self::owner_visible_statuses( true ),
-				'posts_per_page' => $per_page,
-				'paged'          => $paged,
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} job WHERE {$where}" );
+		$ids   = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT job.ID FROM {$wpdb->posts} job WHERE {$where} ORDER BY job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
+				$per_page,
+				( $paged - 1 ) * $per_page
 			)
 		);
+		// phpcs:enable
+		$posts = $ids
+			? get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => $wcb_statuses,
+					'post__in'       => array_map( 'intval', $ids ),
+					'orderby'        => 'post__in',
+					'posts_per_page' => count( $ids ),
+				)
+			)
+			: array();
 
-		// Batch-count applications for these jobs in ONE query, exactly as the
-		// company-scoped get_jobs() does. Without this the no-company branch
-		// hardcoded appCount 0 for every job, so an employer who posts a job
-		// BEFORE completing their company profile saw "No applicants" and a 0
-		// dashboard badge even with real applications on file.
-		global $wpdb;
-		$wcb_job_ids    = wp_list_pluck( $query->posts, 'ID' );
+		// Batch-count applications for this page of jobs in ONE query.
+		$wcb_job_ids    = wp_list_pluck( $posts, 'ID' );
 		$wcb_app_counts = array();
 		if ( ! empty( $wcb_job_ids ) ) {
 			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
@@ -760,10 +769,10 @@ final class EmployersEndpoint extends RestController {
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
-			$query->posts
+			$posts
 		);
 
-		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
+		return $this->build_envelope( 'jobs', $items, $total, (int) ceil( $total / $per_page ), $paged );
 	}
 
 	/**
@@ -953,37 +962,25 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
-	 * Applications across the current user's authored jobs (company-independent).
-	 *
-	 * The company-scoped /employers/{id}/applications route leaves employers who
-	 * post jobs BEFORE creating a company profile with an empty dashboard Overview
-	 * (companyId is 0, so the client never fetches). This author-keyed sibling
-	 * powers that widget so applications surface regardless of whether a company
-	 * profile exists. Same status allowlist + envelope as the company view.
+	 * Applications across the employer's dashboard scope: jobs they posted or
+	 * that belong to any company they run (EmployersModule::job_scope_sql()),
+	 * optionally narrowed to one of those companies with `company_id`.
 	 *
 	 * @since 1.7.0
+	 * @since 1.8.1 Covers every company the employer runs; `company_id` filter.
 	 *
 	 * @param  \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
-		global $wpdb;
-		$user_id      = get_current_user_id();
-		$wcb_statuses = self::owner_visible_statuses( true );
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
-		$from = $wpdb->prepare(
-			"FROM {$wpdb->posts} app
-			 INNER JOIN {$wpdb->postmeta} pm_job
-			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
-			 INNER JOIN {$wpdb->posts} job
-			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )
-			       AND job.post_author = %d
-			 WHERE app.post_type   = \'wcb_application\'
-			   AND app.post_status = \'publish\'',
-			...array_merge( $wcb_statuses, array( $user_id ) )
-		);
+	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company_id = $this->requested_company( $request );
+		if ( is_wp_error( $company_id ) ) {
+			return $company_id;
+		}
 
+		global $wpdb;
+		$from = \WCB\Modules\Employers\EmployersModule::applications_scope_sql( get_current_user_id(), $company_id );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $from is prepared; the page query adds only LIMIT/OFFSET.
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
@@ -995,7 +992,7 @@ final class EmployersEndpoint extends RestController {
 				( $paged - 1 ) * $per_page
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable
 
 		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
 	}
@@ -1135,6 +1132,41 @@ final class EmployersEndpoint extends RestController {
 				'sanitize_callback' => 'absint',
 			),
 		);
+	}
+
+	/**
+	 * The optional `company_id` filter on the employer's own lists.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function company_filter_args(): array {
+		return array(
+			'company_id' => array(
+				'type'              => 'integer',
+				'default'           => 0,
+				'minimum'           => 0,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+		);
+	}
+
+	/**
+	 * The `company_id` filter, refused unless the employer runs that company.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return int|\WP_Error Company ID, 0 for all companies.
+	 */
+	private function requested_company( \WP_REST_Request $request ): int|\WP_Error {
+		$company_id = (int) $request->get_param( 'company_id' );
+		if ( $company_id > 0 && ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $company_id ] ) ) {
+			return new \WP_Error( 'wcb_company_forbidden', __( 'You do not manage this company.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+		return $company_id;
 	}
 
 	/**

@@ -261,9 +261,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Jobs list.
 		get hasJobs() {
-			// Jobs are loaded author-scoped (/employers/me/jobs), so an employer
-			// who hasn't created a company profile still has real jobs to show —
-			// never gate the jobs list on company existence.
+			// Jobs load from /employers/me/jobs (posted by the employer or under
+			// any company they run), so an employer without a company profile
+			// still has real jobs to show — never gate on company existence.
 			return ! state.loading && state.filteredJobs.length > 0;
 		},
 		get noJobs() {
@@ -286,8 +286,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return fmtNumber( state.ssrTotalJobs || 0 );
 		},
 		get publishedJobs() {
+			// A company-filtered list is not the whole dashboard: keep the server figure.
 			return fmtNumber(
-				state.jobs.length
+				state.jobs.length && ! state.companyFilter
 					? state.jobs.filter( ( j ) => j.status === 'publish' ).length
 					: ( state.ssrPublishedJobs || 0 )
 			);
@@ -349,17 +350,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get appsJobSelectorHint() {
 			const filtered = state.filteredJobsWithApps.length;
+			const hint     = state.appsHints[ String( state.companyFilter ) ] || {};
 			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
 				// Whole sentence pre-pluralised in render.php from a COUNT(*) of
-				// jobs that have applications — i.e. matches found, not the rows the
-				// REST page happened to load (per_page is capped at 50).
-				return t( 'jobsWithAppsLabel', '' );
+				// jobs that have applications (per company filter value) — matches
+				// found, not the rows the REST page happened to load.
+				return hint.label || '';
 			}
 			// The total and the plural form of "job(s)" are resolved in render.php
 			// from the same COUNT(*); only the runtime-varying search-match count is
 			// filled in here. No client-side plural/number assembly.
-			return t( 'jobsFilteredCount', '%1$s of %2$s jobs' )
-				.replace( '%1$s', fmtNumber( filtered ) );
+			return ( hint.filtered || '%1$s' ).replace( '%1$s', fmtNumber( filtered ) );
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -639,15 +640,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.overviewActiveJobs.length === 0;
 		},
 		get newThisWeek() {
-			if ( state.allApplications.length === 0 ) {
-				return fmtNumber( state.ssrNewThisWeek || 0 );
-			}
-			const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-			return fmtNumber(
-				state.allApplications.filter(
-					( a ) => new Date( a.submitted_at ).getTime() > cutoff
-				).length
-			);
+			// Server COUNT(*) over the whole scope, never the loaded page of applications.
+			return fmtNumber( state.ssrNewThisWeek || 0 );
 		},
 
 		// Company helpers.
@@ -722,17 +716,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield actions.loadJobs();
 
-				// Applications dataset (Overview "Recent Applications" widget + the
-				// Applications tab). Use the company-scoped route when a company
-				// profile exists, else the author-scoped /employers/me/applications
-				// so employers who post jobs BEFORE creating a company still see
-				// their applications instead of an empty widget beside a non-zero
-				// stat card.
-				const appsUrl = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
-					: state.apiBase + '/employers/me/applications';
+				// Overview "Recent Applications": every company the employer runs,
+				// plus jobs posted before a company profile existed.
 				const appsResp = yield wcbFetch(
-					appsUrl,
+					state.apiBase + '/employers/me/applications',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( appsResp.ok ) {
@@ -796,11 +783,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// post-a-job refresh path so My Jobs reflects a just-posted job without
 		// a page reload.
 		*loadJobs() {
-			const jobsBase = state.companyId
-				? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
-				: state.apiBase + '/employers/me/jobs';
-			const jobsUrl = new URL( jobsBase );
+			const jobsUrl = new URL( state.apiBase + '/employers/me/jobs' );
 			jobsUrl.searchParams.set( 'per_page', '50' );
+			if ( state.companyFilter ) {
+				jobsUrl.searchParams.set( 'company_id', String( state.companyFilter ) );
+			}
 
 			const resp = yield wcbFetch( jobsUrl.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
 			if ( ! resp.ok ) {
@@ -809,7 +796,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const jobsData = yield resp.json();
 			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
-			if ( typeof jobsData?.total === 'number' ) {
+			// The Total Jobs card counts every company; a filtered total is not it.
+			if ( typeof jobsData?.total === 'number' && ! state.companyFilter ) {
 				state.ssrTotalJobs = jobsData.total;
 			}
 			// "closed" = employer-closed, "expired" = past-deadline (cron); both
@@ -1042,6 +1030,27 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const f = event.target.dataset.wcbFilter;
 			if ( f ) {
 				state.jobFilter = f;
+			}
+		},
+
+		// My Jobs + Applications company filter: reload the job list for the
+		// company and drop a selected job that is no longer in it.
+		*setCompanyFilter( event ) {
+			state.companyFilter = parseInt( event.target.value, 10 ) || 0;
+			state.loading       = true;
+			state.error         = '';
+			try {
+				yield actions.loadJobs();
+			} catch {
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state.loading = false;
+			}
+			if ( state.appsJobId > 0 && ! state.jobs.some( ( j ) => Number( j.id ) === Number( state.appsJobId ) ) ) {
+				state.appsJobId     = 0;
+				state.selectedAppId = null;
+				state.applications  = [];
+				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
 			}
 		},
 

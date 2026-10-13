@@ -336,4 +336,184 @@ final class EmployersModule {
 			)
 		);
 	}
+
+	/**
+	 * Companies an employer runs, as id => name, sorted by name.
+	 *
+	 * One employer can run many companies (agencies, recruiters): every company
+	 * they created, every company naming them in `_wcb_company_owner`, and the
+	 * company linked on their account.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Employer user ID.
+	 * @return array<int, string>
+	 */
+	public static function owned_companies( int $user_id ): array {
+		if ( $user_id <= 0 ) {
+			return array();
+		}
+		global $wpdb;
+		// shortcut: capped at 200 companies per employer; raise it if an agency outgrows that.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one indexed lookup (post_author / wcb_meta_key_value).
+		$rows      = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT ID, post_title FROM {$wpdb->posts}
+				 WHERE post_type = 'wcb_company' AND post_status IN ( 'publish', 'pending', 'draft' )
+				   AND ( post_author = %d
+				         OR ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_owner' AND meta_value = %s ) )
+				 ORDER BY post_title ASC
+				 LIMIT 200",
+				$user_id,
+				(string) $user_id
+			)
+		);
+		$companies = array();
+		foreach ( (array) $rows as $row ) {
+			$companies[ (int) $row->ID ] = (string) $row->post_title;
+		}
+		$linked = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
+		if ( $linked > 0 && ! isset( $companies[ $linked ] ) ) {
+			$companies[ $linked ] = (string) get_post_field( 'post_title', $linked );
+		}
+		return $companies;
+	}
+
+	/**
+	 * Whether a job is in the employer's dashboard scope: they posted it, or it
+	 * belongs to a company they run.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $user_id Employer user ID.
+	 * @param \WP_Post $job     Job post.
+	 * @return bool
+	 */
+	public static function owns_job( int $user_id, \WP_Post $job ): bool {
+		if ( $user_id <= 0 ) {
+			return false;
+		}
+		if ( (int) $job->post_author === $user_id ) {
+			return true;
+		}
+		return isset( self::owned_companies( $user_id )[ (int) get_post_meta( $job->ID, '_wcb_company_id', true ) ] );
+	}
+
+	/**
+	 * SQL condition selecting the jobs in an employer's dashboard scope.
+	 *
+	 * The single definition behind every employer-dashboard number and list:
+	 * jobs the employer posted OR jobs whose `_wcb_company_id` is a company they
+	 * run. Resolved in SQL (indexed `wcb_meta_key_value` lookup), so no job IDs
+	 * are loaded into PHP.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int    $user_id    Employer user ID.
+	 * @param string $alias      Alias of the posts table holding the job rows.
+	 * @param int    $company_id Narrow to one of the employer's companies, 0 for all.
+	 *                           A company they do not run matches nothing.
+	 * @return string Prepared SQL condition.
+	 */
+	public static function job_scope_sql( int $user_id, string $alias, int $company_id = 0 ): string {
+		global $wpdb;
+		$companies = array_keys( self::owned_companies( $user_id ) );
+		if ( $company_id > 0 ) {
+			$companies = in_array( $company_id, $companies, true ) ? array( $company_id ) : array();
+		}
+		$by_company = $companies
+			? $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the ID count.
+				"{$alias}.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( " . implode( ', ', array_fill( 0, count( $companies ), '%s' ) ) . ' ) )',
+				...array_map( 'strval', $companies )
+			)
+			: '';
+		if ( $company_id > 0 ) {
+			return '' !== $by_company ? $by_company : '1 = 0';
+		}
+		$by_author = $wpdb->prepare( "{$alias}.post_author = %d", $user_id ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- alias is a code constant.
+		return '' !== $by_company ? "( {$by_author} OR {$by_company} )" : $by_author;
+	}
+
+	/**
+	 * FROM + WHERE for the applications on an employer's dashboard-scope jobs.
+	 *
+	 * Shared by GET /employers/me/applications and dashboard_counts() so the
+	 * Applications list and the header numbers count the same rows.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id    Employer user ID.
+	 * @param int $company_id Narrow to one company, 0 for all.
+	 * @return string Prepared SQL, aliases `app` and `job`.
+	 */
+	public static function applications_scope_sql( int $user_id, int $company_id = 0 ): string {
+		global $wpdb;
+		$statuses = \WCB\Api\Endpoints\EmployersEndpoint::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the status count; the scope condition is already prepared.
+		return $wpdb->prepare(
+			"FROM {$wpdb->posts} app
+			 INNER JOIN {$wpdb->postmeta} pm_job
+			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
+			 INNER JOIN {$wpdb->posts} job
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . " )
+			 WHERE app.post_type = 'wcb_application'
+			   AND app.post_status = 'publish'",
+			...$statuses
+		) . ' AND ' . self::job_scope_sql( $user_id, 'job', $company_id );
+		// phpcs:enable
+	}
+
+	/**
+	 * Header numbers for the employer dashboard, all over job_scope_sql().
+	 *
+	 * `jobs_with_apps` is keyed by company ID (0 = jobs with no company) so the
+	 * Applications hint can follow the company filter; its sum is the total.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Employer user ID.
+	 * @return array{total_jobs:int, live_jobs:int, total_apps:int, new_apps:int, jobs_with_apps:array<int,int>}
+	 */
+	public static function dashboard_counts( int $user_id ): array {
+		global $wpdb;
+		$statuses = \WCB\Api\Endpoints\EmployersEndpoint::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- every fragment is prepared; COUNT(*) only.
+		$jobs_where = $wpdb->prepare(
+			"job.post_type = 'wcb_job' AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ' )',
+			...$statuses
+		) . ' AND ' . self::job_scope_sql( $user_id, 'job' );
+
+		$jobs = $wpdb->get_row( "SELECT COUNT(*) AS total, COALESCE( SUM( job.post_status = 'publish' ), 0 ) AS live FROM {$wpdb->posts} job WHERE {$jobs_where}" );
+		$apps = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent ' . self::applications_scope_sql( $user_id ),
+				gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS )
+			)
+		);
+		// Same "has applications" rule as each tile's appCount: any _wcb_job_id row.
+		$with_apps = $wpdb->get_results(
+			"SELECT COALESCE( co.meta_value, '0' ) AS company_id, COUNT(*) AS cnt
+			 FROM {$wpdb->posts} job
+			 LEFT JOIN {$wpdb->postmeta} co ON co.post_id = job.ID AND co.meta_key = '_wcb_company_id'
+			 WHERE {$jobs_where}
+			   AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} aj WHERE aj.meta_key = '_wcb_job_id' AND aj.meta_value = CAST( job.ID AS CHAR ) )
+			 GROUP BY company_id"
+		);
+		// phpcs:enable
+
+		$by_company = array();
+		foreach ( (array) $with_apps as $row ) {
+			$by_company[ (int) $row->company_id ] = ( $by_company[ (int) $row->company_id ] ?? 0 ) + (int) $row->cnt;
+		}
+
+		return array(
+			'total_jobs'     => (int) ( $jobs->total ?? 0 ),
+			'live_jobs'      => (int) ( $jobs->live ?? 0 ),
+			'total_apps'     => (int) ( $apps->total ?? 0 ),
+			'new_apps'       => (int) ( $apps->recent ?? 0 ),
+			'jobs_with_apps' => $by_company,
+		);
+	}
 }

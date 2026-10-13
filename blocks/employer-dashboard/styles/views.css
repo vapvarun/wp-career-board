@@ -207,6 +207,15 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* Company filter (employers running several companies). Base look is the shared
+ * .wcb-sort-select; on phones it takes the full row like the search field. */
+@media (max-width: 640px) {
+	.wcb-dashboard .wcb-page-header .wcb-company-filter {
+		width: 100%;
+		max-width: none;
+	}
+}
+
 /* -- Jobs list -- */
 .wcb-jobs-list {
 	display: none;
