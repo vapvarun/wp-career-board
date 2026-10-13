@@ -14,6 +14,7 @@
  *   node bin/presentation-gate.cjs               run against this install's site
  *   node bin/presentation-gate.cjs --self-test   prove every check fails on tests/presentation/planted.html
  *   node bin/presentation-gate.cjs --view=emp-settings --width=390 --scheme=dark
+ *   node bin/presentation-gate.cjs --theme=buddyx   (needs a local qa_theme cookie switcher)
  *
  * Env: WCB_PRESENTATION_URL (default: `wp option get home` of this install), WCB_PRESENTATION_OUT (screenshot dir;
  * default <site>/qa-artifacts/presentation-gate, outside the web root).
@@ -166,7 +167,9 @@ function inPageChecks() {
 			ctx.font = `${ cs.fontStyle } ${ cs.fontWeight } ${ cs.fontSize } ${ cs.fontFamily }`;
 			const longest = text.split( /\s+/ ).reduce( ( m, w ) => Math.max( m, ctx.measureText( w ).width ), 0 );
 			const box = el.clientWidth - parseFloat( cs.paddingLeft ) - parseFloat( cs.paddingRight );
-			if ( box > 0 && longest > box + 1 ) {
+			// 2px: canvas measuring and layout round differently (a word in a
+			// box shrink-wrapped to it measures 1px over).
+			if ( box > 0 && longest > box + 2 ) {
 				add( 'midword', el, `longest word ${ Math.round( longest ) }px in a ${ Math.round( box ) }px box` );
 			}
 		} );
@@ -184,7 +187,10 @@ function inPageChecks() {
 				}
 				if ( /hidden|clip/.test( cs.overflowX + cs.overflowY ) && ! /\bwcb-(sr|visually-hidden|screen-reader)/.test( el.className ) ) {
 					const p = n.getBoundingClientRect();
-					if ( r.left < p.left - 1 || r.right > p.right + 1 || r.top < p.top - 1 || r.bottom > p.bottom + 1 ) {
+					// Inline text overflows its line box vertically by design (line-height,
+					// descenders); only a horizontal cut hides it.
+					const inline = 'inline' === getComputedStyle( el ).display;
+					if ( r.left < p.left - 2 || r.right > p.right + 2 || ( ! inline && ( r.top < p.top - 2 || r.bottom > p.bottom + 2 ) ) ) {
 						if ( p.width > 2 && p.height > 2 ) {
 							add( 'clipped', el, `cut by ${ n.tagName.toLowerCase() }.${ String( n.className ).split( ' ' )[ 0 ] }` );
 						}
@@ -314,6 +320,11 @@ async function main() {
 			const who = v.as || 'visitor';
 			if ( ! contexts[ who ] ) {
 				contexts[ who ] = await browser.newContext();
+				// --theme=<slug>: the site renders that theme for this run when a local
+				// per-request switcher reads the qa_theme cookie (theme matrix checks).
+				if ( arg( 'theme' ) ) {
+					await contexts[ who ].addCookies( [ { name: 'qa_theme', value: String( arg( 'theme' ) ), url: base } ] );
+				}
 				if ( v.as ) {
 					const p = await contexts[ who ].newPage();
 					await p.goto( `${ base }/?autologin=${ encodeURIComponent( v.as ) }` );
@@ -344,7 +355,8 @@ async function main() {
 		console.log( `\n${ total } finding(s); screenshots + report.json in ${ outDir }` );
 		return total ? 1 : 0;
 	} finally {
-		await browser.close();
+		// System Chrome can hang on close after a long run; the report is written by now.
+		await Promise.race( [ browser.close(), new Promise( ( r ) => setTimeout( r, 5000 ) ) ] );
 	}
 }
 
