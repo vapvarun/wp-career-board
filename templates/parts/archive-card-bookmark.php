@@ -25,6 +25,10 @@
  *                                   paint. Used when bookmarked_class_bind is
  *                                   empty (Resumes) so the icon flips
  *                                   correctly before JS hydration.
+ *   ability                 string  Ability the save route checks; a signed-in
+ *                                   user without it gets no button (default
+ *                                   'wcb/bookmark-jobs', used by Jobs and
+ *                                   Companies; '' = any signed-in user).
  *   extra_attrs             string  Pre-escaped extra attributes (e.g. Pro
  *                                   Resumes' `data-resume-id="123"`). Echoed
  *                                   verbatim - caller is responsible for
@@ -45,6 +49,7 @@ $wcb_bookmark = wp_parse_args(
 		'aria_label_bind'       => '',
 		'bookmarked_class_bind' => '',
 		'bookmarked_ssr'        => false,
+		'ability'               => 'wcb/bookmark-jobs',
 		'extra_attrs'           => '',
 	)
 );
@@ -67,6 +72,12 @@ if ( ! is_user_logged_in() ) :
 	<?php
 	return;
 endif;
+
+// Signed in but not allowed to save (e.g. an employer on Find Jobs): no button,
+// rather than one whose request is refused and silently reverts.
+if ( '' !== (string) $wcb_bookmark['ability'] && ! wp_is_ability_granted( (string) $wcb_bookmark['ability'] ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled; same gate as the save route.
+	return;
+}
 
 $wcb_bookmark_static_class = '' === (string) $wcb_bookmark['bookmarked_class_bind'] && ! empty( $wcb_bookmark['bookmarked_ssr'] )
 	? ' wcb-bookmarked'
