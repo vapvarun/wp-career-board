@@ -1422,7 +1422,7 @@ final class EmployersEndpoint extends RestController {
 			return new \WP_Error( 'wcb_company_not_yours', __( 'You can only choose a company you run.', 'wp-career-board' ), array( 'status' => 403 ) );
 		}
 		if ( ! in_array( get_post_status( $id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
-			return new \WP_Error( 'wcb_company_offline', __( 'This company is offline, so it can\'t be your main company. Ask the site owner to put it back online.', 'wp-career-board' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'wcb_company_offline', __( 'This company is not published, so it can\'t be your main company.', 'wp-career-board' ), array( 'status' => 409 ) );
 		}
 		update_user_meta( $user, '_wcb_company_id', $id );
 		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );

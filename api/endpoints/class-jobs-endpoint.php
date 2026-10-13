@@ -1596,9 +1596,14 @@ final class JobsEndpoint extends RestController {
 	 */
 	private function company_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
 		$company_id = absint( $request->get_param( 'company_id' ) );
-		if ( ! $company_id
-			|| ( $job && (int) get_post_meta( $job->ID, '_wcb_company_id', true ) === $company_id )
-			|| $this->check_ability( 'wcb/manage-settings' )
+		if ( ! $company_id || ( $job && (int) get_post_meta( $job->ID, '_wcb_company_id', true ) === $company_id ) ) {
+			return null;
+		}
+		// Only a published company has a page a job can link to (owner rule, 1.8.1), for every role.
+		if ( ! in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+			return new \WP_Error( 'wcb_company_offline', __( 'This company is not published, so jobs can\'t use it.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		if ( $this->check_ability( 'wcb/manage-settings' )
 			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id(), true )[ $company_id ] ) ) {
 			return null;
 		}

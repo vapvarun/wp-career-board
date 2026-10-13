@@ -5,15 +5,15 @@
         "version": "1.8.0"
     },
     "generated": {
-        "at": "2026-10-13T16:46:12+00:00",
+        "at": "2026-10-13T18:30:46+00:00",
         "manifest_at": "2026-10-13T00:00:00Z",
         "manifest_branch": "1.8.0"
     },
     "categories": {
         "rest": {
             "total": 77,
-            "covered": 46,
-            "uncovered": 31,
+            "covered": 47,
+            "uncovered": 30,
             "skipped": 0,
             "covered_items": [
                 {
@@ -30,6 +30,10 @@
                 },
                 {
                     "method": "PUT",
+                    "route": "/wcb/v1/jobs/(?P<id>\\d+)"
+                },
+                {
+                    "method": "PATCH",
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)"
                 },
                 {
@@ -202,11 +206,6 @@
                 }
             ],
             "uncovered_items": [
-                {
-                    "method": "PATCH",
-                    "route": "/wcb/v1/jobs/(?P<id>\\d+)",
-                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/jobs/(?P<id>\\d+)\""
-                },
                 {
                     "method": "PATCH",
                     "route": "/wcb/v1/applications/(?P<id>\\d+)/status",
@@ -894,14 +893,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 186,
-        "items_covered": 80,
-        "items_uncovered": 106,
+        "items_covered": 81,
+        "items_uncovered": 105,
         "items_skipped": 180,
-        "coverage_percent": 43
+        "coverage_percent": 43.5
     },
     "drift": {
-        "previous_uncovered": 107,
-        "current_uncovered": 106,
+        "previous_uncovered": 106,
+        "current_uncovered": 105,
         "delta": -1
     }
 }

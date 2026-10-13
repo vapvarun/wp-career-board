@@ -377,10 +377,10 @@ class AdminEmployers extends \WP_List_Table {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one lookup for the page; post_author and the meta pair are indexed.
 		$runs = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT p.post_author AS user_id, p.ID, p.post_title, p.post_status FROM {$wpdb->posts} p
+				"SELECT p.post_author AS user_id, p.ID, p.post_title FROM {$wpdb->posts} p
 				 WHERE p.post_type = 'wcb_company' AND p.post_status IN ( 'publish', 'pending', 'draft' ) AND p.post_author IN ( {$in} )
 				 UNION
-				 SELECT m.meta_value, p.ID, p.post_title, p.post_status FROM {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
+				 SELECT m.meta_value, p.ID, p.post_title FROM {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
 				 WHERE m.meta_key = '_wcb_company_owner' AND m.meta_value IN ( {$in} ) AND p.post_type = 'wcb_company' AND p.post_status IN ( 'publish', 'pending', 'draft' )
 				 ORDER BY post_title",
 				...array_merge( $user_ids, array_map( 'strval', $user_ids ) )
@@ -388,11 +388,7 @@ class AdminEmployers extends \WP_List_Table {
 		);
 		// phpcs:enable
 		foreach ( (array) $runs as $row ) {
-			// An offline company (draft/pending) is still theirs; say so, since jobs can't name it.
-			$this->companies[ (int) $row->user_id ][ (int) $row->ID ] = 'publish' === $row->post_status
-				? (string) $row->post_title
-				/* translators: %s: company name. */
-				: sprintf( __( '%s (offline)', 'wp-career-board' ), $row->post_title );
+			$this->companies[ (int) $row->user_id ][ (int) $row->ID ] = (string) $row->post_title;
 		}
 	}
 

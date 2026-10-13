@@ -63,8 +63,6 @@ final class EmployersModule {
 
 		add_action( 'delete_user', array( self::class, 'retire_owned_listings' ), 10, 2 );
 		add_action( 'transition_post_status', array( self::class, 'on_status_change' ), 10, 3 );
-		// A restored company returns to how it was, not to WordPress's default draft.
-		add_filter( 'wp_untrash_post_status', array( self::class, 'untrash_status' ), 10, 3 );
 		add_filter( 'wp_insert_post_data', array( self::class, 'plain_company_title' ), 10, 1 );
 		add_action( 'before_delete_post', array( self::class, 'on_company_deleted' ), 10, 2 );
 	}
@@ -81,7 +79,7 @@ final class EmployersModule {
 	 * Statuses in which a company has a public page, so jobs may name it.
 	 *
 	 * A draft or pending company is still the employer's (it shows in their
-	 * Companies list) but is offline: a job naming it would link to a 404.
+	 * Companies list) but has no public page: a job naming it would link to a 404.
 	 *
 	 * @since 1.8.1
 	 * @var string[]
@@ -110,20 +108,6 @@ final class EmployersModule {
 		} elseif ( 'wcb_job' === $post->post_type && in_array( $old_status, array( 'wcb_closed', 'draft' ), true ) && $old_status !== $new_status ) {
 			delete_post_meta( $post->ID, self::CLOSED_REASON );
 		}
-	}
-
-	/**
-	 * Restore a trashed company to its status before the trash.
-	 *
-	 * @since 1.8.1
-	 *
-	 * @param string $new_status      Status WordPress would restore to (draft).
-	 * @param int    $post_id         Post ID.
-	 * @param string $previous_status Status before trashing.
-	 * @return string
-	 */
-	public static function untrash_status( string $new_status, int $post_id, string $previous_status ): string {
-		return 'wcb_company' === get_post_type( $post_id ) && '' !== $previous_status ? $previous_status : $new_status;
 	}
 
 	/**
@@ -571,7 +555,7 @@ final class EmployersModule {
 
 		$status_labels = array(
 			'pending' => __( 'Waiting for review', 'wp-career-board' ),
-			'draft'   => __( 'Offline: ask the site owner to put it back', 'wp-career-board' ),
+			'draft'   => __( 'Draft, not public', 'wp-career-board' ),
 		);
 		$cards         = array();
 		foreach ( $companies as $id => $name ) {
