@@ -612,7 +612,7 @@ final class CandidatesEndpoint extends RestController {
 					'permalink' => get_permalink( $post->ID ),
 					'role'      => $job_title,
 					'location'  => $location,
-					'avatar'    => (string) get_avatar_url( $candidate_id ? $candidate_id : $post->ID, array( 'size' => 96 ) ),
+					'avatar'    => \WCB\Modules\Candidates\CandidatesModule::avatar_url( $candidate_id, 96, $post->ID ),
 				);
 			}
 		}
@@ -693,7 +693,7 @@ final class CandidatesEndpoint extends RestController {
 			'display_name'       => $user->display_name,
 			'bio'                => $user->description,
 			'profile_visibility' => $raw_visibility ? $raw_visibility : 'public',
-			'avatar'             => get_avatar_url( $user->ID ),
+			'avatar'             => \WCB\Modules\Candidates\CandidatesModule::avatar_url( $user->ID ),
 			'resume_data'        => $raw_resume_data ? $raw_resume_data : array(),
 		);
 

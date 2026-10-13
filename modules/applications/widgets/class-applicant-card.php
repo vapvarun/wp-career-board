@@ -78,7 +78,10 @@ final class ApplicantCard extends AbstractWidget {
 			$user        = get_userdata( $candidate_id );
 			$name        = $user instanceof \WP_User ? $user->display_name : __( 'Unknown candidate', 'wp-career-board' );
 			$email       = $user instanceof \WP_User ? $user->user_email : '';
-			$avatar_html = get_avatar( $candidate_id, 64 );
+			$avatar_html = sprintf(
+				'<img src="%1$s" alt="" class="avatar avatar-64 photo" width="64" height="64" loading="lazy" />',
+				esc_url( \WCB\Modules\Candidates\CandidatesModule::avatar_url( $candidate_id, 128, (int) get_post_meta( $post->ID, '_wcb_resume_id', true ) ) )
+			);
 			$profile_url = $user instanceof \WP_User ? get_edit_user_link( $user->ID ) : '';
 			$resume_url  = \WCB\Modules\Candidates\CandidatesModule::resume_url( $candidate_id, $post->ID );
 		} else {

@@ -241,6 +241,41 @@ final class CandidatesModule {
 	}
 
 	/**
+	 * A candidate's picture: the photo on their resume, else their avatar.
+	 *
+	 * The resume photo is the one the candidate chose for job seeking, so every
+	 * Career Board surface (cards, applications, profiles) shows it. Pass the
+	 * resume when the caller already has it; otherwise their latest published
+	 * resume is used.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id   Candidate user ID.
+	 * @param int $size      Size in pixels.
+	 * @param int $resume_id Resume to take the photo from (optional).
+	 * @return string Image URL.
+	 */
+	public static function avatar_url( int $user_id, int $size = 96, int $resume_id = 0 ): string {
+		if ( ! $resume_id && $user_id ) {
+			$latest    = get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'publish',
+					'author'         => $user_id,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)
+			);
+			$resume_id = (int) ( $latest[0] ?? 0 );
+		}
+		$photo = $resume_id ? (int) get_post_meta( $resume_id, '_wcb_resume_photo_id', true ) : 0;
+		$url   = $photo ? wp_get_attachment_image_url( $photo, array( $size, $size ) ) : '';
+
+		return $url ? (string) $url : (string) get_avatar_url( $user_id, array( 'size' => $size ) );
+	}
+
+	/**
 	 * Frontend resume an admin or employer should open for a candidate: the
 	 * one attached to the application, else their latest published resume.
 	 *
