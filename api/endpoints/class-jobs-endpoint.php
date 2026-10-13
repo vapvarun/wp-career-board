@@ -547,7 +547,7 @@ final class JobsEndpoint extends RestController {
 
 		// Credit gate — if board has a credit cost, check employer balance.
 		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
-		if ( $wcb_credit_cost > 0 ) {
+		if ( $wcb_credit_cost > 0 && ! JobPayment::is_exempt() ) {
 			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
 			// Fast answer for the common case. The charge after insert is the
 			// one that counts: it runs under the employer's credit lock.
@@ -1021,6 +1021,10 @@ final class JobsEndpoint extends RestController {
 	 * @return string 'publish', 'pending' or 'draft'.
 	 */
 	private function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
+		// Whoever approves jobs doesn't wait for their own approval.
+		if ( $this->check_ability( 'wcb/moderate-jobs' ) ) {
+			return 'publish';
+		}
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$fallback     = $auto_publish ? 'publish' : 'pending';
 

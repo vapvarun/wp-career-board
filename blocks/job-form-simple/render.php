@@ -132,6 +132,11 @@ $wcb_initial_currency = $wcb_board_currency && array_key_exists( $wcb_board_curr
 // Credit cost for the board the form opens on, plus a per-board map so view.js
 // can swap the banner when the employer switches boards.
 $wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id );
+// Site admins post for free (JobPayment::is_exempt()).
+if ( \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+	$wcb_credit_cost        = 0;
+	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
+}
 
 /**
  * Pre-resolve the pluralised credit noun ("1 credit" / "5 credits") server-side.

@@ -49,6 +49,9 @@ final class JobPayment {
 	 * @return bool|\WP_Error True when paid for or free.
 	 */
 	public static function charge( int $job_id, string $event ): bool|\WP_Error {
+		if ( self::is_exempt( $job_id ) ) {
+			return true;
+		}
 		/**
 		 * Filter - collect a job's price.
 		 *
@@ -65,6 +68,34 @@ final class JobPayment {
 		 */
 		$paid = apply_filters( 'wcb_job_payment', true, $job_id, $event );
 		return is_wp_error( $paid ) ? $paid : true;
+	}
+
+	/**
+	 * Whether this action is free: a site admin is acting, or the job is a site admin's.
+	 *
+	 * @since 1.8.1
+	 * @param int $job_id Job post ID, or 0 for a job not created yet.
+	 * @return bool
+	 */
+	public static function is_exempt( int $job_id = 0 ): bool {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		$exempt = wp_is_ability_granted( 'wcb/manage-settings' );
+		if ( ! $exempt && $job_id > 0 ) {
+			$author = (int) get_post_field( 'post_author', $job_id );
+			$exempt = $author > 0 && user_can( $author, 'manage_options' );
+		}
+
+		/**
+		 * Filter - whether a job action costs nothing.
+		 *
+		 * Site admins post, move, republish and feature jobs for free.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param bool $exempt True when an admin acts or owns the job.
+		 * @param int  $job_id Job post ID (0 before the job exists).
+		 */
+		return (bool) apply_filters( 'wcb_job_payment_exempt', $exempt, $job_id );
 	}
 
 	/**

@@ -194,6 +194,10 @@ $wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wc
 if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
 	$wcb_board_credit_costs[ $wcb_board_id ] = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 }
+// Site admins post for free (JobPayment::is_exempt()), so every board reads as free to them.
+if ( \WCB\Modules\Jobs\JobPayment::is_exempt( $wcb_edit_id ) ) {
+	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
+}
 
 /**
  * Pluralised credit noun, resolved with the real count.
