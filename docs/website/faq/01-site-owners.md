@@ -26,7 +26,7 @@ No. By default any signed-in member can apply, save jobs and keep a resume, whic
 
 ## Can visitors apply without an account?
 
-Yes, unless you turn on **Require login to apply** under **Settings > Sign-ups**. Guests give a name and email and get a confirmation and status emails. The site limits how many guest applications one connection can send per hour. If a guest later registers with the same email, their earlier applications move to the new account. See [Apply as a Guest](../for-candidates/09-guest-apply.md).
+Yes, unless you turn on **Require login to apply** under **Settings > Sign-ups**. Guests give a name and email and get a confirmation and status emails. The site limits how many guest applications one connection can send per hour. If a guest later registers with the same email and confirms it, their earlier applications move to the new account. A guest whose email already has an account is asked to sign in. See [Apply as a Guest](../for-candidates/09-guest-apply.md).
 
 ## How do I change the sender of Career Board emails?
 

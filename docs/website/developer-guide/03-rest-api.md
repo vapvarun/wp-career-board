@@ -1,6 +1,6 @@
 # REST API Reference
 
-Use the `wcb/v1` REST namespace to read and manage jobs, applications, candidates, employers and companies from your own code or app. Every endpoint class extends `WCB\Api\RestController`, which owns the shared response envelope and the abilities-aware permission helper. All routes below are relative to `/wp-json/wcb/v1`.
+Use the `wcb/v1` REST namespace to read and manage jobs, applications, candidates, employers and companies from your own code or app. Every endpoint class extends `WCB\Api\RestController`, which owns the shared response envelope and the abilities-aware permission helper. All routes below are relative to `/wp-json/wcb/v1`. Free registers 56 routes. A route shown with `PUT` uses WordPress's editable method set, so it also accepts `PATCH` and `POST`. The same 56 routes (80 route and method pairs) are described, with their parameters and response schemas, in the OpenAPI 3.1 file `docs/api/openapi.json` in the plugin repository. It is generated from the live route registrations with `wp eval-file bin/gen-openapi.php`.
 
 ## Authentication
 
@@ -36,7 +36,22 @@ shape is consistent:
 ```
 
 The `wcb_*` prefix on error codes is the plugin's namespace -
-addons should mirror this convention with their own prefix.
+addons should mirror this convention with their own prefix. See [Error codes](07-error-codes.md) for every code the Free plugin returns, with its HTTP status and when it fires.
+
+## List responses
+
+List routes return an object, not a bare array: the items under a key named for the resource, plus paging fields.
+
+```json
+{
+    "jobs": [ ],
+    "total": 142,
+    "pages": 12,
+    "has_more": true
+}
+```
+
+The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` for `GET /companies` and `applications` for the application lists (which add `counts`). `GET /jobs` and `GET /companies` also return `results_label`, an already translated "N jobs found" string. The totals are also sent as the `X-WCB-Total` and `X-WCB-TotalPages` headers. Guests get `Cache-Control: public, max-age=300` on `GET /jobs`; signed-in users get `private`.
 
 ## Routes by area
 
@@ -98,8 +113,8 @@ Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relat
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `POST` | `/auth/app-password` | guest | Trade a website login for a WordPress Application Password. Off unless **App Password Sign-In** is on; requires HTTPS. |
-| `DELETE` | `/auth/app-password` | logged-in | Revoke the credential making the request (app sign-out) |
+| `POST` | `/auth/app-password` | guest | Trade a website login for a WordPress Application Password. Send `username` (email or login) and `password`; `app_name` and `app_id` are optional, and a repeat sign-in with the same `app_id` replaces the credential instead of adding another. Returns `user_login`, `password` and `app_id`, with `no-store` caching. Off unless **App Password Sign-In** is on; requires HTTPS. A site with two-factor sign-in answers `409 wcb_second_factor`; an account waiting for deletion answers `403 wcb_account_pending_deletion` |
+| `DELETE` | `/auth/app-password` | logged-in | Revoke the credential making the request (app sign-out). Returns `revoked` (true or false) |
 | `POST` | `/auth/verify-email/resend` | guest | Send a new confirmation link to an unconfirmed account (5 an hour per IP) |
 
 ### Account

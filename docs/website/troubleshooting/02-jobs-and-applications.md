@@ -10,7 +10,7 @@ Check in this order:
 
 1. **Status.** Only Published jobs list. In **Career Board > Jobs**, Pending, Draft, Closed, Expired and Rejected jobs do not. A job marked **Awaiting payment** was approved and is waiting for the employer's credits (Pro credits).
 2. **Deadline.** A job past its deadline leaves the listings, feeds and sitemap at the next hourly check. Its page still opens and says it has expired. The employer can reopen it from the dashboard for a new deadline.
-3. **End jobs at their deadline.** On sites that were set up before this option existed, jobs past their deadline stay listed until you click **End jobs at their deadline** under **Career Board > Settings > Jobs > When a job ends**. The button only shows while the option is off.
+3. **End jobs at their deadline.** On sites that were set up before this option existed, jobs past their deadline stay listed until you click **End jobs at their deadline** under **Career Board > Settings > Jobs**, beside **Default listing length (days)**. The button only shows while the option is off.
 4. **Hidden by moderation.** In the Jobs list, a hidden job shows **Hidden: reported** or **Hidden: employer banned**. A job is hidden after enough members with standing report it (3 by default). Use **Dismiss flag** on a reported job, or unban the employer, and the job returns.
 5. **Filters.** The visitor's active filters, shown as pills above the results, or a filter in the address bar can hide it. Click **Clear all**.
 6. **Cache.** A full-page cache can serve an old listing. Purge it.
@@ -33,9 +33,9 @@ The employer clicks **Reopen** on the job in their dashboard. The job gets a new
 
 **Symptom.** A candidate applied as a guest, then created an account, but **My Applications** is empty.
 
-**Cause.** Guest applications are linked to an account when the account is created, and only when the account's email is exactly the email used on the application. Up to 200 matching applications are moved. They are not moved if the account already existed when the person applied, or if they registered with a different email.
+**Cause.** Guest applications move to an account only once the account has proven it owns the email: when the member opens the confirmation email link, when they set a password from an emailed link, or when an administrator or WP-CLI creates the account. With **Email Verification** off, a website sign-up does none of these, so nothing moves. The email must also match the application's email exactly. A guest cannot apply with the email of an account that already exists.
 
-**Fix.** Nothing is lost. The employer still sees the application under the guest email. Ask the candidate to sign in before applying next time, and to register with the same email.
+**Fix.** Nothing is lost. The employer still sees the application under the guest email. Ask the candidate to open the confirmation link, or to use **Lost your password?** once with the same email. Next time, ask them to sign in before applying.
 
 ## An employer cannot change an application's status
 

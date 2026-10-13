@@ -35,6 +35,7 @@ Conventions:
 | [04-wp-cli.md](04-wp-cli.md) | WP-CLI commands and options |
 | [05-extension-cookbook.md](05-extension-cookbook.md) | Short recipes for common extension tasks |
 | [06-template-overrides.md](06-template-overrides.md) | Copying a plugin template into a theme, and the Site Health check that keeps it current |
+| [07-error-codes.md](07-error-codes.md) | Every error code the REST API returns, with its HTTP status |
 
 ## Companion plugin development
 

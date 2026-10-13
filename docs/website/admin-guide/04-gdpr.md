@@ -6,7 +6,7 @@ You can answer personal-data export and erase requests with WordPress's built-in
 
 - **Applications** - the job, status, submission date, cover letter and resume file. For guests, the name and email they applied with.
 - **Candidate profile** - headline, location, open-to-work and profile visibility, profile resume data, and saved jobs, companies and resumes.
-- **Uploaded files** - resumes and generated files, kept in a private folder.
+- **Uploaded files** - resumes and generated files, kept in a private folder. Only the owner, site staff and the employer of an application that carries the file can open them. Documents (PDF, DOC and DOCX) always download as a file instead of opening in the browser; images display normally.
 - **Email history** - kept for the period set under **Settings → Advanced → Keep Email History** (180 days by default).
 - **Employer content** - company pages and job listings.
 

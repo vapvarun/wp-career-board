@@ -28,7 +28,7 @@ The **Filters** panel sits beside the results. Depending on how the site owner s
 |---|---|
 | **Job type** | Shows jobs of the types you tick |
 | **Experience** | Shows jobs at the experience levels you tick |
-| **Category** | Shows jobs in the categories you tick |
+| **Category** | Shows jobs in the categories you tick. Child categories sit under their parent, and a search box appears when there are more than 12 |
 | **Tags** | Shows jobs with the tags you tick |
 | **Location** | **Remote only** shows only jobs marked remote |
 | **Job board** | Shows jobs from the boards you tick, when the site has more than one board |
@@ -54,7 +54,7 @@ Featured jobs come first with **Newest first** and when you are searching.
 
 ## Load more
 
-Click **Load more jobs** at the bottom to show the next set. It is a real link to the next page of results (for example `/jobs/page/2/`), so it also works without JavaScript and search engines can reach every job.
+Click **Load more jobs** at the bottom to show the next set. It is a real link to the next page of results (for example `/find-jobs/page/2/`, or `/jobs/page/2/` on the jobs archive), so it also works without JavaScript and search engines can reach every job.
 
 ## Browse by tag or category
 

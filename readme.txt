@@ -8,11 +8,11 @@ Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A complete job board for WordPress — built on Gutenberg blocks and the WordPress Interactivity API.
+A complete job board for WordPress - built on Gutenberg blocks and the WordPress Interactivity API.
 
 == Description ==
 
-WP Career Board is a full-featured job board plugin built on Gutenberg blocks and the WordPress Interactivity API. Employer dashboards, candidate applications, company profiles, BuddyPress integration, and full applicant tracking — free. Included with Reign Theme.
+WP Career Board is a full-featured job board plugin built on Gutenberg blocks and the WordPress Interactivity API. Employer dashboards, candidate applications, company profiles, BuddyPress integration, and full applicant tracking - free. Included with Reign Theme.
 
 WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) extends it with advanced hiring tools, monetisation, and automation.
 
@@ -20,16 +20,16 @@ WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomd
 
 [WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) adds:
 
-* **Application Pipeline** — Drag-and-drop Kanban board with custom hiring stages per job
-* **Resume Builder** — Rich candidate resume profiles with education, experience, and skills
-* **Credits System** — Sell job posting credits to employers via Stripe
-* **AI Job Descriptions** — Auto-generate compelling job posts with AI
-* **Multi-Board Engine** — Run multiple independent job boards from a single install
-* **Custom Field Builder** — Add custom fields to jobs, applications, and company profiles
-* **Job Alerts** — Candidates receive email alerts for new matching jobs
-* **Job Feed** — Publish jobs as RSS/XML feeds for aggregators
-* **Maps Integration** — Display job locations on an interactive map
-* **Priority Support** — Direct support from the Wbcom Designs team
+* **Application Pipeline** - Drag-and-drop Kanban board with custom hiring stages per job
+* **Resume Builder** - Rich candidate resume profiles with education, experience, and skills
+* **Credits System** - Sell job posting credits to employers via Stripe
+* **AI Job Descriptions** - Auto-generate compelling job posts with AI
+* **Multi-Board Engine** - Run multiple independent job boards from a single install
+* **Custom Field Builder** - Add custom fields to jobs, applications, and company profiles
+* **Job Alerts** - Candidates receive email alerts for new matching jobs
+* **Job Feed** - Publish jobs as RSS/XML feeds for aggregators
+* **Maps Integration** - Display job locations on an interactive map
+* **Priority Support** - Direct support from the Wbcom Designs team
 
 == Installation ==
 
@@ -40,7 +40,7 @@ WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomd
 == Frequently Asked Questions ==
 
 = Does this plugin require WooCommerce? =
-No. WP Career Board is a standalone job board — no e-commerce plugin is needed.
+No. WP Career Board is a standalone job board - no e-commerce plugin is needed.
 
 = Can candidates apply without creating an account? =
 Yes. Guest applications are supported out of the box with name, email, and cover letter fields. If the email already belongs to an account, the visitor is asked to sign in to apply, so the application lands on that account.
@@ -49,7 +49,7 @@ Yes. Guest applications are supported out of the box with name, email, and cover
 Yes. All frontend UI uses Gutenberg blocks with the WordPress Interactivity API, compatible with both classic and block themes.
 
 = How do I migrate from WP Job Manager? =
-Go to Career Board → Import and use the built-in one-click migration tool. Your original WPJM data is never modified.
+Go to Career Board → Settings → Import and use the built-in migration tool. It runs in batches and can be run again safely. Your original WPJM data is never modified.
 
 == Screenshots ==
 

@@ -20,8 +20,8 @@ After activation, the **Career Board** menu appears in your admin sidebar.
 
 ## What you get on activation
 
-- Custom post types for jobs, companies, applications, resumes and boards.
-- Job taxonomies: category, job type, location, experience level and tag.
+- Content types for jobs, companies, applications, resumes and boards.
+- Job lists you manage: category, job type, location, experience level and tag. See [Categories, types, locations and experience levels](../admin-guide/19-job-terms.md).
 - Three user roles: Employer, Candidate and Job Moderator.
 - The **Career Board** menu, with Jobs, Applications, Candidates, Companies, Employers and Settings.
 - A redirect to the Setup Wizard the first time you activate.

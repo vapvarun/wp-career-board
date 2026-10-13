@@ -22,11 +22,11 @@ return array(
             array(
                 'key'         => '_wcb_partner_id', // post-meta key (or arbitrary ID for non-meta data)
                 'label'       => __( 'Partner', 'my-theme' ),
-                'type'        => 'select',          // text | email | tel | url | number | date | textarea | select | checkbox
+                'type'        => 'select',          // text | email | tel | url | number | date | textarea | select | checkbox | radio | multiselect | repeater
                 'required'    => true,              // optional — defaults false
                 'placeholder' => __( 'Choose…', 'my-theme' ),
                 'description' => __( 'Helper text below the field', 'my-theme' ),
-                'options'     => array(             // required for `select`; ignored for other types
+                'options'     => array(             // required for `select`, `radio` and `multiselect`; ignored for other types
                     1 => 'Acme',
                     2 => 'Beta',
                 ),
@@ -465,6 +465,18 @@ Two contract notes that are easy to break in a refactor:
 Counted via `posts_per_page => 1` + `found_posts` — one COUNT, never a
 hydrated result set (an agency account can hold thousands of listings).
 
+## Deadlines, term order and resume links (1.8.1)
+
+| Hook or helper | Args | Purpose |
+|---|---|---|
+| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
+| `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
+| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list, the application screen and the Candidates list. Return `''` to hide it. |
+| `wcb_job_pipeline_url` | `$url, $job_id` | The **Pipeline** link on each My Jobs row. Empty in Free; Pro fills it. |
+| `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
+
+The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen.
+
 ## Convention
 
 - **`wcb_*`** — customer-facing extension surface. Stable.
@@ -489,8 +501,8 @@ They sit alongside their feature, not in the api/endpoints directory:
 
 | Routes | File:line | Why it carves out |
 |---|---|---|
-| `POST /wcb/v1/wizard/create-pages`, `/wizard/sample-data`, `/wizard/complete`, `/wizard/remove-sample-data` | `admin/class-setup-wizard.php:189,199,216,226` | First-run admin wizard. The class lives under `WCB\Admin\` because it owns the admin-side activation hook + the localized JS handle (`wcb-wizard`); pulling its 4 routes into `api/endpoints/` would split one feature across two namespaces. |
-| `POST /wcb/v1/jobs/(id)/approve`, `/jobs/(id)/reject` | `modules/moderation/class-moderation-module.php:60,73` | Moderation lives as a self-contained module under `WCB\Modules\Moderation\`. The two routes are part of that module's contract (alongside its filter `wcb_moderate_jobs_ability_check`); moving them to `api/endpoints/` would orphan them from the rest of the module. |
+| `POST /wcb/v1/wizard/create-pages`, `/wizard/settings`, `/wizard/sample-data`, `/wizard/remove-sample-data`, `/wizard/complete` | `admin/class-setup-wizard.php:258-311` | First-run admin wizard. The class lives under `WCB\Admin\` because it owns the admin-side activation hook + the localized JS handle (`wcb-wizard`); pulling its 5 routes into `api/endpoints/` would split one feature across two namespaces. |
+| `POST /wcb/v1/jobs/(id)/approve`, `/jobs/(id)/reject`, `/jobs/(id)/report`, `/jobs/(id)/resolve-flag` | `modules/moderation/class-moderation-module.php:77-131` | Moderation lives as a self-contained module under `WCB\Modules\Moderation\`. The four routes are part of that module's contract (alongside its filter `wcb_moderate_jobs_ability_check`); moving them to `api/endpoints/` would orphan them from the rest of the module. |
 | `POST /wcb/v1/wizard/activate-license`, `/wizard/setup-credits`, `/wizard/create-pro-pages` | Pro: `wp-career-board-pro/admin/class-pro-setup-wizard.php:167,184,206` | Same reasoning as Free's setup wizard — Pro extension steps that belong with the wizard's admin code, not in `api/endpoints/`. |
 
 These are the documented exceptions to the "all REST routes go through

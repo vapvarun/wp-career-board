@@ -1,7 +1,8 @@
 # WP Career Board — Architecture Overview
 
-> **Last revision:** 2026-04-27 (v1.1.0). Block count, REST envelope,
-> widget registry, and design tokens reflect the 1.1.0 ship.
+> **Last revision:** 2026-04-27 (v1.1.0), with the REST endpoint list and block counts corrected for 1.8.1.
+> For the live route, hook, shortcode, error-code and CLI references, use the
+> [developer guide](website/developer-guide/01-overview.md) and [`HOOKS.md`](HOOKS.md).
 
 ## 1. System Overview
 
@@ -74,20 +75,24 @@ type validation). Plus the modular widget renderer:
 
 Full reference: [`docs/SHORTCODES.md`](SHORTCODES.md).
 
-### REST Endpoints (7)
+### REST Endpoints (13 classes, 56 routes)
 
-All under `/wp-json/wcb/v1/`. Permission via Abilities API
-(`wp_is_authorized()`) — never `current_user_can()`.
+All under `/wp-json/wcb/v1/`. Permission via the Abilities API
+(`wp_is_ability_granted()`) - never `current_user_can()`. The full route
+list is in the [REST API reference](website/developer-guide/03-rest-api.md).
 
-| Endpoint | Class | Purpose |
-|----------|-------|---------|
-| `/jobs` | `Jobs_Endpoint` | CRUD for job listings |
-| `/applications` | `Applications_Endpoint` | Submit and manage applications |
-| `/candidates` | `Candidates_Endpoint` | Candidate profile operations |
-| `/employers` | `Employers_Endpoint` | Employer profile operations |
-| `/companies` | `Companies_Endpoint` | Company CRUD |
-| `/search` | `Search_Endpoint` | Full-text job search with filters |
-| `/import` | `Import_Endpoint` | Bulk job import (CSV/JSON) |
+| Class | Routes |
+|-------|--------|
+| `JobsEndpoint` | `/jobs`, `/jobs/{id}`, approve, reject, bookmark, report, resolve-flag, applications, applications/export |
+| `ApplicationsEndpoint` | `/jobs/{id}/apply`, `/applications/{id}` (+ status, rating, notes), `/candidates/{id}/applications`, `/files/{id}` |
+| `CandidatesEndpoint` | `/candidates/{id}`, register, resume-upload, bookmarks, saved-companies, saved-resumes, privacy export and erase |
+| `EmployersEndpoint` | `/employers` (create), register, `/employers/{id}` (+ jobs, applications, logo), `/employers/me/jobs`, `/employers/me/applications` |
+| `CompaniesEndpoint` | `GET /companies`, bookmark, trust |
+| `SearchEndpoint` | `GET /search` |
+| `SettingsEndpoint` | `GET /settings/app-config` |
+| `AccountEndpoint`, `AccountDeletionEndpoint`, `MembersEndpoint`, `AuthEndpoint` | `/account`, `/me`, `/me/deletion`, `/users/{id}/report`, `/users/{id}/block`, `/me/blocked`, `/auth/app-password`, `/auth/verify-email/resend` |
+| `AdminEndpoint`, `ImportEndpoint` | `/admin/*` (email log, test send, banner dismissal, industries), `/import/status`, `/import/run` (WP Job Manager import) |
+| Setup wizard (registers directly) | `/wizard/*` (create-pages, settings, sample-data, remove-sample-data, complete) |
 
 #### Response envelope (1.1.0)
 
@@ -117,13 +122,13 @@ integrators) time to migrate.
 
 ### Modules (12)
 
-`jobs`, `employers`, `candidates`, `applications`, `search`, `notifications`, `moderation`, `seo`, `gdpr`, `antispam`, `boards`, `theme-integration`
+`account`, `antispam`, `applications`, `boards`, `candidates`, `employers`, `gdpr`, `jobs`, `moderation`, `notifications`, `search`, `seo`
 
 ### Modular widget system (new in 1.1.0)
 
 `WCB\Core\Widgets\WidgetRegistry` is a singleton registry for composable
 admin/front-end widgets. The empty native "Edit Application" admin
-screen was rebuilt as a stack of six widgets — each one also publicly
+screen was rebuilt as a stack of seven widgets, each one also publicly
 addressable via `[wcb_widget id="..."]`.
 
 | Widget id | Class | Renders |
@@ -133,7 +138,8 @@ addressable via `[wcb_widget id="..."]`.
 | `application/resume-preview` | `Widgets\ResumePreview` | Embedded resume preview + download |
 | `application/status-changer` | `Widgets\StatusChanger` | Status dropdown (employer-only) |
 | `application/status-timeline` | `Widgets\StatusTimeline` | Audit log of status transitions |
-| `application/quick-actions` | `Widgets\QuickActions` | Email / interview / archive / hire |
+| `application/quick-actions` | `Widgets\QuickActions` | Shortlist / hire / reject / message |
+| `application/custom-answers` | `Widgets\CustomAnswers` | Answers to the job's custom application questions |
 
 Add a custom widget by extending `AbstractWidget` and registering on
 `init`:
@@ -390,11 +396,11 @@ wp-career-board/                      wp-career-board-pro/
 │   ├── search/  notifications/       │   ├── maps/  notifications-pro/
 │   ├── moderation/  seo/             │   ├── notifications-bell/  pwa/
 │   ├── gdpr/  antispam/              │   ├── migration/  analytics/
-│   ├── boards/  theme-integration/   │   └── feed/
+│   ├── boards/  account/             │   └── feed/
 ├── api/                              ├── api/endpoints/ (9 files)
 │   ├── class-rest-controller.php     ├── blocks/ (15 blocks)
-│   └── endpoints/ (7 files)          ├── admin/
-├── blocks/ (14 blocks)               │   ├── class-pro-admin.php
+│   └── endpoints/ (13 files)         ├── admin/
+├── blocks/ (17 blocks)               │   ├── class-pro-admin.php
 ├── admin/                            │   ├── class-admin-credits.php
 │   ├── class-admin.php               │   ├── class-admin-field-builder.php
 │   ├── class-admin-settings.php      │   └── class-admin-boards.php

@@ -32,16 +32,17 @@ Does **not** touch admin users or any content outside the seed list.
 
 ## Permissions (Abilities API)
 
-All write commands check the WordPress Abilities API (`wp_is_ability_granted`) before acting.
-The check runs against the current WP-CLI user — use `--user=<id>` to run as a specific user.
+Write commands check the WordPress Abilities API before acting. The check runs against the current WP-CLI user, so pass `--user=<id>` to run as a specific user. Ability slugs use the `wcb/<slug>` form; most are backed by the capability of the same name with underscores (`wcb/moderate-jobs` by `wcb_moderate_jobs`), while `wcb/manage-settings` and `wcb/view-analytics` are backed by `manage_options`.
 
 | Command | Required ability |
 |---------|-----------------|
-| `wp wcb job approve` | `wcb_moderate_jobs` |
-| `wp wcb job reject` | `wcb_moderate_jobs` |
-| `wp wcb job expire` | `wcb_moderate_jobs` |
-| `wp wcb job run-expiry` | `wcb_manage_settings` |
-| `wp wcb application update` | `wcb_view_applications` |
+| `wp wcb job approve` | `wcb/moderate-jobs` |
+| `wp wcb job reject` | `wcb/moderate-jobs` |
+| `wp wcb job expire` | `wcb/moderate-jobs` |
+| `wp wcb job run-expiry` | `wcb/manage-settings` |
+| `wp wcb application update` | `wcb/view-applications` |
+| `wp wcb scale seed`, `benchmark`, `teardown` | `wcb/manage-settings` |
+| `wp wcb migrate ...` | None |
 | All `list` and `status` commands | None |
 
 Run as a specific user:
@@ -164,7 +165,7 @@ wp wcb job list --status=pending --format=ids
 ### `wp wcb job approve <id>`
 
 Approve a pending job — publishes it and fires `wcb_job_approved` (sends employer notification email).
-Requires: `wcb_moderate_jobs`.
+Requires: `wcb/moderate-jobs`.
 
 ```bash
 wp wcb job approve 42 --user=1
@@ -175,7 +176,7 @@ wp wcb job approve 42 --user=1
 ### `wp wcb job reject <id>`
 
 Reject a pending job — sets it to draft, stores the rejection reason, fires `wcb_job_rejected` (sends employer notification email).
-Requires: `wcb_moderate_jobs`.
+Requires: `wcb/moderate-jobs`.
 
 ```bash
 wp wcb job reject 42 --user=1
@@ -193,7 +194,7 @@ wp wcb job reject 42 --reason="Duplicate listing" --user=1
 ### `wp wcb job expire <id>`
 
 Force-expire a single job regardless of its deadline value. Fires `wcb_job_expired`.
-Requires: `wcb_moderate_jobs`.
+Requires: `wcb/moderate-jobs`.
 
 ```bash
 wp wcb job expire 42 --user=1
@@ -203,16 +204,15 @@ wp wcb job expire 42 --user=1
 
 ### `wp wcb job run-expiry`
 
-Trigger the hourly expiry cron manually. Expires all published jobs whose `_wcb_deadline` has passed.
-Respects the **Deadline auto-close** setting in WP Career Board → Settings.
-Requires: `wcb_manage_settings`.
+Run the hourly expiry sweep now. It expires published jobs whose `_wcb_deadline` has passed, 200 at a time (it schedules itself again while more remain). `wcb_job_expired` fires, and the employer is emailed, only for jobs that ended in the last 7 days.
+Requires: `wcb/manage-settings`.
 
 ```bash
 wp wcb job run-expiry --user=1
 ```
 
-> **Tip:** If `deadline_auto_close` is disabled in settings this command is a no-op.
-> Enable it under **WP Career Board → Settings → Job Listings**.
+> **Tip:** On a site that still lists jobs past their deadline (set before 1.8.0), the setting behind this command is off and the command prints a warning and expires nothing.
+> Turn it on with the **End jobs at their deadline** button under **Career Board > Settings > Jobs**; the button shows only while the setting is off.
 
 ---
 
@@ -240,14 +240,16 @@ wp wcb application list --job=42 --status=reviewing --format=json
 |------|-------------|---------|
 | `--job` | Job post ID | — |
 | `--status` | `submitted`, `reviewing`, `shortlisted`, `hired`, `rejected` | — |
-| `--format` | `table`, `csv`, `json`, `ids` | `table` |
+| `--per-page` | Rows per page, 1-500 | `100` |
+| `--page` | Page number | `1` |
+| `--format` | `table`, `csv`, `json`, `ids`, `count` | `table` |
 
 ---
 
 ### `wp wcb application update <id> --status=<status>`
 
 Update an application's status. Fires `wcb_application_status_changed` (sends applicant notification email).
-Requires: `wcb_view_applications`.
+Requires: `wcb/view-applications`.
 
 ```bash
 wp wcb application update 7 --status=reviewing --user=1
@@ -256,13 +258,15 @@ wp wcb application update 7 --status=hired --user=1
 wp wcb application update 7 --status=rejected --user=1
 ```
 
-**Valid statuses:** `submitted` → `reviewing` → `shortlisted` → `hired` / `rejected`
+**Valid statuses:** `submitted` → `reviewing` → `shortlisted` → `hired` / `rejected`. Setting the status an application already has, or changing one that already has an outcome (withdrawn, position closed or job removed), prints a warning and changes nothing.
 
 ---
 
-## All Registered Abilities (Free)
+## What `wp wcb abilities` lists
 
-| Ability slug | Label | Role |
+The command lists these ten entries and checks the user against the capability of that name:
+
+| Entry | Label | Role |
 |---|---|---|
 | `wcb_post_jobs` | Post Jobs | Employer |
 | `wcb_manage_company` | Manage Company Profile | Employer |
@@ -275,4 +279,10 @@ wp wcb application update 7 --status=rejected --user=1
 | `wcb_manage_settings` | Manage Settings | Admin |
 | `wcb_view_analytics` | View Analytics | Admin |
 
-Pro registers additional abilities at runtime (visible in `wp wcb abilities` output when Pro is active).
+Free registers twelve abilities in all (`wcb/post-jobs`, `wcb/manage-company`, `wcb/view-applications`, `wcb/access-employer-dashboard`, `wcb/apply-jobs`, `wcb/manage-resume`, `wcb/bookmark-jobs`, `wcb/access-candidate-dashboard`, `wcb/withdraw-application`, `wcb/moderate-jobs`, `wcb/manage-settings` and `wcb/view-analytics`). The list above is the subset the command reports; add more with the `wcb_cli_abilities` filter. See [Capabilities and roles](website/admin-guide/14-capabilities-and-roles.md) for the full mapping.
+
+---
+
+## Other command groups
+
+These are documented in the [developer guide](website/developer-guide/04-wp-cli.md): `wp wcb migrate` (`wpjm`, `wpjm-applications`, `wpjm-resumes`, `files`) and `wp wcb scale` (`seed`, `benchmark`, `teardown`).

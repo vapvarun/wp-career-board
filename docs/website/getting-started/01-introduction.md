@@ -24,7 +24,7 @@ WP Career Board turns a WordPress site into a job board. Employers post jobs, ca
 ## How it is built
 
 - Every page is a block, and every block also works as a shortcode for page builders and the classic editor. See [Adding blocks](./04-adding-blocks.md).
-- Front-end updates use the WordPress Interactivity API instead of jQuery.
+- Search, filters and dashboards update without reloading the page.
 
 ## Requirements
 

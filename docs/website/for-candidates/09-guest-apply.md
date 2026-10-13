@@ -31,9 +31,15 @@ It depends on the site. By default a resume is required, and you cannot submit w
 
 ## Link guest applications to an account
 
-Your application is stored against your email address. If you later create an account with the same email, your earlier guest applications are linked to the new account when it is created, and they appear in **My Applications**. There is nothing to request.
+Your application is stored against your email address. If you later create an account with the same email, your earlier guest applications move to it and appear in **My Applications**. There is nothing to request, but the move waits until the site knows the email is yours. It happens when:
 
-Linking happens only at account creation and only for the exact email you applied with. Since 1.8.1 a guest cannot apply with the email of an existing account (the form asks them to sign in). Applications made earlier as a guest with that email, and applications from a guest who registers with a different email, are not moved. Sign in before you apply to keep everything in one place.
+- You open the link in the confirmation email. This is how it works on sites with **Email Verification** on, which is the default on new sites.
+- You set your password from an emailed link, for example after a password reset.
+- An administrator or WP-CLI creates the account for you. This moves them at once.
+
+On a site with Email Verification off, signing up through the website form does not move them by itself. Use **Lost your password?** once with the same email, or ask the site owner to confirm your address.
+
+Only applications sent from the exact email of the account move. Applications from a guest who registers with a different email stay under the guest email, and the employer still sees them. Since 1.8.1 a guest cannot apply with the email of an existing account (the form asks them to sign in), so sign in before you apply to keep everything in one place.
 
 To get a copy of your data or have it deleted, ask the site owner to run a personal-data request for your email address. Guest applications are found by email. The site owner can follow [GDPR and privacy](../admin-guide/04-gdpr.md).
 

@@ -2,7 +2,7 @@
   "product": "WP Career Board",
   "productType": "plugin",
   "shortId": "wcb",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "tagline": "The community-powered job board for WordPress",
   "sections": [
     { "name": "Getting Started", "folder": "getting-started" },
