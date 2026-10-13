@@ -75,14 +75,11 @@
  * all three archives compute the same column count at identical viewports. */
 .wcb-jobs-container.wcb-grid {
 	display: grid;
-	/* Force 3 explicit columns at desktop so Find Jobs renders the same 3-up
-	 * grid as Companies and Find Candidates regardless of the parent chain
-	 * padding deltas Astra applies. The auto-fill 280px template collapsed
-	 * to 2-col once we wrapped this in the sidebar layout (.wcb-archive-
-	 * layout takes ~240px out of the row). Falls back to 2-col / 1-col at
-	 * the @media breakpoints below. Mirrors the same fix used in
-	 * `blocks/company-archive/style.css` + `blocks/resume-archive/style.css`. */
-	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	/* As many 300px+ columns as fit: 2 beside the filters sidebar, 3 without
+	 * it. Three forced columns beside the sidebar left ~110px for a name,
+	 * which broke mid-word ("Copperl / eaf"). Same rule on all three archives
+	 * (Find Jobs, Companies, Find Candidates). */
+	grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
 	gap: var(--wcb-space-xl);
 }
 
@@ -234,6 +231,11 @@
 	flex-wrap: wrap;
 	gap: var(--wcb-space-xs);
 	align-items: center;
+}
+
+/* No badge to show (no type, location, board...): no empty row in the card. */
+.wcb-card-badges:not(:has(.wcb-shown)) {
+	display: none;
 }
 
 /* Hidden by default; shown when data-wp-class adds .wcb-shown.
@@ -859,13 +861,15 @@
 .wcb-alert-me {
 	display: inline-flex;
 	flex-wrap: wrap;
+	flex-shrink: 0; /* field + button stay on one line instead of the group shrinking */
 	align-items: center;
 	gap: var(--wcb-space-xs);
 }
 
-/* Same specificity as the shared field rule in wcb-ui.css (which sets
- * width:100%), so the email stays compact and sits inline with its button. */
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-alert-me input.wcb-alert-guest-email {
+/* One class above the shared field rule in wcb-ui.css (width:100%), which
+ * loads later and won at equal specificity: the field filled the group and
+ * pushed the button under it. Compact, inline with its button. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-alert-me.wcb-alert-me--guest input.wcb-alert-guest-email {
 	width: 224px;
 	max-width: 100%;
 }
@@ -875,11 +879,11 @@
 	min-height: var(--wcb-control-h);
 }
 
-/* Phones: the guest sees just the button (two toolbar rows saved); the first tap reveals the field. */
-@media (max-width: 640px) {
-	.wcb-alert-me--guest:not(.wcb-alert-open) input.wcb-alert-guest-email {
-		display: none;
-	}
+/* A guest sees just the button, so the results bar stays one line; the first
+   click reveals the email field (view.js saveSearchAlert). It was phone-only,
+   and on desktop the field stacked above the button inside the bar. */
+.wcb-alert-me--guest:not(.wcb-alert-open) input.wcb-alert-guest-email {
+	display: none;
 }
 
 .wcb-alert-me__error {

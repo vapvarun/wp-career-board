@@ -979,6 +979,13 @@
 [class*="wp-block-wp-career-board"] .wcb-ca-card .wcb-ca-name,
 [class*="wp-block-wcb-"] .wcb-ra-card .wcb-ra-card-name {
 	padding-inline-end: calc( 40px + var( --wcb-space-sm, 8px ) );
+	/* At most two lines, broken between words only, so cards in a row line up. */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	overflow-wrap: normal;
+	word-break: normal;
 }
 
 /* Section card titles (.wcb-card-title) need more breathing room than the
