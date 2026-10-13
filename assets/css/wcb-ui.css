@@ -2193,3 +2193,17 @@
 	white-space: nowrap;
 	flex-shrink: 0;
 }
+
+/* Dashboards: hide the panels while a restored tab replaces the server
+ * default (DashboardTabs::print_guard). The delayed reveal is a safety net
+ * so a failed script never leaves the panels hidden. */
+html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
+	visibility: hidden;
+	animation: wcb-tab-reveal 0s 1.5s forwards;
+}
+
+@keyframes wcb-tab-reveal {
+	to {
+		visibility: visible;
+	}
+}

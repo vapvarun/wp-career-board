@@ -439,6 +439,12 @@ wp_interactivity_state(
 		),
 	)
 );
+// Same list and key as VALID_VIEWS / tabRouter in view.js.
+\WCB\Core\DashboardTabs::print_guard(
+	array( 'overview', 'jobs', 'post-job', 'applications', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
+	'wcb_employer_view',
+	$wcb_apps_job_id > 0 ? 'applications' : ( $wcb_edit_job_id > 0 ? 'post-job' : 'overview' )
+);
 ?>
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-dashboard' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

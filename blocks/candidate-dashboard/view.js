@@ -16,11 +16,11 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { tabRouter } from '@wcb/ui';
 
 /**
- * Tabs that are eligible to appear in the URL hash. Anything outside this
- * allowlist is ignored on read so a stale `#whatever` never lands the user
- * in an undefined tab state.
+ * Tabs that can appear in the URL hash (first = default). Anything else is
+ * ignored on read so a stale `#whatever` never lands in an undefined tab.
  */
 const VALID_TABS = [
 	'overview',
@@ -33,7 +33,10 @@ const VALID_TABS = [
 	'alerts',
 	'profile',
 	'settings',
+	'notifications',
 ];
+
+const tabs = tabRouter( VALID_TABS, 'wcb_candidate_tab' );
 
 /**
  * Translation reader.
@@ -48,31 +51,6 @@ const VALID_TABS = [
  * @return {string} Translated string.
  */
 const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
-
-/**
- * Read the active tab slug from the current URL hash, or null if missing/invalid.
- */
-function readHashTab() {
-	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
-	return VALID_TABS.includes( raw ) ? raw : null;
-}
-
-/**
- * Sync the URL hash to a given tab slug without pushing a new history entry.
- * `replaceState` keeps Back/Forward predictable — one entry per real navigation,
- * not per tab click. Skip the write when the hash already matches.
- */
-function writeHashTab( tab ) {
-	if ( ! VALID_TABS.includes( tab ) ) {
-		return;
-	}
-	const target = '#' + tab;
-	if ( window.location.hash === target ) {
-		return;
-	}
-	const url = window.location.pathname + window.location.search + target;
-	window.history.replaceState( null, '', url );
-}
 
 /**
  * Format a number against the SITE locale, not the browser locale.
@@ -434,8 +412,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		 * save, build resume, set up alert) the card hides automatically.
 		 */
 		get isFirstTime() {
-			return ! state.loading
-				&& state.applications.length === 0
+			// Until the first fetch lands, keep what the server painted.
+			if ( state.loading || ! state.appsLoaded ) {
+				return state.firstTimeSeed;
+			}
+			return state.applications.length === 0
 				&& Number( state.savedJobsCount ) === 0
 				&& Number( state.resumeCount ) === 0
 				&& ( ! state.alertsCount || Number( state.alertsCount ) === 0 );
@@ -459,23 +440,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 	actions: {
 		*init() {
-			// Tab restoration priority: URL hash → sessionStorage → server default.
-			// Hash wins so deep-links / shared URLs / browser back-forward land on
-			// the intended tab regardless of any prior session activity.
-			const hashTab = readHashTab();
-			if ( hashTab ) {
-				state.tab = hashTab;
-			} else if ( state.tab === 'overview' ) {
-				const saved = sessionStorage.getItem( 'wcb_candidate_tab' );
-				if ( saved ) {
-					state.tab = saved;
-				}
-			}
-			writeHashTab( state.tab );
+			state.tab = tabs.initial( state.tab );
+			tabs.go( state.tab );
 
 			// Browser back/forward and manual hash edits stay in sync.
 			window.addEventListener( 'hashchange', () => {
-				const next = readHashTab();
+				const next = tabs.read();
 				if ( next && next !== state.tab ) {
 					state.tab = next;
 				}
@@ -550,24 +520,21 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		switchToOverview() {
 			state.tab     = 'overview';
 			state.navOpen = false;
-			sessionStorage.removeItem( 'wcb_candidate_tab' );
-			writeHashTab( 'overview' );
+			tabs.go( 'overview' );
 		},
 
 		switchToApplications() {
 			state.tab     = 'applications';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'applications' );
-			writeHashTab( 'applications' );
+			tabs.go( 'applications' );
 		},
 
 		*switchToBookmarks() {
 			state.tab     = 'bookmarks';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'bookmarks' );
-			writeHashTab( 'bookmarks' );
+			tabs.go( 'bookmarks' );
 
 			if ( state.bookmarks.length ) {
 				return;
@@ -599,7 +566,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		switchToResumeBuilder() {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
+			tabs.go( 'resume-builder' );
 		},
 
 		/**
@@ -610,8 +577,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'saved-companies';
 			state.navOpen = false;
 			state.savedCompaniesError = '';
-			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-companies' );
-			writeHashTab( 'saved-companies' );
+			tabs.go( 'saved-companies' );
 
 			if ( state.savedCompanies.length ) {
 				return;
@@ -644,8 +610,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'saved-resumes';
 			state.navOpen = false;
 			state.savedResumesError = '';
-			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-resumes' );
-			writeHashTab( 'saved-resumes' );
+			tabs.go( 'saved-resumes' );
 
 			if ( state.savedResumes.length ) {
 				return;
@@ -758,19 +723,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab         = 'profile';
 			state.navOpen     = false;
 			state.profileSaved = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'profile' );
+			tabs.go( 'profile' );
 		},
 
 		switchToSettings() {
 			state.tab     = 'settings';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'settings' );
+			tabs.go( 'settings' );
 		},
 
 		*switchToNotifications() {
 			state.tab     = 'notifications';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'notifications' );
+			tabs.go( 'notifications' );
 			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -941,7 +906,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'alerts';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'alerts' );
+			tabs.go( 'alerts' );
 
 			if ( state.alerts.length ) {
 				return;
@@ -1032,7 +997,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resumes';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'resumes' );
+			tabs.go( 'resumes' );
 
 			if ( state.resumes.length ) {
 				return;
@@ -1386,6 +1351,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.appsPage     = append ? state.appsPage + 1 : 1;
 				state.appsHasMore  = !! data?.has_more;
 				state.appsCounts   = data?.counts ?? { total: rows.length, by_status: {} };
+				state.appsLoaded   = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {

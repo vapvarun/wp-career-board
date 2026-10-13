@@ -6,6 +6,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
+import { tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -27,22 +28,7 @@ const VALID_VIEWS = [
 	'credits',
 ];
 
-function readHashView() {
-	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
-	return VALID_VIEWS.includes( raw ) ? raw : null;
-}
-
-function writeHashView( view ) {
-	if ( ! VALID_VIEWS.includes( view ) ) {
-		return;
-	}
-	const target = '#' + view;
-	if ( window.location.hash === target ) {
-		return;
-	}
-	const url = window.location.pathname + window.location.search + target;
-	window.history.replaceState( null, '', url );
-}
+const views = tabRouter( VALID_VIEWS, 'wcb_employer_view' );
 
 /**
  * Translation reader. Every user-facing string is seeded from render.php under
@@ -758,28 +744,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 		*init() {
-			// Tab restoration priority: URL hash → sessionStorage → server default.
-			// Mirrors candidate-dashboard so deep-linking to #saved-jobs /
-			// #applications / etc lands the user on the right tab regardless
-			// of any prior session activity.
-			const hashView = readHashView();
-			if ( hashView ) {
-				state.currentView = hashView;
-			} else if ( state.currentView === 'overview' ) {
-				const saved = sessionStorage.getItem( 'wcb_employer_view' );
-				if ( saved ) {
-					state.currentView = saved;
-				}
-			}
+			state.currentView = views.initial( state.currentView );
 			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
 			if ( savedJob > 0 && state.currentView === 'applications' ) {
 				state.appsJobId = savedJob;
 			}
-			writeHashView( state.currentView );
+			views.go( state.currentView );
 
 			// Browser back/forward and manual hash edits stay in sync.
 			window.addEventListener( 'hashchange', () => {
-				const next = readHashView();
+				const next = views.read();
 				if ( next && next !== state.currentView ) {
 					state.currentView = next;
 				}
@@ -858,8 +832,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		switchToOverview() {
 			state.currentView = 'overview';
 			state.navOpen     = false;
-			sessionStorage.removeItem( 'wcb_employer_view' );
-			writeHashView( 'overview' );
+			views.go( 'overview' );
 		},
 
 		// Fetch + normalize the employer's jobs. Shared by init() and the
@@ -915,15 +888,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
-			writeHashView( 'jobs' );
+			views.go( 'jobs' );
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
-			writeHashView( 'applications' );
+			views.go( 'applications' );
 		},
 
 		switchToCompany() {
@@ -931,32 +902,28 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.saved       = false;
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'company' );
-			writeHashView( 'company' );
+			views.go( 'company' );
 		},
 
 		switchToSettings() {
 			state.currentView = 'settings';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
-			writeHashView( 'settings' );
+			views.go( 'settings' );
 		},
 
 		switchToCredits() {
 			state.currentView = 'credits';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'credits' );
-			writeHashView( 'credits' );
+			views.go( 'credits' );
 		},
 
 		*switchToNotifications() {
 			state.currentView = 'notifications';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'notifications' );
-			writeHashView( 'notifications' );
+			views.go( 'notifications' );
 			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -965,8 +932,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
-			writeHashView( 'post-job' );
+			views.go( 'post-job' );
 		},
 
 		/**
@@ -978,8 +944,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView       = 'saved-jobs';
 			state.navOpen           = false;
 			state.savedJobsError    = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-jobs' );
-			writeHashView( 'saved-jobs' );
+			views.go( 'saved-jobs' );
 
 			if ( state.savedJobs.length ) {
 				return;
@@ -1007,8 +972,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView          = 'saved-companies';
 			state.navOpen              = false;
 			state.savedCompaniesError  = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-companies' );
-			writeHashView( 'saved-companies' );
+			views.go( 'saved-companies' );
 
 			if ( state.savedCompanies.length ) {
 				return;
@@ -1036,8 +1000,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView        = 'saved-resumes';
 			state.navOpen            = false;
 			state.savedResumesError  = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-resumes' );
-			writeHashView( 'saved-resumes' );
+			views.go( 'saved-resumes' );
 
 			if ( state.savedResumes.length ) {
 				return;
@@ -1241,7 +1204,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.selectedAppId = null;
 			state.appsFilter    = 'all';
 			state.currentView   = 'applications';
-			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
+			views.go( 'applications' );
 			sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
 			yield actions.loadApplications();
 		},

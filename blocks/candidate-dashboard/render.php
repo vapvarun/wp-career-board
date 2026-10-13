@@ -117,6 +117,21 @@ $wcb_resumes_state = (array) apply_filters(
 	$wcb_candidate_id
 );
 
+// The welcome card is decided here, from the same counts the overview shows,
+// so it paints in place instead of popping in after the client fetches.
+$wcb_has_application = (bool) get_posts(
+	array(
+		'post_type'      => 'wcb_application',
+		'post_status'    => 'any',
+		'fields'         => 'ids',
+		'posts_per_page' => 1,
+		'no_found_rows'  => true,
+		'meta_key'       => '_wcb_candidate_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		'meta_value'     => $wcb_candidate_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+	)
+);
+$wcb_first_time      = ! $wcb_has_application && 0 === $wcb_saved_jobs_count && 0 === (int) ( $wcb_resumes_state['resumeCount'] ?? 0 );
+
 /*
  * Money format strings for the saved-search filter pills. The alert's
  * salary bounds arrive from /wcb/v1/alerts as raw integers, so the label has
@@ -218,6 +233,10 @@ wp_interactivity_state(
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
 			'savedJobsCount'          => $wcb_saved_jobs_count,
+			'firstTimeSeed'           => $wcb_first_time,
+			// Server render of the welcome card; the view.js getter takes over on the client.
+			'isFirstTime'             => $wcb_first_time,
+			'appsLoaded'              => false,
 			'applications'            => array(),
 			'appsPage'                => 1,
 			'appsHasMore'             => false,
@@ -376,6 +395,12 @@ wp_interactivity_state(
 		),
 		$wcb_resumes_state
 	)
+);
+// Same list and key as VALID_TABS / tabRouter in view.js.
+\WCB\Core\DashboardTabs::print_guard(
+	array( 'overview', 'applications', 'bookmarks', 'saved-companies', 'saved-resumes', 'resumes', 'resume-builder', 'alerts', 'profile', 'settings', 'notifications' ),
+	'wcb_candidate_tab',
+	$wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview'
 );
 ?>
 <div
