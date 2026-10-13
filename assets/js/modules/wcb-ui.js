@@ -136,3 +136,47 @@ export function showError( message ) {
 		toast.hidden = true;
 	}, 5000 );
 }
+
+/**
+ * "5 minutes ago" for the last week, then a medium date, in the SITE locale.
+ *
+ * @param {string} siteTag  BCP 47 tag from PHP (state.locale).
+ * @param {string} mysqlUtc UTC datetime as stored (current_time( 'mysql', true )).
+ * @return {string} Relative or absolute time, '' when unparsable.
+ */
+export function relativeTime( siteTag, mysqlUtc ) {
+	if ( ! mysqlUtc ) {
+		return '';
+	}
+	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
+	if ( Number.isNaN( then.getTime() ) ) {
+		return '';
+	}
+	const locale  = siteTag || 'en-US';
+	const seconds = ( Date.now() - then.getTime() ) / 1000;
+	if ( seconds < 7 * 86400 ) {
+		// Each step divides into the NEXT unit (60 seconds -> minutes ...); the
+		// copies this replaced labelled the value with the unit it had just
+		// divided away, so 5 minutes read as "5 seconds ago".
+		const units = [ [ 60, 'minute' ], [ 60, 'hour' ], [ 24, 'day' ] ];
+		let value = seconds;
+		let unit  = 'second';
+		for ( const [ size, name ] of units ) {
+			if ( Math.abs( value ) < size ) {
+				break;
+			}
+			value /= size;
+			unit   = name;
+		}
+		try {
+			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		} catch ( _e ) {
+			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
+		}
+	}
+	try {
+		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
+	} catch ( _e ) {
+		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
+	}
+}
