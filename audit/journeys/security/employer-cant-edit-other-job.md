@@ -20,7 +20,7 @@ needs: cli
 5. Verify DB is unchanged: `wp post get <vercel-job-id> --field=post_title` → expect still `<original-vercel-title>`
 6. Attempt DELETE as employer.figma: DELETE `/wp-json/wcb/v1/jobs/<vercel-job-id>` → expect HTTP 403 (delete is also blocked for non-owners)
 7. Verify the job still exists: `wp post get <vercel-job-id> --field=post_status` → expect `publish` (not deleted, not trashed)
-8. As `employer.vercel`, PATCH the same job with a legitimate edit: navigate to `/?autologin=employer.vercel` → PATCH `/wp-json/wcb/v1/jobs/<vercel-job-id>` with body `{"title": "Vercel Legitimate Edit"}` → expect HTTP 200 (owner can edit own job)
+8. As `employer.vercel`, PATCH the same job with a legitimate edit: navigate to `/?autologin=employer.vercel` → PATCH `/wp-json/wcb/v1/jobs/<vercel-job-id>` with body `{"title": "Owner Legitimate Edit"}` → expect HTTP 200 (owner can edit own job)
 9. Restore: PATCH `/wp-json/wcb/v1/jobs/<vercel-job-id>` with body `{"title": "<original-vercel-title>"}` as employer.vercel → expect HTTP 200
 10. tail debug.log diff → expect ZERO new fatal/warning lines
 

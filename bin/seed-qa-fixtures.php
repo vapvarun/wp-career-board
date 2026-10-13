@@ -113,7 +113,7 @@ $tag_smoke = function ( int $id, string $kind ): void {
 // employer used by the cross-employer isolation journeys). Role slug is the
 // plugin's registered `wcb_employer` (NOT `employer`, which does not exist).
 $employers = array();
-foreach ( array( 'employer.figma' => 'Figma', 'employer.stripe' => 'Stripe' ) as $login => $first_name ) {
+foreach ( array( 'employer.figma' => array( 'Daniel', 'Reyes' ), 'employer.stripe' => array( 'Priya', 'Raman' ) ) as $login => $names ) {
 	$uid = username_exists( $login );
 	if ( ! $uid ) {
 		$uid = wp_insert_user(
@@ -122,7 +122,8 @@ foreach ( array( 'employer.figma' => 'Figma', 'employer.stripe' => 'Stripe' ) as
 				'user_pass'  => wp_generate_password( 16 ),
 				'user_email' => $login . '@example.test',
 				'role'       => 'wcb_employer',
-				'first_name' => $first_name,
+				'first_name' => $names[0],
+				'last_name'  => $names[1],
 			)
 		);
 		if ( is_wp_error( $uid ) ) {
