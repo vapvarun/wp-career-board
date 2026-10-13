@@ -153,6 +153,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const labels = state.companySizeLabels || {};
 			return labels[ slug ] || slug;
 		},
+		// The email field differs from the saved one: ask for the current password.
+		get emailChanged() {
+			return state.accountEmail.trim() !== state.accountEmailSaved;
+		},
 		get activeTabLabel() {
 			const map = {
 				overview:     t( 'overview', 'Overview' ),
@@ -1641,6 +1645,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
+					state.accountEmailSaved = data.email;
 					state.displayName    = data.display_name;
 					state.employerEmail  = data.email;
 					state.accountMsgType = 'success';

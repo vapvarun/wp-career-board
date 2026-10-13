@@ -369,12 +369,6 @@
 	outline-offset: 2px;
 }
 
-.wcb-form-actions {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-md);
-	margin-top: var(--wcb-space-lg);
-}
 
 .wcb-save-confirm {
 	display: none;

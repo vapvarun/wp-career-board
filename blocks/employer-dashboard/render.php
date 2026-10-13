@@ -275,6 +275,7 @@ wp_interactivity_state(
 		// Account Settings panel — editable display name + email + password.
 		'accountName'           => wp_get_current_user()->display_name,
 		'accountEmail'          => wp_get_current_user()->user_email,
+		'accountEmailSaved'     => wp_get_current_user()->user_email,
 		'accountEmailPassword'  => '',
 		'curPassword'           => '',
 		'newPassword'           => '',
@@ -1344,7 +1345,8 @@ wp_interactivity_state(
 				<label class="wcb-form-label" for="wcb-emp-account-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
 				<input type="email" id="wcb-emp-account-email" class="wcb-input" autocomplete="email" data-wp-bind--value="state.accountEmail" data-wp-on--input="actions.updateField" data-wcb-field="accountEmail" />
 			</div>
-			<div class="wcb-form-field">
+			<?php // Asked only once the email changes: the Change Password form below asks for it otherwise. ?>
+			<div class="wcb-form-field" hidden data-wp-bind--hidden="!state.emailChanged">
 				<label class="wcb-form-label" for="wcb-emp-account-emailpw"><?php esc_html_e( 'Current password', 'wp-career-board' ); ?></label>
 				<input type="password" id="wcb-emp-account-emailpw" class="wcb-input" autocomplete="current-password" data-wp-bind--value="state.accountEmailPassword" data-wp-on--input="actions.updateField" data-wcb-field="accountEmailPassword" />
 				<span class="wcb-field-hint"><?php esc_html_e( 'Needed only if you change your email.', 'wp-career-board' ); ?></span>
@@ -1354,7 +1356,7 @@ wp_interactivity_state(
 			</div>
 		</div>
 
-		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
+		<div class="wcb-page-header wcb-page-header--section">
 			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown">
@@ -1378,6 +1380,7 @@ wp_interactivity_state(
 		<?php
 		$wcb_email_prefs_for = 'employer';
 		require WCB_DIR . 'templates/parts/email-preferences.php';
+		require WCB_DIR . 'templates/parts/privacy-settings.php';
 		?>
 	</div>
 

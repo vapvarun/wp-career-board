@@ -507,6 +507,12 @@
 	margin: 0;
 }
 
+/* A button in a form keeps its own width, left-aligned (a field unit is a
+   column flexbox, which stretched Save to the full width of the form). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-form-field > .wcb-btn {
+	align-self: flex-start;
+}
+
 /* Field units stack 16px apart, in one column or a two-column row. */
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-panel--form, .wcb-profile-form, .wcb-reg-form, .wcb-form-simple__section, .wcb-resume-simple__section, .wcb-rf-stack, .wcb-rb-profile-fields) {
 	display: flex;

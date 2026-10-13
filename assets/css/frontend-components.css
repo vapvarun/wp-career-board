@@ -307,6 +307,47 @@
 	color: var(--wcb-text-secondary);
 }
 
+/* Settings sections after the first (Change Password, Email, Privacy). */
+.wcb-page-header--section {
+	margin-top: var(--wcb-space-xl);
+}
+
+/* A row of buttons under a form field: sized to content, left-aligned. */
+.wcb-form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-profile-email {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	margin: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+/* Privacy & My Data (templates/parts/privacy-settings.php, both dashboards). */
+.wcb-privacy-note {
+	display: none;
+	margin: 0;
+	color: var(--wcb-danger-fg, #991b1b);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-privacy-note.wcb-shown {
+	display: block;
+}
+
+.wcb-delete-account-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+}
+
 .wcb-settings-note {
 	margin: 0 0 var(--wcb-space-md);
 	color: var(--wcb-text-secondary);

@@ -232,8 +232,6 @@ wp_interactivity_state(
 					'errRemoveBookmark'      => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
 					'errCreateResume'        => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
 					'errDeleteResume'        => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
-					'errDelete'              => __( 'Could not schedule deletion. Please try again.', 'wp-career-board' ),
-					'errDeleteCancel'        => __( 'Could not cancel the deletion. Please try again.', 'wp-career-board' ),
 					'errSaveProfile'         => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
 					'errSaveAccount'         => __( 'Could not save your account.', 'wp-career-board' ),
 					'errPwRequired'          => __( 'Enter your current and new password.', 'wp-career-board' ),
@@ -255,7 +253,6 @@ wp_interactivity_state(
 					'confirmEraseTitle'      => __( 'Delete your account?', 'wp-career-board' ),
 					'confirmEraseMsg'        => __( 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board' ),
 					'confirmEraseConfirm'    => __( 'Send confirmation email', 'wp-career-board' ),
-					'errPrivacy'             => __( 'Could not submit your privacy request. Please try again or contact support.', 'wp-career-board' ),
 				)
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
@@ -328,6 +325,7 @@ wp_interactivity_state(
 			// Account Settings panel — editable display name + email + password.
 			'accountName'             => $wcb_current_user->display_name,
 			'accountEmail'            => $wcb_current_user->user_email,
+			'accountEmailSaved'       => $wcb_current_user->user_email,
 			'accountEmailPassword'    => '',
 			'curPassword'             => '',
 			'newPassword'             => '',
@@ -377,36 +375,6 @@ wp_interactivity_state(
 					return wp_is_ability_granted( 'wcb/withdraw-application' );
 				}
 			)(),
-			'privacyBusy'             => false,
-			'privacyExportRequested'  => false,
-			'privacyEraseRequested'   => false,
-			'privacyError'            => '',
-			// Account deletion. The dashboard used to point its delete button at
-			// the WP-core privacy ERASE request, which needs an administrator to
-			// action it, while the plugin's own deletion service - grace period,
-			// self-cancel, daily cron - was reachable only over REST and so only
-			// from the mobile app. Seeded server-side so a member who already has
-			// a deletion scheduled sees it on first paint rather than after a
-			// round trip.
-			'deletionStatus'          => ( static function (): string {
-				if ( ! is_user_logged_in() || ! class_exists( '\WCB\Modules\Account\AccountDeletionService' ) ) {
-					return 'active';
-				}
-				$wcb_state = ( new \WCB\Modules\Account\AccountDeletionService() )->status( wp_get_current_user() );
-				return (string) ( $wcb_state['status'] ?? 'active' );
-			} )(),
-			'deletionScheduledFor'    => ( static function (): string {
-				if ( ! is_user_logged_in() || ! class_exists( '\WCB\Modules\Account\AccountDeletionService' ) ) {
-					return '';
-				}
-				$wcb_state = ( new \WCB\Modules\Account\AccountDeletionService() )->status( wp_get_current_user() );
-				$wcb_when  = (string) ( $wcb_state['scheduled_for'] ?? '' );
-				return '' === $wcb_when ? '' : date_i18n( get_option( 'date_format' ), strtotime( $wcb_when ) );
-			} )(),
-			'deleteFormOpen'          => false,
-			'deletionJustScheduled'   => false,
-			'deletePassword'          => '',
-			'deleteConfirm'           => '',
 			// Site-default currency symbol — surfaced to the saved-search filter
 			// pill labels in view.js so dashboards on INR / EUR / etc. don't show
 			// a hardcoded $ on the alert summary.
@@ -1164,15 +1132,13 @@ wp_interactivity_state(
 			<h1 class="wcb-page-title"><?php esc_html_e( 'My Profile', 'wp-career-board' ); ?></h1>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown">
+			<?php // Shown, not a second (read-only) email field: it is edited in Settings only. ?>
 			<div class="wcb-form-field">
-				<label class="wcb-form-label" for="wcb-profile-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
-				<input
-					type="email"
-					id="wcb-profile-email"
-					class="wcb-input"
-					readonly
-					data-wp-bind--value="state.profileEmail"
-				/>
+				<span class="wcb-form-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></span>
+				<p class="wcb-profile-email">
+					<span data-wp-text="state.profileEmail"><?php echo esc_html( $wcb_current_user->user_email ); ?></span>
+					<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.switchToSettings"><?php esc_html_e( 'Change in Settings', 'wp-career-board' ); ?></button>
+				</p>
 			</div>
 
 			<div class="wcb-form-field">
@@ -1224,7 +1190,7 @@ wp_interactivity_state(
 			}
 			?>
 
-			<div class="wcb-form-actions" style="margin-top:var(--wcb-space-lg)">
+			<div class="wcb-form-actions">
 				<button type="button" class="wcb-btn wcb-btn--primary"
 					data-wp-on--click="actions.saveProfile"
 					data-wp-bind--disabled="state.profileSaving">
@@ -1251,7 +1217,8 @@ wp_interactivity_state(
 				<label class="wcb-form-label" for="wcb-account-email"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></label>
 				<input type="email" id="wcb-account-email" class="wcb-input" autocomplete="email" data-wp-bind--value="state.accountEmail" data-wp-on--input="actions.updateField" data-wcb-field="accountEmail" />
 			</div>
-			<div class="wcb-form-field">
+			<?php // Asked only once the email changes: the Change Password form below asks for it otherwise. ?>
+			<div class="wcb-form-field" hidden data-wp-bind--hidden="!state.emailChanged">
 				<label class="wcb-form-label" for="wcb-account-emailpw"><?php esc_html_e( 'Current password', 'wp-career-board' ); ?></label>
 				<input type="password" id="wcb-account-emailpw" class="wcb-input" autocomplete="current-password" data-wp-bind--value="state.accountEmailPassword" data-wp-on--input="actions.updateField" data-wcb-field="accountEmailPassword" />
 				<span class="wcb-field-hint"><?php esc_html_e( 'Needed only if you change your email.', 'wp-career-board' ); ?></span>
@@ -1261,7 +1228,7 @@ wp_interactivity_state(
 			</div>
 		</div>
 
-		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
+		<div class="wcb-page-header wcb-page-header--section">
 			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
 		</div>
 		<div class="wcb-panel wcb-panel--form wcb-shown">
@@ -1288,123 +1255,7 @@ wp_interactivity_state(
 		require WCB_DIR . 'templates/parts/email-preferences.php';
 		?>
 
-		<!-- ── Privacy & data controls (GDPR self-service, A-11) ─────── -->
-		<div class="wcb-page-header" style="margin-top: var(--wcb-space-xl);">
-			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
-		</div>
-		<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel">
-			<p class="wcb-privacy-desc">
-				<?php esc_html_e( 'Request a copy of your personal data, or delete your account. We email you to confirm an export request, and send the file once the site has prepared it.', 'wp-career-board' ); ?>
-			</p>
-			<div class="wcb-settings-row">
-				<div class="wcb-settings-row-label"><?php esc_html_e( 'Export my data', 'wp-career-board' ); ?></div>
-				<div class="wcb-settings-row-control">
-					<button type="button" class="wcb-btn wcb-btn--outline"
-						data-wp-on--click="actions.requestExport"
-						data-wp-bind--disabled="state.privacyBusy">
-						<span data-wp-class--wcb-hidden="state.privacyExportRequested"><?php esc_html_e( 'Request data export', 'wp-career-board' ); ?></span>
-						<span class="wcb-hidden wcb-icon-label" data-wp-class--wcb-hidden="!state.privacyExportRequested"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Export requested', 'wp-career-board' ); ?></span>
-					</button>
-				</div>
-			</div>
-			<div class="wcb-settings-row">
-				<div class="wcb-settings-row-label"><?php esc_html_e( 'Delete my account', 'wp-career-board' ); ?></div>
-				<div class="wcb-settings-row-control">
-
-					<?php
-					// Already scheduled — show when, and offer the way back.
-					?>
-					<?php
-					// Scheduled on an earlier visit: they are signed in, so offer the way back.
-					?>
-					<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.showCancelControl">
-						<p class="wcb-settings-note">
-							<?php esc_html_e( 'Your account is scheduled for deletion on', 'wp-career-board' ); ?>
-							<strong data-wp-text="state.deletionScheduledFor"></strong>.
-							<?php esc_html_e( 'You can stop this at any time before then.', 'wp-career-board' ); ?>
-						</p>
-						<button type="button" class="wcb-btn wcb-btn--secondary"
-							data-wp-on--click="actions.cancelAccountDeletion"
-							data-wp-bind--disabled="state.privacyBusy">
-							<?php esc_html_e( 'Keep my account', 'wp-career-board' ); ?>
-						</button>
-					</div>
-
-					<?php
-					// Just scheduled: confirming signs them out everywhere, so a
-					// cancel button here would only fail. Tell them how instead.
-					?>
-					<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.showSignedOutNotice">
-						<p class="wcb-settings-note">
-							<?php esc_html_e( 'Your account is scheduled for deletion on', 'wp-career-board' ); ?>
-							<strong data-wp-text="state.deletionScheduledFor"></strong>.
-							<?php esc_html_e( 'For your security you have been signed out on every device. To stop the deletion, sign back in before that date and choose "Keep my account".', 'wp-career-board' ); ?>
-						</p>
-					</div>
-
-					<?php
-					// Not scheduled, form closed.
-					?>
-					<button type="button" class="wcb-btn wcb-btn--danger"
-						data-wp-class--wcb-hidden="state.deleteButtonHidden"
-						data-wp-on--click="actions.openDeleteForm"
-						data-wp-bind--disabled="state.privacyBusy">
-						<?php esc_html_e( 'Delete my account', 'wp-career-board' ); ?>
-					</button>
-
-					<?php
-					// Confirmation form. Inline rather than a modal: the shared
-					// confirm dialog is yes/no only, and this needs a password
-					// and a typed confirmation, which the REST route enforces.
-					?>
-					<div class="wcb-hidden wcb-delete-account-form"
-						data-wp-class--wcb-hidden="state.deleteFormHidden">
-						<p class="wcb-settings-note">
-							<?php
-							$wcb_grace_days = ( new \WCB\Modules\Account\AccountDeletionService() )->grace_days();
-							echo esc_html(
-								sprintf(
-									/* translators: %d: number of days before the account is deleted. */
-									_n(
-										'This deletes your profile, resumes and uploaded files. Employers keep your past applications with your name and contact details removed. You have %d day to change your mind.',
-										'This deletes your profile, resumes and uploaded files. Employers keep your past applications with your name and contact details removed. You have %d days to change your mind.',
-										$wcb_grace_days,
-										'wp-career-board'
-									),
-									$wcb_grace_days
-								)
-							);
-							?>
-						</p>
-						<label class="wcb-field-label" for="wcb-delete-password"><?php esc_html_e( 'Your password', 'wp-career-board' ); ?></label>
-						<input type="password" id="wcb-delete-password" class="wcb-field-input" autocomplete="current-password"
-							data-wp-bind--value="state.deletePassword"
-							data-wp-on--input="actions.setDeletePassword">
-
-						<label class="wcb-field-label" for="wcb-delete-confirm">
-							<?php esc_html_e( 'Type DELETE to confirm', 'wp-career-board' ); ?>
-						</label>
-						<input type="text" id="wcb-delete-confirm" class="wcb-field-input" autocomplete="off"
-							data-wp-bind--value="state.deleteConfirm"
-							data-wp-on--input="actions.setDeleteConfirm">
-
-						<div class="wcb-settings-row-actions">
-							<button type="button" class="wcb-btn wcb-btn--danger"
-								data-wp-on--click="actions.confirmAccountDeletion"
-								data-wp-bind--disabled="state.privacyBusy">
-								<?php esc_html_e( 'Schedule deletion', 'wp-career-board' ); ?>
-							</button>
-							<button type="button" class="wcb-btn wcb-btn--secondary"
-								data-wp-on--click="actions.closeDeleteForm"
-								data-wp-bind--disabled="state.privacyBusy">
-								<?php esc_html_e( 'Cancel', 'wp-career-board' ); ?>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<p class="wcb-privacy-note" data-wp-class--wcb-shown="state.privacyError" data-wp-text="state.privacyError"></p>
-		</div>
+		<?php require WCB_DIR . 'templates/parts/privacy-settings.php'; ?>
 	</div>
 
 		<?php if ( $wcb_bell_enabled ) : ?>

@@ -314,6 +314,15 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/privacy',
+				WCB_URL . 'assets/js/modules/wcb-privacy.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/fetch' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/job-category-field',
 				WCB_URL . 'assets/js/modules/wcb-job-category-field.js',
 				array(

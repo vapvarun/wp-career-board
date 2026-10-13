@@ -140,23 +140,5 @@
 	.wcb-welcome-step:focus-visible { transform: none !important; }
 }
 
-/* ── Privacy panel — GDPR self-service controls (A-11) ────────────────────── */
-
-.wcb-privacy-panel { margin-top: var( --wcb-space-md, 16px ); }
-
-.wcb-privacy-desc {
-	color: var( --wcb-muted );
-	font-size: var(--wcb-text-base);
-	line-height: 1.5;
-	margin: 0 0 var( --wcb-space-md, 16px ) 0;
-}
-
-.wcb-privacy-note {
-	color: var(--wcb-danger-fg, #991b1b);
-	font-size: var(--wcb-text-sm);
-	margin: var( --wcb-space-sm, 8px ) 0 0 0;
-	display: none;
-}
-
-.wcb-privacy-note.wcb-shown { display: block; }
+/* Privacy panel styles live in assets/css/frontend-components.css (shared with the employer dashboard). */
 
