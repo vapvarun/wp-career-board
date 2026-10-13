@@ -340,8 +340,24 @@
 }
 
 /* Privacy & My Data (templates/parts/privacy-settings.php, both dashboards). */
+.wcb-privacy-settings {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+}
+
+/* The delete card: its own danger-tinted frame, so it never reads as one
+   more everyday setting. (0,5,0): a dashboard tab strips every panel's frame
+   at (0,4,0). */
+.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-privacy-settings .wcb-danger-zone {
+	padding: var(--wcb-space-lg);
+	border: 1px solid var(--wcb-danger-border, #fecaca);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-danger-bg-soft, var(--wcb-base));
+}
+
 .wcb-dashboard .wcb-privacy-panel {
-	gap: var(--wcb-space-xl); /* export and delete read as two separate decisions */
+	gap: var(--wcb-space-xl);
 }
 
 .wcb-privacy-note {

@@ -54,7 +54,8 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 <div class="wcb-page-header wcb-page-header--section">
 	<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Privacy & My Data', 'wp-career-board' ); ?></h2>
 </div>
-<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel" data-wp-interactive="wcb-privacy">
+<div class="wcb-privacy-settings" data-wp-interactive="wcb-privacy">
+<div class="wcb-panel wcb-panel--form wcb-shown wcb-privacy-panel">
 	<div class="wcb-form-field">
 		<h3 class="wcb-form-label"><?php esc_html_e( 'Export my data', 'wp-career-board' ); ?></h3>
 		<p class="wcb-field-hint"><?php esc_html_e( 'We email you to confirm the request, then send the file once the site has prepared it.', 'wp-career-board' ); ?></p>
@@ -66,6 +67,10 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 		</div>
 	</div>
 
+</div>
+
+<?php // Deleting is set apart from everyday settings, in its own danger card. ?>
+<div class="wcb-panel wcb-panel--form wcb-shown wcb-danger-zone">
 	<div class="wcb-form-field">
 		<h3 class="wcb-form-label"><?php esc_html_e( 'Delete my account', 'wp-career-board' ); ?></h3>
 
@@ -125,5 +130,6 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 			</div>
 		</div>
 	</div>
-	<p class="wcb-privacy-note" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+</div>
+<p class="wcb-privacy-note" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 </div>
