@@ -120,7 +120,7 @@ $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_pos
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
-$wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
+$wcb_preferred        = \WCB\Modules\Jobs\JobsMeta::default_currency();
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );

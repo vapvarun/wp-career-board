@@ -59,7 +59,7 @@ $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_ex
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
 $wcb_currency_code_raw  = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
-$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
+$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : \WCB\Modules\Jobs\JobsMeta::default_currency();
 $wcb_remote             = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
 $wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
 $wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
@@ -327,6 +327,7 @@ wp_interactivity_state(
 		'submitted'            => $wcb_has_applied,
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
+		'bookmarkFailed'       => false,
 		'coverLetter'          => '',
 		// Only members who may apply can draft a letter (the route checks the same ability).
 		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
@@ -366,6 +367,8 @@ wp_interactivity_state(
 		// renders must therefore be translated server-side and seeded here. view.js reads
 		// them only through its t( key, fallback ) helper.
 		'i18n'                 => array(
+			'bookmarkFailed'       => __( 'Could not save', 'wp-career-board' ),
+			'copyManually'         => __( 'Copy this link:', 'wp-career-board' ),
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
 			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
@@ -538,7 +541,7 @@ wp_interactivity_state(
 				<?php endif; ?>
 			<?php endif; ?>
 
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php if ( wp_is_ability_granted( 'wcb/bookmark-jobs' ) ) : // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled; same gate as the bookmark route, so employers never see a button that 403s. ?>
 				<button
 					type="button"
 					class="wcb-bookmark-hero-btn"

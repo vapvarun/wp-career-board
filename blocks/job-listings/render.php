@@ -223,7 +223,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'board_name'      => '',
 		'salary_min'      => $wcb_salary_min,
 		'salary_max'      => $wcb_salary_max,
-		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : 'USD', $wcb_salary_type ),
+		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : \WCB\Modules\Jobs\JobsMeta::default_currency(), $wcb_salary_type ),
 		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
 		// (fetchJobs() replaces this state with the REST payload); the card binds
 		// the localised `deadline_label`. Seeding both keeps the SSR first paint
@@ -465,7 +465,7 @@ $wcb_state = array(
 	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
 	'currencySymbol'    => (
 		static function (): string {
-			$wcb_settings_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
+			$wcb_settings_default = \WCB\Modules\Jobs\JobsMeta::default_currency();
 			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
 			return isset( $wcb_catalog[ $wcb_settings_default ]['symbol'] )
 				? (string) $wcb_catalog[ $wcb_settings_default ]['symbol']

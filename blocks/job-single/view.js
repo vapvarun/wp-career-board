@@ -14,6 +14,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
+import { copyText } from '@wcb/ui';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -35,6 +36,9 @@ const { state } = store( 'wcb-job-single', {
 		// Closes Basecamp 9874915447 (custom fields silently dropped).
 		customFields: {},
 		get bookmarkLabel() {
+			if ( state.bookmarkFailed ) {
+				return t( 'bookmarkFailed', 'Could not save' );
+			}
 			return state.bookmarked
 				? t( 'bookmarkSaved', 'Saved' )
 				: t( 'bookmarkSave', 'Save Job' );
@@ -341,13 +345,14 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		* copyLink() {
-			try {
-				yield navigator.clipboard.writeText( state.jobPermalink );
-				state.linkCopied = true;
-				setTimeout( () => { state.linkCopied = false; }, 2000 );
-			} catch {
-				// Clipboard API unavailable (non-HTTPS or denied) — fail silently.
+			const ok = yield copyText( state.jobPermalink );
+			if ( ! ok ) {
+				// No clipboard access: show the link so it can be copied by hand.
+				window.prompt( t( 'copyManually', 'Copy this link:' ), state.jobPermalink );
+				return;
 			}
+			state.linkCopied = true;
+			setTimeout( () => { state.linkCopied = false; }, 2000 );
 		},
 
 		*toggleBookmark() {
@@ -370,13 +375,14 @@ const { state } = store( 'wcb-job-single', {
 				);
 
 				if ( ! response.ok ) {
-					return;
+					throw new Error( String( response.status ) );
 				}
 
 				const data       = yield response.json();
 				state.bookmarked = data.bookmarked;
 			} catch {
-				// Bookmark toggle failed silently — no UI disruption needed.
+				state.bookmarkFailed = true;
+				setTimeout( () => { state.bookmarkFailed = false; }, 3000 );
 			} finally {
 				state.bookmarking = false;
 			}

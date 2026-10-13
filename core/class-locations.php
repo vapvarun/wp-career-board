@@ -54,6 +54,77 @@ final class Locations {
 	private function __construct() {}
 
 	/**
+	 * A job whose Location is Remote is a remote job.
+	 *
+	 * Kept true where the flag is written, so every reader of `_wcb_remote`
+	 * (job page, filters, search, JobPosting schema, RSS, REST, alerts) agrees
+	 * without a second check (owner decision, 1.8.1).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int    $object_id Object the terms were set on.
+	 * @param array  $terms     Terms passed in.
+	 * @param array  $tt_ids    Term taxonomy IDs now set.
+	 * @param string $taxonomy  Taxonomy slug.
+	 * @return void
+	 */
+	public static function flag_remote_on_terms( int $object_id, array $terms, array $tt_ids, string $taxonomy ): void {
+		unset( $terms, $tt_ids );
+		if ( 'wcb_location' === $taxonomy && has_term( 'remote', 'wcb_location', $object_id ) ) {
+			update_post_meta( $object_id, '_wcb_remote', '1' );
+		}
+	}
+
+	/**
+	 * Refuse to store "not remote" on a job located Remote.
+	 *
+	 * Forms and the admin editor write the checkbox after the terms, so an
+	 * unticked box would otherwise undo flag_remote_on_terms().
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param null|bool $check     Short-circuit value.
+	 * @param int       $object_id Post ID.
+	 * @param string    $meta_key  Meta key.
+	 * @param mixed     $value     Value being stored.
+	 * @return null|bool
+	 */
+	public static function keep_remote_flag( $check, int $object_id, string $meta_key, $value ) {
+		if ( '_wcb_remote' !== $meta_key || '1' === (string) $value || 'wcb_job' !== get_post_type( $object_id ) || ! has_term( 'remote', 'wcb_location', $object_id ) ) {
+			return $check;
+		}
+		update_post_meta( $object_id, '_wcb_remote', '1' );
+		return true;
+	}
+
+	/**
+	 * Flag every job located Remote as remote (1.8.1 upgrade repair).
+	 *
+	 * @since 1.8.1
+	 * @return void
+	 */
+	public static function backfill_remote_flags(): void {
+		$ids = get_posts(
+			array(
+				'post_type'      => 'wcb_job',
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- one-off upgrade repair.
+					array(
+						'taxonomy' => 'wcb_location',
+						'field'    => 'slug',
+						'terms'    => 'remote',
+					),
+				),
+			)
+		);
+		foreach ( $ids as $id ) {
+			update_post_meta( (int) $id, '_wcb_remote', '1' );
+		}
+	}
+
+	/**
 	 * Insert the reserved terms if absent. Safe to call repeatedly.
 	 *
 	 * Wired from Plugin::init on init@20 (after the Jobs module registers the

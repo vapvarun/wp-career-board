@@ -114,6 +114,17 @@ final class JobsMeta {
 		if ( array_key_exists( $value, \WCB\Admin\AdminSettings::get_currency_catalog() ) ) {
 			return $value;
 		}
+		return self::default_currency();
+	}
+
+	/**
+	 * The site's salary currency (Settings > Jobs), the fallback for any job
+	 * that has none of its own.
+	 *
+	 * @since  1.8.1
+	 * @return string ISO 4217 code.
+	 */
+	public static function default_currency(): string {
 		return strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 	}
 

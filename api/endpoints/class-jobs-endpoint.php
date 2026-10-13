@@ -1540,7 +1540,7 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function prepare_item_for_response_array( \WP_Post $post ): array {
 		$currency     = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
-		$currency     = '' !== $currency ? $currency : 'USD';
+		$currency     = '' !== $currency ? $currency : \WCB\Modules\Jobs\JobsMeta::default_currency();
 		$salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
 		$salary_type  = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
@@ -1646,7 +1646,7 @@ final class JobsEndpoint extends RestController {
 			'remote'                 => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'               => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
 			'board_id'               => $board_id,
-			'board_currency'         => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
+			'board_currency'         => (string) apply_filters( 'wcb_board_currency', \WCB\Modules\Jobs\JobsMeta::default_currency(), $board_id ),
 			// Display-name strings for cards.
 			'location'               => implode( ', ', $loc_names ),
 			'type'                   => implode( ', ', $type_names ),

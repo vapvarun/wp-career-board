@@ -134,8 +134,9 @@ wp_interactivity_state(
 		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 		'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		'i18n'          => array(
-			'save'  => __( 'Save', 'wp-career-board' ),
-			'saved' => __( 'Saved', 'wp-career-board' ),
+			'saveFailed' => __( 'Could not save', 'wp-career-board' ),
+			'save'       => __( 'Save', 'wp-career-board' ),
+			'saved'      => __( 'Saved', 'wp-career-board' ),
 		),
 	)
 );
@@ -158,7 +159,7 @@ wp_interactivity_state(
 		 * LinkedIn pills below the meta.
 		 */
 		?>
-		<?php if ( is_user_logged_in() ) : ?>
+		<?php if ( wp_is_ability_granted( 'wcb/bookmark-jobs' ) ) : // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled; same gate as the bookmark route. ?>
 			<button
 				type="button"
 				class="wcb-bookmark-hero-btn wcb-cp-hero-save"

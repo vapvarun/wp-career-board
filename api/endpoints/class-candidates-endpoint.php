@@ -482,7 +482,7 @@ final class CandidatesEndpoint extends RestController {
 					(string) get_post_meta( $post->ID, '_wcb_salary_max', true ),
 					// Default currency to USD when unset, exactly as the jobs list
 					// card does, so the two render the same salary string.
-					(string) ( get_post_meta( $post->ID, '_wcb_salary_currency', true ) ?: 'USD' ),
+					(string) ( get_post_meta( $post->ID, '_wcb_salary_currency', true ) ?: \WCB\Modules\Jobs\JobsMeta::default_currency() ),
 					(string) ( get_post_meta( $post->ID, '_wcb_salary_type', true ) ?: 'yearly' )
 				),
 				'remote'       => '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true ),

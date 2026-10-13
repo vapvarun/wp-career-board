@@ -366,7 +366,7 @@ wp_interactivity_state(
 			// a hardcoded $ on the alert summary.
 			'currencySymbol'          => (
 				static function (): string {
-					$wcb_default = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
+					$wcb_default = \WCB\Modules\Jobs\JobsMeta::default_currency();
 					$wcb_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 					return isset( $wcb_catalog[ $wcb_default ]['symbol'] )
 						? (string) $wcb_catalog[ $wcb_default ]['symbol']

@@ -495,6 +495,9 @@ final class Install {
 				foreach ( $wcb_orphans as $wcb_orphan ) {
 					\WCB\Modules\Employers\EmployersModule::retire_owned_listings( (int) $wcb_orphan, null );
 				}
+
+				// Jobs located Remote but saved as on-site; needs the taxonomy (init@10).
+				add_action( 'init', array( Locations::class, 'backfill_remote_flags' ), 25 );
 			}
 
 			// Only bump the stored DB version if every expected table now

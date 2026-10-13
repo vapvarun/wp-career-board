@@ -46,12 +46,14 @@ const { state } = store( 'wcb-company-profile', {
 					},
 				} );
 				if ( ! response.ok ) {
-					state.bookmarked = wasBookmarked;
-					state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
+					throw new Error( String( response.status ) );
 				}
 			} catch {
-				state.bookmarked = wasBookmarked;
-				state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
+				state.bookmarked    = wasBookmarked;
+				state.bookmarkLabel = t( 'saveFailed', 'Could not save' );
+				setTimeout( () => {
+					state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
+				}, 3000 );
 			} finally {
 				state.bookmarking = false;
 			}

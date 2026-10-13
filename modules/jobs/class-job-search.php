@@ -440,7 +440,7 @@ final class JobSearch {
 		$bottom = self::yearly_sql( "COALESCE( NULLIF( wcb_fmin.meta_value, '' ), NULLIF( wcb_fmax.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
 
 		$clauses['where'] .= " AND {$top} > 0";
-		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) );
+		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", JobsMeta::default_currency() );
 		if ( $min ) {
 			$clauses['where'] .= $wpdb->prepare( " AND {$top} >= %d", $min ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $top is built from fixed aliases and constants.
 		}
@@ -468,7 +468,7 @@ final class JobSearch {
 		$hi       = (string) get_post_meta( $job_id, '_wcb_salary_max', true );
 		$type     = (string) get_post_meta( $job_id, '_wcb_salary_type', true );
 		$currency = strtoupper( (string) get_post_meta( $job_id, '_wcb_salary_currency', true ) );
-		if ( '' !== $currency && strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) !== $currency ) {
+		if ( '' !== $currency && JobsMeta::default_currency() !== $currency ) {
 			return false;
 		}
 		$top    = \WCB\Core\SalaryFormat::yearly( (float) ( '' !== $hi ? $hi : $lo ), $type );
