@@ -113,7 +113,7 @@ article:has( .wp-block-wp-career-board-candidate-dashboard ) .wp-block-post-titl
 	padding: 2px var(--wcb-space-sm);
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-primary-soft, rgba(37, 99, 235, 0.12));
-	color: var(--wcb-primary, var(--wp--preset--color--wcb-primary));
+	color: var(--wcb-primary-text, var(--wp--preset--color--wcb-primary));
 	font-size: var(--wcb-text-xs);
 	font-weight: 600;
 }

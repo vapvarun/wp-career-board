@@ -61,7 +61,7 @@
 }
 
 .wcb-cd-app-title a:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -167,7 +167,7 @@
 }
 
 .wcb-cd-bookmark-title a:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 

@@ -555,7 +555,7 @@
 
 .wcb-apps-job-item:hover:not(.wcb-active) {
 	background: var(--wcb-bg-hover);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-apps-job-item:focus {

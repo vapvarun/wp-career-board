@@ -59,7 +59,7 @@
 
 .wcb-layout-btn.wcb-active {
 	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
-	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+	color: var( --wcb-primary-text, var(--wp--preset--color--wcb-primary) );
 	box-shadow: var(--wcb-shadow-sm);
 }
 
@@ -201,7 +201,7 @@
 }
 
 .wcb-card-title a:hover {
-	color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
+	color: var( --wcb-primary-text, var(--wp--preset--color--wcb-primary) );
 	text-decoration: underline;
 }
 
@@ -480,7 +480,7 @@
 	background: transparent;
 	border: 0;
 	padding: 0;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
 	cursor: pointer;
@@ -873,7 +873,7 @@
 
 .wcb-view-btn.wcb-view-btn--active {
 	background: var(--wcb-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	box-shadow: var(--wcb-shadow-sm);
 }
 

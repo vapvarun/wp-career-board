@@ -48,6 +48,9 @@
 	   Dark mode overrides it back to the accent. */
 	--wcb-primary-text: #1d4ed8;
 	--wcb-primary-text: color-mix( in srgb, var( --wcb-primary ) 78%, #000 );
+	/* Any owner accent: cap its lightness so text clears 4.5:1 on white and on the pale tints; a dark
+	   enough accent passes through unchanged. Older browsers keep the mix above. */
+	--wcb-primary-text: oklch( from var( --wcb-primary ) min( l, 0.48 ) c h );
 
 	--wcb-avatar-bg:    var( --wp--preset--color--wcb-avatar-bg,    #1e293b );
 
@@ -127,6 +130,7 @@ html[data-bn-theme="dark"],
 	--wcb-warning-fg:      #fbbf24;
 	--wcb-danger-fg:       #f87171;
 	--wcb-primary-text:    var( --wcb-primary );
+	--wcb-primary-text:    oklch( from var( --wcb-primary ) max( l, 0.72 ) c h ); /* a dark accent stays readable on dark panels */
 	--wcb-info-fg:         #93c5fd;
 	--wcb-purple-fg:       #c4b5fd;
 
@@ -182,6 +186,7 @@ html[data-bn-theme="dark"],
 		--wcb-warning-fg:      #fbbf24;
 		--wcb-danger-fg:       #f87171;
 	--wcb-primary-text:    var( --wcb-primary );
+	--wcb-primary-text:    oklch( from var( --wcb-primary ) max( l, 0.72 ) c h ); /* a dark accent stays readable on dark panels */
 		--wcb-info-fg:         #93c5fd;
 		--wcb-purple-fg:       #c4b5fd;
 

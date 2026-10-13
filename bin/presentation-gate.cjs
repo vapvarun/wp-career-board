@@ -17,6 +17,7 @@
  *   node bin/presentation-gate.cjs --self-test   prove every check fails on tests/presentation/planted.html
  *   node bin/presentation-gate.cjs --view=emp-settings --width=390 --scheme=dark
  *   node bin/presentation-gate.cjs --theme=buddyx   (needs a local qa_theme cookie switcher)
+ *   node bin/presentation-gate.cjs --brand=#38bdf8  (an owner's light accent; text must still pass)
  *
  * Env: WCB_PRESENTATION_URL (default: `wp option get home` of this install), WCB_PRESENTATION_OUT (screenshot dir;
  * default <site>/qa-artifacts/presentation-gate, outside the web root).
@@ -73,11 +74,19 @@ function inPageChecks() {
 	} );
 
 	// colour helpers
+	// Any computed colour (rgb(), color(srgb …) from color-mix(), oklch() from relative
+	// colours) goes through a 1px canvas, which hands back plain sRGB 0-255 + alpha.
+	const px = document.createElement( 'canvas' ).getContext( '2d', { willReadFrequently: true } );
 	const parse = ( c ) => {
-		const m = ( c || '' ).match( /[\d.]+/g );
-		// color-mix() resolves to color(srgb r g b / a) with 0-1 channels, rgb() to 0-255.
-		const k = /^color\(srgb/.test( c ) ? 255 : 1;
-		return m ? { r: m[ 0 ] * k, g: m[ 1 ] * k, b: m[ 2 ] * k, a: undefined === m[ 3 ] ? 1 : +m[ 3 ] } : null;
+		if ( ! c ) {
+			return null;
+		}
+		px.clearRect( 0, 0, 1, 1 );
+		px.fillStyle = '#000';
+		px.fillStyle = c;
+		px.fillRect( 0, 0, 1, 1 );
+		const [ r, g, b, a ] = px.getImageData( 0, 0, 1, 1 ).data;
+		return { r, g, b, a: a / 255 };
 	};
 	const lum = ( c ) => [ c.r, c.g, c.b ].map( ( v ) => {
 		v /= 255;
@@ -300,6 +309,10 @@ async function selfTest( browser ) {
 		missing.push( 'contrast on a color-mix() background' );
 		console.log( '  MISSED  contrast on a color-mix() background' );
 	}
+	if ( ! findings.some( ( f ) => 'contrast' === f.check && f.el.includes( 'bad-oklch-text' ) ) ) {
+		missing.push( 'contrast on oklch() text' );
+		console.log( '  MISSED  contrast on oklch() text' );
+	}
 	// The clean sample must stay clean: no check may fire inside it.
 	const falsePos = findings.filter( ( f ) => /clean/i.test( f.el + f.text ) );
 	want.forEach( ( c ) => console.log( `  ${ got.has( c ) ? 'fires' : 'MISSED' }  ${ c }` ) );
@@ -367,6 +380,10 @@ async function main() {
 			for ( const w of widths ) {
 				await page.setViewportSize( { width: w, height: 900 } );
 				await page.goto( base + v.path.replace( '#', `${ v.path.includes( '?' ) ? '&' : '?' }pg=${ w }#` ), { waitUntil: 'networkidle' } ).catch( () => {} );
+				// --brand=<hex>: an owner's own accent (a light one is the hard case for text contrast).
+				if ( arg( 'brand' ) ) {
+					await page.addStyleTag( { content: `:root, body { --wcb-primary: ${ String( arg( 'brand' ) ).replace( /[^#0-9a-fA-F]/g, '' ) } !important; }` } );
+				}
 				for ( const s of schemes ) {
 					await applyScheme( page, s );
 					const { roots, findings } = await page.evaluate( inPageChecks );

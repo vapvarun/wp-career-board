@@ -913,7 +913,7 @@
 [class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn.wcb-active,
 [class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn.wcb-active {
 	background: var(--wcb-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	box-shadow: var(--wcb-shadow-sm);
 }
 
@@ -1083,7 +1083,7 @@
 [class*="wp-block-wcb-"] .wcb-link {
 	border: none;
 	background: transparent;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 /* ── Theme-Link Defence — Global ─────────────────────────────────────── */

@@ -20,7 +20,7 @@
 
 .wcb-widget-view-all {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: none;
 	white-space: nowrap;
 	flex-shrink: 0;

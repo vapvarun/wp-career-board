@@ -349,7 +349,7 @@
 }
 
 .wcb-cp-desc a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -472,7 +472,7 @@
 
 .wcb-cp-job-title a:hover,
 .wcb-cp-job-title a:focus-visible {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline !important;
 }
 

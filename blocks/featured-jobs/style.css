@@ -44,7 +44,7 @@
 }
 
 .wcb-featured-card-title a:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-featured-company {
@@ -64,7 +64,7 @@
 	margin-top: auto;
 	display: inline-block;
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: none;
 	font-weight: var(--wcb-font-medium);
 }

@@ -118,7 +118,7 @@ a.wcb-badge:hover { opacity: 0.8; }
 }
 
 .wcb-hero-company-link:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -288,12 +288,12 @@ a.wcb-badge:hover { opacity: 0.8; }
 	margin-top: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
 	font-style: normal;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	font-weight: var(--wcb-font-semibold);
 }
 
 .wcb-job-description a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -363,7 +363,7 @@ a.wcb-tag:hover {
 	width: 1rem;
 	height: 1rem;
 	flex-shrink: 0;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-detail-list {
@@ -426,7 +426,7 @@ a.wcb-tag:hover {
 }
 
 a.wcb-company-card-name:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -688,7 +688,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-upload-zone:hover .wcb-upload-icon {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-upload-zone.wcb-has-file .wcb-upload-icon {
@@ -781,7 +781,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 .wcb-apply-no-resume a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-apply-or-divider {

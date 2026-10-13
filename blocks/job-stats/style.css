@@ -19,7 +19,7 @@
 }
 
 .wcb-stat-icon {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	display: flex;
 	align-items: center;
 }

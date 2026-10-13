@@ -117,7 +117,7 @@
 .wcb-layout-btn.wcb-active,
 .wcb-view-btn.wcb-view-btn--active {
 	background: var(--wcb-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	box-shadow: var(--wcb-shadow-sm);
 }
 

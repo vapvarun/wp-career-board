@@ -444,7 +444,7 @@
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	background: var(--wcb-primary-soft);
 	border: 1px solid var(--wcb-info-border);
 	border-radius: var(--wcb-radius-full);
