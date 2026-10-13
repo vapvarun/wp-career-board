@@ -282,7 +282,7 @@ $wcb_initial_state = apply_filters(
 		'currencyCode'      => $wcb_edit_job
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
-		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'salaryType'        => $wcb_edit_job && in_array( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ), array( 'yearly', 'monthly', 'hourly' ), true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly',
 		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// The employer may pick any deadline up to the board's listing length
