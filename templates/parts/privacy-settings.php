@@ -109,6 +109,8 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 
 		<?php // Inline, not the shared confirm dialog: this needs a password and a typed confirmation, which the REST route enforces. ?>
 		<form class="wcb-hidden wcb-delete-account-form" data-wp-class--wcb-hidden="state.deleteFormHidden" data-wp-on--submit="actions.confirmDeletion">
+			<?php // The account's sign-in name, hidden: password managers pair it with the fields below. ?>
+			<input type="text" autocomplete="username" value="<?php echo esc_attr( wp_get_current_user()->user_login ); ?>" hidden>
 			<p class="wcb-field-hint">
 				<?php
 				echo esc_html(

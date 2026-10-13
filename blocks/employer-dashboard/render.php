@@ -1479,6 +1479,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 			<h1 class="wcb-page-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></h1>
 		</div>
 		<form class="wcb-panel wcb-panel--form wcb-shown" data-wp-on--submit="actions.saveAccount">
+			<?php // The account's sign-in name, hidden: password managers pair it with the fields below. ?>
+			<input type="text" autocomplete="username" value="<?php echo esc_attr( wp_get_current_user()->user_login ); ?>" hidden>
 			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.accountMsg" data-wp-bind--data-type="state.accountMsgType" data-wp-text="state.accountMsg"></p>
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-emp-account-name"><?php esc_html_e( 'Display Name', 'wp-career-board' ); ?></label>
@@ -1503,6 +1505,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
 		</div>
 		<form class="wcb-panel wcb-panel--form wcb-shown" data-wp-on--submit="actions.changePassword">
+			<?php // The account's sign-in name, hidden: password managers pair it with the fields below. ?>
+			<input type="text" autocomplete="username" value="<?php echo esc_attr( wp_get_current_user()->user_login ); ?>" hidden>
 			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.pwMsg" data-wp-bind--data-type="state.pwMsgType" data-wp-text="state.pwMsg"></p>
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-emp-account-curpw"><?php esc_html_e( 'Current Password', 'wp-career-board' ); ?></label>

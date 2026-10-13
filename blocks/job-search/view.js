@@ -32,8 +32,12 @@ const { state } = store( 'wcb-search', {
 			document.dispatchEvent(
 				new CustomEvent( 'wcb:search', {
 					detail: {
-						query:   state.query,
-						filters: state.filters,
+						// The query only: the filters block keeps the listing's filters
+						// in step itself, and resending its single-value copy here would
+						// drop a multi-value one from a shared link.
+						query:  state.query,
+						// This search already has its history entry (pushed above).
+						pushed: true,
 					},
 				} )
 			);
