@@ -468,6 +468,8 @@ $wcb_state = array(
 			// Label for the removable "Remote only" pill. The pill used to
 			// print the raw filter value, so every locale saw a bare "1".
 			'remoteLabel'       => __( 'Remote only', 'wp-career-board' ),
+			/* translators: %s: the filter's label, e.g. "Full-time". */
+			'removeFilter'      => __( 'Remove filter: %s', 'wp-career-board' ),
 			'alertNetworkError' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		)
 	),
@@ -738,7 +740,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			?>
 		</aside>
 
-		<main class="wcb-archive-results">
+		<div class="wcb-archive-results">
 	<?php endif; ?>
 
 			<div class="wcb-active-filters" data-wp-class--wcb-shown="state.hasActiveFilters">
@@ -747,6 +749,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<span data-wp-text="context.chip.label"></span>
 						<button type="button" class="wcb-active-chip-remove"
 							aria-label="<?php esc_attr_e( 'Remove filter', 'wp-career-board' ); ?>"
+							data-wp-bind--aria-label="context.chip.removeLabel"
 							data-wp-on--click="actions.removeFilter"
 						>&times;</button>
 					</span>
@@ -876,7 +879,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	?>
 
 	<?php if ( $wcb_jl_has_filter_ui ) : ?>
-		</main>
+		</div>
 	</div><!-- /.wcb-archive-layout -->
 	<?php endif; ?>
 </div>

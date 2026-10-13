@@ -262,10 +262,17 @@ function syncUrl() {
 	if ( state.sortBy ) {
 		url.searchParams.set( 'sort', state.sortBy );
 	}
-	if ( url.toString() !== window.location.href ) {
+	// Same params in another order (the job-filters block pushed first): tidy
+	// the entry in place, so one filter change is one Back step.
+	const sorted = ( search ) => [ ...new URLSearchParams( search ) ].map( ( p ) => p.join( '=' ) ).sort().join( '&' );
+	if ( sorted( url.search ) === sorted( window.location.search ) ) {
+		window.history.replaceState( null, '', url.toString() );
+	} else if ( url.toString() !== window.location.href ) {
 		window.history.pushState( null, '', url.toString() );
-		renderedSearch = url.search;
 	}
+	// Record what is on screen even when the job-filters block already pushed
+	// this URL, or Back would match the stale value and skip the reload.
+	renderedSearch = url.search;
 }
 
 // Every filter name the URL can carry (canonical and the aliases the server accepts).
@@ -420,7 +427,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					// every locale — English included — saw a bare "1".
 					label = t( 'remoteLabel', 'Remote only' );
 				}
-				return { key, label };
+				return { key, label, removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', label ) };
 			} );
 		},
 
@@ -874,6 +881,16 @@ const { state, actions } = store( 'wcb-job-listings', {
 				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
 				if ( params.filters && typeof params.filters === 'object' ) {
 					const merged = Object.assign( {}, state.activeFilters );
+					// The filters block is single-select per taxonomy: its value
+					// replaces any chips of that taxonomy read from the URL
+					// (cat_*, type_* ...) instead of being added to them.
+					const prefixOf = { wcb_category: 'cat_', wcb_job_type: 'type_', wcb_experience: 'exp_', wcb_tag: 'tag_' };
+					for ( const key of Object.keys( params.filters ) ) {
+						const prefix = prefixOf[ key ];
+						if ( prefix ) {
+							Object.keys( merged ).filter( ( k ) => k.startsWith( prefix ) ).forEach( ( k ) => delete merged[ k ] );
+						}
+					}
 					for ( const [ key, value ] of Object.entries( params.filters ) ) {
 						if ( value ) {
 							merged[ key ] = String( value );
