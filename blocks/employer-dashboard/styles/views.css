@@ -303,10 +303,11 @@
 }
 
 /* My Jobs row: fixed columns so every title gets the same room and every
-   status badge starts at the same x (dot | title | facts | actions). */
+   status badge starts at the same x (title | facts | actions). The badge says
+   the status, so there is no status dot. */
 .wcb-jobs-list .wcb-job-row {
 	display: grid;
-	grid-template-columns: auto minmax(0, 1fr) 15rem auto;
+	grid-template-columns: minmax(0, 1fr) 15rem auto;
 	align-items: center;
 }
 
@@ -1204,10 +1205,10 @@
 	/* Title on its own line, then status/applicants and the two actions on
 	   one line: about 110px a job instead of a 2x3 button grid. */
 	.wcb-jobs-list .wcb-job-row {
-		grid-template-columns: auto minmax(0, 1fr) auto;
+		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
-			"dot info info"
-			". facts actions";
+			"info info"
+			"facts actions";
 		row-gap: var(--wcb-space-sm);
 		column-gap: var(--wcb-space-sm);
 		padding: var(--wcb-space-md);
@@ -1217,7 +1218,6 @@
 		padding-inline: var(--wcb-space-md);
 	}
 
-	.wcb-jobs-list .wcb-job-row > .wcb-status-dot { grid-area: dot; }
 	.wcb-jobs-list .wcb-job-row > .wcb-job-info   { grid-area: info; }
 	.wcb-jobs-list .wcb-job-row > .wcb-job-facts  { grid-area: facts; }
 	.wcb-jobs-list .wcb-job-row > .wcb-job-actions { grid-area: actions; flex-wrap: nowrap; }

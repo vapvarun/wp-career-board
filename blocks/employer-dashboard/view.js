@@ -490,8 +490,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		// Filters follow the list's total, not the filtered page: a zero-count
 		// status must not hide the way back.
+		// A quiet week still keeps the chips (and 'This week x') on screen.
 		get jobHasApplications() {
-			return ! state.appsError && state.appsCounts.total > 0;
+			return ! state.appsError && ( state.appsCounts.total > 0 || state.appsSinceActive );
 		},
 		// Board view and CSV export work on one job's applications.
 		get oneJobHasApplications() {
@@ -500,8 +501,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noFilteredApplications() {
 			return state.jobHasApplications && ! state.appsLoading && 0 === state.applications.length;
 		},
+		get noFilteredAppsLabel() {
+			return state.appsSinceActive && 'all' === state.appsFilter
+				? t( 'noAppsThisWeek', 'No applications this week.' )
+				: t( 'noAppsStatus', 'No applications with this status.' );
+		},
 		get noApplications() {
-			return state.appsLoaded && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
+			return state.appsLoaded && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total && ! state.appsSinceActive;
 		},
 
 		// Application filter.
@@ -544,6 +550,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		// 'This week' narrows only the all-jobs list (the Overview figure's scope).
+		get appsSinceActive() {
+			return state.appsSinceDays > 0 && ! state.appsJobId;
+		},
 		get selectedAppRated() {
 			return ( state.selectedApp?.rating || 0 ) > 0;
 		},
@@ -956,12 +966,26 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			actions.switchToJobs();
 		},
 
-		// 'Review': every job's applications, narrowed to the unreviewed ones.
-		*openAwaitingApps() {
+		// Overview links into Applications: each sets its own filters, never the last ones.
+		*openApps( status, sinceDays ) {
 			state.appsJobId     = 0;
 			state.selectedAppId = null;
-			state.appsFilter    = 'submitted';
+			state.appsFilter    = status;
+			state.appsSinceDays = sinceDays;
 			actions.switchToApplications();
+			yield actions.loadApplications();
+		},
+		*openAwaitingApps() {
+			yield actions.openApps( 'submitted', 0 );
+		},
+		*openAllApps() {
+			yield actions.openApps( 'all', 0 );
+		},
+		*openAppsThisWeek() {
+			yield actions.openApps( 'all', 7 );
+		},
+		*clearAppsSince() {
+			state.appsSinceDays = 0;
 			yield actions.loadApplications();
 		},
 
@@ -1419,6 +1443,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
 				if ( state.appsFilter !== 'all' ) {
 					url.searchParams.set( 'status', state.appsFilter );
+				}
+				if ( state.appsSinceActive ) {
+					url.searchParams.set( 'since_days', String( state.appsSinceDays ) );
 				}
 
 				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );

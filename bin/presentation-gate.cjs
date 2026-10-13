@@ -277,15 +277,20 @@ function inPageChecks() {
 			}
 		} );
 
-		// nested: no box in a box in a box. Text with 3+ framed ancestors (all four
-		// borders, wider than a chip; form controls are their own frame) is a card
-		// stacked inside cards. Reported once per innermost frame.
+		// nested: no box in a box (owner rule, 14 Oct). Text with 2+ framed ancestors
+		// (all four borders, wider than a chip; form controls are their own frame;
+		// the dashboard shell is page chrome, not a card) is a card inside a card.
+		// Reported once per innermost frame.
 		const framed = ( n ) => {
-			if ( /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test( n.tagName ) || n.getBoundingClientRect().width <= 120 ) {
+			if ( /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test( n.tagName ) || n.classList.contains( 'wcb-dashboard-shell' ) || n.getBoundingClientRect().width <= 120 ) {
 				return false;
 			}
 			const cs = getComputedStyle( n );
-			return [ 'Top', 'Right', 'Bottom', 'Left' ].every( ( side ) => parseFloat( cs[ `border${ side }Width` ] ) > 0 && 'none' !== cs[ `border${ side }Style` ] );
+			// A pill (step chip, tag) is a control, not a card.
+			if ( parseFloat( cs.borderTopLeftRadius ) >= n.getBoundingClientRect().height / 2 ) {
+				return false;
+			}
+			return [ 'Top', 'Right', 'Bottom', 'Left' ].every( ( side ) => parseFloat( cs[ `border${ side }Width` ] ) > 0 && 'none' !== cs[ `border${ side }Style` ] && parse( cs[ `border${ side }Color` ] ).a > 0 );
 		};
 		const seenFrames = new Set();
 		root.querySelectorAll( '*' ).forEach( ( el ) => {
@@ -298,7 +303,7 @@ function inPageChecks() {
 					frames.push( n );
 				}
 			}
-			if ( frames.length >= 3 && ! seenFrames.has( frames[ 0 ] ) ) {
+			if ( frames.length >= 2 && ! seenFrames.has( frames[ 0 ] ) ) {
 				seenFrames.add( frames[ 0 ] );
 				add( 'nested', frames[ 0 ], `${ frames.length } frames deep: ` + frames.reverse().map( ( f ) => f.classList[ 0 ] || f.tagName.toLowerCase() ).join( ' > ' ) );
 			}

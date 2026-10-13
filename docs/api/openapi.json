@@ -1894,6 +1894,18 @@
                             "default": 0
                         },
                         "description": ""
+                    },
+                    {
+                        "name": "since_days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 365,
+                            "default": 0
+                        },
+                        "description": "Only applications received in the last N days (0 = any time)."
                     }
                 ],
                 "responses": {

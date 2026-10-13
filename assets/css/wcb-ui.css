@@ -1719,8 +1719,8 @@
 	}
 }
 
-/* Phone: three tiles no longer fit a label ("Applications" broke mid-word),
-   so every tile becomes a full-width compact row, label left, count right. */
+/* Phone: three across broke "Applications" mid-word, one per row pushed the
+   content a screen down, so two per row; an odd last tile takes the row. */
 @container wcb-stats (max-width: 480px) {
 	.wcb-stats-row {
 		gap: var(--wcb-space-sm);
@@ -1731,11 +1731,12 @@
 	.wcb-stat-card:first-child:nth-last-child(3) ~ .wcb-stat-card,
 	.wcb-stat-card:first-child:nth-last-child(5),
 	.wcb-stat-card:first-child:nth-last-child(5) ~ .wcb-stat-card:nth-child(-n+3) {
-		grid-column: 1 / -1;
-		flex-direction: row-reverse;
-		align-items: center;
-		justify-content: space-between;
+		grid-column: span 3;
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
+	}
+
+	.wcb-stat-card:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
 	}
 
 	.wcb-stat-value {

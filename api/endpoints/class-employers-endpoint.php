@@ -173,7 +173,18 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_applications' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
-				'args'                => self::pagination_args() + self::company_filter_args(),
+				'args'                => self::pagination_args() + self::company_filter_args() + array(
+					// Applications received in the last N days (the Overview's 'New This Week').
+					'since_days' => array(
+						'description'       => __( 'Only applications received in the last N days (0 = any time).', 'wp-career-board' ),
+						'type'              => 'integer',
+						'default'           => 0,
+						'minimum'           => 0,
+						'maximum'           => 365,
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 	}
@@ -1031,7 +1042,12 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		global $wpdb;
-		$from = \WCB\Modules\Employers\EmployersModule::applications_scope_sql( get_current_user_id(), $company_id );
+		$from  = \WCB\Modules\Employers\EmployersModule::applications_scope_sql( get_current_user_id(), $company_id );
+		$since = (int) $request->get_param( 'since_days' );
+		if ( $since > 0 ) {
+			// Same cut-off as dashboard_counts()' new_apps, so the list matches the figure.
+			$from .= $wpdb->prepare( ' AND app.post_date >= %s', gmdate( 'Y-m-d H:i:s', time() - $since * DAY_IN_SECONDS ) );
+		}
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $from is prepared; the page query adds only LIMIT/OFFSET.
 		// Per-status totals over every job in scope (the Applications chips), before the status filter.
 		$by_status = $wpdb->get_results(

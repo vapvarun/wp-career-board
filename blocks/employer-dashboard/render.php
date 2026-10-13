@@ -220,6 +220,7 @@ wp_interactivity_state(
 		'ssrPublishedJobs'      => $wcb_counts['live_jobs'],
 		'ssrTotalApps'          => $wcb_counts['total_apps'],
 		'ssrNewThisWeek'        => $wcb_counts['new_apps'],
+		'appsSinceDays'         => 0,
 		// Needs attention: applications not reviewed yet, and live jobs whose
 		// deadline (a site-calendar Y-m-d) falls within the next 7 days.
 		'awaitingApps'          => $wcb_counts['awaiting_apps'],
@@ -397,6 +398,8 @@ wp_interactivity_state(
 			'allJobs'                  => __( 'All jobs', 'wp-career-board' ),
 			/* translators: %s: a date, already formatted for the site. */
 			'closesOn'                 => __( 'Closes %s', 'wp-career-board' ),
+			'noAppsStatus'             => __( 'No applications with this status.', 'wp-career-board' ),
+			'noAppsThisWeek'           => __( 'No applications this week.', 'wp-career-board' ),
 			'removeCompanyTitle'       => __( 'Remove this company?', 'wp-career-board' ),
 			'removeCompanyText'        => __( 'Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them.', 'wp-career-board' ),
 			'removeCompanyButton'      => __( 'Remove company', 'wp-career-board' ),
@@ -689,11 +692,11 @@ wp_interactivity_state(
 					<span class="wcb-stat-value" data-wp-text="state.publishedJobs">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></span>
 				</button>
-				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToApplications">
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.openAllApps">
 					<span class="wcb-stat-value" data-wp-text="state.totalApps">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Applications', 'wp-career-board' ); ?></span>
 				</button>
-				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToApplications">
+				<button type="button" class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.openAppsThisWeek">
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'New This Week', 'wp-career-board' ); ?></span>
 				</button>
@@ -828,7 +831,6 @@ wp_interactivity_state(
 			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs" data-wp-on-document--click="actions.closeRowMenusOutside">
 				<template data-wp-each--job="state.filteredJobs" data-wp-each-key="context.job.id">
 					<article class="wcb-job-row" data-wp-class--wcb-job-closed="context.job.isClosed" data-wp-class--wcb-job-expired="context.job.isExpired">
-						<div class="wcb-status-dot" data-wp-bind--data-status="context.job.status"></div>
 						<div class="wcb-job-info">
 							<span class="wcb-job-title" data-wp-text="context.job.title"></span>
 							<span class="wcb-job-meta" data-wp-text="context.job.location"></span>
@@ -931,6 +933,9 @@ wp_interactivity_state(
 					<?php esc_html_e( 'Hired', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountHired"></span>
 				</button>
+				<button type="button" class="wcb-filter-pill wcb-filter-active" hidden data-wp-bind--hidden="!state.appsSinceActive" data-wp-on--click="actions.clearAppsSince" aria-label="<?php esc_attr_e( 'Remove filter: this week', 'wp-career-board' ); ?>">
+					<?php esc_html_e( 'This week', 'wp-career-board' ); ?> <span aria-hidden="true">&times;</span>
+				</button>
 			</div>
 
 			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.appsError" data-wp-text="state.appsError"></p>
@@ -947,7 +952,7 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noFilteredApplications">
-				<p class="wcb-empty-state__body"><?php esc_html_e( 'No applications with this status.', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body" data-wp-text="state.noFilteredAppsLabel"><?php esc_html_e( 'No applications with this status.', 'wp-career-board' ); ?></p>
 			</div>
 
 			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications" data-wp-class--wcb-hidden="!state.isAppsListLayout">
