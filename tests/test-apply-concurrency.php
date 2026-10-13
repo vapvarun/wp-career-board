@@ -234,6 +234,10 @@ $wcb_codes = array_map(
 	static fn ( $r ): int => $r instanceof \WpOrg\Requests\Response ? (int) $r->status_code : 0,
 	Requests::request_multiple( $wcb_guest, array( 'timeout' => 30 ) )
 );
+// The burst ran in other processes; this one cached the deleted key as
+// missing (notoptions), so drop that before reading the count back.
+wp_cache_delete( 'notoptions', 'options' );
+wp_cache_delete( 'alloptions', 'options' );
 wcb_conc_assert( 10 === (int) get_transient( $wcb_ip_key ) && 2 === count( array_keys( $wcb_codes, 429, true ) ), 'guest burst of 12 from one IP: 10 counted, 2 rate-limited (codes ' . implode( ',', $wcb_codes ) . ')' );
 delete_transient( $wcb_ip_key );
 

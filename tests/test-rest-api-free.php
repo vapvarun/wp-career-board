@@ -168,6 +168,11 @@ WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs (anon = 401/403) ---' );
 $r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => 'Test Job' ), 0 );
 wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /jobs anon returns 401 or 403' );
 
+// Posting here tests creation and the active-job cap, not pricing: with Pro
+// active the site's default board may charge credits (Pro's job-charge suite
+// covers that), so this suite declares its posts free.
+add_filter( 'wcb_job_payment_exempt', '__return_true', 99 );
+
 WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs (employer) ---' );
 $r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_job__', 'description' => 'Test job for REST suite' ), $employer_id );
 $create_status = $r->get_status();

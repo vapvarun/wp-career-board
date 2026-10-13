@@ -446,8 +446,10 @@ wp_cache_flush();
 	add_filter( 'wcb_app_password_client_ip_header', static fn() => 'HTTP_CF_CONNECTING_IP' );
 	wcb_auth_check( 'ip.opted-in-header-used', '198.51.100.7' === AppCredentials::client_ip() );
 
+	// The client writes the left end of a chain, so only the hop the site's
+	// own proxy appended (the right end) can be trusted.
 	$_SERVER['HTTP_CF_CONNECTING_IP'] = '198.51.100.7, 203.0.113.1';
-	wcb_auth_check( 'ip.leftmost-of-chain', '198.51.100.7' === AppCredentials::client_ip() );
+	wcb_auth_check( 'ip.rightmost-of-chain', '203.0.113.1' === AppCredentials::client_ip(), 'a spoofed left hop is not the client IP' );
 
 	$_SERVER['HTTP_CF_CONNECTING_IP'] = 'not-an-ip; DROP TABLE';
 	wcb_auth_check(
