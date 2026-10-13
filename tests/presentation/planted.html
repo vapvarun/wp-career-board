@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Presentation gate planted samples</title>
+<style>
+body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #fff; color: #111; }
+section { padding: 16px; }
+</style></head>
+<body>
+<!-- Each section is one known-bad sample; the gate's self-test requires every check to fire.
+     The "clean" section must raise nothing. -->
+
+<!-- overflow: a block wider than a 390 viewport -->
+<section data-wcb-gate-scope class="bad-overflow"><div style="width: 600px">Too wide</div></section>
+
+<!-- edges: the pre-1.8.1 Settings panel - four left edges in one form -->
+<section data-wcb-gate-scope class="bad-edges"><form>
+	<label>Email</label>
+	<input style="margin-left: 40px" value="a@b.test">
+	<p class="description" style="margin-left: 120px">We never share it.</p>
+	<select style="margin-left: 200px"><option>Weekly</option></select>
+</form></section>
+
+<!-- midword: a company name in a too-narrow card (the 3-column grid bug) -->
+<section data-wcb-gate-scope class="bad-midword"><h3 class="wcb-ca-name" style="width: 60px; overflow-wrap: anywhere">Northpeakcloudsystems</h3></section>
+
+<!-- clipped: a button cut off by an overflow:hidden parent (pipeline column cut at 1440) -->
+<section data-wcb-gate-scope class="bad-clipped"><div style="width: 100px; overflow: hidden"><button style="width: 200px">Rejected column</button></div></section>
+
+<!-- contrast: 2.85:1 dark-mode placeholder and light grey text -->
+<section data-wcb-gate-scope class="bad-contrast" style="background: #1e1f24">
+	<input placeholder="Search jobs" style="background: #1e1f24; color: #eee">
+	<style>.bad-contrast input::placeholder { color: #5f6370; }</style>
+	<p style="color: #555a66">Low contrast text</p>
+</section>
+
+<!-- wpadmin: admin markup leaking into the frontend -->
+<section data-wcb-gate-scope class="bad-wpadmin"><table class="form-table"><tr><td>Option</td></tr></table></section>
+
+<!-- clean: nothing here may fire -->
+<section data-wcb-gate-scope class="clean">
+	<h3 class="wcb-card-title">Clean card title</h3>
+	<form><label>Clean label</label><input placeholder="Clean placeholder" style="color: #111"><p class="description">Clean help</p></form>
+	<button>Clean button</button>
+</section>
+</body></html>

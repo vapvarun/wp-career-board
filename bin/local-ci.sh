@@ -120,6 +120,16 @@ else
 	printf "  ${DIM}skip   ${RESET} rest-reachability + openapi-fresh (no live WP install reachable)\n"
 fi
 
+# 7. Presentation gate (needs node + the live QA site). Self-tests its checks
+#    on tests/presentation/planted.html, then walks docs/qa/presentation-views.json
+#    at 1440/390 x light/dark. The judgment pass on its screenshots is
+#    docs/qa/presentation-review.md (a Sonnet review, not run here).
+if command -v node > /dev/null 2>&1 && [ -d node_modules/playwright ] && command -v wp > /dev/null 2>&1 && curl -fsS -o /dev/null --max-time 5 "$(wp option get home 2>/dev/null)/"; then
+	run_step "presentation-gate" 'node bin/presentation-gate.cjs' || failed=$((failed+1))
+else
+	printf "  ${DIM}skip   ${RESET} presentation-gate (needs node, npm install and a reachable site from wp option get home)\n"
+fi
+
 printf "\n"
 if [ "$failed" -eq 0 ]; then
 	printf "${GREEN}${BOLD}ALL GREEN${RESET} — safe to push\n"
