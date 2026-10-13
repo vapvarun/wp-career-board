@@ -97,19 +97,12 @@ if ( 0 === $wcb_resolved_board_id && ! empty( $wcb_board_options ) ) {
 }
 
 // ── Taxonomy terms ─────────────────────────────────────────────────────────
-$wcb_term_args = static function ( string $tax ): array {
-	return array(
-		'taxonomy'   => $tax,
-		'hide_empty' => false,
-	);
-};
-
-$wcb_categories = array_filter( (array) get_terms( $wcb_term_args( 'wcb_category' ) ), static fn( $t ) => $t instanceof \WP_Term );
-$wcb_job_types  = array_filter( (array) get_terms( $wcb_term_args( 'wcb_job_type' ) ), static fn( $t ) => $t instanceof \WP_Term );
+$wcb_categories = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types  = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
 // Location dropdown is scoped to the employer's company HQ + reserved
 // 'remote' / 'other' terms. Admins (wcb/manage-settings) still get every term.
 $wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
-$wcb_experiences = array_filter( (array) get_terms( $wcb_term_args( 'wcb_experience' ) ), static fn( $t ) => $t instanceof \WP_Term );
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // ── Currency: site-wide admin setting → USD. One source of truth across every
 // employer; the dropdown still lets them override per job.
@@ -423,7 +416,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 					<select id="wcb-simple-category" class="wcb-field" data-wcb-field="categorySlug" data-wp-bind--value="state.categorySlug" data-wp-on--change="actions.updateField">
 						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
 						<?php foreach ( $wcb_categories as $wcb_t ) : ?>
-							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
+							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->label ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</div>

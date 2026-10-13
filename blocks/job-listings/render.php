@@ -256,80 +256,27 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 }
 
 
-$wcb_type_terms_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => false,
-	)
-);
-$wcb_type_opts      = array_values(
-	array_map(
-		static function ( \WP_Term $t ): array {
-			return array(
-				'slug' => $t->slug,
-				'name' => $t->name,
-			);
-		},
-		array_filter(
-			is_array( $wcb_type_terms_raw ) ? $wcb_type_terms_raw : array(),
-			static function ( \WP_Term $t ): bool {
-				return 'remote' !== $t->slug;
-			}
-		)
-	)
-);
-
-$wcb_exp_terms_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_experience',
-		'hide_empty' => false,
-	)
-);
-$wcb_exp_opts      = array_map(
-	static function ( \WP_Term $t ): array {
-		return array(
-			'slug' => $t->slug,
-			'name' => $t->name,
-		);
-	},
-	is_array( $wcb_exp_terms_raw ) ? $wcb_exp_terms_raw : array()
-);
-
-$wcb_term_opt = static function ( \WP_Term $t ): array {
-	return array(
-		'slug' => $t->slug,
-		'name' => $t->name,
+$wcb_term_opts = static function ( string $taxonomy ): array {
+	return array_map(
+		static fn( object $t ): array => array(
+			'slug'  => $t->slug,
+			'name'  => $t->name,
+			'depth' => $t->depth,
+		),
+		\WCB\Core\Taxonomy::options( $taxonomy )
 	);
 };
-
-$wcb_cat_terms_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => false,
-	)
-);
-$wcb_cat_opts      = array_map( $wcb_term_opt, is_array( $wcb_cat_terms_raw ) ? $wcb_cat_terms_raw : array() );
-
-$wcb_tag_terms_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_tag',
-		'hide_empty' => false,
-	)
-);
-$wcb_tag_opts      = array_map( $wcb_term_opt, is_array( $wcb_tag_terms_raw ) ? $wcb_tag_terms_raw : array() );
-
+// 'remote' is a work mode, shown by the Remote toggle, not a job type.
+$wcb_type_opts = array_values( array_filter( $wcb_term_opts( 'wcb_job_type' ), static fn( array $o ): bool => 'remote' !== $o['slug'] ) );
+$wcb_exp_opts  = $wcb_term_opts( 'wcb_experience' );
+$wcb_cat_opts  = $wcb_term_opts( 'wcb_category' );
+$wcb_tag_opts  = $wcb_term_opts( 'wcb_tag' );
 // Location terms are seeded so the removable filter pills can resolve the
 // external job-filters block's wcb_location slug to its human name. The
 // job-listings sidebar itself only exposes a "Remote only" toggle (no location
 // dropdown), but the shared job-filters block forwards a wcb_location slug via
 // the wcb:search event, and without this map the pill would show a bare slug.
-$wcb_loc_terms_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_location',
-		'hide_empty' => false,
-	)
-);
-$wcb_loc_opts      = array_map( $wcb_term_opt, is_array( $wcb_loc_terms_raw ) ? $wcb_loc_terms_raw : array() );
+$wcb_loc_opts = $wcb_term_opts( 'wcb_location' );
 
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
@@ -634,9 +581,12 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			<?php if ( $wcb_cat_opts ) : ?>
 			<div class="wcb-filter-panel__group">
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></span>
+				<?php if ( count( $wcb_cat_opts ) > 12 ) : ?>
+				<input type="search" class="wcb-filter-panel__search" aria-label="<?php esc_attr_e( 'Search categories', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search categories', 'wp-career-board' ); ?>" data-wp-on--input="actions.searchFilterList" />
+				<?php endif; ?>
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_cat_opts as $wcb_opt ) : ?>
-					<li>
+					<li data-depth="<?php echo esc_attr( (string) min( 3, $wcb_opt['depth'] ) ); ?>">
 						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'catSlug' => $wcb_opt['slug'] ) ) ); ?>">
 							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>

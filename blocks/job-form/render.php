@@ -44,32 +44,13 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 }
 
 // ── Taxonomy terms ─────────────────────────────────────────────────────────
-$wcb_categories_raw  = get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => false,
-	)
-);
-$wcb_job_types_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => false,
-	)
-);
-$wcb_experiences_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_experience',
-		'hide_empty' => false,
-	)
-);
-
-$wcb_categories = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
-$wcb_job_types  = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
+$wcb_categories = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types  = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
 // Location dropdown is scoped to the employer: company HQ + reserved
 // 'remote' / 'other' terms. Admins (wcb/manage-settings) get the full taxonomy.
 // See \WCB\Core\Locations::get_dropdown_terms() for the resolution logic.
 $wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
-$wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // ── Slug → display-name maps (used by preview card getters in view.js) ─────
 $wcb_type_names = array();
@@ -826,7 +807,7 @@ $wcb_step_labels = array(
 						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
 						<?php foreach ( $wcb_categories as $wcb_term ) : ?>
 							<option value="<?php echo esc_attr( $wcb_term->slug ); ?>">
-							<?php echo esc_html( $wcb_term->name ); ?>
+							<?php echo esc_html( $wcb_term->label ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>

@@ -539,6 +539,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		// ── Category chip ─────────────────────────────────────────────
+		// Narrow a long filter list as the visitor types (labels only, no request).
+		searchFilterList( event ) {
+			const needle = event.target.value.trim().toLowerCase();
+			const list   = event.target.parentElement.querySelector( '.wcb-filter-panel__list' );
+			list.querySelectorAll( 'li' ).forEach( ( li ) => {
+				li.hidden = '' !== needle && ! li.textContent.toLowerCase().includes( needle );
+			} );
+		},
+
 		* toggleCatChip() {
 			const ctx = getContext();
 			const key = 'cat_' + ctx.catSlug;

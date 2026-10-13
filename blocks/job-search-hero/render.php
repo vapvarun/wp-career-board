@@ -45,28 +45,9 @@ $wcb_current_type     = isset( $_GET['wcb_job_type'] ) ? sanitize_text_field( wp
 
 // Load taxonomy terms for filter dropdowns.
 // Registered taxonomy slug is 'wcb_category' (confirmed in core/class-plugin.php).
-$wcb_categories = $wcb_show_category ? get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => true,
-	)
-) : array();
-$wcb_locations  = $wcb_show_location ? get_terms(
-	array(
-		'taxonomy'   => 'wcb_location',
-		'hide_empty' => true,
-	)
-) : array();
-$wcb_job_types  = $wcb_show_type ? get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => true,
-	)
-) : array();
-
-$wcb_categories = is_wp_error( $wcb_categories ) ? array() : $wcb_categories;
-$wcb_locations  = is_wp_error( $wcb_locations ) ? array() : $wcb_locations;
-$wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
+$wcb_categories = $wcb_show_category ? \WCB\Core\Taxonomy::options( 'wcb_category', true ) : array();
+$wcb_locations  = $wcb_show_location ? \WCB\Core\Taxonomy::options( 'wcb_location', true ) : array();
+$wcb_job_types  = $wcb_show_type ? \WCB\Core\Taxonomy::options( 'wcb_job_type', true ) : array();
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-search-hero wcb-search-hero--' . esc_attr( $wcb_layout ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<form class="wcb-search-hero__form" method="get" action="<?php echo esc_url( $wcb_action_url ); ?>" role="search">
@@ -95,7 +76,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 					<option value=""><?php esc_html_e( 'All Categories', 'wp-career-board' ); ?></option>
 					<?php foreach ( $wcb_categories as $wcb_term ) : ?>
 						<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_current_category, $wcb_term->slug ); ?>>
-							<?php echo esc_html( $wcb_term->name ); ?>
+							<?php echo esc_html( $wcb_term->label ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
@@ -111,7 +92,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 					<option value=""><?php esc_html_e( 'All Locations', 'wp-career-board' ); ?></option>
 					<?php foreach ( $wcb_locations as $wcb_term ) : ?>
 						<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_current_location, $wcb_term->slug ); ?>>
-							<?php echo esc_html( $wcb_term->name ); ?>
+							<?php echo esc_html( $wcb_term->label ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
@@ -127,7 +108,7 @@ $wcb_job_types  = is_wp_error( $wcb_job_types ) ? array() : $wcb_job_types;
 					<option value=""><?php esc_html_e( 'All Types', 'wp-career-board' ); ?></option>
 					<?php foreach ( $wcb_job_types as $wcb_term ) : ?>
 						<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_current_type, $wcb_term->slug ); ?>>
-							<?php echo esc_html( $wcb_term->name ); ?>
+							<?php echo esc_html( $wcb_term->label ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>

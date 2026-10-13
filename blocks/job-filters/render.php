@@ -37,35 +37,10 @@ $wcb_filter_salary_max = isset( $_GET['salary_max'] )
 $wcb_filter_remote     = ! empty( $_GET['remote'] );
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-$wcb_categories_raw  = get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => false,
-	)
-);
-$wcb_job_types_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => false,
-	)
-);
-$wcb_locations_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_location',
-		'hide_empty' => false,
-	)
-);
-$wcb_experiences_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_experience',
-		'hide_empty' => false,
-	)
-);
-
-$wcb_categories  = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
-$wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
-$wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_raw;
-$wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
+$wcb_categories  = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types   = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
+$wcb_locations   = \WCB\Core\Taxonomy::options( 'wcb_location' );
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // Filters block owns 'filters' in the shared wcb-search namespace.
 // Cast to object so JSON-encodes as {} even when no filters are active.
@@ -109,7 +84,7 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Categories', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_categories as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_category, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -118,7 +93,7 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Types', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_job_types as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_type, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -127,7 +102,7 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Locations', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_locations as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_location, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -136,7 +111,7 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Experience Levels', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_experiences as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_exp, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>

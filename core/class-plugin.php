@@ -107,6 +107,8 @@ final class Plugin {
 			add_filter( 'add_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 		}
 
+		\WCB\Core\Taxonomy::boot();
+
 		if ( class_exists( \WCB\Core\Abilities::class ) ) {
 			$abilities = new \WCB\Core\Abilities();
 			add_action( 'wp_abilities_api_categories_init', array( $abilities, 'register_category' ) );
