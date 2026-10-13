@@ -513,6 +513,16 @@ wp_interactivity_state(
 			<?php endif; ?>
 			</div>
 
+			<?php if ( '' !== \WCB\Core\Roles::moderation_queue_url() ) : ?>
+				<?php // Moderators land here; their queue is one click away (the admin bar hides it on phones). ?>
+			<div class="wcb-nav-group" role="group" aria-labelledby="wcb-nav-g-moderation">
+			<span id="wcb-nav-g-moderation" class="wcb-nav-section-label"><?php esc_html_e( 'Moderation', 'wp-career-board' ); ?></span>
+			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( \WCB\Core\Roles::moderation_queue_url() ); ?>">
+				<?php esc_html_e( 'Review jobs', 'wp-career-board' ); ?> &#8599;
+			</a>
+			</div>
+			<?php endif; ?>
+
 			<div class="wcb-nav-group" role="group" aria-labelledby="wcb-nav-g-account">
 			<span id="wcb-nav-g-account" class="wcb-nav-section-label"><?php esc_html_e( 'Account', 'wp-career-board' ); ?></span>
 			<button type="button" class="wcb-nav-item" id="wcb-tab-profile"
