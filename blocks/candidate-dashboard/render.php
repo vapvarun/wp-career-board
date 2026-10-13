@@ -47,6 +47,23 @@ wp_enqueue_script( 'wcb-confirm-modal' );
 $wcb_candidate_id = get_current_user_id();
 $wcb_current_user = wp_get_current_user();
 $wcb_display_name = $wcb_current_user->display_name;
+// The photo from the candidate's most recently edited resume (any status: it
+// is their own dashboard). No photo keeps the initials, never a grey Gravatar.
+$wcb_own_photo     = get_posts(
+	array(
+		'post_type'      => 'wcb_resume',
+		'post_status'    => array( 'publish', 'private', 'draft', 'pending' ),
+		'author'         => $wcb_current_user->ID,
+		'posts_per_page' => 1,
+		'orderby'        => 'modified',
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+		'meta_key'       => '_wcb_resume_photo_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		'meta_compare'   => '>',
+		'meta_value'     => '0',                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+	)
+);
+$wcb_own_photo_url = $wcb_own_photo ? (string) wp_get_attachment_image_url( (int) get_post_meta( (int) $wcb_own_photo[0], '_wcb_resume_photo_id', true ), array( 96, 96 ) ) : '';
 
 $wcb_jobs_page_id   = \WCB\Admin\Pages::get_id( 'jobs_archive_page' );
 $wcb_jobs_permalink = $wcb_jobs_page_id > 0 ? get_permalink( $wcb_jobs_page_id ) : false;
@@ -421,7 +438,11 @@ wp_interactivity_state(
 			<span class="wcb-nav-toggle-icon" aria-hidden="true"></span>
 		</button>
 		<button type="button" class="wcb-sidebar-identity" data-wp-on--click="actions.switchToProfile">
-			<span class="wcb-avatar wcb-avatar--round wcb-sidebar-avatar" data-wp-text="state.candidateInitials" aria-hidden="true"></span>
+			<?php if ( $wcb_own_photo_url ) : ?>
+				<span class="wcb-avatar wcb-avatar--round wcb-sidebar-avatar" aria-hidden="true"><img src="<?php echo esc_url( $wcb_own_photo_url ); ?>" alt=""></span>
+			<?php else : ?>
+				<span class="wcb-avatar wcb-avatar--round wcb-sidebar-avatar" data-wp-text="state.candidateInitials" aria-hidden="true"></span>
+			<?php endif; ?>
 			<span class="wcb-sidebar-identity__text">
 				<span class="wcb-sidebar-identity__name" data-wp-text="state.candidateName"><?php echo esc_html( $wcb_display_name ); ?></span>
 				<span class="wcb-sidebar-identity__role"><?php esc_html_e( 'Candidate', 'wp-career-board' ); ?></span>
