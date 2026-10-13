@@ -408,7 +408,7 @@ class AdminMetaBoxes {
 		$wcb_tagline          = (string) get_post_meta( $post->ID, '_wcb_tagline', true );
 		$wcb_industry         = (string) get_post_meta( $post->ID, '_wcb_industry', true );
 		$wcb_company_size     = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
-		$wcb_company_type     = (string) get_post_meta( $post->ID, '_wcb_company_type', true );
+		$wcb_company_type     = \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) );
 		$wcb_founded          = (string) get_post_meta( $post->ID, '_wcb_founded', true );
 		$wcb_hq_location      = (string) get_post_meta( $post->ID, '_wcb_hq_location', true );
 
@@ -425,16 +425,7 @@ class AdminMetaBoxes {
 			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 
-		$wcb_types = array(
-			''              => __( ' -  Select Type  - ', 'wp-career-board' ),
-			'public'        => __( 'Public Company', 'wp-career-board' ),
-			'private'       => __( 'Privately Held', 'wp-career-board' ),
-			'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
-			'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
-			'government'    => __( 'Government Agency', 'wp-career-board' ),
-			'educational'   => __( 'Educational Institution', 'wp-career-board' ),
-			'partnership'   => __( 'Partnership', 'wp-career-board' ),
-		);
+		$wcb_types = array( '' => __( ' -  Select Type  - ', 'wp-career-board' ) ) + \WCB\Core\CompanyMetaShape::types();
 		?>
 		<div class="wcb-company-meta-grid">
 			<div class="wcb-meta-full">
@@ -721,7 +712,6 @@ class AdminMetaBoxes {
 		}
 
 		$allowed_sizes = array_merge( array( '' ), \WCB\Core\CompanyMetaShape::size_keys() );
-		$allowed_types = array( '', 'public', 'private', 'self-employed', 'nonprofit', 'government', 'educational', 'partnership' );
 		$allowed_trust = array( '', 'verified', 'trusted', 'premium' );
 
 		$wcb_text_fields = array(
@@ -748,10 +738,8 @@ class AdminMetaBoxes {
 			update_post_meta( $post_id, '_wcb_company_size', $wcb_size );
 		}
 
-		$wcb_type = isset( $_POST['wcb_company_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_type'] ) ) : '';
-		if ( in_array( $wcb_type, $allowed_types, true ) ) {
-			update_post_meta( $post_id, '_wcb_company_type', $wcb_type );
-		}
+		$wcb_type = isset( $_POST['wcb_company_type'] ) ? \WCB\Core\CompanyMetaShape::type_slug( sanitize_text_field( wp_unslash( $_POST['wcb_company_type'] ) ) ) : '';
+		update_post_meta( $post_id, '_wcb_company_type', $wcb_type );
 
 		$wcb_trust = isset( $_POST['wcb_trust_level'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_trust_level'] ) ) : '';
 		if ( in_array( $wcb_trust, $allowed_trust, true ) ) {

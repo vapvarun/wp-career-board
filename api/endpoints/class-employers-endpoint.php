@@ -456,7 +456,8 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $value ) );
+				$value = sanitize_text_field( (string) $value );
+				update_post_meta( $company_id, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 			}
 		}
 		$hq_value = $request->get_param( 'hq' );
@@ -546,7 +547,8 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				update_post_meta( $post->ID, $meta_key, sanitize_text_field( (string) $value ) );
+				$value = sanitize_text_field( (string) $value );
+				update_post_meta( $post->ID, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 				$changed = true;
 			}
 		}
@@ -1520,7 +1522,7 @@ final class EmployersEndpoint extends RestController {
 			'size'           => $shape['size'],
 			'size_label'     => $shape['size_label'],
 			'hq'             => $shape['hq'],
-			'company_type'   => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'company_type'   => \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) ),
 			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
 			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
 			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),

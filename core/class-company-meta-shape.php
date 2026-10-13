@@ -116,6 +116,60 @@ final class CompanyMetaShape {
 	 * @return string
 	 */
 	/**
+	 * Company types, slug => label: the one list the dashboard form, the
+	 * wp-admin meta box and the public profile all read.
+	 *
+	 * @since 1.8.1
+	 * @return array<string,string>
+	 */
+	public static function types(): array {
+		/**
+		 * Filter the company types an employer can pick.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param array<string,string> $types Slug => translated label.
+		 */
+		return (array) apply_filters(
+			'wcb_company_types',
+			array(
+				'public'        => __( 'Public Company', 'wp-career-board' ),
+				'private'       => __( 'Privately Held', 'wp-career-board' ),
+				'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
+				'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
+				'government'    => __( 'Government Agency', 'wp-career-board' ),
+				'educational'   => __( 'Educational Institution', 'wp-career-board' ),
+				'partnership'   => __( 'Partnership', 'wp-career-board' ),
+			)
+		);
+	}
+
+	/**
+	 * A stored or submitted company type as its slug, '' when unknown.
+	 *
+	 * Accepts the slug or a label in any case ("Private", "Privately Held"):
+	 * imports and older data stored labels, and the form then showed
+	 * "Select type" for a company that has one.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $raw Stored or submitted value.
+	 * @return string
+	 */
+	public static function type_slug( string $raw ): string {
+		$needle = strtolower( trim( $raw ) );
+		if ( '' === $needle ) {
+			return '';
+		}
+		foreach ( self::types() as $slug => $label ) {
+			if ( strtolower( $slug ) === $needle || strtolower( $label ) === $needle || strtolower( (string) strtok( $label, ' ' ) ) === $needle ) {
+				return (string) $slug;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Canonical company-size slugs, in display order.
 	 *
 	 * The labels already had a single home (size_label below); the SLUGS did not,

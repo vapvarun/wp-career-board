@@ -87,23 +87,8 @@ $wcb_trust_info = $wcb_trust_map[ $wcb_trust ] ?? null;
 // about `5001+`, the shared helper did not (Basecamp 10074197007, item 3).
 $wcb_size_label = \WCB\Core\CompanyMetaShape::size_label( $wcb_size );
 
-// ── Company type labels ───────────────────────────────────────────────────────
-/*
- * `_wcb_company_type` stores a machine slug ("self-employed", "nonprofit"…).
- * The Company Details list used to echo that slug straight out, so every
- * locale saw the untranslated English slug. Labels mirror the admin meta box
- * verbatim so translators reuse the same source strings.
- */
-$wcb_type_labels = array(
-	'public'        => __( 'Public Company', 'wp-career-board' ),
-	'private'       => __( 'Privately Held', 'wp-career-board' ),
-	'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
-	'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
-	'government'    => __( 'Government Agency', 'wp-career-board' ),
-	'educational'   => __( 'Educational Institution', 'wp-career-board' ),
-	'partnership'   => __( 'Partnership', 'wp-career-board' ),
-);
-$wcb_type_label  = $wcb_type_labels[ $wcb_type ] ?? $wcb_type;
+// ── Company type label (slug or legacy label in, translated label out) ────
+$wcb_type_label = \WCB\Core\CompanyMetaShape::types()[ \WCB\Core\CompanyMetaShape::type_slug( (string) $wcb_type ) ] ?? '';
 
 // ── Bookmark state ───────────────────────────────────────────────────────────
 // Mirrors the archive-card bookmark + Find Jobs single hero so a customer who
@@ -277,7 +262,7 @@ wp_interactivity_state(
 		<?php endif; ?>
 
 		<?php /* Company Details */ ?>
-		<?php if ( $wcb_industry || $wcb_size || $wcb_type || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
+		<?php if ( $wcb_industry || $wcb_size || $wcb_type_label || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
 			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Company Details', 'wp-career-board' ); ?></h2>
 				<dl class="wcb-cp-details-grid">

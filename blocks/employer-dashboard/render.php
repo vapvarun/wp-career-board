@@ -112,7 +112,7 @@ $wcb_company_site    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_ind     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
 $wcb_company_hq      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_hq_location', true ) : '';
-$wcb_company_type    = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true ) : '';
+$wcb_company_type    = $wcb_company_id ? \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true ) ) : '';
 
 // Pro signals its notifications module through the wcb_module_renders slot; when
 // present, the dashboard shows a Notifications item in the ACCOUNT nav whose panel
@@ -1183,16 +1183,7 @@ wp_interactivity_state(
 							<select id="wcb-company-type" class="wcb-field-input wcb-field-select" data-wcb-field="companyType" data-wp-on--change="actions.updateField">
 								<option value=""><?php esc_html_e( ' -  Select type  - ', 'wp-career-board' ); ?></option>
 								<?php
-								$wcb_type_options = array(
-									'public'        => __( 'Public Company', 'wp-career-board' ),
-									'private'       => __( 'Privately Held', 'wp-career-board' ),
-									'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
-									'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
-									'government'    => __( 'Government Agency', 'wp-career-board' ),
-									'educational'   => __( 'Educational Institution', 'wp-career-board' ),
-									'partnership'   => __( 'Partnership', 'wp-career-board' ),
-								);
-								foreach ( $wcb_type_options as $wcb_val => $wcb_label ) {
+								foreach ( \WCB\Core\CompanyMetaShape::types() as $wcb_val => $wcb_label ) {
 									printf(
 										'<option value="%s"%s>%s</option>',
 										esc_attr( $wcb_val ),
