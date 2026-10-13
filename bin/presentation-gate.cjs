@@ -97,29 +97,54 @@ function inPageChecks() {
 
 	roots.forEach( ( root ) => {
 		// edges: per panel (dashboard tab panel, else the block)
-		const tabPanels = [ ...root.querySelectorAll( '.wcb-panel' ) ].filter( visible );
-		const panels = tabPanels.length ? tabPanels : [ root ];
+		// A dashboard tab (role=region) is one reading column; its cards are not.
+		const tabPanels = [ ...root.querySelectorAll( '[role="region"]' ) ].filter( ( r ) => visible( r ) && ! r.parentElement.closest( '[role="region"]' ) );
+		// Outside a dashboard tab, each form is its own column (listing toolbars
+		// sit beside their results, which is layout, not a stray edge).
+		const panels = tabPanels.length ? tabPanels : [ ...root.querySelectorAll( 'form' ) ].filter( visible );
 		panels.forEach( ( p ) => {
-			[ ...p.querySelectorAll( 'form, fieldset, .wcb-form-section, .wcb-settings-section' ) ].concat( [ p ] ).forEach( ( group ) => {
-				const items = [ ...group.querySelectorAll( 'h2, h3, h4, label, legend, .wcb-form-help, .wcb-field-help, .description, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea' ) ]
+			// The whole panel is one reading column: a heading, its labels, fields
+			// and help share at most two edges (section title + card content),
+			// across every form in it. Measuring form by form missed the
+			// pre-1.8.1 Settings panel (headings 0, fields 20, row labels 40).
+			[ p ].forEach( ( group ) => {
+				const items = [ ...group.querySelectorAll( 'h2, h3, h4, label, legend, th, dt, [class*="row-label"], [class*="-hint"], .wcb-form-help, .wcb-field-help, .description, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea' ) ]
 					// > 2px: screen-reader-only labels are 1x1 and are not a visible edge.
-					.filter( ( e ) => visible( e ) && e.getBoundingClientRect().width > 2 && e.getBoundingClientRect().height > 2 && e.closest( 'form, fieldset, .wcb-form-section, .wcb-settings-section, .wcb-panel' ) === ( group === p ? e.closest( '.wcb-panel' ) || p : group ) );
+					.filter( ( e ) => visible( e ) && e.getBoundingClientRect().width > 2 && e.getBoundingClientRect().height > 2 );
 				if ( items.length < 3 ) {
 					return;
 				}
 				const gRect = group.getBoundingClientRect();
-				// Fields side by side in a grid row are columns, not stray edges: only count
-				// edges of items that start a row (no item to their left on the same line).
-				const starts = items.filter( ( e ) => {
-					const r = e.getBoundingClientRect();
-					return ! items.some( ( o ) => {
-						const q = o.getBoundingClientRect();
-						return o !== e && q.right <= r.left + 1 && q.bottom > r.top + 1 && q.top < r.bottom - 1;
-					} );
-				} ).map( ( e ) => Math.round( e.getBoundingClientRect().left - gRect.left ) );
-				const edges = [ ...new Set( starts.map( ( x ) => Math.round( x / 4 ) * 4 ) ) ];
-				if ( edges.length > 2 ) {
-					add( 'edges', group, `${ edges.length } left edges: ${ edges.sort( ( a, b ) => a - b ).join( ',' ) }` );
+				// A row starts where nothing visible sits to the item's left on the
+				// same line (a field beside a field, a button beside a logo are not
+				// edges). Items inside another item (a hint in its label) don't count.
+				const startsRow = ( e ) => {
+					let r = e.getBoundingClientRect();
+					// elementFromPoint only sees the viewport.
+					if ( r.top < 0 || r.bottom > window.innerHeight ) {
+						e.scrollIntoView( { block: 'center' } );
+						r = e.getBoundingClientRect();
+					}
+					const y = r.top + Math.min( r.height / 2, 12 );
+					for ( let x = r.left - 4; x > gRect.left + 1; x -= 8 ) {
+						const hit = document.elementFromPoint( x, y );
+						if ( hit && group.contains( hit ) && ! hit.contains( e ) && hit.getBoundingClientRect().right <= r.left + 1 ) {
+							return false;
+						}
+					}
+					return true;
+				};
+				const starts = items.filter( ( e ) => ! items.some( ( o ) => o !== e && o.contains( e ) ) && startsRow( e ) );
+				const byEdge = new Map();
+				starts.forEach( ( e ) => {
+					const x = Math.round( ( e.getBoundingClientRect().left - gRect.left ) / 4 ) * 4;
+					if ( ! byEdge.has( x ) ) {
+						byEdge.set( x, ( e.innerText || e.placeholder || e.tagName ).trim().slice( 0, 24 ) );
+					}
+				} );
+				if ( byEdge.size > 2 ) {
+					const list = [ ...byEdge ].sort( ( a, b ) => a[ 0 ] - b[ 0 ] ).map( ( [ x, t ] ) => `${ x } "${ t }"` );
+					add( 'edges', group, `${ byEdge.size } left edges: ${ list.join( ', ' ) }` );
 				}
 			} );
 		} );
