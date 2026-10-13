@@ -6,7 +6,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { relativeTime, showError, tabRouter } from '@wcb/ui';
+import { relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -1675,45 +1675,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		// My Jobs "more actions" menus (<details>): one open at a time, closed by
-		// Escape, an outside click or picking an item.
-		onRowMenuToggle( event ) {
-			if ( ! event.target.open ) {
-				return;
-			}
-			document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
-				if ( menu !== event.target ) {
-					menu.open = false;
-				}
-			} );
-			// The dashboard shell clips overflow, so the last row's menu opens upward.
-			const menu = event.target;
-			menu.classList.remove( 'wcb-row-menu--up' );
-			const list = menu.querySelector( '.wcb-row-menu__list' );
-			const shell = menu.closest( '.wcb-dashboard-shell' );
-			if ( list && shell && list.getBoundingClientRect().bottom > shell.getBoundingClientRect().bottom ) {
-				menu.classList.add( 'wcb-row-menu--up' );
-			}
-		},
-		onRowMenuKeydown( event ) {
-			if ( 'Escape' === event.key && event.currentTarget.open ) {
-				event.currentTarget.open = false;
-				event.currentTarget.querySelector( 'summary' ).focus();
-			}
-		},
-		closeRowMenu( event ) {
-			const menu = event.target.closest( '.wcb-row-menu' );
-			if ( menu && event.target.closest( '.wcb-row-menu__item' ) ) {
-				menu.open = false;
-			}
-		},
-		closeRowMenusOutside( event ) {
-			document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
-				if ( ! menu.contains( event.target ) ) {
-					menu.open = false;
-				}
-			} );
-		},
+		...rowMenuActions,
 
 		// The server said no (402 credits, 409 company removed): show its reason.
 		*reportRefusal( response ) {

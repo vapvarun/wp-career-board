@@ -10,6 +10,7 @@
  *   contrast  text or placeholder under 4.5:1 (3:1 for large text)
  *   wpadmin   wp-admin classes (.form-table, .wp-list-table ...) in frontend markup
  *   navgroup  a visible menu-group heading over fewer than 2 items (sidebar rule, 10400673345)
+ *   caret     a select whose drawn arrow shares space with its label (10401140048)
  *
  * Usage:
  *   node bin/presentation-gate.cjs               run against this install's site
@@ -240,6 +241,19 @@ function inPageChecks() {
 			}
 		} );
 
+		// caret: an appearance:none select draws its arrow as a background image;
+		// the end padding must clear it or the arrow sits on the label.
+		root.querySelectorAll( 'select:not([multiple]):not([size])' ).forEach( ( s ) => {
+			const cs = getComputedStyle( s );
+			if ( ! visible( s ) || 'none' === cs.backgroundImage || ! /none/.test( cs.appearance + cs.webkitAppearance ) ) {
+				return;
+			}
+			const end = parseFloat( 'rtl' === cs.direction ? cs.paddingLeft : cs.paddingRight );
+			if ( end < 28 ) {
+				add( 'caret', s, `end padding ${ Math.round( end ) }px; the drawn arrow needs about 28px` );
+			}
+		} );
+
 		// navgroup: a heading earns its place over 2+ items; one item gets a divider.
 		root.querySelectorAll( '[role="group"][aria-labelledby]' ).forEach( ( g ) => {
 			const label = document.getElementById( g.getAttribute( 'aria-labelledby' ) );
@@ -278,7 +292,7 @@ async function selfTest( browser ) {
 	const page = await browser.newPage( { viewport: { width: 390, height: 900 } } );
 	await page.goto( 'file://' + path.join( ROOT, 'tests/presentation/planted.html' ) );
 	const { findings } = await page.evaluate( inPageChecks );
-	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin', 'navgroup' ];
+	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin', 'navgroup', 'caret' ];
 	const got = new Set( findings.map( ( f ) => f.check ) );
 	const missing = want.filter( ( c ) => ! got.has( c ) );
 	// Regressions guarded one by one: a fix for a false positive must not blind the check.

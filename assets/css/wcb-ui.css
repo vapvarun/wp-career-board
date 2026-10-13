@@ -437,8 +437,13 @@
 	resize: vertical;
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-filter-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
+/* Every single-line select in our blocks draws the plugin's caret in its own
+   gutter. A list of classes left the rest (status, Move to, company filter)
+   with the theme's caret painted over the label (Basecamp 10401140048).
+   The second selector matches the field rule's (0,3,1) so its padding
+   shorthand can't take the caret's gutter back on form selects. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	-webkit-appearance: none;
 	appearance: none;
 	padding-inline-end: var(--wcb-space-3xl);
@@ -449,8 +454,7 @@
 	cursor: pointer;
 }
 
-[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
-[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-filter-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
+[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]) {
 	background-position: left var(--wcb-space-md) center;
 }
 

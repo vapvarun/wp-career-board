@@ -253,3 +253,47 @@ export function filterList( needle, list ) {
 		empty.textContent = shown ? '' : empty.dataset.message;
 	}
 }
+
+/**
+ * "More actions" row menus (a <details class="wcb-row-menu">), spread into a
+ * store's actions: one open at a time, closed by Escape, an outside click or
+ * picking an item, and opened upward when the dashboard shell would clip it.
+ */
+export const rowMenuActions = {
+	onRowMenuToggle( event ) {
+		if ( ! event.target.open ) {
+			return;
+		}
+		document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
+			if ( menu !== event.target ) {
+				menu.open = false;
+			}
+		} );
+		const menu = event.target;
+		menu.classList.remove( 'wcb-row-menu--up' );
+		const list  = menu.querySelector( '.wcb-row-menu__list' );
+		const shell = menu.closest( '.wcb-dashboard-shell' );
+		if ( list && shell && list.getBoundingClientRect().bottom > shell.getBoundingClientRect().bottom ) {
+			menu.classList.add( 'wcb-row-menu--up' );
+		}
+	},
+	onRowMenuKeydown( event ) {
+		if ( 'Escape' === event.key && event.currentTarget.open ) {
+			event.currentTarget.open = false;
+			event.currentTarget.querySelector( 'summary' ).focus();
+		}
+	},
+	closeRowMenu( event ) {
+		const menu = event.target.closest( '.wcb-row-menu' );
+		if ( menu && event.target.closest( '.wcb-row-menu__item' ) ) {
+			menu.open = false;
+		}
+	},
+	closeRowMenusOutside( event ) {
+		document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
+			if ( ! menu.contains( event.target ) ) {
+				menu.open = false;
+			}
+		} );
+	},
+};
