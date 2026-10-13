@@ -489,20 +489,21 @@ final class EmployersModule {
 			return array();
 		}
 		global $wpdb;
+		$statuses = $live_only ? array( 'publish' ) : array( 'publish', 'pending', 'draft' );
 		// shortcut: capped at 200 companies per employer; raise it if an agency outgrows that.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one indexed lookup (post_author / wcb_meta_key_value).
-		$rows      = $wpdb->get_results(
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one indexed lookup; the only interpolation is a %s placeholder per status.
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title FROM {$wpdb->posts}
-				 WHERE post_type = 'wcb_company' AND post_status IN ( " . ( $live_only ? "'publish'" : "'publish', 'pending', 'draft'" ) . " )
+				 WHERE post_type = 'wcb_company' AND post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . " )
 				   AND ( post_author = %d
 				         OR ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_owner' AND meta_value = %s ) )
 				 ORDER BY post_title ASC
 				 LIMIT 200",
-				$user_id,
-				(string) $user_id
+				...array_merge( $statuses, array( $user_id, (string) $user_id ) )
 			)
 		);
+		// phpcs:enable
 		$companies = array();
 		foreach ( (array) $rows as $row ) {
 			$companies[ (int) $row->ID ] = (string) $row->post_title;
