@@ -998,11 +998,13 @@ wp_interactivity_state(
 							<p class="wcb-ai-reason" data-wp-text="state.selectedAppAiReason"></p>
 						</div>
 						<div class="wcb-detail-section wcb-app-notes" data-wp-watch="callbacks.loadNotes">
-							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Your rating and notes', 'wp-career-board' ); ?> <span class="wcb-field-hint"><?php esc_html_e( '(only your hiring team sees these)', 'wp-career-board' ); ?></span></h4>
+							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Rating and notes', 'wp-career-board' ); ?></h4>
+							<p class="wcb-field-hint wcb-app-notes__hint"><?php esc_html_e( 'Only your hiring team sees these.', 'wp-career-board' ); ?></p>
 							<div class="wcb-rating" role="group" aria-label="<?php esc_attr_e( 'Rating', 'wp-career-board' ); ?>">
 								<template data-wp-each--star="state.ratingStars">
 									<button type="button" class="wcb-rating__star" data-wp-on--click="actions.setRating" data-wp-bind--aria-pressed="state.isStarOn" data-wp-bind--aria-label="context.star.label" data-wp-class--wcb-rating__star--on="state.isStarOn">&#9733;</button>
 								</template>
+								<span class="wcb-rating__none" data-wp-bind--hidden="state.selectedAppRated"><?php esc_html_e( 'Not rated', 'wp-career-board' ); ?></span>
 							</div>
 							<ul class="wcb-notes-list">
 								<template data-wp-each--note="state.appNotes" data-wp-each-key="context.note.id">

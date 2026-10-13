@@ -935,6 +935,26 @@
 	margin-top: var(--wcb-space-xl);
 }
 
+/* In the applicant pane a section is a band under a divider, not a card: the
+   split panel is already the box (no box in a box). */
+.wcb-applicant-detail .wcb-detail-section {
+	padding: var(--wcb-space-xl) 0 0;
+	background: none;
+	border: 0;
+	border-top: 1px solid var(--wcb-border);
+	border-radius: 0;
+}
+
+/* 'Pick an applicant' sits in the pane, which is already the frame. */
+.wcb-applicant-detail > .wcb-empty-state {
+	background: none;
+	border: 0;
+}
+
+.wcb-app-notes__hint {
+	margin: calc(-1 * var(--wcb-space-xs)) 0 var(--wcb-space-md);
+}
+
 .wcb-detail-section-label,
 .wcb-section-label {
 	display: block;
@@ -948,7 +968,6 @@
 
 .wcb-cover-letter {
 	background: var(--wcb-bg-subtle);
-	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-base);
@@ -1235,6 +1254,8 @@
 /* ── Hiring-team rating and notes (W19) ────────────────────────────────── */
 .wcb-rating {
 	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
 	gap: var(--wcb-space-xs);
 	margin-bottom: var(--wcb-space-sm);
 }
@@ -1243,7 +1264,9 @@
 	padding: 0 var(--wcb-space-xs);
 	border: 0;
 	background: none;
-	color: var(--wcb-text-secondary);
+	/* Off = an outlined star, so an unrated applicant never reads as 5 stars. */
+	color: transparent;
+	-webkit-text-stroke: 1.5px var(--wcb-text-secondary);
 	font-size: 1.4rem;
 	line-height: 1;
 	cursor: pointer;
@@ -1251,6 +1274,13 @@
 
 .wcb-rating__star--on {
 	color: var(--wcb-warning, #d97706);
+	-webkit-text-stroke-color: var(--wcb-warning, #d97706);
+}
+
+.wcb-rating__none {
+	margin-inline-start: var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-rating__star:focus-visible {

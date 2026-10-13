@@ -45,6 +45,11 @@ section { padding: 16px; }
 <!-- ...and a light one (an unclamped sky-blue accent) must fail. -->
 <section data-wcb-gate-scope class="bad-oklch" style="background: #ffffff"><span class="bad-oklch-text" style="color: oklch(0.78 0.13 230)">Pale oklch link</span></section>
 
+<!-- nested: a card inside a card inside a card (the applicant pane before its fix)... -->
+<section data-wcb-gate-scope class="bad-nested"><div style="border:1px solid #ccc;padding:8px"><div style="border:1px solid #ccc;padding:8px"><div style="border:1px solid #ccc;padding:8px"><p>Cover letter three boxes deep</p></div></div></div></section>
+<!-- ...while a card inside a panel (two frames) is fine. -->
+<section data-wcb-gate-scope class="clean-nested"><div style="border:1px solid #ccc;padding:8px"><div style="border:1px solid #ccc;padding:8px"><p>Clean card in a panel</p></div></div></section>
+
 <!-- navgroup: a visible heading over one item (the 'Moderation' > 'Review jobs' case) -->
 <section data-wcb-gate-scope class="bad-navgroup"><nav><div role="group" aria-labelledby="pl-g1"><span id="pl-g1">Moderation</span><a href="#">Review jobs</a></div></nav></section>
 <!-- clean-nav: the same single item under a screen-reader-only label passes -->

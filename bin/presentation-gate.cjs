@@ -226,7 +226,9 @@ function inPageChecks() {
 			}
 			seen.add( el );
 			const cs = getComputedStyle( el );
-			const fg = parse( cs.color ), bg = bgOf( el );
+			// An outlined glyph (transparent fill, text stroke) is seen by its stroke.
+			const stroked = parseFloat( cs.webkitTextStrokeWidth ) > 0 && 0 === parse( cs.color ).a;
+			const fg = parse( stroked ? cs.webkitTextStrokeColor : cs.color ), bg = bgOf( el );
 			if ( ! fg || ! bg ) {
 				continue;
 			}
@@ -275,6 +277,33 @@ function inPageChecks() {
 			}
 		} );
 
+		// nested: no box in a box in a box. Text with 3+ framed ancestors (all four
+		// borders, wider than a chip; form controls are their own frame) is a card
+		// stacked inside cards. Reported once per innermost frame.
+		const framed = ( n ) => {
+			if ( /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test( n.tagName ) || n.getBoundingClientRect().width <= 120 ) {
+				return false;
+			}
+			const cs = getComputedStyle( n );
+			return [ 'Top', 'Right', 'Bottom', 'Left' ].every( ( side ) => parseFloat( cs[ `border${ side }Width` ] ) > 0 && 'none' !== cs[ `border${ side }Style` ] );
+		};
+		const seenFrames = new Set();
+		root.querySelectorAll( '*' ).forEach( ( el ) => {
+			if ( el.children.length || ! visible( el ) || ! ( el.innerText || '' ).trim() ) {
+				return;
+			}
+			const frames = [];
+			for ( let n = el.parentElement; n && n !== root.parentElement; n = n.parentElement ) {
+				if ( framed( n ) ) {
+					frames.push( n );
+				}
+			}
+			if ( frames.length >= 3 && ! seenFrames.has( frames[ 0 ] ) ) {
+				seenFrames.add( frames[ 0 ] );
+				add( 'nested', frames[ 0 ], `${ frames.length } frames deep: ` + frames.reverse().map( ( f ) => f.classList[ 0 ] || f.tagName.toLowerCase() ).join( ' > ' ) );
+			}
+		} );
+
 		// wpadmin
 		root.querySelectorAll( '.form-table, .wp-list-table, .button-primary, .button-secondary, .notice, .postbox, .widefat' ).forEach( ( el ) => add( 'wpadmin', el, 'wp-admin class in frontend markup' ) );
 	} );
@@ -301,7 +330,7 @@ async function selfTest( browser ) {
 	const page = await browser.newPage( { viewport: { width: 390, height: 900 } } );
 	await page.goto( 'file://' + path.join( ROOT, 'tests/presentation/planted.html' ) );
 	const { findings } = await page.evaluate( inPageChecks );
-	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin', 'navgroup', 'caret' ];
+	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin', 'navgroup', 'caret', 'nested' ];
 	const got = new Set( findings.map( ( f ) => f.check ) );
 	const missing = want.filter( ( c ) => ! got.has( c ) );
 	// Regressions guarded one by one: a fix for a false positive must not blind the check.

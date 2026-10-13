@@ -544,6 +544,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		get selectedAppRated() {
+			return ( state.selectedApp?.rating || 0 ) > 0;
+		},
 		get isStarOn() {
 			return ( getContext().star?.value || 0 ) <= ( state.selectedApp?.rating || 0 );
 		},
