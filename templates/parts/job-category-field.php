@@ -117,10 +117,14 @@ $wcb_jobcat_context = (string) wp_json_encode(
 							data-wp-on--change="actions.toggle"
 						/>
 						<span><?php echo esc_html( $wcb_jobcat_term->name ); ?></span>
+						<?php echo \WCB\Core\Taxonomy::parent_note( $wcb_jobcat_term->parent_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
 					</label>
 				</li>
 			<?php endforeach; ?>
 		</ul>
+		<?php if ( count( $wcb_jobcat_terms ) > 12 ) : ?>
+			<?php echo \WCB\Core\Taxonomy::no_match_note(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
+		<?php endif; ?>
 		<p class="wcb-form-help" role="status" data-wp-text="state.limitText"></p>
 	</fieldset>
 <?php endif; ?>

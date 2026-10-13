@@ -265,11 +265,12 @@ $wcb_term_opts = static function ( string $taxonomy ): array {
 	$slug_of = wp_list_pluck( $options, 'slug', 'id' );
 	return array_map(
 		static fn( object $t ): array => array(
-			'slug'   => $t->slug,
-			'name'   => $t->name,
-			'depth'  => $t->depth,
+			'slug'        => $t->slug,
+			'name'        => $t->name,
+			'depth'       => $t->depth,
+			'parent_name' => $t->parent_name,
 			// Parent slug: ticking a parent category ticks its children (view.js).
-			'parent' => (string) ( $slug_of[ $t->parent ] ?? '' ),
+			'parent'      => (string) ( $slug_of[ $t->parent ] ?? '' ),
 		),
 		$options
 	);
@@ -611,10 +612,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'catSlug' => $wcb_opt['slug'] ) ) ); ?>">
 							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" data-wp-bind--indeterminate="state.isCatMixed" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
+							<?php echo \WCB\Core\Taxonomy::parent_note( $wcb_opt['parent_name'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
 						</label>
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php if ( count( $wcb_cat_opts ) > 12 ) : ?>
+					<?php echo \WCB\Core\Taxonomy::no_match_note(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
+				<?php endif; ?>
 			</div>
 			<?php endif; ?>
 			<?php

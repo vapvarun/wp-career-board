@@ -88,7 +88,7 @@ final class Taxonomy {
 	 *
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param bool   $hide_empty Skip terms with no jobs (parents of used terms stay).
-	 * @return array<int, object{id:int, slug:string, name:string, depth:int, parent:int, label:string}>
+	 * @return array<int, object{id:int, slug:string, name:string, depth:int, parent:int, parent_name:string, label:string}>
 	 */
 	public static function options( string $taxonomy, bool $hide_empty = false ): array {
 		$terms = get_terms(
@@ -114,16 +114,19 @@ final class Taxonomy {
 			$children[ $parent ][] = $term;
 		}
 
-		$out  = array();
-		$walk = static function ( int $parent_id, int $depth ) use ( &$walk, &$out, $children ): void {
+		$out   = array();
+		$names = wp_list_pluck( $terms, 'name', 'term_id' );
+		$walk  = static function ( int $parent_id, int $depth ) use ( &$walk, &$out, $children, $names ): void {
 			foreach ( $children[ $parent_id ] ?? array() as $term ) {
 				$out[] = (object) array(
-					'id'     => (int) $term->term_id,
-					'slug'   => $term->slug,
-					'name'   => $term->name,
-					'depth'  => $depth,
-					'parent' => $parent_id,
-					'label'  => str_repeat( '— ', $depth ) . $term->name,
+					'id'          => (int) $term->term_id,
+					'slug'        => $term->slug,
+					'name'        => $term->name,
+					'depth'       => $depth,
+					'parent'      => $parent_id,
+					// Child names repeat across groups ("Other", "Management"): search shows whose.
+					'parent_name' => (string) ( $names[ $parent_id ] ?? '' ),
+					'label'       => str_repeat( '— ', $depth ) . $term->name,
 				);
 				$walk( (int) $term->term_id, $depth + 1 );
 			}
@@ -152,6 +155,33 @@ final class Taxonomy {
 			}
 		}
 		return PHP_INT_MAX;
+	}
+
+	/**
+	 * "in Parent" after a child category in a searchable list. Part of the
+	 * checkbox's name for screen readers, shown on screen while searching.
+	 *
+	 * @since 1.8.1
+	 * @param string $parent_name Parent category name ('' for a top-level one).
+	 * @return string Escaped HTML.
+	 */
+	public static function parent_note( string $parent_name ): string {
+		if ( '' === $parent_name ) {
+			return '';
+		}
+		/* translators: %s: parent category name, e.g. "in Hospitality & Tourism". */
+		return '<span class="wcb-filter-parent">' . esc_html( sprintf( __( 'in %s', 'wp-career-board' ), $parent_name ) ) . '</span>';
+	}
+
+	/**
+	 * Live region after a searchable list; filterList() writes the message
+	 * into it when a search hides every row.
+	 *
+	 * @since 1.8.1
+	 * @return string Escaped HTML.
+	 */
+	public static function no_match_note(): string {
+		return '<p class="wcb-filter-empty" role="status" data-message="' . esc_attr__( 'No categories match.', 'wp-career-board' ) . '"></p>';
 	}
 
 	/**

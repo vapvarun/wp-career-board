@@ -106,10 +106,14 @@ wp_enqueue_script_module( '@wcb/category-picker' );
 						<label class="wcb-filter-panel__option">
 							<input type="checkbox" value="<?php echo esc_attr( $wcb_picker_opt->slug ); ?>" data-parent="<?php echo esc_attr( (string) ( $wcb_picker_slug_of[ $wcb_picker_opt->parent ] ?? '' ) ); ?>" <?php checked( isset( $wcb_picker_on[ $wcb_picker_opt->slug ] ) ); ?> />
 							<span><?php echo esc_html( $wcb_picker_opt->name ); ?></span>
+							<?php echo \WCB\Core\Taxonomy::parent_note( $wcb_picker_opt->parent_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
 						</label>
 					</li>
 				<?php endforeach; ?>
 			</ul>
+			<?php if ( count( $wcb_picker_options ) > 12 ) : ?>
+				<?php echo \WCB\Core\Taxonomy::no_match_note(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
+			<?php endif; ?>
 		</fieldset>
 		<div class="wcb-cat-picker__actions">
 			<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.clear"><?php esc_html_e( 'Clear', 'wp-career-board' ); ?></button>

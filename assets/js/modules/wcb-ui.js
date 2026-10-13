@@ -241,7 +241,15 @@ export function categoryTree( items ) {
  */
 export function filterList( needle, list ) {
 	const term = needle.trim().toLowerCase();
+	let shown  = 0;
 	list.querySelectorAll( 'li' ).forEach( ( li ) => {
 		li.hidden = '' !== term && ! li.textContent.toLowerCase().includes( term );
+		shown    += li.hidden ? 0 : 1;
 	} );
+	// While searching, rows show their parent ("Management in Retail").
+	list.classList.toggle( 'is-searching', '' !== term );
+	const empty = list.parentElement.querySelector( ':scope > .wcb-filter-empty' );
+	if ( empty ) {
+		empty.textContent = shown ? '' : empty.dataset.message;
+	}
 }

@@ -1230,6 +1230,36 @@
 .wcb-filter-panel__list li[data-depth="2"] { padding-inline-start: calc(var(--wcb-space-lg) * 2); }
 .wcb-filter-panel__list li[data-depth="3"] { padding-inline-start: calc(var(--wcb-space-lg) * 3); }
 
+/* "in Parent": read by screen readers always, shown while searching. */
+.wcb-filter-parent {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.is-searching .wcb-filter-parent {
+	position: static;
+	width: auto;
+	height: auto;
+	overflow: visible;
+	clip-path: none;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary, #667085);
+}
+
+.is-searching li { padding-inline-start: 0; }
+
+.wcb-filter-empty {
+	margin: 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #667085);
+}
+
+.wcb-filter-empty:not(:empty) { padding: var(--wcb-space-sm) var(--wcb-space-xs); }
+
 .wcb-filter-panel__search {
 	width: 100%;
 	box-sizing: border-box;
