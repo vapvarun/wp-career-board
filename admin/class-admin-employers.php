@@ -46,6 +46,14 @@ class AdminEmployers extends \WP_List_Table {
 	private array $job_counts = array();
 
 	/**
+	 * Companies each employer on the page runs: user ID => company ID => title.
+	 *
+	 * @since 1.8.1
+	 * @var array<int,array<int,string>>
+	 */
+	private array $companies = array();
+
+	/**
 	 * Constructor — configure singular/plural labels.
 	 *
 	 * @since 1.0.0
@@ -363,6 +371,25 @@ class AdminEmployers extends \WP_List_Table {
 		if ( $company_ids ) {
 			_prime_post_caches( array_unique( $company_ids ), false, true );
 		}
+
+		// Every company each employer runs (1.8.1): created by them or naming them a co-owner.
+		$this->companies = array();
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one lookup for the page; post_author and the meta pair are indexed.
+		$runs = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT p.post_author AS user_id, p.ID, p.post_title FROM {$wpdb->posts} p
+				 WHERE p.post_type = 'wcb_company' AND p.post_status IN ( 'publish', 'pending', 'draft' ) AND p.post_author IN ( {$in} )
+				 UNION
+				 SELECT m.meta_value, p.ID, p.post_title FROM {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
+				 WHERE m.meta_key = '_wcb_company_owner' AND m.meta_value IN ( {$in} ) AND p.post_type = 'wcb_company' AND p.post_status IN ( 'publish', 'pending', 'draft' )
+				 ORDER BY post_title",
+				...array_merge( $user_ids, array_map( 'strval', $user_ids ) )
+			)
+		);
+		// phpcs:enable
+		foreach ( (array) $runs as $row ) {
+			$this->companies[ (int) $row->user_id ][ (int) $row->ID ] = (string) $row->post_title;
+		}
 	}
 
 	/**
@@ -562,18 +589,24 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_company( $item ): string {
-		$company_id  = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
-		$company_obj = $company_id ? get_post( $company_id ) : null;
-
-		if ( $company_obj instanceof \WP_Post ) {
-			return sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( (string) get_edit_post_link( $company_id ) ),
-				esc_html( $company_obj->post_title )
-			);
+		$main      = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
+		$companies = $this->companies[ $item->ID ] ?? array();
+		$main_post = $main ? get_post( $main ) : null;
+		if ( $main_post instanceof \WP_Post && 'trash' !== $main_post->post_status ) {
+			// Main first, even when it is only linked (an admin-made company).
+			$companies = array( $main => $main_post->post_title ) + $companies;
 		}
 
-		return '—';
+		$links = array();
+		foreach ( $companies as $company_id => $title ) {
+			$links[] = sprintf(
+				'<a href="%s">%s</a>%s',
+				esc_url( (string) get_edit_post_link( $company_id ) ),
+				esc_html( $title ),
+				$company_id === $main && count( $companies ) > 1 ? ' <small>(' . esc_html__( 'main', 'wp-career-board' ) . ')</small>' : ''
+			);
+		}
+		return $links ? implode( ', ', $links ) : '—';
 	}
 
 	/**

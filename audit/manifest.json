@@ -260,11 +260,21 @@
         "methods": [
           "GET",
           "PUT",
-          "PATCH"
+          "PATCH",
+          "DELETE"
         ],
-        "handler": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_item|update_item",
-        "permission": "__return_true / update_item_permissions_check",
-        "purpose": "Get or update an employer profile"
+        "handler": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_item|update_item|delete_item",
+        "permission": "__return_true / update_item_permissions_check (anyone who runs the company) / delete_item_permissions_check (its creator)",
+        "purpose": "Get, update or remove (trash, closing its jobs) a company profile"
+      },
+      {
+        "route": "/wcb/v1/employers/(?P<id>\\d+)/main",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\EmployersEndpoint::set_main",
+        "permission": "update_item_permissions_check",
+        "purpose": "Make a company the employer's main one (1.8.1)"
       },
       {
         "route": "/wcb/v1/employers/(?P<id>\\d+)/jobs",
@@ -301,6 +311,15 @@
         "handler": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_my_jobs",
         "permission": "get_my_jobs_permissions_check",
         "purpose": "Current user's posted jobs"
+      },
+      {
+        "route": "/wcb/v1/employers/me/companies",
+        "methods": [
+          "GET"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_my_companies",
+        "permission": "get_my_jobs_permissions_check",
+        "purpose": "Companies the current user runs, with open jobs and applications (1.8.1)"
       },
       {
         "route": "/wcb/v1/employers/me/applications",

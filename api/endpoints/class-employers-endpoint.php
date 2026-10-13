@@ -96,6 +96,31 @@ final class EmployersEndpoint extends RestController {
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/main',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'set_main' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/me/companies',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_my_companies' ),
+				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
 			)
 		);
 
@@ -401,6 +426,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
+		$make_main  = (bool) $request->get_param( 'make_main' ) || 0 === \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
 		$company_id = wp_insert_post(
 			array(
 				'post_type'    => 'wcb_company',
@@ -440,14 +466,17 @@ final class EmployersEndpoint extends RestController {
 		// New companies start at trust level "new".
 		update_post_meta( $company_id, '_wcb_trust_level', 'new' );
 
-		// Link company to the employer user account.
-		update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
+		// It becomes the main company only when asked or when there is none:
+		// adding a second company used to switch the main one silently.
+		if ( $make_main ) {
+			update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
 
-		// Adopt any jobs the employer posted before this company existed — they
-		// never got _wcb_company_id (JobsEndpoint only stamps it when the user
-		// already has a company), so without this they stay invisible in My Jobs
-		// once the dashboard queries by company.
-		$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+			// Adopt any jobs the employer posted before this company existed — they
+			// never got _wcb_company_id (JobsEndpoint only stamps it when the user
+			// already has a company), so without this they stay invisible in My Jobs
+			// once the dashboard queries by company.
+			$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+		}
 
 		return rest_ensure_response( $this->prepare_company( get_post( $company_id ) ) );
 	}
@@ -1327,10 +1356,88 @@ final class EmployersEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = $this->is_current_user( (int) $post->post_author )
+		// Anyone who runs the company (its creator or a named co-owner) edits it.
+		$is_owner = 'wcb_company' === $post->post_type
+		&& isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * Only a company's creator (or an admin) removes it: removing closes its
+	 * jobs, and a colleague who runs it must not close the creator's.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function delete_item_permissions_check( $request ): bool|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+			return $this->permission_error();
+		}
+		$is_creator = $this->is_current_user( (int) $post->post_author ) && $this->check_ability( 'wcb/manage-company' );
+		return ( $is_creator || $this->check_ability( 'wcb/manage-settings' ) ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * GET /employers/me/companies: the companies the employer runs.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_my_companies( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( get_current_user_id() ) ) );
+	}
+
+	/**
+	 * POST /employers/{id}/main: make a company the employer's main one (the
+	 * one Post a Job preselects and the sidebar shows).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function set_main( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request['id'];
+		$user = get_current_user_id();
+		if ( ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $user )[ $id ] ) ) {
+			return new \WP_Error( 'wcb_company_not_yours', __( 'You can only choose a company you run.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+		update_user_meta( $user, '_wcb_company_id', $id );
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );
+	}
+
+	/**
+	 * DELETE /employers/{id}: remove a company. It goes to the trash, which
+	 * closes its jobs (EmployersModule::on_status_change()); an admin can
+	 * restore it. A removed main company hands "main" to another one.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_item( $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request['id'];
+		$user = get_current_user_id();
+		if ( 'trash' !== get_post_status( $id ) && ! wp_trash_post( $id ) ) {
+			return new \WP_Error( 'wcb_company_not_removed', __( 'The company could not be removed. Please try again.', 'wp-career-board' ), array( 'status' => 500 ) );
+		}
+		if ( (int) get_user_meta( $user, '_wcb_company_id', true ) === $id ) {
+			$next = array_key_first( \WCB\Modules\Employers\EmployersModule::owned_companies( $user ) );
+			if ( null !== $next ) {
+				update_user_meta( $user, '_wcb_company_id', (int) $next );
+			} else {
+				delete_user_meta( $user, '_wcb_company_id' );
+			}
+		}
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );
 	}
 
 	// --- Helpers ----------------------------------------------------------------

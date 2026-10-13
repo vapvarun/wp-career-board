@@ -164,6 +164,27 @@
       "writes": false,
       "check": "Scoped to the current user's own jobs."
     },
+    "GET /wcb/v1/employers/me/companies": {
+      "audience": "member",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::get_my_jobs_permissions_check",
+      "object_id": false,
+      "writes": false,
+      "check": "Scoped to the companies the current user runs."
+    },
+    "POST /wcb/v1/employers/(?P<id>\\d+)/main": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Only a company the user runs (owned_companies()); changes only their own _wcb_company_id."
+    },
+    "DELETE /wcb/v1/employers/(?P<id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::delete_item_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Only the company's creator (or a site admin); a co-owner gets 403. Removing trashes it, which closes its reviewed jobs."
+    },
     "GET /wcb/v1/files/(?P<id>\\d+)": {
       "audience": "owner",
       "permission_callback": "Closure@api/endpoints/class-applications-endpoint.php",

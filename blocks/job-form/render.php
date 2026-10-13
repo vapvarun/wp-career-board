@@ -324,6 +324,15 @@ $wcb_initial_state = apply_filters(
 		'companyId'         => $wcb_company_id,
 		'companyName'       => $wcb_company_name,
 		'companyNames'      => (object) $wcb_companies,
+		// The picker's options; the employer dashboard updates it when a company is added or removed.
+		'companyList'       => array_map(
+			static fn ( $id, $name ): array => array(
+				'id'   => (int) $id,
+				'name' => (string) $name,
+			),
+			array_keys( $wcb_companies ),
+			$wcb_companies
+		),
 		'submitting'        => false,
 		'submitted'         => false,
 		'jobUrl'            => '',
@@ -563,8 +572,7 @@ $wcb_step_labels = array(
 			</div>
 			<?php endif; ?>
 
-			<?php if ( count( $wcb_companies ) > 1 ) : ?>
-			<div class="wcb-form-field">
+			<div class="wcb-form-field<?php echo count( $wcb_companies ) > 1 ? '' : ' wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.hasCompanyChoice">
 				<label class="wcb-form-label" for="wcb-company-id">
 					<?php esc_html_e( 'Company', 'wp-career-board' ); ?>
 				</label>
@@ -575,14 +583,12 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.companyId"
 					data-wp-on--change="actions.updateField"
 				>
-					<?php foreach ( $wcb_companies as $wcb_cid => $wcb_cname ) : ?>
-						<option value="<?php echo (int) $wcb_cid; ?>" <?php selected( $wcb_company_id, (int) $wcb_cid ); ?>>
-							<?php echo esc_html( $wcb_cname ); ?>
-						</option>
-					<?php endforeach; ?>
+					<template data-wp-each--co="state.companyList" data-wp-each-key="context.co.id">
+						<option data-wp-bind--value="context.co.id" data-wp-text="context.co.name"></option>
+					</template>
 				</select>
 			</div>
-			<?php endif; ?>
+			
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-job-title">

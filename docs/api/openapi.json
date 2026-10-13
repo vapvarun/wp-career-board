@@ -1912,6 +1912,36 @@
                 }
             }
         },
+        "/wcb/v1/employers/me/companies": {
+            "get": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "get_wcb_v1_employers_me_companies",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
         "/wcb/v1/employers/me/jobs": {
             "get": {
                 "tags": [
@@ -2179,6 +2209,45 @@
                         "description": "Not found."
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "delete_wcb_v1_employers_id",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
             }
         },
         "/wcb/v1/employers/{id}/applications": {
@@ -2285,6 +2354,47 @@
                     "Employers"
                 ],
                 "operationId": "post_wcb_v1_employers_id_logo",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
+        "/wcb/v1/employers/{id}/main": {
+            "post": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "post_wcb_v1_employers_id_main",
                 "security": [
                     {
                         "appPassword": []

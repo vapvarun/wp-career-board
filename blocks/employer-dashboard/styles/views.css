@@ -256,6 +256,88 @@
 	flex-wrap: wrap;
 }
 
+/* Why a job closed when its owner didn't close it ("company removed"). */
+.wcb-job-note {
+	display: block;
+	max-width: 60ch;
+	color: var(--wcb-text-secondary);
+	white-space: normal;
+}
+
+/* Companies (1.8.1): one card per company the employer runs. */
+.wcb-page-intro {
+	margin: 0 0 var(--wcb-space-lg);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-base);
+	max-width: 65ch;
+}
+
+.wcb-company-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-company-card {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+}
+
+.wcb-company-card--main {
+	border-color: var(--wcb-primary);
+}
+
+.wcb-company-card__logo {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+}
+
+.wcb-company-card__logo img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: inherit;
+}
+
+.wcb-company-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	flex: 1;
+	min-width: 0;
+}
+
+.wcb-company-card__name {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+.wcb-company-card__stats {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-company-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
+}
+
 /* Apps chip (jobs list) */
 .wcb-apps-chip {
 	font-size: var(--wcb-text-base);
@@ -951,6 +1033,22 @@
 }
 
 @media (max-width: 640px) {
+	/* Company card: logo + name on one line, actions below. */
+	.wcb-company-card {
+		flex-wrap: wrap;
+		padding: var(--wcb-space-md);
+	}
+
+	.wcb-company-card__actions {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.wcb-company-card__actions .wcb-hidden {
+		display: none;
+	}
+
 	/* My Jobs row -- stack info above badge + chip + actions */
 	.wcb-job-row {
 		flex-wrap: wrap;

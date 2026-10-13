@@ -19,6 +19,7 @@ const VALID_VIEWS = [
 	'jobs',
 	'post-job',
 	'applications',
+	'companies',
 	'company',
 	'saved-jobs',
 	'saved-companies',
@@ -172,6 +173,36 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isViewApplications() {
 			return state.currentView === 'applications';
+		},
+		get isViewCompanies() {
+			return state.currentView === 'companies';
+		},
+		get hasManyCompanies() {
+			return state.companies.length > 1;
+		},
+		get isCompanyBusy() {
+			return state.companyBusy > 0;
+		},
+		get companyEditUrl() {
+			const url = new URL( state.dashboardUrl );
+			url.searchParams.set( 'company', String( getContext().co.id ) );
+			return url.toString() + '#company';
+		},
+		get mainRoleLabel() {
+			return state.mainCompanyName
+				? t( 'employerAt', 'Employer · %s' ).replace( '%s', state.mainCompanyName )
+				: t( 'employerRole', 'Employer' );
+		},
+		// The main company's page, else the company directory (no main yet).
+		get mainCompanyUrl() {
+			const main = state.companies.find( ( c ) => c.isMain );
+			return ( main && main.permalink ) || state.companyDirUrl;
+		},
+		get mainInitials() {
+			const n = state.mainCompanyName || state.displayName;
+			return n
+				? n.split( ' ' ).filter( ( p ) => /^[\p{L}\p{N}]/u.test( p ) ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase() || '?'
+				: '?';
 		},
 		get isViewCompany() {
 			return state.currentView === 'company';
@@ -840,6 +871,87 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'applications';
 			state.navOpen     = false;
 			views.go( 'applications' );
+		},
+
+		switchToCompanies() {
+			state.currentView = 'companies';
+			state.error       = '';
+			state.navOpen     = false;
+			views.go( 'companies' );
+		},
+
+		// Show a fresh company list everywhere it appears: this view, the
+		// sidebar, the company filters and the Post a Job picker.
+		applyCompanies( list ) {
+			state.companies = list;
+			const main      = list.find( ( c ) => c.isMain );
+			state.mainCompanyId   = main ? main.id : 0;
+			state.mainCompanyName = main ? main.name : '';
+			state.mainLogoUrl     = main ? main.logo : '';
+			state.noCompany       = ! main;
+			if ( state.companyFilter && ! list.some( ( c ) => c.id === state.companyFilter ) ) {
+				state.companyFilter = 0;
+			}
+			const form = store( 'wcb-job-form' ).state;
+			form.companyList  = list.map( ( c ) => ( { id: c.id, name: c.name } ) );
+			form.companyNames = Object.fromEntries( list.map( ( c ) => [ String( c.id ), c.name ] ) );
+			// A new job starts on the main company; a job being edited keeps its own while it exists.
+			if ( main && ( ! form.editJobId || ! list.some( ( c ) => c.id === Number( form.companyId ) ) ) ) {
+				form.companyId   = main.id;
+				form.companyName = main.name;
+			}
+		},
+
+		*makeMainCompany() {
+			const id = getContext().co.id;
+			state.companyBusy = id;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/employers/' + String( id ) + '/main', {
+					method:  'POST',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( response.ok ) {
+					actions.applyCompanies( ( yield response.json() ).companies || [] );
+				} else {
+					yield actions.reportRefusal( response );
+				}
+			} catch {
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			} finally {
+				state.companyBusy = 0;
+			}
+		},
+
+		*removeCompany() {
+			const co = getContext().co;
+			try {
+				yield window.wcbConfirm( {
+					title:       t( 'removeCompanyTitle', 'Remove this company?' ),
+					message:     t( 'removeCompanyText', 'Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them.' ),
+					confirmText: t( 'removeCompanyButton', 'Remove company' ),
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			state.companyBusy = co.id;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/employers/' + String( co.id ), {
+					method:  'DELETE',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( response.ok ) {
+					actions.applyCompanies( ( yield response.json() ).companies || [] );
+					// Its jobs just closed: My Jobs and the counts follow.
+					yield actions.loadJobs();
+				} else {
+					yield actions.reportRefusal( response );
+				}
+			} catch {
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			} finally {
+				state.companyBusy = 0;
+			}
 		},
 
 		switchToCompany() {
@@ -1629,6 +1741,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				const data = yield response.json();
 				if ( response.ok ) {
 					state.companyLogoUrl = data.logo_url;
+					if ( state.companyId === state.mainCompanyId ) {
+						state.mainLogoUrl = data.logo_url;
+					}
+					const card = state.companies.find( ( c ) => c.id === state.companyId );
+					if ( card ) {
+						card.logo = data.logo_url;
+					}
 				} else {
 					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 				}
@@ -1692,9 +1811,19 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					return;
 				}
 
-				if ( isNew ) {
-					state.companyId = data.id ?? 0;
-					state.noCompany = ! state.companyId;
+				if ( isNew && data.id ) {
+					// Open the new company's own profile (logo, custom fields), saved.
+					const url = new URL( state.dashboardUrl );
+					url.searchParams.set( 'company', String( data.id ) );
+					window.location.assign( url.toString() + '#company' );
+					return;
+				}
+				if ( state.companyId === state.mainCompanyId ) {
+					state.mainCompanyName = state.companyName;
+				}
+				const card = state.companies.find( ( c ) => c.id === state.companyId );
+				if ( card ) {
+					card.name = state.companyName;
 				}
 
 				state.saved = true;

@@ -374,6 +374,12 @@ const { state } = store(
 				return 'location' === state.validationField && ! ! state.validationError;
 			},
 
+			// More than one company to post for: show the Company picker.
+			get hasCompanyChoice() {
+				const { state } = store( 'wcb-job-form' );
+				return ( state.companyList || [] ).length > 1;
+			},
+
 			// ── Edit mode ─────────────────────────────────────────────────────────
 			get isEditing() {
 				const { state } = store( 'wcb-job-form' );

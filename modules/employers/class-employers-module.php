@@ -187,13 +187,13 @@ final class EmployersModule {
 					'no_found_rows'  => true,
 				)
 			);
-			foreach ( $ids as $id ) {
+			foreach ( wp_parse_id_list( $ids ) as $id ) {
 				if ( $before ) {
-					$before( (int) $id );
+					$before( $id );
 				}
 				wp_update_post(
 					array(
-						'ID'          => (int) $id,
+						'ID'          => $id,
 						'post_status' => $new_status,
 					)
 				);
@@ -504,6 +504,81 @@ final class EmployersModule {
 			$companies[ $linked ] = (string) get_post_field( 'post_title', $linked );
 		}
 		return $companies;
+	}
+
+	/**
+	 * The companies an employer runs, as dashboard cards: main first, then by
+	 * name, each with its open jobs and applications (two grouped queries).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Employer user ID.
+	 * @return array<int, array{id:int, name:string, logo:string, initials:string, isMain:bool, status:string, statusLabel:string, openJobs:int, applications:int, stats:string, permalink:string, canRemove:bool}>
+	 */
+	public static function company_cards( int $user_id ): array {
+		$companies = self::owned_companies( $user_id );
+		if ( ! $companies ) {
+			return array();
+		}
+		$ids  = array_keys( $companies );
+		$main = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
+		$open = \WCB\Core\CompanyMetaShape::open_job_counts( $ids );
+		\WCB\Core\CompanyMetaShape::prime_logos( $ids );
+
+		global $wpdb;
+		$in = implode( ',', array_fill( 0, count( $ids ), '%s' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the ID count; COUNT only.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT co.meta_value AS company_id, COUNT(*) AS c
+				 FROM {$wpdb->postmeta} co
+				 INNER JOIN {$wpdb->postmeta} aj ON aj.meta_key = '_wcb_job_id' AND aj.meta_value = CAST( co.post_id AS CHAR )
+				 INNER JOIN {$wpdb->posts} app ON app.ID = aj.post_id AND app.post_type = 'wcb_application' AND app.post_status <> 'trash'
+				 WHERE co.meta_key = '_wcb_company_id' AND co.meta_value IN ( {$in} )
+				 GROUP BY co.meta_value",
+				...array_map( 'strval', $ids )
+			)
+		);
+		// phpcs:enable
+		$apps = array();
+		foreach ( (array) $rows as $row ) {
+			$apps[ (int) $row->company_id ] = (int) $row->c;
+		}
+
+		$status_labels = array(
+			'pending' => __( 'Waiting for review', 'wp-career-board' ),
+			'draft'   => __( 'Draft, not public', 'wp-career-board' ),
+		);
+		$cards         = array();
+		foreach ( $companies as $id => $name ) {
+			$status  = (string) get_post_status( $id );
+			$n_open  = (int) ( $open[ $id ] ?? 0 );
+			$n_apps  = (int) ( $apps[ $id ] ?? 0 );
+			$cards[] = array(
+				'id'           => (int) $id,
+				'name'         => (string) $name,
+				'logo'         => \WCB\Core\CompanyMetaShape::logo_url( (int) $id ),
+				'initials'     => \WCB\Core\CompanyMetaShape::initials( (string) $name ),
+				'isMain'       => (int) $id === $main,
+				'status'       => $status,
+				'statusLabel'  => $status_labels[ $status ] ?? '',
+				'openJobs'     => $n_open,
+				'applications' => $n_apps,
+				'stats'        => sprintf(
+					/* translators: 1: the open jobs count, 2: the applications count (each already a phrase). */
+					__( '%1$s · %2$s', 'wp-career-board' ),
+					/* translators: %s: number of open jobs, already localised. */
+					sprintf( _n( '%s open job', '%s open jobs', $n_open, 'wp-career-board' ), number_format_i18n( $n_open ) ),
+					/* translators: %s: number of applications, already localised. */
+					sprintf( _n( '%s application', '%s applications', $n_apps, 'wp-career-board' ), number_format_i18n( $n_apps ) )
+				),
+				'permalink'    => 'publish' === $status ? (string) get_permalink( $id ) : '',
+				// Only its creator removes a company; a colleague who runs it cannot close their jobs.
+				'canRemove'    => (int) get_post_field( 'post_author', $id ) === $user_id,
+			);
+		}
+		usort( $cards, static fn ( array $a, array $b ): int => array( ! $a['isMain'], strtolower( $a['name'] ) ) <=> array( ! $b['isMain'], strtolower( $b['name'] ) ) );
+		return $cards;
 	}
 
 	/**
