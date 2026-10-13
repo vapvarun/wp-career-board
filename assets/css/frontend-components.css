@@ -264,6 +264,12 @@
 	border-bottom: 1px solid var(--wcb-border);
 }
 
+/* A section whose body is a card (its empty state) puts its title on that
+   card's edge; over list rows the padding lines the title up with row text. */
+.wcb-panel:has(> .wcb-empty-state.wcb-shown:not(.wcb-empty-state--plain)) > .wcb-panel-header {
+	padding-inline: 0;
+}
+
 .wcb-panel-body {
 	padding: 2.5rem var(--wcb-space-3xl);
 }
