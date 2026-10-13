@@ -168,6 +168,28 @@ $wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wc
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag.
 $wcb_credits_added = isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0;
 
+// Credits show only where they mean something: credits are on and the
+// employer holds some, just bought some, or could be charged by a board.
+// On a site where every board is free, 'Credits 0' read like a problem.
+$wcb_show_credits = (bool) apply_filters( 'wcb_credits_enabled', false ) && ( $wcb_credit_balance > 0 || $wcb_credits_added > 0 );
+if ( ! $wcb_show_credits && apply_filters( 'wcb_credits_enabled', false ) && ! \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+	// shortcut: checks the first 50 published boards; a site with more paid boards past that still shows credits once one is in range.
+	foreach ( get_posts(
+		array(
+			'post_type'      => 'wcb_board',
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	) as $wcb_board_post_id ) {
+		if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_board_post_id ) > 0 ) {
+			$wcb_show_credits = true;
+			break;
+		}
+	}
+}
+
 // Company-size slug → translated label map. Defined once here so it can both seed
 // the Interactivity state (for the Live Preview chip, which must show the label,
 // never the raw slug) and populate the size <select> below without duplication.
@@ -312,7 +334,7 @@ wp_interactivity_state(
 		'creditPurchaseUrl'     => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		// Paid Featured upgrade (Pro prices it; 0 hides the Feature action).
 		'featuredCost'          => (int) apply_filters( 'wcb_featured_upgrade_cost', 0 ),
-		'creditsEnabled'        => (bool) apply_filters( 'wcb_credits_enabled', false ),
+		'creditsEnabled'        => $wcb_show_credits,
 		// Low-balance threshold — Pro returns the admin-configured value, Free
 		// defaults to 0 (no warning). When balance dips below the threshold
 		// dashboard renders a subtle banner pointing at the Buy Credits page.
@@ -532,7 +554,7 @@ wp_interactivity_state(
 			</div>
 
 			<?php // Credits is one item: a divider, not a heading that repeats it; screen readers still hear "Credits". ?>
-			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+			<?php if ( $wcb_show_credits ) : ?>
 			<div class="wcb-nav-group wcb-nav-group--rule" role="group" aria-labelledby="wcb-nav-g-credits">
 			<span id="wcb-nav-g-credits" class="wcb-nav-section-label screen-reader-text"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
 				<?php if ( '' !== $wcb_credits_panel ) : ?>
@@ -625,7 +647,7 @@ wp_interactivity_state(
 				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
-			<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+			<?php if ( $wcb_show_credits ) : ?>
 			<!--
 				Credits banners — only render when credits are enabled. The success
 				banner appears once after a successful WooCommerce checkout
@@ -662,7 +684,7 @@ wp_interactivity_state(
 					<span class="wcb-stat-value" data-wp-text="state.newThisWeek">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'New This Week', 'wp-career-board' ); ?></span>
 				</div>
-				<?php if ( apply_filters( 'wcb_credits_enabled', false ) ) : ?>
+				<?php if ( $wcb_show_credits ) : ?>
 				<div class="wcb-stat-card" data-wp-bind--hidden="!state.creditsEnabled">
 					<span class="wcb-stat-value" data-wp-text="state.creditBalanceLabel">0</span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Credits', 'wp-career-board' ); ?></span>
