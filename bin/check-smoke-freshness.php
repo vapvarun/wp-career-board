@@ -69,6 +69,12 @@ if ( false === $walked ) {
 	fwrite( STDERR, "FAIL: smoke report ran_at is not a parseable timestamp: {$ran_at}\n" );
 	exit( 1 );
 }
+// A walk can't finish in the future: a written-ahead ran_at would pass every
+// commit made before that time, including ones the walk never saw.
+if ( $walked > time() + 300 ) {
+	fwrite( STDERR, "FAIL: smoke report ran_at ({$ran_at}) is in the future; write the real finish time.\n" );
+	exit( 1 );
+}
 
 /**
  * Commits touching shipped code since the walk.
