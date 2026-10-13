@@ -243,6 +243,43 @@ function clearLegacyFilterBar( only = null ) {
 	document.dispatchEvent( new CustomEvent( 'wcb:filters-cleared', { detail: { keys: NAMES } } ) );
 }
 
+/**
+ * Mirror the current filters, keyword and sort into the address bar (one
+ * history entry per change), so the page can be shared, reloaded or stepped
+ * back through. Uses the same canonical names the server reads on first paint.
+ */
+function syncUrl() {
+	if ( state.authorId || state.savedBy ) {
+		return; // Dashboard lists are scoped by the block, not the URL.
+	}
+	const url    = new URL( window.location.href );
+	const params = wcbFilterParams( state.activeFilters || {} );
+	[ ...URL_FILTER_KEYS, 'paged', ...[ ...url.searchParams.keys() ].filter( ( key ) => key.startsWith( 'meta_' ) ) ].forEach( ( key ) => url.searchParams.delete( key ) );
+	Object.entries( params ).forEach( ( [ key, value ] ) => url.searchParams.set( key, value ) );
+	if ( state.searchQuery ) {
+		url.searchParams.set( 'search', state.searchQuery );
+	}
+	if ( state.sortBy ) {
+		url.searchParams.set( 'sort', state.sortBy );
+	}
+	if ( url.toString() !== window.location.href ) {
+		window.history.pushState( null, '', url.toString() );
+		renderedSearch = url.search;
+	}
+}
+
+// Every filter name the URL can carry (canonical and the aliases the server accepts).
+const URL_FILTER_KEYS = [ 'search', 's', 'wcb_search', 'category', 'wcb_category', 'type', 'wcb_job_type', 'location', 'wcb_location', 'experience', 'wcb_experience', 'tag', 'wcb_tag', 'remote', 'wcb_remote', 'board', 'board_id', 'sort', 'wcb_sort', 'salary_min', 'salary_max' ];
+
+// Back/Forward across filter changes: the server renders that exact state.
+// Hash-only history steps leave the query alone and are ignored.
+let renderedSearch = window.location.search;
+window.addEventListener( 'popstate', () => {
+	if ( window.location.search !== renderedSearch ) {
+		window.location.reload();
+	}
+} );
+
 const { state, actions } = store( 'wcb-job-listings', {
 	state: {
 		// ── Derived: layout ──────────────────────────────────────────
@@ -678,11 +715,15 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Apply filters (reset to page 1) ───────────────────────────
 		* applyFilters() {
 			state.page = 1;
+			syncUrl();
 			yield actions.fetchJobs();
 		},
 
 		// ── Load more (append next page) ──────────────────────────────
-		* loadMore() {
+		* loadMore( event ) {
+			// The control is a ?paged=N link for crawlers and no-JS visitors;
+			// with JS the next page is appended in place instead.
+			event?.preventDefault();
 			if ( ! state.hasMore || state.loading ) return;
 			state.page += 1;
 			yield actions.fetchJobs();

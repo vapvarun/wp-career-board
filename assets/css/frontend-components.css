@@ -307,6 +307,33 @@
 	color: var(--wcb-text-secondary);
 }
 
+.wcb-settings-note {
+	margin: 0 0 var(--wcb-space-md);
+	color: var(--wcb-text-secondary);
+	line-height: 1.5;
+}
+
+/* Privacy: delete-account confirmation stacks its fields with room to breathe. */
+.wcb-delete-account-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+	margin-block-start: var(--wcb-space-lg);
+	max-width: 32rem;
+}
+
+/* Space between one field and the next label (the shared form CSS zeroes label margins). */
+.wcb-delete-account-form .wcb-field-input + .wcb-field-label {
+	margin-block-start: var(--wcb-space-md);
+}
+
+.wcb-settings-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-md);
+	margin-block-start: var(--wcb-space-md);
+}
+
 @media (max-width: 640px) {
 	.wcb-settings-row {
 		grid-template-columns: minmax(0, 1fr);

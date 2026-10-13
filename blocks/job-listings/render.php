@@ -15,7 +15,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_setting_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 10 );
+$wcb_setting_per_page = \WCB\Admin\Settings::int( 'jobs_per_page', 12 );
 $wcb_per_page         = ! empty( $attributes['perPage'] ) ? (int) $attributes['perPage'] : $wcb_setting_per_page;
 $wcb_raw_layout       = (string) ( $attributes['layout'] ?? 'grid' );
 $wcb_layout           = in_array( $wcb_raw_layout, array( 'grid', 'list' ), true ) ? $wcb_raw_layout : 'grid';
@@ -118,8 +118,12 @@ $wcb_query_args = \WCB\Modules\Jobs\JobSearch::query_args( $wcb_url_params, $wcb
 unset( $wcb_query_args['numberposts'] );
 $wcb_query_args['posts_per_page'] = $wcb_per_page;
 $wcb_query_args['no_found_rows']  = false;
-$wcb_query                        = \WCB\Modules\Jobs\JobSearch::run( (array) apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
-$wcb_jobs_raw                     = $wcb_query->posts;
+// ?paged=N renders that page on the server, so Load More can be a real link
+// that works without JavaScript and lets crawlers reach every job.
+$wcb_paged               = 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ? max( 1, absint( get_query_var( 'paged' ) ), absint( get_query_var( 'page' ) ) ) : 1;
+$wcb_query_args['paged'] = $wcb_paged;
+$wcb_query               = \WCB\Modules\Jobs\JobSearch::run( (array) apply_filters( 'wcb_job_listings_query_args', $wcb_query_args ) );
+$wcb_jobs_raw            = $wcb_query->posts;
 
 if ( $wcb_jobs_raw ) {
 	$wcb_job_ids = wp_list_pluck( $wcb_jobs_raw, 'ID' );
@@ -337,9 +341,23 @@ $wcb_results_label = sprintf(
  */
 $wcb_salary_js_strings = \WCB\Core\SalaryFormat::js_strings();
 
+// URL filters seed the same per-slug keys the sidebar checkboxes read, so a
+// shared link shows ticked boxes, matching pills and one filter per value.
+$wcb_chip_filters = array();
+foreach ( array(
+	'type'       => 'type_',
+	'experience' => 'exp_',
+	'category'   => 'cat_',
+	'tag'        => 'tag_',
+) as $wcb_param => $wcb_prefix ) {
+	foreach ( array_filter( explode( ',', (string) ( $wcb_url_params[ $wcb_param ] ?? '' ) ) ) as $wcb_slug ) {
+		$wcb_chip_filters[ $wcb_prefix . $wcb_slug ] = $wcb_slug;
+	}
+}
+
 $wcb_state = array(
 	'jobs'              => $wcb_jobs_state,
-	'page'              => 1,
+	'page'              => $wcb_paged,
 	'perPage'           => $wcb_per_page,
 	'layout'            => $wcb_layout,
 	'loading'           => false,
@@ -348,7 +366,7 @@ $wcb_state = array(
 	// button even when the first batch was the only batch (count == total).
 	// Saved tab participates in Load More now that it paginates instead
 	// of returning every bookmark in one shot.
-	'hasMore'           => count( $wcb_jobs_raw ) < $wcb_total_count,
+	'hasMore'           => ( $wcb_paged - 1 ) * $wcb_per_page + count( $wcb_jobs_raw ) < $wcb_total_count,
 	'apiBase'           => untrailingslashit( (string) apply_filters( 'wcb_job_listings_api_base', rest_url( 'wcb/v1/jobs' ) ) ),
 	'nonce'             => wp_create_nonce( 'wp_rest' ),
 	'totalCount'        => $wcb_total_count,
@@ -365,15 +383,11 @@ $wcb_state = array(
 	// Seeded from the URL, under the keys the filter blocks use, so the
 	// pills show and every later fetch keeps them.
 	'activeFilters'     => (object) array_filter(
-		array(
-			'wcb_category'   => (string) ( $wcb_url_params['category'] ?? '' ),
-			'wcb_job_type'   => (string) ( $wcb_url_params['type'] ?? '' ),
-			'wcb_location'   => (string) ( $wcb_url_params['location'] ?? '' ),
-			'wcb_experience' => (string) ( $wcb_url_params['experience'] ?? '' ),
-			'wcb_tag'        => (string) ( $wcb_url_params['tag'] ?? '' ),
-			'remote'         => ! empty( $wcb_url_params['remote'] ) ? '1' : '',
-			'salary_min'     => (string) ( $wcb_url_params['salary_min'] ?? '' ),
-			'salary_max'     => (string) ( $wcb_url_params['salary_max'] ?? '' ),
+		$wcb_chip_filters + array(
+			'wcb_location' => (string) ( $wcb_url_params['location'] ?? '' ),
+			'remote'       => ! empty( $wcb_url_params['remote'] ) ? '1' : '',
+			'salary_min'   => (string) ( $wcb_url_params['salary_min'] ?? '' ),
+			'salary_max'   => (string) ( $wcb_url_params['salary_max'] ?? '' ),
 		) + array_filter(
 			$wcb_url_params,
 			static fn ( $value, $key ): bool => str_starts_with( (string) $key, 'meta_' ) && '' !== (string) $value,
@@ -853,7 +867,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	</div>
 
 	<?php
-	$wcb_load_more = array( 'label' => __( 'Load more jobs', 'wp-career-board' ) );
+	$wcb_load_more = array(
+		'label' => __( 'Load more jobs', 'wp-career-board' ),
+		'href'  => get_pagenum_link( $wcb_paged + 1 ),
+	);
 	require WCB_DIR . 'templates/parts/archive-load-more.php';
 	?>
 

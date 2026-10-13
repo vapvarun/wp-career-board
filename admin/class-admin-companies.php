@@ -26,6 +26,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminCompanies extends \WP_List_Table {
 
+	use SearchBox;
+
 	/**
 	 * Employer for each company on the current page: company ID => {id, display_name}.
 	 *
@@ -92,18 +94,7 @@ class AdminCompanies extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-companies">
-				<?php
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$wcb_s = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-				?>
-				<p class="search-box">
-					<label class="screen-reader-text" for="wcb-company-search-input">
-						<?php esc_html_e( 'Search Companies', 'wp-career-board' ); ?>
-					</label>
-					<label for="wcb-company-search-input" class="screen-reader-text"><?php esc_html_e( 'Search companies', 'wp-career-board' ); ?></label>
-					<input type="search" id="wcb-company-search-input" name="s" value="<?php echo esc_attr( $wcb_s ); ?>" placeholder="<?php esc_attr_e( 'Company name…', 'wp-career-board' ); ?>">
-					<?php submit_button( __( 'Search Companies', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
-				</p>
+				<?php $this->render_search_box( 'wcb-company', __( 'Search Companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>

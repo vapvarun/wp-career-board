@@ -28,6 +28,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminApplications extends \WP_List_Table {
 
+	use SearchBox;
+
 	/**
 	 * Most job / candidate IDs a search feeds into the meta_query below.
 	 *
@@ -123,18 +125,7 @@ class AdminApplications extends \WP_List_Table {
 				<?php foreach ( array_diff_key( $this->filter_args(), array( 's' => 1 ) ) as $wcb_key => $wcb_val ) : ?>
 					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
 				<?php endforeach; ?>
-				<?php
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$wcb_search_val = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-				?>
-				<p class="search-box">
-					<label class="screen-reader-text" for="wcb-application-search-input">
-						<?php esc_html_e( 'Search Applications', 'wp-career-board' ); ?>
-					</label>
-					<label for="wcb-application-search-input" class="screen-reader-text"><?php esc_html_e( 'Search applications', 'wp-career-board' ); ?></label>
-					<input type="search" id="wcb-application-search-input" name="s" value="<?php echo esc_attr( $wcb_search_val ); ?>" placeholder="<?php esc_attr_e( 'Job title or candidate name…', 'wp-career-board' ); ?>">
-					<?php submit_button( __( 'Search Applications', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
-				</p>
+				<?php $this->render_search_box( 'wcb-application', __( 'Search Applications', 'wp-career-board' ), __( 'Job title or candidate name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
