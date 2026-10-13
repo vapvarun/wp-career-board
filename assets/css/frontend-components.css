@@ -1260,6 +1260,12 @@
 	bottom: calc(100% + var(--wcb-space-xs));
 }
 
+/* Toggle near the start of its row: open from its start edge instead. */
+.wcb-row-menu--start .wcb-row-menu__list {
+	inset-inline-start: 0;
+	inset-inline-end: auto;
+}
+
 .wcb-row-menu__item {
 	display: flex;
 	align-items: center;

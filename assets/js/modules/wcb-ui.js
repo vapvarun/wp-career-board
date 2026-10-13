@@ -270,11 +270,23 @@ export const rowMenuActions = {
 			}
 		} );
 		const menu = event.target;
-		menu.classList.remove( 'wcb-row-menu--up' );
-		const list  = menu.querySelector( '.wcb-row-menu__list' );
+		menu.classList.remove( 'wcb-row-menu--up', 'wcb-row-menu--start' );
+		const list = menu.querySelector( '.wcb-row-menu__list' );
+		if ( ! list ) {
+			return;
+		}
+		// Stay inside the panel that clips it: open upward on the last rows, and
+		// from the toggle's start edge when it sits near the start of its row
+		// (a stacked phone row) instead of growing off the screen.
+		const box   = ( menu.closest( '.wcb-view-panel, .wcb-dashboard-shell' ) || document.documentElement ).getBoundingClientRect();
 		const shell = menu.closest( '.wcb-dashboard-shell' );
-		if ( list && shell && list.getBoundingClientRect().bottom > shell.getBoundingClientRect().bottom ) {
+		if ( shell && list.getBoundingClientRect().bottom > shell.getBoundingClientRect().bottom ) {
 			menu.classList.add( 'wcb-row-menu--up' );
+		}
+		const r   = list.getBoundingClientRect();
+		const rtl = 'rtl' === getComputedStyle( menu ).direction;
+		if ( rtl ? r.right > box.right : r.left < box.left ) {
+			menu.classList.add( 'wcb-row-menu--start' );
 		}
 	},
 	onRowMenuKeydown( event ) {
