@@ -257,6 +257,25 @@ final class CandidatesModule {
 	 * @return string Image URL.
 	 */
 	public static function avatar_url( int $user_id, int $size = 96, int $resume_id = 0 ): string {
+		$url = self::photo_url( $user_id, $size, $resume_id );
+		return '' !== $url ? $url : (string) get_avatar_url( $user_id, array( 'size' => $size ) );
+	}
+
+	/**
+	 * The candidate's resume photo, or '' when they have none.
+	 *
+	 * Public candidate surfaces show initials then, never the grey Gravatar
+	 * silhouette (owner rule, 1.8.1). avatar_url() keeps the Gravatar fallback
+	 * for wp-admin.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id   Candidate user ID.
+	 * @param int $size      Size in pixels.
+	 * @param int $resume_id Resume to take the photo from (optional).
+	 * @return string Image URL or ''.
+	 */
+	public static function photo_url( int $user_id, int $size = 96, int $resume_id = 0 ): string {
 		if ( ! $resume_id && $user_id ) {
 			$latest    = get_posts(
 				array(
@@ -275,7 +294,7 @@ final class CandidatesModule {
 		$photo = $resume_id ? (int) get_post_meta( $resume_id, '_wcb_resume_photo_id', true ) : 0;
 		$url   = $photo ? wp_get_attachment_image_url( $photo, array( $size, $size ) ) : '';
 
-		return $url ? (string) $url : (string) get_avatar_url( $user_id, array( 'size' => $size ) );
+		return $url ? (string) $url : '';
 	}
 
 	/**

@@ -422,21 +422,16 @@ wp_interactivity_state(
 
 		<div class="wcb-job-hero-meta">
 			<?php if ( $wcb_featured ) : ?>
-				<span class="wcb-badge wcb-badge--featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
+				<span class="wcb-badge wcb-badge--warning wcb-badge--featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
 			<?php endif; ?>
 
 			<?php if ( $wcb_remote ) : ?>
-				<span class="wcb-badge wcb-badge--remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
+				<span class="wcb-badge wcb-badge--success wcb-badge--remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 			<?php elseif ( $wcb_location_terms ) : ?>
 				<?php foreach ( $wcb_location_terms as $wcb_term ) : ?>
 					<a href="<?php echo esc_url( (string) get_term_link( $wcb_term ) ); ?>" class="wcb-badge wcb-badge--location">
-					<?php
-						printf(
-							/* translators: %s: location name. The 📍 pin marks a location badge — translators may move it after the name or drop it for RTL locales. */
-							esc_html__( '📍 %s', 'wp-career-board' ),
-							esc_html( $wcb_term->name )
-						);
-					?>
+						<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper; the outline pin the job cards use, not an emoji. ?>
+						<?php echo esc_html( $wcb_term->name ); ?>
 					</a>
 				<?php endforeach; ?>
 			<?php endif; ?>

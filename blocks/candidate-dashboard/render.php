@@ -17,26 +17,36 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! is_user_logged_in() ) {
 	$wcb_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
-	?>
-	<div class="wcb-db-gate">
-		<p><?php esc_html_e( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ); ?></p>
-		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
-	<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
-		</a>
-	<?php if ( $wcb_reg_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_reg_page ) ); ?>" class="wcb-btn wcb-btn--secondary">
-		<?php esc_html_e( 'Create an account', 'wp-career-board' ); ?>
-		</a>
-	<?php endif; ?>
-	</div>
-	<?php
+	$wcb_gate     = array(
+		'icon'    => 'user',
+		'message' => __( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ),
+		'actions' => array(
+			array(
+				'label'   => __( 'Sign in', 'wp-career-board' ),
+				'url'     => wp_login_url( (string) get_permalink() ),
+				'primary' => true,
+			),
+		),
+	);
+	// Only offer an account where one can be made ("Anyone can register" on).
+	if ( $wcb_reg_page > 0 && ( get_option( 'users_can_register' ) || is_multisite() ) ) {
+		$wcb_gate['actions'][] = array(
+			'label' => __( 'Create an account', 'wp-career-board' ),
+			'url'   => (string) get_permalink( $wcb_reg_page ),
+		);
+	}
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
 	return;
 }
 
 $wcb_can_access_candidate_dashboard = wp_is_ability_granted( 'wcb/access-candidate-dashboard' );
 
 if ( ! $wcb_can_access_candidate_dashboard ) {
-	echo '<p>' . esc_html__( 'You do not have permission to view this dashboard.', 'wp-career-board' ) . '</p>';
+	$wcb_gate = array(
+		'icon'    => 'user-x',
+		'message' => __( 'You do not have permission to view this dashboard.', 'wp-career-board' ),
+	);
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
 	return;
 }
 
@@ -744,14 +754,14 @@ wp_interactivity_state(
 							?>
 							<button
 								type="button"
-								class="wcb-cd-withdraw-btn"
+								class="wcb-btn wcb-btn--danger wcb-btn--sm wcb-cd-withdraw-btn"
 								data-wp-class--wcb-shown="state.allowWithdraw"
 								data-wp-class--wcb-hidden="!context.application.canWithdraw"
 								data-wp-on--click="actions.withdrawApplication"
 							><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
 							<button
 								type="button"
-								class="wcb-cd-withdraw-btn wcb-cd-withdraw-btn--remove"
+								class="wcb-btn wcb-btn--danger wcb-btn--sm wcb-cd-withdraw-btn wcb-cd-withdraw-btn--remove"
 								data-wp-class--wcb-shown="context.application.jobRemoved"
 								data-wp-on--click="actions.withdrawApplication"
 							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
@@ -768,7 +778,9 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noApplications">
-				<p class="wcb-empty-state__body"><?php esc_html_e( 'You haven\'t applied to any jobs yet.', 'wp-career-board' ); ?></p>
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'Apply to a job and follow its progress here.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
 				</a>
@@ -1004,7 +1016,7 @@ wp_interactivity_state(
 				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>
 					<div class="wcb-resume-card-info">
 						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
-						<span class="wcb-resume-card-date" data-wp-text="context.resume.date"></span>
+						<span class="wcb-resume-card-date" data-wp-text="context.resume.dateLabel"></span>
 					</div>
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">
 						<a
@@ -1064,7 +1076,9 @@ wp_interactivity_state(
 		</div><!-- .wcb-panel -->
 
 		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noResumes">
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'No resumes yet. Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
+			<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'graduation-cap' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No resumes yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
 			<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.toggleNewResumeForm">
 				<?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?>
 			</button>
@@ -1134,7 +1148,9 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noAlerts">
-				<p class="wcb-empty-state__body"><?php esc_html_e( 'No job alerts yet. Search for jobs and click "Alert me" to get notified when matching jobs are posted.', 'wp-career-board' ); ?></p>
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'bell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No job alerts yet', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'Search for jobs and click "Alert me" to hear when matching jobs are posted.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 		<?php esc_html_e( 'Browse Jobs', 'wp-career-board' ); ?>
 				</a>

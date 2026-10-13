@@ -1108,10 +1108,20 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--wcb-space-lg);
-	max-width: 32rem;
-	margin-inline: auto;
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
+	max-width: 28rem;
+	margin: var(--wcb-space-3xl) auto;
+	padding: var(--wcb-space-3xl) var(--wcb-space-xl);
+	/* The registration-closed card's look, for every "not for you yet" screen. */
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
 	text-align: center;
+}
+
+.wcb-db-gate > svg {
+	width: var(--wcb-icon-2xl, 32px);
+	height: var(--wcb-icon-2xl, 32px);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-db-gate p {
@@ -1121,9 +1131,11 @@
 	line-height: var(--wcb-leading-relaxed);
 }
 
-.wcb-db-gate__actions,
-.wcb-db-gate .wcb-btn + .wcb-btn {
-	margin-inline-start: var(--wcb-space-sm);
+.wcb-db-gate__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--wcb-space-sm);
 }
 
 /* ── Application status badges ─────────────────────────────────────────

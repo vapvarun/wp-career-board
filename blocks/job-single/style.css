@@ -32,8 +32,14 @@
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	line-height: 1.4;
+	gap: var(--wcb-space-xs);
 	text-decoration: none;
 	color: inherit;
+}
+.wcb-badge svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
 }
 .wcb-badge--featured  { background: var(--wcb-warning-bg); color: var(--wcb-warning-fg); }
 .wcb-badge--remote    { background: var(--wcb-success-bg); color: var(--wcb-success-fg, #166534); }

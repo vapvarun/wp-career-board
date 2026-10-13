@@ -85,7 +85,7 @@
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
-	text-transform: capitalize;
+	/* No text-transform: labels arrive translated and cased ('Full-time', not 'Full-Time'). */
 	background: var(--wcb-bg-hover);
 	color: var(--wcb-text-secondary);
 }
@@ -388,34 +388,18 @@
 }
 
 /* ── Withdraw button ─────────────────────────────────────────────────────── */
-/* Hidden until the candidate has wcb_withdraw_application; the wcb-shown
-   class is toggled by data-wp-class--wcb-shown="state.allowWithdraw" in
-   render.php. */
-.wcb-cd-withdraw-btn {
+/* A .wcb-btn--danger button (it read as another status pill). This class only
+   gates it: hidden until data-wp-class adds .wcb-shown (state.allowWithdraw,
+   or jobRemoved for Remove). */
+.wcb-btn.wcb-cd-withdraw-btn:not(.wcb-shown) {
 	display: none;
-	background: transparent;
-	color: var(--wcb-danger-fg, #991b1b);
-	border: 1px solid var(--wcb-danger-border, #fca5a5);
-	border-radius: var(--wcb-radius-md);
-	padding: var(--wcb-space-xs) var(--wcb-space-md);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-medium);
-	cursor: pointer;
-	transition: all var(--wcb-transition-fast);
 }
 
-.wcb-cd-withdraw-btn.wcb-shown {
-	display: inline-flex;
-	align-items: center;
-}
-
-.wcb-cd-withdraw-btn:hover,
-.wcb-cd-withdraw-btn:focus-visible {
-	/* No tint: the row under it is already tinted on hover, and a second
-	 * tint pulled the label under 4.5:1 in dark mode. The border marks it. */
+/* No hover tint: the row under it is already tinted on hover, and a second
+ * tint pulled the label under 4.5:1 in dark mode. The border marks it. */
+.wcb-btn.wcb-cd-withdraw-btn:hover,
+.wcb-btn.wcb-cd-withdraw-btn:focus-visible {
 	background: transparent;
-	color: var(--wcb-danger-fg, #b91c1c);
-	border-color: var(--wcb-danger);
 }
 
 /* `.wcb-settings-row*` rules live globally in

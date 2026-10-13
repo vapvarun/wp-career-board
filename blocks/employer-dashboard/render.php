@@ -13,35 +13,43 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_manage = wp_is_ability_granted( 'wcb/manage-company' );
 
 if ( ! is_user_logged_in() ) {
-	?>
-	<div class="wcb-db-gate">
-		<p><?php esc_html_e( 'Please sign in to access your dashboard.', 'wp-career-board' ); ?></p>
-		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
-	<?php esc_html_e( 'Sign In', 'wp-career-board' ); ?>
-		</a>
-	</div>
-	<?php
+	$wcb_gate = array(
+		'icon'    => 'briefcase',
+		'message' => __( 'Please sign in to access your dashboard.', 'wp-career-board' ),
+		'actions' => array(
+			array(
+				'label'   => __( 'Sign in', 'wp-career-board' ),
+				'url'     => wp_login_url( (string) get_permalink() ),
+				'primary' => true,
+			),
+		),
+	);
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
 	return;
 }
 
 if ( ! $wcb_can_manage ) {
 	$wcb_emp_reg_page   = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	$wcb_cand_dash_page = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
-	?>
-	<div class="wcb-db-gate">
-		<p><?php esc_html_e( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ); ?></p>
-	<?php if ( $wcb_emp_reg_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-btn wcb-btn--primary">
-		<?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?>
-		</a>
-	<?php endif; ?>
-	<?php if ( $wcb_cand_dash_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_cand_dash_page ) ); ?>" class="wcb-btn wcb-btn--secondary">
-		<?php esc_html_e( 'Go to Candidate Dashboard', 'wp-career-board' ); ?>
-		</a>
-	<?php endif; ?>
-	</div>
-	<?php
+	$wcb_gate           = array(
+		'icon'    => 'briefcase',
+		'message' => __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),
+		'actions' => array(),
+	);
+	if ( $wcb_emp_reg_page > 0 ) {
+		$wcb_gate['actions'][] = array(
+			'label'   => __( 'Register as an employer', 'wp-career-board' ),
+			'url'     => (string) get_permalink( $wcb_emp_reg_page ),
+			'primary' => true,
+		);
+	}
+	if ( $wcb_cand_dash_page > 0 ) {
+		$wcb_gate['actions'][] = array(
+			'label' => __( 'Go to Candidate Dashboard', 'wp-career-board' ),
+			'url'   => (string) get_permalink( $wcb_cand_dash_page ),
+		);
+	}
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
 	return;
 }
 
@@ -717,14 +725,18 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.showCompanySetup">
-				<p class="wcb-empty-state__body"><?php esc_html_e( 'Set up your company profile first before posting jobs.', 'wp-career-board' ); ?></p>
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building-2' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'Set up your company', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'Add your company profile before posting jobs.', 'wp-career-board' ); ?></p>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToCompany"><?php esc_html_e( 'Set Up Company Profile', 'wp-career-board' ); ?></button>
 			</div>
 
 			<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.showPostFirstJob">
-				<p class="wcb-empty-state__body"><?php esc_html_e( 'No jobs posted yet.', 'wp-career-board' ); ?></p>
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs yet', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'Post your first job and it will appear here.', 'wp-career-board' ); ?></p>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
@@ -966,6 +978,7 @@ wp_interactivity_state(
 			<p class="wcb-page-intro"><?php esc_html_e( 'Every company you hire for. Post a Job, My Jobs and Applications cover all of them; your main company is the one Post a Job picks first.', 'wp-career-board' ); ?></p>
 
 			<div class="wcb-empty-state<?php echo $wcb_companies ? ' wcb-hidden' : ''; ?>" data-wp-class--wcb-hidden="state.companies.length">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building-2' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 				<p class="wcb-empty-state__title"><?php esc_html_e( 'No company yet', 'wp-career-board' ); ?></p>
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'Add the company you hire for. Candidates see its name, logo and profile on every job.', 'wp-career-board' ); ?></p>
 				<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( add_query_arg( 'company', 'new', $wcb_dashboard_url ) . '#company' ); ?>"><?php esc_html_e( 'Add company', 'wp-career-board' ); ?></a>
