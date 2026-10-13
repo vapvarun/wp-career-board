@@ -274,6 +274,27 @@ $wcb_loc_opts = $wcb_term_opts( 'wcb_location' );
 
 $wcb_board_opts = (array) apply_filters( 'wcb_job_listings_board_options', array() );
 
+// Long groups show 5 terms (plus any ticked) and a Show more toggle,
+// so the sticky rail stays short; the CSS hides the rest. A group of 6
+// stays whole: "Show 1 more" would cost as much space as the term.
+$wcb_more_toggle = static function ( int $wcb_count ): string {
+	if ( $wcb_count <= 6 ) {
+		return '';
+	}
+	return sprintf(
+		'<button type="button" class="wcb-filter-panel__more" aria-expanded="false" data-wp-bind--aria-expanded="context.expanded" data-wp-on--click="actions.toggleFilterGroup"><span data-wp-bind--hidden="context.expanded">%1$s</span><span hidden data-wp-bind--hidden="!context.expanded">%2$s</span></button>',
+		/* translators: %d: number of hidden filter options. */
+		esc_html( sprintf( _n( 'Show %d more', 'Show %d more', $wcb_count - 5, 'wp-career-board' ), $wcb_count - 5 ) ),
+		esc_html__( 'Show less', 'wp-career-board' )
+	);
+};
+$wcb_group_attrs = static function ( int $wcb_count ): string {
+	if ( $wcb_count <= 6 ) {
+		return ' class="wcb-filter-panel__group"';
+	}
+	return ' class="wcb-filter-panel__group wcb-filter-panel__group--long" data-wp-context=\'{"expanded":false}\' data-wp-class--is-expanded="context.expanded"';
+};
+
 if ( $wcb_saved_by_attr > 0 ) {
 	// Count only valid published wcb_job posts the user has bookmarked.
 	// Counting raw usermeta rows over-reports because stale bookmark IDs
@@ -546,7 +567,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			ob_start();
 			?>
 			<?php if ( $wcb_type_opts ) : ?>
-			<div class="wcb-filter-panel__group">
+			<div<?php echo $wcb_group_attrs( count( $wcb_type_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string. ?>>
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_type_opts as $wcb_opt ) : ?>
@@ -558,6 +579,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php echo $wcb_more_toggle( count( $wcb_type_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?>
 			</div>
 			<?php endif; ?>
 			<?php
@@ -566,7 +588,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			?>
 
 			<?php if ( $wcb_exp_opts ) : ?>
-			<div class="wcb-filter-panel__group">
+			<div<?php echo $wcb_group_attrs( count( $wcb_exp_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string. ?>>
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Experience', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_exp_opts as $wcb_opt ) : ?>
@@ -578,6 +600,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php echo $wcb_more_toggle( count( $wcb_exp_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?>
 			</div>
 			<?php endif; ?>
 			<?php
@@ -586,7 +609,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			?>
 
 			<?php if ( $wcb_cat_opts ) : ?>
-			<div class="wcb-filter-panel__group">
+			<div<?php echo $wcb_group_attrs( count( $wcb_cat_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string. ?>>
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></span>
 				<?php if ( count( $wcb_cat_opts ) > 12 ) : ?>
 				<input type="search" class="wcb-filter-panel__search" aria-label="<?php esc_attr_e( 'Search categories', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search categories', 'wp-career-board' ); ?>" data-wp-on--input="actions.searchFilterList" />
@@ -602,6 +625,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php echo $wcb_more_toggle( count( $wcb_cat_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?>
 				<?php if ( count( $wcb_cat_opts ) > 12 ) : ?>
 					<?php echo \WCB\Core\Taxonomy::no_match_note(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper. ?>
 				<?php endif; ?>
@@ -613,7 +637,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			?>
 
 			<?php if ( $wcb_tag_opts ) : ?>
-			<div class="wcb-filter-panel__group">
+			<div<?php echo $wcb_group_attrs( count( $wcb_tag_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string. ?>>
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Tags', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_tag_opts as $wcb_opt ) : ?>
@@ -625,6 +649,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php echo $wcb_more_toggle( count( $wcb_tag_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?>
 			</div>
 			<?php endif; ?>
 			<?php
@@ -649,7 +674,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			?>
 
 			<?php if ( $wcb_board_opts ) : ?>
-			<div class="wcb-filter-panel__group">
+			<div<?php echo $wcb_group_attrs( count( $wcb_board_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string. ?>>
 				<span class="wcb-filter-panel__group-title"><?php esc_html_e( 'Job board', 'wp-career-board' ); ?></span>
 				<ul class="wcb-filter-panel__list">
 					<?php foreach ( $wcb_board_opts as $wcb_opt ) : ?>
@@ -672,6 +697,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php echo $wcb_more_toggle( count( $wcb_board_opts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?>
 			</div>
 			<?php endif; ?>
 			<?php
@@ -748,6 +774,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						>&times;</button>
 					</span>
 				</template>
+				<button type="button" class="wcb-clear-all" data-wp-on--click="actions.clearFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 	<?php endif; ?>
 

@@ -611,6 +611,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			yield actions.applyFilters();
 		},
 
+		// Show more / Show less on a long filter group (context set in render.php).
+		toggleFilterGroup() {
+			const ctx = getContext();
+			ctx.expanded = ! ctx.expanded;
+		},
+
 		// ── Category chip ─────────────────────────────────────────────
 		// Narrow a long filter list as the visitor types (labels only, no request).
 		searchFilterList( event ) {

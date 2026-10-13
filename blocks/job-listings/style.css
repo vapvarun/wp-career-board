@@ -607,6 +607,60 @@
 	margin-inline: var(--wcb-space-xs);
 }
 
+/* ── Filter rail: sticky with its own scroll, long groups folded ─────────────
+ * Desktop only: at <=1024px the rail is the collapsible drawer (wcb-ui.css).
+ * The rail scrolls as one, so the lists drop their own 240px scroll box. */
+@media (min-width: 1025px) {
+	.wcb-job-listings .wcb-filter-panel {
+		top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wcb-space-lg));
+		max-height: calc(100vh - var(--wp-admin--admin-bar--height, 0px) - 2 * var(--wcb-space-lg));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+	}
+
+	.wcb-job-listings .wcb-filter-panel .wcb-filter-panel__list {
+		max-height: none;
+		overflow: visible;
+	}
+}
+
+/* Ticked terms stay visible when folded; a category search shows every match. */
+.wcb-filter-panel__group--long:not(.is-expanded) .wcb-filter-panel__list:not(.is-searching) > li:nth-child(n+6):not(:has(input:checked)) {
+	display: none;
+}
+
+.wcb-filter-panel__group--long:has(.is-searching) .wcb-filter-panel__more {
+	display: none;
+}
+
+.wcb-filter-panel__more {
+	margin-block-start: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs);
+	background: transparent;
+	border: 0;
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-primary-text, var(--wcb-primary));
+	cursor: pointer;
+}
+
+[class*="wp-block-wp-career-board"] .wcb-filter-panel__more,
+[class*="wp-block-wp-career-board"] .wcb-filter-panel__more:hover,
+[class*="wp-block-wp-career-board"] .wcb-filter-panel__more:focus {
+	background: transparent;
+	color: var(--wcb-primary-text, var(--wcb-primary));
+}
+
+.wcb-filter-panel__more:hover {
+	text-decoration: underline;
+}
+
+.wcb-filter-panel__more:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
 /* Active filter pills */
 .wcb-active-filters {
 	display: none;
@@ -645,7 +699,8 @@
 	border: none;
 	border-radius: var(--wcb-radius-full);
 	background: transparent;
-	color: var(--wcb-primary);
+	/* Same -fg as the chip label: --wcb-primary on the tint measured 3.70:1. */
+	color: var(--wcb-info-fg);
 	font-size: var(--wcb-text-base);
 	line-height: 1;
 	cursor: pointer;
@@ -894,4 +949,11 @@
 
 .wcb-alert-me__error:empty {
 	display: none;
+}
+
+/* "Clear all" beside the pills keeps the 40px touch target the pills get. */
+@media (pointer: coarse), (max-width: 640px) {
+	.wcb-active-filters .wcb-clear-all {
+		min-height: 40px;
+	}
 }
