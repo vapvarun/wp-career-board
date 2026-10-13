@@ -577,7 +577,7 @@ wp_interactivity_state(
 					<?php
 					// Convert common markdown patterns (bold, italic, headings, lists) that users
 					// naturally type in the frontend textarea to HTML before rendering.
-					$wcb_job_desc     = (string) $wcb_job->post_content;
+					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) $wcb_job->post_content );
 					$wcb_job_desc     = (string) preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/(?<!\*)\*(?![\*\s])(.+?)(?<!\s)\*(?!\*)/m', '<em>$1</em>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/^## (.+)$/m', '<h4>$1</h4>', $wcb_job_desc );
@@ -783,10 +783,11 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
+				<?php // The hero holds the one filled action; the sidebar repeats it outlined. ?>
 				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
 					<a
 						href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
-						class="wcb-btn wcb-btn--primary wcb-btn--full"
+						class="wcb-btn wcb-btn--secondary wcb-btn--full"
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
@@ -795,7 +796,7 @@ wp_interactivity_state(
 					<?php if ( $wcb_apply_external ) : ?>
 						<a
 							href="<?php echo esc_url( $wcb_apply_url ); ?>"
-							class="wcb-btn wcb-btn--primary wcb-btn--full wcb-apply-external"
+							class="wcb-btn wcb-btn--secondary wcb-btn--full wcb-apply-external"
 							target="_blank"
 							rel="noopener noreferrer nofollow"
 						>
@@ -804,7 +805,7 @@ wp_interactivity_state(
 					<?php else : ?>
 						<button
 							type="button"
-							class="wcb-btn wcb-btn--primary wcb-btn--full"
+							class="wcb-btn wcb-btn--secondary wcb-btn--full"
 							data-wp-on--click="actions.openPanel"
 							data-wp-class--wcb-hidden="state.submitted"
 						>

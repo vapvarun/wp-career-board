@@ -271,7 +271,7 @@ wp_interactivity_state(
 			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'About', 'wp-career-board' ); ?></h2>
 				<div class="wcb-cp-desc">
-					<?php echo wp_kses_post( wpautop( $wcb_desc ) ); ?>
+					<?php echo wp_kses_post( \WCB\Core\Text::dash_lists( wpautop( $wcb_desc ) ) ); ?>
 				</div>
 			</section>
 		<?php endif; ?>

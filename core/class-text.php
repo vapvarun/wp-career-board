@@ -50,4 +50,38 @@ final class Text {
 		// otherwise show literally once the caller escapes it for output.
 		return html_entity_decode( wp_trim_words( str_replace( '<', ' <', strip_shortcodes( $html ) ), $words, $more ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
+
+	/**
+	 * Show dash lists typed in the rich editor as bullet lists.
+	 *
+	 * The job and company editors start a new paragraph on every Enter, so a
+	 * list typed as "- item" lines is stored as <p>- item</p><p>- item</p>, and
+	 * imported text often arrives as one paragraph: "You bring: - a - b - c".
+	 * Both rendered as dash-strewn prose. Display only: stored content is not
+	 * rewritten, and prose with a single dash is left alone.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $html Authored HTML.
+	 * @return string HTML with those runs as <ul> lists.
+	 */
+	public static function dash_lists( string $html ): string {
+		$item = '/^\s*[-*\x{2022}]\s+/u';
+		// 1. Consecutive "<p>- item</p>" paragraphs become one list.
+		$html = (string) preg_replace_callback(
+			'#(?:<p>\s*[-*\x{2022}]\s+.*?</p>\s*)+#su',
+			static function ( array $m ) use ( $item ): string {
+				preg_match_all( '#<p>(.*?)</p>#s', $m[0], $paras );
+				return '<ul><li>' . implode( '</li><li>', array_map( static fn ( $p ) => trim( (string) preg_replace( $item, '', $p ) ), $paras[1] ) ) . '</li></ul>';
+			},
+			$html
+		);
+		// 2. "Intro: - a - b" in one paragraph becomes the intro plus a list
+		// (two or more items, after a colon, so ordinary dashes stay prose).
+		return (string) preg_replace_callback(
+			'#<p>((?:(?!</p>).)*?:\s*(?:</(?:b|strong|em)>)?)\s+-\s+((?:(?!</p>).)+?\s-\s(?:(?!</p>).)+?)</p>#su',
+			static fn ( array $m ): string => '<p>' . trim( $m[1] ) . '</p><ul><li>' . implode( '</li><li>', array_map( 'trim', preg_split( '/\s+-\s+/', $m[2] ) ) ) . '</li></ul>',
+			$html
+		);
+	}
 }
