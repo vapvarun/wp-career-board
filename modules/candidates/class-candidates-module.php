@@ -245,8 +245,9 @@ final class CandidatesModule {
 	 *
 	 * The resume photo is the one the candidate chose for job seeking, so every
 	 * Career Board surface (cards, applications, profiles) shows it. Pass the
-	 * resume when the caller already has it; otherwise their latest published
-	 * resume is used.
+	 * resume when the caller already has it and may show it; otherwise only
+	 * their latest PUBLIC resume is used, so a private resume's photo never
+	 * surfaces on a profile.
 	 *
 	 * @since 1.8.1
 	 *
@@ -265,6 +266,8 @@ final class CandidatesModule {
 					'posts_per_page' => 1,
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
+					'meta_key'       => '_wcb_resume_public', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				)
 			);
 			$resume_id = (int) ( $latest[0] ?? 0 );
