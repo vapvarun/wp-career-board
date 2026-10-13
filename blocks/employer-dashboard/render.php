@@ -44,9 +44,11 @@ if ( ! $wcb_can_manage ) {
 	$wcb_gate         = array(
 		'icon'    => 'briefcase',
 		'title'   => __( 'Employer dashboard', 'wp-career-board' ),
-		'message' => $wcb_is_candidate
-			? __( 'The employer dashboard is for employers. This is a candidate account: manage your applications and resumes from your candidate dashboard, or sign in with an employer account to hire.', 'wp-career-board' )
-			: __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),
+		'message' => match ( true ) {
+			$wcb_is_candidate => __( 'The employer dashboard is for employers. This is a candidate account: manage your applications and resumes from your candidate dashboard, or sign in with an employer account to hire.', 'wp-career-board' ),
+			'' !== \WCB\Core\Roles::moderation_queue_url() => __( 'You review jobs on this board. The employer dashboard is for employers who post them.', 'wp-career-board' ),
+			default => __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),
+		},
 		'actions' => array(),
 	);
 	if ( '' !== \WCB\Core\Roles::moderation_queue_url() ) {
@@ -63,7 +65,8 @@ if ( ! $wcb_can_manage ) {
 			'primary' => '' === \WCB\Core\Roles::moderation_queue_url(), // One primary: Review jobs, when shown.
 		);
 	}
-	if ( $wcb_cand_dash_page > 0 ) {
+	// A moderator gets the queue and 'Register as an employer', not candidate links.
+	if ( $wcb_cand_dash_page > 0 && '' === \WCB\Core\Roles::moderation_queue_url() ) {
 		$wcb_gate['actions'][] = array(
 			'label' => __( 'Go to Candidate Dashboard', 'wp-career-board' ),
 			'url'   => (string) get_permalink( $wcb_cand_dash_page ),
@@ -733,7 +736,7 @@ wp_interactivity_state(
 				<h1 class="wcb-page-title"><?php esc_html_e( 'My Jobs', 'wp-career-board' ); ?></h1>
 			</div>
 
-			<div class="wcb-filter-bar">
+			<div class="wcb-filter-bar" data-wp-class--wcb-hidden="!state.hasAnyJobs">
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isFilterAll" data-wp-bind--aria-pressed="state.isFilterAll" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="live" data-wp-class--wcb-filter-active="state.isFilterLive" data-wp-bind--aria-pressed="state.isFilterLive" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="draft" data-wp-class--wcb-filter-active="state.isFilterDraft" data-wp-bind--aria-pressed="state.isFilterDraft" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Draft', 'wp-career-board' ); ?></button>

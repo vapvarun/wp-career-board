@@ -22,7 +22,7 @@
 }
 
 .wcb-reg-link {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade (4.36:1 with the raw primary) */
 	text-decoration: underline;
 }
 

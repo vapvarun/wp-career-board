@@ -335,6 +335,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			// still has real jobs to show — never gate on company existence.
 			return ! state.loading && state.filteredJobs.length > 0;
 		},
+		// Chips and search filter something only once there are jobs.
+		get hasAnyJobs() {
+			return state.jobs.length > 0;
+		},
 		get noJobs() {
 			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
 		},
