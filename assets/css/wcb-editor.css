@@ -80,7 +80,7 @@
 }
 
 .wcb-editor-holder a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 

@@ -316,5 +316,17 @@ else
 	report "Rule 14: contract gate failed - see bin/contract-gates.php for what each gate guards"
 fi
 
+# --- Rule 15: the accent is not a text colour ---
+# Text on the owner's accent reads --wcb-primary-text, which keeps 4.5:1 on any
+# brand (a raw yellow or sky-blue accent fails as text). Admin CSS is excluded:
+# it sits on admin/tokens.css's fixed accent, which the owner's colour never reaches.
+ACCENT_TEXT=$(grep -nE '^[[:space:]]*color:[[:space:]]*var\([[:space:]]*--wcb-primary[[:space:]]*[,)]' $(printf '%s\n' $CSS_FILES | grep -v -- '-rtl\.css' | grep -vE '(^|/)admin') 2>/dev/null || true)
+if [ -n "$ACCENT_TEXT" ]; then
+	echo "$ACCENT_TEXT" | sed 's/^/    /'
+	report "Rule 15: text coloured with the raw accent - use var(--wcb-primary-text)"
+else
+	ok "Rule 15: accent text uses --wcb-primary-text"
+fi
+
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
 exit "$FAILED"
