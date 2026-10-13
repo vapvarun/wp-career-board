@@ -60,8 +60,13 @@ const { state } = store( 'wcb-search', {
 				new CustomEvent( 'wcb:search', {
 					detail: {
 						query:   state.query,
-						// A cleared control is sent as '' so the listing drops it too.
-						filters: { ...state.filters, [ key ]: value },
+						// Only the control that changed: the listing already holds the
+						// rest, including multi-value ones a select can't show (a
+						// shared ?type=full-time,contract). A cleared control is sent
+						// as '' so the listing drops it too.
+						filters: { [ key ]: value },
+						// This change already has its history entry (pushed above).
+						pushed:  true,
 					},
 				} )
 			);

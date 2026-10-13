@@ -65,7 +65,9 @@ const { state } = store( 'wcb-privacy', {
 		setConfirm( event ) {
 			state.deleteConfirm = event.target.value;
 		},
-		*confirmDeletion() {
+		*confirmDeletion( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			if ( state.busy ) {
 				return;
 			}

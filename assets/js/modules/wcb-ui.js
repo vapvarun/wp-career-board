@@ -309,3 +309,26 @@ export const rowMenuActions = {
 		} );
 	},
 };
+
+/**
+ * A saved row's meta line ("Acme · Remote · Full-time"): only the parts it
+ * has, so a missing part never leaves a stray separator. Reads the row from
+ * the Interactivity context the list template sets.
+ *
+ * @param {Object} ctx Interactivity context (bookmark, job, company or resume).
+ * @return {string} The joined line.
+ */
+export function savedMetaLine( ctx ) {
+	const fields = {
+		bookmark: [ 'company', 'location', 'type' ],
+		job: [ 'company', 'location', 'type' ],
+		company: [ 'industry', 'hq' ],
+		resume: [ 'role', 'location' ],
+	};
+	for ( const [ key, parts ] of Object.entries( fields ) ) {
+		if ( ctx?.[ key ] ) {
+			return parts.map( ( p ) => ctx[ key ][ p ] ).filter( Boolean ).join( ' \u00b7 ' );
+		}
+	}
+	return '';
+}

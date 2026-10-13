@@ -16,7 +16,7 @@
  */
 import { store, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
+import { relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Tabs that can appear in the URL hash (first = default). Anything else is
@@ -331,6 +331,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
 		},
 		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMeta() {
+			return savedMetaLine( getContext() );
+		},
 		get savedMenuLabel() {
 			const ctx  = getContext();
 			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
@@ -780,7 +783,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
-		*saveAccount() {
+		*saveAccount( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.accountSaving = true;
 			state.accountMsg    = '';
 			try {
@@ -820,7 +825,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
-		*changePassword() {
+		*changePassword( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';

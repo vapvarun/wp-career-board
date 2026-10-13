@@ -180,10 +180,6 @@
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-cd-bookmark-meta-sep {
-	color: var(--wcb-text-tertiary);
-}
-
 .wcb-cd-bookmark-actions {
 	display: flex;
 	align-items: center;

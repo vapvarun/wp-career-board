@@ -108,7 +108,7 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 		</div>
 
 		<?php // Inline, not the shared confirm dialog: this needs a password and a typed confirmation, which the REST route enforces. ?>
-		<div class="wcb-hidden wcb-delete-account-form" data-wp-class--wcb-hidden="state.deleteFormHidden">
+		<form class="wcb-hidden wcb-delete-account-form" data-wp-class--wcb-hidden="state.deleteFormHidden" data-wp-on--submit="actions.confirmDeletion">
 			<p class="wcb-field-hint">
 				<?php
 				echo esc_html(
@@ -125,10 +125,10 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 			<label class="wcb-form-label" for="wcb-delete-confirm"><?php esc_html_e( 'Type DELETE to confirm', 'wp-career-board' ); ?></label>
 			<input type="text" id="wcb-delete-confirm" class="wcb-input" autocomplete="off" data-wp-bind--value="state.deleteConfirm" data-wp-on--input="actions.setConfirm">
 			<div class="wcb-form-actions">
-				<button type="button" class="wcb-btn wcb-btn--danger" data-wp-on--click="actions.confirmDeletion" data-wp-bind--disabled="state.busy"><?php esc_html_e( 'Schedule deletion', 'wp-career-board' ); ?></button>
+				<button type="submit" class="wcb-btn wcb-btn--danger" data-wp-bind--disabled="state.busy"><?php esc_html_e( 'Schedule deletion', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.closeDeleteForm" data-wp-bind--disabled="state.busy"><?php esc_html_e( 'Cancel', 'wp-career-board' ); ?></button>
 			</div>
-		</div>
+		</form>
 	</div>
 </div>
 <p class="wcb-privacy-note" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>

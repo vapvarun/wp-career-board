@@ -266,7 +266,11 @@ function syncUrl() {
 	// Same params in another order (the job-filters block pushed first): tidy
 	// the entry in place, so one filter change is one Back step.
 	const sorted = ( search ) => [ ...new URLSearchParams( search ) ].map( ( p ) => p.join( '=' ) ).sort().join( '&' );
-	if ( sorted( url.search ) === sorted( window.location.search ) ) {
+	// The job-filters block pushed an entry for this change: rewrite that one
+	// to the canonical URL, so one change is one Back step.
+	const ownEntry = filtersPushed;
+	filtersPushed  = false;
+	if ( ownEntry || sorted( url.search ) === sorted( window.location.search ) ) {
 		window.history.replaceState( null, '', url.toString() );
 	} else if ( url.toString() !== window.location.href ) {
 		window.history.pushState( null, '', url.toString() );
@@ -306,6 +310,9 @@ const URL_FILTER_KEYS = [ 'search', 's', 'wcb_search', 'category', 'wcb_category
 // Back/Forward across filter changes: the server renders that exact state.
 // Hash-only history steps leave the query alone and are ignored.
 let renderedSearch = window.location.search;
+// Set while a wcb:search from the job-filters block (which pushes its own
+// history entry) is being applied; read once by syncUrl().
+let filtersPushed = false;
 window.addEventListener( 'popstate', () => {
 	if ( window.location.search !== renderedSearch ) {
 		window.location.reload();
@@ -897,6 +904,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 			// job-filters blocks): { detail: { query: string, filters: object } }
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
+				filtersPushed = !! params.pushed;
 				if ( params.query !== undefined ) {
 					state.searchQuery = params.query;
 				}

@@ -799,11 +799,7 @@ wp_interactivity_state(
 								></a>
 							</h3>
 							<div class="wcb-cd-bookmark-meta">
-							<span data-wp-text="context.bookmark.company"></span>
-							<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.bookmark.location" aria-hidden="true">·</span>
-							<span data-wp-class--wcb-hidden="!context.bookmark.location" data-wp-text="context.bookmark.location"></span>
-							<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.bookmark.type" aria-hidden="true">·</span>
-							<span data-wp-class--wcb-hidden="!context.bookmark.type" data-wp-text="context.bookmark.type"></span>
+							<span data-wp-text="state.savedMeta"></span>
 						</div>
 					</div>
 					<div class="wcb-cd-bookmark-actions">
@@ -860,9 +856,7 @@ wp_interactivity_state(
 								></a>
 							</h3>
 							<div class="wcb-cd-bookmark-meta">
-								<span data-wp-class--wcb-hidden="!context.company.industry" data-wp-text="context.company.industry"></span>
-								<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.company.hq" aria-hidden="true">·</span>
-								<span data-wp-class--wcb-hidden="!context.company.hq" data-wp-text="context.company.hq"></span>
+								<span data-wp-text="state.savedMeta"></span>
 							</div>
 						</div>
 						<div class="wcb-cd-bookmark-actions">
@@ -920,9 +914,7 @@ wp_interactivity_state(
 								></a>
 							</h3>
 							<div class="wcb-cd-bookmark-meta">
-								<span data-wp-class--wcb-hidden="!context.resume.role" data-wp-text="context.resume.role"></span>
-								<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.resume.location" aria-hidden="true">·</span>
-								<span data-wp-class--wcb-hidden="!context.resume.location" data-wp-text="context.resume.location"></span>
+								<span data-wp-text="state.savedMeta"></span>
 							</div>
 						</div>
 						<div class="wcb-cd-bookmark-actions">
@@ -1241,7 +1233,7 @@ wp_interactivity_state(
 		<div class="wcb-page-header">
 			<h1 class="wcb-page-title"><?php esc_html_e( 'Account Settings', 'wp-career-board' ); ?></h1>
 		</div>
-		<div class="wcb-panel wcb-panel--form wcb-shown">
+		<form class="wcb-panel wcb-panel--form wcb-shown" data-wp-on--submit="actions.saveAccount">
 			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.accountMsg" data-wp-bind--data-type="state.accountMsgType" data-wp-text="state.accountMsg"></p>
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-account-name"><?php esc_html_e( 'Display Name', 'wp-career-board' ); ?></label>
@@ -1258,14 +1250,14 @@ wp_interactivity_state(
 				<span class="wcb-field-hint"><?php esc_html_e( 'Needed only if you change your email.', 'wp-career-board' ); ?></span>
 			</div>
 			<div class="wcb-form-field">
-				<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.saveAccount" data-wp-bind--disabled="state.accountSaving"><?php esc_html_e( 'Save changes', 'wp-career-board' ); ?></button>
+				<button type="submit" class="wcb-btn wcb-btn--primary" data-wp-bind--disabled="state.accountSaving"><?php esc_html_e( 'Save changes', 'wp-career-board' ); ?></button>
 			</div>
-		</div>
+		</form>
 
 		<div class="wcb-page-header wcb-page-header--section">
 			<h2 class="wcb-page-subtitle"><?php esc_html_e( 'Change Password', 'wp-career-board' ); ?></h2>
 		</div>
-		<div class="wcb-panel wcb-panel--form wcb-shown">
+		<form class="wcb-panel wcb-panel--form wcb-shown" data-wp-on--submit="actions.changePassword">
 			<p class="wcb-account-msg" role="status" data-wp-bind--hidden="!state.pwMsg" data-wp-bind--data-type="state.pwMsgType" data-wp-text="state.pwMsg"></p>
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-account-curpw"><?php esc_html_e( 'Current Password', 'wp-career-board' ); ?></label>
@@ -1280,9 +1272,9 @@ wp_interactivity_state(
 				<input type="password" id="wcb-account-confpw" class="wcb-input" autocomplete="new-password" data-wp-bind--value="state.confPassword" data-wp-on--input="actions.updateField" data-wcb-field="confPassword" />
 			</div>
 			<div class="wcb-form-field">
-				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.changePassword" data-wp-bind--disabled="state.pwSaving"><?php esc_html_e( 'Update password', 'wp-career-board' ); ?></button>
+				<button type="submit" class="wcb-btn wcb-btn--secondary" data-wp-bind--disabled="state.pwSaving"><?php esc_html_e( 'Update password', 'wp-career-board' ); ?></button>
 			</div>
-		</div>
+		</form>
 
 		<?php
 		$wcb_email_prefs_for = 'candidate';

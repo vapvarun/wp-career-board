@@ -6,7 +6,7 @@
 import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { formatSiteDate, relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
+import { formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -163,6 +163,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ! co.isMain && !! co.permalink;
 		},
 		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMeta() {
+			return savedMetaLine( getContext() );
+		},
 		get savedMenuLabel() {
 			const ctx  = getContext();
 			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
@@ -1575,9 +1578,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		*updateAppStatus( event ) {
-			const appId     = Number( event.target.dataset.wcbAppId );
-			const newStatus = event.target.value;
+			const select    = event.target;
+			const appId     = Number( select.dataset.wcbAppId );
+			const newStatus = select.value;
 			yield actions.applyStatusChange( appId, newStatus );
+			// The bound value only changes on success, so a failed save would leave
+			// the select showing a status the application doesn't have.
+			select.value = state.selectedAppStatus;
 		},
 
 		setAppsLayout( event ) {
@@ -1749,7 +1756,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*saveAccount() {
+		*saveAccount( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.accountSaving = true;
 			state.accountMsg    = '';
 			try {
@@ -1790,7 +1799,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*changePassword() {
+		*changePassword( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';
