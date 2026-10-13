@@ -48,6 +48,6 @@ final class Text {
 	public static function excerpt( string $html, int $words, string $more = '&hellip;' ): string {
 		// Decode after trimming: authored text keeps entities (&#039;) that would
 		// otherwise show literally once the caller escapes it for output.
-		return html_entity_decode( wp_trim_words( str_replace( '<', ' <', $html ), $words, $more ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		return html_entity_decode( wp_trim_words( str_replace( '<', ' <', strip_shortcodes( $html ) ), $words, $more ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
 }

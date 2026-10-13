@@ -769,21 +769,18 @@ class Admin {
 	 * @since 1.0.0
 	 */
 	public function register_emails_submenu(): void {
-		add_submenu_page(
-			'wp-career-board',
+		// Parent '' keeps the page registered (so access checks pass) but out of
+		// the menu. Redirect on load-*, before any admin HTML is sent.
+		$wcb_hook = add_submenu_page(
+			'',
 			__( 'Emails', 'wp-career-board' ),
 			'',
 			'wcb_manage_settings',
 			'wcb-emails',
-			array( $this, 'redirect_emails_page' )
+			'__return_null'
 		);
-
-		// Remove from visible menu — page remains accessible for backward-compat redirect.
-		foreach ( (array) ( $GLOBALS['submenu']['wp-career-board'] ?? array() ) as $wcb_key => $wcb_item ) {
-			if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
-				unset( $GLOBALS['submenu']['wp-career-board'][ $wcb_key ] );
-				break;
-			}
+		if ( $wcb_hook ) {
+			add_action( 'load-' . $wcb_hook, array( $this, 'redirect_emails_page' ) );
 		}
 	}
 

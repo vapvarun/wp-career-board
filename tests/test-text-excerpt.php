@@ -65,6 +65,9 @@ wcb_assert( str_contains( $wcb_html, 'with C#' ), '... and keeps the # in "C#"' 
 
 wp_delete_post( $wcb_job, true );
 
+$wcb_ex = \WCB\Core\Text::excerpt( 'Intro [caption width="100"]x[/caption] outro', 20 );
+wcb_assert( ! str_contains( $wcb_ex, '[' ), 'shortcode tags never reach a card, the REST excerpt or og:description' );
+
 WP_CLI::log( '' );
 WP_CLI::log( '  Total: ' . ( $GLOBALS['wcb_test_pass'] + $GLOBALS['wcb_test_fail'] ) . '  Pass: ' . $GLOBALS['wcb_test_pass'] . '  Fail: ' . $GLOBALS['wcb_test_fail'] );
 if ( $GLOBALS['wcb_test_fail'] > 0 ) {
