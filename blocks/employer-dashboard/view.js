@@ -174,6 +174,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const co = getContext().co;
 			return ! co.isMain && !! co.permalink;
 		},
+		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMenuLabel() {
+			const ctx  = getContext();
+			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', item.title || item.name || '' );
+		},
 		get companyMenuLabel() {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().co.name );
 		},

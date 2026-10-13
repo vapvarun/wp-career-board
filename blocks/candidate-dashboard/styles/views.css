@@ -76,6 +76,31 @@
 	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
+/* My Resumes before the list arrives (never an empty pane under 'N of M'). */
+.wcb-resume-skeleton__row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface);
+}
+
+.wcb-resume-skeleton__row:last-child {
+	border-bottom: none;
+}
+
+.wcb-resume-skeleton__title {
+	display: block;
+	width: min(16rem, 70%);
+	height: 1rem;
+}
+
+.wcb-resume-skeleton__meta {
+	display: block;
+	width: min(9rem, 40%);
+	height: 0.75rem;
+}
+
 /* Status, then the row's '⋯' menu, on one line at every width. */
 .wcb-cd-app-actions {
 	display: flex;

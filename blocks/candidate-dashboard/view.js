@@ -14,7 +14,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
 
@@ -307,6 +307,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noSavedResumes() {
 			return ! state.savedResumesLoading && ! state.savedResumesError && state.savedResumes.length === 0;
 		},
+		// Before the list arrives: a skeleton, not an empty pane under 'N of M'.
+		get resumesPending() {
+			return ! state.resumesLoaded && ! state.error;
+		},
 		get hasResumes() {
 			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
 		},
@@ -325,6 +329,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get appMenuLabel() {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		},
+		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMenuLabel() {
+			const ctx  = getContext();
+			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', item.title || item.name || '' );
 		},
 		get resumeMenuLabel() {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().resume?.title || '' );
@@ -387,13 +397,26 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab = tabs.initial( state.tab );
 			tabs.go( state.tab );
 
-			// Browser back/forward and manual hash edits stay in sync.
-			window.addEventListener( 'hashchange', () => {
+			// Browser back/forward and manual hash edits stay in sync, through the
+			// same loaders the tab buttons use (a hash edit to #resumes showed the
+			// count with no list).
+			const loaders = {
+				bookmarks:         actions.switchToBookmarks,
+				resumes:           actions.switchToResumes,
+				'saved-companies': actions.switchToSavedCompanies,
+				'saved-resumes':   actions.switchToSavedResumes,
+			};
+			window.addEventListener( 'hashchange', withScope( () => {
 				const next = tabs.read();
-				if ( next && next !== state.tab ) {
+				if ( ! next || next === state.tab ) {
+					return;
+				}
+				if ( loaders[ next ] ) {
+					loaders[ next ]();
+				} else {
 					state.tab = next;
 				}
-			} );
+			} ) );
 
 			yield actions.fetchApplications();
 

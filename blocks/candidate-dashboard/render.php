@@ -807,18 +807,19 @@ wp_interactivity_state(
 						</div>
 					</div>
 					<div class="wcb-cd-bookmark-actions">
-							<a
-								class="wcb-btn wcb-btn--outline wcb-btn--sm"
+						<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+							<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+							<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+								<a
+								class="wcb-row-menu__item"
 								data-wp-bind--href="context.bookmark.permalink"
 								target="_blank"
 								rel="noopener noreferrer"
-							><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
-							<button
-								type="button"
-								class="wcb-btn wcb-btn--danger wcb-btn--sm"
-								data-wp-on--click="actions.unbookmark"
-							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
-						</div>
+							><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+								<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmark"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							</div>
+						</details>
+					</div>
 					</div>
 				</template>
 			</div>
@@ -865,17 +866,18 @@ wp_interactivity_state(
 							</div>
 						</div>
 						<div class="wcb-cd-bookmark-actions">
-							<a
-								class="wcb-btn wcb-btn--outline wcb-btn--sm"
+							<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+								<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+									<a
+								class="wcb-row-menu__item"
 								data-wp-bind--href="context.company.permalink"
 								target="_blank"
 								rel="noopener noreferrer"
-							><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></a>
-							<button
-								type="button"
-								class="wcb-btn wcb-btn--danger wcb-btn--sm"
-								data-wp-on--click="actions.unbookmarkCompany"
-							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+									<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmarkCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+								</div>
+							</details>
 						</div>
 					</div>
 				</template>
@@ -924,17 +926,18 @@ wp_interactivity_state(
 							</div>
 						</div>
 						<div class="wcb-cd-bookmark-actions">
-							<a
-								class="wcb-btn wcb-btn--outline wcb-btn--sm"
+							<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+								<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+									<a
+								class="wcb-row-menu__item"
 								data-wp-bind--href="context.resume.permalink"
 								target="_blank"
 								rel="noopener noreferrer"
-							><?php esc_html_e( 'View Resume', 'wp-career-board' ); ?></a>
-							<button
-								type="button"
-								class="wcb-btn wcb-btn--danger wcb-btn--sm"
-								data-wp-on--click="actions.unbookmarkResume"
-							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+									<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmarkResume"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+								</div>
+							</details>
 						</div>
 					</div>
 				</template>
@@ -998,6 +1001,10 @@ wp_interactivity_state(
 			</div>
 			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
+			<div class="wcb-panel wcb-resume-skeleton" data-wp-class--wcb-shown="state.resumesPending" aria-hidden="true">
+				<div class="wcb-resume-skeleton__row"><span class="wcb-skeleton wcb-resume-skeleton__title"></span><span class="wcb-skeleton wcb-resume-skeleton__meta"></span></div>
+				<div class="wcb-resume-skeleton__row"><span class="wcb-skeleton wcb-resume-skeleton__title"></span><span class="wcb-skeleton wcb-resume-skeleton__meta"></span></div>
+			</div>
 			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasResumes">
 			<template data-wp-each--resume="state.resumes" data-wp-each-key="context.resume.id">
 				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>

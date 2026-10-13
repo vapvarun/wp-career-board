@@ -1282,8 +1282,13 @@ wp_interactivity_state(
 						</div>
 					</div>
 					<div class="wcb-cd-bookmark-actions">
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
-						<button type="button" class="wcb-btn wcb-btn--danger wcb-btn--sm" data-wp-on--click="actions.unbookmarkJob"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+						<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+							<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+							<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+								<a class="wcb-row-menu__item" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+								<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmarkJob"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							</div>
+						</details>
 					</div>
 				</div>
 			</template>
@@ -1323,8 +1328,13 @@ wp_interactivity_state(
 						</div>
 					</div>
 					<div class="wcb-cd-bookmark-actions">
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.company.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View Profile', 'wp-career-board' ); ?></a>
-						<button type="button" class="wcb-btn wcb-btn--danger wcb-btn--sm" data-wp-on--click="actions.unbookmarkCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+						<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+							<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+							<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+								<a class="wcb-row-menu__item" data-wp-bind--href="context.company.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+								<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmarkCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							</div>
+						</details>
 					</div>
 				</div>
 			</template>
@@ -1365,8 +1375,13 @@ wp_interactivity_state(
 						</div>
 					</div>
 					<div class="wcb-cd-bookmark-actions">
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.resume.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View Resume', 'wp-career-board' ); ?></a>
-						<button type="button" class="wcb-btn wcb-btn--danger wcb-btn--sm" data-wp-on--click="actions.unbookmarkResume"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+						<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown" data-wp-on-document--click="actions.closeRowMenusOutside">
+							<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.savedMenuLabel"><span aria-hidden="true">&#8943;</span></summary>
+							<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+								<a class="wcb-row-menu__item" data-wp-bind--href="context.resume.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+								<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-on--click="actions.unbookmarkResume"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							</div>
+						</details>
 					</div>
 				</div>
 			</template>
