@@ -165,7 +165,7 @@ class SeoModule {
 			'@context'           => 'https://schema.org',
 			'@type'              => 'JobPosting',
 			'title'              => self::plain( (string) $data['title'] ),
-			'description'        => wpautop( wp_kses_post( (string) $data['description'] ) ),
+			'description'        => wpautop( wp_kses_post( strip_shortcodes( (string) $data['description'] ) ) ),
 			'datePosted'         => get_post_time( 'c', true, $job ),
 			'validThrough'       => self::valid_through( (string) $data['closes_at'] ),
 			'employmentType'     => array_values( array_unique( array_intersect_key( self::EMPLOYMENT_TYPES, array_flip( (array) $data['job_types'] ) ) ) ),
