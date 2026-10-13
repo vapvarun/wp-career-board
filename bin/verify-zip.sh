@@ -163,7 +163,9 @@ for libdir in "$ROOT"/libs/*/; do
 			this_fail=1
 			LIB_FAIL=1
 		fi
-	done < <(find "$libdir" -type f)
+	# Committed files only: an ignored local `composer install` inside a
+	# library is dev tooling, not something the zip has to carry.
+	done < <(git -C "$ROOT" ls-files -- "$lib" | sed "s#^#$ROOT/#")
 	[ "$this_fail" -eq 0 ] && echo "  complete: $lib ($(grep -c "^$SLUG/$lib/" <<< "$ENTRIES") files)"
 done
 
