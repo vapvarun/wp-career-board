@@ -432,6 +432,19 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return ( hint.filtered || '%1$s' ).replace( '%1$s', fmtNumber( filtered ) );
 		},
 
+		// The folded job control: the chosen job and its application count.
+		get appsJobLabel() {
+			if ( state.isAllApps ) {
+				return t( 'allJobs', 'All jobs' );
+			}
+			return state.jobsWithApps.find( ( j ) => j.id === state.appsJobId )?.title || state.appsJobTitle || '';
+		},
+		get appsJobCount() {
+			return state.isAllApps
+				? state.totalApps
+				: ( state.jobsWithApps.find( ( j ) => j.id === state.appsJobId )?.appCountLabel || '' );
+		},
+
 		// Context getter — inside data-wp-each--job loop for apps selector.
 		get isSelectedAppsJob() {
 			const ctx = getContext();
@@ -1321,6 +1334,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( Number.isNaN( id ) ) {
 				return;
 			}
+			event.currentTarget.closest( 'details' )?.removeAttribute( 'open' );
 			state.appsJobId     = id;
 			state.selectedAppId = null;
 			state.appsFilter    = 'all';
@@ -1386,6 +1400,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						: {} ),
 				} ) );
 				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				// Side by side (desktop), open the newest applicant instead of an empty pane.
+				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( '(min-width: 1025px)' ).matches ) {
+					state.selectedAppId = apps[ 0 ].id;
+				}
 				state.appsPage     = append ? state.appsPage + 1 : 1;
 				state.appsHasMore  = !! appsData?.has_more;
 				state.appsCounts   = appsData?.counts ?? { total: 0, by_status: {} };

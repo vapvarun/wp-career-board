@@ -359,6 +359,7 @@ wp_interactivity_state(
 			'employerRole'             => $wcb_role_labels['role'],
 			/* translators: %s: job title */
 			'moreActionsFor'           => __( 'More actions for %s', 'wp-career-board' ),
+			'allJobs'                  => __( 'All jobs', 'wp-career-board' ),
 			'removeCompanyTitle'       => __( 'Remove this company?', 'wp-career-board' ),
 			'removeCompanyText'        => __( 'Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them.', 'wp-career-board' ),
 			'removeCompanyButton'      => __( 'Remove company', 'wp-career-board' ),
@@ -813,7 +814,13 @@ wp_interactivity_state(
 				<?php $wcb_company_filter(); ?>
 			</div>
 
-			<div class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps">
+			<?php // One row until opened: the chosen job and its count; the search and list fold out. ?>
+			<details class="wcb-apps-selector" data-wp-class--wcb-shown="state.hasJobsWithApps" data-wp-on--keydown="actions.onRowMenuKeydown">
+				<summary class="wcb-apps-selector-summary">
+					<span class="wcb-apps-selector-summary__label"><?php esc_html_e( 'Job', 'wp-career-board' ); ?></span>
+					<span class="wcb-apps-selector-summary__value" data-wp-text="state.appsJobLabel"><?php esc_html_e( 'All jobs', 'wp-career-board' ); ?></span>
+					<span class="wcb-apps-job-item-count" data-wp-text="state.appsJobCount"></span>
+				</summary>
 				<div class="wcb-apps-selector-header">
 					<input type="search" class="wcb-apps-job-search" aria-label="<?php esc_attr_e( 'Search applications by job', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs...', 'wp-career-board' ); ?>" data-wp-on--input="actions.setAppsJobSearch" data-wp-on--search="actions.setAppsJobSearch" />
 					<span class="wcb-apps-selector-hint" data-wp-text="state.appsJobSelectorHint"></span>
@@ -832,7 +839,7 @@ wp_interactivity_state(
 					</template>
 					<p class="wcb-apps-no-match" data-wp-class--wcb-shown="state.appsJobNoMatch"><?php esc_html_e( 'No jobs match your search.', 'wp-career-board' ); ?></p>
 				</div>
-			</div>
+			</details>
 
 
 			<div class="wcb-apps-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'Layout', 'wp-career-board' ); ?>" data-wp-class--wcb-shown="state.oneJobHasApplications">
@@ -905,8 +912,11 @@ wp_interactivity_state(
 				</div>
 
 				<div class="wcb-applicant-detail">
-					<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noAppSelected">
-						<p class="wcb-empty-state__body"><?php esc_html_e( 'Select an applicant from the list.', 'wp-career-board' ); ?></p>
+					<?php // Desktop opens the newest applicant; on tablet and phone this shows until one is tapped. ?>
+					<div class="wcb-empty-state wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noAppSelected">
+						<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+						<p class="wcb-empty-state__title"><?php esc_html_e( 'Pick an applicant', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__body"><?php esc_html_e( 'Their answers, resume and your team notes open here.', 'wp-career-board' ); ?></p>
 					</div>
 					<div data-wp-class--wcb-hidden="state.noAppSelected">
 						<div class="wcb-detail-header">
