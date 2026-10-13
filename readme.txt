@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,45 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.1 - October 2026 =
+
+Fixes from QA and our own review, safer defaults on every path, and checks that stop these bugs coming back.
+
+* New      - Employers can pick their own application deadline, up to the board's listing length.
+* New      - Admin job editor: Apply URL and Apply Email fields, and a No expiry option.
+* New      - Order field for job categories, types, locations, experience levels and tags; experience levels default to seniority order.
+* New      - Child categories and locations nest under their parent in every filter and form, with a search box for long category lists.
+* New      - View resume link on the admin application screen and in the Applications list.
+* Improve  - Load More is a real next-page link, so job pages work without JavaScript and can be crawled. New sites show 12 jobs per page.
+* Improve  - Find Jobs filters are kept in the address bar: shared links open with the same filters and Back restores them.
+* Improve  - Saved Companies show the company logo and Saved Resumes show the candidate's photo.
+* Improve  - A job located Remote is always treated as remote, on the job page, in filters, search, feeds and Google for Jobs.
+* Improve  - Failed saves, removals and status changes now tell the member instead of failing silently.
+* Fix      - Setup wizard was blank on Windows servers and symlinked installs.
+* Fix      - Request data export button on the candidate dashboard did nothing.
+* Fix      - Headers already sent warning when dismissing or unpublishing a reported job and when trashing companies in bulk.
+* Fix      - Members who applied or built a resume were missing from the admin Candidates screen.
+* Fix      - Deleting a user left their jobs and companies public; jobs now close and companies return to draft unless reassigned.
+* Fix      - A guest using an email that already has an account is asked to sign in instead of creating an unlinked application.
+* Fix      - Employer applications panel lost its filters when a status had no applications.
+* Fix      - Admin-created jobs used USD instead of the site currency, rejected salaries that were not multiples of 1000, and never expired without a deadline.
+* Fix      - Save Job no longer shows to employers, who cannot use it.
+* Fix      - Copy Link did not work on sites without HTTPS.
+* Fix      - Dashboard tabs: every tab updates the address, Notifications can be linked, and the Overview tab no longer flashes on reload.
+* Fix      - Welcome card no longer pops in and shifts the candidate dashboard.
+* Fix      - Notification times read one unit too small.
+* Fix      - Jobs list counts stay correct after approving or rejecting inline; the Jobs search box has a placeholder.
+* Fix      - Spacing on the Delete my account form and on settings cards.
+* Fix      - Saved Companies on the candidate dashboard did not show the industry.
+* Fix      - Updates screen warning from the bundled licensing library.
+* Security - Job descriptions run shortcodes only for authors trusted with unfiltered HTML.
+* Security - The confirmation email link signs in only the browser that created the account.
+* Security - Visitor IP from a proxy header uses the address your own proxy added.
+* Security - Private job details, applicant counts, private profiles and repeat guest applications no longer reveal anything through REST answers.
+* Security - Private documents always download instead of opening in the browser.
+* Dev      - New filter wcb_candidate_resume_url and helper JobDeadline::default_end_for_board().
+* Dev      - Contract checks in local CI catch silent failures, unstyled classes, unbound actions and redirects inside admin screens.
 
 = 1.8.0 - September 2026 =
 
