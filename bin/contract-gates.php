@@ -13,6 +13,9 @@
  *      failed with no message. Mark a deliberate one `wcb-allow-silent: why`.
  *   D. A wcb-* class in a template that no stylesheet styles (the Delete
  *      Account form had none). Known gaps live in a baseline; new ones fail.
+ *   F. A bundled EDD SL SDK that is incomplete or carries a bug fixed in the
+ *      reference copy (BuddyNext's libs/edd-sl-sdk): unguarded $requires
+ *      reads warned on Updates, a DOCUMENT_ROOT asset URL 404ed on live hosts.
  *   E. A job meta key registered in JobsMeta with no admin editor field
  *      (Apply URL/Email could only be set from the frontend). Keys owned by
  *      another screen are listed in $e_owned_elsewhere with the reason.
@@ -173,12 +176,33 @@ if ( '' === $meta_src ) {
 	$failures['E'][] = 'could not read the $meta_fields map in modules/jobs/class-jobs-meta.php';
 }
 
+// F. The bundled EDD SL SDK is complete and free of known-fixed bugs.
+$sdk = $root . '/libs/edd-sl-sdk';
+if ( ! is_dir( $sdk ) ) {
+	$skipped[] = 'F';
+} else {
+	foreach ( array( 'edd-sl-sdk.php', 'src/Registry.php', 'src/Versions.php', 'src/Updaters/Plugin.php', 'src/Utilities/Path.php' ) as $need ) {
+		if ( ! is_file( $sdk . '/' . $need ) ) {
+			$failures['F'][] = 'libs/edd-sl-sdk/' . $need . ' is missing - re-bundle the SDK from the reference copy';
+		}
+	}
+	$plugin_src = is_file( $sdk . '/src/Updaters/Plugin.php' ) ? (string) file_get_contents( $sdk . '/src/Updaters/Plugin.php' ) : '';
+	if ( preg_match( '#\$version_info->(requires|requires_php|icons|banners)\s*\)?\s*;#', $plugin_src ) && preg_match( '#->requires(_php)?\s*=\s*\$version_info->requires(_php)?\s*;#', $plugin_src ) ) {
+		$failures['F'][] = 'libs/edd-sl-sdk/src/Updaters/Plugin.php reads $version_info->requires without ?? - re-bundle from the reference copy';
+	}
+	$path_src = is_file( $sdk . '/src/Utilities/Path.php' ) ? (string) file_get_contents( $sdk . '/src/Utilities/Path.php' ) : '';
+	if ( str_contains( $path_src, 'DOCUMENT_ROOT' ) && ! str_contains( $path_src, 'plugins_url(' ) ) {
+		$failures['F'][] = 'libs/edd-sl-sdk/src/Utilities/Path.php builds asset URLs from DOCUMENT_ROOT - re-bundle from the reference copy';
+	}
+}
+
 $names = array(
 	'A' => 'no `this.` in Interactivity store actions',
 	'B' => 'no redirect or action handler inside an admin render()',
 	'C' => 'no silent catch after a request',
 	'D' => 'every wcb-* template class is styled (or baselined)',
 	'E' => 'every registered job meta key has an admin editor field',
+	'F' => 'bundled EDD SL SDK is complete and has no known-fixed bug',
 );
 foreach ( $names as $gate => $label ) {
 	if ( in_array( $gate, $skipped, true ) ) {
