@@ -1414,7 +1414,7 @@ final class JobsEndpoint extends RestController {
 			'id'                 => $p->ID,
 			'candidate_id'       => $candidate_id,
 			'applicant_name'     => $candidate_user
-				? $candidate_user->display_name
+				? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id )
 				: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
 			'applicant_email'    => $candidate_user
 				? $candidate_user->user_email

@@ -353,6 +353,10 @@ final class CandidatesEndpoint extends RestController {
 		}
 
 		$data = $this->prepare_candidate( $user );
+		// Anyone else sees the public name, never the login WordPress defaults display_name to.
+		if ( ! $is_self ) {
+			$data['display_name'] = \WCB\Modules\Candidates\CandidatesModule::public_name( $user_id );
+		}
 
 		// Contact details (phone, location, email…) go to the candidate, admins
 		// and employers the candidate applied to - not to anyone who asks.
@@ -589,7 +593,7 @@ final class CandidatesEndpoint extends RestController {
 				}
 
 				$candidate_id   = (int) $post->post_author;
-				$candidate_name = $candidate_id ? get_the_author_meta( 'display_name', $candidate_id ) : $post->post_title;
+				$candidate_name = $candidate_id ? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id, $post->post_title ) : $post->post_title;
 
 				// Job title + location live in `_wcb_resume_experience` (an
 				// array of work entries); the first entry is the most recent

@@ -76,7 +76,7 @@ final class ApplicantCard extends AbstractWidget {
 
 		if ( $candidate_id ) {
 			$user        = get_userdata( $candidate_id );
-			$name        = $user instanceof \WP_User ? $user->display_name : __( 'Unknown candidate', 'wp-career-board' );
+			$name        = $user instanceof \WP_User ? \WCB\Modules\Candidates\CandidatesModule::public_name( $user->ID ) : __( 'Unknown candidate', 'wp-career-board' );
 			$email       = $user instanceof \WP_User ? $user->user_email : '';
 			$avatar_html = sprintf(
 				'<img src="%1$s" alt="" class="avatar avatar-64 photo" width="64" height="64" loading="lazy" />',

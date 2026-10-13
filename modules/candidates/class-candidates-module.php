@@ -262,6 +262,35 @@ final class CandidatesModule {
 	}
 
 	/**
+	 * The name other people see for a member (employers, the public, bells).
+	 *
+	 * WordPress sets display_name to the login when a member never gave a
+	 * name, so showing it as-is leaked logins ('varundubey applied for ...').
+	 * A display name that is just the login, nicename or email falls back to
+	 * first + last name, then to $fallback. A member's own screens still show
+	 * what they set.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int    $user_id  User ID.
+	 * @param string $fallback Text when no real name exists ('' = "A candidate").
+	 * @return string Plain text, never a login.
+	 */
+	public static function public_name( int $user_id, string $fallback = '' ): string {
+		$fallback = '' !== $fallback ? $fallback : __( 'A candidate', 'wp-career-board' );
+		$user     = $user_id > 0 ? get_userdata( $user_id ) : false;
+		if ( ! $user instanceof \WP_User ) {
+			return $fallback;
+		}
+		$name = trim( (string) $user->display_name );
+		if ( '' !== $name && ! in_array( strtolower( $name ), array_map( 'strtolower', array( $user->user_login, $user->user_nicename, $user->user_email ) ), true ) ) {
+			return $name;
+		}
+		$full = trim( $user->first_name . ' ' . $user->last_name );
+		return '' !== $full ? $full : $fallback;
+	}
+
+	/**
 	 * The candidate's resume photo, or '' when they have none.
 	 *
 	 * Public candidate surfaces show initials then, never the grey Gravatar
