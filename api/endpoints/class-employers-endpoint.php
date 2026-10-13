@@ -881,6 +881,11 @@ final class EmployersEndpoint extends RestController {
 			$query->posts
 		);
 
+		// Applicant counts are the company's business, not the public's.
+		if ( ! $is_owner && ! $is_admin ) {
+			$items = array_map( static fn ( array $item ): array => array_diff_key( $item, array_flip( array( 'appCount', 'appLabel' ) ) ), $items );
+		}
+
 		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
 	}
 

@@ -344,11 +344,15 @@ const { state } = store( 'wcb-job-single', {
 			}
 		},
 
-		* copyLink() {
+		* copyLink( event ) {
 			const ok = yield copyText( state.jobPermalink );
 			if ( ! ok ) {
-				// No clipboard access: show the link so it can be copied by hand.
-				window.prompt( t( 'copyManually', 'Copy this link:' ), state.jobPermalink );
+				// No clipboard access: show the link, selected, to copy by hand.
+				state.copyFallback = true;
+				const field = event?.target?.closest( 'div' )?.querySelector( '.wcb-copy-fallback' );
+				if ( field ) {
+					setTimeout( () => field.select(), 0 );
+				}
 				return;
 			}
 			state.linkCopied = true;

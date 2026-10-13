@@ -343,11 +343,16 @@ final class ApplicationsEndpoint extends RestController {
 					)
 				);
 
+				// Answer a repeat exactly like a first application (no second
+				// row, no second email): an "already applied" reply told anyone
+				// whether an email had applied to this job.
 				if ( $existing ) {
-					return new \WP_Error(
-						'wcb_already_applied',
-						__( 'You have already applied to this job recently.', 'wp-career-board' ),
-						array( 'status' => 409 )
+					return rest_ensure_response(
+						array(
+							'id'     => (int) $existing[0]->ID,
+							'job_id' => $job_id,
+							'status' => 'submitted',
+						)
 					);
 				}
 

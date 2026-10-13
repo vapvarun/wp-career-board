@@ -349,9 +349,10 @@ final class AppCredentials {
 	 *
 	 *     add_filter( 'wcb_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
 	 *
-	 * The leftmost address is taken (the original client; later hops are
-	 * appended by each proxy) and validated, so a malformed header degrades to
-	 * REMOTE_ADDR rather than poisoning a bucket key with attacker-chosen text.
+	 * The rightmost address is taken (the hop the site's own proxy appended;
+	 * anything left of it is written by the client) and validated, so a
+	 * malformed header degrades to REMOTE_ADDR rather than poisoning a bucket
+	 * key with attacker-chosen text.
 	 *
 	 * @since 1.7.2
 	 *
@@ -384,11 +385,15 @@ final class AppCredentials {
 
 		if ( '' !== $header && ! empty( $_SERVER[ $header ] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by rest_is_ip_address below; sanitize_text_field would not make a bad IP good.
-			$raw   = (string) wp_unslash( $_SERVER[ $header ] );
-			$first = trim( strtok( $raw, ',' ) ?: '' );
+			$raw  = (string) wp_unslash( $_SERVER[ $header ] );
+			$hops = array_map( 'trim', explode( ',', $raw ) );
+			// X-Forwarded-For is "client, proxy1, proxy2": the client writes the
+			// left end, so only the hop the site's own proxy appended (the right
+			// end) can be trusted. Single-value headers have one entry anyway.
+			$ip = (string) end( $hops );
 
-			if ( '' !== $first && rest_is_ip_address( $first ) ) {
-				return $first;
+			if ( '' !== $ip && rest_is_ip_address( $ip ) ) {
+				return $ip;
 			}
 		}
 

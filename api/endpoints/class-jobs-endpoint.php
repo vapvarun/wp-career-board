@@ -208,6 +208,12 @@ final class JobsEndpoint extends RestController {
 			if ( '' === $meta_key || isset( $seen_keys[ $meta_key ] ) ) {
 				continue;
 			}
+			// Only keys already public in REST: filtering on a private one
+			// (apply email, flag status) answered yes/no about its value.
+			$registered = get_registered_meta_keys( 'post', 'wcb_job' );
+			if ( empty( $registered[ $meta_key ]['show_in_rest'] ) ) {
+				continue;
+			}
 			if ( null === $raw || '' === $raw ) {
 				continue;
 			}

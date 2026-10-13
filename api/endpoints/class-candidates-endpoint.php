@@ -323,11 +323,13 @@ final class CandidatesEndpoint extends RestController {
 		$visibility     = $raw_visibility ? $raw_visibility : 'public';
 		$is_self        = get_current_user_id() === $user_id;
 		$is_admin       = $this->check_ability( 'wcb/manage-settings' );
+		// A private profile answers exactly like a missing one, so the route
+		// does not confirm who has an account here.
 		if ( 'private' === $visibility && ! $is_self && ! $is_admin ) {
 			return new \WP_Error(
-				'wcb_private',
-				__( 'This profile is private.', 'wp-career-board' ),
-				array( 'status' => 403 )
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
 			);
 		}
 

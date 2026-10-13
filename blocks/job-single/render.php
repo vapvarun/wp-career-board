@@ -328,6 +328,7 @@ wp_interactivity_state(
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
 		'bookmarkFailed'       => false,
+		'copyFallback'         => false,
 		'coverLetter'          => '',
 		// Only members who may apply can draft a letter (the route checks the same ability).
 		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
@@ -368,7 +369,6 @@ wp_interactivity_state(
 		// them only through its t( key, fallback ) helper.
 		'i18n'                 => array(
 			'bookmarkFailed'       => __( 'Could not save', 'wp-career-board' ),
-			'copyManually'         => __( 'Copy this link:', 'wp-career-board' ),
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
 			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
@@ -626,7 +626,19 @@ wp_interactivity_state(
 						// blank "About This Role" panel that reads as broken.
 						echo '<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
 					} else {
-						echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
+						// Shortcodes only for authors trusted with unfiltered HTML
+						// (admins/editors), never once per nested render: an
+						// employer's [wcb_job_single] used to recurse until PHP ran
+						// out of memory.
+						$wcb_author_trusted = user_can( (int) $wcb_job->post_author, 'unfiltered_html' ); // phpcs:ignore WordPress.WP.Capabilities -- a property of the author, not a permission gate for the viewer.
+						if ( $wcb_author_trusted && empty( $GLOBALS['wcb_rendering_job_desc'] ) ) {
+							$GLOBALS['wcb_rendering_job_desc'] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- request-scoped recursion guard.
+							$wcb_desc_html                     = do_shortcode( $wcb_job_desc );
+							$GLOBALS['wcb_rendering_job_desc'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						} else {
+							$wcb_desc_html = strip_shortcodes( $wcb_job_desc );
+						}
+						echo wp_kses_post( wpautop( $wcb_desc_html ) );
 					}
 					?>
 				</div>
@@ -860,6 +872,7 @@ wp_interactivity_state(
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 					</span>
 				</button>
+				<input type="text" class="wcb-field-input wcb-copy-fallback" readonly hidden aria-label="<?php esc_attr_e( 'Copy this link', 'wp-career-board' ); ?>" value="<?php echo esc_url( (string) get_permalink( $wcb_job_id ) ); ?>" data-wp-bind--hidden="!state.copyFallback" />
 			</div>
 			</div>
 

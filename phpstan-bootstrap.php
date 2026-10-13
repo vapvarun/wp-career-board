@@ -14,6 +14,13 @@ if ( ! defined( 'DB_NAME' ) ) {
 }
 
 // Plugin constants.
+if ( ! defined( 'COOKIEPATH' ) ) {
+	define( 'COOKIEPATH', '/' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core cookie constant.
+}
+if ( ! defined( 'COOKIE_DOMAIN' ) ) {
+	define( 'COOKIE_DOMAIN', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress core cookie constant.
+}
+
 define( 'WCB_VERSION', '1.2.0' );
 define( 'WCB_FILE', __DIR__ . '/wp-career-board.php' );
 define( 'WCB_BASENAME', 'wp-career-board/wp-career-board.php' );
