@@ -295,8 +295,21 @@ class SeoModule {
 	 * @return bool
 	 */
 	public static function has_location( \WP_Post $job ): bool {
-		list( $places, $remote ) = self::locations( $job, '1' === (string) get_post_meta( $job->ID, '_wcb_remote', true ) );
+		list( $places, $remote ) = self::job_places( $job );
 		return $places || $remote;
+	}
+
+	/**
+	 * A job's places and whether it is remote, as the JobPosting markup reads
+	 * them. Pro's job feed uses the same answer so the two never disagree.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post $job Job.
+	 * @return array{0: array<int, array<string, mixed>>, 1: bool} Places and remote.
+	 */
+	public static function job_places( \WP_Post $job ): array {
+		return self::locations( $job, '1' === (string) get_post_meta( $job->ID, '_wcb_remote', true ) );
 	}
 
 	/**
