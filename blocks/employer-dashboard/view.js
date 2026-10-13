@@ -3,7 +3,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
 import { formatSiteDate, relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
@@ -14,20 +14,8 @@ import { formatSiteDate, relativeTime, rowMenuActions, showError, tabRouter } fr
  * browser back-forward survive across the 2 dashboards. Anything outside
  * this list is ignored on read.
  */
-const VALID_VIEWS = [
-	'overview',
-	'jobs',
-	'post-job',
-	'applications',
-	'companies',
-	'company',
-	'saved-jobs',
-	'saved-companies',
-	'saved-resumes',
-	'settings',
-	'notifications',
-	'credits',
-];
+// Tabs this employer can use, decided in render.php (bookmark gate, credits).
+const VALID_VIEWS = getConfig( 'wcb-employer-dashboard' ).views;
 
 const views = tabRouter( VALID_VIEWS, 'wcb_employer_view' );
 

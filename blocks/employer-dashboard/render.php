@@ -485,9 +485,21 @@ wp_interactivity_state(
 		),
 	)
 );
-// Same list and key as VALID_VIEWS / tabRouter in view.js.
+// Tabs this employer can use; the guard and the view module's router share it.
+// Saved Jobs/Companies follow the bookmark gate (the same one as the Save
+// buttons and the REST route), so an employer never gets a tab it can't fill.
+$wcb_can_bookmark = wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+$wcb_views        = array_values(
+	array_diff(
+		array( 'overview', 'jobs', 'post-job', 'applications', 'companies', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
+		$wcb_can_bookmark ? array() : array( 'saved-jobs', 'saved-companies' ),
+		post_type_exists( 'wcb_resume' ) ? array() : array( 'saved-resumes' ),
+		$wcb_show_credits ? array() : array( 'credits' )
+	)
+);
+wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views ) );
 \WCB\Core\DashboardTabs::print_guard(
-	array( 'overview', 'jobs', 'post-job', 'applications', 'companies', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
+	$wcb_views,
 	'wcb_employer_view',
 	$wcb_apps_job_id > 0 ? 'applications' : ( $wcb_edit_job_id > 0 ? 'post-job' : ( $wcb_profile_view ? 'company' : 'overview' ) )
 );
@@ -594,23 +606,29 @@ wp_interactivity_state(
 					dashboard. Saved Resumes hides itself when wcb_resume
 					isn't registered (Free-only sites). */
 			?>
+			<?php $wcb_saved_tabs = count( array_intersect( $wcb_views, array( 'saved-jobs', 'saved-companies', 'saved-resumes' ) ) ); ?>
+			<?php if ( $wcb_saved_tabs ) : ?>
 			<div class="wcb-nav-group" role="group" aria-labelledby="wcb-nav-g-saved">
-			<span id="wcb-nav-g-saved" class="wcb-nav-section-label"><?php esc_html_e( 'Saved', 'wp-career-board' ); ?></span>
+				<?php // A visible heading only over 2+ items (sidebar rule); one item keeps it for screen readers. ?>
+			<span id="wcb-nav-g-saved" class="wcb-nav-section-label<?php echo $wcb_saved_tabs < 2 ? ' screen-reader-text' : ''; ?>"><?php esc_html_e( 'Saved', 'wp-career-board' ); ?></span>
+				<?php if ( $wcb_can_bookmark ) : ?>
 			<button type="button" class="wcb-nav-item" id="wcb-tab-saved-jobs" data-wp-bind--aria-current="state.isViewSavedJobs" data-wp-class--wcb-nav-active="state.isViewSavedJobs" data-wp-on--click="actions.switchToSavedJobs">
-				<?php echo esc_html_x( 'Jobs', 'saved items menu: saved jobs', 'wp-career-board' ); ?>
+					<?php echo esc_html_x( 'Jobs', 'saved items menu: saved jobs', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.savedJobsCount" data-wp-text="state.savedJobsCountLabel"></span>
 			</button>
 			<button type="button" class="wcb-nav-item" id="wcb-tab-saved-companies" data-wp-bind--aria-current="state.isViewSavedCompanies" data-wp-class--wcb-nav-active="state.isViewSavedCompanies" data-wp-on--click="actions.switchToSavedCompanies">
-				<?php echo esc_html_x( 'Companies', 'saved items menu: saved companies', 'wp-career-board' ); ?>
+					<?php echo esc_html_x( 'Companies', 'saved items menu: saved companies', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.savedCompaniesCount" data-wp-text="state.savedCompaniesCountLabel"></span>
 			</button>
-			<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+			<?php endif; ?>
+				<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
 			<button type="button" class="wcb-nav-item" id="wcb-tab-saved-resumes" data-wp-bind--aria-current="state.isViewSavedResumes" data-wp-class--wcb-nav-active="state.isViewSavedResumes" data-wp-on--click="actions.switchToSavedResumes">
-				<?php echo esc_html_x( 'Resumes', 'saved items menu: saved resumes', 'wp-career-board' ); ?>
+					<?php echo $wcb_saved_tabs < 2 ? esc_html__( 'Saved resumes', 'wp-career-board' ) : esc_html_x( 'Resumes', 'saved items menu: saved resumes', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.savedResumesCount" data-wp-text="state.savedResumesCountLabel"></span>
 			</button>
 			<?php endif; ?>
 			</div>
+			<?php endif; ?>
 
 			<div class="wcb-nav-group" role="group" aria-labelledby="wcb-nav-g-account">
 			<span id="wcb-nav-g-account" class="wcb-nav-section-label"><?php esc_html_e( 'Account', 'wp-career-board' ); ?></span>
@@ -1317,6 +1335,7 @@ wp_interactivity_state(
 			?>
 		</div>
 
+	<?php if ( $wcb_can_bookmark ) : ?>
 	<!-- ── Saved Jobs panel ────────────────────────────────────────── -->
 	<div class="wcb-view-panel" id="wcb-panel-saved-jobs" role="region" aria-labelledby="wcb-tab-saved-jobs" data-wp-class--wcb-view-active="state.isViewSavedJobs">
 		<div class="wcb-page-header">
@@ -1409,6 +1428,8 @@ wp_interactivity_state(
 			<a href="<?php echo esc_url( home_url( '/companies/' ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Browse Companies', 'wp-career-board' ); ?></a>
 		</div>
 	</div>
+
+	<?php endif; ?>
 
 	<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
 	<!-- ── Saved Resumes panel ────────────────────────────────────── -->
