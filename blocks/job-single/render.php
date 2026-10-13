@@ -332,6 +332,7 @@ wp_interactivity_state(
 		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		'coverLoading'         => false,
 		'error'                => '',
+		'errorNeedsLogin'      => false,
 		'userResumes'          => $wcb_user_resumes,
 		// Pre-select the newest resume so applying is one tap; the candidate can
 		// still switch or upload a different file. PDF-less builder resumes are
@@ -1036,6 +1037,9 @@ wp_interactivity_state(
 		<?php endif; ?>
 
 				<p class="wcb-apply-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+		<?php if ( ! is_user_logged_in() ) : ?>
+				<a class="wcb-btn wcb-btn--primary wcb-apply-login" href="<?php echo esc_url( wp_login_url( (string) get_permalink( $wcb_job_id ) ) ); ?>" data-wp-bind--hidden="!state.errorNeedsLogin" hidden><?php esc_html_e( 'Sign in to apply', 'wp-career-board' ); ?></a>
+		<?php endif; ?>
 
 		<?php if ( ! is_user_logged_in() ) : ?>
 					<div class="wcb-apply-guest-fields">

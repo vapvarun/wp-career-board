@@ -293,6 +293,12 @@ final class ApplicationsEndpoint extends RestController {
 			if ( ! is_email( $guest_email ) ) {
 				return new \WP_Error( 'wcb_guest_email_invalid', __( 'A valid email address is required.', 'wp-career-board' ), array( 'status' => 400 ) );
 			}
+			// The email has an account: apply signed in, so the application
+			// lands on that account instead of an orphan guest row (owner
+			// decision, 1.8.1). Same disclosure as WordPress's lost-password form.
+			if ( email_exists( $guest_email ) ) {
+				return new \WP_Error( 'wcb_guest_has_account', __( 'This email already has an account. Sign in to apply.', 'wp-career-board' ), array( 'status' => 409 ) );
+			}
 
 			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_g' . md5( $guest_email );
 		} else {

@@ -273,6 +273,7 @@ const { state } = store( 'wcb-job-single', {
 				}
 
 				state.error = '';
+				state.errorNeedsLogin = false;
 
 				const formData = new FormData();
 				formData.append( 'cover_letter', state.coverLetter );
@@ -323,6 +324,7 @@ const { state } = store( 'wcb-job-single', {
 					state.error = ( err && err.message )
 						? err.message
 						: t( 'applicationFailed', 'Application could not be submitted. Please try again.' );
+					state.errorNeedsLogin = !! err && 'wcb_guest_has_account' === err.code;
 					return;
 				}
 

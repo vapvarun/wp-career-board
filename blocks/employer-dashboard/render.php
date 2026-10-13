@@ -772,13 +772,13 @@ wp_interactivity_state(
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToJobs"><?php esc_html_e( 'Go to My Jobs', 'wp-career-board' ); ?></button>
 			</div>
 
-			<div class="wcb-apps-layout-toggle" role="tablist" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-apps-layout-toggle" role="tablist" data-wp-class--wcb-shown="state.jobHasApplications">
 					<button type="button" class="wcb-layout-btn" data-layout="list" data-wp-class--wcb-layout-active="state.isAppsListLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'List', 'wp-career-board' ); ?></button>
 					<button type="button" class="wcb-layout-btn" data-layout="board" data-wp-class--wcb-layout-active="state.isAppsBoardLayout" data-wp-on--click="actions.setAppsLayout"><?php esc_html_e( 'Board', 'wp-career-board' ); ?></button>
 				</div>
-				<a class="wcb-btn wcb-btn--outline wcb-apps-export" data-wp-class--wcb-hidden="!state.hasApplications" data-wp-bind--href="state.appsExportUrl" download><?php esc_html_e( 'Export CSV', 'wp-career-board' ); ?></a>
+				<a class="wcb-btn wcb-btn--outline wcb-apps-export" data-wp-class--wcb-hidden="!state.jobHasApplications" data-wp-bind--href="state.appsExportUrl" download><?php esc_html_e( 'Export CSV', 'wp-career-board' ); ?></a>
 
-				<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.hasApplications">
+				<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.jobHasApplications">
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'All', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountAll"></span>
@@ -814,6 +814,10 @@ wp_interactivity_state(
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noApplications">
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'No applications yet for this job.', 'wp-career-board' ); ?></p>
+			</div>
+
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noFilteredApplications">
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'No applications with this status.', 'wp-career-board' ); ?></p>
 			</div>
 
 			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications" data-wp-class--wcb-hidden="!state.isAppsListLayout">

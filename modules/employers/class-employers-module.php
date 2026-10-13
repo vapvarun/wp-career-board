@@ -60,6 +60,57 @@ final class EmployersModule {
 				}
 			}
 		);
+
+		add_action( 'delete_user', array( self::class, 'retire_owned_listings' ), 10, 2 );
+	}
+
+	/**
+	 * Take a deleted employer's jobs and companies off the site.
+	 *
+	 * WordPress moves them to the chosen user when the admin picks "Attribute
+	 * all content to"; without that, neither post type is deleted with its
+	 * author, so they stayed public with no owner. Jobs close (applicants are
+	 * told, the history stays) and companies go back to draft: off the site
+	 * but recoverable (owner decision, 1.8.1).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $user_id  User being deleted.
+	 * @param int|null $reassign User receiving the content, or null.
+	 * @return void
+	 */
+	public static function retire_owned_listings( int $user_id, ?int $reassign ): void {
+		if ( $reassign ) {
+			return;
+		}
+		$targets = array(
+			'wcb_job'     => array( 'wcb_closed', array( 'publish', 'pending', 'draft', 'future', 'wcb_expired' ) ),
+			'wcb_company' => array( 'draft', array( 'publish', 'pending', 'future' ) ),
+		);
+		foreach ( $targets as $post_type => list( $new_status, $from ) ) {
+			// Each pass moves rows out of $from, so page 1 always holds the next batch.
+			do {
+				$ids = get_posts(
+					array(
+						'post_type'      => $post_type,
+						'post_status'    => $from,
+						'author'         => $user_id,
+						'fields'         => 'ids',
+						'posts_per_page' => 100,
+						'no_found_rows'  => true,
+					)
+				);
+				foreach ( $ids as $id ) {
+					wp_update_post(
+						array(
+							'ID'          => (int) $id,
+							'post_status' => $new_status,
+						)
+					);
+				}
+				$full = 100 === count( $ids );
+			} while ( $full );
+		}
 	}
 
 	/* Note: the `wcb-company-sidebar` widget area was retired in 1.2.x.

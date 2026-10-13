@@ -451,6 +451,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noJobSelected() {
 			return ! state.appsJobId;
 		},
+		// Job-wide chrome (filters, layout, export) follows the job's total, not
+		// the filtered page: a zero-count status must not hide the way back.
+		get jobHasApplications() {
+			return state.appsJobId > 0 && ! state.appsError && state.appsCounts.total > 0;
+		},
+		get noFilteredApplications() {
+			return state.jobHasApplications && ! state.appsLoading && 0 === state.applications.length;
+		},
 		get noApplications() {
 			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
 		},
@@ -1231,6 +1239,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			state.appsJobId     = id;
 			state.selectedAppId = null;
+			state.appsFilter    = 'all';
 			state.currentView   = 'applications';
 			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
 			sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );

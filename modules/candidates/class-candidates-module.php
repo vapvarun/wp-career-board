@@ -48,6 +48,77 @@ final class CandidatesModule {
 		// applicant, and author archives showed their names.
 		add_filter( 'rest_user_query', array( $this, 'hide_applicants_from_user_rest' ), 10, 2 );
 		add_action( 'template_redirect', array( $this, 'guard_candidate_author_archive' ), 0 );
+
+		// A candidate is anyone who has applied or has a resume (owner decision,
+		// 1.8.1), so the role follows the first of either and every screen can
+		// keep its fast role query. Saves cover REST, import, CLI and guest claims alike.
+		foreach ( array( 'save_post_wcb_application', 'save_post_wcb_resume' ) as $wcb_hook ) {
+			add_action(
+				$wcb_hook,
+				static function ( int $post_id, \WP_Post $post ): void {
+					unset( $post_id );
+					self::grant_role( (int) $post->post_author );
+				},
+				10,
+				2
+			);
+		}
+		add_action( self::BACKFILL_HOOK, array( self::class, 'backfill_roles' ) );
+	}
+
+	/**
+	 * Cron hook that grants the candidate role to applicants from before 1.8.1.
+	 *
+	 * @since 1.8.1
+	 */
+	public const BACKFILL_HOOK = 'wcb_backfill_candidate_role';
+
+	/**
+	 * Give a member the candidate role once they apply or create a resume.
+	 *
+	 * Administrators are left alone: their own test applications should not
+	 * add them to the Candidates screen.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Applicant or resume author.
+	 * @return void
+	 */
+	public static function grant_role( int $user_id ): void {
+		$user = $user_id > 0 ? get_userdata( $user_id ) : false;
+		if ( ! $user || in_array( 'wcb_candidate', (array) $user->roles, true ) || $user->has_cap( 'manage_options' ) ) {
+			return;
+		}
+		\WCB\Core\Roles::grant_member_role( $user, 'wcb_candidate' );
+	}
+
+	/**
+	 * Grant the candidate role to existing applicants and resume authors.
+	 *
+	 * Runs in the background after the 1.8.1 upgrade, 200 authors a batch,
+	 * walking author IDs upward so skipped users (admins) never stall it.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $after Last author ID handled by the previous batch.
+	 * @return void
+	 */
+	public static function backfill_roles( int $after = 0 ): void {
+		global $wpdb;
+		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off background batch.
+			$wpdb->prepare(
+				"SELECT DISTINCT post_author FROM {$wpdb->posts}
+				WHERE post_type IN ( 'wcb_application', 'wcb_resume' ) AND post_author > %d
+				ORDER BY post_author ASC LIMIT 200",
+				$after
+			)
+		);
+		foreach ( $ids as $id ) {
+			self::grant_role( (int) $id );
+		}
+		if ( 200 === count( $ids ) ) {
+			wp_schedule_single_event( time() + 30, self::BACKFILL_HOOK, array( (int) end( $ids ) ) );
+		}
 	}
 
 	/**

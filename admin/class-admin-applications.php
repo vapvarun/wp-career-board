@@ -82,7 +82,6 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-admin wcb-applications-list">

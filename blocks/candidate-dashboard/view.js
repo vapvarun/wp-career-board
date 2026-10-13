@@ -1453,7 +1453,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		 * is processed by the site admin.
 		 */
 		*requestExport() {
-			yield this.runPrivacyRequest( 'export' );
+			yield actions.runPrivacyRequest( 'export' );
 		},
 
 		/**

@@ -207,6 +207,7 @@ class Admin {
 			array( $admin_jobs, 'render' )
 		);
 		add_action( 'load-' . $jobs_hook, array( $admin_jobs, 'process_bulk_action' ) );
+		add_action( 'load-' . $jobs_hook, array( $admin_jobs, 'process_flag_action' ) );
 
 		$admin_apps = new AdminApplications();
 		$apps_hook  = add_submenu_page(
@@ -230,14 +231,16 @@ class Admin {
 		);
 		add_action( 'load-' . $candidates_hook, array( $admin_candidates, 'process_bulk_action' ) );
 
-		add_submenu_page(
+		$admin_companies = new AdminCompanies();
+		$companies_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Companies', 'wp-career-board' ),
 			__( 'Companies', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-companies',
-			array( new AdminCompanies(), 'render' )
+			array( $admin_companies, 'render' )
 		);
+		add_action( 'load-' . $companies_hook, array( $admin_companies, 'process_bulk_action' ) );
 
 		$admin_employers = new AdminEmployers();
 		$employers_hook  = add_submenu_page(

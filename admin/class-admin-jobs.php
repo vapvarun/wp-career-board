@@ -55,8 +55,6 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_flag_action();
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-admin wcb-jobs-list">
@@ -733,14 +731,14 @@ class AdminJobs extends \WP_List_Table {
 	/**
 	 * Handle single-job resolve-flag row-action links.
 	 *
-	 * Runs before the table renders. Each link carries its own per-job nonce
+	 * Runs on load-{page}, before any output, so the redirect can send headers. Each link carries its own per-job nonce
 	 * and delegates to ModerationModule::resolve_job_flags() so the admin and
 	 * REST surfaces share one implementation.
 	 *
 	 * @since 1.2.1
 	 * @return void
 	 */
-	private function process_flag_action(): void {
+	public function process_flag_action(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$resolve = isset( $_GET['wcb_resolve_flag'] ) ? sanitize_key( wp_unslash( $_GET['wcb_resolve_flag'] ) ) : '';
 		if ( '' === $resolve ) {
