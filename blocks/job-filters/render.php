@@ -15,27 +15,17 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended
-$wcb_filter_category   = isset( $_GET['wcb_category'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_category'] ) )
-	: '';
-$wcb_filter_type       = isset( $_GET['wcb_job_type'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_job_type'] ) )
-	: '';
-$wcb_filter_location   = isset( $_GET['wcb_location'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_location'] ) )
-	: '';
-$wcb_filter_exp        = isset( $_GET['wcb_experience'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_experience'] ) )
-	: '';
-$wcb_filter_salary_min = isset( $_GET['salary_min'] )
-	? (int) $_GET['salary_min']
-	: 0;
-$wcb_filter_salary_max = isset( $_GET['salary_max'] )
-	? (int) $_GET['salary_max']
-	: 0;
-$wcb_filter_remote     = ! empty( $_GET['remote'] );
-// phpcs:enable WordPress.Security.NonceVerification.Recommended
+// Read the URL the way the listings block does (canonical names and their
+// wcb_* aliases), so a shared or Back-navigated link shows matching selects.
+$wcb_url               = \WCB\Modules\Jobs\JobSearch::from_url();
+$wcb_first             = static fn( string $key ): string => (string) strtok( (string) ( $wcb_url[ $key ] ?? '' ), ',' );
+$wcb_filter_category   = $wcb_first( 'category' );
+$wcb_filter_type       = $wcb_first( 'type' );
+$wcb_filter_location   = $wcb_first( 'location' );
+$wcb_filter_exp        = $wcb_first( 'experience' );
+$wcb_filter_salary_min = (int) ( $wcb_url['salary_min'] ?? 0 );
+$wcb_filter_salary_max = (int) ( $wcb_url['salary_max'] ?? 0 );
+$wcb_filter_remote     = ! empty( $wcb_url['remote'] );
 
 $wcb_categories  = \WCB\Core\Taxonomy::options( 'wcb_category' );
 $wcb_job_types   = \WCB\Core\Taxonomy::options( 'wcb_job_type' );

@@ -11,6 +11,9 @@
  */
 import { store } from '@wordpress/interactivity';
 
+// Select name -> canonical URL parameter (JobSearch::TAXONOMIES).
+const URL_KEYS = { wcb_category: 'category', wcb_job_type: 'type', wcb_location: 'location', wcb_experience: 'experience' };
+
 const { state } = store( 'wcb-search', {
 	state: {
 		/** Active filters, for the "Filters (n)" button on tablet and phone. */
@@ -39,10 +42,13 @@ const { state } = store( 'wcb-search', {
 			// Push updated URL params.
 			const params = new URLSearchParams( window.location.search );
 
+			// Write the canonical name the listings block and server read.
+			const urlKey = URL_KEYS[ key ] || key;
+			params.delete( key );
 			if ( value ) {
-				params.set( key, value );
+				params.set( urlKey, value );
 			} else {
-				params.delete( key );
+				params.delete( urlKey );
 			}
 
 			const wcbFilterQs = params.toString();
