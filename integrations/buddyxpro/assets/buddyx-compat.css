@@ -50,6 +50,10 @@ html.dark-mode {
 	--wcb-contrast:       var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #0f172a ) ) );
 	--wcb-text-primary:   var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #111111 ) ) );
 	--wcb-text-secondary: var( --bx-color-text, var( --bx-color-fg-muted, var( --global-font-color, #475569 ) ) );
+	/* BuddyX Pro's muted grey (#757575) is 4.3:1 on its #f7f7f9 page; pull it
+	   a third of the way to the theme's own text colour so it clears 4.5:1 in
+	   both modes and still reads as the theme's grey. */
+	--wcb-text-secondary: color-mix( in srgb, var( --bx-color-text, var( --bx-color-fg-muted, var( --global-font-color, #475569 ) ) ) 65%, var( --bx-color-text-primary, var( --bx-color-fg, #0f172a ) ) );
 	--wcb-text-muted:     var( --bx-color-text-muted, var( --bx-color-fg-subtle, #6b7280 ) );
 	--wcb-text-tertiary:  var( --bx-color-fg-subtle, var( --bx-color-text-muted, #9ca3af ) );
 

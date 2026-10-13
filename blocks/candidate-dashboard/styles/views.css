@@ -73,7 +73,7 @@
 
 .wcb-cd-app-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
 /* ── Status badge ─────────────────────────────────────────────────────────── */
@@ -189,7 +189,7 @@
 
 .wcb-resume-cap-info {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
 @media (max-width: 640px) {
@@ -250,7 +250,7 @@
 
 .wcb-resume-card-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
 .wcb-resume-card-actions {

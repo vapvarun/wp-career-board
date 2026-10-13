@@ -442,7 +442,7 @@ a.wcb-company-card-name:hover {
 	align-items: center;
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade: BuddyX Pro's brand red is 3.9:1 as text */
 	text-decoration: none;
 	font-weight: var(--wcb-font-medium);
 }

@@ -391,7 +391,7 @@
 }
 
 .wcb-cp-detail-item dd a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade, as .wcb-company-link */
 	text-decoration: none;
 }
 
