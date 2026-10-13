@@ -237,9 +237,8 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 	$wcb_cost = (int) $wcb_cost;
 
 	if ( $wcb_cost <= 0 ) {
-		// The balance is irrelevant to a free posting - showing it (often "0")
-		// next to "Free" reads like a warning rather than the good news it is.
-		$wcb_credit_messages[ (string) $wcb_bid ] = __( 'Free to post on this board.', 'wp-career-board' );
+		// A free board needs no notice; the banner only speaks when posting costs.
+		$wcb_credit_messages[ (string) $wcb_bid ] = '';
 		$wcb_credit_errors[ (string) $wcb_bid ]   = '';
 		continue;
 	}
@@ -627,6 +626,7 @@ $wcb_step_labels = array(
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<?php require __DIR__ . '/editor-toolbar.php'; ?>
 					<div class="wcb-editor-holder" id="wcb-editor-job-desc" aria-describedby="wcb-job-desc-error" data-wp-bind--aria-invalid="state.descriptionInvalid"></div>
 					<textarea
 						id="wcb-job-desc"
@@ -643,7 +643,7 @@ $wcb_step_labels = array(
 				</div>
 				<p class="wcb-field-error" id="wcb-job-desc-error" role="alert" hidden data-wp-bind--hidden="!state.descriptionInvalid" data-wp-text="state.validationError"></p>
 				<span class="wcb-form-hint">
-					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Format with the toolbar above. For headings and quotes, use the + beside a line.', 'wp-career-board' ); ?>
 				</span>
 			</div>
 

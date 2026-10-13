@@ -407,12 +407,10 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
 			},
-			// Banner visibility — true for paid boards AND for free boards,
-			// which get their own "free to post" sentence. Keeps the employer
-			// informed when switching to a zero-cost board.
+			// Only a board that charges gets the banner; a free board shows nothing.
 			get hasCreditBanner() {
 				const { state } = store( 'wcb-job-form' );
-				return state.creditApplies && ( state.creditCost > 0 || !! state.creditMessage );
+				return state.creditApplies && state.creditCost > 0;
 			},
 			get insufficientCredits() {
 				const { state } = store( 'wcb-job-form' );

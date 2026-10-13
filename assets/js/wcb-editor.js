@@ -190,6 +190,177 @@
 		return tools;
 	};
 
+	// Always-visible formatting toolbar (rendered by blocks/job-form/editor-toolbar.php).
+	// Editor.js only shows its inline toolbar on a text selection, so authors never
+	// found it. Buttons act on the last caret/selection inside the editor; Editor.js
+	// sees the DOM change through its own observer, so blocksToHtml is unchanged.
+	function wireToolbar( editorEl, holder, editor ) {
+		const toolbar = editorEl.querySelector( '.wcb-editor-toolbar' );
+		if ( ! toolbar ) {
+			return;
+		}
+		const linkRow   = editorEl.querySelector( '.wcb-editor-link' );
+		const linkInput = linkRow.querySelector( 'input' );
+		const linkBtn   = toolbar.querySelector( '[data-wcb-format="link"]' );
+		let range       = null;
+
+		const syncPressed = () => {
+			toolbar.querySelectorAll( '[data-wcb-format="bold"], [data-wcb-format="italic"]' ).forEach( ( btn ) => {
+				btn.setAttribute( 'aria-pressed', String( document.queryCommandState( btn.dataset.wcbFormat ) ) );
+			} );
+			const block = range && blockOf( range.startContainer );
+			toolbar.querySelector( '[data-wcb-format="list"]' )
+				.setAttribute( 'aria-pressed', String( !! ( block && block.querySelector( '.cdx-list' ) ) ) );
+		};
+
+		const blockOf = ( node ) => {
+			const el = node && ( node.nodeType === 1 ? node : node.parentElement );
+			return el && holder.contains( el ) ? el.closest( '.ce-block' ) : null;
+		};
+
+		// Remember where the author was. selectionchange does not fire for every
+		// keystroke, so the caret is also taken as focus leaves the editor (a Tab to
+		// the toolbar) and from the live selection when a button is clicked.
+		const capture = () => {
+			const sel = window.getSelection();
+			if ( sel.rangeCount && holder.contains( sel.anchorNode ) ) {
+				range = sel.getRangeAt( 0 ).cloneRange();
+				return true;
+			}
+			return false;
+		};
+		document.addEventListener( 'selectionchange', () => capture() && syncPressed() );
+		holder.addEventListener( 'focusout', capture );
+
+		// Put the caret back where the author left it (a toolbar click or the link
+		// field took focus); with no caret yet, start at the end of the text.
+		const restore = () => {
+			if ( capture() ) {
+				return;
+			}
+			const block    = range && blockOf( range.startContainer );
+			const editable = block && block.querySelector( '[contenteditable="true"]' );
+			if ( ! editable ) {
+				editor.caret.setToLastBlock( 'end' );
+				const sel = window.getSelection();
+				range     = sel.rangeCount ? sel.getRangeAt( 0 ).cloneRange() : null;
+				return;
+			}
+			editable.focus();
+			const sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange( range );
+		};
+
+		const toggleList = () => {
+			restore();
+			const block = range && blockOf( range.startContainer );
+			if ( ! block ) {
+				editor.blocks.insert( 'list', { style: 'unordered', items: [ '' ] } );
+				editor.caret.setToLastBlock( 'end' );
+				return;
+			}
+			const index  = Array.prototype.indexOf.call( holder.querySelectorAll( '.ce-block' ), block );
+			const isList = !! block.querySelector( '.cdx-list' );
+			const done   = () => editor.caret.setToBlock( index, 'end' );
+			if ( ! isList && ! block.textContent.trim() ) {
+				// An empty line has nothing to convert; swap it for an empty list.
+				editor.blocks.insert( 'list', { style: 'unordered', items: [ '' ] }, undefined, index, true, true );
+				done();
+				return;
+			}
+			editor.blocks.convert( editor.blocks.getBlockByIndex( index ).id, isList ? 'paragraph' : 'list' ).then( done, done );
+		};
+
+		const closeLink = ( refocus ) => {
+			linkRow.hidden = true;
+			linkInput.value = '';
+			linkInput.removeAttribute( 'aria-invalid' );
+			linkBtn.setAttribute( 'aria-expanded', 'false' );
+			if ( refocus ) {
+				restore();
+			}
+		};
+
+		const applyLink = () => {
+			let url = linkInput.value.trim();
+			if ( ! url ) {
+				closeLink( true );
+				return;
+			}
+			if ( ! /^[a-z][a-z0-9+.-]*:/i.test( url ) ) {
+				url = ( /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test( url ) ? 'mailto:' : 'https://' ) + url;
+			}
+			if ( ! /^(https?|mailto):/i.test( url ) ) {
+				linkInput.setAttribute( 'aria-invalid', 'true' );
+				linkInput.focus();
+				return;
+			}
+			restore();
+			if ( range && ! range.collapsed ) {
+				document.execCommand( 'createLink', false, url );
+			} else {
+				const before = range ? range.startContainer.textContent.charAt( range.startOffset - 1 ) : '';
+				document.execCommand( 'insertHTML', false, ( before && ! /\s/.test( before ) ? ' ' : '' ) + '<a href="' + escapeHtml( url ) + '">' + escapeHtml( url.replace( /^mailto:/i, '' ) ) + '</a>&nbsp;' );
+			}
+			closeLink( false );
+		};
+
+		// Keep the editor's selection when a button is pressed with the mouse.
+		toolbar.addEventListener( 'mousedown', ( e ) => {
+			if ( e.target.closest( 'button' ) ) {
+				e.preventDefault();
+			}
+		} );
+
+		toolbar.addEventListener( 'click', ( e ) => {
+			const btn = e.target.closest( '[data-wcb-format]' );
+			if ( ! btn ) {
+				return;
+			}
+			const format = btn.dataset.wcbFormat;
+			editor.isReady.then( () => {
+				if ( 'list' === format ) {
+					toggleList();
+				} else if ( 'link' === format ) {
+					if ( ! linkRow.hidden ) {
+						closeLink( true );
+						return;
+					}
+					capture();
+					linkRow.hidden = false;
+					linkBtn.setAttribute( 'aria-expanded', 'true' );
+					linkInput.focus();
+				} else {
+					restore();
+					document.execCommand( format );
+					syncPressed();
+				}
+			} );
+		} );
+
+		linkRow.addEventListener( 'click', ( e ) => {
+			const btn = e.target.closest( '[data-wcb-link]' );
+			if ( btn && 'apply' === btn.dataset.wcbLink ) {
+				applyLink();
+			} else if ( btn ) {
+				closeLink( true );
+			}
+		} );
+
+		linkInput.addEventListener( 'keydown', ( e ) => {
+			if ( 'Enter' === e.key ) {
+				e.preventDefault();
+				e.stopPropagation();
+				applyLink();
+			} else if ( 'Escape' === e.key ) {
+				e.preventDefault();
+				e.stopPropagation();
+				closeLink( true );
+			}
+		} );
+	}
+
 	function init( editorEl ) {
 		if ( editorEl.dataset.wcbEditorInit === '1' ) {
 			return;
@@ -290,6 +461,8 @@
 		// can dispatch `wcb:editor:hydrate` after writing textarea.value to
 		// force an immediate re-render — bypasses the polling window.
 		textarea.addEventListener( 'wcb:editor:hydrate', rerenderFromTextarea );
+
+		wireToolbar( editorEl, holder, editor );
 
 		editorEl.wcbEditor = editor;
 		// Forms call this before they read the description (Next, Publish).

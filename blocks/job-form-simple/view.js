@@ -70,14 +70,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
-		// Banner visibility — the credits system is only in play when this board
-		// charges (creditCost > 0) or the employer holds a balance (creditBalance
-		// > 0). Sites that don't use credits leave both at 0, so the banner stays
-		// hidden instead of showing a "Free to post. Balance: 0." non-message.
-		// Do NOT gate on the presence of a seeded i18n string — creditFree is always
-		// seeded, which made this a compile-time-constant `true`.
+		// Only a board that charges gets the banner; a free board shows nothing.
 		get hasCreditBanner() {
-			return state.creditCost > 0 || state.creditBalance > 0;
+			return state.creditCost > 0;
 		},
 
 		// Dynamic message — numbers come live from state.creditCost /
@@ -88,8 +83,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				// Balance is irrelevant to a free posting - see render.php's creditFree string.
-				return t( 'creditFree', 'Free to post on this board.' );
+				return '';
 			}
 			// Plural form resolved in PHP by _n() against the real count — see
 			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.

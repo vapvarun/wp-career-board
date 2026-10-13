@@ -261,8 +261,6 @@ $wcb_state = apply_filters(
 			'creditInsufficientNoBuy'  => __( 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
-			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
-			'creditFree'               => __( 'Free to post on this board.', 'wp-career-board' ),
 
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
@@ -421,6 +419,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<?php require dirname( __DIR__ ) . '/job-form/editor-toolbar.php'; ?>
 					<div class="wcb-editor-holder" id="wcb-editor-job-desc-simple"></div>
 					<textarea
 						id="wcb-simple-desc"
