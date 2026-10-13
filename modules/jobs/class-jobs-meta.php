@@ -186,8 +186,8 @@ final class JobsMeta {
 			return $clauses;
 		}
 		global $wpdb;
-		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS wcb_ff ON ( wcb_ff.post_id = {$wpdb->posts}.ID AND wcb_ff.meta_key = '_wcb_featured' )";
 		// COALESCE: a job with no _wcb_featured row is unfeatured, same as '0' (NULL would sort last).
+		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS wcb_ff ON ( wcb_ff.post_id = {$wpdb->posts}.ID AND wcb_ff.meta_key = '_wcb_featured' )";
 		$clauses['orderby'] = "COALESCE( wcb_ff.meta_value = '1', 0 ) DESC" . ( '' !== $clauses['orderby'] ? ', ' . $clauses['orderby'] : '' );
 		return $clauses;
 	}
