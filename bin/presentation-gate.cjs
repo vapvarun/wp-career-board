@@ -48,6 +48,11 @@ function inPageChecks() {
 	};
 	const roots = [ ...document.querySelectorAll( SCOPE ) ].filter( ( r ) => visible( r ) && ! r.parentElement.closest( SCOPE ) );
 
+	// A 404 is a broken fixture or a broken page, never a clean pass.
+	if ( document.body.classList.contains( 'error404' ) ) {
+		add( 'missing', document.body, 'page returned 404' );
+	}
+
 	// overflow
 	if ( document.documentElement.scrollWidth > window.innerWidth + 1 ) {
 		add( 'overflow', document.documentElement, `page ${ document.documentElement.scrollWidth } > ${ window.innerWidth }` );
@@ -62,7 +67,9 @@ function inPageChecks() {
 	// colour helpers
 	const parse = ( c ) => {
 		const m = ( c || '' ).match( /[\d.]+/g );
-		return m ? { r: +m[ 0 ], g: +m[ 1 ], b: +m[ 2 ], a: undefined === m[ 3 ] ? 1 : +m[ 3 ] } : null;
+		// color-mix() resolves to color(srgb r g b / a) with 0-1 channels, rgb() to 0-255.
+		const k = /^color\(srgb/.test( c ) ? 255 : 1;
+		return m ? { r: m[ 0 ] * k, g: m[ 1 ] * k, b: m[ 2 ] * k, a: undefined === m[ 3 ] ? 1 : +m[ 3 ] } : null;
 	};
 	const lum = ( c ) => [ c.r, c.g, c.b ].map( ( v ) => {
 		v /= 255;
@@ -94,8 +101,9 @@ function inPageChecks() {
 		const panels = tabPanels.length ? tabPanels : [ root ];
 		panels.forEach( ( p ) => {
 			[ ...p.querySelectorAll( 'form, fieldset, .wcb-form-section, .wcb-settings-section' ) ].concat( [ p ] ).forEach( ( group ) => {
-				const items = [ ...group.querySelectorAll( 'label, legend, .wcb-form-help, .wcb-field-help, .description, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea' ) ]
-					.filter( ( e ) => visible( e ) && e.closest( 'form, fieldset, .wcb-form-section, .wcb-settings-section, .wcb-panel' ) === ( group === p ? e.closest( '.wcb-panel' ) || p : group ) );
+				const items = [ ...group.querySelectorAll( 'h2, h3, h4, label, legend, .wcb-form-help, .wcb-field-help, .description, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea' ) ]
+					// > 2px: screen-reader-only labels are 1x1 and are not a visible edge.
+					.filter( ( e ) => visible( e ) && e.getBoundingClientRect().width > 2 && e.getBoundingClientRect().height > 2 && e.closest( 'form, fieldset, .wcb-form-section, .wcb-settings-section, .wcb-panel' ) === ( group === p ? e.closest( '.wcb-panel' ) || p : group ) );
 				if ( items.length < 3 ) {
 					return;
 				}
@@ -224,6 +232,11 @@ async function selfTest( browser ) {
 	const want = [ 'overflow', 'edges', 'midword', 'clipped', 'contrast', 'wpadmin' ];
 	const got = new Set( findings.map( ( f ) => f.check ) );
 	const missing = want.filter( ( c ) => ! got.has( c ) );
+	// Regressions guarded one by one: a fix for a false positive must not blind the check.
+	if ( ! findings.some( ( f ) => 'contrast' === f.check && f.el.includes( 'bad-colormix-text' ) ) ) {
+		missing.push( 'contrast on a color-mix() background' );
+		console.log( '  MISSED  contrast on a color-mix() background' );
+	}
 	// The clean sample must stay clean: no check may fire inside it.
 	const falsePos = findings.filter( ( f ) => /clean/i.test( f.el + f.text ) );
 	want.forEach( ( c ) => console.log( `  ${ got.has( c ) ? 'fires' : 'MISSED' }  ${ c }` ) );

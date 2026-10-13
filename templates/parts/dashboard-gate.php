@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $wcb_gate = (array) ( $wcb_gate ?? array() );
 ?>
-<div class="wcb-db-gate">
+<div class="wcb-db-gate" data-wcb-gate-scope>
 	<?php echo \WCB\Core\Icon::svg( (string) ( $wcb_gate['icon'] ?? 'user' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 	<p><?php echo esc_html( (string) ( $wcb_gate['message'] ?? '' ) ); ?></p>
 	<?php if ( ! empty( $wcb_gate['actions'] ) ) : ?>

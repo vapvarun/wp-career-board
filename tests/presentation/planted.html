@@ -35,8 +35,14 @@ section { padding: 16px; }
 <!-- wpadmin: admin markup leaking into the frontend -->
 <section data-wcb-gate-scope class="bad-wpadmin"><table class="form-table"><tr><td>Option</td></tr></table></section>
 
+<!-- contrast through color-mix(): Chrome reports color(srgb 0-1 channels); a dark grey on it is fine... -->
+<section data-wcb-gate-scope class="clean-colormix" style="background: color-mix(in srgb, #2563eb 6%, #ffffff)"><span style="color: #404855">Clean colormix badge 12</span></section>
+<!-- ...but a pale grey on the same background must still fail. -->
+<section data-wcb-gate-scope class="bad-colormix" style="background: color-mix(in srgb, #2563eb 6%, #ffffff)"><span class="bad-colormix-text" style="color: #b4b9c2">Pale colormix badge</span></section>
+
 <!-- clean: nothing here may fire -->
 <section data-wcb-gate-scope class="clean">
+	<form style="display: flex; gap: 8px"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean keyword</label><input placeholder="Clean keyword" style="color: #111"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean place</label><input placeholder="Clean place" style="color: #111"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean type</label><select><option>Clean type</option></select></form>
 	<h3 class="wcb-card-title">Clean card title</h3>
 	<form><label>Clean label</label><input placeholder="Clean placeholder" style="color: #111"><p class="description">Clean help</p></form>
 	<button>Clean button</button>
