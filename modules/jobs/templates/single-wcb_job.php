@@ -34,7 +34,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 ?>
 <div id="primary" class="wcb-archive-shell wcb-archive-shell--single">
-	<main class="wcb-archive-main">
+	<?php $wcb_main_tag = \WCB\Core\ThemeCompat::main_tag(); ?>
+	<<?php echo tag_escape( $wcb_main_tag ); ?> class="wcb-archive-main">
 		<?php
 		while ( have_posts() ) :
 			the_post();
@@ -45,7 +46,7 @@ get_header();
 			<?php
 		endwhile;
 		?>
-	</main>
+	</<?php echo tag_escape( $wcb_main_tag ); ?>>
 </div>
 <?php
 get_footer();

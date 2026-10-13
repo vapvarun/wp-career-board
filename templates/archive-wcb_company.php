@@ -25,7 +25,8 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 ?>
 <div id="primary" class="wcb-archive-shell wcb-archive-shell--companies">
-	<main class="wcb-archive-main">
+	<?php $wcb_main_tag = \WCB\Core\ThemeCompat::main_tag(); ?>
+	<<?php echo tag_escape( $wcb_main_tag ); ?> class="wcb-archive-main">
 		<article class="wcb-archive-article entry-content">
 			<?php
 			// Render the archive block via do_blocks() so attributes pick up the
@@ -33,7 +34,7 @@ get_header();
 			echo do_blocks( '<!-- wp:wp-career-board/company-archive /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render escapes internally.
 			?>
 		</article>
-	</main>
+	</<?php echo tag_escape( $wcb_main_tag ); ?>>
 </div>
 <?php
 get_footer();
