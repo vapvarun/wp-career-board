@@ -2,7 +2,7 @@
   "mode": "combo",
   "release_version": "1.8.1",
   "pro_version": "1.8.1",
-  "ran_at": "2026-10-13T22:33:21Z",
+  "ran_at": "2026-10-13T22:49:04Z",
   "sections": {
     "A_fresh_install": {
       "pass": 0,
@@ -257,7 +257,8 @@
   },
   "layer1_delta": [
     "previous run wrote ran_at 22:20:00Z before it finished (clock 22:16Z); rewalk uses the real clock",
-    "rewalk 2 at 15e0f0f uses the real clock; debug.log 9062897 -> 9062897 bytes, no new entries"
+    "rewalk 2 at 15e0f0f uses the real clock; debug.log 9062897 -> 9062897 bytes, no new entries",
+    "rewalk 3 at b615987 (companies): no failures; debug.log unchanged"
   ],
   "rewalks": [
     {
@@ -268,6 +269,17 @@
         "debug.log delta"
       ],
       "at": "2026-10-13T22:33:21Z"
+    },
+    {
+      "commit": "b615987",
+      "scope": [
+        "EmployersModule::owned_companies() SQL: employer.vercel 2 companies (56521,56522), figma/alex/stripe none, live==all",
+        "employer.vercel 1440+390: Companies cards (3 jobs/3 apps, 3 jobs/2 apps), My Jobs + Applications company filter 6/3/3 and 5/3/2 then All restores, Post a Job picker + preview company switches, Overview/Needs attention/sidebar identity",
+        "employer.stripe no-company state, alex.kumar wrong-role card",
+        "REST employers/me/applications?company_id: own 200 (3,2 apps), foreign 56523/68515/99999999 403 wcb_company_forbidden",
+        "debug.log delta 9123052 -> 9123052, no new entries"
+      ],
+      "at": "2026-10-13T22:49:04Z"
     }
   ]
 }
