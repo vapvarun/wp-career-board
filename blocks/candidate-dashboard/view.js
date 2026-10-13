@@ -16,7 +16,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { relativeTime, showError, tabRouter } from '@wcb/ui';
+import { relativeTime, rowMenuActions, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Tabs that can appear in the URL hash (first = default). Anything else is
@@ -316,6 +316,20 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
+		// Application row menu: Withdraw (until an outcome) and Remove (job gone).
+		get appCanWithdraw() {
+			return state.allowWithdraw && !! getContext().application?.canWithdraw;
+		},
+		get appHasActions() {
+			return state.appCanWithdraw || !! getContext().application?.jobRemoved;
+		},
+		get appMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		},
+		get resumeMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().resume?.title || '' );
+		},
+
 		// Bell notification getters.
 		get hasBellNotifications() {
 			return state.bellNotifications.length > 0;
@@ -367,6 +381,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 	},
 
 	actions: {
+		...rowMenuActions,
+
 		*init() {
 			state.tab = tabs.initial( state.tab );
 			tabs.go( state.tab );

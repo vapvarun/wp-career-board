@@ -130,7 +130,7 @@ html.dark-mode {
 
 .wcb-dashboard .wcb-panel-link {
 	background: none !important;
-	color: var( --wcb-blue, var( --wcb-primary, #2563eb ) ) !important;
+	color: var( --wcb-primary-text, #1d4ed8 ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
 
@@ -315,7 +315,7 @@ button[class*="wcb-"].wcb-rating__star--on {
 /* Danger actions keep their danger label tone. */
 button[class*="wcb-"].wcb-btn--danger,
 button[class*="wcb-"].wcb-bell-clear-all,
-button[class*="wcb-"].wcb-cd-withdraw-btn {
+button[class*="wcb-"].wcb-row-menu__item--danger {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
 }
 

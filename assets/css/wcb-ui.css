@@ -2130,7 +2130,7 @@
 	font: inherit;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade: raw primary missed 4.5:1 on tinted panels */
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -2304,7 +2304,6 @@
 	.wcb-chip,
 	.wcb-panel-link,
 	.wcb-bell-action,
-	.wcb-cd-withdraw-btn,
 	.wcb-filter-panel__clear,
 	.wcb-active-chip,
 	.wcb-apps-filter-bar .wcb-filter-pill {

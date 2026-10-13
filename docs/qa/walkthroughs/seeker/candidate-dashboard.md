@@ -39,7 +39,7 @@ human-runnable pass, including the data-isolation guard that one candidate can't
    `GET /wp-json/wcb/v1/candidates/<sarah-id>/applications` → expect HTTP 403 (marcus cannot read sarah's list;
    the endpoint uses `self_permissions_check`).
 7. Back as `sarah.chen`, each present `.wcb-cd-app-row` carries a `.wcb-cd-status-badge[data-status]` and (when
-   `state.allowWithdraw`) a `.wcb-cd-withdraw-btn` (`render.php:549-590`).
+   `state.allowWithdraw`) a '⋯' row menu `.wcb-row-menu` holding Withdraw (and Remove for a job that's gone).
 8. Click `#wcb-tab-profile` (`actions.switchToProfile`) → expect the My Profile panel active with read-only
    `#wcb-profile-email`, editable `#wcb-profile-phone`, `#wcb-profile-location`, and bio textarea
    `#wcb-profile-bio` (`render.php:370-375,960-1015`).
@@ -51,7 +51,7 @@ human-runnable pass, including the data-isolation guard that one candidate can't
 10. Reload `/candidate-dashboard/?autologin=sarah.chen`, re-open Profile → expect `#wcb-profile-location` to
     still show the saved value (persisted to `_wcb_resume_data` user meta — `render.php:217-225`).
 11. Return to `#wcb-tab-applications`; with a live application and `state.allowWithdraw` true, click
-    `.wcb-cd-withdraw-btn` (`actions.withdrawApplication`) → expect the shared confirm modal `wcb-confirm-modal`,
+    the row's '⋯' menu → Withdraw (`actions.withdrawApplication`) → expect the shared confirm modal `wcb-confirm-modal`,
     and on confirm a `DELETE {apiBase}/applications/{application.id}` call that removes the row
     (`render.php:37-39,577-583`; `view.js:1182-1201`; `class-applications-endpoint.php:52` DELETABLE).
 12. tail debug.log diff → expect ZERO new fatal/warning lines.

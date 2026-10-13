@@ -76,6 +76,14 @@
 	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
+/* Status, then the row's '⋯' menu, on one line at every width. */
+.wcb-cd-app-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
+}
+
 /* ── Status badge ─────────────────────────────────────────────────────────── */
 .wcb-cd-status-badge {
 	flex-shrink: 0;
@@ -381,21 +389,6 @@
 	display: inline;
 }
 
-/* ── Withdraw button ─────────────────────────────────────────────────────── */
-/* A .wcb-btn--danger button (it read as another status pill). This class only
-   gates it: hidden until data-wp-class adds .wcb-shown (state.allowWithdraw,
-   or jobRemoved for Remove). */
-.wcb-btn.wcb-cd-withdraw-btn:not(.wcb-shown) {
-	display: none;
-}
-
-/* No hover tint: the row under it is already tinted on hover, and a second
- * tint pulled the label under 4.5:1 in dark mode. The border marks it. */
-.wcb-btn.wcb-cd-withdraw-btn:hover,
-.wcb-btn.wcb-cd-withdraw-btn:focus-visible {
-	background: transparent;
-}
-
 /* `.wcb-settings-row*` rules live globally in
  * `assets/css/frontend-components.css` (shared with employer-dashboard).
  * The narrow-screen stack-on-small override below is the only candidate-
@@ -410,10 +403,6 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--wcb-space-sm);
-	}
-
-	.wcb-cd-status-badge {
-		align-self: flex-start;
 	}
 
 	/* Saved Jobs — stack info above actions */

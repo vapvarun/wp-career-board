@@ -320,6 +320,15 @@
 	gap: var(--wcb-space-md);
 }
 
+.wcb-profile-resume-note {
+	margin: 0;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-sm);
+}
+
 .wcb-profile-email {
 	display: flex;
 	flex-wrap: wrap;

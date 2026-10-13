@@ -241,6 +241,8 @@ wp_interactivity_state(
 					'confirmWithdrawTitle'   => __( 'Withdraw application?', 'wp-career-board' ),
 					'confirmWithdrawMsg'     => __( 'Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board' ),
 					'withdraw'               => __( 'Withdraw', 'wp-career-board' ),
+					/* translators: %s: job or resume title */
+					'moreActionsFor'         => __( 'More actions for %s', 'wp-career-board' ),
 					'confirmClearAllTitle'   => __( 'Clear all notifications?', 'wp-career-board' ),
 					'confirmClearAllMsg'     => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
 					'clearAll'               => __( 'Clear all', 'wp-career-board' ),
@@ -565,7 +567,7 @@ wp_interactivity_state(
 						<?php
 						printf(
 							/* translators: %s: candidate's first name */
-							esc_html__( 'Welcome, %s 👋', 'wp-career-board' ),
+							esc_html__( 'Welcome, %s', 'wp-career-board' ),
 							esc_html( $wcb_current_user->first_name ? $wcb_current_user->first_name : $wcb_display_name )
 						);
 						?>
@@ -645,7 +647,12 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
+					<div class="wcb-empty-state wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps">
+						<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+						<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__body"><?php esc_html_e( 'Jobs you apply to show up here with their status.', 'wp-career-board' ); ?></p>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?></a>
+					</div>
 				</div>
 
 				<div class="wcb-panel wcb-shown">
@@ -664,7 +671,12 @@ wp_interactivity_state(
 							</div>
 						</template>
 					</div>
-					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentSavedJobs"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?> <a href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs →', 'wp-career-board' ); ?></a></p>
+					<div class="wcb-empty-state wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentSavedJobs">
+						<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+						<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved jobs yet', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__body"><?php esc_html_e( 'Save jobs while you browse to come back to them here.', 'wp-career-board' ); ?></p>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?></a>
+					</div>
 				</div>
 			</div>
 
@@ -695,7 +707,7 @@ wp_interactivity_state(
 			</div>
 			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 
-			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasApplications">
+			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasApplications" data-wp-on-document--click="actions.closeRowMenusOutside">
 				<template data-wp-each--application="state.applications" data-wp-each-key="context.application.id">
 					<div class="wcb-cd-app-row">
 						<div class="wcb-cd-app-main">
@@ -718,26 +730,28 @@ wp_interactivity_state(
 								data-wp-bind--data-status="context.application.status"
 							></span>
 							<?php
-							/*
-							Withdraw shows until the application has an outcome (gated
-							 * by ability) and keeps the row as "Withdrawn". Remove shows
-							 * for "Job no longer available" rows and deletes the row, so
-							 * the candidate can clean dead history out of their list.
-							 * Both call DELETE /applications/{id}. */
+							// Withdraw (until there's an outcome) and Remove (job gone) sit in a
+							// menu, not beside the status. Both call DELETE /applications/{id}.
 							?>
-							<button
-								type="button"
-								class="wcb-btn wcb-btn--danger wcb-btn--sm wcb-cd-withdraw-btn"
-								data-wp-class--wcb-shown="state.allowWithdraw"
-								data-wp-class--wcb-hidden="!context.application.canWithdraw"
-								data-wp-on--click="actions.withdrawApplication"
-							><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
-							<button
-								type="button"
-								class="wcb-btn wcb-btn--danger wcb-btn--sm wcb-cd-withdraw-btn wcb-cd-withdraw-btn--remove"
-								data-wp-class--wcb-shown="context.application.jobRemoved"
-								data-wp-on--click="actions.withdrawApplication"
-							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							<details class="wcb-row-menu" data-wp-class--wcb-hidden="!state.appHasActions" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown">
+								<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.appMenuLabel">
+									<span aria-hidden="true">&#8943;</span>
+								</summary>
+								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+									<button
+										type="button"
+										class="wcb-row-menu__item wcb-row-menu__item--danger"
+										data-wp-class--wcb-hidden="!state.appCanWithdraw"
+										data-wp-on--click="actions.withdrawApplication"
+									><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
+									<button
+										type="button"
+										class="wcb-row-menu__item wcb-row-menu__item--danger"
+										data-wp-class--wcb-hidden="!context.application.jobRemoved"
+										data-wp-on--click="actions.withdrawApplication"
+									><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+								</div>
+							</details>
 						</div>
 					</div>
 				</template>
@@ -991,6 +1005,7 @@ wp_interactivity_state(
 						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
 						<span class="wcb-resume-card-date" data-wp-text="context.resume.dateLabel"></span>
 					</div>
+					<?php // One main action (Open PDF or Edit) and the rest in a menu, like My Jobs. ?>
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">
 						<a
 							class="wcb-btn wcb-btn--outline wcb-btn--sm"
@@ -999,37 +1014,41 @@ wp_interactivity_state(
 							target="_blank"
 							rel="noopener"
 						><?php esc_html_e( 'Open PDF', 'wp-career-board' ); ?></a>
-						<a
-							class="wcb-btn wcb-btn--outline wcb-btn--sm"
-							data-wp-bind--href="context.resume.permalink"
-							data-wp-class--wcb-hidden="context.resume.isPdf"
-							data-wp-bind--hidden="!context.resume.permalink"
-							target="_blank"
-							rel="noopener"
-						><?php esc_html_e( 'View', 'wp-career-board' ); ?></a>
 						<button
 							type="button"
 							class="wcb-btn wcb-btn--outline wcb-btn--sm"
 							data-wp-class--wcb-hidden="context.resume.isPdf"
 							data-wp-on--click="actions.openResumeEditor"
 						><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></button>
-						<label
-							class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-resume-reupload"
-							data-wp-class--wcb-hidden="!context.resume.isPdf"
-						>
-							<?php esc_html_e( 'Re-upload PDF', 'wp-career-board' ); ?>
-							<input
-								type="file"
-								accept="application/pdf"
-								data-wp-on--change="actions.reuploadResumePdf"
-								class="wcb-resume-reupload-input"
-							/>
-						</label>
-						<button
-							type="button"
-							class="wcb-btn wcb-btn--danger wcb-btn--sm"
-							data-wp-on--click="actions.requestDeleteConfirm"
-						><?php esc_html_e( 'Delete', 'wp-career-board' ); ?></button>
+						<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown">
+							<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.resumeMenuLabel">
+								<span aria-hidden="true">&#8943;</span>
+							</summary>
+							<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+								<a
+									class="wcb-row-menu__item"
+									data-wp-bind--href="context.resume.permalink"
+									data-wp-class--wcb-hidden="context.resume.isPdf"
+									data-wp-bind--hidden="!context.resume.permalink"
+									target="_blank"
+									rel="noopener"
+								><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+								<label class="wcb-row-menu__item wcb-resume-reupload" data-wp-class--wcb-hidden="!context.resume.isPdf">
+									<?php esc_html_e( 'Re-upload PDF', 'wp-career-board' ); ?>
+									<input
+										type="file"
+										accept="application/pdf"
+										data-wp-on--change="actions.reuploadResumePdf"
+										class="wcb-resume-reupload-input"
+									/>
+								</label>
+								<button
+									type="button"
+									class="wcb-row-menu__item wcb-row-menu__item--danger"
+									data-wp-on--click="actions.requestDeleteConfirm"
+								><?php esc_html_e( 'Delete', 'wp-career-board' ); ?></button>
+							</div>
+						</details>
 					</div>
 					<div class="wcb-resume-card-confirm" data-wp-class--wcb-hidden="!context.confirmingDelete">
 						<span class="wcb-resume-confirm-msg"><?php esc_html_e( 'Delete this resume?', 'wp-career-board' ); ?></span>
@@ -1051,10 +1070,8 @@ wp_interactivity_state(
 		<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noResumes">
 			<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'graduation-cap' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 			<p class="wcb-empty-state__title"><?php esc_html_e( 'No resumes yet', 'wp-career-board' ); ?></p>
-			<p class="wcb-empty-state__body"><?php esc_html_e( 'Create one with "+ New Resume" or upload a CV to get started.', 'wp-career-board' ); ?></p>
-			<button type="button" class="wcb-btn wcb-btn--primary" data-wp-on--click="actions.toggleNewResumeForm">
-				<?php esc_html_e( '+ New Resume', 'wp-career-board' ); ?>
-			</button>
+			<?php // The header's New Resume / Upload CV are the actions; one primary per screen. ?>
+			<p class="wcb-empty-state__body"><?php esc_html_e( 'Build a resume here or upload a CV you already have, using the buttons above.', 'wp-career-board' ); ?></p>
 		</div>
 		</div><!-- .wcb-view-panel: My Resumes -->
 
@@ -1142,9 +1159,14 @@ wp_interactivity_state(
 				<span class="wcb-form-label"><?php esc_html_e( 'Email', 'wp-career-board' ); ?></span>
 				<p class="wcb-profile-email">
 					<span data-wp-text="state.profileEmail"><?php echo esc_html( $wcb_current_user->user_email ); ?></span>
-					<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.switchToSettings"><?php esc_html_e( 'Change in Settings', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-panel-link" aria-label="<?php esc_attr_e( 'Change email in Settings', 'wp-career-board' ); ?>" data-wp-on--click="actions.switchToSettings"><?php esc_html_e( 'Change', 'wp-career-board' ); ?></button>
 				</p>
 			</div>
+			<?php // What employers see (photo, skills, experience) lives on the resume, not here. ?>
+			<p class="wcb-profile-resume-note">
+				<?php esc_html_e( 'Employers see your photo, skills and experience from your resume.', 'wp-career-board' ); ?>
+				<button type="button" class="wcb-panel-link" data-wp-on--click="actions.switchToResumes"><?php esc_html_e( 'Edit my resume', 'wp-career-board' ); ?></button>
+			</p>
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-profile-phone"><?php esc_html_e( 'Phone', 'wp-career-board' ); ?></label>
