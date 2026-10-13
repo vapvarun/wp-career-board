@@ -83,7 +83,6 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
-				<label for="wcb-job-search-input" class="screen-reader-text"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
 				<?php $this->render_search_box( 'wcb-job', __( 'Search Jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>

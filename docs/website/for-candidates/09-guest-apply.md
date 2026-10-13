@@ -24,7 +24,8 @@ It depends on the site. By default a resume is required, and you cannot submit w
 
 ## Limits
 
-- You cannot apply to the same job again with the same email within 24 hours.
+- Applying to the same job again with the same email within 24 hours does not create a second application; you see the same confirmation as before.
+- If your email already belongs to an account, the form asks you to sign in instead (**Sign in to apply**), so the application lands on your account.
 - One connection can send 10 guest applications an hour.
 - You cannot withdraw a guest application, and you have no dashboard to track it.
 
@@ -32,7 +33,7 @@ It depends on the site. By default a resume is required, and you cannot submit w
 
 Your application is stored against your email address. If you later create an account with the same email, your earlier guest applications are linked to the new account when it is created, and they appear in **My Applications**. There is nothing to request.
 
-Linking happens only at account creation and only for the exact email you applied with. If you already had an account when you applied as a guest, or you register with a different email, those applications are not moved. Sign in before you apply to keep everything in one place.
+Linking happens only at account creation and only for the exact email you applied with. Since 1.8.1 a guest cannot apply with the email of an existing account (the form asks them to sign in). Applications made earlier as a guest with that email, and applications from a guest who registers with a different email, are not moved. Sign in before you apply to keep everything in one place.
 
 To get a copy of your data or have it deleted, ask the site owner to run a personal-data request for your email address. Guest applications are found by email. The site owner can follow [GDPR and privacy](../admin-guide/04-gdpr.md).
 

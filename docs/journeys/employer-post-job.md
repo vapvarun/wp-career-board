@@ -18,7 +18,7 @@ last_walked: 2026-06-26
 1. `?autologin=wcb_demo_employer` → `/post-a-job/`. The 4-step indicator renders: **Basics → Details → Categories → Preview**, step 1 active with `aria-current="step"`.
 2. **Step 1 (Basics):** Board picker shows only on multi-board (Pro) sites. Leave Job Title blank → click **Next: Details** → expect the validation banner (`role="alert"`): "Job title is required before you can continue." Fill title, leave the rich-text description empty → Next → "Job description is required before you can continue."
 3. Fill title + description (TinyMCE-style inline editor) → Next advances; the step pip flips to `wcb-step--done`.
-4. **Step 2 (Details):** currency / min / max / per-period salary row; Remote checkbox; **Application Deadline is read-only** (auto-filled from the `wcb_job_default_expiry_days` policy — `tabindex="-1"`, with the "Contact your site admin to extend" hint); Apply URL; Apply Email.
+4. **Step 2 (Details):** currency / min / max / per-period salary row; Remote checkbox; **Application Deadline is an editable date** (default and `max` = the `wcb_job_default_expiry_days` policy / board listing length, `min` = tomorrow, help text "Pick any date up to <date>, the longest this board allows."; REST caps a later date via `JobDeadline::cap`); Apply URL; Apply Email.
 5. **Step 3 (Categories):** Category, Job Type, **Location**, Experience, Skills/Tags. The Location dropdown is scoped by `Locations::get_dropdown_terms()` → the employer sees only **their company HQ term + Remote + Other**, plus "Other (enter manually)…" which reveals a free-text input (sent as `location_custom`). (Admins get the full taxonomy.)
 6. **Step 4 (Preview & Submit):** the preview card mirrors the entered values. Click **Post Job** → spinner ("Posting…"), then the success block with a check icon: "Job posted successfully!" + **View your job listing →** and **Post another job** (success auto-resets after 8s). If the board moderates posts, it reads "Job submitted for review. You'll be notified once it's approved." instead, and no public link is shown.
 7. **Edit / republish:** open `/post-a-job/?edit=<jobId>` (or the dashboard **Edit** link). The form pre-populates from the post; the submit button reads **Update Job** and PATCHes `/jobs/{id}`. Editing a job you do not own (not author, not same company, not admin) → "You are not authorized to edit this job." A rejected listing re-submitted from My Jobs goes back to **pending**, not straight live.
@@ -33,6 +33,6 @@ last_walked: 2026-06-26
 
 ## Contracts guarded
 - REST↔JS: submit body keys (`title`, `description`, `salary_*`, `location_custom`, `board_id`, `custom_fields`, `hp`) match the `JobsEndpoint` create/update schema; `rest_cookie_invalid_nonce` surfaces the session-expired string.
-- Security: form gated on `wcb/post-jobs`; edit gated on author/company/admin; deadline is server-controlled (read-only input).
+- Security: form gated on `wcb/post-jobs`; edit gated on author/company/admin; the deadline is employer-editable up to the board maximum and REST clamps anything later (moderators are not capped).
 - a11y: required fields marked, `role="alert"` validation banner, `aria-current` step, 40px tap targets.
 - Location scoping: non-admin employers never see the full location taxonomy — only HQ + Remote + Other.

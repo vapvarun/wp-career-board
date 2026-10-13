@@ -3,7 +3,8 @@ id: moderation-approve-flagged-job
 priority: high
 personas: varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-13
+bug_ref: 10389520146
 needs: cli
 ---
 
@@ -26,7 +27,11 @@ needs: cli
 7. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect `<job-id>` IS now in the response array
 8. Reverse path — as admin, set the same job back to `closed` (regression guard for D.wcb-closed-status / Basecamp 9872024322): PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"status": "closed"}` → expect 200
 9. As employer.figma (the author), navigate to employer dashboard → expect the job to APPEAR in the dashboard with status label "Closed" (NOT vanish — that's the bug being guarded)
-10. tail debug.log diff → expect ZERO new fatal/warning lines
+10. **Flag resolve redirects cleanly (1.8.1, Basecamp 10389520146).** Flag a published job: `wp post meta update <job-id> _wcb_flag_status open && wp post meta update <job-id> _wcb_flag_count 3`. As `varundubey`, open `$WCB_SITE/wp-admin/admin.php?page=wcb-jobs&wcb_flag=open` → the row shows the row actions **Dismiss flag** and **Unpublish** (links carry `wcb_resolve_flag=dismiss|unpublish&job=<id>&_wpnonce=`).
+11. Click **Dismiss flag** → the browser lands on `admin.php?page=wcb-jobs&wcb_flag=open` (302, no white page, no "Cannot modify header information - headers already sent" on screen or in debug.log); `wp post meta get <job-id> _wcb_flag_status` = `resolved` and the job is still `publish`. The handler now runs on `load-{page}` (`AdminJobs::process_flag_action`), before any output, instead of inside `render()`.
+12. Re-flag the job and click **Unpublish** → same redirect, same clean log; `wp post get <job-id> --field=post_status` = `pending` (`ModerationModule::resolve_job_flags()` sends it back to review) and `_wcb_flag_status` = `resolved`.
+13. Negative - a tampered nonce does nothing: open the Dismiss link with `_wpnonce=bad` → the list renders (200), the flag is still `open`, the job status is unchanged, and no fatal is logged.
+14. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

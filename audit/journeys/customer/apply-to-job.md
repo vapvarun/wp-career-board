@@ -3,9 +3,9 @@ id: apply-to-job
 priority: critical
 personas: sarah.chen
 requires: mu:autologin, seed:jobs, seed:resumes
-last_verified: 2026-05-09
+last_verified: 2026-10-13
 needs: cli
-bug_ref: 9818132111
+bug_ref: 9818132111, 10359847545, 10355318941
 ---
 
 # Candidate applies to a published job
@@ -28,7 +28,11 @@ bug_ref: 9818132111
    ```
    → expect `BOARD_ID` > 0, `FIRST_ID` > 0, and `_wcb_stage_id` exactly equal to `FIRST_ID`. An EMPTY `_wcb_stage_id` means Pro's listener did not run and the application is invisible on the employer's Kanban (Basecamp 10134657558).
 7. As `employer.figma` (or whichever employer owns the job), navigate to the employer dashboard → expect the new application to appear in the applicant list with correct candidate name + status
-8. tail debug.log diff for this journey's window → expect ZERO new fatal / warning / `wp_register_ability` notice lines
+8. **Guest with an account's email (1.8.1, Basecamp 10359847545).** As anonymous on `/jobs/<slug>/`, open Apply, fill the guest fields (`.wcb-apply-guest-fields`) with any name and `sarah.chen`'s email (`wp user get sarah.chen --field=user_email`), submit → `POST /wp-json/wcb/v1/jobs/<id>/apply` (`guest_name`, `guest_email`) = HTTP 409, code `wcb_guest_has_account`, message "This email already has an account. Sign in to apply.". The panel shows that text in `p.wcb-apply-error` AND a primary link `a.wcb-apply-login` "Sign in to apply" whose href is `wp_login_url( <job permalink> )`. No application row is created: `wp post list --post_type=wcb_application --meta_key=_wcb_guest_email --meta_value=<email> --format=count` = 0.
+9. Retry with an unused email in the same panel → the sign-in link hides again (`state.errorNeedsLogin` resets on submit) and the application succeeds with 200.
+10. **Repeat guest apply returns the first reply (1.8.1, Basecamp 10355318941).** Guest applies twice within 24 hours with the same unused email → both calls return HTTP 200 with the same body `{"id": <int>, "job_id": <job>, "status": "submitted"}` and the SAME `id`; `wp post list --post_type=wcb_application --meta_key=_wcb_guest_email --meta_value=<email> --format=count` = 1; Mailpit shows ONE confirmation email. The old 409 `wcb_already_applied` ("You have already applied to this job recently.") must NOT come back - it told anyone whether an email had applied.
+11. Negative: a different guest email applying to the same job still creates its own row (the dedupe key is job + email, not job alone).
+12. tail debug.log diff for this journey's window → expect ZERO new fatal / warning / `wp_register_ability` notice lines
 
 ## Teardown
 
@@ -44,3 +48,5 @@ wp post delete <application_id> --force
 - Re-applying to the same job: behavior is documented per plugin contract — either updates existing application or shows "already applied". Record which on first walk.
 - **Free → Pro contract:** Free fires `do_action( 'wcb_application_submitted', $app_id, $job_id, $candidate_id )` from `api/endpoints/class-applications-endpoint.php`. With Pro active, `PipelineModule::assign_initial_stage()` consumes it at **priority 5** and stamps `_wcb_stage_id`. The priority matters: Pro's notification bell, BuddyPress integration and AI scorer all consume the same action at 10-20 and read the stage, so a change to Free's firing point (or to the arg order) breaks the Kanban silently. Step 6b is the sentinel. This is the downward counterpart to Pro's `audit/journeys/system/free-job-moderation-reaches-pro-bell.md`.
 - The stamp is written with `add_post_meta( ..., $unique = true )`, so two concurrent submits for the same application produce exactly one meta row. If step 6b ever reports two `_wcb_stage_id` rows, the write was changed to `update_post_meta()`.
+- Guest calls count toward the 10-per-hour per-IP limit (`wcb_guest_apply_`); run `wp transient delete --all` between repeated runs.
+- The Re-applying bullet above is now settled for guests: signed-in repeats are unchanged, guest repeats answer like the first application.

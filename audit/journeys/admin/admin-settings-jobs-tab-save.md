@@ -3,7 +3,8 @@ id: admin-settings-jobs-tab-save
 priority: critical
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-10-13
+bug_ref: 10359893313, 10395593540
 needs: cli
 ---
 
@@ -45,7 +46,8 @@ needs: cli
    "
    ```
    → the page ID should be unchanged from `$BEFORE`
-8. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
+8. **Jobs tab copy and default (1.8.1).** On `$WCB_SITE/wp-admin/admin.php?page=wcb-settings` > Jobs (`#section-listings`): there is NO separate setting row labelled "When a job ends"; its explanatory text ("At its deadline a job stops taking applications...") now sits inside the **Default listing length** row (`#wcb-jobs-expire-days`), as plain description, so it no longer looks like a control. On a fresh install `#wcb-jobs-per-page` defaults to 12 (`wp option get wcb_settings --format=json | jq .jobs_per_page` is 12 or absent, and the field shows 12), and its description says a multiple of 12 fills the 2, 3 and 4 column grids. An existing site keeps whatever value it saved.
+9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown
 

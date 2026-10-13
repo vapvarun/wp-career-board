@@ -3,7 +3,8 @@ id: walkthrough-candidate-dashboard
 priority: high
 personas: sarah.chen
 requires: mu:autologin, seed:jobs
-last_verified: 2026-06-29
+last_verified: 2026-10-13
+bug_ref: 10389000669, 10388970839, 10388959262
 ---
 
 # Walkthrough: Candidate Dashboard — a candidate manages applications, saved jobs, profile and account in one sidebar app
@@ -37,7 +38,12 @@ removing a saved job, and withdrawing an application — so the whole functional
 10. Reload `$WCB_SITE/candidate-dashboard/?autologin=sarah.chen`, re-open Profile → expect `#wcb-profile-location` to still show the saved value (persistence confirmed via `_wcb_resume_data` user meta). _(render.php:217-225)_
 11. Click `#wcb-tab-settings` (`actions.switchToSettings`) → expect the Account Settings panel (`[aria-labelledby="wcb-tab-settings"]`) active with `#wcb-account-name`, `#wcb-account-email`, the Change Password fields (`#wcb-account-curpw`/`#wcb-account-newpw`/`#wcb-account-confpw`), and the "Privacy & My Data" panel (`.wcb-privacy-panel`) with Export + Delete controls. _(render.php:376-381,1038-1111)_
 12. Return to My Applications (`#wcb-tab-applications`); with a live application and `state.allowWithdraw` true, click `.wcb-cd-withdraw-btn` (`actions.withdrawApplication`) → expect the shared confirm modal (`wcb-confirm-modal`), and on confirm a `DELETE {apiBase}/applications/{application.id}` call that removes the row. _(render.php:37-39,577-583; view.js:1182-1201; class-applications-endpoint.php:52 DELETABLE → withdraw_application)_
-13. tail debug.log diff → expect ZERO new fatal/warning lines.
+13. **Every tab writes the URL hash (1.8.1, Basecamp 10389000669).** Click, in turn, `#wcb-tab-overview`, `#wcb-tab-applications`, `#wcb-tab-bookmarks`, `#wcb-tab-saved-companies`, `#wcb-tab-profile`, `#wcb-tab-settings` (and with Pro: `#wcb-tab-resumes`, `#wcb-tab-alerts`, `#wcb-tab-saved-resumes`, `#wcb-tab-notifications`) → `location.hash` becomes `#overview`, `#applications`, `#bookmarks`, `#saved-companies`, `#profile`, `#settings`, (`#resumes`, `#alerts`, `#saved-resumes`, `#notifications`); `sessionStorage.wcb_candidate_tab` matches; `history.length` does not grow. Before 1.8.1 Resumes, Alerts, Profile, Settings, Notifications and Resume Builder only wrote sessionStorage, so a reload or shared link lost the tab.
+14. **Notifications deep link (Pro bell on, `state.bellEnabled`).** Open `$WCB_SITE/candidate-dashboard/?autologin=sarah.chen#notifications` in a fresh tab → the Notifications panel is active and the bell list is fetched; `#notifications` is in the candidate tab allow-list (`VALID_TABS`). An unknown hash (`#zzz`) is ignored and Overview shows.
+15. **No wrong-tab flash (1.8.1, Basecamp 10388970839).** Load `$WCB_SITE/candidate-dashboard/#bookmarks` while recording (Playwright: add an init script that logs `document.documentElement.hasAttribute('data-wcb-tab-pending')` and `getComputedStyle( document.querySelector('.wcb-dashboard .wcb-main') ).visibility` at DOMContentLoaded and again after `networkidle`) → first value `true` / `hidden`, final `false` / `visible`, and the Overview panel is never visible at any sampled frame. With no hash the attribute is never set. Safety net: block `**/candidate-dashboard/view.js` → `.wcb-main` becomes visible by itself after about 1.5 seconds (CSS `wcb-tab-reveal`), never stays hidden.
+16. **Welcome card is server-rendered (1.8.1, Basecamp 10388959262).** As a user with no applications, no saved jobs and no resumes, load the dashboard with JavaScript disabled or view-source → `.wcb-welcome-card` already carries `wcb-shown` in the HTML (state seeded from `firstTimeSeed`), and its `getBoundingClientRect().top` is the same at DOMContentLoaded and 3 seconds later (the page does not shift when the data fetch lands). Negative: for `sarah.chen` (has applications) the card is NOT shown in the HTML and never appears after hydration.
+17. **Data export button (1.8.1, Basecamp 10394985663).** On `#settings`, **Request data export** works end to end - see `admin/walkthrough-gdpr-export-erase` step 8.
+18. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
 ```bash

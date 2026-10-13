@@ -3,7 +3,8 @@ id: walkthrough-job-search-filters
 priority: high
 personas: anonymous, sarah.chen
 requires: mu:autologin, seed:jobs
-last_verified: 2026-06-29
+last_verified: 2026-10-13
+bug_ref: 10359893313, 10395593540, 10360360998, 10389805004
 ---
 
 # Walkthrough: Job Search & Filters — search by keyword, narrow with filters, sort, and load more without a reload
@@ -67,7 +68,14 @@ whole search+filter mechanism in one pass guards the entry funnel that feeds the
     the store to hydrate `state.searchQuery` from the `?wcb_search` URL param on init and auto-fetch the filtered
     results, so a shared/bookmarked search link survives a reload for the logged-in candidate
     (`blocks/job-listings/view.js:567-579`).
-14. tail debug.log diff for this journey's window → expect ZERO new fatal/warning lines (no Interactivity
+14. **Shared link ticks the filters (1.8.1, Basecamp 10359893313).** Open `$WCB_SITE/find-jobs/?type=<type-a>,<type-b>&category=<cat>&remote=1` (slugs from `wp term list`) in a fresh tab → in `.wcb-filter-panel` the matching checkboxes for both types, the category and Remote only are ticked, and `.wcb-active-chip` shows one removable pill per value with the term NAME (no raw slugs, no bare "1"). The first paint already shows the filtered set: view-source has as many `article.wcb-job-card` as `GET /wp-json/wcb/v1/jobs?type=<a>,<b>&category=<cat>&remote=1` reports (up to the page size). Unticking one type removes exactly its pill.
+15. **Filter changes update the address bar.** Tick an Experience checkbox → `location.search` gains `experience=<slug>` without a page reload and `history.length` grows by one (`pushState`); type a keyword → `search=<kw>`; change sort → `sort=<value>`; clear all → the params are removed. Dashboard lists (employer My Jobs, candidate Saved) do NOT touch the URL.
+16. **Back restores.** After three filter changes press Back → the page reloads (the `popstate` handler reloads when the query string differs) and shows the PREVIOUS state: checkboxes, pills, keyword and results all match that URL. Forward does the same. A hash-only step does not reload.
+17. **Load More is a real link (1.8.1, Basecamp 10395593540).** With more jobs than one page, `curl -s $WCB_SITE/find-jobs/` (no JavaScript) contains `<a ... class="wcb-btn wcb-btn--outline wcb-load-more-btn" href=".../page/2/">` (an anchor, not a `<button>`); `curl -s $WCB_SITE/find-jobs/page/2/` returns 200 with the second page of jobs rendered server-side (different card titles from page 1, `state.page` = 2). The same holds on the CPT archive (`$WCB_SITE/jobs/page/2/`). With JavaScript, clicking it appends the next page in place (the URL does not change, no navigation) and the control hides when the last page is loaded.
+18. **Default 12 per page.** On a fresh install (no `jobs_per_page` in `wcb_settings`) with 13 or more published jobs, page 1 shows 12 cards and the Settings field `#wcb-jobs-per-page` reads 12; a site that saved another value keeps it.
+19. **Category hierarchy and search (1.8.1, Basecamp 10360360998, 10389805004).** Seed a parent category with two children (`wp term create wcb_category Backend --parent=<id>`) → the Category group lists each child directly under its parent with `li[data-depth="1"]` (indented by `padding-inline-start`), and the hero/filters `<select>` options for children begin with "— ". Seed enough categories that the list has more than 12 entries → a search box `input.wcb-filter-panel__search` (aria-label "Search categories") appears above the list; typing `back` hides non-matching `li` (the `hidden` attribute) without any network request; clearing the box shows all. With 12 or fewer categories there is no search box.
+20. **Experience levels in seniority order.** Create experience terms `executive`, `entry-level`, `senior`, `mid-level` with no Order → the Experience filter lists Entry Level, Mid-level, Senior, Executive (not alphabetical). Setting an explicit Order on a term (see `admin/admin-categories-and-types-crud`) overrides this default.
+21. tail debug.log diff for this journey's window → expect ZERO new fatal/warning lines (no Interactivity
     hydration notices, no `WP_Query`/REST errors from the filter params).
 
 ## Teardown
@@ -106,3 +114,5 @@ wp transient delete --all
 - seed:jobs required — needs published `wcb_job` posts across multiple types/experience/category terms (and
   more than one page for step 12) so each filter narrows a non-empty set; salary steps need jobs carrying
   `_wcb_salary_min`/`_wcb_salary_max` meta.
+- Step 12 (Load More) predates 1.8.1: the control is now an anchor with `href` from `get_pagenum_link()`; `actions.loadMore` calls `event.preventDefault()` and appends in place.
+- Filters that arrive as `type_<slug>`/`exp_<slug>`/`cat_<slug>`/`tag_<slug>` keys in `activeFilters` are the same keys the sidebar checkboxes read, so URL-seeded state and clicked state are identical.

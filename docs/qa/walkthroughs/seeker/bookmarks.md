@@ -64,8 +64,8 @@ wp user meta delete "$SARAH_ID" _wcb_bookmark
 
 ## Notes
 
-- Job bookmark: `POST /wcb/v1/jobs/(?P<id>\d+)/bookmark` (`class-jobs-endpoint.php:79`), gated on
-  `is_user_logged_in()`, stored as non-unique `_wcb_bookmark` usermeta (one row per saved job).
+- Job bookmark: `POST /wcb/v1/jobs/(?P<id>\d+)/bookmark` (`class-jobs-endpoint.php:79`), gated on the
+  `wcb/bookmark-jobs` ability (employers get no Save Job button and a 403 on the route; a failed save shows "Could not save" for about 3 seconds since 1.8.1), stored as non-unique `_wcb_bookmark` usermeta (one row per saved job).
 - Company bookmark: `POST /wcb/v1/companies/(?P<id>\d+)/bookmark` (`class-companies-endpoint.php:47`), stored as
   non-unique `_wcb_company_bookmark` usermeta — mirrors the jobs pattern but a DISTINCT key. The root cause of
   9977012701 was a duplicate `apiBase` across two `wp_interactivity_state()` calls on the `wcb-company-profile`

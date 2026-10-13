@@ -3,7 +3,8 @@ id: admin-jobs-page-renders
 priority: high
 personas: varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-13
+bug_ref: 10388998548, 10359867436
 needs: cli
 ---
 
@@ -31,7 +32,10 @@ needs: cli
    wp post list --post_type=wcb_job --post_status=publish --format=count
    ```
    → count is ≥ 1
-9. Diff `wp-content/debug.log` captured before and after the test → expect ZERO new lines containing `PHP Fatal error`, `PHP Warning`, or `PHP Notice`
+9. **Shared search box + live status counts (1.8.1, Basecamp 10388998548, 10359867436).** On `$WCB_SITE/wp-admin/admin.php?page=wcb-jobs` (the plugin list table; the `edit.php?post_type=wcb_job` URL above is the CPT screen) the search input `#wcb-job-search-input` has the placeholder "Job title or company…" and exactly ONE screen-reader label "Search Jobs" (inspect: `document.querySelectorAll('label[for="wcb-job-search-input"]').length` = 1). The other admin lists use the same `SearchBox` trait: `#wcb-application-search-input`, `#wcb-candidate-search-input`, `#wcb-company-search-input`, `#wcb-employer-search-input`, each with its own placeholder.
+10. Counts refresh after an inline action: create two `pending` jobs, open `?page=wcb-jobs`, note the `.subsubsub` counts (All / Pending / Published). Click **Approve** on one row (`.wcb-approve-job`) and confirm the modal → the row fades out AND the Pending count drops by 1 and Published rises by 1 WITHOUT a reload (`refreshStatusCounts()` refetches the screen and swaps `.wrap .subsubsub`). Repeat with **Reject** (`.wcb-reject-job`, optional reason in the modal) → Pending drops again.
+11. Negative - a failed refetch never breaks the page: block the screen URL fetch (offline throttle) after approving → the row still disappears, counts stay stale until the next load, and the console has no uncaught error.
+12. Diff `wp-content/debug.log` captured before and after the test → expect ZERO new lines containing `PHP Fatal error`, `PHP Warning`, or `PHP Notice`
 
 ## Teardown
 

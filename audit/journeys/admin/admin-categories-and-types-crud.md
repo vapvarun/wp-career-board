@@ -3,7 +3,8 @@ id: admin-categories-and-types-crud
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-10-13
+bug_ref: 10360360998, 10389805004
 needs: cli
 ---
 
@@ -56,7 +57,12 @@ needs: cli
    done
    ```
    → all five print "OK"
-9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
+9. **Order field on every term screen (1.8.1).** For each of `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience`, `wcb_tag` open `$WCB_SITE/wp-admin/edit-tags.php?taxonomy=<tax>&post_type=wcb_job` → the Add form has `#wcb-term-order` (number, min 0) labelled "Order" with the help text "Lower numbers show first in dropdowns and filters. Leave empty to sort by name."; the edit screen `term.php?taxonomy=<tax>&tag_ID=<id>&post_type=wcb_job` shows the same field in a `tr.form-field`.
+10. Save and clear: set Order 5 on Smoke Category and Update → `wp term meta get $TID_CAT wcb_order` = `5`; empty the field and Update → the meta row is gone (`wp term meta list $TID_CAT` has no `wcb_order`).
+11. Order is honoured everywhere: create job types Alpha (Order 30), Beta (Order 10), Gamma (no Order) → `wp eval 'echo implode( ",", wp_list_pluck( \WCB\Core\Taxonomy::options( "wcb_job_type" ), "slug" ) );'` lists beta before alpha before gamma (terms with no Order sort last, then by name), and the same order appears in the Post a Job type select, the Find Jobs type checkboxes and the job-filters block.
+12. Experience default order: with `executive`, `entry-level`, `senior`, `mid-level` terms and no Order set, `\WCB\Core\Taxonomy::options( 'wcb_experience' )` returns entry-level, mid-level, senior, executive; setting Order 1 on `executive` moves it first (explicit Order wins over the seniority guess).
+13. Nesting: `\WCB\Core\Taxonomy::options( 'wcb_category' )` returns Smoke Child Category directly after Smoke Category with `depth` 1 and `label` "— Smoke Child Category"; the Post a Job category select shows the child as an option starting with "— ". Flat taxonomies (`wcb_job_type`, `wcb_tag`, `wcb_experience`) are never indented.
+14. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown
 
@@ -73,3 +79,4 @@ wp term delete wcb_experience $TID_EXP 2>/dev/null || true
 - All five taxonomies are registered in `modules/jobs/class-jobs-module.php` via `register_taxonomy()`. The rewrite slugs are: `job-category`, `job-type`, `job-tag`, `job-location`, `job-experience`.
 - Hierarchical taxonomies (`wcb_category`, `wcb_location`) get the "Add New" + parent dropdown on the left side of `edit-tags.php`. Flat taxonomies get the same left panel but without a Parent field.
 - The post_type query parameter (`&post_type=wcb_job`) is required in the admin URL for the correct CPT context to be set. Without it, WordPress may render the tag-edit screen in the default post context.
+- Term meta key is `wcb_order` (`Taxonomy::ORDER_META`, `absint`, registered `show_in_rest`); one ordered list feeds the job filters, search hero, both job forms and the Find Jobs chips, so a change here is visible on all of them.

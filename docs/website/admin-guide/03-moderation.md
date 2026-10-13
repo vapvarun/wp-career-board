@@ -104,6 +104,10 @@ A suspended candidate loses Career Board abilities such as applying and saving j
 
 The **Delete** bulk action opens WordPress's own Delete Users screen to confirm. Deleting a candidate removes their personal data and keeps their past applications for employers as "Deleted candidate".
 
+Everyone who has applied to a job or created a resume gets the Candidate role automatically, so they all show on **Career Board → Candidates**. Sites upgrading to 1.8.1 get the role for existing applicants through a background WP-Cron job that starts about 30 seconds after the upgrade.
+
+When you delete an employer on WordPress's Delete Users screen, choose **Attribute all content to** to hand their jobs and company to another user. If you do not, their jobs are closed (applications stay on record) and their companies go back to Draft, so nothing stays public without an owner.
+
 ### Banning employers
 
 Administrators can use **Ban** on **Career Board → Employers** to stop an employer posting and take their live and pending jobs and their company page off the site. **Unban** puts back exactly what was live or pending. A job you edited, approved or deleted while the ban was on is left as you set it. Suspending a candidate hides their public resume the same way. In the Jobs list a hidden job shows as **Hidden: employer banned**.

@@ -119,7 +119,7 @@ sponsors, brands, etc.):
 
 | Hook | Purpose |
 |---|---|
-| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Any `_wcb_*` namespaced key is allowed by default (since 1.2.0); this filter is for opting in custom or non-WCB meta keys. |
+| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Since 1.8.1 the default `meta__wcb_*` path on the REST route accepts only `_wcb_*` keys registered for `wcb_job` with `show_in_rest` (private keys such as the apply email are ignored); this filter is for opting in custom or non-WCB meta keys. |
 | `wcb_jobs_post_filter` | Post-process the prepared job array before REST response |
 | `wcb_job_response` | Shape an individual job's REST response (legacy alias; prefer `wcb_rest_prepare_job`) |
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
@@ -546,5 +546,5 @@ Three contract notes worth keeping:
    add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
    ```
 
-   The leftmost address is taken and validated, so a malformed header degrades to
+   The rightmost address is taken (the hop your own proxy appended; the client writes everything to its left) and validated, so a malformed header degrades to
    `REMOTE_ADDR` rather than poisoning a rate-limit bucket key.

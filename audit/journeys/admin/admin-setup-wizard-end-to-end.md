@@ -3,9 +3,9 @@ id: admin-setup-wizard-end-to-end
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-09-27
+last_verified: 2026-10-13
 needs: cli
-bug_ref: Basecamp 9890815047
+bug_ref: Basecamp 9890815047, 10388803694
 ---
 
 # Admin walks the setup wizard from start to finish; completion flag is set
@@ -76,7 +76,12 @@ bug_ref: Basecamp 9890815047
    ```
    → output is `1`
 10. Verify the wizard does NOT relaunch: navigate to `admin.php?page=wp-career-board&autologin=1` → expect the Career Board dashboard, NOT a redirect to the wizard
-11. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
+11. **Symlinked or Windows install (1.8.1, Basecamp 10388803694).** Run this on a site whose plugin folder is a symlink (`ln -s <repo>/wp-career-board "$WCB_PATH/wp-content/plugins/wp-career-board"`; `readlink -f` then resolves outside `WP_PLUGIN_DIR`) or on a Windows host, then reopen `$WCB_SITE/wp-admin/admin.php?page=wcb-setup` → expect every step card to show its form rows, not just its `.wcb-settings-card-title`. On the Jobs step `#wcb-wz-autopublish` is present; on Pages the page selects render. A card with a heading and an empty body is the bug (the old `str_starts_with( realpath(), WP_PLUGIN_DIR )` check failed on backslashes and on symlink targets, so no template was included).
+12. With Pro active the Pro-added steps (`license`, `credits`) also render their rows: `admin/views/setup-wizard.php` allows `WP_PLUGIN_DIR`, `WCB_DIR` and `WCBP_DIR` after `wp_normalize_path()` on both sides. Step through to the last step; every card has content.
+13. Normaliser contract: `wp eval 'echo wp_normalize_path( "C:\\Sites\\wp\\wp-content\\plugins\\wp-career-board\\admin\\views\\wizard-steps\\jobs.php" );'` → forward slashes only (this is what the root comparison relies on on Windows).
+14. **Negative - a template outside the allowed roots is not included.** Add a temporary mu-plugin `zz-wizard-probe.php`: `add_filter( 'wcb_wizard_steps', fn( $s ) => $s + array( 'probe' => array( 'title' => 'Probe', 'template' => '/etc/hosts', 'button_text' => 'Next' ) ) );` → the Probe card renders its title but NO file contents (no `localhost` text); remove the mu-plugin afterwards.
+15. Currency follows the site, not USD: `wp option patch update wcb_settings salary_currency EUR`, reload the wizard Jobs step → the currency shown is EUR (`JobsMeta::default_currency()`), and installing sample data creates jobs whose `_wcb_salary_currency` is `EUR` (`wp post meta get <sample-job-id> _wcb_salary_currency`). Restore the setting afterwards.
+16. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown
 
@@ -93,3 +98,4 @@ wp option update wcb_setup_complete 1
 - The "Skip" path for each step is handled in the frontend JS (user clicks "Skip" → still calls the step endpoint but ignores the response). For this journey, the REST calls simulate "Skip" behavior (steps execute with minimal side effects).
 - The wizard page slug is `wcb-setup` (registered under `options.php` parent to hide from the submenu), not `wcb-setup-wizard`.
 - `SetupWizard::is_setup_complete()` checks the `wcb_setup_complete` flag AND falls back to checking if any core page IDs are set. Setting the flag to 0 is enough to reopen the wizard only if no pages are configured.
+- Fixed in 1.8.1: path normalisation in `admin/views/setup-wizard.php`. The old `include $wcb_step['template']` ran only when the realpath started with `WP_PLUGIN_DIR`; now the resolved path is included only when it sits under one of the allowed roots.

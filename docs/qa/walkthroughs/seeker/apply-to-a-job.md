@@ -47,9 +47,10 @@ REST never leaks `apply_email`.
 7. Verify the guest application persisted: `wp post get <application_id> --field=post_type` = `wcb_application`;
    `wp post meta get <application_id> _wcb_candidate_id` = `0` (guest, no user account);
    `wp post meta get <application_id> _wcb_status` = `submitted`.
-8. Re-POST the SAME guest email to the SAME job within 24h → expect HTTP 409 `wcb_already_applied` ("You have
-   already applied to this job recently.") — the guest dedupe guard
-   (`api/endpoints/class-applications-endpoint.php:147-175`).
+8. Re-POST the SAME guest email to the SAME job within 24h → expect HTTP 200 with the SAME `id` and the same
+   body as step 6 (1.8.1: answered like the first application, one row, one email; the old 409
+   `wcb_already_applied` revealed who had applied). A guest email that belongs to an account gets 409
+   `wcb_guest_has_account` and the panel shows a "Sign in to apply" link (`a.wcb-apply-login`).
 9. Switch personas: navigate to `/jobs/<slug>/?autologin=sarah.chen` → expect HTTP 200, logged-in candidate; the
    apply panel shows the cover-letter editor `#wcb-cover-letter` and NO guest name/email fields
    (`blocks/job-single/render.php:882`). In Free a resume file-upload zone is shown; if Pro's resume CPT is

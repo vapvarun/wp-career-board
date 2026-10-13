@@ -43,7 +43,7 @@ WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomd
 No. WP Career Board is a standalone job board — no e-commerce plugin is needed.
 
 = Can candidates apply without creating an account? =
-Yes. Guest applications are supported out of the box with name, email, and cover letter fields.
+Yes. Guest applications are supported out of the box with name, email, and cover letter fields. If the email already belongs to an account, the visitor is asked to sign in to apply, so the application lands on that account.
 
 = Does it work with block themes? =
 Yes. All frontend UI uses Gutenberg blocks with the WordPress Interactivity API, compatible with both classic and block themes.

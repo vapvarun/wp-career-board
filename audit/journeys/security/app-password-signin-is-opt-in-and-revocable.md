@@ -3,8 +3,8 @@ id: app-password-signin-is-opt-in-and-revocable
 priority: critical
 personas: demo
 requires: mu:autologin
-last_verified: 2026-08-07
-bug_ref: 1.7.1 auth wave (wp-career-board 70dd3fb)
+last_verified: 2026-10-13
+bug_ref: 1.7.1 auth wave (wp-career-board 70dd3fb), 10355318941
 ---
 
 # Signing in to the app never opens a door the owner did not open, and signing out closes it
@@ -63,7 +63,7 @@ per-IP throttle must not collapse every visitor onto one bucket behind a proxy.
    `HTTP_CF_CONNECTING_IP` is present — an unvalidated forwarded header is
    attacker-controlled. Then set
    `add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' )`
-   → expect the header's leftmost address, and expect a malformed header to fall
+   → expect the header's RIGHTMOST address (the hop the site's own proxy appended; since 1.8.1 the client-written left end is ignored), and expect a malformed header to fall
    back to `REMOTE_ADDR` rather than becoming a bucket key. Getting this wrong
    does not weaken the limiter, it turns it into a site-wide outage: behind
    Cloudflare every member shares one address and 20 sign-ins an hour is the

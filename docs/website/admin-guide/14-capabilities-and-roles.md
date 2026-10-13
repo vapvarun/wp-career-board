@@ -7,7 +7,7 @@ You can decide who posts jobs, applies, moderates and manages settings by choosi
 | Role | Slug | What it is for |
 |---|---|---|
 | Employer | `wcb_employer` | Posts jobs, manages a company profile, reviews applications |
-| Candidate | `wcb_candidate` | Applies to jobs, manages a resume |
+| Candidate | `wcb_candidate` | Applies to jobs, manages a resume. Given automatically to anyone who applies or creates a resume (administrators excluded) |
 | Job Moderator | `wcb_board_moderator` | Reviews pending jobs and approves or rejects them |
 
 Banning is not a role. It is a flag on the user. See [Ban an employer](#ban-an-employer).

@@ -98,7 +98,7 @@ wp user meta delete "$SARAH_ID" _wcb_company_bookmark --path="$WCB_PATH"
   otherwise step 10 only exercises the empty `.wcb-cp-no-jobs` branch and step 1's `.wcb-ca-jobs-count` reads
   "No open positions". The setup-wizard sample seeder creates 3 companies + 8 jobs (`admin/class-setup-wizard.php:492`).
 - Steps 1-11 are fully anonymous (archive + profile are public; companies REST `permission_callback => '__return_true'`).
-  Only step 12 (Save) requires login — the bookmark route gates on `is_user_logged_in()`.
+  Only step 12 (Save) requires login — the bookmark route gates on the `wcb/bookmark-jobs` ability (candidates and admins; employers and anonymous visitors do not get the Save button, 1.8.1).
 - Grounded source files:
   - Archive URL / CPT slug / template: `modules/employers/class-employers-module.php:146`,`180`,`215`-`219`.
   - Archive block markup + selectors + state seed: `blocks/company-archive/render.php`.
