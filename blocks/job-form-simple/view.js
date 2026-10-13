@@ -138,6 +138,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
+				if ( key === 'companyId' ) {
+					state.companyName = ( state.companyNames || {} )[ event.target.value ] || '';
+				}
 				// When the employer switches boards, re-derive the credit
 				// cost AND currency from the seeded per-board maps so the
 				// deduction banner and the salary currency dropdown update
@@ -285,6 +288,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					experience:        state.expSlug ? [ state.expSlug ] : [],
 					tags:              tagSlugs,
 					board_id:          state.boardId ? Number( state.boardId ) : 0,
+					company_id:        Number( state.companyId ) || 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
 					wcb_captcha_token: captchaToken,

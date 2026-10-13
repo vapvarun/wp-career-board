@@ -259,7 +259,7 @@ final class Locations {
 	 *
 	 * Returns the terms an employer should see when posting a job:
 	 *
-	 *   - The company HQ term (if attached).
+	 *   - The HQ term of each company the employer runs.
 	 *   - The reserved `remote` term.
 	 *   - The reserved `other` term.
 	 *
@@ -286,13 +286,14 @@ final class Locations {
 			return self::all_terms();
 		}
 
-		$company_id = CompanyMetaShape::resolve_company_id( $user_id );
+		// Every company the employer runs, so a job posted for any of them can use its HQ.
+		$company_ids = array_keys( \WCB\Modules\Employers\EmployersModule::owned_companies( $user_id ) );
 
 		$terms    = array();
 		$seen_ids = array();
 
-		if ( $company_id > 0 ) {
-			$hq_terms = wp_get_object_terms( $company_id, 'wcb_location', array( 'fields' => 'all' ) );
+		if ( $company_ids ) {
+			$hq_terms = wp_get_object_terms( $company_ids, 'wcb_location', array( 'fields' => 'all' ) );
 			if ( ! is_wp_error( $hq_terms ) ) {
 				foreach ( (array) $hq_terms as $hq_term ) {
 					if ( $hq_term instanceof \WP_Term && ! isset( $seen_ids[ $hq_term->term_id ] ) ) {

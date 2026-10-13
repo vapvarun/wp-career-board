@@ -107,6 +107,18 @@ if ( $wcb_edit_id > 0 ) {
 	$wcb_e_tags  = wp_get_object_terms( $wcb_edit_id, 'wcb_tag', array( 'fields' => 'slugs' ) );
 }
 
+// ── Company picker: the companies this employer runs. An edit keeps the
+// job's own company selected, even one outside that list (an admin editing).
+$wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id );
+$wcb_job_company = $wcb_edit_job ? (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true ) : 0;
+if ( $wcb_job_company > 0 ) {
+	$wcb_company_id = $wcb_job_company;
+	if ( ! isset( $wcb_companies[ $wcb_job_company ] ) ) {
+		$wcb_companies[ $wcb_job_company ] = get_the_title( $wcb_job_company );
+	}
+}
+$wcb_company_name = $wcb_companies[ $wcb_company_id ] ?? $wcb_company_name;
+
 // ── Currency catalog — pulled from the canonical source in AdminSettings so
 // admin settings + Pro additions (JPY/BRL/MXN/etc.) are guaranteed to match
 // what the post-form lets employers pick. Each entry is array{name,symbol}.
@@ -307,7 +319,9 @@ $wcb_initial_state = apply_filters(
 		'categorySlugs'     => ! is_wp_error( $wcb_e_cats ) ? $wcb_e_cats : array(),
 		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
 		'tags'              => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
+		'companyId'         => $wcb_company_id,
 		'companyName'       => $wcb_company_name,
+		'companyNames'      => (object) $wcb_companies,
 		'submitting'        => false,
 		'submitted'         => false,
 		'jobUrl'            => '',
@@ -541,6 +555,27 @@ $wcb_step_labels = array(
 					<?php foreach ( $wcb_board_options as $wcb_b ) : ?>
 						<option value="<?php echo (int) $wcb_b['id']; ?>" <?php selected( $wcb_board_id, (int) $wcb_b['id'] ); ?>>
 							<?php echo esc_html( $wcb_b['title'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( count( $wcb_companies ) > 1 ) : ?>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-company-id">
+					<?php esc_html_e( 'Company', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-company-id"
+					class="wcb-field"
+					data-wcb-field="companyId"
+					data-wp-bind--value="state.companyId"
+					data-wp-on--change="actions.updateField"
+				>
+					<?php foreach ( $wcb_companies as $wcb_cid => $wcb_cname ) : ?>
+						<option value="<?php echo (int) $wcb_cid; ?>" <?php selected( $wcb_company_id, (int) $wcb_cid ); ?>>
+							<?php echo esc_html( $wcb_cname ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>

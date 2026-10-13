@@ -535,6 +535,11 @@ final class JobsEndpoint extends RestController {
 			return $wcb_category_error;
 		}
 
+		$wcb_company_error = $this->company_error( $request );
+		if ( $wcb_company_error ) {
+			return $wcb_company_error;
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -642,7 +647,12 @@ final class JobsEndpoint extends RestController {
 		// post, and reading the user's copy left the job orphaned. The dashboard later self-heals the
 		// user meta, at which point My Jobs switches to the company-scoped query
 		// and the orphaned job disappears from the employer's own list.
-		$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
+		// An employer running several companies picks one (validated above); the
+		// rest get their linked company.
+		$wcb_company_id = absint( $request->get_param( 'company_id' ) );
+		if ( ! $wcb_company_id ) {
+			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
+		}
 		if ( $wcb_company_id ) {
 			$wcb_company = get_post( $wcb_company_id );
 			if ( $wcb_company instanceof \WP_Post && 'wcb_company' === $wcb_company->post_type ) {
@@ -734,6 +744,11 @@ final class JobsEndpoint extends RestController {
 		$wcb_category_error = $this->category_limit_error( $request, $post );
 		if ( $wcb_category_error ) {
 			return $wcb_category_error;
+		}
+
+		$wcb_company_error = $this->company_error( $request, $post );
+		if ( $wcb_company_error ) {
+			return $wcb_company_error;
 		}
 
 		// A board move changes the price: collect the difference (or hand it
@@ -909,6 +924,13 @@ final class JobsEndpoint extends RestController {
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, $value );
 			}
+		}
+
+		// Move the job to another company (validated above). 0 means no change.
+		$wcb_company_id = absint( $request->get_param( 'company_id' ) );
+		if ( $wcb_company_id ) {
+			update_post_meta( $post->ID, '_wcb_company_id', $wcb_company_id );
+			update_post_meta( $post->ID, '_wcb_company_name', get_the_title( $wcb_company_id ) );
 		}
 
 		// Apply destination — sanitize identically to create_item().
@@ -1540,6 +1562,33 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
+	 * Refuse a company the employer does not run.
+	 *
+	 * Site admins may pick any company, as in wp-admin. A job keeping the
+	 * company it already has always passes.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Request; no `company_id` param means no change.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function company_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$company_id = absint( $request->get_param( 'company_id' ) );
+		if ( ! $company_id
+			|| ( $job && (int) get_post_meta( $job->ID, '_wcb_company_id', true ) === $company_id )
+			|| $this->check_ability( 'wcb/manage-settings' )
+			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $company_id ] ) ) {
+			return null;
+		}
+		return new \WP_Error(
+			'wcb_company_not_yours',
+			__( 'You can only post jobs for a company you run.', 'wp-career-board' ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
 	 * Refuse a job with more categories than the site allows.
 	 *
 	 * A job already over the limit (categories set in wp-admin, or a higher
@@ -1884,6 +1933,10 @@ final class JobsEndpoint extends RestController {
 			),
 			'board_id'        => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_board' === get_post_type( absint( $v ) ), __( 'Unknown job board.', 'wp-career-board' ) ),
+			),
+			// One of the companies the employer runs; 0 or absent = their linked company (create) or no change (update).
+			'company_id'      => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_company' === get_post_type( absint( $v ) ), __( 'Unknown company.', 'wp-career-board' ) ),
 			),
 			'apply_email'     => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => (bool) is_email( (string) $v ), __( 'Apply email is not a valid email address.', 'wp-career-board' ) ),

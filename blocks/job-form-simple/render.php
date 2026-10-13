@@ -110,6 +110,8 @@ $wcb_user_id      = get_current_user_id();
 $wcb_company_id   = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_user_id );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
+// Company picker: the companies this employer runs.
+$wcb_companies = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id );
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
@@ -209,7 +211,9 @@ $wcb_state = apply_filters(
 		// when boardId stays 0.
 		'boardId'           => $wcb_resolved_board_id,
 		'boardOptions'      => $wcb_board_options,
+		'companyId'         => $wcb_company_id,
 		'companyName'       => $wcb_company_name,
+		'companyNames'      => (object) $wcb_companies,
 		'submitting'        => false,
 		'submitted'         => false,
 		'_aiGenerating'     => false,
@@ -357,6 +361,27 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 					<?php foreach ( $wcb_board_options as $wcb_b ) : ?>
 						<option value="<?php echo (int) $wcb_b['id']; ?>" <?php selected( $wcb_resolved_board_id, (int) $wcb_b['id'] ); ?>>
 							<?php echo esc_html( $wcb_b['title'] ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( count( $wcb_companies ) > 1 ) : ?>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-simple-company-id">
+					<?php esc_html_e( 'Company', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-simple-company-id"
+					class="wcb-field"
+					data-wcb-field="companyId"
+					data-wp-bind--value="state.companyId"
+					data-wp-on--change="actions.updateField"
+				>
+					<?php foreach ( $wcb_companies as $wcb_cid => $wcb_cname ) : ?>
+						<option value="<?php echo (int) $wcb_cid; ?>" <?php selected( $wcb_company_id, (int) $wcb_cid ); ?>>
+							<?php echo esc_html( $wcb_cname ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>

@@ -504,6 +504,9 @@ const { state } = store(
 				const field     = event.target.dataset.wcbField;
 				if ( field ) {
 					state[ field ] = event.target.value;
+					if ( field === 'companyId' ) {
+						state.companyName = ( state.companyNames || {} )[ event.target.value ] || '';
+					}
 					if ( field === state.validationField && state.validationError ) {
 						setValidation( state, '', '' );
 					}
@@ -727,6 +730,7 @@ const { state } = store(
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,
+						company_id:        Number( state.companyId ) || 0,
 						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
 						wcb_captcha_token: captchaToken,
