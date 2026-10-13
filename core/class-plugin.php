@@ -94,6 +94,7 @@ final class Plugin {
 
 		if ( class_exists( \WCB\Core\Roles::class ) ) {
 			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
+			add_action( 'admin_bar_menu', array( \WCB\Core\Roles::class, 'moderation_bar_node' ), 80 );
 		}
 
 		// Reserved location terms ('remote', 'other') — runs after the

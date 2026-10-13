@@ -624,10 +624,14 @@ final class EmployersEndpoint extends RestController {
 	 * @return string '' when there is nothing to explain.
 	 */
 	private static function closed_note( \WP_Post $job ): string {
-		if ( 'wcb_closed' !== $job->post_status || 'company_removed' !== get_post_meta( $job->ID, \WCB\Modules\Employers\EmployersModule::CLOSED_REASON, true ) ) {
+		if ( 'company_removed' !== get_post_meta( $job->ID, \WCB\Modules\Employers\EmployersModule::CLOSED_REASON, true ) ) {
 			return '';
 		}
-		return __( 'Closed because its company was removed. Edit it to choose another company, then reopen it.', 'wp-career-board' );
+		return match ( $job->post_status ) {
+			'wcb_closed' => __( 'Closed because its company was removed. Edit it to choose another company, then reopen it.', 'wp-career-board' ),
+			'draft'      => __( 'Back to draft because its company was removed. Edit it to choose another company, then submit it for review.', 'wp-career-board' ),
+			default      => '',
+		};
 	}
 
 	/**
@@ -1416,6 +1420,9 @@ final class EmployersEndpoint extends RestController {
 		$user = get_current_user_id();
 		if ( ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $user )[ $id ] ) ) {
 			return new \WP_Error( 'wcb_company_not_yours', __( 'You can only choose a company you run.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+		if ( ! in_array( get_post_status( $id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+			return new \WP_Error( 'wcb_company_offline', __( 'This company is offline, so it can\'t be your main company. Ask the site owner to put it back online.', 'wp-career-board' ), array( 'status' => 409 ) );
 		}
 		update_user_meta( $user, '_wcb_company_id', $id );
 		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );

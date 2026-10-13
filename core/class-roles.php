@@ -197,4 +197,65 @@ final class Roles {
 		}
 		$user->add_role( $role );
 	}
+
+	/**
+	 * What the current user is on this board, for dashboard identity lines.
+	 *
+	 * @since 1.8.1
+	 * @return string
+	 */
+	public static function current_member_label(): string {
+		// phpcs:disable WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) {
+			return __( 'Site admin', 'wp-career-board' );
+		}
+		if ( wp_is_ability_granted( 'wcb/manage-company' ) ) {
+			return __( 'Employer', 'wp-career-board' );
+		}
+		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) {
+			return __( 'Job moderator', 'wp-career-board' );
+		}
+		// phpcs:enable
+		return __( 'Candidate', 'wp-career-board' );
+	}
+
+	/**
+	 * The moderation queue for whoever reviews jobs, or '' for everyone else.
+	 *
+	 * @since 1.8.1
+	 * @return string
+	 */
+	public static function moderation_queue_url(): string {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		return is_user_logged_in() && wp_is_ability_granted( 'wcb/moderate-jobs' )
+			? admin_url( 'admin.php?page=wcb-jobs&post_status=pending' )
+			: '';
+	}
+
+	/**
+	 * Admin bar link to the moderation queue, front and back, with the count
+	 * waiting: a moderator otherwise had no route to their work.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Admin_Bar $bar Admin bar.
+	 * @return void
+	 */
+	public static function moderation_bar_node( \WP_Admin_Bar $bar ): void {
+		$url = self::moderation_queue_url();
+		if ( '' === $url ) {
+			return;
+		}
+		$waiting = (int) ( wp_count_posts( 'wcb_job' )->pending ?? 0 );
+		$bar->add_node(
+			array(
+				'id'    => 'wcb-moderation',
+				'title' => $waiting
+					/* translators: %s: number of jobs waiting for review. */
+					? sprintf( __( 'Jobs to review (%s)', 'wp-career-board' ), number_format_i18n( $waiting ) )
+					: __( 'Jobs to review', 'wp-career-board' ),
+				'href'  => $url,
+			)
+		);
+	}
 }

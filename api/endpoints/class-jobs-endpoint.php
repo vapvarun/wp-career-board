@@ -1599,7 +1599,7 @@ final class JobsEndpoint extends RestController {
 		if ( ! $company_id
 			|| ( $job && (int) get_post_meta( $job->ID, '_wcb_company_id', true ) === $company_id )
 			|| $this->check_ability( 'wcb/manage-settings' )
-			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $company_id ] ) ) {
+			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id(), true )[ $company_id ] ) ) {
 			return null;
 		}
 		return new \WP_Error(

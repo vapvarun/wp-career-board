@@ -85,6 +85,20 @@ const aiScoreLabel = ( score ) =>
 // Applicants fetched per page (endpoint maximum is 100).
 const APPS_PER_PAGE = 50;
 
+/**
+ * Open an applicant from the list. Where list and detail stack (tablet and
+ * phone) the detail sits below the list, so bring it into view.
+ *
+ * @param {HTMLElement} row Applicant row.
+ */
+function pickApplicant( row ) {
+	const id = parseInt( row.dataset.wcbAppId, 10 );
+	state.selectedAppId = Number.isNaN( id ) ? null : id;
+	if ( null !== state.selectedAppId && window.matchMedia( '(max-width: 1024px)' ).matches ) {
+		window.requestAnimationFrame( () => row.closest( '.wcb-split-panel' )?.querySelector( '.wcb-applicant-detail' )?.scrollIntoView( { behavior: 'smooth', block: 'start' } ) );
+	}
+}
+
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
 /**
@@ -155,6 +169,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		// The email field differs from the saved one: ask for the current password.
 		// Names the row's "more actions" button for screen readers.
+		// Only a company with a public page can be main (an offline one has no permalink).
+		get canMakeMain() {
+			const co = getContext().co;
+			return ! co.isMain && !! co.permalink;
+		},
 		get companyMenuLabel() {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().co.name );
 		},
@@ -1279,15 +1298,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		selectApplicant( event ) {
-			const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
-			state.selectedAppId = Number.isNaN( id ) ? null : id;
+			pickApplicant( event.currentTarget );
 		},
 
 		handleRowKeydown( event ) {
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
-				const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
-				state.selectedAppId = Number.isNaN( id ) ? null : id;
+				pickApplicant( event.currentTarget );
 			}
 		},
 

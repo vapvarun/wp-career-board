@@ -63,6 +63,8 @@ final class EmployersModule {
 
 		add_action( 'delete_user', array( self::class, 'retire_owned_listings' ), 10, 2 );
 		add_action( 'transition_post_status', array( self::class, 'on_status_change' ), 10, 3 );
+		// A restored company returns to how it was, not to WordPress's default draft.
+		add_filter( 'wp_untrash_post_status', array( self::class, 'untrash_status' ), 10, 3 );
 		add_filter( 'wp_insert_post_data', array( self::class, 'plain_company_title' ), 10, 1 );
 		add_action( 'before_delete_post', array( self::class, 'on_company_deleted' ), 10, 2 );
 	}
@@ -76,12 +78,15 @@ final class EmployersModule {
 	public const CLOSED_REASON = '_wcb_closed_reason';
 
 	/**
-	 * Statuses in which a company counts as running.
+	 * Statuses in which a company has a public page, so jobs may name it.
+	 *
+	 * A draft or pending company is still the employer's (it shows in their
+	 * Companies list) but is offline: a job naming it would link to a 404.
 	 *
 	 * @since 1.8.1
 	 * @var string[]
 	 */
-	public const LIVE_COMPANY = array( 'publish', 'pending', 'draft' );
+	public const LIVE_COMPANY = array( 'publish' );
 
 	/**
 	 * A company leaving the site closes its jobs; a job reopened loses its
@@ -102,9 +107,23 @@ final class EmployersModule {
 	public static function on_status_change( string $new_status, string $old_status, \WP_Post $post ): void {
 		if ( 'wcb_company' === $post->post_type && 'trash' === $new_status && 'trash' !== $old_status ) {
 			self::close_company_jobs( $post->ID );
-		} elseif ( 'wcb_job' === $post->post_type && 'wcb_closed' === $old_status && 'wcb_closed' !== $new_status ) {
+		} elseif ( 'wcb_job' === $post->post_type && in_array( $old_status, array( 'wcb_closed', 'draft' ), true ) && $old_status !== $new_status ) {
 			delete_post_meta( $post->ID, self::CLOSED_REASON );
 		}
+	}
+
+	/**
+	 * Restore a trashed company to its status before the trash.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $new_status      Status WordPress would restore to (draft).
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status Status before trashing.
+	 * @return string
+	 */
+	public static function untrash_status( string $new_status, int $post_id, string $previous_status ): string {
+		return 'wcb_company' === get_post_type( $post_id ) && '' !== $previous_status ? $previous_status : $new_status;
 	}
 
 	/**
@@ -164,7 +183,11 @@ final class EmployersModule {
 			'wcb_closed',
 			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
 		);
-		self::move_posts( $of_company + array( 'post_status' => array( 'pending', 'future' ) ), 'draft' );
+		self::move_posts(
+			$of_company + array( 'post_status' => array( 'pending', 'future' ) ),
+			'draft',
+			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
+		);
 	}
 
 	/**
@@ -473,10 +496,11 @@ final class EmployersModule {
 	 *
 	 * @since 1.8.1
 	 *
-	 * @param int $user_id Employer user ID.
+	 * @param int  $user_id   Employer user ID.
+	 * @param bool $live_only Only companies with a public page (what a job may name).
 	 * @return array<int, string>
 	 */
-	public static function owned_companies( int $user_id ): array {
+	public static function owned_companies( int $user_id, bool $live_only = false ): array {
 		if ( $user_id <= 0 ) {
 			return array();
 		}
@@ -486,7 +510,7 @@ final class EmployersModule {
 		$rows      = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title FROM {$wpdb->posts}
-				 WHERE post_type = 'wcb_company' AND post_status IN ( 'publish', 'pending', 'draft' )
+				 WHERE post_type = 'wcb_company' AND post_status IN ( " . ( $live_only ? "'publish'" : "'publish', 'pending', 'draft'" ) . " )
 				   AND ( post_author = %d
 				         OR ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_owner' AND meta_value = %s ) )
 				 ORDER BY post_title ASC
@@ -547,7 +571,7 @@ final class EmployersModule {
 
 		$status_labels = array(
 			'pending' => __( 'Waiting for review', 'wp-career-board' ),
-			'draft'   => __( 'Draft, not public', 'wp-career-board' ),
+			'draft'   => __( 'Offline: ask the site owner to put it back', 'wp-career-board' ),
 		);
 		$cards         = array();
 		foreach ( $companies as $id => $name ) {

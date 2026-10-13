@@ -104,8 +104,24 @@ wcb_assert( 200 === $wcb_r->get_status() && 'trash' === get_post_status( $wcb_se
 wcb_assert( 'wcb_closed' === get_post_status( $wcb_job ), 'its live job closes' );
 wcb_assert( $wcb_first === $wcb_main_of( $wcb_lead ) && 1 === count( (array) ( $wcb_r->get_data()['companies'] ?? array() ) ), 'removing the main company hands main to the one left' );
 
+// 6. Restore and offline companies (QA round 8): a restored company comes back
+// as it was; an offline (draft) one stays in the list but no job may name it.
+wp_set_current_user( 1 );
+wp_untrash_post( $wcb_second );
+wcb_assert( 'publish' === get_post_status( $wcb_second ), 'an admin restore brings the company back online, not as a draft' );
+wcb_assert( 'wcb_closed' === get_post_status( $wcb_job ), 'restoring the company does not reopen its jobs' );
+wp_update_post( array( 'ID' => $wcb_second, 'post_status' => 'draft' ) );
+$wcb_list = (array) ( wcb_rest( 'GET', '/wcb/v1/employers/me/companies', array(), $wcb_lead )->get_data()['companies'] ?? array() );
+wcb_assert( in_array( $wcb_second, array_column( $wcb_list, 'id' ), true ), 'an offline company still shows in the Companies list' );
+wcb_assert( ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_lead, true )[ $wcb_second ] ), 'the job picker leaves an offline company out' );
+$wcb_r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => 'Brand Strategist', 'description' => 'Shape the voice of independent food brands from first sketch to shelf.', 'company_id' => $wcb_second ), $wcb_lead );
+wcb_assert( in_array( $wcb_r->get_status(), array( 400, 403 ), true ), "a job can't name an offline company (got {$wcb_r->get_status()})" );
+$wcb_created[] = (int) ( $wcb_r->get_data()['id'] ?? 0 );
+$wcb_r = wcb_rest( 'POST', "/wcb/v1/employers/{$wcb_second}/main", array(), $wcb_lead );
+wcb_assert( 409 === $wcb_r->get_status(), "an offline company can't become main (got {$wcb_r->get_status()})" );
+
 // Teardown.
-foreach ( $wcb_created as $wcb_id ) {
+foreach ( array_filter( $wcb_created ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );
 }
 require_once ABSPATH . 'wp-admin/includes/user.php';

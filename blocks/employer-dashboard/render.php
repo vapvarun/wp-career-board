@@ -11,13 +11,11 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 $wcb_can_manage = wp_is_ability_granted( 'wcb/manage-company' );
-// A site admin opening the dashboard is labelled as such, not 'Employer'.
-// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
-$wcb_is_site_admin = wp_is_ability_granted( 'wcb/manage-settings' );
-$wcb_role_labels   = array(
-	/* translators: %s: company name */
-	'at'   => $wcb_is_site_admin ? __( 'Site admin · %s', 'wp-career-board' ) : __( 'Employer · %s', 'wp-career-board' ),
-	'role' => $wcb_is_site_admin ? __( 'Site admin', 'wp-career-board' ) : __( 'Employer', 'wp-career-board' ),
+// The identity line names the user's real role (site admin, employer).
+$wcb_role_labels = array(
+	/* translators: 1: the user's role on the board, 2: company name. */
+	'at'   => sprintf( __( '%1$s · %2$s', 'wp-career-board' ), \WCB\Core\Roles::current_member_label(), '%s' ),
+	'role' => \WCB\Core\Roles::current_member_label(),
 );
 
 if ( ! is_user_logged_in() ) {
@@ -39,16 +37,27 @@ if ( ! is_user_logged_in() ) {
 if ( ! $wcb_can_manage ) {
 	$wcb_emp_reg_page   = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
 	$wcb_cand_dash_page = \WCB\Admin\Pages::get_id( 'candidate_dashboard_page' );
-	$wcb_gate           = array(
+	// A candidate account can't become an employer (registration refuses it).
+	$wcb_is_candidate = in_array( 'wcb_candidate', (array) wp_get_current_user()->roles, true );
+	$wcb_gate         = array(
 		'icon'    => 'briefcase',
-		'message' => __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),
+		'message' => $wcb_is_candidate
+			? __( 'The employer dashboard is for employers. This is a candidate account: manage your applications and resumes from your candidate dashboard, or sign in with an employer account to hire.', 'wp-career-board' )
+			: __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),
 		'actions' => array(),
 	);
-	if ( $wcb_emp_reg_page > 0 ) {
+	if ( '' !== \WCB\Core\Roles::moderation_queue_url() ) {
+		$wcb_gate['actions'][] = array(
+			'label'   => __( 'Review jobs', 'wp-career-board' ),
+			'url'     => \WCB\Core\Roles::moderation_queue_url(),
+			'primary' => true,
+		);
+	}
+	if ( $wcb_emp_reg_page > 0 && ! $wcb_is_candidate ) {
 		$wcb_gate['actions'][] = array(
 			'label'   => __( 'Register as an employer', 'wp-career-board' ),
 			'url'     => (string) get_permalink( $wcb_emp_reg_page ),
-			'primary' => true,
+			'primary' => '' === \WCB\Core\Roles::moderation_queue_url(), // One primary: Review jobs, when shown.
 		);
 	}
 	if ( $wcb_cand_dash_page > 0 ) {
@@ -1038,7 +1047,7 @@ wp_interactivity_state(
 								</summary>
 								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
 									<a class="wcb-row-menu__item" target="_blank" rel="noopener noreferrer" data-wp-class--wcb-hidden="!context.co.permalink" data-wp-bind--href="context.co.permalink"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
-									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="context.co.isMain" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.makeMainCompany"><?php esc_html_e( 'Make main', 'wp-career-board' ); ?></button>
+									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!state.canMakeMain" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.makeMainCompany"><?php esc_html_e( 'Make main', 'wp-career-board' ); ?></button>
 									<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-class--wcb-hidden="!context.co.canRemove" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.removeCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
 								</div>
 							</details>

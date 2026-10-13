@@ -32,11 +32,17 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	<?php if ( ! is_user_logged_in() ) : ?>
 		<p><?php esc_html_e( 'Please sign in as an employer to post a job.', 'wp-career-board' ); ?></p>
 		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Sign In', 'wp-career-board' ); ?></a>
+	<?php elseif ( in_array( 'wcb_candidate', (array) wp_get_current_user()->roles, true ) ) : ?>
+		<?php // A candidate account can't become an employer (registration refuses it), so don't offer it. ?>
+		<p><?php esc_html_e( 'This is a candidate account. To post jobs, sign in with an employer account.', 'wp-career-board' ); ?></p>
 	<?php else : ?>
 		<p><?php esc_html_e( 'Posting a job is for employers. Register as an employer to start hiring - it only takes a minute.', 'wp-career-board' ); ?></p>
 		<?php if ( $wcb_emp_reg_page > 0 ) : ?>
 		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?></a>
 		<?php endif; ?>
+	<?php endif; ?>
+	<?php if ( '' !== \WCB\Core\Roles::moderation_queue_url() ) : ?>
+		<a href="<?php echo esc_url( \WCB\Core\Roles::moderation_queue_url() ); ?>" class="wcb-btn wcb-btn--secondary"><?php esc_html_e( 'Review jobs', 'wp-career-board' ); ?></a>
 	<?php endif; ?>
 	</div>
 	<?php
@@ -110,7 +116,7 @@ if ( $wcb_edit_id > 0 ) {
 // ── Company picker: the companies this employer runs. An edit keeps the
 // job's own company selected, even one outside that list (an admin editing),
 // unless that company is gone: then the main company (set above) is offered.
-$wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id );
+$wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id, true );
 $wcb_job_company = $wcb_edit_job ? (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true ) : 0;
 if ( $wcb_job_company > 0 && in_array( get_post_status( $wcb_job_company ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
 	$wcb_company_id = $wcb_job_company;

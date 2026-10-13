@@ -30,6 +30,8 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 	echo '<p class="wcb-form-simple__gate">';
 	if ( ! is_user_logged_in() ) {
 		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );
+	} elseif ( in_array( 'wcb_candidate', (array) wp_get_current_user()->roles, true ) ) {
+		echo esc_html__( 'This is a candidate account. To post jobs, sign in with an employer account.', 'wp-career-board' );
 	} elseif ( $wcb_emp_reg_page > 0 ) {
 		printf(
 			/* translators: %s: employer registration link. */
@@ -123,7 +125,7 @@ $wcb_company_id   = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_user_id
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
 // Company picker: the companies this employer runs.
-$wcb_companies = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id );
+$wcb_companies = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id, true );
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 

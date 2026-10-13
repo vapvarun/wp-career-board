@@ -1115,10 +1115,18 @@
 		flex-direction: column;
 	}
 
+	/* Stacked: the list grows with the page (paged at 50) instead of a short
+	   box scrolling inside the page's own scroll. */
 	.wcb-applicant-list {
 		border-inline-end: none;
 		border-bottom: 1px solid var(--wcb-border);
-		max-height: 240px;
+		overflow-y: visible;
+	}
+
+	/* Picking an applicant scrolls here; clear the theme's sticky header.
+	   shortcut: fixed 9rem covers Reign/BuddyX headers; read the header height if a theme exceeds it. */
+	.wcb-applicant-detail {
+		scroll-margin-top: 9rem;
 	}
 
 	/* The dashboard main area is narrower than the viewport, so its field
