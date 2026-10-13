@@ -209,6 +209,12 @@ $wcb_credit_noun = static function ( int $wcb_n ): string {
 
 $wcb_credit_messages = array();
 $wcb_credit_errors   = array();
+// Only point at buying when the site actually sells credits.
+$wcb_credit_short = '' !== (string) apply_filters( 'wcb_credit_purchase_url', '' )
+	/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+	? __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' )
+	/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+	: __( 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.', 'wp-career-board' );
 foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 	$wcb_cost = (int) $wcb_cost;
 
@@ -222,8 +228,7 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 
 	if ( $wcb_credit_balance < $wcb_cost ) {
 		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
-			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
-			__( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			$wcb_credit_short,
 			$wcb_credit_noun( $wcb_cost ),
 			number_format_i18n( $wcb_credit_balance )
 		);

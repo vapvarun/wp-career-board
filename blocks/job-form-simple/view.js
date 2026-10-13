@@ -95,7 +95,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.
 			const noun = state.creditNoun || '';
 			if ( balance < cost ) {
-				return t( 'creditInsufficient', 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.' )
+				return ( state.creditPurchaseUrl
+					? t( 'creditInsufficient', 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.' )
+					: t( 'creditInsufficientNoBuy', 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.' ) )
 					.replace( '%1$s', noun )
 					.replace( '%2$s', nf( balance ) );
 			}

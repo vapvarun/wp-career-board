@@ -249,6 +249,8 @@ $wcb_state = apply_filters(
 			// live balance (formatted with Intl.NumberFormat against state.locale).
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'creditInsufficient'       => __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+			'creditInsufficientNoBuy'  => __( 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
 			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
