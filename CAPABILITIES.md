@@ -61,7 +61,7 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | Expose a documented REST API (headless-ready, App-Password auth)? | YES | routes under `wcb/v1`, listed in `docs/website/developer-guide/03-rest-api.md`; `GET /settings/app-config` |
 | Ship block-native UI with no page builder required? | YES | 17 Interactivity-API blocks; all also shortcodes + `[wcb_widget]` |
 | Migrate from WP Job Manager (+ WPJM Resumes)? | YES | `wcb migrate` CLI; `class-wpjm-importer.php` (non-destructive) |
-| Import jobs from CSV/XML? | YES·partial | CSV importer present; Pro adds board XML feed import |
+| Import jobs from CSV/XML? | YES·partial | Free has the WP Job Manager importer only; the CSV importer is Pro (and Pro adds board XML feed import) |
 | GDPR export/erase with an audit trail? | YES | `POST /candidates/me/privacy/{export\|erase}`; `wcb_gdpr_log` |
 | Multilingual (WPML / Polylang)? | YES | documented compat |
 | Run on multisite? | UNVERIFIED | no explicit multisite handling found |
