@@ -21,33 +21,33 @@ needs: cli
    → 5 rows; `wcb_category` and `wcb_location` show `hierarchical: 1`; `wcb_job_type`, `wcb_tag`, `wcb_experience` show `hierarchical: 0`
 2. Create one term in each taxonomy:
    ```bash
-   TID_CAT=$(wp term create wcb_category 'Smoke Category' --slug=smoke-category --porcelain)
-   TID_TYPE=$(wp term create wcb_job_type 'Smoke Type' --slug=smoke-type --porcelain)
-   TID_TAG=$(wp term create wcb_tag 'Smoke Tag' --slug=smoke-tag --porcelain)
-   TID_LOC=$(wp term create wcb_location 'Smoke Location' --slug=smoke-location --porcelain)
-   TID_EXP=$(wp term create wcb_experience 'Smoke Experience' --slug=smoke-experience --porcelain)
+   TID_CAT=$(wp term create wcb_category 'Customer Experience' --slug=customer-experience --porcelain)
+   TID_TYPE=$(wp term create wcb_job_type 'Contract-to-hire' --slug=contract-to-hire --porcelain)
+   TID_TAG=$(wp term create wcb_tag 'Visa Sponsorship' --slug=visa-sponsorship --porcelain)
+   TID_LOC=$(wp term create wcb_location 'Krakow, Poland' --slug=krakow-poland --porcelain)
+   TID_EXP=$(wp term create wcb_experience 'Mid-Senior Level' --slug=mid-senior-level --porcelain)
    echo "TIDs: $TID_CAT $TID_TYPE $TID_TAG $TID_LOC $TID_EXP"
    ```
 3. Navigate to the category term list:
    `/wp-admin/edit-tags.php?taxonomy=wcb_category&post_type=wcb_job&autologin=1`
-   → expect 200, "Smoke Category" appears in the table; "Parent" column is present (hierarchical taxonomy)
+   → expect 200, "Customer Experience" appears in the table; "Parent" column is present (hierarchical taxonomy)
 4. Navigate to the job type term list:
    `/wp-admin/edit-tags.php?taxonomy=wcb_job_type&post_type=wcb_job&autologin=1`
-   → expect 200, "Smoke Type" appears; "Parent" column is NOT present (flat taxonomy)
-5. Create a child category under "Smoke Category":
+   → expect 200, "Contract-to-hire" appears; "Parent" column is NOT present (flat taxonomy)
+5. Create a child category under "Customer Experience":
    ```bash
-   TID_CHILD=$(wp term create wcb_category 'Smoke Child Category' --parent=$TID_CAT --porcelain)
+   TID_CHILD=$(wp term create wcb_category 'Support Engineering' --parent=$TID_CAT --porcelain)
    ```
-   Navigate to `edit-tags.php?taxonomy=wcb_category&post_type=wcb_job` → expect "Smoke Child Category" is indented beneath "Smoke Category" in the list
-6. Edit "Smoke Category": navigate to `term.php?taxonomy=wcb_category&tag_ID=$TID_CAT&post_type=wcb_job` → change the description to "Smoke description updated"; submit
+   Navigate to `edit-tags.php?taxonomy=wcb_category&post_type=wcb_job` → expect "Support Engineering" is indented beneath "Customer Experience" in the list
+6. Edit "Customer Experience": navigate to `term.php?taxonomy=wcb_category&tag_ID=$TID_CAT&post_type=wcb_job` → change the description to "Roles that talk directly to customers"; submit
    ```bash
    wp term get wcb_category $TID_CAT --field=description
    ```
-   → output is `Smoke description updated`
-7. Delete "Smoke Type" via the term list (row action "Delete"):
+   → output is `Roles that talk directly to customers`
+7. Delete "Contract-to-hire" via the term list (row action "Delete"):
    ```bash
    wp term delete wcb_job_type $TID_TYPE
-   wp term list wcb_job_type --slug=smoke-type --format=count
+   wp term list wcb_job_type --slug=contract-to-hire --format=count
    ```
    → count is 0
 8. Verify all five taxonomy admin screens are reachable without error:
@@ -58,10 +58,10 @@ needs: cli
    ```
    → all five print "OK"
 9. **Order field on every term screen (1.8.1).** For each of `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience`, `wcb_tag` open `$WCB_SITE/wp-admin/edit-tags.php?taxonomy=<tax>&post_type=wcb_job` → the Add form has `#wcb-term-order` (number, min 0) labelled "Order" with the help text "Lower numbers show first in dropdowns and filters. Leave empty to sort by name."; the edit screen `term.php?taxonomy=<tax>&tag_ID=<id>&post_type=wcb_job` shows the same field in a `tr.form-field`.
-10. Save and clear: set Order 5 on Smoke Category and Update → `wp term meta get $TID_CAT wcb_order` = `5`; empty the field and Update → the meta row is gone (`wp term meta list $TID_CAT` has no `wcb_order`).
+10. Save and clear: set Order 5 on Customer Experience and Update → `wp term meta get $TID_CAT wcb_order` = `5`; empty the field and Update → the meta row is gone (`wp term meta list $TID_CAT` has no `wcb_order`).
 11. Order is honoured everywhere: create job types Alpha (Order 30), Beta (Order 10), Gamma (no Order) → `wp eval 'echo implode( ",", wp_list_pluck( \WCB\Core\Taxonomy::options( "wcb_job_type" ), "slug" ) );'` lists beta before alpha before gamma (terms with no Order sort last, then by name), and the same order appears in the Post a Job type select, the Find Jobs type checkboxes and the job-filters block.
 12. Experience default order: with `executive`, `entry-level`, `senior`, `mid-level` terms and no Order set, `\WCB\Core\Taxonomy::options( 'wcb_experience' )` returns entry-level, mid-level, senior, executive; setting Order 1 on `executive` moves it first (explicit Order wins over the seniority guess).
-13. Nesting: `\WCB\Core\Taxonomy::options( 'wcb_category' )` returns Smoke Child Category directly after Smoke Category with `depth` 1 and `label` "— Smoke Child Category"; the Post a Job category select shows the child as an option starting with "— ". Flat taxonomies (`wcb_job_type`, `wcb_tag`, `wcb_experience`) are never indented.
+13. Nesting: `\WCB\Core\Taxonomy::options( 'wcb_category' )` returns Support Engineering directly after Customer Experience with `depth` 1 and `label` "— Support Engineering"; the Post a Job category select shows the child as an option starting with "— ". Flat taxonomies (`wcb_job_type`, `wcb_tag`, `wcb_experience`) are never indented.
 14. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

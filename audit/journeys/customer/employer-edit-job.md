@@ -16,11 +16,11 @@ needs: cli
 1. As `employer.figma`, navigate to `/?autologin=employer.figma` → expect HTTP 200, employer is logged in (user ID 50)
 2. Find a `wcb_job` owned by employer.figma: `wp post list --post_type=wcb_job --post_author=50 --post_status=publish --field=ID --posts_per_page=1` → capture as `<job-id>`
 3. Read the current job title: `wp post get <job-id> --field=post_title` → capture as `<original-title>`
-4. PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"title": "Smoke Edit - <original-title>", "description": "Updated description for smoke journey test", "salary_max": 99999}` → expect HTTP 200, response body contains `id` equal to `<job-id>`
-5. Verify title persisted in DB: `wp post get <job-id> --field=post_title` → expect `Smoke Edit - <original-title>`
+4. PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"title": "Revised: <original-title>", "description": "Updated description", "salary_max": 99999}` → expect HTTP 200, response body contains `id` equal to `<job-id>`
+5. Verify title persisted in DB: `wp post get <job-id> --field=post_title` → expect `Revised: <original-title>`
 6. Verify salary meta persisted: `wp post meta get <job-id> _wcb_salary_max` → expect `99999`
-7. As anonymous, GET `/wp-json/wcb/v1/jobs/<job-id>` → expect HTTP 200, response `title` field equals `Smoke Edit - <original-title>` and `salary_max` equals `99999` (confirming REST response is not stale)
-8. GET `/wp-json/wcb/v1/search?q=Smoke+Edit` → expect HTTP 200, response array includes an entry with `id` equal to `<job-id>` (search index reflects the edit)
+7. As anonymous, GET `/wp-json/wcb/v1/jobs/<job-id>` → expect HTTP 200, response `title` field equals `Revised: <original-title>` and `salary_max` equals `99999` (confirming REST response is not stale)
+8. GET `/wp-json/wcb/v1/search?q=Revised` → expect HTTP 200, response array includes an entry with `id` equal to `<job-id>` (search index reflects the edit)
 9. Restore the original title: PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"title": "<original-title>"}` → expect HTTP 200
 10. tail debug.log diff → expect ZERO new fatal/warning lines
 

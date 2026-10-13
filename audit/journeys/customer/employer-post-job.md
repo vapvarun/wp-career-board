@@ -16,7 +16,7 @@ bug_ref: 9871740742, 10394970998
 
 1. As `employer.figma`, navigate to `/?autologin=employer.figma` → expect HTTP 200, employer is logged in
 2. Navigate to the employer's "Post a Job" surface (front-end composer or admin `wp-admin/post-new.php?post_type=wcb_job`) → expect 200, form renders
-3. POST `/wp-json/wcb/v1/jobs` with body `{"title": "Smoke Journey - PHP Engineer", "company_id": <figma's company id>, "description": "Smoke journey body", "deadline": "<+30 days>", "salary_min": 80000, "salary_max": 110000, "salary_currency": "USD", "remote": true, "type": "full-time"}` → expect HTTP 201, response contains job ID
+3. POST `/wp-json/wcb/v1/jobs` with body `{"title": "Platform Engineer, Billing - Gdansk", "company_id": <figma's company id>, "description": "Join our payments team and help build reliable billing tools.", "deadline": "<+30 days>", "salary_min": 80000, "salary_max": 110000, "salary_currency": "USD", "remote": true, "type": "full-time"}` → expect HTTP 201, response contains job ID
 4. Verify the job persists: `wp post get <job-id> --field=post_status` → expect `publish` (or `pending` if plugin is in moderation mode — record which)
 5. Verify meta keys are in v1.1.0 shape: `wp post meta list <job-id>` → expect `_wcb_company_id`, `_wcb_deadline`, `_wcb_salary_min`, `_wcb_salary_max`, `_wcb_salary_currency`, `_wcb_remote`, `_wcb_company_name` all populated. NO `_wcb_job_company` (the v0.1.0 key) should be present
 6. As anonymous, GET `/jobs/<job-slug>/` → expect HTTP 200, page renders title + description + company name + tagline + industry + size + HQ (all four company-meta fields must be visible per Basecamp 9871740742 contract)

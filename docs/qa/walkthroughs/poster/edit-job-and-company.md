@@ -30,12 +30,12 @@ covers: blocks/job-form (edit mode), blocks/employer-dashboard, PATCH /wcb/v1/jo
 
 2. Open the job in the form's edit mode — from the dashboard My Jobs list click the Edit control `.wcb-db-link-btn--edit[data-wp-bind--href="context.job.editUrl"]` (`blocks/employer-dashboard/render.php:576`; `editUrl` = `add_query_arg('edit', <job-id>, <job-form-page>)`, `api/endpoints/class-employers-endpoint.php:666`) → expect the `wcb/job-form` block to prefill the existing title/description/salary.
 
-3. Change the title + salary and save → observe `PATCH $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` with body `{"title":"Smoke Edit - <original-title>","description":"Updated description","salary_max":99999}` → expect HTTP 200 with `id === <job-id>`. Only the owner may PATCH (cross-employer edit protection: `security/employer-cant-edit-other-job`).
+3. Change the title + salary and save → observe `PATCH $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` with body `{"title":"Revised: <original-title>","description":"Updated description","salary_max":99999}` → expect HTTP 200 with `id === <job-id>`. Only the owner may PATCH (cross-employer edit protection: `security/employer-cant-edit-other-job`).
 
 4. Verify propagation across all three surfaces:
-   - DB: `wp post get <job-id> --field=post_title` → `Smoke Edit - <original-title>`; `wp post meta get <job-id> _wcb_salary_max` → `99999`.
-   - Public REST (anonymous): `GET $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` → `title` = `Smoke Edit - <original-title>`, `salary_max` = `99999` (not stale).
-   - Search index: `GET $WCB_SITE/wp-json/wcb/v1/search?q=Smoke+Edit` → array includes an entry with `id === <job-id>`. (If cached, bump `wp option update wcb_jobs_cache_v $(($(wp option get wcb_jobs_cache_v) + 1))`.)
+   - DB: `wp post get <job-id> --field=post_title` → `Revised: <original-title>`; `wp post meta get <job-id> _wcb_salary_max` → `99999`.
+   - Public REST (anonymous): `GET $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` → `title` = `Revised: <original-title>`, `salary_max` = `99999` (not stale).
+   - Search index: `GET $WCB_SITE/wp-json/wcb/v1/search?q=Revised` → array includes an entry with `id === <job-id>`. (If cached, bump `wp option update wcb_jobs_cache_v $(($(wp option get wcb_jobs_cache_v) + 1))`.)
 
 5. Restore the title: `PATCH /wcb/v1/jobs/<job-id>` `{"title":"<original-title>"}` → expect HTTP 200.
 
@@ -43,13 +43,13 @@ covers: blocks/job-form (edit mode), blocks/employer-dashboard, PATCH /wcb/v1/jo
 
 6. Find employer.figma's company: `wp post list --post_type=wcb_company --post_author=50 --field=ID --posts_per_page=1` → `<company-id>`; capture its slug `wp post get <company-id> --field=post_name` → `<company-slug>`. Note there is NO `/companies/<id>` update route — company updates flow through the employers endpoint.
 
-7. `PATCH $WCB_SITE/wp-json/wcb/v1/employers/<employer-id>` with body `{"tagline":"Smoke Tagline 2026","industry":"Technology","size":"11-50","hq":"San Francisco, CA"}` → expect HTTP 200. The endpoint maps `industry`→`_wcb_industry`, `size`→`_wcb_company_size`, `hq`→`_wcb_hq_location` (+ tagline) onto the owner's company.
+7. `PATCH $WCB_SITE/wp-json/wcb/v1/employers/<employer-id>` with body `{"tagline":"Visa Sponsorshipline 2026","industry":"Technology","size":"11-50","hq":"San Francisco, CA"}` → expect HTTP 200. The endpoint maps `industry`→`_wcb_industry`, `size`→`_wcb_company_size`, `hq`→`_wcb_hq_location` (+ tagline) onto the owner's company.
 
-8. Verify meta in DB: `wp post meta list <company-id>` → `_wcb_tagline`=`Smoke Tagline 2026`, `_wcb_industry`=`Technology`, `_wcb_company_size`=`11-50` (or slug), `_wcb_hq_location`=`San Francisco, CA`.
+8. Verify meta in DB: `wp post meta list <company-id>` → `_wcb_tagline`=`Visa Sponsorshipline 2026`, `_wcb_industry`=`Technology`, `_wcb_company_size`=`11-50` (or slug), `_wcb_hq_location`=`San Francisco, CA`.
 
 9. Verify the four fields reach the public API via a linked job (there is no public single-company REST route): find a published job for this company (`wp post list --post_type=wcb_job --meta_key=_wcb_company_id --meta_value=<company-id> --post_status=publish --field=ID --posts_per_page=1`), then anonymous `GET $WCB_SITE/wp-json/wcb/v1/jobs/<job-id>` → expect non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq` (Basecamp 9871740742 guard; the jobs endpoint prefixes company fields with `company_`).
 
-10. Navigate to `$WCB_SITE/companies/<company-slug>/` → expect HTTP 200 and the tagline "Smoke Tagline 2026" visibly rendered; open the linked job's public URL → the same tagline is visible in the company section.
+10. Navigate to `$WCB_SITE/companies/<company-slug>/` → expect HTTP 200 and the tagline "Visa Sponsorshipline 2026" visibly rendered; open the linked job's public URL → the same tagline is visible in the company section.
 
 ### C. Resubmit a rejected job
 

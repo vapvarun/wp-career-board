@@ -10,6 +10,12 @@ D (regression guards) stays specific — those are repros of past incidents; the
 
 Infrastructure sections (preconditions, output contract, debug-log protocol, fixture cleanup, failure protocol) stay specific because they are the stable machinery the walk rides on.
 
+## Realistic data
+
+Run `wp eval-file wp-content/plugins/wp-career-board/bin/seed-demo-data.php` before a walk (see `bin/demo-data/README.md`; add `teardown` to remove it). Every walk, journey and card check runs on that realistic board.
+
+Owner rule (2026-10-13): anything a test creates gets a real-sounding title, company and person, never "Smoke Job 3", "Test Company", "Lorem ipsum" or a random string. When uniqueness is needed, vary it realistically (city, team, level), e.g. "Senior Data Engineer, Payments - Lisbon". Companies and people are invented; never use a real brand name in new content. Tag created posts with `--meta_input='{"_wcb_qa_smoke":"1"}'` so Fixture cleanup can find them without a title prefix.
+
 ## Global preconditions
 
 - Working directory (`$WP_PATH`): the WP root of **your** Local site — NOT hardcoded (every QA env differs). This plugin lives at `<WP_PATH>/wp-content/plugins/wp-career-board`, so `WP_PATH` is the WP root you run wp-cli from. Export it: `WP_PATH="$(pwd)"` from the WP root, or point it at your site.
@@ -62,7 +68,7 @@ Delete any leftover test data from prior runs. WP-CLI eval here is permitted bec
 ```bash
 wp --path="$WP_PATH" eval '
 global $wpdb;
-$wpdb->query( "DELETE FROM {$wpdb->prefix}posts WHERE post_type IN (\"wcb_job\",\"wcb_application\",\"wcb_resume\",\"wcb_company\",\"wcb_board\") AND (post_title LIKE \"E2E %\" OR post_title LIKE \"Smoke %\")" );
+$wpdb->query( "DELETE FROM {$wpdb->prefix}posts WHERE post_type IN (\"wcb_job\",\"wcb_application\",\"wcb_resume\",\"wcb_company\",\"wcb_board\") AND (post_title LIKE \"E2E %\" OR post_title LIKE \"Smoke %\" OR ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = \"_wcb_qa_smoke\"))" );
 wp_cache_flush();
 echo "fixtures cleaned\n";
 '
@@ -76,21 +82,21 @@ Journeys seed the *ideal* data shape — a `wcb_employer`-role user, a job with 
 full description — which is exactly the shape the code was written for, so the
 walk never sees the mismatches real sites have. Bugs live in that gap ("No
 employers yet" when admins post jobs; a blank "About This Role" panel). Seed the
-messy cases below (all `Smoke ` prefixed, so Fixture cleanup removes them) and
+messy cases below (tagged `_wcb_qa_smoke`, so Fixture cleanup removes them) and
 walk Section H against them.
 
 ```bash
 # A job posted BY AN ADMIN — administrators hold wcb_post_jobs but are NOT
 # wcb_employer, so a screen keyed on the role alone hides them.
 wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
-   --post_title='Smoke Admin-Posted Role' --post_author=1 --porcelain
+   --post_title='Head of Customer Success - Manchester' --meta_input='{"_wcb_qa_smoke":"1"}' --meta_input='{"_wcb_qa_smoke":"1"}' --post_author=1 --porcelain
 # A job with an EMPTY description.
 wp --path="$WP_PATH" post create --post_type=wcb_job --post_status=publish \
-   --post_title='Smoke No-Description Role' --post_content=''
+   --post_title='Warehouse Associate - Birmingham' --meta_input='{"_wcb_qa_smoke":"1"}' --meta_input='{"_wcb_qa_smoke":"1"}' --post_content=''
 # A company with ZERO jobs.
 wp --path="$WP_PATH" post create --post_type=wcb_company --post_status=publish \
-   --post_title='Smoke Empty Company'
-# (combo) A board with ZERO pipeline stages — create a Smoke board, attach no stages.
+   --post_title='Quillfeather Books' --meta_input='{"_wcb_qa_smoke":"1"}' --meta_input='{"_wcb_qa_smoke":"1"}'
+# (combo) A board with ZERO pipeline stages — create a board such as "Northwind Design Careers", attach no stages.
 # (optional) An application with no cover letter / no resume attachment.
 ```
 

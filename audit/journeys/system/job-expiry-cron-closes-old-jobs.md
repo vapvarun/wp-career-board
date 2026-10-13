@@ -16,7 +16,7 @@ bug_ref: 9872024322
 
 1. Create a smoke job with a deadline in the past:
    ```bash
-   JOB_ID=$(wp post create --post_type=wcb_job --post_title="Smoke Expiry Test" --post_status=publish --post_author=50 --porcelain)
+   JOB_ID=$(wp post create --post_type=wcb_job --post_title="Office Administrator, Part-time - Cork" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
    wp post meta update $JOB_ID _wcb_deadline "2020-01-01"
    echo "Created job: $JOB_ID"
    ```

@@ -14,7 +14,7 @@ bug_ref: 10355292713
 
 ## Steps
 
-1. Term sets the flag: `JOB=$(wp post create --post_type=wcb_job --post_status=publish --post_title='Smoke Remote Loc' --porcelain)`; `wp post meta update $JOB _wcb_remote 0`; `wp post term set $JOB wcb_location remote` → `wp post meta get $JOB _wcb_remote` = `1` (hook `set_object_terms` -> `Locations::flag_remote_on_terms`).
+1. Term sets the flag: `JOB=$(wp post create --post_type=wcb_job --post_status=publish --post_title='Remote Support Engineer - Europe' --meta_input='{"_wcb_qa_smoke":"1"}' --porcelain)`; `wp post meta update $JOB _wcb_remote 0`; `wp post term set $JOB wcb_location remote` → `wp post meta get $JOB _wcb_remote` = `1` (hook `set_object_terms` -> `Locations::flag_remote_on_terms`).
 2. Writing 0 is refused while located Remote: `wp post meta update $JOB _wcb_remote 0` → `wp post meta get $JOB _wcb_remote` is still `1` (filters `update_post_metadata` and `add_post_metadata` -> `Locations::keep_remote_flag`). A form or the admin editor that saves an unticked Remote checkbox AFTER the terms cannot undo it.
 3. Not remote stays not remote: a second job located in a non-Remote term keeps `_wcb_remote` = `0` and writing `0` or `1` there behaves normally. Moving the first job to a city term and then writing `0` is allowed (`wp post term set $JOB wcb_location <city-slug>` then `wp post meta update $JOB _wcb_remote 0` -> `0`).
 4. Every reader agrees for the Remote job: REST `GET /wp-json/wcb/v1/jobs/$JOB` has `remote: true`; `GET /wp-json/wcb/v1/jobs?remote=1` includes it; the job page shows the Remote badge; the Find Jobs "Remote only" toggle lists it; the JobPosting JSON-LD on the job page contains `"jobLocationType":"TELECOMMUTE"`.

@@ -17,11 +17,11 @@ needs: cli
 1. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=wcb-jobs&autologin=1` → expect 200, plugin admin renders without PHP Notice/Warning
 2. Set up the fixture: create a `wcb_job` with `post_status=pending`:
    ```bash
-   wp post create --post_type=wcb_job --post_title='Smoke Pending Job' --post_status=pending --post_author=49 --porcelain
+   wp post create --post_type=wcb_job --post_title='Operations Manager, Logistics - Rotterdam' --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=pending --post_author=49 --porcelain
    ```
    Capture the returned ID as `<job-id>`
 3. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect response array does NOT contain `<job-id>` (pending jobs are not public)
-4. As admin, navigate to the moderation queue (admin slug `wcb-jobs` filtered to `pending` OR a dedicated moderation page) → expect to see `Smoke Pending Job` in the list
+4. As admin, navigate to the moderation queue (admin slug `wcb-jobs` filtered to `pending` OR a dedicated moderation page) → expect to see `Operations Manager, Logistics - Rotterdam` in the list
 5. Trigger approval: PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"status": "publish"}` (or whichever endpoint the moderation queue uses — read code) → expect HTTP 200 (or 204), response success
 6. Verify status changed: `wp post get <job-id> --field=post_status` → expect `publish`
 7. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect `<job-id>` IS now in the response array

@@ -16,11 +16,11 @@ needs: cli
 1. As `varundubey`, navigate to `/wp-admin/admin.php?page=wcb-employers&autologin=1` → expect 200, list table renders with columns: Name, Company, Website, Active Jobs, Registered
 2. Create a fixture employer user:
    ```bash
-   EMP_USER=$(wp user create smoke_employer_qa smoke_employer_qa@example.com \
+   EMP_USER=$(wp user create ines.moreau ines.moreau@example.com \
      --role=wcb_employer --porcelain)
    echo "EMP_USER=$EMP_USER"
    ```
-3. Reload the employers page; verify "smoke_employer_qa" appears in the table with the correct email shown
+3. Reload the employers page; verify "ines.moreau" appears in the table with the correct email shown
 4. Hover over the employer row → expect row actions "Edit" and "View" are present in the DOM
 5. Click "Edit" row action → expect `/wp-admin/user-edit.php?user_id=<EMP_USER>` loads (standard WordPress user edit screen) with no fatal
 6. Return to employers list; verify the "Name" column renders as `<strong><a class="row-title">display_name</a></strong>` with email shown below it (matching `column_name()` output)

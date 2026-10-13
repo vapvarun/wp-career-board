@@ -14,7 +14,7 @@ needs: cli
 ## Steps
 
 1. Skip cleanly if Pro is not active: `wp plugin is-active wp-career-board-pro` → if false, mark journey `skipped: pro_inactive` and exit success
-2. As `varundubey` (admin), seed credits for `employer.figma` to exactly 2: insert into `wp_wcb_credit_ledger` with `user_id=<figma-id>`, `entry_type=grant`, `amount=2`, `note='Smoke journey credit-decrement seed'`
+2. As `varundubey` (admin), seed credits for `employer.figma` to exactly 2: insert into `wp_wcb_credit_ledger` with `user_id=<figma-id>`, `entry_type=grant`, `amount=2`, `note='Welcome grant - 2 job credits'`
 3. Read current balance: `wp eval 'echo \WCB\Pro\Credits\Wallet::balance(<figma-id>);'` (or whatever the public method is — read `modules/credits/`) → expect `2`
 4. As `employer.figma` (autologin), POST a new job via REST as in `customer/employer-post-job.md` step 3 → expect HTTP 201
 5. Re-read balance → expect `1` (decremented by 1)
@@ -28,8 +28,8 @@ needs: cli
 
 ```bash
 # Delete the smoke jobs and reset the ledger
-wp post delete $(wp post list --post_type=wcb_job --author=49 --post_title__like='Smoke Journey%' --field=ID) --force 2>/dev/null
-wp db query "DELETE FROM wp_wcb_credit_ledger WHERE note LIKE 'Smoke journey%'"
+wp post delete $(wp post list --post_type=wcb_job --author=49 --post_title__like='Platform Engineer, Billing - Gdansk%' --field=ID) --force 2>/dev/null
+wp db query "DELETE FROM wp_wcb_credit_ledger WHERE note LIKE 'Welcome grant - 2 job credits%'"
 ```
 
 ## Notes

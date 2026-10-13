@@ -17,8 +17,8 @@ needs: cli
 1. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=edit.php?post_type=wcb_job&autologin=1` (or `/wp-admin/edit.php?post_type=wcb_job`) → expect HTTP 200, jobs list table renders
 2. Create 2 smoke jobs in `publish` status for bulk-close:
    ```bash
-   JOB1=$(wp post create --post_type=wcb_job --post_title="Smoke Bulk Close 1" --post_status=publish --post_author=50 --porcelain)
-   JOB2=$(wp post create --post_type=wcb_job --post_title="Smoke Bulk Close 2" --post_status=publish --post_author=50 --porcelain)
+   JOB1=$(wp post create --post_type=wcb_job --post_title="Support Engineer, Billing - Austin" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
+   JOB2=$(wp post create --post_type=wcb_job --post_title="Support Engineer, Onboarding - Denver" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
    echo "jobs: $JOB1 $JOB2"
    ```
    Capture both IDs.
