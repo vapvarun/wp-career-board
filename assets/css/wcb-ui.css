@@ -2119,13 +2119,15 @@
 	overflow: hidden;
 }
 
-/* A panel inside the active tab drops its own frame (no box in a box). */
+/* A panel inside the active tab drops its own frame (no box in a box), and with
+   no rounded corner to clip it lets a row's '...' menu open past the last row. */
 .wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-panel {
 	background: transparent;
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
 	margin-bottom: 0;
+	overflow: visible;
 }
 
 .wcb-dashboard .wcb-panel--form {
