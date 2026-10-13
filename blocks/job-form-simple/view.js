@@ -10,6 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
 
@@ -112,13 +113,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( ! state.deadline ) {
 				return '';
 			}
-			// The deadline is read-only and server-owned, so its human-readable
-			// form is pre-rendered by wp_date() against the SITE locale and the
-			// site's date_format. Never re-derive it with toLocaleDateString(),
-			// which would format against the visitor's BROWSER locale.
-			const formatted = state.deadlineLabel || state.deadline;
 			return t( 'listingWindow', 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).' )
-				.replace( '%1$s', formatted );
+				.replace( '%1$s', formatSiteDate( state.deadline, state.locale ) );
+		},
+
+		get deadlineHelp() {
+			return t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' )
+				.replace( '%s', formatSiteDate( state.deadlineMax, state.locale ) );
 		},
 
 		get locationIsCustom() {
@@ -127,6 +128,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 	},
 
 	actions: {
+		setDeadline( event ) {
+			state.deadline = event.target.value;
+		},
+
 		updateField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
@@ -323,10 +328,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.description = '';
 					state.salaryMin   = '';
 					state.salaryMax   = '';
-					// state.deadline / state.deadlineLabel are server-owned (readonly
-					// input, pre-computed from the wcb_job_default_expiry_days chain and
-					// wp_date()-formatted). Leave them intact so the next post keeps a
-					// valid deadline and the two stay in sync.
+					state.deadline    = state.deadlineMax;
 					state.applyUrl    = '';
 					state.applyEmail  = '';
 					state.locationSlug = '';

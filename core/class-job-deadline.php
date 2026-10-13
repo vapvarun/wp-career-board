@@ -185,4 +185,40 @@ class JobDeadline {
 		$expire_days = $expire_days > 0 ? $expire_days : 30;
 		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
 	}
+
+	/**
+	 * Default deadline for a job on a board, from outside a REST request
+	 * (admin editor, republish, form preview, imports).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $board_id Board the job is on (0 = none).
+	 * @return string Y-m-d date.
+	 */
+	public static function default_end_for_board( int $board_id ): string {
+		$request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+		$request->set_param( 'board_id', $board_id );
+		return self::default_end( $request );
+	}
+
+	/**
+	 * Cap an employer-chosen deadline at the board's listing length.
+	 *
+	 * The listing length is what paid boards charge for, so an employer may
+	 * shorten it but not extend it; a deadline the job already had (set by an
+	 * admin) is kept. Moderators are not capped.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $date     Requested Y-m-d deadline.
+	 * @param int    $board_id Board the job is on.
+	 * @param string $existing The job's current deadline, if any.
+	 * @return string Y-m-d date.
+	 */
+	public static function cap( string $date, int $board_id, string $existing = '' ): string {
+		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+			return $date;
+		}
+		return min( $date, max( $existing, self::default_end_for_board( $board_id ) ) );
+	}
 }

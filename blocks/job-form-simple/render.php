@@ -166,24 +166,9 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
 }
 
 // ── Deadline ───────────────────────────────────────────────────────────────
-// Auto-filled from the wcb_job_default_expiry_days filter chain (board override
-// if set, otherwise the global jobs_expire_days). The form input is read-only —
-// admins control the policy — so the human-readable label never changes without
-// a server round-trip and is pre-formatted here with wp_date() rather than
-// client-side toLocaleDateString(), which would follow the BROWSER locale.
-$wcb_deadline = ( static function () use ( $wcb_resolved_board_id ): string {
-	$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
-	$wcb_preview_request->set_param( 'board_id', $wcb_resolved_board_id );
-	$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-	$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
-	$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
-	return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
-} )();
-
-$wcb_deadline_ts    = strtotime( $wcb_deadline . ' 00:00:00' );
-$wcb_deadline_label = $wcb_deadline_ts
-	? (string) wp_date( (string) get_option( 'date_format', 'F j, Y' ), $wcb_deadline_ts )
-	: $wcb_deadline;
+// Default from the board's listing length; the employer may pick any date up to
+// it (owner decision, 1.8.1) and REST caps it at the same maximum.
+$wcb_deadline = \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -205,10 +190,8 @@ $wcb_state = apply_filters(
 		'salaryType'        => 'yearly',
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,
-		// Human-readable deadline, formatted server-side against the SITE locale
-		// and the site's date_format. view.js must never re-derive this with
-		// toLocaleDateString(), which formats against the BROWSER locale.
-		'deadlineLabel'     => $wcb_deadline_label,
+		'deadlineMax'       => $wcb_deadline,
+		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
 		// Intl.NumberFormat so numbers group per the SITE locale.
@@ -281,6 +264,8 @@ $wcb_state = apply_filters(
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
 			'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+			/* translators: %s: latest allowed deadline date. */
+			'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
 			// AI description generator.
 			'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
@@ -540,8 +525,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wp-bind--value="state.deadline" readonly aria-readonly="true" tabindex="-1" />
-				<span class="wcb-form-hint"><?php esc_html_e( 'Auto-filled from the job-board policy. Contact your site admin to extend the listing window.', 'wp-career-board' ); ?></span>
+				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
+				<span class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
 			</div>
 		</section>
 

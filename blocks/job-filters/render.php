@@ -142,8 +142,8 @@ wp_interactivity_state(
 		</select>
 
 		<div class="wcb-filter-salary">
-			<input type="number" class="wcb-filter-input" name="salary_min" min="0" step="1000" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Min salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_min ? (string) $wcb_filter_salary_min : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_min" />
-			<input type="number" class="wcb-filter-input" name="salary_max" min="0" step="1000" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Max salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_max ? (string) $wcb_filter_salary_max : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_max" />
+			<input type="number" class="wcb-filter-input" name="salary_min" min="0" step="any" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Min salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_min ? (string) $wcb_filter_salary_min : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_min" />
+			<input type="number" class="wcb-filter-input" name="salary_max" min="0" step="any" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Max salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_max ? (string) $wcb_filter_salary_max : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_max" />
 		</div>
 
 		<label class="wcb-filter-remote">

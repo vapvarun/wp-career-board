@@ -285,6 +285,12 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/ui',
+				WCB_URL . 'assets/js/modules/wcb-ui.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/email-prefs',
 				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
 				array(

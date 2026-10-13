@@ -72,9 +72,7 @@ final class JobsExpiry {
 		if ( 'wcb_job' !== $post->post_type || 'publish' !== $new_status || ! in_array( $old_status, array( 'wcb_expired', 'wcb_closed' ), true ) || ! \WCB\Core\JobDeadline::has_passed( $post->ID ) ) {
 			return;
 		}
-		$request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $post->ID );
-		$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
-		update_post_meta( $post->ID, '_wcb_deadline', \WCB\Core\JobDeadline::default_end( $request ) );
+		update_post_meta( $post->ID, '_wcb_deadline', \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post->ID, '_wcb_board_id', true ) ) );
 	}
 
 	/**

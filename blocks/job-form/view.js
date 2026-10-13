@@ -4,6 +4,7 @@
  * Actions:
  *   updateField  — generic field updater via data-wcb-field attribute.
  *   toggleRemote — flip the remote boolean.
+ *   setDeadline  — employer-picked deadline (REST caps it at the board maximum).
  *   nextStep     — advance step; validates title on step 1.
  *   prevStep     — go back one step.
  *   submitJob    — POST job data to /wcb/v1/jobs.
@@ -24,6 +25,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
+import { formatSiteDate } from '@wcb/ui';
 
 /**
  * Translation reader.
@@ -158,31 +160,6 @@ const money = ( symbol, amount ) =>
  */
 const symbolFor = ( code ) =>
 	( state.currencySymbols && state.currencySymbols[ code ] ) || code + ' ';
-
-/**
- * Format an ISO (Y-m-d) date against the SITE locale.
- *
- * @param {string} iso ISO date string.
- * @return {string} Localised date, or the raw ISO string when unparseable.
- */
-const formatDate = ( iso ) => {
-	if ( ! iso ) {
-		return '';
-	}
-	try {
-		const d = new Date( iso + 'T00:00:00' );
-		if ( ! isNaN( d.getTime() ) ) {
-			return new Intl.DateTimeFormat( locale(), {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric',
-			} ).format( d );
-		}
-	} catch ( _e ) {
-		// Fall through to the raw ISO date.
-	}
-	return iso;
-};
 
 /**
  * Put a value into the job description's rich editor.
@@ -442,8 +419,7 @@ const { state } = store(
 			},
 
 			// Pre-publish: tell the employer when their listing will expire so
-			// the deadline isn't a surprise. Pairs with the read-only deadline
-			// field (admin policy, not employer-editable).
+			// the deadline isn't a surprise.
 			get listingWindowMessage() {
 				const { state } = store( 'wcb-job-form' );
 				if ( ! state.deadline ) {
@@ -455,7 +431,16 @@ const { state } = store(
 						'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).'
 					),
 					'%1$s',
-					formatDate( state.deadline )
+					formatSiteDate( state.deadline, state.locale )
+				);
+			},
+
+			get deadlineHelp() {
+				const { state } = store( 'wcb-job-form' );
+				return fill(
+					t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' ),
+					'%s',
+					formatSiteDate( state.deadlineMax, state.locale )
 				);
 			},
 
@@ -471,7 +456,7 @@ const { state } = store(
 				if ( ! state.deadline ) {
 					return '';
 				}
-				return fill( t( 'applyBy', 'Apply by %s' ), '%s', formatDate( state.deadline ) );
+				return fill( t( 'applyBy', 'Apply by %s' ), '%s', formatSiteDate( state.deadline, state.locale ) );
 			},
 
 			// ── AI generation ─────────────────────────────────────────────
@@ -503,6 +488,11 @@ const { state } = store(
 		},
 
 		actions: {
+			setDeadline( event ) {
+				const { state } = store( 'wcb-job-form' );
+				state.deadline  = event.target.value;
+			},
+
 			updateField( event ) {
 				const { state } = store( 'wcb-job-form' );
 				const field     = event.target.dataset.wcbField;

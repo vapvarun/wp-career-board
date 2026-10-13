@@ -594,6 +594,8 @@ final class JobsEndpoint extends RestController {
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::default_end( $request );
+		} else {
+			$wcb_deadline_raw = \WCB\Core\JobDeadline::cap( (string) $wcb_deadline_raw, (int) $request->get_param( 'board_id' ) );
 		}
 		// Values are validated by the route args and normalised by the meta
 		// sanitizers registered in JobsMeta.
@@ -863,6 +865,17 @@ final class JobsEndpoint extends RestController {
 				 */
 				do_action( 'wcb_job_republished', $post->ID, $post->post_status );
 			}
+		}
+
+		if ( null !== $request->get_param( 'deadline' ) ) {
+			$request->set_param(
+				'deadline',
+				\WCB\Core\JobDeadline::cap(
+					(string) $request->get_param( 'deadline' ),
+					$request->has_param( 'board_id' ) ? (int) $request->get_param( 'board_id' ) : (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
+					(string) get_post_meta( $post->ID, '_wcb_deadline', true )
+				)
+			);
 		}
 
 		// Postmeta — only update keys present in the request.
