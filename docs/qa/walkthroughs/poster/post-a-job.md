@@ -24,7 +24,7 @@ covers: blocks/job-form (wcb/job-form), POST /wcb/v1/jobs, GET /wcb/v1/jobs/{id}
 
 ## Steps
 
-1. As `employer.figma`, navigate to `$WCB_SITE/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). NOT the `.wcb-job-form-gate` "Please sign in as an employer" notice (renders only when logged-out or lacking `wcb/post-jobs`, `blocks/job-form/render.php:26-44`).
+1. As `employer.figma`, navigate to `$WCB_SITE/post-a-job/?autologin=employer.figma` → expect HTTP 200, the wrapper `.wcb-job-form-wrap` with `data-wp-interactive="wcb-job-form"`, and the step indicator `nav.wcb-steps` showing step `1 Basics` active (`.wcb-step--active`). NOT the "Post a job" sign-in card `.wcb-db-gate` (templates/parts/post-job-gate.php; renders only when logged-out or lacking `wcb/post-jobs`).
 
 2. **Free-posting gate (credits are opt-in)** — expect NO "purchase more credits" / "requires N credits" nag and the Next / Post Job buttons enabled, even with a 0-credit balance. On the default Main Board the cost resolves to `0` from both surfaces: `apply_filters('wcb_board_credit_cost', 0, <main_board_id>)` returns `0`, and (Pro) the SDK `job_post` consumer cost callable returns `0` — gate and hold agree via `BoardSettings::get()` defaults. Guards Basecamp 9976885975 (default cost was wrongly 1, blocking free posting out of the box).
 
@@ -68,7 +68,7 @@ wp post list --post_type=wcb_job --post_status=any --field=ID \
 ## Notes
 
 - **Default moderation path is the norm.** `auto_publish_jobs` defaults OFF, so step 9 returns `status:"pending"` and steps 11 are required. If an admin enables auto-publish (or a Pro board is auto-moderated) step 9 returns `status:"publish"`, the success panel shows "Job posted successfully!" + the "View your job listing →" link, and step 11's admin approval is skipped.
-- **Gate / ability:** `blocks/job-form/render.php:26-44` renders `.wcb-job-form-gate` unless logged-in AND `wp_is_ability_granted('wcb/post-jobs')`; `employer.figma` holds `wcb_post_jobs` (`core/class-roles.php:154`).
+- **Gate / ability:** `blocks/job-form/render.php` requires templates/parts/post-job-gate.php (the `.wcb-db-gate` card) unless logged-in AND `wp_is_ability_granted('wcb/post-jobs')`; `employer.figma` holds `wcb_post_jobs` (`core/class-roles.php:154`).
 - **REST route + moderation:** `POST /wcb/v1/jobs` at `api/endpoints/class-jobs-endpoint.php:37-50`; perm `create_item_permissions_check` gates on `wcb/post-jobs` (:1143-1145); `create_item()` (:506) sets pending/publish (:544-545), inserts (:593), returns 201 with `status`/`permalink` (:707-709).
 - **Credits are OPTIONAL Pro.** Both the front-door gate (`wcb_board_credit_cost` filter) and the Pro SDK consumer cost callable resolve through `BoardSettings::get()` which merges defaults, so a board with no saved settings reads cost 0 from both — free and consistent. `requires: pro:credits` only for step 10's monetized negative check.
 - **Board membership** uses `employer.stripe` / `employer.vercel` for the multi-board mirror check (step 3) — each must be creator/member of at least one group and NOT a member of another; a `manage_options` admin sees EVERY board (intentional bypass).

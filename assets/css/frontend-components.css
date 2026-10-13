@@ -1169,6 +1169,14 @@
 	color: var(--wcb-text-secondary);
 }
 
+.wcb-db-gate__title {
+	margin: 0;
+	font-size: var(--wcb-text-xl);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	line-height: var(--wcb-leading-tight, 1.25);
+}
+
 .wcb-db-gate p {
 	margin: 0;
 	color: var(--wcb-text-secondary);

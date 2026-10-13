@@ -16,10 +16,11 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 if ( ! is_user_logged_in() ) {
-	$wcb_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
-	$wcb_gate     = array(
+	$wcb_gate = array(
 		'icon'    => 'user',
-		'message' => __( 'Please sign in to access your candidate dashboard.', 'wp-career-board' ),
+		'title'   => __( 'Your candidate dashboard', 'wp-career-board' ),
+		'signup'  => \WCB\Admin\Pages::get_id( 'employer_registration_page' ),
+		'message' => __( 'Sign in to track your applications, resumes and job alerts.', 'wp-career-board' ),
 		'actions' => array(
 			array(
 				'label'   => __( 'Sign in', 'wp-career-board' ),
@@ -28,13 +29,6 @@ if ( ! is_user_logged_in() ) {
 			),
 		),
 	);
-	// Only offer an account where one can be made ("Anyone can register" on).
-	if ( $wcb_reg_page > 0 && ( get_option( 'users_can_register' ) || is_multisite() ) ) {
-		$wcb_gate['actions'][] = array(
-			'label' => __( 'Create an account', 'wp-career-board' ),
-			'url'   => (string) get_permalink( $wcb_reg_page ),
-		);
-	}
 	require WCB_DIR . 'templates/parts/dashboard-gate.php';
 	return;
 }
@@ -44,6 +38,7 @@ $wcb_can_access_candidate_dashboard = wp_is_ability_granted( 'wcb/access-candida
 if ( ! $wcb_can_access_candidate_dashboard ) {
 	$wcb_gate = array(
 		'icon'    => 'user-x',
+		'title'   => __( 'Your candidate dashboard', 'wp-career-board' ),
 		'message' => __( 'You do not have permission to view this dashboard.', 'wp-career-board' ),
 	);
 	require WCB_DIR . 'templates/parts/dashboard-gate.php';

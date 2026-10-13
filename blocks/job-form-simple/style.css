@@ -256,15 +256,6 @@
 
 /* ── Logged-out gate ─────────────────────────────────────────────────── */
 
-.wcb-form-simple__gate {
-	padding: var(--wcb-space-3xl) var(--wcb-space-2xl);
-	background: var(--wcb-bg-subtle);
-	border: 1px dashed var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	text-align: center;
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-}
 
 /* ── Toggle utilities — mirror the wizard's wcb-hidden / wcb-shown ─────*/
 

@@ -21,7 +21,9 @@ $wcb_role_labels = array(
 if ( ! is_user_logged_in() ) {
 	$wcb_gate = array(
 		'icon'    => 'briefcase',
-		'message' => __( 'Please sign in to access your dashboard.', 'wp-career-board' ),
+		'title'   => __( 'Employer dashboard', 'wp-career-board' ),
+		'signup'  => \WCB\Admin\Pages::get_id( 'employer_registration_page' ),
+		'message' => __( 'Sign in to post jobs and review applicants.', 'wp-career-board' ),
 		'actions' => array(
 			array(
 				'label'   => __( 'Sign in', 'wp-career-board' ),
@@ -41,6 +43,7 @@ if ( ! $wcb_can_manage ) {
 	$wcb_is_candidate = in_array( 'wcb_candidate', (array) wp_get_current_user()->roles, true );
 	$wcb_gate         = array(
 		'icon'    => 'briefcase',
+		'title'   => __( 'Employer dashboard', 'wp-career-board' ),
 		'message' => $wcb_is_candidate
 			? __( 'The employer dashboard is for employers. This is a candidate account: manage your applications and resumes from your candidate dashboard, or sign in with an employer account to hire.', 'wp-career-board' )
 			: __( 'The employer dashboard is for employers. If you are hiring, register as an employer. Otherwise, manage your applications and resumes from your candidate dashboard.', 'wp-career-board' ),

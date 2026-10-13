@@ -26,22 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
-	echo '<p class="wcb-form-simple__gate">';
-	if ( ! is_user_logged_in() ) {
-		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );
-	} elseif ( in_array( 'wcb_candidate', (array) wp_get_current_user()->roles, true ) ) {
-		echo esc_html__( 'This is a candidate account. To post jobs, sign in with an employer account.', 'wp-career-board' );
-	} elseif ( $wcb_emp_reg_page > 0 ) {
-		printf(
-			/* translators: %s: employer registration link. */
-			esc_html__( 'Posting a job is for employers. %s to start hiring.', 'wp-career-board' ),
-			'<a href="' . esc_url( (string) get_permalink( $wcb_emp_reg_page ) ) . '">' . esc_html__( 'Register as an employer', 'wp-career-board' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		);
-	} else {
-		echo esc_html__( 'Posting a job is for employers.', 'wp-career-board' );
-	}
-	echo '</p>';
+	require WCB_DIR . 'templates/parts/post-job-gate.php';
 	return;
 }
 
