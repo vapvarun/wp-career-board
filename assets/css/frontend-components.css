@@ -331,6 +331,10 @@
 }
 
 /* Privacy & My Data (templates/parts/privacy-settings.php, both dashboards). */
+.wcb-dashboard .wcb-privacy-panel {
+	gap: var(--wcb-space-xl); /* export and delete read as two separate decisions */
+}
+
 .wcb-privacy-note {
 	display: none;
 	margin: 0;

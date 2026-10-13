@@ -207,12 +207,22 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* In the My Jobs toolbar the search takes the room left after the chips. */
+.wcb-filter-bar .wcb-job-search {
+	flex: 1 1 8rem;
+	min-width: 8rem;
+	min-height: 40px;
+}
+
 /* Company filter (employers running several companies). Base look is the shared
  * .wcb-sort-select; on phones it takes the full row like the search field. */
 @media (max-width: 640px) {
-	.wcb-dashboard .wcb-page-header .wcb-company-filter {
+	.wcb-dashboard .wcb-page-header .wcb-company-filter,
+	.wcb-dashboard .wcb-filter-bar .wcb-company-filter,
+	.wcb-filter-bar .wcb-job-search {
 		width: 100%;
 		max-width: none;
+		flex-basis: 100%;
 	}
 }
 
@@ -254,6 +264,86 @@
 	gap: var(--wcb-space-sm);
 	flex-shrink: 0;
 	flex-wrap: wrap;
+}
+
+/* My Jobs row: fixed columns so every title gets the same room and every
+   status badge starts at the same x (dot | title | facts | actions). */
+.wcb-jobs-list .wcb-job-row {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) 15rem auto;
+	align-items: center;
+}
+
+.wcb-job-facts {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
+	min-width: 0;
+}
+
+/* "More actions" menu on a job row (a <details>). */
+.wcb-row-menu {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px; /* the toggle's width; a closed <details> otherwise sized itself wider */
+}
+
+.wcb-dashboard .wcb-row-menu__toggle {
+	list-style: none;
+	box-sizing: border-box;
+	width: 40px;
+	min-width: 40px;
+	padding-inline: 0;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.wcb-row-menu__toggle::-webkit-details-marker {
+	display: none;
+}
+
+.wcb-row-menu__list {
+	position: absolute;
+	inset-inline-end: 0;
+	top: calc(100% + var(--wcb-space-xs));
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	min-width: 11rem;
+	padding: var(--wcb-space-xs);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	box-shadow: var(--wcb-shadow-md);
+}
+
+.wcb-row-menu__item {
+	display: flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0 var(--wcb-space-md);
+	border: 0;
+	border-radius: var(--wcb-radius-sm);
+	background: transparent;
+	color: var(--wcb-contrast);
+	font: inherit;
+	font-size: var(--wcb-text-sm);
+	text-align: start;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.wcb-row-menu__item:hover,
+.wcb-row-menu__item:focus-visible {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-contrast);
+	text-decoration: none;
+}
+
+.wcb-row-menu__item--danger,
+.wcb-row-menu__item--danger:hover {
+	color: var(--wcb-danger-fg, #991b1b);
 }
 
 /* Why a job closed when its owner didn't close it ("company removed"). */
@@ -340,7 +430,7 @@
 
 /* Apps chip (jobs list) */
 .wcb-apps-chip {
-	font-size: var(--wcb-text-base);
+	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	color: var(--wcb-text-secondary);
 	background: var(--wcb-bg-hover);
@@ -1063,17 +1153,26 @@
 		white-space: normal;
 	}
 
-	/* flex-wrap left an uneven 3+1 row (button widths vary, so 4 actions could
-	   wrap 3-then-1) — a 2-column grid keeps action rows even. */
-	.wcb-job-actions {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		width: 100%;
+	/* Title on its own line, then status/applicants and the two actions on
+	   one line: about 110px a job instead of a 2x3 button grid. */
+	.wcb-jobs-list .wcb-job-row {
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		grid-template-areas:
+			"dot info info"
+			". facts actions";
+		row-gap: var(--wcb-space-sm);
+		column-gap: var(--wcb-space-sm);
+		padding: var(--wcb-space-md);
 	}
 
-	.wcb-job-actions .wcb-btn {
-		width: 100%;
+	.wcb-jobs-list .wcb-job-actions .wcb-btn:not(.wcb-row-menu__toggle) {
+		padding-inline: var(--wcb-space-md);
 	}
+
+	.wcb-jobs-list .wcb-job-row > .wcb-status-dot { grid-area: dot; }
+	.wcb-jobs-list .wcb-job-row > .wcb-job-info   { grid-area: info; }
+	.wcb-jobs-list .wcb-job-row > .wcb-job-facts  { grid-area: facts; }
+	.wcb-jobs-list .wcb-job-row > .wcb-job-actions { grid-area: actions; flex-wrap: nowrap; }
 
 	/* AI rank button spans the list width when the split panel stacks */
 	.wcb-ai-rank-btn {

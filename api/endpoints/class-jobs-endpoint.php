@@ -1372,53 +1372,7 @@ final class JobsEndpoint extends RestController {
 		$wcb_question_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_question_groups ): array {
-				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
-				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
-
-				return array(
-					'id'                 => $p->ID,
-					'candidate_id'       => $candidate_id,
-					'applicant_name'     => $candidate_user
-						? $candidate_user->display_name
-						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
-					'applicant_email'    => $candidate_user
-						? $candidate_user->user_email
-						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
-					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					// Answers to the job's questions, labelled, for the applicant detail.
-					'custom_fields'      => \WCB\Core\FormCustomFields::labelled_values( $wcb_question_groups, $p->ID, 'post_meta', \WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX ),
-					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
-					'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
-					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
-					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
-					// Raw ISO 8601 for any client-side date logic; localised sibling
-					// for display. Never hand a translated date string to new Date().
-					'submitted_at'       => get_the_date( 'c', $p ),
-					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
-					'resume_url'         => ( static function () use ( $p ): ?string {
-						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
-						if ( $att_id <= 0 ) {
-							return null;
-						}
-						$url = \WCB\Core\PrivateFiles::url( $att_id );
-						return '' !== $url ? $url : null;
-					} )(),
-					'resume_permalink'   => ( static function () use ( $p ): ?string {
-						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
-						if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
-							return null;
-						}
-						$resume_post = get_post( $resume_id );
-						if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
-							return null;
-						}
-						$url = get_permalink( $resume_id );
-						return false !== $url ? (string) $url : null;
-					} )(),
-				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
-			},
+			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups ),
 			$posts
 		);
 
@@ -1436,6 +1390,67 @@ final class JobsEndpoint extends RestController {
 				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
 			)
 		);
+	}
+
+	/**
+	 * One application as the employer sees it: applicant, cover letter, answers
+	 * to the job's questions, rating, AI fit, resume links and status.
+	 *
+	 * Shared by GET /jobs/{id}/applications and GET /employers/me/applications,
+	 * so the applicant detail has the same fields whichever list it came from.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post             $p      Application post.
+	 * @param array<int, mixed>    $groups The job's question groups (wcb_application_form_fields_groups).
+	 * @return array<string, mixed>
+	 */
+	public static function employer_application_item( \WP_Post $p, array $groups ): array {
+		$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
+		$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
+		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
+
+		return array(
+			'id'                 => $p->ID,
+			'candidate_id'       => $candidate_id,
+			'applicant_name'     => $candidate_user
+				? $candidate_user->display_name
+				: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
+			'applicant_email'    => $candidate_user
+				? $candidate_user->user_email
+				: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
+			'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+			// Answers to the job's questions, labelled, for the applicant detail.
+			'custom_fields'      => \WCB\Core\FormCustomFields::labelled_values( $groups, $p->ID, 'post_meta', \WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX ),
+			'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+			'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
+			'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+			'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
+			// Raw ISO 8601 for any client-side date logic; localised sibling
+			// for display. Never hand a translated date string to new Date().
+			'submitted_at'       => get_the_date( 'c', $p ),
+			'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
+			'resume_url'         => ( static function () use ( $p ): ?string {
+				$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
+				if ( $att_id <= 0 ) {
+					return null;
+				}
+				$url = \WCB\Core\PrivateFiles::url( $att_id );
+				return '' !== $url ? $url : null;
+			} )(),
+			'resume_permalink'   => ( static function () use ( $p ): ?string {
+				$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
+				if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+					return null;
+				}
+				$resume_post = get_post( $resume_id );
+				if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
+					return null;
+				}
+				$url = get_permalink( $resume_id );
+				return false !== $url ? (string) $url : null;
+			} )(),
+		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

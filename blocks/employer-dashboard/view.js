@@ -154,6 +154,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return labels[ slug ] || slug;
 		},
 		// The email field differs from the saved one: ask for the current password.
+		// Names the row's "more actions" button for screen readers.
+		get rowMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().job.title );
+		},
 		get emailChanged() {
 			return state.accountEmail.trim() !== state.accountEmailSaved;
 		},
@@ -425,21 +429,26 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return fmtNumber( state.ssrTotalApps || 0 );
 		},
 		get hasApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
+			return ! state.appsLoading && state.applications.length > 0;
 		},
-		get noJobSelected() {
+		// No job picked: every job's applications (GET /employers/me/applications).
+		get isAllApps() {
 			return ! state.appsJobId;
 		},
-		// Job-wide chrome (filters, layout, export) follows the job's total, not
-		// the filtered page: a zero-count status must not hide the way back.
+		// Filters follow the list's total, not the filtered page: a zero-count
+		// status must not hide the way back.
 		get jobHasApplications() {
-			return state.appsJobId > 0 && ! state.appsError && state.appsCounts.total > 0;
+			return ! state.appsError && state.appsCounts.total > 0;
+		},
+		// Board view and CSV export work on one job's applications.
+		get oneJobHasApplications() {
+			return state.appsJobId > 0 && state.jobHasApplications;
 		},
 		get noFilteredApplications() {
 			return state.jobHasApplications && ! state.appsLoading && 0 === state.applications.length;
 		},
 		get noApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
+			return state.appsLoaded && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
 		},
 
 		// Application filter.
@@ -780,9 +789,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
 			}
 
-			if ( state.appsJobId > 0 ) {
-				yield actions.loadApplications();
-			}
+			yield actions.loadApplications();
 
 			// Tab-restoration prefetch: when sessionStorage restores the
 			// user to a Saved-* tab, the corresponding switchToSaved*
@@ -1168,6 +1175,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.applications  = [];
 				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
 			}
+			// All jobs follows the company filter.
+			if ( ! state.appsJobId ) {
+				yield actions.loadApplications();
+			}
 		},
 
 		setJobSearch( event ) {
@@ -1285,9 +1296,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.appsJobId     = id;
 			state.selectedAppId = null;
 			state.appsFilter    = 'all';
+			state.appsLayout    = id ? state.appsLayout : 'list';
 			state.currentView   = 'applications';
 			views.go( 'applications' );
-			sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
+			try {
+				if ( id ) {
+					sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
+				} else {
+					sessionStorage.removeItem( 'wcb_employer_apps_job' );
+				}
+			} catch {}
 			yield actions.loadApplications();
 		},
 
@@ -1299,16 +1317,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// filter), plus per-status totals for the whole job. `append` adds the
 		// next page for Load more.
 		*loadApplications( append = false ) {
-			if ( ! state.appsJobId ) {
-				return;
-			}
-
 			const flag = append ? 'appsLoadingMore' : 'appsLoading';
 			state[ flag ]   = true;
 			state.appsError = '';
 
 			try {
-				const url = new URL( state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications' );
+				// One job's applications, or every job's (newest first, company filter applied).
+				const url = new URL( state.appsJobId
+					? state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications'
+					: state.apiBase + '/employers/me/applications' );
+				if ( ! state.appsJobId && state.companyFilter ) {
+					url.searchParams.set( 'company_id', String( state.companyFilter ) );
+				}
 				url.searchParams.set( 'per_page', String( APPS_PER_PAGE ) );
 				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
 				if ( state.appsFilter !== 'all' ) {
@@ -1341,6 +1361,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				state.appsPage     = append ? state.appsPage + 1 : 1;
 				state.appsHasMore  = !! appsData?.has_more;
 				state.appsCounts   = appsData?.counts ?? { total: 0, by_status: {} };
+				state.appsLoaded   = true;
 				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
 					state.aiRanked = true;
 				}
@@ -1606,6 +1627,38 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} catch {
 				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
+		},
+
+		// My Jobs "more actions" menus (<details>): one open at a time, closed by
+		// Escape, an outside click or picking an item.
+		onRowMenuToggle( event ) {
+			if ( ! event.target.open ) {
+				return;
+			}
+			document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
+				if ( menu !== event.target ) {
+					menu.open = false;
+				}
+			} );
+		},
+		onRowMenuKeydown( event ) {
+			if ( 'Escape' === event.key && event.currentTarget.open ) {
+				event.currentTarget.open = false;
+				event.currentTarget.querySelector( 'summary' ).focus();
+			}
+		},
+		closeRowMenu( event ) {
+			const menu = event.target.closest( '.wcb-row-menu' );
+			if ( menu && event.target.closest( '.wcb-row-menu__item' ) ) {
+				menu.open = false;
+			}
+		},
+		closeRowMenusOutside( event ) {
+			document.querySelectorAll( '.wcb-row-menu[open]' ).forEach( ( menu ) => {
+				if ( ! menu.contains( event.target ) ) {
+					menu.open = false;
+				}
+			} );
 		},
 
 		// The server said no (402 credits, 409 company removed): show its reason.

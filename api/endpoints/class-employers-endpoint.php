@@ -1027,6 +1027,30 @@ final class EmployersEndpoint extends RestController {
 		global $wpdb;
 		$from = \WCB\Modules\Employers\EmployersModule::applications_scope_sql( get_current_user_id(), $company_id );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $from is prepared; the page query adds only LIMIT/OFFSET.
+		// Per-status totals over every job in scope (the Applications chips), before the status filter.
+		$by_status = $wpdb->get_results(
+			"SELECT COALESCE( NULLIF( st.meta_value, '' ), 'submitted' ) AS status, COUNT(*) AS cnt
+			 FROM ( SELECT app.ID {$from} ) scoped
+			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = scoped.ID AND st.meta_key = '_wcb_status'
+			 GROUP BY status",
+			ARRAY_A
+		);
+		$counts    = array(
+			'total'     => 0,
+			'by_status' => array(),
+		);
+		foreach ( (array) $by_status as $row ) {
+			$counts['by_status'][ (string) $row['status'] ] = (int) $row['cnt'];
+			$counts['total']                               += (int) $row['cnt'];
+		}
+
+		$status = sanitize_key( (string) $request->get_param( 'status' ) );
+		if ( '' !== $status ) {
+			$from .= $wpdb->prepare(
+				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = %s",
+				$status
+			);
+		}
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
@@ -1040,7 +1064,14 @@ final class EmployersEndpoint extends RestController {
 		);
 		// phpcs:enable
 
-		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
+		$response = $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
+		$data     = (array) $response->get_data();
+		// Same shape as a job's list (JobsEndpoint::get_applications), so the
+		// Applications view pages and counts "All jobs" the same way (1.8.1).
+		$data['has_more'] = ( $paged * $per_page ) < $total;
+		$data['counts']   = $counts;
+		$response->set_data( $data );
+		return $response;
 	}
 
 	/**
@@ -1100,40 +1131,17 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
-				$app_id         = (int) $row->ID;
-				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app_id );
-				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
-
-				$prepared = array(
-					'id'                 => $app_id,
-					'job_id'             => $job_id,
-					'job_title'          => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-					'applicant_name'     => $candidate_user
-					? $candidate_user->display_name
-					: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
-					'applicant_email'    => $candidate_user
-					? $candidate_user->user_email
-					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
-					// dashboard sorts and date-filters it with new Date() in JS. The
-					// localised display string is a SEPARATE sibling so a translated
-					// month name never reaches new Date() (which would yield NaN and
-					// silently break the recency sort + "new this week" stat).
-					'submitted_at'       => get_the_date( 'c', $app_id ),
-					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
-				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
+				$app_id = (int) $row->ID;
+				$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
 					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 				}
-				$prepared['custom_fields'] = \WCB\Core\FormCustomFields::labelled_values(
-					$wcb_groups_memo[ $job_id ],
-					$app_id,
-					'post_meta',
-					ApplicationsEndpoint::FIELD_META_PREFIX
-				);
+				// Same fields as a job's own list (JobsEndpoint), plus which job it is.
+				$prepared = array(
+					'job_id'    => $job_id,
+					'job_title' => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
+				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ] );
 
 				$application_post = get_post( $app_id );
 
