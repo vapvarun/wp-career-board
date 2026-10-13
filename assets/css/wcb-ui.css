@@ -2219,7 +2219,10 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 	margin-inline: auto;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	border-radius: var(--wcb-radius-lg);
-	background: var(--wcb-danger);
+	/* White label stays; the fill is darkened (lightness capped, as
+	 * --wcb-primary-strong does) so any theme's danger red keeps 4.5:1. */
+	background: #b91c1c;
+	background: oklch(from var(--wcb-danger) min(l, 0.5) c h);
 	color: #ffffff;
 	font-size: var(--wcb-text-sm);
 	line-height: 1.4;
