@@ -127,7 +127,7 @@ $wcb_has_application = (bool) get_posts(
 		'posts_per_page' => 1,
 		'no_found_rows'  => true,
 		'meta_key'       => '_wcb_candidate_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-		'meta_value'     => $wcb_candidate_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		'meta_value'     => (string) $wcb_candidate_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 	)
 );
 $wcb_first_time      = ! $wcb_has_application && 0 === $wcb_saved_jobs_count && 0 === (int) ( $wcb_resumes_state['resumeCount'] ?? 0 );
