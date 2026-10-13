@@ -141,9 +141,12 @@ $wcb_r         = wcb_jcp_rest( 'POST', '/wcb/v1/jobs', $wcb_job( 'Clinic Recepti
 $wcb_desk      = (int) ( $wcb_r->get_data()['id'] ?? 0 );
 $wcb_created[] = $wcb_desk;
 wp_update_post( array( 'ID' => $wcb_nurse, 'post_status' => 'publish' ) );
+wp_update_post( array( 'ID' => $wcb_desk, 'post_status' => 'pending' ) );
+$wcb_desk_was = (string) get_post_status( $wcb_desk );
 wp_set_current_user( $wcb_admin );
 wp_trash_post( $wcb_co_b );
-wcb_assert( 'wcb_closed' === get_post_status( $wcb_nurse ) && 'wcb_closed' === get_post_status( $wcb_desk ), 'trashing a company closes its live and pending jobs' );
+wcb_assert( 'wcb_closed' === get_post_status( $wcb_nurse ), 'trashing a company closes its live job' );
+wcb_assert( in_array( get_post_status( $wcb_desk ), array( 'wcb_closed', 'draft' ), true ) && ( 'pending' !== $wcb_desk_was || 'draft' === get_post_status( $wcb_desk ) ), "a job still waiting for review goes back to draft, not to Closed (reopening Closed skips review) (was {$wcb_desk_was}, now " . get_post_status( $wcb_desk ) . ')' );
 wcb_assert( 'publish' === get_post_status( $wcb_anim ) || 'pending' === get_post_status( $wcb_anim ), "another company's job is untouched" );
 $wcb_rows = (array) ( wcb_jcp_rest( 'GET', '/wcb/v1/employers/me/jobs', array( 'per_page' => 50 ), $wcb_agency )->get_data()['jobs'] ?? array() );
 $wcb_row  = current( wp_list_filter( $wcb_rows, array( 'id' => $wcb_nurse ) ) );
@@ -158,7 +161,7 @@ wcb_assert( 200 === $wcb_r->get_status() && 'wcb_closed' !== get_post_status( $w
 
 wp_set_current_user( $wcb_admin );
 wp_untrash_post( $wcb_co_b );
-wcb_assert( 'wcb_closed' === get_post_status( $wcb_desk ), 'restoring the company does not reopen its jobs' );
+wcb_assert( 'publish' !== get_post_status( $wcb_desk ), 'restoring the company does not put its jobs back on the site' );
 
 // 9. A trashed main company is not offered or used.
 wp_trash_post( $wcb_co_a );
@@ -167,6 +170,16 @@ $wcb_r         = wcb_jcp_rest( 'POST', '/wcb/v1/jobs', $wcb_job( 'Night Shift Po
 $wcb_porter    = (int) ( $wcb_r->get_data()['id'] ?? 0 );
 $wcb_created[] = $wcb_porter;
 wcb_assert( $wcb_co_a !== $wcb_company_of( $wcb_porter ), 'a new job does not go to the trashed main company' );
+
+// 10. Deleting an employer: reviewed jobs close, unreviewed ones go to draft.
+$wcb_leaver = $wcb_user( 'jcp-leaver', 'wcb_employer' );
+$wcb_live   = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'Payroll Specialist', 'post_author' => $wcb_leaver ) );
+$wcb_queued = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'post_title' => 'Accounts Assistant', 'post_author' => $wcb_leaver ) );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( $wcb_leaver );
+wcb_assert( 'wcb_closed' === get_post_status( $wcb_live ) && 'draft' === get_post_status( $wcb_queued ), "a deleted employer's live job closes and their unreviewed job goes to draft" );
+$wcb_created[] = $wcb_live;
+$wcb_created[] = $wcb_queued;
 
 // Teardown.
 foreach ( array_filter( $wcb_created ) as $wcb_id ) {

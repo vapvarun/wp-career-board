@@ -144,7 +144,7 @@ final class EmployersModule {
 	}
 
 	/**
-	 * Close every open job of a company and note why.
+	 * Take a removed company's jobs off the site and note why.
 	 *
 	 * @since 1.8.1
 	 *
@@ -152,16 +152,19 @@ final class EmployersModule {
 	 * @return void
 	 */
 	public static function close_company_jobs( int $company_id ): void {
+		$of_company = array(
+			'post_type'  => 'wcb_job',
+			'meta_key'   => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value' => (string) $company_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		);
+		// Only reviewed jobs close: reopening a closed job skips moderation, so a
+		// job still waiting for review goes back to draft and is reviewed as usual.
 		self::move_posts(
-			array(
-				'post_type'   => 'wcb_job',
-				'post_status' => array( 'publish', 'pending', 'draft', 'future', 'wcb_expired' ),
-				'meta_key'    => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'  => (string) $company_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			),
+			$of_company + array( 'post_status' => array( 'publish', 'wcb_expired' ) ),
 			'wcb_closed',
 			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
 		);
+		self::move_posts( $of_company + array( 'post_status' => array( 'pending', 'future' ) ), 'draft' );
 	}
 
 	/**
@@ -218,11 +221,14 @@ final class EmployersModule {
 		if ( $reassign ) {
 			return;
 		}
+		// Reviewed jobs close; unreviewed ones go to draft, because reopening a
+		// closed job skips moderation and a colleague of the company could.
 		$targets = array(
-			'wcb_job'     => array( 'wcb_closed', array( 'publish', 'pending', 'draft', 'future', 'wcb_expired' ) ),
-			'wcb_company' => array( 'draft', array( 'publish', 'pending', 'future' ) ),
+			array( 'wcb_job', 'wcb_closed', array( 'publish', 'wcb_expired' ) ),
+			array( 'wcb_job', 'draft', array( 'pending', 'future' ) ),
+			array( 'wcb_company', 'draft', array( 'publish', 'pending', 'future' ) ),
 		);
-		foreach ( $targets as $post_type => list( $new_status, $from ) ) {
+		foreach ( $targets as list( $post_type, $new_status, $from ) ) {
 			self::move_posts(
 				array(
 					'post_type'   => $post_type,
