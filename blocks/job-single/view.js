@@ -14,7 +14,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { copyText } from '@wcb/ui';
+import { copyText, showError } from '@wcb/ui';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -172,7 +172,7 @@ const { state } = store( 'wcb-job-single', {
 					}
 				}
 			} catch {
-				// Silent — the candidate can still write the letter manually.
+				showError( t( 'connectionError', 'Connection error. Please check your network and try again.' ) );
 			} finally {
 				state.coverLoading = false;
 			}
@@ -234,7 +234,7 @@ const { state } = store( 'wcb-job-single', {
 					state.alertFromJobSaved = true;
 				}
 			} catch {
-				// Silent.
+				showError( t( 'connectionError', 'Connection error. Please check your network and try again.' ) );
 			} finally {
 				state.alertFromJobSaving = false;
 			}

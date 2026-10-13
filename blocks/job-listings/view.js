@@ -494,7 +494,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					state.alertError = data?.message || '';
 				}
 			} catch {
-				// Network failure: the button stays enabled to retry.
+				state.alertError = t( 'alertNetworkError', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.alertSaving = false;
 			}

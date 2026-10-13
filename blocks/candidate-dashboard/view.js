@@ -16,7 +16,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { tabRouter } from '@wcb/ui';
+import { showError, tabRouter } from '@wcb/ui';
 
 /**
  * Tabs that can appear in the URL hash (first = default). Anything else is
@@ -465,7 +465,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.bookmarksLoaded = true;
 				}
 			} catch {
-				// Non-critical — overview saved jobs panel will show empty state.
+				// wcb-allow-silent: background prefetch; Non-critical — overview saved jobs panel will show empty state.
 			}
 
 			// Prefetch alerts count for Overview stat card and nav badge.
@@ -484,7 +484,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					} ) );
 				}
 			} catch {
-				// Non-critical.
+				// wcb-allow-silent: background prefetch; Non-critical.
 			}
 
 			// If resumes tab was restored from sessionStorage, fetch resumes now.
@@ -653,7 +653,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					score_label: t( 'scoreFormat', '%1$s%' ).replace( '%1$s', formatNumber( r.score_pct ) ),
 				} ) );
 			} catch {
-				// Silent — recommendations are non-critical.
+				// wcb-allow-silent: background prefetch; Silent — recommendations are non-critical.
 			} finally {
 				state.recsLoading = false;
 			}
@@ -685,7 +685,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					} );
 				}
 			} catch {
-				// Silent fail - user can retry.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -715,7 +715,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					} );
 				}
 			} catch {
-				// Silent fail - user can retry.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -956,7 +956,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.alerts = state.alerts.filter( ( a ) => a.id !== alertId );
 				}
 			} catch {
-				// Silent — row stays visible.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -980,7 +980,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					}
 				);
 			} catch {
-				// Silent — optimistic update already applied.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 

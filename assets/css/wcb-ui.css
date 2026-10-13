@@ -2207,3 +2207,26 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 		visibility: visible;
 	}
 }
+
+/* Request-failed toast (@wcb/ui showError). */
+.wcb-toast {
+	position: fixed;
+	inset-block-end: var(--wcb-space-xl);
+	inset-inline: var(--wcb-space-lg);
+	z-index: 100000;
+	box-sizing: border-box;
+	max-width: 32rem;
+	margin-inline: auto;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-lg);
+	background: var(--wcb-danger);
+	color: #ffffff;
+	font-size: var(--wcb-text-sm);
+	line-height: 1.4;
+	text-align: center;
+	box-shadow: var(--wcb-shadow-lg);
+}
+
+.wcb-toast[hidden] {
+	display: none;
+}

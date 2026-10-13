@@ -462,12 +462,13 @@ $wcb_state = array(
 			)
 		),
 		array(
-			'bookmarkRemove' => __( 'Saved', 'wp-career-board' ),
-			'bookmarkAdd'    => __( 'Save job', 'wp-career-board' ),
-			'anyLabel'       => __( 'Any', 'wp-career-board' ),
+			'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
+			'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
+			'anyLabel'          => __( 'Any', 'wp-career-board' ),
 			// Label for the removable "Remote only" pill. The pill used to
 			// print the raw filter value, so every locale saw a bare "1".
-			'remoteLabel'    => __( 'Remote only', 'wp-career-board' ),
+			'remoteLabel'       => __( 'Remote only', 'wp-career-board' ),
+			'alertNetworkError' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		)
 	),
 );

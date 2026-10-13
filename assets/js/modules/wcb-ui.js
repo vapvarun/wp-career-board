@@ -114,3 +114,25 @@ export function tabRouter( valid, storageKey ) {
 		},
 	};
 }
+
+/**
+ * Tell the member a request failed. One toast for every block, so a failed
+ * save, remove or status change never passes silently.
+ *
+ * @param {string} message Already-translated text (from the block's state.i18n).
+ */
+export function showError( message ) {
+	let toast = document.querySelector( '.wcb-toast' );
+	if ( ! toast ) {
+		toast = document.createElement( 'div' );
+		toast.className = 'wcb-toast';
+		toast.setAttribute( 'role', 'alert' );
+		document.body.appendChild( toast );
+	}
+	toast.textContent = message;
+	toast.hidden = false;
+	window.clearTimeout( toast.wcbTimer );
+	toast.wcbTimer = window.setTimeout( () => {
+		toast.hidden = true;
+	}, 5000 );
+}

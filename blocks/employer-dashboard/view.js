@@ -6,7 +6,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { tabRouter } from '@wcb/ui';
+import { showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -1039,7 +1039,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedJobs = state.savedJobs.filter( function( j ) { return j.id !== jobId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1058,7 +1058,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedCompanies = state.savedCompanies.filter( function( c ) { return c.id !== companyId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1077,7 +1077,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedResumes = state.savedResumes.filter( function( r ) { return r.id !== resumeId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1478,7 +1478,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				}
 			} catch {
-				// Network error — status unchanged.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1517,7 +1517,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				}
 			} catch {
-				// Network error — status unchanged.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
