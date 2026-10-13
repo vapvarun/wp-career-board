@@ -359,6 +359,16 @@ document.addEventListener( 'wcb:results', ( event ) => {
 } );
 ```
 
+## Deadlines and term order
+
+| Hook or helper | Args | Purpose |
+|---|---|---|
+| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
+| `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
+| `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
+
+The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen.
+
 ## Listening pattern
 
 ```php

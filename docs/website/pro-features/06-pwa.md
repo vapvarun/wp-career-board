@@ -1,5 +1,7 @@
 # Progressive web app
 
+> **PRO** - Requires WP Career Board Pro.
+
 Your visitors can install your job board on a phone or desktop like an app. This needs WP Career Board Pro, and there is nothing to switch on.
 
 ## What you can do

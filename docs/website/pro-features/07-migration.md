@@ -1,5 +1,7 @@
 # CSV import
 
+> **PRO** - Requires WP Career Board Pro.
+
 You can import jobs in bulk from a CSV file. This needs WP Career Board Pro.
 
 ## What you can do

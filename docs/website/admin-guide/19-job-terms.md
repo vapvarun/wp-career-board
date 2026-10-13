@@ -30,4 +30,4 @@ Employers pick from the lists you keep. A job submission cannot create a new cat
 
 ## For developers
 
-The order is stored as the integer term meta `wcb_order`, which is available in the REST API. To list these terms in the same order the plugin uses, call `WCB\Core\Taxonomy::options( $taxonomy )`. See the [Hooks Reference](../../HOOKS.md) section "Deadlines, term order and resume links".
+The order is stored as the integer term meta `wcb_order`, which is available in the REST API. To list these terms in the same order the plugin uses, call `WCB\Core\Taxonomy::options( $taxonomy )`. See the [Hooks Reference](../developer-guide/02-hooks-reference.md) section "Deadlines and term order".

@@ -1,4 +1,6 @@
-# WP Career Board — Shortcode Reference
+# WP Career Board - Shortcode Reference
+
+> The maintained user-facing version of this reference is [website/for-employers/11-page-builder-embeds.md](website/for-employers/11-page-builder-embeds.md). This file is the developer working copy; if the two differ, the website page wins.
 
 Every block in WP Career Board is also exposed as a shortcode for sites
 running classic editors, page builders (Elementor, Divi, Bricks, Beaver
@@ -6,7 +8,7 @@ Builder), or theme template hooks. Shortcodes forward attributes 1:1 to the
 underlying block, so anything you can do in the block inserter you can do
 from a shortcode field.
 
-> **All shortcode attributes are forwarded** — numeric strings cast to
+> **All shortcode attributes are forwarded** - numeric strings cast to
 > `int`, `"true"`/`"false"` cast to `bool`, everything else stays a
 > `string`. So `[wcb_job_listings perPage="6" boardId="42"]` produces the
 > same output as the block with `{perPage: 6, boardId: 42}`.
@@ -21,11 +23,11 @@ from a shortcode field.
 | `[wcb_widget id="application/applicant-card" application_id="123"]` | Render any registered widget on a public page | ![](screenshots/wcb_widget.png) |
 
 The existing job-listing/job-search/dashboard shortcodes also gained
-attribute forwarding in 1.1.0 — see "Shortcode attributes" below.
+attribute forwarding in 1.1.0 - see "Shortcode attributes" below.
 
 ---
 
-## New in 1.2.0 — full block-to-shortcode coverage
+## New in 1.2.0 - full block-to-shortcode coverage
 
 Every frontend block in Free now ships with a matching shortcode so page
 builders work without leaving their surface. Five blocks that previously
@@ -55,15 +57,15 @@ had no shortcode wrapper (`featured-jobs`, `job-filters`, `job-search-hero`,
 An attribute the block does not declare is ignored. The attributes above are the ones each block's `block.json` and `render.php` read. Shortcode attribute names are matched without regard to case, so `perpage="9"` works too.
 
 For blocks with context-bound attributes (`jobId`, `companyId`), pass the
-attribute when the host page doesn't provide a queried-post context — e.g.
+attribute when the host page doesn't provide a queried-post context - e.g.
 on a custom Elementor page that's not the single-job template.
 
 ---
 
-## `[wcb_job_form_simple]` — Single-Page Job Form
+## `[wcb_job_form_simple]` - Single-Page Job Form
 
 A single-page sibling of the multi-step wizard (`[wcb_job_form]`). Every
-field on one screen — useful for sidebars, modal embeds, partner pages,
+field on one screen - useful for sidebars, modal embeds, partner pages,
 single-page sites, and classic themes without much vertical real estate.
 
 Submits to the same `POST /wcb/v1/jobs` REST endpoint as the wizard and
@@ -74,7 +76,7 @@ honours the same field hooks (`wcb_job_form_fields`).
 | Name | Type | Default | What it does |
 |------|------|---------|--------------|
 | `boardId` | int | `0` | Scope the form to a specific board (`wcb_board` post id). When set, the new job is created on that board. `0` means "no board". |
-| `compact` | bool | `false` | Render the dense layout (smaller paddings, closer field rhythm) — good for sidebar embeds. |
+| `compact` | bool | `false` | Render the dense layout (smaller paddings, closer field rhythm) - good for sidebar embeds. |
 
 ### Examples
 
@@ -86,18 +88,18 @@ honours the same field hooks (`wcb_job_form_fields`).
 
 ### Hooks
 
-- `wcb_job_form_fields` — filter the form's field-group schema (shared with the wizard).
-- `wcb_job_form_simple_initial_state` — extend the Interactivity API state.
-- `wcb_job_form_simple_extra_fields` — render extra inputs after the built-in fields.
+- `wcb_job_form_fields` - filter the form's field-group schema (shared with the wizard).
+- `wcb_job_form_simple_initial_state` - extend the Interactivity API state.
+- `wcb_job_form_simple_extra_fields` - render extra inputs after the built-in fields.
 
 ### When to use this vs. `[wcb_job_form]`
 
-- **Wizard (`[wcb_job_form]`)** — best for sites where job posting is the primary CTA on its own page. Steps reduce cognitive load on long forms.
-- **Single-page (`[wcb_job_form_simple]`)** — best when the form lives inside another flow (onboarding, modal, sidebar) where steps would feel heavy.
+- **Wizard (`[wcb_job_form]`)** - best for sites where job posting is the primary CTA on its own page. Steps reduce cognitive load on long forms.
+- **Single-page (`[wcb_job_form_simple]`)** - best when the form lives inside another flow (onboarding, modal, sidebar) where steps would feel heavy.
 
 ---
 
-## `[wcb_widget]` — Mount Any Registered Widget on a Page
+## `[wcb_widget]` - Mount Any Registered Widget on a Page
 
 Renders any widget registered via `WCB\Core\Widgets\WidgetRegistry`. Every
 attribute other than `id` is forwarded to the widget's render args, so the
@@ -109,7 +111,7 @@ page.
 | Name | Type | Default | What it does |
 |------|------|---------|--------------|
 | `id` | string | *(required)* | Widget id, e.g. `application/applicant-card`. |
-| *(any other key)* | string | — | Forwarded to the widget. Common: `application_id`, `job_id`, `user_id`. |
+| *(any other key)* | string | - | Forwarded to the widget. Common: `application_id`, `job_id`, `user_id`. |
 
 ### Built-in widget IDs
 
@@ -149,10 +151,10 @@ add_action( 'init', function () {
 
 ## Existing shortcodes
 
-All of these wrap a block. Every block attribute is forwarded — see each
+All of these wrap a block. Every block attribute is forwarded - see each
 block's `block.json` for the full list.
 
-### `[wcb_job_listings]` — Job Listings Grid
+### `[wcb_job_listings]` - Job Listings Grid
 
 Reactive job grid with a **Load More** next-page link (`/find-jobs/page/2/`, so the pages work without JavaScript), a bookmark toggle and chip-bar filters.
 
@@ -184,7 +186,7 @@ location and job-type selects, use `[wcb_job_search_hero]`.
 [wcb_job_search]
 ```
 
-### `[wcb_job_form]` — Multi-Step Wizard
+### `[wcb_job_form]` - Multi-Step Wizard
 
 Multi-step job-posting wizard. Same submission contract as
 `[wcb_job_form_simple]`.
@@ -198,7 +200,7 @@ Multi-step job-posting wizard. Same submission contract as
 [wcb_job_form boardId="42"]
 ```
 
-### `[wcb_employer_dashboard]` — Employer Dashboard
+### `[wcb_employer_dashboard]` - Employer Dashboard
 
 Full employer dashboard: my jobs, applications, company profile and (with Pro) credits.
 The management screens render only for users granted the `wcb/manage-company` ability; everyone else sees a prompt to sign in or register as an employer.
@@ -207,7 +209,7 @@ The management screens render only for users granted the `wcb/manage-company` ab
 [wcb_employer_dashboard]
 ```
 
-### `[wcb_candidate_dashboard]` — Candidate Dashboard
+### `[wcb_candidate_dashboard]` - Candidate Dashboard
 
 Full candidate dashboard: applications, saved jobs, resumes, alerts.
 Renders only for logged-in users.
@@ -226,7 +228,7 @@ is the older tag for the same block.
 [wcb_employer_registration]
 ```
 
-### `[wcb_company_archive]` — Company Directory
+### `[wcb_company_archive]` - Company Directory
 
 Public listing of all companies with their open job counts.
 
@@ -240,7 +242,7 @@ Public listing of all companies with their open job counts.
 [wcb_company_archive perPage="12" layout="list"]
 ```
 
-### `[wcb_job_stats]` — Site-Wide Stats Strip
+### `[wcb_job_stats]` - Site-Wide Stats Strip
 
 Counts of published jobs, companies and candidates (published resumes, so
 the candidate count stays 0 without Pro). Lightweight - safe to drop into
@@ -257,7 +259,7 @@ any landing page.
 [wcb_job_stats showCandidates="false"]
 ```
 
-### `[wcb_recent_jobs]` — Recent Jobs (Compact)
+### `[wcb_recent_jobs]` - Recent Jobs (Compact)
 
 Compact list of the most recently published jobs. Good for sidebars and
 footers.
@@ -312,7 +314,7 @@ single-page resume form, credit balance, and job alerts. See
 
 ---
 
-## Shortcode attributes — what gets cast where
+## Shortcode attributes - what gets cast where
 
 The shortcode wrapper around every block does the following:
 
@@ -325,5 +327,5 @@ The shortcode wrapper around every block does the following:
    receives them as proper attribute types matching `block.json`.
 
 So `[wcb_job_listings perPage="9"]` arrives at the block as
-`{ perPage: 9 }`, not `{ perPage: "9" }` — meaning your block's
+`{ perPage: 9 }`, not `{ perPage: "9" }` - meaning your block's
 `type: "integer"` validation passes.

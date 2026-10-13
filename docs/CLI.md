@@ -1,4 +1,6 @@
-# WP Career Board — WP-CLI Reference
+# WP Career Board - WP-CLI Reference
+
+> The maintained user-facing version of this reference is [website/developer-guide/04-wp-cli.md](website/developer-guide/04-wp-cli.md). This file is the developer working copy; if the two differ, the website page wins.
 
 All commands run from the WordPress root directory (where `wp-config.php` lives).
 
@@ -6,7 +8,7 @@ All commands run from the WordPress root directory (where `wp-config.php` lives)
 
 ## Demo Data (eval-file)
 
-Demo data is managed via `wp eval-file` — not through the `wp wcb` command group.
+Demo data is managed via `wp eval-file` - not through the `wp wcb` command group.
 
 ### Insert demo data (Free + Pro)
 
@@ -17,7 +19,7 @@ wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/seed-data.php
 Creates: 3 employer users, 5 candidate users, 5 companies, 17 jobs (15 published + 2 pending),
 13 applications, taxonomy terms. Pro: also creates 5 resume posts if `wp-career-board-pro` is active.
 
-Safe to run multiple times — skips records that already exist.
+Safe to run multiple times - skips records that already exist.
 
 ### Remove all demo data
 
@@ -157,14 +159,14 @@ wp wcb job list --status=pending --format=ids
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--status` | `publish`, `pending`, `draft`, `wcb_expired`, or `any` | `any` |
-| `--company` | Company post slug | — |
+| `--company` | Company post slug | - |
 | `--format` | `table`, `csv`, `json`, `ids` | `table` |
 
 ---
 
 ### `wp wcb job approve <id>`
 
-Approve a pending job — publishes it and fires `wcb_job_approved` (sends employer notification email).
+Approve a pending job - publishes it and fires `wcb_job_approved` (sends employer notification email).
 Requires: `wcb/moderate-jobs`.
 
 ```bash
@@ -175,7 +177,7 @@ wp wcb job approve 42 --user=1
 
 ### `wp wcb job reject <id>`
 
-Reject a pending job — sets it to draft, stores the rejection reason, fires `wcb_job_rejected` (sends employer notification email).
+Reject a pending job - sets it to draft, stores the rejection reason, fires `wcb_job_rejected` (sends employer notification email).
 Requires: `wcb/moderate-jobs`.
 
 ```bash
@@ -238,8 +240,8 @@ wp wcb application list --job=42 --status=reviewing --format=json
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--job` | Job post ID | — |
-| `--status` | `submitted`, `reviewing`, `shortlisted`, `hired`, `rejected` | — |
+| `--job` | Job post ID | - |
+| `--status` | `submitted`, `reviewing`, `shortlisted`, `hired`, `rejected` | - |
 | `--per-page` | Rows per page, 1-500 | `100` |
 | `--page` | Page number | `1` |
 | `--format` | `table`, `csv`, `json`, `ids`, `count` | `table` |
