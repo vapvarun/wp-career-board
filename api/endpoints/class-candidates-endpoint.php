@@ -522,7 +522,7 @@ final class CandidatesEndpoint extends RestController {
 		$items       = array();
 
 		if ( ! empty( $company_ids ) ) {
-			update_meta_cache( 'post', $company_ids );
+			\WCB\Core\CompanyMetaShape::prime_logos( $company_ids );
 		}
 
 		foreach ( $company_ids as $company_id ) {
@@ -538,6 +538,8 @@ final class CandidatesEndpoint extends RestController {
 				'industry'  => \WCB\Core\Industries::label( (string) get_post_meta( $post->ID, '_wcb_industry', true ) ),
 				'hq'        => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
 				'tagline'   => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+				'logo'      => \WCB\Core\CompanyMetaShape::logo_url( $post->ID ),
+				'initial'   => mb_strtoupper( mb_substr( $post->post_title, 0, 1 ) ),
 			);
 		}
 
@@ -608,6 +610,7 @@ final class CandidatesEndpoint extends RestController {
 					'permalink' => get_permalink( $post->ID ),
 					'role'      => $job_title,
 					'location'  => $location,
+					'avatar'    => (string) get_avatar_url( $candidate_id ? $candidate_id : $post->ID, array( 'size' => 96 ) ),
 				);
 			}
 		}

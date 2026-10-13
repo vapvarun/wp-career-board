@@ -822,6 +822,7 @@ wp_interactivity_state(
 			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasSavedCompanies">
 				<template data-wp-each--company="state.savedCompanies" data-wp-each-key="context.company.id">
 					<div class="wcb-cd-bookmark-row">
+						<span class="wcb-avatar wcb-avatar--sm" aria-hidden="true" data-wp-class--wcb-avatar--logo="context.company.logo"><img alt="" loading="lazy" data-wp-bind--src="context.company.logo" data-wp-bind--hidden="!context.company.logo"><span data-wp-bind--hidden="context.company.logo" data-wp-text="context.company.initial"></span></span>
 						<div class="wcb-cd-bookmark-main">
 							<h3 class="wcb-cd-bookmark-title">
 								<a
@@ -832,7 +833,7 @@ wp_interactivity_state(
 								></a>
 							</h3>
 							<div class="wcb-cd-bookmark-meta">
-								<span data-wp-class--wcb-hidden="!context.company.industry_label" data-wp-text="context.company.industry_label"></span>
+								<span data-wp-class--wcb-hidden="!context.company.industry" data-wp-text="context.company.industry"></span>
 								<span class="wcb-cd-bookmark-meta-sep" data-wp-class--wcb-hidden="!context.company.hq" aria-hidden="true">·</span>
 								<span data-wp-class--wcb-hidden="!context.company.hq" data-wp-text="context.company.hq"></span>
 							</div>
@@ -880,6 +881,7 @@ wp_interactivity_state(
 			<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasSavedResumes">
 				<template data-wp-each--resume="state.savedResumes" data-wp-each-key="context.resume.id">
 					<div class="wcb-cd-bookmark-row">
+						<span class="wcb-avatar wcb-avatar--round wcb-avatar--sm" aria-hidden="true"><img alt="" loading="lazy" data-wp-bind--src="context.resume.avatar"></span>
 						<div class="wcb-cd-bookmark-main">
 							<h3 class="wcb-cd-bookmark-title">
 								<a

@@ -554,6 +554,15 @@ class AdminApplications extends \WP_List_Table {
 			$out = '<strong>' . esc_html( $name ) . '</strong>';
 		}
 
+		$resume_url = $candidate instanceof \WP_User ? \WCB\Modules\Candidates\CandidatesModule::resume_url( $candidate->ID, $item->ID ) : '';
+		if ( '' !== $resume_url ) {
+			$row_actions['resume'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener">%s</a>',
+				esc_url( $resume_url ),
+				esc_html__( 'View resume', 'wp-career-board' )
+			);
+		}
+
 		if ( $candidate instanceof \WP_User && $candidate->user_email ) {
 			$row_actions['email'] = sprintf(
 				'<a href="mailto:%s">%s</a>',

@@ -241,6 +241,45 @@ final class CandidatesModule {
 	}
 
 	/**
+	 * Frontend resume an admin or employer should open for a candidate: the
+	 * one attached to the application, else their latest published resume.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id        Candidate user ID.
+	 * @param int $application_id Application the link is for (optional).
+	 * @return string Resume URL, or '' when there is none.
+	 */
+	public static function resume_url( int $user_id, int $application_id = 0 ): string {
+		$resume_id = $application_id ? (int) get_post_meta( $application_id, '_wcb_resume_id', true ) : 0;
+		if ( ! $resume_id || 'publish' !== get_post_status( $resume_id ) ) {
+			$latest    = $user_id ? get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'publish',
+					'author'         => $user_id,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)
+			) : array();
+			$resume_id = (int) ( $latest[0] ?? 0 );
+		}
+		$url = $resume_id && self::resume_is_readable( $resume_id ) ? (string) get_permalink( $resume_id ) : '';
+
+		/**
+		 * Filters the resume link shown for a candidate in admin.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param string $url            Resume URL ('' hides the link).
+		 * @param int    $user_id        Candidate user ID.
+		 * @param int    $application_id Application ID, or 0.
+		 */
+		return (string) apply_filters( 'wcb_candidate_resume_url', $url, $user_id, $application_id );
+	}
+
+	/**
 	 * Whether one resume may be read by the current user.
 	 *
 	 * The single decision behind every read path: the core REST controller, the

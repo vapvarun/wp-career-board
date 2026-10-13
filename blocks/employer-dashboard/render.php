@@ -1180,6 +1180,7 @@ wp_interactivity_state(
 		<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasSavedCompanies">
 			<template data-wp-each--company="state.savedCompanies" data-wp-each-key="context.company.id">
 				<div class="wcb-cd-bookmark-row">
+					<span class="wcb-avatar wcb-avatar--sm" aria-hidden="true" data-wp-class--wcb-avatar--logo="context.company.logo"><img alt="" loading="lazy" data-wp-bind--src="context.company.logo" data-wp-bind--hidden="!context.company.logo"><span data-wp-bind--hidden="context.company.logo" data-wp-text="context.company.initial"></span></span>
 					<div class="wcb-cd-bookmark-main">
 						<h3 class="wcb-cd-bookmark-title">
 							<a aria-label="<?php esc_attr_e( 'Bookmarked company', 'wp-career-board' ); ?>" data-wp-bind--aria-label="context.company.title" data-wp-bind--href="context.company.permalink" data-wp-text="context.company.title" target="_blank" rel="noopener noreferrer"></a>
@@ -1221,6 +1222,7 @@ wp_interactivity_state(
 		<div class="wcb-panel" aria-live="polite" data-wp-class--wcb-shown="state.hasSavedResumes">
 			<template data-wp-each--resume="state.savedResumes" data-wp-each-key="context.resume.id">
 				<div class="wcb-cd-bookmark-row">
+					<span class="wcb-avatar wcb-avatar--round wcb-avatar--sm" aria-hidden="true"><img alt="" loading="lazy" data-wp-bind--src="context.resume.avatar"></span>
 					<div class="wcb-cd-bookmark-main">
 						<h3 class="wcb-cd-bookmark-title">
 							<a aria-label="<?php esc_attr_e( 'Bookmarked resume', 'wp-career-board' ); ?>" data-wp-bind--aria-label="context.resume.title" data-wp-bind--href="context.resume.permalink" data-wp-text="context.resume.title" target="_blank" rel="noopener noreferrer"></a>
