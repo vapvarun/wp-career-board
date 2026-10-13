@@ -403,7 +403,7 @@ final class JobSearch {
 			// Featured is what an employer pays for: it leads a keyword search too.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_fr ON ( wcb_fr.post_id = {$posts}.ID AND wcb_fr.meta_key = '_wcb_featured' )";
 			$clauses['fields'] .= ', ( ' . implode( ' + ', $score ) . ' ) AS wcb_relevance';
-			$clauses['orderby'] = "( wcb_fr.meta_value = '1' ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['orderby'] = "COALESCE( wcb_fr.meta_value = '1', 0 ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'salary' === $sort ) {
 			// Compared per year: $150-200 an hour is more than $50k a year.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
