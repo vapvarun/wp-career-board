@@ -350,7 +350,9 @@
    more everyday setting. (0,5,0): a dashboard tab strips every panel's frame
    at (0,4,0). */
 .wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-privacy-settings .wcb-danger-zone {
-	padding: var(--wcb-space-lg);
+	/* Frame on the section heading's line, content on the fields' line
+	   (one reading column; padding matches the form panels). */
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
 	border: 1px solid var(--wcb-danger-border, #fecaca);
 	border-radius: var(--wcb-radius-md);
 	background: var(--wcb-danger-bg-soft, var(--wcb-base));
@@ -1284,6 +1286,12 @@
 .wcb-row-menu__item--danger,
 .wcb-row-menu__item--danger:hover {
 	color: var(--wcb-danger-fg, #991b1b);
+}
+
+@media (max-width: 640px) {
+	.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-privacy-settings .wcb-danger-zone {
+		padding-inline: var(--wcb-space-lg);
+	}
 }
 
 /* ── Application status badges ─────────────────────────────────────────
