@@ -471,10 +471,10 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// A job in moderation (pending) or a rejected draft is not public.
-		// Expose it only to its author, a moderator, or an admin — otherwise a
-		// guessed ID leaks unapproved content.
+		// Expose it only to its owner (poster or company owner), a moderator, or
+		// an admin — otherwise a guessed ID leaks unapproved content.
 		if ( 'publish' !== $post->post_status ) {
-			$is_owner = (int) $post->post_author === $this->current_user_id();
+			$is_owner = \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $post );
 			if ( ! $is_owner
 				&& ! $this->check_ability( 'wcb/moderate-jobs' )
 				&& ! $this->check_ability( 'wcb/manage-settings' ) ) {
@@ -732,7 +732,8 @@ final class JobsEndpoint extends RestController {
 		$wcb_new_board = $request->get_param( 'board_id' );
 		if ( null !== $wcb_new_board ) {
 			$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
-			if ( (int) $wcb_new_board !== $wcb_old_board ) {
+			// Compare resolved boards: a job with no board meta already lives on the default board.
+			if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
 				update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
 				$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
 				if ( is_wp_error( $wcb_paid ) ) {

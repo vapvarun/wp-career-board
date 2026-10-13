@@ -87,15 +87,12 @@ $wcb_e_exps   = array();
 $wcb_e_tags   = array();
 
 if ( $wcb_edit_id > 0 ) {
-	$wcb_edit_job        = get_post( $wcb_edit_id );
-	$wcb_user_company_id = $wcb_company_id;
-	$wcb_job_company_id  = (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true );
-	$wcb_same_company    = $wcb_user_company_id > 0 && $wcb_user_company_id === $wcb_job_company_id;
+	$wcb_edit_job = get_post( $wcb_edit_id );
 
+	// Same rule as the REST update route: the poster, or anyone running the job's company.
 	$wcb_can_edit = $wcb_edit_job instanceof \WP_Post
 	&& 'wcb_job' === $wcb_edit_job->post_type
-	&& ( (int) $wcb_edit_job->post_author === $wcb_user_id
-	|| $wcb_same_company
+	&& ( \WCB\Modules\Employers\EmployersModule::owns_job( $wcb_user_id, $wcb_edit_job )
 	|| wp_is_ability_granted( 'wcb/manage-settings' ) );
 
 	if ( ! $wcb_can_edit ) {
@@ -172,6 +169,11 @@ if ( post_type_exists( 'wcb_board' ) ) {
 	 * @param int                                   $wcb_user_id       Current user id (0 if logged out).
 	 */
 	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+}
+// Editing: preselect the job's own board, or saving would move (and re-price) it.
+$wcb_edit_board_id = $wcb_edit_job ? \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( get_post_meta( $wcb_edit_id, '_wcb_board_id', true ) ) : 0;
+if ( $wcb_edit_board_id > 0 ) {
+	$wcb_board_id = $wcb_edit_board_id;
 }
 if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
@@ -271,6 +273,7 @@ $wcb_initial_state = apply_filters(
 	'wcb_job_form_initial_state',
 	array(
 		'editJobId'         => $wcb_edit_id,
+		'editBoardId'       => $wcb_edit_board_id,
 		'step'              => 1,
 		'title'             => $wcb_edit_job ? $wcb_edit_job->post_title : '',
 		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
@@ -486,7 +489,8 @@ $wcb_step_labels = array(
 		<div>
 			<p class="wcb-form-success__title" data-wp-class--wcb-form-success__title--pending="state.jobPending">
 				<span data-wp-class--wcb-hidden="state.jobPending">
-					<?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?>
+					<span data-wp-class--wcb-hidden="state.isEditing"><?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.isEditing"><?php esc_html_e( 'Job updated.', 'wp-career-board' ); ?></span>
 				</span>
 				<span data-wp-class--wcb-hidden="!state.jobPending">
 					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>

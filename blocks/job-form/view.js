@@ -391,6 +391,12 @@ const { state } = store(
 			},
 
 			// ── Credit getters ────────────────────────────────────────────────
+			// Posting is priced; editing a job is free unless it moves board
+			// (the server prices that move and answers wcb_insufficient_credits).
+			get creditApplies() {
+				const { state } = store( 'wcb-job-form' );
+				return ! state.editJobId || Number( state.boardId ) !== Number( state.editBoardId );
+			},
 			get hasCreditCost() {
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
@@ -400,11 +406,11 @@ const { state } = store(
 			// informed when switching to a zero-cost board.
 			get hasCreditBanner() {
 				const { state } = store( 'wcb-job-form' );
-				return state.creditCost > 0 || !! state.creditMessage;
+				return state.creditApplies && ( state.creditCost > 0 || !! state.creditMessage );
 			},
 			get insufficientCredits() {
 				const { state } = store( 'wcb-job-form' );
-				return state.creditCost > 0 && state.creditBalance < state.creditCost;
+				return state.creditApplies && state.creditCost > 0 && state.creditBalance < state.creditCost;
 			},
 			// The banner sentence is chosen server-side, per board, in render.php:
 			// free / insufficient / deduction, each already run through _n() with
@@ -678,7 +684,7 @@ const { state } = store(
 				// Credit gate — block submission if balance is insufficient. The
 				// sentence (with its plural-correct credit noun and localised
 				// numbers) is resolved per board in render.php; JS only selects.
-				if ( state.creditCost > 0 && state.creditBalance < state.creditCost ) {
+				if ( state.insufficientCredits && ! state.editJobId ) {
 					const errors = state.creditErrors || {};
 					state.error  = errors[ String( state.boardId || 0 ) ]
 						|| t( 'errorInsufficientCredits', 'Insufficient credits to post on this board.' );

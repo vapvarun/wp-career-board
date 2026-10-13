@@ -136,6 +136,20 @@ wcb_assert( 200 === wcb_mc_get( '/wcb/v1/jobs/' . $wcb_job_b2 . '/applications',
 wcb_assert( 403 === wcb_mc_get( '/wcb/v1/jobs/' . $wcb_job_b2 . '/applications', array(), $wcb_other )->get_status(), "another employer cannot read company B's applicants" );
 wcb_assert( 403 === wcb_mc_get( '/wcb/v1/jobs/' . $wcb_job_c . '/applications', array(), $wcb_employer )->get_status(), "the employer cannot read another company's applicants" );
 
+// Every edit surface follows the same rule: the Post a Job form and a pending job's REST read.
+$wcb_render_edit = static function ( int $job_id, int $user_id ): string {
+	wp_set_current_user( $user_id );
+	$_GET['edit'] = (string) $job_id;
+	$html         = do_blocks( '<!-- wp:wp-career-board/job-form /-->' );
+	unset( $_GET['edit'] );
+	return $html;
+};
+wcb_assert( false === strpos( $wcb_render_edit( $wcb_job_b2, $wcb_employer ), 'not authorized to edit' ), "Post a Job opens company B's staff-posted job for editing" );
+wcb_assert( false !== strpos( $wcb_render_edit( $wcb_job_b2, $wcb_other ), 'not authorized to edit' ), "Post a Job refuses company B's job to another employer" );
+wp_update_post( array( 'ID' => $wcb_job_b3, 'post_status' => 'pending', 'post_author' => $wcb_staff ) );
+wcb_assert( 200 === wcb_mc_get( '/wcb/v1/jobs/' . $wcb_job_b3, array(), $wcb_employer )->get_status(), "a pending job under the employer's second company is readable" );
+wcb_assert( 404 === wcb_mc_get( '/wcb/v1/jobs/' . $wcb_job_b3, array(), $wcb_other )->get_status(), "another employer cannot read that pending job (404)" );
+
 // Teardown.
 foreach ( array_merge( $wcb_apps, $wcb_mine, array( $wcb_job_c, $wcb_co_a, $wcb_co_b, $wcb_co_c ) ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );

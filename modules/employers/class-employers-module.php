@@ -423,15 +423,14 @@ final class EmployersModule {
 		}
 		$by_company = $companies
 			? $wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the ID count.
-				"{$alias}.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( " . implode( ', ', array_fill( 0, count( $companies ), '%s' ) ) . ' ) )',
-				...array_map( 'strval', $companies )
+				"%i.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( " . implode( ', ', array_fill( 0, count( $companies ), '%s' ) ) . ' ) )',
+				array_merge( array( $alias ), array_map( 'strval', $companies ) )
 			)
 			: '';
 		if ( $company_id > 0 ) {
 			return '' !== $by_company ? $by_company : '1 = 0';
 		}
-		$by_author = $wpdb->prepare( "{$alias}.post_author = %d", $user_id ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- alias is a code constant.
+		$by_author = $wpdb->prepare( '%i.post_author = %d', $alias, $user_id );
 		return '' !== $by_company ? "( {$by_author} OR {$by_company} )" : $by_author;
 	}
 
