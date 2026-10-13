@@ -336,7 +336,7 @@ const { state } = store(
 			},
 			get hasCategory() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.categorySlug;
+				return state.categorySlugs.length > 0;
 			},
 			get hasSalary() {
 				const { state } = store( 'wcb-job-form' );
@@ -489,7 +489,7 @@ const { state } = store(
 			},
 			get categoryDisplay() {
 				const { state } = store( 'wcb-job-form' );
-				return state.categorySlug ? ( state.categoryNames[ state.categorySlug ] || state.categorySlug ) : '';
+				return state.categorySlugs.map( ( slug ) => state.categoryNames[ slug ] || slug ).join( t( 'listSeparator', ', ' ) );
 			},
 		},
 
@@ -716,7 +716,7 @@ const { state } = store(
 						deadline:        state.deadline,
 						apply_url:       state.applyUrl,
 						apply_email:     state.applyEmail,
-						categories:      state.categorySlug ? [ state.categorySlug ] : [],
+						categories:      state.categorySlugs,
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
 						locations:       state.locationSlug && state.locationSlug !== '__custom__'
 							? [ state.locationSlug ]
@@ -819,7 +819,7 @@ const { state } = store(
 				state.locationSlug     = '';
 				state.locationCustom   = '';
 				state.typeSlug         = '';
-				state.categorySlug     = '';
+				state.categorySlugs    = [];
 				state.expSlug          = '';
 				state.tags             = '';
 				state.remote           = false;

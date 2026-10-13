@@ -204,7 +204,7 @@ const { state } = store( 'wcb-job-single', {
 
 			const filters = {};
 			if ( state.jobCategories && state.jobCategories.length ) {
-				filters.category = state.jobCategories[ 0 ];
+				filters.category = state.jobCategories.join( ',' );
 			}
 			if ( state.jobTypes && state.jobTypes.length ) {
 				filters.type = state.jobTypes[ 0 ];

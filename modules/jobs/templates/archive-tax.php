@@ -3,7 +3,7 @@
  * Taxonomy archive template for WCB job taxonomies.
  *
  * Renders the wcb/job-listings block on the main jobs archive layout. The term
- * scoping is JobsModule::scope_listing_to_term(), shared with block themes.
+ * scoping is JobSearch::from_url(), shared with block themes.
  *
  * @package WP_Career_Board
  * @since   1.0.0

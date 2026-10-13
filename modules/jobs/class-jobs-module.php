@@ -29,18 +29,6 @@ final class JobsModule {
 	public const TAXONOMIES = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
 
 	/**
-	 * Taxonomy => job-listings REST filter param. wcb_tag has none.
-	 *
-	 * @var array<string,string>
-	 */
-	private const REST_PARAMS = array(
-		'wcb_category'   => 'category',
-		'wcb_job_type'   => 'type',
-		'wcb_location'   => 'location',
-		'wcb_experience' => 'experience',
-	);
-
-	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -51,7 +39,6 @@ final class JobsModule {
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_filter( 'template_include', array( $this, 'single_job_template' ) );
 		add_filter( 'template_include', array( $this, 'taxonomy_archive_template' ) );
-		add_action( 'wp', array( $this, 'scope_listing_to_term' ) );
 		add_filter( 'the_content_feed', array( $this, 'append_job_meta_to_feed' ) );
 		add_filter( 'the_content', array( $this, 'inject_job_single' ) );
 		add_filter( 'body_class', array( $this, 'add_job_body_class' ) );
@@ -244,45 +231,6 @@ final class JobsModule {
 		}
 		$override = plugin_dir_path( __FILE__ ) . 'templates/single-wcb_job.php';
 		return file_exists( $override ) ? $override : $template;
-	}
-
-	/**
-	 * Scope the job-listings block to the queried term on a taxonomy archive.
-	 *
-	 * Runs for classic and block themes alike: the block renders the first page
-	 * from the filtered query args, and "Load more" and the filters reuse the
-	 * REST base URL, so both carry the term.
-	 *
-	 * @since 1.8.0
-	 * @return void
-	 */
-	public function scope_listing_to_term(): void {
-		$term = is_tax( self::TAXONOMIES ) ? get_queried_object() : null;
-		if ( ! $term instanceof \WP_Term ) {
-			return;
-		}
-
-		add_filter(
-			'wcb_job_listings_query_args',
-			static function ( array $args ) use ( $term ): array {
-				$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-					array(
-						'taxonomy' => $term->taxonomy,
-						'field'    => 'term_id',
-						'terms'    => $term->term_id,
-					),
-				);
-				return $args;
-			}
-		);
-
-		$param = self::REST_PARAMS[ $term->taxonomy ] ?? '';
-		if ( $param ) {
-			add_filter(
-				'wcb_job_listings_api_base',
-				static fn ( string $url ): string => add_query_arg( $param, $term->slug, $url )
-			);
-		}
 	}
 
 	/**

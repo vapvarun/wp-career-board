@@ -431,6 +431,128 @@
 	gap: var(--wcb-space-xs);
 }
 
+/* ── Job form categories (templates/parts/job-category-field.php) ─────
+ *
+ * The multi-pick shown when a job may have more than one category: chosen
+ * categories as removable chips over a scrollable, indented checkbox list.
+ * It spans the whole form grid row.
+ */
+.wcb-job-cats {
+	grid-column: 1 / -1;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.wcb-job-cats__legend {
+	padding: 0;
+}
+
+.wcb-job-cats__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	margin: var(--wcb-space-sm) 0;
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-job-cats__chips:not(:has(li)) {
+	display: none;
+}
+
+.wcb-job-cats__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	max-width: 100%;
+	margin: 0;
+	padding-block: 2px;
+	padding-inline: var(--wcb-space-md) 2px;
+	border: 1px solid var(--wcb-primary-ring);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-primary-soft);
+	color: var(--wcb-contrast);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	overflow-wrap: anywhere;
+}
+
+.wcb-job-cats__remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	inline-size: 28px;
+	block-size: 28px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--wcb-radius-full);
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wcb-job-cats__remove:hover {
+	background: var(--wcb-primary-ring);
+}
+
+.wcb-job-cats__remove:focus-visible,
+.wcb-job-cats__option input:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-job-cats__search {
+	margin-block-end: var(--wcb-space-sm);
+}
+
+/* Two classes: the block-wide `[class*="wp-block-wp-career-board"] ul` reset would zero the inset. */
+.wcb-job-cats .wcb-job-cats__list {
+	max-block-size: 16rem;
+	margin: 0;
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
+	overflow-y: auto;
+	list-style: none;
+	border: 1px solid var(--wcb-border-strong);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+}
+
+.wcb-job-cats__option {
+	margin: 0;
+	padding-block: var(--wcb-space-xs);
+}
+
+.wcb-job-cats__option--depth-1 {
+	padding-inline-start: var(--wcb-space-xl);
+}
+
+.wcb-job-cats__option--depth-2 {
+	padding-inline-start: calc(var(--wcb-space-xl) * 2);
+}
+
+.wcb-job-cats__option--depth-3 {
+	padding-inline-start: calc(var(--wcb-space-xl) * 3);
+}
+
+.wcb-job-cats__option:has(input:disabled) .wcb-checkbox-label {
+	color: var(--wcb-text-secondary);
+	cursor: not-allowed;
+}
+
+.wcb-job-cats__option input:disabled {
+	cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+	.wcb-job-cats .wcb-job-cats__list {
+		max-block-size: 13rem;
+	}
+}
+
 /* ── Load More — shared across archive blocks ───────────────────────── */
 
 /*

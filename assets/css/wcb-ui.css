@@ -1262,6 +1262,138 @@
 	flex-shrink: 0;
 }
 
+/* ── Category picker (job filters bar, search hero) ─────────────────────
+ * templates/parts/category-picker.php. The list reuses the filter panel's
+ * option rows; the panel overlays the content below it. */
+.wcb-cat-picker {
+	position: relative;
+	min-width: 0;
+}
+
+.wcb-cat-picker__toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+	min-height: var(--wcb-control-h);
+	margin: 0;
+	padding-block: 0;
+	padding-inline: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font-family: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-normal);
+	line-height: var(--wcb-leading-tight);
+	text-align: start;
+	text-transform: none;
+	letter-spacing: normal;
+	box-shadow: none;
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-snappy);
+}
+
+.wcb-cat-picker__toggle:hover,
+.wcb-cat-picker__toggle:focus,
+.wcb-cat-picker__toggle[aria-expanded="true"] {
+	border-color: var(--wcb-primary);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+}
+
+.wcb-cat-picker__toggle:focus-visible {
+	outline: 2px solid transparent !important;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-cat-picker__label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wcb-cat-picker__toggle svg {
+	flex-shrink: 0;
+	transition: transform var(--wcb-transition-snappy);
+}
+
+.wcb-cat-picker__toggle[aria-expanded="true"] svg {
+	transform: rotate(180deg);
+}
+
+.wcb-cat-picker__panel {
+	position: absolute;
+	inset-block-start: calc(100% + var(--wcb-space-xs));
+	inset-inline-start: 0;
+	z-index: 50;
+	box-sizing: border-box;
+	width: max(100%, 300px);
+	max-width: calc(100vw - 2 * var(--wcb-space-lg));
+	padding: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	box-shadow: var(--wcb-shadow-lg);
+	text-align: start;
+}
+
+.wcb-cat-picker__panel[hidden] {
+	display: none;
+}
+
+.wcb-cat-picker__fieldset {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.wcb-cat-picker .wcb-filter-panel__list {
+	max-height: min(320px, 50vh);
+	overscroll-behavior: contain;
+}
+
+.wcb-cat-picker .wcb-filter-panel__option {
+	min-height: 36px;
+	color: var(--wcb-contrast);
+}
+
+.wcb-cat-picker .wcb-filter-panel__option:has(input:focus-visible) {
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-cat-picker__actions {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	margin-block-start: var(--wcb-space-sm);
+	padding-block-start: var(--wcb-space-sm);
+	border-block-start: 1px solid var(--wcb-border);
+}
+
+@media (max-width: 640px) {
+	.wcb-cat-picker__panel {
+		inset-inline-end: 0;
+		width: auto;
+		max-width: none;
+	}
+
+	.wcb-cat-picker .wcb-filter-panel__option {
+		min-height: 40px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wcb-cat-picker__toggle,
+	.wcb-cat-picker__toggle svg {
+		transition: none;
+	}
+}
+
 /* ── Tablet / mobile collapse for the filter panel ───────────────────────
  * Wherever the archive layout stacks (≤1024px, see .wcb-archive-layout) the
  * open filter panel pushed the first result ~1,800px down on an iPad.

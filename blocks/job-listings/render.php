@@ -261,13 +261,17 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 
 
 $wcb_term_opts = static function ( string $taxonomy ): array {
+	$options = \WCB\Core\Taxonomy::options( $taxonomy );
+	$slug_of = wp_list_pluck( $options, 'slug', 'id' );
 	return array_map(
 		static fn( object $t ): array => array(
-			'slug'  => $t->slug,
-			'name'  => $t->name,
-			'depth' => $t->depth,
+			'slug'   => $t->slug,
+			'name'   => $t->name,
+			'depth'  => $t->depth,
+			// Parent slug: ticking a parent category ticks its children (view.js).
+			'parent' => (string) ( $slug_of[ $t->parent ] ?? '' ),
 		),
-		\WCB\Core\Taxonomy::options( $taxonomy )
+		$options
 	);
 };
 // 'remote' is a work mode, shown by the Remote toggle, not a job type.
@@ -605,7 +609,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 					<?php foreach ( $wcb_cat_opts as $wcb_opt ) : ?>
 					<li data-depth="<?php echo esc_attr( (string) min( 3, $wcb_opt['depth'] ) ); ?>">
 						<label class="wcb-filter-panel__option" data-wp-context="<?php echo esc_attr( wp_json_encode( array( 'catSlug' => $wcb_opt['slug'] ) ) ); ?>">
-							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" />
+							<input type="checkbox" data-wp-on--change="actions.toggleCatChip" data-wp-bind--checked="state.isCatActive" data-wp-bind--indeterminate="state.isCatMixed" />
 							<span><?php echo esc_html( $wcb_opt['name'] ); ?></span>
 						</label>
 					</li>

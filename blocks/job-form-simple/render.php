@@ -199,7 +199,7 @@ $wcb_state = apply_filters(
 		'locationSlug'      => '',
 		'locationCustom'    => '',
 		'typeSlug'          => '',
-		'categorySlug'      => '',
+		'categorySlugs'     => array(),
 		'expSlug'           => '',
 		'tags'              => '',
 		// Board picker state mirrors the wizard so future board-related changes
@@ -418,15 +418,12 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Classification', 'wp-career-board' ); ?></p>
 
 			<div class="wcb-form-simple__tax-grid">
-				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-simple-category"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></label>
-					<select id="wcb-simple-category" class="wcb-field" data-wcb-field="categorySlug" data-wp-bind--value="state.categorySlug" data-wp-on--change="actions.updateField">
-						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
-						<?php foreach ( $wcb_categories as $wcb_t ) : ?>
-							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->label ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
+				<?php
+				$wcb_jobcat_form  = 'wcb-job-form-simple';
+				$wcb_jobcat_id    = 'wcb-simple-category';
+				$wcb_jobcat_terms = $wcb_categories;
+				require WCB_DIR . 'templates/parts/job-category-field.php';
+				?>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></label>
 					<select id="wcb-simple-type" class="wcb-field" data-wcb-field="typeSlug" data-wp-bind--value="state.typeSlug" data-wp-on--change="actions.updateField">

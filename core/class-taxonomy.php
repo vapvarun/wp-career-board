@@ -88,7 +88,7 @@ final class Taxonomy {
 	 *
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param bool   $hide_empty Skip terms with no jobs (parents of used terms stay).
-	 * @return array<int, object{id:int, slug:string, name:string, depth:int, label:string}>
+	 * @return array<int, object{id:int, slug:string, name:string, depth:int, parent:int, label:string}>
 	 */
 	public static function options( string $taxonomy, bool $hide_empty = false ): array {
 		$terms = get_terms(
@@ -118,11 +118,12 @@ final class Taxonomy {
 		$walk = static function ( int $parent_id, int $depth ) use ( &$walk, &$out, $children ): void {
 			foreach ( $children[ $parent_id ] ?? array() as $term ) {
 				$out[] = (object) array(
-					'id'    => (int) $term->term_id,
-					'slug'  => $term->slug,
-					'name'  => $term->name,
-					'depth' => $depth,
-					'label' => str_repeat( '— ', $depth ) . $term->name,
+					'id'     => (int) $term->term_id,
+					'slug'   => $term->slug,
+					'name'   => $term->name,
+					'depth'  => $depth,
+					'parent' => $parent_id,
+					'label'  => str_repeat( '— ', $depth ) . $term->name,
 				);
 				$walk( (int) $term->term_id, $depth + 1 );
 			}

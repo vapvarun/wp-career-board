@@ -168,21 +168,41 @@ final class JobSearch {
 			if ( is_array( $value ) ) {
 				$value = implode( ',', array_map( 'strval', array_filter( $value, 'is_scalar' ) ) );
 			}
-			if ( is_scalar( $value ) && '' !== (string) $value && ! isset( $params[ $key ] ) ) {
-				$params[ $key ] = sanitize_text_field( (string) $value );
+			if ( ! is_scalar( $value ) || '' === (string) $value ) {
+				continue;
+			}
+			$value = sanitize_text_field( (string) $value );
+			if ( ! isset( $params[ $key ] ) ) {
+				$params[ $key ] = $value;
+			} elseif ( isset( self::TAXONOMIES[ $key ] ) ) {
+				// ?category=a&wcb_category=b (an old link plus a newer control): both count.
+				$params[ $key ] = implode( ',', array_unique( array_merge( explode( ',', $params[ $key ] ), explode( ',', $value ) ) ) );
 			}
 		}
 		return $params;
 	}
 
 	/**
-	 * Filter params from the current URL (listing block, archive).
+	 * Filter params from the current URL (listing block, filter controls, archive).
+	 *
+	 * On a job taxonomy archive (/job-category/design/) the archive's term is
+	 * the starting value of its filter, so the listing, its ticked boxes and its
+	 * pill all show it. A value in the URL replaces it: picking other categories
+	 * there shows those categories, and unticking the term shows every job,
+	 * exactly what the controls say. A reload without a value starts from the
+	 * archive's term again.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public static function from_url(): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public, read-only filters.
-		return self::normalise( wp_unslash( $_GET ) );
+		$params = self::normalise( wp_unslash( $_GET ) );
+		$term   = is_tax( self::TAXONOMIES ) ? get_queried_object() : null;
+		$param  = $term instanceof \WP_Term ? array_search( $term->taxonomy, self::TAXONOMIES, true ) : false;
+		if ( $param && empty( $params[ $param ] ) ) {
+			$params[ $param ] = $term->slug;
+		}
+		return $params;
 	}
 
 	/**

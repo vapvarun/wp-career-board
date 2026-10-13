@@ -303,7 +303,8 @@ $wcb_initial_state = apply_filters(
 		// callback wp_inserts a matching term so the listings filter still works.
 		'locationCustom'    => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_location_custom', true ) : '',
 		'typeSlug'          => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
-		'categorySlug'      => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
+		// Every category the job has, even past the limit, so an edit never drops one.
+		'categorySlugs'     => ! is_wp_error( $wcb_e_cats ) ? $wcb_e_cats : array(),
 		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
 		'tags'              => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
 		'companyName'       => $wcb_company_name,
@@ -413,6 +414,7 @@ $wcb_initial_state = apply_filters(
 				// Preview card meta row.
 				/* translators: %s: localized application deadline date. */
 				'applyBy'                  => __( 'Apply by %s', 'wp-career-board' ),
+				'listSeparator'            => _x( ', ', 'separator between category names', 'wp-career-board' ),
 			)
 		),
 	),
@@ -807,25 +809,12 @@ $wcb_step_labels = array(
 			</h2>
 
 			<div class="wcb-form-grid">
-				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-category">
-						<?php esc_html_e( 'Category', 'wp-career-board' ); ?>
-					</label>
-					<select
-						id="wcb-category"
-						class="wcb-field"
-						data-wcb-field="categorySlug"
-						data-wp-bind--value="state.categorySlug"
-						data-wp-on--change="actions.updateField"
-					>
-						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
-						<?php foreach ( $wcb_categories as $wcb_term ) : ?>
-							<option value="<?php echo esc_attr( $wcb_term->slug ); ?>">
-							<?php echo esc_html( $wcb_term->label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
+				<?php
+				$wcb_jobcat_form  = 'wcb-job-form';
+				$wcb_jobcat_id    = 'wcb-category';
+				$wcb_jobcat_terms = $wcb_categories;
+				require WCB_DIR . 'templates/parts/job-category-field.php';
+				?>
 
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-job-type">

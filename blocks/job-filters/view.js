@@ -4,8 +4,9 @@
  * Merges into the shared 'wcb-search' namespace.
  *
  * Actions:
- *   updateFilter  — read the changed select value, update state.filters,
- *                   push new URL params, and dispatch wcb:search.
+ *   updateFilter  — read the changed control's value (the category picker
+ *                   gives a comma list), update state.filters, push new URL
+ *                   params, and dispatch wcb:search.
  *
  * @package WP_Career_Board
  */
@@ -59,7 +60,8 @@ const { state } = store( 'wcb-search', {
 				new CustomEvent( 'wcb:search', {
 					detail: {
 						query:   state.query,
-						filters: state.filters,
+						// A cleared control is sent as '' so the listing drops it too.
+						filters: { ...state.filters, [ key ]: value },
 					},
 				} )
 			);
@@ -71,5 +73,17 @@ const { state } = store( 'wcb-search', {
 document.addEventListener( 'wcb:filters-cleared', ( event ) => {
 	const filters = Object.assign( {}, state.filters );
 	( event.detail?.keys || [] ).forEach( ( key ) => delete filters[ key ] );
+	state.filters = filters;
+} );
+
+// The listing changed the categories (sidebar, pill, "Clear all"): keep the count in step.
+document.addEventListener( 'wcb:categories', ( event ) => {
+	const filters = Object.assign( {}, state.filters );
+	const slugs   = ( event.detail?.slugs || [] ).join( ',' );
+	if ( slugs ) {
+		filters.wcb_category = slugs;
+	} else {
+		delete filters.wcb_category;
+	}
 	state.filters = filters;
 } );

@@ -530,6 +530,11 @@ final class JobsEndpoint extends RestController {
 			return $wcb_location_error;
 		}
 
+		$wcb_category_error = $this->category_limit_error( $request );
+		if ( $wcb_category_error ) {
+			return $wcb_category_error;
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -724,6 +729,11 @@ final class JobsEndpoint extends RestController {
 		$wcb_location_error = $this->location_error( $request, $post );
 		if ( $wcb_location_error ) {
 			return $wcb_location_error;
+		}
+
+		$wcb_category_error = $this->category_limit_error( $request, $post );
+		if ( $wcb_category_error ) {
+			return $wcb_category_error;
 		}
 
 		// A board move changes the price: collect the difference (or hand it
@@ -1530,6 +1540,61 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
+	 * Refuse a job with more categories than the site allows.
+	 *
+	 * A job already over the limit (categories set in wp-admin, or a higher
+	 * limit since lowered) saves with the same categories or fewer, so an
+	 * employer never has to drop ones they did not touch.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Request; no `categories` param means no change.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function category_limit_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$values = $request->get_param( 'categories' );
+		// Site admins are never limited, as in wp-admin.
+		if ( null === $values || $this->check_ability( 'wcb/manage-settings' ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter how many categories an employer may give one job.
+		 *
+		 * Free allows one. Pro raises it through `wcbp_job_max_categories`.
+		 * Site admins (REST or wp-admin) are not limited.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param int $limit Most categories per job. Default 1.
+		 */
+		$limit  = max( 1, (int) apply_filters( 'wcb_job_category_limit', 1 ) );
+		$values = array_unique( array_filter( array_map( static fn ( $value ): string => sanitize_title( (string) $value ), (array) $values ) ) );
+		if ( count( $values ) <= $limit ) {
+			return null;
+		}
+
+		if ( $job ) {
+			$current = wp_get_object_terms( $job->ID, 'wcb_category', array( 'fields' => 'id=>slug' ) );
+			$current = is_array( $current ) ? array_merge( array_map( 'strval', array_keys( $current ) ), array_values( $current ) ) : array();
+			if ( ! array_diff( $values, $current ) ) {
+				return null;
+			}
+		}
+
+		return new \WP_Error(
+			'wcb_too_many_categories',
+			sprintf(
+				/* translators: %s: most categories one job may have. */
+				_n( 'Choose up to %s category for this job.', 'Choose up to %s categories for this job.', $limit, 'wp-career-board' ),
+				number_format_i18n( $limit )
+			),
+			array( 'status' => 400 )
+		);
+	}
+
+	/**
 	 * Shape a WP_Post into the REST response array.
 	 *
 	 * Returns both slug-indexed taxonomy arrays (for filtering) and
@@ -1826,6 +1891,13 @@ final class JobsEndpoint extends RestController {
 			'status'          => array(
 				'type' => 'string',
 				'enum' => array( 'publish', 'draft', 'closed' ),
+			),
+			// Category slugs or term IDs. How many is limited by wcb_job_category_limit.
+			'categories'      => array(
+				'type'  => 'array',
+				'items' => array(
+					'type' => array( 'string', 'integer' ),
+				),
 			),
 		);
 	}

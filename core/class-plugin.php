@@ -296,11 +296,29 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/category-picker',
+				WCB_URL . 'assets/js/modules/wcb-category-picker.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/ui' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/email-prefs',
 				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
 				array(
 					array( 'id' => '@wordpress/interactivity' ),
 					array( 'id' => '@wcb/fetch' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/job-category-field',
+				WCB_URL . 'assets/js/modules/wcb-job-category-field.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/ui' ),
 				),
 				WCB_VERSION
 			);
@@ -451,7 +469,7 @@ final class Plugin {
 		);
 
 		// Job taxonomy archives show the listing scoped to the term; the scoping
-		// itself is JobsModule::scope_listing_to_term(), which runs on any theme.
+		// itself is JobSearch::from_url(), which runs on any theme.
 		$taxonomy_titles = array(
 			'wcb_category'   => __( 'Job Category Archive', 'wp-career-board' ),
 			'wcb_job_type'   => __( 'Job Type Archive', 'wp-career-board' ),

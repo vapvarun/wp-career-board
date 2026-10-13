@@ -33,6 +33,13 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* The category picker sits in the row like a select: as wide as its label, like the selects' widest option. */
+.wcb-filters-row .wcb-cat-picker {
+	flex: 1;
+	min-width: max-content;
+	max-width: 16rem;
+}
+
 /* ── Tablet / phone: collapse behind a "Filters (n)" button ───────────────── */
 .wcb-filters-toggle-input {
 	position: absolute;
@@ -95,10 +102,15 @@
 		flex-direction: column;
 	}
 
-	.wcb-filter-select {
+	.wcb-filter-select,
+	.wcb-filters-row .wcb-cat-picker {
 		width: 100%;
 		flex: none;
 		min-width: 0;
+	}
+
+	.wcb-filters-row .wcb-cat-picker {
+		max-width: none;
 	}
 }
 

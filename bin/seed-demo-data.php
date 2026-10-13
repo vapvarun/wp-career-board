@@ -116,6 +116,43 @@ $wcb_term = static function ( string $name, string $taxonomy ): int {
 	return is_wp_error( $made ) ? 0 : (int) $made['term_id'];
 };
 
+// Subcategories, so the demo shows a real category tree. First keyword in the title wins.
+$wcb_subcategories = array(
+	'Engineering' => array(
+		'Frontend Development'  => array( 'Frontend' ),
+		'Backend Development'   => array( 'Backend' ),
+		'Full-Stack Development' => array( 'Full-Stack' ),
+		'Mobile Development'    => array( 'Mobile', 'React Native' ),
+		'Quality Assurance'     => array( 'QA' ),
+	),
+	'Design'      => array(
+		'Product Design' => array( 'Product Designer' ),
+		'Brand Design'   => array( 'Brand Designer' ),
+		'UX Research'    => array( 'UX Researcher' ),
+	),
+	'Data'        => array(
+		'Data Analysis'    => array( 'Data Analyst' ),
+		'Data Engineering' => array( 'Data Engineer' ),
+		'Data Science'     => array( 'Data Scientist' ),
+	),
+);
+$wcb_category = static function ( string $parent, string $title ) use ( $wcb_term, $wcb_subcategories ): int {
+	$parent_id = $wcb_term( $parent, 'wcb_category' );
+	foreach ( $wcb_subcategories[ $parent ] ?? array() as $child => $keywords ) {
+		foreach ( $keywords as $keyword ) {
+			if ( false !== stripos( $title, $keyword ) ) {
+				$term = get_term_by( 'name', $child, 'wcb_category' );
+				if ( $term instanceof \WP_Term ) {
+					return (int) $term->term_id;
+				}
+				$made = wp_insert_term( $child, 'wcb_category', array( 'parent' => $parent_id ) );
+				return is_wp_error( $made ) ? $parent_id : (int) $made['term_id'];
+			}
+		}
+	}
+	return $parent_id;
+};
+
 $wcb_user = static function ( array $p, string $role, string $display ) use ( $wcb_tag ): int {
 	$uid = wp_insert_user(
 		array(
@@ -231,7 +268,7 @@ foreach ( $wcb_data['jobs'] as $j ) {
 	if ( $j['remote'] && 'Remote' !== $j['location'] ) {
 		$locations[] = $wcb_term( 'Remote', 'wcb_location' );
 	}
-	wp_set_object_terms( $jid, array( $wcb_term( $j['category'], 'wcb_category' ) ), 'wcb_category' );
+	wp_set_object_terms( $jid, array( $wcb_category( $j['category'], $j['title'] ) ), 'wcb_category' );
 	wp_set_object_terms( $jid, array( $wcb_term( $j['type'], 'wcb_job_type' ) ), 'wcb_job_type' );
 	wp_set_object_terms( $jid, array( $wcb_term( $j['experience'], 'wcb_experience' ) ), 'wcb_experience' );
 	wp_set_object_terms( $jid, $locations, 'wcb_location' );

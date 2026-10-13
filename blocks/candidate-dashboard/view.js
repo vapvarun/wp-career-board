@@ -142,7 +142,7 @@ function buildSalaryPill( min, max ) {
 /**
  * Convert an alert's filters JSON string/object into readable pill labels.
  */
-function buildFilterPills( filters ) {
+function buildFilterPills( filters, labels ) {
 	if ( typeof filters === 'string' ) {
 		try {
 			filters = JSON.parse( filters );
@@ -152,6 +152,10 @@ function buildFilterPills( filters ) {
 	}
 	if ( ! filters || typeof filters !== 'object' ) {
 		return [];
+	}
+	// Pro sends term names ("Design, Marketing") beside the slugs.
+	if ( labels && typeof labels === 'object' ) {
+		filters = { ...filters, ...labels };
 	}
 	const pills = [];
 	if ( filters.category ) pills.push( filters.category );
@@ -437,7 +441,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 						id:          a.id,
 						label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 						frequency:   a.frequency,
-						filterPills: buildFilterPills( a.filters ),
+						filterPills: buildFilterPills( a.filters, a.filter_labels ),
 					} ) );
 				}
 			} catch {
@@ -887,7 +891,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					id:          a.id,
 					label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 					frequency:   a.frequency,
-					filterPills: buildFilterPills( a.filters ),
+					filterPills: buildFilterPills( a.filters, a.filter_labels ),
 				} ) );
 			} catch {
 				state.error = t( 'errConnectionShort', 'Connection error.' );

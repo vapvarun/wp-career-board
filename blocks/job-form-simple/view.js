@@ -279,7 +279,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					deadline:          state.deadline,
 					apply_url:         state.applyUrl,
 					apply_email:       state.applyEmail,
-					categories:        state.categorySlug ? [ state.categorySlug ] : [],
+					categories:        state.categorySlugs,
 					job_types:         state.typeSlug ? [ state.typeSlug ] : [],
 					locations:         state.locationSlug ? [ state.locationSlug ] : [],
 					experience:        state.expSlug ? [ state.expSlug ] : [],
@@ -335,7 +335,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.applyEmail  = '';
 					state.locationSlug = '';
 					state.typeSlug     = '';
-					state.categorySlug = '';
+					state.categorySlugs = [];
 					state.expSlug      = '';
 					state.tags         = '';
 					state.remote       = false;

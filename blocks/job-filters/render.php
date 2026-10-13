@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 // wcb_* aliases), so a shared or Back-navigated link shows matching selects.
 $wcb_url               = \WCB\Modules\Jobs\JobSearch::from_url();
 $wcb_first             = static fn( string $key ): string => (string) strtok( (string) ( $wcb_url[ $key ] ?? '' ), ',' );
-$wcb_filter_category   = $wcb_first( 'category' );
+$wcb_filter_category   = (string) ( $wcb_url['category'] ?? '' ); // Several at once: a comma list.
 $wcb_filter_type       = $wcb_first( 'type' );
 $wcb_filter_location   = $wcb_first( 'location' );
 $wcb_filter_exp        = $wcb_first( 'experience' );
@@ -70,14 +70,13 @@ wp_interactivity_state(
 	</label>
 	<div class="wcb-filters-row">
 
-		<select class="wcb-filter-select" name="wcb_category" aria-label="<?php esc_attr_e( 'Category', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_category">
-			<option value=""><?php esc_html_e( 'All Categories', 'wp-career-board' ); ?></option>
-			<?php foreach ( $wcb_categories as $wcb_term ) : ?>
-				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_category, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->label ); ?>
-				</option>
-			<?php endforeach; ?>
-		</select>
+		<?php
+		$wcb_picker_options  = $wcb_categories;
+		$wcb_picker_selected = $wcb_filter_category;
+		$wcb_picker_name     = '';
+		$wcb_picker_filter   = 'wcb_category';
+		require WCB_DIR . 'templates/parts/category-picker.php';
+		?>
 
 		<select class="wcb-filter-select" name="wcb_job_type" aria-label="<?php esc_attr_e( 'Job Type', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_job_type">
 			<option value=""><?php esc_html_e( 'All Types', 'wp-career-board' ); ?></option>

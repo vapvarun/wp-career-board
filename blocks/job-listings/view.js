@@ -7,6 +7,7 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { categoryTree, filterList } from '@wcb/ui';
 
 let searchDebounceTimer = null;
 
@@ -275,6 +276,30 @@ function syncUrl() {
 	renderedSearch = url.search;
 }
 
+// Categories tick as a tree (a parent ticks its children), the same as the
+// category picker. The cat_* chips hold the short form: a ticked parent
+// stands for its children.
+let catTree = null;
+const cats = () => ( catTree ||= categoryTree( state.filterOptions.categories || [] ) );
+const catChips = ( filters ) => Object.keys( filters ).filter( ( key ) => key.startsWith( 'cat_' ) ).map( ( key ) => filters[ key ] );
+const catSet = () => cats().expand( catChips( state.activeFilters ) );
+
+/**
+ * Filters with the category chips replaced by exactly these slugs.
+ *
+ * @param {Object<string,string>} filters Active filters.
+ * @param {string[]}              slugs   Chosen categories (short form).
+ * @return {Object<string,string>} New filters.
+ */
+function withCatChips( filters, slugs ) {
+	const next = { ...filters };
+	Object.keys( next ).filter( ( key ) => key.startsWith( 'cat_' ) || key === 'wcb_category' ).forEach( ( key ) => delete next[ key ] );
+	slugs.forEach( ( slug ) => {
+		next[ 'cat_' + slug ] = slug;
+	} );
+	return next;
+}
+
 // Every filter name the URL can carry (canonical and the aliases the server accepts).
 const URL_FILTER_KEYS = [ 'search', 's', 'wcb_search', 'category', 'wcb_category', 'type', 'wcb_job_type', 'location', 'wcb_location', 'experience', 'wcb_experience', 'tag', 'wcb_tag', 'remote', 'wcb_remote', 'board', 'board_id', 'sort', 'wcb_sort', 'salary_min', 'salary_max' ];
 
@@ -323,10 +348,14 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! state.activeFilters[ 'exp_' + ctx.expSlug ];
 		},
 
-		/** Loop-context getter — valid inside data-wp-each on filterOptions.categories. */
+		/** Ticked: chosen, or under a chosen parent. Valid inside a category option. */
 		get isCatActive() {
-			const ctx = getContext();
-			return !! state.activeFilters[ 'cat_' + ctx.catSlug ];
+			return catSet().has( getContext().catSlug );
+		},
+
+		/** Partly ticked: some categories under it are chosen. */
+		get isCatMixed() {
+			return cats().mixed( catSet(), getContext().catSlug );
 		},
 
 		/** Loop-context getter — valid inside data-wp-each on filterOptions.tags. */
@@ -585,26 +614,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Category chip ─────────────────────────────────────────────
 		// Narrow a long filter list as the visitor types (labels only, no request).
 		searchFilterList( event ) {
-			const needle = event.target.value.trim().toLowerCase();
-			const list   = event.target.parentElement.querySelector( '.wcb-filter-panel__list' );
-			list.querySelectorAll( 'li' ).forEach( ( li ) => {
-				li.hidden = '' !== needle && ! li.textContent.toLowerCase().includes( needle );
-			} );
+			filterList( event.target.value, event.target.parentElement.querySelector( '.wcb-filter-panel__list' ) );
 		},
 
-		* toggleCatChip() {
-			const ctx = getContext();
-			const key = 'cat_' + ctx.catSlug;
-			if ( state.activeFilters[ key ] ) {
-				const next = { ...state.activeFilters };
-				delete next[ key ];
-				state.activeFilters = next;
-			} else {
-				state.activeFilters = {
-					...state.activeFilters,
-					[ key ]: ctx.catSlug,
-				};
-			}
+		* toggleCatChip( event ) {
+			const set = cats().toggle( catSet(), getContext().catSlug, event.target.checked );
+			state.activeFilters = withCatChips( state.activeFilters, cats().compress( set ) );
 			yield actions.applyFilters();
 		},
 
@@ -723,6 +738,8 @@ const { state, actions } = store( 'wcb-job-listings', {
 		* applyFilters() {
 			state.page = 1;
 			syncUrl();
+			// The category pickers (filters bar, hero) show what the results use.
+			document.dispatchEvent( new CustomEvent( 'wcb:categories', { detail: { slugs: catChips( state.activeFilters ) } } ) );
 			yield actions.fetchJobs();
 		},
 
@@ -880,18 +897,26 @@ const { state, actions } = store( 'wcb-job-listings', {
 				// Merge external filter block values (wcb_category, wcb_location,
 				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
 				if ( params.filters && typeof params.filters === 'object' ) {
-					const merged = Object.assign( {}, state.activeFilters );
+					let merged = Object.assign( {}, state.activeFilters );
 					// The filters block is single-select per taxonomy: its value
 					// replaces any chips of that taxonomy read from the URL
-					// (cat_*, type_* ...) instead of being added to them.
-					const prefixOf = { wcb_category: 'cat_', wcb_job_type: 'type_', wcb_experience: 'exp_', wcb_tag: 'tag_' };
+					// (type_*, exp_* ...) instead of being added to them.
+					const prefixOf = { wcb_job_type: 'type_', wcb_experience: 'exp_', wcb_tag: 'tag_' };
 					for ( const key of Object.keys( params.filters ) ) {
 						const prefix = prefixOf[ key ];
 						if ( prefix ) {
 							Object.keys( merged ).filter( ( k ) => k.startsWith( prefix ) ).forEach( ( k ) => delete merged[ k ] );
 						}
 					}
+					// The category picker sends its whole choice (a comma list):
+					// it becomes the sidebar's ticks, so both show the same.
+					if ( 'wcb_category' in params.filters ) {
+						merged = withCatChips( merged, String( params.filters.wcb_category || '' ).split( ',' ).filter( Boolean ) );
+					}
 					for ( const [ key, value ] of Object.entries( params.filters ) ) {
+						if ( key === 'wcb_category' ) {
+							continue;
+						}
 						if ( value ) {
 							merged[ key ] = String( value );
 						} else {

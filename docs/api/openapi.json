@@ -2788,6 +2788,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -2910,6 +2916,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -2998,6 +3010,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -3086,6 +3104,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }

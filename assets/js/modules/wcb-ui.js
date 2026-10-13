@@ -180,3 +180,68 @@ export function relativeTime( siteTag, mysqlUtc ) {
 		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
 	}
 }
+
+/**
+ * Ticked state of a nested category list, shared by the category picker and
+ * the job listings sidebar so both tick the same way.
+ *
+ * A ticked parent ticks every category under it, and a parent stays ticked
+ * only while all of its children are, so unticking one child leaves the
+ * parent partly ticked and unticking the last one unticks it. The URL keeps
+ * the short form: a ticked parent stands for its children (the server
+ * includes them).
+ *
+ * @param {{slug: string, parent: string}[]} items Categories in tree order; parent is '' at the top.
+ * @return {{expand: function(string[]): Set<string>, toggle: function(Set<string>, string, boolean): Set<string>, compress: function(Set<string>): string[], mixed: function(Set<string>, string): boolean}} Tree helpers.
+ */
+export function categoryTree( items ) {
+	const parentOf = new Map( items.map( ( item ) => [ item.slug, item.parent || '' ] ) );
+	const children = new Map();
+	items.forEach( ( item ) => {
+		if ( item.parent ) {
+			children.set( item.parent, [ ...( children.get( item.parent ) || [] ), item.slug ] );
+		}
+	} );
+	const descendants = ( slug ) => ( children.get( slug ) || [] ).flatMap( ( child ) => [ child, ...descendants( child ) ] );
+	const normalise   = ( set ) => {
+		// Deepest first, so a parent sees its children's final state.
+		[ ...items ].reverse().forEach( ( { slug } ) => {
+			const kids = children.get( slug );
+			if ( kids && kids.every( ( kid ) => set.has( kid ) ) ) {
+				set.add( slug );
+			} else if ( kids ) {
+				set.delete( slug );
+			}
+		} );
+		return set;
+	};
+	return {
+		expand( slugs ) {
+			return normalise( new Set( slugs.flatMap( ( slug ) => [ slug, ...descendants( slug ) ] ) ) );
+		},
+		toggle( set, slug, on ) {
+			const next = new Set( set );
+			[ slug, ...descendants( slug ) ].forEach( ( s ) => next[ on ? 'add' : 'delete' ]( s ) );
+			return normalise( next );
+		},
+		compress( set ) {
+			return [ ...set ].filter( ( slug ) => ! set.has( parentOf.get( slug ) ) );
+		},
+		mixed( set, slug ) {
+			return ! set.has( slug ) && descendants( slug ).some( ( s ) => set.has( s ) );
+		},
+	};
+}
+
+/**
+ * Narrow a long checkbox list to the labels containing what was typed.
+ *
+ * @param {string}      needle Typed text.
+ * @param {HTMLElement} list   The list whose <li> rows to hide or show.
+ */
+export function filterList( needle, list ) {
+	const term = needle.trim().toLowerCase();
+	list.querySelectorAll( 'li' ).forEach( ( li ) => {
+		li.hidden = '' !== term && ! li.textContent.toLowerCase().includes( term );
+	} );
+}
