@@ -155,6 +155,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		// The email field differs from the saved one: ask for the current password.
 		// Names the row's "more actions" button for screen readers.
+		get companyMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().co.name );
+		},
 		get rowMenuLabel() {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().job.title );
 		},
@@ -168,6 +171,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				applications: t( 'applications', 'Applications' ),
 				company:      t( 'profile', 'Profile' ),
 				'post-job':   t( 'postAJob', 'Post a Job' ),
+				// Every tab names itself in the phone menu button (was 'Dashboard').
+				companies:         t( 'tabCompanies', 'Companies' ),
+				'saved-jobs':      t( 'tabSavedJobs', 'Saved Jobs' ),
+				'saved-companies': t( 'tabSavedCompanies', 'Saved Companies' ),
+				'saved-resumes':   t( 'tabSavedResumes', 'Saved Resumes' ),
+				settings:          t( 'tabSettings', 'Settings' ),
+				notifications:     t( 'tabNotifications', 'Notifications' ),
+				credits:           t( 'tabCredits', 'Credits' ),
 			};
 			return map[ state.currentView ] || t( 'dashboard', 'Dashboard' );
 		},
@@ -201,10 +212,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				? t( 'employerAt', 'Employer · %s' ).replace( '%s', state.mainCompanyName )
 				: t( 'employerRole', 'Employer' );
 		},
-		// The main company's page, else the company directory (no main yet).
+		// The main company's page; empty (link hidden) when there is no company.
 		get mainCompanyUrl() {
 			const main = state.companies.find( ( c ) => c.isMain );
-			return ( main && main.permalink ) || state.companyDirUrl;
+			return ( main && main.permalink ) || '';
 		},
 		get mainInitials() {
 			const n = state.mainCompanyName || state.displayName;
@@ -1640,6 +1651,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					menu.open = false;
 				}
 			} );
+			// The dashboard shell clips overflow, so the last row's menu opens upward.
+			const menu = event.target;
+			menu.classList.remove( 'wcb-row-menu--up' );
+			const list = menu.querySelector( '.wcb-row-menu__list' );
+			const shell = menu.closest( '.wcb-dashboard-shell' );
+			if ( list && shell && list.getBoundingClientRect().bottom > shell.getBoundingClientRect().bottom ) {
+				menu.classList.add( 'wcb-row-menu--up' );
+			}
 		},
 		onRowMenuKeydown( event ) {
 			if ( 'Escape' === event.key && event.currentTarget.open ) {

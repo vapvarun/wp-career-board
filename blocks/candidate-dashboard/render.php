@@ -423,7 +423,8 @@ wp_interactivity_state(
 			<?php endif; ?>
 			<span class="wcb-sidebar-identity__text">
 				<span class="wcb-sidebar-identity__name" data-wp-text="state.candidateName"><?php echo esc_html( $wcb_display_name ); ?></span>
-				<span class="wcb-sidebar-identity__role"><?php esc_html_e( 'Candidate', 'wp-career-board' ); ?></span>
+				<?php // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php. ?>
+				<span class="wcb-sidebar-identity__role"><?php wp_is_ability_granted( 'wcb/manage-settings' ) ? esc_html_e( 'Site admin', 'wp-career-board' ) : esc_html_e( 'Candidate', 'wp-career-board' ); ?></span>
 			</span>
 		</button>
 

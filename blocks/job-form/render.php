@@ -213,6 +213,17 @@ if ( \WCB\Modules\Jobs\JobPayment::is_exempt( $wcb_edit_id ) ) {
 	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
 }
 
+// A new job opens on a board the employer can afford, not on a paid default
+// that greets a 0-credit employer with "This board requires 3 credits".
+if ( ! $wcb_edit_job && empty( $attributes['boardId'] ) && ( $wcb_board_credit_costs[ $wcb_board_id ] ?? 0 ) > $wcb_credit_balance ) {
+	foreach ( $wcb_board_options as $wcb_opt ) {
+		if ( ( $wcb_board_credit_costs[ (int) $wcb_opt['id'] ] ?? 0 ) <= $wcb_credit_balance ) {
+			$wcb_board_id = (int) $wcb_opt['id'];
+			break;
+		}
+	}
+}
+
 /**
  * Pluralised credit noun, resolved with the real count.
  *

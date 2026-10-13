@@ -386,14 +386,19 @@
 	display: -webkit-box;
 }
 
-/* Meta: one plain line (industry · size · HQ), not three pills. It
- * truncates rather than wrapping, so a separator never starts a line. */
+/* Meta: industry · size · HQ as plain text, not pills. Items break between
+ * each other (never mid-name), up to two lines; an item that still doesn't
+ * fit is dropped whole. Each separator sits in the gap before its item, so
+ * on a line start it falls outside the box and is clipped away. */
 .wcb-ca-card-chips {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: var(--wcb-space-lg);
+	max-height: calc(2em * var(--wcb-leading-normal, 1.5));
+	line-height: var(--wcb-leading-normal, 1.5);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
-	white-space: nowrap;
 	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .wcb-ca-card-chips:not(:has(.wcb-shown)),
@@ -403,12 +408,16 @@
 
 .wcb-ca-chip.wcb-shown {
 	display: inline;
+	position: relative;
+	white-space: nowrap;
 }
 
 .wcb-ca-chip.wcb-shown ~ .wcb-ca-chip.wcb-shown::before {
 	content: "\00B7";
-	/* xs, not sm, before: the markup's own whitespace supplies the rest. */
-	margin-inline: var(--wcb-space-xs) var(--wcb-space-sm);
+	position: absolute;
+	inset-inline-start: calc(-1 * var(--wcb-space-lg));
+	width: var(--wcb-space-lg);
+	text-align: center;
 }
 
 /* -- Card footer -- */

@@ -464,8 +464,11 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)::placeholder {
-	color: var(--wcb-text-tertiary);
+/* Every placeholder in our blocks, search boxes included (themes set their
+   own, 2.85:1 in Reign dark). Secondary text clears 4.5:1 in light and dark. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, textarea)::placeholder {
+	color: var(--wcb-text-secondary);
+	opacity: 1;
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):is([readonly], :disabled) {

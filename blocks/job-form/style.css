@@ -169,7 +169,7 @@
 }
 
 .wcb-required {
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
 	font-weight: var(--wcb-font-bold);
 	margin-inline-start: 2px; /* hairline gap */
 }
@@ -573,12 +573,13 @@
 		align-items: stretch;
 	}
 
-	.wcb-btn {
+	/* Scoped: unscoped, this stretched every button on the page the form sits on. */
+	.wcb-form-nav .wcb-btn {
 		width: 100%;
 		min-width: 0;
 	}
 
-	.wcb-btn--primary {
+	.wcb-form-nav .wcb-btn--primary {
 		margin-inline-start: 0;
 	}
 }

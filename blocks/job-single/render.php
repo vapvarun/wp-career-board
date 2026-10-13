@@ -746,7 +746,7 @@ wp_interactivity_state(
 					<?php endif; ?>
 
 					<?php if ( $wcb_apply_email && ! $wcb_deadline_passed ) : ?>
-						<div class="wcb-detail-row">
+						<div class="wcb-detail-row wcb-detail-row--stacked">
 							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
 							<dd>
 								<a

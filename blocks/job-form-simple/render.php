@@ -96,6 +96,18 @@ if ( 0 === $wcb_resolved_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_resolved_board_id  = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
 }
 
+// Open on a board the employer can afford, not on a paid default that greets a
+// 0-credit employer with "This board requires 3 credits" (site admins post free).
+$wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+if ( 0 === $wcb_board_id_attr && ( $wcb_board_credit_costs[ $wcb_resolved_board_id ] ?? 0 ) > $wcb_credit_balance && ! \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+	foreach ( $wcb_board_options as $wcb_opt ) {
+		if ( ( $wcb_board_credit_costs[ (int) $wcb_opt['id'] ] ?? 0 ) <= $wcb_credit_balance ) {
+			$wcb_resolved_board_id = (int) $wcb_opt['id'];
+			break;
+		}
+	}
+}
+
 // ── Taxonomy terms ─────────────────────────────────────────────────────────
 $wcb_categories = \WCB\Core\Taxonomy::options( 'wcb_category' );
 $wcb_job_types  = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
@@ -234,7 +246,7 @@ $wcb_state = apply_filters(
 		// Per-board currency override map so view.js can update currencyCode
 		// on board switch. Empty string means no override - keep current.
 		'boardCurrencies'   => array_map( 'strval', $wcb_board_currencies ),
-		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
+		'creditBalance'     => $wcb_credit_balance,
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'buyUrl'            => '',
 		'featured'          => false,

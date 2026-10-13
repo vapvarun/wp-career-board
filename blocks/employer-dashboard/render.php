@@ -11,6 +11,14 @@ declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 $wcb_can_manage = wp_is_ability_granted( 'wcb/manage-company' );
+// A site admin opening the dashboard is labelled as such, not 'Employer'.
+// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+$wcb_is_site_admin = wp_is_ability_granted( 'wcb/manage-settings' );
+$wcb_role_labels   = array(
+	/* translators: %s: company name */
+	'at'   => $wcb_is_site_admin ? __( 'Site admin · %s', 'wp-career-board' ) : __( 'Employer · %s', 'wp-career-board' ),
+	'role' => $wcb_is_site_admin ? __( 'Site admin', 'wp-career-board' ) : __( 'Employer', 'wp-career-board' ),
+);
 
 if ( ! is_user_logged_in() ) {
 	$wcb_gate = array(
@@ -104,11 +112,7 @@ $wcb_company_li      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_tw      = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) : '';
 $wcb_company_logo    = $wcb_company_id ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' ) : '';
 
-$wcb_company_archive_id = \WCB\Admin\Pages::get_id( 'company_archive_page' );
-$wcb_company_dir_url    = $wcb_company_archive_id > 0
-	? (string) get_permalink( $wcb_company_archive_id )
-	: '#';
-$wcb_company_url        = $wcb_main_company_id ? (string) get_permalink( $wcb_main_company_id ) : $wcb_company_dir_url;
+$wcb_company_url = $wcb_main_company_id ? (string) get_permalink( $wcb_main_company_id ) : '';
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_apps_job_id = absint( wp_unslash( $_GET['job_apps'] ?? '0' ) );
@@ -229,7 +233,6 @@ wp_interactivity_state(
 		'logoUploading'         => false,
 		'saving'                => false,
 		'saved'                 => false,
-		'companyDirUrl'         => $wcb_company_dir_url,
 		'dashboardUrl'          => $wcb_dashboard_url,
 		'customFieldGroups'     => apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id ),
 		'customFields'          => (object) (
@@ -340,8 +343,8 @@ wp_interactivity_state(
 			'confirmCloseTitle'        => __( 'Close this job?', 'wp-career-board' ),
 			'confirmCloseJob'          => __( 'It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed.', 'wp-career-board' ),
 			/* translators: %s: company name */
-			'employerAt'               => __( 'Employer · %s', 'wp-career-board' ),
-			'employerRole'             => __( 'Employer', 'wp-career-board' ),
+			'employerAt'               => $wcb_role_labels['at'],
+			'employerRole'             => $wcb_role_labels['role'],
 			/* translators: %s: job title */
 			'moreActionsFor'           => __( 'More actions for %s', 'wp-career-board' ),
 			'removeCompanyTitle'       => __( 'Remove this company?', 'wp-career-board' ),
@@ -356,6 +359,13 @@ wp_interactivity_state(
 			'profile'                  => __( 'Profile', 'wp-career-board' ),
 			'postAJob'                 => __( 'Post a Job', 'wp-career-board' ),
 			'dashboard'                => __( 'Dashboard', 'wp-career-board' ),
+			'tabCompanies'             => __( 'Companies', 'wp-career-board' ),
+			'tabSavedJobs'             => __( 'Saved Jobs', 'wp-career-board' ),
+			'tabSavedCompanies'        => __( 'Saved Companies', 'wp-career-board' ),
+			'tabSavedResumes'          => __( 'Saved Resumes', 'wp-career-board' ),
+			'tabSettings'              => __( 'Settings', 'wp-career-board' ),
+			'tabNotifications'         => __( 'Notifications', 'wp-career-board' ),
+			'tabCredits'               => __( 'Credits', 'wp-career-board' ),
 
 			// Logo upload button.
 			'logoUploading'            => __( 'Uploading…', 'wp-career-board' ),
@@ -457,9 +467,8 @@ wp_interactivity_state(
 				<?php
 				echo esc_html(
 					'' !== $wcb_main_name
-						/* translators: %s: company name */
-						? sprintf( __( 'Employer · %s', 'wp-career-board' ), $wcb_main_name )
-						: __( 'Employer', 'wp-career-board' )
+						? sprintf( $wcb_role_labels['at'], $wcb_main_name )
+						: $wcb_role_labels['role']
 				);
 				?>
 				</span>
@@ -500,7 +509,7 @@ wp_interactivity_state(
 			<button type="button" class="wcb-nav-item" id="wcb-tab-company" aria-controls="wcb-panel-company" data-wp-bind--aria-current="state.isViewCompany" data-wp-class--wcb-nav-active="state.isViewCompany" data-wp-on--click="actions.switchToCompany">
 				<?php esc_html_e( 'Profile', 'wp-career-board' ); ?>
 			</button>
-			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_company_url ); ?>" data-wp-bind--href="state.mainCompanyUrl" target="_blank" rel="noopener noreferrer">
+			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_company_url ); ?>" data-wp-bind--href="state.mainCompanyUrl" data-wp-bind--hidden="!state.mainCompanyUrl" target="_blank" rel="noopener noreferrer"<?php echo $wcb_main_company_id ? '' : ' hidden'; ?>>
 				<?php esc_html_e( 'Public Page', 'wp-career-board' ); ?> &#8599;
 			</a>
 
@@ -1005,7 +1014,7 @@ wp_interactivity_state(
 				<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( add_query_arg( 'company', 'new', $wcb_dashboard_url ) . '#company' ); ?>"><?php esc_html_e( 'Add company', 'wp-career-board' ); ?></a>
 			</div>
 
-			<ul class="wcb-company-list" aria-live="polite">
+			<ul class="wcb-company-list" aria-live="polite" data-wp-on-document--click="actions.closeRowMenusOutside">
 				<template data-wp-each--co="state.companies" data-wp-each-key="context.co.id">
 					<li class="wcb-company-card" data-wp-class--wcb-company-card--main="context.co.isMain">
 						<span class="wcb-avatar wcb-company-card__logo" aria-hidden="true">
@@ -1020,11 +1029,19 @@ wp_interactivity_state(
 							</span>
 							<span class="wcb-company-card__stats" data-wp-text="context.co.stats"></span>
 						</div>
+						<?php // One main action and the rest in a menu, like My Jobs. ?>
 						<div class="wcb-company-card__actions">
 							<a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.companyEditUrl"><?php esc_html_e( 'Edit profile', 'wp-career-board' ); ?></a>
-							<a class="wcb-btn wcb-btn--secondary" target="_blank" rel="noopener noreferrer" data-wp-class--wcb-hidden="!context.co.permalink" data-wp-bind--href="context.co.permalink"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
-							<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-class--wcb-hidden="context.co.isMain" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.makeMainCompany"><?php esc_html_e( 'Make main', 'wp-career-board' ); ?></button>
-							<button type="button" class="wcb-btn wcb-btn--danger" data-wp-class--wcb-hidden="!context.co.canRemove" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.removeCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							<details class="wcb-row-menu" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown">
+								<summary class="wcb-btn wcb-btn--secondary wcb-row-menu__toggle" data-wp-bind--aria-label="state.companyMenuLabel">
+									<span aria-hidden="true">&#8943;</span>
+								</summary>
+								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
+									<a class="wcb-row-menu__item" target="_blank" rel="noopener noreferrer" data-wp-class--wcb-hidden="!context.co.permalink" data-wp-bind--href="context.co.permalink"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="context.co.isMain" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.makeMainCompany"><?php esc_html_e( 'Make main', 'wp-career-board' ); ?></button>
+									<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-class--wcb-hidden="!context.co.canRemove" data-wp-bind--disabled="state.isCompanyBusy" data-wp-on--click="actions.removeCompany"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+								</div>
+							</details>
 						</div>
 					</li>
 				</template>

@@ -140,11 +140,6 @@
 	transition: border-color var(--wcb-transition-snappy);
 }
 
-.wcb-filter-input::placeholder {
-	color: var(--wcb-text-secondary);
-	opacity: 1;
-}
-
 .wcb-filter-input:focus {
 	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);

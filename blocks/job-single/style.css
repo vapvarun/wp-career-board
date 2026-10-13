@@ -396,6 +396,18 @@ a.wcb-tag:hover {
 	min-width: 0;
 }
 
+/* An email address is too long for the value column: give it the row's
+   width under its label, not a wrap at the hyphen. */
+.wcb-detail-row--stacked {
+	flex-direction: column;
+	gap: var(--wcb-space-2xs, 2px);
+}
+
+.wcb-detail-row--stacked dd {
+	text-align: start;
+	overflow-wrap: anywhere;
+}
+
 /* ── Company card ────────────────────────────────────────────────────────── */
 .wcb-company-card-header {
 	display: flex;
