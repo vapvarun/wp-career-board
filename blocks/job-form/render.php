@@ -728,8 +728,9 @@ $wcb_step_labels = array(
 					data-wp-bind--min="state.deadlineMin"
 					data-wp-bind--max="state.deadlineMax"
 					data-wp-on--change="actions.setDeadline"
+					aria-describedby="wcb-deadline-help"
 				/>
-				<p class="wcb-form-help" data-wp-text="state.deadlineHelp"></p>
+				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
 			</div>
 
 			<!-- Apply URL -->

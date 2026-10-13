@@ -577,7 +577,7 @@ wp_interactivity_state(
 	</aside>
 
 	<!-- MAIN CONTENT -->
-	<main class="wcb-main">
+	<div class="wcb-main">
 
 		<!-- VIEW: Overview -->
 		<div class="wcb-view-panel" id="wcb-panel-overview" role="tabpanel" aria-labelledby="wcb-tab-overview" data-wp-class--wcb-view-active="state.isViewOverview">
@@ -698,12 +698,12 @@ wp_interactivity_state(
 			</div>
 
 			<div class="wcb-filter-bar">
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isFilterAll" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="live" data-wp-class--wcb-filter-active="state.isFilterLive" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="draft" data-wp-class--wcb-filter-active="state.isFilterDraft" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Draft', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="pending" data-wp-class--wcb-filter-active="state.isFilterPending" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Pending', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isFilterRejected" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isFilterAll" data-wp-bind--aria-pressed="state.isFilterAll" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="live" data-wp-class--wcb-filter-active="state.isFilterLive" data-wp-bind--aria-pressed="state.isFilterLive" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="draft" data-wp-class--wcb-filter-active="state.isFilterDraft" data-wp-bind--aria-pressed="state.isFilterDraft" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Draft', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="pending" data-wp-class--wcb-filter-active="state.isFilterPending" data-wp-bind--aria-pressed="state.isFilterPending" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Pending', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-bind--aria-pressed="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isFilterRejected" data-wp-bind--aria-pressed="state.isFilterRejected" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-db-loading" role="status" aria-label="<?php esc_attr_e( 'Loading', 'wp-career-board' ); ?>" data-wp-class--wcb-shown="state.loading">
@@ -785,27 +785,27 @@ wp_interactivity_state(
 				<a class="wcb-btn wcb-btn--outline wcb-apps-export" data-wp-class--wcb-hidden="!state.jobHasApplications" data-wp-bind--href="state.appsExportUrl" download><?php esc_html_e( 'Export CSV', 'wp-career-board' ); ?></a>
 
 				<div class="wcb-apps-filter-bar wcb-filter-bar" data-wp-class--wcb-shown="state.jobHasApplications">
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isAppsFilterAll" data-wp-bind--aria-pressed="state.isAppsFilterAll" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'All', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountAll"></span>
 				</button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="submitted" data-wp-class--wcb-filter-active="state.isAppsFilterSubmitted" data-wp-bind--aria-pressed="state.isAppsFilterSubmitted" data-wp-on--click="actions.setAppsFilter">
 					<?php echo esc_html( \WCB\Modules\Applications\ApplicationStatus::label( \WCB\Modules\Applications\ApplicationStatus::SUBMITTED ) ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountSubmitted"></span>
 				</button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="reviewing" data-wp-class--wcb-filter-active="state.isAppsFilterReviewing" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="reviewing" data-wp-class--wcb-filter-active="state.isAppsFilterReviewing" data-wp-bind--aria-pressed="state.isAppsFilterReviewing" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'Reviewing', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountReviewing"></span>
 				</button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="shortlisted" data-wp-class--wcb-filter-active="state.isAppsFilterShortlisted" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="shortlisted" data-wp-class--wcb-filter-active="state.isAppsFilterShortlisted" data-wp-bind--aria-pressed="state.isAppsFilterShortlisted" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'Shortlisted', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountShortlisted"></span>
 				</button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isAppsFilterRejected" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isAppsFilterRejected" data-wp-bind--aria-pressed="state.isAppsFilterRejected" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'Rejected', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountRejected"></span>
 				</button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="hired" data-wp-class--wcb-filter-active="state.isAppsFilterHired" data-wp-on--click="actions.setAppsFilter">
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="hired" data-wp-class--wcb-filter-active="state.isAppsFilterHired" data-wp-bind--aria-pressed="state.isAppsFilterHired" data-wp-on--click="actions.setAppsFilter">
 					<?php esc_html_e( 'Hired', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountHired"></span>
 				</button>
@@ -1332,7 +1332,7 @@ wp_interactivity_state(
 	</div>
 	<?php endif; ?>
 
-	</main>
+	</div>
 </div>
 
 </div>

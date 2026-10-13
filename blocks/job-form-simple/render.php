@@ -520,8 +520,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
-				<span class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
+				<input id="wcb-simple-deadline" type="date" aria-describedby="wcb-simple-deadline-help" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
+				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
 			</div>
 		</section>
 

@@ -540,7 +540,7 @@ wp_interactivity_state(
 	</aside>
 
 	<!-- MAIN CONTENT -->
-	<main class="wcb-main">
+	<div class="wcb-main">
 
 		<!-- VIEW: Overview -->
 		<div class="wcb-view-panel" role="tabpanel" data-wp-class--wcb-view-active="state.isTabOverview">
@@ -1280,7 +1280,7 @@ wp_interactivity_state(
 							<strong data-wp-text="state.deletionScheduledFor"></strong>.
 							<?php esc_html_e( 'You can stop this at any time before then.', 'wp-career-board' ); ?>
 						</p>
-						<button type="button" class="wcb-btn"
+						<button type="button" class="wcb-btn wcb-btn--secondary"
 							data-wp-on--click="actions.cancelAccountDeletion"
 							data-wp-bind--disabled="state.privacyBusy">
 							<?php esc_html_e( 'Keep my account', 'wp-career-board' ); ?>
@@ -1351,7 +1351,7 @@ wp_interactivity_state(
 								data-wp-bind--disabled="state.privacyBusy">
 								<?php esc_html_e( 'Schedule deletion', 'wp-career-board' ); ?>
 							</button>
-							<button type="button" class="wcb-btn"
+							<button type="button" class="wcb-btn wcb-btn--secondary"
 								data-wp-on--click="actions.closeDeleteForm"
 								data-wp-bind--disabled="state.privacyBusy">
 								<?php esc_html_e( 'Cancel', 'wp-career-board' ); ?>
@@ -1378,7 +1378,7 @@ wp_interactivity_state(
 		</div>
 		<?php endif; ?>
 
-	</main>
+	</div>
 
 </div><!-- .wcb-dashboard-shell -->
 

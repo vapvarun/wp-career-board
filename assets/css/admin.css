@@ -481,6 +481,13 @@
 	box-shadow: var(--wcb-shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
 }
 
+/* The card has no padding: header, rows, body, footer and tables carry their
+ * own inset. Loose content dropped straight in a card (an action row, a filter
+ * list, a heading) keeps the same 24px inner edge instead of touching the border. */
+.wcb-settings-card > :where(p, ul, ol, dl, h3, h4, nav) {
+	margin-inline: var(--wcb-space-2xl, 24px);
+}
+
 .wcb-settings-card-header {
 	padding: 14px 24px;
 	border-bottom: 1px solid var(--wcb-border, #e2e8f0);

@@ -322,7 +322,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 			</div>
 		</aside>
 
-		<main class="wcb-archive-results">
+		<div class="wcb-archive-results">
 
 		<?php /* ── Company cards container ── */ ?>
 		<div
@@ -441,7 +441,7 @@ require WCB_DIR . 'templates/parts/archive-empty-state.php';
 		require WCB_DIR . 'templates/parts/archive-load-more.php';
 		?>
 
-		</main>
+		</div>
 	</div><!-- /.wcb-archive-layout -->
 
 </div>
