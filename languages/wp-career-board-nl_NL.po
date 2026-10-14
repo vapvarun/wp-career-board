@@ -5885,644 +5885,639 @@ msgstr "vergelijkbaar"
 #: admin/class-admin-applications.php:115
 #, php-format
 msgid "Job: %s"
-msgstr ""
+msgstr "Functie: %s"
 
 #: admin/class-admin-applications.php:117
 msgid "Show all jobs"
-msgstr ""
+msgstr "Alle functies tonen"
 
 #: admin/class-admin-applications.php:120
 msgid "Export all matching to CSV"
-msgstr ""
+msgstr "Alle overeenkomsten naar CSV exporteren"
 
 #: admin/class-admin-applications.php:562
 #: admin/class-admin-candidates.php:377
 #: blocks/employer-dashboard/render.php:1062
 #: modules/applications/widgets/class-applicant-card.php:128
 #: modules/candidates/class-candidates-module.php:218
-#, fuzzy
 msgid "View resume"
-msgstr "Bekijk CV"
+msgstr "CV bekijken"
 
 #: admin/class-admin-applications.php:616
 msgid "Show only this job's applications"
-msgstr ""
+msgstr "Alleen sollicitaties van deze functie tonen"
 
 #: admin/class-admin-candidates.php:140
 #: admin/class-admin-candidates.php:398
 msgid "Suspend"
-msgstr ""
+msgstr "Schorsen"
 
 #: admin/class-admin-candidates.php:415
 msgid "Suspended"
-msgstr ""
+msgstr "Geschorst"
 
 #: admin/class-admin-candidates.php:437
 msgid "Public"
-msgstr ""
+msgstr "Openbaar"
 
 #: admin/class-admin-employers.php:552
 #: modules/employers/class-employers-module.php:455
-#, fuzzy
 msgid "View company"
-msgstr "Bedrijf weergeven"
+msgstr "Bedrijf bekijken"
 
 #: admin/class-admin-employers.php:606
 msgid "main"
-msgstr ""
+msgstr "hoofd"
 
 #: admin/class-admin-import.php:81
 msgid "Currency & pay period (hourly, monthly, yearly)"
-msgstr ""
+msgstr "Valuta en betaalperiode (per uur, per maand, per jaar)"
 
 #: admin/class-admin-import.php:86
 msgid "Company pages (name, website, tagline, Twitter, logo), matched to existing companies by website or name"
-msgstr ""
+msgstr "Bedrijfspagina's (naam, website, slogan, Twitter, logo), gekoppeld aan bestaande bedrijven op website of naam"
 
 #: admin/class-admin-import.php:87
 msgid "Filled jobs → Closed, expired → Expired"
-msgstr ""
+msgstr "Vervulde functies → Gesloten, verlopen → Verlopen"
 
 #: admin/class-admin-import.php:88
 msgid "Categories, job types & tags"
-msgstr ""
+msgstr "Categorieën, functietypen en tags"
 
 #. translators: 1: jobs to import, 2: filled jobs that will be closed, 3: new company pages, 4: applications to import.
 #: admin/class-admin-import.php:116
 #, php-format
 msgid "Preview: %1$s jobs to import, %2$s filled jobs will be closed, %3$s new company pages, %4$s applications (import them after the jobs)."
-msgstr ""
+msgstr "Voorbeeld: %1$s functies om te importeren, %2$s vervulde functies worden gesloten, %3$s nieuwe bedrijfspagina's, %4$s sollicitaties (importeer die na de functies)."
 
 #: admin/class-admin-import.php:167
 msgid "WP Job Manager Applications → Applications"
-msgstr ""
+msgstr "WP Job Manager Applications → Sollicitaties"
 
 #: admin/class-admin-import.php:172
 msgid "Moves applications onto the imported jobs with their status (new, interviewed, offer, hired, rejected), message, candidate and attached file links. Import the jobs first. No emails are sent."
-msgstr ""
+msgstr "Zet sollicitaties op de geïmporteerde functies met hun status (nieuw, interview, aanbod, aangenomen, afgewezen), bericht, kandidaat en bijgevoegde bestandslinks. Importeer eerst de functies. Er worden geen e-mails verstuurd."
 
 #: admin/class-admin-import.php:187
 msgid "Import All Applications"
-msgstr ""
+msgstr "Alle sollicitaties importeren"
 
 #: admin/class-admin-jobs.php:86
 msgid "Job title or company…"
-msgstr ""
+msgstr "Functietitel of bedrijf…"
 
 #: admin/class-admin-jobs.php:329
 #: admin/class-admin-jobs.php:544
 #: blocks/employer-dashboard/render.php:466
 msgid "Awaiting payment"
-msgstr ""
+msgstr "Wachten op betaling"
 
 #: admin/class-admin-jobs.php:548
 msgid "Hidden: employer banned"
-msgstr ""
+msgstr "Verborgen: werkgever geblokkeerd"
 
 #: admin/class-admin-jobs.php:550
 msgid "Hidden: reported"
-msgstr ""
+msgstr "Verborgen: gemeld"
 
 #: admin/class-admin-jobs.php:575
 msgid "Not in Google for Jobs: add a location or mark the job as remote."
-msgstr ""
+msgstr "Niet in Google for Jobs: voeg een locatie toe of markeer de functie als op afstand."
 
 #: admin/class-admin-jobs.php:576
 msgid "No location"
-msgstr ""
+msgstr "Geen locatie"
 
 #: admin/class-admin-meta-boxes.php:331
 msgid "Leave empty to use the board's listing length."
-msgstr ""
+msgstr "Laat leeg om de plaatsingsduur van het bord te gebruiken."
 
 #: admin/class-admin-meta-boxes.php:334
 msgid "No expiry (stays open until closed)"
-msgstr ""
+msgstr "Geen vervaldatum (blijft open tot sluiting)"
 
 #: admin/class-admin-settings.php:303
 #: admin/class-admin-settings.php:1232
 msgid "Industries"
-msgstr ""
+msgstr "Sectoren"
 
 #: admin/class-admin-settings.php:305
 #: admin/class-admin-settings.php:904
 #: admin/class-setup-wizard.php:186
 msgid "Sign-ups"
-msgstr ""
+msgstr "Aanmeldingen"
 
 #: admin/class-admin-settings.php:306
 msgid "Privacy"
-msgstr ""
+msgstr "Privacy"
 
 #: admin/class-admin-settings.php:307
 #: admin/class-admin-settings.php:1096
 #: admin/class-admin-settings.php:1314
 #: admin/class-email-settings.php:121
 msgid "Brand"
-msgstr ""
+msgstr "Merk"
 
 #: admin/class-admin-settings.php:309
 msgid "Mobile App"
-msgstr ""
+msgstr "Mobiele app"
 
 #: admin/class-admin-settings.php:312
 #: admin/class-admin-settings.php:981
 msgid "Advanced"
-msgstr ""
+msgstr "Geavanceerd"
 
 #: admin/class-admin-settings.php:382
 msgid "Jobs & Applications"
-msgstr ""
+msgstr "Functies en sollicitaties"
 
 #: admin/class-admin-settings.php:386
 msgid "Candidates & Employers"
-msgstr ""
+msgstr "Kandidaten en werkgevers"
 
 #: admin/class-admin-settings.php:390
 msgid "Emails & App"
-msgstr ""
+msgstr "E-mails en app"
 
 #: admin/class-admin-settings.php:394
 msgid "Site"
-msgstr ""
+msgstr "Site"
 
 #: admin/class-admin-settings.php:474
 #: admin/class-admin-settings.php:492
 #: admin/class-setup-wizard.php:206
-#, fuzzy
 msgid "Sample data"
 msgstr "Voorbeeldgegevens"
 
 #: admin/class-admin-settings.php:684
 msgid "How jobs are reviewed, how long they run and how they are listed."
-msgstr ""
+msgstr "Hoe functies worden beoordeeld, hoe lang ze lopen en hoe ze worden weergegeven."
 
 #: admin/class-admin-settings.php:701
 msgid "Hide a job after this many reports"
-msgstr ""
+msgstr "Verberg een functie na zoveel meldingen"
 
 #: admin/class-admin-settings.php:704
 msgid "When this many different members report a job, it is taken off the site as \"Pending\" until you review it under Career Board > Jobs > Flagged. Dismissing the reports puts it back. 0 never hides a job automatically. You are emailed on the first report and when a job is hidden."
-msgstr ""
+msgstr "Als zoveel verschillende leden een functie melden, verdwijnt die van de site als \"In behandeling\" tot je die beoordeelt onder Career Board > Functies > Gemeld. Als je de meldingen wegwuift, komt die terug. 0 verbergt nooit automatisch een functie. Je krijgt een e-mail bij de eerste melding en wanneer een functie wordt verborgen."
 
 #: admin/class-admin-settings.php:708
 #: admin/views/wizard-steps/jobs.php:26
 msgid "Default listing length (days)"
-msgstr ""
+msgstr "Standaard plaatsingsduur (dagen)"
 
 #: admin/class-admin-settings.php:711
 msgid "How long a job stays open when the employer sets no deadline. Default 30. A board can set its own length, which wins over this one."
-msgstr ""
+msgstr "Hoe lang een functie open blijft als de werkgever geen deadline zet. Standaard 30. Een bord kan een eigen duur instellen; die gaat voor."
 
 #: admin/class-admin-settings.php:712
 msgid "At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour. Its page stays up as an expired page with similar open jobs, so shared links keep working. Employers can reopen it from their dashboard with a new deadline."
-msgstr ""
+msgstr "Op de deadline stopt een functie met sollicitaties en verdwijnt binnen een uur uit de lijsten, feeds en sitemap. De pagina blijft staan als verlopen pagina met vergelijkbare open functies, zodat gedeelde links blijven werken. Werkgevers kunnen die vanuit hun dashboard heropenen met een nieuwe deadline."
 
 #: admin/class-admin-settings.php:714
 msgid "This site still lists jobs past their deadline (set before 1.8.0)."
-msgstr ""
+msgstr "Deze site toont nog functies na hun deadline (ingesteld vóór 1.8.0)."
 
 #: admin/class-admin-settings.php:715
 msgid "End jobs at their deadline"
-msgstr ""
+msgstr "Beëindig functies op hun deadline"
 
 #: admin/class-admin-settings.php:723
 msgid "Number of job listings shown per page in the job board block. Maximum 100. A multiple of 12 fills the 2, 3 and 4 column grids evenly."
-msgstr ""
+msgstr "Aantal functies per pagina in het jobbord-blok. Maximaal 100. Een veelvoud van 12 vult de rasters met 2, 3 en 4 kolommen gelijkmatig."
 
 #: admin/class-admin-settings.php:727
 msgid "Default order"
-msgstr ""
+msgstr "Standaardvolgorde"
 
 #: admin/class-admin-settings.php:731
 msgid "Featured, then newest"
-msgstr ""
+msgstr "Uitgelicht, daarna nieuwste"
 
 #: admin/class-admin-settings.php:732
 #: blocks/job-listings/render.php:521
 msgid "Closing soonest"
-msgstr ""
+msgstr "Eerst sluitend"
 
 #: admin/class-admin-settings.php:733
 #: blocks/job-listings/render.php:522
 msgid "Highest salary"
-msgstr ""
+msgstr "Hoogste salaris"
 
 #: admin/class-admin-settings.php:736
 msgid "How job lists are ordered before a visitor picks a sort. A keyword search always shows the best matches first."
-msgstr ""
+msgstr "Hoe functielijsten zijn gesorteerd voordat een bezoeker een sortering kiest. Een zoekopdracht op trefwoord toont altijd de beste matches eerst."
 
 #: admin/class-admin-settings.php:779
 msgid "Search engines and sharing"
-msgstr ""
+msgstr "Zoekmachines en delen"
 
 #: admin/class-admin-settings.php:780
 msgid "How jobs and company pages appear in Google for Jobs and when shared on social media."
-msgstr ""
+msgstr "Hoe functies en bedrijfspagina's verschijnen in Google for Jobs en bij delen op social media."
 
 #: admin/class-admin-settings.php:784
 msgid "Google for Jobs"
-msgstr ""
+msgstr "Google for Jobs"
 
 #: admin/class-admin-settings.php:791
 msgid "Add job and company details for search engines"
-msgstr ""
+msgstr "Voeg functie- en bedrijfsgegevens toe voor zoekmachines"
 
 #: admin/class-admin-settings.php:793
 msgid "Adds JobPosting markup to open jobs and Organization markup to company pages, so jobs can appear in Google for Jobs. Stays on alongside Yoast SEO and Rank Math, which do not add job markup. Turn off only if another plugin already adds it."
-msgstr ""
+msgstr "Voegt JobPosting-opmaak toe aan open functies en Organization-opmaak aan bedrijfspagina's, zodat functies in Google for Jobs kunnen verschijnen. Blijft aan naast Yoast SEO en Rank Math, die geen functie-opmaak toevoegen. Zet alleen uit als een andere plugin dat al doet."
 
 #: admin/class-admin-settings.php:797
 msgid "Require a location"
-msgstr ""
+msgstr "Locatie verplichten"
 
 #: admin/class-admin-settings.php:804
 msgid "Ask for a location on every job that is not remote"
-msgstr ""
+msgstr "Vraag een locatie bij elke functie die niet op afstand is"
 
 #: admin/class-admin-settings.php:806
 msgid "Google for Jobs leaves out jobs with no location unless they are remote. When on, a job cannot be posted without a location or the Remote option."
-msgstr ""
+msgstr "Google for Jobs laat functies zonder locatie weg, tenzij ze op afstand zijn. Als dit aan staat, kun je geen functie plaatsen zonder locatie of de optie Op afstand."
 
 #: admin/class-admin-settings.php:810
 msgid "Default country"
-msgstr ""
+msgstr "Standaardland"
 
 #: admin/class-admin-settings.php:813
 msgid "Country name or 2-letter code for job addresses, and where remote applicants may live. Empty uses the country of your site language. For boards in several countries, set a country on each location under Career Board > Job Locations."
-msgstr ""
+msgstr "Landnaam of 2-lettercode voor functieadressen, en waar sollicitanten op afstand mogen wonen. Leeg gebruikt het land van je sitetaal. Voor borden in meerdere landen zet je een land op elke locatie onder Career Board > Functielocaties."
 
 #: admin/class-admin-settings.php:817
 msgid "Social sharing tags"
-msgstr ""
+msgstr "Tags voor delen op social media"
 
 #: admin/class-admin-settings.php:824
 msgid "Add title, description and image when a job or company is shared"
-msgstr ""
+msgstr "Voeg titel, beschrijving en afbeelding toe wanneer een functie of bedrijf wordt gedeeld"
 
 #: admin/class-admin-settings.php:826
 msgid "Uses the job image or the company logo. Skipped automatically when Yoast SEO or Rank Math is active, since they add their own."
-msgstr ""
+msgstr "Gebruikt de functieafbeelding of het bedrijfslogo. Wordt automatisch overgeslagen als Yoast SEO of Rank Math actief is, omdat die hun eigen tags toevoegen."
 
 #: admin/class-admin-settings.php:845
 msgid "What candidates need to apply, and what they can do afterwards."
-msgstr ""
+msgstr "Wat kandidaten nodig hebben om te solliciteren, en wat ze daarna kunnen doen."
 
 #: admin/class-admin-settings.php:886
 msgid "On by default. A withdrawn application stays on the employer's applicant list with the status Withdrawn, and the employer can no longer change it. Turn off for boards that want apply-once-final flows (compliance, regulated hiring)."
-msgstr ""
+msgstr "Standaard aan. Een ingetrokken sollicitatie blijft op de sollicitantenlijst van de werkgever met de status Ingetrokken, en de werkgever kan die niet meer wijzigen. Zet uit voor borden die een eenmalige, definitieve sollicitatie willen (compliance, gereguleerde werving)."
 
 #: admin/class-admin-settings.php:905
 msgid "Who can create an account, and how new accounts are checked."
-msgstr ""
+msgstr "Wie een account kan aanmaken, en hoe nieuwe accounts worden gecontroleerd."
 
 #: admin/class-admin-settings.php:909
 msgid "Open Sign-Up"
-msgstr ""
+msgstr "Open aanmelding"
 
 #: admin/class-admin-settings.php:912
 msgid "On: candidates and employers can create their own accounts."
-msgstr ""
+msgstr "Aan: kandidaten en werkgevers kunnen zelf een account aanmaken."
 
 #: admin/class-admin-settings.php:914
 msgid "Off: the sign-up forms show a \"registration closed\" notice."
-msgstr ""
+msgstr "Uit: de aanmeldformulieren tonen de melding \"registratie gesloten\"."
 
 #. translators: %s: link to Settings > General.
 #: admin/class-admin-settings.php:920
 #, php-format
 msgid "This is WordPress's \"Anyone can register\" setting under %s."
-msgstr ""
+msgstr "Dit is de WordPress-instelling \"Iedereen kan zich registreren\" onder %s."
 
 #: admin/class-admin-settings.php:921
 msgid "Settings > General"
-msgstr ""
+msgstr "Instellingen > Algemeen"
 
 #: admin/class-admin-settings.php:928
 msgid "Email Verification"
-msgstr ""
+msgstr "E-mailverificatie"
 
 #: admin/class-admin-settings.php:935
 msgid "New candidates and employers confirm their email before they can sign in"
-msgstr ""
+msgstr "Nieuwe kandidaten en werkgevers bevestigen hun e-mail voordat ze kunnen inloggen"
 
 #: admin/class-admin-settings.php:937
 msgid "Stops fake sign-ups using addresses the person does not own. Uses the \"Confirm Your Email\" message under Emails; if that message is turned off, sign-ups are not held."
-msgstr ""
+msgstr "Voorkomt nep-aanmeldingen met adressen die iemand niet bezit. Gebruikt het bericht \"Bevestig je e-mail\" onder E-mails; als dat bericht uit staat, worden aanmeldingen niet tegengehouden."
 
 #: admin/class-admin-settings.php:954
 msgid "Require login to apply"
-msgstr ""
+msgstr "Inloggen verplicht om te solliciteren"
 
 #: admin/class-admin-settings.php:961
 msgid "Only signed-in members can apply"
-msgstr ""
+msgstr "Alleen ingelogde leden kunnen solliciteren"
 
 #: admin/class-admin-settings.php:963
 msgid "Off by default: visitors can apply with their name and email. Guest applications are limited to 10 an hour from one connection."
-msgstr ""
+msgstr "Standaard uit: bezoekers kunnen solliciteren met naam en e-mail. Gastsollicitaties zijn beperkt tot 10 per uur vanaf één verbinding."
 
 #: admin/class-admin-settings.php:982
 msgid "Layout and data handling. Most sites never need to change these."
-msgstr ""
+msgstr "Lay-out en gegevensverwerking. De meeste sites hoeven dit nooit te wijzigen."
 
 #: admin/class-admin-settings.php:986
 msgid "Content Width (px)"
-msgstr ""
+msgstr "Inhoudsbreedte (px)"
 
 #: admin/class-admin-settings.php:998
 msgid "How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site."
-msgstr ""
+msgstr "Hoe breed Career Board-pagina's lopen. Laat op 0 om je thema te volgen, wat de meeste sites moeten doen. Zet alleen een waarde tussen 720 en 1920 als de pluginpagina's moeten afwijken van de rest van de site."
 
 #: admin/class-admin-settings.php:1002
 msgid "Keep Email History (days)"
-msgstr ""
+msgstr "E-mailgeschiedenis bewaren (dagen)"
 
 #: admin/class-admin-settings.php:1012
 msgid "How long the email log and notification history are kept before they are deleted automatically. 0 keeps them forever."
-msgstr ""
+msgstr "Hoe lang het e-maillogboek en de meldingsgeschiedenis worden bewaard voordat ze automatisch worden verwijderd. 0 bewaart ze voor altijd."
 
 #: admin/class-admin-settings.php:1016
 msgid "Remove Data on Delete"
-msgstr ""
+msgstr "Gegevens wissen bij verwijderen"
 
 #: admin/class-admin-settings.php:1023
 msgid "Delete all Career Board data when the plugin is deleted"
-msgstr ""
+msgstr "Verwijder alle Career Board-gegevens wanneer de plugin wordt verwijderd"
 
 #: admin/class-admin-settings.php:1025
 msgid "Off by default, so deleting and reinstalling the plugin keeps your jobs, applications, companies, resumes and credit balances. Turn on only when you are removing Career Board for good: deleting the plugin then erases all of it, including uploaded resumes, and cannot be undone. Deactivating never deletes anything."
-msgstr ""
+msgstr "Standaard uit, zodat verwijderen en opnieuw installeren je functies, sollicitaties, bedrijven, CV's en creditsaldi bewaart. Zet alleen aan als je Career Board voorgoed weghaalt: verwijderen wist dan alles, inclusief geüploade CV's, en dat kan niet ongedaan. Deactiveren verwijdert nooit iets."
 
 #: admin/class-admin-settings.php:1097
 msgid "One colour and one logo for your Career Board emails, the mobile app and the installable app. Your website follows your theme."
-msgstr ""
+msgstr "Eén kleur en één logo voor je Career Board-e-mails, de mobiele app en de installeerbare app. Je website volgt je thema."
 
 #: admin/class-admin-settings.php:1101
 msgid "Brand Colour"
-msgstr ""
+msgstr "Merkkleur"
 
 #: admin/class-admin-settings.php:1104
 msgid "Email header, app buttons and the browser bar of the installable app. Pick a colour white text reads well on."
-msgstr ""
+msgstr "E-mailkop, appknoppen en de browserbalk van de installeerbare app. Kies een kleur waarop witte tekst goed leest."
 
 #: admin/class-admin-settings.php:1111
 msgid "Logo preview"
-msgstr ""
+msgstr "Logo-voorbeeld"
 
 #: admin/class-admin-settings.php:1116
 msgid "Shown at the top of every email and in the app. A wide image around 400 x 120 px works best."
-msgstr ""
+msgstr "Getoond bovenaan elke e-mail en in de app. Een breed beeld van ongeveer 400 × 120 px werkt het best."
 
 #: admin/class-admin-settings.php:1134
 msgid "Sender"
-msgstr ""
+msgstr "Afzender"
 
 #: admin/class-admin-settings.php:1236
 msgid "Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time - renaming never touches stored data. Removing an industry asks what should happen to the companies still using it."
-msgstr ""
+msgstr "Sectoren op bedrijfsprofielen, het registratieformulier voor werkgevers en het filter van de bedrijvengids. Hernoem een label wanneer je wilt - hernoemen raakt opgeslagen gegevens niet. Bij het verwijderen van een sector vragen we wat er moet gebeuren met bedrijven die die nog gebruiken."
 
 #: admin/class-admin-settings.php:1240
 msgid "Loading industries…"
-msgstr ""
+msgstr "Sectoren laden…"
 
 #: admin/class-admin-settings.php:1244
 msgid "Not in your list"
-msgstr ""
+msgstr "Niet in je lijst"
 
 #: admin/class-admin-settings.php:1246
 msgid "These values are stored on companies but are not industries you offer - usually left behind by an import. Add one to your list to keep it, or settle it like any other removal."
-msgstr ""
+msgstr "Deze waarden staan op bedrijven maar zijn geen sectoren die je aanbiedt - meestal achtergelaten door een import. Voeg er een toe aan je lijst om die te houden, of regel het zoals bij elke andere verwijdering."
 
 #: admin/class-admin-settings.php:1253
 msgid "New industry"
-msgstr ""
+msgstr "Nieuwe sector"
 
 #: admin/class-admin-settings.php:1254
 msgid "Aerospace & Defence"
-msgstr ""
+msgstr "Lucht- en ruimtevaart & defensie"
 
 #: admin/class-admin-settings.php:1257
 msgid "Add industry"
-msgstr ""
+msgstr "Sector toevoegen"
 
 #: admin/class-admin-settings.php:1263
 msgid "Save Industries"
-msgstr ""
+msgstr "Sectoren opslaan"
 
 #: admin/class-admin-settings.php:1301
 msgid "App branding"
-msgstr ""
+msgstr "App-huisstijl"
 
 #: admin/class-admin-settings.php:1303
 msgid "How your companion app looks. These are served to the app and ignored by the website, which follows your theme."
-msgstr ""
+msgstr "Hoe je bijbehorende app eruitziet. Dit gaat naar de app en wordt genegeerd door de website, die je thema volgt."
 
 #: admin/class-admin-settings.php:1307
 #: admin/class-email-settings.php:114
 msgid "Colour and Logo"
-msgstr ""
+msgstr "Kleur en logo"
 
 #. translators: %s: link to the Brand tab.
 #: admin/class-admin-settings.php:1313
 #, php-format
 msgid "The app uses your Brand colour and logo, shared with your emails. Change them under %s."
-msgstr ""
+msgstr "De app gebruikt je merkkleur en logo, gedeeld met je e-mails. Wijzig die onder %s."
 
 #: admin/class-admin-settings.php:1322
 msgid "Sign-in background URL"
-msgstr ""
+msgstr "Achtergrond-URL bij inloggen"
 
 #: admin/class-admin-settings.php:1329
 msgid "Dark mode"
-msgstr ""
+msgstr "Donkere modus"
 
 #: admin/class-admin-settings.php:1333
 msgid "Open the app in dark mode by default"
-msgstr ""
+msgstr "Open de app standaard in donkere modus"
 
 #: admin/class-admin-settings.php:1338
 msgid "Legal links"
-msgstr ""
+msgstr "Juridische links"
 
 #: admin/class-admin-settings.php:1340
 msgid "App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, where the app shows your privacy page instead. Your privacy policy comes from Settings > Privacy in WordPress."
-msgstr ""
+msgstr "App stores eisen een gepubliceerde link naar de voorwaarden en een manier om misbruik te melden. Wat je leeg laat, gaat leeg mee in plaats van een reservelink, behalve het contact voor misbruik: daar toont de app je privacypagina. Je privacybeleid komt uit Instellingen > Privacy in WordPress."
 
 #: admin/class-admin-settings.php:1344
 msgid "Terms of service URL"
-msgstr ""
+msgstr "URL gebruiksvoorwaarden"
 
 #: admin/class-admin-settings.php:1351
 msgid "EULA URL"
-msgstr ""
+msgstr "EULA-URL"
 
 #: admin/class-admin-settings.php:1358
 msgid "Community guidelines URL"
-msgstr ""
+msgstr "URL communityrichtlijnen"
 
 #: admin/class-admin-settings.php:1365
 msgid "Abuse contact email"
-msgstr ""
+msgstr "E-mailadres voor misbruik"
 
 #: admin/class-admin-settings.php:1368
 msgid "Shown in the app so members can email you about abuse. It is public, so use a support address. Leave blank to show your privacy page instead."
-msgstr ""
+msgstr "Getoond in de app zodat leden je over misbruik kunnen e-mailen. Het is openbaar, dus gebruik een supportadres. Laat leeg om je privacypagina te tonen."
 
 #: admin/class-admin-settings.php:1372
 msgid "Sign-in"
-msgstr ""
+msgstr "Inloggen"
 
 #: admin/class-admin-settings.php:1374
 msgid "App Password Sign-In"
-msgstr ""
+msgstr "Inloggen met appwachtwoord"
 
 #: admin/class-admin-settings.php:1381
 msgid "Let members sign in to the mobile app by typing their website password"
-msgstr ""
+msgstr "Laat leden inloggen in de mobiele app door hun websitewachtwoord te typen"
 
 #: admin/class-admin-settings.php:1383
 msgid "Off by default. The app can already sign members in without this: its \"Connect with WordPress\" option sends them to your normal login page, where two-factor and your security plugins apply, and no password ever reaches the app. Turn this on only if you want the extra convenience of typing a password directly in the app - it opens a route that accepts real account passwords, so leave it off if you run two-factor authentication or do not use the app at all."
-msgstr ""
+msgstr "Standaard uit. De app kan leden al inloggen zonder dit: de optie \"Verbinden met WordPress\" stuurt ze naar je gewone inlogpagina, waar tweestapsverificatie en je beveiligingsplugins gelden, en er nooit een wachtwoord bij de app komt. Zet dit alleen aan als je het extra gemak wilt van een wachtwoord direct in de app - het opent een route die echte accountwachtwoorden accepteert, dus laat het uit als je tweestapsverificatie gebruikt of de app helemaal niet gebruikt."
 
 #: admin/class-admin-settings.php:1486
 msgid "Pending account deletions"
-msgstr ""
+msgstr "Openstaande accountverwijderingen"
 
 #: admin/class-admin-settings.php:1490
 msgid "Members who asked to delete their account. They stay signed out during the wait and can stop it themselves by signing back in. Cancel on their behalf if they contact you instead."
-msgstr ""
+msgstr "Leden die vroegen hun account te verwijderen. Ze blijven uitgelogd tijdens het wachten en kunnen het zelf stoppen door weer in te loggen. Annuleer namens hen als ze jou in plaats daarvan mailen."
 
 #: admin/class-admin-settings.php:1494
 msgid "No account deletions are pending."
-msgstr ""
+msgstr "Er staan geen accountverwijderingen open."
 
 #: admin/class-admin-settings.php:1499
 #: admin/class-admin-settings.php:1570
 #: admin/class-email-settings.php:161
 msgid "Member"
-msgstr ""
+msgstr "Lid"
 
 #: admin/class-admin-settings.php:1500
 msgid "Deletes on"
-msgstr ""
+msgstr "Verwijdert op"
 
 #: admin/class-admin-settings.php:1501
 msgid "Time left"
-msgstr ""
+msgstr "Resterende tijd"
 
 #: admin/class-admin-settings.php:1502
 msgid "Action"
-msgstr ""
+msgstr "Actie"
 
 #. translators: %s: human-readable duration.
 #: admin/class-admin-settings.php:1528
 #, php-format
 msgid "%s left"
-msgstr ""
+msgstr "nog %s"
 
 #. translators: %s: human-readable duration.
 #: admin/class-admin-settings.php:1529
 msgid "Due - runs on the next scheduled task"
-msgstr ""
+msgstr "Aan de beurt - draait bij de volgende geplande taak"
 
 #: admin/class-admin-settings.php:1532
 msgid "Keep account"
-msgstr ""
+msgstr "Account behouden"
 
 #: admin/class-admin-settings.php:1544
 msgid "Privacy request log"
-msgstr ""
+msgstr "Logboek privacyverzoeken"
 
 #: admin/class-admin-settings.php:1548
 msgid "Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text."
-msgstr ""
+msgstr "Elk verzoek tot export of wissen van persoonsgegevens dat deze plugin heeft verwerkt. Bewaar het als bewijs dat een verzoek is uitgevoerd. IP-adressen van bezoekers worden alleen als eenrichtingshash bewaard, nooit in platte tekst."
 
 #: admin/class-admin-settings.php:1552
 msgid "The request log table is not present. It is created on activation."
-msgstr ""
+msgstr "De logboektabel voor verzoeken ontbreekt. Die wordt bij activering aangemaakt."
 
 #: admin/class-admin-settings.php:1554
 msgid "No personal-data requests have been processed yet."
-msgstr ""
+msgstr "Er zijn nog geen verzoeken over persoonsgegevens verwerkt."
 
 #. translators: %s: number of logged requests.
 #: admin/class-admin-settings.php:1560
 #, php-format
 msgid "%s request logged."
 msgid_plural "%s requests logged."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s verzoek gelogd."
+msgstr[1] "%s verzoeken gelogd."
 
 #: admin/class-admin-settings.php:1569
 msgid "Request"
-msgstr ""
+msgstr "Verzoek"
 
 #: admin/class-admin-settings.php:1571
 msgid "Origin (hashed)"
-msgstr ""
+msgstr "Herkomst (gehasht)"
 
 #: admin/class-admin-settings.php:1579
 msgid "Erase personal data"
-msgstr ""
+msgstr "Persoonsgegevens wissen"
 
 #: admin/class-admin-settings.php:1580
 msgid "Export personal data"
-msgstr ""
+msgstr "Persoonsgegevens exporteren"
 
 #. translators: %d: user ID of a member who no longer exists.
 #: admin/class-admin-settings.php:1592
 #, php-format
 msgid "Deleted member (#%d)"
-msgstr ""
+msgstr "Verwijderd lid (#%d)"
 
 #: admin/class-admin-settings.php:1614
 msgid "&laquo; Previous"
-msgstr ""
+msgstr "&laquo; Vorige"
 
 #: admin/class-admin-settings.php:1615
 msgid "Next &raquo;"
-msgstr ""
+msgstr "Volgende &raquo;"
 
 #: admin/class-admin.php:87
 msgid "Deleting the plugin now keeps your jobs, applications and credits. To remove everything on delete, turn on \"Remove Data on Delete\" under Advanced."
-msgstr ""
+msgstr "De plugin verwijderen bewaart nu je functies, sollicitaties en credits. Om bij verwijderen alles te wissen, zet je \"Gegevens wissen bij verwijderen\" aan onder Geavanceerd."
 
 #: admin/class-admin.php:91
 msgid "New sign-ups can be asked to confirm their email before they can sign in (Email Verification, under Sign-ups)."
-msgstr ""
+msgstr "Nieuwe aanmeldingen kunnen hun e-mail moeten bevestigen voordat ze inloggen (E-mailverificatie, onder Aanmeldingen)."
 
 #: admin/class-admin.php:95
 msgid "Emails, the mobile app and the installable app now share one Brand colour and logo. Yours was taken from your email header, so emails look the same."
-msgstr ""
+msgstr "E-mails, de mobiele app en de installeerbare app delen nu één merkkleur en logo. Die van jou komt uit je e-mailkop, dus e-mails zien er hetzelfde uit."
 
 #: admin/class-admin.php:103
 msgid "Jobs past their deadline still appear in your listings and feeds. New sites now end every job at its deadline: it leaves the listings and keeps its page as an expired page."
-msgstr ""
+msgstr "Functies na hun deadline staan nog in je lijsten en feeds. Nieuwe sites beëindigen nu elke functie op de deadline: die verdwijnt uit de lijsten en houdt de pagina als verlopen pagina."
 
 #: admin/class-admin.php:110
 msgid "New sites ask employers for a location on every job that is not remote, which Google for Jobs needs to list it. Turn on \"Require a location\" under Jobs to do the same here."
-msgstr ""
+msgstr "Nieuwe sites vragen werkgevers om een locatie bij elke functie die niet op afstand is, wat Google for Jobs nodig heeft. Zet \"Locatie verplichten\" aan onder Functies om hetzelfde hier te doen."
 
 #: admin/class-admin.php:125
 msgid "WP Career Board 1.8.0: new sites start with safer defaults. Yours kept its settings. Review these when you have a minute:"
-msgstr ""
+msgstr "WP Career Board 1.8.0: nieuwe sites starten met veiligere standaardinstellingen. Jouw site hield zijn instellingen. Bekijk deze als je even tijd hebt:"
 
 #: admin/class-admin.php:128
 msgid "Open setting"
-msgstr ""
+msgstr "Instelling openen"
 
 #: admin/class-admin.php:131
 msgid "Got it"
-msgstr ""
+msgstr "Begrepen"
 
 #: admin/class-admin.php:504
-#, fuzzy
 msgid "Getting started"
 msgstr "Aan de slag"
 
 #: admin/class-admin.php:714
-#, fuzzy
 msgid "Unlock Pro features"
 msgstr "Pro-functies ontgrendelen"
 
@@ -6530,141 +6525,139 @@ msgstr "Pro-functies ontgrendelen"
 #: admin/class-admin.php:834
 #, php-format
 msgid "%1$s%% - imported: %2$s, skipped: %3$s"
-msgstr ""
+msgstr "%1$s%% - geïmporteerd: %2$s, overgeslagen: %3$s"
 
 #. translators: 1: rows imported, 2: rows skipped, 3: rows that failed.
 #: admin/class-admin.php:836
 #, php-format
 msgid "Done. Imported: %1$s, skipped: %2$s, errors: %3$s"
-msgstr ""
+msgstr "Klaar. Geïmporteerd: %1$s, overgeslagen: %2$s, fouten: %3$s"
 
 #: admin/class-admin.php:837
 msgid "Import complete."
-msgstr ""
+msgstr "Import voltooid."
 
 #. translators: %1$s: error message.
 #: admin/class-admin.php:839
 #, php-format
 msgid "Error: %1$s"
-msgstr ""
+msgstr "Fout: %1$s"
 
 #: admin/class-admin.php:840
 msgid "Request failed."
-msgstr ""
+msgstr "Verzoek mislukt."
 
 #. translators: %d: number of companies using this industry. Label form, so one string fits every count.
 #: admin/class-admin.php:863
 #, php-format
 msgid "Companies: %d"
-msgstr ""
+msgstr "Bedrijven: %d"
 
 #: admin/class-admin.php:864
 msgid "not in use"
-msgstr ""
+msgstr "niet in gebruik"
 
 #. translators: %s: name of the item being removed (an industry or a category).
 #: admin/class-admin.php:867
 #: templates/parts/job-category-field.php:47
 #, php-format
 msgid "Remove %s"
-msgstr ""
+msgstr "%s verwijderen"
 
 #: admin/class-admin.php:868
 msgid "Keep"
-msgstr ""
+msgstr "Behouden"
 
 #: admin/class-admin.php:869
 msgid "Move those companies to:"
-msgstr ""
+msgstr "Verplaats die bedrijven naar:"
 
 #: admin/class-admin.php:870
 msgid "Clear the industry"
-msgstr ""
+msgstr "Sector wissen"
 
 #: admin/class-admin.php:871
 msgid "Will be removed on save."
-msgstr ""
+msgstr "Wordt bij opslaan verwijderd."
 
 #: admin/class-admin.php:872
 msgid "Enter a name first."
-msgstr ""
+msgstr "Vul eerst een naam in."
 
 #: admin/class-admin.php:873
 msgid "That industry already exists."
-msgstr ""
+msgstr "Die sector bestaat al."
 
 #: admin/class-admin.php:875
 msgid "Industries saved."
-msgstr ""
+msgstr "Sectoren opgeslagen."
 
 #. translators: %d: number of companies moved to another industry.
 #: admin/class-admin.php:877
 #, php-format
 msgid "Industries saved. %d companies updated."
-msgstr ""
+msgstr "Sectoren opgeslagen. %d bedrijven bijgewerkt."
 
 #: admin/class-admin.php:878
 msgid "Could not save industries. Please try again."
-msgstr ""
+msgstr "Kon sectoren niet opslaan. Probeer het opnieuw."
 
 #: admin/class-admin.php:879
 msgid "Could not load industries."
-msgstr ""
+msgstr "Kon sectoren niet laden."
 
 #: admin/class-admin.php:880
 msgid "Keep at least one industry."
-msgstr ""
+msgstr "Houd minstens één sector."
 
 #. translators: 1: current page, 2: total pages, 3: total number of log entries.
 #: admin/class-email-settings.php:87
 #, php-format
 msgid "Page %1$s of %2$s (total: %3$s)"
-msgstr ""
+msgstr "Pagina %1$s van %2$s (totaal: %3$s)"
 
 #: admin/class-email-settings.php:109
 msgid "Email look"
-msgstr ""
+msgstr "E-mailuiterlijk"
 
 #. translators: %s: link to the Brand tab.
 #: admin/class-email-settings.php:120
 #, php-format
 msgid "Emails use your Brand colour and logo, set once for emails, the mobile app and the installable app under %s."
-msgstr ""
+msgstr "E-mails gebruiken je merkkleur en logo, eenmaal ingesteld voor e-mails, de mobiele app en de installeerbare app onder %s."
 
 #: admin/class-email-settings.php:139
-#, fuzzy
 msgid "Email templates"
 msgstr "E-mailsjablonen"
 
 #: admin/class-email-settings.php:157
 msgid "Admin"
-msgstr ""
+msgstr "Beheerder"
 
 #: admin/class-email-settings.php:218
 msgid "Email preview"
-msgstr ""
+msgstr "E-mailvoorbeeld"
 
 #: admin/class-email-settings.php:258
-#, fuzzy
 msgid "Email activity log"
-msgstr "E-mail activiteitenlogboek"
+msgstr "E-mailactiviteitenlogboek"
 
 #: admin/class-pages.php:72
 msgid "Find Companies"
-msgstr ""
+msgstr "Bedrijven zoeken"
 
 #: admin/class-reported-members.php:82
 msgid "Reported"
-msgstr ""
+msgstr "Gemeld"
 
 #: admin/class-reported-members.php:102
 #: modules/notifications/emails/class-email-report-received.php:92
 msgid "Open reports"
-msgstr ""
+msgstr "Openstaande meldingen"
 
 #: admin/class-reported-members.php:137
 msgid "Dismiss reports"
-msgstr ""
+msgstr "Meldingen wegwuiven"
 
 #: admin/class-setup-wizard.php:188
 #: admin/class-setup-wizard.php:193
@@ -6672,700 +6665,692 @@ msgstr ""
 #: admin/class-setup-wizard.php:203
 #: admin/views/wizard-steps/_footer.php:12
 msgid "Save & Continue"
-msgstr ""
+msgstr "Opslaan en doorgaan"
 
 #: admin/class-setup-wizard.php:201
 msgid "Spam Protection"
-msgstr ""
+msgstr "Spambescherming"
 
 #: admin/class-setup-wizard.php:245
 msgid "Could not save. Check your connection and try again."
-msgstr ""
+msgstr "Kon niet opslaan. Controleer je verbinding en probeer het opnieuw."
 
 #: admin/views/setup-wizard-complete.php:29
-#, fuzzy
 msgid "Setup already completed"
-msgstr "Setup al voltooid"
+msgstr "Installatie al voltooid"
 
 #: admin/views/setup-wizard.php:26
 msgid "Quick setup  -  takes about 2 minutes. Every answer can be changed later in Settings."
-msgstr ""
+msgstr "Snelle installatie  -  duurt ongeveer 2 minuten. Elk antwoord kun je later wijzigen in Instellingen."
 
 #: admin/views/setup-wizard.php:28
 msgid "Exit setup"
-msgstr ""
+msgstr "Installatie afsluiten"
 
 #: admin/views/setup-wizard.php:31
 msgid "Setup steps"
-msgstr ""
+msgstr "Installatiestappen"
 
 #: admin/views/wizard-steps/anti-spam.php:19
 msgid "CAPTCHA"
-msgstr ""
+msgstr "CAPTCHA"
 
 #: admin/views/wizard-steps/anti-spam.php:22
 msgid "None (hidden honeypot only)"
-msgstr ""
+msgstr "Geen (alleen verborgen honeypot)"
 
 #: admin/views/wizard-steps/anti-spam.php:23
 msgid "Cloudflare Turnstile (recommended)"
-msgstr ""
+msgstr "Cloudflare Turnstile (aanbevolen)"
 
 #: admin/views/wizard-steps/anti-spam.php:24
 #: modules/antispam/class-anti-spam-module.php:209
 msgid "Google reCAPTCHA v3 (invisible, score)"
-msgstr ""
+msgstr "Google reCAPTCHA v3 (onzichtbaar, score)"
 
 #: admin/views/wizard-steps/anti-spam.php:25
 #: modules/antispam/class-anti-spam-module.php:210
 msgid "Google reCAPTCHA v2 (invisible badge)"
-msgstr ""
+msgstr "Google reCAPTCHA v2 (onzichtbare badge)"
 
 #: admin/views/wizard-steps/anti-spam.php:27
 msgid "A hidden honeypot always protects sign-up, apply and post-a-job forms. Add a CAPTCHA if bots still get through."
-msgstr ""
+msgstr "Een verborgen honeypot beschermt altijd de formulieren voor aanmelden, solliciteren en functie plaatsen. Voeg een CAPTCHA toe als bots er nog doorheen komen."
 
 #: admin/views/wizard-steps/anti-spam.php:33
 #: modules/antispam/class-anti-spam-module.php:225
 #: modules/antispam/class-anti-spam-module.php:258
 #: modules/antispam/class-anti-spam-module.php:301
-#, fuzzy
 msgid "Site key"
-msgstr "Site Sleutel"
+msgstr "Sitesleutel"
 
 #: admin/views/wizard-steps/anti-spam.php:48
 #: modules/antispam/class-anti-spam-module.php:242
 #: modules/antispam/class-anti-spam-module.php:275
 #: modules/antispam/class-anti-spam-module.php:309
-#, fuzzy
 msgid "Secret key"
-msgstr "Geheime Sleutel"
+msgstr "Geheime sleutel"
 
 #: admin/views/wizard-steps/create-pages.php:12
 msgid "Your job board pages"
-msgstr ""
+msgstr "Je jobbordpagina's"
 
 #: admin/views/wizard-steps/create-pages.php:14
 msgid "Pages you already have are kept. The rest are created for you:"
-msgstr ""
+msgstr "Pagina's die je al hebt, blijven. De rest maken we voor je:"
 
 #: admin/views/wizard-steps/create-pages.php:21
 msgid "Already set up"
-msgstr ""
+msgstr "Al ingesteld"
 
 #: admin/views/wizard-steps/create-pages.php:21
 msgid "Will be created"
-msgstr ""
+msgstr "Wordt aangemaakt"
 
 #: admin/views/wizard-steps/emails.php:16
 msgid "Sender name"
-msgstr ""
+msgstr "Afzendernaam"
 
 #: admin/views/wizard-steps/emails.php:19
 msgid "Shown as \"From\" on every Career Board email."
-msgstr ""
+msgstr "Getoond als \"Van\" op elke Career Board-e-mail."
 
 #: admin/views/wizard-steps/emails.php:23
 msgid "Sender email"
-msgstr ""
+msgstr "Afzender-e-mail"
 
 #: admin/views/wizard-steps/emails.php:26
 msgid "Use an address on your own domain so emails don't land in spam."
-msgstr ""
+msgstr "Gebruik een adres op je eigen domein zodat e-mails niet in spam belanden."
 
 #: admin/views/wizard-steps/emails.php:30
 msgid "Send admin alerts to"
-msgstr ""
+msgstr "Beheerdersmeldingen sturen naar"
 
 #: admin/views/wizard-steps/emails.php:33
 msgid "New jobs waiting for review, reports and other admin notices go here."
-msgstr ""
+msgstr "Nieuwe functies die wachten op beoordeling, meldingen en andere beheerdersberichten gaan hierheen."
 
 #: admin/views/wizard-steps/jobs.php:16
 msgid "Publish jobs without review"
-msgstr ""
+msgstr "Functies publiceren zonder beoordeling"
 
 #: admin/views/wizard-steps/jobs.php:22
 msgid "Off: every new job waits for your approval under Career Board > Jobs before candidates see it."
-msgstr ""
+msgstr "Uit: elke nieuwe functie wacht op jouw goedkeuring onder Career Board > Functies voordat kandidaten die zien."
 
 #: admin/views/wizard-steps/jobs.php:29
 msgid "How long a job stays open when the employer sets no deadline."
-msgstr ""
+msgstr "Hoe lang een functie open blijft als de werkgever geen deadline zet."
 
 #: admin/views/wizard-steps/jobs.php:33
 msgid "Salary currency"
-msgstr ""
+msgstr "Salarisvaluta"
 
 #: admin/views/wizard-steps/jobs.php:50
 msgid "Pre-selected on the job form. Employers can still pick another."
-msgstr ""
+msgstr "Vooraf geselecteerd op het functieformulier. Werkgevers kunnen nog een andere kiezen."
 
 #: admin/views/wizard-steps/registration.php:15
 msgid "Let people sign up"
-msgstr ""
+msgstr "Mensen laten aanmelden"
 
 #: admin/views/wizard-steps/registration.php:21
 msgid "Candidates and employers create their own accounts. Off: only you can add users, and the sign-up forms show a \"registration closed\" notice. This is WordPress's \"Anyone can register\" setting."
-msgstr ""
+msgstr "Kandidaten en werkgevers maken zelf een account. Uit: alleen jij kunt gebruikers toevoegen, en de aanmeldformulieren tonen \"registratie gesloten\". Dit is de WordPress-instelling \"Iedereen kan zich registreren\"."
 
 #: admin/views/wizard-steps/registration.php:25
 msgid "Confirm email addresses"
-msgstr ""
+msgstr "E-mailadressen bevestigen"
 
 #: admin/views/wizard-steps/registration.php:31
 msgid "New accounts click a link in their inbox before they can post or apply. Stops fake and mistyped sign-ups."
-msgstr ""
+msgstr "Nieuwe accounts klikken op een link in hun inbox voordat ze kunnen plaatsen of solliciteren. Voorkomt nep- en foutgetypte aanmeldingen."
 
 #: admin/views/wizard-steps/sample-data.php:19
 msgid "Install sample categories, job types, companies, and demo jobs"
-msgstr ""
+msgstr "Voorbeeldcategorieën, functietypen, bedrijven en demofuncties installeren"
 
 #: admin/views/wizard-steps/_footer.php:13
 msgid "Skip for now"
-msgstr ""
+msgstr "Nu overslaan"
 
 #: api/class-rest-controller.php:198
 msgid "Too many sign-ups from your network. Please try again in an hour."
-msgstr ""
+msgstr "Te veel aanmeldingen vanaf je netwerk. Probeer het over een uur opnieuw."
 
 #: api/endpoints/class-account-deletion-endpoint.php:92
 #: templates/parts/privacy-settings.php:127
 msgid "Type DELETE to confirm."
-msgstr ""
+msgstr "Typ DELETE om te bevestigen."
 
 #: api/endpoints/class-account-endpoint.php:142
 msgid "Enter your current password to change your email."
-msgstr ""
+msgstr "Voer je huidige wachtwoord in om je e-mail te wijzigen."
 
 #: api/endpoints/class-admin-endpoint.php:136
 msgid "Ordered slug/label pairs to persist as the registry."
-msgstr ""
+msgstr "Geordende slug/label-paren om als register te bewaren."
 
 #: api/endpoints/class-admin-endpoint.php:148
 msgid "What to do with companies still storing a removed slug."
-msgstr ""
+msgstr "Wat te doen met bedrijven die nog een verwijderde slug bewaren."
 
 #: api/endpoints/class-admin-endpoint.php:269
 msgid "5 credits held for a job listing have been returned to your account (test send)."
-msgstr ""
+msgstr "5 credits die gereserveerd waren voor een functie zijn teruggezet op je account (testverzending)."
 
 #: api/endpoints/class-admin-endpoint.php:436
 msgid "Keep at least one industry - company forms need something to offer."
-msgstr ""
+msgstr "Houd minstens één sector - bedrijfsformulieren moeten iets kunnen bieden."
 
 #. translators: %s: industry slug.
 #: api/endpoints/class-admin-endpoint.php:491
 #, php-format
 msgid "Cannot move companies to \"%s\" - it is not in the saved list."
-msgstr ""
+msgstr "Kan bedrijven niet naar \"%s\" verplaatsen - die staat niet in de opgeslagen lijst."
 
 #: api/endpoints/class-admin-endpoint.php:500
 msgid "Some industries are still in use. Choose what happens to those companies before saving."
-msgstr ""
+msgstr "Sommige sectoren zijn nog in gebruik. Kies wat er met die bedrijven gebeurt voordat je opslaat."
 
 #: api/endpoints/class-applications-endpoint.php:95
 msgid "Write a note first."
-msgstr ""
+msgstr "Schrijf eerst een notitie."
 
 #: api/endpoints/class-applications-endpoint.php:111
 msgid "That note was already removed, or is not yours."
-msgstr ""
+msgstr "Die notitie is al verwijderd, of is niet van jou."
 
 #: api/endpoints/class-applications-endpoint.php:253
 msgid "Applications for this job have closed."
-msgstr ""
+msgstr "Sollicitaties voor deze functie zijn gesloten."
 
 #: api/endpoints/class-applications-endpoint.php:259
 msgid "You cannot apply to your own job."
-msgstr ""
+msgstr "Je kunt niet solliciteren op je eigen functie."
 
 #. translators: %s: comma-separated field labels.
 #: api/endpoints/class-applications-endpoint.php:272
 #, php-format
 msgid "Please answer: %s"
-msgstr ""
+msgstr "Beantwoord: %s"
 
 #: api/endpoints/class-applications-endpoint.php:283
 msgid "Too many applications from this connection. Please try again in an hour."
-msgstr ""
+msgstr "Te veel sollicitaties vanaf deze verbinding. Probeer het over een uur opnieuw."
 
 #: api/endpoints/class-applications-endpoint.php:300
 msgid "This email already has an account. Sign in to apply."
-msgstr ""
+msgstr "Dit e-mailadres heeft al een account. Log in om te solliciteren."
 
 #: api/endpoints/class-applications-endpoint.php:317
 msgid "Your application is still being submitted. Please wait a moment and check your applications."
-msgstr ""
+msgstr "Je sollicitatie wordt nog verstuurd. Wacht even en controleer je sollicitaties."
 
 #: api/endpoints/class-applications-endpoint.php:607
 msgid "This application is closed (withdrawn, position closed or job removed), so its status can no longer change."
-msgstr ""
+msgstr "Deze sollicitatie is gesloten (ingetrokken, functie gesloten of verwijderd), dus de status kan niet meer wijzigen."
 
 #: api/endpoints/class-applications-endpoint.php:778
 msgid "This application already has an outcome and can no longer be withdrawn."
-msgstr ""
+msgstr "Deze sollicitatie heeft al een uitkomst en kan niet meer worden ingetrokken."
 
 #: api/endpoints/class-applications-endpoint.php:1018
 msgid "Please sign in to apply for this job."
-msgstr ""
+msgstr "Log in om op deze functie te solliciteren."
 
 #: api/endpoints/class-auth-endpoint.php:67
 msgid "Your email address or username."
-msgstr ""
+msgstr "Je e-mailadres of gebruikersnaam."
 
 #: api/endpoints/class-auth-endpoint.php:72
 msgid "Your account password."
-msgstr ""
+msgstr "Je accountwachtwoord."
 
 #: api/endpoints/class-auth-endpoint.php:78
 msgid "Name shown beside this credential in your profile."
-msgstr ""
+msgstr "Naam die naast deze inloggegevens in je profiel staat."
 
 #: api/endpoints/class-auth-endpoint.php:84
 msgid "Stable per-install id, so a repeat sign-in replaces the row instead of adding another."
-msgstr ""
+msgstr "Vaste id per installatie, zodat opnieuw inloggen de rij vervangt in plaats van een nieuwe toe te voegen."
 
 #: api/endpoints/class-auth-endpoint.php:140
 msgid "Too many requests. Please try again in an hour."
-msgstr ""
+msgstr "Te veel verzoeken. Probeer het over een uur opnieuw."
 
 #: api/endpoints/class-auth-endpoint.php:147
 msgid "If that address has an unconfirmed account, a new link is on its way."
-msgstr ""
+msgstr "Als dat adres een onbevestigd account heeft, is er een nieuwe link onderweg."
 
 #: api/endpoints/class-auth-endpoint.php:226
 #: api/endpoints/class-auth-endpoint.php:237
 msgid "Too many sign-in attempts. Please wait a few minutes and try again."
-msgstr ""
+msgstr "Te veel inlogpogingen. Wacht een paar minuten en probeer het opnieuw."
 
 #: api/endpoints/class-auth-endpoint.php:248
 msgid "Career Board app"
-msgstr ""
+msgstr "Career Board-app"
 
 #: api/endpoints/class-employers-endpoint.php:179
 msgid "Only applications received in the last N days (0 = any time)."
-msgstr ""
+msgstr "Alleen sollicitaties van de laatste N dagen (0 = altijd)."
 
 #: api/endpoints/class-employers-endpoint.php:644
 msgid "Closed because its company was removed. Edit it to choose another company, then reopen it."
-msgstr ""
+msgstr "Gesloten omdat het bedrijf is verwijderd. Bewerk de functie, kies een ander bedrijf en heropen die."
 
 #: api/endpoints/class-employers-endpoint.php:645
 msgid "Back to draft because its company was removed. Edit it to choose another company, then submit it for review."
-msgstr ""
+msgstr "Terug naar concept omdat het bedrijf is verwijderd. Bewerk de functie, kies een ander bedrijf en dien die opnieuw in ter beoordeling."
 
 #: api/endpoints/class-employers-endpoint.php:1229
 msgid "You do not manage this company."
-msgstr ""
+msgstr "Je beheert dit bedrijf niet."
 
 #: api/endpoints/class-employers-endpoint.php:1426
 msgid "You can only choose a company you run."
-msgstr ""
+msgstr "Je kunt alleen een bedrijf kiezen dat je zelf runt."
 
 #: api/endpoints/class-employers-endpoint.php:1429
 msgid "This company is not published, so it can't be your main company."
-msgstr ""
+msgstr "Dit bedrijf is niet gepubliceerd, dus het kan niet je hoofdbedrijf zijn."
 
 #: api/endpoints/class-employers-endpoint.php:1449
 msgid "The company could not be removed. Please try again."
-msgstr ""
+msgstr "Het bedrijf kon niet worden verwijderd. Probeer het opnieuw."
 
 #: api/endpoints/class-import-endpoint.php:144
 msgid "WP Job Manager Applications is not active."
-msgstr ""
+msgstr "WP Job Manager Applications is niet actief."
 
 #: api/endpoints/class-jobs-endpoint.php:798
 msgid "Only a live job can be closed. Save it as a draft instead."
-msgstr ""
+msgstr "Alleen een live functie kan worden gesloten. Sla die in plaats daarvan op als concept."
 
 #: api/endpoints/class-jobs-endpoint.php:829
 msgid "This job's company was removed. Edit the job to choose another company, then reopen it."
-msgstr ""
+msgstr "Het bedrijf van deze functie is verwijderd. Bewerk de functie, kies een ander bedrijf en heropen die."
 
 #. translators: 1: maximum number of active jobs allowed, 2: number the employer currently has live.
 #: api/endpoints/class-jobs-endpoint.php:1176
 #, php-format
 msgid "You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one."
-msgstr ""
+msgstr "Je mag %1$d actieve functies tegelijk hebben en hebt er nu %2$d. Sluit of laat een plaatsing verlopen om een nieuwe te plaatsen."
 
 #: api/endpoints/class-jobs-endpoint.php:1580
 #: blocks/job-form/render.php:419
 msgid "Add a location, or mark the job as remote."
-msgstr ""
+msgstr "Voeg een locatie toe, of markeer de functie als op afstand."
 
 #: api/endpoints/class-jobs-endpoint.php:1604
 msgid "This company is not published, so jobs can't use it."
-msgstr ""
+msgstr "Dit bedrijf is niet gepubliceerd, dus functies kunnen het niet gebruiken."
 
 #: api/endpoints/class-jobs-endpoint.php:1612
 msgid "You can only post jobs for a company you run."
-msgstr ""
+msgstr "Je kunt alleen functies plaatsen voor een bedrijf dat je zelf runt."
 
 #. translators: %s: most categories one job may have.
 #: api/endpoints/class-jobs-endpoint.php:1665
 #, php-format
 msgid "Choose up to %s category for this job."
 msgid_plural "Choose up to %s categories for this job."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Kies maximaal %s categorie voor deze functie."
+msgstr[1] "Kies maximaal %s categorieën voor deze functie."
 
 #: api/endpoints/class-jobs-endpoint.php:1945
 msgid "Minimum salary must be a positive number."
-msgstr ""
+msgstr "Het minimumsalaris moet een positief getal zijn."
 
 #: api/endpoints/class-jobs-endpoint.php:1948
 msgid "Maximum salary must be a positive number."
-msgstr ""
+msgstr "Het maximumsalaris moet een positief getal zijn."
 
 #: api/endpoints/class-jobs-endpoint.php:1951
 msgid "Unknown salary currency."
-msgstr ""
+msgstr "Onbekende salarisvaluta."
 
 #: api/endpoints/class-jobs-endpoint.php:1958
 msgid "Deadline must be a date in YYYY-MM-DD format."
-msgstr ""
+msgstr "De deadline moet een datum zijn in het formaat YYYY-MM-DD."
 
 #: api/endpoints/class-jobs-endpoint.php:1961
 msgid "Unknown job board."
-msgstr ""
+msgstr "Onbekend jobbord."
 
 #: api/endpoints/class-jobs-endpoint.php:1965
 msgid "Unknown company."
-msgstr ""
+msgstr "Onbekend bedrijf."
 
 #: api/endpoints/class-jobs-endpoint.php:1968
 msgid "Apply email is not a valid email address."
-msgstr ""
+msgstr "Het sollicitatie-e-mailadres is geen geldig e-mailadres."
 
 #: api/endpoints/class-jobs-endpoint.php:2021
 msgid "relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default."
-msgstr ""
+msgstr "relevantie (zoekopdrachten op trefwoord), nieuwste (uitgelicht eerst), oudste, salaris, sluiting. Standaard: relevantie bij een trefwoord, anders de standaard uit Instellingen."
 
 #: api/endpoints/class-members-endpoint.php:49
 msgid "Fake or impersonating profile"
-msgstr ""
+msgstr "Nepprofiel of imitatie"
 
 #: api/endpoints/class-members-endpoint.php:50
 msgid "Harassment or abuse"
-msgstr ""
+msgstr "Intimidatie of misbruik"
 
 #: api/endpoints/class-members-endpoint.php:143
 msgid "You cannot report yourself."
-msgstr ""
+msgstr "Je kunt jezelf niet melden."
 
 #: api/endpoints/class-members-endpoint.php:199
 msgid "You cannot block yourself."
-msgstr ""
+msgstr "Je kunt jezelf niet blokkeren."
 
 #: api/endpoints/class-members-endpoint.php:276
 msgid "Member not found."
-msgstr ""
+msgstr "Lid niet gevonden."
 
 #: auth/class-app-credentials.php:158
 msgid "This site has turned off app sign-in. Ask the site owner to enable it."
-msgstr ""
+msgstr "Deze site heeft inloggen via de app uitgeschakeld. Vraag de site-eigenaar om het in te schakelen."
 
 #: auth/class-app-credentials.php:169
 msgid "This site cannot issue app passwords. It needs a secure (https) connection."
-msgstr ""
+msgstr "Deze site kan geen appwachtwoorden uitgeven. Er is een beveiligde (https) verbinding nodig."
 
 #: auth/class-app-credentials.php:183
 #: auth/class-app-credentials.php:510
 msgid "The username or password you entered is incorrect."
-msgstr ""
+msgstr "De gebruikersnaam of het wachtwoord dat je invoerde is onjuist."
 
 #: auth/class-app-credentials.php:196
 msgid "This account is scheduled for deletion. Cancel the deletion from the website first, then sign in again."
-msgstr ""
+msgstr "Dit account staat gepland voor verwijdering. Annuleer de verwijdering eerst op de website en log daarna opnieuw in."
 
 #: auth/class-app-credentials.php:204
 msgid "App sign-in is not available for this account."
-msgstr ""
+msgstr "Inloggen via de app is niet beschikbaar voor dit account."
 
 #: auth/class-app-credentials.php:223
 msgid "This site could not issue an app password. Ask the site owner to check their settings."
-msgstr ""
+msgstr "Deze site kon geen appwachtwoord uitgeven. Vraag de site-eigenaar de instellingen te controleren."
 
 #: auth/class-app-credentials.php:518
 msgid "This site needs another step to sign you in. Use the WordPress approval screen instead."
-msgstr ""
+msgstr "Deze site heeft nog een stap nodig om je in te loggen. Gebruik in plaats daarvan het WordPress-goedkeuringsscherm."
 
 #: blocks/candidate-dashboard/render.php:21
 #: blocks/candidate-dashboard/render.php:41
 msgid "Your candidate dashboard"
-msgstr ""
+msgstr "Je kandidatendashboard"
 
 #: blocks/candidate-dashboard/render.php:23
 msgid "Sign in to track your applications, resumes and job alerts."
-msgstr ""
+msgstr "Log in om je sollicitaties, CV's en functiemeldingen te volgen."
 
 #. translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. Label form, so one string fits every count.
 #: blocks/candidate-dashboard/render.php:209
 #, php-format
 msgid "Resumes: %1$s of %2$s"
-msgstr ""
+msgstr "CV's: %1$s van %2$s"
 
 #. translators: %s: name of the item the menu acts on (a job, resume or company).
 #: blocks/candidate-dashboard/render.php:243
 #: blocks/employer-dashboard/render.php:397
 #, php-format
 msgid "More actions for %s"
-msgstr ""
+msgstr "Meer acties voor %s"
 
 #: blocks/candidate-dashboard/render.php:432
-#, fuzzy
 msgid "My activity"
-msgstr "MIJN ACTIVITEIT"
+msgstr "Mijn activiteit"
 
 #: blocks/candidate-dashboard/render.php:496
 #: blocks/employer-dashboard/render.php:616
 msgctxt "saved items menu: saved jobs"
 msgid "Jobs"
-msgstr ""
+msgstr "Functies"
 
 #: blocks/candidate-dashboard/render.php:500
 #: blocks/employer-dashboard/render.php:620
 msgctxt "saved items menu: saved companies"
 msgid "Companies"
-msgstr ""
+msgstr "Bedrijven"
 
 #: blocks/candidate-dashboard/render.php:505
 #: blocks/employer-dashboard/render.php:626
 msgctxt "saved items menu: saved resumes"
 msgid "Resumes"
-msgstr ""
+msgstr "CV's"
 
 #: blocks/candidate-dashboard/render.php:514
 msgid "Moderation"
-msgstr ""
+msgstr "Moderatie"
 
 #: blocks/candidate-dashboard/render.php:516
 #: blocks/employer-dashboard/render.php:56
 #: templates/parts/post-job-gate.php:53
 msgid "Review jobs"
-msgstr ""
+msgstr "Functies beoordelen"
 
 #: blocks/candidate-dashboard/render.php:522
 #: blocks/employer-dashboard/render.php:634
-#, fuzzy
 msgid "Account"
-msgstr "ACCOUNT"
+msgstr "Account"
 
 #. translators: %s: candidate's first name
 #: blocks/candidate-dashboard/render.php:568
 #, php-format
 msgid "Welcome, %s"
-msgstr ""
+msgstr "Welkom, %s"
 
 #: blocks/candidate-dashboard/render.php:651
 msgid "Jobs you apply to show up here with their status."
-msgstr ""
+msgstr "Functies waarop je solliciteert verschijnen hier met hun status."
 
 #: blocks/candidate-dashboard/render.php:674
-#, fuzzy
 msgid "No saved jobs yet"
-msgstr "Nog geen opgeslagen vacatures"
+msgstr "Nog geen opgeslagen functies"
 
 #: blocks/candidate-dashboard/render.php:675
 msgid "Save jobs while you browse to come back to them here."
-msgstr ""
+msgstr "Sla functies op tijdens het bladeren om ze hier terug te vinden."
 
 #: blocks/candidate-dashboard/render.php:760
 msgid "Load more applications"
-msgstr ""
+msgstr "Meer sollicitaties laden"
 
 #: blocks/candidate-dashboard/render.php:768
 msgid "Apply to a job and follow its progress here."
-msgstr ""
+msgstr "Solliciteer op een functie en volg de voortgang hier."
 
 #: blocks/candidate-dashboard/render.php:823
 #: blocks/employer-dashboard/render.php:1376
 msgid "No saved jobs"
-msgstr ""
+msgstr "Geen opgeslagen functies"
 
 #: blocks/candidate-dashboard/render.php:824
 #: blocks/employer-dashboard/render.php:1377
 msgid "Bookmark a job to find it here."
-msgstr ""
+msgstr "Sla een functie op als bladwijzer om die hier te vinden."
 
 #: blocks/candidate-dashboard/render.php:880
 #: blocks/employer-dashboard/render.php:1420
 msgid "No saved companies"
-msgstr ""
+msgstr "Geen opgeslagen bedrijven"
 
 #: blocks/candidate-dashboard/render.php:881
 #: blocks/employer-dashboard/render.php:1421
 msgid "Bookmark a company to find it here."
-msgstr ""
+msgstr "Sla een bedrijf op als bladwijzer om dat hier te vinden."
 
 #: blocks/candidate-dashboard/render.php:938
 #: blocks/employer-dashboard/render.php:1467
 msgid "No saved resumes"
-msgstr ""
+msgstr "Geen opgeslagen CV's"
 
 #: blocks/candidate-dashboard/render.php:939
 #: blocks/employer-dashboard/render.php:1468
 msgid "Bookmark a candidate to find it here."
-msgstr ""
+msgstr "Sla een kandidaat op als bladwijzer om die hier te vinden."
 
 #: blocks/candidate-dashboard/render.php:1069
 msgid "No resumes yet"
-msgstr ""
+msgstr "Nog geen CV's"
 
 #: blocks/candidate-dashboard/render.php:1071
 msgid "Build a resume here or upload a CV you already have, using the buttons above."
-msgstr ""
+msgstr "Maak hier een CV of upload een CV dat je al hebt, met de knoppen hierboven."
 
 #: blocks/candidate-dashboard/render.php:1139
 msgid "No job alerts yet"
-msgstr ""
+msgstr "Nog geen functiemeldingen"
 
 #: blocks/candidate-dashboard/render.php:1140
 msgid "Search for jobs and click \"Alert me\" to hear when matching jobs are posted."
-msgstr ""
+msgstr "Zoek naar functies en klik op \"Houd me op de hoogte\" om te horen wanneer passende functies worden geplaatst."
 
 #: blocks/candidate-dashboard/render.php:1159
 msgid "Change email in Settings"
-msgstr ""
+msgstr "E-mail wijzigen in Instellingen"
 
 #: blocks/candidate-dashboard/render.php:1159
 msgid "Change"
-msgstr ""
+msgstr "Wijzigen"
 
 #: blocks/candidate-dashboard/render.php:1164
 msgid "Employers see your photo, skills and experience from your resume."
-msgstr ""
+msgstr "Werkgevers zien je foto, vaardigheden en ervaring uit je CV."
 
 #: blocks/candidate-dashboard/render.php:1165
 msgid "Edit my resume"
-msgstr ""
+msgstr "Mijn CV bewerken"
 
 #: blocks/candidate-dashboard/render.php:1248
 #: blocks/candidate-dashboard/render.php:1265
 #: blocks/employer-dashboard/render.php:1495
 #: blocks/employer-dashboard/render.php:1512
 #: modules/account/class-credential-guard.php:94
-#, fuzzy
 msgid "Current password"
 msgstr "Huidig wachtwoord"
 
 #: blocks/candidate-dashboard/render.php:1250
 #: blocks/employer-dashboard/render.php:1497
 msgid "Needed only if you change your email."
-msgstr ""
+msgstr "Alleen nodig als je je e-mail wijzigt."
 
 #. translators: %s: company name.
 #: blocks/company-archive/render.php:218
 #, php-format
 msgid "Save %s"
-msgstr ""
+msgstr "%s opslaan"
 
 #. translators: 1: the user's role on the board, 2: company name.
 #: blocks/employer-dashboard/render.php:17
 #, php-format
 msgctxt "member role at company"
 msgid "%1$s · %2$s"
-msgstr ""
+msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
 #: core/class-plugin.php:693
 #: integrations/reign/class-reign-integration.php:104
-#, fuzzy
 msgid "Employer dashboard"
-msgstr "Werkgevers dashboard"
+msgstr "Werkgeversdashboard"
 
 #: blocks/employer-dashboard/render.php:26
 msgid "Sign in to post jobs and review applicants."
-msgstr ""
+msgstr "Log in om functies te plaatsen en sollicitanten te beoordelen."
 
 #: blocks/employer-dashboard/render.php:48
 msgid "The employer dashboard is for employers. This is a candidate account: manage your applications and resumes from your candidate dashboard, or sign in with an employer account to hire."
-msgstr ""
+msgstr "Het werkgeversdashboard is voor werkgevers. Dit is een kandidatenaccount: beheer je sollicitaties en CV's vanuit je kandidatendashboard, of log in met een werkgeversaccount om te werven."
 
 #: blocks/employer-dashboard/render.php:49
 msgid "You review jobs on this board. The employer dashboard is for employers who post them."
-msgstr ""
+msgstr "Jij beoordeelt functies op dit bord. Het werkgeversdashboard is voor werkgevers die ze plaatsen."
 
 #. translators: %s: number of applications, already localised.
 #: blocks/employer-dashboard/render.php:229
 #, php-format
 msgid "%s application waiting for review"
 msgid_plural "%s applications waiting for review"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s sollicitatie wacht op beoordeling"
+msgstr[1] "%s sollicitaties wachten op beoordeling"
 
 #. translators: %d: star rating 1-5.
 #: blocks/employer-dashboard/render.php:307
 #, php-format
 msgid "%d star"
 msgid_plural "%d stars"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d ster"
+msgstr[1] "%d sterren"
 
 #: blocks/employer-dashboard/render.php:392
 msgid "It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed."
-msgstr ""
+msgstr "Die verdwijnt uit de functielijsten en stopt met sollicitaties. Sollicitanten die je nog niet hebt aangenomen of afgewezen, horen dat de functie is gesloten."
 
 #. translators: %s: a date, already formatted for the site.
 #: blocks/employer-dashboard/render.php:400
 #, php-format
 msgid "Closes %s"
-msgstr ""
+msgstr "Sluit %s"
 
 #: blocks/employer-dashboard/render.php:401
 #: blocks/employer-dashboard/render.php:973
 msgid "No applications with this status."
-msgstr ""
+msgstr "Geen sollicitaties met deze status."
 
 #: blocks/employer-dashboard/render.php:402
 msgid "No applications this week."
-msgstr ""
+msgstr "Geen sollicitaties deze week."
 
 #: blocks/employer-dashboard/render.php:403
 msgid "Remove this company?"
-msgstr ""
+msgstr "Dit bedrijf verwijderen?"
 
 #: blocks/employer-dashboard/render.php:404
 msgid "Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them."
-msgstr ""
+msgstr "De pagina gaat offline en live functies sluiten; hun sollicitanten horen dat. Functies die wachten op beoordeling gaan terug naar concept. Een sitebeheerder kan het bedrijf herstellen, maar gesloten functies blijven gesloten tot je ze heropent."
 
 #: blocks/employer-dashboard/render.php:405
 msgid "Remove company"
-msgstr ""
+msgstr "Bedrijf verwijderen"
 
 #: blocks/employer-dashboard/render.php:448
 msgid "Not scored"
-msgstr ""
+msgstr "Niet beoordeeld"
 
 #. translators: %s: number of applications.
 #: blocks/employer-dashboard/render.php:453
 #, php-format
 msgid "Not on the board (closed, withdrawn or removed): %s"
-msgstr ""
+msgstr "Niet op het bord (gesloten, ingetrokken of verwijderd): %s"
 
 #. translators: %s: number of credits. Label form: the number is filled in on the page, so one string must fit every count.
 #: blocks/employer-dashboard/render.php:468
 #, php-format
 msgid "Featured jobs list first. Credits this uses from your balance: %s."
-msgstr ""
+msgstr "Uitgelichte functies staan eerst. Credits die dit van je saldo gebruikt: %s."
 
 #: blocks/employer-dashboard/render.php:469
 msgid "Feature this job?"
-msgstr ""
+msgstr "Deze functie uitlichten?"
 
 #: blocks/employer-dashboard/render.php:470
 msgid "Feature job"
-msgstr ""
+msgstr "Functie uitlichten"
 
 #: blocks/employer-dashboard/render.php:474
 msgid "No change. The candidate was not notified."
-msgstr ""
+msgstr "Geen wijziging. De kandidaat is niet bericht."
 
 #: blocks/employer-dashboard/render.php:475
 msgid "Status updated. This applicant left no email address, so they were not notified."
-msgstr ""
+msgstr "Status bijgewerkt. Deze sollicitant liet geen e-mailadres achter, dus is niet bericht."
 
 #: blocks/candidate-dashboard/render.php:200
 #: blocks/candidate-dashboard/render.php:892
@@ -7373,212 +7358,209 @@ msgstr ""
 #: blocks/employer-dashboard/render.php:626
 #: blocks/employer-dashboard/render.php:1432
 #: modules/gdpr/class-gdpr-module.php:451
-#, fuzzy
 msgid "Saved resumes"
-msgstr "Opgeslagen cv's"
+msgstr "Opgeslagen CV's"
 
 #: blocks/employer-dashboard/render.php:733
 msgid "Needs attention"
-msgstr ""
+msgstr "Vraagt aandacht"
 
 #: blocks/employer-dashboard/render.php:738
 msgid "Review"
-msgstr ""
+msgstr "Beoordelen"
 
 #: blocks/employer-dashboard/render.php:743
 msgid "Manage"
-msgstr ""
+msgstr "Beheren"
 
 #: blocks/employer-dashboard/render.php:747
 msgid "Nothing needs your attention right now."
-msgstr ""
+msgstr "Er vraagt nu niets om je aandacht."
 
 #: blocks/employer-dashboard/render.php:799
 msgid "Filter by company"
-msgstr ""
+msgstr "Filteren op bedrijf"
 
 #: blocks/employer-dashboard/render.php:800
 msgid "All companies"
-msgstr ""
+msgstr "Alle bedrijven"
 
 #: blocks/employer-dashboard/render.php:835
 msgid "Set up your company"
-msgstr ""
+msgstr "Stel je bedrijf in"
 
 #: blocks/employer-dashboard/render.php:836
 msgid "Add your company profile before posting jobs."
-msgstr ""
+msgstr "Voeg je bedrijfsprofiel toe voordat je functies plaatst."
 
 #: blocks/employer-dashboard/render.php:844
 msgid "No jobs yet"
-msgstr ""
+msgstr "Nog geen functies"
 
 #: blocks/employer-dashboard/render.php:845
 msgid "Post your first job and it will appear here."
-msgstr ""
+msgstr "Plaats je eerste functie en die verschijnt hier."
 
 #: blocks/employer-dashboard/render.php:875
 msgid "Feature"
-msgstr ""
+msgstr "Uitlichten"
 
 #: blocks/employer-dashboard/render.php:927
 msgid "Export CSV"
-msgstr ""
+msgstr "CSV exporteren"
 
 #: blocks/employer-dashboard/render.php:954
 msgid "Remove filter: this week"
-msgstr ""
+msgstr "Filter verwijderen: deze week"
 
 #: blocks/employer-dashboard/render.php:955
 msgid "This week"
-msgstr ""
+msgstr "Deze week"
 
 #: blocks/employer-dashboard/render.php:969
 msgid "Applications to your jobs arrive here, newest first."
-msgstr ""
+msgstr "Sollicitaties op je functies komen hier binnen, nieuwste eerst."
 
 #: blocks/employer-dashboard/render.php:999
 msgid "Pick an applicant"
-msgstr ""
+msgstr "Kies een sollicitant"
 
 #: blocks/employer-dashboard/render.php:1000
 msgid "Their answers, resume and your team notes open here."
-msgstr ""
+msgstr "Hun antwoorden, CV en de notities van je team openen hier."
 
 #: blocks/employer-dashboard/render.php:1024
 msgid "Rating and notes"
-msgstr ""
+msgstr "Beoordeling en notities"
 
 #: blocks/employer-dashboard/render.php:1025
 msgid "Only your hiring team sees these."
-msgstr ""
+msgstr "Alleen je wervingsteam ziet dit."
 
 #: blocks/employer-dashboard/render.php:1026
 msgid "Rating"
-msgstr ""
+msgstr "Beoordeling"
 
 #: blocks/employer-dashboard/render.php:1030
 msgid "Not rated"
-msgstr ""
+msgstr "Niet beoordeeld"
 
 #: blocks/employer-dashboard/render.php:1037
 msgid "Delete note"
-msgstr ""
+msgstr "Notitie verwijderen"
 
 #: blocks/employer-dashboard/render.php:1041
 msgid "Add a note"
-msgstr ""
+msgstr "Notitie toevoegen"
 
 #: blocks/employer-dashboard/render.php:1042
 msgid "Add a note for your team…"
-msgstr ""
+msgstr "Voeg een notitie toe voor je team…"
 
 #: blocks/employer-dashboard/render.php:1043
 msgid "Add note"
-msgstr ""
+msgstr "Notitie toevoegen"
 
 #: blocks/employer-dashboard/render.php:1051
 #: modules/applications/widgets/class-custom-answers.php:43
 #: modules/applications/widgets/class-custom-answers.php:92
 msgid "Application answers"
-msgstr ""
+msgstr "Sollicitatieantwoorden"
 
 #: blocks/employer-dashboard/render.php:1086
 msgid "Move to"
-msgstr ""
+msgstr "Verplaatsen naar"
 
 #: blocks/employer-dashboard/render.php:1100
 msgid "Load more applicants"
-msgstr ""
+msgstr "Meer sollicitanten laden"
 
 #: admin/class-admin-companies.php:343
 #: blocks/employer-dashboard/render.php:1111
 #: blocks/employer-dashboard/render.php:1119
-#, fuzzy
 msgid "Add company"
 msgstr "Bedrijf toevoegen"
 
 #: blocks/employer-dashboard/render.php:1113
 msgid "Every company you hire for. Post a Job, My Jobs and Applications cover all of them; your main company is the one Post a Job picks first."
-msgstr ""
+msgstr "Elk bedrijf waarvoor je werft. Functie plaatsen, Mijn functies en Sollicitaties dekken ze allemaal; je hoofdbedrijf is wat Functie plaatsen als eerste kiest."
 
 #: blocks/employer-dashboard/render.php:1117
 msgid "No company yet"
-msgstr ""
+msgstr "Nog geen bedrijf"
 
 #: blocks/employer-dashboard/render.php:1118
 msgid "Add the company you hire for. Candidates see its name, logo and profile on every job."
-msgstr ""
+msgstr "Voeg het bedrijf toe waarvoor je werft. Kandidaten zien de naam, het logo en het profiel op elke functie."
 
 #: blocks/employer-dashboard/render.php:1132
 msgid "Main company"
-msgstr ""
+msgstr "Hoofdbedrijf"
 
 #: blocks/employer-dashboard/render.php:1139
 msgid "Edit profile"
-msgstr ""
+msgstr "Profiel bewerken"
 
 #: blocks/employer-dashboard/render.php:1146
 msgid "Make main"
-msgstr ""
+msgstr "Hoofd maken"
 
 #: blocks/employer-dashboard/render.php:1158
 msgid "Add a company"
-msgstr ""
+msgstr "Een bedrijf toevoegen"
 
 #: blocks/employer-dashboard/render.php:1160
 msgid "← All companies"
-msgstr ""
+msgstr "← Alle bedrijven"
 
 #. translators: %s: company name
 #: blocks/employer-dashboard/render.php:1169
 #, php-format
 msgid "Editing %s, your main company."
-msgstr ""
+msgstr "Je bewerkt %s, je hoofdbedrijf."
 
 #. translators: %s: company name
 #: blocks/employer-dashboard/render.php:1171
 #, php-format
 msgid "Editing %s."
-msgstr ""
+msgstr "Je bewerkt %s."
 
 #: blocks/employer-dashboard/render.php:1176
 msgid "Your main company stays the same. After saving you can add the logo."
-msgstr ""
+msgstr "Je hoofdbedrijf blijft hetzelfde. Na het opslaan kun je het logo toevoegen."
 
 #: blocks/employer-registration/render.php:61
 msgid "New account registration is closed on this site."
-msgstr ""
+msgstr "Registratie van nieuwe accounts is gesloten op deze site."
 
 #: blocks/employer-registration/render.php:140
 msgid "We sent you a new link. It can take a minute to arrive."
-msgstr ""
+msgstr "We hebben je een nieuwe link gestuurd. Het kan een minuut duren."
 
 #: blocks/employer-registration/render.php:153
 msgid "Check your inbox: we sent you a link to confirm your email address. Open it to sign in."
-msgstr ""
+msgstr "Check je inbox: we stuurden een link om je e-mailadres te bevestigen. Open die om in te loggen."
 
 #: blocks/employer-registration/render.php:155
 msgid "Resend the link"
-msgstr ""
+msgstr "Link opnieuw sturen"
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
 #: blocks/job-form-simple/render.php:261
 #: blocks/job-form/render.php:235
 #, php-format
 msgid "This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits."
-msgstr ""
+msgstr "Dit bord vereist %1$s. Je saldo: %2$s. Neem contact op met de site-eigenaar om credits toe te voegen."
 
 #. translators: %s: latest allowed deadline date.
 #: blocks/job-form-simple/render.php:269
 #: blocks/job-form/render.php:434
 #, php-format
 msgid "Pick any date up to %s, the longest this board allows."
-msgstr ""
+msgstr "Kies een datum tot %s, de langste die dit bord toestaat."
 
 #: blocks/job-form-simple/render.php:327
 #: blocks/job-form/render.php:1068
-#, fuzzy
 msgid "Buy credits"
 msgstr "Credits kopen"
 
@@ -7588,625 +7570,621 @@ msgstr "Credits kopen"
 #, php-format
 msgid "Feature this job: it lists first for %1$d days (%2$s credit)."
 msgid_plural "Feature this job: it lists first for %1$d days (%2$s credits)."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Licht deze functie uit: die staat %1$d dagen eerst (%2$s credit)."
+msgstr[1] "Licht deze functie uit: die staat %1$d dagen eerst (%2$s credits)."
 
 #: blocks/job-form/editor-toolbar.php:18
 msgid "Text formatting"
-msgstr ""
+msgstr "Tekstopmaak"
 
 #: blocks/job-form/editor-toolbar.php:19
 #: core/class-plugin.php:1173
 msgid "Bold"
-msgstr ""
+msgstr "Vet"
 
 #: blocks/job-form/editor-toolbar.php:19
 msgctxt "bold button glyph"
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
 #: core/class-plugin.php:1174
 msgid "Italic"
-msgstr ""
+msgstr "Cursief"
 
 #: blocks/job-form/editor-toolbar.php:20
 msgctxt "italic button glyph"
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: blocks/job-form/editor-toolbar.php:21
 msgid "Bulleted list"
-msgstr ""
+msgstr "Opsommingslijst"
 
 #: blocks/job-form/editor-toolbar.php:22
 #: core/class-plugin.php:1172
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: blocks/job-form/editor-toolbar.php:26
 msgid "Link address"
-msgstr ""
+msgstr "Linkadres"
 
 #: blocks/job-form/editor-toolbar.php:29
 msgid "Add link"
-msgstr ""
+msgstr "Link toevoegen"
 
 #: blocks/job-form/render.php:439
 #: templates/parts/job-category-field.php:50
 msgctxt "separator between category names"
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #: blocks/job-form/render.php:521
 msgid "Job updated."
-msgstr ""
+msgstr "Functie bijgewerkt."
 
 #: blocks/job-form/render.php:646
 msgid "Format with the toolbar above. For headings and quotes, use the + beside a line."
-msgstr ""
+msgstr "Maak op met de werkbalk hierboven. Voor koppen en citaten gebruik je de + naast een regel."
 
 #: blocks/job-form/render.php:884
 msgid "(required unless the job is remote)"
-msgstr ""
+msgstr "(verplicht tenzij de functie op afstand is)"
 
 #. translators: %d: number of hidden filter options.
 #: blocks/job-listings/render.php:287
 #, php-format
 msgid "Show %d more"
 msgid_plural "Show %d more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Toon %d meer"
+msgstr[1] "Toon %d meer"
 
 #: blocks/job-listings/render.php:288
 msgid "Show less"
-msgstr ""
+msgstr "Minder tonen"
 
 #. translators: %s: the filter's label, e.g. "Full-time".
 #: blocks/job-listings/render.php:483
 #, php-format
 msgid "Remove filter: %s"
-msgstr ""
+msgstr "Filter verwijderen: %s"
 
 #: blocks/job-listings/render.php:519
 msgid "Recommended"
-msgstr ""
+msgstr "Aanbevolen"
 
 #: blocks/job-listings/render.php:615
 #: templates/parts/category-picker.php:99
 #: templates/parts/job-category-field.php:95
 #: templates/parts/job-category-field.php:100
 msgid "Search categories"
-msgstr ""
+msgstr "Categorieën zoeken"
 
 #: blocks/job-single/render.php:186
 msgid "This job is no longer taking applications"
-msgstr ""
+msgstr "Deze functie neemt geen sollicitaties meer aan"
 
 #. translators: %s: the date applications closed.
 #: blocks/job-single/render.php:188
 #, php-format
 msgid "Applications closed on %s"
-msgstr ""
+msgstr "Sollicitaties gesloten op %s"
 
 #: blocks/job-single/render.php:490
 #: blocks/job-single/render.php:1053
 msgid "Sign in to apply"
-msgstr ""
+msgstr "Log in om te solliciteren"
 
 #: blocks/job-single/render.php:568
 msgid "This job is closed and no longer taking applications."
-msgstr ""
+msgstr "Deze functie is gesloten en neemt geen sollicitaties meer aan."
 
 #: blocks/job-single/render.php:569
 msgid "This job has expired and is no longer taking applications."
-msgstr ""
+msgstr "Deze functie is verlopen en neemt geen sollicitaties meer aan."
 
 #: blocks/job-single/render.php:622
 msgid "No description has been provided for this role yet."
-msgstr ""
+msgstr "Er is nog geen beschrijving voor deze rol gegeven."
 
 #: blocks/job-single/render.php:680
 msgid "Open roles you might like"
-msgstr ""
+msgstr "Open rollen die je misschien aanspreken"
 
 #: blocks/job-single/render.php:871
 msgid "Copy this link"
-msgstr ""
+msgstr "Kopieer deze link"
 
 #: blocks/job-single/render.php:1124
 msgid "or upload a file"
-msgstr ""
+msgstr "of upload een bestand"
 
 #. translators: %d: number of jobs moved to the expired status.
 #: cli/class-job-commands.php:362
 #, php-format
 msgid "Job expiry check complete. %d job expired."
 msgid_plural "Job expiry check complete. %d jobs expired."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Controle op vervallen functies klaar. %d functie verlopen."
+msgstr[1] "Controle op vervallen functies klaar. %d functies verlopen."
 
 #: core/class-applications-csv.php:65
 msgid "Screening Answers"
-msgstr ""
+msgstr "Screeningantwoorden"
 
 #. translators: 1: start of a date or salary range, 2: end of that range.
 #: core/class-form-custom-fields.php:797
 #, php-format
 msgid "%1$s - %2$s"
-msgstr ""
+msgstr "%1$s - %2$s"
 
 #: core/class-image-upload.php:57
 msgid "Please upload a JPEG, PNG, WebP or GIF image."
-msgstr ""
+msgstr "Upload een JPEG-, PNG-, WebP- of GIF-afbeelding."
 
 #: core/class-job-deadline.php:150
 msgid "Applications closed"
-msgstr ""
+msgstr "Sollicitaties gesloten"
 
 #: core/class-plugin.php:477
 msgid "Job Archive"
-msgstr ""
+msgstr "Functiearchief"
 
 #: core/class-plugin.php:478
 msgid "Company Archive"
-msgstr ""
+msgstr "Bedrijfsarchief"
 
 #: core/class-plugin.php:484
 msgid "Job Category Archive"
-msgstr ""
+msgstr "Functiecategoriearchief"
 
 #: core/class-plugin.php:485
 msgid "Job Type Archive"
-msgstr ""
+msgstr "Functietypearchief"
 
 #: core/class-plugin.php:486
 msgid "Job Tag Archive"
-msgstr ""
+msgstr "Functietagarchief"
 
 #: core/class-plugin.php:487
 msgid "Job Location Archive"
-msgstr ""
+msgstr "Functielocatiearchief"
 
 #: core/class-plugin.php:488
 msgid "Experience Level Archive"
-msgstr ""
+msgstr "Ervaringsniveauarchief"
 
 #: core/class-plugin.php:1144
 msgid "Click to tune"
-msgstr ""
+msgstr "Klik om af te stellen"
 
 #: core/class-plugin.php:1145
 msgid "or drag to move"
-msgstr ""
+msgstr "of sleep om te verplaatsen"
 
 #: core/class-plugin.php:1150
 #: core/class-plugin.php:1161
 msgid "Convert to"
-msgstr ""
+msgstr "Omzetten naar"
 
 #: core/class-plugin.php:1155
 msgid "Add"
-msgstr ""
+msgstr "Toevoegen"
 
 #: core/class-plugin.php:1159
 msgid "Filter"
-msgstr ""
+msgstr "Filter"
 
 #: core/class-plugin.php:1160
 msgid "Nothing found"
-msgstr ""
+msgstr "Niets gevonden"
 
 #: core/class-plugin.php:1165
 msgid "Text"
-msgstr ""
+msgstr "Tekst"
 
 #: core/class-plugin.php:1166
 msgid "Heading"
-msgstr ""
+msgstr "Kop"
 
 #: core/class-plugin.php:1168
 msgid "Quote"
-msgstr ""
+msgstr "Citaat"
 
 #: core/class-plugin.php:1169
 msgid "Delimiter"
-msgstr ""
+msgstr "Scheidingsteken"
 
 #: core/class-plugin.php:1170
 msgid "Marker"
-msgstr ""
+msgstr "Markering"
 
 #: core/class-plugin.php:1171
 msgid "Inline code"
-msgstr ""
+msgstr "Code in regel"
 
 #: core/class-plugin.php:1178
 msgid "Add a link"
-msgstr ""
+msgstr "Een link toevoegen"
 
 #: core/class-plugin.php:1181
 msgid "Numbered"
-msgstr ""
+msgstr "Genummerd"
 
 #: core/class-plugin.php:1182
 msgid "Bulleted"
-msgstr ""
+msgstr "Opsomming"
 
 #: core/class-plugin.php:1185
 msgid "This block cannot be displayed correctly."
-msgstr ""
+msgstr "Dit blok kan niet goed worden weergegeven."
 
 #: core/class-plugin.php:1191
 msgid "Click to delete"
-msgstr ""
+msgstr "Klik om te verwijderen"
 
 #: core/class-private-files.php:139
 #: core/class-private-files.php:166
 msgid "Candidate files are private"
-msgstr ""
+msgstr "Kandidaatbestanden zijn privé"
 
 #: core/class-private-files.php:169
 msgid "Security"
-msgstr ""
+msgstr "Beveiliging"
 
 #: core/class-private-files.php:172
 msgid "Resumes and CVs are stored in a folder your web server refuses to serve directly. Employers and candidates download them through a permission check."
-msgstr ""
+msgstr "CV's worden bewaard in een map die je webserver niet rechtstreeks serveert. Werkgevers en kandidaten downloaden ze via een rechtencontrole."
 
 #: core/class-private-files.php:179
 msgid "Some candidate files could not be moved out of the public uploads folder"
-msgstr ""
+msgstr "Sommige kandidaatbestanden konden niet uit de openbare uploads-map worden gehaald"
 
 #. translators: %d: number of resumes/CVs with a file still in the public uploads folder.
 #: core/class-private-files.php:183
 #, php-format
 msgid "%d candidate file is still in the public uploads folder, so anyone with its address can open it. It is retried every hour."
 msgid_plural "%d candidate files are still in the public uploads folder, so anyone with their address can open them. They are retried every hour."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d kandidaatbestand staat nog in de openbare uploads-map, dus iedereen met het adres kan het openen. Het wordt elk uur opnieuw geprobeerd."
+msgstr[1] "%d kandidaatbestanden staan nog in de openbare uploads-map, dus iedereen met hun adres kan ze openen. Ze worden elk uur opnieuw geprobeerd."
 
 #: core/class-private-files.php:186
 msgid "This usually means the web server user cannot write to (or delete from) the uploads folder for those files. Fix the permissions, then run: wp wcb migrate files"
-msgstr ""
+msgstr "Dit betekent meestal dat de webservergebruiker niet kan schrijven naar (of verwijderen uit) de uploads-map voor die bestanden. Herstel de rechten en voer uit: wp wcb migrate files"
 
 #: core/class-private-files.php:189
 msgid "Candidate files can be fetched directly from the uploads folder"
-msgstr ""
+msgstr "Kandidaatbestanden kunnen rechtstreeks uit de uploads-map worden opgehaald"
 
 #: core/class-private-files.php:190
 msgid "Your web server does not read .htaccess files (common on nginx), so the private folder is protected only by its random folder names. Add this rule to your nginx server block, or ask your host to:"
-msgstr ""
+msgstr "Je webserver leest geen .htaccess-bestanden (gebruikelijk op nginx), dus de privemap is alleen beschermd door willekeurige mapnamen. Voeg deze regel toe aan je nginx-serverblok, of vraag je host:"
 
 #: core/class-private-files.php:361
 msgid "File not found."
-msgstr ""
+msgstr "Bestand niet gevonden."
 
 #: core/class-roles.php:210
 msgid "Site admin"
-msgstr ""
+msgstr "Sitebeheerder"
 
 #: core/class-roles.php:93
 #: core/class-roles.php:216
-#, fuzzy
 msgid "Job moderator"
-msgstr "Vacaturemoderator"
+msgstr "Functiemoderator"
 
 #. translators: %s: number of jobs waiting for review.
 #: core/class-roles.php:255
 #, php-format
 msgid "Jobs to review (%s)"
-msgstr ""
+msgstr "Functies ter beoordeling (%s)"
 
 #: core/class-roles.php:256
 msgid "Jobs to review"
-msgstr ""
+msgstr "Functies ter beoordeling"
 
 #. translators: %s: parent category name, e.g. "in Hospitality & Tourism".
 #: core/class-taxonomy.php:173
 #, php-format
 msgid "in %s"
-msgstr ""
+msgstr "in %s"
 
 #: core/class-taxonomy.php:184
 msgid "No categories match."
-msgstr ""
+msgstr "Geen categorieën komen overeen."
 
 #: core/class-taxonomy.php:195
 #: core/class-taxonomy.php:211
 msgid "Order"
-msgstr ""
+msgstr "Volgorde"
 
 #: core/class-taxonomy.php:197
 #: core/class-taxonomy.php:214
 msgid "Lower numbers show first in dropdowns and filters. Leave empty to sort by name."
-msgstr ""
+msgstr "Lagere nummers verschijnen eerst in keuzelijsten en filters. Laat leeg om op naam te sorteren."
 
 #: core/class-template-version-check.php:54
 msgid "WP Career Board template overrides"
-msgstr ""
+msgstr "WP Career Board-sjabloonoverrides"
 
 #: core/class-template-version-check.php:184
 msgid "Your theme's WP Career Board template copies are current"
-msgstr ""
+msgstr "De WP Career Board-sjabloonkopieën van je thema zijn actueel"
 
 #: core/class-template-version-check.php:185
 msgid "Your theme uses WP Career Board's own templates"
-msgstr ""
+msgstr "Je thema gebruikt de eigen sjablonen van WP Career Board"
 
 #: core/class-template-version-check.php:193
 msgid "When your theme copies one of WP Career Board's overridable templates, this compares it against the version the plugin ships so a plugin update does not silently go unused."
-msgstr ""
+msgstr "Als je thema een overschrijfbaar sjabloon van WP Career Board kopieert, vergelijkt dit het met de versie die de plugin meelevert, zodat een plugin-update niet stil ongebruikt blijft."
 
 #: core/class-template-version-check.php:198
 msgid "Learn how template overrides work"
-msgstr ""
+msgstr "Lees hoe sjabloonoverrides werken"
 
 #. translators: Hidden accessibility text.
 #: core/class-template-version-check.php:200
 msgid "(opens in a new tab)"
-msgstr ""
+msgstr "(opent in een nieuw tabblad)"
 
 #. translators: 1: theme's template version (or "none"), 2: plugin's current template version.
 #: core/class-template-version-check.php:217
 #, php-format
 msgid "yours: %1$s, current: %2$s"
-msgstr ""
+msgstr "van jou: %1$s, huidig: %2$s"
 
 #: core/class-template-version-check.php:218
-#, fuzzy
 msgid "none"
-msgstr "Geen"
+msgstr "geen"
 
 #: core/class-template-version-check.php:222
 msgid "Your copy:"
-msgstr ""
+msgstr "Jouw kopie:"
 
 #: core/class-template-version-check.php:224
 msgid "Compare with:"
-msgstr ""
+msgstr "Vergelijken met:"
 
 #: core/class-template-version-check.php:230
 msgid "Your theme has outdated WP Career Board template copies"
-msgstr ""
+msgstr "Je thema heeft verouderde WP Career Board-sjabloonkopieën"
 
 #: core/class-template-version-check.php:234
 msgid "Your theme has its own copy of the following WP Career Board templates, and they are older than the version the plugin now ships. Compare each copy with the plugin file listed under it and bring your copy up to date, so those pages keep working as intended."
-msgstr ""
+msgstr "Je thema heeft een eigen kopie van de volgende WP Career Board-sjablonen, en die zijn ouder dan de versie die de plugin nu meelevert. Vergelijk elke kopie met het pluginbestand eronder en werk jouw kopie bij, zodat die pagina's blijven werken zoals bedoeld."
 
 #. translators: 1: source post ID, 2: reason it was skipped.
 #: import/class-wpjm-importer.php:290
 #: import/class-wpjm-importer.php:519
 #, php-format
 msgid "ID %1$d: %2$s"
-msgstr ""
+msgstr "ID %1$d: %2$s"
 
 #: import/class-wpjm-importer.php:323
 #: import/class-wpjm-importer.php:559
 #: import/class-wpjm-importer.php:737
 msgid "source post not found"
-msgstr ""
+msgstr "bronbericht niet gevonden"
 
 #: import/class-wpjm-importer.php:751
 msgid "its job has not been imported yet; import the jobs first"
-msgstr ""
+msgstr "de bijbehorende functie is nog niet geïmporteerd; importeer eerst de functies"
 
 #. translators: %s: candidate name.
 #: import/class-wpjm-importer.php:773
 #, php-format
 msgid "Application: %s"
-msgstr ""
+msgstr "Sollicitatie: %s"
 
 #: modules/account/class-account-deletion-service.php:98
 msgid "Administrator accounts cannot be deleted from the app."
-msgstr ""
+msgstr "Beheerdersaccounts kunnen niet vanuit de app worden verwijderd."
 
 #: modules/account/class-account-deletion-service.php:106
 msgid "That password is incorrect."
-msgstr ""
+msgstr "Dat wachtwoord is onjuist."
 
 #. translators: %d: number of days.
 #: modules/account/class-account-deletion-service.php:134
 #, php-format
 msgid "Your account will be deleted in %d day. Sign in again before then to cancel."
 msgid_plural "Your account will be deleted in %d days. Sign in again before then to cancel."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Je account wordt over %d dag verwijderd. Log voor die tijd opnieuw in om te annuleren."
+msgstr[1] "Je account wordt over %d dagen verwijderd. Log voor die tijd opnieuw in om te annuleren."
 
 #: modules/account/class-account-deletion-service.php:190
 msgid "Your account deletion has been cancelled."
-msgstr ""
+msgstr "Het verwijderen van je account is geannuleerd."
 
 #: modules/account/class-credential-guard.php:97
 msgid "Needed to change your email or password."
-msgstr ""
+msgstr "Nodig om je e-mail of wachtwoord te wijzigen."
 
 #: modules/account/class-credential-guard.php:186
 msgid "Enter your current password to change your email or password."
-msgstr ""
+msgstr "Voer je huidige wachtwoord in om je e-mail of wachtwoord te wijzigen."
 
 #: modules/account/class-email-verification.php:168
 msgid "Please confirm your email address first. We sent you a link when you signed up."
-msgstr ""
+msgstr "Bevestig eerst je e-mailadres. We stuurden je een link toen je je aanmeldde."
 
 #: modules/account/class-email-verification.php:205
 msgid "This confirmation link is invalid or has expired."
-msgstr ""
+msgstr "Deze bevestigingslink is ongeldig of verlopen."
 
 #: modules/account/class-email-verification.php:206
 msgid "Link expired"
-msgstr ""
+msgstr "Link verlopen"
 
 #: modules/account/class-email-verification.php:270
 msgid "Send me a new link"
-msgstr ""
+msgstr "Stuur me een nieuwe link"
 
 #: modules/account/class-email-verification.php:323
 msgid "We sent you a new confirmation link. It can take a minute to arrive."
-msgstr ""
+msgstr "We stuurden je een nieuwe bevestigingslink. Het kan een minuut duren."
 
 #: modules/account/class-email-verification.php:323
 #: modules/account/class-email-verification.php:324
 msgid "Back to sign in"
-msgstr ""
+msgstr "Terug naar inloggen"
 
 #: modules/account/class-email-verification.php:324
 msgid "A link was sent a moment ago, or this request is no longer valid. Check your inbox, or sign in to ask again."
-msgstr ""
+msgstr "Er is zojuist een link verstuurd, of dit verzoek is niet meer geldig. Check je inbox, of log in om opnieuw te vragen."
 
 #: modules/account/class-email-verification.php:325
 #: modules/notifications/emails/class-email-verify-account.php:93
 msgid "Confirmation link"
-msgstr ""
+msgstr "Bevestigingslink"
 
 #: modules/antispam/class-anti-spam-module.php:295
 msgid "Google reCAPTCHA v2"
-msgstr ""
+msgstr "Google reCAPTCHA v2"
 
 #: modules/antispam/class-anti-spam-module.php:296
 msgid "Create the keys as reCAPTCHA v2, \"Invisible reCAPTCHA badge\". Suspicious visitors get a picture challenge; everyone else sees nothing."
-msgstr ""
+msgstr "Maak de sleutels als reCAPTCHA v2, \"Invisible reCAPTCHA badge\". Verdachte bezoekers krijgen een afbeeldingsopdracht; anderen zien niets."
 
 #: modules/antispam/class-anti-spam-module.php:321
 msgid "Direct connection (no proxy or CDN)"
-msgstr ""
+msgstr "Directe verbinding (geen proxy of CDN)"
 
 #: modules/antispam/class-anti-spam-module.php:322
 msgid "Cloudflare (CF-Connecting-IP)"
-msgstr ""
+msgstr "Cloudflare (CF-Connecting-IP)"
 
 #: modules/antispam/class-anti-spam-module.php:323
 msgid "Load balancer or proxy (X-Forwarded-For)"
-msgstr ""
+msgstr "Load balancer of proxy (X-Forwarded-For)"
 
 #: modules/antispam/class-anti-spam-module.php:324
 msgid "Nginx proxy (X-Real-IP)"
-msgstr ""
+msgstr "Nginx-proxy (X-Real-IP)"
 
 #: modules/antispam/class-anti-spam-module.php:329
 msgid "Visitor IP address"
-msgstr ""
+msgstr "IP-adres van bezoeker"
 
 #: modules/antispam/class-anti-spam-module.php:330
 msgid "Sign-ups, guest applications and sign-ins are limited per visitor IP address. Behind a proxy or CDN every visitor arrives from the proxy's address, so tell the plugin where the real address is."
-msgstr ""
+msgstr "Aanmeldingen, gastsollicitaties en logins zijn beperkt per IP-adres van de bezoeker. Achter een proxy of CDN komt elke bezoeker vanaf het adres van de proxy, dus vertel de plugin waar het echte adres staat."
 
 #: modules/antispam/class-anti-spam-module.php:335
 msgid "Your site runs behind"
-msgstr ""
+msgstr "Je site draait achter"
 
 #: modules/antispam/class-anti-spam-module.php:343
 msgid "Choose a proxy only if your site really is behind it. Anyone can send these headers, so on a direct connection they would let a visitor dodge the limits."
-msgstr ""
+msgstr "Kies alleen een proxy als je site er echt achter zit. Iedereen kan deze headers sturen, dus bij een directe verbinding kan een bezoeker de limieten omzeilen."
 
 #: modules/applications/class-application-notes.php:60
 msgid "Former member"
-msgstr ""
+msgstr "Voormalig lid"
 
 #: modules/applications/class-application-rest-controller.php:84
 msgid "Sorry, you are not allowed to view applications."
-msgstr ""
+msgstr "Sorry, je mag sollicitaties niet bekijken."
 
 #: modules/applications/class-application-status.php:179
 msgid "Not selected"
-msgstr ""
+msgstr "Niet geselecteerd"
 
 #: modules/applications/class-application-status.php:185
 msgid "Position closed"
-msgstr ""
+msgstr "Functie gesloten"
 
 #: modules/applications/widgets/class-applicant-card.php:131
 msgid "Edit user"
-msgstr ""
+msgstr "Gebruiker bewerken"
 
 #: modules/candidates/class-candidates-module.php:216
 msgid "Search Resumes"
-msgstr ""
+msgstr "CV's zoeken"
 
 #: modules/candidates/class-candidates-module.php:217
 msgid "All Resumes"
-msgstr ""
+msgstr "Alle CV's"
 
 #: modules/candidates/class-candidates-module.php:219
 msgid "New Resume"
-msgstr ""
+msgstr "Nieuw CV"
 
 #: modules/candidates/class-candidates-module.php:280
 #: modules/notifications/emails/class-email-app-withdrawn.php:122
 msgid "A candidate"
-msgstr ""
+msgstr "Een kandidaat"
 
 #: modules/employers/class-employers-module.php:558
 msgid "Waiting for review"
-msgstr ""
+msgstr "Wacht op beoordeling"
 
 #: modules/employers/class-employers-module.php:559
 msgid "Draft, not public"
-msgstr ""
+msgstr "Concept, niet openbaar"
 
 #. translators: 1: the open jobs count, 2: the applications count (each already a phrase).
 #: modules/employers/class-employers-module.php:578
 #, php-format
 msgctxt "company card stats"
 msgid "%1$s · %2$s"
-msgstr ""
+msgstr "%1$s · %2$s"
 
 #. translators: %s: number of open jobs, already localised.
 #: modules/employers/class-employers-module.php:580
 #, php-format
 msgid "%s open job"
 msgid_plural "%s open jobs"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s open functie"
+msgstr[1] "%s open functies"
 
 #. translators: %s: number of applications, already localised.
 #: modules/employers/class-employers-module.php:582
 #, php-format
 msgid "%s application"
 msgid_plural "%s applications"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s sollicitatie"
+msgstr[1] "%s sollicitaties"
 
 #: modules/gdpr/class-gdpr-module.php:258
 #: modules/gdpr/class-gdpr-module.php:376
-#, fuzzy
 msgid "Job applications"
 msgstr "Sollicitaties"
 
 #: modules/gdpr/class-gdpr-module.php:263
 msgid "Profile, saved items and files"
-msgstr ""
+msgstr "Profiel, opgeslagen items en bestanden"
 
 #: modules/gdpr/class-gdpr-module.php:268
 #: modules/gdpr/class-gdpr-module.php:563
 msgid "Email history"
-msgstr ""
+msgstr "E-mailgeschiedenis"
 
 #: modules/gdpr/class-gdpr-module.php:415
 msgid "Deleted candidate"
-msgstr ""
+msgstr "Verwijderde kandidaat"
 
 #: modules/gdpr/class-gdpr-module.php:422
 msgid "Application: Deleted candidate"
-msgstr ""
+msgstr "Sollicitatie: verwijderde kandidaat"
 
 #: modules/gdpr/class-gdpr-module.php:429
 msgid "Applications are kept without personal details (job, status and dates only) so employers' hiring records stay accurate."
-msgstr ""
+msgstr "Sollicitaties blijven bewaard zonder persoonsgegevens (alleen functie, status en data) zodat de wervingsadministratie van werkgevers klopt."
 
 #: modules/gdpr/class-gdpr-module.php:444
 msgid "Headline"
-msgstr ""
+msgstr "Kopregel"
 
 #: admin/class-admin-candidates.php:112
 #: modules/gdpr/class-gdpr-module.php:447
-#, fuzzy
 msgid "Profile visibility"
 msgstr "Profielzichtbaarheid"
 
 #: modules/gdpr/class-gdpr-module.php:448
 msgid "Profile resume"
-msgstr ""
+msgstr "Profiel-CV"
 
 #: blocks/candidate-dashboard/render.php:198
 #: blocks/candidate-dashboard/render.php:616
@@ -8215,287 +8193,282 @@ msgstr ""
 #: blocks/employer-dashboard/render.php:416
 #: blocks/employer-dashboard/render.php:1342
 #: modules/gdpr/class-gdpr-module.php:449
-#, fuzzy
 msgid "Saved jobs"
-msgstr "Opgeslagen vacatures"
+msgstr "Opgeslagen functies"
 
 #: blocks/candidate-dashboard/render.php:199
 #: blocks/candidate-dashboard/render.php:834
 #: blocks/employer-dashboard/render.php:417
 #: blocks/employer-dashboard/render.php:1385
 #: modules/gdpr/class-gdpr-module.php:450
-#, fuzzy
 msgid "Saved companies"
 msgstr "Opgeslagen bedrijven"
 
 #: modules/gdpr/class-gdpr-module.php:476
 msgid "Career Board profile"
-msgstr ""
+msgstr "Career Board-profiel"
 
 #: modules/gdpr/class-gdpr-module.php:529
 msgid "A ban on this account is kept as a safety record."
-msgstr ""
+msgstr "Een blokkade van dit account blijft bewaard als veiligheidsrecord."
 
 #: modules/gdpr/class-gdpr-module.php:598
 msgid "The record that this privacy request was handled is kept for compliance."
-msgstr ""
+msgstr "Het record dat dit privacyverzoek is afgehandeld blijft bewaard voor compliance."
 
 #. translators: 1: credit cost, 2: current balance. Label form, so one string fits every pair of numbers.
 #: modules/jobs/class-job-payment.php:127
 #, php-format
 msgid "Credits needed for this job: %1$d. Your balance: %2$d."
-msgstr ""
+msgstr "Credits nodig voor deze functie: %1$d. Je saldo: %2$d."
 
 #: modules/jobs/class-jobs-module.php:300
-#, fuzzy
 msgid "Job Category"
-msgstr "Vacaturecategorie"
+msgstr "Functiecategorie"
 
 #: modules/jobs/class-jobs-module.php:328
 msgid "Job Tag"
-msgstr ""
+msgstr "Functietag"
 
 #. translators: %s: plural name, e.g. "Job Types".
 #: modules/jobs/class-jobs-module.php:380
 #, php-format
 msgid "Search %s"
-msgstr ""
+msgstr "%s zoeken"
 
 #. translators: %s: plural name, e.g. "Job Types".
 #: modules/jobs/class-jobs-module.php:382
 #, php-format
 msgid "All %s"
-msgstr ""
+msgstr "Alle %s"
 
 #. translators: %s: singular name, e.g. "Job Type".
 #: modules/jobs/class-jobs-module.php:384
 #, php-format
 msgid "Edit %s"
-msgstr ""
+msgstr "%s bewerken"
 
 #. translators: %s: singular name, e.g. "Job Type".
 #: modules/jobs/class-jobs-module.php:386
 #, php-format
 msgid "View %s"
-msgstr ""
+msgstr "%s bekijken"
 
 #. translators: %s: singular name, e.g. "Job Type".
 #: modules/jobs/class-jobs-module.php:388
 #, php-format
 msgid "Update %s"
-msgstr ""
+msgstr "%s bijwerken"
 
 #. translators: %s: singular name, e.g. "Job Type".
 #: modules/jobs/class-jobs-module.php:390
 #, php-format
 msgid "Add New %s"
-msgstr ""
+msgstr "Nieuwe %s toevoegen"
 
 #. translators: %s: singular name, e.g. "Job Type".
 #: modules/jobs/class-jobs-module.php:392
 #, php-format
 msgid "New %s Name"
-msgstr ""
+msgstr "Nieuwe naam %s"
 
 #. translators: %s: plural name, lower case, e.g. "job types".
 #: modules/jobs/class-jobs-module.php:394
 #, php-format
 msgid "No %s found."
-msgstr ""
+msgstr "Geen %s gevonden."
 
 #. translators: %s: plural name, lower case, e.g. "job types".
 #: modules/jobs/class-jobs-module.php:396
 #, php-format
 msgid "No %s"
-msgstr ""
+msgstr "Geen %s"
 
 #. translators: %s: plural name, e.g. "Job Types".
 #: modules/jobs/class-jobs-module.php:398
 #, php-format
 msgid "&larr; Go to %s"
-msgstr ""
+msgstr "&larr; Ga naar %s"
 
 #. translators: %s: plural name, e.g. "Job Types".
 #: modules/jobs/class-jobs-module.php:400
 #, php-format
 msgid "%s list"
-msgstr ""
+msgstr "%s-lijst"
 
 #. translators: %s: plural name, e.g. "Job Types".
 #: modules/jobs/class-jobs-module.php:402
 #, php-format
 msgid "%s list navigation"
-msgstr ""
+msgstr "%s-lijstnavigatie"
 
 #. translators: %s: singular name, e.g. "Job Category".
 #: modules/jobs/class-jobs-module.php:406
 #, php-format
 msgid "Parent %s"
-msgstr ""
+msgstr "Bovenliggende %s"
 
 #. translators: %s: singular name, e.g. "Job Category".
 #: modules/jobs/class-jobs-module.php:408
 #, php-format
 msgid "Parent %s:"
-msgstr ""
+msgstr "Bovenliggende %s:"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
 #: modules/jobs/class-jobs-module.php:411
 #, php-format
 msgid "Popular %s"
-msgstr ""
+msgstr "Populaire %s"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
 #: modules/jobs/class-jobs-module.php:413
 #, php-format
 msgid "Separate %s with commas"
-msgstr ""
+msgstr "Scheid %s met komma's"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
 #: modules/jobs/class-jobs-module.php:415
 #, php-format
 msgid "Add or remove %s"
-msgstr ""
+msgstr "%s toevoegen of verwijderen"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
 #: modules/jobs/class-jobs-module.php:417
 #, php-format
 msgid "Choose from the most used %s"
-msgstr ""
+msgstr "Kies uit de meest gebruikte %s"
 
 #: modules/moderation/class-moderation-module.php:357
 msgid "The employer doesn't have enough credits for this board. The job stays pending until they buy more."
-msgstr ""
+msgstr "De werkgever heeft niet genoeg credits voor dit bord. De functie blijft in behandeling tot ze er meer kopen."
 
 #: modules/notifications/class-community-notification-contract.php:115
 msgid "A candidate applied for one of your jobs."
-msgstr ""
+msgstr "Een kandidaat heeft gesolliciteerd op een van je functies."
 
 #: modules/notifications/class-community-notification-contract.php:119
 #: modules/notifications/templates/emails/application-status-changed.php:13
-#, fuzzy
 msgid "Application status updated"
 msgstr "Sollicitatiestatus bijgewerkt"
 
 #: modules/notifications/class-community-notification-contract.php:120
 msgid "The status of your application changed."
-msgstr ""
+msgstr "De status van je sollicitatie is gewijzigd."
 
 #: modules/notifications/class-community-notification-contract.php:124
 msgid "Candidate withdrew their application"
-msgstr ""
+msgstr "Kandidaat trok de sollicitatie in"
 
 #: modules/notifications/class-community-notification-contract.php:125
 msgid "A candidate withdrew their application to your job."
-msgstr ""
+msgstr "Een kandidaat trok de sollicitatie op je functie in."
 
 #: modules/notifications/class-community-notification-contract.php:129
 msgid "Saved job deadline approaching"
-msgstr ""
+msgstr "Deadline van opgeslagen functie nadert"
 
 #: modules/notifications/class-community-notification-contract.php:130
 msgid "A job you applied to is closing soon."
-msgstr ""
+msgstr "Een functie waarop je hebt gesolliciteerd sluit binnenkort."
 
 #: modules/notifications/class-community-notification-contract.php:134
 #: modules/notifications/emails/class-email-job-approved.php:41
-#, fuzzy
 msgid "Job approved"
-msgstr "Vacature goedgekeurd"
+msgstr "Functie goedgekeurd"
 
 #: modules/notifications/class-community-notification-contract.php:135
 msgid "Your job listing was approved and is now live."
-msgstr ""
+msgstr "Je functie is goedgekeurd en staat nu live."
 
 #: modules/notifications/class-community-notification-contract.php:139
 msgid "Job listing expired"
-msgstr ""
+msgstr "Functie verlopen"
 
 #: modules/notifications/class-community-notification-contract.php:144
 msgid "Job listing expiring soon"
-msgstr ""
+msgstr "Functie verloopt binnenkort"
 
 #: modules/notifications/class-community-notification-contract.php:145
 msgid "Your job listing closes to applications soon."
-msgstr ""
+msgstr "Je functie sluit binnenkort voor sollicitaties."
 
 #: modules/notifications/class-community-notification-contract.php:149
 msgid "Job listing rejected"
-msgstr ""
+msgstr "Functie afgewezen"
 
 #: modules/notifications/class-community-notification-contract.php:150
 msgid "Your job listing was not approved."
-msgstr ""
+msgstr "Je functie is niet goedgekeurd."
 
 #: modules/notifications/emails/class-email-app-rejected.php:42
 msgid "Application Not Selected"
-msgstr ""
+msgstr "Sollicitatie niet geselecteerd"
 
 #: modules/notifications/emails/class-email-app-rejected.php:60
 msgid "An update on your application for {job_title}"
-msgstr ""
+msgstr "Een update over je sollicitatie voor {job_title}"
 
 #: modules/notifications/emails/class-email-app-rejected.php:69
 msgid "Thank you for applying"
-msgstr ""
+msgstr "Bedankt voor je sollicitatie"
 
 #. translators: 1: candidate name, 2: job title (bold)
 #: modules/notifications/emails/class-email-app-rejected.php:72
 #, php-format
 msgid "Hi %1$s, thank you for your interest in %2$s and for the time you put into your application. After careful review, the team has decided to move forward with other candidates for this role."
-msgstr ""
+msgstr "Hoi %1$s, bedankt voor je interesse in %2$s en voor de tijd die je in je sollicitatie stak. Na zorgvuldige beoordeling gaat het team verder met andere kandidaten voor deze rol."
 
 #: modules/notifications/emails/class-email-app-rejected.php:76
 msgid "This is not a judgement of your abilities. We encourage you to apply for other roles that fit your experience, and we wish you every success in your search."
-msgstr ""
+msgstr "Dit is geen oordeel over je kunnen. We moedigen je aan te solliciteren op andere rollen die bij je ervaring passen, en we wensen je veel succes in je zoektocht."
 
 #: modules/notifications/emails/class-email-app-rejected.php:77
 msgid "Browse open jobs"
-msgstr ""
+msgstr "Open functies bekijken"
 
 #: modules/notifications/emails/class-email-app-rejected.php:89
 msgid "Job listings URL"
-msgstr ""
+msgstr "URL functielijst"
 
 #: modules/notifications/emails/class-email-app-withdrawn.php:41
 msgid "Application Withdrawn (Employer)"
-msgstr ""
+msgstr "Sollicitatie ingetrokken (werkgever)"
 
 #: modules/notifications/emails/class-email-app-withdrawn.php:59
 msgid "A candidate withdrew their application"
-msgstr ""
+msgstr "Een kandidaat trok de sollicitatie in"
 
 #: modules/notifications/emails/class-email-app-withdrawn.php:68
 msgid "Application withdrawn"
-msgstr ""
+msgstr "Sollicitatie ingetrokken"
 
 #. translators: 1: candidate name (bold), 2: job title (bold)
 #: modules/notifications/emails/class-email-app-withdrawn.php:71
 #, php-format
 msgid "%1$s withdrew their application for %2$s. No action is needed."
-msgstr ""
+msgstr "%1$s trok de sollicitatie voor %2$s in. Je hoeft niets te doen."
 
 #. translators: 1: job title (bold), 2: days left, 3: deadline date. Label form: the number is filled in later.
 #: modules/notifications/emails/class-email-deadline-reminder.php:75
 #, php-format
 msgid "The application window for %1$s closes on %3$s. Days left: %2$s."
-msgstr ""
+msgstr "Het sollicitatievenster voor %1$s sluit op %3$s. Dagen over: %2$s."
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:41
 msgid "Account Deletion Cancelled"
-msgstr ""
+msgstr "Accountverwijdering geannuleerd"
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:59
 msgid "Your account will not be deleted"
-msgstr ""
+msgstr "Je account wordt niet verwijderd"
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:68
 msgid "Your account is safe"
-msgstr ""
+msgstr "Je account is veilig"
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:69
 msgid "Hi {user_name}, the deletion of your account on {site_name} has been cancelled. Everything stays as it was."
-msgstr ""
+msgstr "Hoi {user_name}, het verwijderen van je account op {site_name} is geannuleerd. Alles blijft zoals het was."
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:79
 #: modules/notifications/emails/class-email-deletion-completed.php:79
@@ -8503,385 +8476,380 @@ msgstr ""
 #: modules/notifications/emails/class-email-verify-account.php:92
 #: modules/notifications/emails/class-email-welcome.php:80
 msgid "Member name"
-msgstr ""
+msgstr "Naam van lid"
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:80
 #: modules/notifications/emails/class-email-deletion-completed.php:80
 #: modules/notifications/emails/class-email-welcome.php:81
 msgid "Site name"
-msgstr ""
+msgstr "Sitenaam"
 
 #: modules/notifications/emails/class-email-deletion-cancelled.php:81
 #: modules/notifications/emails/class-email-deletion-completed.php:81
 #: modules/notifications/emails/class-email-deletion-requested.php:82
 #: modules/notifications/emails/class-email-welcome.php:82
 msgid "Sign-in URL"
-msgstr ""
+msgstr "Inlog-URL"
 
 #: modules/notifications/emails/class-email-deletion-completed.php:41
 msgid "Account Deleted"
-msgstr ""
+msgstr "Account verwijderd"
 
 #: modules/account/class-account-deletion-service.php:117
 #: modules/notifications/emails/class-email-deletion-completed.php:59
 #: modules/notifications/emails/class-email-deletion-completed.php:68
 msgid "Your account has been deleted"
-msgstr ""
+msgstr "Je account is verwijderd"
 
 #: modules/notifications/emails/class-email-deletion-completed.php:69
 msgid "Hi {user_name}, as you asked, your account and personal data on {site_name} have been deleted. Employers keep past applications without your name or contact details."
-msgstr ""
+msgstr "Hoi {user_name}, zoals je vroeg zijn je account en persoonsgegevens op {site_name} verwijderd. Werkgevers houden eerdere sollicitaties zonder je naam of contactgegevens."
 
 #: modules/notifications/emails/class-email-deletion-requested.php:41
 msgid "Account Deletion Requested"
-msgstr ""
+msgstr "Accountverwijdering aangevraagd"
 
 #: modules/notifications/emails/class-email-deletion-requested.php:59
 msgid "Your account will be deleted on {delete_date}"
-msgstr ""
+msgstr "Je account wordt verwijderd op {delete_date}"
 
 #: modules/notifications/emails/class-email-deletion-requested.php:68
 msgid "We received your request to delete your account"
-msgstr ""
+msgstr "We ontvingen je verzoek om je account te verwijderen"
 
 #: modules/notifications/emails/class-email-deletion-requested.php:69
 msgid "Hi {user_name}, your account is locked and will be deleted on {delete_date}. Changed your mind? Sign in again before then to cancel it. If you did not ask for this, contact the site team."
-msgstr ""
+msgstr "Hoi {user_name}, je account is vergrendeld en wordt verwijderd op {delete_date}. Van gedachten veranderd? Log voor die tijd opnieuw in om te annuleren. Als je hier niet om vroeg, neem contact op met het siteteam."
 
 #: modules/notifications/emails/class-email-deletion-requested.php:70
 msgid "Sign in to cancel"
-msgstr ""
+msgstr "Log in om te annuleren"
 
 #: modules/notifications/emails/class-email-deletion-requested.php:81
 msgid "Deletion date"
-msgstr ""
+msgstr "Verwijderdatum"
 
 #. translators: %s: job title (bold)
 #: modules/notifications/emails/class-email-job-expired.php:71
 #, php-format
 msgid "Your job listing %s has passed its deadline. It no longer takes applications and has left the job listings; its page stays up and tells visitors it has expired."
-msgstr ""
+msgstr "Je functie %s is over de deadline. Die neemt geen sollicitaties meer aan en is uit de functielijsten; de pagina blijft staan en vertelt bezoekers dat die is verlopen."
 
 #: modules/notifications/emails/class-email-job-expired.php:74
 msgid "Still hiring? Reopen it from your dashboard for a new listing period."
-msgstr ""
+msgstr "Nog aan het werven? Heropen die vanuit je dashboard voor een nieuwe plaatsingsperiode."
 
 #: modules/notifications/emails/class-email-job-expired.php:75
 msgid "Reopen Job"
-msgstr ""
+msgstr "Functie heropenen"
 
 #: modules/notifications/emails/class-email-job-expiring.php:42
 msgid "Job Ending Soon (Employer)"
-msgstr ""
+msgstr "Functie eindigt binnenkort (werkgever)"
 
 #: modules/notifications/emails/class-email-job-expiring.php:60
 #: modules/notifications/emails/class-email-job-expiring.php:69
 msgid "Your job listing ends soon"
-msgstr ""
+msgstr "Je functie eindigt binnenkort"
 
 #. translators: 1: job title (bold), 2: end date (bold)
 #: modules/notifications/emails/class-email-job-expiring.php:72
 #, php-format
 msgid "%1$s stops taking applications after %2$s and then leaves the job listings."
-msgstr ""
+msgstr "%1$s stopt na %2$s met sollicitaties en verdwijnt daarna uit de functielijsten."
 
 #: modules/notifications/emails/class-email-job-expiring.php:76
 msgid "Still hiring? Edit the job and move the deadline to keep it open."
-msgstr ""
+msgstr "Nog aan het werven? Bewerk de functie en verplaats de deadline om die open te houden."
 
 #: modules/notifications/emails/class-email-job-expiring.php:77
 msgid "Extend the listing"
-msgstr ""
+msgstr "Plaatsing verlengen"
 
 #: modules/notifications/emails/class-email-job-expiring.php:88
 msgid "Last day it takes applications"
-msgstr ""
+msgstr "Laatste dag dat sollicitaties binnenkomen"
 
 #: modules/notifications/emails/class-email-job-expiring.php:89
 msgid "Days left"
-msgstr ""
+msgstr "Dagen over"
 
 #: modules/notifications/emails/class-email-job-expiring.php:90
 msgid "Edit job URL (employer dashboard)"
-msgstr ""
+msgstr "URL functie bewerken (werkgeversdashboard)"
 
 #: modules/notifications/emails/class-email-job-expiring.php:91
 msgid "Job page URL"
-msgstr ""
+msgstr "URL functiepagina"
 
 #: modules/notifications/emails/class-email-report-received.php:44
 msgid "Report Received"
-msgstr ""
+msgstr "Melding ontvangen"
 
 #: modules/notifications/emails/class-email-report-received.php:62
 msgid "[Report] {item} was reported"
-msgstr ""
+msgstr "[Melding] {item} is gemeld"
 
 #: modules/notifications/emails/class-email-report-received.php:71
 msgid "Something was reported"
-msgstr ""
+msgstr "Er is iets gemeld"
 
 #. translators: 1: reported item (bold), 2: reason, 3: number of reports
 #: modules/notifications/emails/class-email-report-received.php:74
 #, php-format
 msgid "%1$s was reported as \"%2$s\". Open reports: %3$s."
-msgstr ""
+msgstr "%1$s is gemeld als \"%2$s\". Openstaande meldingen: %3$s."
 
 #: modules/notifications/emails/class-email-report-received.php:80
 msgid "Review reports"
-msgstr ""
+msgstr "Meldingen beoordelen"
 
 #: modules/notifications/emails/class-email-report-received.php:90
 msgid "Reported job or member"
-msgstr ""
+msgstr "Gemelde functie of lid"
 
 #: modules/notifications/emails/class-email-report-received.php:91
 msgid "Reason given"
-msgstr ""
+msgstr "Opgegeven reden"
 
 #: modules/notifications/emails/class-email-report-received.php:93
 msgid "Whether the job was hidden"
-msgstr ""
+msgstr "Of de functie is verborgen"
 
 #: modules/notifications/emails/class-email-report-received.php:94
 msgid "Admin list to review it"
-msgstr ""
+msgstr "Beheerderslijst om het te beoordelen"
 
 #: modules/notifications/emails/class-email-report-received.php:124
 msgid "The job has been taken off the site until you review it. Dismissing the reports puts it back."
-msgstr ""
+msgstr "De functie is van de site gehaald tot je die beoordeelt. Als je de meldingen wegwuift, komt die terug."
 
 #: modules/notifications/emails/class-email-verify-account.php:44
 msgid "Confirm Your Email"
-msgstr ""
+msgstr "Bevestig je e-mail"
 
 #: modules/notifications/emails/class-email-verify-account.php:64
 #: modules/notifications/emails/class-email-verify-account.php:74
 msgid "Confirm your email address"
-msgstr ""
+msgstr "Bevestig je e-mailadres"
 
 #. translators: %s: member display name
 #: modules/notifications/emails/class-email-verify-account.php:77
 #, php-format
 msgid "Hi %s, thanks for signing up. Confirm this is your email address to activate your account."
-msgstr ""
+msgstr "Hoi %s, bedankt voor je aanmelding. Bevestig dat dit je e-mailadres is om je account te activeren."
 
 #: modules/notifications/emails/class-email-verify-account.php:80
 msgid "Confirm Email"
-msgstr ""
+msgstr "E-mail bevestigen"
 
 #: modules/notifications/emails/class-email-verify-account.php:81
 msgid "The link works for 7 days. If you did not sign up, you can ignore this email."
-msgstr ""
+msgstr "De link werkt 7 dagen. Als je je niet hebt aangemeld, kun je deze e-mail negeren."
 
 #: modules/notifications/emails/class-email-welcome.php:41
 msgid "Welcome"
-msgstr ""
+msgstr "Welkom"
 
 #: modules/notifications/emails/class-email-welcome.php:59
 msgid "Welcome to {site_name}"
-msgstr ""
+msgstr "Welkom bij {site_name}"
 
 #: modules/notifications/emails/class-email-welcome.php:68
 msgid "Welcome aboard"
-msgstr ""
+msgstr "Welkom aan boord"
 
 #: modules/notifications/emails/class-email-welcome.php:69
 msgid "Hi {user_name}, your account is ready. Sign in any time to manage your profile, applications and saved jobs."
-msgstr ""
+msgstr "Hoi {user_name}, je account is klaar. Log wanneer je wilt in om je profiel, sollicitaties en opgeslagen functies te beheren."
 
 #. translators: %s: site name
 #: modules/notifications/templates/emails/email-footer.php:18
 #, php-format
 msgid "You are receiving this email because you gave us your email address on %s."
-msgstr ""
+msgstr "Je ontvangt deze e-mail omdat je ons je e-mailadres gaf op %s."
 
 #: modules/seo/class-seo-module.php:449
 #: modules/seo/class-seo-module.php:467
 msgid "Country"
-msgstr ""
+msgstr "Land"
 
 #: modules/seo/class-seo-module.php:451
 #: modules/seo/class-seo-module.php:470
 msgid "Country name or 2-letter code, used for Google for Jobs. Leave empty to use the default country from Settings > Jobs."
-msgstr ""
+msgstr "Landnaam of 2-lettercode, gebruikt voor Google for Jobs. Laat leeg om het standaardland uit Instellingen > Functies te gebruiken."
 
 #: templates/parts/archive-card-bookmark.php:62
 msgid "Sign in to save"
-msgstr ""
+msgstr "Log in om op te slaan"
 
 #. translators: %s: number of categories ticked, always 2 or more.
 #: templates/parts/category-picker.php:46
 #, php-format
 msgid "%s category"
 msgid_plural "%s categories"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s categorie"
+msgstr[1] "%s categorieën"
 
 #: templates/parts/category-picker.php:93
 msgid "Job category:"
-msgstr ""
+msgstr "Functiecategorie:"
 
 #: admin/class-admin.php:263
 #: blocks/job-single/render.php:655
 #: modules/jobs/class-jobs-module.php:299
 #: modules/jobs/class-jobs-module.php:300
 #: templates/parts/category-picker.php:102
-#, fuzzy
 msgid "Job categories"
-msgstr "Jobcategorieën"
+msgstr "Functiecategorieën"
 
 #: templates/parts/category-picker.php:119
 msgid "Clear"
-msgstr ""
+msgstr "Wissen"
 
 #: templates/parts/category-picker.php:120
 msgid "Done"
-msgstr ""
+msgstr "Klaar"
 
 #: templates/parts/dashboard-gate.php:28
 msgid "Create an account"
-msgstr ""
+msgstr "Maak een account"
 
 #: templates/parts/email-preferences.php:33
 msgid "Could not save. Please try again."
-msgstr ""
+msgstr "Kon niet opslaan. Probeer het opnieuw."
 
 #: templates/parts/email-preferences.php:43
 msgid "Send me"
-msgstr ""
+msgstr "Stuur me"
 
 #: templates/parts/email-preferences.php:50
 msgid "Emails about your account, applications and payments are always sent."
-msgstr ""
+msgstr "E-mails over je account, sollicitaties en betalingen worden altijd verstuurd."
 
 #. translators: 1: categories chosen so far, 2: most allowed.
 #: templates/parts/job-category-field.php:40
 #, php-format
 msgid "%1$s of %2$s chosen"
-msgstr ""
+msgstr "%1$s van %2$s gekozen"
 
 #. translators: %s: most categories one job may have.
 #: templates/parts/job-category-field.php:43
 #, php-format
 msgid "You can choose up to %s category."
 msgid_plural "You can choose up to %s categories."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Je kunt maximaal %s categorie kiezen."
+msgstr[1] "Je kunt maximaal %s categorieën kiezen."
 
 #. translators: %s: the job's current categories, comma separated.
 #: templates/parts/job-category-field.php:49
 #, php-format
 msgid "This job is listed under %s. Choosing a category here replaces them."
-msgstr ""
+msgstr "Deze functie staat onder %s. Een categorie hier kiezen vervangt die."
 
 #: templates/parts/job-category-field.php:84
 msgid "Chosen categories"
-msgstr ""
+msgstr "Gekozen categorieën"
 
 #: admin/class-admin.php:686
 #: blocks/employer-dashboard/render.php:413
 #: blocks/employer-dashboard/render.php:559
 #: blocks/employer-dashboard/render.php:654
 #: templates/parts/post-job-gate.php:23
-#, fuzzy
 msgid "Post a job"
-msgstr "Plaats een vacature"
+msgstr "Functie plaatsen"
 
 #: templates/parts/post-job-gate.php:28
 msgid "Sign in with your employer account to post a job."
-msgstr ""
+msgstr "Log in met je werkgeversaccount om een functie te plaatsen."
 
 #: templates/parts/post-job-gate.php:37
 msgid "This is a candidate account. To post jobs, sign in with an employer account."
-msgstr ""
+msgstr "Dit is een kandidatenaccount. Om functies te plaatsen, log je in met een werkgeversaccount."
 
 #: templates/parts/privacy-settings.php:45
 msgid "Could not schedule deletion. Please try again."
-msgstr ""
+msgstr "Kon verwijdering niet inplannen. Probeer het opnieuw."
 
 #: templates/parts/privacy-settings.php:46
 msgid "Could not cancel the deletion. Please try again."
-msgstr ""
+msgstr "Kon de verwijdering niet annuleren. Probeer het opnieuw."
 
 #: templates/parts/privacy-settings.php:61
 msgid "We email you to confirm the request, then send the file once the site has prepared it."
-msgstr ""
+msgstr "We e-mailen je om het verzoek te bevestigen en sturen het bestand zodra de site het heeft klaargemaakt."
 
 #: templates/parts/privacy-settings.php:65
 msgid "Requested - check your email"
-msgstr ""
+msgstr "Aangevraagd - check je e-mail"
 
 #: templates/parts/privacy-settings.php:80
 #: templates/parts/privacy-settings.php:91
 msgid "Your account is scheduled for deletion on"
-msgstr ""
+msgstr "Je account staat gepland voor verwijdering op"
 
 #: templates/parts/privacy-settings.php:82
 msgid "You can stop this at any time before then."
-msgstr ""
+msgstr "Je kunt dit tot die tijd altijd stoppen."
 
 #: templates/parts/privacy-settings.php:85
 msgid "Keep my account"
-msgstr ""
+msgstr "Mijn account behouden"
 
 #: templates/parts/privacy-settings.php:93
 msgid "For your security you have been signed out on every device. To stop the deletion, sign back in before that date and choose \"Keep my account\"."
-msgstr ""
+msgstr "Voor je veiligheid ben je op elk apparaat uitgelogd. Om de verwijdering te stoppen, log je voor die datum weer in en kies je \"Mijn account behouden\"."
 
 #: templates/parts/privacy-settings.php:101
 msgid "Your live jobs close (applicants are told), jobs waiting for review go back to draft, and your companies are taken offline."
-msgstr ""
+msgstr "Je live functies sluiten (sollicitanten horen dat), functies die wachten op beoordeling gaan terug naar concept, en je bedrijven gaan offline."
 
 #: templates/parts/privacy-settings.php:102
 msgid "This deletes your profile, resumes and uploaded files. Employers keep your past applications with your name and contact details removed."
-msgstr ""
+msgstr "Dit verwijdert je profiel, CV's en geüploade bestanden. Werkgevers houden je eerdere sollicitaties zonder je naam en contactgegevens."
 
 #. translators: %d: number of days before the account is deleted.
 #: templates/parts/privacy-settings.php:119
 #, php-format
 msgid "You have %d day to change your mind; signing back in and choosing \"Keep my account\" stops it."
 msgid_plural "You have %d days to change your mind; signing back in and choosing \"Keep my account\" stops it."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Je hebt %d dag om van gedachten te veranderen; opnieuw inloggen en \"Mijn account behouden\" kiezen stopt het."
+msgstr[1] "Je hebt %d dagen om van gedachten te veranderen; opnieuw inloggen en \"Mijn account behouden\" kiezen stopt het."
 
 #: templates/parts/privacy-settings.php:125
 msgid "Your password"
-msgstr ""
+msgstr "Je wachtwoord"
 
 #: templates/parts/privacy-settings.php:130
 msgid "Schedule deletion"
-msgstr ""
+msgstr "Verwijdering inplannen"
 
 #: wp-career-board.php:76
 msgid "WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them."
-msgstr ""
+msgstr "WP Career Board mist bestanden uit de updatebibliotheek, dus automatische updates staan uit. Installeer WP Career Board opnieuw om ze te herstellen."
 
 #: admin/class-admin-settings.php:423
-#, fuzzy
 msgid "Job feed"
-msgstr "Vacaturefeed"
+msgstr "Functiefeed"
 
 #: admin/class-pages.php:58
 msgctxt "page title"
 msgid "Employer Dashboard"
-msgstr ""
+msgstr "Werkgeversdashboard"
 
 #: admin/class-pages.php:80
 msgctxt "page title"
 msgid "Post a Job"
-msgstr ""
+msgstr "Functie plaatsen"
 
 #: blocks/candidate-dashboard/render.php:202
 #: blocks/candidate-dashboard/render.php:478
 #: blocks/candidate-dashboard/render.php:625
 #: blocks/candidate-dashboard/render.php:1105
-#, fuzzy
 msgid "Job alerts"
-msgstr "Vacaturewaarschuwingen"
+msgstr "Functiemeldingen"
 
 #: blocks/employer-registration/render.php:187
-#, fuzzy
 msgid "I want to…"
 msgstr "Ik wil…"
 
@@ -8889,8 +8857,8 @@ msgstr "Ik wil…"
 #: blocks/job-listings/render.php:104
 #, php-format
 msgid "metaFilter key \"%s\" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( 'wcb_jobs_allowed_meta_filters', $callback ) to enable filtering on custom meta keys."
-msgstr ""
+msgstr "metaFilter-sleutel \"%s\" zit niet in de WCB-namespace (_wcb_*) en niet in de allowlist. Registreer die via add_filter( 'wcb_jobs_allowed_meta_filters', $callback ) om filteren op eigen metasleutels in te schakelen."
 
 #: modules/gdpr/class-gdpr-module.php:446
 msgid "Open to Work"
-msgstr ""
+msgstr "Open voor werk"
