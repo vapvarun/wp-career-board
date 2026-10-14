@@ -1,0 +1,71 @@
+{
+  "_doc": "Read by bin/i18n-*.php. 'protect' terms must appear unchanged in any translation whose English contains them. See plan/translations-1.8.2-handoff.md in wp-career-board.",
+  "protect": [
+    "WP Career Board",
+    "Career Board",
+    "Pro",
+    "WordPress",
+    "BuddyPress",
+    "WooCommerce",
+    "Gutenberg",
+    "REST",
+    "API",
+    "URL",
+    "CSV",
+    "PWA",
+    "ATS",
+    "HTML",
+    "CSS",
+    "Stripe",
+    "PayPal",
+    "Google",
+    "reCAPTCHA",
+    "Cloudflare Turnstile",
+    "LinkedIn",
+    "Indeed",
+    "PDF",
+    "JSON",
+    "RSS",
+    "XML",
+    "Schema.org"
+  ],
+  "glossary": {
+    "job / job listing": "a position an employer posts; one word used consistently",
+    "board": "a job board on the site (a site can run several)",
+    "employer": "the account that posts jobs",
+    "company": "the business a job belongs to; one employer can run several",
+    "candidate": "a job seeker",
+    "application": "one candidate applying to one job",
+    "applicant": "the candidate behind an application",
+    "resume": "the candidate's CV (Pro resume builder)",
+    "job alert": "a saved search that emails new matching jobs",
+    "featured": "a job or company promoted to the top",
+    "bookmark / saved": "a job, company or resume kept for later",
+    "credits": "the prepaid balance employers spend to post or feature jobs (money string)",
+    "hiring pipeline / stage": "the columns an application moves through (Pro)",
+    "Open to Work": "a candidate badge saying they are available",
+    "AI": "use the locale's usual abbreviation (IA in French and Spanish, KI in German)"
+  },
+  "locales": {
+    "de_DE": {
+      "name": "German",
+      "register": "informal (du)"
+    },
+    "fr_FR": {
+      "name": "French",
+      "register": "informal (tu)"
+    },
+    "es_ES": {
+      "name": "Spanish",
+      "register": "informal (tú)"
+    },
+    "nl_NL": {
+      "name": "Dutch",
+      "register": "informal (je)"
+    },
+    "ko_KR": {
+      "name": "Korean",
+      "register": "polite (해요체)"
+    }
+  }
+}
