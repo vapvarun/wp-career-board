@@ -1,91 +1,104 @@
-# WP Career Board — The Free Job Board for WordPress
+# WP Career Board
 
-**The first job board plugin built entirely on Gutenberg blocks and the WordPress Interactivity API.** No shortcodes, no jQuery, no page reloads.
+A job board for WordPress built on Gutenberg blocks and the Interactivity API, with employer and candidate dashboards, application tracking and company profiles.
 
-Every other WordPress job board plugin was built on technology from 2012. WP Career Board fills that gap with a modern, block-native architecture that works with any theme and integrates deeply with BuddyPress communities.
+Version 1.8.1 | Requires WordPress 6.9, PHP 8.1 | GPL-2.0-or-later
 
-**Free forever.** Not freemium. Not a trial.
+## What it does
 
----
+**Jobs**
+- Frontend job form for employers, with a moderation queue (pending, approved, rejected) and automatic expiry with deadline reminders.
+- Job listings with search and filters, plus a single job page.
+- JobPosting structured data (schema.org) for Google for Jobs.
 
-## What's Included (Free)
+**Employers and companies**
+- Employer dashboard on the frontend: post jobs, review applications, manage the company profile. No wp-admin needed.
+- Public company profiles and a company archive.
 
-| Feature | What It Does |
-|---------|-------------|
-| **Employer Dashboard** | Post jobs, review applications, manage company profile — all frontend, no wp-admin |
-| **Candidate Dashboard** | Track applications, save jobs, manage profile with real-time status updates |
-| **Application Tracking** | 5 statuses (Submitted → Reviewing → Shortlisted → Rejected → Hired) with inline updates |
-| **Guest Applications** | Candidates apply without creating an account |
-| **Company Profiles** | Public pages with logo, description, active listings, and verified badges |
-| **Email Notifications** | 8 templates — approval, rejection, expiry, application receipt, status changes |
-| **JobPosting Schema** | Automatic schema.org structured data for Google for Jobs indexing |
-| **reCAPTCHA v3** | Spam protection on application forms |
-| **GDPR Compliance** | WordPress Privacy API export and erasure for candidate data |
-| **BuddyPress Integration** | Works with BuddyPress, BuddyBoss, and BuddyX Pro |
-| **Theme Compatibility** | Works with any block theme. Perfect with Reign Theme and BuddyX Pro |
+**Candidates and applications**
+- Candidate dashboard: applications, saved jobs, profile.
+- Applications move through submitted, reviewing, shortlisted, rejected and hired. Candidates can also withdraw.
+- Guest applications, with a confirmation email to the applicant.
+- Applications CSV export per job.
 
-## 5-Minute Setup
+**Email**
+- 18 transactional emails: job approved, rejected, pending, expiring and expired; application received, status change, withdrawn and guest; account verification, welcome, report received and the account deletion flow.
 
-1. Install the plugin
-2. Run the Setup Wizard — creates Find Jobs, Employer Dashboard, Candidate Dashboard, and Registration pages automatically
-3. Your job board is live
+**Trust and privacy**
+- Spam protection with reCAPTCHA v3, reCAPTCHA v2 or Cloudflare Turnstile.
+- Report and block users.
+- WordPress Privacy API export and erasure for candidate data.
 
-## Works With Any Theme. Perfect With Reign and BuddyX.
+**Integrations and migration**
+- BuddyPress (employer and candidate member types, activity entries), Reign Theme and BuddyX Pro.
+- Import from WP Job Manager with `wp wcb migrate`.
 
-WP Career Board uses standard Gutenberg blocks — it works with any block-compatible theme. If you're running **Reign Theme** or **BuddyX / BuddyX Pro**, styling is automatic. Zero CSS required.
+## Who it is for
 
-## 10 Gutenberg Blocks
+Site owners who want to run a job board, careers listing or hiring directory on WordPress, and agencies building one for a client. It works with any block theme and styles itself automatically under Reign and BuddyX Pro.
 
-`wcb/job-listings` · `wcb/job-search` · `wcb/job-filters` · `wcb/job-single` · `wcb/job-form` · `wcb/employer-dashboard` · `wcb/candidate-dashboard` · `wcb/company-profile` · `wcb/company-archive` · `wcb/featured-jobs`
-
-Drop any block on any page. Server-rendered with Interactivity API stores for instant interactions.
-
----
-
-## WP Career Board Pro
-
-When your job board grows, [WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) extends it with:
-
-- **Kanban Hiring Pipeline** — custom stages with drag-and-drop (the feature no other WP job board has)
-- **Multi-Board Engine** — unlimited independent boards from one install
-- **Resume Builder & Search** — structured resumes with employer search + PDF export
-- **WooCommerce Credit System** — charge employers to post via WooCommerce, PMPro, or MemberPress
-- **Custom Field Builder** — 17 field types, no code required
-- **AI Job Descriptions** — OpenAI, Anthropic Claude, or self-hosted Ollama
-- **Job Alerts** — email notifications for matching new jobs
-- **Job Feed** — XML feeds for Indeed, LinkedIn, Google Jobs
-
-### Pricing
-
-| Tier | Sites | Annual | Lifetime |
-|------|-------|--------|----------|
-| Personal | 1 | $49 | $149 |
-| Developer | 5 | $79 | $199 |
-| Agency | Unlimited | $149 | $399 |
-
-All tiers include every Pro feature. 30-day money-back guarantee.
-
----
-
-## Links
+## Get it
 
 | | |
 |---|---|
-| Store | [store.wbcomdesigns.com/wp-career-board](https://store.wbcomdesigns.com/wp-career-board/) |
-| Documentation | [store.wbcomdesigns.com/wp-career-board/docs](https://store.wbcomdesigns.com/wp-career-board/docs/) |
-| Pro Version | [store.wbcomdesigns.com/wp-career-board-pro](https://store.wbcomdesigns.com/wp-career-board-pro/) |
-| Support | [wbcomdesigns.com/support](https://wbcomdesigns.com/support/) |
+| Plugin page and download | [store.wbcomdesigns.com/wp-career-board](https://store.wbcomdesigns.com/wp-career-board/) |
+| Product site | [wpcareerboard.com](https://wpcareerboard.com/) |
+| Pro add-on | [WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) - adds a Kanban hiring pipeline, multiple boards, resumes, credits, AI tools and more. See the store page for pricing. |
+
+The plugin is not listed on wordpress.org. Download it from the store page.
+
+## Documentation
+
+| | |
+|---|---|
+| Documentation hub | [docs.wbcomdesigns.com/products/wp-career-board](https://docs.wbcomdesigns.com/products/wp-career-board/) |
+| Store documentation | [store.wbcomdesigns.com/wp-career-board/docs](https://store.wbcomdesigns.com/wp-career-board/docs/) |
+| Release notes | [wbcomdesigns.com/release-notes/wp-career-board](https://wbcomdesigns.com/release-notes/wp-career-board/) |
 
 ## Requirements
 
-- WordPress 6.9+
-- PHP 8.1+
+- WordPress 6.9 or newer
+- PHP 8.1 or newer
 
-## Development
+## Installation
+
+1. Download the plugin zip from the store page.
+2. In wp-admin go to Plugins > Add New > Upload Plugin, upload the zip and activate.
+3. Run the Setup Wizard. It creates the job, dashboard and registration pages, sets sign-up, job, email and spam-protection options, and can add sample data.
+4. Open the new jobs page on the frontend.
+
+## For developers
+
+**Identifiers**
+
+| | |
+|---|---|
+| Slug and text domain | `wp-career-board` |
+| Function and hook prefix | `wcb_` |
+| PHP namespace | `WCB\` |
+| Post types | `wcb_job`, `wcb_application`, `wcb_company` (and `wcb_resume` from Pro) |
+
+**Blocks** (17, in `blocks/`, all under `wp-career-board/`)
+
+`job-listings`, `job-search`, `job-search-hero`, `job-filters`, `job-single`, `job-form`, `job-form-simple`, `job-stats`, `featured-jobs`, `recent-jobs`, `job-alert-card`, `employer-dashboard`, `employer-registration`, `candidate-dashboard`, `company-profile`, `company-archive`, `similar-companies-card`.
+
+**REST API.** Namespace `wcb/v1`. Main routes: `/jobs`, `/jobs/{id}/apply`, `/jobs/{id}/applications`, `/applications/{id}/status`, `/employers`, `/candidates`, `/companies`, `/search`, `/me`, `/settings/app-config`. Reference: [REST API](https://docs.wbcomdesigns.com/products/wp-career-board/developer-guide/03-rest-api/).
+
+**Hooks.** Actions and filters are listed in the [Hooks Reference](https://docs.wbcomdesigns.com/products/wp-career-board/developer-guide/02-hooks-reference/). Wizard steps can be extended with the `wcb_wizard_steps` filter and emails with `wcb_registered_emails`.
+
+**WP-CLI.** Command group `wp wcb`: `status`, `abilities`, `job` (list, approve, reject, expire, run-expiry), `application` (list, update), `migrate` (wpjm, wpjm-applications, wpjm-resumes, files) and `scale` (seed, benchmark, teardown). Reference: [WP-CLI](https://docs.wbcomdesigns.com/products/wp-career-board/developer-guide/04-wp-cli/).
+
+**Template overrides.** Copy `single-wcb_job.php` or `single-wcb_company.php` into your theme to replace the plugin template. See [Template overrides](https://docs.wbcomdesigns.com/products/wp-career-board/developer-guide/06-template-overrides/).
+
+**Build**
 
 ```bash
 npm install && npm run build   # compile blocks
 grunt dist                     # build distribution zip
 ```
 
-**Slug:** `wp-career-board` · **Prefix:** `wcb_` · **Namespace:** `WCB\` · **REST:** `wcb/v1`
+## Support and licence
+
+Support: [wbcomdesigns.com/support](https://wbcomdesigns.com/support/)
+
+Licensed under GPL-2.0-or-later.
