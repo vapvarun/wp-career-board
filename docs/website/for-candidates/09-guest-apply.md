@@ -2,7 +2,7 @@
 
 You can apply to a job with just your name, email and a resume, without creating an account. This works unless the site turned on **Require login to apply**. In that case the job page shows **Sign in to apply**.
 
-## Apply as a guest
+## Submit an application
 
 1. Open a job page.
 2. Click **Apply Now**.
