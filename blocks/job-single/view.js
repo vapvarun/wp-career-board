@@ -37,11 +37,11 @@ const { state } = store( 'wcb-job-single', {
 		customFields: {},
 		get bookmarkLabel() {
 			if ( state.bookmarkFailed ) {
-				return t( 'bookmarkFailed', 'Could not save' );
+				return t( 'bookmarkFailed', 'Could not save.' );
 			}
 			return state.bookmarked
 				? t( 'bookmarkSaved', 'Saved' )
-				: t( 'bookmarkSave', 'Save Job' );
+				: t( 'bookmarkSave', 'Save job' );
 		},
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;

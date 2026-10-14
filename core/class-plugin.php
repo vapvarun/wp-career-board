@@ -690,7 +690,7 @@ final class Plugin {
 			),
 			array(
 				'name'        => 'wp-career-board/employer-dashboard',
-				'title'       => __( 'Employer Dashboard', 'wp-career-board' ),
+				'title'       => __( 'Employer dashboard', 'wp-career-board' ),
 				'description' => __( 'Tabbed dashboard for employers to manage jobs and applications.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
 				'content'     => '<!-- wp:wp-career-board/employer-dashboard /-->',
@@ -1127,6 +1127,79 @@ final class Plugin {
 	 * @since 1.1.0
 	 * @return void
 	 */
+	/**
+	 * Translations for Editor.js's own UI (block menu, tool names, popovers).
+	 *
+	 * Editor.js ships English and only translates what it is handed through
+	 * its i18n option; keys mirror its 2.30 dictionary and the bundled tools.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, mixed>
+	 */
+	public static function editor_i18n(): array {
+		return array(
+			'ui'         => array(
+				'blockTunes'    => array(
+					'toggler' => array(
+						'Click to tune'   => __( 'Click to tune', 'wp-career-board' ),
+						'or drag to move' => __( 'or drag to move', 'wp-career-board' ),
+					),
+				),
+				'inlineToolbar' => array(
+					'converter' => array(
+						'Convert to' => __( 'Convert to', 'wp-career-board' ),
+					),
+				),
+				'toolbar'       => array(
+					'toolbox' => array(
+						'Add' => __( 'Add', 'wp-career-board' ),
+					),
+				),
+				'popover'       => array(
+					'Filter'        => __( 'Filter', 'wp-career-board' ),
+					'Nothing found' => __( 'Nothing found', 'wp-career-board' ),
+					'Convert to'    => __( 'Convert to', 'wp-career-board' ),
+				),
+			),
+			'toolNames'  => array(
+				'Text'       => __( 'Text', 'wp-career-board' ),
+				'Heading'    => __( 'Heading', 'wp-career-board' ),
+				'List'       => __( 'List', 'wp-career-board' ),
+				'Quote'      => __( 'Quote', 'wp-career-board' ),
+				'Delimiter'  => __( 'Delimiter', 'wp-career-board' ),
+				'Marker'     => __( 'Marker', 'wp-career-board' ),
+				'InlineCode' => __( 'Inline code', 'wp-career-board' ),
+				'Link'       => __( 'Link', 'wp-career-board' ),
+				'Bold'       => __( 'Bold', 'wp-career-board' ),
+				'Italic'     => __( 'Italic', 'wp-career-board' ),
+			),
+			'tools'      => array(
+				'link' => array(
+					'Add a link' => __( 'Add a link', 'wp-career-board' ),
+				),
+				'list' => array(
+					'Ordered'   => __( 'Numbered', 'wp-career-board' ),
+					'Unordered' => __( 'Bulleted', 'wp-career-board' ),
+				),
+				'stub' => array(
+					'The block can not be displayed correctly.' => __( 'This block cannot be displayed correctly.', 'wp-career-board' ),
+				),
+			),
+			'blockTunes' => array(
+				'delete'   => array(
+					'Delete'          => __( 'Delete', 'wp-career-board' ),
+					'Click to delete' => __( 'Click to delete', 'wp-career-board' ),
+				),
+				'moveUp'   => array(
+					'Move up' => __( 'Move up', 'wp-career-board' ),
+				),
+				'moveDown' => array(
+					'Move down' => __( 'Move down', 'wp-career-board' ),
+				),
+			),
+		);
+	}
+
 	private function enqueue_editor_assets(): void {
 		$vendor = WCB_URL . 'assets/js/vendor/editorjs/';
 
@@ -1158,6 +1231,7 @@ final class Plugin {
 			WCB_VERSION,
 			true
 		);
+		wp_localize_script( 'wcb-editor', 'wcbEditorI18n', self::editor_i18n() );
 	}
 
 	/**

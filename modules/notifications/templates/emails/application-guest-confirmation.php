@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<h2 style="margin:0 0 16px;font-size:18px;color:#111827;"><?php esc_html_e( 'Application Received', 'wp-career-board' ); ?></h2>
+<h2 style="margin:0 0 16px;font-size:18px;color:#111827;"><?php esc_html_e( 'Application received', 'wp-career-board' ); ?></h2>
 <p>
 <?php
 	/* translators: 1: applicant name, 2: job title */

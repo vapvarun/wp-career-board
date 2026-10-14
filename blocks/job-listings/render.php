@@ -101,7 +101,7 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 			'wcb_job_listings',
 			sprintf(
 				/* translators: %s: meta key the integrator tried to filter on. */
-				esc_html__( 'metaFilter key "%s" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', ... ) to enable filtering on custom meta keys.', 'wp-career-board' ),
+				esc_html__( 'metaFilter key "%s" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', $callback ) to enable filtering on custom meta keys.', 'wp-career-board' ),
 				esc_html( $wcb_meta_filter_key )
 			),
 			'1.1.0'

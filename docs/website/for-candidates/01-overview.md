@@ -41,8 +41,8 @@ The sidebar shows your name and **Candidate**. It contains:
 
 - **Overview**
 - **My Applications**
-- **My Resumes** and **Job Alerts** (Pro)
-- **Saved Jobs**, **Saved Companies**, and **Saved Resumes** (Pro)
+- **My Resumes** and **Job alerts** (Pro)
+- **Saved jobs**, **Saved companies**, and **Saved resumes** (Pro)
 - **Profile** and **Settings**
 - **Notifications** (Pro)
 

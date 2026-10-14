@@ -124,7 +124,7 @@ $wcb_is_employer = wp_is_ability_granted( 'wcb/manage-company' );
 			</p>
 			<label class="wcb-form-label" for="wcb-delete-password"><?php esc_html_e( 'Your password', 'wp-career-board' ); ?></label>
 			<input type="password" id="wcb-delete-password" class="wcb-input" autocomplete="current-password" data-wp-bind--value="state.deletePassword" data-wp-on--input="actions.setPassword">
-			<label class="wcb-form-label" for="wcb-delete-confirm"><?php esc_html_e( 'Type DELETE to confirm', 'wp-career-board' ); ?></label>
+			<label class="wcb-form-label" for="wcb-delete-confirm"><?php esc_html_e( 'Type DELETE to confirm.', 'wp-career-board' ); ?></label>
 			<input type="text" id="wcb-delete-confirm" class="wcb-input" autocomplete="off" data-wp-bind--value="state.deleteConfirm" data-wp-on--input="actions.setConfirm">
 			<div class="wcb-form-actions">
 				<button type="submit" class="wcb-btn wcb-btn--danger" data-wp-bind--disabled="state.busy"><?php esc_html_e( 'Schedule deletion', 'wp-career-board' ); ?></button>

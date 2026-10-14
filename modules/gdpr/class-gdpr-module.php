@@ -443,7 +443,7 @@ class GdprModule {
 		$labels = array(
 			'_wcb_job_title'          => __( 'Headline', 'wp-career-board' ),
 			'_wcb_location'           => __( 'Location', 'wp-career-board' ),
-			'_wcb_open_to_work'       => __( 'Open to work', 'wp-career-board' ),
+			'_wcb_open_to_work'       => __( 'Open to Work', 'wp-career-board' ),
 			'_wcb_profile_visibility' => __( 'Profile visibility', 'wp-career-board' ),
 			'_wcb_resume_data'        => __( 'Profile resume', 'wp-career-board' ),
 			'_wcb_bookmark'           => __( 'Saved jobs', 'wp-career-board' ),

@@ -24,13 +24,13 @@ The number of resumes you can keep is limited. The site owner sets the limit in 
 The builder is a set of sections you open and close by clicking the section header. At the top you can:
 
 - Switch the **Public** checkbox. A public resume appears in the candidate directory and search. A private resume is visible only to you and to employers you apply to.
-- Click **Save Resume** to save your changes. A "Resume saved!" message confirms it.
+- Click **Save resume** to save your changes. A "Resume saved!" message confirms it.
 
 Below that, fill in:
 
-- **Professional Summary**
+- **Professional summary**
 - **Years of experience**, which the candidate directory uses for its experience filter
-- **Open to new opportunities**, which puts you in the directory's "Open to work" filter
+- **Open to new opportunities**, which puts you in the directory's "Open to Work" filter
 
 Then add entries in these sections:
 
@@ -44,7 +44,7 @@ Then add entries in these sections:
 | **Languages** | Language and proficiency level (Basic, Conversational, Fluent or Native) |
 | **Portfolio / Links** | Label and URL |
 
-To add an entry, open a section, click **Add Entry**, fill in the fields and click **Done**. Use the edit and remove icons on an entry to change or delete it. Click **Save Resume** when you finish.
+To add an entry, open a section, click **Add Entry**, fill in the fields and click **Done**. Use the edit and remove icons on an entry to change or delete it. Click **Save resume** when you finish.
 
 ## Use a resume when you apply
 

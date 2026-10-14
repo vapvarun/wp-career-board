@@ -55,7 +55,7 @@ final class Pages {
 				'desc'    => __( 'Contains the wcb/job-listings block. Used as the main job board.', 'wp-career-board' ),
 			),
 			'employer_dashboard_page'    => array(
-				'title'   => __( 'Employer Dashboard', 'wp-career-board' ),
+				'title'   => _x( 'Employer Dashboard', 'page title', 'wp-career-board' ),
 				'slug'    => 'employer-dashboard',
 				'content' => '<!-- wp:wp-career-board/employer-dashboard /-->',
 				'label'   => __( 'Employer Dashboard Page', 'wp-career-board' ),
@@ -77,7 +77,7 @@ final class Pages {
 				'desc'    => __( 'Contains the wcb/company-archive block. Lists all employer company profiles.', 'wp-career-board' ),
 			),
 			'post_job_page'              => array(
-				'title'   => __( 'Post a Job', 'wp-career-board' ),
+				'title'   => _x( 'Post a Job', 'page title', 'wp-career-board' ),
 				'slug'    => 'post-a-job',
 				'content' => '<!-- wp:wp-career-board/job-form /-->',
 				'label'   => __( 'Post a Job Page', 'wp-career-board' ),

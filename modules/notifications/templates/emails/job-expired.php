@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<h2 style="margin:0 0 16px;font-size:18px;color:#111827;"><?php esc_html_e( 'Your Job Listing Has Expired', 'wp-career-board' ); ?></h2>
+<h2 style="margin:0 0 16px;font-size:18px;color:#111827;"><?php esc_html_e( 'Your job listing has expired', 'wp-career-board' ); ?></h2>
 <p>
 <?php
 	/* translators: %s: job title */

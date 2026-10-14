@@ -387,7 +387,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-simple-title">
-					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Job title', 'wp-career-board' ); ?>
 					<span class="wcb-required" aria-hidden="true">*</span>
 				</label>
 				<input
@@ -405,7 +405,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-field">
 				<div class="wcb-form-label-row">
 					<label class="wcb-form-label" for="wcb-simple-desc">
-						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Job description', 'wp-career-board' ); ?>
 						<span class="wcb-required" aria-hidden="true">*</span>
 					</label>
 					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
@@ -448,7 +448,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 				require WCB_DIR . 'templates/parts/job-category-field.php';
 				?>
 				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></label>
+					<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></label>
 					<select id="wcb-simple-type" class="wcb-field" data-wcb-field="typeSlug" data-wp-bind--value="state.typeSlug" data-wp-on--change="actions.updateField">
 						<option value=""><?php esc_html_e( 'Select a job type', 'wp-career-board' ); ?></option>
 						<?php foreach ( $wcb_job_types as $wcb_t ) : ?>

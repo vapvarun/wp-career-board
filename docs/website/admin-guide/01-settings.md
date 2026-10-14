@@ -1,6 +1,6 @@
 # Settings
 
-You can set how jobs are reviewed and listed, who can sign up, how emails look and which pages hold each feature. Open **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save Changes** button. Saving keeps you on the same tab.
+You can set how jobs are reviewed and listed, who can sign up, how emails look and which pages hold each feature. Open **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save changes** button. Saving keeps you on the same tab.
 
 The defaults below are what a fresh install uses. A few defaults are safer on sites created from 1.8.0 on; those are marked "new sites". Sites that existed before 1.8.0 keep their settings and see one notice listing the safer defaults.
 
@@ -143,4 +143,4 @@ A CAPTCHA runs only once the chosen provider has both a site key and a secret ke
 
 ## Saving settings
 
-Click **Save Changes** at the bottom of a tab. Each tab saves separately and saving one tab never changes another.
+Click **Save changes** at the bottom of a tab. Each tab saves separately and saving one tab never changes another.

@@ -81,22 +81,6 @@ function formatNumber( value ) {
 }
 
 /**
- * Resolve the CLDR plural category ('one', 'other', …) for a count against the
- * SITE locale. Used so plural nouns agree with a number that changes after
- * render (e.g. the resume count), which a PHP-frozen `_n()` cannot track.
- *
- * @param {number|string} n Count to classify.
- * @return {string} CLDR plural category.
- */
-function pluralCategory( n ) {
-	try {
-		return new Intl.PluralRules( state.locale || undefined ).select( Number( n ) );
-	} catch {
-		return Number( n ) === 1 ? 'one' : 'other';
-	}
-}
-
-/**
  * Compose "symbol + amount" through a translatable, numbered format string so
  * locales that place the symbol after the amount ("1 000 €") can reorder it.
  *
@@ -182,11 +166,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const map = {
 				overview:           t( 'tabOverview', 'Overview' ),
 				applications:       t( 'tabApplications', 'My Applications' ),
-				bookmarks:          t( 'tabBookmarks', 'Saved Jobs' ),
-				'saved-companies':  t( 'tabSavedCompanies', 'Saved Companies' ),
-				'saved-resumes':    t( 'tabSavedResumes', 'Saved Resumes' ),
+				bookmarks:          t( 'tabBookmarks', 'Saved jobs' ),
+				'saved-companies':  t( 'tabSavedCompanies', 'Saved companies' ),
+				'saved-resumes':    t( 'tabSavedResumes', 'Saved resumes' ),
 				resumes:            t( 'tabResumes', 'My Resumes' ),
-				alerts:             t( 'tabAlerts', 'Job Alerts' ),
+				alerts:             t( 'tabAlerts', 'Job alerts' ),
 				'resume-builder':   t( 'tabResumeBuilder', 'Edit Resume' ),
 				profile:            t( 'tabProfile', 'Profile' ),
 				settings:           t( 'tabSettings', 'Settings' ),
@@ -243,12 +227,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			if ( state.maxResumes <= 0 ) {
 				return '';
 			}
-			// "1 of 2 resumes": the noun agrees with the cap, not the count
-			// ("1/2 resume" read wrong), resolved via Intl.PluralRules.
-			const template = ( 'one' === pluralCategory( state.maxResumes ) )
-				? t( 'resumeCapOne', '%1$s of %2$s resume' )
-				: t( 'resumeCapOther', '%1$s of %2$s resumes' );
-			return template
+			// Label form: one string fits every count in every locale.
+			return t( 'resumeCap', 'Resumes: %1$s of %2$s' )
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );
 		},

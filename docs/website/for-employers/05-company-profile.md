@@ -38,7 +38,7 @@ To see the published page, click **Public Page** in the sidebar. It opens your c
 | LinkedIn | No | Your company LinkedIn URL |
 | X (Twitter) | No | Your company X / Twitter URL |
 
-Only **Company Name** is required. You can save with just the name and fill in the rest later.
+Only **Company name** is required. You can save with just the name and fill in the rest later.
 
 ## Your company page address
 

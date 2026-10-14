@@ -123,8 +123,8 @@ final class JobPayment {
 		return new \WP_Error(
 			'wcb_insufficient_credits',
 			sprintf(
-				/* translators: 1: credit cost, 2: current balance */
-				__( 'This job costs %1$d credits. Your balance: %2$d credits.', 'wp-career-board' ),
+				/* translators: 1: credit cost, 2: current balance. Label form, so one string fits every pair of numbers. */
+				__( 'Credits needed for this job: %1$d. Your balance: %2$d.', 'wp-career-board' ),
 				$cost,
 				$balance
 			),

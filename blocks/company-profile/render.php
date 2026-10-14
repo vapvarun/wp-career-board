@@ -119,7 +119,7 @@ wp_interactivity_state(
 		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 		'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		'i18n'          => array(
-			'saveFailed' => __( 'Could not save', 'wp-career-board' ),
+			'saveFailed' => __( 'Could not save.', 'wp-career-board' ),
 			'save'       => __( 'Save', 'wp-career-board' ),
 			'saved'      => __( 'Saved', 'wp-career-board' ),
 		),

@@ -152,7 +152,16 @@ class EmailSettings {
 						</tr>
 					</thead>
 					<tbody>
-		<?php foreach ( $emails as $email ) : ?>
+		<?php
+		$recipients = array(
+			'admin'     => __( 'Admin', 'wp-career-board' ),
+			'candidate' => __( 'Candidate', 'wp-career-board' ),
+			'employer'  => __( 'Employer', 'wp-career-board' ),
+			'guest'     => __( 'Guest', 'wp-career-board' ),
+			'member'    => __( 'Member', 'wp-career-board' ),
+		);
+		foreach ( $emails as $email ) :
+			?>
 			<?php
 			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
 				continue;
@@ -166,7 +175,7 @@ class EmailSettings {
 			?>
 						<tr>
 							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
-							<td><?php echo esc_html( ucfirst( $email->get_recipient() ) ); ?></td>
+							<td><?php echo esc_html( $recipients[ $email->get_recipient() ] ?? ucfirst( $email->get_recipient() ) ); ?></td>
 							<td>
 								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
 							</td>

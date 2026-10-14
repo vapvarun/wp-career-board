@@ -265,7 +265,7 @@ final class JobsModule {
 					'add_new_item'       => __( 'Add New Job', 'wp-career-board' ),
 					'edit_item'          => __( 'Edit Job', 'wp-career-board' ),
 					'view_item'          => __( 'View Job', 'wp-career-board' ),
-					'search_items'       => __( 'Search Jobs', 'wp-career-board' ),
+					'search_items'       => __( 'Search jobs', 'wp-career-board' ),
 					'not_found'          => __( 'No jobs found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No jobs found in Trash.', 'wp-career-board' ),
 				),
@@ -296,8 +296,8 @@ final class JobsModule {
 			'wcb_category',
 			'wcb_job',
 			array(
-				'label'             => __( 'Job Categories', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job Categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
+				'label'             => __( 'Job categories', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( __( 'Job categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
@@ -311,7 +311,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Types', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job Type', 'wp-career-board' ), false ),
+				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job type', 'wp-career-board' ), false ),
 				'hierarchical'      => false,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),

@@ -29,7 +29,7 @@ wp_interactivity_state(
 		'nonce'   => wp_create_nonce( 'wp_rest' ),
 		'optout'  => $wcb_email_optout,
 		'msg'     => '',
-		'saved'   => __( 'Saved.', 'wp-career-board' ),
+		'saved'   => __( 'Saved', 'wp-career-board' ),
 		'failed'  => __( 'Could not save. Please try again.', 'wp-career-board' ),
 	)
 );

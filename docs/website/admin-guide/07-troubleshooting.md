@@ -31,7 +31,7 @@ If a page is blank, it may not hold the right block. Edit the page in the block 
 | Candidate Dashboard | **Candidate Dashboard** |
 | Find Companies | **Company Archive** |
 
-Then go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
+Then go to **Settings → Permalinks** and click **Save changes** to flush rewrite rules.
 
 ---
 
@@ -42,7 +42,7 @@ Then go to **Settings → Permalinks** and click **Save Changes** to flush rewri
 1. Confirm you have published jobs - go to **WP Career Board → Jobs** and check the status column.
 2. If jobs are pending review, go to **WP Career Board → Settings → Jobs** and check whether **Auto-Publish Jobs** is enabled. If off, you need to approve each job manually from the Jobs list.
 3. Check the active filters on the page - a filter may be set to a value that returns no results.
-4. Go to **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
+4. Go to **Settings → Permalinks** and click **Save changes** to flush rewrite rules.
 
 ### Jobs appear in wp-admin but not on the frontend
 
@@ -51,7 +51,7 @@ Check these in order:
 1. **Status.** Only Published jobs list. Pending, Draft, Closed and Expired jobs do not.
 2. **Deadline.** When **End jobs at their deadline** is in effect (see [Settings](./01-settings.md)), a job past its deadline is Expired within the hour and leaves the listings. Its page still opens and says it has expired.
 3. **Hidden by moderation.** The Jobs list shows **Hidden: reported** or **Hidden: employer banned** on such jobs. See [Moderation](./03-moderation.md).
-4. **Permalinks.** If the job page returns a 404, go to **Settings → Permalinks** and click **Save Changes**.
+4. **Permalinks.** If the job page returns a 404, go to **Settings → Permalinks** and click **Save changes**.
 
 ---
 

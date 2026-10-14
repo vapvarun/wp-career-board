@@ -109,7 +109,7 @@ class AdminCandidates extends \WP_List_Table {
 			'cb'           => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all candidates', 'wp-career-board' ) ),
 			'name'         => __( 'Name', 'wp-career-board' ),
 			'status'       => __( 'Status', 'wp-career-board' ),
-			'visibility'   => __( 'Profile Visibility', 'wp-career-board' ),
+			'visibility'   => __( 'Profile visibility', 'wp-career-board' ),
 			'applications' => __( 'Applications', 'wp-career-board' ),
 			'bookmarks'    => __( 'Bookmarks', 'wp-career-board' ),
 			'registered'   => __( 'Registered', 'wp-career-board' ),
@@ -434,7 +434,7 @@ class AdminCandidates extends \WP_List_Table {
 		return sprintf(
 			'<span class="wcb-badge wcb-badge--%s">%s</span>',
 			esc_attr( $badge_var ),
-			esc_html( ucfirst( $vis ) )
+			esc_html( 'public' === $vis ? __( 'Public', 'wp-career-board' ) : __( 'Private', 'wp-career-board' ) )
 		);
 	}
 

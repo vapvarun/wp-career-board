@@ -215,7 +215,7 @@ final class CandidatesModule {
 					// that only ever contains resumes.
 					'search_items'       => __( 'Search Resumes', 'wp-career-board' ),
 					'all_items'          => __( 'All Resumes', 'wp-career-board' ),
-					'view_item'          => __( 'View Resume', 'wp-career-board' ),
+					'view_item'          => __( 'View resume', 'wp-career-board' ),
 					'new_item'           => __( 'New Resume', 'wp-career-board' ),
 					'add_new'            => __( 'Add New Resume', 'wp-career-board' ),
 				),

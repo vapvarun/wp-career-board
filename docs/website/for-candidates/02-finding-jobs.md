@@ -65,9 +65,9 @@ Tags on a job page link to a page that lists only jobs with that tag. Categories
 The job page shows:
 
 - The full description
-- Job details such as work mode, salary, and the **Apply By** date when the employer set a deadline
+- Job details such as work mode, salary, and the **Apply by** date when the employer set a deadline
 - Company information
-- **Apply Now**, or **Apply on Company Site** when the employer applies through their own site
+- **Apply now**, or **Apply on Company Site** when the employer applies through their own site
 
 A job that has expired or was closed shows a notice, no apply button, and up to three open jobs you might like instead.
 
@@ -77,4 +77,4 @@ With WP Career Board Pro and AI matching set up, your **Candidate Dashboard > Ov
 
 ## Save a job
 
-Sign in, then click the bookmark icon on a job card, or **Save Job** on the job page. Saved jobs appear under **Candidate Dashboard > Saved Jobs**. See [Saved jobs](./05-saved-jobs.md).
+Sign in, then click the bookmark icon on a job card, or **Save job** on the job page. Saved jobs appear under **Candidate Dashboard > Saved Jobs**. See [Saved jobs](./05-saved-jobs.md).

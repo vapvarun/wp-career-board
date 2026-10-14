@@ -11,4 +11,4 @@ You can publish your live jobs as an XML feed at `/wcb-jobs.xml` and submit it t
 
 ## Where to read the full guide
 
-See the WP Career Board Pro docs, page named **Job Feed**.
+See the WP Career Board Pro docs, page named **Job feed**.

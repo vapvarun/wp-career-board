@@ -148,7 +148,7 @@ class AdminApplications extends \WP_List_Table {
 			'candidate' => __( 'Candidate', 'wp-career-board' ),
 			'job'       => __( 'Job', 'wp-career-board' ),
 			'status'    => __( 'Status', 'wp-career-board' ),
-			'change'    => __( 'Change Status', 'wp-career-board' ),
+			'change'    => __( 'Change status', 'wp-career-board' ),
 			'date'      => __( 'Date', 'wp-career-board' ),
 		);
 	}
@@ -477,7 +477,7 @@ class AdminApplications extends \WP_List_Table {
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="mail" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications found', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications found.', 'wp-career-board' ); ?></p>
 			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php

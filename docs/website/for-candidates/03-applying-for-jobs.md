@@ -11,12 +11,12 @@ You can apply as a guest or as a signed-in member. Two site settings can change 
 
 Members who post jobs (employers) cannot apply. Nobody can apply to their own job.
 
-Some jobs send you to the employer's own site. Those show **Apply on Company Site** instead of **Apply Now**.
+Some jobs send you to the employer's own site. Those show **Apply on Company Site** instead of **Apply now**.
 
 ## How to apply
 
 1. Open a job page.
-2. Click **Apply Now**. The **Apply for this job** panel opens.
+2. Click **Apply now**. The **Apply for this job** panel opens.
 3. Fill in the form.
 4. Click **Submit Application**.
 
@@ -27,7 +27,7 @@ Some jobs send you to the employer's own site. Those show **Apply on Company Sit
 | **Your Name** and **Your Email** | Shown to guests and required. Signed-in members do not see these fields |
 | **Select Resume** | Signed-in members with Pro can pick a saved resume. Choose **Upload a different file instead** to upload a file |
 | **Resume** | Upload a PDF, DOC or DOCX file. The default size limit is 5 MB, and the site owner can raise it up to 20 MB. A resume is required unless the site owner turns that off |
-| **Cover Letter** | Optional |
+| **Cover letter** | Optional |
 | **Screening questions** | Shown when the employer added questions to the job. Answer the required ones to submit |
 
 If you pick a resume you built in the resume builder and it has no uploaded PDF, Pro creates a PDF and attaches it for you.

@@ -418,7 +418,8 @@
 			holder: holder.id,
 			tools: buildTools(),
 			data: htmlToBlocks( textarea.value ),
-			placeholder: editorEl.dataset.placeholder || 'Describe the role, responsibilities and requirements...',
+			placeholder: editorEl.dataset.placeholder || '',
+			i18n: { messages: window.wcbEditorI18n || {} },
 			minHeight: 200,
 			onChange: () => {
 				if ( isSaving ) {

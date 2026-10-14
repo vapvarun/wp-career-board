@@ -90,7 +90,7 @@ final class Roles {
 	private function add_moderator_role(): void {
 		$this->sync_role(
 			'wcb_board_moderator',
-			__( 'Job Moderator', 'wp-career-board' ),
+			__( 'Job moderator', 'wp-career-board' ),
 			array(
 				'read'                  => true,
 				'wcb_moderate_jobs'     => true,

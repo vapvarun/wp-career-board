@@ -589,7 +589,7 @@ $wcb_step_labels = array(
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-job-title">
-					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Job title', 'wp-career-board' ); ?>
 					<span class="wcb-required" aria-hidden="true">*</span>
 				</label>
 				<input
@@ -612,7 +612,7 @@ $wcb_step_labels = array(
 			<div class="wcb-form-field">
 				<div class="wcb-form-label-row">
 					<label class="wcb-form-label" for="wcb-job-desc">
-						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Job description', 'wp-career-board' ); ?>
 						<span class="wcb-required" aria-hidden="true">*</span>
 					</label>
 					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
@@ -859,7 +859,7 @@ $wcb_step_labels = array(
 
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-job-type">
-						<?php esc_html_e( 'Job Type', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Job type', 'wp-career-board' ); ?>
 					</label>
 					<select
 						id="wcb-job-type"
@@ -910,7 +910,7 @@ $wcb_step_labels = array(
 						data-wp-on--input="actions.updateField"
 						data-wp-class--wcb-hidden="!state.locationIsCustom"
 						aria-label="<?php esc_attr_e( 'Custom location', 'wp-career-board' ); ?>"
-						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
+						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
 					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>

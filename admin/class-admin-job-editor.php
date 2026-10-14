@@ -74,7 +74,7 @@ class AdminJobEditor {
 	public function register_description_metabox(): void {
 		add_meta_box(
 			'wcb-job-description',
-			__( 'Job Description', 'wp-career-board' ),
+			__( 'Job description', 'wp-career-board' ),
 			array( $this, 'render_description_metabox' ),
 			'wcb_job',
 			'normal',
@@ -170,5 +170,6 @@ class AdminJobEditor {
 			WCB_VERSION,
 			true
 		);
+		wp_localize_script( 'wcb-editor', 'wcbEditorI18n', \WCB\Core\Plugin::editor_i18n() );
 	}
 }

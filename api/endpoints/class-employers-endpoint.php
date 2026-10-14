@@ -784,14 +784,7 @@ final class EmployersEndpoint extends RestController {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
-				$status_labels  = array(
-					'publish'     => __( 'Published', 'wp-career-board' ),
-					'draft'       => __( 'Draft', 'wp-career-board' ),
-					'pending'     => __( 'Pending', 'wp-career-board' ),
-					'private'     => __( 'Private', 'wp-career-board' ),
-					'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
-					'wcb_expired' => __( 'Expired', 'wp-career-board' ),
-				);
+				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
 				// JobsEndpoint::get_item().
@@ -904,14 +897,7 @@ final class EmployersEndpoint extends RestController {
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 
-				$status_labels = array(
-					'publish'     => 'Published',
-					'draft'       => 'Draft',
-					'pending'     => 'Pending',
-					'private'     => 'Private',
-					'wcb_closed'  => 'Closed',
-					'wcb_expired' => 'Expired',
-				);
+				$status_labels = self::job_status_labels();
 
 				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
@@ -1553,5 +1539,22 @@ final class EmployersEndpoint extends RestController {
 		// canonical filter as class-companies-endpoint so extension authors
 		// only have to hook one place.
 		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
+	}
+
+	/**
+	 * Translated label for each job status shown on the employer dashboard.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, string>
+	 */
+	private static function job_status_labels(): array {
+		return array(
+			'publish'     => __( 'Published', 'wp-career-board' ),
+			'draft'       => __( 'Draft', 'wp-career-board' ),
+			'pending'     => __( 'Pending', 'wp-career-board' ),
+			'private'     => __( 'Private', 'wp-career-board' ),
+			'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
+			'wcb_expired' => __( 'Expired', 'wp-career-board' ),
+		);
 	}
 }

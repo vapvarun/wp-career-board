@@ -55,12 +55,12 @@ final class ApplicationsCsv {
 			array(
 				__( 'ID', 'wp-career-board' ),
 				__( 'Job ID', 'wp-career-board' ),
-				__( 'Job Title', 'wp-career-board' ),
-				__( 'Applicant Name', 'wp-career-board' ),
+				__( 'Job title', 'wp-career-board' ),
+				__( 'Applicant name', 'wp-career-board' ),
 				__( 'Applicant Email', 'wp-career-board' ),
 				__( 'Status', 'wp-career-board' ),
 				__( 'Submitted', 'wp-career-board' ),
-				__( 'Cover Letter', 'wp-career-board' ),
+				__( 'Cover letter', 'wp-career-board' ),
 				__( 'Resume URL', 'wp-career-board' ),
 				__( 'Screening Answers', 'wp-career-board' ),
 			)

@@ -17,7 +17,7 @@ Activate Reign and WP Career Board. There is nothing to configure.
 
 The integration adds these links through Reign's `reign_nav_items` filter:
 
-- **Browse Jobs** for everyone. It links to your Find Jobs page.
+- **Browse jobs** for everyone. It links to your Find Jobs page.
 - **Employer Dashboard** for users who can post jobs. It links to your Employer Dashboard page.
 - **My Applications** for users who can apply to jobs. It links to your Candidate Dashboard page.
 

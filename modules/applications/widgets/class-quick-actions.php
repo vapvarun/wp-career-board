@@ -40,7 +40,7 @@ final class QuickActions extends AbstractWidget {
 	 * @return string
 	 */
 	public function title(): string {
-		return __( 'Quick Actions', 'wp-career-board' );
+		return __( 'Quick actions', 'wp-career-board' );
 	}
 
 	/**

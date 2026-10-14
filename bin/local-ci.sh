@@ -98,6 +98,7 @@ if [ -x "./bin/check-i18n.sh" ]; then
 	# Shipped translations keep their placeholders, tokens, HTML and protected
 	# terms, compile, and are not behind the POT (plan/translations-1.8.2-handoff.md).
 	command -v wp > /dev/null 2>&1 && { run_step "i18n-pot-fresh" 'bash bin/make-pot.sh --check' || failed=$((failed+1)); }
+	run_step "i18n-near-duplicates" 'php -n bin/i18n-dupes.php' || failed=$((failed+1))
 	command -v msgfmt > /dev/null 2>&1 && { run_step "i18n-catalogues" 'php -n bin/i18n-check.php' || failed=$((failed+1)); }
 else
 	printf "  ${DIM}skip   ${RESET} i18n-literals (bin/check-i18n.sh missing)\n"

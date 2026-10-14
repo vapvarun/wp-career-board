@@ -260,7 +260,7 @@ class Admin {
 		// into admin.php?page=…, which doesn't apply here.
 		global $submenu;
 		$wcb_tax_links = array(
-			'wcb_category'   => __( 'Job Categories', 'wp-career-board' ),
+			'wcb_category'   => __( 'Job categories', 'wp-career-board' ),
 			'wcb_job_type'   => __( 'Job Types', 'wp-career-board' ),
 			'wcb_location'   => __( 'Job Locations', 'wp-career-board' ),
 			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
@@ -683,7 +683,7 @@ class Admin {
 				<div class="wcb-dashboard-actions">
 					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="plus"></i>
-						<span><?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?></span>
+						<span><?php esc_html_e( 'Post a job', 'wp-career-board' ); ?></span>
 					</a>
 					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="user-plus"></i>
@@ -696,7 +696,7 @@ class Admin {
 		<?php if ( ! SetupWizard::is_setup_complete() ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="settings"></i>
-						<span><?php esc_html_e( 'Setup Wizard', 'wp-career-board' ); ?></span>
+						<span><?php esc_html_e( 'Setup wizard', 'wp-career-board' ); ?></span>
 					</a>
 		<?php endif; ?>
 				</div>
@@ -859,12 +859,11 @@ class Admin {
 				'wcbIndustries',
 				array(
 					'i18n' => array(
-						/* translators: %d: number of companies using this industry. */
-						'used'        => __( '%d companies', 'wp-career-board' ),
-						'usedOne'     => __( '1 company', 'wp-career-board' ),
+						/* translators: %d: number of companies using this industry. Label form, so one string fits every count. */
+						'used'        => __( 'Companies: %d', 'wp-career-board' ),
 						'unused'      => __( 'not in use', 'wp-career-board' ),
 						'remove'      => __( 'Remove', 'wp-career-board' ),
-						/* translators: %s: industry name. */
+						/* translators: %s: name of the item being removed (an industry or a category). */
 						'removeAria'  => __( 'Remove %s', 'wp-career-board' ),
 						'keep'        => __( 'Keep', 'wp-career-board' ),
 						'settle'      => __( 'Move those companies to:', 'wp-career-board' ),
@@ -921,7 +920,7 @@ class Admin {
 				'wcb-application-detail',
 				'wcbAppDetail',
 				array(
-					'savedLabel' => __( 'Saved.', 'wp-career-board' ),
+					'savedLabel' => __( 'Saved', 'wp-career-board' ),
 					'errorLabel' => __( 'Could not save.', 'wp-career-board' ),
 					'labels'     => \WCB\Modules\Applications\Widgets\StatusTimeline::status_labels(),
 				)

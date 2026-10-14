@@ -18,7 +18,7 @@ bug_ref: Basecamp 9871740742
    - Job B has `_wcb_apply_url = https://payflow.test/careers/apply`, no apply email.
 2. As `wcbp_p5_candidate`, navigate to `/jobs/<job-a-slug>/?autologin=wcbp_p5_candidate` → expect HTTP 200.
 3. Inspect the Job Details sidebar → expect a row labelled **Apply Email** with text `careers@payflow.test` and an `href` starting with `mailto:careers@payflow.test?subject=`.
-4. Confirm the hero CTA renders the panel-opening **Apply Now** button (not an external link) → `document.querySelector('.wcb-apply-trigger')` must exist and `document.querySelector('.wcb-apply-external')` must be absent.
+4. Confirm the hero CTA renders the panel-opening **Apply now** button (not an external link) → `document.querySelector('.wcb-apply-trigger')` must exist and `document.querySelector('.wcb-apply-external')` must be absent.
 5. Navigate to `/jobs/<job-b-slug>/?autologin=wcbp_p5_candidate` → expect HTTP 200.
 6. Inspect the Job Details sidebar → expect a row labelled **Apply Via** with the host `payflow.test ↗`.
 7. Confirm both Apply CTAs (hero + sidebar) are external links with `target="_blank"` and `rel="noopener noreferrer nofollow"` pointing at `https://payflow.test/careers/apply` → `document.querySelectorAll('.wcb-apply-external').length === 2`.

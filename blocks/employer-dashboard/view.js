@@ -186,12 +186,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				jobs:         t( 'myJobs', 'My Jobs' ),
 				applications: t( 'applications', 'Applications' ),
 				company:      t( 'profile', 'Profile' ),
-				'post-job':   t( 'postAJob', 'Post a Job' ),
+				'post-job':   t( 'postAJob', 'Post a job' ),
 				// Every tab names itself in the phone menu button (was 'Dashboard').
 				companies:         t( 'tabCompanies', 'Companies' ),
-				'saved-jobs':      t( 'tabSavedJobs', 'Saved Jobs' ),
-				'saved-companies': t( 'tabSavedCompanies', 'Saved Companies' ),
-				'saved-resumes':   t( 'tabSavedResumes', 'Saved Resumes' ),
+				'saved-jobs':      t( 'tabSavedJobs', 'Saved jobs' ),
+				'saved-companies': t( 'tabSavedCompanies', 'Saved companies' ),
+				'saved-resumes':   t( 'tabSavedResumes', 'Saved resumes' ),
 				settings:          t( 'tabSettings', 'Settings' ),
 				notifications:     t( 'tabNotifications', 'Notifications' ),
 				credits:           t( 'tabCredits', 'Credits' ),
@@ -1621,7 +1621,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield window.wcbConfirm( {
 					title:       t( 'confirmFeatureTitle', 'Feature this job?' ),
-					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. This uses %s credits from your balance.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
+					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. Credits this uses from your balance: %s.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
 					confirmText: t( 'confirmFeatureConfirm', 'Feature job' ),
 				} );
 			} catch ( cancelled ) {

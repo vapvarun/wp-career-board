@@ -4,7 +4,7 @@ You can shape the lists employers pick from and candidates filter by. Career Boa
 
 | List | Menu item | Can have parents |
 |---|---|---|
-| Categories | **Job Categories** | Yes |
+| Categories | **Job categories** | Yes |
 | Job types | **Job Types** | No |
 | Locations | **Job Locations** | Yes |
 | Experience levels | **Experience Levels** | No |

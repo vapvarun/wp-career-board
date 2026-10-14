@@ -26,7 +26,7 @@ REST never leaks `apply_email`.
 2. Assert the public job REST does not leak the recruiter inbox: `GET /wp-json/wcb/v1/jobs/<id>` → expect HTTP
    200 and the response body must NOT contain a non-empty `apply_email` (F-1). Repeat against the list
    `GET /wp-json/wcb/v1/jobs?per_page=5` → no `jobs[]` entry may expose `apply_email`.
-3. Click "Apply Now" `button.wcb-apply-trigger` (`data-wp-on--click="actions.openPanel"`) → expect the slide-in
+3. Click "Apply now" `button.wcb-apply-trigger` (`data-wp-on--click="actions.openPanel"`) → expect the slide-in
    panel `.wcb-apply-panel[role="dialog"]` to open (`.wcb-open`), showing guest fields `#wcb-guest-name` +
    `#wcb-guest-email` because the visitor is not logged in
    (`blocks/job-single/render.php:406-413,882-908`).
@@ -42,7 +42,7 @@ REST never leaks `apply_email`.
    `POST /wcb/v1/jobs/(?P<id>\d+)/apply`, `permission_callback` returns true for `! is_user_logged_in()`
    (`:39-47,117-124`).
 6. Back in the browser, after the guest submit resolves → expect the panel to close and the applied badge
-   `.wcb-applied-badge` ("Application Submitted") to show via `state.submitted`
+   `.wcb-applied-badge` ("Application submitted") to show via `state.submitted`
    (`blocks/job-single/render.php:414-416`; `view.js:311-312`).
 7. Verify the guest application persisted: `wp post get <application_id> --field=post_type` = `wcb_application`;
    `wp post meta get <application_id> _wcb_candidate_id` = `0` (guest, no user account);
@@ -59,7 +59,7 @@ REST never leaks `apply_email`.
     resume_file or resume_id) → expect HTTP 200, `{ id, job_id, status: "submitted" }`; verify persistence:
     `wp post meta get <id> _wcb_candidate_id` = sarah's user ID, `_wcb_status` = `submitted`
     (`class-applications-endpoint.php:245-319`).
-11. As `sarah.chen` re-open the same job → expect "Apply Now" replaced by the `.wcb-applied-badge` because the
+11. As `sarah.chen` re-open the same job → expect "Apply now" replaced by the `.wcb-applied-badge` because the
     already-applied check finds her `wcb_application` (`blocks/job-single/render.php:164-187,414-416`).
 12. **Routing variant — Apply Email (Basecamp 9871740742).** Seed a job with
     `_wcb_apply_email = careers@payflow.test` (no apply URL) and open it as `sarah.chen` → expect a Job Details

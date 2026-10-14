@@ -95,7 +95,7 @@ class AdminCompanies extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-companies">
-				<?php $this->render_search_box( 'wcb-company', __( 'Search Companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
+				<?php $this->render_search_box( 'wcb-company', __( 'Search companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -115,7 +115,7 @@ class AdminCompanies extends \WP_List_Table {
 	public function get_columns(): array {
 		return array(
 			'cb'          => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all companies', 'wp-career-board' ) ),
-			'title'       => __( 'Company Name', 'wp-career-board' ),
+			'title'       => __( 'Company name', 'wp-career-board' ),
 			'employer'    => __( 'Employer', 'wp-career-board' ),
 			'website'     => __( 'Website', 'wp-career-board' ),
 			'jobs'        => __( 'Active Jobs', 'wp-career-board' ),
@@ -340,7 +340,7 @@ class AdminCompanies extends \WP_List_Table {
 			<p class="wcb-empty-state__title"><?php esc_html_e( 'No companies yet', 'wp-career-board' ); ?></p>
 			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Company profiles are created when employers complete their profile on the employer dashboard.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="wcb-btn wcb-btn--primary">
-				<?php esc_html_e( 'Add Company', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Add company', 'wp-career-board' ); ?>
 			</a>
 		</div>
 		<?php

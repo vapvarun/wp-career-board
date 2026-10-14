@@ -44,7 +44,7 @@ final class BoardsModule {
 			array(
 				'labels'                => array(
 					'name'          => __( 'Job Boards', 'wp-career-board' ),
-					'singular_name' => __( 'Job Board', 'wp-career-board' ),
+					'singular_name' => __( 'Job board', 'wp-career-board' ),
 					'add_new_item'  => __( 'Add New Board', 'wp-career-board' ),
 					'edit_item'     => __( 'Edit Board', 'wp-career-board' ),
 				),

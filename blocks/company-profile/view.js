@@ -50,7 +50,7 @@ const { state } = store( 'wcb-company-profile', {
 				}
 			} catch {
 				state.bookmarked    = wasBookmarked;
-				state.bookmarkLabel = t( 'saveFailed', 'Could not save' );
+				state.bookmarkLabel = t( 'saveFailed', 'Could not save.' );
 				setTimeout( () => {
 					state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
 				}, 3000 );

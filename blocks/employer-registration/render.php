@@ -184,7 +184,7 @@ wp_interactivity_state(
 				<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
 			</p>
 			<?php endif; ?>
-			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
+			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to…', 'wp-career-board' ); ?></p>
 			<div class="wcb-role-options">
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
 					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
@@ -277,7 +277,7 @@ wp_interactivity_state(
 				<?php endif; ?>
 
 				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
-					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
+					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company name', 'wp-career-board' ); ?></label>
 					<input
 						id="wcb-reg-company"
 						type="text"
@@ -306,7 +306,7 @@ wp_interactivity_state(
 						</select>
 					</div>
 					<div class="wcb-field-group wcb-field-half">
-						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
+						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></label>
 						<select id="wcb-reg-size" class="wcb-field-input"
 							data-wp-bind--value="state.companySize" data-wp-on--change="actions.updateField" data-wcb-field="companySize">
 							<option value=""><?php esc_html_e( 'Select…', 'wp-career-board' ); ?></option>

@@ -36,7 +36,7 @@ bug_ref: D.company-tagline-missing, 10389520146
 8. Click "Edit" row action on "Brightwater Analytics Ltd" → expect the company edit screen loads with post title pre-populated
 9. **Bulk trash redirects cleanly (1.8.1, Basecamp 10389520146).** Create two fixture companies (`wp post create --post_type=wcb_company --post_title='Cobalt Harbor Studio' --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --porcelain`, same for B). The Companies screen is `$WCB_SITE/wp-admin/admin.php?page=wcb-companies` (the `edit.php?post_type=wcb_company` URL used in steps 1-8 is the CPT screen; the plugin list table lives on the `page=wcb-companies` URL). Tick both rows, choose bulk action **Move to Trash**, Apply → the browser lands back on `admin.php?page=wcb-companies` with no "headers already sent" warning on screen or in debug.log; both fixtures are `trash` (`wp post get <id> --field=post_status`). `AdminCompanies::process_bulk_action()` now runs on `load-{page}` (registered in `Admin::register_menu`).
 10. Negative - bulk action with a bad nonce: submit the same request with `_wpnonce=bad` → the list renders, both companies keep their status.
-11. The search box on this screen is the shared `SearchBox` trait: `#wcb-company-search-input` has placeholder "Company name…" and exactly one screen-reader label "Search Companies" (no duplicate `<label>`s). Search `Brightwater` → matching rows only.
+11. The search box on this screen is the shared `SearchBox` trait: `#wcb-company-search-input` has placeholder "Company name…" and exactly one screen-reader label "Search companies" (no duplicate `<label>`s). Search `Brightwater` → matching rows only.
 12. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

@@ -13,8 +13,8 @@ The job form is a 4-step wizard.
 ### Step 1 - Job Basics
 
 - **Post to Board** - shown only when the site has more than one board.
-- **Job Title** - the position name (required).
-- **Job Description** - the role, responsibilities and requirements (required). When the site has AI description tools, a **Generate with AI** button appears here.
+- **Job title** - the position name (required).
+- **Job description** - the role, responsibilities and requirements (required). When the site has AI description tools, a **Generate with AI** button appears here.
 
 ### Step 2 - Job Details
 
@@ -27,7 +27,7 @@ The job form is a 4-step wizard.
 ### Step 3 - Classify Your Job
 
 - **Category** - the industry or function.
-- **Job Type** and **Experience Level** - pick from the lists your site offers.
+- **Job type** and **Experience Level** - pick from the lists your site offers.
 - **Location** - pick a location, or choose **Other (enter manually)**. When the site requires a location (the default on new sites), a job needs a location or the Remote option before you can post it.
 - **Skills / Tags** - comma-separated. They help candidates find your job by keyword.
 

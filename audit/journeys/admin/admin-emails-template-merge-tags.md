@@ -15,7 +15,7 @@ bug_ref: Basecamp 9895205013
 ## Steps
 
 1. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=wcb-emails&autologin=1` → expect HTTP 200, emails list renders with at least one registered email template
-2. Inspect the page for known email keys from the settings manifest (`wcb_settings.emails`): expect at least one template (e.g. "Application Received" or "Job Approved") is listed
+2. Inspect the page for known email keys from the settings manifest (`wcb_settings.emails`): expect at least one template (e.g. "Application received" or "Job approved") is listed
 3. Navigate to the edit screen for one template (click its edit link or navigate to the email settings tab) → expect the template edit form renders with a `subject` field and a `body` or `message` field
 4. Record the current subject: capture the current subject line text
 5. Update the subject to include a merge tag: edit the subject field to `Application received - {{candidate_name}}` (or the plugin's documented merge-tag syntax) → save → expect HTTP 200 or 302 (no error flash)

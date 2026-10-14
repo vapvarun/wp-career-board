@@ -368,9 +368,9 @@ wp_interactivity_state(
 		// renders must therefore be translated server-side and seeded here. view.js reads
 		// them only through its t( key, fallback ) helper.
 		'i18n'                 => array(
-			'bookmarkFailed'       => __( 'Could not save', 'wp-career-board' ),
+			'bookmarkFailed'       => __( 'Could not save.', 'wp-career-board' ),
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
-			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
+			'bookmarkSave'         => __( 'Save job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
 			'resumeRequiredError'  => __( 'Please attach your resume to apply.', 'wp-career-board' ),
 			'applicationFailed'    => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
@@ -506,10 +506,10 @@ wp_interactivity_state(
 						data-wp-on--click="actions.openPanel"
 						data-wp-class--wcb-hidden="state.submitted"
 					>
-					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Apply now', 'wp-career-board' ); ?>
 					</button>
 					<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
-					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
 				<?php if ( ! $wcb_apply_external && is_user_logged_in() && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
@@ -544,11 +544,11 @@ wp_interactivity_state(
 					data-wp-class--wcb-bookmarked="state.bookmarked"
 					data-wp-bind--disabled="state.bookmarking"
 					data-wp-bind--aria-label="state.bookmarkLabel"
-					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save Job', 'wp-career-board' ) ); ?>"
+					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save job', 'wp-career-board' ) ); ?>"
 					title="<?php esc_attr_e( 'Save this job', 'wp-career-board' ); ?>"
 				>
 					<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save Job', 'wp-career-board' ) ); ?></span>
+					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save job', 'wp-career-board' ) ); ?></span>
 				</button>
 			<?php endif; ?>
 		</div>
@@ -652,7 +652,7 @@ wp_interactivity_state(
 
 			<?php if ( ! empty( $wcb_categories ) ) : ?>
 				<div class="wcb-detail-section">
-					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job Categories', 'wp-career-board' ); ?></h3>
+					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job categories', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_categories as $wcb_cat ) : ?>
 							<a href="<?php echo esc_url( (string) get_term_link( $wcb_cat ) ); ?>" class="wcb-tag">
@@ -705,7 +705,7 @@ wp_interactivity_state(
 				<dl class="wcb-detail-list">
 					<?php if ( $wcb_type ) : ?>
 						<div class="wcb-detail-row">
-							<dt><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></dt>
+							<dt><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></dt>
 							<dd><?php echo esc_html( $wcb_type ); ?></dd>
 						</div>
 					<?php endif; ?>
@@ -740,7 +740,7 @@ wp_interactivity_state(
 
 					<?php if ( $wcb_deadline_formatted ) : ?>
 						<div class="wcb-detail-row">
-							<dt><?php esc_html_e( 'Apply By', 'wp-career-board' ); ?></dt>
+							<dt><?php esc_html_e( 'Apply by', 'wp-career-board' ); ?></dt>
 							<dd><?php echo esc_html( $wcb_deadline_formatted ); ?></dd>
 						</div>
 					<?php endif; ?>
@@ -809,10 +809,10 @@ wp_interactivity_state(
 							data-wp-on--click="actions.openPanel"
 							data-wp-class--wcb-hidden="state.submitted"
 						>
-						<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Apply now', 'wp-career-board' ); ?>
 						</button>
 						<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
-						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application submitted', 'wp-career-board' ); ?>
 						</p>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -877,7 +877,7 @@ wp_interactivity_state(
 				<div class="wcb-sidebar-card wcb-company-card">
 					<h3 class="wcb-card-title">
 						<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'About the company', 'wp-career-board' ); ?>
 					</h3>
 					<div class="wcb-company-card-header">
 						<div class="wcb-avatar wcb-avatar--sm<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
@@ -1156,7 +1156,7 @@ wp_interactivity_state(
 
 				<div class="wcb-cover-letter-head">
 					<label class="wcb-field-label" for="wcb-cover-letter">
-		<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>
+		<?php esc_html_e( 'Cover letter', 'wp-career-board' ); ?>
 						<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
 					</label>
 					<button

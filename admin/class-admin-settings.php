@@ -420,7 +420,7 @@ class AdminSettings {
 			'credits'       => array( 'label' => __( 'Credits', 'wp-career-board' ) ),
 			'field-builder' => array( 'label' => __( 'Field Builder', 'wp-career-board' ) ),
 			'ai-settings'   => array( 'label' => __( 'AI Settings', 'wp-career-board' ) ),
-			'job-feed'      => array( 'label' => __( 'Job Feed', 'wp-career-board' ) ),
+			'job-feed'      => array( 'label' => __( 'Job feed', 'wp-career-board' ) ),
 			'boards'        => array( 'label' => __( 'Boards', 'wp-career-board' ) ),
 		);
 	}
@@ -829,7 +829,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -889,7 +889,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -966,7 +966,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1028,7 +1028,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1077,7 +1077,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+		<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1119,7 +1119,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-								<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 					</div>
@@ -1159,7 +1159,7 @@ class AdminSettings {
 								</div>
 							</div>
 							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+		<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 							</div>
 						</form>
 		<?php
@@ -1385,7 +1385,7 @@ class AdminSettings {
 		</div>
 
 		<div class="wcb-settings-section__footer">
-			<?php submit_button( __( 'Save Changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+			<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
 		</div>
 		</form>
 		<?php

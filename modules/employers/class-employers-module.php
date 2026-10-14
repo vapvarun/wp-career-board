@@ -452,7 +452,7 @@ final class EmployersModule {
 					'singular_name'      => __( 'Company', 'wp-career-board' ),
 					'add_new_item'       => __( 'Add New Company', 'wp-career-board' ),
 					'edit_item'          => __( 'Edit Company', 'wp-career-board' ),
-					'view_item'          => __( 'View Company', 'wp-career-board' ),
+					'view_item'          => __( 'View company', 'wp-career-board' ),
 					'not_found'          => __( 'No companies found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No companies found in Trash.', 'wp-career-board' ),
 				),
@@ -575,7 +575,7 @@ final class EmployersModule {
 				'applications' => $n_apps,
 				'stats'        => sprintf(
 					/* translators: 1: the open jobs count, 2: the applications count (each already a phrase). */
-					__( '%1$s · %2$s', 'wp-career-board' ),
+					_x( '%1$s · %2$s', 'company card stats', 'wp-career-board' ),
 					/* translators: %s: number of open jobs, already localised. */
 					sprintf( _n( '%s open job', '%s open jobs', $n_open, 'wp-career-board' ), number_format_i18n( $n_open ) ),
 					/* translators: %s: number of applications, already localised. */

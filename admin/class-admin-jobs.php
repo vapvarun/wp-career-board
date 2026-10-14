@@ -83,7 +83,7 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
-				<?php $this->render_search_box( 'wcb-job', __( 'Search Jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
+				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -348,7 +348,7 @@ class AdminJobs extends \WP_List_Table {
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="briefcase" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs found', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs found.', 'wp-career-board' ); ?></p>
 			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add New Job', 'wp-career-board' ); ?>

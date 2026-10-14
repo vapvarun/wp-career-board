@@ -5,7 +5,7 @@ You can apply to a job with just your name, email and a resume, without creating
 ## Submit an application
 
 1. Open a job page.
-2. Click **Apply Now**.
+2. Click **Apply now**.
 3. Enter **Your Name** and **Your Email**.
 4. Click **Click to upload resume** and choose a PDF, DOC or DOCX file. The default size limit is 5 MB, and the site owner can raise it up to 20 MB.
 5. Optional: write a cover letter.

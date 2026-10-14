@@ -69,7 +69,7 @@ With WP Career Board Pro you can define your own hiring stages, for example Scre
 
 ## Read the resume
 
-The detail panel shows the applicant's cover letter and their answers to your screening questions. When the applicant attached a resume, it shows **View Resume** and **Download Resume** links. Resume files are private: only the candidate, site staff and the employer the candidate applied to can open them.
+The detail panel shows the applicant's cover letter and their answers to your screening questions. When the applicant attached a resume, it shows **View resume** and **Download Resume** links. Resume files are private: only the candidate, site staff and the employer the candidate applied to can open them.
 
 ## Contact applicants
 

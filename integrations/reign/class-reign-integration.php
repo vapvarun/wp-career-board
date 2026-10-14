@@ -93,7 +93,7 @@ class ReignIntegration {
 	public function add_nav_items( array $items ): array {
 		$jobs_url = \WCB\Admin\Pages::url( 'jobs_archive_page' );
 		$items[]  = array(
-			'label' => __( 'Browse Jobs', 'wp-career-board' ),
+			'label' => __( 'Browse jobs', 'wp-career-board' ),
 			'url'   => '' !== $jobs_url ? $jobs_url : (string) get_post_type_archive_link( 'wcb_job' ),
 			'icon'  => 'dashicons-portfolio',
 		);
@@ -101,7 +101,7 @@ class ReignIntegration {
 		$employer_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
 		if ( '' !== $employer_url && wp_is_ability_granted( 'wcb/post-jobs' ) ) {
 			$items[] = array(
-				'label' => __( 'Employer Dashboard', 'wp-career-board' ),
+				'label' => __( 'Employer dashboard', 'wp-career-board' ),
 				'url'   => $employer_url,
 				'icon'  => 'dashicons-building',
 			);

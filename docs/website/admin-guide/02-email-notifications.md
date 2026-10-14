@@ -10,7 +10,7 @@ Free sends these emails. Each one can be switched off and edited under **Career 
 |---|---|---|
 | **New Job Pending Review** | Admin | An employer submits a job that needs approval |
 | **Report Received** | Admin | A job or member is reported for the first time, and when reports hide a job |
-| **Job Approved** | Employer | A moderator approves a pending job |
+| **Job approved** | Employer | A moderator approves a pending job |
 | **Job Rejected** | Employer | A moderator rejects a pending job |
 | **Job Ending Soon (Employer)** | Employer | 3 days before a job's deadline, once per deadline, with a link to extend it |
 | **Job Expired** | Employer | A job passes its deadline (only jobs that ended in the last 7 days, so turning expiry on for an old site does not email a backlog) |

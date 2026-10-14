@@ -287,7 +287,7 @@ class WpjmImporter {
 			} elseif ( 'skipped' === $r ) {
 				++$result['skipped'];
 			} else {
-				$result['errors'][] = sprintf( 'ID %d: %s', $source_id, $r );
+				$result['errors'][] = sprintf( /* translators: 1: source post ID, 2: reason it was skipped. */ __( 'ID %1$d: %2$s', 'wp-career-board' ), $source_id, $r );
 			}
 		}
 
@@ -320,7 +320,7 @@ class WpjmImporter {
 
 		$source = get_post( $source_id );
 		if ( ! $source ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 
 		$new_id = wp_insert_post(
@@ -516,7 +516,7 @@ class WpjmImporter {
 			} elseif ( 'skipped' === $r ) {
 				++$result['skipped'];
 			} else {
-				$result['errors'][] = sprintf( 'ID %d: %s', $source_id, $r );
+				$result['errors'][] = sprintf( /* translators: 1: source post ID, 2: reason it was skipped. */ __( 'ID %1$d: %2$s', 'wp-career-board' ), $source_id, $r );
 			}
 		}
 
@@ -556,7 +556,7 @@ class WpjmImporter {
 
 		$source = get_post( $source_id );
 		if ( ! $source ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 
 		$new_id = wp_insert_post(
@@ -734,7 +734,7 @@ class WpjmImporter {
 		}
 		$source = get_post( $source_id );
 		if ( ! $source instanceof \WP_Post ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 		$job = get_posts(
 			array(

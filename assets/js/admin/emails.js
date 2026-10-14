@@ -158,16 +158,16 @@
 		var label;
 		if ( status === 'sent' ) {
 			pill  = 'sent';
-			label = i18n.statusSent || 'sent';
+			label = i18n.statusSent || 'Sent';
 		} else if ( status === 'failed' ) {
 			pill  = 'failed';
-			label = i18n.statusFailed || 'failed';
+			label = i18n.statusFailed || 'Failed';
 		} else if ( status === 'sent_test' ) {
 			pill  = 'sent';
-			label = i18n.statusSentTest || 'sent (test)';
+			label = i18n.statusSentTest || 'Sent (test)';
 		} else if ( status === 'failed_test' ) {
 			pill  = 'failed';
-			label = i18n.statusFailedTest || 'failed (test)';
+			label = i18n.statusFailedTest || 'Failed (test)';
 		} else {
 			pill  = 'unknown';
 			label = status;
@@ -263,7 +263,7 @@
 					tbody.removeChild( tbody.firstChild );
 				}
 				if ( ! data || ! data.items || data.items.length === 0 ) {
-					setBodyMessage( i18n.empty || 'No emails logged.' );
+					setBodyMessage( i18n.empty || 'No emails logged for the current filters.' );
 				} else {
 					data.items.forEach( function ( row ) { tbody.appendChild( makeRow( row ) ); } );
 				}

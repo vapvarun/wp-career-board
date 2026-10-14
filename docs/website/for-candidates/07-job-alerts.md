@@ -31,7 +31,7 @@ Open **Candidate Dashboard > Job Alerts**. Each alert shows its keyword and filt
 - Change the frequency in the drop-down.
 - Click **Delete** to remove the alert.
 
-The tab shows how many alerts you have, and your **Overview** has a **Job Alerts** card that opens the tab.
+The tab shows how many alerts you have, and your **Overview** has a **Job alerts** card that opens the tab.
 
 Each person can keep a limited number of alerts. The site owner sets the limit under **Career Board > Settings > Job Alerts**, and the default is 10.
 

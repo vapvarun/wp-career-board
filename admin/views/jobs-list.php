@@ -98,7 +98,7 @@ defined( 'ABSPATH' ) || exit;
 	<?php else : ?>
 		<p>
 			<?php esc_html_e( 'No published jobs yet.', 'wp-career-board' ); ?>
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>"><?php esc_html_e( 'Add your first job.', 'wp-career-board' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>"><?php esc_html_e( 'Add your first job', 'wp-career-board' ); ?></a>
 		</p>
 	<?php endif; ?>
 </div>

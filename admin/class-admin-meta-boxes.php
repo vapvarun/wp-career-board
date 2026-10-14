@@ -115,7 +115,7 @@ class AdminMetaBoxes {
 
 		add_meta_box(
 			'wcb-job-rejection',
-			__( 'Rejection Reason', 'wp-career-board' ),
+			__( 'Rejection reason', 'wp-career-board' ),
 			array( $this, 'render_job_rejection_box' ),
 			'wcb_job',
 			'side',
@@ -415,7 +415,7 @@ class AdminMetaBoxes {
 		$wcb_industries = \WCB\Core\Industries::all();
 
 		$wcb_sizes = array(
-			''          => __( ' -  Select Size  - ', 'wp-career-board' ),
+			''          => __( ' -  Select size  - ', 'wp-career-board' ),
 			'1-10'      => __( '1-10 employees', 'wp-career-board' ),
 			'11-50'     => __( '11-50 employees', 'wp-career-board' ),
 			'51-200'    => __( '51-200 employees', 'wp-career-board' ),
@@ -425,7 +425,7 @@ class AdminMetaBoxes {
 			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 
-		$wcb_types = array( '' => __( ' -  Select Type  - ', 'wp-career-board' ) ) + \WCB\Core\CompanyMetaShape::types();
+		$wcb_types = array( '' => __( ' -  Select type  - ', 'wp-career-board' ) ) + \WCB\Core\CompanyMetaShape::types();
 		?>
 		<div class="wcb-company-meta-grid">
 			<div class="wcb-meta-full">
@@ -486,7 +486,7 @@ class AdminMetaBoxes {
 			</div>
 
 			<div class="wcb-meta-row">
-				<label for="wcb_company_size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
+				<label for="wcb_company_size"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></label>
 				<select id="wcb_company_size" name="wcb_company_size">
 					<?php foreach ( $wcb_sizes as $wcb_val => $wcb_label ) : ?>
 						<option value="<?php echo esc_attr( $wcb_val ); ?>" <?php selected( $wcb_company_size, $wcb_val ); ?>>

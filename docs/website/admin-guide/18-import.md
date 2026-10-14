@@ -58,7 +58,7 @@ Command line: `wp wcb migrate wpjm-resumes [--dry-run]`.
 
 1. Open **Career Board > Jobs** and check the statuses and key fields.
 2. Open **Career Board > Settings > Pages** and confirm the page assignments.
-3. Go to **Settings > Permalinks** in WordPress and click **Save Changes**.
+3. Go to **Settings > Permalinks** in WordPress and click **Save changes**.
 4. Review categories and job types under **Career Board > Job Categories** and **Job Types**.
 
 ## Limits

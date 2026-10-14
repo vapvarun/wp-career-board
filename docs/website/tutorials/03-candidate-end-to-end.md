@@ -7,14 +7,14 @@ You can find a job, apply, track your application and, if things change, withdra
 You do not need an account to look around.
 
 1. Open the Find Jobs page, usually at `/find-jobs/`.
-2. Search by keyword, and narrow the results with the filters: **Category**, **Job Type**, **Location**, **Experience**, **Min salary**, **Max salary** and **Remote only**. The salary filters match the salary numbers employers entered, so compare jobs that use the same pay period and currency.
+2. Search by keyword, and narrow the results with the filters: **Category**, **Job type**, **Location**, **Experience**, **Min salary**, **Max salary** and **Remote only**. The salary filters match the salary numbers employers entered, so compare jobs that use the same pay period and currency.
 3. Open a few listings and a few company profiles to see what the board offers.
 
 ## Step 2 - Create an account
 
 Visitors can apply without an account. The apply form asks guests for a name and email. An account lets you track applications, save jobs and manage your details, so it is worth creating one.
 
-1. Open the Candidate Dashboard while logged out and click **Sign In**, or click **Create an account** if it is shown.
+1. Open the Candidate Dashboard while logged out and click **Sign in**, or click **Create an account** if it is shown.
 2. On the sign-up page, choose **Find a Job**, then enter your details. If the page says registration is closed, the site owner has turned off sign-ups.
 3. If the site asks you to confirm your email, open the link in your inbox, then sign in.
 
@@ -27,7 +27,7 @@ Open **Candidate Dashboard > Account > Profile** and fill in:
 - **Email**
 - **Phone**
 - **Location**
-- **Bio / About Me**
+- **Bio / About me**
 
 Click **Save Profile**. To change your display name, email or password, open **Account > Settings**. Changing your email needs your current password.
 
@@ -63,12 +63,12 @@ A moderator reviews reported jobs and either dismisses the report or unpublishes
 
 ## Step 7 - Apply
 
-1. Open the job and click **Apply Now**. If the employer set an external application link, the button reads **Apply on Company Site** and takes you to the employer's own page.
+1. Open the job and click **Apply now**. If the employer set an external application link, the button reads **Apply on Company Site** and takes you to the employer's own page.
 2. If you are not signed in, enter your name and email.
 3. Upload your resume file. You can also write a cover letter, which is optional.
 4. Click **Submit Application**.
 
-You receive an **Application submitted successfully** email. The button on the job page changes to **Application Submitted**, and the application appears under **Candidate Dashboard > My Activity > My Applications**.
+You receive an **Application submitted successfully** email. The button on the job page changes to **Application submitted**, and the application appears under **Candidate Dashboard > My Activity > My Applications**.
 
 A good cover letter names the role, gives one or two concrete examples of your background that match it, and mentions practical points such as notice period or location.
 

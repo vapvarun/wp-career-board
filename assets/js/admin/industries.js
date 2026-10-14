@@ -45,7 +45,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	function countText( count ) {
 		if ( ! count ) { return i18n.unused; }
-		if ( 1 === count ) { return i18n.usedOne; }
 		return i18n.used.replace( '%d', String( count ) );
 	}
 

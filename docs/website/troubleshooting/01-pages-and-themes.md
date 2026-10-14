@@ -26,7 +26,7 @@ Find your symptom below. Each entry gives the cause and the fix.
 
 ## Pages return 404 after the setup wizard
 
-**Fix.** Go to **Settings > Permalinks** and click **Save Changes** to flush rewrite rules. If a page is blank, edit it and insert the matching block. See [Troubleshooting](../admin-guide/07-troubleshooting.md).
+**Fix.** Go to **Settings > Permalinks** and click **Save changes** to flush rewrite rules. If a page is blank, edit it and insert the matching block. See [Troubleshooting](../admin-guide/07-troubleshooting.md).
 
 ## The missing pages banner will not go away
 
